@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C79971450E7
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A132144FD4
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733073AbgAVJid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:38:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55408 "EHLO mail.kernel.org"
+        id S1732654AbgAVJl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:41:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731745AbgAVJic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:38:32 -0500
+        id S2387430AbgAVJlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 407C02467E;
-        Wed, 22 Jan 2020 09:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFA892467B;
+        Wed, 22 Jan 2020 09:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685911;
-        bh=c+I0YrXZ+ySONA2pY/RlMnaMzzVIzdvUQX6zX+euRoA=;
+        s=default; t=1579686085;
+        bh=FKEdR/JXp9pHm5Szs+22yLYnGjAVtBoILz9tVXODj3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TM4BlJoIVNkYCKXm9GWzN4rLG62b68XO51iE1/X7TzCSjVJqz772fiT3R2p0QUEgx
-         qmbeIXnwyi6Sw4uhXAbLOjD45BRVpt5P8Oh7SUcsYUFjwwFOL45Q5hajJCcFis/k2r
-         MOejKeOttl5VMtNdwErdXMPGst43Y7LOKNdVIHvU=
+        b=XsPycQ+Dh9THaguFle/ExIFsXWyMRreDkF6+wZhjMx/FTIwFCx6V8NDG/fTGkrNJC
+         n8h8k4mF4loHD37i7GbRPtp8z5TwWtaxITRe5AGsUJY+uW6fJ/RC1CESNtbDIzoMRC
+         VbUknUwsxvk0HoK7EdL553w1UmZPvKDgT+dIbt4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 09/65] USB: serial: simple: Add Motorola Solutions TETRA MTP3xxx and MTP85xx
+        stable@vger.kernel.org, Yuya Fujita <fujita.yuya@fujitsu.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 038/103] perf hists: Fix variable names inconsistency in hists__for_each() macro
 Date:   Wed, 22 Jan 2020 10:28:54 +0100
-Message-Id: <20200122092752.571351308@linuxfoundation.org>
+Message-Id: <20200122092809.637885442@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,208 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerónimo Borque <jeronimo@borque.com.ar>
+From: Yuya Fujita <fujita.yuya@fujitsu.com>
 
-commit 260e41ac4dd3e5acb90be624c03ba7f019615b75 upstream.
+commit 55347ec340af401437680fd0e88df6739a967f9f upstream.
 
-Add device-ids for the Motorola Solutions TETRA radios MTP3xxx series
-and MTP85xx series
+Variable names are inconsistent in hists__for_each macro().
 
-$ lsusb -vd 0cad:
+Due to this inconsistency, the macro replaces its second argument with
+"fmt" regardless of its original name.
 
-Bus 001 Device 009: ID 0cad:9015 Motorola CGISS TETRA PEI interface
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0cad Motorola CGISS
-  idProduct          0x9015
-  bcdDevice           24.16
-  iManufacturer           1
-  iProduct                2
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0037
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          3
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
+So far it works because only "fmt" is passed to the second argument.
+However, this behavior is not expected and should be fixed.
 
-Bus 001 Device 010: ID 0cad:9013 Motorola CGISS TETRA PEI interface
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0cad Motorola CGISS
-  idProduct          0x9013
-  bcdDevice           24.16
-  iManufacturer           1
-  iProduct                2
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0037
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          3
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-
-Signed-off-by: Jerónimo Borque <jeronimo@borque.com.ar>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: f0786af536bb ("perf hists: Introduce hists__for_each_format macro")
+Fixes: aa6f50af822a ("perf hists: Introduce hists__for_each_sort_list macro")
+Signed-off-by: Yuya Fujita <fujita.yuya@fujitsu.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/OSAPR01MB1588E1C47AC22043175DE1B2E8520@OSAPR01MB1588.jpnprd01.prod.outlook.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/usb-serial-simple.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/hist.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/usb-serial-simple.c
-+++ b/drivers/usb/serial/usb-serial-simple.c
-@@ -89,6 +89,8 @@ DEVICE(moto_modem, MOTO_IDS);
- #define MOTOROLA_TETRA_IDS()			\
- 	{ USB_DEVICE(0x0cad, 0x9011) },	/* Motorola Solutions TETRA PEI */ \
- 	{ USB_DEVICE(0x0cad, 0x9012) },	/* MTP6550 */ \
-+	{ USB_DEVICE(0x0cad, 0x9013) },	/* MTP3xxx */ \
-+	{ USB_DEVICE(0x0cad, 0x9015) },	/* MTP85xx */ \
- 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
- DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
+--- a/tools/perf/util/hist.h
++++ b/tools/perf/util/hist.h
+@@ -324,10 +324,10 @@ static inline void perf_hpp__prepend_sor
+ 	list_for_each_entry_safe(format, tmp, &(_list)->sorts, sort_list)
+ 
+ #define hists__for_each_format(hists, format) \
+-	perf_hpp_list__for_each_format((hists)->hpp_list, fmt)
++	perf_hpp_list__for_each_format((hists)->hpp_list, format)
+ 
+ #define hists__for_each_sort_list(hists, format) \
+-	perf_hpp_list__for_each_sort_list((hists)->hpp_list, fmt)
++	perf_hpp_list__for_each_sort_list((hists)->hpp_list, format)
+ 
+ extern struct perf_hpp_fmt perf_hpp__format[];
  
 
 
