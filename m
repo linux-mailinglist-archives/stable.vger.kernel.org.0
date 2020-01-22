@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDE7145067
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC4B144F60
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:37:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387817AbgAVJnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:43:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S1731616AbgAVJhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:37:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387810AbgAVJnA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:00 -0500
+        id S1731608AbgAVJhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:37:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 905232467B;
-        Wed, 22 Jan 2020 09:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FD492467E;
+        Wed, 22 Jan 2020 09:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686180;
-        bh=Ixa36PYpa1AbS3yhKx0b+2TirIMqqbfR/UNzFCWU5Jw=;
+        s=default; t=1579685830;
+        bh=W9cz76K6G3A7OXUcQY9ITKI5mon3C73Evum/aVcaGgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUAghn1RnbE5DO4m6JMcrnWl3OnxpiDsjan8r26KAaePx0HIorykT3WLXtDJIYisI
-         m4nuOKFteBoNjxsg4i/UP0M7y9ri3QIQzHHcPP48RC1pVorymSSElrPs6nmEk9UMKL
-         vGl9cLlEKSNjuFTQBc9JV1WCClduiWBeS8FV9Keg=
+        b=Zz+qXVxHiScpCXGZ3Jm/BAlGmZjRAmh34C/S0MlF0ZZy5r0N9Wc3TbRqhrs7Che4o
+         6T+H7hC78AVbsrw/Cq4TXmkmEIppB9R7kxGS1CbVFpuDWmZp4aW4dtx4LzRIJqXEzU
+         qVVyCpNzUZplGMcWj2ziXk7t/DZtB9VArXLtkE0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 077/103] mlxsw: spectrum: Wipe xstats.backlog of down ports
-Date:   Wed, 22 Jan 2020 10:29:33 +0100
-Message-Id: <20200122092814.569278040@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Brunnbauer <brunni@netestate.de>,
+        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 90/97] reiserfs: fix handling of -EOPNOTSUPP in reiserfs_for_each_xattr
+Date:   Wed, 22 Jan 2020 10:29:34 +0100
+Message-Id: <20200122092810.637420476@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Jeff Mahoney <jeffm@suse.com>
 
-commit ca7609ff3680c51d6c29897f3117aa2ad904f92a upstream.
+commit 394440d469413fa9b74f88a11f144d76017221f2 upstream.
 
-Per-port counter cache used by Qdiscs is updated periodically, unless the
-port is down. The fact that the cache is not updated for down ports is no
-problem for most counters, which are relative in nature. However, backlog
-is absolute in nature, and if there is a non-zero value in the cache around
-the time that the port goes down, that value just stays there. This value
-then leaks to offloaded Qdiscs that report non-zero backlog even if
-there (obviously) is no traffic.
+Commit 60e4cf67a58 (reiserfs: fix extended attributes on the root
+directory) introduced a regression open_xa_root started returning
+-EOPNOTSUPP but it was not handled properly in reiserfs_for_each_xattr.
 
-The HW does not keep backlog of a downed port, so do likewise: as the port
-goes down, wipe the backlog value from xstats.
+When the reiserfs module is built without CONFIG_REISERFS_FS_XATTR,
+deleting an inode would result in a warning and chowning an inode
+would also result in a warning and then fail to complete.
 
-Fixes: 075ab8adaf4e ("mlxsw: spectrum: Collect tclass related stats periodically")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With CONFIG_REISERFS_FS_XATTR enabled, the xattr root would always be
+present for read-write operations.
+
+This commit handles -EOPNOSUPP in the same way -ENODATA is handled.
+
+Fixes: 60e4cf67a582 ("reiserfs: fix extended attributes on the root directory")
+CC: stable@vger.kernel.org	# Commit 60e4cf67a58 was picked up by stable
+Link: https://lore.kernel.org/r/20200115180059.6935-1-jeffm@suse.com
+Reported-by: Michael Brunnbauer <brunni@netestate.de>
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/reiserfs/xattr.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -1061,6 +1061,9 @@ static void update_stats_cache(struct wo
- 			     periodic_hw_stats.update_dw.work);
- 
- 	if (!netif_carrier_ok(mlxsw_sp_port->dev))
-+		/* Note: mlxsw_sp_port_down_wipe_counters() clears the cache as
-+		 * necessary when port goes down.
-+		 */
- 		goto out;
- 
- 	mlxsw_sp_port_get_hw_stats(mlxsw_sp_port->dev,
-@@ -3309,6 +3312,15 @@ static int mlxsw_sp_port_unsplit(struct
- 	return 0;
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -318,8 +318,12 @@ static int reiserfs_for_each_xattr(struc
+ out_dir:
+ 	dput(dir);
+ out:
+-	/* -ENODATA isn't an error */
+-	if (err == -ENODATA)
++	/*
++	 * -ENODATA: this object doesn't have any xattrs
++	 * -EOPNOTSUPP: this file system doesn't have xattrs enabled on disk.
++	 * Neither are errors
++	 */
++	if (err == -ENODATA || err == -EOPNOTSUPP)
+ 		err = 0;
+ 	return err;
  }
- 
-+static void
-+mlxsw_sp_port_down_wipe_counters(struct mlxsw_sp_port *mlxsw_sp_port)
-+{
-+	int i;
-+
-+	for (i = 0; i < TC_MAX_QUEUE; i++)
-+		mlxsw_sp_port->periodic_hw_stats.xstats.backlog[i] = 0;
-+}
-+
- static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
- 				     char *pude_pl, void *priv)
- {
-@@ -3329,6 +3341,7 @@ static void mlxsw_sp_pude_event_func(con
- 	} else {
- 		netdev_info(mlxsw_sp_port->dev, "link down\n");
- 		netif_carrier_off(mlxsw_sp_port->dev);
-+		mlxsw_sp_port_down_wipe_counters(mlxsw_sp_port);
- 	}
- }
- 
 
 
