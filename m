@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF39C144FB6
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD471451F3
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387446AbgAVJkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:40:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59268 "EHLO mail.kernel.org"
+        id S1729246AbgAVJah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:30:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732651AbgAVJkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:40:24 -0500
+        id S1729236AbgAVJag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:30:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE18524680;
-        Wed, 22 Jan 2020 09:40:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E15932465B;
+        Wed, 22 Jan 2020 09:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686024;
-        bh=l7BJIh0IT3H57HylY1Uzj1ztmKPjNKu1y6WNTJQsjvk=;
+        s=default; t=1579685436;
+        bh=c0gxPAEd/zpRFcwzNNKQm8bhr5vCEg4u8wtCDuz6ZLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1g5IdRn9ZnXIvHK6PrzDHttqyJbrI/CtSRIYR7GQHgluhEaL2QP9eOQ1TRwYUC0s
-         lb0pJFM/B52fuH+TosHGamxn62fOa6CXvr9nXqOhoHVfO/F9+IWn2sw4otmBhmjlIA
-         zQqgZZ5ob0bWWxqBazasJxttDSyDYSKxq+uUbqFQ=
+        b=UD9GqsROSy9E1F4HVaP5Avijuy+d8TOmGCuN6Pd2NFtmtV9DqLAoEA5Ttf/KRx4ag
+         aypXzLwamft5aFVHK3E/M+m2f6wOo2ZcCw39xawx+qx3X48G5XLyXMoo11L7xg7rl8
+         SQqRV5te7w1cqvYx09l8qsEl9vIi1118QLdxEcPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 013/103] USB: serial: ch341: handle unbound port at reset_resume
-Date:   Wed, 22 Jan 2020 10:28:29 +0100
-Message-Id: <20200122092805.660325409@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.4 14/76] wimax: i2400: Fix memory leak in i2400m_op_rfkill_sw_toggle
+Date:   Wed, 22 Jan 2020 10:28:30 +0100
+Message-Id: <20200122092753.014344276@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 4d5ef53f75c22d28f490bcc5c771fcc610a9afa4 upstream.
+commit 6f3ef5c25cc762687a7341c18cbea5af54461407 upstream.
 
-Check for NULL port data in reset_resume() to avoid dereferencing a NULL
-pointer in case the port device isn't bound to a driver (e.g. after a
-failed control request at port probe).
+In the implementation of i2400m_op_rfkill_sw_toggle() the allocated
+buffer for cmd should be released before returning. The
+documentation for i2400m_msg_to_dev() says when it returns the buffer
+can be reused. Meaning cmd should be released in either case. Move
+kfree(cmd) before return to be reached by all execution paths.
 
-Fixes: 1ded7ea47b88 ("USB: ch341 serial: fix port number changed after resume")
-Cc: stable <stable@vger.kernel.org>     # 2.6.30
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 2507e6ab7a9a ("wimax: i2400: fix memory leak")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/ch341.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wimax/i2400m/op-rfkill.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -589,9 +589,13 @@ static int ch341_tiocmget(struct tty_str
- static int ch341_reset_resume(struct usb_serial *serial)
- {
- 	struct usb_serial_port *port = serial->port[0];
--	struct ch341_private *priv = usb_get_serial_port_data(port);
-+	struct ch341_private *priv;
- 	int ret;
- 
-+	priv = usb_get_serial_port_data(port);
-+	if (!priv)
-+		return 0;
-+
- 	/* reconfigure ch341 serial port after bus-reset */
- 	ch341_configure(serial->dev, priv);
+--- a/drivers/net/wimax/i2400m/op-rfkill.c
++++ b/drivers/net/wimax/i2400m/op-rfkill.c
+@@ -142,12 +142,12 @@ int i2400m_op_rfkill_sw_toggle(struct wi
+ 			"%d\n", result);
+ 	result = 0;
+ error_cmd:
+-	kfree(cmd);
+ 	kfree_skb(ack_skb);
+ error_msg_to_dev:
+ error_alloc:
+ 	d_fnend(4, dev, "(wimax_dev %p state %d) = %d\n",
+ 		wimax_dev, state, result);
++	kfree(cmd);
+ 	return result;
+ }
  
 
 
