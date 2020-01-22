@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B87C1451EC
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D8814517C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729402AbgAVJax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:30:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42552 "EHLO mail.kernel.org"
+        id S1729418AbgAVJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:34:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729396AbgAVJav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:30:51 -0500
+        id S1729833AbgAVJeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:34:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD14A2071E;
-        Wed, 22 Jan 2020 09:30:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30FED24680;
+        Wed, 22 Jan 2020 09:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685451;
-        bh=PIHW0L+5AV2n7O6ZFHtFj1XbG8tDtNQgLbILcnw0keI=;
+        s=default; t=1579685645;
+        bh=jgYMrh40B1NE3FzhhtO8edLHzqlzIJkJEvBtjFq4TRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSvSfcYBmF6J/1VC+AxD+tofpyosfeHLV2Y6GB1TxxKW03QydmSw/ZTycVJJheQnP
-         14kvL/So1rZtR8lrmxl+OGEy8Q0qvaeGvsz7bGtf+PFpI+Q/4TSEcHo3ctZGMGNBWp
-         KZVNbgariXeYyzW7ImJnCyPmLJpmfEo2HURq+os0=
+        b=DF83vKx/Wsv75Jh9yGkI1XQp6INbsz69cCUr69CvDVYwYJyDbokJh9IJBSa98VI0m
+         thml2qkFpi9wQFpd89IpunGQHGXsFwnTh6jm6j2TEpyx3pS4MXjCI/lRcsBI9eM+pg
+         mnFQvc3hiYPmca8vB8h3uj5jE4lIWxeQnbe4MCc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/76] HID: hidraw: Fix returning EPOLLOUT from hidraw_poll
+        stable@vger.kernel.org,
+        syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com,
+        Vandana BN <bnvandana@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.9 14/97] media: usb:zr364xx:Fix KASAN:null-ptr-deref Read in zr364xx_vidioc_querycap
 Date:   Wed, 22 Jan 2020 10:28:18 +0100
-Message-Id: <20200122092751.985439544@linuxfoundation.org>
+Message-Id: <20200122092758.179998216@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Vandana BN <bnvandana@gmail.com>
 
-[ Upstream commit 9f3b61dc1dd7b81e99e7ed23776bb64a35f39e1a ]
+commit 5d2e73a5f80a5b5aff3caf1ec6d39b5b3f54b26e upstream.
 
-When polling a connected /dev/hidrawX device, it is useful to get the
-EPOLLOUT when writing is possible. Since writing is possible as soon as
-the device is connected, always return it.
+SyzKaller hit the null pointer deref while reading from uninitialized
+udev->product in zr364xx_vidioc_querycap().
 
-Right now EPOLLOUT is only returned when there are also input reports
-are available. This works if devices start sending reports when
-connected, but some HID devices might need an output report first before
-sending any input reports. This change will allow using EPOLLOUT here as
-well.
+==================================================================
+BUG: KASAN: null-ptr-deref in read_word_at_a_time+0xe/0x20
+include/linux/compiler.h:274
+Read of size 1 at addr 0000000000000000 by task v4l_id/5287
 
-Fixes: 378b80370aa1 ("hidraw: Return EPOLLOUT from hidraw_poll")
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU: 1 PID: 5287 Comm: v4l_id Not tainted 5.1.0-rc3-319004-g43151d6 #6
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xe8/0x16e lib/dump_stack.c:113
+  kasan_report.cold+0x5/0x3c mm/kasan/report.c:321
+  read_word_at_a_time+0xe/0x20 include/linux/compiler.h:274
+  strscpy+0x8a/0x280 lib/string.c:207
+  zr364xx_vidioc_querycap+0xb5/0x210 drivers/media/usb/zr364xx/zr364xx.c:706
+  v4l_querycap+0x12b/0x340 drivers/media/v4l2-core/v4l2-ioctl.c:1062
+  __video_do_ioctl+0x5bb/0xb40 drivers/media/v4l2-core/v4l2-ioctl.c:2874
+  video_usercopy+0x44e/0xf00 drivers/media/v4l2-core/v4l2-ioctl.c:3056
+  v4l2_ioctl+0x14e/0x1a0 drivers/media/v4l2-core/v4l2-dev.c:364
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:509 [inline]
+  do_vfs_ioctl+0xced/0x12f0 fs/ioctl.c:696
+  ksys_ioctl+0xa0/0xc0 fs/ioctl.c:713
+  __do_sys_ioctl fs/ioctl.c:720 [inline]
+  __se_sys_ioctl fs/ioctl.c:718 [inline]
+  __x64_sys_ioctl+0x74/0xb0 fs/ioctl.c:718
+  do_syscall_64+0xcf/0x4f0 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f3b56d8b347
+Code: 90 90 90 48 8b 05 f1 fa 2a 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff
+ff c3 90 90 90 90 90 90 90 90 90 90 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff
+ff 73 01 c3 48 8b 0d c1 fa 2a 00 31 d2 48 29 c2 64
+RSP: 002b:00007ffe005d5d68 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f3b56d8b347
+RDX: 00007ffe005d5d70 RSI: 0000000080685600 RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000400884
+R13: 00007ffe005d5ec0 R14: 0000000000000000 R15: 0000000000000000
+==================================================================
+
+For this device udev->product is not initialized and accessing it causes a NULL pointer deref.
+
+The fix is to check for NULL before strscpy() and copy empty string, if
+product is NULL
+
+Reported-by: syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com
+Signed-off-by: Vandana BN <bnvandana@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+[bwh: Backported to 4.9: This function uses strlcpy() instead of strscpy()]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hidraw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/zr364xx/zr364xx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 27d2f5a48a11..e60d9c88bd35 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -265,10 +265,10 @@ static unsigned int hidraw_poll(struct file *file, poll_table *wait)
+--- a/drivers/media/usb/zr364xx/zr364xx.c
++++ b/drivers/media/usb/zr364xx/zr364xx.c
+@@ -711,7 +711,8 @@ static int zr364xx_vidioc_querycap(struc
+ 	struct zr364xx_camera *cam = video_drvdata(file);
  
- 	poll_wait(file, &list->hidraw->wait, wait);
- 	if (list->head != list->tail)
--		return POLLIN | POLLRDNORM | POLLOUT;
-+		return POLLIN | POLLRDNORM;
- 	if (!list->hidraw->exist)
- 		return POLLERR | POLLHUP;
--	return 0;
-+	return POLLOUT | POLLWRNORM;
- }
- 
- static int hidraw_open(struct inode *inode, struct file *file)
--- 
-2.20.1
-
+ 	strlcpy(cap->driver, DRIVER_DESC, sizeof(cap->driver));
+-	strlcpy(cap->card, cam->udev->product, sizeof(cap->card));
++	if (cam->udev->product)
++		strlcpy(cap->card, cam->udev->product, sizeof(cap->card));
+ 	strlcpy(cap->bus_info, dev_name(&cam->udev->dev),
+ 		sizeof(cap->bus_info));
+ 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
 
 
