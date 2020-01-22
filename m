@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED65F14563E
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6107F1456C0
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730738AbgAVNX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:23:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41742 "EHLO mail.kernel.org"
+        id S1726101AbgAVNaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:30:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730749AbgAVNX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:23:28 -0500
+        id S1730770AbgAVNXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:23:35 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7121A205F4;
-        Wed, 22 Jan 2020 13:23:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC94C205F4;
+        Wed, 22 Jan 2020 13:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699408;
-        bh=8iV/WSxnVwBToM5OZHnGrzIEhzWmi0xOLLnQqDfDNek=;
+        s=default; t=1579699414;
+        bh=2of5CTXKjjGti1kbcPgJ/LjlfCW/6qH5PUVAquhJEno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsEyKoU4VvT530NGtSqDjzLwImDEy8r3xLeaDCPTWZSHJAnII7qTonJB/naS8Dgzv
-         nq+0/1wjAUtDq2644fzRYCcOdx/vJHkHonylC7sprZsE5ynnpjhLqtF1uYaZ1cSMVZ
-         1sLdwzNs2/OWgq87/3S9p4uzST5x+2Y/4b1z4FC4=
+        b=Y8tXoLbjZbBzowbhyOWMhbK9vI+WlYa8v1d5hgO74hC7QJROxX/sbVl7uMxkHbyos
+         6mvOFp+MHFpUpm8zLdSx6Ke1dph/bKpnfGfbSzpDcNHR+oO7s9TF+YOrHVJZ/izm3B
+         jfsQSXXp0UHMwYBcc8OvPmCX3s1fEcWlMq8toGXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.4 135/222] batman-adv: Fix DAT candidate selection on little endian systems
-Date:   Wed, 22 Jan 2020 10:28:41 +0100
-Message-Id: <20200122092843.407940112@linuxfoundation.org>
+        stable@vger.kernel.org, Mohammed Gamal <mgamal@redhat.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 137/222] hv_netvsc: Fix memory leak when removing rndis device
+Date:   Wed, 22 Jan 2020 10:28:43 +0100
+Message-Id: <20200122092843.549078478@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,49 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Mohammed Gamal <mgamal@redhat.com>
 
-commit 4cc4a1708903f404d2ca0dfde30e71e052c6cbc9 upstream.
+[ Upstream commit 536dc5df2808efbefc5acee334d3c4f701790ec0 ]
 
-The distributed arp table is using a DHT to store and retrieve MAC address
-information for an IP address. This is done using unicast messages to
-selected peers. The potential peers are looked up using the IP address and
-the VID.
+kmemleak detects the following memory leak when hot removing
+a network device:
 
-While the IP address is always stored in big endian byte order, this is not
-the case of the VID. It can (depending on the host system) either be big
-endian or little endian. The host must therefore always convert it to big
-endian to ensure that all devices calculate the same peers for the same
-lookup data.
+unreferenced object 0xffff888083f63600 (size 256):
+  comm "kworker/0:1", pid 12, jiffies 4294831717 (age 1113.676s)
+  hex dump (first 32 bytes):
+    00 40 c7 33 80 88 ff ff 00 00 00 00 10 00 00 00  .@.3............
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+  backtrace:
+    [<00000000d4a8f5be>] rndis_filter_device_add+0x117/0x11c0 [hv_netvsc]
+    [<000000009c02d75b>] netvsc_probe+0x5e7/0xbf0 [hv_netvsc]
+    [<00000000ddafce23>] vmbus_probe+0x74/0x170 [hv_vmbus]
+    [<00000000046e64f1>] really_probe+0x22f/0xb50
+    [<000000005cc35eb7>] driver_probe_device+0x25e/0x370
+    [<0000000043c642b2>] bus_for_each_drv+0x11f/0x1b0
+    [<000000005e3d09f0>] __device_attach+0x1c6/0x2f0
+    [<00000000a72c362f>] bus_probe_device+0x1a6/0x260
+    [<0000000008478399>] device_add+0x10a3/0x18e0
+    [<00000000cf07b48c>] vmbus_device_register+0xe7/0x1e0 [hv_vmbus]
+    [<00000000d46cf032>] vmbus_add_channel_work+0x8ab/0x1770 [hv_vmbus]
+    [<000000002c94bb64>] process_one_work+0x919/0x17d0
+    [<0000000096de6781>] worker_thread+0x87/0xb40
+    [<00000000fbe7397e>] kthread+0x333/0x3f0
+    [<000000004f844269>] ret_from_fork+0x3a/0x50
 
-Fixes: be1db4f6615b ("batman-adv: make the Distributed ARP Table vlan aware")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+rndis_filter_device_add() allocates an instance of struct rndis_device
+which never gets deallocated as rndis_filter_device_remove() sets
+net_device->extension which points to the rndis_device struct to NULL,
+leaving the rndis_device dangling.
+
+Since net_device->extension is eventually freed in free_netvsc_device(),
+we refrain from setting it to NULL inside rndis_filter_device_remove()
+
+Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/batman-adv/distributed-arp-table.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/hyperv/rndis_filter.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/batman-adv/distributed-arp-table.c
-+++ b/net/batman-adv/distributed-arp-table.c
-@@ -285,6 +285,7 @@ static u32 batadv_hash_dat(const void *d
- 	u32 hash = 0;
- 	const struct batadv_dat_entry *dat = data;
- 	const unsigned char *key;
-+	__be16 vid;
- 	u32 i;
+--- a/drivers/net/hyperv/rndis_filter.c
++++ b/drivers/net/hyperv/rndis_filter.c
+@@ -1436,8 +1436,6 @@ void rndis_filter_device_remove(struct h
+ 	/* Halt and release the rndis device */
+ 	rndis_filter_halt_device(net_dev, rndis_dev);
  
- 	key = (const unsigned char *)&dat->ip;
-@@ -294,7 +295,8 @@ static u32 batadv_hash_dat(const void *d
- 		hash ^= (hash >> 6);
- 	}
+-	net_dev->extension = NULL;
+-
+ 	netvsc_device_remove(dev);
+ }
  
--	key = (const unsigned char *)&dat->vid;
-+	vid = htons(dat->vid);
-+	key = (__force const unsigned char *)&vid;
- 	for (i = 0; i < sizeof(dat->vid); i++) {
- 		hash += key[i];
- 		hash += (hash << 10);
 
 
