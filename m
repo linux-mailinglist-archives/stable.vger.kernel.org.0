@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 379A0145636
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A81E2145613
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730535AbgAVNWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:22:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39984 "EHLO mail.kernel.org"
+        id S1729396AbgAVNUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:20:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730520AbgAVNWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:22:23 -0500
+        id S1726004AbgAVNU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:20:27 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBC4324688;
-        Wed, 22 Jan 2020 13:22:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 567342071E;
+        Wed, 22 Jan 2020 13:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699342;
-        bh=MAnP2AhfIm6LZWZ1PsAzMs4DYiF5mhiV3PWTnyrUOOU=;
+        s=default; t=1579699226;
+        bh=1wQbaO2zRud0D34T1b+rR687+h1dBr30VUA1s4nyweM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M15oBGCuegSpSf16vNEZ2+IkkaKpMZYmBEZgI+QMb18AyriBAPCTM3Vujp25fzxmw
-         f14gZlXi/FUM6tNKZW4dTYERN/lpa6HanbdNNIY0cUHm6nwjB+YCsMXOZ8qi/Hj134
-         uzOz6NlEmwx0nxyiK4bg9ZuviSNeXgN6FyjcjYbY=
+        b=AVjSqhPPH9LZVC0G+S766A6cxQQAtTI75Za1iFRlnTYWys/cCzKiFm18JNZ+mhEVo
+         in07TAXczDT8Dn9xefFIZwEEFH5PSR3zCeFCKbY3imzsdIC53Dju58q9h+mACtFWVt
+         OnbRrlcBeOjwUgmEC3eJWl2vpSgzVoQFLYXBjVUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Thomas Willhalm <thomas.willhalm@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>,
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 079/222] mm/huge_memory.c: thp: fix conflict of above-47bit hint address and PMD alignment
-Date:   Wed, 22 Jan 2020 10:27:45 +0100
-Message-Id: <20200122092839.369227278@linuxfoundation.org>
+Subject: [PATCH 5.4 080/222] mm: memcg/slab: fix percpu slab vmstats flushing
+Date:   Wed, 22 Jan 2020 10:27:46 +0100
+Message-Id: <20200122092839.440399005@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -49,134 +46,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill@shutemov.name>
+From: Roman Gushchin <guro@fb.com>
 
-commit 97d3d0f9a1cf132c63c0b8b8bd497b8a56283dd9 upstream.
+commit 4a87e2a25dc27131c3cce5e94421622193305638 upstream.
 
-Patch series "Fix two above-47bit hint address vs.  THP bugs".
+Currently slab percpu vmstats are flushed twice: during the memcg
+offlining and just before freeing the memcg structure.  Each time percpu
+counters are summed, added to the atomic counterparts and propagated up
+by the cgroup tree.
 
-The two get_unmapped_area() implementations have to be fixed to provide
-THP-friendly mappings if above-47bit hint address is specified.
+The second flushing is required due to how recursive vmstats are
+implemented: counters are batched in percpu variables on a local level,
+and once a percpu value is crossing some predefined threshold, it spills
+over to atomic values on the local and each ascendant levels.  It means
+that without flushing some numbers cached in percpu variables will be
+dropped on floor each time a cgroup is destroyed.  And with uptime the
+error on upper levels might become noticeable.
 
-This patch (of 2):
+The first flushing aims to make counters on ancestor levels more
+precise.  Dying cgroups may resume in the dying state for a long time.
+After kmem_cache reparenting which is performed during the offlining
+slab counters of the dying cgroup don't have any chances to be updated,
+because any slab operations will be performed on the parent level.  It
+means that the inaccuracy caused by percpu batching will not decrease up
+to the final destruction of the cgroup.  By the original idea flushing
+slab counters during the offlining should minimize the visible
+inaccuracy of slab counters on the parent level.
 
-Filesystems use thp_get_unmapped_area() to provide THP-friendly
-mappings.  For DAX in particular.
+The problem is that percpu counters are not zeroed after the first
+flushing.  So every cached percpu value is summed twice.  It creates a
+small error (up to 32 pages per cpu, but usually less) which accumulates
+on parent cgroup level.  After creating and destroying of thousands of
+child cgroups, slab counter on parent level can be way off the real
+value.
 
-Normally, the kernel doesn't create userspace mappings above 47-bit,
-even if the machine allows this (such as with 5-level paging on x86-64).
-Not all user space is ready to handle wide addresses.  It's known that
-at least some JIT compilers use higher bits in pointers to encode their
-information.
+For now, let's just stop flushing slab counters on memcg offlining.  It
+can't be done correctly without scheduling a work on each cpu: reading
+and zeroing it during css offlining can race with an asynchronous
+update, which doesn't expect values to be changed underneath.
 
-Userspace can ask for allocation from full address space by specifying
-hint address (with or without MAP_FIXED) above 47-bits.  If the
-application doesn't need a particular address, but wants to allocate
-from whole address space it can specify -1 as a hint address.
+With this change, slab counters on parent level will become eventually
+consistent.  Once all dying children are gone, values are correct.  And
+if not, the error is capped by 32 * NR_CPUS pages per dying cgroup.
 
-Unfortunately, this trick breaks thp_get_unmapped_area(): the function
-would not try to allocate PMD-aligned area if *any* hint address
-specified.
+It's not perfect, as slab are reparented, so any updates after the
+reparenting will happen on the parent level.  It means that if a slab
+page was allocated, a counter on child level was bumped, then the page
+was reparented and freed, the annihilation of positive and negative
+counter values will not happen until the child cgroup is released.  It
+makes slab counters different from others, and it might want us to
+implement flushing in a correct form again.  But it's also a question of
+performance: scheduling a work on each cpu isn't free, and it's an open
+question if the benefit of having more accurate counters is worth it.
 
-Modify the routine to handle it correctly:
+We might also consider flushing all counters on offlining, not only slab
+counters.
 
- - Try to allocate the space at the specified hint address with length
-   padding required for PMD alignment.
- - If failed, retry without length padding (but with the same hint
-   address);
- - If the returned address matches the hint address return it.
- - Otherwise, align the address as required for THP and return.
+So let's fix the main problem now: make the slab counters eventually
+consistent, so at least the error won't grow with uptime (or more
+precisely the number of created and destroyed cgroups).  And think about
+the accuracy of counters separately.
 
-The user specified hint address is passed down to get_unmapped_area() so
-above-47bit hint address will be taken into account without breaking
-alignment requirements.
-
-Link: http://lkml.kernel.org/r/20191220142548.7118-2-kirill.shutemov@linux.intel.com
-Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reported-by: Thomas Willhalm <thomas.willhalm@intel.com>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
+Link: http://lkml.kernel.org/r/20191220042728.1045881-1-guro@fb.com
+Fixes: bee07b33db78 ("mm: memcontrol: flush percpu slab vmstats on kmem offlining")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/huge_memory.c |   38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ include/linux/mmzone.h |    5 ++---
+ mm/memcontrol.c        |   37 +++++++++----------------------------
+ 2 files changed, 11 insertions(+), 31 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -527,13 +527,13 @@ void prep_transhuge_page(struct page *pa
- 	set_compound_page_dtor(page, TRANSHUGE_PAGE_DTOR);
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -215,9 +215,8 @@ enum node_stat_item {
+ 	NR_INACTIVE_FILE,	/*  "     "     "   "       "         */
+ 	NR_ACTIVE_FILE,		/*  "     "     "   "       "         */
+ 	NR_UNEVICTABLE,		/*  "     "     "   "       "         */
+-	NR_SLAB_RECLAIMABLE,	/* Please do not reorder this item */
+-	NR_SLAB_UNRECLAIMABLE,	/* and this one without looking at
+-				 * memcg_flush_percpu_vmstats() first. */
++	NR_SLAB_RECLAIMABLE,
++	NR_SLAB_UNRECLAIMABLE,
+ 	NR_ISOLATED_ANON,	/* Temporary isolated pages from anon lru */
+ 	NR_ISOLATED_FILE,	/* Temporary isolated pages from file lru */
+ 	WORKINGSET_NODES,
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3404,49 +3404,34 @@ static u64 mem_cgroup_read_u64(struct cg
+ 	}
  }
  
--static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long len,
-+static unsigned long __thp_get_unmapped_area(struct file *filp,
-+		unsigned long addr, unsigned long len,
- 		loff_t off, unsigned long flags, unsigned long size)
+-static void memcg_flush_percpu_vmstats(struct mem_cgroup *memcg, bool slab_only)
++static void memcg_flush_percpu_vmstats(struct mem_cgroup *memcg)
  {
--	unsigned long addr;
- 	loff_t off_end = off + len;
- 	loff_t off_align = round_up(off, size);
--	unsigned long len_pad;
-+	unsigned long len_pad, ret;
- 
- 	if (off_end <= off_align || (off_end - off_align) < size)
- 		return 0;
-@@ -542,30 +542,40 @@ static unsigned long __thp_get_unmapped_
- 	if (len_pad < len || (off + len_pad) < off)
- 		return 0;
- 
--	addr = current->mm->get_unmapped_area(filp, 0, len_pad,
-+	ret = current->mm->get_unmapped_area(filp, addr, len_pad,
- 					      off >> PAGE_SHIFT, flags);
--	if (IS_ERR_VALUE(addr))
-+
-+	/*
-+	 * The failure might be due to length padding. The caller will retry
-+	 * without the padding.
-+	 */
-+	if (IS_ERR_VALUE(ret))
- 		return 0;
- 
--	addr += (off - addr) & (size - 1);
--	return addr;
-+	/*
-+	 * Do not try to align to THP boundary if allocation at the address
-+	 * hint succeeds.
-+	 */
-+	if (ret == addr)
-+		return addr;
-+
-+	ret += (off - ret) & (size - 1);
-+	return ret;
- }
- 
- unsigned long thp_get_unmapped_area(struct file *filp, unsigned long addr,
- 		unsigned long len, unsigned long pgoff, unsigned long flags)
- {
-+	unsigned long ret;
- 	loff_t off = (loff_t)pgoff << PAGE_SHIFT;
- 
--	if (addr)
--		goto out;
- 	if (!IS_DAX(filp->f_mapping->host) || !IS_ENABLED(CONFIG_FS_DAX_PMD))
- 		goto out;
- 
--	addr = __thp_get_unmapped_area(filp, len, off, flags, PMD_SIZE);
--	if (addr)
--		return addr;
+-	unsigned long stat[MEMCG_NR_STAT];
++	unsigned long stat[MEMCG_NR_STAT] = {0};
+ 	struct mem_cgroup *mi;
+ 	int node, cpu, i;
+-	int min_idx, max_idx;
 -
-- out:
-+	ret = __thp_get_unmapped_area(filp, addr, len, off, flags, PMD_SIZE);
-+	if (ret)
-+		return ret;
-+out:
- 	return current->mm->get_unmapped_area(filp, addr, len, pgoff, flags);
+-	if (slab_only) {
+-		min_idx = NR_SLAB_RECLAIMABLE;
+-		max_idx = NR_SLAB_UNRECLAIMABLE;
+-	} else {
+-		min_idx = 0;
+-		max_idx = MEMCG_NR_STAT;
+-	}
+-
+-	for (i = min_idx; i < max_idx; i++)
+-		stat[i] = 0;
+ 
+ 	for_each_online_cpu(cpu)
+-		for (i = min_idx; i < max_idx; i++)
++		for (i = 0; i < MEMCG_NR_STAT; i++)
+ 			stat[i] += per_cpu(memcg->vmstats_percpu->stat[i], cpu);
+ 
+ 	for (mi = memcg; mi; mi = parent_mem_cgroup(mi))
+-		for (i = min_idx; i < max_idx; i++)
++		for (i = 0; i < MEMCG_NR_STAT; i++)
+ 			atomic_long_add(stat[i], &mi->vmstats[i]);
+ 
+-	if (!slab_only)
+-		max_idx = NR_VM_NODE_STAT_ITEMS;
+-
+ 	for_each_node(node) {
+ 		struct mem_cgroup_per_node *pn = memcg->nodeinfo[node];
+ 		struct mem_cgroup_per_node *pi;
+ 
+-		for (i = min_idx; i < max_idx; i++)
++		for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+ 			stat[i] = 0;
+ 
+ 		for_each_online_cpu(cpu)
+-			for (i = min_idx; i < max_idx; i++)
++			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+ 				stat[i] += per_cpu(
+ 					pn->lruvec_stat_cpu->count[i], cpu);
+ 
+ 		for (pi = pn; pi; pi = parent_nodeinfo(pi, node))
+-			for (i = min_idx; i < max_idx; i++)
++			for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++)
+ 				atomic_long_add(stat[i], &pi->lruvec_stat[i]);
+ 	}
  }
- EXPORT_SYMBOL_GPL(thp_get_unmapped_area);
+@@ -3520,13 +3505,9 @@ static void memcg_offline_kmem(struct me
+ 		parent = root_mem_cgroup;
+ 
+ 	/*
+-	 * Deactivate and reparent kmem_caches. Then flush percpu
+-	 * slab statistics to have precise values at the parent and
+-	 * all ancestor levels. It's required to keep slab stats
+-	 * accurate after the reparenting of kmem_caches.
++	 * Deactivate and reparent kmem_caches.
+ 	 */
+ 	memcg_deactivate_kmem_caches(memcg, parent);
+-	memcg_flush_percpu_vmstats(memcg, true);
+ 
+ 	kmemcg_id = memcg->kmemcg_id;
+ 	BUG_ON(kmemcg_id < 0);
+@@ -5037,7 +5018,7 @@ static void mem_cgroup_free(struct mem_c
+ 	 * Flush percpu vmstats and vmevents to guarantee the value correctness
+ 	 * on parent's and all ancestor levels.
+ 	 */
+-	memcg_flush_percpu_vmstats(memcg, false);
++	memcg_flush_percpu_vmstats(memcg);
+ 	memcg_flush_percpu_vmevents(memcg);
+ 	__mem_cgroup_free(memcg);
+ }
 
 
