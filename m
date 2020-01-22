@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C22C5145664
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4062E145665
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730958AbgAVN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:26:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
+        id S1730964AbgAVN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:26:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729163AbgAVN0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:26:31 -0500
+        id S1729163AbgAVN0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:26:34 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D787B2467B;
-        Wed, 22 Jan 2020 13:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DBDC2467B;
+        Wed, 22 Jan 2020 13:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699590;
-        bh=3TSY0k3j/NS0qp81sKVoj9zgSdog5u4XrMOmTpcP3dk=;
+        s=default; t=1579699594;
+        bh=9F+EXNeal2W7NUa/tq+TFrW6djEOpUYwVzyxkLEmiAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAT8WlkKRiG/QTBSDZWy93uTXfPFwTUaKPzmfoSU+RZCkMllW3DrUOSx4FvhsC9N0
-         SyxkQliiMOB+WOlCjplREYIYOo1Su+DJdSWuZ50nWHG3eHuDY+6D837PW54QBjSS9I
-         yb+2v6o6T8hBzXh/0Z4CvF1ftbmMEvPIhxhuVCeo=
+        b=JOJs8BX8PMqyVtdGyoJ6KEAfwTMGUXOQl1CY2yJG1LxAQb+63/WqytaHpn5Mjtu+G
+         HFZnnsFDmwbkp+hS9npSJ74pQ/USXM6vQy2tT4DXISFHpVdHVtIR3uElD+kjV9rUfe
+         6Pvo5s/HpQFyQpYi4JtYex/E1zqQhVRITFcY9/rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 152/222] net: ethernet: ave: Avoid lockdep warning
-Date:   Wed, 22 Jan 2020 10:28:58 +0100
-Message-Id: <20200122092844.606889750@linuxfoundation.org>
+Subject: [PATCH 5.4 153/222] net: systemport: Fixed queue mapping in internal ring map
+Date:   Wed, 22 Jan 2020 10:28:59 +0100
+Message-Id: <20200122092844.677212804@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,78 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 82d5d6a638cbd12b7dfe8acafd9efd87a656cc06 ]
+[ Upstream commit 5a9ef19454cd5daec8041bc7c3c11deb7456d9a0 ]
 
-When building with PROVE_LOCKING=y, lockdep shows the following
-dump message.
+We would not be transmitting using the correct SYSTEMPORT transmit queue
+during ndo_select_queue() which looks up the internal TX ring map
+because while establishing the mapping we would be off by 4, so for
+instance, when we populate switch port mappings we would be doing:
 
-    INFO: trying to register non-static key.
-    the code is fine but needs lockdep annotation.
-    turning off the locking correctness validator.
-     ...
+switch port 0, queue 0 -> ring index #0
+switch port 0, queue 1 -> ring index #1
+...
+switch port 0, queue 3 -> ring index #3
+switch port 1, queue 0 -> ring index #8 (4 + 4 * 1)
+...
 
-Calling device_set_wakeup_enable() directly occurs this issue,
-and it isn't necessary for initialization, so this patch creates
-internal function __ave_ethtool_set_wol() and replaces with this
-in ave_init() and ave_resume().
+instead of using ring index #4. This would cause our ndo_select_queue()
+to use the fallback queue mechanism which would pick up an incorrect
+ring for that switch port. Fix this by using the correct switch queue
+number instead of SYSTEMPORT queue number.
 
-Fixes: 7200f2e3c9e2 ("net: ethernet: ave: Set initial wol state to disabled")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Fixes: 25c440704661 ("net: systemport: Simplify queue mapping logic")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/socionext/sni_ave.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/broadcom/bcmsysport.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/socionext/sni_ave.c
-+++ b/drivers/net/ethernet/socionext/sni_ave.c
-@@ -424,16 +424,22 @@ static void ave_ethtool_get_wol(struct n
- 		phy_ethtool_get_wol(ndev->phydev, wol);
- }
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -2323,7 +2323,7 @@ static int bcm_sysport_map_queues(struct
+ 		ring->switch_queue = qp;
+ 		ring->switch_port = port;
+ 		ring->inspect = true;
+-		priv->ring_map[q + port * num_tx_queues] = ring;
++		priv->ring_map[qp + port * num_tx_queues] = ring;
+ 		qp++;
+ 	}
  
--static int ave_ethtool_set_wol(struct net_device *ndev,
--			       struct ethtool_wolinfo *wol)
-+static int __ave_ethtool_set_wol(struct net_device *ndev,
-+				 struct ethtool_wolinfo *wol)
- {
--	int ret;
--
- 	if (!ndev->phydev ||
- 	    (wol->wolopts & (WAKE_ARP | WAKE_MAGICSECURE)))
- 		return -EOPNOTSUPP;
+@@ -2338,7 +2338,7 @@ static int bcm_sysport_unmap_queues(stru
+ 	struct net_device *slave_dev;
+ 	unsigned int num_tx_queues;
+ 	struct net_device *dev;
+-	unsigned int q, port;
++	unsigned int q, qp, port;
  
--	ret = phy_ethtool_set_wol(ndev->phydev, wol);
-+	return phy_ethtool_set_wol(ndev->phydev, wol);
-+}
-+
-+static int ave_ethtool_set_wol(struct net_device *ndev,
-+			       struct ethtool_wolinfo *wol)
-+{
-+	int ret;
-+
-+	ret = __ave_ethtool_set_wol(ndev, wol);
- 	if (!ret)
- 		device_set_wakeup_enable(&ndev->dev, !!wol->wolopts);
+ 	priv = container_of(nb, struct bcm_sysport_priv, dsa_notifier);
+ 	if (priv->netdev != info->master)
+@@ -2364,7 +2364,8 @@ static int bcm_sysport_unmap_queues(stru
+ 			continue;
  
-@@ -1216,7 +1222,7 @@ static int ave_init(struct net_device *n
+ 		ring->inspect = false;
+-		priv->ring_map[q + port * num_tx_queues] = NULL;
++		qp = ring->switch_queue;
++		priv->ring_map[qp + port * num_tx_queues] = NULL;
+ 	}
  
- 	/* set wol initial state disabled */
- 	wol.wolopts = 0;
--	ave_ethtool_set_wol(ndev, &wol);
-+	__ave_ethtool_set_wol(ndev, &wol);
- 
- 	if (!phy_interface_is_rgmii(phydev))
- 		phy_set_max_speed(phydev, SPEED_100);
-@@ -1768,7 +1774,7 @@ static int ave_resume(struct device *dev
- 
- 	ave_ethtool_get_wol(ndev, &wol);
- 	wol.wolopts = priv->wolopts;
--	ave_ethtool_set_wol(ndev, &wol);
-+	__ave_ethtool_set_wol(ndev, &wol);
- 
- 	if (ndev->phydev) {
- 		ret = phy_resume(ndev->phydev);
+ 	return 0;
 
 
