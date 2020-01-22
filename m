@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F454145101
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:51:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4694144F4C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732594AbgAVJhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:37:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53854 "EHLO mail.kernel.org"
+        id S1731897AbgAVJga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:36:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731321AbgAVJhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:37:40 -0500
+        id S1731035AbgAVJga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:36:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A160324680;
-        Wed, 22 Jan 2020 09:37:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AF2924125;
+        Wed, 22 Jan 2020 09:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685860;
-        bh=PMSIln64bD9O25YS78Zt5inzG7df2u5lU9cUIRgVk2Q=;
+        s=default; t=1579685789;
+        bh=kkBMsYslEkYNPYzHKXDUibNKOCy004q3kA+dqlieGVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGJl3FYJoUk3cByI3IULXEZtiDcRtQWmtbRKw4q5cDDNwH/VWfV0wbJvXx76poiEQ
-         9/Dxncbau+fP2tk34F1uOmKvy3RSalO28hZLD+dVViPUGwgUyqUFoGZnKXJS9r8sqq
-         0JevI49L2m+aXu+0eONlgTDSAl34ql3S3RX6kISc=
+        b=qEZs6+tU9N3dziENzKlX7wDfUGGmKrK8Gg32ZUqw7E5o01OWoM1ne7+1DqwBk+zyh
+         AriutTUYRHmW6gj8qVsOaHXHR1LyPsK0tM6INI9YXssTZvkOokSelTjdl+gnBLr/Ww
+         YoK5atPf4txtlWuKFu27Q3uZ/xYDuEOlQ1RN9vKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reinhard Speyerer <rspmn@arcor.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 12/65] USB: serial: option: add support for Quectel RM500Q in QDL mode
+        stable@vger.kernel.org,
+        syzbot+2b2ef983f973e5c40943@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 53/97] ALSA: seq: Fix racy access for queue timer in proc read
 Date:   Wed, 22 Jan 2020 10:28:57 +0100
-Message-Id: <20200122092752.951998274@linuxfoundation.org>
+Message-Id: <20200122092804.995472662@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinhard Speyerer <rspmn@arcor.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f3eaabbfd093c93d791eb930cc68d9b15246a65e upstream.
+commit 60adcfde92fa40fcb2dbf7cc52f9b096e0cd109a upstream.
 
-Add support for Quectel RM500Q in QDL mode.
+snd_seq_info_timer_read() reads the information of the timer assigned
+for each queue, but it's done in a racy way which may lead to UAF as
+spotted by syzkaller.
 
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 24 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0800 Rev= 0.00
-S:  Manufacturer=Qualcomm CDMA Technologies MSM
-S:  Product=QUSB_BULK_SN:xxxxxxxx
-S:  SerialNumber=xxxxxxxx
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=  2mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+This patch applies the missing q->timer_mutex lock while accessing the
+timer object as well as a slight code change to adapt the standard
+coding style.
 
-It is assumed that the ZLP flag required for other Qualcomm-based
-5G devices also applies to Quectel RM500Q.
-
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: syzbot+2b2ef983f973e5c40943@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200115203733.26530-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/seq/seq_timer.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1110,6 +1110,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
-+	  .driver_info = ZLP },
- 
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+--- a/sound/core/seq/seq_timer.c
++++ b/sound/core/seq/seq_timer.c
+@@ -479,15 +479,19 @@ void snd_seq_info_timer_read(struct snd_
+ 		q = queueptr(idx);
+ 		if (q == NULL)
+ 			continue;
+-		if ((tmr = q->timer) == NULL ||
+-		    (ti = tmr->timeri) == NULL) {
+-			queuefree(q);
+-			continue;
+-		}
++		mutex_lock(&q->timer_mutex);
++		tmr = q->timer;
++		if (!tmr)
++			goto unlock;
++		ti = tmr->timeri;
++		if (!ti)
++			goto unlock;
+ 		snd_iprintf(buffer, "Timer for queue %i : %s\n", q->queue, ti->timer->name);
+ 		resolution = snd_timer_resolution(ti) * tmr->ticks;
+ 		snd_iprintf(buffer, "  Period time : %lu.%09lu\n", resolution / 1000000000, resolution % 1000000000);
+ 		snd_iprintf(buffer, "  Skew : %u / %u\n", tmr->skew, tmr->skew_base);
++unlock:
++		mutex_unlock(&q->timer_mutex);
+ 		queuefree(q);
+  	}
+ }
 
 
