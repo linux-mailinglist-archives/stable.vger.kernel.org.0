@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14403145532
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06971145534
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729061AbgAVNTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:19:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35656 "EHLO mail.kernel.org"
+        id S1729817AbgAVNTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:19:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728811AbgAVNTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:19:41 -0500
+        id S1729058AbgAVNTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:19:50 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE3A62467E;
-        Wed, 22 Jan 2020 13:19:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98E732467A;
+        Wed, 22 Jan 2020 13:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699180;
-        bh=gmGK9lkkptqNYlJQsr4NkvPPXlub+fNWnEWdTp6g9Gc=;
+        s=default; t=1579699190;
+        bh=lYcyzUsSueiTVaeCjUbMt38KiP52JGJR1GhZPYucS/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgrJwao8olqlDMXBKaCdaBt9khykdLigSkIWDWx96U1zLmHACW4pBLXPNIKfYHZ7t
-         o2eU2ZAjFu88gJFVoKkqwjrfgJNDTSat6uoS8Uqxcuprgej7ShP0cpBFWxCgUCxJOH
-         I7PFLc8WJh4oV0o68AWVTVTI50JBDKPoPZjmM89Y=
+        b=rD9hxWb0B+Uew2OaI+6vlKSWy6UrpDLH6T1Z+2W+3AA9mEaxlGdQoydJw0BdXBp1x
+         0Ca3yMy7fRTknmY7alrclkQwGRKl2hfi5FNr6YATox+aSk4S9IKGxdlEEdjPsTAa8d
+         HAg7zsZXWAqMoZYfgWrLt85Rrc7BC7thKlhsTNYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Waiman Long <longman@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 064/222] locking/rwsem: Fix kernel crash when spinning on RWSEM_OWNER_UNKNOWN
-Date:   Wed, 22 Jan 2020 10:27:30 +0100
-Message-Id: <20200122092838.302318765@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 067/222] s390/zcrypt: Fix CCA cipher key gen with clear key value function
+Date:   Wed, 22 Jan 2020 10:27:33 +0100
+Message-Id: <20200122092838.523158685@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,44 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 39e7234f00bc93613c086ae42d852d5f4147120a upstream.
+commit 94dd3bada53ee77b80d0aeee5571eeb83654d156 upstream.
 
-The commit 91d2a812dfb9 ("locking/rwsem: Make handoff writer
-optimistically spin on owner") will allow a recently woken up waiting
-writer to spin on the owner. Unfortunately, if the owner happens to be
-RWSEM_OWNER_UNKNOWN, the code will incorrectly spin on it leading to a
-kernel crash. This is fixed by passing the proper non-spinnable bits
-to rwsem_spin_on_owner() so that RWSEM_OWNER_UNKNOWN will be treated
-as a non-spinnable target.
+Regression tests showed that the CCA cipher key function which
+generates an CCA cipher key with given clear key value does not work
+correctly. At parsing the reply CPRB two limits are wrong calculated
+resulting in rejecting the reply as invalid with s390dbf message
+"_ip_cprb_helper reply with invalid or unknown key block".
 
-Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
-
-Reported-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200115154336.8679-1-longman@redhat.com
+Fixes: f2bbc96e7cfa ("s390/pkey: add CCA AES cipher key support")
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/locking/rwsem.c |    4 ++--
+ drivers/s390/crypto/zcrypt_ccamisc.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -1226,8 +1226,8 @@ wait:
- 		 * In this case, we attempt to acquire the lock again
- 		 * without sleeping.
- 		 */
--		if ((wstate == WRITER_HANDOFF) &&
--		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
-+		if (wstate == WRITER_HANDOFF &&
-+		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
- 			goto trylock_again;
+--- a/drivers/s390/crypto/zcrypt_ccamisc.c
++++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+@@ -1037,8 +1037,8 @@ static int _ip_cprb_helper(u16 cardnr, u
+ 	prepparm = (struct iprepparm *) prepcblk->rpl_parmb;
  
- 		/* Block until there are no active lockers. */
+ 	/* do some plausibility checks on the key block */
+-	if (prepparm->kb.len < 120 + 5 * sizeof(uint16_t) ||
+-	    prepparm->kb.len > 136 + 5 * sizeof(uint16_t)) {
++	if (prepparm->kb.len < 120 + 3 * sizeof(uint16_t) ||
++	    prepparm->kb.len > 136 + 3 * sizeof(uint16_t)) {
+ 		DEBUG_ERR("%s reply with invalid or unknown key block\n",
+ 			  __func__);
+ 		rc = -EIO;
 
 
