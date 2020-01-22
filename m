@@ -2,122 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63219144C9A
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 08:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 942D4144CAB
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 08:57:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728609AbgAVHs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 02:48:56 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:46076 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725883AbgAVHsv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 02:48:51 -0500
-Received: by mail-lj1-f195.google.com with SMTP id j26so5645797ljc.12
-        for <stable@vger.kernel.org>; Tue, 21 Jan 2020 23:48:50 -0800 (PST)
+        id S1726181AbgAVH5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 02:57:21 -0500
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:58167 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726077AbgAVH5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 02:57:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=unikie-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:references:date:in-reply-to:message-id
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=xwjsIpjDVQTLXOURbJxAwsG5lamWs2lFH+xIMZoFUP4=;
-        b=AJ/ff+Gl0mtLIrEnboH/T3vQ84C7Z2G/KJQN87cLI9CCUtJc4c+gDKJ8OGYJdcTVOb
-         yRRvgOENZNoIbi1x7QQ+gHf9HZb3g1tDmaY/QVLR7dIEoFXutP1T1kbqruCQlOfAkX9b
-         4+kZDuKzke7J9kErHxXJAeAfVDQrTfkq5eiQqsyRr74DhlKehM5jIFk42icQiwqLrR/7
-         GkP9BhmA9gg1sytA2OjNJQ0BttL4mEsHz14pyHaIl4/pQ8kDxofMWe2s8dDHfLW2XVfk
-         OubPOBqAOOp8zbS+kawxrC7NPS5njpPNS4Yr2rC1v1F8Uc6epdDfRdb21yQ7nClyl9+s
-         QQHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:references:date:in-reply-to
-         :message-id:user-agent:mime-version:content-transfer-encoding;
-        bh=xwjsIpjDVQTLXOURbJxAwsG5lamWs2lFH+xIMZoFUP4=;
-        b=JxJOTyQUpkuIU18afjHuigfvWAKhD/ZkoNeAqmwom6Qnms/vRj0RrS2qMlXFvoAWHL
-         5tzxftU8e8kddiorDMWZH6rlEdqC43bjaU5rq74QY8tUja8phuYLf0I5/UaI7fTnJDyK
-         LDToZ09OPminHv2rAxOk8Hx38cwpwugXx06c6mFSjOb17ygbSC58MUIi23KTgE6IncpR
-         oD1yRK/YkeByB21bvFrtrs4rxE+wUI5wtTaE3lvrg7OBdYy2UWbULLokLlPIFdgPBqrN
-         6g0cpgswFkqi+roeeMmuErc/CDmx3RHl4QnBagwTHyZPy5dDxa3oS71A3RIhCJgVDvsk
-         sb5Q==
-X-Gm-Message-State: APjAAAVLGPPSuinFUPLac0lmZqZ2FghH9i1spzcpnYEs7OZM7W5wIqZz
-        N28bBt8E/IEZ53MSyzDkaE2PbQ==
-X-Google-Smtp-Source: APXvYqwH4ebVIHgYHJKaMXUEYUCPM1pT8Q4XEwrXLVnzqEwF5g/49zEwvE7PvOdvLlBeOGRQlLVrmA==
-X-Received: by 2002:a2e:9d90:: with SMTP id c16mr16918246ljj.264.1579679329441;
-        Tue, 21 Jan 2020 23:48:49 -0800 (PST)
-Received: from GL-434 ([109.204.235.119])
-        by smtp.gmail.com with ESMTPSA id f22sm19875406ljh.74.2020.01.21.23.48.48
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 21 Jan 2020 23:48:48 -0800 (PST)
-From:   jouni.hogander@unikie.com (Jouni =?utf-8?Q?H=C3=B6gander?=)
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 000/306] 4.19.87-stable review
-References: <20191127203114.766709977@linuxfoundation.org>
-        <CA+G9fYuAY+14aPiRVUcXLbsr5zJ-GLjULX=s9jcGWcw_vb5Kzw@mail.gmail.com>
-        <20191128073623.GE3317872@kroah.com>
-        <CAKXUXMy_=gVVw656AL5Rih_DJrdrFLoURS-et0+dpJ2cKaw6SQ@mail.gmail.com>
-        <20191129085800.GF3584430@kroah.com>
-Date:   Wed, 22 Jan 2020 09:48:47 +0200
-In-Reply-To: <20191129085800.GF3584430@kroah.com> (Greg Kroah-Hartman's
-        message of "Fri, 29 Nov 2019 09:58:00 +0100")
-Message-ID: <87sgk8szhc.fsf@unikie.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.2 (gnu/linux)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1579679840; x=1611215840;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=JalNXEE3xWqcF6hF2pWv5DdqCkyNQRWEPPh45V7LLV4=;
+  b=WNpqg4PVj/OBm/Feq0eeCjSK092pABXq+SRvGqPGUplfajXd4bO3KpP2
+   4OLxS9CJ1gaJZecGCm5pxwGMLAAG7jCUXC/7R3SYDWLjICcBFGNFSKJZV
+   BatKfFL+P3X7ZwRzls/KKISzv675nUmzbY/icZgWqcGWYAb+b4QqbHkka
+   c=;
+IronPort-SDR: lalxcvz+0C40cuWFZTYa4R4Yh9ENnRLrcq5v4tgc7LJycuyRL+TOQZLwEHmdWuR6SvNkKnL4go
+ LWn5eLs9AIrg==
+X-IronPort-AV: E=Sophos;i="5.70,348,1574121600"; 
+   d="scan'208";a="14170844"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2b-5bdc5131.us-west-2.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 22 Jan 2020 07:57:18 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2b-5bdc5131.us-west-2.amazon.com (Postfix) with ESMTPS id 675FDA2661;
+        Wed, 22 Jan 2020 07:57:17 +0000 (UTC)
+Received: from EX13D19EUB003.ant.amazon.com (10.43.166.69) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1236.3; Wed, 22 Jan 2020 07:57:16 +0000
+Received: from 8c85908914bf.ant.amazon.com (10.43.160.8) by
+ EX13D19EUB003.ant.amazon.com (10.43.166.69) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Wed, 22 Jan 2020 07:57:12 +0000
+Subject: Re: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous memory
+ blocks aligned to device supported page size"
+To:     Leon Romanovsky <leon@kernel.org>
+CC:     Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Doug Ledford <dledford@redhat.com>,
+        <linux-rdma@vger.kernel.org>,
+        "Alexander Matushevsky" <matua@amazon.com>,
+        <stable@vger.kernel.org>, "Leybovich, Yossi" <sleybo@amazon.com>
+References: <20200120141001.63544-1-galpress@amazon.com>
+ <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
+ <20200121162436.GL51881@unreal>
+From:   Gal Pressman <galpress@amazon.com>
+Message-ID: <47c20471-2251-b93b-053d-87880fa0edf5@amazon.com>
+Date:   Wed, 22 Jan 2020 09:57:07 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
+ Gecko/20100101 Thunderbird/68.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200121162436.GL51881@unreal>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.43.160.8]
+X-ClientProxiedBy: EX13D36UWA003.ant.amazon.com (10.43.160.237) To
+ EX13D19EUB003.ant.amazon.com (10.43.166.69)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
->> > Now queued up, I'll push out -rc2 versions with this fix.
->> >
->> > greg k-h
->>=20
->> We have also been informed about another regression these two commits
->> are causing:
->>=20
->> https://lore.kernel.org/lkml/ace19af4-7cae-babd-bac5-cd3505dcd874@I-love=
-.SAKURA.ne.jp/
->>=20
->> I suggest to drop these two patches from this queue, and give us a
->> week to shake out the regressions of the change, and once ready, we
->> can include the complete set of fixes to stable (probably in a week or
->> two).
->
-> Ok, thanks for the information, I've now dropped them from all of the
-> queues that had them in them.
->
-> greg k-h
+On 21/01/2020 18:24, Leon Romanovsky wrote:
+> On Tue, Jan 21, 2020 at 11:07:21AM +0200, Gal Pressman wrote:
+>> On 20/01/2020 16:10, Gal Pressman wrote:
+>>> The cited commit leads to register MR failures and random hangs when
+>>> running different MPI applications. The exact root cause for the issue
+>>> is still not clear, this revert brings us back to a stable state.
+>>>
+>>> This reverts commit 40ddb3f020834f9afb7aab31385994811f4db259.
+>>>
+>>> Fixes: 40ddb3f02083 ("RDMA/efa: Use API to get contiguous memory blocks aligned to device supported page size")
+>>> Cc: Shiraz Saleem <shiraz.saleem@intel.com>
+>>> Cc: stable@vger.kernel.org # 5.3
+>>> Signed-off-by: Gal Pressman <galpress@amazon.com>
+>>
+>> Shiraz, I think I found the root cause here.
+>> I'm noticing a register MR of size 32k, which is constructed from two sges, the
+>> first sge of size 12k and the second of 20k.
+>>
+>> ib_umem_find_best_pgsz returns page shift 13 in the following way:
+>>
+>> 0x103dcb2000      0x103dcb5000       0x103dd5d000           0x103dd62000
+>>           +----------+                      +------------------+
+>>           |          |                      |                  |
+>>           |  12k     |                      |     20k          |
+>>           +----------+                      +------------------+
+>>
+>>           +------+------+                 +------+------+------+
+>>           |      |      |                 |      |      |      |
+>>           | 8k   | 8k   |                 | 8k   | 8k   | 8k   |
+>>           +------+------+                 +------+------+------+
+>> 0x103dcb2000       0x103dcb6000   0x103dd5c000              0x103dd62000
+>>
+>>
+>> The top row is the original umem sgl, and the bottom is the sgl constructed by
+>> rdma_for_each_block with page size of 8k.
+>>
+>> Is this the expected output? The 8k pages cover addresses which aren't part of
+>> the MR. This breaks some of the assumptions in the driver (for example, the way
+>> we calculate the number of pages in the MR) and I'm not sure our device can
+>> handle such sgl.
+> 
+> Artemy wrote this fix that can help you.
+> 
+> commit 60c9fe2d18b657df950a5f4d5a7955694bd08e63
+> Author: Artemy Kovalyov <artemyko@mellanox.com>
+> Date:   Sun Dec 15 12:43:13 2019 +0200
+> 
+>     RDMA/umem: Fix ib_umem_find_best_pgsz()
+> 
+>     Except for the last entry, the ending iova alignment sets the maximum
+>     possible page size as the low bits of the iova must be zero when
+>     starting the next chunk.
+> 
+>     Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
+>     Signed-off-by: Artemy Kovalyov <artemyko@mellanox.com>
+>     Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+> 
+> diff --git a/drivers/infiniband/core/umem.c b/drivers/infiniband/core/umem.c
+> index c3769a5f096d..06b6125b5ae1 100644
+> --- a/drivers/infiniband/core/umem.c
+> +++ b/drivers/infiniband/core/umem.c
+> @@ -166,10 +166,13 @@ unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
+>                  * for any address.
+>                  */
+>                 mask |= (sg_dma_address(sg) + pgoff) ^ va;
+> -               if (i && i != (umem->nmap - 1))
+> -                       /* restrict by length as well for interior SGEs */
+> -                       mask |= sg_dma_len(sg);
+>                 va += sg_dma_len(sg) - pgoff;
+> +               /* Except for the last entry, the ending iova alignment sets
+> +                * the maximum possible page size as the low bits of the iova
+> +                * must be zero when starting the next chunk.
+> +                */
+> +               if (i != (umem->nmap - 1))
+> +                       mask |= va;
+>                 pgoff = 0;
+>         }
+>         best_pg_bit = rdma_find_pg_bit(mask, pgsz_bitmap);
 
-I have now run more extensive Syzkaller testing on following patches:
-
-cb626bf566eb net-sysfs: Fix reference count leak
-ddd9b5e3e765 net-sysfs: Call dev_hold always in rx_queue_add_kobject
-e0b60903b434 net-sysfs: Call dev_hold always in netdev_queue_add_kobje
-48a322b6f996 net-sysfs: fix netdev_queue_add_kobject() breakage
-b8eb718348b8 net-sysfs: Fix reference count leak in rx|netdev_queue_add_kob=
-ject
-
-These patches are fixing couple of memory leaks including this one found
-by Syzbot: https://syzkaller.appspot.com/bug?extid=3Dad8ca40ecd77896d51e2
-
-I can reproduce these memory leaks in following stable branches: 4.14,
-4.19, and 5.4.
-
-These are all now merged into net/master tree and based on my testing
-they are ready to be taken into stable branches as well.
-
-Best Regards,
-
-Jouni H=C3=B6gander
+Thanks Leon, I'll test this and let you know if it fixes the issue.
+When are you planning to submit this?
