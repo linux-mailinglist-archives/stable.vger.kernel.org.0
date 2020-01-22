@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D562144FA2
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A8F14506E
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732478AbgAVJjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:39:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57838 "EHLO mail.kernel.org"
+        id S2387897AbgAVJng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732572AbgAVJjk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:39:40 -0500
+        id S2387893AbgAVJne (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:43:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB6912467B;
-        Wed, 22 Jan 2020 09:39:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A57982468C;
+        Wed, 22 Jan 2020 09:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685980;
-        bh=e36sjmPaCPPq1/i9Ltj188SqoWa1clYoefAn7mPbTaA=;
+        s=default; t=1579686214;
+        bh=xLEPOfmY1hDdyUmvk8BdYAOzOZw6EEXGxFfI7cSr0eU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmKXIYpQI4yjC7Z0WovD3x8XMnmYE63miJRwNQGNa7iHhh1c4ofASQQKDyDgV36tp
-         lgw2tOjc5OEKsb+6JjbuVK4hy2xTaWRw5OCqvsGm7bk/GkvkNRAYHSrlMgQax5V5sM
-         XjF+P6R0zlOA7S6RkY8Jbwl4cnyO46qhtNtOz7ps=
+        b=M6Ihsxgp0M5e6S0uwDM/ERcpIdQpdelFKfFZ+JDAwJAzCrHVxGtvDPXXnNK+EpTNC
+         svLuIATcgvjwovVV6jGgC4fgHdxmxh6Td+EOYqZ4QM1cYoa4uzS0ujNWxgzzOKuN6n
+         xPYLOJBULnEhCTFfpLJe9uYBbPVoQTbZ3oBAI3AA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 59/65] scsi: bnx2i: fix potential use after free
-Date:   Wed, 22 Jan 2020 10:29:44 +0100
-Message-Id: <20200122092800.251654611@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sushma Kalakota <sushmax.kalakota@intel.com>
+Subject: [PATCH 4.19 089/103] drm/nouveau/bar/nv50: check bar1 vmm return value
+Date:   Wed, 22 Jan 2020 10:29:45 +0100
+Message-Id: <20200122092815.631753826@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Jon Derrick <jonathan.derrick@intel.com>
 
-commit 29d28f2b8d3736ac61c28ef7e20fda63795b74d9 upstream.
+commit 307a312df9c43fdea286ad17f748aaf777cc434a upstream.
 
-The member hba->pcidev may be used after its reference is dropped. Move the
-put function to where it is never used to avoid potential use after free
-issues.
+Check bar1's new vmm creation return value for errors.
 
-Fixes: a77171806515 ("[SCSI] bnx2i: Removed the reference to the netdev->base_addr")
-Link: https://lore.kernel.org/r/1573043541-19126-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Sushma Kalakota <sushmax.kalakota@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/bnx2i/bnx2i_iscsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-@@ -915,12 +915,12 @@ void bnx2i_free_hba(struct bnx2i_hba *hb
- 	INIT_LIST_HEAD(&hba->ep_ofld_list);
- 	INIT_LIST_HEAD(&hba->ep_active_list);
- 	INIT_LIST_HEAD(&hba->ep_destroy_list);
--	pci_dev_put(hba->pcidev);
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
+@@ -174,6 +174,8 @@ nv50_bar_oneinit(struct nvkm_bar *base)
  
- 	if (hba->regview) {
- 		pci_iounmap(hba->pcidev, hba->regview);
- 		hba->regview = NULL;
- 	}
-+	pci_dev_put(hba->pcidev);
- 	bnx2i_free_mp_bdt(hba);
- 	bnx2i_release_free_cid_que(hba);
- 	iscsi_host_free(shost);
+ 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
+ 			   &bar1_lock, "bar1", &bar->bar1_vmm);
++	if (ret)
++		return ret;
+ 
+ 	atomic_inc(&bar->bar1_vmm->engref[NVKM_SUBDEV_BAR]);
+ 	bar->bar1_vmm->debug = bar->base.subdev.debug;
 
 
