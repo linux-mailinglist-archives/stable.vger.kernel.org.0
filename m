@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C098145689
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB5D14568C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729276AbgAVN1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:27:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49190 "EHLO mail.kernel.org"
+        id S1731204AbgAVN1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:27:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731204AbgAVN1k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:27:40 -0500
+        id S1731736AbgAVN1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:27:43 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0037320678;
-        Wed, 22 Jan 2020 13:27:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26CCA24125;
+        Wed, 22 Jan 2020 13:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699658;
-        bh=lc1Qq/+5wu/VO9VD6lO0XfCnSvFbm2WjzBkgtq+WHH0=;
+        s=default; t=1579699661;
+        bh=CH0d82njfd6dXZt7w82IU9YuXt0MSTfzLT4l9Y2AGrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAYUYvaG25pFRaaEXPt+I7eGo+3PpL1lUeAXxFUcg/uFNtTn+nOw2NJTeN+rwyn7h
-         wQdKin6p865aomeneYH0A6pgvt3MJfBFTNtabyG9vSBZKxDdtE9VwvGM8QJ4vjXTW0
-         0ipJg197cXa/we9m7hEztwDw/6FSsDdbciI0hTSg=
+        b=Y8VNZSLnJAMNUNZuQYjXMXUSDDrbv18QIwqGvl6dlC6bnHCk4ObMU/+Feh6oTKlRH
+         I+koYkfkYYW2OTSlfS1tZ3ZXvPV0hCN8kDWHoU/yLzd6rkWG0G/PK6OEo/a9BScflh
+         l2Mu606o7FhWGZH6vAMhJueb1CojYwPj5t0ePiUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 210/222] scsi: core: scsi_trace: Use get_unaligned_be*()
-Date:   Wed, 22 Jan 2020 10:29:56 +0100
-Message-Id: <20200122092848.732269702@linuxfoundation.org>
+Subject: [PATCH 5.4 211/222] scsi: lpfc: Fix list corruption detected in lpfc_put_sgl_per_hdwq
+Date:   Wed, 22 Jan 2020 10:29:57 +0100
+Message-Id: <20200122092848.803750833@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -47,206 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: James Smart <jsmart2021@gmail.com>
 
-commit b1335f5b0486f61fb66b123b40f8e7a98e49605d upstream.
+commit 35a635af54ce79881eb35ba20b64dcb1e81b0389 upstream.
 
-This patch fixes an unintended sign extension on left shifts. From Colin
-King: "Shifting a u8 left will cause the value to be promoted to an
-integer. If the top bit of the u8 is set then the following conversion to
-an u64 will sign extend the value causing the upper 32 bits to be set in
-the result."
+In lpfc_release_io_buf, an lpfc_io_buf is returned to the 'available' pool
+before any associated sgl or cmd and rsp buffers are returned via their
+respective 'put' routines.  If xri rebalancing occurs and an lpfc_io_buf
+structure is reused quickly, there may be a race condition between release
+of old and association of new resources.
 
-Fix this by using get_unaligned_be*() instead.
+Re-ordered lpfc_release_io_buf to release sgl and cmd/rsp
+buffer lists before releasing the lpfc_io_buf structure for re-use.
 
-Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Douglas Gilbert <dgilbert@interlog.com>
-Link: https://lore.kernel.org/r/20191101211447.187151-1-bvanassche@acm.org
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Fixes: d79c9e9d4b3d ("scsi: lpfc: Support dynamic unbounded SGL lists on G7 hardware.")
+Link: https://lore.kernel.org/r/20190922035906.10977-17-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/scsi_trace.c |  103 ++++++++++++----------------------------------
- 1 file changed, 28 insertions(+), 75 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/scsi/scsi_trace.c
-+++ b/drivers/scsi/scsi_trace.c
-@@ -9,7 +9,7 @@
- #include <trace/events/scsi.h>
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -20108,6 +20108,13 @@ void lpfc_release_io_buf(struct lpfc_hba
+ 	lpfc_ncmd->cur_iocbq.wqe_cmpl = NULL;
+ 	lpfc_ncmd->cur_iocbq.iocb_cmpl = NULL;
  
- #define SERVICE_ACTION16(cdb) (cdb[1] & 0x1f)
--#define SERVICE_ACTION32(cdb) ((cdb[8] << 8) | cdb[9])
-+#define SERVICE_ACTION32(cdb) (get_unaligned_be16(&cdb[8]))
- 
- static const char *
- scsi_trace_misc(struct trace_seq *, unsigned char *, int);
-@@ -39,17 +39,12 @@ static const char *
- scsi_trace_rw10(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	sector_t lba = 0, txlen = 0;
-+	u32 lba, txlen;
- 
--	lba |= (cdb[2] << 24);
--	lba |= (cdb[3] << 16);
--	lba |= (cdb[4] << 8);
--	lba |=  cdb[5];
--	txlen |= (cdb[7] << 8);
--	txlen |=  cdb[8];
-+	lba = get_unaligned_be32(&cdb[2]);
-+	txlen = get_unaligned_be16(&cdb[7]);
- 
--	trace_seq_printf(p, "lba=%llu txlen=%llu protect=%u",
--			 (unsigned long long)lba, (unsigned long long)txlen,
-+	trace_seq_printf(p, "lba=%u txlen=%u protect=%u", lba, txlen,
- 			 cdb[1] >> 5);
- 
- 	if (cdb[0] == WRITE_SAME)
-@@ -64,19 +59,12 @@ static const char *
- scsi_trace_rw12(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	sector_t lba = 0, txlen = 0;
-+	u32 lba, txlen;
- 
--	lba |= (cdb[2] << 24);
--	lba |= (cdb[3] << 16);
--	lba |= (cdb[4] << 8);
--	lba |=  cdb[5];
--	txlen |= (cdb[6] << 24);
--	txlen |= (cdb[7] << 16);
--	txlen |= (cdb[8] << 8);
--	txlen |=  cdb[9];
-+	lba = get_unaligned_be32(&cdb[2]);
-+	txlen = get_unaligned_be32(&cdb[6]);
- 
--	trace_seq_printf(p, "lba=%llu txlen=%llu protect=%u",
--			 (unsigned long long)lba, (unsigned long long)txlen,
-+	trace_seq_printf(p, "lba=%u txlen=%u protect=%u", lba, txlen,
- 			 cdb[1] >> 5);
- 	trace_seq_putc(p, 0);
- 
-@@ -87,23 +75,13 @@ static const char *
- scsi_trace_rw16(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	sector_t lba = 0, txlen = 0;
-+	u64 lba;
-+	u32 txlen;
- 
--	lba |= ((u64)cdb[2] << 56);
--	lba |= ((u64)cdb[3] << 48);
--	lba |= ((u64)cdb[4] << 40);
--	lba |= ((u64)cdb[5] << 32);
--	lba |= (cdb[6] << 24);
--	lba |= (cdb[7] << 16);
--	lba |= (cdb[8] << 8);
--	lba |=  cdb[9];
--	txlen |= (cdb[10] << 24);
--	txlen |= (cdb[11] << 16);
--	txlen |= (cdb[12] << 8);
--	txlen |=  cdb[13];
-+	lba = get_unaligned_be64(&cdb[2]);
-+	txlen = get_unaligned_be32(&cdb[10]);
- 
--	trace_seq_printf(p, "lba=%llu txlen=%llu protect=%u",
--			 (unsigned long long)lba, (unsigned long long)txlen,
-+	trace_seq_printf(p, "lba=%llu txlen=%u protect=%u", lba, txlen,
- 			 cdb[1] >> 5);
- 
- 	if (cdb[0] == WRITE_SAME_16)
-@@ -118,8 +96,8 @@ static const char *
- scsi_trace_rw32(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p), *cmd;
--	sector_t lba = 0, txlen = 0;
--	u32 ei_lbrt = 0;
-+	u64 lba;
-+	u32 ei_lbrt, txlen;
- 
- 	switch (SERVICE_ACTION32(cdb)) {
- 	case READ_32:
-@@ -139,26 +117,12 @@ scsi_trace_rw32(struct trace_seq *p, uns
- 		goto out;
- 	}
- 
--	lba |= ((u64)cdb[12] << 56);
--	lba |= ((u64)cdb[13] << 48);
--	lba |= ((u64)cdb[14] << 40);
--	lba |= ((u64)cdb[15] << 32);
--	lba |= (cdb[16] << 24);
--	lba |= (cdb[17] << 16);
--	lba |= (cdb[18] << 8);
--	lba |=  cdb[19];
--	ei_lbrt |= (cdb[20] << 24);
--	ei_lbrt |= (cdb[21] << 16);
--	ei_lbrt |= (cdb[22] << 8);
--	ei_lbrt |=  cdb[23];
--	txlen |= (cdb[28] << 24);
--	txlen |= (cdb[29] << 16);
--	txlen |= (cdb[30] << 8);
--	txlen |=  cdb[31];
--
--	trace_seq_printf(p, "%s_32 lba=%llu txlen=%llu protect=%u ei_lbrt=%u",
--			 cmd, (unsigned long long)lba,
--			 (unsigned long long)txlen, cdb[10] >> 5, ei_lbrt);
-+	lba = get_unaligned_be64(&cdb[12]);
-+	ei_lbrt = get_unaligned_be32(&cdb[20]);
-+	txlen = get_unaligned_be32(&cdb[28]);
++	if (phba->cfg_xpsgl && !phba->nvmet_support &&
++	    !list_empty(&lpfc_ncmd->dma_sgl_xtra_list))
++		lpfc_put_sgl_per_hdwq(phba, lpfc_ncmd);
 +
-+	trace_seq_printf(p, "%s_32 lba=%llu txlen=%u protect=%u ei_lbrt=%u",
-+			 cmd, lba, txlen, cdb[10] >> 5, ei_lbrt);
- 
- 	if (SERVICE_ACTION32(cdb) == WRITE_SAME_32)
- 		trace_seq_printf(p, " unmap=%u", cdb[10] >> 3 & 1);
-@@ -173,7 +137,7 @@ static const char *
- scsi_trace_unmap(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	unsigned int regions = cdb[7] << 8 | cdb[8];
-+	unsigned int regions = get_unaligned_be16(&cdb[7]);
- 
- 	trace_seq_printf(p, "regions=%u", (regions - 8) / 16);
- 	trace_seq_putc(p, 0);
-@@ -185,8 +149,8 @@ static const char *
- scsi_trace_service_action_in(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p), *cmd;
--	sector_t lba = 0;
--	u32 alloc_len = 0;
-+	u64 lba;
-+	u32 alloc_len;
- 
- 	switch (SERVICE_ACTION16(cdb)) {
- 	case SAI_READ_CAPACITY_16:
-@@ -200,21 +164,10 @@ scsi_trace_service_action_in(struct trac
- 		goto out;
++	if (!list_empty(&lpfc_ncmd->dma_cmd_rsp_list))
++		lpfc_put_cmd_rsp_buf_per_hdwq(phba, lpfc_ncmd);
++
+ 	if (phba->cfg_xri_rebalancing) {
+ 		if (lpfc_ncmd->expedite) {
+ 			/* Return to expedite pool */
+@@ -20172,13 +20179,6 @@ void lpfc_release_io_buf(struct lpfc_hba
+ 		spin_unlock_irqrestore(&qp->io_buf_list_put_lock,
+ 				       iflag);
  	}
+-
+-	if (phba->cfg_xpsgl && !phba->nvmet_support &&
+-	    !list_empty(&lpfc_ncmd->dma_sgl_xtra_list))
+-		lpfc_put_sgl_per_hdwq(phba, lpfc_ncmd);
+-
+-	if (!list_empty(&lpfc_ncmd->dma_cmd_rsp_list))
+-		lpfc_put_cmd_rsp_buf_per_hdwq(phba, lpfc_ncmd);
+ }
  
--	lba |= ((u64)cdb[2] << 56);
--	lba |= ((u64)cdb[3] << 48);
--	lba |= ((u64)cdb[4] << 40);
--	lba |= ((u64)cdb[5] << 32);
--	lba |= (cdb[6] << 24);
--	lba |= (cdb[7] << 16);
--	lba |= (cdb[8] << 8);
--	lba |=  cdb[9];
--	alloc_len |= (cdb[10] << 24);
--	alloc_len |= (cdb[11] << 16);
--	alloc_len |= (cdb[12] << 8);
--	alloc_len |=  cdb[13];
-+	lba = get_unaligned_be64(&cdb[2]);
-+	alloc_len = get_unaligned_be32(&cdb[10]);
- 
--	trace_seq_printf(p, "%s lba=%llu alloc_len=%u", cmd,
--			 (unsigned long long)lba, alloc_len);
-+	trace_seq_printf(p, "%s lba=%llu alloc_len=%u", cmd, lba, alloc_len);
- 
- out:
- 	trace_seq_putc(p, 0);
+ /**
 
 
