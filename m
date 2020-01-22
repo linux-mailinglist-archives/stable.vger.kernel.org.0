@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5047144F7C
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F3A1450BE
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729762AbgAVJiV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:38:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54938 "EHLO mail.kernel.org"
+        id S2387533AbgAVJlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:41:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732359AbgAVJiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:38:17 -0500
+        id S2387528AbgAVJlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A482467E;
-        Wed, 22 Jan 2020 09:38:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8188024689;
+        Wed, 22 Jan 2020 09:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685897;
-        bh=N/Ob0M7Zc8dRq0i/Iwf6x3QzGWCdqoUhslM1ppdvP0o=;
+        s=default; t=1579686073;
+        bh=QbD96Y8SIqgfAk5UQVoUIntMT0XVrmCym2yPFD+G9zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GB+vmXBgF1RtFTyEsJgifDXD9F0gQZTahd9ei83CztKb/SzjVi42eb5E4jtaKLWrf
-         oMyDKpQtpNMY00WXrJK3wvXk6epNyK1SyYn7pJSPcoryLTXAVXzNyDU8xHMpzC1Qe4
-         /eN3aXiS6IDbybMVMUssanSAGhSwRmQQNMXXXhzQ=
+        b=IMSZJFiRlObpqb4RpAKx9AZKfVpc8onbqJ+0ydtFhMs6kAmQ15UIm4BqQuq13dsXd
+         IQPMMn4Ykzf42Yae6OPieJkK0DbDJTWSPOUYEEY23sWs7BzUjhgq4q2WBrfm33BiFW
+         Jpf2H3e3a7EnyHAtUtbhY0NU0sITz3jvqQ1EdrVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 03/65] ASoC: msm8916-wcd-analog: Fix selected events for MIC BIAS External1
-Date:   Wed, 22 Jan 2020 10:28:48 +0100
-Message-Id: <20200122092752.035114311@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        john.stultz@linaro.org, sboyd@kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>, tj@kernel.org,
+        Tony Luck <tony.luck@intel.com>,
+        Vikas Shivappa <vikas.shivappa@linux.intel.com>,
+        x86-ml <x86@kernel.org>
+Subject: [PATCH 4.19 033/103] x86/resctrl: Fix an imbalance in domain_remove_cpu()
+Date:   Wed, 22 Jan 2020 10:28:49 +0100
+Message-Id: <20200122092808.807154512@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +51,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Qian Cai <cai@lca.pw>
 
-commit e0beec88397b163c7c4ea6fcfb67e8e07a2671dc upstream.
+commit e278af89f1ba0a9ef20947db6afc2c9afa37e85b upstream.
 
-MIC BIAS External1 sets pm8916_wcd_analog_enable_micbias_ext1()
-as event handler, which ends up in pm8916_wcd_analog_enable_micbias_ext().
+A system that supports resource monitoring may have multiple resources
+while not all of these resources are capable of monitoring. Monitoring
+related state is initialized only for resources that are capable of
+monitoring and correspondingly this state should subsequently only be
+removed from these resources that are capable of monitoring.
 
-But pm8916_wcd_analog_enable_micbias_ext() only handles the POST_PMU
-event, which is not specified in the event flags for MIC BIAS External1.
-This means that the code in the event handler is never actually run.
+domain_add_cpu() calls domain_setup_mon_state() only when r->mon_capable
+is true where it will initialize d->mbm_over. However,
+domain_remove_cpu() calls cancel_delayed_work(&d->mbm_over) without
+checking r->mon_capable resulting in an attempt to cancel d->mbm_over on
+all resources, even those that never initialized d->mbm_over because
+they are not capable of monitoring. Hence, it triggers a debugobjects
+warning when offlining CPUs because those timer debugobjects are never
+initialized:
 
-Set SND_SOC_DAPM_POST_PMU as the only event for the handler to fix this.
+  ODEBUG: assert_init not available (active state 0) object type:
+  timer_list hint: 0x0
+  WARNING: CPU: 143 PID: 789 at lib/debugobjects.c:484
+  debug_print_object
+  Hardware name: HP Synergy 680 Gen9/Synergy 680 Gen9 Compute Module, BIOS I40 05/23/2018
+  RIP: 0010:debug_print_object
+  Call Trace:
+  debug_object_assert_init
+  del_timer
+  try_to_grab_pending
+  cancel_delayed_work
+  resctrl_offline_cpu
+  cpuhp_invoke_callback
+  cpuhp_thread_fun
+  smpboot_thread_fn
+  kthread
+  ret_from_fork
 
-Fixes: 585e881e5b9e ("ASoC: codecs: Add msm8916-wcd analog codec")
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200111164006.43074-2-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e33026831bdb ("x86/intel_rdt/mbm: Handle counter overflow")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: john.stultz@linaro.org
+Cc: sboyd@kernel.org
+Cc: <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: tj@kernel.org
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vikas Shivappa <vikas.shivappa@linux.intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20191211033042.2188-1-cai@lca.pw
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/msm8916-wcd-analog.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/intel_rdt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/codecs/msm8916-wcd-analog.c
-+++ b/sound/soc/codecs/msm8916-wcd-analog.c
-@@ -876,10 +876,10 @@ static const struct snd_soc_dapm_widget
- 
- 	SND_SOC_DAPM_SUPPLY("MIC BIAS External1", CDC_A_MICB_1_EN, 7, 0,
- 			    pm8916_wcd_analog_enable_micbias_ext1,
--			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
-+			    SND_SOC_DAPM_POST_PMU),
- 	SND_SOC_DAPM_SUPPLY("MIC BIAS External2", CDC_A_MICB_2_EN, 7, 0,
- 			    pm8916_wcd_analog_enable_micbias_ext2,
--			    SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
-+			    SND_SOC_DAPM_POST_PMU),
- 
- 	SND_SOC_DAPM_ADC_E("ADC1", NULL, CDC_A_TX_1_EN, 7, 0,
- 			   pm8916_wcd_analog_enable_adc,
+--- a/arch/x86/kernel/cpu/intel_rdt.c
++++ b/arch/x86/kernel/cpu/intel_rdt.c
+@@ -595,7 +595,7 @@ static void domain_remove_cpu(int cpu, s
+ 		if (static_branch_unlikely(&rdt_mon_enable_key))
+ 			rmdir_mondata_subdir_allrdtgrp(r, d->id);
+ 		list_del(&d->list);
+-		if (is_mbm_enabled())
++		if (r->mon_capable && is_mbm_enabled())
+ 			cancel_delayed_work(&d->mbm_over);
+ 		if (is_llc_occupancy_enabled() &&  has_busy_rmid(r, d)) {
+ 			/*
 
 
