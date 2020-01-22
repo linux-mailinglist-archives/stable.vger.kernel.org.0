@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D8814517C
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:54:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30683144FBD
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729418AbgAVJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:34:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
+        id S1733173AbgAVJkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729833AbgAVJeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:34:06 -0500
+        id S2387467AbgAVJkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30FED24680;
-        Wed, 22 Jan 2020 09:34:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78F0924680;
+        Wed, 22 Jan 2020 09:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685645;
-        bh=jgYMrh40B1NE3FzhhtO8edLHzqlzIJkJEvBtjFq4TRY=;
+        s=default; t=1579686038;
+        bh=2FiJmJV1CwjvnJ0/pRolslGpEn1q5t5nYmX/eEeBovE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DF83vKx/Wsv75Jh9yGkI1XQp6INbsz69cCUr69CvDVYwYJyDbokJh9IJBSa98VI0m
-         thml2qkFpi9wQFpd89IpunGQHGXsFwnTh6jm6j2TEpyx3pS4MXjCI/lRcsBI9eM+pg
-         mnFQvc3hiYPmca8vB8h3uj5jE4lIWxeQnbe4MCc4=
+        b=Aff7nWQWYNHgRMrNAylpzTWO8nGECwQxnQ+6NdAavnZ+1PgzYjkiBXXtm4z8pvdFv
+         OPm5njQmA+rG4PQFANGIK1tegi6CGPRFTDyw5x+5ehHPA917St5lW7Ud5589nlU6xf
+         4600+YE6yYgsEQHNWtwGPsgkkHM9Aa+mQpCc1TbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com,
-        Vandana BN <bnvandana@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 14/97] media: usb:zr364xx:Fix KASAN:null-ptr-deref Read in zr364xx_vidioc_querycap
+        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
+        Georgi Djakov <georgi.djakov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 002/103] clk: qcom: gcc-sdm845: Add missing flag to votable GDSCs
 Date:   Wed, 22 Jan 2020 10:28:18 +0100
-Message-Id: <20200122092758.179998216@linuxfoundation.org>
+Message-Id: <20200122092803.972037395@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vandana BN <bnvandana@gmail.com>
+From: Georgi Djakov <georgi.djakov@linaro.org>
 
-commit 5d2e73a5f80a5b5aff3caf1ec6d39b5b3f54b26e upstream.
+commit 5e82548e26ef62e257dc2ff37c11acb5eb72728e upstream.
 
-SyzKaller hit the null pointer deref while reading from uninitialized
-udev->product in zr364xx_vidioc_querycap().
+On sdm845 devices, during boot we see the following warnings (unless we
+have added 'pd_ignore_unused' to the kernel command line):
+	hlos1_vote_mmnoc_mmu_tbu_sf_gdsc status stuck at 'on'
+	hlos1_vote_mmnoc_mmu_tbu_hf1_gdsc status stuck at 'on'
+	hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc status stuck at 'on'
+	hlos1_vote_aggre_noc_mmu_tbu2_gdsc status stuck at 'on'
+	hlos1_vote_aggre_noc_mmu_tbu1_gdsc status stuck at 'on'
+	hlos1_vote_aggre_noc_mmu_pcie_tbu_gdsc status stuck at 'on'
+	hlos1_vote_aggre_noc_mmu_audio_tbu_gdsc status stuck at 'on'
 
-==================================================================
-BUG: KASAN: null-ptr-deref in read_word_at_a_time+0xe/0x20
-include/linux/compiler.h:274
-Read of size 1 at addr 0000000000000000 by task v4l_id/5287
+As the name of these GDSCs suggests, they are "votable" and in downstream
+DT, they all have the property "qcom,no-status-check-on-disable", which
+means that we should not poll the status bit when we disable them.
 
-CPU: 1 PID: 5287 Comm: v4l_id Not tainted 5.1.0-rc3-319004-g43151d6 #6
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xe8/0x16e lib/dump_stack.c:113
-  kasan_report.cold+0x5/0x3c mm/kasan/report.c:321
-  read_word_at_a_time+0xe/0x20 include/linux/compiler.h:274
-  strscpy+0x8a/0x280 lib/string.c:207
-  zr364xx_vidioc_querycap+0xb5/0x210 drivers/media/usb/zr364xx/zr364xx.c:706
-  v4l_querycap+0x12b/0x340 drivers/media/v4l2-core/v4l2-ioctl.c:1062
-  __video_do_ioctl+0x5bb/0xb40 drivers/media/v4l2-core/v4l2-ioctl.c:2874
-  video_usercopy+0x44e/0xf00 drivers/media/v4l2-core/v4l2-ioctl.c:3056
-  v4l2_ioctl+0x14e/0x1a0 drivers/media/v4l2-core/v4l2-dev.c:364
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xced/0x12f0 fs/ioctl.c:696
-  ksys_ioctl+0xa0/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x74/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xcf/0x4f0 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7f3b56d8b347
-Code: 90 90 90 48 8b 05 f1 fa 2a 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff
-ff c3 90 90 90 90 90 90 90 90 90 90 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff
-ff 73 01 c3 48 8b 0d c1 fa 2a 00 31 d2 48 29 c2 64
-RSP: 002b:00007ffe005d5d68 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f3b56d8b347
-RDX: 00007ffe005d5d70 RSI: 0000000080685600 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000400884
-R13: 00007ffe005d5ec0 R14: 0000000000000000 R15: 0000000000000000
-==================================================================
+Luckily the VOTABLE flag already exists and it does exactly what we need,
+so let's make use of it to make the warnings disappear.
 
-For this device udev->product is not initialized and accessing it causes a NULL pointer deref.
-
-The fix is to check for NULL before strscpy() and copy empty string, if
-product is NULL
-
-Reported-by: syzbot+66010012fd4c531a1a96@syzkaller.appspotmail.com
-Signed-off-by: Vandana BN <bnvandana@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-[bwh: Backported to 4.9: This function uses strlcpy() instead of strscpy()]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Fixes: 06391eddb60a ("clk: qcom: Add Global Clock controller (GCC) driver for SDM845")
+Reported-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+Link: https://lkml.kernel.org/r/20191126153437.11808-1-georgi.djakov@linaro.org
+Tested-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/media/usb/zr364xx/zr364xx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -711,7 +711,8 @@ static int zr364xx_vidioc_querycap(struc
- 	struct zr364xx_camera *cam = video_drvdata(file);
+---
+ drivers/clk/qcom/gcc-sdm845.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/drivers/clk/qcom/gcc-sdm845.c
++++ b/drivers/clk/qcom/gcc-sdm845.c
+@@ -3150,6 +3150,7 @@ static struct gdsc hlos1_vote_aggre_noc_
+ 		.name = "hlos1_vote_aggre_noc_mmu_audio_tbu_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
  
- 	strlcpy(cap->driver, DRIVER_DESC, sizeof(cap->driver));
--	strlcpy(cap->card, cam->udev->product, sizeof(cap->card));
-+	if (cam->udev->product)
-+		strlcpy(cap->card, cam->udev->product, sizeof(cap->card));
- 	strlcpy(cap->bus_info, dev_name(&cam->udev->dev),
- 		sizeof(cap->bus_info));
- 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
+ static struct gdsc hlos1_vote_aggre_noc_mmu_pcie_tbu_gdsc = {
+@@ -3158,6 +3159,7 @@ static struct gdsc hlos1_vote_aggre_noc_
+ 		.name = "hlos1_vote_aggre_noc_mmu_pcie_tbu_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
+ 
+ static struct gdsc hlos1_vote_aggre_noc_mmu_tbu1_gdsc = {
+@@ -3166,6 +3168,7 @@ static struct gdsc hlos1_vote_aggre_noc_
+ 		.name = "hlos1_vote_aggre_noc_mmu_tbu1_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
+ 
+ static struct gdsc hlos1_vote_aggre_noc_mmu_tbu2_gdsc = {
+@@ -3174,6 +3177,7 @@ static struct gdsc hlos1_vote_aggre_noc_
+ 		.name = "hlos1_vote_aggre_noc_mmu_tbu2_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
+ 
+ static struct gdsc hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc = {
+@@ -3182,6 +3186,7 @@ static struct gdsc hlos1_vote_mmnoc_mmu_
+ 		.name = "hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
+ 
+ static struct gdsc hlos1_vote_mmnoc_mmu_tbu_hf1_gdsc = {
+@@ -3190,6 +3195,7 @@ static struct gdsc hlos1_vote_mmnoc_mmu_
+ 		.name = "hlos1_vote_mmnoc_mmu_tbu_hf1_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
+ 
+ static struct gdsc hlos1_vote_mmnoc_mmu_tbu_sf_gdsc = {
+@@ -3198,6 +3204,7 @@ static struct gdsc hlos1_vote_mmnoc_mmu_
+ 		.name = "hlos1_vote_mmnoc_mmu_tbu_sf_gdsc",
+ 	},
+ 	.pwrsts = PWRSTS_OFF_ON,
++	.flags = VOTABLE,
+ };
+ 
+ static struct clk_regmap *gcc_sdm845_clocks[] = {
 
 
