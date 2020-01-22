@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 483711454F3
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:17:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AEE1454F7
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:18:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726590AbgAVNRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:17:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33018 "EHLO mail.kernel.org"
+        id S1728139AbgAVNRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:17:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725790AbgAVNRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:17:36 -0500
+        id S1725790AbgAVNRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:17:45 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13B3E205F4;
-        Wed, 22 Jan 2020 13:17:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15142205F4;
+        Wed, 22 Jan 2020 13:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699055;
-        bh=9Ky4eerI2vkPmPs1MyU18huTmAOmuD+kfTOFo0H5Fi8=;
+        s=default; t=1579699064;
+        bh=FWd7oeVOdPHJWI+flJGUGq8dp/t9StvJT23VskqObt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xr8lUN4P2O14F9A+6zr9SKqkORoJtggOouSM/7U3lhpajc9aRJulNgtT7s4T0M6Ex
-         a3VlFUu78mytqry1d58ZA88orlqnB5jpYa+dtR3NfAZ6/U/YQ2BfwUohTJhkWHH03j
-         h7CHgeC+nXRaLC/B0M87RtD8Sw+JRIeXLk6upNf8=
+        b=1ftPX4mk1fmB2KMZdImDdDH52ISWgmbIBaQTs631KSgXTbx9oeuCy2FbeWjhhqjti
+         iVQt4h25nGkkFJeIFwRaEgEqN+9Egxd1FTpiX4cUtnHmZamnlxyWAwLmmwzDyRGKR7
+         6Yd+Qxk+7+tauh8vI1NlmhtxUYcM3nGZm1u565KM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jari Ruusu <jari.ruusu@gmail.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Luis Chamberlain <mcgrof@kernel.org>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 029/222] Fix built-in early-load Intel microcode alignment
-Date:   Wed, 22 Jan 2020 10:26:55 +0100
-Message-Id: <20200122092835.547224718@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.4 030/222] clk: sunxi-ng: r40: Allow setting parent rate for external clock outputs
+Date:   Wed, 22 Jan 2020 10:26:56 +0100
+Message-Id: <20200122092835.626065575@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -46,54 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jari Ruusu <jari.ruusu@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit f5ae2ea6347a308cfe91f53b53682ce635497d0d upstream.
+commit c7b305267eb77fe47498676e9337324c9653494c upstream.
 
-Intel Software Developer's Manual, volume 3, chapter 9.11.6 says:
+One of the uses of the external clock outputs is to provide a stable
+32768 Hz clock signal to WiFi and Bluetooth chips. On the R40, the RTC
+has an internal RC oscillator that is muxed with the external crystal.
 
- "Note that the microcode update must be aligned on a 16-byte boundary
-  and the size of the microcode update must be 1-KByte granular"
+Allow setting the parent rate for the external clock outputs so that
+requests for 32768 Hz get passed to the RTC's clock driver to mux in
+the external crystal if it isn't already muxed correctly.
 
-When early-load Intel microcode is loaded from initramfs, userspace tool
-'iucode_tool' has already 16-byte aligned those microcode bits in that
-initramfs image.  Image that was created something like this:
-
- iucode_tool --write-earlyfw=FOO.cpio microcode-files...
-
-However, when early-load Intel microcode is loaded from built-in
-firmware BLOB using CONFIG_EXTRA_FIRMWARE= kernel config option, that
-16-byte alignment is not guaranteed.
-
-Fix this by forcing all built-in firmware BLOBs to 16-byte alignment.
-
-[ If we end up having other firmware with much bigger alignment
-  requirements, we might need to introduce some method for the firmware
-  to specify it, this is the minimal "just increase the alignment a bit
-  to account for this one special case" patch    - Linus ]
-
-Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: cd030a78f7aa ("clk: sunxi-ng: support R40 SoC")
+Fixes: 01a7ea763fc4 ("clk: sunxi-ng: r40: Force LOSC parent to RTC LOSC output")
+Cc: <stable@kernel.org>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/firmware_loader/builtin/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/sunxi-ng/ccu-sun8i-r40.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/base/firmware_loader/builtin/Makefile
-+++ b/drivers/base/firmware_loader/builtin/Makefile
-@@ -17,7 +17,7 @@ PROGBITS  = $(if $(CONFIG_ARM),%,@)progb
- filechk_fwbin = \
- 	echo "/* Generated by $(src)/Makefile */"		;\
- 	echo "    .section .rodata"				;\
--	echo "    .p2align $(ASM_ALIGN)"			;\
-+	echo "    .p2align 4"					;\
- 	echo "_fw_$(FWSTR)_bin:"				;\
- 	echo "    .incbin \"$(fwdir)/$(FWNAME)\""		;\
- 	echo "_fw_end:"						;\
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-r40.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-r40.c
+@@ -761,7 +761,8 @@ static struct ccu_mp outa_clk = {
+ 		.reg		= 0x1f0,
+ 		.features	= CCU_FEATURE_FIXED_PREDIV,
+ 		.hw.init	= CLK_HW_INIT_PARENTS("outa", out_parents,
+-						      &ccu_mp_ops, 0),
++						      &ccu_mp_ops,
++						      CLK_SET_RATE_PARENT),
+ 	}
+ };
+ 
+@@ -779,7 +780,8 @@ static struct ccu_mp outb_clk = {
+ 		.reg		= 0x1f4,
+ 		.features	= CCU_FEATURE_FIXED_PREDIV,
+ 		.hw.init	= CLK_HW_INIT_PARENTS("outb", out_parents,
+-						      &ccu_mp_ops, 0),
++						      &ccu_mp_ops,
++						      CLK_SET_RATE_PARENT),
+ 	}
+ };
+ 
 
 
