@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45363145610
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C72D614560F
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729214AbgAVNUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729355AbgAVNUL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 Jan 2020 08:20:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36242 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729297AbgAVNUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:20:08 -0500
+        id S1726103AbgAVNUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:20:11 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3F7A2467E;
-        Wed, 22 Jan 2020 13:20:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 239112467A;
+        Wed, 22 Jan 2020 13:20:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699207;
-        bh=mI98QF2qNyJiueNKtM5Bbxqg45I7JeOH0vikwTQ5XLE=;
+        s=default; t=1579699210;
+        bh=Pnms0mdwSSW50PLMZds+9J5iQ+280m3bmjraUAgTnto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXO1uHaYEzxIKpd7DjDmorHXZdLOwWmCOKJyXMXwM+6nVFpo4pARrLkJOOBQJHlwB
-         A7P3NrSwfU/tnUCH4ZLXbO4xb+olkrqxMroBt3kF5ic6iNYnAaYRmXq4rpJK4Pc2WP
-         rcXj4ut8N/SJfFfubyA/YM8T1ph4pCu5LDKHxsvQ=
+        b=lUM76JBNXhaxPLyE9cMjz5ZK1jGPQsxQ//MYvznp1+0rXRlmy3c03gDrcxxiRiIw0
+         cHkpTkubKk95ptjtG9D0iWdAz+jhkMtdXyCdXlyZ9cKnhD/TKbJRGr0ix4xTyHsCco
+         fKbAdnru/+nCjcKfijJbOoJ/xg9xT1HodZbQYTl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 5.4 037/222] perf: Correctly handle failed perf_get_aux_event()
-Date:   Wed, 22 Jan 2020 10:27:03 +0100
-Message-Id: <20200122092836.175504422@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 038/222] iio: adc: ad7124: Fix DT channel configuration
+Date:   Wed, 22 Jan 2020 10:27:04 +0100
+Message-Id: <20200122092836.253449337@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -46,61 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-commit da9ec3d3dd0f1240a48920be063448a2242dbd90 upstream.
+commit d7857e4ee1ba69732b16c73b2f2dde83ecd78ee4 upstream.
 
-Vince reports a worrying issue:
+This patch fixes device tree channel configuration.
 
-| so I was tracking down some odd behavior in the perf_fuzzer which turns
-| out to be because perf_even_open() sometimes returns 0 (indicating a file
-| descriptor of 0) even though as far as I can tell stdin is still open.
+ad7124 driver reads channels configuration from the device tree.
+It expects to find channel specifications as child nodes.
+Before this patch ad7124 driver assumed that the child nodes are parsed
+by for_each_available_child_of_node in the order 0,1,2,3...
 
-... and further the cause:
+This is wrong and the real order of the children can be seen by running:
+dtc -I fs /sys/firmware/devicetree/base on the machine.
 
-| error is triggered if aux_sample_size has non-zero value.
-|
-| seems to be this line in kernel/events/core.c:
-|
-| if (perf_need_aux_event(event) && !perf_get_aux_event(event, group_leader))
-|                goto err_locked;
-|
-| (note, err is never set)
+For example, running this on an rpi 3B+ yields the real
+children order: 4,2,0,7,5,3,1,6
 
-This seems to be a thinko in commit:
+Before this patch the driver assigned the channel configuration
+like this:
+        - 0 <- 4
+        - 1 <- 2
+        - 2 <- 0
+        ........
+For example, the symptoms can be observed by connecting the 4th channel
+to a 1V tension and then reading the in_voltage0-voltage19_raw sysfs
+(multiplied of course by the scale) one would see that channel 0
+measures 1V and channel 4 measures only noise.
 
-  ab43762ef010967e ("perf: Allow normal events to output AUX data")
+Now the driver uses the reg property of each child in order to
+correctly identify to which channel the parsed configuration
+belongs to.
 
-... and we should probably return -EINVAL here, as this should only
-happen when the new event is mis-configured or does not have a
-compatible aux_event group leader.
-
-Fixes: ab43762ef010967e ("perf: Allow normal events to output AUX data")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Tested-by: Vince Weaver <vincent.weaver@maine.edu>
+Fixes b3af341bbd966: ("iio: adc: Add ad7124 support")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/events/core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ad7124.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -11182,8 +11182,10 @@ SYSCALL_DEFINE5(perf_event_open,
- 		}
+--- a/drivers/iio/adc/ad7124.c
++++ b/drivers/iio/adc/ad7124.c
+@@ -494,13 +494,11 @@ static int ad7124_of_parse_channel_confi
+ 		st->channel_config[channel].buf_negative =
+ 			of_property_read_bool(child, "adi,buffered-negative");
+ 
+-		*chan = ad7124_channel_template;
+-		chan->address = channel;
+-		chan->scan_index = channel;
+-		chan->channel = ain[0];
+-		chan->channel2 = ain[1];
+-
+-		chan++;
++		chan[channel] = ad7124_channel_template;
++		chan[channel].address = channel;
++		chan[channel].scan_index = channel;
++		chan[channel].channel = ain[0];
++		chan[channel].channel2 = ain[1];
  	}
  
--	if (event->attr.aux_output && !perf_get_aux_event(event, group_leader))
-+	if (event->attr.aux_output && !perf_get_aux_event(event, group_leader)) {
-+		err = -EINVAL;
- 		goto err_locked;
-+	}
- 
- 	/*
- 	 * Must be under the same ctx::mutex as perf_install_in_context(),
+ 	return 0;
 
 
