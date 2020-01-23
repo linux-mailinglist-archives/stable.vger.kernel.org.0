@@ -2,98 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4956147372
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 22:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6CC1473E0
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 23:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728831AbgAWVys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 16:54:48 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:40326 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727215AbgAWVys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 16:54:48 -0500
-Received: by mail-wr1-f66.google.com with SMTP id c14so4948916wrn.7
-        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 13:54:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lAu112vuHegsSzgDm3eSYs/EzfEBvv1uOjTKRUVj0Pc=;
-        b=KC2EODl4WtcOiO8uz/bUjVAobBR7ktVuEwqLSxSDYPqF02eSLQibHhJgsFi7cKFINI
-         x0jlVIz0XSPCgcVF/9M3ascVfwu7cEiv1DZw2KfPlsw3dIZ5q4YR49LK6Dq+/bceKUiW
-         4QvknLvMdbiuBFezQ2trsu438MphJLtMxzoGxzAWqHb/ageTWYIz6iIM6Y4RaqxpPhBl
-         wgsL/U0/RddLaCcPvErRUsJ7Hjkgx4OP60YHCXQW92NIq+BUz7gsBfah7xhMy18kQNBE
-         NEeBsNoPINvBRpuH6O5t8OhyY1drzhN8lVTTr5AuCHr+lw6EAG5YXgpca+HLYd7Y5WIW
-         /B4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lAu112vuHegsSzgDm3eSYs/EzfEBvv1uOjTKRUVj0Pc=;
-        b=agaWUe/lLdTO/haf9YtC6CNUGl6MISAGCW9mpX8eIOsPBb7RJnGgW8uBdJU3G9aT4W
-         VNjUlfqTguxX90CeyXVx495A8svMJsVygN7tl1RN5zObgGofRoWY/3AClmX2dab6Rcg0
-         o6CAcGEDLUwPSKFrxO1KF4B62OMLho0xOEF6RNiN7OinHxb/5ZJu4KA+llrNNBcuyrT7
-         8/YscVg14B5EaXekamOc0TxH81u2Y+6rhhRSGmHGR+RKw3FBuZ7EklMSvAn3BRvKiYpq
-         Zv73ulPqOACXhD58gIvTUEAo3kVJA3Wqnk6JrwpagHA6IBwD5V3I0L0Ges28ASHtuML3
-         eumw==
-X-Gm-Message-State: APjAAAXeU1D5OLE1EbuKXWjrXmXtpOshf9x8ticUlJmUcrj52KLtTkxC
-        9AfEgq63Z4ynLMvQKpj4HhhKNFOaZdNhUQ==
-X-Google-Smtp-Source: APXvYqxASBkzUg3q58k/CMXwVg2mi600ZrG6kbnW/MHErZkbBsuWbOm/Qf+pIzlg6EE9lBxhLh/yDg==
-X-Received: by 2002:adf:ec0d:: with SMTP id x13mr162386wrn.400.1579816486683;
-        Thu, 23 Jan 2020 13:54:46 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n187sm4355919wme.28.2020.01.23.13.54.46
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jan 2020 13:54:46 -0800 (PST)
-Message-ID: <5e2a1626.1c69fb81.f5ecc.3318@mx.google.com>
-Date:   Thu, 23 Jan 2020 13:54:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1729017AbgAWWeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 17:34:12 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52978 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728760AbgAWWeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 17:34:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579818851;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Xt1Sx4CJFCZ6eLyvybjIeqLZeBCJ8vZON841MCa4624=;
+        b=KbulWEVE1gsb6Gv/6er43LPp0vuy/8dB67Ilx8s9d9Bybg/xacXdAeqrChdk99sZu/X9kR
+        D1QQVIwsAxvILP+QTedESMhHncbeAuCNsdthrmL3ncqzTaP6vTiazkCs8fTezTJTKMa5q/
+        x8SBPBqQwcPTwXkrDGTr3bTr7agHNhs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-415-EoAvUN-wMP-8V5_ZWRUBpQ-1; Thu, 23 Jan 2020 17:34:07 -0500
+X-MC-Unique: EoAvUN-wMP-8V5_ZWRUBpQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 909FB107ACC4;
+        Thu, 23 Jan 2020 22:34:06 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 87BD186457;
+        Thu, 23 Jan 2020 22:34:06 +0000 (UTC)
+Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 4F13A38A1;
+        Thu, 23 Jan 2020 22:34:06 +0000 (UTC)
+Date:   Thu, 23 Jan 2020 17:34:06 -0500 (EST)
+From:   Jan Stancek <jstancek@redhat.com>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <600201642.3600472.1579818846276.JavaMail.zimbra@redhat.com>
+In-Reply-To: <cki.03B22F835F.RSIEVD547K@redhat.com>
+References: <cki.03B22F835F.RSIEVD547K@redhat.com>
+Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_ker?=
+ =?utf-8?Q?nel_5.4.14-0fce94b.cki_(stable)?=
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.211
-Subject: stable/linux-4.4.y boot: 51 boots: 1 failed,
- 49 passed with 1 conflict (v4.4.211)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Originating-IP: [10.43.17.25, 10.4.195.13]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.4.14-0fce94b.cki (stable)
+Thread-Index: TykMIIsk7/3a5DegolQzVCTDuj77RA==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 51 boots: 1 failed, 49 passed with 1 conflict (v4.=
-4.211)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.211/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.211/
 
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.211
-Git Commit: 4a070f3c06a103066c3155bd1ed3100aebea1a78
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 28 unique boards, 12 SoC families, 9 builds out of 179
+----- Original Message -----
+>   ppc64le:
+>     Host 1:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 Podman system integration test (as root)
+>        =E2=9C=85 Podman system integration test (as user)
+>        =E2=9D=8C LTP
 
-Boot Failure Detected:
+This is safe to ignore.
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+I can reproduce on affected system, it doesn't hang on anything specific,
+it's just that test is taking longer than expected and hits timeout.
+I'll look into proposing LTP patch for this issue.
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-collabora: FAIL (gcc-8)
-            lab-baylibre: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
