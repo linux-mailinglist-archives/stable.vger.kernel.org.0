@@ -2,78 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CA61146F0C
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 18:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A641146F39
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 18:09:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbgAWRDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 12:03:06 -0500
-Received: from mx2.suse.de ([195.135.220.15]:51858 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730037AbgAWRDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 12:03:06 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 87F6CAC50;
-        Thu, 23 Jan 2020 17:03:04 +0000 (UTC)
-From:   colyli@suse.de
-To:     axboe@kernel.dk
-Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        Coly Li <colyli@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 14/17] bcache: back to cache all readahead I/Os
-Date:   Fri, 24 Jan 2020 01:01:39 +0800
-Message-Id: <20200123170142.98974-15-colyli@suse.de>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20200123170142.98974-1-colyli@suse.de>
-References: <20200123170142.98974-1-colyli@suse.de>
+        id S1727194AbgAWRJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 12:09:54 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:44779 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726792AbgAWRJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 12:09:54 -0500
+Received: by mail-wr1-f67.google.com with SMTP id q10so3927167wrm.11
+        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 09:09:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=oltoQZ1ENT+WVEkJJ5yeIBFJg+ITfLvwJ5aZlxd8vt4=;
+        b=s994+ygqiC5NKBLsFB+pMA5g6JAakQd/p84hsiNQSW2TkLajMhCdvNQF0pi2yYSWIo
+         TqS68V5vOtUerk5yqO7sbF44daub0o2LNqPqE0ohswlnQm5sXHV4qP6QjH0Rs6Vfd6d5
+         FP/rlkx0KZYtpDtjmUuXG48lRRo5J4amdTp3VNOK73WjC/Ro3xsi5jMUS3tZWbMhsQMC
+         o03+HoIL58x20xXM84io7pcjF1kPiKMLqrYJNhAq3F1KUuwQSfvW7sGz9mGQ0oA+UT2b
+         5cG5W4bS32062pAf9oqCM7n2ZlYeDcaaJqipG3TAHpOM5iz0jFNVaep4e/3cqclWSMFW
+         AlvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=oltoQZ1ENT+WVEkJJ5yeIBFJg+ITfLvwJ5aZlxd8vt4=;
+        b=k6/nnDJGro71cNV5GMlXsZVcTvMwunMLVw2DVxvxP94dF6iq/iWlN2upQdWqGV0V5x
+         nAj1Et42nYI7Ki136WFds+aCJYkKW2l15TpRybF9vrUUCC/GZdWR9UsxobNvToeWlQeB
+         21nke+QEQsAOqvaP/3/EIrKLS4Dtgec2r6wjkSWfwcE4b8SBGu7W4uTP4wQVLgkoGYhU
+         AeoWKtiNmLgNQJwIOVEw0Ybe1Or7pvrejX9P7EdY1ThLnrXMB1P3v6DjFzGyIFNyHjy6
+         it0V2EEHXUNDbVOkdutS9B9C1M4x0ACyWYbYF4g1pYvrffOa1SJRInARvTEjn0cBvpsw
+         i9QQ==
+X-Gm-Message-State: APjAAAWr7OW+eRl2wEqATmFOHtMHtEuUfnDReWQz9qV8H7EEWhJEfGWC
+        fWb4BjdK6ioXpWyhRFY2sIlUBGorvXNPmg==
+X-Google-Smtp-Source: APXvYqyCXQnxoggW9Q6mhVT3f5ihdAb+kLMKlioscBwdgYafeTiYoR28NGvlRN9WwyWzDJneyYhrtA==
+X-Received: by 2002:adf:f5cb:: with SMTP id k11mr19500375wrp.71.1579799391624;
+        Thu, 23 Jan 2020 09:09:51 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b137sm3571311wme.26.2020.01.23.09.09.50
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jan 2020 09:09:50 -0800 (PST)
+Message-ID: <5e29d35e.1c69fb81.b845d.ee63@mx.google.com>
+Date:   Thu, 23 Jan 2020 09:09:50 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.211
+Subject: stable-rc/linux-4.9.y boot: 93 boots: 3 failed,
+ 83 passed with 5 offline, 2 untried/unknown (v4.9.211)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+stable-rc/linux-4.9.y boot: 93 boots: 3 failed, 83 passed with 5 offline, 2=
+ untried/unknown (v4.9.211)
 
-In year 2007 high performance SSD was still expensive, in order to
-save more space for real workload or meta data, the readahead I/Os
-for non-meta data was bypassed and not cached on SSD.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.211/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.211/
 
-In now days, SSD price drops a lot and people can find larger size
-SSD with more comfortable price. It is unncessary to bypass normal
-readahead I/Os to save SSD space for now.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.211
+Git Commit: 80f0831c72d498fb27c90de47e0f69d593000305
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 51 unique boards, 18 SoC families, 16 builds out of 186
 
-This patch removes the code which checks REQ_RAHEAD tag of bio in
-check_should_bypass(), then all readahead I/Os will be cached on SSD.
+Boot Regressions Detected:
 
-NOTE: this patch still keeps the checking of "REQ_META|REQ_PRIO" in
-should_writeback(), because we still want to cache meta data I/Os
-even they are asynchronized.
+arm:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Coly Li <colyli@suse.de>
-Acked-by: Eric Wheeler <bcache@linux.ewheeler.net>
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: failing since 2 days (last pass: v4.9.2=
+10-77-g2f9a91e62a20 - first fail: v4.9.210-81-g0f7725a1298b)
+          sun5i-r8-chip:
+              lab-baylibre-seattle: failing since 2 days (last pass: v4.9.2=
+10-77-g2f9a91e62a20 - first fail: v4.9.210-81-g0f7725a1298b)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    sunxi_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
 ---
- drivers/md/bcache/request.c | 9 ---------
- 1 file changed, 9 deletions(-)
-
-diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-index 73478a91a342..acc07c4f27ae 100644
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -378,15 +378,6 @@ static bool check_should_bypass(struct cached_dev *dc, struct bio *bio)
- 	     op_is_write(bio_op(bio))))
- 		goto skip;
- 
--	/*
--	 * Flag for bypass if the IO is for read-ahead or background,
--	 * unless the read-ahead request is for metadata
--	 * (eg, for gfs2 or xfs).
--	 */
--	if (bio->bi_opf & (REQ_RAHEAD|REQ_BACKGROUND) &&
--	    !(bio->bi_opf & (REQ_META|REQ_PRIO)))
--		goto skip;
--
- 	if (bio->bi_iter.bi_sector & (c->sb.block_size - 1) ||
- 	    bio_sectors(bio) & (c->sb.block_size - 1)) {
- 		pr_debug("skipping unaligned io");
--- 
-2.16.4
-
+For more info write to <info@kernelci.org>
