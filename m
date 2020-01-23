@@ -2,108 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A72F21469F7
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 14:54:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D361146A08
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 14:58:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbgAWNyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 08:54:55 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:60629 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727022AbgAWNyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 08:54:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579787694;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RQ3Ow20PKV371NO5YgbOYBtfdI39/lSB5zP8TflCC5o=;
-        b=Lf9Rf62n9QzqHRQOcWyLYVsSWv6tqIUYLHlYClTF1KI9L1Pzgl0EWpQY32qBmCYbZRq9T5
-        uuaOOtnST28OkCubrpYoPQ9vhW9WTjePJU8Gisa8hCKLVliv2snBgG5IOkauNi27ZWgPu6
-        6obsZfQD3SLnfgHGTxJnisct0J9ZjZ0=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-61-qSTlXrkKN_69_zWS5vmx_w-1; Thu, 23 Jan 2020 08:54:52 -0500
-X-MC-Unique: qSTlXrkKN_69_zWS5vmx_w-1
-Received: by mail-wr1-f70.google.com with SMTP id w6so1757439wrm.16
-        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 05:54:52 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RQ3Ow20PKV371NO5YgbOYBtfdI39/lSB5zP8TflCC5o=;
-        b=QQaqwWq/lZNeqNZQP25gsLN/4IMkJ6r2oABU/FEEdQv7A+cl+C8Li2ug4g29GXkzAS
-         xAeuGjftzND12zfAaFpsfqr/R69rZjOLGLlZ/RILHUhbzW57B5BhsaYdCXRVBscbY6/z
-         LxvcSnG9K13He5l+dhf6FPNYpVrwaUbh470nodbTbskvBiwoxjv843yZpn4FV81W8JXx
-         0HhA3x/9YrpXVTcns3tYClaYj6uiCy9DdrkMiQPspbPurfEIwodNa85rUkUHUULNiOiv
-         i8OtZXmFHeCIqKW6eSRBdfiWaHhEKBk/SI0XYV+m2/3QlWrhA3SBSrkt5nRv/wF7xeBS
-         mzcg==
-X-Gm-Message-State: APjAAAWXSkkvNFfVBgC0hag65MG9IEmuPufisIwZWJO3g9I7k2lafiDz
-        2I0L21haEDN5fp5oKU11l5xxb+zC9kkIg9yjhyrFDH9iACGeeDIkIoOMaTKTs/2AZI7CMty99Ch
-        YkVwoX2xVM5i/n4af
-X-Received: by 2002:a05:600c:224a:: with SMTP id a10mr4402299wmm.143.1579787691645;
-        Thu, 23 Jan 2020 05:54:51 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxKDd2Y0rsZeFLVbKo5pHH20OQcIqSfL1QyTrAtoWCMveHeMEIT2dWY+aPKw92HxHMLD6QraQ==
-X-Received: by 2002:a05:600c:224a:: with SMTP id a10mr4402279wmm.143.1579787691407;
-        Thu, 23 Jan 2020 05:54:51 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:b8fe:679e:87eb:c059? ([2001:b07:6468:f312:b8fe:679e:87eb:c059])
-        by smtp.gmail.com with ESMTPSA id k8sm3102469wrl.3.2020.01.23.05.54.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Jan 2020 05:54:50 -0800 (PST)
-Subject: Re: [PATCH 2/2] KVM: x86: use raw clock values consistently
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     mtosatti@redhat.com, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-References: <1579702953-24184-1-git-send-email-pbonzini@redhat.com>
- <1579702953-24184-3-git-send-email-pbonzini@redhat.com>
- <87r1zqqode.fsf@vitty.brq.redhat.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <ed5b7a36-b9a0-5436-c704-58c65966b7c2@redhat.com>
-Date:   Thu, 23 Jan 2020 14:54:47 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        id S1726771AbgAWN6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 08:58:42 -0500
+Received: from mga03.intel.com ([134.134.136.65]:17700 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726729AbgAWN6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 08:58:42 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Jan 2020 05:58:41 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,354,1574150400"; 
+   d="scan'208";a="288314808"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by fmsmga001.fm.intel.com with SMTP; 23 Jan 2020 05:58:39 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 23 Jan 2020 15:58:38 +0200
+Date:   Thu, 23 Jan 2020 15:58:38 +0200
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gem: Detect overflow in calculating
+ dumb buffer size
+Message-ID: <20200123135838.GQ13686@intel.com>
+References: <20200123125934.1401755-1-chris@chris-wilson.co.uk>
+ <20200123132707.GK13686@intel.com>
+ <157978674377.19995.13523461350756168685@skylake-alporthouse-com>
 MIME-Version: 1.0
-In-Reply-To: <87r1zqqode.fsf@vitty.brq.redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <157978674377.19995.13523461350756168685@skylake-alporthouse-com>
+X-Patchwork-Hint: comment
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 23/01/20 14:43, Vitaly Kuznetsov wrote:
->> +
->> +static s64 get_kvmclock_base_ns(void)
->> +{
->> +	/* Count up from boot time, but with the frequency of the raw clock.  */
->> +	return ktime_to_ns(ktime_add(ktime_get_raw(), pvclock_gtod_data.offs_boot));
->> +}
->> +#else
->> +static s64 get_kvmclock_base_ns(void)
->> +{
->> +	/* Master clock not used, so we can just use CLOCK_BOOTTIME.  */
->> +	return ktime_get_boottime_ns();
->> +}
->>  #endif
-> But we could've still used the RAW+offs_boot version, right? And this is
-> just to basically preserve the existing behavior on !x86.
-
-Yes, there's no reason to restrict the pvclock_gtod notifier to x86_64.
- But this is stable material so I kept it easy.
-
->>
->> -	getboottime64(&boot);
->> +	wall_nsec = ktime_get_real_ns() - get_kvmclock_ns(kvm);
+On Thu, Jan 23, 2020 at 01:39:03PM +0000, Chris Wilson wrote:
+> Quoting Ville Syrjälä (2020-01-23 13:27:07)
+> > On Thu, Jan 23, 2020 at 12:59:34PM +0000, Chris Wilson wrote:
+> > > To multiply 2 u32 numbers to generate a u64 in C requires a bit of
+> > > forewarning for the compiler.
+> > > 
+> > > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> > > Cc: Ramalingam C <ramalingam.c@intel.com>
+> > > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> > > Cc: stable@vger.kernel.org
+> > > ---
+> > >  drivers/gpu/drm/i915/i915_gem.c | 5 ++++-
+> > >  1 file changed, 4 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+> > > index 0a20083321a3..ff79da5657f8 100644
+> > > --- a/drivers/gpu/drm/i915/i915_gem.c
+> > > +++ b/drivers/gpu/drm/i915/i915_gem.c
+> > > @@ -265,7 +265,10 @@ i915_gem_dumb_create(struct drm_file *file,
+> > >                                                   DRM_FORMAT_MOD_LINEAR))
+> > >               args->pitch = ALIGN(args->pitch, 4096);
+> > >  
+> > > -     args->size = args->pitch * args->height;
+> > > +     if (args->pitch < args->width)
+> > > +             return -EINVAL;
+> > > +
+> > > +     args->size = mul_u32_u32(args->pitch, args->height);
+> > 
+> > I thought something would have checked these against the mode_config
+> > fb limits already. But can't see code like that anywhere. Maybe we
+> > should just do that in the core?
 > 
-> There are not that many hosts with more than 50 years uptime and likely
-> none running Linux with live kernel patching support so I bet noone will
-> ever see this overflowing, however, as wall_nsec is u64 and we're
-> dealing with kvmclock here I'd suggest to add a WARN_ON().
+> While it is in uapi/drm_mode.h, is there any restriction that the dumb
+> buffer has to be used with a framebuffer? Not that I have a good use
+> case, just wondering if we need to be so proscriptive.
 
-You're off by a factor of 10, 2^64 nanoseconds are about 584 years
-(584*365*10^9*86400). :)
+I think the general concensus has been that anything else is an abuse
+of the interface (not that it has stopped people from doing it IIRC).
 
-Paolo
+But maybe there's some good use for it that I can't think up.
 
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+> 
+> We create something that is compatible but presume we will need later
+> validation against HW.
+> -Chris
+
+-- 
+Ville Syrjälä
+Intel
