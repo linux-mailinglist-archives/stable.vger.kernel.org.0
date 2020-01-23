@@ -2,98 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EFC1470C4
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 19:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 917D31470C8
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 19:31:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbgAWSam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 13:30:42 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:36075 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726792AbgAWSam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 13:30:42 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z3so4261567wru.3
-        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 10:30:40 -0800 (PST)
+        id S1727194AbgAWSbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 13:31:51 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:37760 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727590AbgAWSbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 13:31:51 -0500
+Received: by mail-pf1-f193.google.com with SMTP id p14so1926218pfn.4
+        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 10:31:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=esSHlgqg2YUA/z9z1WM0mfWRp6EbmHqudZKpgody2D4=;
-        b=K2zkIiyBmd4lFvoT1pubd1bNQmFqf8aCrl7zkSWYj83hHOvg3HOc/IKKgfTKJs5DE5
-         W2IDH5GOzvVY6YB6YgecQdEHhTank+3EJRGWCsIkkZ9PuJmGVVc4ABYoi58kdLc4r3SY
-         mMHBPceePol9myvsPNsGGZLR9UIQjOtxjmZ8HC7e3ft9IZHcCC+XyfOj476zg1MIgfG0
-         tZlDIiQ8t9S+UiHDK6JkIno8CPOdVUVfnEI1SEhy6AGX+g0CuVxs7QLFv6Z0BlzWlKRC
-         fprQuZoXeTuDM6Xh5VI2Z8iUB01rFaI+DMInFhr9SoXRdg8K6TcoOiUWVoPM5sCt7Vw/
-         ozMQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=LqCb1Dt+8mE8Agcb/iqdFZzhbVwp04Pt6cT0H4D6ED4=;
+        b=bRBVYENXWp60SUcaoF11dpBkoJCBql2gRZ4VyfCikfWJvaHAA/cJ5AI1rjE8FBH/7R
+         4Y27VAmrHM8kJfv56gArb5Tk68B4NEnMe6bWgqN1IGXwkjg69uBbx3w06NeYNipNRW0l
+         58pixsljpnJfZkDnboLZmNO25dV2wOt0LN/tmA0qRI9ojbVymHj1ewAueb1GoIPrIYK0
+         F7HTw+8Ifj1gMusJIaqU5sRvPTfjqR65G8TSbqv+Tnr8OR9nGkcid3nmgTqtwjkkcoZl
+         e/26jQqCncB1+Itzo0BDb3Oqi0qksRHLbxzdsZ2mvmlXXf7/MT60unpSX0wn/NsYkZtc
+         pIVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=esSHlgqg2YUA/z9z1WM0mfWRp6EbmHqudZKpgody2D4=;
-        b=WWZK+rZ7YQjHSHWIS6WR6fVSwpKjBHIizwyOk4UzDOvaj3UApX08gvZsfPJrS1lVto
-         MD605yJtJEbVPeBkqIkPsh8JiZcrgJRTcWN2tZFenhD5UYj1q9T5QAAQRpkTqFTSwpgY
-         y9mu6NvcBdGvpgyiL88IWntKIg/VMVbnYOca2kS/fj/iqCOFDQNk3bhgXwORBsgngD6E
-         qLeqlfBqc8LQVvvYOZqTDs6cI2JLwTHOLbxAHUy9272y/SYQM9rDIdzQ1FF80dE9pvZK
-         DcelNiVy8E1xNJ4kMW/qBJzJK252ahUMCF8MW3aVYqzYoU6AeoJJ1DfqjRVNQrFvGNx6
-         IR6A==
-X-Gm-Message-State: APjAAAWRywbbEBLrRiHWXvcBL2ptX6a9V7egAEuQE9ThPmH8TfHS9X48
-        s2aCKSD6TBZuX2Ot4FwQh5lqaiUYOJjDZQ==
-X-Google-Smtp-Source: APXvYqyZJsoK0fyJmUmp9eB4Fq0yALZW4+G5uviC8PVz0PLPNKXt8uDNYOXX5t4O0vndh7/PSImo5A==
-X-Received: by 2002:adf:e5cb:: with SMTP id a11mr18187505wrn.28.1579804239627;
-        Thu, 23 Jan 2020 10:30:39 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s65sm3743533wmf.48.2020.01.23.10.30.38
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jan 2020 10:30:39 -0800 (PST)
-Message-ID: <5e29e64f.1c69fb81.a7323.fe8c@mx.google.com>
-Date:   Thu, 23 Jan 2020 10:30:39 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=LqCb1Dt+8mE8Agcb/iqdFZzhbVwp04Pt6cT0H4D6ED4=;
+        b=QSQ9GoEK2KJ2R9CRQjVc7E3ynKkyQbxfuTdr9KoOK4aiiMN/KZPxtxHdAdpQDxi2ma
+         daeTgdq7rqKonsqH/NJozy78GpKwQUmQdUxdvBVbniaotDo/WG35/qNYNtYY0Zw+ROOa
+         MqqSEcfRyDnsQ6LBltp3FqIx17VJTncIfYlzeEd8R+AHPu0Nt9bsMJ6B/paYgnx7nRKz
+         OIZ6AlWvR7HalMoyAMyMREPvjFWUaH4IUHagnNwZOxrZZ51hAOwHH+v8POngOKG/3UhY
+         Aefii+wUq07sTGZsDZRJdKta3ot5nInQgdKPuD7vCn6aHtGcgL4NQkqRqipZPRdX/dox
+         /LJA==
+X-Gm-Message-State: APjAAAXT4F5zJrzidRfA9x2dyLKpvsvQqln7I/JZfdfZrxNRpEr3IV2J
+        u4ToU+1pBuVN/3pfWsJUtIVt4huCgyY=
+X-Google-Smtp-Source: APXvYqygJNTq990y7Czijur2ORNhRHnzVsQiRaBxQJNIhUFa/R3VZxrjI0VS4GOCnri2QJp/Ezz+KA==
+X-Received: by 2002:a63:4287:: with SMTP id p129mr147630pga.122.1579804310189;
+        Thu, 23 Jan 2020 10:31:50 -0800 (PST)
+Received: from ?IPv6:2600:380:4562:fb25:b980:6664:b71f:35b5? ([2600:380:4562:fb25:b980:6664:b71f:35b5])
+        by smtp.gmail.com with ESMTPSA id f81sm3305215pfa.118.2020.01.23.10.31.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jan 2020 10:31:49 -0800 (PST)
+Subject: Re: [PATCH 14/17] bcache: back to cache all readahead I/Os
+To:     Coly Li <colyli@suse.de>, Michael Lyle <mlyle@lyle.org>
+Cc:     linux-bcache <linux-bcache@vger.kernel.org>,
+        linux-block@vger.kernel.org, stable <stable@vger.kernel.org>
+References: <20200123170142.98974-1-colyli@suse.de>
+ <20200123170142.98974-15-colyli@suse.de>
+ <CAJ+L6qckUd+Kw8_jKov0dNnSiGxxvXSgc=2dPai+1ANaEdfWPQ@mail.gmail.com>
+ <efdfdd2b-b22e-42d1-c642-6c398db6864c@suse.de>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <31f7f6b4-98ea-3cf6-44cc-a9ba67484eb0@kernel.dk>
+Date:   Thu, 23 Jan 2020 11:31:47 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.98
-Subject: stable/linux-4.19.y boot: 57 boots: 1 failed,
- 55 passed with 1 untried/unknown (v4.19.98)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <efdfdd2b-b22e-42d1-c642-6c398db6864c@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 57 boots: 1 failed, 55 passed with 1 untried/unkn=
-own (v4.19.98)
+On 1/23/20 10:27 AM, Coly Li wrote:
+> On 2020/1/24 1:19 上午, Michael Lyle wrote:
+>> Hi Coly and Jens--
+>>
+>> One concern I have with this is that it's going to wear out
+>> limited-lifetime SSDs a -lot- faster.  Was any thought given to making
+>> this a tunable instead of just changing the behavior?  Even if we have
+>> an anecdote or two that it seems to have increased performance for
+>> some workloads, I don't expect it will have increased performance in
+>> general and it may even be costly for some workloads (it all comes
+>> down to what is more useful in the cache-- somewhat-recently readahead
+>> data, or the data that it is displacing).
+> 
+> Hi Mike,
+> 
+> Copied. This is good suggestion, I will do it after I back from Lunar
+> New Year vacation, and submit it with other tested patches in following
+> v5.6-rc versions.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.98/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.98/
+Do you want me to just drop this patch for now from the series?
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.98
-Git Commit: d183c8e2647a7d45202c14a33631f6c09020f8ac
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 44 unique boards, 14 SoC families, 13 builds out of 191
+-- 
+Jens Axboe
 
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          sun4i-a10-olinuxino-lime:
-              lab-baylibre: new failure (last pass: v4.19.97)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
