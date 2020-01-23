@@ -2,102 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BD1145F3B
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 00:39:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E25251460AF
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 03:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728139AbgAVXjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 18:39:19 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:42689 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726811AbgAVXjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 18:39:19 -0500
-Received: by mail-pg1-f195.google.com with SMTP id s64so349076pgb.9
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 15:39:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=YNvajkPj2BUn62eVSIlq+7puNDrKQpZK5MXXRGczBsE=;
-        b=WZJFiO4NDHzrXRTXfEk15plzqfBCf/XF0WnvEGStfqkfZ8Fj/EQr8PPvQ1mLAYqSCP
-         v+tE914RPXI/94X6Y2Ek89gj39gHYxA1NTi3sKa6IgtxsqR7fEYjau6jIW00dazgJtqm
-         NZx1MnFTfqkmUSUZZeskkvhavOEJCNt5fV+mYrZt5vPpBAD/vBNFA/RgfJYLX8D9PJaA
-         G3KnjIHOycLCS+ldcv/ah1Uk5FmX3GkTjliBdERDyczvEhEsSyWkRdr9Dv0Y86tQcqZ1
-         /LhnvAT2PoZqjNrkdXKx4QNEIv+ukhBvwK0989ik3JobGkgCQ3qE+FM9Wjg3YeOp+dJQ
-         Gk/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=YNvajkPj2BUn62eVSIlq+7puNDrKQpZK5MXXRGczBsE=;
-        b=jJSmbVQBSSPEwiZOTsoa2NN+SaoHH4CScHcAY45Fh89aluBnzDUi2U5C3IGN/eHhZN
-         H/qXte8LnbpWCSjY7LccjMEgWzpSh0A7XCZ8A7UJpANabBXvjXbUQ9cwc1Loeu1LWOet
-         6HdHaKJ3+GK3gMZtyst/H/ZW1rtdrMuUXWMlPtdXUG9q4p0mQIQw2MijE+SctAh5FXoU
-         IpM1jSJEvtt6K9LcxAexjv7sUGZOdW6vEUgqUc9oBuWNMkRBpLIgZkdLB0/O3Abgy9+x
-         lGEccGHntjju+kd2t/piHuzxNhtNQexDaRi3zKHABhJAdXS/ZYBEyJY0zKA79lzpslDY
-         heXw==
-X-Gm-Message-State: APjAAAV/M5yjEFfQap1nrzGaxoomBVt8+m6IYcbe2e8WOKTe7yWx7wLI
-        CJ6RyX/CxNwJixYxfeJy2vJwhQ==
-X-Google-Smtp-Source: APXvYqzYKfqD7EIYVVlkhEXDYVigv+4+OFhdSez6pqm4NRA/CZmbpyFtyH7DKP240xSGf/Xi6bieBA==
-X-Received: by 2002:a62:e80a:: with SMTP id c10mr4833932pfi.91.1579736358110;
-        Wed, 22 Jan 2020 15:39:18 -0800 (PST)
-Received: from [2620:15c:17:3:3a5:23a7:5e32:4598] ([2620:15c:17:3:3a5:23a7:5e32:4598])
-        by smtp.gmail.com with ESMTPSA id m101sm98110pje.13.2020.01.22.15.39.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jan 2020 15:39:17 -0800 (PST)
-Date:   Wed, 22 Jan 2020 15:39:16 -0800 (PST)
-From:   David Rientjes <rientjes@google.com>
-X-X-Sender: rientjes@chino.kir.corp.google.com
-To:     Michal Hocko <mhocko@kernel.org>
-cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
-        vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
-        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com,
-        cgroups@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [Patch v4] mm: thp: remove the defer list related code since
- this will not happen
-In-Reply-To: <20200122081406.GO29276@dhcp22.suse.cz>
-Message-ID: <alpine.DEB.2.21.2001221534510.159514@chino.kir.corp.google.com>
-References: <20200117233836.3434-1-richardw.yang@linux.intel.com> <20200118145421.0ab96d5d9bea21a3339d52fe@linux-foundation.org> <alpine.DEB.2.21.2001181525250.27051@chino.kir.corp.google.com> <20200120072237.GA18451@dhcp22.suse.cz>
- <alpine.DEB.2.21.2001201307520.259466@chino.kir.corp.google.com> <20200120212726.GB29276@dhcp22.suse.cz> <alpine.DEB.2.21.2001211500250.157547@chino.kir.corp.google.com> <20200122081406.GO29276@dhcp22.suse.cz>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1725943AbgAWCZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 21:25:02 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:47698 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725933AbgAWCZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 21:25:01 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 35ADC651C4DD263FBCD7;
+        Thu, 23 Jan 2020 10:24:58 +0800 (CST)
+Received: from [127.0.0.1] (10.133.219.224) by DGGEMS401-HUB.china.huawei.com
+ (10.3.19.201) with Microsoft SMTP Server id 14.3.439.0; Thu, 23 Jan 2020
+ 10:24:55 +0800
+Subject: Re: [PATCH] jffs2: Fix integer underflow in jffs2_rtime_compress
+To:     Richard Weinberger <richard@nod.at>
+CC:     <linux-mtd@lists.infradead.org>, <dwmw2@infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20181215162350.12489-1-richard@nod.at>
+ <cae86ca1-91f9-6728-df64-40580145220d@huawei.com>
+ <2142335.HPRDAJu19m@blindfold>
+From:   Hou Tao <houtao1@huawei.com>
+Message-ID: <e727e81a-c633-60be-9b93-5b6dc9d1936a@huawei.com>
+Date:   Thu, 23 Jan 2020 10:24:55 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <2142335.HPRDAJu19m@blindfold>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.133.219.224]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 22 Jan 2020, Michal Hocko wrote:
+Hi Richard,
 
-> > The current code in 5.4 from commit 87eaceb3faa59 places any migrated 
-> > compound page onto the deferred split queue of the destination memcg 
-> > regardless of whether it has a mapping pmd 
-> > (list_empty(page_deferred_list()) was already false) or it does not have a 
-> > mapping pmd (but is now on the wrong queue).  For the latter, 
-> > can_split_huge_page() can help for the actual split but not for the 
-> > removal of the page that is now erroneously on the queue.
+On 2018/12/20 18:45, Richard Weinberger wrote:
+> Am Donnerstag, 20. Dezember 2018, 11:43:08 CET schrieb Hou Tao:
+>>
+>> On 2018/12/16 0:23, Richard Weinberger wrote:
+>>> The rtime compressor assumes that at least two bytes are
+>>> compressed.
+>>> If we try to compress just one byte, the loop condition will
+>>> wrap around and an out-of-bounds write happens.
+>>>
+>>> Cc: <stable@vger.kernel.org>
+>>> Signed-off-by: Richard Weinberger <richard@nod.at>
+>>> ---
+>>>  fs/jffs2/compr_rtime.c | 3 +++
+>>>  1 file changed, 3 insertions(+)
+>>> It seems that it doesn't incur any harm because the minimal allocated
+>> size will be 8-bytes and jffs2_rtime_compress() will write 2-bytes into
+>> the allocated buffer.
 > 
-> Does that mean that those fully mapped THPs are not going to be split?
-> 
-
-It believe it should but deferred_split_scan() also won't take it off the 
-wrong split queue so it will remain there and any other checks for 
-page_deferred_list(page) will succeed.
-
-> > For the former, 
-> > memcg reclaim would not see the pages that it should split under memcg 
-> > pressure so we'll see the same memcg oom conditions we saw before the 
-> > deferred split shrinker became SHRINKER_MEMCG_AWARE: unnecessary ooms.
-> 
-> OK, this is yet another user visibile effect and it would be better to
-> mention it explicitly in the changelog. 
+> Are you sure about that? I saw odd kernel behavior and KASAN complained too.
 > 
 
-Ok, feel free to add to the last paragraph:
+Sorry for the later reply.
 
-Memcg reclaim would not see the compound pages that it should split under 
-memcg pressure so we'll otherwise see the same memcg oom conditions we saw 
-before the deferred split shrinker became SHRINKER_MEMCG_AWARE: 
-unnecessary ooms.
+Yes. KASAN complains but it doesn't incur any harm because the minimal allocated
+size returned by kmalloc() will be 8-bytes.
+
+But we better fix it, because it's bad to depend on the implementation of kmalloc().
+
+It seems that mtd-utils has already fixed it years ago. Maybe we can use it directly ?
+
+And your fix also looks good to me, so
+
+Reviewed-by: Hou Tao <houtao1@huawei.com>
+
+commit e8457f16306ad6e2c8708275bf42b5dfff40fffd
+Author: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Date:   Thu Jun 24 15:02:40 2010 +0200
+
+    mkfs.jffs2: fix integer underflow in jffs2_rtime_compress()
+
+    When '*dstlen' is 0 or 1, comparison will return wrong result.  Reported
+    by valgrind as
+
+    ==5919== Invalid write of size 1
+    ==5919==    at 0x40564E: jffs2_rtime_compress (compr_rtime.c:51)
+    ==5919==    by 0x40676B: jffs2_compress (compr.c:246)
+    ==5919==    by 0x403EE4: recursive_populate_directory (mkfs.jffs2.c:884)
+    ==5919==  Address 0x4e1bdb1 is 0 bytes after a block of size 1 alloc'd
+    ==5919==    at 0x4A0515D: malloc (vg_replace_malloc.c:195)
+    ==5919==    by 0x40671C: jffs2_compress (compr.c:229)
+    ==5919==    by 0x403EE4: recursive_populate_directory (mkfs.jffs2.c:884)
+
+    Signed-off-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+    Signed-off-by: Artem Bityutskiy <Artem.Bityutskiy@nokia.com>
+
+diff --git a/compr_rtime.c b/compr_rtime.c
+index 131536c..5613963 100644
+--- a/compr_rtime.c
++++ b/compr_rtime.c
+@@ -32,7 +32,7 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
+
+        memset(positions,0,sizeof(positions));
+
+-       while (pos < (*sourcelen) && outpos <= (*dstlen)-2) {
++       while (pos < (*sourcelen) && outpos+2 <= (*dstlen)) {
+                int backpos, runlen=0;
+                unsigned char value;
+
+
+
+> Thanks,
+> //richard
+
+
+
+
+> 
+> 
+> 
+> .
+> 
+
