@@ -2,95 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB73A1467AA
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 13:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE2A1467C7
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 13:19:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726968AbgAWMML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 07:12:11 -0500
-Received: from mail-vs1-f68.google.com ([209.85.217.68]:36408 "EHLO
-        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726871AbgAWMMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 07:12:10 -0500
-Received: by mail-vs1-f68.google.com with SMTP id u14so1570421vsu.3
-        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 04:12:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=9qVnN+i/91XCi89WmTvmn1d9sJ27U3Ed0a+QjCWqw+k=;
-        b=bnbWIHsTsAIAilOUjwzOejUbocSPXGVxvXbmanc5PTt7gdevKtL0pLQ1L1gWni/XkX
-         q/I4HusjnQ3b3TTqHwJWC/en4wJgRS4MctKv7U7fehyDDETEe1TU+8xsAytj53aErzw1
-         iwc6xodFUtEck04x3GwAKy79h3I/xSyfK2sMTUX1ET5nL8mnhz5wvxWil5/IrgOHNmVC
-         tIKAM86d7YkiushwXQt13C2C4P12VTPawiI9IK7pZ3qut0mhYzN4gKnTB7p5b03UUwlc
-         FGEU6bAP2i2s0eiHCC6hb7LFYQ6WgB8ZJxW+jx9vNx4pFhTAqJ4dedUYDXPwIhCOK+Wt
-         CEZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=9qVnN+i/91XCi89WmTvmn1d9sJ27U3Ed0a+QjCWqw+k=;
-        b=Z8C6NpISd0a8hGezWBSEAEevYV5VsNQgbtGXCla/P7mWzt0PQB0fA+7o+mvXN+hbV8
-         y69eX+iPm4fSENcgvMXK5V0StmmbjGKe5tmj7XLZQRA6pqs8Tmaq6rxdUqWJgu5kb19T
-         S7Mgy2WVhQwROmYd0a+dObc8aJF2Lb3Hh52j5gJrKPPwuc0dLpahf/Vd1Qf7kQgMgqcP
-         LD1IeEBg+/z3n0hS+5Z37gZ73UpwqXmjgOcngm0sByrT8jJ5F6n0A+dP1f/0wFSdqAJv
-         YdYGpcC6XmCOl0Bda0161rS5uTYj+iioUM04iIDYIv1ZTf4nA89wmVhu9DmNzQNCrydI
-         CNtw==
-X-Gm-Message-State: APjAAAV0CrRKnkfRDnSfkILiFz5/Vsjt1gsYOFF2b51ehIb7IHkEzauM
-        tEsdfNwManA0Zri20zEPKDTTz3TLtxf0yW6NIeM=
-X-Google-Smtp-Source: APXvYqx+APAekwKBuE51Gpt+HiIHX5dpr4xt2evgYzJQ6BsfN81yX281T5061pCobZt+HtIr8RSIcJIfnQd8eD1Voz4=
-X-Received: by 2002:a67:fb8a:: with SMTP id n10mr5801639vsr.82.1579781528535;
- Thu, 23 Jan 2020 04:12:08 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a67:f40a:0:0:0:0:0 with HTTP; Thu, 23 Jan 2020 04:12:08
- -0800 (PST)
-Reply-To: mariamorwa100@gmail.com
-From:   MARIAM ORWA <mariamorwa01@gmail.com>
-Date:   Thu, 23 Jan 2020 12:12:08 +0000
-Message-ID: <CAM1mEPOD-uNi7dSpbZvM-wtH4=-ft1C50RBCdcZnnt9ksc+tXA@mail.gmail.com>
-Subject: VERY IMPORTANT /TREAT AND REPLY URGENT
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1726191AbgAWMT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 07:19:29 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:51526 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726026AbgAWMT3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 07:19:29 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1iubRE-0031eM-9W; Thu, 23 Jan 2020 12:18:20 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Thu, 23 Jan 2020 12:15:23 +0000
+Subject: [git:media_tree/master] media: uvcvideo: Avoid cyclic entity chains due to malformed USB descriptors
+To:     linuxtv-commits@linuxtv.org
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Will Deacon <will@kernel.org>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1iubRE-0031eM-9W@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello My Dear Friend,
+This is an automatic generated email to let you know that the following patch were queued:
 
-With due respect to your person and much sincerity of purpose, It=E2=80=99s=
- my
-pleasure to write you today, I am Mrs  Mariam Orwa, I work in a bank.
-and I get your contact from internet search I hope that you will not
-expose or betray this trust and confident that am about to repose in
-you for the benefit of our both families.
+Subject: media: uvcvideo: Avoid cyclic entity chains due to malformed USB descriptors
+Author:  Will Deacon <will@kernel.org>
+Date:    Fri Nov 8 16:48:38 2019 +0100
 
-Am in need of your help as a foreigner to transfer fourteen Million Usd
-($14000000.00, Million U.S.dollar) into your bank account,The fund is for
-late Sir Ratnavale Victor,dual citizen of Switzerland and Britain whom
-died in a Plane crash many years back living nobody as the next of kin
-to the fund. Risk is completely 100% free for this transaction.
+Way back in 2017, fuzzing the 4.14-rc2 USB stack with syzkaller kicked
+up the following WARNING from the UVC chain scanning code:
 
-Please I will like you to keep this proposal as a top secret or delete
-it from your mail box, if you are not interested. Also note that you
-will have 40% of the above mentioned sum, if you agree to transact
-this business with me.
+  | list_add double add: new=ffff880069084010, prev=ffff880069084010,
+  | next=ffff880067d22298.
+  | ------------[ cut here ]------------
+  | WARNING: CPU: 1 PID: 1846 at lib/list_debug.c:31 __list_add_valid+0xbd/0xf0
+  | Modules linked in:
+  | CPU: 1 PID: 1846 Comm: kworker/1:2 Not tainted
+  | 4.14.0-rc2-42613-g1488251d1a98 #238
+  | Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+  | Workqueue: usb_hub_wq hub_event
+  | task: ffff88006b01ca40 task.stack: ffff880064358000
+  | RIP: 0010:__list_add_valid+0xbd/0xf0 lib/list_debug.c:29
+  | RSP: 0018:ffff88006435ddd0 EFLAGS: 00010286
+  | RAX: 0000000000000058 RBX: ffff880067d22298 RCX: 0000000000000000
+  | RDX: 0000000000000058 RSI: ffffffff85a58800 RDI: ffffed000c86bbac
+  | RBP: ffff88006435dde8 R08: 1ffff1000c86ba52 R09: 0000000000000000
+  | R10: 0000000000000002 R11: 0000000000000000 R12: ffff880069084010
+  | R13: ffff880067d22298 R14: ffff880069084010 R15: ffff880067d222a0
+  | FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
+  | CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  | CR2: 0000000020004ff2 CR3: 000000006b447000 CR4: 00000000000006e0
+  | Call Trace:
+  |  __list_add ./include/linux/list.h:59
+  |  list_add_tail+0x8c/0x1b0 ./include/linux/list.h:92
+  |  uvc_scan_chain_forward.isra.8+0x373/0x416
+  | drivers/media/usb/uvc/uvc_driver.c:1471
+  |  uvc_scan_chain drivers/media/usb/uvc/uvc_driver.c:1585
+  |  uvc_scan_device drivers/media/usb/uvc/uvc_driver.c:1769
+  |  uvc_probe+0x77f2/0x8f00 drivers/media/usb/uvc/uvc_driver.c:2104
 
-while 60% will be for me. I will give you full details of this transaction
-immediately you notify me your interest by sending your data information to
-me.Also know that immediately this fund is transfered to your account,
-I will resign from my work and come over to your country  for the sharing
-of the money and for you to help me and direct me on what is profitable tha=
-t
-i can invest my own share of the money on it in your country.
+Looking into the output from usbmon, the interesting part is the
+following data packet:
 
-Your Full Name,........
+  ffff880069c63e00 30710169 C Ci:1:002:0 0 143 = 09028f00 01030080
+  00090403 00000e01 00000924 03000103 7c003328 010204db
 
-Your Country.............
+If we drop the lead configuration and interface descriptors, we're left
+with an output terminal descriptor describing a generic display:
 
-Your Age.................
+  /* Output terminal descriptor */
+  buf[0]	09
+  buf[1]	24
+  buf[2]	03	/* UVC_VC_OUTPUT_TERMINAL */
+  buf[3]	00	/* ID */
+  buf[4]	01	/* type == 0x0301 (UVC_OTT_DISPLAY) */
+  buf[5]	03
+  buf[6]	7c
+  buf[7]	00	/* source ID refers to self! */
+  buf[8]	33
 
-Phone Number............
+The problem with this descriptor is that it is self-referential: the
+source ID of 0 matches itself! This causes the 'struct uvc_entity'
+representing the display to be added to its chain list twice during
+'uvc_scan_chain()': once via 'uvc_scan_chain_entity()' when it is
+processed directly from the 'dev->entities' list and then again
+immediately afterwards when trying to follow the source ID in
+'uvc_scan_chain_forward()'
 
-Waiting for your urgent reply
-Yours Mariam Orwa
+Add a check before adding an entity to a chain list to ensure that the
+entity is not already part of a chain.
+
+Link: https://lore.kernel.org/linux-media/CAAeHK+z+Si69jUR+N-SjN9q4O+o5KFiNManqEa-PjUta7EOb7A@mail.gmail.com/
+
+Cc: <stable@vger.kernel.org>
+Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/usb/uvc/uvc_driver.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+---
+
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 428235ca2635..2b688cc39bb8 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -1493,6 +1493,11 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
+ 			break;
+ 		if (forward == prev)
+ 			continue;
++		if (forward->chain.next || forward->chain.prev) {
++			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++				"entity %d already in chain.\n", forward->id);
++			return -EINVAL;
++		}
+ 
+ 		switch (UVC_ENTITY_TYPE(forward)) {
+ 		case UVC_VC_EXTENSION_UNIT:
+@@ -1574,6 +1579,13 @@ static int uvc_scan_chain_backward(struct uvc_video_chain *chain,
+ 				return -1;
+ 			}
+ 
++			if (term->chain.next || term->chain.prev) {
++				uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++					"entity %d already in chain.\n",
++					term->id);
++				return -EINVAL;
++			}
++
+ 			if (uvc_trace_param & UVC_TRACE_PROBE)
+ 				printk(KERN_CONT " %d", term->id);
+ 
