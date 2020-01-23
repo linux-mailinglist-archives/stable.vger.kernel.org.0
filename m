@@ -2,93 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 917D31470C8
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 19:31:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03ACA147133
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 19:54:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727194AbgAWSbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 13:31:51 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37760 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727590AbgAWSbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 13:31:51 -0500
-Received: by mail-pf1-f193.google.com with SMTP id p14so1926218pfn.4
-        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 10:31:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LqCb1Dt+8mE8Agcb/iqdFZzhbVwp04Pt6cT0H4D6ED4=;
-        b=bRBVYENXWp60SUcaoF11dpBkoJCBql2gRZ4VyfCikfWJvaHAA/cJ5AI1rjE8FBH/7R
-         4Y27VAmrHM8kJfv56gArb5Tk68B4NEnMe6bWgqN1IGXwkjg69uBbx3w06NeYNipNRW0l
-         58pixsljpnJfZkDnboLZmNO25dV2wOt0LN/tmA0qRI9ojbVymHj1ewAueb1GoIPrIYK0
-         F7HTw+8Ifj1gMusJIaqU5sRvPTfjqR65G8TSbqv+Tnr8OR9nGkcid3nmgTqtwjkkcoZl
-         e/26jQqCncB1+Itzo0BDb3Oqi0qksRHLbxzdsZ2mvmlXXf7/MT60unpSX0wn/NsYkZtc
-         pIVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LqCb1Dt+8mE8Agcb/iqdFZzhbVwp04Pt6cT0H4D6ED4=;
-        b=QSQ9GoEK2KJ2R9CRQjVc7E3ynKkyQbxfuTdr9KoOK4aiiMN/KZPxtxHdAdpQDxi2ma
-         daeTgdq7rqKonsqH/NJozy78GpKwQUmQdUxdvBVbniaotDo/WG35/qNYNtYY0Zw+ROOa
-         MqqSEcfRyDnsQ6LBltp3FqIx17VJTncIfYlzeEd8R+AHPu0Nt9bsMJ6B/paYgnx7nRKz
-         OIZ6AlWvR7HalMoyAMyMREPvjFWUaH4IUHagnNwZOxrZZ51hAOwHH+v8POngOKG/3UhY
-         Aefii+wUq07sTGZsDZRJdKta3ot5nInQgdKPuD7vCn6aHtGcgL4NQkqRqipZPRdX/dox
-         /LJA==
-X-Gm-Message-State: APjAAAXT4F5zJrzidRfA9x2dyLKpvsvQqln7I/JZfdfZrxNRpEr3IV2J
-        u4ToU+1pBuVN/3pfWsJUtIVt4huCgyY=
-X-Google-Smtp-Source: APXvYqygJNTq990y7Czijur2ORNhRHnzVsQiRaBxQJNIhUFa/R3VZxrjI0VS4GOCnri2QJp/Ezz+KA==
-X-Received: by 2002:a63:4287:: with SMTP id p129mr147630pga.122.1579804310189;
-        Thu, 23 Jan 2020 10:31:50 -0800 (PST)
-Received: from ?IPv6:2600:380:4562:fb25:b980:6664:b71f:35b5? ([2600:380:4562:fb25:b980:6664:b71f:35b5])
-        by smtp.gmail.com with ESMTPSA id f81sm3305215pfa.118.2020.01.23.10.31.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Jan 2020 10:31:49 -0800 (PST)
-Subject: Re: [PATCH 14/17] bcache: back to cache all readahead I/Os
-To:     Coly Li <colyli@suse.de>, Michael Lyle <mlyle@lyle.org>
-Cc:     linux-bcache <linux-bcache@vger.kernel.org>,
-        linux-block@vger.kernel.org, stable <stable@vger.kernel.org>
-References: <20200123170142.98974-1-colyli@suse.de>
- <20200123170142.98974-15-colyli@suse.de>
- <CAJ+L6qckUd+Kw8_jKov0dNnSiGxxvXSgc=2dPai+1ANaEdfWPQ@mail.gmail.com>
- <efdfdd2b-b22e-42d1-c642-6c398db6864c@suse.de>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <31f7f6b4-98ea-3cf6-44cc-a9ba67484eb0@kernel.dk>
-Date:   Thu, 23 Jan 2020 11:31:47 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-In-Reply-To: <efdfdd2b-b22e-42d1-c642-6c398db6864c@suse.de>
-Content-Type: text/plain; charset=utf-8
+        id S1728057AbgAWSyR convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 23 Jan 2020 13:54:17 -0500
+Received: from mga05.intel.com ([192.55.52.43]:59071 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727590AbgAWSyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 13:54:16 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Jan 2020 10:54:16 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,354,1574150400"; 
+   d="scan'208";a="221697238"
+Received: from orsmsx103.amr.corp.intel.com ([10.22.225.130])
+  by fmsmga007.fm.intel.com with ESMTP; 23 Jan 2020 10:54:15 -0800
+Received: from orsmsx102.amr.corp.intel.com ([169.254.3.100]) by
+ ORSMSX103.amr.corp.intel.com ([169.254.5.147]) with mapi id 14.03.0439.000;
+ Thu, 23 Jan 2020 10:54:15 -0800
+From:   "Yang, Fei" <fei.yang@intel.com>
+To:     Felipe Balbi <balbi@kernel.org>,
+        John Stultz <john.stultz@linaro.org>,
+        lkml <linux-kernel@vger.kernel.org>
+CC:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Tejas Joglekar <tejas.joglekar@synopsys.com>,
+        "Andrzej Pietrasiewicz" <andrzej.p@collabora.com>,
+        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "Linux USB List" <linux-usb@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "John Stultz" <john.stultz@linaro.org>
+Subject: RE: [RFC][PATCH 1/2] usb: dwc3: gadget: Check for IOC/LST bit in
+ both event->status and TRB->ctrl fields
+Thread-Topic: [RFC][PATCH 1/2] usb: dwc3: gadget: Check for IOC/LST bit in
+ both event->status and TRB->ctrl fields
+Thread-Index: AQHV0XMMDal2ka/y0kSxMT/Pi5VKVaf4X3SAgAA3SWA=
+Date:   Thu, 23 Jan 2020 18:54:15 +0000
+Message-ID: <02E7334B1630744CBDC55DA8586225837F9EE439@ORSMSX102.amr.corp.intel.com>
+References: <20200122222645.38805-1-john.stultz@linaro.org>
+ <20200122222645.38805-2-john.stultz@linaro.org> <87tv4m4ov2.fsf@kernel.org>
+In-Reply-To: <87tv4m4ov2.fsf@kernel.org>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/23/20 10:27 AM, Coly Li wrote:
-> On 2020/1/24 1:19 上午, Michael Lyle wrote:
->> Hi Coly and Jens--
->>
->> One concern I have with this is that it's going to wear out
->> limited-lifetime SSDs a -lot- faster.  Was any thought given to making
->> this a tunable instead of just changing the behavior?  Even if we have
->> an anecdote or two that it seems to have increased performance for
->> some workloads, I don't expect it will have increased performance in
->> general and it may even be costly for some workloads (it all comes
->> down to what is more useful in the cache-- somewhat-recently readahead
->> data, or the data that it is displacing).
-> 
-> Hi Mike,
-> 
-> Copied. This is good suggestion, I will do it after I back from Lunar
-> New Year vacation, and submit it with other tested patches in following
-> v5.6-rc versions.
+>> The present code in dwc3_gadget_ep_reclaim_completed_trb() will check 
+>> for IOC/LST bit in the event->status and returns if IOC/LST bit is 
+>> set. This logic doesn't work if multiple TRBs are queued per request 
+>> and the IOC/LST bit is set on the last TRB of that request.
+>> Consider an example where a queued request has multiple queued TRBs 
+>> and IOC/LST bit is set only for the last TRB. In this case, the Core 
+>> generates XferComplete/XferInProgress events only for the last TRB 
+>> (since IOC/LST are set only for the last TRB). As per the logic in
+>> dwc3_gadget_ep_reclaim_completed_trb() event->status is checked for 
+>> IOC/LST bit and returns on the first TRB. This makes the remaining 
+>> TRBs left unhandled.
+>> To aviod this, changed the code to check for IOC/LST bits in both
+>     avoid
+>
+>> event->status & TRB->ctrl. This patch does the same.
+>
+> We don't need to check both. It's very likely that checking the TRB is enough.
+>
+>> At a practical level, this patch resolves USB transfer stalls seen 
+>> with adb on dwc3 based HiKey960 after functionfs gadget added 
+>> scatter-gather support around v4.20.
+>
+> Right, I remember asking for tracepoint data showing this problem happening. It's the best way to figure out what's really going on.
+>
+> Before we accept these two patches, could you collect dwc3 tracepoint data and share here?
 
-Do you want me to just drop this patch for now from the series?
+I should have replied to this one. Sorry for the confusion on the other thread.
+I have sent tracepoints long time ago for this problem, but the tracepoints did help much on debugging the issue, so I'm not going to send again.
 
--- 
-Jens Axboe
+But the problem is really obvious though. In function dwc3_gadget_ep_reclaim_trb_sg(), the for_each_sg loop doesn't get a chance to iterate through all TRBs in the sg list, because this function only gets called when the last TRB in the list is completed (because of setting IOC), so at this moment event->status has IOC bit set. The consequence is that, when the for_each_sg loop trying to reclaim the first TRB in the sg list, the call dwc3_gadget_ep_reclaim_completed_trb() returns 1 (if (event-status & DEPEVT_STATUS_IOC) return 1;), thus the for loop is terminated before the rest of the TRBs are reclaimed.
 
+static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+                struct dwc3_request *req, const struct dwc3_event_depevt *event,
+                int status)
+{
+        struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
+        struct scatterlist *sg = req->sg;
+        struct scatterlist *s;
+        unsigned int pending = req->num_pending_sgs;
+        unsigned int i;
+        int ret = 0;
+
+        for_each_sg(sg, s, pending, i) {
+                trb = &dep->trb_pool[dep->trb_dequeue];
+
+                if (trb->ctrl & DWC3_TRB_CTRL_HWO)
+                        break;
+
+                req->sg = sg_next(s);
+                req->num_pending_sgs--;
+
+                ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+                                trb, event, status, true);
+                if (ret)
+                        break;
+        }
+
+        return ret;
+}
+ 
