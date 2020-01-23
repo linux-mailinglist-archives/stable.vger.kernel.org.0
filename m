@@ -2,76 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99FFF146AEB
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 15:12:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E763146AFD
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 15:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726729AbgAWOM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 09:12:57 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40191 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726227AbgAWOM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 09:12:57 -0500
-Received: from [5.158.153.53] (helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1iudE0-0001Ni-7q; Thu, 23 Jan 2020 15:12:48 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 897AF1017FA; Thu, 23 Jan 2020 15:12:47 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     vipul kumar <vipulk0511@gmail.com>
-Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        x86@kernel.org, Bin Gao <bin.gao@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Bay Trail SoC
-In-Reply-To: <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com>
-References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com> <87eevs7lfd.fsf@nanos.tec.linutronix.de> <CADdC98RJpsvu_zWehNGDDN=W11rD11NSPaodg-zuaXsHuOJYTQ@mail.gmail.com> <878slzeeim.fsf@nanos.tec.linutronix.de> <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com>
-Date:   Thu, 23 Jan 2020 15:12:47 +0100
-Message-ID: <87muaep8gw.fsf@nanos.tec.linutronix.de>
+        id S1727307AbgAWORj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 09:17:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726729AbgAWORj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 09:17:39 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FDC320718;
+        Thu, 23 Jan 2020 14:17:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579789058;
+        bh=aBxSUr/gjynePT84F3DyY+Db2ohisB0vJNv4FgKtc7I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=w63LnevdSdZAkY4eBt+Wa2NXfG7LtIuPnDdxzREo7fPXI6REGhdaIQN5/SX4bzgII
+         /j3MDnlDjlQhWWAJChsYrKoxruEBWmKdgD1tOikU5vlWe3mkmQyBPO83hdrmUkmGCY
+         Z8CtCXqK/xF3EfSDl+iOy/oVMDLLyov1ls7KrLBQ=
+Date:   Thu, 23 Jan 2020 09:17:37 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Iago Toral <itoral@igalia.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Eric Anholt <eric@anholt.net>, dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH AUTOSEL 5.4 003/205] drm/v3d: don't leak bin job if
+ v3d_job_init fails.
+Message-ID: <20200123141737.GC1706@sasha-vm>
+References: <20200116164300.6705-1-sashal@kernel.org>
+ <20200116164300.6705-3-sashal@kernel.org>
+ <cb93a21557216d1b389390c556f421132aac88f0.camel@igalia.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <cb93a21557216d1b389390c556f421132aac88f0.camel@igalia.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vipul,
-
-please disable HTML mixed mode completely in your mail client when
-posting on LKML. Such mails are silently dropped on the list server and
-never reach the public archives.
-
-vipul kumar <vipulk0511@gmail.com> writes:
->> > On Tue, Jan 21, 2020 at 11:15 PM Thomas Gleixner <tglx@linutronix.de>
->> wrote:
->> What's the frequency which is determined from the MSR? Something like
->> ...
+On Fri, Jan 17, 2020 at 08:25:30AM +0100, Iago Toral wrote:
+>Hi Sasha,
 >
-> tsc: Detected 1832.600 MHz processor
+>
+>please notice that there were two separate patches that addressed the
+>same issue and applying both simultaneously leads to a double free
+>(which is what I see is happening with this patch: see the second call
+>to kfree(bin) right below the one added here). This issue was raised
+>previously here:
+>
+>https://lists.freedesktop.org/archives/dri-devel/2019-October/241425.html
 
-vs.
+I'll drop this patch for now. Any idea why upstream didn't pick up the
+fix yet? I see the problem still exists there.
 
-> tsc: Refined TSC clocksource calibration: 1833.333 MHz
-
-So the MSR readout is off by 0.4%
-
->    Attached full logs with patch and without patch.
-
-I can't find the debug output in them. Also:
-
-> [    0.000000] Linux version 4.14.139-rt66 ....
-
-Can you please run that patch on top of current mainline please? I
-really want to see the debug output.
-
+-- 
 Thanks,
-
-        tglx
+Sasha
