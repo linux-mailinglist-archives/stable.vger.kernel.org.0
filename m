@@ -2,77 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB051473EF
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 23:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B7951473FC
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 23:45:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729425AbgAWWkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 17:40:52 -0500
-Received: from mga07.intel.com ([134.134.136.100]:24202 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729263AbgAWWkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 17:40:52 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Jan 2020 14:40:25 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,355,1574150400"; 
-   d="scan'208";a="222474270"
-Received: from richard.sh.intel.com (HELO localhost) ([10.239.159.54])
-  by fmsmga008.fm.intel.com with ESMTP; 23 Jan 2020 14:40:24 -0800
-Date:   Fri, 24 Jan 2020 06:40:35 +0800
-From:   Wei Yang <richardw.yang@linux.intel.com>
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-Cc:     Wei Yang <richardw.yang@linux.intel.com>, mhocko@suse.com,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [v2 PATCH] mm: move_pages: report the number of non-attempted
- pages
-Message-ID: <20200123224035.GA29851@richard>
-Reply-To: Wei Yang <richardw.yang@linux.intel.com>
-References: <1579736331-85494-1-git-send-email-yang.shi@linux.alibaba.com>
- <20200123032736.GA22196@richard>
- <01fc1c6b-1cab-7f7e-7879-4fc7b0e4a231@linux.alibaba.com>
+        id S1729332AbgAWWpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 17:45:24 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:38138 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726191AbgAWWpY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 17:45:24 -0500
+Received: by mail-wr1-f66.google.com with SMTP id y17so5133850wrh.5
+        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 14:45:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nthS0FsB7WIOL+9c3dpKEum/AcHMiutstkuX/+DMcKA=;
+        b=CdXarbFUqlw13OrQZnRGjK8rbdh4r7xp4OrfbHLMuKtgtUKFWrYZ3yRE39XpP/GykL
+         6cM9ONy/Qgz0h3SNXPQay02+wst/hxHJQQXgZvLvhjAMA5oE+Wd5KrnYargS4Pv3a2oY
+         LACOJWzeADrNJk333/TLZx0uD8Z5RyHLjH/GCVxUPIBjLfB/DTBr2VorUZoQ9L/B7wQM
+         juUz0uyTmKCVjxx/Qwrb+PpAPxUTy3+Dp6CEXcIpbFZQ5tIHGvkzF8PxOP4ZdMemxt6W
+         TxbWbyZYNgmLJczXKocheWuP7uPW6AGf3BjvWuB8EUpa8k4DRmXXLIcmwPjngdapMHj4
+         FPcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nthS0FsB7WIOL+9c3dpKEum/AcHMiutstkuX/+DMcKA=;
+        b=byM/NpRGxVhWNZDyP5M255p74DX4Im42ArujISsFPWbUxjGfRnyFUkGV7cgLY351jz
+         1D+CAK5jI13EE6rANHl350HYLj7JT0NY+SC5iUq31MxAiwBty5wTHCUYKZkTv5WstmEX
+         JVKdzSAk1VoIvE9RhNpdRy//iF0tBtru9dISu6/vCXAGs2d/hjgq4UY8KnTmw/6E3Ro5
+         K0qy53MdXos20+1E9kUynGnKZEcwzx4Bm32ArasYy0K11apf7jvL1f809XNsyo/tpMcD
+         JoTuzFJS4Y80fwMJJGhZCgfBallijKxXrx03Pjp8uNfTTYMSLhg5Wo5WBsVoWPbDzuZn
+         mwdg==
+X-Gm-Message-State: APjAAAXstGFrx8rJDz48/F6KbmolsLtZ+yn9czrdi8tQwIclVecwKwiv
+        Wb34FHmtRldzH1I+I0VEtNFehI/KkI8nzQ==
+X-Google-Smtp-Source: APXvYqwEKRKcon1RbL0eTBMl1HfII9uiC2s/Zn7lz+tsXebxV6BlhZslCIt2EGsmCBcv3vS8wHkWjA==
+X-Received: by 2002:a5d:4651:: with SMTP id j17mr337974wrs.237.1579819522065;
+        Thu, 23 Jan 2020 14:45:22 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id k16sm5369826wru.0.2020.01.23.14.45.21
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jan 2020 14:45:21 -0800 (PST)
+Message-ID: <5e2a2201.1c69fb81.d6558.6438@mx.google.com>
+Date:   Thu, 23 Jan 2020 14:45:21 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01fc1c6b-1cab-7f7e-7879-4fc7b0e4a231@linux.alibaba.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.167
+Subject: stable/linux-4.14.y boot: 71 boots: 2 failed,
+ 67 passed with 2 untried/unknown (v4.14.167)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 22, 2020 at 07:56:50PM -0800, Yang Shi wrote:
->
->
->On 1/22/20 7:27 PM, Wei Yang wrote:
->> On Thu, Jan 23, 2020 at 07:38:51AM +0800, Yang Shi wrote:
->> > Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
->> > the semantic of move_pages() was changed to return the number of
->> > non-migrated pages (failed to migration) and the call would be aborted
->> > immediately if migrate_pages() returns positive value.  But it didn't
->> > report the number of pages that we even haven't attempted to migrate.
->> > So, fix it by including non-attempted pages in the return value.
->> > 
->> First, we want to change the semantic of move_pages(2). The return value
->> indicates the number of pages we didn't managed to migrate?
->
->This is my understanding.
->
->> 
->> Second, the return value from migrate_pages() doesn't mean the number of pages
->> we failed to migrate. For example, one -ENOMEM is returned on the first page,
->> migrate_pages() would return 1. But actually, no page successfully migrated.
->
->This would not happen at all since migrate_pages() would just return -ENOMEM
->instead of a positive value, right?
->
+stable/linux-4.14.y boot: 71 boots: 2 failed, 67 passed with 2 untried/unkn=
+own (v4.14.167)
 
-Oh, you are right.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.167/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.167/
 
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.167
+Git Commit: 8bac50406cca10a219aa899243d49c57ddaf7c5b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 42 unique boards, 15 SoC families, 11 builds out of 192
 
--- 
-Wei Yang
-Help you, Help me
+Boot Regressions Detected:
+
+arm:
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: new failure (last pass: v4.14.166)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
