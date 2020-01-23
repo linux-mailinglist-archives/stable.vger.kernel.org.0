@@ -2,126 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E25251460AF
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 03:25:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D861460E7
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 04:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725943AbgAWCZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 21:25:02 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:47698 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725933AbgAWCZB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 21:25:01 -0500
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 35ADC651C4DD263FBCD7;
-        Thu, 23 Jan 2020 10:24:58 +0800 (CST)
-Received: from [127.0.0.1] (10.133.219.224) by DGGEMS401-HUB.china.huawei.com
- (10.3.19.201) with Microsoft SMTP Server id 14.3.439.0; Thu, 23 Jan 2020
- 10:24:55 +0800
-Subject: Re: [PATCH] jffs2: Fix integer underflow in jffs2_rtime_compress
-To:     Richard Weinberger <richard@nod.at>
-CC:     <linux-mtd@lists.infradead.org>, <dwmw2@infradead.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20181215162350.12489-1-richard@nod.at>
- <cae86ca1-91f9-6728-df64-40580145220d@huawei.com>
- <2142335.HPRDAJu19m@blindfold>
-From:   Hou Tao <houtao1@huawei.com>
-Message-ID: <e727e81a-c633-60be-9b93-5b6dc9d1936a@huawei.com>
-Date:   Thu, 23 Jan 2020 10:24:55 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.8.0
+        id S1726442AbgAWDTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 22:19:36 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32968 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725911AbgAWDTg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 22:19:36 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00N376IC032190
+        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 22:19:35 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xp95g6g42-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 22:19:34 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <vaibhav@linux.ibm.com>;
+        Thu, 23 Jan 2020 03:19:33 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 23 Jan 2020 03:19:30 -0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 00N3JS4f66650304
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 23 Jan 2020 03:19:28 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 756C44204F;
+        Thu, 23 Jan 2020 03:19:28 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4E8BB42041;
+        Thu, 23 Jan 2020 03:19:26 +0000 (GMT)
+Received: from vajain21.in.ibm.com.com (unknown [9.85.93.69])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 23 Jan 2020 03:19:26 +0000 (GMT)
+From:   Vaibhav Jain <vaibhav@linux.ibm.com>
+To:     linuxppc-dev@lists.ozlabs.org, linux-nvdimm@lists.01.org
+Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] libnvdimm/of_pmem: Fix leaking bus_desc.provider_name in some paths
+Date:   Thu, 23 Jan 2020 08:48:47 +0530
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <2142335.HPRDAJu19m@blindfold>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.133.219.224]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 20012303-0020-0000-0000-000003A32B30
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20012303-0021-0000-0000-000021FAC29C
+Message-Id: <20200123031847.149325-1-vaibhav@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-01-22_08:2020-01-22,2020-01-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ mlxscore=0 spamscore=0 malwarescore=0 suspectscore=0 lowpriorityscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-2001230026
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Richard,
+String 'bus_desc.provider_name' allocated inside
+of_pmem_region_probe() will leak in case call to nvdimm_bus_register()
+fails or when of_pmem_region_remove() is called.
 
-On 2018/12/20 18:45, Richard Weinberger wrote:
-> Am Donnerstag, 20. Dezember 2018, 11:43:08 CET schrieb Hou Tao:
->>
->> On 2018/12/16 0:23, Richard Weinberger wrote:
->>> The rtime compressor assumes that at least two bytes are
->>> compressed.
->>> If we try to compress just one byte, the loop condition will
->>> wrap around and an out-of-bounds write happens.
->>>
->>> Cc: <stable@vger.kernel.org>
->>> Signed-off-by: Richard Weinberger <richard@nod.at>
->>> ---
->>>  fs/jffs2/compr_rtime.c | 3 +++
->>>  1 file changed, 3 insertions(+)
->>> It seems that it doesn't incur any harm because the minimal allocated
->> size will be 8-bytes and jffs2_rtime_compress() will write 2-bytes into
->> the allocated buffer.
-> 
-> Are you sure about that? I saw odd kernel behavior and KASAN complained too.
-> 
+This minor patch ensures that 'bus_desc.provider_name' is freed in
+error path for of_pmem_region_probe() as well as in
+of_pmem_region_remove().
 
-Sorry for the later reply.
+Cc: stable@vger.kernel.org
+Fixes:49bddc73d15c2("libnvdimm/of_pmem: Provide a unique name for bus provider")
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+---
+ drivers/nvdimm/of_pmem.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Yes. KASAN complains but it doesn't incur any harm because the minimal allocated
-size returned by kmalloc() will be 8-bytes.
-
-But we better fix it, because it's bad to depend on the implementation of kmalloc().
-
-It seems that mtd-utils has already fixed it years ago. Maybe we can use it directly ?
-
-And your fix also looks good to me, so
-
-Reviewed-by: Hou Tao <houtao1@huawei.com>
-
-commit e8457f16306ad6e2c8708275bf42b5dfff40fffd
-Author: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Date:   Thu Jun 24 15:02:40 2010 +0200
-
-    mkfs.jffs2: fix integer underflow in jffs2_rtime_compress()
-
-    When '*dstlen' is 0 or 1, comparison will return wrong result.  Reported
-    by valgrind as
-
-    ==5919== Invalid write of size 1
-    ==5919==    at 0x40564E: jffs2_rtime_compress (compr_rtime.c:51)
-    ==5919==    by 0x40676B: jffs2_compress (compr.c:246)
-    ==5919==    by 0x403EE4: recursive_populate_directory (mkfs.jffs2.c:884)
-    ==5919==  Address 0x4e1bdb1 is 0 bytes after a block of size 1 alloc'd
-    ==5919==    at 0x4A0515D: malloc (vg_replace_malloc.c:195)
-    ==5919==    by 0x40671C: jffs2_compress (compr.c:229)
-    ==5919==    by 0x403EE4: recursive_populate_directory (mkfs.jffs2.c:884)
-
-    Signed-off-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-    Signed-off-by: Artem Bityutskiy <Artem.Bityutskiy@nokia.com>
-
-diff --git a/compr_rtime.c b/compr_rtime.c
-index 131536c..5613963 100644
---- a/compr_rtime.c
-+++ b/compr_rtime.c
-@@ -32,7 +32,7 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
-
-        memset(positions,0,sizeof(positions));
-
--       while (pos < (*sourcelen) && outpos <= (*dstlen)-2) {
-+       while (pos < (*sourcelen) && outpos+2 <= (*dstlen)) {
-                int backpos, runlen=0;
-                unsigned char value;
-
-
-
-> Thanks,
-> //richard
-
-
-
-
-> 
-> 
-> 
-> .
-> 
+diff --git a/drivers/nvdimm/of_pmem.c b/drivers/nvdimm/of_pmem.c
+index 8224d1431ea9..9cb76f9837ad 100644
+--- a/drivers/nvdimm/of_pmem.c
++++ b/drivers/nvdimm/of_pmem.c
+@@ -36,6 +36,7 @@ static int of_pmem_region_probe(struct platform_device *pdev)
+ 
+ 	priv->bus = bus = nvdimm_bus_register(&pdev->dev, &priv->bus_desc);
+ 	if (!bus) {
++		kfree(priv->bus_desc.provider_name);
+ 		kfree(priv);
+ 		return -ENODEV;
+ 	}
+@@ -81,6 +82,7 @@ static int of_pmem_region_remove(struct platform_device *pdev)
+ 	struct of_pmem_private *priv = platform_get_drvdata(pdev);
+ 
+ 	nvdimm_bus_unregister(priv->bus);
++	kfree(priv->bus_desc.provider_name);
+ 	kfree(priv);
+ 
+ 	return 0;
+-- 
+2.24.1
 
