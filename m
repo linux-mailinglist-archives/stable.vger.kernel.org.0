@@ -2,162 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A540314669A
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 12:20:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F661466BF
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 12:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729240AbgAWLTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 06:19:32 -0500
-Received: from mail-eopbgr70040.outbound.protection.outlook.com ([40.107.7.40]:29832
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729247AbgAWLT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 06:19:29 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lHIX29rrRaHA/n8r5x1VpEfkI+mHhDjyq7/006mhugPIxBKh6+wD/TeNwrb6JqXRJU52Ck7yToasx2njSi0g+gXVdTovzNDwKV1iuKCupoRpxlVJ7W1uMHKByUXzVAVq4Pe7Jq+IQhCaOz0GLCrNhhcMVh74NZokQH6PlWMDkKeA7kHjkbZwfntu/Z/+mLV8cOt9Ei4CvepbU02kToMthWZnHTinAfIUV9GhS/QTfGp3xIozwHmKD3AM0Mw7W6KhYv9aiadnmtJErQ+p5XWJ5ttO5Om+TbnDhzhvmQ8yiTyYwjR03IB90UsPk5D1k2+SleEd1S7ytpXjNBY6NGPtvw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hwYB92UaAiVD6zyggC3JbzvjtjnWo9noS1G5TkEtS/0=;
- b=lBW+e8HpVtpUAw+bcjRXctPe2pQnpF1bC+YXWwEt6n+wCM+nrUNs9YDdmwp/SmmG8jOWTfO/WRnwRMbQto8TgrkBy17A+PFG0v2FPN1LpsoEp2OC+XWfghkoq2VhPZPkJx3j2g1V4UC7O9G5Fn4sGEkvLSMidk8BWRbNCO7m5+GC14vvz+/3HbYh5Fsg9C1fa33W5Avhtz82YHXbF6u0X7ffx93xEu+CdpJu5m9UBacBVU5ewv00u04Fh9MrR3NOumeLkM3/mUGNVHj1OZSd6iGdQuchXZEtTmbyeDKY3Cn0cNfjQfdR1nX4GWlplUKJetK0q+kAHWgRUgNQxrUbwA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hwYB92UaAiVD6zyggC3JbzvjtjnWo9noS1G5TkEtS/0=;
- b=V34+SC6nSITF/JgkTGU1ceDEps+6znMe5wTWTgAbG62qi4twzm6OM6x9m9xbKYzQHjpFTmHhIWymNZPwDliBZlV3wtWDotn63Hx5kYewN4XJxlQwmvH17HplnbGQ4VS+QRkppUS57tdWJIP2QrcetszRNmPiZ576+oOtFSLQe5k=
-Received: from AM6PR04MB5878.eurprd04.prod.outlook.com (20.179.0.89) by
- AM6PR04MB4679.eurprd04.prod.outlook.com (20.177.37.96) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2644.19; Thu, 23 Jan 2020 11:19:25 +0000
-Received: from AM6PR04MB5878.eurprd04.prod.outlook.com
- ([fe80::bcef:1c59:7d27:d0e]) by AM6PR04MB5878.eurprd04.prod.outlook.com
- ([fe80::bcef:1c59:7d27:d0e%6]) with mapi id 15.20.2644.027; Thu, 23 Jan 2020
- 11:19:25 +0000
-Received: from fsr-ub1864-101.ea.freescale.net (89.37.124.34) by LO2P265CA0090.GBRP265.PROD.OUTLOOK.COM (2603:10a6:600:8::30) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.9 via Frontend Transport; Thu, 23 Jan 2020 11:19:24 +0000
-From:   Laurentiu Tudor <laurentiu.tudor@nxp.com>
-To:     "oss@buserror.net" <oss@buserror.net>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>
-CC:     "christophe.leroy@c-s.fr" <christophe.leroy@c-s.fr>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Diana Madalina Craciun <diana.craciun@nxp.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH] powerpc/fsl_booke: avoid creating duplicate tlb1 entry
-Thread-Topic: [PATCH] powerpc/fsl_booke: avoid creating duplicate tlb1 entry
-Thread-Index: AQHV0d73S4yfrqtzL0CCUBQaf/Q2KQ==
-Date:   Thu, 23 Jan 2020 11:19:25 +0000
-Message-ID: <20200123111914.2565-1-laurentiu.tudor@nxp.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: LO2P265CA0090.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:8::30) To AM6PR04MB5878.eurprd04.prod.outlook.com
- (2603:10a6:20b:a2::25)
-x-mailer: git-send-email 2.17.1
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=laurentiu.tudor@nxp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [89.37.124.34]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 70323e96-e45a-431f-e780-08d79ff61a5f
-x-ms-traffictypediagnostic: AM6PR04MB4679:|AM6PR04MB4679:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <AM6PR04MB4679D3B5EAE977ED13EFC48BEC0F0@AM6PR04MB4679.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2276;
-x-forefront-prvs: 029174C036
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(376002)(396003)(39860400002)(366004)(136003)(199004)(189003)(316002)(54906003)(110136005)(44832011)(2906002)(956004)(2616005)(36756003)(478600001)(86362001)(4326008)(71200400001)(52116002)(66446008)(186003)(64756008)(16526019)(66476007)(6512007)(5660300002)(66556008)(26005)(1076003)(66946007)(6486002)(81166006)(6506007)(81156014)(8936002)(8676002);DIR:OUT;SFP:1101;SCL:1;SRVR:AM6PR04MB4679;H:AM6PR04MB5878.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: CR30ktTEf03bz4WNRschwH6fzznIkCobofji8yai43nchkwRJ4W62idyeXkHIzYy3MF7a+GcVh3ylG64md25bk1u1T5yP1s8Vx76gLKEs8xQffR8wHJRuKQkYv7ZD9XbPLUyPeBEXdauMy4mGubMAwFAjTcY7d8GVUhmM1GAUE++G+qutwf7txd0jjmbsL9LJIvg77TvykYOdtA8pgN800CmKZRJ1omkBDO1XQBmgRcyeXH/GR8CD3uXTQkzCymCrwvwUfk4+/TJhI7ZUG1wRGu0+AkIRQo8TCAnOGmeVPt7NvCGCqMP3QeiK48grXnpW0a7GdVQus98fDpGtNlfgjnV/nbIXqhWmieQGS8eUH3OEMDsDMJ6MZtbx6d7Wd12OtcXQ3XpubVYk6WKlD0tuLkuaRQ7Jb9/TbHoUz5zqOs7yeu3Z/Gm4vTLIc/KTIQp
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <026E68B3014B5546B523C1E54921E0FA@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1726260AbgAWLcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 06:32:52 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:55771 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726194AbgAWLcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 06:32:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579779170;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8xpwabDUT9AeCxzSh2+fjHnI/NjiznPGltneNwagA8c=;
+        b=ieoPRZ0cVZ3EBIJs0Yp2N7yfvuM+I21mfgJ/zGFS9N11+NomZppRQL3r4ou/CK+JcoDf+e
+        WF7td8DhkT3jvKgATEBNuv+6ycGNP+U2wlP7FiX78VNlWW+UMYXywkL1pqYV1rA6mCPFyj
+        TkqIuDpAcTPsGL6qgtB/fN8xTo0+dc8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-63-mdton_y5N06aLGcuGITrlA-1; Thu, 23 Jan 2020 06:32:48 -0500
+X-MC-Unique: mdton_y5N06aLGcuGITrlA-1
+Received: by mail-wm1-f69.google.com with SMTP id q26so462050wmq.8
+        for <stable@vger.kernel.org>; Thu, 23 Jan 2020 03:32:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+         :message-id:mime-version;
+        bh=8xpwabDUT9AeCxzSh2+fjHnI/NjiznPGltneNwagA8c=;
+        b=Mishs3pwC/mHKHHCt2onopXqfbU2t/jrhjsof2ae71vPlaC/m5h6kPDgNvyltmVgBP
+         3n/gq9tDt9VUqJaVWSkk65ILEKiAE5dAcPaMt2Z/apo7J2iNgJN0v7aO7V3j/vWXj+gh
+         hZcjJ3vzO2mvRRy208C/1Hf9q+xZDPMKqFPk4gZ9EFIBuP/uWwtsedoeNOKQ/IOZ6a49
+         O2hGo9R/7s4K0zSP+d7vld+ziNV9xB01HMuoSeevRbxoVyRBT/gBwx551LyLa8TzTT9C
+         3tgsTper/nxNKZzbc005ixbk7zb1mql8n1EoQIjKO9c7d/qcjoZzYogn85KsWrOLiFhC
+         MQHg==
+X-Gm-Message-State: APjAAAUn6dQLGXZ5wDfidC3lL5QqhYBxz5VhfrIc6wFAUjA1kQSsF1d+
+        cjvEgX/zo8lL4Y4ffTAuZc6eImQ7rf67+I94uc+pD3Q1eGwYNBs2z720bQt7hecOM4SNwrEZPTW
+        ardOwzMRc9T5kIV5J
+X-Received: by 2002:adf:fa50:: with SMTP id y16mr16312014wrr.183.1579779167458;
+        Thu, 23 Jan 2020 03:32:47 -0800 (PST)
+X-Google-Smtp-Source: APXvYqwjx4XjBbNEv6xdmfv7CxRtTLPUvw+HlKG7WH2EnglXtX4rCtufRGwWlTXAZQdTM6mGq1DQjA==
+X-Received: by 2002:adf:fa50:: with SMTP id y16mr16311990wrr.183.1579779167185;
+        Thu, 23 Jan 2020 03:32:47 -0800 (PST)
+Received: from vitty.brq.redhat.com (cst-prg-91-164.cust.vodafone.cz. [46.135.91.164])
+        by smtp.gmail.com with ESMTPSA id o16sm2627249wmc.18.2020.01.23.03.32.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jan 2020 03:32:46 -0800 (PST)
+From:   Vitaly Kuznetsov <vkuznets@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     mtosatti@redhat.com, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH 1/2] KVM: x86: reorganize pvclock_gtod_data members
+In-Reply-To: <1579702953-24184-2-git-send-email-pbonzini@redhat.com>
+References: <1579702953-24184-1-git-send-email-pbonzini@redhat.com> <1579702953-24184-2-git-send-email-pbonzini@redhat.com>
+Date:   Thu, 23 Jan 2020 12:32:44 +0100
+Message-ID: <87tv4mqug3.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 70323e96-e45a-431f-e780-08d79ff61a5f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jan 2020 11:19:25.2326
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: nfV5qnKD9xFBGxoD+im9ObN1xMw1RjtePnlfrw99H1sywLEcwn8KRw5O0hq1CbmZHrJ0g561FfyuCdcalCMqRQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR04MB4679
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the current implementation, the call to loadcam_multi() is wrapped
-between switch_to_as1() and restore_to_as0() calls so, when it tries
-to create its own temporary AS=3D1 TLB1 entry, it ends up duplicating the
-existing one created by switch_to_as1(). Add a check to skip creating
-the temporary entry if already running in AS=3D1.
+Paolo Bonzini <pbonzini@redhat.com> writes:
 
-Fixes: d9e1831a4202 ("powerpc/85xx: Load all early TLB entries at once")
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Cc: stable@vger.kernel.org
----
- arch/powerpc/mm/nohash/tlb_low.S | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+> We will need a copy of tk->offs_boot in the next patch.  Store it and
+> cleanup the struct: instead of storing tk->tkr_xxx.base with the tk->offs_boot
+> included, store the raw value in struct pvclock_clock and sum tk->offs_boot
+> in do_monotonic_raw and do_realtime.   tk->tkr_xxx.xtime_nsec also moves
+> to struct pvclock_clock.
+>
+> While at it, fix a (usually harmless) typo in do_monotonic_raw, which
+> was using gtod->clock.shift instead of gtod->raw_clock.shift.
+>
+> Fixes: 53fafdbb8b21f ("KVM: x86: switch KVMCLOCK base to monotonic raw clock")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  arch/x86/kvm/x86.c | 29 ++++++++++++-----------------
+>  1 file changed, 12 insertions(+), 17 deletions(-)
+>
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 89621025577a..1b4273cce63c 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -1532,6 +1532,8 @@ struct pvclock_clock {
+>  	u64 mask;
+>  	u32 mult;
+>  	u32 shift;
+> +	u64 base_cycles;
+> +	u64 offset;
+>  };
+>  
+>  struct pvclock_gtod_data {
+> @@ -1540,11 +1542,8 @@ struct pvclock_gtod_data {
+>  	struct pvclock_clock clock; /* extract of a clocksource struct */
+>  	struct pvclock_clock raw_clock; /* extract of a clocksource struct */
+>  
+> -	u64		boot_ns_raw;
+> -	u64		boot_ns;
+> -	u64		nsec_base;
+> +	ktime_t		offs_boot;
+>  	u64		wall_time_sec;
+> -	u64		monotonic_raw_nsec;
+>  };
+>  
+>  static struct pvclock_gtod_data pvclock_gtod_data;
+> @@ -1552,10 +1551,6 @@ struct pvclock_gtod_data {
+>  static void update_pvclock_gtod(struct timekeeper *tk)
+>  {
+>  	struct pvclock_gtod_data *vdata = &pvclock_gtod_data;
+> -	u64 boot_ns, boot_ns_raw;
+> -
+> -	boot_ns = ktime_to_ns(ktime_add(tk->tkr_mono.base, tk->offs_boot));
+> -	boot_ns_raw = ktime_to_ns(ktime_add(tk->tkr_raw.base, tk->offs_boot));
+>  
+>  	write_seqcount_begin(&vdata->seq);
+>  
+> @@ -1565,20 +1560,20 @@ static void update_pvclock_gtod(struct timekeeper *tk)
+>  	vdata->clock.mask		= tk->tkr_mono.mask;
+>  	vdata->clock.mult		= tk->tkr_mono.mult;
+>  	vdata->clock.shift		= tk->tkr_mono.shift;
+> +	vdata->clock.base_cycles	= tk->tkr_mono.xtime_nsec;
+> +	vdata->clock.offset		= tk->tkr_mono.base;
+>  
+>  	vdata->raw_clock.vclock_mode	= tk->tkr_raw.clock->archdata.vclock_mode;
+>  	vdata->raw_clock.cycle_last	= tk->tkr_raw.cycle_last;
+>  	vdata->raw_clock.mask		= tk->tkr_raw.mask;
+>  	vdata->raw_clock.mult		= tk->tkr_raw.mult;
+>  	vdata->raw_clock.shift		= tk->tkr_raw.shift;
+> -
+> -	vdata->boot_ns			= boot_ns;
+> -	vdata->nsec_base		= tk->tkr_mono.xtime_nsec;
+> +	vdata->raw_clock.base_cycles	= tk->tkr_raw.xtime_nsec;
+> +	vdata->raw_clock.offset		= tk->tkr_raw.base;
 
-diff --git a/arch/powerpc/mm/nohash/tlb_low.S b/arch/powerpc/mm/nohash/tlb_=
-low.S
-index 2ca407cedbe7..eaeee402f96e 100644
---- a/arch/powerpc/mm/nohash/tlb_low.S
-+++ b/arch/powerpc/mm/nohash/tlb_low.S
-@@ -397,7 +397,7 @@ _GLOBAL(set_context)
-  * extern void loadcam_entry(unsigned int index)
-  *
-  * Load TLBCAM[index] entry in to the L2 CAM MMU
-- * Must preserve r7, r8, r9, and r10
-+ * Must preserve r7, r8, r9, r10 and r11
-  */
- _GLOBAL(loadcam_entry)
- 	mflr	r5
-@@ -433,6 +433,10 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PHYS)
-  */
- _GLOBAL(loadcam_multi)
- 	mflr	r8
-+	/* Don't switch to AS=3D1 if already there */
-+	mfmsr	r11
-+	andi.	r11,r11,MSR_IS
-+	bne	10f
-=20
- 	/*
- 	 * Set up temporary TLB entry that is the same as what we're
-@@ -458,6 +462,7 @@ _GLOBAL(loadcam_multi)
- 	mtmsr	r6
- 	isync
-=20
-+10:
- 	mr	r9,r3
- 	add	r10,r3,r4
- 2:	bl	loadcam_entry
-@@ -466,6 +471,10 @@ _GLOBAL(loadcam_multi)
- 	mr	r3,r9
- 	blt	2b
-=20
-+	/* Don't return to AS=3D0 if we were in AS=3D1 at function start */
-+	andi.	r11,r11,MSR_IS
-+	bne	3f
-+
- 	/* Return to AS=3D0 and clear the temporary entry */
- 	mfmsr	r6
- 	rlwinm.	r6,r6,0,~(MSR_IS|MSR_DS)
-@@ -481,6 +490,7 @@ _GLOBAL(loadcam_multi)
- 	tlbwe
- 	isync
-=20
-+3:
- 	mtlr	r8
- 	blr
- #endif
---=20
-2.17.1
+Likely a personal preference but the suggested naming is a bit
+confusing: we use 'base_cycles' to keep 'xtime_nsec' and 'offset' to
+keep ... 'base'. Not that I think that 'struct timekeeper' is perfect
+but at least it is documented. Should we maybe just stick to it (and
+name 'struct pvclock_clock' fields accordingly?)
+
+>  
+>  	vdata->wall_time_sec            = tk->xtime_sec;
+>  
+> -	vdata->boot_ns_raw		= boot_ns_raw;
+> -	vdata->monotonic_raw_nsec	= tk->tkr_raw.xtime_nsec;
+> +	vdata->offs_boot		= tk->offs_boot;
+>  
+>  	write_seqcount_end(&vdata->seq);
+>  }
+> @@ -2048,10 +2043,10 @@ static int do_monotonic_raw(s64 *t, u64 *tsc_timestamp)
+>  
+>  	do {
+>  		seq = read_seqcount_begin(&gtod->seq);
+> -		ns = gtod->monotonic_raw_nsec;
+> +		ns = gtod->raw_clock.base_cycles;
+>  		ns += vgettsc(&gtod->raw_clock, tsc_timestamp, &mode);
+> -		ns >>= gtod->clock.shift;
+> -		ns += gtod->boot_ns_raw;
+> +		ns >>= gtod->raw_clock.shift;
+> +		ns += ktime_to_ns(ktime_add(gtod->raw_clock.offset, gtod->offs_boot));
+>  	} while (unlikely(read_seqcount_retry(&gtod->seq, seq)));
+>  	*t = ns;
+>  
+> @@ -2068,7 +2063,7 @@ static int do_realtime(struct timespec64 *ts, u64 *tsc_timestamp)
+>  	do {
+>  		seq = read_seqcount_begin(&gtod->seq);
+>  		ts->tv_sec = gtod->wall_time_sec;
+> -		ns = gtod->nsec_base;
+> +		ns = gtod->clock.base_cycles;
+>  		ns += vgettsc(&gtod->clock, tsc_timestamp, &mode);
+>  		ns >>= gtod->clock.shift;
+>  	} while (unlikely(read_seqcount_retry(&gtod->seq, seq)));
+
+FWIW,
+
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+
+-- 
+Vitaly
 
