@@ -2,107 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D861460E7
-	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 04:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E8691460EA
+	for <lists+stable@lfdr.de>; Thu, 23 Jan 2020 04:27:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbgAWDTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 22:19:36 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32968 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725911AbgAWDTg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 22:19:36 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00N376IC032190
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 22:19:35 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xp95g6g42-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 22:19:34 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <vaibhav@linux.ibm.com>;
-        Thu, 23 Jan 2020 03:19:33 -0000
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
-        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Thu, 23 Jan 2020 03:19:30 -0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 00N3JS4f66650304
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 Jan 2020 03:19:28 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 756C44204F;
-        Thu, 23 Jan 2020 03:19:28 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E8BB42041;
-        Thu, 23 Jan 2020 03:19:26 +0000 (GMT)
-Received: from vajain21.in.ibm.com.com (unknown [9.85.93.69])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 23 Jan 2020 03:19:26 +0000 (GMT)
-From:   Vaibhav Jain <vaibhav@linux.ibm.com>
-To:     linuxppc-dev@lists.ozlabs.org, linux-nvdimm@lists.01.org
-Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        "Oliver O'Halloran" <oohall@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] libnvdimm/of_pmem: Fix leaking bus_desc.provider_name in some paths
-Date:   Thu, 23 Jan 2020 08:48:47 +0530
-X-Mailer: git-send-email 2.24.1
+        id S1725933AbgAWD11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 22:27:27 -0500
+Received: from mga07.intel.com ([134.134.136.100]:59857 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725911AbgAWD11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 22:27:27 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Jan 2020 19:27:26 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,352,1574150400"; 
+   d="scan'208";a="227873142"
+Received: from richard.sh.intel.com (HELO localhost) ([10.239.159.54])
+  by orsmga003.jf.intel.com with ESMTP; 22 Jan 2020 19:27:24 -0800
+Date:   Thu, 23 Jan 2020 11:27:36 +0800
+From:   Wei Yang <richardw.yang@linux.intel.com>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     mhocko@suse.com, richardw.yang@linux.intel.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v2 PATCH] mm: move_pages: report the number of non-attempted
+ pages
+Message-ID: <20200123032736.GA22196@richard>
+Reply-To: Wei Yang <richardw.yang@linux.intel.com>
+References: <1579736331-85494-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 20012303-0020-0000-0000-000003A32B30
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20012303-0021-0000-0000-000021FAC29C
-Message-Id: <20200123031847.149325-1-vaibhav@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-01-22_08:2020-01-22,2020-01-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
- mlxscore=0 spamscore=0 malwarescore=0 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 impostorscore=0 adultscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1910280000 definitions=main-2001230026
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1579736331-85494-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-String 'bus_desc.provider_name' allocated inside
-of_pmem_region_probe() will leak in case call to nvdimm_bus_register()
-fails or when of_pmem_region_remove() is called.
+On Thu, Jan 23, 2020 at 07:38:51AM +0800, Yang Shi wrote:
+>Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
+>the semantic of move_pages() was changed to return the number of
+>non-migrated pages (failed to migration) and the call would be aborted
+>immediately if migrate_pages() returns positive value.  But it didn't
+>report the number of pages that we even haven't attempted to migrate.
+>So, fix it by including non-attempted pages in the return value.
+>
 
-This minor patch ensures that 'bus_desc.provider_name' is freed in
-error path for of_pmem_region_probe() as well as in
-of_pmem_region_remove().
+First, we want to change the semantic of move_pages(2). The return value
+indicates the number of pages we didn't managed to migrate?
 
-Cc: stable@vger.kernel.org
-Fixes:49bddc73d15c2("libnvdimm/of_pmem: Provide a unique name for bus provider")
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
----
- drivers/nvdimm/of_pmem.c | 2 ++
- 1 file changed, 2 insertions(+)
+Second, the return value from migrate_pages() doesn't mean the number of pages
+we failed to migrate. For example, one -ENOMEM is returned on the first page,
+migrate_pages() would return 1. But actually, no page successfully migrated.
 
-diff --git a/drivers/nvdimm/of_pmem.c b/drivers/nvdimm/of_pmem.c
-index 8224d1431ea9..9cb76f9837ad 100644
---- a/drivers/nvdimm/of_pmem.c
-+++ b/drivers/nvdimm/of_pmem.c
-@@ -36,6 +36,7 @@ static int of_pmem_region_probe(struct platform_device *pdev)
- 
- 	priv->bus = bus = nvdimm_bus_register(&pdev->dev, &priv->bus_desc);
- 	if (!bus) {
-+		kfree(priv->bus_desc.provider_name);
- 		kfree(priv);
- 		return -ENODEV;
- 	}
-@@ -81,6 +82,7 @@ static int of_pmem_region_remove(struct platform_device *pdev)
- 	struct of_pmem_private *priv = platform_get_drvdata(pdev);
- 
- 	nvdimm_bus_unregister(priv->bus);
-+	kfree(priv->bus_desc.provider_name);
- 	kfree(priv);
- 
- 	return 0;
+Third, even the migrate_pages() return the exact non-migrate page, we are not
+sure those non-migrated pages are at the tail of the list. Because in the last
+case in migrate_pages(), it just remove the page from list. It could be a page
+in the middle of the list. Then, in userspace, how the return value be
+leveraged to determine the valid status? Any page in the list could be the
+victim.
+
+Sounds we need to think about this carefully.
+
+>Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+>Suggested-by: Michal Hocko <mhocko@suse.com>
+>Cc: Wei Yang <richardw.yang@linux.intel.com>
+>Cc: <stable@vger.kernel.org>    [4.17+]
+>Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+>---
+>v2: Rebased on top of the latest mainline kernel per Andrew
+>
+> mm/migrate.c | 24 ++++++++++++++++++++++--
+> 1 file changed, 22 insertions(+), 2 deletions(-)
+>
+>diff --git a/mm/migrate.c b/mm/migrate.c
+>index 86873b6..9b8eb5d 100644
+>--- a/mm/migrate.c
+>+++ b/mm/migrate.c
+>@@ -1627,8 +1627,18 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+> 			start = i;
+> 		} else if (node != current_node) {
+> 			err = do_move_pages_to_node(mm, &pagelist, current_node);
+>-			if (err)
+>+			if (err) {
+>+				/*
+>+				 * Positive err means the number of failed
+>+				 * pages to migrate.  Since we are going to
+>+				 * abort and return the number of non-migrated
+>+				 * pages, so need incude the rest of the
+>+				 * nr_pages that have not attempted as well.
+>+				 */
+>+				if (err > 0)
+>+					err += nr_pages - i - 1;
+> 				goto out;
+>+			}
+> 			err = store_status(status, start, current_node, i - start);
+> 			if (err)
+> 				goto out;
+>@@ -1659,8 +1669,11 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+> 			goto out_flush;
+> 
+> 		err = do_move_pages_to_node(mm, &pagelist, current_node);
+>-		if (err)
+>+		if (err) {
+>+			if (err > 0)
+>+				err += nr_pages - i - 1;
+> 			goto out;
+>+		}
+> 		if (i > start) {
+> 			err = store_status(status, start, current_node, i - start);
+> 			if (err)
+>@@ -1674,6 +1687,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+> 
+> 	/* Make sure we do not overwrite the existing error */
+> 	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
+>+	/*
+>+	 * Don't have to report non-attempted pages here since:
+>+	 *     - If the above loop is done gracefully there is not non-attempted
+>+	 *       page.
+>+	 *     - If the above loop is aborted to it means more fatal error
+>+	 *       happened, should return err.
+>+	 */
+> 	if (!err1)
+> 		err1 = store_status(status, start, current_node, i - start);
+> 	if (!err)
+>-- 
+>1.8.3.1
+
 -- 
-2.24.1
-
+Wei Yang
+Help you, Help me
