@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 973131483C0
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1851483F7
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403898AbgAXLZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:25:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40300 "EHLO mail.kernel.org"
+        id S1731514AbgAXLjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:39:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403893AbgAXLZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:25:58 -0500
+        id S2403758AbgAXL0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:26:06 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCCBF2075D;
-        Fri, 24 Jan 2020 11:25:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BC572075D;
+        Fri, 24 Jan 2020 11:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865157;
-        bh=MxQxF8QIHW4yZ+xMdIkYYejitL9UIWZRgNUdAFMgmt8=;
+        s=default; t=1579865165;
+        bh=x93ckPFzgvDqJaL4wUMSQhMufzfjYtPQ2T3p1ALndo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFLyV+bVkB2sj5LbIvjx9xnN+ggur3ka3seOcjF1GhBGDpfEjw5q7G7+bZfGpnb0F
-         pwvFzyRz+NOesj274YtgFF1nnwB4JWjxjIMygRZdJVH8GyHpdsqXT2is+XIRpStobD
-         1wSKFyMD4ZQ+Pp2HqDR+oTwFuuMS0tEnbl/+m178=
+        b=xU2Ti3fhauip6MZB95iPBt/tnTGzUL8DRiXuygbDCaseApOg4rKp7UNIgjnW2e16k
+         QUJGFhSvU06GHjV+0XHcaR1ij4i7tEFtwWECFS3vvcg3frtNo8LgEOmHwJAcGeg+Uk
+         C2NNcgM+9drNXUG+1816LSje8mBOMRXbHTvrl0s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 453/639] backlight: pwm_bl: Fix heuristic to determine number of brightness levels
-Date:   Fri, 24 Jan 2020 10:30:23 +0100
-Message-Id: <20200124093143.782393427@linuxfoundation.org>
+Subject: [PATCH 4.19 463/639] ACPI: PM: Simplify and fix PM domain hibernation callbacks
+Date:   Fri, 24 Jan 2020 10:30:33 +0100
+Message-Id: <20200124093145.217524712@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,85 +46,263 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 73fbfc499448455f1e1c77717040e09e25f1d976 ]
+[ Upstream commit 3cd7957e85e67120bb9f6bfb75d81dcc19af282b ]
 
-With commit 88ba95bedb79 ("backlight: pwm_bl: Compute brightness of
-LED linearly to human eye") the number of set bits (aka hweight())
-in the PWM period is used in the heuristic to determine the number
-of brightness levels, when the brightness table isn't specified in
-the DT. The number of set bits doesn't provide a reliable clue about
-the length of the period, instead change the heuristic to:
+First, after a previous change causing all runtime-suspended devices
+in the ACPI PM domain (and ACPI LPSS devices) to be resumed before
+creating a snapshot image of memory during hibernation, it is not
+necessary to worry about the case in which them might be left in
+runtime-suspend any more, so get rid of the code related to that from
+ACPI PM domain and ACPI LPSS hibernation callbacks.
 
- nlevels = period / fls(period)
+Second, it is not correct to use pm_generic_resume_early() and
+acpi_subsys_resume_noirq() in hibernation "restore" callbacks (which
+currently happens in the ACPI PM domain and ACPI LPSS), so introduce
+proper _restore_late and _restore_noirq callbacks for the ACPI PM
+domain and ACPI LPSS.
 
-Also limit the maximum number of brightness levels to 4096 to avoid
-excessively large tables.
-
-With this the number of levels increases monotonically with the PWM
-period, until the maximum of 4096 levels is reached:
-
-period (ns)    # levels
-
-100    	       16
-500	       62
-1000	       111
-5000	       416
-10000	       769
-50000	       3333
-100000	       4096
-
-Fixes: 88ba95bedb79 ("backlight: pwm_bl: Compute brightness of LED linearly to human eye")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 05087360fd7a (ACPI / PM: Take SMART_SUSPEND driver flag into account)
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/pwm_bl.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ drivers/acpi/acpi_lpss.c | 61 ++++++++++++++++++++++++++++++++++------
+ drivers/acpi/device_pm.c | 61 ++++++----------------------------------
+ include/linux/acpi.h     | 10 -------
+ 3 files changed, 61 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
-index 7ddc0930e98c6..3a3098d4873be 100644
---- a/drivers/video/backlight/pwm_bl.c
-+++ b/drivers/video/backlight/pwm_bl.c
-@@ -199,29 +199,17 @@ int pwm_backlight_brightness_default(struct device *dev,
- 				     struct platform_pwm_backlight_data *data,
- 				     unsigned int period)
+diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+index 30ccd94f87d24..11c460ab9de9c 100644
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -1086,16 +1086,62 @@ static int acpi_lpss_resume_noirq(struct device *dev)
+ 	struct lpss_private_data *pdata = acpi_driver_data(ACPI_COMPANION(dev));
+ 	int ret;
+ 
+-	ret = acpi_subsys_resume_noirq(dev);
++	/* Follow acpi_subsys_resume_noirq(). */
++	if (dev_pm_may_skip_resume(dev))
++		return 0;
++
++	if (dev_pm_smart_suspend_and_suspended(dev))
++		pm_runtime_set_active(dev);
++
++	ret = pm_generic_resume_noirq(dev);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (!dev_pm_may_skip_resume(dev) && pdata->dev_desc->resume_from_noirq)
+-		ret = acpi_lpss_do_resume_early(dev);
++	if (!pdata->dev_desc->resume_from_noirq)
++		return 0;
+ 
+-	return ret;
++	/*
++	 * The driver's ->resume_early callback will be invoked by
++	 * acpi_lpss_do_resume_early(), with the assumption that the driver
++	 * really wanted to run that code in ->resume_noirq, but it could not
++	 * run before acpi_dev_resume() and the driver expected the latter to be
++	 * called in the "early" phase.
++	 */
++	return acpi_lpss_do_resume_early(dev);
++}
++
++static int acpi_lpss_do_restore_early(struct device *dev)
++{
++	int ret = acpi_lpss_resume(dev);
++
++	return ret ? ret : pm_generic_restore_early(dev);
++}
++
++static int acpi_lpss_restore_early(struct device *dev)
++{
++	struct lpss_private_data *pdata = acpi_driver_data(ACPI_COMPANION(dev));
++
++	if (pdata->dev_desc->resume_from_noirq)
++		return 0;
++
++	return acpi_lpss_do_restore_early(dev);
+ }
+ 
++static int acpi_lpss_restore_noirq(struct device *dev)
++{
++	struct lpss_private_data *pdata = acpi_driver_data(ACPI_COMPANION(dev));
++	int ret;
++
++	ret = pm_generic_restore_noirq(dev);
++	if (ret)
++		return ret;
++
++	if (!pdata->dev_desc->resume_from_noirq)
++		return 0;
++
++	/* This is analogous to what happens in acpi_lpss_resume_noirq(). */
++	return acpi_lpss_do_restore_early(dev);
++}
+ #endif /* CONFIG_PM_SLEEP */
+ 
+ static int acpi_lpss_runtime_suspend(struct device *dev)
+@@ -1129,14 +1175,11 @@ static struct dev_pm_domain acpi_lpss_pm_domain = {
+ 		.resume_noirq = acpi_lpss_resume_noirq,
+ 		.resume_early = acpi_lpss_resume_early,
+ 		.freeze = acpi_subsys_freeze,
+-		.freeze_late = acpi_subsys_freeze_late,
+-		.freeze_noirq = acpi_subsys_freeze_noirq,
+-		.thaw_noirq = acpi_subsys_thaw_noirq,
+ 		.poweroff = acpi_subsys_suspend,
+ 		.poweroff_late = acpi_lpss_suspend_late,
+ 		.poweroff_noirq = acpi_lpss_suspend_noirq,
+-		.restore_noirq = acpi_lpss_resume_noirq,
+-		.restore_early = acpi_lpss_resume_early,
++		.restore_noirq = acpi_lpss_restore_noirq,
++		.restore_early = acpi_lpss_restore_early,
+ #endif
+ 		.runtime_suspend = acpi_lpss_runtime_suspend,
+ 		.runtime_resume = acpi_lpss_runtime_resume,
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index 11b7a1632e5aa..5a88a63e902dd 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -1077,7 +1077,7 @@ EXPORT_SYMBOL_GPL(acpi_subsys_suspend_noirq);
+  * acpi_subsys_resume_noirq - Run the device driver's "noirq" resume callback.
+  * @dev: Device to handle.
+  */
+-int acpi_subsys_resume_noirq(struct device *dev)
++static int acpi_subsys_resume_noirq(struct device *dev)
  {
--	unsigned int counter = 0;
--	unsigned int i, n;
-+	unsigned int i;
- 	u64 retval;
+ 	if (dev_pm_may_skip_resume(dev))
+ 		return 0;
+@@ -1092,7 +1092,6 @@ int acpi_subsys_resume_noirq(struct device *dev)
  
- 	/*
--	 * Count the number of bits needed to represent the period number. The
--	 * number of bits is used to calculate the number of levels used for the
--	 * brightness-levels table, the purpose of this calculation is have a
--	 * pre-computed table with enough levels to get linear brightness
--	 * perception. The period is divided by the number of bits so for a
--	 * 8-bit PWM we have 255 / 8 = 32 brightness levels or for a 16-bit PWM
--	 * we have 65535 / 16 = 4096 brightness levels.
--	 *
--	 * Note that this method is based on empirical testing on different
--	 * devices with PWM of 8 and 16 bits of resolution.
-+	 * Once we have 4096 levels there's little point going much higher...
-+	 * neither interactive sliders nor animation benefits from having
-+	 * more values in the table.
- 	 */
--	n = period;
--	while (n) {
--		counter += n % 2;
--		n >>= 1;
+ 	return pm_generic_resume_noirq(dev);
+ }
+-EXPORT_SYMBOL_GPL(acpi_subsys_resume_noirq);
+ 
+ /**
+  * acpi_subsys_resume_early - Resume device using ACPI.
+@@ -1102,12 +1101,11 @@ EXPORT_SYMBOL_GPL(acpi_subsys_resume_noirq);
+  * generic early resume procedure for it during system transition into the
+  * working state.
+  */
+-int acpi_subsys_resume_early(struct device *dev)
++static int acpi_subsys_resume_early(struct device *dev)
+ {
+ 	int ret = acpi_dev_resume(dev);
+ 	return ret ? ret : pm_generic_resume_early(dev);
+ }
+-EXPORT_SYMBOL_GPL(acpi_subsys_resume_early);
+ 
+ /**
+  * acpi_subsys_freeze - Run the device driver's freeze callback.
+@@ -1130,52 +1128,15 @@ int acpi_subsys_freeze(struct device *dev)
+ EXPORT_SYMBOL_GPL(acpi_subsys_freeze);
+ 
+ /**
+- * acpi_subsys_freeze_late - Run the device driver's "late" freeze callback.
+- * @dev: Device to handle.
+- */
+-int acpi_subsys_freeze_late(struct device *dev)
+-{
+-
+-	if (dev_pm_smart_suspend_and_suspended(dev))
+-		return 0;
+-
+-	return pm_generic_freeze_late(dev);
+-}
+-EXPORT_SYMBOL_GPL(acpi_subsys_freeze_late);
+-
+-/**
+- * acpi_subsys_freeze_noirq - Run the device driver's "noirq" freeze callback.
+- * @dev: Device to handle.
+- */
+-int acpi_subsys_freeze_noirq(struct device *dev)
+-{
+-
+-	if (dev_pm_smart_suspend_and_suspended(dev))
+-		return 0;
+-
+-	return pm_generic_freeze_noirq(dev);
+-}
+-EXPORT_SYMBOL_GPL(acpi_subsys_freeze_noirq);
+-
+-/**
+- * acpi_subsys_thaw_noirq - Run the device driver's "noirq" thaw callback.
+- * @dev: Device to handle.
++ * acpi_subsys_restore_early - Restore device using ACPI.
++ * @dev: Device to restore.
+  */
+-int acpi_subsys_thaw_noirq(struct device *dev)
++int acpi_subsys_restore_early(struct device *dev)
+ {
+-	/*
+-	 * If the device is in runtime suspend, the "thaw" code may not work
+-	 * correctly with it, so skip the driver callback and make the PM core
+-	 * skip all of the subsequent "thaw" callbacks for the device.
+-	 */
+-	if (dev_pm_smart_suspend_and_suspended(dev)) {
+-		dev_pm_skip_next_resume_phases(dev);
+-		return 0;
 -	}
-+	data->max_brightness =
-+		min((int)DIV_ROUND_UP(period, fls(period)), 4096);
+-
+-	return pm_generic_thaw_noirq(dev);
++	int ret = acpi_dev_resume(dev);
++	return ret ? ret : pm_generic_restore_early(dev);
+ }
+-EXPORT_SYMBOL_GPL(acpi_subsys_thaw_noirq);
++EXPORT_SYMBOL_GPL(acpi_subsys_restore_early);
+ #endif /* CONFIG_PM_SLEEP */
  
--	data->max_brightness = DIV_ROUND_UP(period, counter);
- 	data->levels = devm_kcalloc(dev, data->max_brightness,
- 				    sizeof(*data->levels), GFP_KERNEL);
- 	if (!data->levels)
+ static struct dev_pm_domain acpi_general_pm_domain = {
+@@ -1191,14 +1152,10 @@ static struct dev_pm_domain acpi_general_pm_domain = {
+ 		.resume_noirq = acpi_subsys_resume_noirq,
+ 		.resume_early = acpi_subsys_resume_early,
+ 		.freeze = acpi_subsys_freeze,
+-		.freeze_late = acpi_subsys_freeze_late,
+-		.freeze_noirq = acpi_subsys_freeze_noirq,
+-		.thaw_noirq = acpi_subsys_thaw_noirq,
+ 		.poweroff = acpi_subsys_suspend,
+ 		.poweroff_late = acpi_subsys_suspend_late,
+ 		.poweroff_noirq = acpi_subsys_suspend_noirq,
+-		.restore_noirq = acpi_subsys_resume_noirq,
+-		.restore_early = acpi_subsys_resume_early,
++		.restore_early = acpi_subsys_restore_early,
+ #endif
+ 	},
+ };
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index df1252e22dcfd..32fabeeda5e30 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -917,26 +917,16 @@ int acpi_subsys_prepare(struct device *dev);
+ void acpi_subsys_complete(struct device *dev);
+ int acpi_subsys_suspend_late(struct device *dev);
+ int acpi_subsys_suspend_noirq(struct device *dev);
+-int acpi_subsys_resume_noirq(struct device *dev);
+-int acpi_subsys_resume_early(struct device *dev);
+ int acpi_subsys_suspend(struct device *dev);
+ int acpi_subsys_freeze(struct device *dev);
+-int acpi_subsys_freeze_late(struct device *dev);
+-int acpi_subsys_freeze_noirq(struct device *dev);
+-int acpi_subsys_thaw_noirq(struct device *dev);
+ #else
+ static inline int acpi_dev_resume_early(struct device *dev) { return 0; }
+ static inline int acpi_subsys_prepare(struct device *dev) { return 0; }
+ static inline void acpi_subsys_complete(struct device *dev) {}
+ static inline int acpi_subsys_suspend_late(struct device *dev) { return 0; }
+ static inline int acpi_subsys_suspend_noirq(struct device *dev) { return 0; }
+-static inline int acpi_subsys_resume_noirq(struct device *dev) { return 0; }
+-static inline int acpi_subsys_resume_early(struct device *dev) { return 0; }
+ static inline int acpi_subsys_suspend(struct device *dev) { return 0; }
+ static inline int acpi_subsys_freeze(struct device *dev) { return 0; }
+-static inline int acpi_subsys_freeze_late(struct device *dev) { return 0; }
+-static inline int acpi_subsys_freeze_noirq(struct device *dev) { return 0; }
+-static inline int acpi_subsys_thaw_noirq(struct device *dev) { return 0; }
+ #endif
+ 
+ #ifdef CONFIG_ACPI
 -- 
 2.20.1
 
