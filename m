@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E6B14891A
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8324E148912
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392728AbgAXOcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:32:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        id S2392710AbgAXOcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:32:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389436AbgAXOUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:20:00 -0500
+        id S1728831AbgAXOUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:20:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E4D424676;
-        Fri, 24 Jan 2020 14:19:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 594A721569;
+        Fri, 24 Jan 2020 14:20:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875599;
-        bh=W1jirwlr7v13jTCfr7mNvWD5BBnGeEGhhW1PMP2SgVE=;
+        s=default; t=1579875602;
+        bh=CIdKxlFvKsd/1KzZjemTt3oAGnuaPafxgd1NqrdNGVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rv+glKT5ASCt+RuILq7Xr44EhCIBtgUMl5U08o/f0+jDBBk7/JvZyxjRaa0wKgyRL
-         8kjRgasKiGN+mkslDQ92jK3u3QVs8X5+tDtZ9KqZQAQdpvFr1mH9qHMUomuMLnRx65
-         /FQLynTRh7HC7QY8VXD16wxnl5ist/p8XVFcdD4A=
+        b=wveZ7NHvPKMy9M3pJH9mph2xs+VYuQPblY8IwF1Wv9ul/HBAoKPWM8hUYY0tZvRpU
+         HSI5NQvZ3IiuKpSO0p7U8/8v1q3I1wW49q+nYdbGMfXNh3JHTSzbxNG8ENXQ6id4QQ
+         LQezcQtjQH+lMQwmrVf4jUcm7bKA4AQtoOwxdB1o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 088/107] net: hns3: pad the short frame before sending to the hardware
-Date:   Fri, 24 Jan 2020 09:17:58 -0500
-Message-Id: <20200124141817.28793-88-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Marco Oliverio <marco.oliverio@tanaza.com>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 090/107] netfilter: nf_tables: store transaction list locally while requesting module
+Date:   Fri, 24 Jan 2020 09:18:00 -0500
+Message-Id: <20200124141817.28793-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,49 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 36c67349a1a1c88b9cf11d7ca7762ababdb38867 ]
+[ Upstream commit ec7470b834fe7b5d7eff11b6677f5d7fdf5e9a91 ]
 
-The hardware can not handle short frames below or equal to 32
-bytes according to the hardware user manual, and it will trigger
-a RAS error when the frame's length is below 33 bytes.
+This patch fixes a WARN_ON in nft_set_destroy() due to missing
+set reference count drop from the preparation phase. This is triggered
+by the module autoload path. Do not exercise the abort path from
+nft_request_module() while preparation phase cleaning up is still
+pending.
 
-This patch pads the SKB when skb->len is below 33 bytes before
-sending it to hardware.
+ WARNING: CPU: 3 PID: 3456 at net/netfilter/nf_tables_api.c:3740 nft_set_destroy+0x45/0x50 [nf_tables]
+ [...]
+ CPU: 3 PID: 3456 Comm: nft Not tainted 5.4.6-arch3-1 #1
+ RIP: 0010:nft_set_destroy+0x45/0x50 [nf_tables]
+ Code: e8 30 eb 83 c6 48 8b 85 80 00 00 00 48 8b b8 90 00 00 00 e8 dd 6b d7 c5 48 8b 7d 30 e8 24 dd eb c5 48 89 ef 5d e9 6b c6 e5 c5 <0f> 0b c3 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 8b 7f 10 e9 52
+ RSP: 0018:ffffac4f43e53700 EFLAGS: 00010202
+ RAX: 0000000000000001 RBX: ffff99d63a154d80 RCX: 0000000001f88e03
+ RDX: 0000000001f88c03 RSI: ffff99d6560ef0c0 RDI: ffff99d63a101200
+ RBP: ffff99d617721de0 R08: 0000000000000000 R09: 0000000000000318
+ R10: 00000000f0000000 R11: 0000000000000001 R12: ffffffff880fabf0
+ R13: dead000000000122 R14: dead000000000100 R15: ffff99d63a154d80
+ FS:  00007ff3dbd5b740(0000) GS:ffff99d6560c0000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00001cb5de6a9000 CR3: 000000016eb6a004 CR4: 00000000001606e0
+ Call Trace:
+  __nf_tables_abort+0x3e3/0x6d0 [nf_tables]
+  nft_request_module+0x6f/0x110 [nf_tables]
+  nft_expr_type_request_module+0x28/0x50 [nf_tables]
+  nf_tables_expr_parse+0x198/0x1f0 [nf_tables]
+  nft_expr_init+0x3b/0xf0 [nf_tables]
+  nft_dynset_init+0x1e2/0x410 [nf_tables]
+  nf_tables_newrule+0x30a/0x930 [nf_tables]
+  nfnetlink_rcv_batch+0x2a0/0x640 [nfnetlink]
+  nfnetlink_rcv+0x125/0x171 [nfnetlink]
+  netlink_unicast+0x179/0x210
+  netlink_sendmsg+0x208/0x3d0
+  sock_sendmsg+0x5e/0x60
+  ____sys_sendmsg+0x21b/0x290
 
-Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Update comment on the code to describe the new behaviour.
+
+Reported-by: Marco Oliverio <marco.oliverio@tanaza.com>
+Fixes: 452238e8d5ff ("netfilter: nf_tables: add and use helper for module autoload")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/netfilter/nf_tables_api.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 84d8816c8681b..0c8d2269bc46e 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -54,6 +54,8 @@ MODULE_PARM_DESC(debug, " Network interface message level setting");
- #define HNS3_INNER_VLAN_TAG	1
- #define HNS3_OUTER_VLAN_TAG	2
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 67ca47c7ce542..b0cd1cee412b2 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -500,23 +500,21 @@ __nf_tables_chain_type_lookup(const struct nlattr *nla, u8 family)
+ }
  
-+#define HNS3_MIN_TX_LEN		33U
-+
- /* hns3_pci_tbl - PCI Device ID Table
-  *
-  * Last entry must be all 0s
-@@ -1329,6 +1331,10 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ /*
+- * Loading a module requires dropping mutex that guards the
+- * transaction.
+- * We first need to abort any pending transactions as once
+- * mutex is unlocked a different client could start a new
+- * transaction.  It must not see any 'future generation'
+- * changes * as these changes will never happen.
++ * Loading a module requires dropping mutex that guards the transaction.
++ * A different client might race to start a new transaction meanwhile. Zap the
++ * list of pending transaction and then restore it once the mutex is grabbed
++ * again. Users of this function return EAGAIN which implicitly triggers the
++ * transaction abort path to clean up the list of pending transactions.
+  */
+ #ifdef CONFIG_MODULES
+-static int __nf_tables_abort(struct net *net);
+-
+ static void nft_request_module(struct net *net, const char *fmt, ...)
+ {
+ 	char module_name[MODULE_NAME_LEN];
++	LIST_HEAD(commit_list);
+ 	va_list args;
  	int ret;
- 	int i;
  
-+	/* Hardware can only handle short frames above 32 bytes */
-+	if (skb_put_padto(skb, HNS3_MIN_TX_LEN))
-+		return NETDEV_TX_OK;
+-	__nf_tables_abort(net);
++	list_splice_init(&net->nft.commit_list, &commit_list);
+ 
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+@@ -527,6 +525,9 @@ static void nft_request_module(struct net *net, const char *fmt, ...)
+ 	mutex_unlock(&net->nft.commit_mutex);
+ 	request_module("%s", module_name);
+ 	mutex_lock(&net->nft.commit_mutex);
 +
- 	/* Prefetch the data used later */
- 	prefetch(skb->data);
++	WARN_ON_ONCE(!list_empty(&net->nft.commit_list));
++	list_splice(&commit_list, &net->nft.commit_list);
+ }
+ #endif
  
 -- 
 2.20.1
