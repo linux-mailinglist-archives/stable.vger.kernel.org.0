@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62D9D1480BD
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:14:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DBCF1480BF
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733148AbgAXLOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:14:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50398 "EHLO mail.kernel.org"
+        id S1733203AbgAXLOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389443AbgAXLOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:14:01 -0500
+        id S2389486AbgAXLOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:14:05 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F4622077C;
-        Fri, 24 Jan 2020 11:14:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D60E20663;
+        Fri, 24 Jan 2020 11:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864441;
-        bh=BUju0Wx30sPMwP56BcCcBb6OikCck+XYZB+oJtZUH1s=;
+        s=default; t=1579864444;
+        bh=ecNkzIOQBMhCoFQXdm0acT31SGIU+wVGKjkTX2DkPZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFwTJczWYmuBGJ3b+2htnQIetzbHFZfXphQ6Et5PzWVnaFMTqZPFCN4h+d8roOgru
-         e93BYMgg4AN0lvPvinln5hrnn0/CAuE19H1TYbZkqCfhIdeIQVBquTcy/q0wglRw9r
-         OAK9zs7IaRrMG6lrqcGu7K96NLuz7HxyLfEpbBCk=
+        b=nu02F78c0V0NMR9CaYBkwGtj6wIrbVV0mwujOdg0CB6MtP9n2Giho2sHFyXlBJstx
+         O9XPgrvpSgo6/tSQX6kZAh8bOmlQsZ87jf3219NP+W0NsYUA9P5pqCV9pMdhc5STS4
+         vs1Rp0M5fFJKhutSy/9yMplHSkTGoRRjPPKZ4F3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/639] nios2: ksyms: Add missing symbol exports
-Date:   Fri, 24 Jan 2020 10:27:03 +0100
-Message-Id: <20200124093118.413830152@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andyt Lutomirski <luto@kernel.org>,
+        dave.hansen@linux.intel.com, peterz@infradead.org, bp@alien8.de,
+        hpa@zytor.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 254/639] x86/mm: Remove unused variable cpu
+Date:   Fri, 24 Jan 2020 10:27:04 +0100
+Message-Id: <20200124093118.531722123@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,65 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 0f8ed994575429d6042cf5d7ef70081c94091587 ]
+[ Upstream commit 3609e31bc8dc03b701390f79c74fc7fe92b95039 ]
 
-Building nios2:allmodconfig fails as follows (each symbol is only listed
-once).
+The commit a2055abe9c67 ("x86/mm: Pass flush_tlb_info to
+flush_tlb_others() etc") removed the unnecessary cpu parameter from
+uv_flush_tlb_others() but left an unused variable.
 
-ERROR: "__ashldi3" [drivers/md/dm-writecache.ko] undefined!
-ERROR: "__ashrdi3" [fs/xfs/xfs.ko] undefined!
-ERROR: "__ucmpdi2" [drivers/media/i2c/adv7842.ko] undefined!
-ERROR: "__lshrdi3" [drivers/md/dm-zoned.ko] undefined!
-ERROR: "flush_icache_range" [drivers/misc/lkdtm/lkdtm.ko] undefined!
-ERROR: "empty_zero_page" [drivers/md/dm-mod.ko] undefined!
+arch/x86/mm/tlb.c: In function 'native_flush_tlb_others':
+arch/x86/mm/tlb.c:688:16: warning: variable 'cpu' set but not used
+[-Wunused-but-set-variable]
+   unsigned int cpu;
+                ^~~
 
-The problem is seen with gcc 7.3.0.
-
-Export the missing symbols.
-
-Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
+Fixes: a2055abe9c67 ("x86/mm: Pass flush_tlb_info to flush_tlb_others() etc")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Andyt Lutomirski <luto@kernel.org>
+Cc: dave.hansen@linux.intel.com
+Cc: peterz@infradead.org
+Cc: bp@alien8.de
+Cc: hpa@zytor.com
+Link: https://lkml.kernel.org/r/20190228220155.88124-1-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/kernel/nios2_ksyms.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/x86/mm/tlb.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/nios2/kernel/nios2_ksyms.c b/arch/nios2/kernel/nios2_ksyms.c
-index bf2f55d10a4d8..4e704046a150c 100644
---- a/arch/nios2/kernel/nios2_ksyms.c
-+++ b/arch/nios2/kernel/nios2_ksyms.c
-@@ -9,12 +9,20 @@
- #include <linux/export.h>
- #include <linux/string.h>
- 
-+#include <asm/cacheflush.h>
-+#include <asm/pgtable.h>
-+
- /* string functions */
- 
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memset);
- EXPORT_SYMBOL(memmove);
- 
-+/* memory management */
-+
-+EXPORT_SYMBOL(empty_zero_page);
-+EXPORT_SYMBOL(flush_icache_range);
-+
- /*
-  * libgcc functions - functions that are used internally by the
-  * compiler...  (prototypes are not correct though, but that
-@@ -31,3 +39,7 @@ DECLARE_EXPORT(__udivsi3);
- DECLARE_EXPORT(__umoddi3);
- DECLARE_EXPORT(__umodsi3);
- DECLARE_EXPORT(__muldi3);
-+DECLARE_EXPORT(__ucmpdi2);
-+DECLARE_EXPORT(__lshrdi3);
-+DECLARE_EXPORT(__ashldi3);
-+DECLARE_EXPORT(__ashrdi3);
+diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+index a6836ab0fcc73..b72296bd04a29 100644
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -664,9 +664,6 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
+ 		 * that UV should be updated so that smp_call_function_many(),
+ 		 * etc, are optimal on UV.
+ 		 */
+-		unsigned int cpu;
+-
+-		cpu = smp_processor_id();
+ 		cpumask = uv_flush_tlb_others(cpumask, info);
+ 		if (cpumask)
+ 			smp_call_function_many(cpumask, flush_tlb_func_remote,
 -- 
 2.20.1
 
