@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B39147AF2
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 601EB147AF5
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731794AbgAXJji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:39:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36762 "EHLO mail.kernel.org"
+        id S1731650AbgAXJjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:39:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731650AbgAXJjh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:39:37 -0500
+        id S1726080AbgAXJjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:39:41 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A09C20838;
-        Fri, 24 Jan 2020 09:39:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C234F20709;
+        Fri, 24 Jan 2020 09:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858777;
-        bh=0VjX7Tl7Gtvn+Pu7lF365Xuvd6DrlJp11IbqYsPWP/8=;
+        s=default; t=1579858780;
+        bh=X2rFqlKGVpNr7+Fo8RXGU8IqdF+TWzgcZlnxkiOTBnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnwI/XIN97PTMSxCBLV3L0nq/7gqktHFxoO8xmFWkcwqfm0hOJaUVWkDBwl8SJlq7
-         mbdVzGCDr73REve7UOw65/7ejAa/gMGS8NpE06O0OqGQ3FMMQtqeMp3NOZbMW9R/qY
-         Hficqd5doSB2XuqtosYpCa6PIzgjQEUzHJuY6Dc8=
+        b=aa/201X2/ZCSXGpS8iBKDv3Nn9yGPQV28O1OThGqCf3rm0Wu3R4h7ir3K+xYIErZC
+         snIlrXG5sXgJ3o/i6m/kBUNcjc3YjKWp1TkfivgE15eEHSf7lQzPST9cVjF3YpxnZW
+         C81rnFSNuuZmFJhgYG1eAtSTjzIcS0ZxqMwr1v/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 037/102] crypto: amcc - restore CRYPTO_AES dependency
-Date:   Fri, 24 Jan 2020 10:30:38 +0100
-Message-Id: <20200124092811.862631711@linuxfoundation.org>
+Subject: [PATCH 5.4 038/102] crypto: sun4i-ss - fix big endian issues
+Date:   Fri, 24 Jan 2020 10:30:39 +0100
+Message-Id: <20200124092812.022914114@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -45,35 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-commit 298b4c604008025b134bc6fccbc4018449945d60 upstream.
+commit d1d787bcebfe122a5bd443ae565696661e2e9656 upstream.
 
-This patch restores the CRYPTO_AES dependency. This is
-necessary since some of the crypto4xx driver provided
-modes need functioning software fallbacks for
-AES-CTR/CCM and GCM.
+When testing BigEndian kernel, the sun4i-ss was failling all crypto
+tests.
+This patch fix endian issues with it.
 
-Fixes: da3e7a9715ea ("crypto: amcc - switch to AES library for GCM key derivation")
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/sunxi-ss/sun4i-ss-hash.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/drivers/crypto/Kconfig
-+++ b/drivers/crypto/Kconfig
-@@ -333,6 +333,7 @@ config CRYPTO_DEV_PPC4XX
- 	depends on PPC && 4xx
- 	select CRYPTO_HASH
- 	select CRYPTO_AEAD
-+	select CRYPTO_AES
- 	select CRYPTO_LIB_AES
- 	select CRYPTO_CCM
- 	select CRYPTO_CTR
+--- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
++++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
+@@ -175,7 +175,7 @@ static int sun4i_hash(struct ahash_reque
+ 	 */
+ 	unsigned int i = 0, end, fill, min_fill, nwait, nbw = 0, j = 0, todo;
+ 	unsigned int in_i = 0;
+-	u32 spaces, rx_cnt = SS_RX_DEFAULT, bf[32] = {0}, wb = 0, v, ivmode = 0;
++	u32 spaces, rx_cnt = SS_RX_DEFAULT, bf[32] = {0}, v, ivmode = 0;
+ 	struct sun4i_req_ctx *op = ahash_request_ctx(areq);
+ 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
+ 	struct sun4i_tfm_ctx *tfmctx = crypto_ahash_ctx(tfm);
+@@ -184,6 +184,7 @@ static int sun4i_hash(struct ahash_reque
+ 	struct sg_mapping_iter mi;
+ 	int in_r, err = 0;
+ 	size_t copied = 0;
++	__le32 wb = 0;
+ 
+ 	dev_dbg(ss->dev, "%s %s bc=%llu len=%u mode=%x wl=%u h0=%0x",
+ 		__func__, crypto_tfm_alg_name(areq->base.tfm),
+@@ -395,7 +396,7 @@ hash_final:
+ 
+ 		nbw = op->len - 4 * nwait;
+ 		if (nbw) {
+-			wb = *(u32 *)(op->buf + nwait * 4);
++			wb = cpu_to_le32(*(u32 *)(op->buf + nwait * 4));
+ 			wb &= GENMASK((nbw * 8) - 1, 0);
+ 
+ 			op->byte_count += nbw;
+@@ -404,7 +405,7 @@ hash_final:
+ 
+ 	/* write the remaining bytes of the nbw buffer */
+ 	wb |= ((1 << 7) << (nbw * 8));
+-	bf[j++] = wb;
++	bf[j++] = le32_to_cpu(wb);
+ 
+ 	/*
+ 	 * number of space to pad to obtain 64o minus 8(size) minus 4 (final 1)
+@@ -423,13 +424,13 @@ hash_final:
+ 
+ 	/* write the length of data */
+ 	if (op->mode == SS_OP_SHA1) {
+-		__be64 bits = cpu_to_be64(op->byte_count << 3);
+-		bf[j++] = lower_32_bits(bits);
+-		bf[j++] = upper_32_bits(bits);
++		__be64 *bits = (__be64 *)&bf[j];
++		*bits = cpu_to_be64(op->byte_count << 3);
++		j += 2;
+ 	} else {
+-		__le64 bits = op->byte_count << 3;
+-		bf[j++] = lower_32_bits(bits);
+-		bf[j++] = upper_32_bits(bits);
++		__le64 *bits = (__le64 *)&bf[j];
++		*bits = cpu_to_le64(op->byte_count << 3);
++		j += 2;
+ 	}
+ 	writesl(ss->base + SS_RXFIFO, bf, j);
+ 
+@@ -471,7 +472,7 @@ hash_final:
+ 		}
+ 	} else {
+ 		for (i = 0; i < 4; i++) {
+-			v = readl(ss->base + SS_MD0 + i * 4);
++			v = cpu_to_le32(readl(ss->base + SS_MD0 + i * 4));
+ 			memcpy(areq->result + i * 4, &v, 4);
+ 		}
+ 	}
 
 
