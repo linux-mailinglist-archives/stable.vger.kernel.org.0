@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 184B1147F54
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:01:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 626EE147F57
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387670AbgAXLB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:01:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34248 "EHLO mail.kernel.org"
+        id S2387710AbgAXLBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:01:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730614AbgAXLB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:01:26 -0500
+        id S2387703AbgAXLBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:01:33 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1636A2077C;
-        Fri, 24 Jan 2020 11:01:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 395D62077C;
+        Fri, 24 Jan 2020 11:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863685;
-        bh=BP7R04dc2l2DbOg8N+2HRcjcolSB/0sllc1I+f4cwps=;
+        s=default; t=1579863693;
+        bh=CaPSLJry4eH8fezUaYIRpq7wcgRRX9Af99I3++DJUfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMz4denuw54CVcdUSBlaxpPqwcTbxrrR8YupK2MWx11eBenOzmIwkcWreOFmkXMLz
-         VVr74RWEEKBeVkRxFNYzFsBUTb7Z/vtymwEVaPcwhH4VpKcG4lss520x9iirg5WdeH
-         mUT1AOPLqispDoB7QSb8jz/YotXrz98lvU23Y0gY=
+        b=e/952ieCP1N4Yd55HCtgwio0XoUhG5OGhzf7LUqFoYpOOKvWX8fBBCiskJhV4Thu1
+         2S1oiUCQ/X2q9ueWsEwb7PMSnmU6pTRLVOVLcOUbhWwX6ajowsJtKMhnSGvknV99HF
+         ut8OU0GHJUo2c0R+diZASgbxTKSoVaRuVg/pSEVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/639] mlxsw: reg: QEEC: Add minimum shaper fields
-Date:   Fri, 24 Jan 2020 10:23:50 +0100
-Message-Id: <20200124093054.932399262@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 062/639] NTB: ntb_hw_idt: replace IS_ERR_OR_NULL with regular NULL checks
+Date:   Fri, 24 Jan 2020 10:23:52 +0100
+Message-Id: <20200124093055.181255257@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,75 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit 8b931821aa04823e2e5df0ae93937baabbd23286 ]
+[ Upstream commit 1b7619828d0c341612f58683e73f279c37e70bbc ]
 
-Add QEEC.mise (minimum shaper enable) and QEEC.min_shaper_rate to enable
-configuration of minimum shaper.
+Both devm_kcalloc() and devm_kzalloc() return NULL on error. They
+never return error pointers.
 
-Increase the QEEC length to 0x20 as well: that's the length that the
-register has had for a long time now, but with the configurations that
-mlxsw typically exercises, the firmware tolerated 0x1C-sized packets.
-With mise=true however, FW rejects packets unless they have the full
-required length.
+The use of IS_ERR_OR_NULL is currently applied to the wrong
+context.
 
-Fixes: b9b7cee40579 ("mlxsw: reg: Add QoS ETS Element Configuration register")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by replacing IS_ERR_OR_NULL with regular NULL checks.
+
+Fixes: bf2a952d31d2 ("NTB: Add IDT 89HPESxNTx PCIe-switches support")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/reg.h | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/ntb/hw/idt/ntb_hw_idt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-index aee58b3892f20..c9895876a2317 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-@@ -3215,7 +3215,7 @@ static inline void mlxsw_reg_qtct_pack(char *payload, u8 local_port,
-  * Configures the ETS elements.
-  */
- #define MLXSW_REG_QEEC_ID 0x400D
--#define MLXSW_REG_QEEC_LEN 0x1C
-+#define MLXSW_REG_QEEC_LEN 0x20
+diff --git a/drivers/ntb/hw/idt/ntb_hw_idt.c b/drivers/ntb/hw/idt/ntb_hw_idt.c
+index dbe72f116017a..a67ef23e81bca 100644
+--- a/drivers/ntb/hw/idt/ntb_hw_idt.c
++++ b/drivers/ntb/hw/idt/ntb_hw_idt.c
+@@ -1105,9 +1105,9 @@ static struct idt_mw_cfg *idt_scan_mws(struct idt_ntb_dev *ndev, int port,
+ 	}
  
- MLXSW_REG_DEFINE(qeec, MLXSW_REG_QEEC_ID, MLXSW_REG_QEEC_LEN);
+ 	/* Allocate memory for memory window descriptors */
+-	ret_mws = devm_kcalloc(&ndev->ntb.pdev->dev, *mw_cnt,
+-				sizeof(*ret_mws), GFP_KERNEL);
+-	if (IS_ERR_OR_NULL(ret_mws))
++	ret_mws = devm_kcalloc(&ndev->ntb.pdev->dev, *mw_cnt, sizeof(*ret_mws),
++			       GFP_KERNEL);
++	if (!ret_mws)
+ 		return ERR_PTR(-ENOMEM);
  
-@@ -3257,6 +3257,15 @@ MLXSW_ITEM32(reg, qeec, element_index, 0x04, 0, 8);
-  */
- MLXSW_ITEM32(reg, qeec, next_element_index, 0x08, 0, 8);
+ 	/* Copy the info of detected memory windows */
+@@ -2390,7 +2390,7 @@ static struct idt_ntb_dev *idt_create_dev(struct pci_dev *pdev,
  
-+/* reg_qeec_mise
-+ * Min shaper configuration enable. Enables configuration of the min
-+ * shaper on this ETS element
-+ * 0 - Disable
-+ * 1 - Enable
-+ * Access: RW
-+ */
-+MLXSW_ITEM32(reg, qeec, mise, 0x0C, 31, 1);
-+
- enum {
- 	MLXSW_REG_QEEC_BYTES_MODE,
- 	MLXSW_REG_QEEC_PACKETS_MODE,
-@@ -3273,6 +3282,17 @@ enum {
-  */
- MLXSW_ITEM32(reg, qeec, pb, 0x0C, 28, 1);
- 
-+/* The smallest permitted min shaper rate. */
-+#define MLXSW_REG_QEEC_MIS_MIN	200000		/* Kbps */
-+
-+/* reg_qeec_min_shaper_rate
-+ * Min shaper information rate.
-+ * For CPU port, can only be configured for port hierarchy.
-+ * When in bytes mode, value is specified in units of 1000bps.
-+ * Access: RW
-+ */
-+MLXSW_ITEM32(reg, qeec, min_shaper_rate, 0x0C, 0, 28);
-+
- /* reg_qeec_mase
-  * Max shaper configuration enable. Enables configuration of the max
-  * shaper on this ETS element.
+ 	/* Allocate memory for the IDT PCIe-device descriptor */
+ 	ndev = devm_kzalloc(&pdev->dev, sizeof(*ndev), GFP_KERNEL);
+-	if (IS_ERR_OR_NULL(ndev)) {
++	if (!ndev) {
+ 		dev_err(&pdev->dev, "Memory allocation failed for descriptor");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
 -- 
 2.20.1
 
