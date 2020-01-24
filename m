@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB40C147E68
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA291147E6A
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388984AbgAXKIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:08:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45550 "EHLO mail.kernel.org"
+        id S2389023AbgAXKIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:08:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389216AbgAXKIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:08:43 -0500
+        id S2388054AbgAXKIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:08:53 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2DDE214AF;
-        Fri, 24 Jan 2020 10:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0DF420709;
+        Fri, 24 Jan 2020 10:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860523;
-        bh=E6i2NibqQ//tVZ9T/luhILqSMHOn/vUKO5L3IW+eNr8=;
+        s=default; t=1579860533;
+        bh=2BOKliKYONPM7G3oQGicFAME9v7YSWM/c/y81Ych7cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmgtlZkpAt8gRWs0f+YQfESZBfPt4opZsyF9CJ0KiqruYcNhQw+H9G3TIuEgbvNpG
-         A9x2Y0sv5t02s5zPKgTsiu1h8HplA19mZCIhSYFleNjSW1c1xfegli61ik5LwIm7ie
-         vWOyvBXFycVoKaxQSkFAuATPDo2gJ1pXyPsiEiJA=
+        b=N2zEbWGJfpaMEQut3vuPMeWJuN68ugpiAd9NzD/L+FxBneZPcFzY+GvmeMUeCCt8E
+         7a+KHDqB0YynkNLDuzWLRuLk4nqGgK8CqXCQ/SL5NTf+JaFw6ASs8TraTrhAM2ur4W
+         HUmsnOA8HRA4tkF5w21F1zsRZpkmSEi4g6sHh9s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 007/639] powerpc/pseries: Enable support for ibm,drc-info property
-Date:   Fri, 24 Jan 2020 10:22:57 +0100
-Message-Id: <20200124093047.995617900@linuxfoundation.org>
+Subject: [PATCH 4.19 008/639] powerpc/archrandom: fix arch_get_random_seed_int()
+Date:   Fri, 24 Jan 2020 10:22:58 +0100
+Message-Id: <20200124093048.115159582@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,33 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 0a87ccd3699983645f54cafd2258514a716b20b8 upstream.
+commit b6afd1234cf93aa0d71b4be4788c47534905f0be upstream.
 
-Advertise client support for the PAPR architected ibm,drc-info device
-tree property during CAS handshake.
+Commit 01c9348c7620ec65
 
-Fixes: c7a3275e0f9e ("powerpc/pseries: Revert support for ibm,drc-info devtree property")
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+  powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*
+
+updated arch_get_random_[int|long]() to be NOPs, and moved the hardware
+RNG backing to arch_get_random_seed_[int|long]() instead. However, it
+failed to take into account that arch_get_random_int() was implemented
+in terms of arch_get_random_long(), and so we ended up with a version
+of the former that is essentially a NOP as well.
+
+Fix this by calling arch_get_random_seed_long() from
+arch_get_random_seed_int() instead.
+
+Fixes: 01c9348c7620ec65 ("powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1573449697-5448-11-git-send-email-tyreld@linux.ibm.com
+Link: https://lore.kernel.org/r/20191204115015.18015-1-ardb@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/prom_init.c |    2 +-
+ arch/powerpc/include/asm/archrandom.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -904,7 +904,7 @@ struct ibm_arch_vec __cacheline_aligned
- 		.reserved2 = 0,
- 		.reserved3 = 0,
- 		.subprocessors = 1,
--		.byte22 = OV5_FEAT(OV5_DRMEM_V2),
-+		.byte22 = OV5_FEAT(OV5_DRMEM_V2) | OV5_FEAT(OV5_DRC_INFO),
- 		.intarch = 0,
- 		.mmu = 0,
- 		.hash_ext = 0,
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -28,7 +28,7 @@ static inline int arch_get_random_seed_i
+ 	unsigned long val;
+ 	int rc;
+ 
+-	rc = arch_get_random_long(&val);
++	rc = arch_get_random_seed_long(&val);
+ 	if (rc)
+ 		*v = val;
+ 
 
 
