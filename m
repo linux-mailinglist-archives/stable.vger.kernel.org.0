@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC712147E7A
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBEF0147E7C
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389446AbgAXKJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:09:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46342 "EHLO mail.kernel.org"
+        id S2389622AbgAXKJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:09:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389613AbgAXKJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:09:24 -0500
+        id S2389250AbgAXKJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:09:29 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79DA320709;
-        Fri, 24 Jan 2020 10:09:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2753820709;
+        Fri, 24 Jan 2020 10:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860563;
-        bh=W+g4RWPxBysTaAJRlR6u2/CrxkupBVTisvp39ikA+e0=;
+        s=default; t=1579860568;
+        bh=WbL5FrtL+GKODvfT5Wqg3jR04ZlK0I6T0T3zcFvSMDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/zkOAs33reewMQlgh8gDdrseoatwKaqOod55U7uvlfLkNt6XsvRITZDyszVNe1mw
-         4f9Ci51cHrcY/Ls6/BTUyJ4h68ZtHLgWyXxIafYlKbSP/hXa5/eijf+M0/zVhqqgjQ
-         PB/+2DHeBQ732TF+6PTrgx1n2oFtMVHdonL90hbs=
+        b=w/UWCUfyR2q/mOxGlBA5lJo8+JcvsZYwKbMAbF9BfULXUufMPFID3nxZgm7TAT6VW
+         7koPnzqmCX80p6cDC16Ui46h1Vz8nNppXW8qHeL3c7EmHe3tLno7kkfIcjNJUTi4vC
+         YQcmMeQQ0FOXSI9yPe5NpLzYMykH+NST2Xt5CGz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org,
+        Jitendra Bhivare <jitendra.bhivare@broadcom.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/639] ARM: dts: at91: nattis: make the SD-card slot work
-Date:   Fri, 24 Jan 2020 10:23:10 +0100
-Message-Id: <20200124093049.736770488@linuxfoundation.org>
+Subject: [PATCH 4.19 029/639] PCI: iproc: Remove PAXC slot check to allow VF support
+Date:   Fri, 24 Jan 2020 10:23:19 +0100
+Message-Id: <20200124093051.009814605@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,33 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+From: Jitendra Bhivare <jitendra.bhivare@broadcom.com>
 
-[ Upstream commit f52eb2067929d533babe106fbc131c88db3eff3d ]
+[ Upstream commit 4da6b4480766e5bc9c4d7bc14bf1d0939a1a5fa7 ]
 
-The cd-gpios signal is assumed active-low by the driver, and the
-cd-inverted property is needed if it is, in fact, active-high. Fix
-this oversight.
+Fix previous incorrect logic that limits PAXC slot number to zero only.
+In order for SRIOV/VF to work, we need to allow the slot number to be
+greater than zero.
 
-Fixes: 0e4323899973 ("ARM: dts: at91: add devicetree for the Axentia Nattis with Natte power")
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 46560388c476c ("PCI: iproc: Allow multiple devices except on PAXC")
+Signed-off-by: Jitendra Bhivare <jitendra.bhivare@broadcom.com>
+Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-nattis-2-natte-2.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/pcie-iproc.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-index bfa5815a07214..4308a07b792ea 100644
---- a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-+++ b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-@@ -221,6 +221,7 @@
- 		reg = <0>;
- 		bus-width = <4>;
- 		cd-gpios = <&pioD 5 GPIO_ACTIVE_HIGH>;
-+		cd-inverted;
- 	};
- };
+diff --git a/drivers/pci/controller/pcie-iproc.c b/drivers/pci/controller/pcie-iproc.c
+index 3160e9342a2fb..c20fd6bd68fd8 100644
+--- a/drivers/pci/controller/pcie-iproc.c
++++ b/drivers/pci/controller/pcie-iproc.c
+@@ -630,14 +630,6 @@ static void __iomem *iproc_pcie_map_cfg_bus(struct iproc_pcie *pcie,
+ 			return (pcie->base + offset);
+ 	}
+ 
+-	/*
+-	 * PAXC is connected to an internally emulated EP within the SoC.  It
+-	 * allows only one device.
+-	 */
+-	if (pcie->ep_is_internal)
+-		if (slot > 0)
+-			return NULL;
+-
+ 	return iproc_pcie_map_ep_cfg_reg(pcie, busno, slot, fn, where);
+ }
  
 -- 
 2.20.1
