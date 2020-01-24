@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82825148150
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52224148154
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:19:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390705AbgAXLSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:18:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56090 "EHLO mail.kernel.org"
+        id S2390733AbgAXLS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:18:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390483AbgAXLSt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:18:49 -0500
+        id S2390732AbgAXLS7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:18:59 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 098B820704;
-        Fri, 24 Jan 2020 11:18:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 629912077C;
+        Fri, 24 Jan 2020 11:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864728;
-        bh=Q02J/GZJFdeNELe5RyPHNSHC6s660rLzv3qwk8uItGg=;
+        s=default; t=1579864739;
+        bh=jchwoRYGdw5u05s9Q3W2XMDv3EKFMsWmDZcOvPvSGSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClsK7e0SJR8p519ek2ni8Q0WSkAWxw/rM/JuXHBF6FoVOBSqtAozfEoHz9MpNik4m
-         OQtFPmV4CYN+k8QSNcH7Uolw43e/Q4SPUS+/BvX0wNCPoyf0yhWzZmEpT0Th89XgV1
-         ScwtnQaf62XCT3EpF9qZrz91cj1YC/6mRgdobucE=
+        b=agdUuy5q2pX/mUu8fM9AxUHneS97zZzf1n4k21Z8piCHKK/9KSRNnxb1errLN6SBw
+         ELuaZoy6UOhoKGQYpAOZUfElDtpgtsHziR63niIWBy8pMvvBopn4FcJhKTQ5d811u9
+         EHrFk1adFx9Nd+ZofqTbQjIfJcqnx9y1qEfofHgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 349/639] dmaengine: tegra210-adma: restore channel status
-Date:   Fri, 24 Jan 2020 10:28:39 +0100
-Message-Id: <20200124093130.839728067@linuxfoundation.org>
+        stable@vger.kernel.org, Igor Konopko <igor.j.konopko@intel.com>,
+        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
+        Hans Holmberg <hans.holmberg@cnexlabs.com>,
+        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 352/639] lightnvm: pblk: fix lock order in pblk_rb_tear_down_check
+Date:   Fri, 24 Jan 2020 10:28:42 +0100
+Message-Id: <20200124093131.204616416@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,122 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Igor Konopko <igor.j.konopko@intel.com>
 
-[ Upstream commit f33e7bb3eb922618612a90f0a828c790e8880773 ]
+[ Upstream commit 486b5aac85f6ec0b2df3e82a6a629d5eb7804db5 ]
 
-Status of ADMA channel registers is not saved and restored during system
-suspend. During active playback if system enters suspend, this results in
-wrong state of channel registers during system resume and playback fails
-to resume properly. Fix this by saving following channel registers in
-runtime suspend and restore during runtime resume.
- * ADMA_CH_LOWER_SRC_ADDR
- * ADMA_CH_LOWER_TRG_ADDR
- * ADMA_CH_FIFO_CTRL
- * ADMA_CH_CONFIG
- * ADMA_CH_CTRL
- * ADMA_CH_CMD
- * ADMA_CH_TC
-Runtime PM calls will be inovked during system resume path if a playback
-or capture needs to be resumed. Hence above changes work fine for system
-suspend case.
+In pblk_rb_tear_down_check() the spinlock functions are not
+called in proper order.
 
-Fixes: f46b195799b5 ("dmaengine: tegra-adma: Add support for Tegra210 ADMA")
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: a4bd217 ("lightnvm: physical block device (pblk) target")
+Signed-off-by: Igor Konopko <igor.j.konopko@intel.com>
+Reviewed-by: Javier González <javier@javigon.com>
+Reviewed-by: Hans Holmberg <hans.holmberg@cnexlabs.com>
+Signed-off-by: Matias Bjørling <mb@lightnvm.io>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c | 46 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
+ drivers/lightnvm/pblk-rb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
-index 09b6756366c30..ac2a6b800db3e 100644
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -98,6 +98,7 @@ struct tegra_adma_chan_regs {
- 	unsigned int src_addr;
- 	unsigned int trg_addr;
- 	unsigned int fifo_ctrl;
-+	unsigned int cmd;
- 	unsigned int tc;
- };
- 
-@@ -127,6 +128,7 @@ struct tegra_adma_chan {
- 	enum dma_transfer_direction	sreq_dir;
- 	unsigned int			sreq_index;
- 	bool				sreq_reserved;
-+	struct tegra_adma_chan_regs	ch_regs;
- 
- 	/* Transfer count and position info */
- 	unsigned int			tx_buf_count;
-@@ -635,8 +637,30 @@ static struct dma_chan *tegra_dma_of_xlate(struct of_phandle_args *dma_spec,
- static int tegra_adma_runtime_suspend(struct device *dev)
- {
- 	struct tegra_adma *tdma = dev_get_drvdata(dev);
-+	struct tegra_adma_chan_regs *ch_reg;
-+	struct tegra_adma_chan *tdc;
-+	int i;
- 
- 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
-+	if (!tdma->global_cmd)
-+		goto clk_disable;
-+
-+	for (i = 0; i < tdma->nr_channels; i++) {
-+		tdc = &tdma->channels[i];
-+		ch_reg = &tdc->ch_regs;
-+		ch_reg->cmd = tdma_ch_read(tdc, ADMA_CH_CMD);
-+		/* skip if channel is not active */
-+		if (!ch_reg->cmd)
-+			continue;
-+		ch_reg->tc = tdma_ch_read(tdc, ADMA_CH_TC);
-+		ch_reg->src_addr = tdma_ch_read(tdc, ADMA_CH_LOWER_SRC_ADDR);
-+		ch_reg->trg_addr = tdma_ch_read(tdc, ADMA_CH_LOWER_TRG_ADDR);
-+		ch_reg->ctrl = tdma_ch_read(tdc, ADMA_CH_CTRL);
-+		ch_reg->fifo_ctrl = tdma_ch_read(tdc, ADMA_CH_FIFO_CTRL);
-+		ch_reg->config = tdma_ch_read(tdc, ADMA_CH_CONFIG);
-+	}
-+
-+clk_disable:
- 	clk_disable_unprepare(tdma->ahub_clk);
- 
- 	return 0;
-@@ -645,7 +669,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
- static int tegra_adma_runtime_resume(struct device *dev)
- {
- 	struct tegra_adma *tdma = dev_get_drvdata(dev);
--	int ret;
-+	struct tegra_adma_chan_regs *ch_reg;
-+	struct tegra_adma_chan *tdc;
-+	int ret, i;
- 
- 	ret = clk_prepare_enable(tdma->ahub_clk);
- 	if (ret) {
-@@ -654,6 +680,24 @@ static int tegra_adma_runtime_resume(struct device *dev)
+diff --git a/drivers/lightnvm/pblk-rb.c b/drivers/lightnvm/pblk-rb.c
+index f6eec0212dfcf..d22c13b556221 100644
+--- a/drivers/lightnvm/pblk-rb.c
++++ b/drivers/lightnvm/pblk-rb.c
+@@ -784,8 +784,8 @@ int pblk_rb_tear_down_check(struct pblk_rb *rb)
  	}
- 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
  
-+	if (!tdma->global_cmd)
-+		return 0;
-+
-+	for (i = 0; i < tdma->nr_channels; i++) {
-+		tdc = &tdma->channels[i];
-+		ch_reg = &tdc->ch_regs;
-+		/* skip if channel was not active earlier */
-+		if (!ch_reg->cmd)
-+			continue;
-+		tdma_ch_write(tdc, ADMA_CH_TC, ch_reg->tc);
-+		tdma_ch_write(tdc, ADMA_CH_LOWER_SRC_ADDR, ch_reg->src_addr);
-+		tdma_ch_write(tdc, ADMA_CH_LOWER_TRG_ADDR, ch_reg->trg_addr);
-+		tdma_ch_write(tdc, ADMA_CH_CTRL, ch_reg->ctrl);
-+		tdma_ch_write(tdc, ADMA_CH_FIFO_CTRL, ch_reg->fifo_ctrl);
-+		tdma_ch_write(tdc, ADMA_CH_CONFIG, ch_reg->config);
-+		tdma_ch_write(tdc, ADMA_CH_CMD, ch_reg->cmd);
-+	}
-+
- 	return 0;
+ out:
+-	spin_unlock(&rb->w_lock);
+ 	spin_unlock_irq(&rb->s_lock);
++	spin_unlock(&rb->w_lock);
+ 
+ 	return ret;
  }
- 
 -- 
 2.20.1
 
