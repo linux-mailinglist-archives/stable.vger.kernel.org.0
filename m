@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7611F1480AA
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 775B4148094
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731399AbgAXLNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:13:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
+        id S2389998AbgAXLMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:12:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388638AbgAXLNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:13:21 -0500
+        id S2387877AbgAXLMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:12:30 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D642C20708;
-        Fri, 24 Jan 2020 11:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37F4120708;
+        Fri, 24 Jan 2020 11:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864400;
-        bh=uqr3kV4f44YrbbtVXEpfN1XuCVbICB6sCwdFeb0jBHg=;
+        s=default; t=1579864350;
+        bh=79BzIEImy9GA1cgjPsnC4XGO1UI7iCCrXjwEuGO0WPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDqugwuKC2SKD08GyzYh4+XP9bdKViY+2kytCLgJabxy74iFPtOgO4VNs2uv4c5c9
-         NUfbnA5LThMd3Nmg5zgPfQvqCF3+AnG5wtAzUCZyiTJhHBccr9QHiI2dxCZFULe6aJ
-         mOdifYhmDubfCHgimH0IE92SKORX2LXy3H80TaT8=
+        b=ZM3Q9UwdkmoqWk+l76ibyhuTLEyITnNrNDPtK8uttd+zmD7S/uMt+iR9ZyZ0VHX+H
+         tjKFnBKCjSNCcwu5Aikc52C+mxjqy5pZRMRXCg8UstUNzrEywYCwgSj0ckcnA5+JF+
+         E2qnDndhgHsosJTZe/un441EfYMLfH6QfL2ZjhSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 241/639] netfilter: nft_set_hash: fix lookups with fixed size hash on big endian
-Date:   Fri, 24 Jan 2020 10:26:51 +0100
-Message-Id: <20200124093117.002911952@linuxfoundation.org>
+Subject: [PATCH 4.19 242/639] netfilter: nft_set_hash: bogus element self comparison from deactivation path
+Date:   Fri, 24 Jan 2020 10:26:52 +0100
+Message-Id: <20200124093117.120261624@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,68 +46,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 3b02b0adc242a72b5e46019b6a9e4f84823592f6 ]
+[ Upstream commit a01cbae57ec29b161d42ee1caa4ffffda5d519c2 ]
 
-Call jhash_1word() for the 4-bytes key case from the insertion and
-deactivation path, otherwise big endian arch set lookups fail.
+Use the element from the loop iteration, not the same element we want to
+deactivate otherwise this branch always evaluates true.
 
-Fixes: 446a8268b7f5 ("netfilter: nft_set_hash: add lookup variant for fixed size hashtable")
+Fixes: 6c03ae210ce3 ("netfilter: nft_set_hash: add non-resizable hashtable implementation")
 Reported-by: Florian Westphal <fw@strlen.de>
 Tested-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_hash.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ net/netfilter/nft_set_hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/netfilter/nft_set_hash.c b/net/netfilter/nft_set_hash.c
-index 015124e649cbd..8dde4bfe8b8a4 100644
+index 8dde4bfe8b8a4..05118e03c3e48 100644
 --- a/net/netfilter/nft_set_hash.c
 +++ b/net/netfilter/nft_set_hash.c
-@@ -488,6 +488,23 @@ static bool nft_hash_lookup_fast(const struct net *net,
- 	return false;
- }
+@@ -555,7 +555,7 @@ static void *nft_hash_deactivate(const struct net *net,
  
-+static u32 nft_jhash(const struct nft_set *set, const struct nft_hash *priv,
-+		     const struct nft_set_ext *ext)
-+{
-+	const struct nft_data *key = nft_set_ext_key(ext);
-+	u32 hash, k1;
-+
-+	if (set->klen == 4) {
-+		k1 = *(u32 *)key;
-+		hash = jhash_1word(k1, priv->seed);
-+	} else {
-+		hash = jhash(key, set->klen, priv->seed);
-+	}
-+	hash = reciprocal_scale(hash, priv->buckets);
-+
-+	return hash;
-+}
-+
- static int nft_hash_insert(const struct net *net, const struct nft_set *set,
- 			   const struct nft_set_elem *elem,
- 			   struct nft_set_ext **ext)
-@@ -497,8 +514,7 @@ static int nft_hash_insert(const struct net *net, const struct nft_set *set,
- 	u8 genmask = nft_genmask_next(net);
- 	u32 hash;
- 
--	hash = jhash(nft_set_ext_key(&this->ext), set->klen, priv->seed);
--	hash = reciprocal_scale(hash, priv->buckets);
-+	hash = nft_jhash(set, priv, &this->ext);
+ 	hash = nft_jhash(set, priv, &this->ext);
  	hlist_for_each_entry(he, &priv->table[hash], node) {
- 		if (!memcmp(nft_set_ext_key(&this->ext),
- 			    nft_set_ext_key(&he->ext), set->klen) &&
-@@ -537,8 +553,7 @@ static void *nft_hash_deactivate(const struct net *net,
- 	u8 genmask = nft_genmask_next(net);
- 	u32 hash;
- 
--	hash = jhash(nft_set_ext_key(&this->ext), set->klen, priv->seed);
--	hash = reciprocal_scale(hash, priv->buckets);
-+	hash = nft_jhash(set, priv, &this->ext);
- 	hlist_for_each_entry(he, &priv->table[hash], node) {
- 		if (!memcmp(nft_set_ext_key(&this->ext), &elem->key.val,
+-		if (!memcmp(nft_set_ext_key(&this->ext), &elem->key.val,
++		if (!memcmp(nft_set_ext_key(&he->ext), &elem->key.val,
  			    set->klen) &&
+ 		    nft_set_elem_active(&he->ext, genmask)) {
+ 			nft_set_elem_change_active(net, set, &he->ext);
 -- 
 2.20.1
 
