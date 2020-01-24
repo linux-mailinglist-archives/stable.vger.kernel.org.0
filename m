@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFA3F148456
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E757148457
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730572AbgAXLAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:00:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59210 "EHLO mail.kernel.org"
+        id S1733189AbgAXLA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:00:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733089AbgAXLAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:00:13 -0500
+        id S1733185AbgAXLAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:00:25 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81112075D;
-        Fri, 24 Jan 2020 11:00:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52C692071A;
+        Fri, 24 Jan 2020 11:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863613;
-        bh=ZKI9m9r9ZBkJSDjSyGik+RALoIn8moPnYi4EQWm8ZBc=;
+        s=default; t=1579863625;
+        bh=SxPgSaC3Z9OSyuIBN90jXVJ5S8zcRTzhZAnQKqLR6pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTNQMYzpUsYzamqLXxm87tVz9pV6cxIkpPIcp9henuXP2aYZTf85uOWycKh+NIZoi
-         DkuByJfDLXreQRhOUjDZpPvSkVyrDC6OlxCHH8kNcTWC/gfiA0VzDiekNDDKcv3Dtu
-         nyx+/K1a/yZu+xkirBE87pPMGbaQZDi6xUYHr0jU=
+        b=PEokW19ESH8H0MND86uYmzSFmfGgh0C6x2tnFWuUMbm45vxyzdNY9rSzYgLoP2msM
+         /NKhVbHOFTuMiF2BEEfd1QIzoD+wxPl4fYITnz07r3yyZcNh6ZditFHTBz5plHX3VT
+         QO1vImz/6jgyJzu9z16Y5xclEPKU1IcT1dUjkxWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Rowand <frank.rowand@sony.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <andy.gross@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Houlong Wei <houlong.wei@mediatek.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 027/639] ARM: qcom_defconfig: Enable MAILBOX
-Date:   Fri, 24 Jan 2020 10:23:17 +0100
-Message-Id: <20200124093050.738625323@linuxfoundation.org>
+Subject: [PATCH 4.19 035/639] mailbox: mediatek: Add check for possible failure of kzalloc
+Date:   Fri, 24 Jan 2020 10:23:25 +0100
+Message-Id: <20200124093051.838285303@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,44 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Rowand <frank.rowand@sony.com>
+From: Houlong Wei <houlong.wei@mediatek.com>
 
-[ Upstream commit 54c2678cd198f61555796bbda5e1727e6e1858f1 ]
+[ Upstream commit 9f0a0a381c5db56e7922dbeea6831f27db58372f ]
 
-Problem:
-ab460a2e72da ("rpmsg: qcom_smd: Access APCS through mailbox framework"
-added a "depends on MAILBOX") to RPMSG_QCOM_SMD, thus RPMSG_QCOM_SMD
-becomes unset since MAILBOX was not enabled in qcom_defconfig and is
-not otherwise selected for the dragonboard.  When the resulting
-kernel is booted the mmc device which contains the root file system
-is not available.
+The patch 623a6143a845("mailbox: mediatek: Add Mediatek CMDQ driver")
+introduce the following static checker warning:
+  drivers/mailbox/mtk-cmdq-mailbox.c:366 cmdq_mbox_send_data()
+  error: potential null dereference 'task'.  (kzalloc returns null)
 
-Fix:
-add CONFIG_MAILBOX to qcom_defconfig
-
-Fixes: ab460a2e72da ("rpmsg: qcom_smd: Access APCS through mailbox framework"
-added a "depends on MAILBOX")
-
-Signed-off-by: Frank Rowand <frank.rowand@sony.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Houlong Wei <houlong.wei@mediatek.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/qcom_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mailbox/mtk-cmdq-mailbox.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/configs/qcom_defconfig b/arch/arm/configs/qcom_defconfig
-index 6aa7046fb91ff..bd6440f234939 100644
---- a/arch/arm/configs/qcom_defconfig
-+++ b/arch/arm/configs/qcom_defconfig
-@@ -207,6 +207,7 @@ CONFIG_MSM_MMCC_8974=y
- CONFIG_MSM_IOMMU=y
- CONFIG_HWSPINLOCK=y
- CONFIG_HWSPINLOCK_QCOM=y
-+CONFIG_MAILBOX=y
- CONFIG_REMOTEPROC=y
- CONFIG_QCOM_ADSP_PIL=y
- CONFIG_QCOM_Q6V5_PIL=y
+diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
+index aec46d5d35061..f7cc29c00302a 100644
+--- a/drivers/mailbox/mtk-cmdq-mailbox.c
++++ b/drivers/mailbox/mtk-cmdq-mailbox.c
+@@ -363,6 +363,9 @@ static int cmdq_mbox_send_data(struct mbox_chan *chan, void *data)
+ 	WARN_ON(cmdq->suspended);
+ 
+ 	task = kzalloc(sizeof(*task), GFP_ATOMIC);
++	if (!task)
++		return -ENOMEM;
++
+ 	task->cmdq = cmdq;
+ 	INIT_LIST_HEAD(&task->list_entry);
+ 	task->pa_base = pkt->pa_base;
 -- 
 2.20.1
 
