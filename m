@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9E21482DC
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:31:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F0051482E0
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391858AbgAXLbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:31:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
+        id S2391871AbgAXLbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:31:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388181AbgAXLbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:31:21 -0500
+        id S2391865AbgAXLbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:31:24 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65018206D4;
-        Fri, 24 Jan 2020 11:31:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5FA8206D4;
+        Fri, 24 Jan 2020 11:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865480;
-        bh=LD+b2rmB5sZUwwPEeBcN8Jnmk6WB8XurD9XYN90othk=;
+        s=default; t=1579865483;
+        bh=HFwQb0O34aT0aoLhTP4YW3fAfKwbOI+s08VarianbpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Izqbx2AyCAbpnhr8ya2OAf3s3qrNiyIzeFgZOw6FAZb+XfPvcBd9R4gi/QSuHF2qx
-         oIoSoyBrLso1sf/XzLmItYTA52TPRdNF73rcsFn/5B3B/vDWllkf6F++C9yBKfRmYa
-         ulFwThE0niXv8vq+6k+L4mOr0E9FK+ijXbwXIDZg=
+        b=BhJCykNg4/QnTvQ0ZXmEPDFshtzdAf+po94pStpnh1SPbiIkE9VjZab0HDnDCKrEM
+         N7ElcrBtoe1B7JKHHE0b0mbwFd3iBnRArQRioJWGm0eePeSTVCfn93atIWiMHTgjD7
+         jGmaLY0+y/nzOYv0IJAjcWecWuQ0TKpnZw61Qs7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 540/639] wcn36xx: use dynamic allocation for large variables
-Date:   Fri, 24 Jan 2020 10:31:50 +0100
-Message-Id: <20200124093156.657476612@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Bhuvanchandra DV <bhuvanchandra.dv@toradex.com>,
+        Chris Healy <cphealy@gmail.com>,
+        Cory Tusar <cory.tusar@zii.aero>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Jiri Slaby <jslaby@suse.com>, linux-imx@nxp.com,
+        linux-serial@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 541/639] tty: serial: fsl_lpuart: Use appropriate lpuart32_* I/O funcs
+Date:   Fri, 24 Jan 2020 10:31:51 +0100
+Message-Id: <20200124093156.779825916@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,343 +49,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-[ Upstream commit 355cf31912014e6ff1bb1019ae4858cad12c68cf ]
+[ Upstream commit 1da17d7cf8e2c4b60163d54300f72c02f510327c ]
 
-clang triggers a warning about oversized stack frames that gcc does not
-notice because of slightly different inlining decisions:
+When dealing with 32-bit variant of LPUART IP block appropriate I/O
+helpers have to be used to properly deal with endianness
+differences. Change all of the offending code to do that.
 
-ath/wcn36xx/smd.c:1409:5: error: stack frame size of 1040 bytes in function 'wcn36xx_smd_config_bss' [-Werror,-Wframe-larger-than=]
-ath/wcn36xx/smd.c:640:5: error: stack frame size of 1032 bytes in function 'wcn36xx_smd_start_hw_scan' [-Werror,-Wframe-larger-than=]
-
-Basically the wcn36xx_hal_start_scan_offload_req_msg,
-wcn36xx_hal_config_bss_req_msg_v1, and wcn36xx_hal_config_bss_req_msg
-structures are too large to be put on the kernel stack, but small
-enough that gcc does not warn about them.
-
-Use kzalloc() to allocate them all. There are similar structures in other
-parts of this driver, but they are all smaller, with the next largest
-stack frame at 480 bytes for wcn36xx_smd_send_beacon.
-
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: a5fa2660d787 ("tty/serial/fsl_lpuart: Add CONSOLE_POLL support
+for lpuart32.")
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Bhuvanchandra DV <bhuvanchandra.dv@toradex.com>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: Cory Tusar <cory.tusar@zii.aero>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: linux-imx@nxp.com
+Cc: linux-serial@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20190729195226.8862-14-andrew.smirnov@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/smd.c | 186 ++++++++++++++-----------
- 1 file changed, 105 insertions(+), 81 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/smd.c b/drivers/net/wireless/ath/wcn36xx/smd.c
-index 00098f24116de..6cd113b3b3e49 100644
---- a/drivers/net/wireless/ath/wcn36xx/smd.c
-+++ b/drivers/net/wireless/ath/wcn36xx/smd.c
-@@ -641,52 +641,58 @@ int wcn36xx_smd_start_hw_scan(struct wcn36xx *wcn, struct ieee80211_vif *vif,
- 			      struct cfg80211_scan_request *req)
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index ee8a5cb61a5f1..2daccb10ae2f3 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -528,26 +528,26 @@ static int lpuart32_poll_init(struct uart_port *port)
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+ 	/* Disable Rx & Tx */
+-	writel(0, sport->port.membase + UARTCTRL);
++	lpuart32_write(&sport->port, UARTCTRL, 0);
+ 
+-	temp = readl(sport->port.membase + UARTFIFO);
++	temp = lpuart32_read(&sport->port, UARTFIFO);
+ 
+ 	/* Enable Rx and Tx FIFO */
+-	writel(temp | UARTFIFO_RXFE | UARTFIFO_TXFE,
+-		   sport->port.membase + UARTFIFO);
++	lpuart32_write(&sport->port, UARTFIFO,
++		       temp | UARTFIFO_RXFE | UARTFIFO_TXFE);
+ 
+ 	/* flush Tx and Rx FIFO */
+-	writel(UARTFIFO_TXFLUSH | UARTFIFO_RXFLUSH,
+-			sport->port.membase + UARTFIFO);
++	lpuart32_write(&sport->port, UARTFIFO,
++		       UARTFIFO_TXFLUSH | UARTFIFO_RXFLUSH);
+ 
+ 	/* explicitly clear RDRF */
+-	if (readl(sport->port.membase + UARTSTAT) & UARTSTAT_RDRF) {
+-		readl(sport->port.membase + UARTDATA);
+-		writel(UARTFIFO_RXUF, sport->port.membase + UARTFIFO);
++	if (lpuart32_read(&sport->port, UARTSTAT) & UARTSTAT_RDRF) {
++		lpuart32_read(&sport->port, UARTDATA);
++		lpuart32_write(&sport->port, UARTFIFO, UARTFIFO_RXUF);
+ 	}
+ 
+ 	/* Enable Rx and Tx */
+-	writel(UARTCTRL_RE | UARTCTRL_TE, sport->port.membase + UARTCTRL);
++	lpuart32_write(&sport->port, UARTCTRL, UARTCTRL_RE | UARTCTRL_TE);
+ 	spin_unlock_irqrestore(&sport->port.lock, flags);
+ 
+ 	return 0;
+@@ -555,18 +555,18 @@ static int lpuart32_poll_init(struct uart_port *port)
+ 
+ static void lpuart32_poll_put_char(struct uart_port *port, unsigned char c)
  {
- 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
--	struct wcn36xx_hal_start_scan_offload_req_msg msg_body;
-+	struct wcn36xx_hal_start_scan_offload_req_msg *msg_body;
- 	int ret, i;
+-	while (!(readl(port->membase + UARTSTAT) & UARTSTAT_TDRE))
++	while (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_TDRE))
+ 		barrier();
  
- 	if (req->ie_len > WCN36XX_MAX_SCAN_IE_LEN)
- 		return -EINVAL;
- 
- 	mutex_lock(&wcn->hal_mutex);
--	INIT_HAL_MSG(msg_body, WCN36XX_HAL_START_SCAN_OFFLOAD_REQ);
-+	msg_body = kzalloc(sizeof(*msg_body), GFP_KERNEL);
-+	if (!msg_body) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
- 
--	msg_body.scan_type = WCN36XX_HAL_SCAN_TYPE_ACTIVE;
--	msg_body.min_ch_time = 30;
--	msg_body.max_ch_time = 100;
--	msg_body.scan_hidden = 1;
--	memcpy(msg_body.mac, vif->addr, ETH_ALEN);
--	msg_body.bss_type = vif_priv->bss_type;
--	msg_body.p2p_search = vif->p2p;
-+	INIT_HAL_MSG((*msg_body), WCN36XX_HAL_START_SCAN_OFFLOAD_REQ);
- 
--	msg_body.num_ssid = min_t(u8, req->n_ssids, ARRAY_SIZE(msg_body.ssids));
--	for (i = 0; i < msg_body.num_ssid; i++) {
--		msg_body.ssids[i].length = min_t(u8, req->ssids[i].ssid_len,
--						sizeof(msg_body.ssids[i].ssid));
--		memcpy(msg_body.ssids[i].ssid, req->ssids[i].ssid,
--		       msg_body.ssids[i].length);
-+	msg_body->scan_type = WCN36XX_HAL_SCAN_TYPE_ACTIVE;
-+	msg_body->min_ch_time = 30;
-+	msg_body->max_ch_time = 100;
-+	msg_body->scan_hidden = 1;
-+	memcpy(msg_body->mac, vif->addr, ETH_ALEN);
-+	msg_body->bss_type = vif_priv->bss_type;
-+	msg_body->p2p_search = vif->p2p;
-+
-+	msg_body->num_ssid = min_t(u8, req->n_ssids, ARRAY_SIZE(msg_body->ssids));
-+	for (i = 0; i < msg_body->num_ssid; i++) {
-+		msg_body->ssids[i].length = min_t(u8, req->ssids[i].ssid_len,
-+						sizeof(msg_body->ssids[i].ssid));
-+		memcpy(msg_body->ssids[i].ssid, req->ssids[i].ssid,
-+		       msg_body->ssids[i].length);
- 	}
- 
--	msg_body.num_channel = min_t(u8, req->n_channels,
--				     sizeof(msg_body.channels));
--	for (i = 0; i < msg_body.num_channel; i++)
--		msg_body.channels[i] = req->channels[i]->hw_value;
-+	msg_body->num_channel = min_t(u8, req->n_channels,
-+				     sizeof(msg_body->channels));
-+	for (i = 0; i < msg_body->num_channel; i++)
-+		msg_body->channels[i] = req->channels[i]->hw_value;
- 
--	msg_body.header.len -= WCN36XX_MAX_SCAN_IE_LEN;
-+	msg_body->header.len -= WCN36XX_MAX_SCAN_IE_LEN;
- 
- 	if (req->ie_len > 0) {
--		msg_body.ie_len = req->ie_len;
--		msg_body.header.len += req->ie_len;
--		memcpy(msg_body.ie, req->ie, req->ie_len);
-+		msg_body->ie_len = req->ie_len;
-+		msg_body->header.len += req->ie_len;
-+		memcpy(msg_body->ie, req->ie, req->ie_len);
- 	}
- 
--	PREPARE_HAL_BUF(wcn->hal_buf, msg_body);
-+	PREPARE_HAL_BUF(wcn->hal_buf, (*msg_body));
- 
- 	wcn36xx_dbg(WCN36XX_DBG_HAL,
- 		    "hal start hw-scan (channels: %u; ssids: %u; p2p: %s)\n",
--		    msg_body.num_channel, msg_body.num_ssid,
--		    msg_body.p2p_search ? "yes" : "no");
-+		    msg_body->num_channel, msg_body->num_ssid,
-+		    msg_body->p2p_search ? "yes" : "no");
- 
--	ret = wcn36xx_smd_send_and_wait(wcn, msg_body.header.len);
-+	ret = wcn36xx_smd_send_and_wait(wcn, msg_body->header.len);
- 	if (ret) {
- 		wcn36xx_err("Sending hal_start_scan_offload failed\n");
- 		goto out;
-@@ -698,6 +704,7 @@ int wcn36xx_smd_start_hw_scan(struct wcn36xx *wcn, struct ieee80211_vif *vif,
- 		goto out;
- 	}
- out:
-+	kfree(msg_body);
- 	mutex_unlock(&wcn->hal_mutex);
- 	return ret;
- }
-@@ -1257,96 +1264,104 @@ out:
- static int wcn36xx_smd_config_bss_v1(struct wcn36xx *wcn,
- 			const struct wcn36xx_hal_config_bss_req_msg *orig)
- {
--	struct wcn36xx_hal_config_bss_req_msg_v1 msg_body;
--	struct wcn36xx_hal_config_bss_params_v1 *bss = &msg_body.bss_params;
--	struct wcn36xx_hal_config_sta_params_v1 *sta = &bss->sta;
-+	struct wcn36xx_hal_config_bss_req_msg_v1 *msg_body;
-+	struct wcn36xx_hal_config_bss_params_v1 *bss;
-+	struct wcn36xx_hal_config_sta_params_v1 *sta;
-+	int ret;
-+
-+	msg_body = kzalloc(sizeof(*msg_body), GFP_KERNEL);
-+	if (!msg_body)
-+		return -ENOMEM;
-+
-+	INIT_HAL_MSG((*msg_body), WCN36XX_HAL_CONFIG_BSS_REQ);
- 
--	INIT_HAL_MSG(msg_body, WCN36XX_HAL_CONFIG_BSS_REQ);
-+	bss = &msg_body->bss_params;
-+	sta = &bss->sta;
- 
- 	/* convert orig to v1 */
--	memcpy(&msg_body.bss_params.bssid,
-+	memcpy(&msg_body->bss_params.bssid,
- 	       &orig->bss_params.bssid, ETH_ALEN);
--	memcpy(&msg_body.bss_params.self_mac_addr,
-+	memcpy(&msg_body->bss_params.self_mac_addr,
- 	       &orig->bss_params.self_mac_addr, ETH_ALEN);
- 
--	msg_body.bss_params.bss_type = orig->bss_params.bss_type;
--	msg_body.bss_params.oper_mode = orig->bss_params.oper_mode;
--	msg_body.bss_params.nw_type = orig->bss_params.nw_type;
-+	msg_body->bss_params.bss_type = orig->bss_params.bss_type;
-+	msg_body->bss_params.oper_mode = orig->bss_params.oper_mode;
-+	msg_body->bss_params.nw_type = orig->bss_params.nw_type;
- 
--	msg_body.bss_params.short_slot_time_supported =
-+	msg_body->bss_params.short_slot_time_supported =
- 		orig->bss_params.short_slot_time_supported;
--	msg_body.bss_params.lla_coexist = orig->bss_params.lla_coexist;
--	msg_body.bss_params.llb_coexist = orig->bss_params.llb_coexist;
--	msg_body.bss_params.llg_coexist = orig->bss_params.llg_coexist;
--	msg_body.bss_params.ht20_coexist = orig->bss_params.ht20_coexist;
--	msg_body.bss_params.lln_non_gf_coexist =
-+	msg_body->bss_params.lla_coexist = orig->bss_params.lla_coexist;
-+	msg_body->bss_params.llb_coexist = orig->bss_params.llb_coexist;
-+	msg_body->bss_params.llg_coexist = orig->bss_params.llg_coexist;
-+	msg_body->bss_params.ht20_coexist = orig->bss_params.ht20_coexist;
-+	msg_body->bss_params.lln_non_gf_coexist =
- 		orig->bss_params.lln_non_gf_coexist;
- 
--	msg_body.bss_params.lsig_tx_op_protection_full_support =
-+	msg_body->bss_params.lsig_tx_op_protection_full_support =
- 		orig->bss_params.lsig_tx_op_protection_full_support;
--	msg_body.bss_params.rifs_mode = orig->bss_params.rifs_mode;
--	msg_body.bss_params.beacon_interval = orig->bss_params.beacon_interval;
--	msg_body.bss_params.dtim_period = orig->bss_params.dtim_period;
--	msg_body.bss_params.tx_channel_width_set =
-+	msg_body->bss_params.rifs_mode = orig->bss_params.rifs_mode;
-+	msg_body->bss_params.beacon_interval = orig->bss_params.beacon_interval;
-+	msg_body->bss_params.dtim_period = orig->bss_params.dtim_period;
-+	msg_body->bss_params.tx_channel_width_set =
- 		orig->bss_params.tx_channel_width_set;
--	msg_body.bss_params.oper_channel = orig->bss_params.oper_channel;
--	msg_body.bss_params.ext_channel = orig->bss_params.ext_channel;
-+	msg_body->bss_params.oper_channel = orig->bss_params.oper_channel;
-+	msg_body->bss_params.ext_channel = orig->bss_params.ext_channel;
- 
--	msg_body.bss_params.reserved = orig->bss_params.reserved;
-+	msg_body->bss_params.reserved = orig->bss_params.reserved;
- 
--	memcpy(&msg_body.bss_params.ssid,
-+	memcpy(&msg_body->bss_params.ssid,
- 	       &orig->bss_params.ssid,
- 	       sizeof(orig->bss_params.ssid));
- 
--	msg_body.bss_params.action = orig->bss_params.action;
--	msg_body.bss_params.rateset = orig->bss_params.rateset;
--	msg_body.bss_params.ht = orig->bss_params.ht;
--	msg_body.bss_params.obss_prot_enabled =
-+	msg_body->bss_params.action = orig->bss_params.action;
-+	msg_body->bss_params.rateset = orig->bss_params.rateset;
-+	msg_body->bss_params.ht = orig->bss_params.ht;
-+	msg_body->bss_params.obss_prot_enabled =
- 		orig->bss_params.obss_prot_enabled;
--	msg_body.bss_params.rmf = orig->bss_params.rmf;
--	msg_body.bss_params.ht_oper_mode = orig->bss_params.ht_oper_mode;
--	msg_body.bss_params.dual_cts_protection =
-+	msg_body->bss_params.rmf = orig->bss_params.rmf;
-+	msg_body->bss_params.ht_oper_mode = orig->bss_params.ht_oper_mode;
-+	msg_body->bss_params.dual_cts_protection =
- 		orig->bss_params.dual_cts_protection;
- 
--	msg_body.bss_params.max_probe_resp_retry_limit =
-+	msg_body->bss_params.max_probe_resp_retry_limit =
- 		orig->bss_params.max_probe_resp_retry_limit;
--	msg_body.bss_params.hidden_ssid = orig->bss_params.hidden_ssid;
--	msg_body.bss_params.proxy_probe_resp =
-+	msg_body->bss_params.hidden_ssid = orig->bss_params.hidden_ssid;
-+	msg_body->bss_params.proxy_probe_resp =
- 		orig->bss_params.proxy_probe_resp;
--	msg_body.bss_params.edca_params_valid =
-+	msg_body->bss_params.edca_params_valid =
- 		orig->bss_params.edca_params_valid;
- 
--	memcpy(&msg_body.bss_params.acbe,
-+	memcpy(&msg_body->bss_params.acbe,
- 	       &orig->bss_params.acbe,
- 	       sizeof(orig->bss_params.acbe));
--	memcpy(&msg_body.bss_params.acbk,
-+	memcpy(&msg_body->bss_params.acbk,
- 	       &orig->bss_params.acbk,
- 	       sizeof(orig->bss_params.acbk));
--	memcpy(&msg_body.bss_params.acvi,
-+	memcpy(&msg_body->bss_params.acvi,
- 	       &orig->bss_params.acvi,
- 	       sizeof(orig->bss_params.acvi));
--	memcpy(&msg_body.bss_params.acvo,
-+	memcpy(&msg_body->bss_params.acvo,
- 	       &orig->bss_params.acvo,
- 	       sizeof(orig->bss_params.acvo));
- 
--	msg_body.bss_params.ext_set_sta_key_param_valid =
-+	msg_body->bss_params.ext_set_sta_key_param_valid =
- 		orig->bss_params.ext_set_sta_key_param_valid;
- 
--	memcpy(&msg_body.bss_params.ext_set_sta_key_param,
-+	memcpy(&msg_body->bss_params.ext_set_sta_key_param,
- 	       &orig->bss_params.ext_set_sta_key_param,
- 	       sizeof(orig->bss_params.acvo));
- 
--	msg_body.bss_params.wcn36xx_hal_persona =
-+	msg_body->bss_params.wcn36xx_hal_persona =
- 		orig->bss_params.wcn36xx_hal_persona;
--	msg_body.bss_params.spectrum_mgt_enable =
-+	msg_body->bss_params.spectrum_mgt_enable =
- 		orig->bss_params.spectrum_mgt_enable;
--	msg_body.bss_params.tx_mgmt_power = orig->bss_params.tx_mgmt_power;
--	msg_body.bss_params.max_tx_power = orig->bss_params.max_tx_power;
-+	msg_body->bss_params.tx_mgmt_power = orig->bss_params.tx_mgmt_power;
-+	msg_body->bss_params.max_tx_power = orig->bss_params.max_tx_power;
- 
- 	wcn36xx_smd_convert_sta_to_v1(wcn, &orig->bss_params.sta,
--				      &msg_body.bss_params.sta);
-+				      &msg_body->bss_params.sta);
- 
--	PREPARE_HAL_BUF(wcn->hal_buf, msg_body);
-+	PREPARE_HAL_BUF(wcn->hal_buf, (*msg_body));
- 
- 	wcn36xx_dbg(WCN36XX_DBG_HAL,
- 		    "hal config bss v1 bssid %pM self_mac_addr %pM bss_type %d oper_mode %d nw_type %d\n",
-@@ -1358,7 +1373,10 @@ static int wcn36xx_smd_config_bss_v1(struct wcn36xx *wcn,
- 		    sta->bssid, sta->action, sta->sta_index,
- 		    sta->bssid_index, sta->aid, sta->type, sta->mac);
- 
--	return wcn36xx_smd_send_and_wait(wcn, msg_body.header.len);
-+	ret = wcn36xx_smd_send_and_wait(wcn, msg_body->header.len);
-+	kfree(msg_body);
-+
-+	return ret;
+-	writel(c, port->membase + UARTDATA);
++	lpuart32_write(port, UARTDATA, c);
  }
  
- 
-@@ -1410,16 +1428,21 @@ int wcn36xx_smd_config_bss(struct wcn36xx *wcn, struct ieee80211_vif *vif,
- 			   struct ieee80211_sta *sta, const u8 *bssid,
- 			   bool update)
+ static int lpuart32_poll_get_char(struct uart_port *port)
  {
--	struct wcn36xx_hal_config_bss_req_msg msg;
-+	struct wcn36xx_hal_config_bss_req_msg *msg;
- 	struct wcn36xx_hal_config_bss_params *bss;
- 	struct wcn36xx_hal_config_sta_params *sta_params;
- 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
- 	int ret;
+-	if (!(readl(port->membase + UARTSTAT) & UARTSTAT_RDRF))
++	if (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_RDRF))
+ 		return NO_POLL_CHAR;
  
- 	mutex_lock(&wcn->hal_mutex);
--	INIT_HAL_MSG(msg, WCN36XX_HAL_CONFIG_BSS_REQ);
-+	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
-+	if (!msg) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	INIT_HAL_MSG((*msg), WCN36XX_HAL_CONFIG_BSS_REQ);
- 
--	bss = &msg.bss_params;
-+	bss = &msg->bss_params;
- 	sta_params = &bss->sta;
- 
- 	WARN_ON(is_zero_ether_addr(bssid));
-@@ -1514,11 +1537,11 @@ int wcn36xx_smd_config_bss(struct wcn36xx *wcn, struct ieee80211_vif *vif,
- 		    sta_params->mac);
- 
- 	if (!wcn36xx_is_fw_version(wcn, 1, 2, 2, 24)) {
--		ret = wcn36xx_smd_config_bss_v1(wcn, &msg);
-+		ret = wcn36xx_smd_config_bss_v1(wcn, msg);
- 	} else {
--		PREPARE_HAL_BUF(wcn->hal_buf, msg);
-+		PREPARE_HAL_BUF(wcn->hal_buf, (*msg));
- 
--		ret = wcn36xx_smd_send_and_wait(wcn, msg.header.len);
-+		ret = wcn36xx_smd_send_and_wait(wcn, msg->header.len);
- 	}
- 	if (ret) {
- 		wcn36xx_err("Sending hal_config_bss failed\n");
-@@ -1534,6 +1557,7 @@ int wcn36xx_smd_config_bss(struct wcn36xx *wcn, struct ieee80211_vif *vif,
- 		goto out;
- 	}
- out:
-+	kfree(msg);
- 	mutex_unlock(&wcn->hal_mutex);
- 	return ret;
+-	return readl(port->membase + UARTDATA);
++	return lpuart32_read(port, UARTDATA);
  }
+ #endif
+ 
 -- 
 2.20.1
 
