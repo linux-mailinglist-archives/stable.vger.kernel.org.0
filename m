@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A230147CBE
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E769147CC0
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732654AbgAXJyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:54:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57318 "EHLO mail.kernel.org"
+        id S2388204AbgAXJyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:54:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731584AbgAXJyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:54:21 -0500
+        id S1731584AbgAXJyY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:54:24 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E130214DB;
-        Fri, 24 Jan 2020 09:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 364E620718;
+        Fri, 24 Jan 2020 09:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859660;
-        bh=rnzdax1ADAL6q2xgTmLbW/c2C9fvrmPaOsAZoDD7E7M=;
+        s=default; t=1579859664;
+        bh=7WnE8vfcqVIJ7DTZB67pcN8JJ5DA6UefddLEp9aCzco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6fZ3LxbEV7NA1KptkJSD56ItAec+9i8q1ehmNPyJ4COV/RnX6mTnykUmK746Eb0B
-         /nEfkSnUK+rVvxjKi2W0EAXAAxtZVE/ysY64/Gr1KUvkdshbtgCw6D5vm49HFh84k4
-         s9l4SDGMd4HNPK4zteeMMaebUgzberxwCxPNIrYw=
+        b=CSPMfM/ICiCGR360y7UaxPMuuN8EBYwi5Iorbxmj2jjSCDYheEMJfSv0lW0onLdef
+         BiFJyDRUk/BsNKqjnjktfuPEmQ3Rlwh7V9nX5yDdGF5JY5pzHnRVehKerXECou/B0o
+         6VDajay8agCm79aO0fgao82eWvZMfyjdDyux8mak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 167/343] net: hns3: fix for vport->bw_limit overflow problem
-Date:   Fri, 24 Jan 2020 10:29:45 +0100
-Message-Id: <20200124092941.999013881@linuxfoundation.org>
+Subject: [PATCH 4.14 168/343] hwmon: (w83627hf) Use request_muxed_region for Super-IO accesses
+Date:   Fri, 24 Jan 2020 10:29:46 +0100
+Message-Id: <20200124092942.120763458@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -46,39 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 2566f10676ba996b745e138f54f3e2f974311692 ]
+[ Upstream commit e95fd518d05bfc087da6fcdea4900a57cfb083bd ]
 
-When setting vport->bw_limit to hdev->tm_info.pg_info[0].bw_limit
-in hclge_tm_vport_tc_info_update, vport->bw_limit can be as big as
-HCLGE_ETHER_MAX_RATE (100000), which can not fit into u16 (65535).
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-So this patch fixes it by using u32 for vport->bw_limit.
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
+
+Fixes: b72656dbc491 ("hwmon: (w83627hf) Stop using globals for I/O port numbers")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/w83627hf.c | 42 +++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 37 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-index 9fcfd93954245..a4c5e72d6012a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-@@ -480,7 +480,7 @@ struct hclge_vport {
- 	u16 alloc_rss_size;
+diff --git a/drivers/hwmon/w83627hf.c b/drivers/hwmon/w83627hf.c
+index 8ac89d0781ccc..a575e1cdb81a8 100644
+--- a/drivers/hwmon/w83627hf.c
++++ b/drivers/hwmon/w83627hf.c
+@@ -130,17 +130,23 @@ superio_select(struct w83627hf_sio_data *sio, int ld)
+ 	outb(ld,  sio->sioaddr + 1);
+ }
  
- 	u16 qs_offset;
--	u16 bw_limit;		/* VSI BW Limit (0 = disabled) */
-+	u32 bw_limit;		/* VSI BW Limit (0 = disabled) */
- 	u8  dwrr;
+-static inline void
++static inline int
+ superio_enter(struct w83627hf_sio_data *sio)
+ {
++	if (!request_muxed_region(sio->sioaddr, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x87, sio->sioaddr);
+ 	outb(0x87, sio->sioaddr);
++
++	return 0;
+ }
  
- 	int vport_id;
+ static inline void
+ superio_exit(struct w83627hf_sio_data *sio)
+ {
+ 	outb(0xAA, sio->sioaddr);
++	release_region(sio->sioaddr, 2);
+ }
+ 
+ #define W627_DEVID 0x52
+@@ -1278,7 +1284,7 @@ static DEVICE_ATTR_RO(name);
+ static int __init w83627hf_find(int sioaddr, unsigned short *addr,
+ 				struct w83627hf_sio_data *sio_data)
+ {
+-	int err = -ENODEV;
++	int err;
+ 	u16 val;
+ 
+ 	static __initconst char *const names[] = {
+@@ -1290,7 +1296,11 @@ static int __init w83627hf_find(int sioaddr, unsigned short *addr,
+ 	};
+ 
+ 	sio_data->sioaddr = sioaddr;
+-	superio_enter(sio_data);
++	err = superio_enter(sio_data);
++	if (err)
++		return err;
++
++	err = -ENODEV;
+ 	val = force_id ? force_id : superio_inb(sio_data, DEVID);
+ 	switch (val) {
+ 	case W627_DEVID:
+@@ -1644,9 +1654,21 @@ static int w83627thf_read_gpio5(struct platform_device *pdev)
+ 	struct w83627hf_sio_data *sio_data = dev_get_platdata(&pdev->dev);
+ 	int res = 0xff, sel;
+ 
+-	superio_enter(sio_data);
++	if (superio_enter(sio_data)) {
++		/*
++		 * Some other driver reserved the address space for itself.
++		 * We don't want to fail driver instantiation because of that,
++		 * so display a warning and keep going.
++		 */
++		dev_warn(&pdev->dev,
++			 "Can not read VID data: Failed to enable SuperIO access\n");
++		return res;
++	}
++
+ 	superio_select(sio_data, W83627HF_LD_GPIO5);
+ 
++	res = 0xff;
++
+ 	/* Make sure these GPIO pins are enabled */
+ 	if (!(superio_inb(sio_data, W83627THF_GPIO5_EN) & (1<<3))) {
+ 		dev_dbg(&pdev->dev, "GPIO5 disabled, no VID function\n");
+@@ -1677,7 +1699,17 @@ static int w83687thf_read_vid(struct platform_device *pdev)
+ 	struct w83627hf_sio_data *sio_data = dev_get_platdata(&pdev->dev);
+ 	int res = 0xff;
+ 
+-	superio_enter(sio_data);
++	if (superio_enter(sio_data)) {
++		/*
++		 * Some other driver reserved the address space for itself.
++		 * We don't want to fail driver instantiation because of that,
++		 * so display a warning and keep going.
++		 */
++		dev_warn(&pdev->dev,
++			 "Can not read VID data: Failed to enable SuperIO access\n");
++		return res;
++	}
++
+ 	superio_select(sio_data, W83627HF_LD_HWM);
+ 
+ 	/* Make sure these GPIO pins are enabled */
 -- 
 2.20.1
 
