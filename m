@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C146147D29
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:01:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E348147D6F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732925AbgAXJ5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:57:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33186 "EHLO mail.kernel.org"
+        id S2388536AbgAXKAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:00:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729990AbgAXJ5h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:57:37 -0500
+        id S2388210AbgAXKAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:00:35 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06E4720709;
-        Fri, 24 Jan 2020 09:57:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA6B620709;
+        Fri, 24 Jan 2020 10:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859856;
-        bh=UcGNx/ribASwYB5bYwww9OPS0GEK816IiSrkyUveH4I=;
+        s=default; t=1579860035;
+        bh=Vfx3CNohv0rVezTes2BEVPjEJ+heEqzgPVsBaFx3Rvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btjF0CPnrPlQ7/NwsAiphbo1YABFsYjAJLI6AVEKVTSS+YjqImOD7eOwXU1n8Cduy
-         nMAejxnXFnBvsS0m7WuR05FkLMDzDIPF8aK8qW7hvS3xWGqGw707tz+lUBWLPFt+d3
-         sLc5HEcbkG6PVNDYq8gOIqhwCxLJOY3U+wdxMy0Y=
+        b=EZ8JOZhcJ+ULUbFipKJsFj+0rY41MKHCX5Amos88VIg7TkBAtOStOebZBhpNFQd7y
+         BSVd+1Z6WtmFdoqD07s4vWIV1p7JCXDQm2R+Rzo6GdpAMb2ZNZOYrHb1+PA86NaCYq
+         /8sj90qoML+8zlPKZEPc8KcZNGPUefRrFXcTtg0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
-        Borislav Petkov <bp@suse.de>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 210/343] EDAC/mc: Fix edac_mc_find() in case no device is found
-Date:   Fri, 24 Jan 2020 10:30:28 +0100
-Message-Id: <20200124092947.711378247@linuxfoundation.org>
+Subject: [PATCH 4.14 211/343] ARM: dts: sun8i-h3: Fix wifi in Beelink X2 DT
+Date:   Fri, 24 Jan 2020 10:30:29 +0100
+Message-Id: <20200124092947.844394620@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -47,63 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@marvell.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit 29a0c843973bc385918158c6976e4dbe891df969 ]
+[ Upstream commit ca0961011db57e39880df0b5708df8aa3339dc6f ]
 
-The function should return NULL in case no device is found, but it
-always returns the last checked mc device from the list even if the
-index did not match. Fix that.
+mmc1 node where wifi module is connected doesn't have properly defined
+power supplies so wifi module is never powered up. Fix that by
+specifying additional power supplies.
 
-I did some analysis why this did not raise any issues for about 3 years
-and the reason is that edac_mc_find() is mostly used to search for
-existing devices. Thus, the bug is not triggered.
+Additionally, this STB may have either Realtek or Broadcom based wifi
+module. One based on Broadcom module also needs external clock to work
+properly. Fix that by adding clock property to wifi_pwrseq node.
 
- [ bp: Drop the if (mci->mc_idx > idx) test in favor of readability. ]
-
-Fixes: c73e8833bec5 ("EDAC, mc: Fix locking around mc_devices list")
-Signed-off-by: Robert Richter <rrichter@marvell.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Link: https://lkml.kernel.org/r/20190514104838.15065-1-rrichter@marvell.com
+Fixes: e582b47a9252 ("ARM: dts: sun8i-h3: Add dts for the Beelink X2 STB")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/sun8i-h3-beelink-x2.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
-index f7fa05fee45a1..329021189c38b 100644
---- a/drivers/edac/edac_mc.c
-+++ b/drivers/edac/edac_mc.c
-@@ -680,22 +680,18 @@ static int del_mc_from_global_list(struct mem_ctl_info *mci)
+diff --git a/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts b/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
+index 10da56e86ab80..21b38c386f1b3 100644
+--- a/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
++++ b/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
+@@ -79,6 +79,8 @@
+ 	wifi_pwrseq: wifi_pwrseq {
+ 		compatible = "mmc-pwrseq-simple";
+ 		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
++		clocks = <&rtc 1>;
++		clock-names = "ext_clock";
+ 	};
  
- struct mem_ctl_info *edac_mc_find(int idx)
- {
--	struct mem_ctl_info *mci = NULL;
-+	struct mem_ctl_info *mci;
- 	struct list_head *item;
- 
- 	mutex_lock(&mem_ctls_mutex);
- 
- 	list_for_each(item, &mc_devices) {
- 		mci = list_entry(item, struct mem_ctl_info, link);
--
--		if (mci->mc_idx >= idx) {
--			if (mci->mc_idx == idx) {
--				goto unlock;
--			}
--			break;
--		}
-+		if (mci->mc_idx == idx)
-+			goto unlock;
- 	}
- 
-+	mci = NULL;
- unlock:
- 	mutex_unlock(&mem_ctls_mutex);
- 	return mci;
+ 	sound_spdif {
+@@ -128,6 +130,8 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc1_pins_a>;
+ 	vmmc-supply = <&reg_vcc3v3>;
++	vqmmc-supply = <&reg_vcc3v3>;
++	mmc-pwrseq = <&wifi_pwrseq>;
+ 	bus-width = <4>;
+ 	non-removable;
+ 	status = "okay";
 -- 
 2.20.1
 
