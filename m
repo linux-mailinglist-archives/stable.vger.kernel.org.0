@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FE3C147B4E
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC03147B34
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730755AbgAXJmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:42:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
+        id S1733025AbgAXJlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:41:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730677AbgAXJmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:42:31 -0500
+        id S1733013AbgAXJll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:41:41 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 997A020718;
-        Fri, 24 Jan 2020 09:42:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C74FD20718;
+        Fri, 24 Jan 2020 09:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858950;
-        bh=QY51Z+nIptKudmzQUdKzVVjuB+ekYFzz2SMEMulsYyk=;
+        s=default; t=1579858901;
+        bh=o9cXkAO97d8ZXR7kjU7FXjf00XBiJlSxfYL4kf0wC4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3GyfjHoQLpFA3T3+BVx4w9Y9pyZ4OM3m4zAazp85ZerzsZsO3azzCfV+0v/DT310
-         2URuGaMG5SoKTTFfzuVUylVku91Bx2925wgIqcp8gJ3eVXGqGmwoHGFj9JxmV+jGlL
-         lspacgdq4SBteI/nIDaLsZVM9hhBNTHsFvTdMxZs=
+        b=wZiPf3CJvu+VTYkY6SJfUhLtqDG0ajdZ0pAzMz96jyGXkBr18RhWUMYrbOi8D60aJ
+         Cv4No96Fjt9YUa158SZDOwIgN0j5pnxKHmh147OxPplIX0oCwEI7adKc70DU19fsxO
+         rOKrVOuGiS3MSR6FRkIKbdCqWuAWU06DtG6hTcVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 077/102] selftests: gen_kselftest_tar.sh: Do not clobber kselftest/
-Date:   Fri, 24 Jan 2020 10:31:18 +0100
-Message-Id: <20200124092818.279058054@linuxfoundation.org>
+Subject: [PATCH 5.4 078/102] rtc: bd70528: fix module alias to autoload module
+Date:   Fri, 24 Jan 2020 10:31:19 +0100
+Message-Id: <20200124092818.428041975@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,106 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit ea1bf0bb18c0bd627d7b551196453ff2fff44225 ]
+[ Upstream commit afe19a7ae8b6b6032d04d3895ebd5bbac7fe9f30 ]
 
-The default installation location for gen_kselftest_tar.sh was still
-"kselftest/" which collides with the existing directory. Instead, this
-moves the installation target into "kselftest_install/kselftest/" and
-adjusts the tar creation accordingly. This also adjusts indentation and
-logic to be consistent.
+The module alias platform tag contains a spelling mistake. Fix it.
 
-Fixes: 42d46e57ec97 ("selftests: Extract single-test shell logic from lib.mk")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: f33506abbcdd ("rtc: bd70528: Add MODULE ALIAS to autoload module")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20191106083418.159045-1-colin.king@canonical.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/gen_kselftest_tar.sh | 21 ++++++++++-------
- tools/testing/selftests/kselftest_install.sh | 24 ++++++++++----------
- 2 files changed, 25 insertions(+), 20 deletions(-)
+ drivers/rtc/rtc-bd70528.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/gen_kselftest_tar.sh b/tools/testing/selftests/gen_kselftest_tar.sh
-index a27e2eec35867..8b2b6088540d4 100755
---- a/tools/testing/selftests/gen_kselftest_tar.sh
-+++ b/tools/testing/selftests/gen_kselftest_tar.sh
-@@ -38,16 +38,21 @@ main()
- 	esac
- 	fi
- 
--	install_dir=./kselftest
-+	# Create working directory.
-+	dest=`pwd`
-+	install_work="$dest"/kselftest_install
-+	install_name=kselftest
-+	install_dir="$install_work"/"$install_name"
-+	mkdir -p "$install_dir"
- 
--# Run install using INSTALL_KSFT_PATH override to generate install
--# directory
--./kselftest_install.sh
--tar $copts kselftest${ext} $install_dir
--echo "Kselftest archive kselftest${ext} created!"
-+	# Run install using INSTALL_KSFT_PATH override to generate install
-+	# directory
-+	./kselftest_install.sh "$install_dir"
-+	(cd "$install_work"; tar $copts "$dest"/kselftest${ext} $install_name)
-+	echo "Kselftest archive kselftest${ext} created!"
- 
--# clean up install directory
--rm -rf kselftest
-+	# clean up top-level install work directory
-+	rm -rf "$install_work"
- }
- 
- main "$@"
-diff --git a/tools/testing/selftests/kselftest_install.sh b/tools/testing/selftests/kselftest_install.sh
-index e2e1911d62d50..407af7da70372 100755
---- a/tools/testing/selftests/kselftest_install.sh
-+++ b/tools/testing/selftests/kselftest_install.sh
-@@ -6,30 +6,30 @@
- # Author: Shuah Khan <shuahkh@osg.samsung.com>
- # Copyright (C) 2015 Samsung Electronics Co., Ltd.
- 
--install_loc=`pwd`
--
- main()
- {
--	if [ $(basename $install_loc) !=  "selftests" ]; then
-+	base_dir=`pwd`
-+	install_dir="$base_dir"/kselftest_install
-+
-+	# Make sure we're in the selftests top-level directory.
-+	if [ $(basename "$base_dir") !=  "selftests" ]; then
- 		echo "$0: Please run it in selftests directory ..."
- 		exit 1;
- 	fi
-+
-+	# Only allow installation into an existing location.
- 	if [ "$#" -eq 0 ]; then
--		echo "$0: Installing in default location - $install_loc ..."
-+		echo "$0: Installing in default location - $install_dir ..."
- 	elif [ ! -d "$1" ]; then
- 		echo "$0: $1 doesn't exist!!"
- 		exit 1;
- 	else
--		install_loc=$1
--		echo "$0: Installing in specified location - $install_loc ..."
-+		install_dir="$1"
-+		echo "$0: Installing in specified location - $install_dir ..."
- 	fi
- 
--	install_dir=$install_loc/kselftest_install
--
--# Create install directory
--	mkdir -p $install_dir
--# Build tests
--	KSFT_INSTALL_PATH=$install_dir make install
-+	# Build tests
-+	KSFT_INSTALL_PATH="$install_dir" make install
- }
- 
- main "$@"
+diff --git a/drivers/rtc/rtc-bd70528.c b/drivers/rtc/rtc-bd70528.c
+index ddfef4d43bab7..627037aa66a80 100644
+--- a/drivers/rtc/rtc-bd70528.c
++++ b/drivers/rtc/rtc-bd70528.c
+@@ -491,4 +491,4 @@ module_platform_driver(bd70528_rtc);
+ MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
+ MODULE_DESCRIPTION("BD70528 RTC driver");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platofrm:bd70528-rtc");
++MODULE_ALIAS("platform:bd70528-rtc");
 -- 
 2.20.1
 
