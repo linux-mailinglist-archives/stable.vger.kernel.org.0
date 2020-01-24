@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C2E148176
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:20:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CD4148178
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:20:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390876AbgAXLUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:20:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57726 "EHLO mail.kernel.org"
+        id S2390546AbgAXLUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:20:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390646AbgAXLUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:20:12 -0500
+        id S2390894AbgAXLUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:20:15 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC0F12087E;
-        Fri, 24 Jan 2020 11:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81DB92087E;
+        Fri, 24 Jan 2020 11:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864811;
-        bh=5gZIdXjDW6/+i/y36duw1EBwJYjZQ2+Kg5kHeNRuC+E=;
+        s=default; t=1579864815;
+        bh=oEIEXSPuOM0A3P+XkQ2psI6vnvcbHSWtdfSP1ycFFUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLSiWDpnDuMD3U8olZv3rw/H4Z1jeX6I1BovkzHO99zUPDX9p46bCWldFnvapHZga
-         LEmwJeUaF03NSgn1BERfMrB0/NBC1e2nVVX0lEw21T/HJ0eux4+e/xXASaffo6nOST
-         0BX7aj5diIfijAZP/Pp6mr3MwCnNGVZulFeHSnQw=
+        b=y4qlB4b1aP7iF641/ZoRIsKiOCgA8I06vjgWP8txBAOVwi3M2/9/MnwhQySTCo42M
+         94i7peo6+He+bC3kwUL38Dysi/Fo3WVurY1T1Ap1AGcq/zY31ODMN3chlK4HRblOur
+         1wIcldBgNtj2bZQEknpzSqJupzWxO+D2dVkUr+Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 359/639] ALSA: aica: Fix a long-time build breakage
-Date:   Fri, 24 Jan 2020 10:28:49 +0100
-Message-Id: <20200124093132.070010240@linuxfoundation.org>
+Subject: [PATCH 4.19 360/639] media: omap_vout: potential buffer overflow in vidioc_dqbuf()
+Date:   Fri, 24 Jan 2020 10:28:50 +0100
+Message-Id: <20200124093132.198769408@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,68 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 534420c6ff87d3052540f1fd346e0adcff440819 ]
+[ Upstream commit dd6e2a981bfe83aa4a493143fd8cf1edcda6c091 ]
 
-The build of aica sound driver has been broken since the timer API
-conversion and some code rewrite.  This patch fixes the breakage by
-using the common substream field, as well as a bit cleaning up wrt the
-timer handling in the code.
+The "b->index" is a u32 the comes from the user in the ioctl.  It hasn't
+been checked.  We aren't supposed to use it but we're instead supposed
+to use the value that gets written to it when we call videobuf_dqbuf().
 
-Fixes: d522bb6a105f ("ALSA: sh: aica: Convert timers to use timer_setup()")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The videobuf_dqbuf() first memsets it to zero and then re-initializes it
+inside the videobuf_status() function.  It's this final value which we
+want.
+
+Hans Verkuil pointed out that we need to check the return from
+videobuf_dqbuf().  I ended up doing a little cleanup related to that as
+well.
+
+Fixes: 72915e851da9 ("[media] V4L2: OMAP: VOUT: dma map and unmap v4l2 buffers in qbuf and dqbuf")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/sh/aica.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/media/platform/omap/omap_vout.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/sound/sh/aica.c b/sound/sh/aica.c
-index 2b26311405a42..ad3f71358486a 100644
---- a/sound/sh/aica.c
-+++ b/sound/sh/aica.c
-@@ -303,7 +303,7 @@ static void aica_period_elapsed(struct timer_list *t)
- {
- 	struct snd_card_aica *dreamcastcard = from_timer(dreamcastcard,
- 							      t, timer);
--	struct snd_pcm_substream *substream = dreamcastcard->timer_substream;
-+	struct snd_pcm_substream *substream = dreamcastcard->substream;
- 	/*timer function - so cannot sleep */
- 	int play_period;
- 	struct snd_pcm_runtime *runtime;
-@@ -335,13 +335,6 @@ static void spu_begin_dma(struct snd_pcm_substream *substream)
- 	dreamcastcard = substream->pcm->private_data;
- 	/*get the queue to do the work */
- 	schedule_work(&(dreamcastcard->spu_dma_work));
--	/* Timer may already be running */
--	if (unlikely(dreamcastcard->timer_substream)) {
--		mod_timer(&dreamcastcard->timer, jiffies + 4);
--		return;
--	}
--	timer_setup(&dreamcastcard->timer, aica_period_elapsed, 0);
--	dreamcastcard->timer_substream = substream;
- 	mod_timer(&dreamcastcard->timer, jiffies + 4);
+diff --git a/drivers/media/platform/omap/omap_vout.c b/drivers/media/platform/omap/omap_vout.c
+index 5700b7818621d..45511d24d5705 100644
+--- a/drivers/media/platform/omap/omap_vout.c
++++ b/drivers/media/platform/omap/omap_vout.c
+@@ -1527,23 +1527,20 @@ static int vidioc_dqbuf(struct file *file, void *fh, struct v4l2_buffer *b)
+ 	unsigned long size;
+ 	struct videobuf_buffer *vb;
+ 
+-	vb = q->bufs[b->index];
+-
+ 	if (!vout->streaming)
+ 		return -EINVAL;
+ 
+-	if (file->f_flags & O_NONBLOCK)
+-		/* Call videobuf_dqbuf for non blocking mode */
+-		ret = videobuf_dqbuf(q, (struct v4l2_buffer *)b, 1);
+-	else
+-		/* Call videobuf_dqbuf for  blocking mode */
+-		ret = videobuf_dqbuf(q, (struct v4l2_buffer *)b, 0);
++	ret = videobuf_dqbuf(q, b, !!(file->f_flags & O_NONBLOCK));
++	if (ret)
++		return ret;
++
++	vb = q->bufs[b->index];
+ 
+ 	addr = (unsigned long) vout->buf_phy_addr[vb->i];
+ 	size = (unsigned long) vb->size;
+ 	dma_unmap_single(vout->vid_dev->v4l2_dev.dev,  addr,
+ 				size, DMA_TO_DEVICE);
+-	return ret;
++	return 0;
  }
  
-@@ -379,8 +372,8 @@ static int snd_aicapcm_pcm_close(struct snd_pcm_substream
- {
- 	struct snd_card_aica *dreamcastcard = substream->pcm->private_data;
- 	flush_work(&(dreamcastcard->spu_dma_work));
--	if (dreamcastcard->timer_substream)
--		del_timer(&dreamcastcard->timer);
-+	del_timer(&dreamcastcard->timer);
-+	dreamcastcard->substream = NULL;
- 	kfree(dreamcastcard->channel);
- 	spu_disable();
- 	return 0;
-@@ -615,6 +608,7 @@ static int snd_aica_probe(struct platform_device *devptr)
- 	       "Yamaha AICA Super Intelligent Sound Processor for SEGA Dreamcast");
- 	/* Prepare to use the queue */
- 	INIT_WORK(&(dreamcastcard->spu_dma_work), run_spu_dma);
-+	timer_setup(&dreamcastcard->timer, aica_period_elapsed, 0);
- 	/* Load the PCM 'chip' */
- 	err = snd_aicapcmchip(dreamcastcard, 0);
- 	if (unlikely(err < 0))
+ static int vidioc_streamon(struct file *file, void *fh, enum v4l2_buf_type i)
 -- 
 2.20.1
 
