@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F0051482E0
+	by mail.lfdr.de (Postfix) with ESMTP id 8899B1482E1
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391871AbgAXLbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:31:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49732 "EHLO mail.kernel.org"
+        id S2391881AbgAXLb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:31:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391865AbgAXLbY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:31:24 -0500
+        id S2391877AbgAXLb2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:31:28 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5FA8206D4;
-        Fri, 24 Jan 2020 11:31:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6DF2214DB;
+        Fri, 24 Jan 2020 11:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865483;
-        bh=HFwQb0O34aT0aoLhTP4YW3fAfKwbOI+s08VarianbpU=;
+        s=default; t=1579865487;
+        bh=w7f5YIqGGhYph6l+OF2ij8uXnChwL2dDDbJ5/o/FHus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhJCykNg4/QnTvQ0ZXmEPDFshtzdAf+po94pStpnh1SPbiIkE9VjZab0HDnDCKrEM
-         N7ElcrBtoe1B7JKHHE0b0mbwFd3iBnRArQRioJWGm0eePeSTVCfn93atIWiMHTgjD7
-         jGmaLY0+y/nzOYv0IJAjcWecWuQ0TKpnZw61Qs7M=
+        b=FdbKtIoEtM/bc001Rddv5L9pdflxca807YcPKwEwLNNuxaeRq0dhb8T8tmM9rPkhJ
+         CqxZlpxgyQFjVLEnhFo8iwGBSA/2479lwP8zXqEFZzr3qU9PUHoEcz1oJmssny8T6y
+         8TNCq4JjwNcQYSZBY31+xjX/x0ESzFklSS4ehUi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Bhuvanchandra DV <bhuvanchandra.dv@toradex.com>,
-        Chris Healy <cphealy@gmail.com>,
-        Cory Tusar <cory.tusar@zii.aero>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Jiri Slaby <jslaby@suse.com>, linux-imx@nxp.com,
-        linux-serial@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 541/639] tty: serial: fsl_lpuart: Use appropriate lpuart32_* I/O funcs
-Date:   Fri, 24 Jan 2020 10:31:51 +0100
-Message-Id: <20200124093156.779825916@linuxfoundation.org>
+        stable@vger.kernel.org, Oscar A Perez <linux@neuralgames.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 542/639] ARM: dts: aspeed-g5: Fixe gpio-ranges upper limit
+Date:   Fri, 24 Jan 2020 10:31:52 +0100
+Message-Id: <20200124093156.938644769@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -49,98 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+From: Oscar A Perez <linux@neuralgames.com>
 
-[ Upstream commit 1da17d7cf8e2c4b60163d54300f72c02f510327c ]
+[ Upstream commit 89b97c429e2e77d695b5133572ca12ec256a4ea4 ]
 
-When dealing with 32-bit variant of LPUART IP block appropriate I/O
-helpers have to be used to properly deal with endianness
-differences. Change all of the offending code to do that.
+According to the AST2500/AST2520 specs, these SoCs support up to 228 GPIO
+pins. However, 'gpio-ranges' value in 'aspeed-g5.dtsi' file is currently
+setting the upper limit to 220 which isn't allowing access to all their
+GPIOs. The correct upper limit value is 232 (actual number is 228 plus a
+4-GPIO hole in GPIOAB). Without this patch, GPIOs AC5 and AC6 do not work
+correctly on a AST2500 BMC running Linux Kernel v4.19
 
-Fixes: a5fa2660d787 ("tty/serial/fsl_lpuart: Add CONSOLE_POLL support
-for lpuart32.")
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Bhuvanchandra DV <bhuvanchandra.dv@toradex.com>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Cory Tusar <cory.tusar@zii.aero>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jslaby@suse.com>
-Cc: linux-imx@nxp.com
-Cc: linux-serial@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/20190729195226.8862-14-andrew.smirnov@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2039f90d136c ("ARM: dts: aspeed-g5: Add gpio controller to devicetree")
+Signed-off-by: Oscar A Perez <linux@neuralgames.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ arch/arm/boot/dts/aspeed-g5.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index ee8a5cb61a5f1..2daccb10ae2f3 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -528,26 +528,26 @@ static int lpuart32_poll_init(struct uart_port *port)
- 	spin_lock_irqsave(&sport->port.lock, flags);
- 
- 	/* Disable Rx & Tx */
--	writel(0, sport->port.membase + UARTCTRL);
-+	lpuart32_write(&sport->port, UARTCTRL, 0);
- 
--	temp = readl(sport->port.membase + UARTFIFO);
-+	temp = lpuart32_read(&sport->port, UARTFIFO);
- 
- 	/* Enable Rx and Tx FIFO */
--	writel(temp | UARTFIFO_RXFE | UARTFIFO_TXFE,
--		   sport->port.membase + UARTFIFO);
-+	lpuart32_write(&sport->port, UARTFIFO,
-+		       temp | UARTFIFO_RXFE | UARTFIFO_TXFE);
- 
- 	/* flush Tx and Rx FIFO */
--	writel(UARTFIFO_TXFLUSH | UARTFIFO_RXFLUSH,
--			sport->port.membase + UARTFIFO);
-+	lpuart32_write(&sport->port, UARTFIFO,
-+		       UARTFIFO_TXFLUSH | UARTFIFO_RXFLUSH);
- 
- 	/* explicitly clear RDRF */
--	if (readl(sport->port.membase + UARTSTAT) & UARTSTAT_RDRF) {
--		readl(sport->port.membase + UARTDATA);
--		writel(UARTFIFO_RXUF, sport->port.membase + UARTFIFO);
-+	if (lpuart32_read(&sport->port, UARTSTAT) & UARTSTAT_RDRF) {
-+		lpuart32_read(&sport->port, UARTDATA);
-+		lpuart32_write(&sport->port, UARTFIFO, UARTFIFO_RXUF);
- 	}
- 
- 	/* Enable Rx and Tx */
--	writel(UARTCTRL_RE | UARTCTRL_TE, sport->port.membase + UARTCTRL);
-+	lpuart32_write(&sport->port, UARTCTRL, UARTCTRL_RE | UARTCTRL_TE);
- 	spin_unlock_irqrestore(&sport->port.lock, flags);
- 
- 	return 0;
-@@ -555,18 +555,18 @@ static int lpuart32_poll_init(struct uart_port *port)
- 
- static void lpuart32_poll_put_char(struct uart_port *port, unsigned char c)
- {
--	while (!(readl(port->membase + UARTSTAT) & UARTSTAT_TDRE))
-+	while (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_TDRE))
- 		barrier();
- 
--	writel(c, port->membase + UARTDATA);
-+	lpuart32_write(port, UARTDATA, c);
- }
- 
- static int lpuart32_poll_get_char(struct uart_port *port)
- {
--	if (!(readl(port->membase + UARTSTAT) & UARTSTAT_RDRF))
-+	if (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_RDRF))
- 		return NO_POLL_CHAR;
- 
--	return readl(port->membase + UARTDATA);
-+	return lpuart32_read(port, UARTDATA);
- }
- #endif
- 
+diff --git a/arch/arm/boot/dts/aspeed-g5.dtsi b/arch/arm/boot/dts/aspeed-g5.dtsi
+index d107459fc0f89..f2e1015d75ab4 100644
+--- a/arch/arm/boot/dts/aspeed-g5.dtsi
++++ b/arch/arm/boot/dts/aspeed-g5.dtsi
+@@ -247,7 +247,7 @@
+ 				compatible = "aspeed,ast2500-gpio";
+ 				reg = <0x1e780000 0x1000>;
+ 				interrupts = <20>;
+-				gpio-ranges = <&pinctrl 0 0 220>;
++				gpio-ranges = <&pinctrl 0 0 232>;
+ 				clocks = <&syscon ASPEED_CLK_APB>;
+ 				interrupt-controller;
+ 			};
 -- 
 2.20.1
 
