@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39405147B53
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FE25147B58
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730170AbgAXJmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:42:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40408 "EHLO mail.kernel.org"
+        id S1727520AbgAXJmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733147AbgAXJmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:42:42 -0500
+        id S1733151AbgAXJmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:42:45 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70F7D208C4;
-        Fri, 24 Jan 2020 09:42:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAD2D20718;
+        Fri, 24 Jan 2020 09:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858962;
-        bh=EJjOkHR2Y5uXiUlpzZR4cH7KcFllZ2USANg/jXz6zDQ=;
+        s=default; t=1579858965;
+        bh=hi2dX1oVv8yZreDP+0pmyOaOSai6d6i0N6rpzahexjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wa3Iuymj8Ay2TvRHOemequLhgwYfublyZZ5iPZZLBk6jGk9VYCziZZh9ccF5pzWqL
-         lXG4KyxXzVxZBSEmRm0bjzaAwz/yiOsG1WkViowBUDvBJUfI2wGRpV1rfu7o2M6S48
-         atjjpGSq7E7ogsQ8niRTa1LMY9uOsFvO/LacBn+E=
+        b=DRsJfQUP9RnckdnCP4AFyR10OTnQGebc/rb0IybwmBwbt7eeIR/ZWTdbfcZh8lSeS
+         +1bwaz+LGFszyfbh9QwWtS6GQkQWv99ZJEMCqAqw3kLlTrap/NoyLXC0f1QGcjdMIn
+         /RTm+fN7bxKojAddggZb2gsd/NZJJeJazDkgq+1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Vincent Cao <vincent.t.cao@intel.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 101/102] phy/rockchip: inno-hdmi: round clock rate down to closest 1000 Hz
-Date:   Fri, 24 Jan 2020 10:31:42 +0100
-Message-Id: <20200124092822.003655840@linuxfoundation.org>
+Subject: [PATCH 5.4 102/102] optee: Fix multi page dynamic shm pool alloc
+Date:   Fri, 24 Jan 2020 10:31:43 +0100
+Message-Id: <20200124092822.172144798@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,53 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Karlman <jonas@kwiboo.se>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-[ Upstream commit 4f510aa10468954b1da4e94689c38ac6ea8d3627 ]
+[ Upstream commit 5a769f6ff439cedc547395a6dc78faa26108f741 ]
 
-Commit 287422a95fe2 ("drm/rockchip: Round up _before_ giving to the clock framework")
-changed what rate clk_round_rate() is called with, an additional 999 Hz
-added to the requsted mode clock. This has caused a regression on RK3328
-and presumably also on RK3228 because the inno-hdmi-phy clock requires an
-exact match of the requested rate in the pre pll config table.
+optee_shm_register() expected pages to be passed as an array of page
+pointers rather than as an array of contiguous pages. So fix that via
+correctly passing pages as per expectation.
 
-When an exact match is not found the parent clock rate (24MHz) is returned
-to the clk_round_rate() caller. This cause wrong pixel clock to be used and
-result in no-signal when configuring a mode on RK3328.
-
-Fix this by rounding the rate down to closest 1000 Hz in round_rate func,
-this allows an exact match to be found in pre pll config table.
-
-Fixes: 287422a95fe2 ("drm/rockchip: Round up _before_ giving to the clock framework")
-Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fixes: a249dd200d03 ("tee: optee: Fix dynamic shm pool allocations")
+Reported-by: Vincent Cao <vincent.t.cao@intel.com>
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Tested-by: Vincent Cao <vincent.t.cao@intel.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-inno-hdmi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tee/optee/shm_pool.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c b/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c
-index 2b97fb1185a00..9ca20c947283d 100644
---- a/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c
-+++ b/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c
-@@ -603,6 +603,8 @@ static long inno_hdmi_phy_rk3228_clk_round_rate(struct clk_hw *hw,
- {
- 	const struct pre_pll_config *cfg = pre_pll_cfg_table;
+diff --git a/drivers/tee/optee/shm_pool.c b/drivers/tee/optee/shm_pool.c
+index 0332a5301d613..d767eebf30bdd 100644
+--- a/drivers/tee/optee/shm_pool.c
++++ b/drivers/tee/optee/shm_pool.c
+@@ -28,9 +28,22 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
+ 	shm->size = PAGE_SIZE << order;
  
-+	rate = (rate / 1000) * 1000;
+ 	if (shm->flags & TEE_SHM_DMA_BUF) {
++		unsigned int nr_pages = 1 << order, i;
++		struct page **pages;
 +
- 	for (; cfg->pixclock != 0; cfg++)
- 		if (cfg->pixclock == rate && !cfg->fracdiv)
- 			break;
-@@ -755,6 +757,8 @@ static long inno_hdmi_phy_rk3328_clk_round_rate(struct clk_hw *hw,
- {
- 	const struct pre_pll_config *cfg = pre_pll_cfg_table;
++		pages = kcalloc(nr_pages, sizeof(pages), GFP_KERNEL);
++		if (!pages)
++			return -ENOMEM;
++
++		for (i = 0; i < nr_pages; i++) {
++			pages[i] = page;
++			page++;
++		}
++
+ 		shm->flags |= TEE_SHM_REGISTER;
+-		rc = optee_shm_register(shm->ctx, shm, &page, 1 << order,
++		rc = optee_shm_register(shm->ctx, shm, pages, nr_pages,
+ 					(unsigned long)shm->kaddr);
++		kfree(pages);
+ 	}
  
-+	rate = (rate / 1000) * 1000;
-+
- 	for (; cfg->pixclock != 0; cfg++)
- 		if (cfg->pixclock == rate)
- 			break;
+ 	return rc;
 -- 
 2.20.1
 
