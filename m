@@ -2,115 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A260148B86
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 16:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8518148BA4
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 17:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389227AbgAXPys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 10:54:48 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:52790 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2389172AbgAXPys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 10:54:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579881287;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NVWDSNWG2YBJMb5h9YSxyXIldji6NzcE4XoLI2HHWzc=;
-        b=ORo8l2ZPHj7RLVaazQFnFG0u98y4Y8jUhaOZPdiLFSvQZ8aipGGzusazUbPNoZxyHEJahy
-        17Swyz7ak1l6M4hMj007+esD0o/13h14YSVNPGzX5GMX1OBM3Gx09YYdntlOD+1XMf4/tt
-        LDxfolWF6XPs5ZmpkF6eDYZNcmD+0o8=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-363-xwmuehwJPsKYg30D1TkObw-1; Fri, 24 Jan 2020 10:54:45 -0500
-X-MC-Unique: xwmuehwJPsKYg30D1TkObw-1
-Received: by mail-wr1-f69.google.com with SMTP id o6so1541497wrp.8
-        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 07:54:45 -0800 (PST)
+        id S1731591AbgAXQDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 11:03:19 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33157 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727306AbgAXQDT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 11:03:19 -0500
+Received: by mail-wr1-f66.google.com with SMTP id b6so2620086wrq.0
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 08:03:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PHE47lFq5/fvGrizrAL8jv10DagdWORFMqLhZRUXrA8=;
+        b=OoDNy4rdorklhLDwQ2YsGs/NYjCDDlGcoY/HW8dNfUd77rw7TDiDjK5BkK6My9iPK6
+         dR74rSqDTAV3SX1WBmfTSkfM2t6a7HZ1GpkSQWCUNkRwlDjsFUdwiSG2xARqWqKmFJ0p
+         afZ5MLtfAIRf4C8leZTxtxc+dP/fK06f7qEG+Be7FyL8Py7An0lSZ7BK7UKS++btKbPR
+         9u8fDJf8HayEEaMMwPqIxiE8RW5YLKH28MpAOATY3tCAOKixCEiD15DDzT/YUS//BTa+
+         kTisRokJaEnzTKrlBhsQleUNe2/IAHciSi1Hlp4J1JaoHm0AKvnJf7R8O0Xniioc49VL
+         +TWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=NVWDSNWG2YBJMb5h9YSxyXIldji6NzcE4XoLI2HHWzc=;
-        b=YxMBnKpCXMrgowytukajgzeVWZyaarKYOqac8uAk3m4L+I27zwRtpF0BkuOEu7jT+U
-         rNe0YrjE04v7srGi4wAb7ENA/FJUECCAHS2ogsKl5/Ecqp/edN0JvocB0lIoXtzgWHc+
-         hc+FCJIY9iela1CsHFHV2ef0c8rc+Wz4voermbsFdOr/0/N4mgWQG7fCnbMAMbdWB+kP
-         xO7Un2KbN32CP7+r44wGIrKgCCSiTcADmRbYh7L/nJT+Py7OIA1aoK+iyPbpBb6BiAH1
-         8IXSD3lDkImEfnqPsJQON7TaNgDiduf+uL2rKhlGjyXqZkTyOJJHkB0hoZuAnThHZPfM
-         i4tw==
-X-Gm-Message-State: APjAAAX3Qfjed58n/UtuKJc4v4saeqJRlUhFSJrNXHbD3SDRKcqh34ok
-        yvHasm74GBPS+ecLI5n9eURLXXof8giwRPp5WDHQTrJa76qSSatG8tE/ZlY4r/gesogZw7fAaZv
-        BDf3c4FRXFngcgZLK
-X-Received: by 2002:a1c:b4c3:: with SMTP id d186mr4074204wmf.140.1579881284294;
-        Fri, 24 Jan 2020 07:54:44 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzogXgz6eTRvTJTnIRAJ0NJbB5DE5bi6k5zNhAyU8p2PLfZwHBI0nZO2cDrzJW3xMW3fb0Xdg==
-X-Received: by 2002:a1c:b4c3:: with SMTP id d186mr4074179wmf.140.1579881284027;
-        Fri, 24 Jan 2020 07:54:44 -0800 (PST)
-Received: from dhcp-44-196.space.revspace.nl ([2a0e:5700:4:11:6eb:1143:b8be:2b8])
-        by smtp.gmail.com with ESMTPSA id t12sm7536527wrs.96.2020.01.24.07.54.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Jan 2020 07:54:43 -0800 (PST)
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
- Intel Bay Trail SoC
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        vipul kumar <vipulk0511@gmail.com>
-Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        x86@kernel.org, Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>
-References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
- <87eevs7lfd.fsf@nanos.tec.linutronix.de>
- <CADdC98RJpsvu_zWehNGDDN=W11rD11NSPaodg-zuaXsHuOJYTQ@mail.gmail.com>
- <878slzeeim.fsf@nanos.tec.linutronix.de>
- <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com>
- <20200123144108.GU32742@smile.fi.intel.com>
- <df04f43d-8c6d-7602-cb50-535b85cf2aaa@redhat.com>
- <87iml11ccf.fsf@nanos.tec.linutronix.de>
- <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com>
- <87ftg5131x.fsf@nanos.tec.linutronix.de>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <37321319-e110-81f5-2488-cedf000da04d@redhat.com>
-Date:   Fri, 24 Jan 2020 16:54:42 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PHE47lFq5/fvGrizrAL8jv10DagdWORFMqLhZRUXrA8=;
+        b=hSRB7CYJRe761uGuCh40gte8cc+IENJ/lyKihkwTK2xG/oxxJv3wMIuUcWg6usJTXr
+         wo6qUoOU7QPPxYhn+I/nNhqNnnkaVAMoVQlZdcYi7WvIhF0GFEoFjL4tcRe6AAIpHgfy
+         lZ0lbOUooEbJJxpz7I6d9MK+zcjtPmqc3VlqYKqpezxsEz9F24iXLDyq93+kr/GL1BNC
+         siGNcXE+qFGaIEAAhkGoMjqoaDwyQB9m2MonzIDHuf1hwnxyrg1/cBTLyIAQ1DtXJMK+
+         6jnmY9oRSRFY95exQeUFRizxsTC1/EN8WBwPTBDbd8iUdY6FtntqC8otZ3Ug9OVhdb3i
+         zoMg==
+X-Gm-Message-State: APjAAAU2sUXl2K91MHlS0pvqELvGgcpsqCNqlyS7prr78PTi8QGNf51W
+        HhFDmfEBwC9JOvKfDEnfDDp5vYSlSTseag==
+X-Google-Smtp-Source: APXvYqxUprLA/i5pTagfOmsyAAVY6hBpqycrpiFwF5L+fQ3jgyZ3ya0Rmuv8fke3PdRKIpOl4K9q4g==
+X-Received: by 2002:adf:e887:: with SMTP id d7mr4979359wrm.162.1579881796961;
+        Fri, 24 Jan 2020 08:03:16 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a1sm7830985wrr.80.2020.01.24.08.03.16
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Jan 2020 08:03:16 -0800 (PST)
+Message-ID: <5e2b1544.1c69fb81.208f8.0f8f@mx.google.com>
+Date:   Fri, 24 Jan 2020 08:03:16 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <87ftg5131x.fsf@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.98-640-gd521598bed24
+Subject: stable-rc/linux-4.19.y boot: 135 boots: 6 failed,
+ 121 passed with 6 offline, 2 untried/unknown (v4.19.98-640-gd521598bed24)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.19.y boot: 135 boots: 6 failed, 121 passed with 6 offline=
+, 2 untried/unknown (v4.19.98-640-gd521598bed24)
 
-On 1/24/20 12:55 PM, Thomas Gleixner wrote:
-> Hans,
-> 
-> Hans de Goede <hdegoede@redhat.com> writes:
->> On 1/24/20 9:35 AM, Thomas Gleixner wrote:
->>> Where does that number come from? Just math?
->>
->> Yes just math, but perhaps the Intel folks can see if they can find some
->> datasheet to back this up ?
-> 
-> Can you observe the issue on one of the machines in your zoo as well?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.98-640-gd521598bed24/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.98-640-gd521598bed24/
 
-I haven't tried yet. Looking at the thread sofar the problem was noticed on
-a system with a Celeron N2930, I don't have access to one of those, I
-do have access to a system with a closely related N2840 I will give that
-a try as well as see if I can reproduce this on one of the tablet
-oriented Z3735x SoCs.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.98-640-gd521598bed24
+Git Commit: d521598bed2464511b7d1f1dd553132c7b658394
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 78 unique boards, 23 SoC families, 17 builds out of 193
 
-I'll report back when I have had a chance to test this.
+Boot Failures Detected:
 
-Regards,
+arm64:
+    defconfig:
+        gcc-8:
+            sun50i-h5-libretech-all-h3-cc: 1 failed lab
 
-Hans
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
+    sunxi_defconfig:
+        gcc-8:
+            sun8i-h2-plus-libretech-all-h3-cc: 1 failed lab
+            sun8i-h3-libretech-all-h3-cc: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            sun8i-h2-plus-libretech-all-h3-cc: 1 failed lab
+            sun8i-h3-libretech-all-h3-cc: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
