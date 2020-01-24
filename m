@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B29514803D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:10:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A1B148042
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:10:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389734AbgAXLJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:09:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44490 "EHLO mail.kernel.org"
+        id S1730558AbgAXLJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:09:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732762AbgAXLJB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:09:01 -0500
+        id S2389758AbgAXLJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:09:16 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3409520663;
-        Fri, 24 Jan 2020 11:09:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A60820663;
+        Fri, 24 Jan 2020 11:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864140;
-        bh=Im9lmjzn4yd291QgGzhaZu3rr4+A7e5Yl9ISoVapZ8w=;
+        s=default; t=1579864156;
+        bh=UaEYRrOoQzEpKhJZlEPag8xkffPbpJE5+D8b6xKTf9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x20OYa1lQJS/c3/lLbAQRkszTZOPGjb1ZOoZ02ugcLMiKYVIb8tATNokvW0X0da0a
-         umQC6ohqsvy0YEWE35uou7t2/6T2YQ1ZmOHK5LjxpmFtAdwC+iprzj5h3oU4zXoiOc
-         nVgYNPDzrPbQb1fQdLERmvTxcQ+gMB0GCWzevGnU=
+        b=rqKNxE90lxOrNIMM3DHWVEqb2Dd8k5j0zKyucERpsdd+3KS+lDgeHKwtPPfwAcPmk
+         /YBswVxlH2xVzHBGHMWjSlAJhl98B/RpLXbc02+Lig2ltX3TGrTyHjvwMizFZSGAgW
+         WtOHllkamygowMwbkklewaIwfa+BUwu/j6qNaFDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wise <swise@opengridcomputing.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/639] iw_cxgb4: use tos when importing the endpoint
-Date:   Fri, 24 Jan 2020 10:25:53 +0100
-Message-Id: <20200124093110.078298032@linuxfoundation.org>
+Subject: [PATCH 4.19 187/639] drm/etnaviv: potential NULL dereference
+Date:   Fri, 24 Jan 2020 10:25:57 +0100
+Message-Id: <20200124093110.546875636@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,33 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wise <swise@opengridcomputing.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit cb3ba0bde881f0cb7e3945d2a266901e2bd18c92 ]
+[ Upstream commit 9e05352340d3a3e68c144136db9810b26ebb88c3 ]
 
-import_ep() is passed the correct tos, but doesn't use it correctly.
+The etnaviv_gem_prime_get_sg_table() is supposed to return error
+pointers.  Otherwise it can lead to a NULL dereference when it's called
+from drm_gem_map_dma_buf().
 
-Fixes: ac8e4c69a021 ("cxgb4/iw_cxgb4: TOS support")
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 5f4a4a73f437 ("drm/etnaviv: fix gem_prime_get_sg_table to return new SG table")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 2 +-
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 1b3d014fa1d6e..3c8b7eae918c5 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -2076,7 +2076,7 @@ static int import_ep(struct c4iw_ep *ep, int iptype, __u8 *peer_ip,
- 	} else {
- 		pdev = get_real_dev(n->dev);
- 		ep->l2t = cxgb4_l2t_get(cdev->rdev.lldi.l2t,
--					n, pdev, 0);
-+					n, pdev, rt_tos2priority(tos));
- 		if (!ep->l2t)
- 			goto out;
- 		ep->mtu = dst_mtu(dst);
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+index 0566171f8df22..f21529e635e3d 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+@@ -15,7 +15,7 @@ struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj)
+ 	int npages = obj->size >> PAGE_SHIFT;
+ 
+ 	if (WARN_ON(!etnaviv_obj->pages))  /* should have already pinned! */
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	return drm_prime_pages_to_sg(etnaviv_obj->pages, npages);
+ }
 -- 
 2.20.1
 
