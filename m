@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A13147C0C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:49:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12695147C0E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:49:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbgAXJse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:48:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48652 "EHLO mail.kernel.org"
+        id S2387741AbgAXJsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:48:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730051AbgAXJsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:48:33 -0500
+        id S1730051AbgAXJsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:48:36 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50F6420718;
-        Fri, 24 Jan 2020 09:48:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3627B208C4;
+        Fri, 24 Jan 2020 09:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859312;
-        bh=Ir1VPgQ2SWl+B/H40Bpod4gcCNONKz82Gh2fHS0+pWY=;
+        s=default; t=1579859315;
+        bh=YdKsTFS68LQxZFkxrS04Ikwf1+NUsVils/UWY/KK9bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9js7agN2gFh8njrPyT8xJJvYDzg0JrFrX+l0ia+AKYRxvYP+lAlvDtdKrKDMTkfx
-         sDkZT+09reEKk9tKvLwo0ZbSTMhwNqAoeCUkHjhC9jdGEZTq3ITVGBL/FObjBkoZIX
-         GYyz69TYjvvbqSQ/X4r14R8Bm2pJ3wh+kXwAlDlM=
+        b=oRnwQ+LSWDk1aj6RLFACebkauTr1T5SC56nBPaHsDZ2IIIOc3T8sv+wBfmpNtEiP/
+         yafC02HEF4uZGfmXSuXqn4gJwDuivG0Jjowl032KS3sbWt2KE4KDlfPHKAfR0LIpPG
+         GsBcFapAN8sfFXlQMcYzYzsAAiM+w1wqMNn5motM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/343] tty: ipwireless: Fix potential NULL pointer dereference
-Date:   Fri, 24 Jan 2020 10:28:15 +0100
-Message-Id: <20200124092930.008635973@linuxfoundation.org>
+Subject: [PATCH 4.14 078/343] driver: uio: fix possible memory leak in __uio_register_device
+Date:   Fri, 24 Jan 2020 10:28:16 +0100
+Message-Id: <20200124092930.137339954@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -43,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 7dd50e205b3348dc7784efbdf85723551de64a25 ]
+[ Upstream commit 1a392b3de7c5747506b38fc14b2e79977d3c7770 ]
 
-There is a potential NULL pointer dereference in case
-alloc_ctrl_packet() fails and returns NULL.
+'idev' is malloced in __uio_register_device() and leak free it before
+leaving from the uio_get_minor() error handing case, it will cause
+memory leak.
 
-Fixes: 099dc4fb6265 ("ipwireless: driver for PC Card 3G/UMTS modem")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Fixes: a93e7b331568 ("uio: Prevent device destruction while fds are open")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Reviewed-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/ipwireless/hardware.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/uio/uio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/ipwireless/hardware.c b/drivers/tty/ipwireless/hardware.c
-index a6b8240af6cdd..960e9375a1a9e 100644
---- a/drivers/tty/ipwireless/hardware.c
-+++ b/drivers/tty/ipwireless/hardware.c
-@@ -1516,6 +1516,8 @@ static void ipw_send_setup_packet(struct ipw_hardware *hw)
- 			sizeof(struct ipw_setup_get_version_query_packet),
- 			ADDR_SETUP_PROT, TL_PROTOCOLID_SETUP,
- 			TL_SETUP_SIGNO_GET_VERSION_QRY);
-+	if (!ver_packet)
-+		return;
- 	ver_packet->header.length = sizeof(struct tl_setup_get_version_qry);
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index fb5c9701b1fbd..4e9b0ff79b131 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -939,8 +939,10 @@ int __uio_register_device(struct module *owner,
+ 	atomic_set(&idev->event, 0);
  
- 	/*
+ 	ret = uio_get_minor(idev);
+-	if (ret)
++	if (ret) {
++		kfree(idev);
+ 		return ret;
++	}
+ 
+ 	idev->dev.devt = MKDEV(uio_major, idev->minor);
+ 	idev->dev.class = &uio_class;
 -- 
 2.20.1
 
