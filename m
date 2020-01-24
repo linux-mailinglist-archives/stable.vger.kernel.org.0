@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AD8148433
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB73148432
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390754AbgAXLTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:19:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56602 "EHLO mail.kernel.org"
+        id S2390789AbgAXLT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:19:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390741AbgAXLTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:19:13 -0500
+        id S2390788AbgAXLT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:19:27 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E85B320708;
-        Fri, 24 Jan 2020 11:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28A7B20704;
+        Fri, 24 Jan 2020 11:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864752;
-        bh=UelN6tDKfbM0VyU4uVtgi7SNJR2wna7rh/JGw2VMtgA=;
+        s=default; t=1579864767;
+        bh=lc0hlubxHETebF9OyeRum32SufPpiqXaOtcFVkU6qiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eDBSOKrzhpUYlBBL+KMYoseRKVRVbcAbRSmngz2lBAepiGTBhoBMz7Dun6S6RViH
-         X/9wnTKTI2o8MJKQ6L8ArCO1kmQtH2p2QhRwJ2nFVKNIm/NqfHVS4F1wCidW+AgsnN
-         r93wR1cKNiDcwAViiAMaYKaUY80j+p7bsxFo8KE4=
+        b=N40WeKtIe+yjxa2JeViRNZOD/0AlqOckJPDGeSR3TG0PIyl+sQZP2t8aCPcOV5DNq
+         W1XKTFtRG5kYEtmwZa/+evPXmsg/i2LOIaBz0LJir1YdYDcacS8AaiJwJ9XVrjxWQ0
+         yK+AxH7TXNVlv9enxUQucpTBdysIg6NhqMigIG/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Arthur Kiyanovski <akiyano@amazon.com>,
+        Sameeh Jubran <sameehj@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 343/639] RDMA/rxe: Consider skb reserve space based on netdev of GID
-Date:   Fri, 24 Jan 2020 10:28:33 +0100
-Message-Id: <20200124093130.097354236@linuxfoundation.org>
+Subject: [PATCH 4.19 347/639] net: ena: fix incorrect test of supported hash function
+Date:   Fri, 24 Jan 2020 10:28:37 +0100
+Message-Id: <20200124093130.606159181@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,37 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Sameeh Jubran <sameehj@amazon.com>
 
-[ Upstream commit 3bf3e2b881c1412d0329ce9376dfe1518489b8fc ]
+[ Upstream commit d3cfe7ddbc3dfbb9b201615b7fef8fd66d1b5fe8 ]
 
-Always consider the skb reserve space based on netdevice of the GID
-attribute, regardless of vlan or non vlan netdevice.
+ena_com_set_hash_function() tests if a hash function is supported
+by the device before setting it.
+The test returns the opposite result than needed.
+Reverse the condition to return the correct value.
+Also use the BIT macro instead of inline shift.
 
-Fixes: 43c9fc509fa5 ("rdma_rxe: make rxe work over 802.1q VLAN devices")
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
-index 8094cbaa54a9e..54add70c22b5c 100644
---- a/drivers/infiniband/sw/rxe/rxe_net.c
-+++ b/drivers/infiniband/sw/rxe/rxe_net.c
-@@ -533,8 +533,9 @@ struct sk_buff *rxe_init_packet(struct rxe_dev *rxe, struct rxe_av *av,
- 	if (unlikely(!skb))
- 		goto out;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index 7635c38e77dd0..005882c402625 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2008,7 +2008,7 @@ int ena_com_set_hash_function(struct ena_com_dev *ena_dev)
+ 	if (unlikely(ret))
+ 		return ret;
  
--	skb_reserve(skb, hdr_len + LL_RESERVED_SPACE(rxe->ndev));
-+	skb_reserve(skb, hdr_len + LL_RESERVED_SPACE(ndev));
- 
-+	/* FIXME: hold reference to this netdev until life of this skb. */
- 	skb->dev	= ndev;
- 	if (av->network_type == RDMA_NETWORK_IPV4)
- 		skb->protocol = htons(ETH_P_IP);
+-	if (get_resp.u.flow_hash_func.supported_func & (1 << rss->hash_func)) {
++	if (!(get_resp.u.flow_hash_func.supported_func & BIT(rss->hash_func))) {
+ 		pr_err("Func hash %d isn't supported by device, abort\n",
+ 		       rss->hash_func);
+ 		return -EOPNOTSUPP;
 -- 
 2.20.1
 
