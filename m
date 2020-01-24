@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D72C147C62
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EF3147C66
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388054AbgAXJvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:51:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52884 "EHLO mail.kernel.org"
+        id S2388079AbgAXJvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:51:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388050AbgAXJvb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:51:31 -0500
+        id S2388076AbgAXJvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:51:35 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A56024125;
-        Fri, 24 Jan 2020 09:51:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66AC4206D5;
+        Fri, 24 Jan 2020 09:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859490;
-        bh=A0YMtqc8frXIm998POH4sdRlFGpWgiy9qw0wdwY2cGc=;
+        s=default; t=1579859495;
+        bh=Z8RYTnFvxv0aqrw16BDDgPp8bJszHmstU/tRf1yADpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kdCkgR8h0yZ4hd/ZU93z9mGuWHZZ2nBRuOV4y49C4jPZsRL6IRn80gwfU8l9Y0Gd
-         Y1bQDCU6ACjk37/GjrbEv04sNlp21eD4BxH0p4+nmxvPIzYERusaH6Zj3awSre0Dgv
-         peoqtEEvwPn7FUXxbhqIfP2P7oUSVhQecTzbDpwk=
+        b=Z4ah16vvjWD0shoxiHFUgUqyfd9bZGURv9nM7FZsDugCE6JWXRMGsADd4tkiqG38v
+         BquC+zrSKTzAlagABTtF9S0mbHhQVw6jhuWhCS6dhLPAQUAp3YtSKRFFE+he9CG9lu
+         lMad2hzvVpxr0bBSoXJ6+MTXbBNYOQzVIns9zWN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Vinod Koul <vkoul@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 116/343] regulator: pv88090: Fix array out-of-bounds access
-Date:   Fri, 24 Jan 2020 10:28:54 +0100
-Message-Id: <20200124092935.304018151@linuxfoundation.org>
+Subject: [PATCH 4.14 117/343] net: dsa: qca8k: Enable delay for RGMII_ID mode
+Date:   Fri, 24 Jan 2020 10:28:55 +0100
+Message-Id: <20200124092935.421314690@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,34 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit a5455c9159414748bed4678184bf69989a4f7ba3 ]
+[ Upstream commit a968b5e9d5879f9535d6099505f9e14abcafb623 ]
 
-Fix off-by-one while iterating current_limits array.
-The valid index should be 0 ~ n_current_limits -1.
+RGMII_ID specifies that we should have internal delay, so resurrect the
+delay addition routine but under the RGMII_ID mode.
 
-Fixes: c90456e36d9c ("regulator: pv88090: new regulator driver")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 40269aa9f40a ("net: dsa: qca8k: disable delay for RGMII mode")
+Tested-by: Michal Vokáč <michal.vokac@ysoft.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pv88090-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/qca8k.c | 12 ++++++++++++
+ drivers/net/dsa/qca8k.h |  1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/drivers/regulator/pv88090-regulator.c b/drivers/regulator/pv88090-regulator.c
-index 7a0c15957bd0b..2302b0df7630f 100644
---- a/drivers/regulator/pv88090-regulator.c
-+++ b/drivers/regulator/pv88090-regulator.c
-@@ -157,7 +157,7 @@ static int pv88090_set_current_limit(struct regulator_dev *rdev, int min,
- 	int i;
- 
- 	/* search for closest to maximum */
--	for (i = info->n_current_limits; i >= 0; i--) {
-+	for (i = info->n_current_limits - 1; i >= 0; i--) {
- 		if (min <= info->current_limits[i]
- 			&& max >= info->current_limits[i]) {
- 			return regmap_update_bits(rdev->regmap,
+diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
+index 8e49974ffa0ed..8ee59b20b47a3 100644
+--- a/drivers/net/dsa/qca8k.c
++++ b/drivers/net/dsa/qca8k.c
+@@ -459,6 +459,18 @@ qca8k_set_pad_ctrl(struct qca8k_priv *priv, int port, int mode)
+ 		qca8k_write(priv, QCA8K_REG_PORT5_PAD_CTRL,
+ 			    QCA8K_PORT_PAD_RGMII_RX_DELAY_EN);
+ 		break;
++	case PHY_INTERFACE_MODE_RGMII_ID:
++		/* RGMII_ID needs internal delay. This is enabled through
++		 * PORT5_PAD_CTRL for all ports, rather than individual port
++		 * registers
++		 */
++		qca8k_write(priv, reg,
++			    QCA8K_PORT_PAD_RGMII_EN |
++			    QCA8K_PORT_PAD_RGMII_TX_DELAY(QCA8K_MAX_DELAY) |
++			    QCA8K_PORT_PAD_RGMII_RX_DELAY(QCA8K_MAX_DELAY));
++		qca8k_write(priv, QCA8K_REG_PORT5_PAD_CTRL,
++			    QCA8K_PORT_PAD_RGMII_RX_DELAY_EN);
++		break;
+ 	case PHY_INTERFACE_MODE_SGMII:
+ 		qca8k_write(priv, reg, QCA8K_PORT_PAD_SGMII_EN);
+ 		break;
+diff --git a/drivers/net/dsa/qca8k.h b/drivers/net/dsa/qca8k.h
+index 613fe5c50236c..d146e54c8a6c6 100644
+--- a/drivers/net/dsa/qca8k.h
++++ b/drivers/net/dsa/qca8k.h
+@@ -40,6 +40,7 @@
+ 						((0x8 + (x & 0x3)) << 22)
+ #define   QCA8K_PORT_PAD_RGMII_RX_DELAY(x)		\
+ 						((0x10 + (x & 0x3)) << 20)
++#define   QCA8K_MAX_DELAY				3
+ #define   QCA8K_PORT_PAD_RGMII_RX_DELAY_EN		BIT(24)
+ #define   QCA8K_PORT_PAD_SGMII_EN			BIT(7)
+ #define QCA8K_REG_MODULE_EN				0x030
 -- 
 2.20.1
 
