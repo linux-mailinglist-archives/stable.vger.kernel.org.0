@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E143414823C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:26:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FFE148253
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:27:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389114AbgAXL0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:26:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41020 "EHLO mail.kernel.org"
+        id S2388295AbgAXL1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:27:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389067AbgAXL0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:26:21 -0500
+        id S2391616AbgAXL1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:27:00 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA603214DB;
-        Fri, 24 Jan 2020 11:26:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E1DB20718;
+        Fri, 24 Jan 2020 11:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865180;
-        bh=T0mzEV+4ZsVAtAF6AQldWRssemw0q4CFwKiOKgIDE0w=;
+        s=default; t=1579865220;
+        bh=gTCTS9YOo2/EycsK2DHyJOhnQ/fkQKKNu4+lHyMCmg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NC5xsKLW0JKPMhL431uGgUYjEDPRqXzcj6qDIJYARTveFaoE0iZE3zCkvFtMBhLYB
-         NwMKZKdSXXpgtSFcmqn2g0c4jZ4HvdKEIPg7mW46Ffwm5Pac99Zvmnl4LquSMbPKV3
-         QyoHbhsv1DwtA9WCt36/J/dr6qZTDoKisVhL6wbk=
+        b=nXLxwFYy7h0SIQiTfKMlHxWKcQ9RwfFAOkW95ZrF8/ki+fduG+cPdTbA/OI3WyPwz
+         FQ0Ws0VihFUxkZ39IamTnyxQOI+uYUOkcFMaDlFwvQrXqwHHrjjw9nsa0XmIMnQkU7
+         j1xzvt4aN54Pc7DT2BN5fKyjpQc+FsocfZo/pu1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 475/639] x86/pgtable/32: Fix LOWMEM_PAGES constant
-Date:   Fri, 24 Jan 2020 10:30:45 +0100
-Message-Id: <20200124093147.503511029@linuxfoundation.org>
+Subject: [PATCH 4.19 478/639] scsi: libfc: fix null pointer dereference on a null lport
+Date:   Fri, 24 Jan 2020 10:30:48 +0100
+Message-Id: <20200124093148.013849932@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,45 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 26515699863d68058e290e18e83f444925920be5 ]
+[ Upstream commit 41a6bf6529edd10a6def42e3b2c34a7474bcc2f5 ]
 
-clang points out that the computation of LOWMEM_PAGES causes a signed
-integer overflow on 32-bit x86:
+Currently if lport is null then the null lport pointer is dereference when
+printing out debug via the FC_LPORT_DB macro. Fix this by using the more
+generic FC_LIBFC_DBG debug macro instead that does not use lport.
 
-arch/x86/kernel/head32.c:83:20: error: signed shift result (0x100000000) requires 34 bits to represent, but 'int' only has 32 bits [-Werror,-Wshift-overflow]
-                (PAGE_TABLE_SIZE(LOWMEM_PAGES) << PAGE_SHIFT);
-                                 ^~~~~~~~~~~~
-arch/x86/include/asm/pgtable_32.h:109:27: note: expanded from macro 'LOWMEM_PAGES'
- #define LOWMEM_PAGES ((((2<<31) - __PAGE_OFFSET) >> PAGE_SHIFT))
-                         ~^ ~~
-arch/x86/include/asm/pgtable_32.h:98:34: note: expanded from macro 'PAGE_TABLE_SIZE'
- #define PAGE_TABLE_SIZE(pages) ((pages) / PTRS_PER_PGD)
-
-Use the _ULL() macro to make it a 64-bit constant.
-
-Fixes: 1e620f9b23e5 ("x86/boot/32: Convert the 32-bit pgtable setup code from assembly to C")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190710130522.1802800-1-arnd@arndb.de
+Addresses-Coverity: ("Dereference after null check")
+Fixes: 7414705ea4ae ("libfc: Add runtime debugging with debug_logging module parameter")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/pgtable_32.h | 2 +-
+ drivers/scsi/libfc/fc_exch.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/pgtable_32.h b/arch/x86/include/asm/pgtable_32.h
-index b3ec519e39827..71e1df8601765 100644
---- a/arch/x86/include/asm/pgtable_32.h
-+++ b/arch/x86/include/asm/pgtable_32.h
-@@ -106,6 +106,6 @@ do {						\
-  * with only a host target support using a 32-bit type for internal
-  * representation.
-  */
--#define LOWMEM_PAGES ((((2<<31) - __PAGE_OFFSET) >> PAGE_SHIFT))
-+#define LOWMEM_PAGES ((((_ULL(2)<<31) - __PAGE_OFFSET) >> PAGE_SHIFT))
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 42bcf7f3a0f90..6ba257cbc6d94 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -2603,7 +2603,7 @@ void fc_exch_recv(struct fc_lport *lport, struct fc_frame *fp)
  
- #endif /* _ASM_X86_PGTABLE_32_H */
+ 	/* lport lock ? */
+ 	if (!lport || lport->state == LPORT_ST_DISABLED) {
+-		FC_LPORT_DBG(lport, "Receiving frames for an lport that "
++		FC_LIBFC_DBG("Receiving frames for an lport that "
+ 			     "has not been initialized correctly\n");
+ 		fc_frame_free(fp);
+ 		return;
 -- 
 2.20.1
 
