@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 472A6148254
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97C25148257
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:27:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391502AbgAXL1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:27:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42320 "EHLO mail.kernel.org"
+        id S2389542AbgAXL1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:27:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388367AbgAXL1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:27:04 -0500
+        id S2388423AbgAXL1K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:27:10 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B84B920718;
-        Fri, 24 Jan 2020 11:27:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E0B220718;
+        Fri, 24 Jan 2020 11:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865223;
-        bh=IwRh4MwwKbEAJczjkT6p7Y8EFA00nRALELVHg28Gjt8=;
+        s=default; t=1579865229;
+        bh=8lXkaBFiTdPgjwQ++No6cXoW17Z8A6bKUkuAlyV/ENk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+rhuEaaJHSugA+wgu+JzT+yAkVUho6aQe7EBUq2c32Gvlh614T0g9NP8ybDe/Tld
-         X+4usQlWmjU9yIZIKwQfZ0XzjGVmfEKN9NTIicnw9ENbYUSK+izjJACbiTnCjY9a0y
-         WuVlI5jyNR1r/obdG8eSI5BKKP91I0RKlf5GL9ko=
+        b=SU9q5ZF3/Gql/LybDaLe39Ui1+kLXJQHC0tGzofMyririv5fxBTA9GDv/+iJxoZjG
+         e7QI5DtA6J71ZunIInRj6vvrpwrzA7KIWDDfFqlBdiiO8ZT7ebNTS8oPOBtBa72f0A
+         2/uV2XbM3ACzl3NdasI8xJaYLHueSZ0ggv6CYejc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 487/639] mic: avoid statically declaring a struct device.
-Date:   Fri, 24 Jan 2020 10:30:57 +0100
-Message-Id: <20200124093149.727225270@linuxfoundation.org>
+Subject: [PATCH 4.19 489/639] crypto: ccp - Reduce maximum stack usage
+Date:   Fri, 24 Jan 2020 10:30:59 +0100
+Message-Id: <20200124093149.976539091@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,114 +46,174 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit bc83f79bd2119230888fb8574639d5a51b38f903 ]
+[ Upstream commit 72c8117adfced37df101c8c0b3f363e0906f83f0 ]
 
-Generally, declaring a platform device as a static variable is
-a bad idea and can cause all kinds of problems, in particular
-with the DMA configuration and lifetime rules.
+Each of the operations in ccp_run_cmd() needs several hundred
+bytes of kernel stack. Depending on the inlining, these may
+need separate stack slots that add up to more than the warning
+limit, as shown in this clang based build:
 
-A specific problem we hit here is from a bug in clang that warns
-about certain (otherwise valid) macros when used in static variables:
+drivers/crypto/ccp/ccp-ops.c:871:12: error: stack frame size of 1164 bytes in function 'ccp_run_aes_cmd' [-Werror,-Wframe-larger-than=]
+static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
 
-drivers/misc/mic/card/mic_x100.c:285:27: warning: shift count >= width of type [-Wshift-count-overflow]
-static u64 mic_dma_mask = DMA_BIT_MASK(64);
-                          ^~~~~~~~~~~~~~~~
-include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
- #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                     ^ ~~~
+The problem may also happen when there is no warning, e.g. in the
+ccp_run_cmd()->ccp_run_aes_cmd()->ccp_run_aes_gcm_cmd() call chain with
+over 2000 bytes.
 
-A slightly better way here is to create the platform device dynamically
-and set the dma mask in the probe function.
-This avoids the warning and some other problems, but is still not ideal
-because the device creation should really be separated from the driver,
-and the fact that the device has no parent means we have to force
-the dma mask rather than having it set up from the bus that the device
-is actually on.
+Mark each individual function as 'noinline_for_stack' to prevent
+this from happening, and move the calls to the two special cases for aes
+into the top-level function. This will keep the actual combined stack
+usage to the mimimum: 828 bytes for ccp_run_aes_gcm_cmd() and
+at most 524 bytes for each of the other cases.
 
-Fixes: dd8d8d44df64 ("misc: mic: MIC card driver specific changes to enable SCIF")
+Fixes: 63b945091a07 ("crypto: ccp - CCP device driver and interface support")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190712092426.872625-1-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/card/mic_x100.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ drivers/crypto/ccp/ccp-ops.c | 52 +++++++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/misc/mic/card/mic_x100.c b/drivers/misc/mic/card/mic_x100.c
-index b9f0710ffa6b0..4007adc666f37 100644
---- a/drivers/misc/mic/card/mic_x100.c
-+++ b/drivers/misc/mic/card/mic_x100.c
-@@ -249,6 +249,9 @@ static int __init mic_probe(struct platform_device *pdev)
- 	mdrv->dev = &pdev->dev;
- 	snprintf(mdrv->name, sizeof(mic_driver_name), mic_driver_name);
- 
-+	/* FIXME: use dma_set_mask_and_coherent() and check result */
-+	dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
-+
- 	mdev->mmio.pa = MIC_X100_MMIO_BASE;
- 	mdev->mmio.len = MIC_X100_MMIO_LEN;
- 	mdev->mmio.va = devm_ioremap(&pdev->dev, MIC_X100_MMIO_BASE,
-@@ -294,18 +297,6 @@ static void mic_platform_shutdown(struct platform_device *pdev)
- 	mic_remove(pdev);
+diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
+index 4b48b8523a40c..330853a2702f0 100644
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -458,8 +458,8 @@ static int ccp_copy_from_sb(struct ccp_cmd_queue *cmd_q,
+ 	return ccp_copy_to_from_sb(cmd_q, wa, jobid, sb, byte_swap, true);
  }
  
--static u64 mic_dma_mask = DMA_BIT_MASK(64);
--
--static struct platform_device mic_platform_dev = {
--	.name = mic_driver_name,
--	.id   = 0,
--	.num_resources = 0,
--	.dev = {
--		.dma_mask = &mic_dma_mask,
--		.coherent_dma_mask = DMA_BIT_MASK(64),
--	},
--};
--
- static struct platform_driver __refdata mic_platform_driver = {
- 	.probe = mic_probe,
- 	.remove = mic_remove,
-@@ -315,6 +306,8 @@ static struct platform_driver __refdata mic_platform_driver = {
- 	},
- };
- 
-+static struct platform_device *mic_platform_dev;
-+
- static int __init mic_init(void)
+-static int ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q,
+-				struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
  {
- 	int ret;
-@@ -328,9 +321,12 @@ static int __init mic_init(void)
- 
- 	request_module("mic_x100_dma");
- 	mic_init_card_debugfs();
--	ret = platform_device_register(&mic_platform_dev);
-+
-+	mic_platform_dev = platform_device_register_simple(mic_driver_name,
-+							   0, NULL, 0);
-+	ret = PTR_ERR_OR_ZERO(mic_platform_dev);
- 	if (ret) {
--		pr_err("platform_device_register ret %d\n", ret);
-+		pr_err("platform_device_register_full ret %d\n", ret);
- 		goto cleanup_debugfs;
- 	}
- 	ret = platform_driver_register(&mic_platform_driver);
-@@ -341,7 +337,7 @@ static int __init mic_init(void)
+ 	struct ccp_aes_engine *aes = &cmd->u.aes;
+ 	struct ccp_dm_workarea key, ctx;
+@@ -614,8 +614,8 @@ e_key:
  	return ret;
- 
- device_unregister:
--	platform_device_unregister(&mic_platform_dev);
-+	platform_device_unregister(mic_platform_dev);
- cleanup_debugfs:
- 	mic_exit_card_debugfs();
- done:
-@@ -351,7 +347,7 @@ done:
- static void __exit mic_exit(void)
- {
- 	platform_driver_unregister(&mic_platform_driver);
--	platform_device_unregister(&mic_platform_dev);
-+	platform_device_unregister(mic_platform_dev);
- 	mic_exit_card_debugfs();
  }
  
+-static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
+-			       struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_aes_engine *aes = &cmd->u.aes;
+ 	struct ccp_dm_workarea key, ctx, final_wa, tag;
+@@ -897,7 +897,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_aes_engine *aes = &cmd->u.aes;
+ 	struct ccp_dm_workarea key, ctx;
+@@ -907,12 +908,6 @@ static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ 	bool in_place = false;
+ 	int ret;
+ 
+-	if (aes->mode == CCP_AES_MODE_CMAC)
+-		return ccp_run_aes_cmac_cmd(cmd_q, cmd);
+-
+-	if (aes->mode == CCP_AES_MODE_GCM)
+-		return ccp_run_aes_gcm_cmd(cmd_q, cmd);
+-
+ 	if (!((aes->key_len == AES_KEYSIZE_128) ||
+ 	      (aes->key_len == AES_KEYSIZE_192) ||
+ 	      (aes->key_len == AES_KEYSIZE_256)))
+@@ -1080,8 +1075,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q,
+-			       struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_xts_aes_engine *xts = &cmd->u.xts;
+ 	struct ccp_dm_workarea key, ctx;
+@@ -1280,7 +1275,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_des3_engine *des3 = &cmd->u.des3;
+ 
+@@ -1476,7 +1472,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_sha_engine *sha = &cmd->u.sha;
+ 	struct ccp_dm_workarea ctx;
+@@ -1820,7 +1817,8 @@ e_ctx:
+ 	return ret;
+ }
+ 
+-static int ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_rsa_engine *rsa = &cmd->u.rsa;
+ 	struct ccp_dm_workarea exp, src, dst;
+@@ -1951,8 +1949,8 @@ e_sb:
+ 	return ret;
+ }
+ 
+-static int ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q,
+-				struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_passthru_engine *pt = &cmd->u.passthru;
+ 	struct ccp_dm_workarea mask;
+@@ -2083,7 +2081,8 @@ e_mask:
+ 	return ret;
+ }
+ 
+-static int ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
++static noinline_for_stack int
++ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
+ 				      struct ccp_cmd *cmd)
+ {
+ 	struct ccp_passthru_nomap_engine *pt = &cmd->u.passthru_nomap;
+@@ -2424,7 +2423,8 @@ e_src:
+ 	return ret;
+ }
+ 
+-static int ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_ecc_engine *ecc = &cmd->u.ecc;
+ 
+@@ -2461,7 +2461,17 @@ int ccp_run_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ 
+ 	switch (cmd->engine) {
+ 	case CCP_ENGINE_AES:
+-		ret = ccp_run_aes_cmd(cmd_q, cmd);
++		switch (cmd->u.aes.mode) {
++		case CCP_AES_MODE_CMAC:
++			ret = ccp_run_aes_cmac_cmd(cmd_q, cmd);
++			break;
++		case CCP_AES_MODE_GCM:
++			ret = ccp_run_aes_gcm_cmd(cmd_q, cmd);
++			break;
++		default:
++			ret = ccp_run_aes_cmd(cmd_q, cmd);
++			break;
++		}
+ 		break;
+ 	case CCP_ENGINE_XTS_AES_128:
+ 		ret = ccp_run_xts_aes_cmd(cmd_q, cmd);
 -- 
 2.20.1
 
