@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0031480A3
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:13:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC071480A6
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389498AbgAXLNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:13:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49286 "EHLO mail.kernel.org"
+        id S2388885AbgAXLNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:13:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389259AbgAXLM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:12:57 -0500
+        id S2390031AbgAXLNN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:13:13 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9649B20708;
-        Fri, 24 Jan 2020 11:12:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FE842075D;
+        Fri, 24 Jan 2020 11:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864376;
-        bh=rfAtS0wJtWOOaABkLkKp4LsyZFU2C66sqgJerb65tfg=;
+        s=default; t=1579864392;
+        bh=ruJhuPX5YT8xB86h9cdA6e549MQ5UbUT38xZLIPdo6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBVhjOgSLZ4Md+Ws8hap0V54PRsmpFHU4u4XOVJ/8rhZ3rMv3DHUqXbSdJ9XKlfuU
-         CdJZfI2Tc5r/O7OXPDBbS0rcOE0uVeGLo5fB2qVH+4hUIibyKVHMoFEabZGJRuJECC
-         TUG7QkxPLLLCSwmdZ/u+l9eDekv3BinWdQuik5to=
+        b=PAMz/MBKGos5BOtiVV3kDzpnkTWmKnGOzeo+i+RoR6amHL5KGxzBi1OaCTl4jAk+M
+         s4y7FzsvySxendJcWetMrygAfBEOz6Wq0U0brv3pSxan0DZogbrLGoPeGv5GAUsECk
+         kqs470qNmfC3c2rcy8dNh5q1+qJUUS2W3A7YN6Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolas Pitre <nico@linaro.org>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 236/639] ARM: 8847/1: pm: fix HYP/SVC mode mismatch when MCPM is used
-Date:   Fri, 24 Jan 2020 10:26:46 +0100
-Message-Id: <20200124093116.385619902@linuxfoundation.org>
+Subject: [PATCH 4.19 239/639] regulator: wm831x-dcdc: Fix list of wm831x_dcdc_ilim from mA to uA
+Date:   Fri, 24 Jan 2020 10:26:49 +0100
+Message-Id: <20200124093116.767993908@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,95 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit ca70ea43f80c98582f5ffbbd1e6f4da2742da0c4 ]
+[ Upstream commit c25d47888f0fb3d836d68322d4aea2caf31a75a6 ]
 
-MCPM does a soft reset of the CPUs and uses common cpu_resume() routine to
-perform low-level platform initialization. This results in a try to install
-HYP stubs for the second time for each CPU and results in false HYP/SVC
-mode mismatch detection. The HYP stubs are already installed at the
-beginning of the kernel initialization on the boot CPU (head.S) or in the
-secondary_startup() for other CPUs. To fix this issue MCPM code should use
-a cpu_resume() routine without HYP stubs installation.
+The wm831x_dcdc_ilim entries needs to be uA because it is used to compare
+with min_uA and max_uA.
+While at it also make the array const and change to use unsigned int.
 
-This change fixes HYP/SVC mode mismatch on Samsung Exynos5422-based Odroid
-XU3/XU4/HC1 boards.
-
-Fixes: 3721924c8154 ("ARM: 8081/1: MCPM: provide infrastructure to allow for MCPM loopback")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Tested-by: Anand Moon <linux.amoon@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: e4ee831f949a ("regulator: Add WM831x DC-DC buck convertor support")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/common/mcpm_entry.c   |  2 +-
- arch/arm/include/asm/suspend.h |  1 +
- arch/arm/kernel/sleep.S        | 12 ++++++++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/regulator/wm831x-dcdc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/common/mcpm_entry.c b/arch/arm/common/mcpm_entry.c
-index ad574d20415c2..1b1b82b37ce03 100644
---- a/arch/arm/common/mcpm_entry.c
-+++ b/arch/arm/common/mcpm_entry.c
-@@ -381,7 +381,7 @@ static int __init nocache_trampoline(unsigned long _arg)
- 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
- 	phys_reset_t phys_reset;
+diff --git a/drivers/regulator/wm831x-dcdc.c b/drivers/regulator/wm831x-dcdc.c
+index 5a5bc4bb08d26..df591435d12a3 100644
+--- a/drivers/regulator/wm831x-dcdc.c
++++ b/drivers/regulator/wm831x-dcdc.c
+@@ -327,8 +327,8 @@ static int wm831x_buckv_get_voltage_sel(struct regulator_dev *rdev)
+ }
  
--	mcpm_set_entry_vector(cpu, cluster, cpu_resume);
-+	mcpm_set_entry_vector(cpu, cluster, cpu_resume_no_hyp);
- 	setup_mm_for_reboot();
- 
- 	__mcpm_cpu_going_down(cpu, cluster);
-diff --git a/arch/arm/include/asm/suspend.h b/arch/arm/include/asm/suspend.h
-index 452bbdcbcc835..506314265c6f1 100644
---- a/arch/arm/include/asm/suspend.h
-+++ b/arch/arm/include/asm/suspend.h
-@@ -10,6 +10,7 @@ struct sleep_save_sp {
+ /* Current limit options */
+-static u16 wm831x_dcdc_ilim[] = {
+-	125, 250, 375, 500, 625, 750, 875, 1000
++static const unsigned int wm831x_dcdc_ilim[] = {
++	125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000
  };
  
- extern void cpu_resume(void);
-+extern void cpu_resume_no_hyp(void);
- extern void cpu_resume_arm(void);
- extern int cpu_suspend(unsigned long, int (*)(unsigned long));
- 
-diff --git a/arch/arm/kernel/sleep.S b/arch/arm/kernel/sleep.S
-index a8257fc9cf2a9..5dc8b80bb6938 100644
---- a/arch/arm/kernel/sleep.S
-+++ b/arch/arm/kernel/sleep.S
-@@ -120,6 +120,14 @@ ENDPROC(cpu_resume_after_mmu)
- 	.text
- 	.align
- 
-+#ifdef CONFIG_MCPM
-+	.arm
-+THUMB(	.thumb			)
-+ENTRY(cpu_resume_no_hyp)
-+ARM_BE8(setend be)			@ ensure we are in BE mode
-+	b	no_hyp
-+#endif
-+
- #ifdef CONFIG_MMU
- 	.arm
- ENTRY(cpu_resume_arm)
-@@ -135,6 +143,7 @@ ARM_BE8(setend be)			@ ensure we are in BE mode
- 	bl	__hyp_stub_install_secondary
- #endif
- 	safe_svcmode_maskall r1
-+no_hyp:
- 	mov	r1, #0
- 	ALT_SMP(mrc p15, 0, r0, c0, c0, 5)
- 	ALT_UP_B(1f)
-@@ -163,6 +172,9 @@ ENDPROC(cpu_resume)
- 
- #ifdef CONFIG_MMU
- ENDPROC(cpu_resume_arm)
-+#endif
-+#ifdef CONFIG_MCPM
-+ENDPROC(cpu_resume_no_hyp)
- #endif
- 
- 	.align 2
+ static int wm831x_buckv_set_current_limit(struct regulator_dev *rdev,
 -- 
 2.20.1
 
