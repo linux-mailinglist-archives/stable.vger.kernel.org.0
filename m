@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D8D5148093
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:12:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CABFF14809E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388374AbgAXLM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:12:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48766 "EHLO mail.kernel.org"
+        id S2388696AbgAXLMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:12:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389989AbgAXLM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:12:27 -0500
+        id S1732925AbgAXLMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:12:47 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A6F620663;
-        Fri, 24 Jan 2020 11:12:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1C7F2077C;
+        Fri, 24 Jan 2020 11:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864346;
-        bh=jzdAnmJhqZAwFDofb0u3FOnieuJfpHmP2aP980ZkB9w=;
+        s=default; t=1579864367;
+        bh=Q3mESUXUhBBdKU3NQ32ZC/6o2RFPDyned+9barBgp4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6t1+KT1LfOmpuxyurbEb9CRn0rFu0RoZILW5SuirzEs+JLisRT+Wev7GCq7/mZjj
-         9Y8JJ6MxArt/4pKZJKSyZtsfl6zUnFnekks1l/1AiHaWOKJ0TEDaHJe8BLsXDaiaGi
-         b8Iznsyfl0FTnPqT6vf5a5OW7FZj+mg9mnNUITXc=
+        b=X0zZ1sMdLevs0b5VBZXIuz7ADYVQ9NJCJS87zsK2JYfD3tAjPRmb9wuO16d3ZYwW/
+         tSg8ytZ2AG00eQVX9n24Sgy+A1klnvd77eMscbWFp11Kicr1/m9TL+9GXSHIAuqK0w
+         I9U03wKDWjRiCiA39ftXz4Hd4hwrcMgi6sLesV9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 233/639] NFS/pnfs: Bulk destroy of layouts needs to be safe w.r.t. umount
-Date:   Fri, 24 Jan 2020 10:26:43 +0100
-Message-Id: <20200124093116.029927375@linuxfoundation.org>
+Subject: [PATCH 4.19 234/639] mmc: sdhci-brcmstb: handle mmc_of_parse() errors during probe
+Date:   Fri, 24 Jan 2020 10:26:44 +0100
+Message-Id: <20200124093116.144901150@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,92 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 5085607d209102b37b169bc94d0aa39566a9842a ]
+[ Upstream commit 1e20186e706da8446f9435f2924cd65ab1397e73 ]
 
-If a bulk layout recall or a metadata server reboot coincides with a
-umount, then holding a reference to an inode is unsafe unless we
-also hold a reference to the super block.
+We need to handle mmc_of_parse() errors during probe otherwise the
+MMC driver could start without proper initialization (e.g. power sequence).
 
-Fixes: fd9a8d7160937 ("NFSv4.1: Fix bulk recall and destroy of layouts")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 476bf3d62d5c ("mmc: sdhci-brcmstb: Add driver for Broadcom BRCMSTB SoCs")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c | 33 +++++++++++++++++++++++----------
- fs/nfs/pnfs.h |  1 +
- 2 files changed, 24 insertions(+), 10 deletions(-)
+ drivers/mmc/host/sdhci-brcmstb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index c818f9886f618..66f699e18755c 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -758,22 +758,35 @@ static int
- pnfs_layout_bulk_destroy_byserver_locked(struct nfs_client *clp,
- 		struct nfs_server *server,
- 		struct list_head *layout_list)
-+	__must_hold(&clp->cl_lock)
-+	__must_hold(RCU)
- {
- 	struct pnfs_layout_hdr *lo, *next;
- 	struct inode *inode;
- 
- 	list_for_each_entry_safe(lo, next, &server->layouts, plh_layouts) {
--		if (test_bit(NFS_LAYOUT_INVALID_STID, &lo->plh_flags))
-+		if (test_bit(NFS_LAYOUT_INVALID_STID, &lo->plh_flags) ||
-+		    test_bit(NFS_LAYOUT_INODE_FREEING, &lo->plh_flags) ||
-+		    !list_empty(&lo->plh_bulk_destroy))
- 			continue;
-+		/* If the sb is being destroyed, just bail */
-+		if (!nfs_sb_active(server->super))
-+			break;
- 		inode = igrab(lo->plh_inode);
--		if (inode == NULL)
--			continue;
--		list_del_init(&lo->plh_layouts);
--		if (pnfs_layout_add_bulk_destroy_list(inode, layout_list))
--			continue;
--		rcu_read_unlock();
--		spin_unlock(&clp->cl_lock);
--		iput(inode);
-+		if (inode != NULL) {
-+			list_del_init(&lo->plh_layouts);
-+			if (pnfs_layout_add_bulk_destroy_list(inode,
-+						layout_list))
-+				continue;
-+			rcu_read_unlock();
-+			spin_unlock(&clp->cl_lock);
-+			iput(inode);
-+		} else {
-+			rcu_read_unlock();
-+			spin_unlock(&clp->cl_lock);
-+			set_bit(NFS_LAYOUT_INODE_FREEING, &lo->plh_flags);
-+		}
-+		nfs_sb_deactive(server->super);
- 		spin_lock(&clp->cl_lock);
- 		rcu_read_lock();
- 		return -EAGAIN;
-@@ -811,7 +824,7 @@ pnfs_layout_free_bulk_destroy_list(struct list_head *layout_list,
- 		/* Free all lsegs that are attached to commit buckets */
- 		nfs_commit_inode(inode, 0);
- 		pnfs_put_layout_hdr(lo);
--		iput(inode);
-+		nfs_iput_and_deactive(inode);
+diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
+index 552bddc5096ce..1cd10356fc14f 100644
+--- a/drivers/mmc/host/sdhci-brcmstb.c
++++ b/drivers/mmc/host/sdhci-brcmstb.c
+@@ -55,7 +55,9 @@ static int sdhci_brcmstb_probe(struct platform_device *pdev)
  	}
- 	return ret;
- }
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index ece367ebde692..3ba44819a88ae 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -104,6 +104,7 @@ enum {
- 	NFS_LAYOUT_RETURN_REQUESTED,	/* Return this layout ASAP */
- 	NFS_LAYOUT_INVALID_STID,	/* layout stateid id is invalid */
- 	NFS_LAYOUT_FIRST_LAYOUTGET,	/* Serialize first layoutget */
-+	NFS_LAYOUT_INODE_FREEING,	/* The inode is being freed */
- };
  
- enum layoutdriver_policy_flags {
+ 	sdhci_get_of_property(pdev);
+-	mmc_of_parse(host->mmc);
++	res = mmc_of_parse(host->mmc);
++	if (res)
++		goto err;
+ 
+ 	/*
+ 	 * Supply the existing CAPS, but clear the UHS modes. This
 -- 
 2.20.1
 
