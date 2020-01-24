@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF83B147680
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 092BE14767A
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729388AbgAXBUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:20:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60550 "EHLO mail.kernel.org"
+        id S1730523AbgAXBRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730480AbgAXBRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:30 -0500
+        id S1730511AbgAXBRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D101E24125;
-        Fri, 24 Jan 2020 01:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15D7B2071E;
+        Fri, 24 Jan 2020 01:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828649;
-        bh=WYPDK5cm9HmuZ3ULm+770FTcNMJYJDWL+36DjqaSXy4=;
+        s=default; t=1579828650;
+        bh=g5WpGPKoyfEqCm6F7JEqL0fGq3xpDnVGuTwzVQXbujM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhcU0Lq2b6Lq04u8xPmu/OCi4JUwFfcwfdVxIUrFmBww9kEYB+GlZjfrTzEZ9omn5
-         bRQcpYLDyJHbO3XUnfD9HIBrlM7PFuwnDGnoofI+xSB0gnYlqoJaN9kVTU+S/YK3E4
-         2WDVHwKJaRMykj5ded8KrbMpUhPI9BiKQi+TTFkc=
+        b=KoFXWORmZpucT7W0C+TThyFP2WJEruKnM1hLDc0gqROVrN7gkdrmh1oLOgjPTylSv
+         AovRhcz7iuLA2XcASXIASIDAHeqoFtJa6ahYnXLTuwy302CVDlGGW7of39bmM0RmDf
+         NpSDJEU4oO+/v3dgMovhbwe1WVwi5lroGMRDrHIY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joel Stanley <joel@jms.id.au>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 18/33] ARM: config: aspeed-g5: Enable 8250_DW quirks
-Date:   Thu, 23 Jan 2020 20:16:53 -0500
-Message-Id: <20200124011708.18232-18-sashal@kernel.org>
+Cc:     Ben Dooks <ben.dooks@codethink.co.uk>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 19/33] ARM: OMAP2+: SmartReflex: add omap_sr_pdata definition
+Date:   Thu, 23 Jan 2020 20:16:54 -0500
+Message-Id: <20200124011708.18232-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,33 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-[ Upstream commit a5331a7a87ec81d5228b7421acf831b2d0c0de26 ]
+[ Upstream commit 2079fe6ea8cbd2fb2fbadba911f1eca6c362eb9b ]
 
-This driver option is used by the AST2600 A0 boards to work around a
-hardware issue.
+The omap_sr_pdata is not declared but is exported, so add a
+define for it to fix the following warning:
 
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+arch/arm/mach-omap2/pdata-quirks.c:609:36: warning: symbol 'omap_sr_pdata' was not declared. Should it be static?
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/aspeed_g5_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/power/smartreflex.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/configs/aspeed_g5_defconfig b/arch/arm/configs/aspeed_g5_defconfig
-index 597536cc9573d..b87508c7056c9 100644
---- a/arch/arm/configs/aspeed_g5_defconfig
-+++ b/arch/arm/configs/aspeed_g5_defconfig
-@@ -139,6 +139,7 @@ CONFIG_SERIAL_8250_RUNTIME_UARTS=6
- CONFIG_SERIAL_8250_EXTENDED=y
- CONFIG_SERIAL_8250_ASPEED_VUART=y
- CONFIG_SERIAL_8250_SHARE_IRQ=y
-+CONFIG_SERIAL_8250_DW=y
- CONFIG_SERIAL_OF_PLATFORM=y
- CONFIG_ASPEED_KCS_IPMI_BMC=y
- CONFIG_ASPEED_BT_IPMI_BMC=y
+diff --git a/include/linux/power/smartreflex.h b/include/linux/power/smartreflex.h
+index d0b37e9370372..971c9264179ee 100644
+--- a/include/linux/power/smartreflex.h
++++ b/include/linux/power/smartreflex.h
+@@ -293,6 +293,9 @@ struct omap_sr_data {
+ 	struct voltagedomain		*voltdm;
+ };
+ 
++
++extern struct omap_sr_data omap_sr_pdata[OMAP_SR_NR];
++
+ #ifdef CONFIG_POWER_AVS_OMAP
+ 
+ /* Smartreflex module enable/disable interface */
 -- 
 2.20.1
 
