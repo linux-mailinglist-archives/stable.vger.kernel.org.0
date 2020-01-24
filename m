@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15694148996
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97639148995
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:36:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730038AbgAXOgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:36:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S2391617AbgAXOTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:19:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391505AbgAXOTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:18 -0500
+        id S2391602AbgAXOTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 392092087E;
-        Fri, 24 Jan 2020 14:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C536C21569;
+        Fri, 24 Jan 2020 14:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875557;
-        bh=A/OInvNUnYl3sVuGtrPH4+JUTp1LNDxhwo2rpTolErQ=;
+        s=default; t=1579875564;
+        bh=gHHs2kUz4YcAs+pZE6vf4Iexds6OSisXy+2sGItGX0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wlh2KL9MELg+xhQXq+MVKA7UjGoUkhuzsN7EmxbyKOFRKE0zQ5EmaYAFej4cvQ1EV
-         9nb10uEUT9vhsjordZLylgp+Z22NZZomZB8uc66cSvMuJLuS6v/WHh/PFAHVUOq/7d
-         iHBSg+6W+6CK5Ac453rkOJrVIITlOgAQC9miTbLM=
+        b=cNzIu+hD4oxj75HJP1GHxI9hRxe32dI3HdxrLS5niWFXMcoppu9gUimme4R8FIzlo
+         jzz53zOgTorBC9yzz2rj4c5MVtdGzHKgtQPHcIGdYTy3mo40drB7gunfw2PXYQCT16
+         vngRCyN9jz6mb9mdHJdBKFzLkl1wLDLX8Hqv987c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harry Pan <harry.pan@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 052/107] platform/x86: intel_pmc_core: update Comet Lake platform driver
-Date:   Fri, 24 Jan 2020 09:17:22 -0500
-Message-Id: <20200124141817.28793-52-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 058/107] ASoC: msm8916-wcd-digital: Reset RX interpolation path after use
+Date:   Fri, 24 Jan 2020 09:17:28 -0500
+Message-Id: <20200124141817.28793-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,32 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Pan <harry.pan@intel.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 515ff674bb9bf06186052e352c4587dab8defaf0 ]
+[ Upstream commit 85578bbd642f65065039b1765ebe1a867d5435b0 ]
 
-Adding new CML CPU model ID into platform driver support list.
+For some reason, attempting to route audio through QDSP6 on MSM8916
+causes the RX interpolation path to get "stuck" after playing audio
+a few times. In this situation, the analog codec part is still working,
+but the RX path in the digital codec stops working, so you only hear
+the analog parts powering up. After a reboot everything works again.
 
-Signed-off-by: Harry Pan <harry.pan@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+So far I was not able to reproduce the problem when using lpass-cpu.
+
+The downstream kernel driver avoids this by resetting the RX
+interpolation path after use. In mainline we do something similar
+for the TX decimator (LPASS_CDC_CLK_TX_RESET_B1_CTL), but the
+interpolator reset (LPASS_CDC_CLK_RX_RESET_CTL) got lost when the
+msm8916-wcd driver was split into analog and digital.
+
+Fix this problem by adding the reset to
+msm8916_wcd_digital_enable_interpolator().
+
+Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200105102753.83108-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core_pltdrv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/msm8916-wcd-digital.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/platform/x86/intel_pmc_core_pltdrv.c b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-index 6fe829f30997d..e1266f5c63593 100644
---- a/drivers/platform/x86/intel_pmc_core_pltdrv.c
-+++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-@@ -44,6 +44,8 @@ static const struct x86_cpu_id intel_pmc_core_platform_ids[] = {
- 	INTEL_CPU_FAM6(KABYLAKE, pmc_core_device),
- 	INTEL_CPU_FAM6(CANNONLAKE_L, pmc_core_device),
- 	INTEL_CPU_FAM6(ICELAKE_L, pmc_core_device),
-+	INTEL_CPU_FAM6(COMETLAKE, pmc_core_device),
-+	INTEL_CPU_FAM6(COMETLAKE_L, pmc_core_device),
- 	{}
- };
- MODULE_DEVICE_TABLE(x86cpu, intel_pmc_core_platform_ids);
+diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
+index 58b2468fb2a71..09fccacadd6b1 100644
+--- a/sound/soc/codecs/msm8916-wcd-digital.c
++++ b/sound/soc/codecs/msm8916-wcd-digital.c
+@@ -586,6 +586,12 @@ static int msm8916_wcd_digital_enable_interpolator(
+ 		snd_soc_component_write(component, rx_gain_reg[w->shift],
+ 			      snd_soc_component_read32(component, rx_gain_reg[w->shift]));
+ 		break;
++	case SND_SOC_DAPM_POST_PMD:
++		snd_soc_component_update_bits(component, LPASS_CDC_CLK_RX_RESET_CTL,
++					      1 << w->shift, 1 << w->shift);
++		snd_soc_component_update_bits(component, LPASS_CDC_CLK_RX_RESET_CTL,
++					      1 << w->shift, 0x0);
++		break;
+ 	}
+ 	return 0;
+ }
 -- 
 2.20.1
 
