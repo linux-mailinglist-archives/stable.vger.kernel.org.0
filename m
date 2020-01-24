@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 579B2147DD9
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C1E147DDB
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388719AbgAXKDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:03:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39484 "EHLO mail.kernel.org"
+        id S2388777AbgAXKDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:03:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388615AbgAXKDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:03:38 -0500
+        id S2388615AbgAXKDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:03:42 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 609C2214DB;
-        Fri, 24 Jan 2020 10:03:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DE4020709;
+        Fri, 24 Jan 2020 10:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860218;
-        bh=xVseHo3iC0VmKQwVQd9GVtUh9UlSz4Qgxs9CZ+LjUdU=;
+        s=default; t=1579860221;
+        bh=GoX9mCHo7LLqTjVkaVlK+w8OQeoPLwR2tf9aCWgXBZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrejZw9osSZIrYGb+nNANWUvsyjbYjlcPy3CqFlVHSwAdkzCBQbSgRriSzzhjFSbn
-         4+X+4nbzvD/Fo+fuM+6ftkRZEgl4/XxglZGqQlN/LjFWVBubZ6+aI0jDggD2F1ZDEo
-         ztwBfxBgp1NWhFjuA/70t/FVD0yPVPDUYjupR/5A=
+        b=LPOGyUyzDXGkRUkp2XX7A3NE4HYkJdHQjhhY5SK4uVvfhq3duJDfcq8+d4dzyRU5L
+         SBKbf/8MsriNEw2nKh2o3Tikty22eeOWa0moMxMTTSW4+KYirLyZ5d6hHyumvcOHr7
+         amPU6nszEbcW7a/rrDgZKrd7BPNmXuHViV42ddZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 269/343] ext4: set error return correctly when ext4_htree_store_dirent fails
-Date:   Fri, 24 Jan 2020 10:31:27 +0100
-Message-Id: <20200124092955.347763301@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 270/343] ASoC: es8328: Fix copy-paste error in es8328_right_line_controls
+Date:   Fri, 24 Jan 2020 10:31:28 +0100
+Message-Id: <20200124092955.468346962@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -43,37 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 7a14826ede1d714f0bb56de8167c0e519041eeda ]
+[ Upstream commit 630742c296341a8cfe00dfd941392025ba8dd4e8 ]
 
-Currently when the call to ext4_htree_store_dirent fails the error return
-variable 'ret' is is not being set to the error code and variable count is
-instead, hence the error code is not being returned.  Fix this by assigning
-ret to the error return code.
+It seems 'es8328_rline_enum' should be used
+in es8328_right_line_controls
 
-Addresses-Coverity: ("Unused value")
-Fixes: 8af0f0822797 ("ext4: fix readdir error in the case of inline_data+dir_index")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 567e4f98922c ("ASoC: add es8328 codec driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20190815092300.68712-1-yuehaibing@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c | 2 +-
+ sound/soc/codecs/es8328.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
-index 137c752ab9853..6064bcb8572b3 100644
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -1425,7 +1425,7 @@ int htree_inlinedir_to_tree(struct file *dir_file,
- 		err = ext4_htree_store_dirent(dir_file, hinfo->hash,
- 					      hinfo->minor_hash, de, &tmp_str);
- 		if (err) {
--			count = err;
-+			ret = err;
- 			goto out;
- 		}
- 		count++;
+diff --git a/sound/soc/codecs/es8328.c b/sound/soc/codecs/es8328.c
+index bcdb8914ec16b..e2f44fa46262d 100644
+--- a/sound/soc/codecs/es8328.c
++++ b/sound/soc/codecs/es8328.c
+@@ -231,7 +231,7 @@ static const struct soc_enum es8328_rline_enum =
+ 			      ARRAY_SIZE(es8328_line_texts),
+ 			      es8328_line_texts);
+ static const struct snd_kcontrol_new es8328_right_line_controls =
+-	SOC_DAPM_ENUM("Route", es8328_lline_enum);
++	SOC_DAPM_ENUM("Route", es8328_rline_enum);
+ 
+ /* Left Mixer */
+ static const struct snd_kcontrol_new es8328_left_mixer_controls[] = {
 -- 
 2.20.1
 
