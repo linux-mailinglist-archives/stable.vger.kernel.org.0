@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A470147C6B
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B58E147C6D
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730613AbgAXJvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:51:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53352 "EHLO mail.kernel.org"
+        id S2387843AbgAXJvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:51:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387843AbgAXJvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:51:50 -0500
+        id S1732431AbgAXJvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:51:53 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B99F5206D5;
-        Fri, 24 Jan 2020 09:51:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21A6C206D5;
+        Fri, 24 Jan 2020 09:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859509;
-        bh=Ltsya09+w8x7dsyysFBQINaYsAo+nNg0ywQVgB0u/iQ=;
+        s=default; t=1579859512;
+        bh=WmT37IdR2XUlVn7d6muDTg88hrjQp4q5NHia6lgWP/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1WFSiz9ahbLEzAY3HXrZ/xRahF5jY4WVdL9+HBEcfMjvMIMQxAFBceCFpKZuFU0u
-         4ImgtG90iglibm2bhhCYHllriWujSirjpJ5L0OEJi8NSYa+vxsr7f84AYKoBaPBY1F
-         v6WZUfCm0kF1IGHg2NB6akYaH39h4ZoaD/FmG3bE=
+        b=gp64Srk3lDGDxFisRacKr4jp/UFz8I+79Qf3hz4fHKeFifdymg4bRqbmkYCXe2jWE
+         HDXWy5145/L0K3eDhrYmI0M4kAjGBeLeezqYZv1/e/sYcZ9IqVgJAO0d1V8tUM/6e5
+         NdsLE2aXmy2SqF8kadqWup+vdu6vmjjoWoslceRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Patrick Lai <plai@codeaurora.org>,
+        Banajit Goswami <bgoswami@codeaurora.org>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/343] drm/nouveau/pmu: dont print reply values if exec is false
-Date:   Fri, 24 Jan 2020 10:28:57 +0100
-Message-Id: <20200124092935.677794757@linuxfoundation.org>
+Subject: [PATCH 4.14 120/343] ASoC: qcom: Fix of-node refcount unbalance in apq8016_sbc_parse_of()
+Date:   Fri, 24 Jan 2020 10:28:58 +0100
+Message-Id: <20200124092935.806502410@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,42 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b1d03fc36ec9834465a08c275c8d563e07f6f6bf ]
+[ Upstream commit 8d1667200850f8753c0265fa4bd25c9a6e5f94ce ]
 
-Currently the uninitialized values in the array reply are printed out
-when exec is false and nvkm_pmu_send has not updated the array. Avoid
-confusion by only dumping out these values if they have been actually
-updated.
+The apq8016 driver leaves the of-node refcount at aborting from the
+loop of for_each_child_of_node() in the error path.  Not only the
+iterator node of for_each_child_of_node(), the children nodes referred
+from it for codec and cpu have to be properly unreferenced.
 
-Detected by CoverityScan, CID#1271291 ("Uninitialized scaler variable")
-Fixes: ebb58dc2ef8c ("drm/nouveau/pmu: rename from pwr (no binary change)")
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Fixes: bdb052e81f62 ("ASoC: qcom: add apq8016 sound card support")
+Cc: Patrick Lai <plai@codeaurora.org>
+Cc: Banajit Goswami <bgoswami@codeaurora.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/memx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/qcom/apq8016_sbc.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/memx.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/memx.c
-index 11b28b086a062..7b052879af728 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/memx.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/memx.c
-@@ -88,10 +88,10 @@ nvkm_memx_fini(struct nvkm_memx **pmemx, bool exec)
- 	if (exec) {
- 		nvkm_pmu_send(pmu, reply, PROC_MEMX, MEMX_MSG_EXEC,
- 			      memx->base, finish);
-+		nvkm_debug(subdev, "Exec took %uns, PMU_IN %08x\n",
-+			   reply[0], reply[1]);
+diff --git a/sound/soc/qcom/apq8016_sbc.c b/sound/soc/qcom/apq8016_sbc.c
+index d49adc822a110..8e6b88d68ca6c 100644
+--- a/sound/soc/qcom/apq8016_sbc.c
++++ b/sound/soc/qcom/apq8016_sbc.c
+@@ -163,41 +163,52 @@ static struct apq8016_sbc_data *apq8016_sbc_parse_of(struct snd_soc_card *card)
+ 
+ 		if (!cpu || !codec) {
+ 			dev_err(dev, "Can't find cpu/codec DT node\n");
+-			return ERR_PTR(-EINVAL);
++			ret = -EINVAL;
++			goto error;
+ 		}
+ 
+ 		link->cpu_of_node = of_parse_phandle(cpu, "sound-dai", 0);
+ 		if (!link->cpu_of_node) {
+ 			dev_err(card->dev, "error getting cpu phandle\n");
+-			return ERR_PTR(-EINVAL);
++			ret = -EINVAL;
++			goto error;
+ 		}
+ 
+ 		ret = snd_soc_of_get_dai_name(cpu, &link->cpu_dai_name);
+ 		if (ret) {
+ 			dev_err(card->dev, "error getting cpu dai name\n");
+-			return ERR_PTR(ret);
++			goto error;
+ 		}
+ 
+ 		ret = snd_soc_of_get_dai_link_codecs(dev, codec, link);
+ 
+ 		if (ret < 0) {
+ 			dev_err(card->dev, "error getting codec dai name\n");
+-			return ERR_PTR(ret);
++			goto error;
+ 		}
+ 
+ 		link->platform_of_node = link->cpu_of_node;
+ 		ret = of_property_read_string(np, "link-name", &link->name);
+ 		if (ret) {
+ 			dev_err(card->dev, "error getting codec dai_link name\n");
+-			return ERR_PTR(ret);
++			goto error;
+ 		}
+ 
+ 		link->stream_name = link->name;
+ 		link->init = apq8016_sbc_dai_init;
+ 		link++;
++
++		of_node_put(cpu);
++		of_node_put(codec);
  	}
  
--	nvkm_debug(subdev, "Exec took %uns, PMU_IN %08x\n",
--		   reply[0], reply[1]);
- 	kfree(memx);
- 	return 0;
+ 	return data;
++
++ error:
++	of_node_put(np);
++	of_node_put(cpu);
++	of_node_put(codec);
++	return ERR_PTR(ret);
  }
+ 
+ static const struct snd_soc_dapm_widget apq8016_sbc_dapm_widgets[] = {
 -- 
 2.20.1
 
