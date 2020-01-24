@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 316361483B3
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A76148402
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391217AbgAXLWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:22:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
+        id S1732311AbgAXLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:39:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391195AbgAXLWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:22:35 -0500
+        id S2390938AbgAXLYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:24:01 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5633421734;
-        Fri, 24 Jan 2020 11:22:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EECA206D4;
+        Fri, 24 Jan 2020 11:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864955;
-        bh=mnyOWLBsYbLfQOJrZHW2nL4dpxO5wzds49ESsint1EE=;
+        s=default; t=1579865040;
+        bh=LGw4FAVCK5D0w+/bHhlwHz3gjNhDdkPaIU+Geu1zqvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwXQ9Q9MsWwPC2OI8+YF6pe0wzr3mTZhWQvaJN3CcU3mxfa4xaLVoAtcUkksjGmze
-         V3AdPvrpUn9jSJVLiSWZncVvfQLmksJppu94lcuqyiQXxMn6cAfIKEx6X620C2DmGL
-         /VCnrj6Gu/cBXUFZCSEeseVc8+CKU1vhnJRuk49s=
+        b=02Mv/sJuZY+tXPUn3hWaXkhjCAM+jub5RItzWLKrc3Vn+nT1j/jcRxuc0quJIOF4Z
+         oOpX8tJLIf41/yzwugvV6Z/Afvo35CJ4YkO5FtD5R+7lTEurajIyqvv4/h6UDkHmRP
+         yVAHNOZ49b+r1uzIw5kkR2LoepbUJZjrH5jIuZK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 412/639] media: vivid: fix incorrect assignment operation when setting video mode
-Date:   Fri, 24 Jan 2020 10:29:42 +0100
-Message-Id: <20200124093138.641654405@linuxfoundation.org>
+Subject: [PATCH 4.19 422/639] firmware: arm_scmi: fix bitfield definitions for SENSOR_DESC attributes
+Date:   Fri, 24 Jan 2020 10:29:52 +0100
+Message-Id: <20200124093139.924944121@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,39 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit d4ec9550e4b2d2e357a46fdc65d8ef3d4d15984c ]
+[ Upstream commit 430daaf96ad133be5ce7c3a5c60e94247f7c6f71 ]
 
-The assigment of FB_VMODE_NONINTERLACE to var->vmode should be a
-bit-wise or of FB_VMODE_NONINTERLACE instead of an assignment,
-otherwise the previous clearing of the FB_VMODE_MASK bits of
-var->vmode makes no sense and is redundant.
+As per the SCMI specification the bitfields for SENSOR_DESC attributes
+are as follows:
+attributes_low 	[7:0] 	Number of trip points supported
+attributes_high	[15:11]	The power-of-10 multiplier in 2's-complement
+			format that is applied to the sensor units
 
-Addresses-Coverity: ("Unused value")
-Fixes: ad4e02d5081d ("[media] vivid: add a simple framebuffer device for overlay testing")
+Looks like the code developed during the draft versions of the
+specification slipped through and are wrong with respect to final
+released version. Fix them by adjusting the bitfields appropriately.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 5179c523c1ea ("firmware: arm_scmi: add initial support for sensor protocol")
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-osd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/arm_scmi/sensors.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-osd.c b/drivers/media/platform/vivid/vivid-osd.c
-index bbbc1b6938a56..b24596697f579 100644
---- a/drivers/media/platform/vivid/vivid-osd.c
-+++ b/drivers/media/platform/vivid/vivid-osd.c
-@@ -155,7 +155,7 @@ static int _vivid_fb_check_var(struct fb_var_screeninfo *var, struct vivid_dev *
- 	var->nonstd = 0;
- 
- 	var->vmode &= ~FB_VMODE_MASK;
--	var->vmode = FB_VMODE_NONINTERLACED;
-+	var->vmode |= FB_VMODE_NONINTERLACED;
- 
- 	/* Dummy values */
- 	var->hsync_len = 24;
+diff --git a/drivers/firmware/arm_scmi/sensors.c b/drivers/firmware/arm_scmi/sensors.c
+index b53d5cc9c9f6c..c00287b5f2c23 100644
+--- a/drivers/firmware/arm_scmi/sensors.c
++++ b/drivers/firmware/arm_scmi/sensors.c
+@@ -30,10 +30,10 @@ struct scmi_msg_resp_sensor_description {
+ 		__le32 id;
+ 		__le32 attributes_low;
+ #define SUPPORTS_ASYNC_READ(x)	((x) & BIT(31))
+-#define NUM_TRIP_POINTS(x)	(((x) >> 4) & 0xff)
++#define NUM_TRIP_POINTS(x)	((x) & 0xff)
+ 		__le32 attributes_high;
+ #define SENSOR_TYPE(x)		((x) & 0xff)
+-#define SENSOR_SCALE(x)		(((x) >> 11) & 0x3f)
++#define SENSOR_SCALE(x)		(((x) >> 11) & 0x1f)
+ #define SENSOR_UPDATE_SCALE(x)	(((x) >> 22) & 0x1f)
+ #define SENSOR_UPDATE_BASE(x)	(((x) >> 27) & 0x1f)
+ 		    u8 name[SCMI_MAX_STR_SIZE];
 -- 
 2.20.1
 
