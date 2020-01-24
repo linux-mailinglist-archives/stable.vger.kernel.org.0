@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F346C147645
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A295A147637
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730338AbgAXBTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:19:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32982 "EHLO mail.kernel.org"
+        id S1730807AbgAXBR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729900AbgAXBRz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:55 -0500
+        id S1729316AbgAXBR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4533722464;
-        Fri, 24 Jan 2020 01:17:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 563E721D7E;
+        Fri, 24 Jan 2020 01:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828674;
-        bh=8I4N5SI5pfjtzoqByMlS3MkZ2k66b7rxqF1BnrKZr/k=;
+        s=default; t=1579828676;
+        bh=xjiIuT2evy8epx2GISn700fzYHTLGE7gpt2NB0cwO60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yv0RcOofRqgGLvg1lpWlq53g9eeZm6V3wAKVoWiaPMMeNqkKRAAq7GGlqiQZj1+oK
-         RXMVkGkBJPpMQX2/GJlYJhFbD631PRC3Qbwdu7KQKCewmfsd7iamfQN5SBwppJkwW0
-         C2febhM4CN6obLWQbV+MlmRrMpIWPBmlxRqouDRM=
+        b=2lEpOucFuMhjdV97nN50aalPNQfiAjn0tiqKQutag4+oFEQlu2W35BU9okjRFNpUR
+         pONDzLncejMEcVedeADipaQWxB1V+tbKHjLm0ezNaP7SXELnw4pf+obkRLwqzy0FNx
+         NvWqm99hWn1BB7MPXOaIhwemDHKksI5A48g4BGy4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Dooks <ben.dooks@codethink.co.uk>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/11] ARM: OMAP2+: SmartReflex: add omap_sr_pdata definition
-Date:   Thu, 23 Jan 2020 20:17:42 -0500
-Message-Id: <20200124011747.18575-6-sashal@kernel.org>
+Cc:     Laura Abbott <labbott@fedoraproject.org>,
+        Steven Ellis <sellis@redhat.com>,
+        Pacho Ramos <pachoramos@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        usb-storage@lists.one-eyed-alien.net
+Subject: [PATCH AUTOSEL 4.19 07/11] usb-storage: Disable UAS on JMicron SATA enclosure
+Date:   Thu, 23 Jan 2020 20:17:43 -0500
+Message-Id: <20200124011747.18575-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011747.18575-1-sashal@kernel.org>
 References: <20200124011747.18575-1-sashal@kernel.org>
@@ -43,36 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben.dooks@codethink.co.uk>
+From: Laura Abbott <labbott@fedoraproject.org>
 
-[ Upstream commit 2079fe6ea8cbd2fb2fbadba911f1eca6c362eb9b ]
+[ Upstream commit bc3bdb12bbb3492067c8719011576370e959a2e6 ]
 
-The omap_sr_pdata is not declared but is exported, so add a
-define for it to fix the following warning:
+Steve Ellis reported incorrect block sizes and alignement
+offsets with a SATA enclosure. Adding a quirk to disable
+UAS fixes the problems.
 
-arch/arm/mach-omap2/pdata-quirks.c:609:36: warning: symbol 'omap_sr_pdata' was not declared. Should it be static?
-
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Steven Ellis <sellis@redhat.com>
+Cc: Pacho Ramos <pachoramos@gmail.com>
+Signed-off-by: Laura Abbott <labbott@fedoraproject.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/power/smartreflex.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/storage/unusual_uas.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/power/smartreflex.h b/include/linux/power/smartreflex.h
-index 7b81dad712de8..37d9b70ed8f0a 100644
---- a/include/linux/power/smartreflex.h
-+++ b/include/linux/power/smartreflex.h
-@@ -296,6 +296,9 @@ struct omap_sr_data {
- 	struct voltagedomain		*voltdm;
- };
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index d0bdebd87ce3a..1b23741036ee8 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -87,12 +87,15 @@ UNUSUAL_DEV(0x2537, 0x1068, 0x0000, 0x9999,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_IGNORE_UAS),
  
-+
-+extern struct omap_sr_data omap_sr_pdata[OMAP_SR_NR];
-+
- #ifdef CONFIG_POWER_AVS_OMAP
+-/* Reported-by: Takeo Nakayama <javhera@gmx.com> */
++/*
++ * Initially Reported-by: Takeo Nakayama <javhera@gmx.com>
++ * UAS Ignore Reported by Steven Ellis <sellis@redhat.com>
++ */
+ UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
+ 		"JMicron",
+ 		"JMS566",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_NO_REPORT_OPCODES),
++		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
  
- /* Smartreflex module enable/disable interface */
+ /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
+ UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
 -- 
 2.20.1
 
