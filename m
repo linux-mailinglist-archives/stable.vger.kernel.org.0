@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9E714842A
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E6514842D
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391023AbgAXLVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:21:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59232 "EHLO mail.kernel.org"
+        id S2390727AbgAXLUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:20:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733219AbgAXLVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:21:14 -0500
+        id S2390938AbgAXLUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:20:37 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C06B206D4;
-        Fri, 24 Jan 2020 11:21:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02A9620704;
+        Fri, 24 Jan 2020 11:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864873;
-        bh=xx/5NPMChgsJxC9KdTXY9qZMPHMzyd1H6sdrMha8ULg=;
+        s=default; t=1579864836;
+        bh=mHea0e1HD+THVTVgUwDuDWhMJFJReXvdt1noQdUacTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbg9qf67A2IFnM4gpit2hpktyM/Hp97sUaVHNZkaj6v54bKZzcLGlE/E7x3GZiB2q
-         VMz1xjADGX6s+02t9gSHHkrXt3mGjqxLlKchon98b3NTIiW0HmwsKXowi7wLZAkBVP
-         4l1eEOy60W+C+HdlvBixujJcvdtSkLTJ0T8xIv7M=
+        b=R4oYht4r0/cKhPMn4UaoFYltbBdcftzcx+tbTdG32UU07QtbhBO+55W4ID4N+AmG4
+         YQbpT+xDjDeLSpBPSNIPpMUUh3DPPZ8tKcDoa/MlUFibzQji5sSFuubeXEm0UyzloJ
+         ZNufzyTwlTzUJLh3GsPBS2uDBdNt2MYL5JyT4tRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 377/639] afs: Fix lock-wait/callback-break double locking
-Date:   Fri, 24 Jan 2020 10:29:07 +0100
-Message-Id: <20200124093134.233102242@linuxfoundation.org>
+Subject: [PATCH 4.19 379/639] ARM: dts: sun8i-h3: Fix wifi in Beelink X2 DT
+Date:   Fri, 24 Jan 2020 10:29:09 +0100
+Message-Id: <20200124093134.467309992@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,62 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit c7226e407b6065d3bda8bd9dc627663d2c505ea3 ]
+[ Upstream commit ca0961011db57e39880df0b5708df8aa3339dc6f ]
 
-__afs_break_callback() holds vnode->lock around its call of
-afs_lock_may_be_available() - which also takes that lock.
+mmc1 node where wifi module is connected doesn't have properly defined
+power supplies so wifi module is never powered up. Fix that by
+specifying additional power supplies.
 
-Fix this by not taking the lock in __afs_break_callback().
+Additionally, this STB may have either Realtek or Broadcom based wifi
+module. One based on Broadcom module also needs external clock to work
+properly. Fix that by adding clock property to wifi_pwrseq node.
 
-Also, there's no point checking the granted_locks and pending_locks queues;
-it's sufficient to check lock_state, so move that check out of
-afs_lock_may_be_available() into __afs_break_callback() to replace the
-queue checks.
-
-Fixes: e8d6c554126b ("AFS: implement file locking")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: e582b47a9252 ("ARM: dts: sun8i-h3: Add dts for the Beelink X2 STB")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/callback.c | 8 +-------
- fs/afs/flock.c    | 3 ---
- 2 files changed, 1 insertion(+), 10 deletions(-)
+ arch/arm/boot/dts/sun8i-h3-beelink-x2.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/afs/callback.c b/fs/afs/callback.c
-index 4ad7012502998..97283b04fa6fd 100644
---- a/fs/afs/callback.c
-+++ b/fs/afs/callback.c
-@@ -221,14 +221,8 @@ void afs_break_callback(struct afs_vnode *vnode)
- 		vnode->cb_break++;
- 		afs_clear_permits(vnode);
+diff --git a/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts b/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
+index 25540b7694d59..6523d81dd9c49 100644
+--- a/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
++++ b/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
+@@ -90,6 +90,8 @@
+ 	wifi_pwrseq: wifi_pwrseq {
+ 		compatible = "mmc-pwrseq-simple";
+ 		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
++		clocks = <&rtc 1>;
++		clock-names = "ext_clock";
+ 	};
  
--		spin_lock(&vnode->lock);
--
--		_debug("break callback");
--
--		if (list_empty(&vnode->granted_locks) &&
--		    !list_empty(&vnode->pending_locks))
-+		if (vnode->lock_state == AFS_VNODE_LOCK_WAITING_FOR_CB)
- 			afs_lock_may_be_available(vnode);
--		spin_unlock(&vnode->lock);
- 	}
+ 	sound_spdif {
+@@ -155,6 +157,8 @@
  
- 	write_sequnlock(&vnode->cb_lock);
-diff --git a/fs/afs/flock.c b/fs/afs/flock.c
-index aea7224ba1981..fbf4986b12245 100644
---- a/fs/afs/flock.c
-+++ b/fs/afs/flock.c
-@@ -39,9 +39,6 @@ void afs_lock_may_be_available(struct afs_vnode *vnode)
- {
- 	_enter("{%x:%u}", vnode->fid.vid, vnode->fid.vnode);
- 
--	if (vnode->lock_state != AFS_VNODE_LOCK_WAITING_FOR_CB)
--		return;
--
- 	spin_lock(&vnode->lock);
- 	if (vnode->lock_state == AFS_VNODE_LOCK_WAITING_FOR_CB)
- 		afs_next_locker(vnode, 0);
+ &mmc1 {
+ 	vmmc-supply = <&reg_vcc3v3>;
++	vqmmc-supply = <&reg_vcc3v3>;
++	mmc-pwrseq = <&wifi_pwrseq>;
+ 	bus-width = <4>;
+ 	non-removable;
+ 	status = "okay";
 -- 
 2.20.1
 
