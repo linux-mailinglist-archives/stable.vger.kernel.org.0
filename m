@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1820B1482F1
+	by mail.lfdr.de (Postfix) with ESMTP id EB07F1482F3
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404413AbgAXLcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:32:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50880 "EHLO mail.kernel.org"
+        id S2404420AbgAXLcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:32:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404379AbgAXLcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:32:09 -0500
+        id S2404415AbgAXLcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:32:12 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0CA720704;
-        Fri, 24 Jan 2020 11:32:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FAB820718;
+        Fri, 24 Jan 2020 11:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865528;
-        bh=e6LrhppPSWmwo4SwTVxa11bvIPM7NUDheCDYZfySAfE=;
+        s=default; t=1579865532;
+        bh=KVgqGjNoLZRazY75M8fXlXs5zunKSvCyQQ6687cSFQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZeJSPOtUiJP6FqWhT9aJ3VHlg2Q+W3vfivnmmbhV5Vq43hCtTFGlbinnsiWX6Rpv
-         JQXezkHd87lLLUKEB3vFQ7B7cp7EPCHLsA/Haq1f6Re2m2UjzPZqJhC0xMEJhLVC9d
-         SLg/67Z5XgnN+cteSwyKd5QuoBAGWwox0M2VEbuY=
+        b=yjC20xSFjHZHO82K5HgKAjgkYx+eEKe+1Qi4DGzVRxdCthy1lpE+QxeIym2AGGtry
+         BLaY+fHwyVDzz1S/fop+ik96eai4G2+5yerQVP6hV06GM9Lo3lZZ1w6LxUbJO1enXx
+         jOQ1HLIBsJtOmKdUIMtKHKDYXglXal34zkXpBxu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 570/639] powerpc/mm/mce: Keep irqs disabled during lockless page table walk
-Date:   Fri, 24 Jan 2020 10:32:20 +0100
-Message-Id: <20200124093200.766629221@linuxfoundation.org>
+Subject: [PATCH 4.19 571/639] bpf: fix BTF limits
+Date:   Fri, 24 Jan 2020 10:32:21 +0100
+Message-Id: <20200124093200.913888334@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,71 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit d9101bfa6adc831bda8836c4d774820553c14942 ]
+[ Upstream commit a0791f0df7d212c245761538b17a9ea93607b667 ]
 
-__find_linux_mm_pte() returns a page table entry pointer after walking
-the page table without holding locks. To make it safe against a THP
-split and/or collapse, we disable interrupts around the lockless page
-table walk. However we need to keep interrupts disabled as long as we
-use the page table entry pointer that is returned.
+vmlinux BTF has more than 64k types.
+Its string section is also at the offset larger than 64k.
+Adjust both limits to make in-kernel BTF verifier successfully parse in-kernel BTF.
 
-Fix addr_to_pfn() to do that.
-
-Fixes: ba41e1e1ccb9 ("powerpc/mce: Hookup derror (load/store) UE errors")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-[mpe: Rearrange code slightly and tweak change log wording]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190918145328.28602-1-aneesh.kumar@linux.ibm.com
+Fixes: 69b693f0aefa ("bpf: btf: Introduce BPF Type Format (BTF)")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/mce_power.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ include/uapi/linux/btf.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/mce_power.c b/arch/powerpc/kernel/mce_power.c
-index 37a110b8e7e17..ecb3750406378 100644
---- a/arch/powerpc/kernel/mce_power.c
-+++ b/arch/powerpc/kernel/mce_power.c
-@@ -40,7 +40,7 @@ static unsigned long addr_to_pfn(struct pt_regs *regs, unsigned long addr)
- {
- 	pte_t *ptep;
- 	unsigned int shift;
--	unsigned long flags;
-+	unsigned long pfn, flags;
- 	struct mm_struct *mm;
+diff --git a/include/uapi/linux/btf.h b/include/uapi/linux/btf.h
+index 972265f328717..1e2662ff05291 100644
+--- a/include/uapi/linux/btf.h
++++ b/include/uapi/linux/btf.h
+@@ -22,9 +22,9 @@ struct btf_header {
+ };
  
- 	if (user_mode(regs))
-@@ -50,18 +50,22 @@ static unsigned long addr_to_pfn(struct pt_regs *regs, unsigned long addr)
+ /* Max # of type identifier */
+-#define BTF_MAX_TYPE	0x0000ffff
++#define BTF_MAX_TYPE	0x000fffff
+ /* Max offset into the string section */
+-#define BTF_MAX_NAME_OFFSET	0x0000ffff
++#define BTF_MAX_NAME_OFFSET	0x00ffffff
+ /* Max # of struct/union/enum members or func args */
+ #define BTF_MAX_VLEN	0xffff
  
- 	local_irq_save(flags);
- 	ptep = __find_linux_pte(mm->pgd, addr, NULL, &shift);
--	local_irq_restore(flags);
- 
--	if (!ptep || pte_special(*ptep))
--		return ULONG_MAX;
-+	if (!ptep || pte_special(*ptep)) {
-+		pfn = ULONG_MAX;
-+		goto out;
-+	}
- 
--	if (shift > PAGE_SHIFT) {
-+	if (shift <= PAGE_SHIFT)
-+		pfn = pte_pfn(*ptep);
-+	else {
- 		unsigned long rpnmask = (1ul << shift) - PAGE_SIZE;
--
--		return pte_pfn(__pte(pte_val(*ptep) | (addr & rpnmask)));
-+		pfn = pte_pfn(__pte(pte_val(*ptep) | (addr & rpnmask)));
- 	}
- 
--	return pte_pfn(*ptep);
-+out:
-+	local_irq_restore(flags);
-+	return pfn;
- }
- 
- /* flush SLBs and reload */
 -- 
 2.20.1
 
