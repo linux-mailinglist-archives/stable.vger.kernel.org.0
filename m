@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D91D147A8C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:34:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2008C147A90
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:35:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730183AbgAXJej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:34:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33042 "EHLO mail.kernel.org"
+        id S1730926AbgAXJek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:34:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730166AbgAXJeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:34:36 -0500
+        id S1730919AbgAXJek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:34:40 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3DC721569;
-        Fri, 24 Jan 2020 09:34:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1814E214AF;
+        Fri, 24 Jan 2020 09:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858476;
-        bh=76H+nVK9gRR9qwTprbz/gqeGaJDdXhDbDWAKVxsG7FY=;
+        s=default; t=1579858479;
+        bh=Ta146iI2SIxBhV5hZPxG8zR46iQgzhWqleg75MWH4vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucX+8J/z/RdjM6pcTfNY9hSyimnNqy9h67PAy7KwbBP3K8Mw4oijDSYysPupB9k6R
-         ZdjvxmdAffZy1LlfyJ8irQZ85ASI0HNLcjarLmd4K11ZiE2G8XZrhdTSYrkOEf8mF4
-         jVCaevq3X/B1icaXGQI1tsiVLjhPTPa1wvBNeot0=
+        b=qOEe16pkFJLGHq4+G/f+nlPtkKdBb+6+0UdzmZhqZfneM1dlCR7+mFs93ZPghHztc
+         ThuE8uzv+GIbK7bWZ2fU8iHWs49RODbOtSw8sW4Q7mdoKUjzuoLy2u/AOlzn69/bTF
+         eHznDqStTQuxmsCHx7DUG+l93XRRIkQUYqkVj43s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Eli Britstein <elibr@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 028/102] net/mlx5e: Fix free peer_flow when refcount is 0
-Date:   Fri, 24 Jan 2020 10:30:29 +0100
-Message-Id: <20200124092810.443854574@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.4 029/102] phy: lantiq: vrx200-pcie: fix error return code in ltq_vrx200_pcie_phy_power_on()
+Date:   Fri, 24 Jan 2020 10:30:30 +0100
+Message-Id: <20200124092810.579889897@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,39 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit eb252c3a24fc5856fa62140c2f8269ddce6ce4e5 upstream.
+commit 82b5d164415549e74cfa1f9156ffd4463d0a76e2 upstream.
 
-It could be neigh update flow took a refcount on peer flow so
-sometimes we cannot release peer flow even if parent flow is
-being freed now.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 5a7e5bcb663d ("net/mlx5e: Extend tc flow struct with reference counter")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Eli Britstein <elibr@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: e52a632195bf ("phy: lantiq: vrx200-pcie: add a driver for the Lantiq VRX200 PCIe PHY")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/phy/lantiq/phy-lantiq-vrx200-pcie.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -1615,8 +1615,11 @@ static void __mlx5e_tc_del_fdb_peer_flow
+--- a/drivers/phy/lantiq/phy-lantiq-vrx200-pcie.c
++++ b/drivers/phy/lantiq/phy-lantiq-vrx200-pcie.c
+@@ -323,7 +323,8 @@ static int ltq_vrx200_pcie_phy_power_on(
+ 		goto err_disable_pdi_clk;
  
- 	flow_flag_clear(flow, DUP);
+ 	/* Check if we are in "startup ready" status */
+-	if (ltq_vrx200_pcie_phy_wait_for_pll(phy) != 0)
++	ret = ltq_vrx200_pcie_phy_wait_for_pll(phy);
++	if (ret)
+ 		goto err_disable_phy_clk;
  
--	mlx5e_tc_del_fdb_flow(flow->peer_flow->priv, flow->peer_flow);
--	kfree(flow->peer_flow);
-+	if (refcount_dec_and_test(&flow->peer_flow->refcnt)) {
-+		mlx5e_tc_del_fdb_flow(flow->peer_flow->priv, flow->peer_flow);
-+		kfree(flow->peer_flow);
-+	}
-+
- 	flow->peer_flow = NULL;
- }
- 
+ 	ltq_vrx200_pcie_phy_apply_workarounds(phy);
 
 
