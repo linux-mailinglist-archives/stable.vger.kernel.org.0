@@ -2,99 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C0D148C82
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 17:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A19148C98
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 17:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389186AbgAXQuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 11:50:46 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15372 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387875AbgAXQuq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 11:50:46 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00OGocjN037085
-        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 11:50:43 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xq3ma59n4-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 11:50:43 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
-        Fri, 24 Jan 2020 16:50:28 -0000
-Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
-        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Fri, 24 Jan 2020 16:50:27 -0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 00OGoQHN39911832
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 24 Jan 2020 16:50:26 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 35D4E4C05C;
-        Fri, 24 Jan 2020 16:50:26 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F1A494C058;
-        Fri, 24 Jan 2020 16:50:25 +0000 (GMT)
-Received: from thinkpad (unknown [9.145.149.112])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 24 Jan 2020 16:50:25 +0000 (GMT)
-Date:   Fri, 24 Jan 2020 17:50:24 +0100
-From:   Gerald Schaefer <gerald.schaefer@de.ibm.com>
-To:     Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc:     linux390-list@tuxmaker.boeblingen.de.ibm.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] s390: prevent leaking kernel address in BEAR
-In-Reply-To: <20200124122515.80348-1-svens@linux.ibm.com>
-References: <20200124122515.80348-1-svens@linux.ibm.com>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1729893AbgAXQ6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 11:58:03 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:34126 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729543AbgAXQ6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 11:58:03 -0500
+Received: by mail-pj1-f67.google.com with SMTP id f2so741779pjq.1
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 08:58:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=GwXFqvDSv0U+LxmDUU5sHju4TMmZEZGW+kXhJe7jcJM=;
+        b=Fm5e4ZVKDvM/voKueHczsL1nCVQpxWHLwo9cjV6HlHB2frlVdVdoriKCXXTzmV4rkG
+         0o3tZnyLDv1X/VrQl00k1LWd6o++FKLrm1twzoDKlSd0+KjH3OZkY7C62RKLE9bX0goa
+         jsjhfs2mrLzAAZFvdutkomFlCIqK0dwTEW0/lym5NFc80jou+PGk636Zpga2gkOt+tlo
+         Tm/33yA0e6NR03h4vZDbtzE/WUyh8RV5Vf76a24yU7e62obDt2Ek9eCUf0Xv5bNVwtJN
+         lRflUQ0Z8PJuWmgjGakuR8F0+IiOoHlVdZw1SHj96nwST6mKEpCdAL36wUYYf3ZvpHru
+         XGWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=GwXFqvDSv0U+LxmDUU5sHju4TMmZEZGW+kXhJe7jcJM=;
+        b=pDkAExfkpi9RhZnwLnKqVl4RlcSwieUnPv/S61JiFBfAjGRV6oDfhtCIV0y2YlM6pT
+         uqSpCU0o7qu1G3MZd2tuLwDgObpCbBVkLql6ECVvv/nM8fR0j86W9keFIRmuKv/1MTNB
+         uepN/JMMggaSy1feLYAgvRtqk8jg0uw4rfmmtZtIVxvWhc5825/LWsA7sU02VDveHegU
+         nLHQCBUn2Sx9B/uhidMaZezm7UvIskqBkZkf6tInjljajwU7+/no8qJwcy2vOo3NvwTq
+         jE3Hxu6k4/DH7pSQc+n9eAnFRly8qW1Rk71umrxL06LTI+EYCAI7FhtOafMAEWk4taaq
+         C3kg==
+X-Gm-Message-State: APjAAAXYRRxnTH6GX9xJYVKjqx6rH5RX+2Go4wf9fIJrmBWgho7+sADe
+        IWCrXU+7K32norspt+naUK3Log==
+X-Google-Smtp-Source: APXvYqyQ8DKgQqt/vpZUzkPeqpmlLosrJN1PHR8nYPCIOHEi/uu6f97gME0PW9aYLL632IOCW6shBA==
+X-Received: by 2002:a17:902:8341:: with SMTP id z1mr4373355pln.178.1579885082557;
+        Fri, 24 Jan 2020 08:58:02 -0800 (PST)
+Received: from [10.47.243.41] ([156.39.10.47])
+        by smtp.gmail.com with ESMTPSA id e16sm2801374pff.82.2020.01.24.08.58.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Jan 2020 08:58:02 -0800 (PST)
+Subject: Re: [PATCH 5.4 033/222] io_uring: only allow submit from owning task
+To:     Stefan Metzmacher <metze@samba.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, io-uring <io-uring@vger.kernel.org>
+References: <20200122092833.339495161@linuxfoundation.org>
+ <20200122092835.852416399@linuxfoundation.org>
+ <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <b8fd1a53-8f75-e9cd-9df5-a79541b9fa14@kernel.dk>
+Date:   Fri, 24 Jan 2020 09:58:01 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 20012416-0008-0000-0000-0000034C64AE
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20012416-0009-0000-0000-00004A6CD4F0
-Message-Id: <20200124175024.6ebfc8c4@thinkpad>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-01-24_06:2020-01-24,2020-01-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- mlxlogscore=999 mlxscore=0 adultscore=0 clxscore=1011 priorityscore=1501
- malwarescore=0 lowpriorityscore=0 spamscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1910280000 definitions=main-2001240137
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 24 Jan 2020 13:25:15 +0100
-Sven Schnelle <svens@linux.ibm.com> wrote:
-
-> When userspace executes a syscall or gets interrupted,
-> BEAR contains a kernel address when returning to userspace.
-> This make it pretty easy to figure out where the kernel is
-> mapped even with KASLR enabled. To fix this, add lpswe to
-> lowcore and always execute it there, so userspace sees only
-> the lowcore address of lpswe. For this we have to extend
-> both critical_cleanup and the SWITCH_ASYNC macro to also check
-> for lpswe addresses in lowcore.
+On 1/24/20 3:38 AM, Stefan Metzmacher wrote:
+> Am 22.01.20 um 10:26 schrieb Greg Kroah-Hartman:
+>> From: Jens Axboe <axboe@kernel.dk>
+>>
+>> commit 44d282796f81eb1debc1d7cb53245b4cb3214cb5 upstream.
+>>
+>> If the credentials or the mm doesn't match, don't allow the task to
+>> submit anything on behalf of this ring. The task that owns the ring can
+>> pass the file descriptor to another task, but we don't want to allow
+>> that task to submit an SQE that then assumes the ring mm and creds if
+>> it needs to go async.
+>>
+>> Cc: stable@vger.kernel.org
+>> Suggested-by: Stefan Metzmacher <metze@samba.org>
+>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>
+>>
+>> ---
+>>  fs/io_uring.c |    6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -3716,6 +3716,12 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned
+>>  			wake_up(&ctx->sqo_wait);
+>>  		submitted = to_submit;
+>>  	} else if (to_submit) {
+>> +		if (current->mm != ctx->sqo_mm ||
+>> +		    current_cred() != ctx->creds) {
+>> +			ret = -EPERM;
+>> +			goto out;
+>> +		}
+>> +
 > 
-> Fixes: b2d24b97b2a9 ("s390/kernel: add support for kernel address space layout randomization (KASLR)")
-> Cc: <stable@vger.kernel.org> # v5.2+
-> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-> ---
+> I thought about this a bit more.
+> 
+> I'm not sure if this is actually to restrictive,
+> because it means applications like Samba won't
+> be able to use io-uring at all.
+> 
+> As even if current_cred() and ctx->creds describe the same
+> set of uid,gids the != won't ever match again and
+> makes the whole ring unuseable.
+> 
+> I'm not sure about what the best short term solution could be...
+> 
+> 1. May just doing the check for path based operations?
+>   and fail individual requests with EPERM.
+> 
+> 2. Or force REQ_F_FORCE_ASYNC for path based operations,
+>   so that they're always executed from within the workqueue
+>   with were ctx->creds is active.
+> 
+> 3. Or (as proposed earlier) do the override_creds/revert_creds dance
+>   (and similar for mm) if needed.
+> 
+> To summaries the problem again:
+> 
+> For path based operations like:
+> - IORING_OP_CONNECT (maybe also - IORING_OP_ACCEPT???)
+> - IORING_OP_SEND*, IORING_OP_RECV* on DGRAM sockets
+> - IORING_OP_OPENAT, IORING_OP_STATX, IORING_OP_OPENAT2
+> it's important under which current_cred they are called.
+> 
+> Are IORING_OP_MADVISE, IORING_OP_FADVISE and IORING_OP_FALLOCATE
+> are only bound to the credentials of the passed fd they operate on?
+> 
+> The current assumption is that the io_uring_setup() syscall captures
+> the current_cred() to ctx->cred and all operations on the ring
+> are executed under the context of ctx->cred.
+> Therefore all helper threads do the override_creds/revert_creds dance.
 
-Looks good,
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+But it doesn't - we're expecting them to match, and with this change,
+we assert that it's the case or return -EPERM.
 
-I think you can push to devel, but this should hang around a bit before
-sending upstream (@Vasily). Maybe at least wait until Heiko can also
-have a look.
+> But the possible non-blocking line execution of operations in
+> the io_uring_enter() syscall doesn't do the override_creds/revert_creds
+> dance and execute the operations under current_cred().
+> 
+> This means it's random depending on filled cached under what
+> credentials an operation is executed.
+> 
+> In order to prevent security problems the current patch is enough,
+> but as outlined above it will make io-uring complete unuseable
+> for applications using any syscall that changes current_cred().
+> 
+> Change 1. would be a little bit better, but still not really useful.
+> 
+> I'd actually prefer solution 3. as it's still possible to make
+> use of non-blocking operations, while the security is the
+> same as solution 2.
 
-Since the small extra window for critical section cleanup introduced by
-the lowcore lpswe is hit surprisingly easy and often, this will get some
-good testing on devel branch.
+For your situation, we need to extend it anyway, and provide a way
+to swap between personalities. So yeah it won't work as-is for your
+use case, but we can work on making that the case.
+
+-- 
+Jens Axboe
 
