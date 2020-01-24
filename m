@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5ED148137
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2755314814C
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:19:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390591AbgAXLSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:18:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55080 "EHLO mail.kernel.org"
+        id S2390689AbgAXLSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:18:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390588AbgAXLSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:18:03 -0500
+        id S2390680AbgAXLSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:18:42 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E38F20708;
-        Fri, 24 Jan 2020 11:18:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81E69208C4;
+        Fri, 24 Jan 2020 11:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864683;
-        bh=vqlUTF29PNCkBlV6NrwNudwhu47jBkRrhaDjag+RlZA=;
+        s=default; t=1579864722;
+        bh=jc+5b4v8HKXhTERr1ImtQHocAHTCaNzgnAlVnlhFjxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BiZGylgmEGW5dHH/H8t1RBtJqlzTjR+8HfOYBeKvAKXG3u3EZAJL/J7lD03W9HA1k
-         x21V6IpxQF9HKGiKvruCb1HEH/2U8MYh430tFnRbfzCsgx+HQvmd8VmtxBmdLHET52
-         K+GJKF78UaOw8Z1gmcrXwLkdfDK31QgBZK/tEesY=
+        b=e3stjrPkKEiOxrO0BQXJMv8tdqHBBOOCHs0JmlSOYftbmhSaDd5b5YJetSeaOx9jX
+         yVen1jS63pZ9++FZ9B5M4NN72UNBCzq9PBR5rHLGE4tMWfPZwKMnvKC/RmiIDHSTA4
+         GUMmbdJMKrMMyoLJkcOGtBjKTyf8Z+W/wxjJqiC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinath Mannam <srinath.mannam@broadcom.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Ray Jui <ray.jui@broadcom.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 336/639] PCI: iproc: Enable iProc config read for PAXBv2
-Date:   Fri, 24 Jan 2020 10:28:26 +0100
-Message-Id: <20200124093129.204094515@linuxfoundation.org>
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 339/639] ASoC: fix valid stream condition
+Date:   Fri, 24 Jan 2020 10:28:29 +0100
+Message-Id: <20200124093129.603348072@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,41 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinath Mannam <srinath.mannam@broadcom.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 8cff995405eb0b563e7a0d2c49838611ea3f2692 ]
+[ Upstream commit 6a7c59c6d9f3b280e81d7a04bbe4e55e90152dce ]
 
-iProc config read flag has to be enabled for PAXBv2 instead of PAXB.
+A stream may specify a rate range using 'rate_min' and 'rate_max', so a
+stream may be valid and not specify any rates. However, as stream cannot
+be valid and not have any channel. Let's use this condition instead to
+determine if a stream is valid or not.
 
-Fixes: f78e60a29d4f ("PCI: iproc: Reject unconfigured physical functions from PAXC")
-Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+Fixes: cde79035c6cf ("ASoC: Handle multiple codecs with split playback / capture")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-iproc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-pcm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-iproc.c b/drivers/pci/controller/pcie-iproc.c
-index c20fd6bd68fd8..9d5cbc75d5ae0 100644
---- a/drivers/pci/controller/pcie-iproc.c
-+++ b/drivers/pci/controller/pcie-iproc.c
-@@ -1347,7 +1347,6 @@ static int iproc_pcie_rev_init(struct iproc_pcie *pcie)
- 		break;
- 	case IPROC_PCIE_PAXB:
- 		regs = iproc_pcie_reg_paxb;
--		pcie->iproc_cfg_read = true;
- 		pcie->has_apb_err_disable = true;
- 		if (pcie->need_ob_cfg) {
- 			pcie->ob_map = paxb_ob_map;
-@@ -1356,6 +1355,7 @@ static int iproc_pcie_rev_init(struct iproc_pcie *pcie)
- 		break;
- 	case IPROC_PCIE_PAXB_V2:
- 		regs = iproc_pcie_reg_paxb_v2;
-+		pcie->iproc_cfg_read = true;
- 		pcie->has_apb_err_disable = true;
- 		if (pcie->need_ob_cfg) {
- 			pcie->ob_map = paxb_v2_ob_map;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 551bfc581fc12..53fefa7c982f8 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -42,8 +42,8 @@ static bool snd_soc_dai_stream_valid(struct snd_soc_dai *dai, int stream)
+ 	else
+ 		codec_stream = &dai->driver->capture;
+ 
+-	/* If the codec specifies any rate at all, it supports the stream. */
+-	return codec_stream->rates;
++	/* If the codec specifies any channels at all, it supports the stream */
++	return codec_stream->channels_min;
+ }
+ 
+ /**
 -- 
 2.20.1
 
