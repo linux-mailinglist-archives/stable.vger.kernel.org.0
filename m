@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5672E147D90
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33CA1147D92
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387708AbgAXKBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:01:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37144 "EHLO mail.kernel.org"
+        id S2387900AbgAXKBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:01:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733077AbgAXKBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:01:44 -0500
+        id S1733077AbgAXKBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:01:48 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 525B2206D5;
-        Fri, 24 Jan 2020 10:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78200206D5;
+        Fri, 24 Jan 2020 10:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860103;
-        bh=n6sUB4XDMloqjG4MA8tnmABkCdwSClofin62r6/qRHQ=;
+        s=default; t=1579860107;
+        bh=IwRh4MwwKbEAJczjkT6p7Y8EFA00nRALELVHg28Gjt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHy9SwJNLSYSItcZ3gw0SANqQFYk17Y2baCRBR9+sYIiPP9LMRui1jdGy3S+7Oell
-         1i40zEkpTG1s/2Pqr8BkUnyS7NdgNzZizmpq6+o8ELF+7Ik9GI3k3D1b3mnIG5AV24
-         deY56OhqVwE8J+cKicwOnzd3RWiucmfLJMHUK00U=
+        b=ZBgEBkQbMpsGirhMoj7/DV9pk5+6BU42/sUG6L4KFylp71dRmLqTJhSWURJ+etNFK
+         nkgjPzKHyDljfapJ6YPN7OgyGWjyPLrX/zr7Pc4kwm8udXu9lkO56Uichi8VzWw2+1
+         ryNjaqjS0FpPtLyNlLncKkzULUAuPg+FvgSVUpfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 259/343] usb: host: xhci-hub: fix extra endianness conversion
-Date:   Fri, 24 Jan 2020 10:31:17 +0100
-Message-Id: <20200124092954.121408780@linuxfoundation.org>
+Subject: [PATCH 4.14 260/343] mic: avoid statically declaring a struct device.
+Date:   Fri, 24 Jan 2020 10:31:18 +0100
+Message-Id: <20200124092954.243106165@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,42 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6269e4c76eacabaea0d0099200ae1a455768d208 ]
+[ Upstream commit bc83f79bd2119230888fb8574639d5a51b38f903 ]
 
-Don't do extra cpu_to_le32 conversion for
-put_unaligned_le32 because it is already implemented
-in this function.
+Generally, declaring a platform device as a static variable is
+a bad idea and can cause all kinds of problems, in particular
+with the DMA configuration and lifetime rules.
 
-Fixes sparse error:
-xhci-hub.c:1152:44: warning: incorrect type in argument 1 (different base types)
-xhci-hub.c:1152:44:    expected unsigned int [usertype] val
-xhci-hub.c:1152:44:    got restricted __le32 [usertype]
+A specific problem we hit here is from a bug in clang that warns
+about certain (otherwise valid) macros when used in static variables:
 
-Fixes: 395f540 "xhci: support new USB 3.1 hub request to get extended port status"
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1562501839-26522-1-git-send-email-ruslan.bilovol@gmail.com
+drivers/misc/mic/card/mic_x100.c:285:27: warning: shift count >= width of type [-Wshift-count-overflow]
+static u64 mic_dma_mask = DMA_BIT_MASK(64);
+                          ^~~~~~~~~~~~~~~~
+include/linux/dma-mapping.h:141:54: note: expanded from macro 'DMA_BIT_MASK'
+ #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+                                                     ^ ~~~
+
+A slightly better way here is to create the platform device dynamically
+and set the dma mask in the probe function.
+This avoids the warning and some other problems, but is still not ideal
+because the device creation should really be separated from the driver,
+and the fact that the device has no parent means we have to force
+the dma mask rather than having it set up from the bus that the device
+is actually on.
+
+Fixes: dd8d8d44df64 ("misc: mic: MIC card driver specific changes to enable SCIF")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190712092426.872625-1-arnd@arndb.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-hub.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/mic/card/mic_x100.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index d1363f3fabfa6..3bb38d9dc45bf 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1118,7 +1118,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			}
- 			port_li = readl(port_array[wIndex] + PORTLI);
- 			status = xhci_get_ext_port_status(temp, port_li);
--			put_unaligned_le32(cpu_to_le32(status), &buf[4]);
-+			put_unaligned_le32(status, &buf[4]);
- 		}
- 		break;
- 	case SetPortFeature:
+diff --git a/drivers/misc/mic/card/mic_x100.c b/drivers/misc/mic/card/mic_x100.c
+index b9f0710ffa6b0..4007adc666f37 100644
+--- a/drivers/misc/mic/card/mic_x100.c
++++ b/drivers/misc/mic/card/mic_x100.c
+@@ -249,6 +249,9 @@ static int __init mic_probe(struct platform_device *pdev)
+ 	mdrv->dev = &pdev->dev;
+ 	snprintf(mdrv->name, sizeof(mic_driver_name), mic_driver_name);
+ 
++	/* FIXME: use dma_set_mask_and_coherent() and check result */
++	dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
++
+ 	mdev->mmio.pa = MIC_X100_MMIO_BASE;
+ 	mdev->mmio.len = MIC_X100_MMIO_LEN;
+ 	mdev->mmio.va = devm_ioremap(&pdev->dev, MIC_X100_MMIO_BASE,
+@@ -294,18 +297,6 @@ static void mic_platform_shutdown(struct platform_device *pdev)
+ 	mic_remove(pdev);
+ }
+ 
+-static u64 mic_dma_mask = DMA_BIT_MASK(64);
+-
+-static struct platform_device mic_platform_dev = {
+-	.name = mic_driver_name,
+-	.id   = 0,
+-	.num_resources = 0,
+-	.dev = {
+-		.dma_mask = &mic_dma_mask,
+-		.coherent_dma_mask = DMA_BIT_MASK(64),
+-	},
+-};
+-
+ static struct platform_driver __refdata mic_platform_driver = {
+ 	.probe = mic_probe,
+ 	.remove = mic_remove,
+@@ -315,6 +306,8 @@ static struct platform_driver __refdata mic_platform_driver = {
+ 	},
+ };
+ 
++static struct platform_device *mic_platform_dev;
++
+ static int __init mic_init(void)
+ {
+ 	int ret;
+@@ -328,9 +321,12 @@ static int __init mic_init(void)
+ 
+ 	request_module("mic_x100_dma");
+ 	mic_init_card_debugfs();
+-	ret = platform_device_register(&mic_platform_dev);
++
++	mic_platform_dev = platform_device_register_simple(mic_driver_name,
++							   0, NULL, 0);
++	ret = PTR_ERR_OR_ZERO(mic_platform_dev);
+ 	if (ret) {
+-		pr_err("platform_device_register ret %d\n", ret);
++		pr_err("platform_device_register_full ret %d\n", ret);
+ 		goto cleanup_debugfs;
+ 	}
+ 	ret = platform_driver_register(&mic_platform_driver);
+@@ -341,7 +337,7 @@ static int __init mic_init(void)
+ 	return ret;
+ 
+ device_unregister:
+-	platform_device_unregister(&mic_platform_dev);
++	platform_device_unregister(mic_platform_dev);
+ cleanup_debugfs:
+ 	mic_exit_card_debugfs();
+ done:
+@@ -351,7 +347,7 @@ done:
+ static void __exit mic_exit(void)
+ {
+ 	platform_driver_unregister(&mic_platform_driver);
+-	platform_device_unregister(&mic_platform_dev);
++	platform_device_unregister(mic_platform_dev);
+ 	mic_exit_card_debugfs();
+ }
+ 
 -- 
 2.20.1
 
