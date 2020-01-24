@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31ADF147D14
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E638147D16
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388573AbgAXJ4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:56:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60538 "EHLO mail.kernel.org"
+        id S2387443AbgAXJ4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:56:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387443AbgAXJ4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:56:48 -0500
+        id S2388041AbgAXJ4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:56:52 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2761A20709;
-        Fri, 24 Jan 2020 09:56:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D90D20718;
+        Fri, 24 Jan 2020 09:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859807;
-        bh=aE+/WAqAvaIwFkmPN5lAVIbMJGoVUx0+tTKeKMzyZyU=;
+        s=default; t=1579859812;
+        bh=MDhiXoVg1qX4i5u3K+n0Ohp/sfzkXSZD9isz8dQpcA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kehavfmdcv9V3Zi8QdwcGKAYH28Ksi341zuWVfQkTNnJIeTKD9kVzAPCcG47Wvf2t
-         wR7sDTx2WNjmXF0yW0dvS5c608o9T2klX3tmRsSncRBsYcR+VfkTzy3yJnIJRjTkxm
-         wzyPGHtljfmjCYM6X01rd/WDaIndbDVcx1OrCjTo=
+        b=PQT9n4nXoPdizDsoWh4O3r9sWSjrB+LfsGjT7/sv706TSeYChTADrqxeJzYsRy1Nr
+         bxYuq+yV8TFWxOZIUIjkYPpZ5QCilxNKCboSSIuLkB5bhizR/UXi9qiMqzaB90ZIKm
+         5ZzkcWwX93BXrWS3vUbNMlg2ffYDOZiJivoyKDEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 187/343] iommu/vt-d: Make kernel parameter igfx_off work with vIOMMU
-Date:   Fri, 24 Jan 2020 10:30:05 +0100
-Message-Id: <20200124092944.601613484@linuxfoundation.org>
+        stable@vger.kernel.org, Saeed Bshara <saeedb@amazon.com>,
+        Sameeh Jubran <sameehj@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 188/343] net: ena: fix swapped parameters when calling ena_com_indirect_table_fill_entry
+Date:   Fri, 24 Jan 2020 10:30:06 +0100
+Message-Id: <20200124092944.723790582@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -47,47 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Sameeh Jubran <sameehj@amazon.com>
 
-[ Upstream commit 5daab58043ee2bca861068e2595564828f3bc663 ]
+[ Upstream commit 3c6eeff295f01bdf1c6c3addcb0a04c0c6c029e9 ]
 
-The kernel parameter igfx_off is used by users to disable
-DMA remapping for the Intel integrated graphic device. It
-was designed for bare metal cases where a dedicated IOMMU
-is used for graphic. This doesn't apply to virtual IOMMU
-case where an include-all IOMMU is used.  This makes the
-kernel parameter work with virtual IOMMU as well.
+second parameter should be the index of the table rather than the value.
 
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Suggested-by: Kevin Tian <kevin.tian@intel.com>
-Fixes: c0771df8d5297 ("intel-iommu: Export a flag indicating that the IOMMU is used for iGFX.")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Tested-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Saeed Bshara <saeedb@amazon.com>
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_ethtool.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 523d0889c2a4e..4fbd183d973ab 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3361,9 +3361,12 @@ static int __init init_dmars(void)
- 		iommu_identity_mapping |= IDENTMAP_ALL;
- 
- #ifdef CONFIG_INTEL_IOMMU_BROKEN_GFX_WA
--	iommu_identity_mapping |= IDENTMAP_GFX;
-+	dmar_map_gfx = 0;
- #endif
- 
-+	if (!dmar_map_gfx)
-+		iommu_identity_mapping |= IDENTMAP_GFX;
-+
- 	check_tylersburg_isoch();
- 
- 	if (iommu_identity_mapping) {
+diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+index 967020fb26ee1..a2f02c23fe141 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
++++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+@@ -694,8 +694,8 @@ static int ena_set_rxfh(struct net_device *netdev, const u32 *indir,
+ 	if (indir) {
+ 		for (i = 0; i < ENA_RX_RSS_TABLE_SIZE; i++) {
+ 			rc = ena_com_indirect_table_fill_entry(ena_dev,
+-							       ENA_IO_RXQ_IDX(indir[i]),
+-							       i);
++							       i,
++							       ENA_IO_RXQ_IDX(indir[i]));
+ 			if (unlikely(rc)) {
+ 				netif_err(adapter, drv, netdev,
+ 					  "Cannot fill indirect table (index is too large)\n");
 -- 
 2.20.1
 
