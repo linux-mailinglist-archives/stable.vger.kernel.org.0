@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16480148966
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:35:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA036148957
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:34:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392085AbgAXOTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:19:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40354 "EHLO mail.kernel.org"
+        id S2404702AbgAXOeX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:34:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392053AbgAXOTr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:47 -0500
+        id S2392094AbgAXOTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B9C220838;
-        Fri, 24 Jan 2020 14:19:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A5192087E;
+        Fri, 24 Jan 2020 14:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875587;
-        bh=AyQZ3DCIZe67RaeskNigaXupa+yKmrbdFSbdO1ig+so=;
+        s=default; t=1579875588;
+        bh=Sz1Bppt4O5QqjzjUK9DivHQnbtFIzPAdJJy0YWOi9Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwPSen6z9f3Lg6yO5K8ftTYkFgCgXNfG53P/reflJ51pnz3p2l0clV09zMBpGHWoq
-         P6Z/orZ+dgDQtuvUCxxgvCI7ZJaftEmk3uiVMz+UJ0hL5VjugLjLfakGozMOmv53+Z
-         8adjdLNIRwSli95DyO/2+vQq0duuyPKtZhPRUyvs=
+        b=j9npbap8JtdfJQ9yqmNnWQwAfNo3vNzD1Km1pIStwroGo1U1DWAGPBaPB6u4N3s/z
+         RIWiNqfpDeWK3ahZf6G1sTJZ/hEifVCgxYg2JPuDkgkG9QonBxC/4NOVKcVNcpEBcp
+         Zh5UdUDDEnokzuoEWb+Xcw+pUfH0jMns0TJVQJls=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@mellanox.com>, Amit Cohen <amitc@mellanox.com>,
+Cc:     Petr Machata <petrm@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
         Ido Schimmel <idosch@mellanox.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 077/107] selftests: mlxsw: qos_mc_aware: Fix mausezahn invocation
-Date:   Fri, 24 Jan 2020 09:17:47 -0500
-Message-Id: <20200124141817.28793-77-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 078/107] mlxsw: spectrum: Wipe xstats.backlog of down ports
+Date:   Fri, 24 Jan 2020 09:17:48 -0500
+Message-Id: <20200124141817.28793-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -46,52 +46,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit fef6d6704944c7be72fd2b77c021f1aed3d5df0d ]
+[ Upstream commit ca7609ff3680c51d6c29897f3117aa2ad904f92a ]
 
-Mausezahn does not recognize "own" as a keyword on source IP address. As a
-result, the MC stream is not running at all, and therefore no UC
-degradation can be observed even in principle.
+Per-port counter cache used by Qdiscs is updated periodically, unless the
+port is down. The fact that the cache is not updated for down ports is no
+problem for most counters, which are relative in nature. However, backlog
+is absolute in nature, and if there is a non-zero value in the cache around
+the time that the port goes down, that value just stays there. This value
+then leaks to offloaded Qdiscs that report non-zero backlog even if
+there (obviously) is no traffic.
 
-Fix the invocation, and tighten the test: due to the minimum shaper
-configured at the MC TCs, we always expect about 20% degradation. Fail the
-test if it is lower.
+The HW does not keep backlog of a downed port, so do likewise: as the port
+goes down, wipe the backlog value from xstats.
 
-Fixes: 573363a68f27 ("selftests: mlxsw: Add qos_lib.sh")
+Fixes: 075ab8adaf4e ("mlxsw: spectrum: Collect tclass related stats periodically")
 Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reported-by: Amit Cohen <amitc@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh b/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh
-index 47315fe48d5af..24dd8ed485802 100755
---- a/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh
-@@ -232,7 +232,7 @@ test_mc_aware()
- 	stop_traffic
- 	local ucth1=${uc_rate[1]}
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index 45f6836fcc629..a806c6190bb1e 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -1161,6 +1161,9 @@ static void update_stats_cache(struct work_struct *work)
+ 			     periodic_hw_stats.update_dw.work);
  
--	start_traffic $h1 own bc bc
-+	start_traffic $h1 192.0.2.65 bc bc
+ 	if (!netif_carrier_ok(mlxsw_sp_port->dev))
++		/* Note: mlxsw_sp_port_down_wipe_counters() clears the cache as
++		 * necessary when port goes down.
++		 */
+ 		goto out;
  
- 	local d0=$(date +%s)
- 	local t0=$(ethtool_stats_get $h3 rx_octets_prio_0)
-@@ -254,7 +254,11 @@ test_mc_aware()
- 			ret = 100 * ($ucth1 - $ucth2) / $ucth1
- 			if (ret > 0) { ret } else { 0 }
- 		    ")
--	check_err $(bc <<< "$deg > 25")
+ 	mlxsw_sp_port_get_hw_stats(mlxsw_sp_port->dev,
+@@ -4170,6 +4173,15 @@ static int mlxsw_sp_port_unsplit(struct mlxsw_core *mlxsw_core, u8 local_port,
+ 	return 0;
+ }
+ 
++static void
++mlxsw_sp_port_down_wipe_counters(struct mlxsw_sp_port *mlxsw_sp_port)
++{
++	int i;
 +
-+	# Minimum shaper of 200Mbps on MC TCs should cause about 20% of
-+	# degradation on 1Gbps link.
-+	check_err $(bc <<< "$deg < 15") "Minimum shaper not in effect"
-+	check_err $(bc <<< "$deg > 25") "MC traffic degrades UC performance too much"
++	for (i = 0; i < TC_MAX_QUEUE; i++)
++		mlxsw_sp_port->periodic_hw_stats.xstats.backlog[i] = 0;
++}
++
+ static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
+ 				     char *pude_pl, void *priv)
+ {
+@@ -4191,6 +4203,7 @@ static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
+ 	} else {
+ 		netdev_info(mlxsw_sp_port->dev, "link down\n");
+ 		netif_carrier_off(mlxsw_sp_port->dev);
++		mlxsw_sp_port_down_wipe_counters(mlxsw_sp_port);
+ 	}
+ }
  
- 	local interval=$((d1 - d0))
- 	local mc_ir=$(rate $u0 $u1 $interval)
 -- 
 2.20.1
 
