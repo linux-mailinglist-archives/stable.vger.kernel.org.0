@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2690B147E56
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06610147E58
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389300AbgAXKIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:08:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
+        id S2388028AbgAXKIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389261AbgAXKIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:08:04 -0500
+        id S2389261AbgAXKIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:08:09 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 223D52087E;
-        Fri, 24 Jan 2020 10:08:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 312872077C;
+        Fri, 24 Jan 2020 10:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860483;
-        bh=8uam1c4zrf5tbI9DzabBv9YZUEmJLBKIUJu6yPQTu1w=;
+        s=default; t=1579860488;
+        bh=EVYCLhl3aSyIlLBSjPhYlqMCqS83Y0VVh46fwKa/l2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMuvfhFOvvX6z4KfOd8tRSI48iCSqR3TS7kGXeacEDUaXctXAF7lW8CejwTPaHBvg
-         deAubRIEbU/tPZZCxS8L3kRVl81ymc3fF6I6HL5jN21lOLuSbkiDZfkdun2vmvnD7d
-         eJoTdYCY1wcId08FmCTcdVim96TN91ukKkyd9Fgo=
+        b=GF1S5rdNhv6XKOlYrMxFhhwEgBf7ooS2H+uEpP5ILmi29WNmVl0oDc34n7nvDPfDw
+         iBCSwZOPEAflVack2nvPbQaWg/pKNB5Dk7JkTd6PGNlFnHMKBwwzYHfZ0FpczSKRq8
+         kXFQKG81sLNANIpeKW3bX5JdTJyncra9pUVcp2ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 337/343] affs: fix a memory leak in affs_remount
-Date:   Fri, 24 Jan 2020 10:32:35 +0100
-Message-Id: <20200124093004.075958447@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 338/343] dmaengine: ti: edma: fix missed failure handling
+Date:   Fri, 24 Jan 2020 10:32:36 +0100
+Message-Id: <20200124093004.248067110@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,58 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 450c3d4166837c496ebce03650c08800991f2150 ]
+[ Upstream commit 340049d453682a9fe8d91fe794dd091730f4bb25 ]
 
-In affs_remount if data is provided it is duplicated into new_opts.  The
-allocated memory for new_opts is only released if parse_options fails.
+When devm_kcalloc fails, it forgets to call edma_free_slot.
+Replace direct return with failure handler to fix it.
 
-There's a bit of history behind new_options, originally there was
-save/replace options on the VFS layer so the 'data' passed must not
-change (thus strdup), this got cleaned up in later patches. But not
-completely.
-
-There's no reason to do the strdup in cases where the filesystem does
-not need to reuse the 'data' again, because strsep would modify it
-directly.
-
-Fixes: c8f33d0bec99 ("affs: kstrdup() memory handling")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 1be5336bc7ba ("dmaengine: edma: New device tree binding")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Link: https://lore.kernel.org/r/20191118073802.28424-1-hslester96@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/affs/super.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/dma/edma.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/affs/super.c b/fs/affs/super.c
-index 884bedab7266a..789a1c7db5d8c 100644
---- a/fs/affs/super.c
-+++ b/fs/affs/super.c
-@@ -559,14 +559,9 @@ affs_remount(struct super_block *sb, int *flags, char *data)
- 	int			 root_block;
- 	unsigned long		 mount_flags;
- 	int			 res = 0;
--	char			*new_opts;
- 	char			 volume[32];
- 	char			*prefix = NULL;
+diff --git a/drivers/dma/edma.c b/drivers/dma/edma.c
+index 519c24465dea4..57a49fe713fdc 100644
+--- a/drivers/dma/edma.c
++++ b/drivers/dma/edma.c
+@@ -2340,8 +2340,10 @@ static int edma_probe(struct platform_device *pdev)
  
--	new_opts = kstrdup(data, GFP_KERNEL);
--	if (data && !new_opts)
--		return -ENOMEM;
--
- 	pr_debug("%s(flags=0x%x,opts=\"%s\")\n", __func__, *flags, data);
+ 		ecc->tc_list = devm_kcalloc(dev, ecc->num_tc,
+ 					    sizeof(*ecc->tc_list), GFP_KERNEL);
+-		if (!ecc->tc_list)
+-			return -ENOMEM;
++		if (!ecc->tc_list) {
++			ret = -ENOMEM;
++			goto err_reg1;
++		}
  
- 	sync_filesystem(sb);
-@@ -577,7 +572,6 @@ affs_remount(struct super_block *sb, int *flags, char *data)
- 			   &blocksize, &prefix, volume,
- 			   &mount_flags)) {
- 		kfree(prefix);
--		kfree(new_opts);
- 		return -EINVAL;
- 	}
- 
+ 		for (i = 0;; i++) {
+ 			ret = of_parse_phandle_with_fixed_args(node, "ti,tptcs",
 -- 
 2.20.1
 
