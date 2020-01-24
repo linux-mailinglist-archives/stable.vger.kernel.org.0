@@ -2,106 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D467148FE8
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 22:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B608149034
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 22:35:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725887AbgAXVIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 16:08:38 -0500
-Received: from [167.172.186.51] ([167.172.186.51]:57100 "EHLO shell.v3.sk"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725747AbgAXVIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 16:08:38 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by zimbra.v3.sk (Postfix) with ESMTP id 3D8B6DFE17;
-        Fri, 24 Jan 2020 21:08:46 +0000 (UTC)
-Received: from shell.v3.sk ([127.0.0.1])
-        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id nsCRUdqw7lCo; Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by zimbra.v3.sk (Postfix) with ESMTP id 97A45DFEAD;
-        Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at zimbra.v3.sk
-Received: from shell.v3.sk ([127.0.0.1])
-        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id ELtJo5_L7sxB; Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
-Received: from localhost (unknown [109.183.109.54])
-        by zimbra.v3.sk (Postfix) with ESMTPSA id 4F1C4DFE17;
-        Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
-Date:   Fri, 24 Jan 2020 22:08:33 +0100
-From:   Lubomir Rintel <lkundrak@v3.sk>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Stephen Boyd <sboyd@kernel.org>,
-        Olof Johansson <olof@lixom.net>, linux-clk@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 028/107] clk: mmp2: Fix the order of timer
- mux parents
-Message-ID: <20200124210833.GA244505@furthur.local>
-References: <20200124141817.28793-1-sashal@kernel.org>
- <20200124141817.28793-28-sashal@kernel.org>
+        id S1726080AbgAXVf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 16:35:29 -0500
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:37476 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725821AbgAXVf3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 16:35:29 -0500
+Received: by mail-pj1-f65.google.com with SMTP id m13so402816pjb.2
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 13:35:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=1OTCzRuZLXKgKtG0YjZ5OtZ6bjyEuVtHenJ+Tqkqok8=;
+        b=Sa3AMkvLafnKHd6IEzY/bamVuUfa8ZlPkmQZZA6hqYbj8UKkeRDoB13OT//XucaPP7
+         SCAu0rqf7Rj15tq1v+/p+sctSPVnz2j6byBWQhfkoB29HDygPmcIRFnzVREP6nOVyMts
+         f5OLzIPUbuNBrZvK1i8mgVCCcYSp3mZQDwc7EKHmUBPyCBm99CQdHXd/DaqnSu4pLaO2
+         CXnB1j1CLsYSKAlk1AJjXXCBJ9xcsSQeYUOO/gmhie5zJ1h9vnQoDZk8ITWiMk1+S+W+
+         Ec9aNejDGkmDhINio7Q5FakmJrNBago2J+013leEW5s2yYKHlYGM4+XZT1VYR12/MROh
+         0FBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=1OTCzRuZLXKgKtG0YjZ5OtZ6bjyEuVtHenJ+Tqkqok8=;
+        b=sVC77aKCdKyAEzDozmzMUE8oaYsyZk1Mf77dkZxGU0s0RhLgV+XSkevU+VYo8CZDeE
+         5T36GtKjlhs/ZJs7W0MIGbbIuVRaKJoLHovH3bR0dBXiSFCdjMXZ4u4TzF8jflxmhMVM
+         AWdIim+/UQI2mNJxNSQwZw0FpuTE4hd7sdqfjHPjb6Sn5SaQPNjJ47ZSY8MTNmh5Hx34
+         ptpG5Sca9H5FQ2zvrjwVtiQBnFUEr9xR9jueGovbcGZMIgwngKJFndIMN2idVOltxkbz
+         z+V25CIADrngl8hj6F1EBb9eNTgi6PuPkp2KSx2nDFIyt5lYORaJ8zT6xDc8Qd3q/+x3
+         o88A==
+X-Gm-Message-State: APjAAAVxnZq4urHAAVT2AUOmrEI5DJpCo1ihBBOph9zdwrTIlHrmQbyJ
+        GpNVNa+47Z+UD+r04YwzpmT6oVS6W81Rvgq+jPk=
+X-Google-Smtp-Source: APXvYqyauJyh6ZYmf2F2cOMvEX9zNEjEjRqdiFg+Szow4SMJH+ENSFa/gHMPqPE6c2cZSvV1xDt3bqpcFqS5SHX5u5Y=
+X-Received: by 2002:a17:90a:d804:: with SMTP id a4mr1396571pjv.11.1579901728913;
+ Fri, 24 Jan 2020 13:35:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200124141817.28793-28-sashal@kernel.org>
+Received: by 2002:a17:90a:354c:0:0:0:0 with HTTP; Fri, 24 Jan 2020 13:35:28
+ -0800 (PST)
+Reply-To: aishagaddafi969@aol.com
+From:   AISHA GADDAFI <scoulibaly950@gmail.com>
+Date:   Fri, 24 Jan 2020 13:35:28 -0800
+Message-ID: <CAAhOtar4TsLxfHfaak5N8L3n0M=-7p_mxNW=yRw4p8uBvXQBfg@mail.gmail.com>
+Subject: Dear Friend (Assalamu Alaikum),
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 09:16:58AM -0500, Sasha Levin wrote:
-> From: Lubomir Rintel <lkundrak@v3.sk>
-> 
-> [ Upstream commit 8bea5ac0fbc5b2103f8779ddff216122e3c2e1ad ]
-> 
-> Determined empirically, no documentation is available.
-> 
-> The OLPC XO-1.75 laptop used parent 1, that one being VCTCXO/4 (65MHz), but
-> thought it's a VCTCXO/2 (130MHz). The mmp2 timer driver, not knowing
-> what is going on, ended up just dividing the rate as of
-> commit f36797ee4380 ("ARM: mmp/mmp2: dt: enable the clock")'
+-- 
+Dear Friend (Assalamu Alaikum),
 
-Hi,
+I came across your e-mail contact prior a private search while in need of
+your assistance. My name is Aisha  Al-Qaddafi a single Mother and a Widow
+with three Children. I am the only biological Daughter of late Libyan
+President (Late Colonel Muammar Gaddafi).
 
-this has to go together with this one (in other stable trees too):
+I have investment funds worth Twenty Seven Million Five Hundred Thousand
+United State Dollar ($27.500.000.00 ) and i need a trusted investment
+Manager/Partner because of my current refugee status, however, I am
+interested in you for investment project assistance in your country, may be
+from there, we can build business relationship in the nearest future.
 
-  commit 0bd0f30bbf060891f58866a46083a9931f71787c
-  Author: Lubomir Rintel <lkundrak@v3.sk>
-  Date:   Wed Dec 18 20:04:53 2019 +0100
-  
-      ARM: mmp: do not divide the clock rate
-      
-      This was done because the clock driver returned the wrong rate, which is
-      fixed in "clk: mmp2: Fix the order of timer mux parents" patch.
+I am willing to negotiate investment/business profit sharing ratio with you
+base on the future investment earning profits.
 
-It removes a workaround for the same issue from before it was
-understood what is going on. If it stays, the clock will run twice as
-fast.
+If you are willing to handle this project on my behalf kindly reply urgent
+to enable me provide you more information about the investment funds.
 
-Thanks
-Lubo
+Your Urgent Reply Will Be Appreciated. write me at this email address(
+aishagaddafi969@aol.com ) for further discussion.
 
-> 
-> Link: https://lore.kernel.org/r/20191218190454.420358-3-lkundrak@v3.sk
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-> Acked-by: Stephen Boyd <sboyd@kernel.org>
-> Signed-off-by: Olof Johansson <olof@lixom.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/clk/mmp/clk-of-mmp2.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.c
-> index a60a1be937ad6..b4a95cbbda989 100644
-> --- a/drivers/clk/mmp/clk-of-mmp2.c
-> +++ b/drivers/clk/mmp/clk-of-mmp2.c
-> @@ -134,7 +134,7 @@ static DEFINE_SPINLOCK(ssp3_lock);
->  static const char *ssp_parent_names[] = {"vctcxo_4", "vctcxo_2", "vctcxo", "pll1_16"};
->  
->  static DEFINE_SPINLOCK(timer_lock);
-> -static const char *timer_parent_names[] = {"clk32", "vctcxo_2", "vctcxo_4", "vctcxo"};
-> +static const char *timer_parent_names[] = {"clk32", "vctcxo_4", "vctcxo_2", "vctcxo"};
->  
->  static DEFINE_SPINLOCK(reset_lock);
->  
-> -- 
-> 2.20.1
-> 
+Best Regards
+Mrs Aisha Al-Qaddafi
+Reply to: aishagaddafi969@aol.com
