@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8A28147B3B
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 507E4147B66
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbgAXJly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:41:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39470 "EHLO mail.kernel.org"
+        id S1731667AbgAXJnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:43:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731675AbgAXJlx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:41:53 -0500
+        id S1732968AbgAXJnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:43:15 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70E9421556;
-        Fri, 24 Jan 2020 09:41:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90010208C4;
+        Fri, 24 Jan 2020 09:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858912;
-        bh=5KaAIMkJ6gMEzrwfSHsXucmw+DcKAeTRBjq9Y7V1UWQ=;
+        s=default; t=1579858994;
+        bh=9uFLvNTOmKd3oWADtKZrhL4CKrXCjwDce1JDJsNltFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLBq39WEv6XWttUY18dSb152nYZOCyloDp+GyvcBnw9BAJ6n6UUFXbTmpdAS5UrwX
-         jPTsk71CERXGluBi/shm2tQO/E5JjPdGgxE9KCLHiia3w8oshaeNhqvKfGTzN7Vicy
-         OoSA3/pS7vwCoa0cmqAQVT+a+zLAF762RwlAep+A=
+        b=Rx/g9tEsQWxbLZF6vC76hT7gicAINp2Y6SX+63AN57wEWnmSwioNC0YF+QNg8PsDQ
+         3kWYN6FaMHMnut1q5RpsKPS7Mez6x3fMHikgPnhmY16LP1SSI+RZIMuclfH8ymIaAY
+         EULH9E6G7oFNmWOvWTlFWW+S6nS4tRinpIejKtJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, juri.lelli@redhat.com,
-        linux-pm@vger.kernel.org, mgorman@suse.de, rostedt@goodmis.org,
-        sargun@sargun.me, srinivas.pandruvada@linux.intel.com,
-        tj@kernel.org, xiexiuqi@huawei.com, xiezhipeng1@huawei.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/102] sched/cpufreq: Move the cfs_rq_util_change() call to cpufreq_update_util()
-Date:   Fri, 24 Jan 2020 10:31:30 +0100
-Message-Id: <20200124092820.108025708@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Zero_Chaos <sidhayn@gmail.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 090/102] mt76: mt76u: rely on usb_interface instead of usb_dev
+Date:   Fri, 24 Jan 2020 10:31:31 +0100
+Message-Id: <20200124092820.243720702@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -52,244 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit bef69dd87828ef5d8ecdab8d857cd3a33cf98675 ]
+[ Upstream commit 80df01f4dc79abbed724bbe0851cab3fe8ad9d99 ]
 
-update_cfs_rq_load_avg() calls cfs_rq_util_change() every time PELT decays,
-which might be inefficient when the cpufreq driver has rate limitation.
+usb drivers are supposed to communicate using usb_interface instead
+mt76x{0,2}u is now registering through usb_device. Fix it by passing
+usb_intf device to mt76_alloc_device routine.
 
-When a task is attached on a CPU, we have this call path:
-
-update_load_avg()
-  update_cfs_rq_load_avg()
-    cfs_rq_util_change -- > trig frequency update
-  attach_entity_load_avg()
-    cfs_rq_util_change -- > trig frequency update
-
-The 1st frequency update will not take into account the utilization of the
-newly attached task and the 2nd one might be discarded because of rate
-limitation of the cpufreq driver.
-
-update_cfs_rq_load_avg() is only called by update_blocked_averages()
-and update_load_avg() so we can move the call to
-cfs_rq_util_change/cpufreq_update_util() into these two functions.
-
-It's also interesting to note that update_load_avg() already calls
-cfs_rq_util_change() directly for the !SMP case.
-
-This change will also ensure that cpufreq_update_util() is called even
-when there is no more CFS rq in the leaf_cfs_rq_list to update, but only
-IRQ, RT or DL PELT signals.
-
-[ mingo: Minor updates. ]
-
-Reported-by: Doug Smythies <dsmythies@telus.net>
-Tested-by: Doug Smythies <dsmythies@telus.net>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: juri.lelli@redhat.com
-Cc: linux-pm@vger.kernel.org
-Cc: mgorman@suse.de
-Cc: rostedt@goodmis.org
-Cc: sargun@sargun.me
-Cc: srinivas.pandruvada@linux.intel.com
-Cc: tj@kernel.org
-Cc: xiexiuqi@huawei.com
-Cc: xiezhipeng1@huawei.com
-Fixes: 039ae8bcf7a5 ("sched/fair: Fix O(nr_cgroups) in the load balancing path")
-Link: https://lkml.kernel.org/r/1574083279-799-1-git-send-email-vincent.guittot@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 112f980ac8926 ("mt76usb: use usb_dev private data")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Tested-By: Zero_Chaos <sidhayn@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 111 +++++++++++++++++++++++++-------------------
- 1 file changed, 62 insertions(+), 49 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76.h       |  3 ++-
+ drivers/net/wireless/mediatek/mt76/mt76x0/usb.c |  2 +-
+ drivers/net/wireless/mediatek/mt76/mt76x2/usb.c |  2 +-
+ drivers/net/wireless/mediatek/mt76/usb.c        | 12 +++++++++---
+ 4 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 2b7034e6fa241..c87a798d14562 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3504,9 +3504,6 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
- 	cfs_rq->load_last_update_time_copy = sa->last_update_time;
- #endif
- 
--	if (decayed)
--		cfs_rq_util_change(cfs_rq, 0);
--
- 	return decayed;
- }
- 
-@@ -3616,8 +3613,12 @@ static inline void update_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *s
- 		attach_entity_load_avg(cfs_rq, se, SCHED_CPUFREQ_MIGRATION);
- 		update_tg_load_avg(cfs_rq, 0);
- 
--	} else if (decayed && (flags & UPDATE_TG))
--		update_tg_load_avg(cfs_rq, 0);
-+	} else if (decayed) {
-+		cfs_rq_util_change(cfs_rq, 0);
-+
-+		if (flags & UPDATE_TG)
-+			update_tg_load_avg(cfs_rq, 0);
-+	}
- }
- 
- #ifndef CONFIG_64BIT
-@@ -7517,6 +7518,28 @@ static inline bool others_have_blocked(struct rq *rq) { return false; }
- static inline void update_blocked_load_status(struct rq *rq, bool has_blocked) {}
- #endif
- 
-+static bool __update_blocked_others(struct rq *rq, bool *done)
-+{
-+	const struct sched_class *curr_class;
-+	u64 now = rq_clock_pelt(rq);
-+	bool decayed;
-+
-+	/*
-+	 * update_load_avg() can call cpufreq_update_util(). Make sure that RT,
-+	 * DL and IRQ signals have been updated before updating CFS.
-+	 */
-+	curr_class = rq->curr->sched_class;
-+
-+	decayed = update_rt_rq_load_avg(now, rq, curr_class == &rt_sched_class) |
-+		  update_dl_rq_load_avg(now, rq, curr_class == &dl_sched_class) |
-+		  update_irq_load_avg(rq, 0);
-+
-+	if (others_have_blocked(rq))
-+		*done = false;
-+
-+	return decayed;
-+}
-+
- #ifdef CONFIG_FAIR_GROUP_SCHED
- 
- static inline bool cfs_rq_is_decayed(struct cfs_rq *cfs_rq)
-@@ -7536,29 +7559,11 @@ static inline bool cfs_rq_is_decayed(struct cfs_rq *cfs_rq)
- 	return true;
- }
- 
--static void update_blocked_averages(int cpu)
-+static bool __update_blocked_fair(struct rq *rq, bool *done)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 653cdcbaaea91..502814c26b33d 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -799,7 +799,8 @@ static inline int
+ mt76u_bulk_msg(struct mt76_dev *dev, void *data, int len, int *actual_len,
+ 	       int timeout)
  {
--	struct rq *rq = cpu_rq(cpu);
- 	struct cfs_rq *cfs_rq, *pos;
--	const struct sched_class *curr_class;
--	struct rq_flags rf;
--	bool done = true;
--
--	rq_lock_irqsave(rq, &rf);
--	update_rq_clock(rq);
--
--	/*
--	 * update_cfs_rq_load_avg() can call cpufreq_update_util(). Make sure
--	 * that RT, DL and IRQ signals have been updated before updating CFS.
--	 */
--	curr_class = rq->curr->sched_class;
--	update_rt_rq_load_avg(rq_clock_pelt(rq), rq, curr_class == &rt_sched_class);
--	update_dl_rq_load_avg(rq_clock_pelt(rq), rq, curr_class == &dl_sched_class);
--	update_irq_load_avg(rq, 0);
--
--	/* Don't need periodic decay once load/util_avg are null */
--	if (others_have_blocked(rq))
--		done = false;
-+	bool decayed = false;
-+	int cpu = cpu_of(rq);
+-	struct usb_device *udev = to_usb_device(dev->dev);
++	struct usb_interface *uintf = to_usb_interface(dev->dev);
++	struct usb_device *udev = interface_to_usbdev(uintf);
+ 	struct mt76_usb *usb = &dev->usb;
+ 	unsigned int pipe;
  
- 	/*
- 	 * Iterates the task_group tree in a bottom up fashion, see
-@@ -7567,9 +7572,13 @@ static void update_blocked_averages(int cpu)
- 	for_each_leaf_cfs_rq_safe(rq, cfs_rq, pos) {
- 		struct sched_entity *se;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c b/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
+index 00a445d275998..65d404e614040 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x0/usb.c
+@@ -226,7 +226,7 @@ static int mt76x0u_probe(struct usb_interface *usb_intf,
+ 	u32 mac_rev;
+ 	int ret;
  
--		if (update_cfs_rq_load_avg(cfs_rq_clock_pelt(cfs_rq), cfs_rq))
-+		if (update_cfs_rq_load_avg(cfs_rq_clock_pelt(cfs_rq), cfs_rq)) {
- 			update_tg_load_avg(cfs_rq, 0);
+-	mdev = mt76_alloc_device(&usb_dev->dev, sizeof(*dev), &mt76x0u_ops,
++	mdev = mt76_alloc_device(&usb_intf->dev, sizeof(*dev), &mt76x0u_ops,
+ 				 &drv_ops);
+ 	if (!mdev)
+ 		return -ENOMEM;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c b/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
+index da5e0f9a8baeb..8b26c61081868 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
+@@ -39,7 +39,7 @@ static int mt76x2u_probe(struct usb_interface *intf,
+ 	struct mt76_dev *mdev;
+ 	int err;
  
-+			if (cfs_rq == &rq->cfs)
-+				decayed = true;
-+		}
-+
- 		/* Propagate pending load changes to the parent, if any: */
- 		se = cfs_rq->tg->se[cpu];
- 		if (se && !skip_blocked_update(se))
-@@ -7584,11 +7593,10 @@ static void update_blocked_averages(int cpu)
- 
- 		/* Don't need periodic decay once load/util_avg are null */
- 		if (cfs_rq_has_blocked(cfs_rq))
--			done = false;
-+			*done = false;
- 	}
- 
--	update_blocked_load_status(rq, !done);
--	rq_unlock_irqrestore(rq, &rf);
-+	return decayed;
- }
- 
- /*
-@@ -7638,29 +7646,16 @@ static unsigned long task_h_load(struct task_struct *p)
- 			cfs_rq_load_avg(cfs_rq) + 1);
- }
- #else
--static inline void update_blocked_averages(int cpu)
-+static bool __update_blocked_fair(struct rq *rq, bool *done)
+-	mdev = mt76_alloc_device(&udev->dev, sizeof(*dev), &mt76x2u_ops,
++	mdev = mt76_alloc_device(&intf->dev, sizeof(*dev), &mt76x2u_ops,
+ 				 &drv_ops);
+ 	if (!mdev)
+ 		return -ENOMEM;
+diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
+index 20c6fe510e9db..05aa42bd98083 100644
+--- a/drivers/net/wireless/mediatek/mt76/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/usb.c
+@@ -20,7 +20,8 @@ static int __mt76u_vendor_request(struct mt76_dev *dev, u8 req,
+ 				  u8 req_type, u16 val, u16 offset,
+ 				  void *buf, size_t len)
  {
--	struct rq *rq = cpu_rq(cpu);
- 	struct cfs_rq *cfs_rq = &rq->cfs;
--	const struct sched_class *curr_class;
--	struct rq_flags rf;
--
--	rq_lock_irqsave(rq, &rf);
--	update_rq_clock(rq);
--
--	/*
--	 * update_cfs_rq_load_avg() can call cpufreq_update_util(). Make sure
--	 * that RT, DL and IRQ signals have been updated before updating CFS.
--	 */
--	curr_class = rq->curr->sched_class;
--	update_rt_rq_load_avg(rq_clock_pelt(rq), rq, curr_class == &rt_sched_class);
--	update_dl_rq_load_avg(rq_clock_pelt(rq), rq, curr_class == &dl_sched_class);
--	update_irq_load_avg(rq, 0);
-+	bool decayed;
+-	struct usb_device *udev = to_usb_device(dev->dev);
++	struct usb_interface *uintf = to_usb_interface(dev->dev);
++	struct usb_device *udev = interface_to_usbdev(uintf);
+ 	unsigned int pipe;
+ 	int i, ret;
  
--	update_cfs_rq_load_avg(cfs_rq_clock_pelt(cfs_rq), cfs_rq);
-+	decayed = update_cfs_rq_load_avg(cfs_rq_clock_pelt(cfs_rq), cfs_rq);
-+	if (cfs_rq_has_blocked(cfs_rq))
-+		*done = false;
+@@ -235,7 +236,8 @@ mt76u_rd_rp(struct mt76_dev *dev, u32 base,
  
--	update_blocked_load_status(rq, cfs_rq_has_blocked(cfs_rq) || others_have_blocked(rq));
--	rq_unlock_irqrestore(rq, &rf);
-+	return decayed;
- }
+ static bool mt76u_check_sg(struct mt76_dev *dev)
+ {
+-	struct usb_device *udev = to_usb_device(dev->dev);
++	struct usb_interface *uintf = to_usb_interface(dev->dev);
++	struct usb_device *udev = interface_to_usbdev(uintf);
  
- static unsigned long task_h_load(struct task_struct *p)
-@@ -7669,6 +7664,24 @@ static unsigned long task_h_load(struct task_struct *p)
- }
- #endif
+ 	return (!disable_usb_sg && udev->bus->sg_tablesize > 0 &&
+ 		(udev->bus->no_sg_constraint ||
+@@ -370,7 +372,8 @@ mt76u_fill_bulk_urb(struct mt76_dev *dev, int dir, int index,
+ 		    struct urb *urb, usb_complete_t complete_fn,
+ 		    void *context)
+ {
+-	struct usb_device *udev = to_usb_device(dev->dev);
++	struct usb_interface *uintf = to_usb_interface(dev->dev);
++	struct usb_device *udev = interface_to_usbdev(uintf);
+ 	unsigned int pipe;
  
-+static void update_blocked_averages(int cpu)
-+{
-+	bool decayed = false, done = true;
-+	struct rq *rq = cpu_rq(cpu);
-+	struct rq_flags rf;
+ 	if (dir == USB_DIR_IN)
+@@ -952,6 +955,7 @@ int mt76u_init(struct mt76_dev *dev,
+ 		.rd_rp = mt76u_rd_rp,
+ 		.type = MT76_BUS_USB,
+ 	};
++	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct mt76_usb *usb = &dev->usb;
+ 
+ 	tasklet_init(&usb->rx_tasklet, mt76u_rx_tasklet, (unsigned long)dev);
+@@ -965,6 +969,8 @@ int mt76u_init(struct mt76_dev *dev,
+ 	dev->bus = &mt76u_ops;
+ 	dev->queue_ops = &usb_queue_ops;
+ 
++	dev_set_drvdata(&udev->dev, dev);
 +
-+	rq_lock_irqsave(rq, &rf);
-+	update_rq_clock(rq);
-+
-+	decayed |= __update_blocked_others(rq, &done);
-+	decayed |= __update_blocked_fair(rq, &done);
-+
-+	update_blocked_load_status(rq, !done);
-+	if (decayed)
-+		cpufreq_update_util(rq, 0);
-+	rq_unlock_irqrestore(rq, &rf);
-+}
-+
- /********** Helpers for find_busiest_group ************************/
+ 	usb->sg_en = mt76u_check_sg(dev);
  
- /*
+ 	return mt76u_set_endpoints(intf, usb);
 -- 
 2.20.1
 
