@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C331489B0
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE741489A5
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729609AbgAXOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:36:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39358 "EHLO mail.kernel.org"
+        id S2391403AbgAXOTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:19:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391352AbgAXOTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:12 -0500
+        id S2391388AbgAXOTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E597121734;
-        Fri, 24 Jan 2020 14:19:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05F32208C4;
+        Fri, 24 Jan 2020 14:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875551;
-        bh=rsD6dVCbhIVA3iFuTz0rQzx5Xzdw3U6roCRQR2mAAGM=;
+        s=default; t=1579875552;
+        bh=rT2aUdahCJJgRHdhNyAEat9JFF7mmfvmHnL3jd5FgYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3IjhIpc9gGeSWscm+KC+R5yruMMPtOXh3qXX2bK4yFIANXSjC+Z2xa3QaV9bNTZC
-         WetaE2ZWz+9dW/gd4STD8AQdFpIAp7WK/JCBQttqdfl/4KHEy5KoMzgqzBt96b+VBP
-         HMqzgah8WXWmVq/7fuMg85lfelcpMWxvOHJkhY4U=
+        b=BL/2K3TsF14oYQkcyjI+s7a8+zrwpTNuH5YHUFqyTS+hHuNOzVtDcm23BZD1HSKrd
+         lNmN6MAdP75l5ZOE9Pgm908yMi7yxanKitRK+O5R/n6MSXLiwgL9+ieJJ54DblB7OS
+         MAyzEVU7tSqafJUIyjWQHJDOmxpn4yPjgfhr+Ykw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olivier Moysan <olivier.moysan@st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 046/107] ASoC: stm32: dfsdm: fix 16 bits record
-Date:   Fri, 24 Jan 2020 09:17:16 -0500
-Message-Id: <20200124141817.28793-46-sashal@kernel.org>
+Cc:     Lorenz Bauer <lmb@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 047/107] net: bpf: Don't leak time wait and request sockets
+Date:   Fri, 24 Jan 2020 09:17:17 -0500
+Message-Id: <20200124141817.28793-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,66 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-[ Upstream commit 8e55ea19125b65cffe42747359af99d545e85f2f ]
+[ Upstream commit 2e012c74823629d9db27963c79caa3f5b2010746 ]
 
-In stm32_afsdm_pcm_cb function, the transfer size is provided in bytes.
-However, samples are copied as 16 bits words from iio buffer.
-Divide by two the transfer size, to copy the right number of samples.
+It's possible to leak time wait and request sockets via the following
+BPF pseudo code:
+ 
+  sk = bpf_skc_lookup_tcp(...)
+  if (sk)
+    bpf_sk_release(sk)
 
-Fixes: 1e7f6e1c69f0 ("ASoC: stm32: dfsdm: add 16 bits audio record support")
+If sk->sk_state is TCP_NEW_SYN_RECV or TCP_TIME_WAIT the refcount taken
+by bpf_skc_lookup_tcp is not undone by bpf_sk_release. This is because
+sk_flags is re-used for other data in both kinds of sockets. The check
 
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Link: https://lore.kernel.org/r/20200110131131.3191-1-olivier.moysan@st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  !sock_flag(sk, SOCK_RCU_FREE)
+
+therefore returns a bogus result. Check that sk_flags is valid by calling
+sk_fullsock. Skip checking SOCK_RCU_FREE if we already know that sk is
+not a full socket.
+
+Fixes: edbf8c01de5a ("bpf: add skc_lookup_tcp helper")
+Fixes: f7355a6c0497 ("bpf: Check sk_fullsock() before returning from bpf_sk_lookup()")
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20200110132336.26099-1-lmb@cloudflare.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/stm/stm32_adfsdm.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/core/filter.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
-index 3c9a9deec9af4..4ecea4913f427 100644
---- a/sound/soc/stm/stm32_adfsdm.c
-+++ b/sound/soc/stm/stm32_adfsdm.c
-@@ -153,13 +153,13 @@ static const struct snd_soc_component_driver stm32_adfsdm_dai_component = {
- 	.name = "stm32_dfsdm_audio",
- };
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 2f76461c120d2..3cbf06a466f7d 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -5305,8 +5305,7 @@ __bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
+ 	if (sk) {
+ 		sk = sk_to_full_sk(sk);
+ 		if (!sk_fullsock(sk)) {
+-			if (!sock_flag(sk, SOCK_RCU_FREE))
+-				sock_gen_put(sk);
++			sock_gen_put(sk);
+ 			return NULL;
+ 		}
+ 	}
+@@ -5343,8 +5342,7 @@ bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
+ 	if (sk) {
+ 		sk = sk_to_full_sk(sk);
+ 		if (!sk_fullsock(sk)) {
+-			if (!sock_flag(sk, SOCK_RCU_FREE))
+-				sock_gen_put(sk);
++			sock_gen_put(sk);
+ 			return NULL;
+ 		}
+ 	}
+@@ -5411,7 +5409,8 @@ static const struct bpf_func_proto bpf_sk_lookup_udp_proto = {
  
--static void memcpy_32to16(void *dest, const void *src, size_t n)
-+static void stm32_memcpy_32to16(void *dest, const void *src, size_t n)
+ BPF_CALL_1(bpf_sk_release, struct sock *, sk)
  {
- 	unsigned int i = 0;
- 	u16 *d = (u16 *)dest, *s = (u16 *)src;
- 
- 	s++;
--	for (i = n; i > 0; i--) {
-+	for (i = n >> 1; i > 0; i--) {
- 		*d++ = *s++;
- 		s++;
- 	}
-@@ -186,8 +186,8 @@ static int stm32_afsdm_pcm_cb(const void *data, size_t size, void *private)
- 
- 	if ((priv->pos + src_size) > buff_size) {
- 		if (format == SNDRV_PCM_FORMAT_S16_LE)
--			memcpy_32to16(&pcm_buff[priv->pos], src_buff,
--				      buff_size - priv->pos);
-+			stm32_memcpy_32to16(&pcm_buff[priv->pos], src_buff,
-+					    buff_size - priv->pos);
- 		else
- 			memcpy(&pcm_buff[priv->pos], src_buff,
- 			       buff_size - priv->pos);
-@@ -196,8 +196,8 @@ static int stm32_afsdm_pcm_cb(const void *data, size_t size, void *private)
- 	}
- 
- 	if (format == SNDRV_PCM_FORMAT_S16_LE)
--		memcpy_32to16(&pcm_buff[priv->pos],
--			      &src_buff[src_size - cur_size], cur_size);
-+		stm32_memcpy_32to16(&pcm_buff[priv->pos],
-+				    &src_buff[src_size - cur_size], cur_size);
- 	else
- 		memcpy(&pcm_buff[priv->pos], &src_buff[src_size - cur_size],
- 		       cur_size);
+-	if (!sock_flag(sk, SOCK_RCU_FREE))
++	/* Only full sockets have sk->sk_flags. */
++	if (!sk_fullsock(sk) || !sock_flag(sk, SOCK_RCU_FREE))
+ 		sock_gen_put(sk);
+ 	return 0;
+ }
 -- 
 2.20.1
 
