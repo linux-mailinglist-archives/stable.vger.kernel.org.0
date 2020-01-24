@@ -2,98 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7EA148A9F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4033E148ABD
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:55:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730397AbgAXOwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:52:19 -0500
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:3010 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726173AbgAXOwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 09:52:18 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5e2b04930000>; Fri, 24 Jan 2020 06:52:03 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 24 Jan 2020 06:52:17 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 24 Jan 2020 06:52:17 -0800
-Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 24 Jan
- 2020 14:52:15 +0000
-Subject: Re: [PATCH 5.4 000/102] 5.4.15-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200124092806.004582306@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <69134792-bcb4-a5d3-8e64-cb62d34bdb6e@nvidia.com>
-Date:   Fri, 24 Jan 2020 14:52:13 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S2387597AbgAXOzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:55:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46574 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387565AbgAXOzb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:55:31 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE08B2071A;
+        Fri, 24 Jan 2020 14:55:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579877731;
+        bh=m0t1jjsy3xs2HWlELIF07IJZDDbROxtZDkIG0+qm2ho=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2J2wJtUVMRudb2eQ3NOMrxEJLjk0Ofy4ty9o/+3AsHMU53umohu3tsdB9ek2C6y0o
+         9Cr5m6VtVX7LkGMFDvagZZYiAuj3w3ijBrqJQkfL+Sh7o1hJJMyDcItAZY6p6SocOm
+         zi3465AjOnF624VEk5PAZAMeO2DEa8TsxidKTX6s=
+Date:   Fri, 24 Jan 2020 09:55:29 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        mgalka@collabora.com,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: stable-rc/linux-4.19.y bisection: baseline.login on
+ sun8i-h3-libretech-all-h3-cc
+Message-ID: <20200124145529.GG1706@sasha-vm>
+References: <5e2ad951.1c69fb81.6d762.dd8e@mx.google.com>
+ <0ed4668a-fb29-fca8-558e-385ef118d432@collabora.com>
+ <20200124131821.GA4918@sirena.org.uk>
+ <CACRpkdYdX-k+YT5wmyRzDnvaziwEDhYe82r3V2WOW6tyvNomFg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1579877523; bh=aLjXkXyAEE0U90tdrRddV20uRqQBdlPEy/BJZtuieEY=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=B+8Hbn2PxOk8g7+fOUt7iHYPPSr4Zj3aVTkrngeIr8mD3bx+t5IbAC3eIcjBLL5w5
-         tAPHyTBg3ds/IPA3DSqr6cvTyUnqVfChb1BhDZcdBxAJ+H/MIir5h9/42tjvGQb2RU
-         ID83b2WX6E7qkDUW91ROr28kbbFML8fVo2QU5dUCmj4eoz9+qsrwreOfbj35C/12BX
-         DaCmz3+AcAO7RNHzzqdU2amYFPwRyX6gNQyi/Rm5PYFGBbEdc7tuamDuv1Z9sMSTFM
-         FJW+RlNu6HTjckOO8t2Klnnral/h6Buj38OeY8xDjPseIjLZbeN1BQW17ER0c4DwdC
-         Nopd8VDWkMsdg==
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CACRpkdYdX-k+YT5wmyRzDnvaziwEDhYe82r3V2WOW6tyvNomFg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jan 24, 2020 at 02:44:19PM +0100, Linus Walleij wrote:
+>On Fri, Jan 24, 2020 at 2:18 PM Mark Brown <broonie@kernel.org> wrote:
+>> On Fri, Jan 24, 2020 at 12:58:32PM +0000, Guillaume Tucker wrote:
+>>
+>> > Please see the bisection report below about a boot failure, it
+>> > looks legit as this commit was made today:
+>>
+>> > >     Fix it by ignoring the config in the device tree for now: the
+>> > >     later patches in the series will push all inversion handling
+>> > >     over to the gpiolib core and set it up properly in the
+>> > >     boardfiles for legacy devices, but I did not finish that
+>> > >     for this kernel cycle.
+>
+>So here the patch clearly says it is for "this kernel cycle"
+>which I feel implies that it is NOT for any previous kernels
+>stable or not...
 
-On 24/01/2020 09:30, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.15 release.
-> There are 102 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 26 Jan 2020 09:26:29 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+This read to me as if this patch plasters the issue for now, and a
+proper fix will follow in the next cycle.
 
+>I'm sorry if I missed the "look at this thing that we will
+>apply to stable soon" mail, sadly there are just too many
+>of these for me to handle sometimes. (Maybe it means I
+>am making too many mistakes to begin with, mea culpa.)
+>
+>> > >     Reported-by: Leonard Crestez <leonard.crestez@nxp.com>
+>> > >     Reported-by: Fabio Estevam <festevam@gmail.com>
+>> > >     Reported-by: John Stultz <john.stultz@linaro.org>
+>> > >     Reported-by: Anders Roxell <anders.roxell@linaro.org>
+>> > >     Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>> > >     Tested-by: John Stultz <john.stultz@linaro.org>
+>> > >     Signed-off-by: Mark Brown <broonie@kernel.org>
+>> > >     Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>
+>> Oh dear, this is another bot backported commit which I suspect is
+>> lacking some context or other from all the other work that was done with
+>> GPIO enables :(
+>
+>This AI seems a bit confused :/
+>Maybe it is the prolific use of the word "fix" that triggers it?
 
-All tests are passing for Tegra ...
+Right, it's a combo of a few things: one of them is indeed the work
+"fix", but few others are the Reported-by tags, the simplicity of the
+commit, and so on.
 
-Test results for stable-v5.4:
-    13 builds:	13 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    40 tests:	40 pass, 0 fail
-
-Linux version:	5.4.15-rc1-g28d0c8c0a7ca
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
+I'll drop this patch, sorry about this.
 
 -- 
-nvpublic
+Thanks,
+Sasha
