@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3BA314807F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:12:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB75148082
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388632AbgAXLLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:11:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
+        id S2389907AbgAXLLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:11:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389900AbgAXLLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:11:41 -0500
+        id S2388725AbgAXLLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:11:48 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2676D20663;
-        Fri, 24 Jan 2020 11:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2D6520663;
+        Fri, 24 Jan 2020 11:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864300;
-        bh=/LQIiRt807IdlrK/+uzK5Lu6KwVwbZWcH+XbI2h1q48=;
+        s=default; t=1579864307;
+        bh=GIE21lGTg8zeMS92gvovzXBxYOWIpN9X8YOBQHHr4xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKAJlo8BaG4XtzyXX+FZJDB5afQQ8WVPryCNmCQxjcfOU3JF3y1SIvFUQ3qNKu74c
-         5m0wR4L7jJDbjdrfnk72mdrYSLEy64jPQGR3CEjemzzqChW0QZqH9rXQnuXUbYcmrI
-         o3U/q5Mq1QoQOcIW6rFAhXa7ztwW4NJX6RHS5p5U=
+        b=NGAp/ulODcS/wxg9+2GW6z6UvioOkj66eYkC3JS6sYh6Uo7j+8a+/CvbnyLgucAXs
+         mcYiaFtNvY1SNix3HlYKSzXktTXW+xyEqfqfKxNTWLxaz1nWj3RcH3YnVbM2tonq+I
+         N3RWHR7pUFBd4izXvIUEEbUR2OQVDxTrk4qbShaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mansour Alharthi <malharthi9@gatech.edu>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 228/639] perf: Copy parents address filter offsets on clone
-Date:   Fri, 24 Jan 2020 10:26:38 +0100
-Message-Id: <20200124093115.438515303@linuxfoundation.org>
+Subject: [PATCH 4.19 230/639] clocksource/drivers/sun5i: Fail gracefully when clock rate is unavailable
+Date:   Fri, 24 Jan 2020 10:26:40 +0100
+Message-Id: <20200124093115.675229393@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -48,61 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 18736eef12137c59f60cc9f56dc5bea05c92e0eb ]
+[ Upstream commit e7e7e0d7beafebd11b0c065cd5fbc1e5759c5aab ]
 
-When a child event is allocated in the inherit_event() path, the VMA
-based filter offsets are not copied from the parent, even though the
-address space mapping of the new task remains the same, which leads to
-no trace for the new task until exec.
+If the clock tree is not fully populated when the timer-sun5i init code
+is called, attempts to get the clock rate for the timer would fail and
+return 0.
 
-Reported-by: Mansour Alharthi <malharthi9@gatech.edu>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Tested-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
-Link: http://lkml.kernel.org/r/20190215115655.63469-2-alexander.shishkin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Make the init code for both clock events and clocksource check the
+returned clock rate and fail gracefully if the result is 0, instead of
+causing a divide by 0 exception later on.
+
+Fixes: 4a59058f0b09 ("clocksource/drivers/sun5i: Refactor the current code")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/clocksource/timer-sun5i.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 460d5fd3ec4e4..9a5559f5938a5 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -1254,6 +1254,7 @@ static void put_ctx(struct perf_event_context *ctx)
-  *	      perf_event_context::lock
-  *	    perf_event::mmap_mutex
-  *	    mmap_sem
-+ *	      perf_addr_filters_head::lock
-  *
-  *    cpu_hotplug_lock
-  *      pmus_lock
-@@ -10136,6 +10137,20 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
- 			goto err_per_task;
- 		}
- 
-+		/*
-+		 * Clone the parent's vma offsets: they are valid until exec()
-+		 * even if the mm is not shared with the parent.
-+		 */
-+		if (event->parent) {
-+			struct perf_addr_filters_head *ifh = perf_event_addr_filters(event);
-+
-+			raw_spin_lock_irq(&ifh->lock);
-+			memcpy(event->addr_filters_offs,
-+			       event->parent->addr_filters_offs,
-+			       pmu->nr_addr_filters * sizeof(unsigned long));
-+			raw_spin_unlock_irq(&ifh->lock);
-+		}
-+
- 		/* force hw sync on the address filters */
- 		event->addr_filters_gen = 1;
+diff --git a/drivers/clocksource/timer-sun5i.c b/drivers/clocksource/timer-sun5i.c
+index 3b56ea3f52afc..552c5254390cb 100644
+--- a/drivers/clocksource/timer-sun5i.c
++++ b/drivers/clocksource/timer-sun5i.c
+@@ -202,6 +202,11 @@ static int __init sun5i_setup_clocksource(struct device_node *node,
  	}
+ 
+ 	rate = clk_get_rate(clk);
++	if (!rate) {
++		pr_err("Couldn't get parent clock rate\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
++	}
+ 
+ 	cs->timer.base = base;
+ 	cs->timer.clk = clk;
+@@ -275,6 +280,11 @@ static int __init sun5i_setup_clockevent(struct device_node *node, void __iomem
+ 	}
+ 
+ 	rate = clk_get_rate(clk);
++	if (!rate) {
++		pr_err("Couldn't get parent clock rate\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
++	}
+ 
+ 	ce->timer.base = base;
+ 	ce->timer.ticks_per_jiffy = DIV_ROUND_UP(rate, HZ);
 -- 
 2.20.1
 
