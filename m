@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2914A147E76
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A3D6147E60
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389369AbgAXKJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:09:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46190 "EHLO mail.kernel.org"
+        id S2389504AbgAXKIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:08:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730613AbgAXKJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:09:17 -0500
+        id S2389338AbgAXKIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:08:30 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7334621734;
-        Fri, 24 Jan 2020 10:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD2D214AF;
+        Fri, 24 Jan 2020 10:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860557;
-        bh=nyUG4Wx3Jh4rCfYBfl4XE2bnxiFixVKIL6DlJgHOFT0=;
+        s=default; t=1579860509;
+        bh=hlmYZ4S2njsjMTBhUx1C66Ff7IIux7XrP9atCW+WWro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVLlQGjQzreedwKSuFpN2a71HB/l4gFD/RD1VMZexoqal8TD8jkRVIFZDy66EYphn
-         UBDdNwOpqBeuW8eK85oeqpLrowW8nZydUAjIW4+sC9G11gg/DjDFyCTivLKyLeUpU2
-         sg8IkyP3USFxKZdgHY8Nuh1+BI0cM5mti8f0HZ9w=
+        b=YDWLvxOEgzJZh5uAf+67Z0zYABZtYQ+EZkKtTLF17Gp8FPpqbLH7Df4X1PPpJkTlX
+         Jrpflfp6h4qvoBr0AXoJG7hM8zNYTUA/CaTxgUW52SptWy0bJ+C48Y8Duvm7GY2die
+         YHvcNIW3xooCJ869dOFXeWVoe2YflHf1gtrxOJSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean-Jacques Hiblot <jjhiblot@ti.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH 4.19 014/639] leds: tlc591xx: update the maximum brightness
-Date:   Fri, 24 Jan 2020 10:23:04 +0100
-Message-Id: <20200124093048.912391801@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 4.19 015/639] soc: aspeed: Fix snoop_file_poll()s return type
+Date:   Fri, 24 Jan 2020 10:23:05 +0100
+Message-Id: <20200124093049.038099969@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,56 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Jacques Hiblot <jjhiblot@ti.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-commit a2cafdfd8cf5ad8adda6c0ce44a59f46431edf02 upstream.
+commit a4e55ccd4392e70f296d12e81b93c6ca96ee21d5 upstream.
 
-The TLC chips actually offer 257 levels:
-- 0: led OFF
-- 1-255: Led dimmed is using a PWM. The duty cycle range from 0.4% to 99.6%
-- 256: led fully ON
+snoop_file_poll() is defined as returning 'unsigned int' but the
+.poll method is declared as returning '__poll_t', a bitwise type.
 
-Fixes: e370d010a5fe ("leds: tlc591xx: Driver for the TI 8/16 Channel i2c LED driver")
-Signed-off-by: Jean-Jacques Hiblot <jjhiblot@ti.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fix this by using the proper return type and using the EPOLL
+constants instead of the POLL ones, as required for __poll_t.
+
+Link: https://lore.kernel.org/r/20191121051851.268726-1-joel@jms.id.au
+Fixes: 3772e5da4454 ("drivers/misc: Aspeed LPC snoop output using misc chardev")
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/leds/leds-tlc591xx.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/misc/aspeed-lpc-snoop.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/leds/leds-tlc591xx.c
-+++ b/drivers/leds/leds-tlc591xx.c
-@@ -16,6 +16,7 @@
- #include <linux/slab.h>
+--- a/drivers/misc/aspeed-lpc-snoop.c
++++ b/drivers/misc/aspeed-lpc-snoop.c
+@@ -101,13 +101,13 @@ static ssize_t snoop_file_read(struct fi
+ 	return ret ? ret : copied;
+ }
  
- #define TLC591XX_MAX_LEDS	16
-+#define TLC591XX_MAX_BRIGHTNESS	256
+-static unsigned int snoop_file_poll(struct file *file,
++static __poll_t snoop_file_poll(struct file *file,
+ 				    struct poll_table_struct *pt)
+ {
+ 	struct aspeed_lpc_snoop_channel *chan = snoop_file_to_chan(file);
  
- #define TLC591XX_REG_MODE1	0x00
- #define MODE1_RESPON_ADDR_MASK	0xF0
-@@ -115,11 +116,11 @@ tlc591xx_brightness_set(struct led_class
- 	struct tlc591xx_priv *priv = led->priv;
- 	int err;
+ 	poll_wait(file, &chan->wq, pt);
+-	return !kfifo_is_empty(&chan->fifo) ? POLLIN : 0;
++	return !kfifo_is_empty(&chan->fifo) ? EPOLLIN : 0;
+ }
  
--	switch (brightness) {
-+	switch ((int)brightness) {
- 	case 0:
- 		err = tlc591xx_set_ledout(priv, led, LEDOUT_OFF);
- 		break;
--	case LED_FULL:
-+	case TLC591XX_MAX_BRIGHTNESS:
- 		err = tlc591xx_set_ledout(priv, led, LEDOUT_ON);
- 		break;
- 	default:
-@@ -160,7 +161,7 @@ tlc591xx_configure(struct device *dev,
- 		led->priv = priv;
- 		led->led_no = i;
- 		led->ldev.brightness_set_blocking = tlc591xx_brightness_set;
--		led->ldev.max_brightness = LED_FULL;
-+		led->ldev.max_brightness = TLC591XX_MAX_BRIGHTNESS;
- 		err = led_classdev_register(dev, &led->ldev);
- 		if (err < 0) {
- 			dev_err(dev, "couldn't register LED %s\n",
+ static const struct file_operations snoop_fops = {
 
 
