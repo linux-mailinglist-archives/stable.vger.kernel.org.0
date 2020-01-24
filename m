@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA036148957
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:34:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E019148952
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:34:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404702AbgAXOeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:34:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40384 "EHLO mail.kernel.org"
+        id S1728831AbgAXOeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:34:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392094AbgAXOTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:48 -0500
+        id S2392120AbgAXOTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A5192087E;
-        Fri, 24 Jan 2020 14:19:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C70B208C4;
+        Fri, 24 Jan 2020 14:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875588;
-        bh=Sz1Bppt4O5QqjzjUK9DivHQnbtFIzPAdJJy0YWOi9Uc=;
+        s=default; t=1579875589;
+        bh=xsufd/3xikqPueUSEBJ072fdiuQ2sXUKcf5CwU+7fu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9npbap8JtdfJQ9yqmNnWQwAfNo3vNzD1Km1pIStwroGo1U1DWAGPBaPB6u4N3s/z
-         RIWiNqfpDeWK3ahZf6G1sTJZ/hEifVCgxYg2JPuDkgkG9QonBxC/4NOVKcVNcpEBcp
-         Zh5UdUDDEnokzuoEWb+Xcw+pUfH0jMns0TJVQJls=
+        b=lFqpKdt5Ua8AiRayuEzupqIbwoyb7C991o0XwgVyvgqImkIlaiPdvpWaoPLrZKrO9
+         gfIbbRPTQC9hDSDaV1euoNZqwQHMdQtjFPp99iVf44DMnWDz51uFHk4t1IoI4RF9Qx
+         29vUcvIxczz5MKVs7HhWBDOZNuC90PTYDKLfFAQQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 078/107] mlxsw: spectrum: Wipe xstats.backlog of down ports
-Date:   Fri, 24 Jan 2020 09:17:48 -0500
-Message-Id: <20200124141817.28793-78-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 079/107] i2c: iop3xx: Fix memory leak in probe error path
+Date:   Fri, 24 Jan 2020 09:17:49 -0500
+Message-Id: <20200124141817.28793-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,69 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit ca7609ff3680c51d6c29897f3117aa2ad904f92a ]
+[ Upstream commit e64175776d06a8ceebbfd349d7e66a4a46ca39ef ]
 
-Per-port counter cache used by Qdiscs is updated periodically, unless the
-port is down. The fact that the cache is not updated for down ports is no
-problem for most counters, which are relative in nature. However, backlog
-is absolute in nature, and if there is a non-zero value in the cache around
-the time that the port goes down, that value just stays there. This value
-then leaks to offloaded Qdiscs that report non-zero backlog even if
-there (obviously) is no traffic.
+When handling devm_gpiod_get_optional() errors, free the memory already
+allocated.  This fixes Smatch warnings:
 
-The HW does not keep backlog of a downed port, so do likewise: as the port
-goes down, wipe the backlog value from xstats.
+    drivers/i2c/busses/i2c-iop3xx.c:437 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+    drivers/i2c/busses/i2c-iop3xx.c:442 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
 
-Fixes: 075ab8adaf4e ("mlxsw: spectrum: Collect tclass related stats periodically")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fdb7e884ad61 ("i2c: iop: Use GPIO descriptors")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/i2c/busses/i2c-iop3xx.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 45f6836fcc629..a806c6190bb1e 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -1161,6 +1161,9 @@ static void update_stats_cache(struct work_struct *work)
- 			     periodic_hw_stats.update_dw.work);
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index 38556381f4cad..2f8b8050a2233 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -433,13 +433,17 @@ iop3xx_i2c_probe(struct platform_device *pdev)
+ 	adapter_data->gpio_scl = devm_gpiod_get_optional(&pdev->dev,
+ 							 "scl",
+ 							 GPIOD_ASIS);
+-	if (IS_ERR(adapter_data->gpio_scl))
+-		return PTR_ERR(adapter_data->gpio_scl);
++	if (IS_ERR(adapter_data->gpio_scl)) {
++		ret = PTR_ERR(adapter_data->gpio_scl);
++		goto free_both;
++	}
+ 	adapter_data->gpio_sda = devm_gpiod_get_optional(&pdev->dev,
+ 							 "sda",
+ 							 GPIOD_ASIS);
+-	if (IS_ERR(adapter_data->gpio_sda))
+-		return PTR_ERR(adapter_data->gpio_sda);
++	if (IS_ERR(adapter_data->gpio_sda)) {
++		ret = PTR_ERR(adapter_data->gpio_sda);
++		goto free_both;
++	}
  
- 	if (!netif_carrier_ok(mlxsw_sp_port->dev))
-+		/* Note: mlxsw_sp_port_down_wipe_counters() clears the cache as
-+		 * necessary when port goes down.
-+		 */
- 		goto out;
- 
- 	mlxsw_sp_port_get_hw_stats(mlxsw_sp_port->dev,
-@@ -4170,6 +4173,15 @@ static int mlxsw_sp_port_unsplit(struct mlxsw_core *mlxsw_core, u8 local_port,
- 	return 0;
- }
- 
-+static void
-+mlxsw_sp_port_down_wipe_counters(struct mlxsw_sp_port *mlxsw_sp_port)
-+{
-+	int i;
-+
-+	for (i = 0; i < TC_MAX_QUEUE; i++)
-+		mlxsw_sp_port->periodic_hw_stats.xstats.backlog[i] = 0;
-+}
-+
- static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
- 				     char *pude_pl, void *priv)
- {
-@@ -4191,6 +4203,7 @@ static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
- 	} else {
- 		netdev_info(mlxsw_sp_port->dev, "link down\n");
- 		netif_carrier_off(mlxsw_sp_port->dev);
-+		mlxsw_sp_port_down_wipe_counters(mlxsw_sp_port);
- 	}
- }
- 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
 -- 
 2.20.1
 
