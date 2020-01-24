@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 720EB148490
+	by mail.lfdr.de (Postfix) with ESMTP id E9ECE148491
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388537AbgAXLML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:12:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
+        id S2389975AbgAXLMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:12:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389956AbgAXLMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:12:09 -0500
+        id S2388374AbgAXLMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:12:20 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38B2120708;
-        Fri, 24 Jan 2020 11:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DB9020708;
+        Fri, 24 Jan 2020 11:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864328;
-        bh=oKv8ZiAGJ4jNdEZvOnXSULZyM/gX5lc8fT5d2nEbLHs=;
+        s=default; t=1579864339;
+        bh=eoXkUvFQwNVPjPMdgw0BLZDOs2KDr63btJjFbxhKXhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVzi6AqEwrTzJZm2HDfhEGGxRI+DPtBTp0/vM5DTFqj4B7CVwQ2v5RkSeA93PkPBb
-         V+49vpddjvyzoVd694BqZ3mIRoxnDwxSZB7UF0IMVIQ8Eb2rjV3t8rdl7pkp6yKHwi
-         cQ+juTq2G7FmsDQCB5U96Pb5MIwpm0M6rxpQl2ko=
+        b=TkO8z1Adt9IOQHYYU+UoZa5kbb17AhOZafrRNVyVM4vBZUpZ4MZZg3J0VfWETYRiE
+         0etAqruV/wDRTOd5OiJ2+tWWJD2PZUwz0ILCbTsJenHsSQZ3GhNnvyVmS4qRhZLxl3
+         3URivpnmyvGfOpMoiqOaFz+w77FszGpVxHom7t88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 223/639] net: dsa: fix unintended change of bridge interface STP state
-Date:   Fri, 24 Jan 2020 10:26:33 +0100
-Message-Id: <20200124093114.848751898@linuxfoundation.org>
+Subject: [PATCH 4.19 226/639] powerpc/64s: Fix logic when handling unknown CPU features
+Date:   Fri, 24 Jan 2020 10:26:36 +0100
+Message-Id: <20200124093115.203454910@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,70 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 9c2054a5cf415a9dc32c91ffde78399955deb571 ]
+[ Upstream commit 8cfaf106918a8c13abb24c641556172afbb9545c ]
 
-When a DSA port is added to a bridge and brought up, the resulting STP
-state programmed into the hardware depends on the order that these
-operations are performed.  However, the Linux bridge code believes that
-the port is in disabled mode.
+In cpufeatures_process_feature(), if a provided CPU feature is unknown and
+enable_unknown is false, we erroneously print that the feature is being
+enabled and return true, even though no feature has been enabled, and
+may also set feature bits based on the last entry in the match table.
 
-If the DSA port is first added to a bridge and then brought up, it will
-be in blocking mode.  If it is brought up and then added to the bridge,
-it will be in disabled mode.
+Fix this so that we only set feature bits from the match table if we have
+actually enabled a feature from that table, and when failing to enable an
+unknown feature, always print the "not enabling" message and return false.
 
-This difference is caused by DSA always setting the STP mode in
-dsa_port_enable() whether or not this port is part of a bridge.  Since
-bridge always sets the STP state when the port is added, brought up or
-taken down, it is unnecessary for us to manipulate the STP state.
+Coincidentally, some older gccs (<GCC 7), when invoked with
+-fsanitize-coverage=trace-pc, cause a spurious uninitialised variable
+warning in this function:
 
-Apparently, this code was copied from Rocker, and the very next day a
-similar fix for Rocker was merged but was not propagated to DSA.  See
-e47172ab7e41 ("rocker: put port in FORWADING state after leaving bridge")
+  arch/powerpc/kernel/dt_cpu_ftrs.c: In function ‘cpufeatures_process_feature’:
+  arch/powerpc/kernel/dt_cpu_ftrs.c:686:7: warning: ‘m’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+    if (m->cpu_ftr_bit_mask)
 
-Fixes: b73adef67765 ("net: dsa: integrate with SWITCHDEV for HW bridging")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+An upcoming patch will enable support for kcov, which requires this option.
+This patch avoids the warning.
+
+Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
+Reported-by: Segher Boessenkool <segher@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+[ajd: add commit message]
+Signed-off-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/port.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/dt_cpu_ftrs.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/net/dsa/port.c b/net/dsa/port.c
-index ed0595459df13..ea7efc86b9d7c 100644
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -69,7 +69,6 @@ static void dsa_port_set_state_now(struct dsa_port *dp, u8 state)
+diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
+index c6f41907f0d71..a4b31e17492d3 100644
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -666,8 +666,10 @@ static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
+ 		m = &dt_cpu_feature_match_table[i];
+ 		if (!strcmp(f->name, m->name)) {
+ 			known = true;
+-			if (m->enable(f))
++			if (m->enable(f)) {
++				cur_cpu_spec->cpu_features |= m->cpu_ftr_bit_mask;
+ 				break;
++			}
  
- int dsa_port_enable(struct dsa_port *dp, struct phy_device *phy)
- {
--	u8 stp_state = dp->bridge_dev ? BR_STATE_BLOCKING : BR_STATE_FORWARDING;
- 	struct dsa_switch *ds = dp->ds;
- 	int port = dp->index;
- 	int err;
-@@ -80,7 +79,8 @@ int dsa_port_enable(struct dsa_port *dp, struct phy_device *phy)
- 			return err;
+ 			pr_info("not enabling: %s (disabled or unsupported by kernel)\n",
+ 				f->name);
+@@ -675,17 +677,12 @@ static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
+ 		}
  	}
  
--	dsa_port_set_state_now(dp, stp_state);
-+	if (!dp->bridge_dev)
-+		dsa_port_set_state_now(dp, BR_STATE_FORWARDING);
+-	if (!known && enable_unknown) {
+-		if (!feat_try_enable_unknown(f)) {
+-			pr_info("not enabling: %s (unknown and unsupported by kernel)\n",
+-				f->name);
+-			return false;
+-		}
++	if (!known && (!enable_unknown || !feat_try_enable_unknown(f))) {
++		pr_info("not enabling: %s (unknown and unsupported by kernel)\n",
++			f->name);
++		return false;
+ 	}
  
- 	return 0;
- }
-@@ -90,7 +90,8 @@ void dsa_port_disable(struct dsa_port *dp, struct phy_device *phy)
- 	struct dsa_switch *ds = dp->ds;
- 	int port = dp->index;
- 
--	dsa_port_set_state_now(dp, BR_STATE_DISABLED);
-+	if (!dp->bridge_dev)
-+		dsa_port_set_state_now(dp, BR_STATE_DISABLED);
- 
- 	if (ds->ops->port_disable)
- 		ds->ops->port_disable(ds, port, phy);
+-	if (m->cpu_ftr_bit_mask)
+-		cur_cpu_spec->cpu_features |= m->cpu_ftr_bit_mask;
+-
+ 	if (known)
+ 		pr_debug("enabling: %s\n", f->name);
+ 	else
 -- 
 2.20.1
 
