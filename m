@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E567148A05
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14910148A28
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390486AbgAXOSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:18:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37660 "EHLO mail.kernel.org"
+        id S2389501AbgAXOj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:39:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388527AbgAXOSW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:18:22 -0500
+        id S2390492AbgAXOSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:18:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D15F42087E;
-        Fri, 24 Jan 2020 14:18:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00176208C4;
+        Fri, 24 Jan 2020 14:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875501;
-        bh=dUHXIG6MtZiAEHdpM8ABRLLmWi1FRJw9J1lJsLzRkpA=;
+        s=default; t=1579875502;
+        bh=KndByeN2uIX8Cxi149zR4DZ0hFI8P9TGSbIMN+1I9RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Lxw9QeM1KY0qjR6LqFUXoAzhApDXwVR86iE/ZYtP5535dz+jJ5MQcmmWqiz1lMmN
-         dVV/QQuxKh8c9PjlEqcjY7WjCPW972bQAHEeJmyfGO3J/34GTovE1RZQses8k673j+
-         2Qqm9qoylzU+lW1sPT2/jQ8ZLyYT1gvXpZw+mKCs=
+        b=p0aXeZEwsvLnp00ZtTG3Taps7TYlkhDsSoB14lefRQV8g77l7OmRC2WB8XzodaYhj
+         YxN95AgLqc21TV/oTNgmU6s4CvdYOT4NHu7iqvdsDMMdR9M2nb3wtMe7+VeAKF3/D/
+         AnxlZSAcAa3nh3s2RSleVovgHXQBB1rERx8P71go=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 003/107] ARM: dts: meson8: fix the size of the PMU registers
-Date:   Fri, 24 Jan 2020 09:16:33 -0500
-Message-Id: <20200124141817.28793-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 004/107] dt-bindings: reset: meson8b: fix duplicate reset IDs
+Date:   Fri, 24 Jan 2020 09:16:34 -0500
+Message-Id: <20200124141817.28793-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -46,54 +46,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 46c9585ed4af688ff1be6d4e76d7ed2f04de4fba ]
+[ Upstream commit 4881873f4cc1460f63d85fa81363d56be328ccdc ]
 
-The PMU registers are at least 0x18 bytes wide. Meson8b already uses a
-size of 0x18. The structure of the PMU registers on Meson8 and Meson8b
-is similar but not identical.
+According to the public S805 datasheet the RESET2 register uses the
+following bits for the PIC_DC, PSC and NAND reset lines:
+- PIC_DC is at bit 3 (meaning: RESET_VD_RMEM + 3)
+- PSC is at bit 4 (meaning: RESET_VD_RMEM + 4)
+- NAND is at bit 5 (meaning: RESET_VD_RMEM + 4)
 
-Meson8 and Meson8b have the following registers in common (starting at
-AOBUS + 0xe0):
-  #define AO_RTI_PWR_A9_CNTL0 0xe0 (0x38 << 2)
-  #define AO_RTI_PWR_A9_CNTL1 0xe4 (0x39 << 2)
-  #define AO_RTI_GEN_PWR_SLEEP0 0xe8 (0x3a << 2)
-  #define AO_RTI_GEN_PWR_ISO0 0x4c (0x3b << 2)
+Update the reset IDs of these three reset lines so they don't conflict
+with PIC_DC and map to the actual hardware reset lines.
 
-Meson8b additionally has these three registers:
-  #define AO_RTI_GEN_PWR_ACK0 0xf0 (0x3c << 2)
-  #define AO_RTI_PWR_A9_MEM_PD0 0xf4 (0x3d << 2)
-  #define AO_RTI_PWR_A9_MEM_PD1 0xf8 (0x3e << 2)
-
-Thus we can assume that the register size of the PMU IP blocks is
-identical on both SoCs (and Meson8 just contains some reserved registers
-in that area) because the CEC registers start right after the PMU
-(AO_RTI_*) registers at AOBUS + 0x100 (0x40 << 2).
-
-The upcoming power domain driver will need to read and write the
-AO_RTI_GEN_PWR_SLEEP0 and AO_RTI_GEN_PWR_ISO0 registers, so the updated
-size is needed for that driver to work.
-
-Fixes: 4a5a27116b447d ("ARM: dts: meson8: add support for booting the secondary CPU cores")
+Fixes: 79795e20a184eb ("dt-bindings: reset: Add bindings for the Meson SoC Reset Controller")
 Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/dt-bindings/reset/amlogic,meson8b-reset.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
-index 5a7e3e5caebe2..3c534cd50ee3b 100644
---- a/arch/arm/boot/dts/meson8.dtsi
-+++ b/arch/arm/boot/dts/meson8.dtsi
-@@ -253,7 +253,7 @@
- &aobus {
- 	pmu: pmu@e0 {
- 		compatible = "amlogic,meson8-pmu", "syscon";
--		reg = <0xe0 0x8>;
-+		reg = <0xe0 0x18>;
- 	};
- 
- 	pinctrl_aobus: pinctrl@84 {
+diff --git a/include/dt-bindings/reset/amlogic,meson8b-reset.h b/include/dt-bindings/reset/amlogic,meson8b-reset.h
+index c614438bcbdb8..fbc524a900da1 100644
+--- a/include/dt-bindings/reset/amlogic,meson8b-reset.h
++++ b/include/dt-bindings/reset/amlogic,meson8b-reset.h
+@@ -46,9 +46,9 @@
+ #define RESET_VD_RMEM			64
+ #define RESET_AUDIN			65
+ #define RESET_DBLK			66
+-#define RESET_PIC_DC			66
+-#define RESET_PSC			66
+-#define RESET_NAND			66
++#define RESET_PIC_DC			67
++#define RESET_PSC			68
++#define RESET_NAND			69
+ #define RESET_GE2D			70
+ #define RESET_PARSER_REG		71
+ #define RESET_PARSER_FETCH		72
 -- 
 2.20.1
 
