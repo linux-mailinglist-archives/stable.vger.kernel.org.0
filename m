@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF45147BF5
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AFDD147BF7
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387666AbgAXJrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:47:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
+        id S2387509AbgAXJry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:47:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387676AbgAXJrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:47:49 -0500
+        id S2387471AbgAXJrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:47:53 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38F85206D5;
-        Fri, 24 Jan 2020 09:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55A5920718;
+        Fri, 24 Jan 2020 09:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859268;
-        bh=wwfrqVSElqD2J9lqJC+Y6J/tNlLKq0K7yDsR37nexT4=;
+        s=default; t=1579859272;
+        bh=qlfoaB1IacJcjBNthaYQgQg8gFQHjahpZSgqLwUX33o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cy5XQ1oIRVtsH8kVFUfJtHa7+H1dZNEVk6By7rdYt4URrW4b2u8harNdGcBNLul4V
-         miGloTu8B/5/pfeTsGcMWDz+I7ri6fyw3gMqpZxeQib000z8P1kyYVk59cZOTw7RBb
-         LXHgtvDc+Sxag9wdZRv3vyTlKE/qYs4zmO3b/kYs=
+        b=BCL018bPNacMyQErYH5nxIa9g50hEaSQUSQiJlxXCFfPk0j/fPd/P6Uq5zIs3WaEr
+         P8XQMoeL++5HHGNeTECtM92HcLSEPxaT5mqret/DuTSSHCVKUtgVSYxMLGwZTCxSwd
+         IgBwu0hToJx+zGn8bK1RcKZ/3+fZraFPo9JWyRd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/343] driver core: Do not resume suppliers under device_links_write_lock()
-Date:   Fri, 24 Jan 2020 10:28:19 +0100
-Message-Id: <20200124092930.601494941@linuxfoundation.org>
+Subject: [PATCH 4.14 082/343] ARM: dts: lpc32xx: add required clocks property to keypad device node
+Date:   Fri, 24 Jan 2020 10:28:20 +0100
+Message-Id: <20200124092930.727936202@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,77 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Vladimir Zapolskiy <vz@mleia.com>
 
-[ Upstream commit 5db25c9eb893df8f6b93c1d97b8006d768e1b6f5 ]
+[ Upstream commit 3e88bc38b9f6fe4b69cecf81badd3c19fde97f97 ]
 
-It is incorrect to call pm_runtime_get_sync() under
-device_links_write_lock(), because it may end up trying to take
-device_links_read_lock() while resuming the target device and that
-will deadlock in the non-SRCU case, so avoid that by resuming the
-supplier device in device_link_add() before calling
-device_links_write_lock().
+NXP LPC32xx keypad controller requires a clock property to be defined.
 
-Fixes: 21d5c57b3726 ("PM / runtime: Use device links")
-Fixes: baa8809f6097 ("PM / runtime: Optimize the use of device links")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The change fixes the driver initialization problem:
+
+  lpc32xx_keys 40050000.key: failed to get clock
+  lpc32xx_keys: probe of 40050000.key failed with error -2
+
+Fixes: 93898eb775e5 ("arm: dts: lpc32xx: add clock properties to device nodes")
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/lpc32xx.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 2b0a1054535ce..93c2fc58013ed 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -180,11 +180,20 @@ struct device_link *device_link_add(struct device *consumer,
- 				    struct device *supplier, u32 flags)
- {
- 	struct device_link *link;
-+	bool rpm_put_supplier = false;
- 
- 	if (!consumer || !supplier ||
- 	    ((flags & DL_FLAG_STATELESS) && (flags & DL_FLAG_AUTOREMOVE)))
- 		return NULL;
- 
-+	if (flags & DL_FLAG_PM_RUNTIME && flags & DL_FLAG_RPM_ACTIVE) {
-+		if (pm_runtime_get_sync(supplier) < 0) {
-+			pm_runtime_put_noidle(supplier);
-+			return NULL;
-+		}
-+		rpm_put_supplier = true;
-+	}
-+
- 	device_links_write_lock();
- 	device_pm_lock();
- 
-@@ -209,13 +218,8 @@ struct device_link *device_link_add(struct device *consumer,
- 
- 	if (flags & DL_FLAG_PM_RUNTIME) {
- 		if (flags & DL_FLAG_RPM_ACTIVE) {
--			if (pm_runtime_get_sync(supplier) < 0) {
--				pm_runtime_put_noidle(supplier);
--				kfree(link);
--				link = NULL;
--				goto out;
--			}
- 			link->rpm_active = true;
-+			rpm_put_supplier = false;
- 		}
- 		pm_runtime_new_link(consumer);
- 		/*
-@@ -286,6 +290,10 @@ struct device_link *device_link_add(struct device *consumer,
-  out:
- 	device_pm_unlock();
- 	device_links_write_unlock();
-+
-+	if (rpm_put_supplier)
-+		pm_runtime_put(supplier);
-+
- 	return link;
- }
- EXPORT_SYMBOL_GPL(device_link_add);
+diff --git a/arch/arm/boot/dts/lpc32xx.dtsi b/arch/arm/boot/dts/lpc32xx.dtsi
+index d077bd2b9583e..2ca881055ef0e 100644
+--- a/arch/arm/boot/dts/lpc32xx.dtsi
++++ b/arch/arm/boot/dts/lpc32xx.dtsi
+@@ -462,6 +462,7 @@
+ 			key: key@40050000 {
+ 				compatible = "nxp,lpc3220-key";
+ 				reg = <0x40050000 0x1000>;
++				clocks = <&clk LPC32XX_CLK_KEY>;
+ 				interrupts = <54 IRQ_TYPE_LEVEL_HIGH>;
+ 				status = "disabled";
+ 			};
 -- 
 2.20.1
 
