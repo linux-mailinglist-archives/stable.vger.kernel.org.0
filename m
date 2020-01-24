@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D60147D7C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010C0147D7E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730328AbgAXKBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:01:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36530 "EHLO mail.kernel.org"
+        id S1731458AbgAXKBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:01:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727215AbgAXKBJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:01:09 -0500
+        id S1727215AbgAXKBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:01:12 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3D5220709;
-        Fri, 24 Jan 2020 10:01:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E364206D5;
+        Fri, 24 Jan 2020 10:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860068;
-        bh=xVKU+QbTX2JZ8X7nd+tVJGGZPS8tPF+t+IHeV3VA9hI=;
+        s=default; t=1579860072;
+        bh=TUJ0KRCeqMmnh+ZN/Rv4Y/URCU1bF2q4D6buvfRgvCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOfGsgycnQDzcRI6zMAx8/b7Hvc+XUTepA50NSTS8aIsWHx5z6qzDPg094Rmt9wgW
-         O2zY7CSUxpoKrSJX3Urj+Wmb7EOyzXpiaj0DCyYF/sT45cpWUthg1bd/3G2FackUMr
-         6ehluuZw0k5/wTMeO8nyyKr1qQ1SyRy1JiuSdSXA=
+        b=k5HlN0/GNCrqrcVIfL15pk6RcmqrBH1aUFK4sdg2qP2Y7uDEARsf7UI8/I3ghBmfg
+         ALqEUvY6njDhvJcYUJNdzNOAItLY0aKtGyypN7KdNjoTppUs7q5T42kAH9mdPUMP3x
+         27fnOMDolRj9NF30BtRG4fnyi2sGwayRtS+tGoo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Enrico Weigelt <info@metux.net>
-Subject: [PATCH 4.14 251/343] devres: allow const resource arguments
-Date:   Fri, 24 Jan 2020 10:31:09 +0100
-Message-Id: <20200124092953.083336671@linuxfoundation.org>
+        stable@vger.kernel.org, Xi Wang <wangxi11@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 252/343] RDMA/hns: Fixs hw access invalid dma memory error
+Date:   Fri, 24 Jan 2020 10:31:10 +0100
+Message-Id: <20200124092953.211705914@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,61 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Xi Wang <wangxi11@huawei.com>
 
-[ Upstream commit 9dea44c91469512d346e638694c22c30a5273992 ]
+[ Upstream commit ec5bc2cc69b4fc494e04d10fc5226f6f9cf67c56 ]
 
-devm_ioremap_resource() does not currently take 'const' arguments,
-which results in a warning from the first driver trying to do it
-anyway:
+When smmu is enable, if execute the perftest command and then use 'kill
+-9' to exit, follow this operation repeatedly, the kernel will have a high
+probability to print the following smmu event:
 
-drivers/gpio/gpio-amd-fch.c: In function 'amd_fch_gpio_probe':
-drivers/gpio/gpio-amd-fch.c:171:49: error: passing argument 2 of 'devm_ioremap_resource' discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
-  priv->base = devm_ioremap_resource(&pdev->dev, &amd_fch_gpio_iores);
-                                                 ^~~~~~~~~~~~~~~~~~~
+  arm-smmu-v3 arm-smmu-v3.1.auto: event 0x10 received:
+  arm-smmu-v3 arm-smmu-v3.1.auto:  0x00007d0000000010
+  arm-smmu-v3 arm-smmu-v3.1.auto:  0x0000020900000080
+  arm-smmu-v3 arm-smmu-v3.1.auto:  0x00000000f47cf000
+  arm-smmu-v3 arm-smmu-v3.1.auto:  0x00000000f47cf000
 
-Change the prototype to allow it, as there is no real reason not to.
+This is because the hw will periodically refresh the qpc cache until the
+next reset.
 
-Fixes: 9bb2e0452508 ("gpio: amd: Make resource struct const")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190628150049.1108048-1-arnd@arndb.de
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviwed-By: Enrico Weigelt <info@metux.net>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This patch fixed it by removing the action that release qpc memory in the
+'hns_roce_qp_free' function.
+
+Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
+Signed-off-by: Xi Wang <wangxi11@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/device.h | 3 ++-
- lib/devres.c           | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 66fe271c2544d..0b2e67014a833 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -682,7 +682,8 @@ extern unsigned long devm_get_free_pages(struct device *dev,
- 					 gfp_t gfp_mask, unsigned int order);
- extern void devm_free_pages(struct device *dev, unsigned long addr);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 3a37d26889df1..281e9987ffc83 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -241,7 +241,6 @@ void hns_roce_qp_free(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp)
  
--void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res);
-+void __iomem *devm_ioremap_resource(struct device *dev,
-+				    const struct resource *res);
+ 	if ((hr_qp->ibqp.qp_type) != IB_QPT_GSI) {
+ 		hns_roce_table_put(hr_dev, &qp_table->irrl_table, hr_qp->qpn);
+-		hns_roce_table_put(hr_dev, &qp_table->qp_table, hr_qp->qpn);
+ 	}
+ }
  
- /* allows to add/remove a custom action to devres stack */
- int devm_add_action(struct device *dev, void (*action)(void *), void *data);
-diff --git a/lib/devres.c b/lib/devres.c
-index 5f2aedd58bc50..40a8b12a8b6b9 100644
---- a/lib/devres.c
-+++ b/lib/devres.c
-@@ -132,7 +132,8 @@ EXPORT_SYMBOL(devm_iounmap);
-  *	if (IS_ERR(base))
-  *		return PTR_ERR(base);
-  */
--void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res)
-+void __iomem *devm_ioremap_resource(struct device *dev,
-+				    const struct resource *res)
- {
- 	resource_size_t size;
- 	const char *name;
 -- 
 2.20.1
 
