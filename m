@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CD71486EC
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:19:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A17E1486FB
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391462AbgAXOTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:19:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39870 "EHLO mail.kernel.org"
+        id S2404150AbgAXOTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:19:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391727AbgAXOTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:31 -0500
+        id S2404122AbgAXOTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E185B214AF;
-        Fri, 24 Jan 2020 14:19:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FEF42087E;
+        Fri, 24 Jan 2020 14:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875570;
-        bh=Bjl/84MAqt36tPliX79YykcxfdCerORPjvbNJvHNhrM=;
+        s=default; t=1579875593;
+        bh=XSerhs8DuLZ70toBpT+laLJazlLssjJ0x3GHfbN5JbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5ThdANSXhiTxAIUACOzYa8td4b4I8fMIipWTn+NBFaEj7LYk5jwRSCNuuSnCBkxC
-         ATZOVCpSVkHreLW/zobO5GNDh7Fi063eWdGyEgxCSysqKCTNKOlYZSCvCOjkUyCMDK
-         VcuCCu1r7AtA9tVrsxyKZJCl07iBdhR6i7c1kzY8=
+        b=l+37B6R+bRaRbRrD5vfQHO+xlEGr/+Q1izA1Om0iqQ+KjqPwkbcpgDJCpeKZ+cRFh
+         LlmYM1/lc79t8grfZTvcP0nD1z8GNE1c1igBCT+jsBoSrcM7YoRg3FkwfkKzR4aPC7
+         3W5d2uGoHzM6xokOJSLzdaAbQ90lygN5vn6XDOro=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 063/107] parisc: Use proper printk format for resource_size_t
-Date:   Fri, 24 Jan 2020 09:17:33 -0500
-Message-Id: <20200124141817.28793-63-sashal@kernel.org>
+Cc:     Daniel Borkmann <daniel@iogearbox.net>,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 082/107] bpf: Fix incorrect verifier simulation of ARSH under ALU32
+Date:   Fri, 24 Jan 2020 09:17:52 -0500
+Message-Id: <20200124141817.28793-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -43,41 +45,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 4f80b70e1953cb846dbdd1ce72cb17333d4c8d11 ]
+[ Upstream commit 0af2ffc93a4b50948f9dad2786b7f1bd253bf0b9 ]
 
-resource_size_t should be printed with its own size-independent format
-to fix warnings when compiling on 64-bit platform (e.g. with
-COMPILE_TEST):
+Anatoly has been fuzzing with kBdysch harness and reported a hang in one
+of the outcomes:
 
-    arch/parisc/kernel/drivers.c: In function 'print_parisc_device':
-    arch/parisc/kernel/drivers.c:892:9: warning:
-        format '%p' expects argument of type 'void *',
-        but argument 4 has type 'resource_size_t {aka unsigned int}' [-Wformat=]
+  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+  0: (85) call bpf_get_socket_cookie#46
+  1: R0_w=invP(id=0) R10=fp0
+  1: (57) r0 &= 808464432
+  2: R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
+  2: (14) w0 -= 810299440
+  3: R0_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
+  3: (c4) w0 s>>= 1
+  4: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
+  4: (76) if w0 s>= 0x30303030 goto pc+216
+  221: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
+  221: (95) exit
+  processed 6 insns (limit 1000000) [...]
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Taking a closer look, the program was xlated as follows:
+
+  # ./bpftool p d x i 12
+  0: (85) call bpf_get_socket_cookie#7800896
+  1: (bf) r6 = r0
+  2: (57) r6 &= 808464432
+  3: (14) w6 -= 810299440
+  4: (c4) w6 s>>= 1
+  5: (76) if w6 s>= 0x30303030 goto pc+216
+  6: (05) goto pc-1
+  7: (05) goto pc-1
+  8: (05) goto pc-1
+  [...]
+  220: (05) goto pc-1
+  221: (05) goto pc-1
+  222: (95) exit
+
+Meaning, the visible effect is very similar to f54c7898ed1c ("bpf: Fix
+precision tracking for unbounded scalars"), that is, the fall-through
+branch in the instruction 5 is considered to be never taken given the
+conclusion from the min/max bounds tracking in w6, and therefore the
+dead-code sanitation rewrites it as goto pc-1. However, real-life input
+disagrees with verification analysis since a soft-lockup was observed.
+
+The bug sits in the analysis of the ARSH. The definition is that we shift
+the target register value right by K bits through shifting in copies of
+its sign bit. In adjust_scalar_min_max_vals(), we do first coerce the
+register into 32 bit mode, same happens after simulating the operation.
+However, for the case of simulating the actual ARSH, we don't take the
+mode into account and act as if it's always 64 bit, but location of sign
+bit is different:
+
+  dst_reg->smin_value >>= umin_val;
+  dst_reg->smax_value >>= umin_val;
+  dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val);
+
+Consider an unknown R0 where bpf_get_socket_cookie() (or others) would
+for example return 0xffff. With the above ARSH simulation, we'd see the
+following results:
+
+  [...]
+  1: R1=ctx(id=0,off=0,imm=0) R2_w=invP65535 R10=fp0
+  1: (85) call bpf_get_socket_cookie#46
+  2: R0_w=invP(id=0) R10=fp0
+  2: (57) r0 &= 808464432
+    -> R0_runtime = 0x3030
+  3: R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
+  3: (14) w0 -= 810299440
+    -> R0_runtime = 0xcfb40000
+  4: R0_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
+                              (0xffffffff)
+  4: (c4) w0 s>>= 1
+    -> R0_runtime = 0xe7da0000
+  5: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
+                              (0x67c00000)           (0x7ffbfff8)
+  [...]
+
+In insn 3, we have a runtime value of 0xcfb40000, which is '1100 1111 1011
+0100 0000 0000 0000 0000', the result after the shift has 0xe7da0000 that
+is '1110 0111 1101 1010 0000 0000 0000 0000', where the sign bit is correctly
+retained in 32 bit mode. In insn4, the umax was 0xffffffff, and changed into
+0x7ffbfff8 after the shift, that is, '0111 1111 1111 1011 1111 1111 1111 1000'
+and means here that the simulation didn't retain the sign bit. With above
+logic, the updates happen on the 64 bit min/max bounds and given we coerced
+the register, the sign bits of the bounds are cleared as well, meaning, we
+need to force the simulation into s32 space for 32 bit alu mode.
+
+Verification after the fix below. We're first analyzing the fall-through branch
+on 32 bit signed >= test eventually leading to rejection of the program in this
+specific case:
+
+  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+  0: (b7) r2 = 808464432
+  1: R1=ctx(id=0,off=0,imm=0) R2_w=invP808464432 R10=fp0
+  1: (85) call bpf_get_socket_cookie#46
+  2: R0_w=invP(id=0) R10=fp0
+  2: (bf) r6 = r0
+  3: R0_w=invP(id=0) R6_w=invP(id=0) R10=fp0
+  3: (57) r6 &= 808464432
+  4: R0_w=invP(id=0) R6_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
+  4: (14) w6 -= 810299440
+  5: R0_w=invP(id=0) R6_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
+  5: (c4) w6 s>>= 1
+  6: R0_w=invP(id=0) R6_w=invP(id=0,umin_value=3888119808,umax_value=4294705144,var_off=(0xe7c00000; 0x183bfff8)) R10=fp0
+                                              (0x67c00000)          (0xfffbfff8)
+  6: (76) if w6 s>= 0x30303030 goto pc+216
+  7: R0_w=invP(id=0) R6_w=invP(id=0,umin_value=3888119808,umax_value=4294705144,var_off=(0xe7c00000; 0x183bfff8)) R10=fp0
+  7: (30) r0 = *(u8 *)skb[808464432]
+  BPF_LD_[ABS|IND] uses reserved fields
+  processed 8 insns (limit 1000000) [...]
+
+Fixes: 9cbe1f5a32dc ("bpf/verifier: improve register value range tracking with ARSH")
+Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200115204733.16648-1-daniel@iogearbox.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/drivers.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/tnum.h  |  2 +-
+ kernel/bpf/tnum.c     |  9 +++++++--
+ kernel/bpf/verifier.c | 13 ++++++++++---
+ 3 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/parisc/kernel/drivers.c b/arch/parisc/kernel/drivers.c
-index a6c9f49c66128..a5f3e50fe9761 100644
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -889,8 +889,8 @@ static void print_parisc_device(struct parisc_device *dev)
- 	static int count;
+diff --git a/include/linux/tnum.h b/include/linux/tnum.h
+index c17af77f3fae7..ea627d1ab7e39 100644
+--- a/include/linux/tnum.h
++++ b/include/linux/tnum.h
+@@ -30,7 +30,7 @@ struct tnum tnum_lshift(struct tnum a, u8 shift);
+ /* Shift (rsh) a tnum right (by a fixed shift) */
+ struct tnum tnum_rshift(struct tnum a, u8 shift);
+ /* Shift (arsh) a tnum right (by a fixed min_shift) */
+-struct tnum tnum_arshift(struct tnum a, u8 min_shift);
++struct tnum tnum_arshift(struct tnum a, u8 min_shift, u8 insn_bitness);
+ /* Add two tnums, return @a + @b */
+ struct tnum tnum_add(struct tnum a, struct tnum b);
+ /* Subtract two tnums, return @a - @b */
+diff --git a/kernel/bpf/tnum.c b/kernel/bpf/tnum.c
+index ca52b9642943f..d4f335a9a8998 100644
+--- a/kernel/bpf/tnum.c
++++ b/kernel/bpf/tnum.c
+@@ -44,14 +44,19 @@ struct tnum tnum_rshift(struct tnum a, u8 shift)
+ 	return TNUM(a.value >> shift, a.mask >> shift);
+ }
  
- 	print_pa_hwpath(dev, hw_path);
--	pr_info("%d. %s at 0x%px [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
--		++count, dev->name, (void*) dev->hpa.start, hw_path, dev->id.hw_type,
-+	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
-+		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
- 		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
+-struct tnum tnum_arshift(struct tnum a, u8 min_shift)
++struct tnum tnum_arshift(struct tnum a, u8 min_shift, u8 insn_bitness)
+ {
+ 	/* if a.value is negative, arithmetic shifting by minimum shift
+ 	 * will have larger negative offset compared to more shifting.
+ 	 * If a.value is nonnegative, arithmetic shifting by minimum shift
+ 	 * will have larger positive offset compare to more shifting.
+ 	 */
+-	return TNUM((s64)a.value >> min_shift, (s64)a.mask >> min_shift);
++	if (insn_bitness == 32)
++		return TNUM((u32)(((s32)a.value) >> min_shift),
++			    (u32)(((s32)a.mask)  >> min_shift));
++	else
++		return TNUM((s64)a.value >> min_shift,
++			    (s64)a.mask  >> min_shift);
+ }
  
- 	if (dev->num_addrs) {
+ struct tnum tnum_add(struct tnum a, struct tnum b)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 9c74c98f65012..b2817d0929b39 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4824,9 +4824,16 @@ static int adjust_scalar_min_max_vals(struct bpf_verifier_env *env,
+ 		/* Upon reaching here, src_known is true and
+ 		 * umax_val is equal to umin_val.
+ 		 */
+-		dst_reg->smin_value >>= umin_val;
+-		dst_reg->smax_value >>= umin_val;
+-		dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val);
++		if (insn_bitness == 32) {
++			dst_reg->smin_value = (u32)(((s32)dst_reg->smin_value) >> umin_val);
++			dst_reg->smax_value = (u32)(((s32)dst_reg->smax_value) >> umin_val);
++		} else {
++			dst_reg->smin_value >>= umin_val;
++			dst_reg->smax_value >>= umin_val;
++		}
++
++		dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val,
++						insn_bitness);
+ 
+ 		/* blow away the dst_reg umin_value/umax_value and rely on
+ 		 * dst_reg var_off to refine the result.
 -- 
 2.20.1
 
