@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A63C147CF8
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:56:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C667D147CBA
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388200AbgAXJ4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:56:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59644 "EHLO mail.kernel.org"
+        id S1732461AbgAXJyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:54:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731830AbgAXJ4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:56:00 -0500
+        id S1731584AbgAXJyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:54:12 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EBEC20718;
-        Fri, 24 Jan 2020 09:55:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C150206D5;
+        Fri, 24 Jan 2020 09:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859759;
-        bh=u9lGm3ZNsosapsCamEje2KnrWoGfYLnkqmz7zWrPbV0=;
+        s=default; t=1579859651;
+        bh=aNqxugbB0rJlPQfQeeq/dILE5IVWRmXY0hUhEQAI5kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmwoLeCYRD6gQQtEVL6/CF/vIxztK85B6llLy9HkWWuX8bwN6DMyIle7ZZlnNnLxX
-         30NlCQgfEcWA4HgqajIpd+BsB9VT7H9KRRt4HMsxmfB5xSnPDYfso0t+fDW6gXgnUw
-         SIc9dw9mtC39x251Qmj/K4m8jHOXyR7z1VeU6uIQ=
+        b=HVRNapxw8OAyT3RlIbnb1VCgNsaVtc6+jEwDvi0fgsvtB8/1lltT/ttjNCP9qtCjg
+         fwzdd6V68r/nL9JzBF8ssYa4DMl0FdsQN4v4j3GC6lxd4wXH1y4ZfcljWK2l+QKC/r
+         ATm3jzPlvAL2evmYHL6dH44L5aDwgoLV1uWyZfrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Giridhar Malavali <giridhar.malavali@qlogic.com>,
+        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Nicholas Bellinger <nab@linux-iscsi.org>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 164/343] scsi: qla2xxx: Unregister chrdev if module initialization fails
-Date:   Fri, 24 Jan 2020 10:29:42 +0100
-Message-Id: <20200124092941.532413613@linuxfoundation.org>
+Subject: [PATCH 4.14 165/343] scsi: target/core: Fix a race condition in the LUN lookup code
+Date:   Fri, 24 Jan 2020 10:29:43 +0100
+Message-Id: <20200124092941.680908280@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -48,96 +50,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit c794d24ec9eb6658909955772e70f34bef5b5b91 ]
+[ Upstream commit 63f7479439c95bcd49b7dd4af809862c316c71a3 ]
 
-If module initialization fails after the character device has been
-registered, unregister the character device. Additionally, avoid
-duplicating error path code.
+The rcu_dereference(deve->se_lun) expression occurs twice in the LUN lookup
+functions. Since these expressions are not serialized against deve->se_lun
+assignments each of these expressions may yield a different result. Avoid
+that the wrong LUN pointer is stored in se_cmd by reading deve->se_lun only
+once.
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Giridhar Malavali <giridhar.malavali@qlogic.com>
-Fixes: 6a03b4cd78f3 ("[SCSI] qla2xxx: Add char device to increase driver use count") # v2.6.35.
+Cc: Mike Christie <mchristi@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Nicholas Bellinger <nab@linux-iscsi.org>
+Fixes: 29a05deebf6c ("target: Convert se_node_acl->device_list[] to RCU hlist") # v4.10
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ drivers/target/target_core_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 5617bb18c2335..5f9d4dbc4a98e 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -6714,8 +6714,7 @@ qla2x00_module_init(void)
- 	/* Initialize target kmem_cache and mem_pools */
- 	ret = qlt_init();
- 	if (ret < 0) {
--		kmem_cache_destroy(srb_cachep);
--		return ret;
-+		goto destroy_cache;
- 	} else if (ret > 0) {
- 		/*
- 		 * If initiator mode is explictly disabled by qlt_init(),
-@@ -6736,11 +6735,10 @@ qla2x00_module_init(void)
- 	qla2xxx_transport_template =
- 	    fc_attach_transport(&qla2xxx_transport_functions);
- 	if (!qla2xxx_transport_template) {
--		kmem_cache_destroy(srb_cachep);
- 		ql_log(ql_log_fatal, NULL, 0x0002,
- 		    "fc_attach_transport failed...Failing load!.\n");
--		qlt_exit();
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto qlt_exit;
- 	}
+diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
+index 92b52d2314b53..cebef8e5a43d1 100644
+--- a/drivers/target/target_core_device.c
++++ b/drivers/target/target_core_device.c
+@@ -85,7 +85,7 @@ transport_lookup_cmd_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
+ 			goto out_unlock;
+ 		}
  
- 	apidev_major = register_chrdev(0, QLA2XXX_APIDEV, &apidev_fops);
-@@ -6752,27 +6750,37 @@ qla2x00_module_init(void)
- 	qla2xxx_transport_vport_template =
- 	    fc_attach_transport(&qla2xxx_transport_vport_functions);
- 	if (!qla2xxx_transport_vport_template) {
--		kmem_cache_destroy(srb_cachep);
--		qlt_exit();
--		fc_release_transport(qla2xxx_transport_template);
- 		ql_log(ql_log_fatal, NULL, 0x0004,
- 		    "fc_attach_transport vport failed...Failing load!.\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto unreg_chrdev;
- 	}
- 	ql_log(ql_log_info, NULL, 0x0005,
- 	    "QLogic Fibre Channel HBA Driver: %s.\n",
- 	    qla2x00_version_str);
- 	ret = pci_register_driver(&qla2xxx_pci_driver);
- 	if (ret) {
--		kmem_cache_destroy(srb_cachep);
--		qlt_exit();
--		fc_release_transport(qla2xxx_transport_template);
--		fc_release_transport(qla2xxx_transport_vport_template);
- 		ql_log(ql_log_fatal, NULL, 0x0006,
- 		    "pci_register_driver failed...ret=%d Failing load!.\n",
- 		    ret);
-+		goto release_vport_transport;
- 	}
- 	return ret;
-+
-+release_vport_transport:
-+	fc_release_transport(qla2xxx_transport_vport_template);
-+
-+unreg_chrdev:
-+	if (apidev_major >= 0)
-+		unregister_chrdev(apidev_major, QLA2XXX_APIDEV);
-+	fc_release_transport(qla2xxx_transport_template);
-+
-+qlt_exit:
-+	qlt_exit();
-+
-+destroy_cache:
-+	kmem_cache_destroy(srb_cachep);
-+	return ret;
- }
+-		se_cmd->se_lun = rcu_dereference(deve->se_lun);
++		se_cmd->se_lun = se_lun;
+ 		se_cmd->pr_res_key = deve->pr_res_key;
+ 		se_cmd->orig_fe_lun = unpacked_lun;
+ 		se_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
+@@ -176,7 +176,7 @@ int transport_lookup_tmr_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
+ 			goto out_unlock;
+ 		}
  
- /**
+-		se_cmd->se_lun = rcu_dereference(deve->se_lun);
++		se_cmd->se_lun = se_lun;
+ 		se_cmd->pr_res_key = deve->pr_res_key;
+ 		se_cmd->orig_fe_lun = unpacked_lun;
+ 		se_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
 -- 
 2.20.1
 
