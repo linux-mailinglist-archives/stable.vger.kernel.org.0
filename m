@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EA2147E66
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC712147E7A
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388985AbgAXKIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:08:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45518 "EHLO mail.kernel.org"
+        id S2389446AbgAXKJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:09:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389216AbgAXKIk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:08:40 -0500
+        id S2389613AbgAXKJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:09:24 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D281B20709;
-        Fri, 24 Jan 2020 10:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79DA320709;
+        Fri, 24 Jan 2020 10:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860520;
-        bh=1sIPMoe1Z/+BmLfVqJJ6OUenHulTuiiz68b+k+52dGo=;
+        s=default; t=1579860563;
+        bh=W+g4RWPxBysTaAJRlR6u2/CrxkupBVTisvp39ikA+e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+ixRD8gzPOi9GrcTN9VW4I7VqWMaHVe30XyJRKTZDPmq6gsLGKOPSqD5YFSTTrAi
-         m2oSFA+PEpGiNiDt59EU4Tna/QGA7vU/JzKwJ6RZbpx3n2C3b1MCN+6ZL/laoGd3nn
-         R57l8rK3PWVHKpKKnUKV64vKr5OMMtuB8ObQS81w=
+        b=J/zkOAs33reewMQlgh8gDdrseoatwKaqOod55U7uvlfLkNt6XsvRITZDyszVNe1mw
+         4f9Ci51cHrcY/Ls6/BTUyJ4h68ZtHLgWyXxIafYlKbSP/hXa5/eijf+M0/zVhqqgjQ
+         PB/+2DHeBQ732TF+6PTrgx1n2oFtMVHdonL90hbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Peter Rosin <peda@axentia.se>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 018/639] drm/sti: do not remove the drm_bridge that was never added
-Date:   Fri, 24 Jan 2020 10:23:08 +0100
-Message-Id: <20200124093049.451948790@linuxfoundation.org>
+Subject: [PATCH 4.19 020/639] ARM: dts: at91: nattis: make the SD-card slot work
+Date:   Fri, 24 Jan 2020 10:23:10 +0100
+Message-Id: <20200124093049.736770488@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,51 +46,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit 66e31a72dc38543b2d9d1ce267dc78ba9beebcfd ]
+[ Upstream commit f52eb2067929d533babe106fbc131c88db3eff3d ]
 
-Removing the drm_bridge_remove call should avoid a NULL dereference
-during list processing in drm_bridge_remove if the error path is ever
-taken.
+The cd-gpios signal is assumed active-low by the driver, and the
+cd-inverted property is needed if it is, in fact, active-high. Fix
+this oversight.
 
-The more natural approach would perhaps be to add a drm_bridge_add,
-but there are several other bridges that never call drm_bridge_add.
-Just removing the drm_bridge_remove is the easier fix.
-
-Fixes: 84601dbdea36 ("drm: sti: rework init sequence")
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Fixes: 0e4323899973 ("ARM: dts: at91: add devicetree for the Axentia Nattis with Natte power")
 Signed-off-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20180806061910.29914-2-peda@axentia.se
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sti/sti_hda.c  | 1 -
- drivers/gpu/drm/sti/sti_hdmi.c | 1 -
- 2 files changed, 2 deletions(-)
+ arch/arm/boot/dts/at91-nattis-2-natte-2.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
-index 49438337f70dc..19b9b5ed12970 100644
---- a/drivers/gpu/drm/sti/sti_hda.c
-+++ b/drivers/gpu/drm/sti/sti_hda.c
-@@ -721,7 +721,6 @@ static int sti_hda_bind(struct device *dev, struct device *master, void *data)
- 	return 0;
+diff --git a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
+index bfa5815a07214..4308a07b792ea 100644
+--- a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
++++ b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
+@@ -221,6 +221,7 @@
+ 		reg = <0>;
+ 		bus-width = <4>;
+ 		cd-gpios = <&pioD 5 GPIO_ACTIVE_HIGH>;
++		cd-inverted;
+ 	};
+ };
  
- err_sysfs:
--	drm_bridge_remove(bridge);
- 	return -EINVAL;
- }
- 
-diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
-index 34cdc46444350..ccf718404a1c2 100644
---- a/drivers/gpu/drm/sti/sti_hdmi.c
-+++ b/drivers/gpu/drm/sti/sti_hdmi.c
-@@ -1315,7 +1315,6 @@ static int sti_hdmi_bind(struct device *dev, struct device *master, void *data)
- 	return 0;
- 
- err_sysfs:
--	drm_bridge_remove(bridge);
- 	hdmi->drm_connector = NULL;
- 	return -EINVAL;
- }
 -- 
 2.20.1
 
