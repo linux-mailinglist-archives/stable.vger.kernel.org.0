@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 717B4148366
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:36:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A653148368
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:36:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404865AbgAXLfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:35:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55886 "EHLO mail.kernel.org"
+        id S2404583AbgAXLfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404860AbgAXLfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:35:47 -0500
+        id S2387523AbgAXLfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:35:52 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C80322464;
-        Fri, 24 Jan 2020 11:35:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8112206F0;
+        Fri, 24 Jan 2020 11:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865747;
-        bh=wJJFxFtF4q297BLLY0zH1tLwjdi2CLe6eEbw4PphRD8=;
+        s=default; t=1579865751;
+        bh=PYky6g+LD+ZorvkzmDMOwOA9+Te/d4CjtLHXdj/Msv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TrolrauVn9gO5boQJF0Wy85Sc56GTbiRhJGvZzFndPhK6MBQ/3OGYsfVXUMTE6Ntw
-         SD8g2aEkEeQJCjhUa56W5IOVVTngyOmo/+rmW2V6yUrmrJgABz50Wf1Fqo59SAjQ07
-         u+lrB51dGu7NRF3mNQae9uLYI9a4JEJYrGaEx9sI=
+        b=KVqjhPfnyk4F1eib4FaI3eZRfHiRv3ky/xfIQpvCmTadp/YUCv8mCF9cXYVzGA3uI
+         wP860xOPHT3RrMjQ3Q6qNvT9GvgLgvH1Zn5CKOaPuHJ4kQQlYPS7aE/cIaE3VFSVHK
+         xdl0TVjwJfdFuspdx5fAakggy/VNheN5jntUGogQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 626/639] i2c: stm32f7: report dma error during probe
-Date:   Fri, 24 Jan 2020 10:33:16 +0100
-Message-Id: <20200124093208.025862854@linuxfoundation.org>
+Subject: [PATCH 4.19 627/639] mmc: sdio: fix wl1251 vendor id
+Date:   Fri, 24 Jan 2020 10:33:17 +0100
+Message-Id: <20200124093208.143092778@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,89 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@st.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit d77eceb2de99f5d7e0c645bad15511fe1af59e09 ]
+[ Upstream commit e5db673e7fe2f971ec82039a28dc0811c2100e87 ]
 
-Distinguish between the case where dma information is not provided
-within the DT and the case of an error during the dma init.
-Exit the probe with error in case of an error during dma init.
+v4.11-rc1 did introduce a patch series that rearranged the
+sdio quirks into a header file. Unfortunately this did forget
+to handle SDIO_VENDOR_ID_TI differently between wl1251 and
+wl1271 with the result that although the wl1251 was found on
+the sdio bus, the firmware did not load any more and there was
+no interface registration.
 
-Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This patch defines separate constants to be used by sdio quirks
+and drivers.
+
+Fixes: 884f38607897 ("mmc: core: move some sdio IDs out of quirks file")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Cc: <stable@vger.kernel.org> # v4.11+
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32.c   | 16 ++++++++--------
- drivers/i2c/busses/i2c-stm32f7.c |  9 +++++++++
- 2 files changed, 17 insertions(+), 8 deletions(-)
+ include/linux/mmc/sdio_ids.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
-index d75fbcbf02ef3..667f8032f8ef6 100644
---- a/drivers/i2c/busses/i2c-stm32.c
-+++ b/drivers/i2c/busses/i2c-stm32.c
-@@ -21,13 +21,13 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+diff --git a/include/linux/mmc/sdio_ids.h b/include/linux/mmc/sdio_ids.h
+index 4224902a8e22a..358d6be357eda 100644
+--- a/include/linux/mmc/sdio_ids.h
++++ b/include/linux/mmc/sdio_ids.h
+@@ -68,6 +68,8 @@
  
- 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
- 	if (!dma)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
+ #define SDIO_VENDOR_ID_TI			0x0097
+ #define SDIO_DEVICE_ID_TI_WL1271		0x4076
++#define SDIO_VENDOR_ID_TI_WL1251		0x104c
++#define SDIO_DEVICE_ID_TI_WL1251		0x9066
  
- 	/* Request and configure I2C TX dma channel */
--	dma->chan_tx = dma_request_slave_channel(dev, "tx");
--	if (!dma->chan_tx) {
-+	dma->chan_tx = dma_request_chan(dev, "tx");
-+	if (IS_ERR(dma->chan_tx)) {
- 		dev_dbg(dev, "can't request DMA tx channel\n");
--		ret = -EINVAL;
-+		ret = PTR_ERR(dma->chan_tx);
- 		goto fail_al;
- 	}
- 
-@@ -43,10 +43,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
- 	}
- 
- 	/* Request and configure I2C RX dma channel */
--	dma->chan_rx = dma_request_slave_channel(dev, "rx");
--	if (!dma->chan_rx) {
-+	dma->chan_rx = dma_request_chan(dev, "rx");
-+	if (IS_ERR(dma->chan_rx)) {
- 		dev_err(dev, "can't request DMA rx channel\n");
--		ret = -EINVAL;
-+		ret = PTR_ERR(dma->chan_rx);
- 		goto fail_tx;
- 	}
- 
-@@ -76,7 +76,7 @@ fail_al:
- 	devm_kfree(dev, dma);
- 	dev_info(dev, "can't use DMA\n");
- 
--	return NULL;
-+	return ERR_PTR(ret);
- }
- 
- void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index e6bbb8ca70905..eb7e533b0dd47 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1914,6 +1914,15 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->dma = stm32_i2c_dma_request(i2c_dev->dev, phy_addr,
- 					     STM32F7_I2C_TXDR,
- 					     STM32F7_I2C_RXDR);
-+	if (PTR_ERR(i2c_dev->dma) == -ENODEV)
-+		i2c_dev->dma = NULL;
-+	else if (IS_ERR(i2c_dev->dma)) {
-+		ret = PTR_ERR(i2c_dev->dma);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"Failed to request dma error %i\n", ret);
-+		goto clk_free;
-+	}
- 
- 	ret = i2c_add_adapter(adap);
- 	if (ret)
+ #define SDIO_VENDOR_ID_STE			0x0020
+ #define SDIO_DEVICE_ID_STE_CW1200		0x2280
 -- 
 2.20.1
 
