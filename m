@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0E2D147DC1
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95FCE147DC3
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733173AbgAXKC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:02:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38530 "EHLO mail.kernel.org"
+        id S2388678AbgAXKDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:03:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733075AbgAXKCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:02:55 -0500
+        id S1733075AbgAXKC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:02:59 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B437D208C4;
-        Fri, 24 Jan 2020 10:02:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72CCD208C4;
+        Fri, 24 Jan 2020 10:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860175;
-        bh=RV5vHIW/JukwiAu3/xnkygDHjWUT+DzBRQLmiYXxBJc=;
+        s=default; t=1579860179;
+        bh=boGWYrzdPdC5IRoVb4MNihCuoPPt3p8HbPlQsUjm/Dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUp0Ak51OpW/jP8ZrdPrd1GjY9g8MzyQpH3/GbS8JkgN3xzj/xVBQleQgQCYpTBQP
-         JyG0QZqTZmmK+cJHIc9MmgGUz+TWD6edMzLMXlE99QpEO8IIPWkHdkcru7ANqDRLAA
-         wCXf0waQ8lzllnSXXBQXVgg1HtlSaojzfHnzCKH8=
+        b=y77gyXZioXfubVm8zMkXiJK/qM7/gYvyrVy6vFeyIO0SHSq+d+t00sE+5qOkG9lfT
+         0ftMylxV8GdiUqz5+lMkOWhR1HXjuL026rvXlIAnwIZ0iODKJxrNC+p2cjSK/lPxz3
+         vJzPGoQS8JHAcGzmrnvjNQn8e4m3wJIDG7GpKhjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 276/343] ASoC: sun4i-i2s: RX and TX counter registers are swapped
-Date:   Fri, 24 Jan 2020 10:31:34 +0100
-Message-Id: <20200124092956.302156190@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 277/343] dmaengine: dw: platform: Switch to acpi_dma_controller_register()
+Date:   Fri, 24 Jan 2020 10:31:35 +0100
+Message-Id: <20200124092956.486345350@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,36 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime.ripard@bootlin.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit cf2c0e1ce9544df42170fb921f12da82dc0cc8d6 ]
+[ Upstream commit e7b8514e4d68bec21fc6385fa0a66797ddc34ac9 ]
 
-The RX and TX counters registers offset have been swapped, fix that.
+There is a possibility to have registered ACPI DMA controller
+while it has been gone already.
 
-Fixes: fa7c0d13cb26 ("ASoC: sunxi: Add Allwinner A10 Digital Audio driver")
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://lore.kernel.org/r/8b26477560ad5fd8f69e037b167c5e61de5c26a3.1566242458.git-series.maxime.ripard@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+To avoid the potential crash, move to non-managed
+acpi_dma_controller_register().
+
+Fixes: 42c91ee71d6d ("dw_dmac: add ACPI support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20190820131546.75744-8-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sunxi/sun4i-i2s.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/dw/platform.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
-index da0a2083e12af..d2802fd8c1dd7 100644
---- a/sound/soc/sunxi/sun4i-i2s.c
-+++ b/sound/soc/sunxi/sun4i-i2s.c
-@@ -80,8 +80,8 @@
- #define SUN4I_I2S_CLK_DIV_MCLK_MASK		GENMASK(3, 0)
- #define SUN4I_I2S_CLK_DIV_MCLK(mclk)			((mclk) << 0)
+diff --git a/drivers/dma/dw/platform.c b/drivers/dma/dw/platform.c
+index 46a519e07195c..b408c07662f59 100644
+--- a/drivers/dma/dw/platform.c
++++ b/drivers/dma/dw/platform.c
+@@ -87,13 +87,20 @@ static void dw_dma_acpi_controller_register(struct dw_dma *dw)
+ 	dma_cap_set(DMA_SLAVE, info->dma_cap);
+ 	info->filter_fn = dw_dma_acpi_filter;
  
--#define SUN4I_I2S_RX_CNT_REG		0x28
--#define SUN4I_I2S_TX_CNT_REG		0x2c
-+#define SUN4I_I2S_TX_CNT_REG		0x28
-+#define SUN4I_I2S_RX_CNT_REG		0x2c
+-	ret = devm_acpi_dma_controller_register(dev, acpi_dma_simple_xlate,
+-						info);
++	ret = acpi_dma_controller_register(dev, acpi_dma_simple_xlate, info);
+ 	if (ret)
+ 		dev_err(dev, "could not register acpi_dma_controller\n");
+ }
++
++static void dw_dma_acpi_controller_free(struct dw_dma *dw)
++{
++	struct device *dev = dw->dma.dev;
++
++	acpi_dma_controller_free(dev);
++}
+ #else /* !CONFIG_ACPI */
+ static inline void dw_dma_acpi_controller_register(struct dw_dma *dw) {}
++static inline void dw_dma_acpi_controller_free(struct dw_dma *dw) {}
+ #endif /* !CONFIG_ACPI */
  
- #define SUN4I_I2S_TX_CHAN_SEL_REG	0x30
- #define SUN4I_I2S_CHAN_SEL(num_chan)		(((num_chan) - 1) << 0)
+ #ifdef CONFIG_OF
+@@ -249,6 +256,9 @@ static int dw_remove(struct platform_device *pdev)
+ {
+ 	struct dw_dma_chip *chip = platform_get_drvdata(pdev);
+ 
++	if (ACPI_HANDLE(&pdev->dev))
++		dw_dma_acpi_controller_free(chip->dw);
++
+ 	if (pdev->dev.of_node)
+ 		of_dma_controller_free(pdev->dev.of_node);
+ 
 -- 
 2.20.1
 
