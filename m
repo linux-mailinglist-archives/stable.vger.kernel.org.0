@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D83911482F6
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1E921482F8
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404426AbgAXLcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:32:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51124 "EHLO mail.kernel.org"
+        id S2404434AbgAXLcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:32:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404424AbgAXLcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:32:16 -0500
+        id S2404431AbgAXLcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:32:19 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBF792075D;
-        Fri, 24 Jan 2020 11:32:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74F7421556;
+        Fri, 24 Jan 2020 11:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865535;
-        bh=ykPsnisee6l2ZoXb3npcV1AdZ6los6mJ+xxFfFNMFJM=;
+        s=default; t=1579865539;
+        bh=sl4NdRa+WOVYw8gmukFFneHGdSjLAGmayVkxy0HW92Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwSIyHrxbwycY8p9zun/a6u2F4dQfdGbrUXQZ9nC5RV8jNTFmCkyp5TEiTBzeSWvL
-         /oTg893NAJYf/4QZ66aJgbdVhObe3p2M4cgVthYfhez2T01tiP9DJLGfUfMKllPb/t
-         3Ikdg18wge5AoMcSTCes0Y0sYXUux6sH4sfp19BY=
+        b=EiJtUAdUs7HWZ6qvXUfpMMEv1vPAmlFQtvblrHenDCUpYx3MTBvyybdSBVuzn7UaZ
+         yo4JTXMGYgMCtzz2fUbqQA1A1o4FhWDTRviO7ttxSjeldChuCqRc1gItwtpH8vldqU
+         hB5bKakIbr4wF4/TKTOjQOEIqBYtEZm5ggzV8XJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 572/639] crypto: hisilicon - Matching the dma address for dma_pool_free()
-Date:   Fri, 24 Jan 2020 10:32:22 +0100
-Message-Id: <20200124093201.055092101@linuxfoundation.org>
+        stable@vger.kernel.org, Filippo Sironi <sironi@amazon.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 573/639] iommu/amd: Wait for completion of IOTLB flush in attach_device
+Date:   Fri, 24 Jan 2020 10:32:23 +0100
+Message-Id: <20200124093201.189937837@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,91 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Filippo Sironi <sironi@amazon.de>
 
-[ Upstream commit e00371af1d4ce73d527d8ee69fda2febaf5a42c2 ]
+[ Upstream commit 0b15e02f0cc4fb34a9160de7ba6db3a4013dc1b7 ]
 
-When dma_pool_zalloc() fail in sec_alloc_and_fill_hw_sgl(),
-dma_pool_free() is invoked, but the parameters that sgl_current and
-sgl_current->next_sgl is not match.
+To make sure the domain tlb flush completes before the
+function returns, explicitly wait for its completion.
 
-Using sec_free_hw_sgl() instead of the original free routine.
-
-Fixes: 915e4e8413da ("crypto: hisilicon - SEC security accelerator driver")
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Filippo Sironi <sironi@amazon.de>
+Fixes: 42a49f965a8d ("amd-iommu: flush domain tlb when attaching a new device")
+[joro: Added commit message and fixes tag]
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sec/sec_algs.c | 44 +++++++++++--------------
- 1 file changed, 19 insertions(+), 25 deletions(-)
+ drivers/iommu/amd_iommu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/crypto/hisilicon/sec/sec_algs.c b/drivers/crypto/hisilicon/sec/sec_algs.c
-index db2983c51f1e6..bf9658800bda5 100644
---- a/drivers/crypto/hisilicon/sec/sec_algs.c
-+++ b/drivers/crypto/hisilicon/sec/sec_algs.c
-@@ -153,6 +153,24 @@ static void sec_alg_skcipher_init_context(struct crypto_skcipher *atfm,
- 				       ctx->cipher_alg);
- }
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 9991386fb7000..bea19aa337587 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2153,6 +2153,8 @@ skip_ats_check:
+ 	 */
+ 	domain_flush_tlb_pde(domain);
  
-+static void sec_free_hw_sgl(struct sec_hw_sgl *hw_sgl,
-+			    dma_addr_t psec_sgl, struct sec_dev_info *info)
-+{
-+	struct sec_hw_sgl *sgl_current, *sgl_next;
-+	dma_addr_t sgl_next_dma;
++	domain_flush_complete(domain);
 +
-+	sgl_current = hw_sgl;
-+	while (sgl_current) {
-+		sgl_next = sgl_current->next;
-+		sgl_next_dma = sgl_current->next_sgl;
-+
-+		dma_pool_free(info->hw_sgl_pool, sgl_current, psec_sgl);
-+
-+		sgl_current = sgl_next;
-+		psec_sgl = sgl_next_dma;
-+	}
-+}
-+
- static int sec_alloc_and_fill_hw_sgl(struct sec_hw_sgl **sec_sgl,
- 				     dma_addr_t *psec_sgl,
- 				     struct scatterlist *sgl,
-@@ -199,36 +217,12 @@ static int sec_alloc_and_fill_hw_sgl(struct sec_hw_sgl **sec_sgl,
- 	return 0;
- 
- err_free_hw_sgls:
--	sgl_current = *sec_sgl;
--	while (sgl_current) {
--		sgl_next = sgl_current->next;
--		dma_pool_free(info->hw_sgl_pool, sgl_current,
--			      sgl_current->next_sgl);
--		sgl_current = sgl_next;
--	}
-+	sec_free_hw_sgl(*sec_sgl, *psec_sgl, info);
- 	*psec_sgl = 0;
- 
  	return ret;
  }
  
--static void sec_free_hw_sgl(struct sec_hw_sgl *hw_sgl,
--			    dma_addr_t psec_sgl, struct sec_dev_info *info)
--{
--	struct sec_hw_sgl *sgl_current, *sgl_next;
--	dma_addr_t sgl_next_dma;
--
--	sgl_current = hw_sgl;
--	while (sgl_current) {
--		sgl_next = sgl_current->next;
--		sgl_next_dma = sgl_current->next_sgl;
--
--		dma_pool_free(info->hw_sgl_pool, sgl_current, psec_sgl);
--
--		sgl_current = sgl_next;
--		psec_sgl = sgl_next_dma;
--	}
--}
--
- static int sec_alg_skcipher_setkey(struct crypto_skcipher *tfm,
- 				   const u8 *key, unsigned int keylen,
- 				   enum sec_cipher_alg alg)
 -- 
 2.20.1
 
