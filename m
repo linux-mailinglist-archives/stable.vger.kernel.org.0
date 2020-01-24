@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5918147BBE
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A65147B22
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731825AbgAXJlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:41:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38504 "EHLO mail.kernel.org"
+        id S1732769AbgAXJlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:41:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732698AbgAXJlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:41:04 -0500
+        id S1732762AbgAXJlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:41:08 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 587C82070A;
-        Fri, 24 Jan 2020 09:41:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 820B82070A;
+        Fri, 24 Jan 2020 09:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858864;
-        bh=tiERmv/8h8E8De24hSoO7PsoVcthP/fVu/lPSIIUBUU=;
+        s=default; t=1579858868;
+        bh=Qu2WPU/MJSApFl5cud7d6Hx3nAmc8qWUvlthHgq02yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAs3N4DABhBT9C9FsT5VbqUYQLX5h1vu4DFQf8F91g7xQKxeLaX/xz4Xc3S0fmsRh
-         AXcVFh3cEwAzeZhbIhFfn4LjlkffZOqd3mzuBINuGYdvCTZqDfVA7rKMn3m1PusGcK
-         RicHWYJ4NMxhFOjEYPVVgjYD/en44JeyA0JMcT0Y=
+        b=wV0mgYBFbXflG7IgEoC5/1GAVuvTsmSIMrjVUI1O9QnhPiiE3pgnYdFHqh4nEYPxO
+         n/JQKGXYtmfCH2KrNJ8ezt7NH4D4ipQyfnI5KXH2mz/qOOGYvXHy2sr779Kv4w4vC1
+         fXDuKbdx7imilEoiJ1YkKziVxqjRGdzuH9n98AQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/102] rcu: Fix uninitialized variable in nocb_gp_wait()
-Date:   Fri, 24 Jan 2020 10:31:09 +0100
-Message-Id: <20200124092816.849855361@linuxfoundation.org>
+Subject: [PATCH 5.4 069/102] dpaa_eth: perform DMA unmapping before read
+Date:   Fri, 24 Jan 2020 10:31:10 +0100
+Message-Id: <20200124092817.006147633@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,36 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Madalin Bucur <madalin.bucur@nxp.com>
 
-[ Upstream commit b8889c9c89a2655a231dfed93cc9bdca0930ea67 ]
+[ Upstream commit c70fd3182caef014e6c628b412f81aa57a3ef9e4 ]
 
-We never set this to false.  This probably doesn't affect most people's
-runtime because GCC will automatically initialize it to false at certain
-common optimization levels.  But that behavior is related to a bug in
-GCC and obviously should not be relied on.
+DMA unmapping is required before accessing the HW provided timestamping
+information.
 
-Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 4664856e9ca2 ("dpaa_eth: add support for hardware timestamping")
+Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_plugin.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/freescale/dpaa/dpaa_eth.c    | 32 ++++++++++---------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 2defc7fe74c39..fa08d55f7040c 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -1946,7 +1946,7 @@ static void nocb_gp_wait(struct rcu_data *my_rdp)
- 	int __maybe_unused cpu = my_rdp->cpu;
- 	unsigned long cur_gp_seq;
- 	unsigned long flags;
--	bool gotcbs;
-+	bool gotcbs = false;
- 	unsigned long j = jiffies;
- 	bool needwait_gp = false; // This prevents actual uninitialized use.
- 	bool needwake;
+diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+index b4b82b9c5cd6d..54ffc9d3b0a9b 100644
+--- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
++++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+@@ -1620,18 +1620,6 @@ static struct sk_buff *dpaa_cleanup_tx_fd(const struct dpaa_priv *priv,
+ 	skbh = (struct sk_buff **)phys_to_virt(addr);
+ 	skb = *skbh;
+ 
+-	if (priv->tx_tstamp && skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) {
+-		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
+-
+-		if (!fman_port_get_tstamp(priv->mac_dev->port[TX], (void *)skbh,
+-					  &ns)) {
+-			shhwtstamps.hwtstamp = ns_to_ktime(ns);
+-			skb_tstamp_tx(skb, &shhwtstamps);
+-		} else {
+-			dev_warn(dev, "fman_port_get_tstamp failed!\n");
+-		}
+-	}
+-
+ 	if (unlikely(qm_fd_get_format(fd) == qm_fd_sg)) {
+ 		nr_frags = skb_shinfo(skb)->nr_frags;
+ 		dma_unmap_single(dev, addr,
+@@ -1654,14 +1642,28 @@ static struct sk_buff *dpaa_cleanup_tx_fd(const struct dpaa_priv *priv,
+ 			dma_unmap_page(dev, qm_sg_addr(&sgt[i]),
+ 				       qm_sg_entry_get_len(&sgt[i]), dma_dir);
+ 		}
+-
+-		/* Free the page frag that we allocated on Tx */
+-		skb_free_frag(phys_to_virt(addr));
+ 	} else {
+ 		dma_unmap_single(dev, addr,
+ 				 skb_tail_pointer(skb) - (u8 *)skbh, dma_dir);
+ 	}
+ 
++	/* DMA unmapping is required before accessing the HW provided info */
++	if (priv->tx_tstamp && skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) {
++		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
++
++		if (!fman_port_get_tstamp(priv->mac_dev->port[TX], (void *)skbh,
++					  &ns)) {
++			shhwtstamps.hwtstamp = ns_to_ktime(ns);
++			skb_tstamp_tx(skb, &shhwtstamps);
++		} else {
++			dev_warn(dev, "fman_port_get_tstamp failed!\n");
++		}
++	}
++
++	if (qm_fd_get_format(fd) == qm_fd_sg)
++		/* Free the page frag that we allocated on Tx */
++		skb_free_frag(phys_to_virt(addr));
++
+ 	return skb;
+ }
+ 
 -- 
 2.20.1
 
