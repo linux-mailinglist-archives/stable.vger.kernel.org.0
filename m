@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97639148995
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C0214898F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391617AbgAXOTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:19:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39702 "EHLO mail.kernel.org"
+        id S2391674AbgAXOT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:19:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391602AbgAXOTZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:25 -0500
+        id S2391620AbgAXOT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C536C21569;
-        Fri, 24 Jan 2020 14:19:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA0C920838;
+        Fri, 24 Jan 2020 14:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875564;
-        bh=gHHs2kUz4YcAs+pZE6vf4Iexds6OSisXy+2sGItGX0c=;
+        s=default; t=1579875565;
+        bh=T9IqlH2GDcO96bbIxhZJVm4mjhUxT05VXehOGgsoU2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNzIu+hD4oxj75HJP1GHxI9hRxe32dI3HdxrLS5niWFXMcoppu9gUimme4R8FIzlo
-         jzz53zOgTorBC9yzz2rj4c5MVtdGzHKgtQPHcIGdYTy3mo40drB7gunfw2PXYQCT16
-         vngRCyN9jz6mb9mdHJdBKFzLkl1wLDLX8Hqv987c=
+        b=b7Z9qLJwe1x3RrpHU15wcvU/U8O9B9Iy/IvgqA1UUVrUV7g3zNaduB9eoKWThFi7e
+         ypc7LLxU+cvcTvRHd94Z0Z0z/smPM9lqn1ASSutEtcC9dT3HguxF8xBGhxpZBVagEL
+         AviO+YD9IC0cA1ph1zoHYatpAZIpwqjE2K0nsOXI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 058/107] ASoC: msm8916-wcd-digital: Reset RX interpolation path after use
-Date:   Fri, 24 Jan 2020 09:17:28 -0500
-Message-Id: <20200124141817.28793-58-sashal@kernel.org>
+Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
+        syzbot+4c3cc6dbe7259dbf9054@syzkaller.appspotmail.com,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 059/107] netfilter: fix a use-after-free in mtype_destroy()
+Date:   Fri, 24 Jan 2020 09:17:29 -0500
+Message-Id: <20200124141817.28793-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,54 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 85578bbd642f65065039b1765ebe1a867d5435b0 ]
+[ Upstream commit c120959387efa51479056fd01dc90adfba7a590c ]
 
-For some reason, attempting to route audio through QDSP6 on MSM8916
-causes the RX interpolation path to get "stuck" after playing audio
-a few times. In this situation, the analog codec part is still working,
-but the RX path in the digital codec stops working, so you only hear
-the analog parts powering up. After a reboot everything works again.
+map->members is freed by ip_set_free() right before using it in
+mtype_ext_cleanup() again. So we just have to move it down.
 
-So far I was not able to reproduce the problem when using lpass-cpu.
-
-The downstream kernel driver avoids this by resetting the RX
-interpolation path after use. In mainline we do something similar
-for the TX decimator (LPASS_CDC_CLK_TX_RESET_B1_CTL), but the
-interpolator reset (LPASS_CDC_CLK_RX_RESET_CTL) got lost when the
-msm8916-wcd driver was split into analog and digital.
-
-Fix this problem by adding the reset to
-msm8916_wcd_digital_enable_interpolator().
-
-Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200105102753.83108-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot+4c3cc6dbe7259dbf9054@syzkaller.appspotmail.com
+Fixes: 40cd63bf33b2 ("netfilter: ipset: Support extensions which need a per data destroy function")
+Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-digital.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/netfilter/ipset/ip_set_bitmap_gen.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
-index 58b2468fb2a71..09fccacadd6b1 100644
---- a/sound/soc/codecs/msm8916-wcd-digital.c
-+++ b/sound/soc/codecs/msm8916-wcd-digital.c
-@@ -586,6 +586,12 @@ static int msm8916_wcd_digital_enable_interpolator(
- 		snd_soc_component_write(component, rx_gain_reg[w->shift],
- 			      snd_soc_component_read32(component, rx_gain_reg[w->shift]));
- 		break;
-+	case SND_SOC_DAPM_POST_PMD:
-+		snd_soc_component_update_bits(component, LPASS_CDC_CLK_RX_RESET_CTL,
-+					      1 << w->shift, 1 << w->shift);
-+		snd_soc_component_update_bits(component, LPASS_CDC_CLK_RX_RESET_CTL,
-+					      1 << w->shift, 0x0);
-+		break;
- 	}
- 	return 0;
- }
+diff --git a/net/netfilter/ipset/ip_set_bitmap_gen.h b/net/netfilter/ipset/ip_set_bitmap_gen.h
+index 063df74b46470..e1f271a1b2c14 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_gen.h
++++ b/net/netfilter/ipset/ip_set_bitmap_gen.h
+@@ -60,9 +60,9 @@ mtype_destroy(struct ip_set *set)
+ 	if (SET_WITH_TIMEOUT(set))
+ 		del_timer_sync(&map->gc);
+ 
+-	ip_set_free(map->members);
+ 	if (set->dsize && set->extensions & IPSET_EXT_DESTROY)
+ 		mtype_ext_cleanup(set);
++	ip_set_free(map->members);
+ 	ip_set_free(map);
+ 
+ 	set->data = NULL;
 -- 
 2.20.1
 
