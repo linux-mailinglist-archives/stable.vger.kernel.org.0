@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 330F71482A3
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:29:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E0F148285
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:29:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391825AbgAXL3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:29:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46566 "EHLO mail.kernel.org"
+        id S2391422AbgAXL2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:28:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391822AbgAXL3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:29:37 -0500
+        id S2391727AbgAXL2w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:28:52 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA9C9206D4;
-        Fri, 24 Jan 2020 11:29:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E98B206D4;
+        Fri, 24 Jan 2020 11:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865376;
-        bh=h+D3fc1X2bbvN0462OR0SmPlb60QQjyxnM4BJqv94BQ=;
+        s=default; t=1579865332;
+        bh=ZJaRqJzYv8tsnPKHc+A1qzDDOHv1/2eppo6VQU2hfTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USxv0Tfoa7GvIx2DdmYhJcmR7UBaxPqCUWr7TealHFXa4QQ06Bw5AC95je1NlKPwF
-         ft6eN4oNwbLuJSCUXLq/jEj1QifvAHMVpz6ZQRapNiq1sjI/jPBQJxHgzLvaN/rg5P
-         9Xh4XAQWLY1s7EJJGlmFoz20iHmRQwYO5OCW+rY8=
+        b=AfMNQdaggQbeLABirjaMm01Lg5aPMi3OU+lg0/u4x1UzME0KewEuxsg1iqEecooq+
+         Ccpau9VQ+45FhhYKRQvxEwXyxnssy1ZtqDvNRHHYUmTZxf79Qr4gsDeiYuriVqgqri
+         2d7UsWps2XkYR6o2oNUtlZ4q1OjbHQXJp3zSuo1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Evans <tom.evans@motec.com.au>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 516/639] rtc: rv3029: revert error handling patch to rv3029_eeprom_write()
-Date:   Fri, 24 Jan 2020 10:31:26 +0100
-Message-Id: <20200124093153.439142590@linuxfoundation.org>
+Subject: [PATCH 4.19 517/639] mac80211: minstrel_ht: fix per-group max throughput rate initialization
+Date:   Fri, 24 Jan 2020 10:31:27 +0100
+Message-Id: <20200124093153.554354323@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,64 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit a6f26606ddd03c5eab8b2132f1bfaa768c06158f ]
+[ Upstream commit 56dd918ff06e3ee24d8067e93ed12b2a39e71394 ]
 
-My error handling "cleanup" was totally wrong.  Both the "err" and "ret"
-variables are required.  The "err" variable holds the error codes for
-rv3029_eeprom_enter/exit() and the "ret" variable holds the error codes
-for if actual write fails.  In my patch if the write failed, the
-function probably still returned success.
+The group number needs to be multiplied by the number of rates per group
+to get the full rate index
 
-Reported-by: Tom Evans <tom.evans@motec.com.au>
-Fixes: 97f5b0379c38 ("rtc: rv3029: Clean up error handling in rv3029_eeprom_write()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20190817065604.GB29951@mwanda
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 5935839ad735 ("mac80211: improve minstrel_ht rate sorting by throughput & probability")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20190820095449.45255-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-rv3029c2.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 3d6174eb32f6a..cfe3aece51d17 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -282,13 +282,13 @@ static int rv3029_eeprom_read(struct device *dev, u8 reg,
- static int rv3029_eeprom_write(struct device *dev, u8 reg,
- 			       u8 const buf[], size_t len)
- {
--	int ret;
-+	int ret, err;
- 	size_t i;
- 	u8 tmp;
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 3d5520776655d..0b60e330c115b 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -529,7 +529,7 @@ minstrel_ht_update_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi)
  
--	ret = rv3029_eeprom_enter(dev);
--	if (ret < 0)
--		return ret;
-+	err = rv3029_eeprom_enter(dev);
-+	if (err < 0)
-+		return err;
+ 		/* (re)Initialize group rate indexes */
+ 		for(j = 0; j < MAX_THR_RATES; j++)
+-			tmp_group_tp_rate[j] = group;
++			tmp_group_tp_rate[j] = MCS_GROUP_RATES * group;
  
- 	for (i = 0; i < len; i++, reg++) {
- 		ret = rv3029_read_regs(dev, reg, &tmp, 1);
-@@ -304,11 +304,11 @@ static int rv3029_eeprom_write(struct device *dev, u8 reg,
- 			break;
- 	}
- 
--	ret = rv3029_eeprom_exit(dev);
--	if (ret < 0)
--		return ret;
-+	err = rv3029_eeprom_exit(dev);
-+	if (err < 0)
-+		return err;
- 
--	return 0;
-+	return ret;
- }
- 
- static int rv3029_eeprom_update_bits(struct device *dev,
+ 		for (i = 0; i < MCS_GROUP_RATES; i++) {
+ 			if (!(mi->supported[group] & BIT(i)))
 -- 
 2.20.1
 
