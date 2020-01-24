@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E84147A95
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:35:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB21147A97
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:35:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731007AbgAXJeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:34:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33294 "EHLO mail.kernel.org"
+        id S1731060AbgAXJey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:34:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731030AbgAXJeu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:34:50 -0500
+        id S1731030AbgAXJex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:34:53 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8F4D2077C;
-        Fri, 24 Jan 2020 09:34:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21007214AF;
+        Fri, 24 Jan 2020 09:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858489;
-        bh=Jwir1lsukSNW1eCFd5h2tH7f19kQrWC1sDlaromQVSg=;
+        s=default; t=1579858493;
+        bh=VtPldQ3lA3dQdz6mh2KG5VaA48eAZoV4UN8dXwPA1rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N05jLYsJlndYU+WsNueQW8bGHrc77OAtuqrCOgWTg4sqx9JT4LTMuxXajncXsKx9E
-         mT+ihogvzhew+zNH6z5qbymzrbbRpruLhDAMbVPfOW7c/WLZoxuomrqGMVcNNsUzt1
-         xwGIjQoikKJHAWJbAnktMnIT+RVD68QRPkcb7VOk=
+        b=Ly2gjOtiV0YgTF1PuSAd3UE11ZFW6s1vd8KTMaSrHASthAvolNcezTb/Bj7aswV14
+         5Xf84zoLkFC4uJmu7reFp7AKV/4+E2EaYykjDN5QcHLjnKMImZeouMr5oG5xQNDDhi
+         glPOletWmqWAzAcTjNe5/50mgu64BpJQuCg1+sTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.4 015/102] i2c: i2c-stm32f7: fix 10-bits check in slave free id search loop
-Date:   Fri, 24 Jan 2020 10:30:16 +0100
-Message-Id: <20200124092808.448677710@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.4 016/102] mfd: intel-lpss: Add default I2C device properties for Gemini Lake
+Date:   Fri, 24 Jan 2020 10:30:17 +0100
+Message-Id: <20200124092808.615975463@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,36 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@st.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-commit 7787657d7ee55a9ecf4aea4907b46b87a44eda67 upstream.
+commit 3f31bc67e4dc6a555341dffefe328ddd58e8b431 upstream.
 
-Fix a typo in the free slave id search loop. Instead of I2C_CLIENT_PEC,
-it should have been I2C_CLIENT_TEN. The slave id 1 can only handle 7-bit
-addresses and thus is not eligible in case of 10-bit addresses.
-As a matter of fact none of the slave id support I2C_CLIENT_PEC, overall
-check is performed at the beginning of the stm32f7_i2c_reg_slave function.
+It turned out Intel Gemini Lake doesn't use the same I2C timing
+parameters as Broxton.
 
-Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+I got confirmation from the Windows team that Gemini Lake systems should
+use updated timing parameters that differ from those used in Broxton
+based systems.
+
+Fixes: f80e78aa11ad ("mfd: intel-lpss: Add Intel Gemini Lake PCI IDs")
+Tested-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-stm32f7.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/intel-lpss-pci.c |   28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1268,7 +1268,7 @@ static int stm32f7_i2c_get_free_slave_id
- 	 * slave[1] supports 7-bit slave address only
- 	 */
- 	for (i = STM32F7_I2C_MAX_SLAVE - 1; i >= 0; i--) {
--		if (i == 1 && (slave->flags & I2C_CLIENT_PEC))
-+		if (i == 1 && (slave->flags & I2C_CLIENT_TEN))
- 			continue;
- 		if (!i2c_dev->slave[i]) {
- 			*id = i;
+--- a/drivers/mfd/intel-lpss-pci.c
++++ b/drivers/mfd/intel-lpss-pci.c
+@@ -122,6 +122,18 @@ static const struct intel_lpss_platform_
+ 	.properties = apl_i2c_properties,
+ };
+ 
++static struct property_entry glk_i2c_properties[] = {
++	PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 313),
++	PROPERTY_ENTRY_U32("i2c-sda-falling-time-ns", 171),
++	PROPERTY_ENTRY_U32("i2c-scl-falling-time-ns", 290),
++	{ },
++};
++
++static const struct intel_lpss_platform_info glk_i2c_info = {
++	.clk_rate = 133000000,
++	.properties = glk_i2c_properties,
++};
++
+ static const struct intel_lpss_platform_info cnl_i2c_info = {
+ 	.clk_rate = 216000000,
+ 	.properties = spt_i2c_properties,
+@@ -174,14 +186,14 @@ static const struct pci_device_id intel_
+ 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
+ 	/* GLK */
+-	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&bxt_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&glk_i2c_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31bc), (kernel_ulong_t)&bxt_uart_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31be), (kernel_ulong_t)&bxt_uart_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31c0), (kernel_ulong_t)&bxt_uart_info },
 
 
