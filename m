@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 368BD148473
+	by mail.lfdr.de (Postfix) with ESMTP id AE524148474
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731123AbgAXLJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:09:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44672 "EHLO mail.kernel.org"
+        id S1730061AbgAXLJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:09:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729188AbgAXLJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:09:09 -0500
+        id S1729188AbgAXLJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:09:13 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8450A20663;
-        Fri, 24 Jan 2020 11:09:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9B8820708;
+        Fri, 24 Jan 2020 11:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864148;
-        bh=4B+Bx8aWsAdssjEKaRL6rcWLwOShkfKSLgK9/93fxKE=;
+        s=default; t=1579864152;
+        bh=LcaHQk7HlJHcJORtK8v+0Ss5+sdO4zXKEWyscC+SkXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHJfOM6DEiGtHOje/ruZUa5qOmMTDZeArAzesE+xvFkU+mJ1KUM/iPFEQURv0L9UO
-         c7Km/BfJhq3geIP1D8dvq9JN4tAxbbW7yo+5ek3GR9O8eGONRL9gIv7/umO2A3BDFO
-         Zn6tgaBJAcrvPjfRoe7p27EcF2sjwELMirXtw1FY=
+        b=GjeSKMaiuMTtPmCQK9fp72XcOrJcsI9m118pwPCbKMLYE/Gt5E6tW7nNGzef30AWF
+         WRAPPv0sqXwqhB43Tl1P1jTqsggkahOBKbx1r9aFYYe3+vBrgoRkfEPS2YixxIeDRg
+         Qz33O8lMSIwhqvv37/vRmGL66ihMO+keujgnHx/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
-        Corey Minyard <cminyard@mvista.com>,
-        Haiyue Wang <haiyue.wang@linux.intel.com>,
+        stable@vger.kernel.org,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 185/639] ipmi: kcs_bmc: handle devm_kasprintf() failure case
-Date:   Fri, 24 Jan 2020 10:25:55 +0100
-Message-Id: <20200124093110.312418669@linuxfoundation.org>
+Subject: [PATCH 4.19 186/639] xsk: add missing smp_rmb() in xsk_mmap
+Date:   Fri, 24 Jan 2020 10:25:56 +0100
+Message-Id: <20200124093110.430156249@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,43 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Mc Guire <hofrat@osadl.org>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 42c7c6ef1e6fa5fc0425120f06f045190b1dda2d ]
+[ Upstream commit e6762c8bcf982821935a2b1cb33cf8335d0eefae ]
 
-devm_kasprintf() may return NULL if internal allocation failed so this
-assignment is not safe. Moved the error exit path and added the !NULL
-which then allows the devres manager to take care of cleanup.
+All the setup code in AF_XDP is protected by a mutex with the
+exception of the mmap code that cannot use it. To make sure that a
+process banging on the mmap call at the same time as another process
+is setting up the socket, smp_wmb() calls were added in the umem
+registration code and the queue creation code, so that the published
+structures that xsk_mmap needs would be consistent. However, the
+corresponding smp_rmb() calls were not added to the xsk_mmap
+code. This patch adds these calls.
 
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-Fixes: cd2315d471f4 ("ipmi: kcs_bmc: don't change device name")
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Reviewed-by: Haiyue Wang <haiyue.wang@linux.intel.com>
+Fixes: 37b076933a8e3 ("xsk: add missing write- and data-dependency barrier")
+Fixes: c0c77d8fb787c ("xsk: add user memory registration support sockopt")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/kcs_bmc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/xdp/xsk.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/char/ipmi/kcs_bmc.c b/drivers/char/ipmi/kcs_bmc.c
-index e6124bd548df2..ed4dc3b1843e3 100644
---- a/drivers/char/ipmi/kcs_bmc.c
-+++ b/drivers/char/ipmi/kcs_bmc.c
-@@ -440,12 +440,13 @@ struct kcs_bmc *kcs_bmc_alloc(struct device *dev, int sizeof_priv, u32 channel)
- 	kcs_bmc->data_in = devm_kmalloc(dev, KCS_MSG_BUFSIZ, GFP_KERNEL);
- 	kcs_bmc->data_out = devm_kmalloc(dev, KCS_MSG_BUFSIZ, GFP_KERNEL);
- 	kcs_bmc->kbuffer = devm_kmalloc(dev, KCS_MSG_BUFSIZ, GFP_KERNEL);
--	if (!kcs_bmc->data_in || !kcs_bmc->data_out || !kcs_bmc->kbuffer)
--		return NULL;
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index ff15207036dc5..547fc4554b22c 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -661,6 +661,8 @@ static int xsk_mmap(struct file *file, struct socket *sock,
+ 		if (!umem)
+ 			return -EINVAL;
  
- 	kcs_bmc->miscdev.minor = MISC_DYNAMIC_MINOR;
- 	kcs_bmc->miscdev.name = devm_kasprintf(dev, GFP_KERNEL, "%s%u",
- 					       DEVICE_NAME, channel);
-+	if (!kcs_bmc->data_in || !kcs_bmc->data_out || !kcs_bmc->kbuffer ||
-+	    !kcs_bmc->miscdev.name)
-+		return NULL;
- 	kcs_bmc->miscdev.fops = &kcs_bmc_fops;
++		/* Matches the smp_wmb() in XDP_UMEM_REG */
++		smp_rmb();
+ 		if (offset == XDP_UMEM_PGOFF_FILL_RING)
+ 			q = READ_ONCE(umem->fq);
+ 		else if (offset == XDP_UMEM_PGOFF_COMPLETION_RING)
+@@ -670,6 +672,8 @@ static int xsk_mmap(struct file *file, struct socket *sock,
+ 	if (!q)
+ 		return -EINVAL;
  
- 	return kcs_bmc;
++	/* Matches the smp_wmb() in xsk_init_queue */
++	smp_rmb();
+ 	qpg = virt_to_head_page(q->ring);
+ 	if (size > (PAGE_SIZE << compound_order(qpg)))
+ 		return -EINVAL;
 -- 
 2.20.1
 
