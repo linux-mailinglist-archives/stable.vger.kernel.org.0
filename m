@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC6B1481E9
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9D71481E7
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390915AbgAXLXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:23:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
+        id S2390874AbgAXLXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:23:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388604AbgAXLXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:23:37 -0500
+        id S2388604AbgAXLXk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:23:40 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EB9520718;
-        Fri, 24 Jan 2020 11:23:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10A08206D4;
+        Fri, 24 Jan 2020 11:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865016;
-        bh=wqSH3Et/Y3xr19traJ9mKhmegGon99lfMzv5u/BNDvc=;
+        s=default; t=1579865019;
+        bh=spyU6i/kX4SzHR08lZ9KxFJ7/if87yKM48hJyDsFFBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVuZzUh8OhEWrW8ExfEjtTY0CfxFAi/Zn7Ah4pIS9WKStaR13BtSR5+0ePBCUCmFe
-         gqMWM1SrXb87iL+90f1Q9Bpuwzj0C+C7JNgi/07DFDSgNsgZWMb6CFsj5HfNAAjh5K
-         nO9rSS8hJAfYZwJebyJ4+zyFG/hwddCQmlxzXySc=
+        b=oi+x2MTOaexDnUvifrINhsZibswQmAAddP0WKmkU32VzpTRC+y2Q+5ZafiDv4eq3+
+         2yBjgO9RskE0s0dfAIzAk97EtETi8/j8J0xaf3x0w6TRxFxczVtwTq1ja4Hx5cA8xZ
+         e4Gxq+W+FscZpcZBDqzpdON51VR91g55wZhnIMbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
+        George Wilkie <gwilkie@vyatta.att-mail.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 415/639] arm64: dts: renesas: ebisu: Remove renesas, no-ether-link property
-Date:   Fri, 24 Jan 2020 10:29:45 +0100
-Message-Id: <20200124093139.009553201@linuxfoundation.org>
+Subject: [PATCH 4.19 416/639] mpls: fix warning with multi-label encap
+Date:   Fri, 24 Jan 2020 10:29:46 +0100
+Message-Id: <20200124093139.122397721@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,66 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+From: George Wilkie <gwilkie@vyatta.att-mail.com>
 
-[ Upstream commit 90d4fa39d028f2e46c57c3d0e1b759e5287d98b7 ]
+[ Upstream commit 2f3f7d1fa0d1039b24a55d127ed190f196fc3e79 ]
 
-It is incorrect to specify the no-ether-link property for the AVB device on
-the Ebisu board. This is because the property should only be used when a
-board does not provide a proper AVB_LINK signal. However, the Ebisu board
-does provide this signal.
+If you configure a route with multiple labels, e.g.
+  ip route add 10.10.3.0/24 encap mpls 16/100 via 10.10.2.2 dev ens4
+A warning is logged:
+  kernel: [  130.561819] netlink: 'ip': attribute type 1 has an invalid
+  length.
 
-As per 87c059e9c39d ("arm64: dts: renesas: salvator-x: Remove renesas,
-no-ether-link property") this fixes a bug:
+This happens because mpls_iptunnel_policy has set the type of
+MPLS_IPTUNNEL_DST to fixed size NLA_U32.
+Change it to a minimum size.
+nla_get_labels() does the remaining validation.
 
-    Steps to reproduce:
-    - start AVB TX stream (Using aplay via MSE),
-    - disconnect+reconnect the eth cable,
-    - after a reconnection the eth connection goes iteratively up/down
-      without user interaction,
-    - this may heal after some seconds or even stay for minutes.
-
-    As the documentation specifies, the "renesas,no-ether-link" option
-    should be used when a board does not provide a proper AVB_LINK signal.
-    There is no need for this option enabled on RCAR H3/M3 Salvator-X/XS
-    and ULCB starter kits since the AVB_LINK is correctly handled by HW.
-
-    Choosing to keep or remove the "renesas,no-ether-link" option will have
-    impact on the code flow in the following ways:
-    - keeping this option enabled may lead to unexpected behavior since the
-      RX & TX are enabled/disabled directly from adjust_link function
-      without any HW interrogation,
-    - removing this option, the RX & TX will only be enabled/disabled after
-      HW interrogation. The HW check is made through the LMON pin in PSR
-      register which specifies AVB_LINK signal value (0 - at low level;
-      1 - at high level).
-
-    In conclusion, the present change is also a safety improvement because
-    it removes the "renesas,no-ether-link" option leading to a proper way
-    of detecting the link state based on HW interrogation and not on
-    software heuristic.
-
-Fixes: 8441ef643d7d ("arm64: dts: renesas: r8a77990: ebisu: Enable EthernetAVB")
-Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
-[simon: updated changelog]
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Fixes: e3e4712ec096 ("mpls: ip tunnel support")
+Signed-off-by: George Wilkie <gwilkie@vyatta.att-mail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts | 1 -
- 1 file changed, 1 deletion(-)
+ net/mpls/mpls_iptunnel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts b/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-index 2bc3a4884b003..470c2a35a5aff 100644
---- a/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-@@ -33,7 +33,6 @@
- &avb {
- 	pinctrl-0 = <&avb_pins>;
- 	pinctrl-names = "default";
--	renesas,no-ether-link;
- 	phy-handle = <&phy0>;
- 	phy-mode = "rgmii-txid";
- 	status = "okay";
+diff --git a/net/mpls/mpls_iptunnel.c b/net/mpls/mpls_iptunnel.c
+index 94f53a9b7d1ae..faf6ef1b6a454 100644
+--- a/net/mpls/mpls_iptunnel.c
++++ b/net/mpls/mpls_iptunnel.c
+@@ -28,7 +28,7 @@
+ #include "internal.h"
+ 
+ static const struct nla_policy mpls_iptunnel_policy[MPLS_IPTUNNEL_MAX + 1] = {
+-	[MPLS_IPTUNNEL_DST]	= { .type = NLA_U32 },
++	[MPLS_IPTUNNEL_DST]	= { .len = sizeof(u32) },
+ 	[MPLS_IPTUNNEL_TTL]	= { .type = NLA_U8 },
+ };
+ 
 -- 
 2.20.1
 
