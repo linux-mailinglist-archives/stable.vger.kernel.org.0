@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C4DE1489EE
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F031489F0
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390808AbgAXOSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:18:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38064 "EHLO mail.kernel.org"
+        id S2390844AbgAXOSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:18:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390844AbgAXOSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:18:35 -0500
+        id S2390893AbgAXOSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:18:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D66021556;
-        Fri, 24 Jan 2020 14:18:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6216020838;
+        Fri, 24 Jan 2020 14:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875515;
-        bh=ZKDcLH6v9XtUKRk4ZP7IrAf1NjELi1VNKfJKnhwS1Z8=;
+        s=default; t=1579875516;
+        bh=+I5ykO5NXtCEJfLJit9LMgzYwZuR+pnoXVd6Iosr3M8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWnCHP0340044PUSHLAASJ9kFPR9ux7fLdbS7iQEmkdAKX4WDwT6ItFPLs62hsTdi
-         QnVhItZD22xPUYQeo9pypIt6haHPXW+4f6RnpHGP2gIMngio1Jd7F5Z7bXXrR5O64W
-         +qTU/d7HehhofDeT36qpmNXmxv+aevfx1YxM64gY=
+        b=eAMCnbuVP71YhDIlg6xokDhb/rsL+0IMjUuLucYeCCxRqIhu5M+PLrpiK7E2RpoLM
+         i6IabTPT3hrj+1gXEmLNGV64RVS/6SFAma5x/iP4bKnfD/0WxS0knPqgnFq/NJgldL
+         ZwNsOM3FSamqK4bYwjdzFUylkjIk7t+Yz9f6J/Wc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Ford <aford173@gmail.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 015/107] arm64: dts: imx8mm: Change SDMA1 ahb clock for imx8mm
-Date:   Fri, 24 Jan 2020 09:16:45 -0500
-Message-Id: <20200124141817.28793-15-sashal@kernel.org>
+Cc:     Peng Fan <peng.fan@nxp.com>, Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 016/107] ARM: dts: imx7ulp: fix reg of cpu node
+Date:   Fri, 24 Jan 2020 09:16:46 -0500
+Message-Id: <20200124141817.28793-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -43,35 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 24a572bf67994223e722cadfe663e15ba221882a ]
+[ Upstream commit b8ab62ff7199fac8ce27fa4a149929034fabe7f8 ]
 
-Using SDMA1 with UART1 is causing a "Timeout waiting for CH0" error.
-This patch changes to ahb clock from SDMA1_ROOT to AHB which
-fixes the timeout error.
+According to arm cpus binding doc,
+"
+      On 32-bit ARM v7 or later systems this property is
+        required and matches the CPU MPIDR[23:0] register
+        bits.
 
-Fixes:  a05ea40eb384 ("arm64: dts: imx: Add i.mx8mm dtsi support")
-Signed-off-by: Adam Ford <aford173@gmail.com>
+        Bits [23:0] in the reg cell must be set to
+        bits [23:0] in MPIDR.
+
+        All other bits in the reg cell must be set to 0.
+"
+
+In i.MX7ULP, the MPIDR[23:0] is 0xf00, not 0, so fix it.
+Otherwise there will be warning:
+"DT missing boot CPU MPIDR[23:0], fall back to default cpu_logical_map"
+
+Fixes: 20434dc92c05 ("ARM: dts: imx: add common imx7ulp dtsi support")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx7ulp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm.dtsi b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-index 23c8fad7932b1..b4ca3b7ef10d5 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-@@ -741,7 +741,7 @@
- 				reg = <0x30bd0000 0x10000>;
- 				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX8MM_CLK_SDMA1_ROOT>,
--					 <&clk IMX8MM_CLK_SDMA1_ROOT>;
-+					 <&clk IMX8MM_CLK_AHB>;
- 				clock-names = "ipg", "ahb";
- 				#dma-cells = <3>;
- 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx7d.bin";
+diff --git a/arch/arm/boot/dts/imx7ulp.dtsi b/arch/arm/boot/dts/imx7ulp.dtsi
+index 6859a3a83750c..3dac6898cdc57 100644
+--- a/arch/arm/boot/dts/imx7ulp.dtsi
++++ b/arch/arm/boot/dts/imx7ulp.dtsi
+@@ -37,10 +37,10 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		cpu0: cpu@0 {
++		cpu0: cpu@f00 {
+ 			compatible = "arm,cortex-a7";
+ 			device_type = "cpu";
+-			reg = <0>;
++			reg = <0xf00>;
+ 		};
+ 	};
+ 
 -- 
 2.20.1
 
