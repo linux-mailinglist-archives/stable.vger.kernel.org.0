@@ -2,70 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0021147A54
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51EE3147A57
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730082AbgAXJXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:23:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54370 "EHLO mail.kernel.org"
+        id S1730134AbgAXJYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:24:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729880AbgAXJXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:23:04 -0500
+        id S1730321AbgAXJYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:24:00 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D44A2070A;
-        Fri, 24 Jan 2020 09:23:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C725A2087E;
+        Fri, 24 Jan 2020 09:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579857784;
-        bh=s+0h+4dvs2aEXmrQqesmTDSRft0Krb3OwIM0msq0JiU=;
+        s=default; t=1579857839;
+        bh=l+kSg8R4Q2xnMN2SuAx+AQ51RmMWgJA1y2Y3YB7ifwE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hU2gp7ka4QLqikuGGTp5PXPNF7fgIQh6E1EafaqOZlURu5EkYIAObAgsIH9CapuH/
-         jZRVmVikzFr5vGH4kg+Nxo8fQRyBBZMhayPhgCCTAkXysg/u70OeF/D2Uf40w8y965
-         b+EqeiisL4xaJEpsNUBK5tfbQnwC+n1LV5yXcAa8=
-Date:   Fri, 24 Jan 2020 10:23:00 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Wei Yang <richard.weiyang@gmail.com>
-Subject: Re: [PATCH for 4.19-stable v2 05/24] mm, memory_hotplug: add nid
- parameter to arch_remove_memory
-Message-ID: <20200124092300.GA2984592@kroah.com>
-References: <20200121180150.37454-1-david@redhat.com>
- <20200121180150.37454-6-david@redhat.com>
- <f38c2c53-b896-560c-97fe-4a76f98835b5@redhat.com>
+        b=peDIFsryBP09uT6OY51ErJWKAyBe17i0+5qMJgzJZYhJbV55F1M+r1uKX42Ry3j/n
+         XlsVhsN8eOybHq3AtB2SdvRJWViFLc3BCO+wd4bLz39Hb9gkImdZj1/npFFoeKffAi
+         fEzsc8Oz1fhHJfp+QRy30BP/oK02d6vYItXeY4gg=
+Date:   Fri, 24 Jan 2020 10:23:56 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sunil Muthuswamy <sunilmut@microsoft.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH stable v4.19.99]: net: hv_sock: Remove the accept port
+ restriction
+Message-ID: <20200124092356.GB2984592@kroah.com>
+References: <SN4PR2101MB08801E39B5E814956A4F5708C00E0@SN4PR2101MB0880.namprd21.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f38c2c53-b896-560c-97fe-4a76f98835b5@redhat.com>
+In-Reply-To: <SN4PR2101MB08801E39B5E814956A4F5708C00E0@SN4PR2101MB0880.namprd21.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 22, 2020 at 10:25:14AM +0100, David Hildenbrand wrote:
-> On 21.01.20 19:01, David Hildenbrand wrote:
-> > commit 2c2a5af6fed20cf74401c9d64319c76c5ff81309 upstream.
-> > 
+On Fri, Jan 24, 2020 at 03:08:18AM +0000, Sunil Muthuswamy wrote:
+> commit c742c59e1fbd ("hv_sock: Remove the accept port restriction")
 > 
-> Grml, lost the author information of that one again.
+> Currently, hv_sock restricts the port the guest socket can accept
+> connections on. hv_sock divides the socket port namespace into two parts
+> for server side (listening socket), 0-0x7FFFFFFF & 0x80000000-0xFFFFFFFF
+> (there are no restrictions on client port namespace). The first part
+> (0-0x7FFFFFFF) is reserved for sockets where connections can be accepted.
+> The second part (0x80000000-0xFFFFFFFF) is reserved for allocating ports
+> for the peer (host) socket, once a connection is accepted.
+> This reservation of the port namespace is specific to hv_sock and not
+> known by the generic vsock library (ex: af_vsock). This is problematic
+> because auto-binds/ephemeral ports are handled by the generic vsock
+> library and it has no knowledge of this port reservation and could
+> allocate a port that is not compatible with hv_sock (and legitimately so).
+> The issue hasn't surfaced so far because the auto-bind code of vsock
+> (__vsock_bind_stream) prior to the change 'VSOCK: bind to random port for
+> VMADDR_PORT_ANY' would start walking up from LAST_RESERVED_PORT (1023) and
+> start assigning ports. That will take a large number of iterations to hit
+> 0x7FFFFFFF. But, after the above change to randomize port selection, the
+> issue has started coming up more frequently.
+> There has really been no good reason to have this port reservation logic
+> in hv_sock from the get go. Reserving a local port for peer ports is not
+> how things are handled generally. Peer ports should reflect the peer port.
+> This fixes the issue by lifting the port reservation, and also returns the
+> right peer port. Since the code converts the GUID to the peer port (by
+> using the first 4 bytes), there is a possibility of conflicts, but that
+> seems like a reasonable risk to take, given this is limited to vsock and
+> that only applies to all local sockets.
 > 
-> This should have
-> 
-> From: Oscar Salvador <osalvador@suse.com>
-> 
-> 
-> The other ones seem to be fine.
+> Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> ---
+>  net/vmw_vsock/hyperv_transport.c | 68 +++++---------------------------
+>  1 file changed, 9 insertions(+), 59 deletions(-)
 
-Can you please fix up and resend, doing this by hand on my end does not
-scale.
+<formletter>
 
-thanks,
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-greg k-h
+</formletter>
