@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD058147DFA
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BEAE147DFC
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729746AbgAXKEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:04:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41178 "EHLO mail.kernel.org"
+        id S2389159AbgAXKEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:04:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388948AbgAXKEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:04:44 -0500
+        id S2388948AbgAXKEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:04:49 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D394218AC;
-        Fri, 24 Jan 2020 10:04:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73EA721556;
+        Fri, 24 Jan 2020 10:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860284;
-        bh=QewKoEJlIRAHjoP4tt654qmdwr7ZKQY39OMFwub97Ns=;
+        s=default; t=1579860288;
+        bh=ENZ2HRt1YrGkvEQ33tzOOc4e1t+2R8I2j423OBVX7Xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOv8Mrj4jrj9LUTL9Tq9YJ8akZbYiCY1tg+SeCL6RkZoLrNaC7wqBshUaLrQSqfbi
-         F38xdf5sT0e5bbrw/FKypKa15OYW5vglHSS0iND1ayaMSXa3RjpCuReO8uS0Hdcgrb
-         WyCdlVSS5nuwQFUmSBdnQefuIt4DKfdUXyZjBWX4=
+        b=UUG4o0evcjtuvs+/U177c9pQSIAxgjnv+QuaapZEhVkJhAcRSc9mRAmOrdGt0nv03
+         LVDwrEorCMoAA3U93IFEjUxpzGVUptLvJkquIzVfb79YvRxRak4GSL6voPKWBcDQ2S
+         JhD/6/mLHHSY5NSHs+gEzE13D09cPQn873NHocHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Li Jin <li.jin@broadcom.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 302/343] net: sonic: replace dev_kfree_skb in sonic_send_packet
-Date:   Fri, 24 Jan 2020 10:32:00 +0100
-Message-Id: <20200124092959.624669148@linuxfoundation.org>
+Subject: [PATCH 4.14 303/343] pinctrl: iproc-gpio: Fix incorrect pinconf configurations
+Date:   Fri, 24 Jan 2020 10:32:01 +0100
+Message-Id: <20200124092959.743252494@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,35 +44,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <maowenan@huawei.com>
+From: Li Jin <li.jin@broadcom.com>
 
-[ Upstream commit 49f6c90bf6805948b597eabb499e500a47cf24be ]
+[ Upstream commit 398a1f50e3c731586182fd52b834103b0aa2f826 ]
 
-sonic_send_packet will be processed in irq or non-irq
-context, so it would better use dev_kfree_skb_any
-instead of dev_kfree_skb.
+Fix drive strength for AON/CRMU controller; fix pull-up/down setting
+for CCM/CDRU controller.
 
-Fixes: d9fb9f384292 ("*sonic/natsemi/ns83829: Move the National Semi-conductor drivers")
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 616043d58a89 ("pinctrl: Rename gpio driver from cygnus to iproc")
+Signed-off-by: Li Jin <li.jin@broadcom.com>
+Link: https://lore.kernel.org/r/1567054348-19685-2-git-send-email-srinath.mannam@broadcom.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/sonic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/bcm/pinctrl-iproc-gpio.c | 96 +++++++++++++++++++-----
+ 1 file changed, 77 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
-index 11f472fd5d477..a051dddcbd768 100644
---- a/drivers/net/ethernet/natsemi/sonic.c
-+++ b/drivers/net/ethernet/natsemi/sonic.c
-@@ -222,7 +222,7 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
- 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
- 	if (!laddr) {
- 		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_any(skb);
- 		return NETDEV_TX_OK;
+diff --git a/drivers/pinctrl/bcm/pinctrl-iproc-gpio.c b/drivers/pinctrl/bcm/pinctrl-iproc-gpio.c
+index 85a8c97d9dfed..5fe419e468ecc 100644
+--- a/drivers/pinctrl/bcm/pinctrl-iproc-gpio.c
++++ b/drivers/pinctrl/bcm/pinctrl-iproc-gpio.c
+@@ -54,8 +54,12 @@
+ /* drive strength control for ASIU GPIO */
+ #define IPROC_GPIO_ASIU_DRV0_CTRL_OFFSET 0x58
+ 
+-/* drive strength control for CCM/CRMU (AON) GPIO */
+-#define IPROC_GPIO_DRV0_CTRL_OFFSET  0x00
++/* pinconf for CCM GPIO */
++#define IPROC_GPIO_PULL_DN_OFFSET   0x10
++#define IPROC_GPIO_PULL_UP_OFFSET   0x14
++
++/* pinconf for CRMU(aon) GPIO and CCM GPIO*/
++#define IPROC_GPIO_DRV_CTRL_OFFSET  0x00
+ 
+ #define GPIO_BANK_SIZE 0x200
+ #define NGPIOS_PER_BANK 32
+@@ -76,6 +80,12 @@ enum iproc_pinconf_param {
+ 	IPROC_PINCON_MAX,
+ };
+ 
++enum iproc_pinconf_ctrl_type {
++	IOCTRL_TYPE_AON = 1,
++	IOCTRL_TYPE_CDRU,
++	IOCTRL_TYPE_INVALID,
++};
++
+ /*
+  * Iproc GPIO core
+  *
+@@ -100,6 +110,7 @@ struct iproc_gpio {
+ 
+ 	void __iomem *base;
+ 	void __iomem *io_ctrl;
++	enum iproc_pinconf_ctrl_type io_ctrl_type;
+ 
+ 	raw_spinlock_t lock;
+ 
+@@ -461,20 +472,44 @@ static const struct pinctrl_ops iproc_pctrl_ops = {
+ static int iproc_gpio_set_pull(struct iproc_gpio *chip, unsigned gpio,
+ 				bool disable, bool pull_up)
+ {
++	void __iomem *base;
+ 	unsigned long flags;
++	unsigned int shift;
++	u32 val_1, val_2;
+ 
+ 	raw_spin_lock_irqsave(&chip->lock, flags);
+-
+-	if (disable) {
+-		iproc_set_bit(chip, IPROC_GPIO_RES_EN_OFFSET, gpio, false);
++	if (chip->io_ctrl_type == IOCTRL_TYPE_CDRU) {
++		base = chip->io_ctrl;
++		shift = IPROC_GPIO_SHIFT(gpio);
++
++		val_1 = readl(base + IPROC_GPIO_PULL_UP_OFFSET);
++		val_2 = readl(base + IPROC_GPIO_PULL_DN_OFFSET);
++		if (disable) {
++			/* no pull-up or pull-down */
++			val_1 &= ~BIT(shift);
++			val_2 &= ~BIT(shift);
++		} else if (pull_up) {
++			val_1 |= BIT(shift);
++			val_2 &= ~BIT(shift);
++		} else {
++			val_1 &= ~BIT(shift);
++			val_2 |= BIT(shift);
++		}
++		writel(val_1, base + IPROC_GPIO_PULL_UP_OFFSET);
++		writel(val_2, base + IPROC_GPIO_PULL_DN_OFFSET);
+ 	} else {
+-		iproc_set_bit(chip, IPROC_GPIO_PAD_RES_OFFSET, gpio,
+-			       pull_up);
+-		iproc_set_bit(chip, IPROC_GPIO_RES_EN_OFFSET, gpio, true);
++		if (disable) {
++			iproc_set_bit(chip, IPROC_GPIO_RES_EN_OFFSET, gpio,
++				      false);
++		} else {
++			iproc_set_bit(chip, IPROC_GPIO_PAD_RES_OFFSET, gpio,
++				      pull_up);
++			iproc_set_bit(chip, IPROC_GPIO_RES_EN_OFFSET, gpio,
++				      true);
++		}
  	}
  
+ 	raw_spin_unlock_irqrestore(&chip->lock, flags);
+-
+ 	dev_dbg(chip->dev, "gpio:%u set pullup:%d\n", gpio, pull_up);
+ 
+ 	return 0;
+@@ -483,14 +518,35 @@ static int iproc_gpio_set_pull(struct iproc_gpio *chip, unsigned gpio,
+ static void iproc_gpio_get_pull(struct iproc_gpio *chip, unsigned gpio,
+ 				 bool *disable, bool *pull_up)
+ {
++	void __iomem *base;
+ 	unsigned long flags;
++	unsigned int shift;
++	u32 val_1, val_2;
+ 
+ 	raw_spin_lock_irqsave(&chip->lock, flags);
+-	*disable = !iproc_get_bit(chip, IPROC_GPIO_RES_EN_OFFSET, gpio);
+-	*pull_up = iproc_get_bit(chip, IPROC_GPIO_PAD_RES_OFFSET, gpio);
++	if (chip->io_ctrl_type == IOCTRL_TYPE_CDRU) {
++		base = chip->io_ctrl;
++		shift = IPROC_GPIO_SHIFT(gpio);
++
++		val_1 = readl(base + IPROC_GPIO_PULL_UP_OFFSET) & BIT(shift);
++		val_2 = readl(base + IPROC_GPIO_PULL_DN_OFFSET) & BIT(shift);
++
++		*pull_up = val_1 ? true : false;
++		*disable = (val_1 | val_2) ? false : true;
++
++	} else {
++		*disable = !iproc_get_bit(chip, IPROC_GPIO_RES_EN_OFFSET, gpio);
++		*pull_up = iproc_get_bit(chip, IPROC_GPIO_PAD_RES_OFFSET, gpio);
++	}
+ 	raw_spin_unlock_irqrestore(&chip->lock, flags);
+ }
+ 
++#define DRV_STRENGTH_OFFSET(gpio, bit, type)  ((type) == IOCTRL_TYPE_AON ? \
++	((2 - (bit)) * 4 + IPROC_GPIO_DRV_CTRL_OFFSET) : \
++	((type) == IOCTRL_TYPE_CDRU) ? \
++	((bit) * 4 + IPROC_GPIO_DRV_CTRL_OFFSET) : \
++	((bit) * 4 + IPROC_GPIO_REG(gpio, IPROC_GPIO_ASIU_DRV0_CTRL_OFFSET)))
++
+ static int iproc_gpio_set_strength(struct iproc_gpio *chip, unsigned gpio,
+ 				    unsigned strength)
+ {
+@@ -505,11 +561,8 @@ static int iproc_gpio_set_strength(struct iproc_gpio *chip, unsigned gpio,
+ 
+ 	if (chip->io_ctrl) {
+ 		base = chip->io_ctrl;
+-		offset = IPROC_GPIO_DRV0_CTRL_OFFSET;
+ 	} else {
+ 		base = chip->base;
+-		offset = IPROC_GPIO_REG(gpio,
+-					 IPROC_GPIO_ASIU_DRV0_CTRL_OFFSET);
+ 	}
+ 
+ 	shift = IPROC_GPIO_SHIFT(gpio);
+@@ -520,11 +573,11 @@ static int iproc_gpio_set_strength(struct iproc_gpio *chip, unsigned gpio,
+ 	raw_spin_lock_irqsave(&chip->lock, flags);
+ 	strength = (strength / 2) - 1;
+ 	for (i = 0; i < GPIO_DRV_STRENGTH_BITS; i++) {
++		offset = DRV_STRENGTH_OFFSET(gpio, i, chip->io_ctrl_type);
+ 		val = readl(base + offset);
+ 		val &= ~BIT(shift);
+ 		val |= ((strength >> i) & 0x1) << shift;
+ 		writel(val, base + offset);
+-		offset += 4;
+ 	}
+ 	raw_spin_unlock_irqrestore(&chip->lock, flags);
+ 
+@@ -541,11 +594,8 @@ static int iproc_gpio_get_strength(struct iproc_gpio *chip, unsigned gpio,
+ 
+ 	if (chip->io_ctrl) {
+ 		base = chip->io_ctrl;
+-		offset = IPROC_GPIO_DRV0_CTRL_OFFSET;
+ 	} else {
+ 		base = chip->base;
+-		offset = IPROC_GPIO_REG(gpio,
+-					 IPROC_GPIO_ASIU_DRV0_CTRL_OFFSET);
+ 	}
+ 
+ 	shift = IPROC_GPIO_SHIFT(gpio);
+@@ -553,10 +603,10 @@ static int iproc_gpio_get_strength(struct iproc_gpio *chip, unsigned gpio,
+ 	raw_spin_lock_irqsave(&chip->lock, flags);
+ 	*strength = 0;
+ 	for (i = 0; i < GPIO_DRV_STRENGTH_BITS; i++) {
++		offset = DRV_STRENGTH_OFFSET(gpio, i, chip->io_ctrl_type);
+ 		val = readl(base + offset) & BIT(shift);
+ 		val >>= shift;
+ 		*strength += (val << i);
+-		offset += 4;
+ 	}
+ 
+ 	/* convert to mA */
+@@ -734,6 +784,7 @@ static int iproc_gpio_probe(struct platform_device *pdev)
+ 	u32 ngpios, pinconf_disable_mask = 0;
+ 	int irq, ret;
+ 	bool no_pinconf = false;
++	enum iproc_pinconf_ctrl_type io_ctrl_type = IOCTRL_TYPE_INVALID;
+ 
+ 	/* NSP does not support drive strength config */
+ 	if (of_device_is_compatible(dev->of_node, "brcm,iproc-nsp-gpio"))
+@@ -764,8 +815,15 @@ static int iproc_gpio_probe(struct platform_device *pdev)
+ 			dev_err(dev, "unable to map I/O memory\n");
+ 			return PTR_ERR(chip->io_ctrl);
+ 		}
++		if (of_device_is_compatible(dev->of_node,
++					    "brcm,cygnus-ccm-gpio"))
++			io_ctrl_type = IOCTRL_TYPE_CDRU;
++		else
++			io_ctrl_type = IOCTRL_TYPE_AON;
+ 	}
+ 
++	chip->io_ctrl_type = io_ctrl_type;
++
+ 	if (of_property_read_u32(dev->of_node, "ngpios", &ngpios)) {
+ 		dev_err(&pdev->dev, "missing ngpios DT property\n");
+ 		return -ENODEV;
 -- 
 2.20.1
 
