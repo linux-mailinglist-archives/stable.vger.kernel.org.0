@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD75A14843E
+	by mail.lfdr.de (Postfix) with ESMTP id 3579D14843D
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390568AbgAXLRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:17:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54924 "EHLO mail.kernel.org"
+        id S2390284AbgAXLSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:18:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390565AbgAXLRx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:17:53 -0500
+        id S2390597AbgAXLSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:18:07 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EF7F20708;
-        Fri, 24 Jan 2020 11:17:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2656B20708;
+        Fri, 24 Jan 2020 11:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864672;
-        bh=fP4seFa3sMzdM3AjWPyuIv4la9noQfVLiSyeNbinffM=;
+        s=default; t=1579864686;
+        bh=yUGQT0hdXqNofaKXUEwZXH80Ej3LJIWMoag+7cI4x8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPL4Xd9kKjLUYPlKGQakuwTloko0ucMTHOBpOnOBttpN5GKHIKDl45jMwiqI2gBEq
-         nlOgjcg0GSL/PUJtZPQdQuAKZST+9z/KxkuVznBX/Zw3ytC6IEhx3rR/urGtYOkWBK
-         cLf4vffn197ERm6ph9/KvKF3mqrIOZ/BmMPYqYHE=
+        b=p6Tpr8lOemR+XCvZ/9jTEUg09kekUL0npnQZHVnalpooOWAnw6GF9T3aZUb0Qxe0X
+         pBPgH6ZGVAerTpBXXr1cvpg1A4pR/JogHgvQgbvm+diu0W+jiPhV1NkL5/2XXRuGTZ
+         J5zudKKSHaI8ctYw49YFcnNQ+JCOPx9/THwhX3s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Giridhar Malavali <gmalavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 333/639] scsi: qla2xxx: Avoid that qlt_send_resp_ctio() corrupts memory
-Date:   Fri, 24 Jan 2020 10:28:23 +0100
-Message-Id: <20200124093128.816073746@linuxfoundation.org>
+Subject: [PATCH 4.19 337/639] ARM: dts: logicpd-som-lv: Fix MMC1 card detect
+Date:   Fri, 24 Jan 2020 10:28:27 +0100
+Message-Id: <20200124093129.331241490@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit a861b49273578e255426a499842cf7f465456351 ]
+[ Upstream commit 6a38df676a0a06bfc7ff8607ac62ccd6d95969ad ]
 
-The "(&ctio->u.status1.sense_data)[i]" where i >= 0 expressions in
-qlt_send_resp_ctio() are probably typos and should have been
-"(&ctio->u.status1.sense_data[4 * i])" instead. Instead of only fixing
-these typos, modify the code for storing sense data such that it becomes
-easy to read. This patch fixes a Coverity complaint about accessing an
-array outside its bounds.
+The card detect pin was incorrectly using IRQ_TYPE_LEVEL_LOW
+instead of GPIO_ACTIVE_LOW when reading the state of the CD pin.
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Giridhar Malavali <gmalavali@marvell.com>
-Fixes: be25152c0d9e ("qla2xxx: Improve T10-DIF/PI handling in driver.") # v4.11.
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This was previosly fixed on Torpedo, but missed on the SOM-LV
+
+Fixes: 5cb8b0fa55a9 ("ARM: dts: Move most of logicpd-som-lv-37xx-devkit.dts to logicpd-som-lv-baseboard.dtsi")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index c925ca7875374..95206e227730c 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -2233,14 +2233,14 @@ void qlt_send_resp_ctio(struct qla_qpair *qpair, struct qla_tgt_cmd *cmd,
- 		ctio->u.status1.scsi_status |=
- 		    cpu_to_le16(SS_RESIDUAL_UNDER);
- 
--	/* Response code and sense key */
--	put_unaligned_le32(((0x70 << 24) | (sense_key << 8)),
--	    (&ctio->u.status1.sense_data)[0]);
-+	/* Fixed format sense data. */
-+	ctio->u.status1.sense_data[0] = 0x70;
-+	ctio->u.status1.sense_data[2] = sense_key;
- 	/* Additional sense length */
--	put_unaligned_le32(0x0a, (&ctio->u.status1.sense_data)[1]);
-+	ctio->u.status1.sense_data[7] = 0xa;
- 	/* ASC and ASCQ */
--	put_unaligned_le32(((asc << 24) | (ascq << 16)),
--	    (&ctio->u.status1.sense_data)[3]);
-+	ctio->u.status1.sense_data[12] = asc;
-+	ctio->u.status1.sense_data[13] = ascq;
- 
- 	/* Memory Barrier */
- 	wmb();
+diff --git a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
+index 4990ed90dcea4..3e39b9a1f35d0 100644
+--- a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
++++ b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
+@@ -153,7 +153,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc1_pins>;
+ 	wp-gpios = <&gpio4 30 GPIO_ACTIVE_HIGH>;		/* gpio_126 */
+-	cd-gpios = <&gpio4 14 IRQ_TYPE_LEVEL_LOW>;		/* gpio_110 */
++	cd-gpios = <&gpio4 14 GPIO_ACTIVE_LOW>;			/* gpio_110 */
+ 	vmmc-supply = <&vmmc1>;
+ 	bus-width = <4>;
+ 	cap-power-off-card;
 -- 
 2.20.1
 
