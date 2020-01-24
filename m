@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2801C1475FB
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:17:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 254DA147698
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730338AbgAXBRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:17:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60070 "EHLO mail.kernel.org"
+        id S1730355AbgAXBRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730325AbgAXBRO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:14 -0500
+        id S1730336AbgAXBRQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 324BB206A2;
-        Fri, 24 Jan 2020 01:17:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35CAF22522;
+        Fri, 24 Jan 2020 01:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828633;
-        bh=AUJ7Mi/W3UD5YTk3TevtD9PxZSR5axwLwf8CCIlNtWM=;
+        s=default; t=1579828634;
+        bh=nhjcnkcEO8jN1x3NpWuxFwmmX5e5juZ3g2iPE9HWB9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=So66+xsJYNV9ZT/TEa74XH9MIJc/X7/1A2vWMrEK9jdlObHnQPBy9t/u1xt4YljxF
-         EG7GRHBIxgQ9IGKTGqOFneBRRsmRrUImWAyyC4NiEaVBxrbVgBf1jn4d6Zik7PBXjQ
-         VP/7xz2tHeL6vOrIlMaiOl8irAfcyAD0o5dB8+HE=
+        b=N9jTDwaVoWUMAQHsk3u9iXR7V1UGyHNbYcjNow6s+Kya3WtnB9uzJ7Ga4+KUwEspq
+         FUdPAy5pTWiCpZWKVTdDuOGtoGvVSN6Pt/rGnRhhDZJGLYLk8eTJUJzgxLjWmTDu+u
+         0j+iqT37CFaIQv50XLWM1+kXo9ursCQRpLe3Ab5U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/33] libbpf: Fix BTF-defined map's __type macro handling of arrays
-Date:   Thu, 23 Jan 2020 20:16:39 -0500
-Message-Id: <20200124011708.18232-4-sashal@kernel.org>
+Cc:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.4 05/33] staging: mt7621-pci: add quirks for 'E2' revision using 'soc_device_attribute'
+Date:   Thu, 23 Jan 2020 20:16:40 -0500
+Message-Id: <20200124011708.18232-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -43,57 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit a53ba15d81995868651dd28a85d8045aef3d4e20 ]
+[ Upstream commit b483b4e4d3f6bfd5089b9e6dc9ba259879c6ce6f ]
 
-Due to a quirky C syntax of declaring pointers to array or function
-prototype, existing __type() macro doesn't work with map key/value types
-that are array or function prototype. One has to create a typedef first
-and use it to specify key/value type for a BPF map.  By using typeof(),
-pointer to type is now handled uniformly for all kinds of types. Convert
-one of self-tests as a demonstration.
+Depending on revision of the chip, reset lines are inverted. Make code
+more readable making use of 'soc_device_match' in driver probe function.
 
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20191004040211.2434033-1-andriin@fb.com
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20191006181032.19112-1-sergio.paracuellos@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/bpf_helpers.h                | 2 +-
- tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/staging/mt7621-pci/pci-mt7621.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/bpf_helpers.h b/tools/testing/selftests/bpf/bpf_helpers.h
-index 54a50699bbfda..9f77cbaac01c1 100644
---- a/tools/testing/selftests/bpf/bpf_helpers.h
-+++ b/tools/testing/selftests/bpf/bpf_helpers.h
-@@ -3,7 +3,7 @@
- #define __BPF_HELPERS__
+diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
+index 6b98827da57fd..3633c924848ec 100644
+--- a/drivers/staging/mt7621-pci/pci-mt7621.c
++++ b/drivers/staging/mt7621-pci/pci-mt7621.c
+@@ -29,15 +29,14 @@
+ #include <linux/phy/phy.h>
+ #include <linux/platform_device.h>
+ #include <linux/reset.h>
++#include <linux/sys_soc.h>
+ #include <mt7621.h>
+ #include <ralink_regs.h>
  
- #define __uint(name, val) int (*name)[val]
--#define __type(name, val) val *name
-+#define __type(name, val) typeof(val) *name
+ #include "../../pci/pci.h"
  
- /* helper macro to print out debug messages */
- #define bpf_printk(fmt, ...)				\
-diff --git a/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c b/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c
-index f8ffa3f3d44bb..6cc4479ac9df6 100644
---- a/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c
-+++ b/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c
-@@ -47,12 +47,11 @@ struct {
-  * issue and avoid complicated C programming massaging.
-  * This is an acceptable workaround since there is one entry here.
+ /* sysctl */
+-#define MT7621_CHIP_REV_ID		0x0c
+ #define MT7621_GPIO_MODE		0x60
+-#define CHIP_REV_MT7621_E2		0x0101
+ 
+ /* MediaTek specific configuration registers */
+ #define PCIE_FTS_NUM			0x70c
+@@ -126,6 +125,8 @@ struct mt7621_pcie_port {
+  * @ports: pointer to PCIe port information
+  * @perst: gpio reset
+  * @rst: pointer to pcie reset
++ * @resets_inverted: depends on chip revision
++ * reset lines are inverted.
   */
--typedef __u64 raw_stack_trace_t[2 * MAX_STACK_RAWTP];
- struct {
- 	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
- 	__uint(max_entries, 1);
- 	__type(key, __u32);
--	__type(value, raw_stack_trace_t);
-+	__type(value, __u64[2 * MAX_STACK_RAWTP]);
- } rawdata_map SEC(".maps");
+ struct mt7621_pcie {
+ 	void __iomem *base;
+@@ -140,6 +141,7 @@ struct mt7621_pcie {
+ 	struct list_head ports;
+ 	struct gpio_desc *perst;
+ 	struct reset_control *rst;
++	bool resets_inverted;
+ };
  
- SEC("raw_tracepoint/sys_enter")
+ static inline u32 pcie_read(struct mt7621_pcie *pcie, u32 reg)
+@@ -229,9 +231,9 @@ static inline void mt7621_pcie_port_clk_disable(struct mt7621_pcie_port *port)
+ 
+ static inline void mt7621_control_assert(struct mt7621_pcie_port *port)
+ {
+-	u32 chip_rev_id = rt_sysc_r32(MT7621_CHIP_REV_ID);
++	struct mt7621_pcie *pcie = port->pcie;
+ 
+-	if ((chip_rev_id & 0xFFFF) == CHIP_REV_MT7621_E2)
++	if (pcie->resets_inverted)
+ 		reset_control_assert(port->pcie_rst);
+ 	else
+ 		reset_control_deassert(port->pcie_rst);
+@@ -239,9 +241,9 @@ static inline void mt7621_control_assert(struct mt7621_pcie_port *port)
+ 
+ static inline void mt7621_control_deassert(struct mt7621_pcie_port *port)
+ {
+-	u32 chip_rev_id = rt_sysc_r32(MT7621_CHIP_REV_ID);
++	struct mt7621_pcie *pcie = port->pcie;
+ 
+-	if ((chip_rev_id & 0xFFFF) == CHIP_REV_MT7621_E2)
++	if (pcie->resets_inverted)
+ 		reset_control_deassert(port->pcie_rst);
+ 	else
+ 		reset_control_assert(port->pcie_rst);
+@@ -641,9 +643,14 @@ static int mt7621_pcie_register_host(struct pci_host_bridge *host,
+ 	return pci_host_probe(host);
+ }
+ 
++static const struct soc_device_attribute mt7621_pci_quirks_match[] = {
++	{ .soc_id = "mt7621", .revision = "E2" }
++};
++
+ static int mt7621_pci_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
++	const struct soc_device_attribute *attr;
+ 	struct mt7621_pcie *pcie;
+ 	struct pci_host_bridge *bridge;
+ 	int err;
+@@ -661,6 +668,10 @@ static int mt7621_pci_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, pcie);
+ 	INIT_LIST_HEAD(&pcie->ports);
+ 
++	attr = soc_device_match(mt7621_pci_quirks_match);
++	if (attr)
++		pcie->resets_inverted = true;
++
+ 	err = mt7621_pcie_parse_dt(pcie);
+ 	if (err) {
+ 		dev_err(dev, "Parsing DT failed\n");
 -- 
 2.20.1
 
