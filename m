@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEDB2147BC0
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3567147B42
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732436AbgAXJmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:42:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39644 "EHLO mail.kernel.org"
+        id S1732558AbgAXJmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:42:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730970AbgAXJmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:42:02 -0500
+        id S1730039AbgAXJmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:42:05 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBBD920718;
-        Fri, 24 Jan 2020 09:42:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B531A20718;
+        Fri, 24 Jan 2020 09:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858921;
-        bh=PVQMQOdwGtcvWT7OyJMk9BAnoc/ujh46Vtd+oTDdsjQ=;
+        s=default; t=1579858925;
+        bh=Q05n3pFYLWclM3W5I8rQAaZ1i3N0gOCqBQNfC7Nji6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBrxZ8hZyEWt782Mt2fjbEZ8SYyR0cwOA9EeJ55OzdnmiBDqffugi9UJiZKKTO/Ze
-         7lWmudqWIW/dfyQx+BbnkfJzLoDlqI14+W01Uf11+EwEs5N2Zz4k00FLRL/fNME+TD
-         wC2YyH/pg+pN7BM5wsXSqKu+C2zeRBrmHCD1nvwo=
+        b=Za67siOWaQyQpydVSF1M4giRSiv7I8g9bViduhhWGrHdSXse6/erYu0LYamA4CTHm
+         YJvBj1Sya6sao89MahkZV4itvwBC4uwAvaO8FjqrXWyBbM0XeJNmJUXkD7VmUiz3Dy
+         cZxDwQALOI1cQX/yrxF8QRx/Yj28lbIFJz75rqcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 080/102] i2c: stm32f7: report dma error during probe
-Date:   Fri, 24 Jan 2020 10:31:21 +0100
-Message-Id: <20200124092818.734096685@linuxfoundation.org>
+        stable@vger.kernel.org, Hewenliang <hewenliang4@huawei.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 081/102] kselftests: cgroup: Avoid the reuse of fd after it is deallocated
+Date:   Fri, 24 Jan 2020 10:31:22 +0100
+Message-Id: <20200124092818.894685869@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -45,89 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@st.com>
+From: Hewenliang <hewenliang4@huawei.com>
 
-[ Upstream commit d77eceb2de99f5d7e0c645bad15511fe1af59e09 ]
+[ Upstream commit d671fa6393d6788fc65555d4643b71cb3a361f36 ]
 
-Distinguish between the case where dma information is not provided
-within the DT and the case of an error during the dma init.
-Exit the probe with error in case of an error during dma init.
+It is necessary to set fd to -1 when inotify_add_watch() fails in
+cg_prepare_for_wait. Otherwise the fd which has been closed in
+cg_prepare_for_wait may be misused in other functions such as
+cg_enter_and_wait_for_frozen and cg_freeze_wait.
 
-Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: 5313bfe425c8 ("selftests: cgroup: add freezer controller self-tests")
+Signed-off-by: Hewenliang <hewenliang4@huawei.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32.c   | 16 ++++++++--------
- drivers/i2c/busses/i2c-stm32f7.c |  9 +++++++++
- 2 files changed, 17 insertions(+), 8 deletions(-)
+ tools/testing/selftests/cgroup/test_freezer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
-index 07d5dfce68d4c..1da347e6a3586 100644
---- a/drivers/i2c/busses/i2c-stm32.c
-+++ b/drivers/i2c/busses/i2c-stm32.c
-@@ -20,13 +20,13 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
- 
- 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
- 	if (!dma)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 
- 	/* Request and configure I2C TX dma channel */
--	dma->chan_tx = dma_request_slave_channel(dev, "tx");
--	if (!dma->chan_tx) {
-+	dma->chan_tx = dma_request_chan(dev, "tx");
-+	if (IS_ERR(dma->chan_tx)) {
- 		dev_dbg(dev, "can't request DMA tx channel\n");
--		ret = -EINVAL;
-+		ret = PTR_ERR(dma->chan_tx);
- 		goto fail_al;
+diff --git a/tools/testing/selftests/cgroup/test_freezer.c b/tools/testing/selftests/cgroup/test_freezer.c
+index 0fc1b6d4b0f9c..62a27ab3c2f3e 100644
+--- a/tools/testing/selftests/cgroup/test_freezer.c
++++ b/tools/testing/selftests/cgroup/test_freezer.c
+@@ -72,6 +72,7 @@ static int cg_prepare_for_wait(const char *cgroup)
+ 	if (ret == -1) {
+ 		debug("Error: inotify_add_watch() failed\n");
+ 		close(fd);
++		fd = -1;
  	}
  
-@@ -42,10 +42,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
- 	}
- 
- 	/* Request and configure I2C RX dma channel */
--	dma->chan_rx = dma_request_slave_channel(dev, "rx");
--	if (!dma->chan_rx) {
-+	dma->chan_rx = dma_request_chan(dev, "rx");
-+	if (IS_ERR(dma->chan_rx)) {
- 		dev_err(dev, "can't request DMA rx channel\n");
--		ret = -EINVAL;
-+		ret = PTR_ERR(dma->chan_rx);
- 		goto fail_tx;
- 	}
- 
-@@ -75,7 +75,7 @@ fail_al:
- 	devm_kfree(dev, dma);
- 	dev_info(dev, "can't use DMA\n");
- 
--	return NULL;
-+	return ERR_PTR(ret);
- }
- 
- void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index b88fc9d79287b..b2634afe066d3 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1955,6 +1955,15 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->dma = stm32_i2c_dma_request(i2c_dev->dev, phy_addr,
- 					     STM32F7_I2C_TXDR,
- 					     STM32F7_I2C_RXDR);
-+	if (PTR_ERR(i2c_dev->dma) == -ENODEV)
-+		i2c_dev->dma = NULL;
-+	else if (IS_ERR(i2c_dev->dma)) {
-+		ret = PTR_ERR(i2c_dev->dma);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"Failed to request dma error %i\n", ret);
-+		goto clk_free;
-+	}
- 
- 	platform_set_drvdata(pdev, i2c_dev);
- 
+ 	return fd;
 -- 
 2.20.1
 
