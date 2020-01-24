@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3378147A85
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A49F6147A87
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:34:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727520AbgAXJeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:34:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
+        id S1730070AbgAXJe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:34:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727233AbgAXJeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:34:22 -0500
+        id S1727233AbgAXJeZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:34:25 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 428382070A;
-        Fri, 24 Jan 2020 09:34:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CFA2214AF;
+        Fri, 24 Jan 2020 09:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858461;
-        bh=zI7qUngKh+tUhgdBh+cZES1MNpGRy0cIuLzw8UMt0H0=;
+        s=default; t=1579858465;
+        bh=YGwjOd/P8NlKg7ZxYmwvlapmnUeP8PeEMfBc1PgOdXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvQMpfnId4nleR21iXRx7xEcWoU1x2SMzcIGrrwHgxdZSObyJUv09wMhW3bVeyUyi
-         uIHmv+4fLVYj9Tj3UWjzvKzdm4LrcMt20W8iDNcfD1UdNWu9trTUSMUuDaMJYB8X6c
-         U+G8BnGFrSMH4Xpn9Qm3k3yqU07r7Sil41UhSDy0=
+        b=l1RiW6r/SILO0mJ+p91Wkx43le6Whac2z+tWTZexinCvigkGboY8X9A3t+IigxsbB
+         JQS9sTKv8tPuOA1bZPATKCjPnW5XaZYpyVZAz0Fep5hilT0HoOCQvG3DHKwIoReSO1
+         GuBSGe4uc+13oP1bN11qu6QjfXnLkdx6Xlv1LQZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jon.maloy@ericsson.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org, Hoang Le <hoang.h.le@dektech.com.au>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 024/102] tipc: update mons self addr when node addr generated
-Date:   Fri, 24 Jan 2020 10:30:25 +0100
-Message-Id: <20200124092809.787574883@linuxfoundation.org>
+Subject: [PATCH 5.4 025/102] tipc: fix potential memory leak in __tipc_sendmsg()
+Date:   Fri, 24 Jan 2020 10:30:26 +0100
+Message-Id: <20200124092809.967127381@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,83 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-commit 46cb01eeeb86fca6afe24dda1167b0cb95424e29 upstream.
+commit 2fe97a578d7bad3116a89dc8a6692a51e6fc1d9c upstream.
 
-In commit 25b0b9c4e835 ("tipc: handle collisions of 32-bit node address
-hash values"), the 32-bit node address only generated after one second
-trial period expired. However the self's addr in struct tipc_monitor do
-not update according to node address generated. This lead to it is
-always zero as initial value. As result, sorting algorithm using this
-value does not work as expected, neither neighbor monitoring framework.
+When initiating a connection message to a server side, the connection
+message is cloned and added to the socket write queue. However, if the
+cloning is failed, only the socket write queue is purged. It causes
+memory leak because the original connection message is not freed.
 
-In this commit, we add a fix to update self's addr when 32-bit node
-address generated.
+This commit fixes it by purging the list of connection message when
+it cannot be cloned.
 
-Fixes: 25b0b9c4e835 ("tipc: handle collisions of 32-bit node address hash values")
+Fixes: 6787927475e5 ("tipc: buffer overflow handling in listener socket")
+Reported-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Acked-by: Ying Xue <ying.xue@windriver.com>
 Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/monitor.c |   15 +++++++++++++++
- net/tipc/monitor.h |    1 +
- net/tipc/net.c     |    2 ++
- 3 files changed, 18 insertions(+)
+ net/tipc/socket.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/tipc/monitor.c
-+++ b/net/tipc/monitor.c
-@@ -665,6 +665,21 @@ void tipc_mon_delete(struct net *net, in
- 	kfree(mon);
- }
- 
-+void tipc_mon_reinit_self(struct net *net)
-+{
-+	struct tipc_monitor *mon;
-+	int bearer_id;
-+
-+	for (bearer_id = 0; bearer_id < MAX_BEARERS; bearer_id++) {
-+		mon = tipc_monitor(net, bearer_id);
-+		if (!mon)
-+			continue;
-+		write_lock_bh(&mon->lock);
-+		mon->self->addr = tipc_own_addr(net);
-+		write_unlock_bh(&mon->lock);
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1396,8 +1396,10 @@ static int __tipc_sendmsg(struct socket
+ 	rc = tipc_msg_build(hdr, m, 0, dlen, mtu, &pkts);
+ 	if (unlikely(rc != dlen))
+ 		return rc;
+-	if (unlikely(syn && !tipc_msg_skb_clone(&pkts, &sk->sk_write_queue)))
++	if (unlikely(syn && !tipc_msg_skb_clone(&pkts, &sk->sk_write_queue))) {
++		__skb_queue_purge(&pkts);
+ 		return -ENOMEM;
 +	}
-+}
-+
- int tipc_nl_monitor_set_threshold(struct net *net, u32 cluster_size)
- {
- 	struct tipc_net *tn = tipc_net(net);
---- a/net/tipc/monitor.h
-+++ b/net/tipc/monitor.h
-@@ -77,6 +77,7 @@ int __tipc_nl_add_monitor(struct net *ne
- 			  u32 bearer_id);
- int tipc_nl_add_monitor_peer(struct net *net, struct tipc_nl_msg *msg,
- 			     u32 bearer_id, u32 *prev_node);
-+void tipc_mon_reinit_self(struct net *net);
  
- extern const int tipc_max_domain_size;
- #endif
---- a/net/tipc/net.c
-+++ b/net/tipc/net.c
-@@ -42,6 +42,7 @@
- #include "node.h"
- #include "bcast.h"
- #include "netlink.h"
-+#include "monitor.h"
- 
- /*
-  * The TIPC locking policy is designed to ensure a very fine locking
-@@ -136,6 +137,7 @@ static void tipc_net_finalize(struct net
- 	tipc_set_node_addr(net, addr);
- 	tipc_named_reinit(net);
- 	tipc_sk_reinit(net);
-+	tipc_mon_reinit_self(net);
- 	tipc_nametbl_publish(net, TIPC_CFG_SRV, addr, addr,
- 			     TIPC_CLUSTER_SCOPE, 0, addr);
- }
+ 	trace_tipc_sk_sendmsg(sk, skb_peek(&pkts), TIPC_DUMP_SK_SNDQ, " ");
+ 	rc = tipc_node_xmit(net, &pkts, dnode, tsk->portid);
 
 
