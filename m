@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5D114831C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6257C14831E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404369AbgAXLd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:33:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52966 "EHLO mail.kernel.org"
+        id S2404587AbgAXLdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:33:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404587AbgAXLd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:33:27 -0500
+        id S2404595AbgAXLdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:33:31 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF5F1206D4;
-        Fri, 24 Jan 2020 11:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FC85214AF;
+        Fri, 24 Jan 2020 11:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865606;
-        bh=0EWNnKcmkirfL5xrjeBOgkRHRjt4/PuME6xr+LqLhFc=;
+        s=default; t=1579865610;
+        bh=flJwwwCdA1MuCU3Ef6u9H7RxMiKCjf58mlmLmNHoAI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuY4Whi3tWnq6H2yqjtfD5SBWWx/Xgx6TPIcMQhBytE8ZoXZtbiOI3iyTKftVT28/
-         xheUUKgps5YbCUVyYw5Mn3R3ycjn6swhff3xL3uiOj7wTYIy8ruByJ7lV2b+0mEOqZ
-         0/3iXLIAiHGwBdsUxFkJ8YKCrsf5+8Z4lgADlJI0=
+        b=CZFrDsmD6AM1GWXL8L+epWvsuVyDuKbt9NPwvuqu77L1sBpu25whM3ZtjQAOHdgBE
+         e0OgsM9JkRi50ZLETf0ybpSlnncoJkcV+49hicCyMEFB87GcPj8CM6uGVN0uPHrWe7
+         h++r4l6cfslx3QV15gWcCeL1eSyxg35KC6r7xB5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-        William Tu <u9012063@gmail.com>,
+        stable@vger.kernel.org, Antonio Borneo <antonio.borneo@st.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 592/639] ip6erspan: remove the incorrect mtu limit for ip6erspan
-Date:   Fri, 24 Jan 2020 10:32:42 +0100
-Message-Id: <20200124093203.573201729@linuxfoundation.org>
+Subject: [PATCH 4.19 593/639] net: stmmac: fix length of PTP clocks name string
+Date:   Fri, 24 Jan 2020 10:32:43 +0100
+Message-Id: <20200124093203.686485470@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,39 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+From: Antonio Borneo <antonio.borneo@st.com>
 
-[ Upstream commit 4123f637a5129470ff9d3cb00a5a4e213f2e15cc ]
+[ Upstream commit 5da202c88f8c355ad79bc2e8eb582e6d433060e7 ]
 
-ip6erspan driver calls ether_setup(), after commit 61e84623ace3
-("net: centralize net_device min/max MTU checking"), the range
-of mtu is [min_mtu, max_mtu], which is [68, 1500] by default.
+The field "name" in struct ptp_clock_info has a fixed size of 16
+chars and is used as zero terminated string by clock_name_show()
+in drivers/ptp/ptp_sysfs.c
+The current initialization value requires 17 chars to fit also the
+null termination, and this causes overflow to the next bytes in
+the struct when the string is read as null terminated:
+	hexdump -C /sys/class/ptp/ptp0/clock_name
+	00000000  73 74 6d 6d 61 63 5f 70  74 70 5f 63 6c 6f 63 6b  |stmmac_ptp_clock|
+	00000010  a0 ac b9 03 0a                                    |.....|
+where the extra 4 bytes (excluding the newline) after the string
+represent the integer 0x03b9aca0 = 62500000 assigned to the field
+"max_adj" that follows "name" in the same struct.
 
-It causes the dev mtu of the erspan device to not be greater
-than 1500, this limit value is not correct for ip6erspan tap
-device.
+There is no strict requirement for the "name" content and in the
+comment in ptp_clock_kernel.h it's reported it should just be 'A
+short "friendly name" to identify the clock'.
+Replace it with "stmmac ptp".
 
-Fixes: 61e84623ace3 ("net: centralize net_device min/max MTU checking")
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-Acked-by: William Tu <u9012063@gmail.com>
+Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
+Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_gre.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index b3515a4f13039..1f2d0022ba6fd 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -2218,6 +2218,7 @@ static void ip6erspan_tap_setup(struct net_device *dev)
- {
- 	ether_setup(dev);
- 
-+	dev->max_mtu = 0;
- 	dev->netdev_ops = &ip6erspan_netdev_ops;
- 	dev->needs_free_netdev = true;
- 	dev->priv_destructor = ip6gre_dev_free;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
+index cc60b3fb08927..8f8b8f381ffd4 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
+@@ -174,7 +174,7 @@ static int stmmac_enable(struct ptp_clock_info *ptp,
+ /* structure describing a PTP hardware clock */
+ static struct ptp_clock_info stmmac_ptp_clock_ops = {
+ 	.owner = THIS_MODULE,
+-	.name = "stmmac_ptp_clock",
++	.name = "stmmac ptp",
+ 	.max_adj = 62500000,
+ 	.n_alarm = 0,
+ 	.n_ext_ts = 0,
 -- 
 2.20.1
 
