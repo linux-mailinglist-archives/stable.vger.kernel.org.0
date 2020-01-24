@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB2F147AA3
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:37:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F910147AA5
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729907AbgAXJgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:36:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33946 "EHLO mail.kernel.org"
+        id S1730135AbgAXJgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:36:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbgAXJgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:36:39 -0500
+        id S1726695AbgAXJgm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:36:42 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 163EB20709;
-        Fri, 24 Jan 2020 09:36:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 335572070A;
+        Fri, 24 Jan 2020 09:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858598;
-        bh=3ehFq4T1Fx17zHR4BLqED3D+P7648DSUJ/AqXZK1dSk=;
+        s=default; t=1579858601;
+        bh=2BOKliKYONPM7G3oQGicFAME9v7YSWM/c/y81Ych7cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKA6LQWcQT/H+/l5VKu2w+2fsrHoUQXpxlWwXQw3/E4CfgInvfDJlqLSPyy+8ZpwA
-         Yp4YLSSPK6t8V2GVrn+4uMTlEDZQFFMMn6pzadaqqxwGrJg01E8eh9GllSyI9ixA0F
-         iHCSNgdkNGiiS4DkkA+pOzjEaqVyM24uxb5rEFiY=
+        b=iLb07CSH4aZnPQfTGKHymrioyEAR5LPSCcX/Bd3OKzOdp/I3IwM3Q5gR21L/ijwOd
+         EgcAi2gD58Pksuy5qujwW+wJ0dXCkBCd2aNoDkY4qixa1xlHsSOWUyfaGbbhPWPW7p
+         zw+OSVpRklycXK4CcuDCenWLwsfSvZ+vzyOWpsZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 002/343] mfd: intel-lpss: Add default I2C device properties for Gemini Lake
-Date:   Fri, 24 Jan 2020 10:27:00 +0100
-Message-Id: <20200124092919.836089404@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 003/343] powerpc/archrandom: fix arch_get_random_seed_int()
+Date:   Fri, 24 Jan 2020 10:27:01 +0100
+Message-Id: <20200124092919.983473574@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,71 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 3f31bc67e4dc6a555341dffefe328ddd58e8b431 upstream.
+commit b6afd1234cf93aa0d71b4be4788c47534905f0be upstream.
 
-It turned out Intel Gemini Lake doesn't use the same I2C timing
-parameters as Broxton.
+Commit 01c9348c7620ec65
 
-I got confirmation from the Windows team that Gemini Lake systems should
-use updated timing parameters that differ from those used in Broxton
-based systems.
+  powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*
 
-Fixes: f80e78aa11ad ("mfd: intel-lpss: Add Intel Gemini Lake PCI IDs")
-Tested-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+updated arch_get_random_[int|long]() to be NOPs, and moved the hardware
+RNG backing to arch_get_random_seed_[int|long]() instead. However, it
+failed to take into account that arch_get_random_int() was implemented
+in terms of arch_get_random_long(), and so we ended up with a version
+of the former that is essentially a NOP as well.
+
+Fix this by calling arch_get_random_seed_long() from
+arch_get_random_seed_int() instead.
+
+Fixes: 01c9348c7620ec65 ("powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191204115015.18015-1-ardb@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mfd/intel-lpss-pci.c |   28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ arch/powerpc/include/asm/archrandom.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -126,6 +126,18 @@ static const struct intel_lpss_platform_
- 	.properties = apl_i2c_properties,
- };
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -28,7 +28,7 @@ static inline int arch_get_random_seed_i
+ 	unsigned long val;
+ 	int rc;
  
-+static struct property_entry glk_i2c_properties[] = {
-+	PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 313),
-+	PROPERTY_ENTRY_U32("i2c-sda-falling-time-ns", 171),
-+	PROPERTY_ENTRY_U32("i2c-scl-falling-time-ns", 290),
-+	{ },
-+};
-+
-+static const struct intel_lpss_platform_info glk_i2c_info = {
-+	.clk_rate = 133000000,
-+	.properties = glk_i2c_properties,
-+};
-+
- static const struct intel_lpss_platform_info cnl_i2c_info = {
- 	.clk_rate = 216000000,
- 	.properties = spt_i2c_properties,
-@@ -165,14 +177,14 @@ static const struct pci_device_id intel_
- 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
- 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
- 	/* GLK */
--	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&glk_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x31bc), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x31be), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x31c0), (kernel_ulong_t)&bxt_uart_info },
+-	rc = arch_get_random_long(&val);
++	rc = arch_get_random_seed_long(&val);
+ 	if (rc)
+ 		*v = val;
+ 
 
 
