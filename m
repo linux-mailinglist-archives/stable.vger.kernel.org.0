@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A51B414817D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93215148163
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:19:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390921AbgAXLU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:20:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58150 "EHLO mail.kernel.org"
+        id S2390599AbgAXLTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:19:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390894AbgAXLU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:20:26 -0500
+        id S2390598AbgAXLTf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:19:35 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FB5920704;
-        Fri, 24 Jan 2020 11:20:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A3DD2467F;
+        Fri, 24 Jan 2020 11:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864826;
-        bh=4OA7kUrZaNurgiX5nYQOyeOhA/9mphDoYCJnrYjJUGg=;
+        s=default; t=1579864774;
+        bh=4p+be+coHUlVVoDLul07RH1h3Nd28mtPbmVgvkwIqO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csT/dqkbdrSqTZFGOIuKiQVdkdv13cwgvSoWu/zD6V1DD7qMvIjdOBoLUS6s/55Sr
-         510GNCKuPeJIbkdRCUlBzGcS5c0BswdM/uIVhzV9Kjydscq1L8ZRkMQ3bUvBWX0VTw
-         hm+l8acYTWQPjkCNVDlfszLoNmMFqme6ouP/sXvY=
+        b=RBRyEOYWvjDPhqFybONSYz5BS9T1s15QRIBhYqUQdx4pxZloalEeOQTfW5I/wHut3
+         aIganQEKsgW3F3TV2FmsVzVF7oZ8JEaUZVZvZpKOA9nOe7JbPmh39/xZGkXpETWZ+t
+         29QOHFFjigqK2m2GONNfXVsadfN7jc0P/KohGQmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 353/639] ath10k: Fix encoding for protected management frames
-Date:   Fri, 24 Jan 2020 10:28:43 +0100
-Message-Id: <20200124093131.329737684@linuxfoundation.org>
+Subject: [PATCH 4.19 354/639] afs: Fix the afs.cell and afs.volume xattr handlers
+Date:   Fri, 24 Jan 2020 10:28:44 +0100
+Message-Id: <20200124093131.451001271@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,46 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 42f1bc43e6a97b9ddbe976eba9bd05306c990c75 ]
+[ Upstream commit c73aa4102f5b9f261a907c3b3df94cd2c478504d ]
 
-Currently the protected management frames are
-not appended with the MIC_LEN which results in
-the protected management frames being encoded
-incorrectly.
+Fix the ->get handlers for the afs.cell and afs.volume xattrs to pass the
+source data size to memcpy() rather than target buffer size.
 
-Add the extra space at the end of the protected
-management frames to fix this encoding error for
-the protected management frames.
+Overcopying the source data occasionally causes the kernel to oops.
 
-Tested HW: WCN3990
-Tested FW: WLAN.HL.3.1-00784-QCAHLSWMTPLZ-1
-
-Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: d3e3b7eac886 ("afs: Add metadata xattrs")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wmi-tlv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/afs/xattr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-index a90990b8008de..248decb494c28 100644
---- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-@@ -2692,8 +2692,10 @@ ath10k_wmi_tlv_op_gen_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu,
- 	if ((ieee80211_is_action(hdr->frame_control) ||
- 	     ieee80211_is_deauth(hdr->frame_control) ||
- 	     ieee80211_is_disassoc(hdr->frame_control)) &&
--	     ieee80211_has_protected(hdr->frame_control))
-+	     ieee80211_has_protected(hdr->frame_control)) {
-+		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
- 		buf_len += IEEE80211_CCMP_MIC_LEN;
-+	}
+diff --git a/fs/afs/xattr.c b/fs/afs/xattr.c
+index cfcc674e64a55..411f67c79f090 100644
+--- a/fs/afs/xattr.c
++++ b/fs/afs/xattr.c
+@@ -50,7 +50,7 @@ static int afs_xattr_get_cell(const struct xattr_handler *handler,
+ 		return namelen;
+ 	if (namelen > size)
+ 		return -ERANGE;
+-	memcpy(buffer, cell->name, size);
++	memcpy(buffer, cell->name, namelen);
+ 	return namelen;
+ }
  
- 	buf_len = min_t(u32, buf_len, WMI_TLV_MGMT_TX_FRAME_MAX_LEN);
- 	buf_len = round_up(buf_len, 4);
+@@ -104,7 +104,7 @@ static int afs_xattr_get_volume(const struct xattr_handler *handler,
+ 		return namelen;
+ 	if (namelen > size)
+ 		return -ERANGE;
+-	memcpy(buffer, volname, size);
++	memcpy(buffer, volname, namelen);
+ 	return namelen;
+ }
+ 
 -- 
 2.20.1
 
