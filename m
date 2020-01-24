@@ -2,68 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E741A148F5C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 21:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D467148FE8
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 22:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387972AbgAXU3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 15:29:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52540 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387548AbgAXU3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 15:29:19 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22D7D2072C;
-        Fri, 24 Jan 2020 20:29:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579897759;
-        bh=F90xNfUKvOUf2TUGknbgCQUyvynq64EpI75k+l0dmfU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yI/jzlDhjyDiy+RVAtgnDZBV+QQG7xN523HkaCfjRn/esAhwjMsYmny4VGRPuJJnH
-         FCupkgTKE5EWoMbbta1nqGJ4EDxd3/Oud4h9zPl9tj5gAz/ZP0vlKW8owqg5ZjPahS
-         3jEuqgDRFBjJyAdXsJ8wE6TyJOoLeka9N7XUB1QI=
-Date:   Fri, 24 Jan 2020 15:29:17 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Joel Stanley <joel@jms.id.au>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-aspeed <linux-aspeed@lists.ozlabs.org>
-Subject: Re: [PATCH AUTOSEL 4.19 05/11] ARM: config: aspeed-g5: Enable
- 8250_DW quirks
-Message-ID: <20200124202917.GI1706@sasha-vm>
-References: <20200124011747.18575-1-sashal@kernel.org>
- <20200124011747.18575-5-sashal@kernel.org>
- <CACPK8XeGLW6cm9UV7gqrOF18BzsRBppzLQLY6G=Y2MDj2Yrnhw@mail.gmail.com>
+        id S1725887AbgAXVIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 16:08:38 -0500
+Received: from [167.172.186.51] ([167.172.186.51]:57100 "EHLO shell.v3.sk"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725747AbgAXVIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 16:08:38 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 3D8B6DFE17;
+        Fri, 24 Jan 2020 21:08:46 +0000 (UTC)
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id nsCRUdqw7lCo; Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 97A45DFEAD;
+        Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at zimbra.v3.sk
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id ELtJo5_L7sxB; Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
+Received: from localhost (unknown [109.183.109.54])
+        by zimbra.v3.sk (Postfix) with ESMTPSA id 4F1C4DFE17;
+        Fri, 24 Jan 2020 21:08:45 +0000 (UTC)
+Date:   Fri, 24 Jan 2020 22:08:33 +0100
+From:   Lubomir Rintel <lkundrak@v3.sk>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stephen Boyd <sboyd@kernel.org>,
+        Olof Johansson <olof@lixom.net>, linux-clk@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.4 028/107] clk: mmp2: Fix the order of timer
+ mux parents
+Message-ID: <20200124210833.GA244505@furthur.local>
+References: <20200124141817.28793-1-sashal@kernel.org>
+ <20200124141817.28793-28-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACPK8XeGLW6cm9UV7gqrOF18BzsRBppzLQLY6G=Y2MDj2Yrnhw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200124141817.28793-28-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 01:21:40AM +0000, Joel Stanley wrote:
->HI Sasha,
->
->On Fri, 24 Jan 2020 at 01:17, Sasha Levin <sashal@kernel.org> wrote:
->>
->> From: Joel Stanley <joel@jms.id.au>
->>
->> [ Upstream commit a5331a7a87ec81d5228b7421acf831b2d0c0de26 ]
->>
->> This driver option is used by the AST2600 A0 boards to work around a
->> hardware issue.
->
->This hardware was only supported from 5.4+, so I think we can drop this patch.
+On Fri, Jan 24, 2020 at 09:16:58AM -0500, Sasha Levin wrote:
+> From: Lubomir Rintel <lkundrak@v3.sk>
+> 
+> [ Upstream commit 8bea5ac0fbc5b2103f8779ddff216122e3c2e1ad ]
+> 
+> Determined empirically, no documentation is available.
+> 
+> The OLPC XO-1.75 laptop used parent 1, that one being VCTCXO/4 (65MHz), but
+> thought it's a VCTCXO/2 (130MHz). The mmp2 timer driver, not knowing
+> what is going on, ended up just dividing the rate as of
+> commit f36797ee4380 ("ARM: mmp/mmp2: dt: enable the clock")'
 
-I'll drop it for 4.19 and older, thanks!
+Hi,
 
--- 
-Thanks,
-Sasha
+this has to go together with this one (in other stable trees too):
+
+  commit 0bd0f30bbf060891f58866a46083a9931f71787c
+  Author: Lubomir Rintel <lkundrak@v3.sk>
+  Date:   Wed Dec 18 20:04:53 2019 +0100
+  
+      ARM: mmp: do not divide the clock rate
+      
+      This was done because the clock driver returned the wrong rate, which is
+      fixed in "clk: mmp2: Fix the order of timer mux parents" patch.
+
+It removes a workaround for the same issue from before it was
+understood what is going on. If it stays, the clock will run twice as
+fast.
+
+Thanks
+Lubo
+
+> 
+> Link: https://lore.kernel.org/r/20191218190454.420358-3-lkundrak@v3.sk
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> Acked-by: Stephen Boyd <sboyd@kernel.org>
+> Signed-off-by: Olof Johansson <olof@lixom.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/clk/mmp/clk-of-mmp2.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.c
+> index a60a1be937ad6..b4a95cbbda989 100644
+> --- a/drivers/clk/mmp/clk-of-mmp2.c
+> +++ b/drivers/clk/mmp/clk-of-mmp2.c
+> @@ -134,7 +134,7 @@ static DEFINE_SPINLOCK(ssp3_lock);
+>  static const char *ssp_parent_names[] = {"vctcxo_4", "vctcxo_2", "vctcxo", "pll1_16"};
+>  
+>  static DEFINE_SPINLOCK(timer_lock);
+> -static const char *timer_parent_names[] = {"clk32", "vctcxo_2", "vctcxo_4", "vctcxo"};
+> +static const char *timer_parent_names[] = {"clk32", "vctcxo_4", "vctcxo_2", "vctcxo"};
+>  
+>  static DEFINE_SPINLOCK(reset_lock);
+>  
+> -- 
+> 2.20.1
+> 
