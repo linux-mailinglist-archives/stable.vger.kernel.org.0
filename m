@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7757147CC2
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C5F147CDB
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:56:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387421AbgAXJy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:54:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57538 "EHLO mail.kernel.org"
+        id S2388374AbgAXJyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:54:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731584AbgAXJy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:54:28 -0500
+        id S1731584AbgAXJyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:54:32 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157512075D;
-        Fri, 24 Jan 2020 09:54:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD0F620709;
+        Fri, 24 Jan 2020 09:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859667;
-        bh=X92FrQQdcFrf/SaNRGaHJNaRL+FGFKOytOntdtpAkqw=;
+        s=default; t=1579859671;
+        bh=rO20ReY0D17Z08+D6hDKugrRpVERf/wymJFyg4vn6yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpbCHiJ7uA3uRGL9kzkDtIOzuFKYwYFlzZEPHffe9ICNcoRWadiO7WskXRiqJf3hS
-         E42dem9FUiZ/a99Xu2zbQDiFpgTnP7z/1YtOSKq57EeJOcDan8h83MC+5/qqjTJq2/
-         m8jGztM6Lvi8ysUzTnLV3/QmqSc1HYVux0m2dglM=
+        b=tlqwVO9EaC0s1RpRf0Ne0zEy1IWSPc3Qp8K2tQZMF9y2r4OUPOjs5RERjwdNDk9Ke
+         ho8rqVUSJrm/kobLZ6K7MHp4eeVkzWAea66kd7anGD6HxZHHQtMNmxrlJJDJYuKfpN
+         uBj12tbB2Qs9zVR64pP64fAAM23fQl4BmyJ+y33E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Darren Hart (VMware)" <dvhart@infradead.org>,
+        stable@vger.kernel.org, Jie Liu <liujie165@huawei.com>,
+        Qiang Ning <ningqiang1@huawei.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 169/343] platform/x86: alienware-wmi: fix kfree on potentially uninitialized pointer
-Date:   Fri, 24 Jan 2020 10:29:47 +0100
-Message-Id: <20200124092942.237621910@linuxfoundation.org>
+Subject: [PATCH 4.14 170/343] tipc: set sysctl_tipc_rmem and named_timeout right range
+Date:   Fri, 24 Jan 2020 10:29:48 +0100
+Message-Id: <20200124092942.358845182@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,62 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jie Liu <liujie165@huawei.com>
 
-[ Upstream commit 98e2630284ab741804bd0713e932e725466f2f84 ]
+[ Upstream commit 4bcd4ec1017205644a2697bccbc3b5143f522f5f ]
 
-Currently the kfree of output.pointer can be potentially freeing
-an uninitalized pointer in the case where out_data is NULL. Fix this
-by reworking the case where out_data is not-null to perform the
-ACPI status check and also the kfree of outpoint.pointer in one block
-and hence ensuring the pointer is only freed when it has been used.
+We find that sysctl_tipc_rmem and named_timeout do not have the right minimum
+setting. sysctl_tipc_rmem should be larger than zero, like sysctl_tcp_rmem.
+And named_timeout as a timeout setting should be not less than zero.
 
-Also replace the if (ptr != NULL) idiom with just if (ptr).
-
-Fixes: ff0e9f26288d ("platform/x86: alienware-wmi: Correct a memory leak")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
+Fixes: cc79dd1ba9c10 ("tipc: change socket buffer overflow control to respect sk_rcvbuf")
+Fixes: a5325ae5b8bff ("tipc: add name distributor resiliency queue")
+Signed-off-by: Jie Liu <liujie165@huawei.com>
+Reported-by: Qiang Ning <ningqiang1@huawei.com>
+Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/alienware-wmi.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ net/tipc/sysctl.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/alienware-wmi.c b/drivers/platform/x86/alienware-wmi.c
-index e335b18da20fc..cbd84e2e3bd47 100644
---- a/drivers/platform/x86/alienware-wmi.c
-+++ b/drivers/platform/x86/alienware-wmi.c
-@@ -505,23 +505,22 @@ static acpi_status alienware_wmax_command(struct wmax_basic_args *in_args,
+diff --git a/net/tipc/sysctl.c b/net/tipc/sysctl.c
+index 1a779b1e85100..40f6d82083d7b 100644
+--- a/net/tipc/sysctl.c
++++ b/net/tipc/sysctl.c
+@@ -37,6 +37,8 @@
  
- 	input.length = (acpi_size) sizeof(*in_args);
- 	input.pointer = in_args;
--	if (out_data != NULL) {
-+	if (out_data) {
- 		output.length = ACPI_ALLOCATE_BUFFER;
- 		output.pointer = NULL;
- 		status = wmi_evaluate_method(WMAX_CONTROL_GUID, 0,
- 					     command, &input, &output);
--	} else
-+		if (ACPI_SUCCESS(status)) {
-+			obj = (union acpi_object *)output.pointer;
-+			if (obj && obj->type == ACPI_TYPE_INTEGER)
-+				*out_data = (u32)obj->integer.value;
-+		}
-+		kfree(output.pointer);
-+	} else {
- 		status = wmi_evaluate_method(WMAX_CONTROL_GUID, 0,
- 					     command, &input, NULL);
--
--	if (ACPI_SUCCESS(status) && out_data != NULL) {
--		obj = (union acpi_object *)output.pointer;
--		if (obj && obj->type == ACPI_TYPE_INTEGER)
--			*out_data = (u32) obj->integer.value;
- 	}
--	kfree(output.pointer);
- 	return status;
--
- }
+ #include <linux/sysctl.h>
  
- /*
++static int zero;
++static int one = 1;
+ static struct ctl_table_header *tipc_ctl_hdr;
+ 
+ static struct ctl_table tipc_table[] = {
+@@ -45,14 +47,16 @@ static struct ctl_table tipc_table[] = {
+ 		.data		= &sysctl_tipc_rmem,
+ 		.maxlen		= sizeof(sysctl_tipc_rmem),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1         = &one,
+ 	},
+ 	{
+ 		.procname	= "named_timeout",
+ 		.data		= &sysctl_tipc_named_timeout,
+ 		.maxlen		= sizeof(sysctl_tipc_named_timeout),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1         = &zero,
+ 	},
+ 	{}
+ };
 -- 
 2.20.1
 
