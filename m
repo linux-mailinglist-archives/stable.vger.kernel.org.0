@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D25147A69
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B9E147AD1
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725821AbgAXJdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:33:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
+        id S1730614AbgAXJic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:38:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729715AbgAXJdY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:33:24 -0500
+        id S1725821AbgAXJib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:38:31 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5FDF208C4;
-        Fri, 24 Jan 2020 09:33:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D23C72070A;
+        Fri, 24 Jan 2020 09:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858403;
-        bh=k6hM2ffp9xfbNIFXsjABnq/7bBzSMoNDBNeX2sLKJfk=;
+        s=default; t=1579858710;
+        bh=rBS09NCEGZ6Gpe0etAl+ExacjYzQ3cLuUSZNSB8TCWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOi8JAlFmIR90491rwMamNJuQTCsHTgTU3RdPakv91aOrCH32CQz9DPRHKXZF/mzV
-         w+uQPqcCheOLc2Aw3mJBRsPoG2HmDuqgsvSvQclicL6GOHFX58XWPQqsdGs11nRp4p
-         Bj2IGtdSABetCnjzs8PX3D7RZfdfYhs98rlN9R6s=
+        b=NIdidFSLHvLRamzN4a3xUpeVTNseRRez30AU2lpLribSsbm6MaaCiEUsFd8hY1RAA
+         A1DIZ4JMFW7vg85dIW+JzE3Xhn9ReiA7DS+5t2t+aPRk7nxoGHkb6YoUr1dwtwbrl2
+         gfCrQavz+Ip1vz5bwx0WjTZ37VFW1DfILja1RGT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Andrii Nakryiko <andriin@fb.com>
-Subject: [PATCH 5.4 010/102] samples/bpf: Fix broken xdp_rxq_info due to map order assumptions
-Date:   Fri, 24 Jan 2020 10:30:11 +0100
-Message-Id: <20200124092807.703448130@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.4 011/102] ARM: dts: logicpd-torpedo-37xx-devkit-28: Reference new DRM panel
+Date:   Fri, 24 Jan 2020 10:30:12 +0100
+Message-Id: <20200124092807.855994289@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -45,59 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit edbca120a8cdfa5a5793707e33497aa5185875ca upstream.
+commit a177057a95f6a3f1e0e52a17eea2178c15073648 upstream.
 
-In the days of using bpf_load.c the order in which the 'maps' sections
-were defines in BPF side (*_kern.c) file, were used by userspace side
-to identify the map via using the map order as an index. In effect the
-order-index is created based on the order the maps sections are stored
-in the ELF-object file, by the LLVM compiler.
+With the removal of the panel-dpi from the omap drivers, the
+LCD no longer works.  This patch points the device tree to
+a newly created panel named "logicpd,type28"
 
-This have also carried over in libbpf via API bpf_map__next(NULL, obj)
-to extract maps in the order libbpf parsed the ELF-object file.
+Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
 
-When BTF based maps were introduced a new section type ".maps" were
-created. I found that the LLVM compiler doesn't create the ".maps"
-sections in the order they are defined in the C-file. The order in the
-ELF file is based on the order the map pointer is referenced in the code.
-
-This combination of changes lead to xdp_rxq_info mixing up the map
-file-descriptors in userspace, resulting in very broken behaviour, but
-without warning the user.
-
-This patch fix issue by instead using bpf_object__find_map_by_name()
-to find maps via their names. (Note, this is the ELF name, which can
-be longer than the name the kernel retains).
-
-Fixes: be5bca44aa6b ("samples: bpf: convert some XDP samples from bpf_load to libbpf")
-Fixes: 451d1dc886b5 ("samples: bpf: update map definition to new syntax BTF-defined map")
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/157529025128.29832.5953245340679936909.stgit@firesoul
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- samples/bpf/xdp_rxq_info_user.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/logicpd-torpedo-37xx-devkit-28.dts |   20 +------------------
+ 1 file changed, 2 insertions(+), 18 deletions(-)
 
---- a/samples/bpf/xdp_rxq_info_user.c
-+++ b/samples/bpf/xdp_rxq_info_user.c
-@@ -489,9 +489,9 @@ int main(int argc, char **argv)
- 	if (bpf_prog_load_xattr(&prog_load_attr, &obj, &prog_fd))
- 		return EXIT_FAIL;
+--- a/arch/arm/boot/dts/logicpd-torpedo-37xx-devkit-28.dts
++++ b/arch/arm/boot/dts/logicpd-torpedo-37xx-devkit-28.dts
+@@ -11,22 +11,6 @@
+ #include "logicpd-torpedo-37xx-devkit.dts"
  
--	map = bpf_map__next(NULL, obj);
--	stats_global_map = bpf_map__next(map, obj);
--	rx_queue_index_map = bpf_map__next(stats_global_map, obj);
-+	map =  bpf_object__find_map_by_name(obj, "config_map");
-+	stats_global_map = bpf_object__find_map_by_name(obj, "stats_global_map");
-+	rx_queue_index_map = bpf_object__find_map_by_name(obj, "rx_queue_index_map");
- 	if (!map || !stats_global_map || !rx_queue_index_map) {
- 		printf("finding a map in obj file failed\n");
- 		return EXIT_FAIL;
+ &lcd0 {
+-
+-	label = "28";
+-
+-	panel-timing {
+-		clock-frequency = <9000000>;
+-		hactive = <480>;
+-		vactive = <272>;
+-		hfront-porch = <3>;
+-		hback-porch = <2>;
+-		hsync-len = <42>;
+-		vback-porch = <3>;
+-		vfront-porch = <2>;
+-		vsync-len = <11>;
+-		hsync-active = <1>;
+-		vsync-active = <1>;
+-		de-active = <1>;
+-		pixelclk-active = <0>;
+-	};
++	/* To make it work, set CONFIG_OMAP2_DSS_MIN_FCK_PER_PCK=4 */
++	compatible = "logicpd,type28";
+ };
 
 
