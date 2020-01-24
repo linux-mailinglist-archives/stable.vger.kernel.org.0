@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4251C14809F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F0031480A3
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388839AbgAXLMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:12:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49228 "EHLO mail.kernel.org"
+        id S2389498AbgAXLNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:13:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387873AbgAXLMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:12:52 -0500
+        id S2389259AbgAXLM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:12:57 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80D1B2087E;
-        Fri, 24 Jan 2020 11:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9649B20708;
+        Fri, 24 Jan 2020 11:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864371;
-        bh=nGU9XtjwYJzjkCoLioCcymYZZnqVVz+g7YOXao/Eiro=;
+        s=default; t=1579864376;
+        bh=rfAtS0wJtWOOaABkLkKp4LsyZFU2C66sqgJerb65tfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZswzqGVZK/lDNzpE491Tj/m6vk87QtOQz/d2dX0Sm9UgUW2dGtJJjN7AmE21pdQ1J
-         u39ORRakY6C7ZYNgfWjcaJlr9b816sb1DkOxTP/h1I5dxdBF0PTabdPDVe1SnnEkG8
-         raSAuJe5BJUOHGTCiTFR86dgxECiglaf8CZkfLMY=
+        b=aBVhjOgSLZ4Md+Ws8hap0V54PRsmpFHU4u4XOVJ/8rhZ3rMv3DHUqXbSdJ9XKlfuU
+         CdJZfI2Tc5r/O7OXPDBbS0rcOE0uVeGLo5fB2qVH+4hUIibyKVHMoFEabZGJRuJECC
+         TUG7QkxPLLLCSwmdZ/u+l9eDekv3BinWdQuik5to=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Gary R Hook <gary.hook@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 235/639] iommu: Fix IOMMU debugfs fallout
-Date:   Fri, 24 Jan 2020 10:26:45 +0100
-Message-Id: <20200124093116.262968751@linuxfoundation.org>
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolas Pitre <nico@linaro.org>,
+        Anand Moon <linux.amoon@gmail.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 236/639] ARM: 8847/1: pm: fix HYP/SVC mode mismatch when MCPM is used
+Date:   Fri, 24 Jan 2020 10:26:46 +0100
+Message-Id: <20200124093116.385619902@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,72 +47,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 18b3af4492a0aa6046b86d712f6ba4cbb66100fb ]
+[ Upstream commit ca70ea43f80c98582f5ffbbd1e6f4da2742da0c4 ]
 
-A change made in the final version of IOMMU debugfs support replaced the
-public function iommu_debugfs_new_driver_dir() by the public dentry
-iommu_debugfs_dir in <linux/iommu.h>, but forgot to update both the
-implementation in iommu-debugfs.c, and the patch description.
+MCPM does a soft reset of the CPUs and uses common cpu_resume() routine to
+perform low-level platform initialization. This results in a try to install
+HYP stubs for the second time for each CPU and results in false HYP/SVC
+mode mismatch detection. The HYP stubs are already installed at the
+beginning of the kernel initialization on the boot CPU (head.S) or in the
+secondary_startup() for other CPUs. To fix this issue MCPM code should use
+a cpu_resume() routine without HYP stubs installation.
 
-Fix this by exporting iommu_debugfs_dir, and removing the reference to
-and implementation of iommu_debugfs_new_driver_dir().
+This change fixes HYP/SVC mode mismatch on Samsung Exynos5422-based Odroid
+XU3/XU4/HC1 boards.
 
-Fixes: bad614b24293ae46 ("iommu: Enable debugfs exposure of IOMMU driver internals")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 3721924c8154 ("ARM: 8081/1: MCPM: provide infrastructure to allow for MCPM loopback")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Nicolas Pitre <nico@linaro.org>
+Tested-by: Anand Moon <linux.amoon@gmail.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu-debugfs.c | 23 ++++-------------------
- 1 file changed, 4 insertions(+), 19 deletions(-)
+ arch/arm/common/mcpm_entry.c   |  2 +-
+ arch/arm/include/asm/suspend.h |  1 +
+ arch/arm/kernel/sleep.S        | 12 ++++++++++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/iommu-debugfs.c b/drivers/iommu/iommu-debugfs.c
-index 3b1bf88fd1b04..f035489420964 100644
---- a/drivers/iommu/iommu-debugfs.c
-+++ b/drivers/iommu/iommu-debugfs.c
-@@ -12,6 +12,7 @@
- #include <linux/debugfs.h>
+diff --git a/arch/arm/common/mcpm_entry.c b/arch/arm/common/mcpm_entry.c
+index ad574d20415c2..1b1b82b37ce03 100644
+--- a/arch/arm/common/mcpm_entry.c
++++ b/arch/arm/common/mcpm_entry.c
+@@ -381,7 +381,7 @@ static int __init nocache_trampoline(unsigned long _arg)
+ 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+ 	phys_reset_t phys_reset;
  
- struct dentry *iommu_debugfs_dir;
-+EXPORT_SYMBOL_GPL(iommu_debugfs_dir);
+-	mcpm_set_entry_vector(cpu, cluster, cpu_resume);
++	mcpm_set_entry_vector(cpu, cluster, cpu_resume_no_hyp);
+ 	setup_mm_for_reboot();
  
- /**
-  * iommu_debugfs_setup - create the top-level iommu directory in debugfs
-@@ -23,9 +24,9 @@ struct dentry *iommu_debugfs_dir;
-  * Emit a strong warning at boot time to indicate that this feature is
-  * enabled.
-  *
-- * This function is called from iommu_init; drivers may then call
-- * iommu_debugfs_new_driver_dir() to instantiate a vendor-specific
-- * directory to be used to expose internal data.
-+ * This function is called from iommu_init; drivers may then use
-+ * iommu_debugfs_dir to instantiate a vendor-specific directory to be used
-+ * to expose internal data.
-  */
- void iommu_debugfs_setup(void)
- {
-@@ -48,19 +49,3 @@ void iommu_debugfs_setup(void)
- 		pr_warn("*************************************************************\n");
- 	}
- }
--
--/**
-- * iommu_debugfs_new_driver_dir - create a vendor directory under debugfs/iommu
-- * @vendor: name of the vendor-specific subdirectory to create
-- *
-- * This function is called by an IOMMU driver to create the top-level debugfs
-- * directory for that driver.
-- *
-- * Return: upon success, a pointer to the dentry for the new directory.
-- *         NULL in case of failure.
-- */
--struct dentry *iommu_debugfs_new_driver_dir(const char *vendor)
--{
--	return debugfs_create_dir(vendor, iommu_debugfs_dir);
--}
--EXPORT_SYMBOL_GPL(iommu_debugfs_new_driver_dir);
+ 	__mcpm_cpu_going_down(cpu, cluster);
+diff --git a/arch/arm/include/asm/suspend.h b/arch/arm/include/asm/suspend.h
+index 452bbdcbcc835..506314265c6f1 100644
+--- a/arch/arm/include/asm/suspend.h
++++ b/arch/arm/include/asm/suspend.h
+@@ -10,6 +10,7 @@ struct sleep_save_sp {
+ };
+ 
+ extern void cpu_resume(void);
++extern void cpu_resume_no_hyp(void);
+ extern void cpu_resume_arm(void);
+ extern int cpu_suspend(unsigned long, int (*)(unsigned long));
+ 
+diff --git a/arch/arm/kernel/sleep.S b/arch/arm/kernel/sleep.S
+index a8257fc9cf2a9..5dc8b80bb6938 100644
+--- a/arch/arm/kernel/sleep.S
++++ b/arch/arm/kernel/sleep.S
+@@ -120,6 +120,14 @@ ENDPROC(cpu_resume_after_mmu)
+ 	.text
+ 	.align
+ 
++#ifdef CONFIG_MCPM
++	.arm
++THUMB(	.thumb			)
++ENTRY(cpu_resume_no_hyp)
++ARM_BE8(setend be)			@ ensure we are in BE mode
++	b	no_hyp
++#endif
++
+ #ifdef CONFIG_MMU
+ 	.arm
+ ENTRY(cpu_resume_arm)
+@@ -135,6 +143,7 @@ ARM_BE8(setend be)			@ ensure we are in BE mode
+ 	bl	__hyp_stub_install_secondary
+ #endif
+ 	safe_svcmode_maskall r1
++no_hyp:
+ 	mov	r1, #0
+ 	ALT_SMP(mrc p15, 0, r0, c0, c0, 5)
+ 	ALT_UP_B(1f)
+@@ -163,6 +172,9 @@ ENDPROC(cpu_resume)
+ 
+ #ifdef CONFIG_MMU
+ ENDPROC(cpu_resume_arm)
++#endif
++#ifdef CONFIG_MCPM
++ENDPROC(cpu_resume_no_hyp)
+ #endif
+ 
+ 	.align 2
 -- 
 2.20.1
 
