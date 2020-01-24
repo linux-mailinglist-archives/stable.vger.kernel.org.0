@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E348147D6F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80F84147D3E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388536AbgAXKAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:00:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36012 "EHLO mail.kernel.org"
+        id S1731051AbgAXJ6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:58:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388210AbgAXKAf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:00:35 -0500
+        id S1725821AbgAXJ6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:58:33 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA6B620709;
-        Fri, 24 Jan 2020 10:00:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 257B620709;
+        Fri, 24 Jan 2020 09:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860035;
-        bh=Vfx3CNohv0rVezTes2BEVPjEJ+heEqzgPVsBaFx3Rvw=;
+        s=default; t=1579859912;
+        bh=YZQj15HykUfkx12S9MAongzeegBHADwge2FK/tjmt2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZ8JOZhcJ+ULUbFipKJsFj+0rY41MKHCX5Amos88VIg7TkBAtOStOebZBhpNFQd7y
-         BSVd+1Z6WtmFdoqD07s4vWIV1p7JCXDQm2R+Rzo6GdpAMb2ZNZOYrHb1+PA86NaCYq
-         /8sj90qoML+8zlPKZEPc8KcZNGPUefRrFXcTtg0M=
+        b=vo7vKxIAygQ1hHeYfwZGeNE3zMzeP/qZP96oVRzfPDLJ7bkQralL6wZng99HkU/ws
+         uzBt67TecdevcQEwUmW7T2LyrRhrKQeVM/Sc4u1FduNHPTNU1Tj6yevHC/dthAC4yS
+         yCpGDNDllqhoLDfuwjnzZ/kD+DOggfQA9qzv/iCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 211/343] ARM: dts: sun8i-h3: Fix wifi in Beelink X2 DT
-Date:   Fri, 24 Jan 2020 10:30:29 +0100
-Message-Id: <20200124092947.844394620@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 212/343] dmaengine: tegra210-adma: Fix crash during probe
+Date:   Fri, 24 Jan 2020 10:30:30 +0100
+Message-Id: <20200124092947.960310264@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,48 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit ca0961011db57e39880df0b5708df8aa3339dc6f ]
+[ Upstream commit b53611fb1ce9b1786bd18205473e0c1d6bfa8934 ]
 
-mmc1 node where wifi module is connected doesn't have properly defined
-power supplies so wifi module is never powered up. Fix that by
-specifying additional power supplies.
+Commit f33e7bb3eb92 ("dmaengine: tegra210-adma: restore channel status")
+added support to save and restore the DMA channel registers when runtime
+suspending the ADMA. This change is causing the kernel to crash when
+probing the ADMA, if the device is probed deferred when looking up the
+channel interrupts. The crash occurs because not all of the channel base
+addresses have been setup at this point and in the clean-up path of the
+probe, pm_runtime_suspend() is called invoking its callback which
+expects all the channel base addresses to be initialised.
 
-Additionally, this STB may have either Realtek or Broadcom based wifi
-module. One based on Broadcom module also needs external clock to work
-properly. Fix that by adding clock property to wifi_pwrseq node.
+Although this could be fixed by simply checking for a NULL address, on
+further review of the driver it seems more appropriate that we only call
+pm_runtime_get_sync() after all the channel interrupts and base
+addresses have been configured. Therefore, fix this crash by moving the
+calls to pm_runtime_enable(), pm_runtime_get_sync() and
+tegra_adma_init() after the DMA channels have been initialised.
 
-Fixes: e582b47a9252 ("ARM: dts: sun8i-h3: Add dts for the Beelink X2 STB")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Fixes: f33e7bb3eb92 ("dmaengine: tegra210-adma: restore channel status")
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-h3-beelink-x2.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma/tegra210-adma.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts b/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
-index 10da56e86ab80..21b38c386f1b3 100644
---- a/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-beelink-x2.dts
-@@ -79,6 +79,8 @@
- 	wifi_pwrseq: wifi_pwrseq {
- 		compatible = "mmc-pwrseq-simple";
- 		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
-+		clocks = <&rtc 1>;
-+		clock-names = "ext_clock";
- 	};
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index ac2a6b800db3e..4f4733d831a1a 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -744,16 +744,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 		return PTR_ERR(tdma->ahub_clk);
+ 	}
  
- 	sound_spdif {
-@@ -128,6 +130,8 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&mmc1_pins_a>;
- 	vmmc-supply = <&reg_vcc3v3>;
-+	vqmmc-supply = <&reg_vcc3v3>;
-+	mmc-pwrseq = <&wifi_pwrseq>;
- 	bus-width = <4>;
- 	non-removable;
- 	status = "okay";
+-	pm_runtime_enable(&pdev->dev);
+-
+-	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0)
+-		goto rpm_disable;
+-
+-	ret = tegra_adma_init(tdma);
+-	if (ret)
+-		goto rpm_put;
+-
+ 	INIT_LIST_HEAD(&tdma->dma_dev.channels);
+ 	for (i = 0; i < tdma->nr_channels; i++) {
+ 		struct tegra_adma_chan *tdc = &tdma->channels[i];
+@@ -771,6 +761,16 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 		tdc->tdma = tdma;
+ 	}
+ 
++	pm_runtime_enable(&pdev->dev);
++
++	ret = pm_runtime_get_sync(&pdev->dev);
++	if (ret < 0)
++		goto rpm_disable;
++
++	ret = tegra_adma_init(tdma);
++	if (ret)
++		goto rpm_put;
++
+ 	dma_cap_set(DMA_SLAVE, tdma->dma_dev.cap_mask);
+ 	dma_cap_set(DMA_PRIVATE, tdma->dma_dev.cap_mask);
+ 	dma_cap_set(DMA_CYCLIC, tdma->dma_dev.cap_mask);
+@@ -812,13 +812,13 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 
+ dma_remove:
+ 	dma_async_device_unregister(&tdma->dma_dev);
+-irq_dispose:
+-	while (--i >= 0)
+-		irq_dispose_mapping(tdma->channels[i].irq);
+ rpm_put:
+ 	pm_runtime_put_sync(&pdev->dev);
+ rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
++irq_dispose:
++	while (--i >= 0)
++		irq_dispose_mapping(tdma->channels[i].irq);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
