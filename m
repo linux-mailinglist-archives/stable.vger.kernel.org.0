@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D988147E48
+	by mail.lfdr.de (Postfix) with ESMTP id E0D0F147E4A
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733183AbgAXKHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:07:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44256 "EHLO mail.kernel.org"
+        id S2389042AbgAXKHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:07:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389036AbgAXKHj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:07:39 -0500
+        id S2389036AbgAXKHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:07:43 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AB632087E;
-        Fri, 24 Jan 2020 10:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2201214DB;
+        Fri, 24 Jan 2020 10:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860459;
-        bh=1SRjTnV20dg5/VzTUjEQ4H/tE+oFjJK7N8fz5kY4F0s=;
+        s=default; t=1579860462;
+        bh=bsH3ijRqniYLrLbQj0Njg+l5UNwU8vHEuRPVfW5okbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgC6k5nJ05sloGLfDGedP0EbmPssk2b1v6oPgK06wnrxlcNcOM8dE5hMBXDdyqmbZ
-         p7QN/Pxq+yKob+H/arw0aQAvKILXHhK94DCyNpwPaw8ItCypohmSdcNquyWzfHblyz
-         SiSs+/iS1SyFJ1pLPUKRVTwKLByEXR0UKaPEqakw=
+        b=CaVMy/qBhVUudS5xHitTMZzrdIRu6jJIuTqXrPjENE9PncMgEy94EysYoe5fi/s+0
+         TyTyuIypiWS3SJW7TcXA+xLwKVOQM3s1KoJcU39OKkZnIfTrXY7H2vPnkj2FeAGVC6
+         qx4yW79LcPLJl0iRTZieyDr4k/gjsW2h2C2VZWbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Israel Rukshin <israelr@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 341/343] IB/iser: Fix dma_nents type definition
-Date:   Fri, 24 Jan 2020 10:32:39 +0100
-Message-Id: <20200124093004.613711197@linuxfoundation.org>
+Subject: [PATCH 4.14 342/343] serial: stm32: fix clearing interrupt error flags
+Date:   Fri, 24 Jan 2020 10:32:40 +0100
+Message-Id: <20200124093004.818892172@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -47,39 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <maxg@mellanox.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit c1545f1a200f4adc4ef8dd534bf33e2f1aa22c2f ]
+[ Upstream commit 1250ed7114a977cdc2a67a0c09d6cdda63970eb9 ]
 
-The retured value from ib_dma_map_sg saved in dma_nents variable. To avoid
-future mismatch between types, define dma_nents as an integer instead of
-unsigned.
+The interrupt clear flag register is a "write 1 to clear" register.
+So, only writing ones allows to clear flags:
+- Replace buggy stm32_clr_bits() by a simple write to clear error flags
+- Replace useless read/modify/write stm32_set_bits() routine by a
+  simple write to clear TC (transfer complete) flag.
 
-Fixes: 57b26497fabe ("IB/iser: Pass the correct number of entries for dma mapped SGL")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Israel Rukshin <israelr@mellanox.com>
-Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
-Acked-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 4f01d833fdcd ("serial: stm32: fix rx error handling")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1574323849-1909-1-git-send-email-fabrice.gasnier@st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iscsi_iser.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.h b/drivers/infiniband/ulp/iser/iscsi_iser.h
-index c1ae4aeae2f90..46dfc6ae9d1c1 100644
---- a/drivers/infiniband/ulp/iser/iscsi_iser.h
-+++ b/drivers/infiniband/ulp/iser/iscsi_iser.h
-@@ -197,7 +197,7 @@ struct iser_data_buf {
- 	struct scatterlist *sg;
- 	int                size;
- 	unsigned long      data_len;
--	unsigned int       dma_nents;
-+	int                dma_nents;
- };
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index f8f3f8fafd9f0..1e854e1851fbb 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -132,8 +132,8 @@ static void stm32_receive_chars(struct uart_port *port, bool threaded)
+ 		 * cleared by the sequence [read SR - read DR].
+ 		 */
+ 		if ((sr & USART_SR_ERR_MASK) && ofs->icr != UNDEF_REG)
+-			stm32_clr_bits(port, ofs->icr, USART_ICR_ORECF |
+-				       USART_ICR_PECF | USART_ICR_FECF);
++			writel_relaxed(sr & USART_SR_ERR_MASK,
++				       port->membase + ofs->icr);
  
- /* fwd declarations */
+ 		c = stm32_get_char(port, &sr, &stm32_port->last_res);
+ 		port->icount.rx++;
+@@ -302,7 +302,7 @@ static void stm32_transmit_chars(struct uart_port *port)
+ 	if (ofs->icr == UNDEF_REG)
+ 		stm32_clr_bits(port, ofs->isr, USART_SR_TC);
+ 	else
+-		stm32_set_bits(port, ofs->icr, USART_ICR_TCCF);
++		writel_relaxed(USART_ICR_TCCF, port->membase + ofs->icr);
+ 
+ 	if (stm32_port->tx_ch)
+ 		stm32_transmit_chars_dma(port);
 -- 
 2.20.1
 
