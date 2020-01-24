@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 322C9147B24
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC8B147B31
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731740AbgAXJlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:41:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38666 "EHLO mail.kernel.org"
+        id S1732311AbgAXJlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:41:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732762AbgAXJlM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:41:12 -0500
+        id S1732273AbgAXJli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:41:38 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00F45214AF;
-        Fri, 24 Jan 2020 09:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC874214DB;
+        Fri, 24 Jan 2020 09:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858871;
-        bh=p2LyabCqAEe7N8QDMp3GRGKwHKIFN3xrjSEQ+m4zd5g=;
+        s=default; t=1579858897;
+        bh=IqcEnoa0m9WxUpsSqFPhQNy2NQ8Zp/Lkojade5w8z4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvF9Ven5d3yVR7ZOpVfR1+LNv107IjVLgHBN+eG5XbTQvDXpPGCeQmfSzBefXGyzd
-         ctkMg66XonJpt+CgAe7/i7d64KVeGjhc1PCqQ74eVPrrJRQO1dn366Ag7KJlBJ5PmC
-         fJ1gEyiwvv/K9e1itYf7TS6n3X3c+q7jLk8BCMSU=
+        b=BYxf6Qx299c/bRS/FyS7/uW4eAhGM8QAkAFiEETeRlAvQiWoX1fxHD7rYNnOLzgaq
+         4d2j32/5UG+yEAEjW+ir/2awS4djumb1sTPEiGgoIVl0Use3p2f5Tv7kMGFBzWKukR
+         lmMx6ouRfodBPjxYP9CR3chEHXWXfonmxBUGnQR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/102] dpaa_eth: avoid timestamp read on error paths
-Date:   Fri, 24 Jan 2020 10:31:11 +0100
-Message-Id: <20200124092817.165533506@linuxfoundation.org>
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, avri.altman@wdc.com
+Subject: [PATCH 5.4 071/102] scsi: ufs: delete redundant function ufshcd_def_desc_sizes()
+Date:   Fri, 24 Jan 2020 10:31:12 +0100
+Message-Id: <20200124092817.335596567@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,91 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@nxp.com>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit 9a4f4f3a894ff4487f5597b7aabba9432b238292 ]
+[ Upstream commit 059efd847a4097c67817782d8ff65397e369e69b ]
 
-The dpaa_cleanup_tx_fd() function is called by the frame transmit
-confirmation callback but also on several error paths. This function
-is reading the transmit timestamp value. Avoid reading an invalid
-timestamp value on the error paths.
+There is no need to call ufshcd_def_desc_sizes() in ufshcd_init(), since
+descriptor lengths will be checked and initialized later in
+ufshcd_init_desc_sizes().
 
-Fixes: 4664856e9ca2 ("dpaa_eth: add support for hardware timestamping")
-Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a4b0e8a4e92b1b(scsi: ufs: Factor out ufshcd_read_desc_param)
+Link: https://lore.kernel.org/r/BN7PR08MB5684A3ACE214C3D4792CE729DB610@BN7PR08MB5684.namprd08.prod.outlook.com
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Acked-by: Avri Altman <avri.altman.wdc.com>
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index 54ffc9d3b0a9b..fcbe01f61aa44 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -1600,13 +1600,15 @@ static int dpaa_eth_refill_bpools(struct dpaa_priv *priv)
-  * Skb freeing is not handled here.
-  *
-  * This function may be called on error paths in the Tx function, so guard
-- * against cases when not all fd relevant fields were filled in.
-+ * against cases when not all fd relevant fields were filled in. To avoid
-+ * reading the invalid transmission timestamp for the error paths set ts to
-+ * false.
-  *
-  * Return the skb backpointer, since for S/G frames the buffer containing it
-  * gets freed here.
-  */
- static struct sk_buff *dpaa_cleanup_tx_fd(const struct dpaa_priv *priv,
--					  const struct qm_fd *fd)
-+					  const struct qm_fd *fd, bool ts)
- {
- 	const enum dma_data_direction dma_dir = DMA_TO_DEVICE;
- 	struct device *dev = priv->net_dev->dev.parent;
-@@ -1648,7 +1650,8 @@ static struct sk_buff *dpaa_cleanup_tx_fd(const struct dpaa_priv *priv,
- 	}
- 
- 	/* DMA unmapping is required before accessing the HW provided info */
--	if (priv->tx_tstamp && skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) {
-+	if (ts && priv->tx_tstamp &&
-+	    skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) {
- 		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
- 
- 		if (!fman_port_get_tstamp(priv->mac_dev->port[TX], (void *)skbh,
-@@ -2116,7 +2119,7 @@ dpaa_start_xmit(struct sk_buff *skb, struct net_device *net_dev)
- 	if (likely(dpaa_xmit(priv, percpu_stats, queue_mapping, &fd) == 0))
- 		return NETDEV_TX_OK;
- 
--	dpaa_cleanup_tx_fd(priv, &fd);
-+	dpaa_cleanup_tx_fd(priv, &fd, false);
- skb_to_fd_failed:
- enomem:
- 	percpu_stats->tx_errors++;
-@@ -2162,7 +2165,7 @@ static void dpaa_tx_error(struct net_device *net_dev,
- 
- 	percpu_priv->stats.tx_errors++;
- 
--	skb = dpaa_cleanup_tx_fd(priv, fd);
-+	skb = dpaa_cleanup_tx_fd(priv, fd, false);
- 	dev_kfree_skb(skb);
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 25a6a25b17a28..1e38bb967871d 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6779,23 +6779,13 @@ static void ufshcd_init_desc_sizes(struct ufs_hba *hba)
+ 		&hba->desc_size.geom_desc);
+ 	if (err)
+ 		hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
++
+ 	err = ufshcd_read_desc_length(hba, QUERY_DESC_IDN_HEALTH, 0,
+ 		&hba->desc_size.hlth_desc);
+ 	if (err)
+ 		hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
  }
  
-@@ -2202,7 +2205,7 @@ static void dpaa_tx_conf(struct net_device *net_dev,
+-static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
+-{
+-	hba->desc_size.dev_desc = QUERY_DESC_DEVICE_DEF_SIZE;
+-	hba->desc_size.pwr_desc = QUERY_DESC_POWER_DEF_SIZE;
+-	hba->desc_size.interc_desc = QUERY_DESC_INTERCONNECT_DEF_SIZE;
+-	hba->desc_size.conf_desc = QUERY_DESC_CONFIGURATION_DEF_SIZE;
+-	hba->desc_size.unit_desc = QUERY_DESC_UNIT_DEF_SIZE;
+-	hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
+-	hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
+-}
+-
+ static struct ufs_ref_clk ufs_ref_clk_freqs[] = {
+ 	{19200000, REF_CLK_FREQ_19_2_MHZ},
+ 	{26000000, REF_CLK_FREQ_26_MHZ},
+@@ -8283,9 +8273,6 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ 	hba->mmio_base = mmio_base;
+ 	hba->irq = irq;
  
- 	percpu_priv->tx_confirm++;
- 
--	skb = dpaa_cleanup_tx_fd(priv, fd);
-+	skb = dpaa_cleanup_tx_fd(priv, fd, true);
- 
- 	consume_skb(skb);
- }
-@@ -2432,7 +2435,7 @@ static void egress_ern(struct qman_portal *portal,
- 	percpu_priv->stats.tx_fifo_errors++;
- 	count_ern(percpu_priv, msg);
- 
--	skb = dpaa_cleanup_tx_fd(priv, fd);
-+	skb = dpaa_cleanup_tx_fd(priv, fd, false);
- 	dev_kfree_skb_any(skb);
- }
- 
+-	/* Set descriptor lengths to specification defaults */
+-	ufshcd_def_desc_sizes(hba);
+-
+ 	err = ufshcd_hba_init(hba);
+ 	if (err)
+ 		goto out_error;
 -- 
 2.20.1
 
