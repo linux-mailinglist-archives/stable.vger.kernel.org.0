@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C51147C10
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 292E3147BEF
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387483AbgAXJsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:48:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
+        id S2387545AbgAXJrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:47:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730051AbgAXJsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:48:39 -0500
+        id S2387394AbgAXJrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:47:37 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D20D20718;
-        Fri, 24 Jan 2020 09:48:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84FEB20718;
+        Fri, 24 Jan 2020 09:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859319;
-        bh=5q3qoVVuTy8YvTWJS56/FshoR2Qy/XfFf6H6ywclMsE=;
+        s=default; t=1579859257;
+        bh=nW5q5X5SB1KOertJq5L7KKl4VYwC6Wj8YHSJPj4xhRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/GQClWxpgdsZ4wDTTsPM4iNVu+1BT/lI7uh6KgGrCRAB3niY9w2V6atdzr3oef2U
-         0kK3ebyvOE7F/1PaOUmhd8tMJtQtB/eCzT+9J2jyr+C5RI4zFqH224DxZEKyCbRn8p
-         9/ViJDTL0JNoAcNI5XuFGNduF9+feUrgTdj0d+CE=
+        b=jtXDD30lPVbaD8Drw+k8ETXKV6x+JfbApg/SobDRbVG9Amc8uwEy2n6DOix3IP60n
+         jJz+ejwno9TNwhsK2xs65D1R8XJD42JgF2H3ZHUVa3i2Nxzuw8ior0B3ie7LYset+9
+         W97leP2RMa1B5Mm0vlAtYgGZmE08DbE7pCmisqGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/343] ASoC: imx-sgtl5000: put of nodes if finding codec fails
-Date:   Fri, 24 Jan 2020 10:28:07 +0100
-Message-Id: <20200124092928.875648341@linuxfoundation.org>
+Subject: [PATCH 4.14 070/343] IB/iser: Pass the correct number of entries for dma mapped SGL
+Date:   Fri, 24 Jan 2020 10:28:08 +0100
+Message-Id: <20200124092928.999430893@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -47,38 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Israel Rukshin <israelr@mellanox.com>
 
-[ Upstream commit d9866572486802bc598a3e8576a5231378d190de ]
+[ Upstream commit 57b26497fabe1b9379b59fbc7e35e608e114df16 ]
 
-Make sure to properly put the of node in case finding the codec
-fails.
+ib_dma_map_sg() augments the SGL into a 'dma mapped SGL'. This process may
+change the number of entries and the lengths of each entry.
 
-Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Code that touches dma_address is iterating over the 'dma mapped SGL' and
+must use dma_nents which returned from ib_dma_map_sg().
+
+ib_sg_to_pages() and ib_map_mr_sg() are using dma_address so they must use
+dma_nents.
+
+Fixes: 39405885005a ("IB/iser: Port to new fast registration API")
+Fixes: bfe066e256d5 ("IB/iser: Reuse ib_sg_to_pages")
+Signed-off-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-sgtl5000.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/ulp/iser/iser_memory.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-index 8e525f7ac08d1..3d99a8579c99f 100644
---- a/sound/soc/fsl/imx-sgtl5000.c
-+++ b/sound/soc/fsl/imx-sgtl5000.c
-@@ -119,7 +119,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	codec_dev = of_find_i2c_device_by_node(codec_np);
- 	if (!codec_dev) {
- 		dev_err(&pdev->dev, "failed to find codec platform device\n");
--		return -EPROBE_DEFER;
-+		ret = -EPROBE_DEFER;
-+		goto fail;
+diff --git a/drivers/infiniband/ulp/iser/iser_memory.c b/drivers/infiniband/ulp/iser/iser_memory.c
+index 322209d5ff582..19883169e7b76 100644
+--- a/drivers/infiniband/ulp/iser/iser_memory.c
++++ b/drivers/infiniband/ulp/iser/iser_memory.c
+@@ -240,8 +240,8 @@ int iser_fast_reg_fmr(struct iscsi_iser_task *iser_task,
+ 	page_vec->npages = 0;
+ 	page_vec->fake_mr.page_size = SIZE_4K;
+ 	plen = ib_sg_to_pages(&page_vec->fake_mr, mem->sg,
+-			      mem->size, NULL, iser_set_page);
+-	if (unlikely(plen < mem->size)) {
++			      mem->dma_nents, NULL, iser_set_page);
++	if (unlikely(plen < mem->dma_nents)) {
+ 		iser_err("page vec too short to hold this SG\n");
+ 		iser_data_buf_dump(mem, device->ib_device);
+ 		iser_dump_page_vec(page_vec);
+@@ -450,10 +450,10 @@ static int iser_fast_reg_mr(struct iscsi_iser_task *iser_task,
+ 
+ 	ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
+ 
+-	n = ib_map_mr_sg(mr, mem->sg, mem->size, NULL, SIZE_4K);
+-	if (unlikely(n != mem->size)) {
++	n = ib_map_mr_sg(mr, mem->sg, mem->dma_nents, NULL, SIZE_4K);
++	if (unlikely(n != mem->dma_nents)) {
+ 		iser_err("failed to map sg (%d/%d)\n",
+-			 n, mem->size);
++			 n, mem->dma_nents);
+ 		return n < 0 ? n : -EINVAL;
  	}
  
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
 -- 
 2.20.1
 
