@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E0D148226
+	by mail.lfdr.de (Postfix) with ESMTP id 8B620148227
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391520AbgAXLZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:25:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39850 "EHLO mail.kernel.org"
+        id S2403857AbgAXLZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:25:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391517AbgAXLZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:25:39 -0500
+        id S2403855AbgAXLZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:25:43 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 568F12077C;
-        Fri, 24 Jan 2020 11:25:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02BAD20718;
+        Fri, 24 Jan 2020 11:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865138;
-        bh=+77K14ECIlkV3RCpNUoUbilC4954ZCapLwATGAOgHOI=;
+        s=default; t=1579865142;
+        bh=wl5mOTB2UbvIKtY2Sz4uUrTM7QINLvJ1x7wpA2Jwq6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NpVX2PM7EqJL9c0mP+u0tt08lINpfCkRLm2A9mT93nKY3YFaeRvvzdHKiAmufXXMH
-         o42xOOh8Em7Bag/E2l2G+oXhsG0IWFuaWLWgbghsOCY4ZeyVB6lT9ygsixMmcemD98
-         hamuvC2TwZizA2sMQCMy7LwlymFC7xl0qYJ+ZFXg=
+        b=I1ocE+f+ucJlaOTCdINRHRm9tRJJ+xtU14NCsteNZ6uBlJNrAo0uKkqRzS5IBJ5BG
+         OEnIOpYfm3nivDoYArIXnKsgYJAQV7V1QpRsRA3CdoCvZs3ilPuEhdlUOp7cSu1lnt
+         FLnoEI2TYRuNiEaLrDgaJROpvG6qsggYlaha2j9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 448/639] dmaengine: hsu: Revert "set HSU_CH_MTSR to memory width"
-Date:   Fri, 24 Jan 2020 10:30:18 +0100
-Message-Id: <20200124093143.120393139@linuxfoundation.org>
+        stable@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nathan Huckleberry <nhuck@google.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 449/639] clk: qcom: Fix -Wunused-const-variable
+Date:   Fri, 24 Jan 2020 10:30:19 +0100
+Message-Id: <20200124093143.233520910@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,49 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit c24a5c735f87d0549060de31367c095e8810b895 ]
+[ Upstream commit da642427bd7710ec4f4140f693f59aa8521a358c ]
 
-The commit
+Clang produces the following warning
 
-  080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
+drivers/clk/qcom/gcc-msm8996.c:133:32: warning: unused variable
+'gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map' [-Wunused-const-variable]
+static const struct
+parent_map gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map[] =
+{ ^drivers/clk/qcom/gcc-msm8996.c:141:27: warning: unused variable
+'gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div' [-Wunused-const-variable] static
+const char * const gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div[] = { ^
+drivers/clk/qcom/gcc-msm8996.c:187:32: warning: unused variable
+'gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map'
+[-Wunused-const-variable] static const struct parent_map
+gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map[] = { ^
+drivers/clk/qcom/gcc-msm8996.c:197:27: warning: unused variable
+'gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div'
+[-Wunused-const-variable] static const char * const
+gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div[] = {
 
-has been mistakenly submitted. The further investigations show that
-the original code does better job since the memory side transfer size
-has never been configured by DMA users.
+It looks like these were never used.
 
-As per latest revision of documentation: "Channel minimum transfer size
-(CHnMTSR)... For IOSF UART, maximum value that can be programmed is 64 and
-minimum value that can be programmed is 1."
-
-This reverts commit 080edf75d337d35faa6fc3df99342b10d2848d16.
-
-Fixes: 080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: b1e010c0730a ("clk: qcom: Add MSM8996 Global Clock Control (GCC) driver")
+Cc: clang-built-linux@googlegroups.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/518
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hsu/hsu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/gcc-msm8996.c | 36 ----------------------------------
+ 1 file changed, 36 deletions(-)
 
-diff --git a/drivers/dma/hsu/hsu.c b/drivers/dma/hsu/hsu.c
-index 202ffa9f7611c..18f155a974db6 100644
---- a/drivers/dma/hsu/hsu.c
-+++ b/drivers/dma/hsu/hsu.c
-@@ -64,10 +64,10 @@ static void hsu_dma_chan_start(struct hsu_dma_chan *hsuc)
+diff --git a/drivers/clk/qcom/gcc-msm8996.c b/drivers/clk/qcom/gcc-msm8996.c
+index 9a3290fdd01b1..bea55c461cee9 100644
+--- a/drivers/clk/qcom/gcc-msm8996.c
++++ b/drivers/clk/qcom/gcc-msm8996.c
+@@ -138,22 +138,6 @@ static const char * const gcc_xo_gpll0_gpll4_gpll0_early_div[] = {
+ 	"gpll0_early_div"
+ };
  
- 	if (hsuc->direction == DMA_MEM_TO_DEV) {
- 		bsr = config->dst_maxburst;
--		mtsr = config->src_addr_width;
-+		mtsr = config->dst_addr_width;
- 	} else if (hsuc->direction == DMA_DEV_TO_MEM) {
- 		bsr = config->src_maxburst;
--		mtsr = config->dst_addr_width;
-+		mtsr = config->src_addr_width;
- 	}
+-static const struct parent_map gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map[] = {
+-	{ P_XO, 0 },
+-	{ P_GPLL0, 1 },
+-	{ P_GPLL2, 2 },
+-	{ P_GPLL3, 3 },
+-	{ P_GPLL0_EARLY_DIV, 6 }
+-};
+-
+-static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div[] = {
+-	"xo",
+-	"gpll0",
+-	"gpll2",
+-	"gpll3",
+-	"gpll0_early_div"
+-};
+-
+ static const struct parent_map gcc_xo_gpll0_gpll1_early_div_gpll1_gpll4_gpll0_early_div_map[] = {
+ 	{ P_XO, 0 },
+ 	{ P_GPLL0, 1 },
+@@ -192,26 +176,6 @@ static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll2_early_gpll0_early
+ 	"gpll0_early_div"
+ };
  
- 	hsu_chan_disable(hsuc);
+-static const struct parent_map gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map[] = {
+-	{ P_XO, 0 },
+-	{ P_GPLL0, 1 },
+-	{ P_GPLL2, 2 },
+-	{ P_GPLL3, 3 },
+-	{ P_GPLL1, 4 },
+-	{ P_GPLL4, 5 },
+-	{ P_GPLL0_EARLY_DIV, 6 }
+-};
+-
+-static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div[] = {
+-	"xo",
+-	"gpll0",
+-	"gpll2",
+-	"gpll3",
+-	"gpll1",
+-	"gpll4",
+-	"gpll0_early_div"
+-};
+-
+ static struct clk_fixed_factor xo = {
+ 	.mult = 1,
+ 	.div = 1,
 -- 
 2.20.1
 
