@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B78A71480C9
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:14:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 785B71480D2
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387598AbgAXLOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:14:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50732 "EHLO mail.kernel.org"
+        id S2389694AbgAXLOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390125AbgAXLOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:14:20 -0500
+        id S2390243AbgAXLOm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:14:42 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5992920663;
-        Fri, 24 Jan 2020 11:14:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A452820663;
+        Fri, 24 Jan 2020 11:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864459;
-        bh=JOxZ0ziLXjL9ubJpAZJpStg/NXLDy1/ruPLAELkwuwk=;
+        s=default; t=1579864482;
+        bh=yUnP4b5xsN2GvGjsgbWn1YfSxhpUOWL2OnMJ06bYffs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FgBqaOtX+T5GF1tLgRrA6AsyOAhYYFCLjA/dN2b+31uPf9QVMvZptJOGKpt/8oZjm
-         3ZzYufDsDqYCWS6zk82IZNN0dZ7VLjmlTtsUfc3jiqeN0EEWswykJEAAE71SuIn5RT
-         TZq0y7bzN2V9NVIh3lDxyOs1qtC+QdX/4vbLvJ+4=
+        b=CnZrR7fLJb+Pez3Hs/2xc/1BdtXO/CqSNNzgxFYLw46Y4X3s6qnBlLK3Re5+tqqyR
+         /ipuA0bdlpX5wpnXI6qNuXVxJkHi5OzhJ/BXpDyIRRGrtVDKUxuv/BmeTubxGUgLpx
+         vfsBbMjNET0BKJco4Lvz7Uhp715bYu4ZUflfLYFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 263/639] soc: amlogic: gx-socinfo: Add mask for each SoC packages
-Date:   Fri, 24 Jan 2020 10:27:13 +0100
-Message-Id: <20200124093119.683197544@linuxfoundation.org>
+Subject: [PATCH 4.19 264/639] media: ivtv: update *pos correctly in ivtv_read_pos()
+Date:   Fri, 24 Jan 2020 10:27:14 +0100
+Message-Id: <20200124093119.801755359@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,92 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit dce47aed20c7de3ee2011b7a63e67f08e9dcfb5e ]
+[ Upstream commit f8e579f3ca0973daef263f513da5edff520a6c0d ]
 
-When updated IDs on f842c41adc04 ("amlogic: meson-gx-socinfo: Update soc ids")
-we introduced packages ids using the full 8bit value, but in the function
-socinfo_to_package_id() the id was filtered with the 0xf0 mask.
+We had intended to update *pos, but the current code is a no-op.
 
-While the 0xf0 mask is valid for most board, it filters out the lower
-4 bits which encodes some characteristics of the chip.
+Fixes: 1a0adaf37c30 ("V4L/DVB (5345): ivtv driver for Conexant cx23416/cx23415 MPEG encoder/decoder")
 
-This patch moves the mask into the meson_gx_package_id table to be applied
-on each package name independently and add the correct mask for some
-specific entries.
-
-An example is the S905, in the vendor code the S905 is package_id
-different from 0x20, and S905M is exactly 0x20.
-
-Another example are the The Wetek Hub & Play2 boards using a S905-H
-variant, which is the S905 SoC with some licence bits enabled.
-These licence bits are encoded in the lower 4bits, so to detect
-the -H variant, we must detect the id == 0x3 with the 0xf mask.
-
-Fixes: f842c41adc04 ("amlogic: meson-gx-socinfo: Update soc ids")
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/amlogic/meson-gx-socinfo.c | 32 ++++++++++++++------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/media/pci/ivtv/ivtv-fileops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/amlogic/meson-gx-socinfo.c b/drivers/soc/amlogic/meson-gx-socinfo.c
-index 37ea0a1c24c82..1ae339f5eadbd 100644
---- a/drivers/soc/amlogic/meson-gx-socinfo.c
-+++ b/drivers/soc/amlogic/meson-gx-socinfo.c
-@@ -43,20 +43,21 @@ static const struct meson_gx_package_id {
- 	const char *name;
- 	unsigned int major_id;
- 	unsigned int pack_id;
-+	unsigned int pack_mask;
- } soc_packages[] = {
--	{ "S905", 0x1f, 0 },
--	{ "S905H", 0x1f, 0x13 },
--	{ "S905M", 0x1f, 0x20 },
--	{ "S905D", 0x21, 0 },
--	{ "S905X", 0x21, 0x80 },
--	{ "S905W", 0x21, 0xa0 },
--	{ "S905L", 0x21, 0xc0 },
--	{ "S905M2", 0x21, 0xe0 },
--	{ "S912", 0x22, 0 },
--	{ "962X", 0x24, 0x10 },
--	{ "962E", 0x24, 0x20 },
--	{ "A113X", 0x25, 0x37 },
--	{ "A113D", 0x25, 0x22 },
-+	{ "S905", 0x1f, 0, 0x20 }, /* pack_id != 0x20 */
-+	{ "S905H", 0x1f, 0x3, 0xf }, /* pack_id & 0xf == 0x3 */
-+	{ "S905M", 0x1f, 0x20, 0xf0 }, /* pack_id == 0x20 */
-+	{ "S905D", 0x21, 0, 0xf0 },
-+	{ "S905X", 0x21, 0x80, 0xf0 },
-+	{ "S905W", 0x21, 0xa0, 0xf0 },
-+	{ "S905L", 0x21, 0xc0, 0xf0 },
-+	{ "S905M2", 0x21, 0xe0, 0xf0 },
-+	{ "S912", 0x22, 0, 0x0 }, /* Only S912 is known for GXM */
-+	{ "962X", 0x24, 0x10, 0xf0 },
-+	{ "962E", 0x24, 0x20, 0xf0 },
-+	{ "A113X", 0x25, 0x37, 0xff },
-+	{ "A113D", 0x25, 0x22, 0xff },
- };
+diff --git a/drivers/media/pci/ivtv/ivtv-fileops.c b/drivers/media/pci/ivtv/ivtv-fileops.c
+index 6196daae4b3e0..043ac0ae9ed07 100644
+--- a/drivers/media/pci/ivtv/ivtv-fileops.c
++++ b/drivers/media/pci/ivtv/ivtv-fileops.c
+@@ -420,7 +420,7 @@ static ssize_t ivtv_read_pos(struct ivtv_stream *s, char __user *ubuf, size_t co
  
- static inline unsigned int socinfo_to_major(u32 socinfo)
-@@ -81,13 +82,14 @@ static inline unsigned int socinfo_to_misc(u32 socinfo)
- 
- static const char *socinfo_to_package_id(u32 socinfo)
- {
--	unsigned int pack = socinfo_to_pack(socinfo) & 0xf0;
-+	unsigned int pack = socinfo_to_pack(socinfo);
- 	unsigned int major = socinfo_to_major(socinfo);
- 	int i;
- 
- 	for (i = 0 ; i < ARRAY_SIZE(soc_packages) ; ++i) {
- 		if (soc_packages[i].major_id == major &&
--		    soc_packages[i].pack_id == pack)
-+		    soc_packages[i].pack_id ==
-+				(pack & soc_packages[i].pack_mask))
- 			return soc_packages[i].name;
- 	}
+ 	IVTV_DEBUG_HI_FILE("read %zd from %s, got %zd\n", count, s->name, rc);
+ 	if (rc > 0)
+-		pos += rc;
++		*pos += rc;
+ 	return rc;
+ }
  
 -- 
 2.20.1
