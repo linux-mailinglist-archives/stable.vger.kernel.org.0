@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B620148227
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:26:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F06148229
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403857AbgAXLZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:25:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
+        id S2391517AbgAXLZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:25:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403855AbgAXLZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:25:43 -0500
+        id S2391281AbgAXLZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:25:46 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02BAD20718;
-        Fri, 24 Jan 2020 11:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80BF42075D;
+        Fri, 24 Jan 2020 11:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865142;
-        bh=wl5mOTB2UbvIKtY2Sz4uUrTM7QINLvJ1x7wpA2Jwq6g=;
+        s=default; t=1579865146;
+        bh=4xFVPzqQsMK+jnu1OlS4yghH50+CHg3Q/b2cFEtdarM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1ocE+f+ucJlaOTCdINRHRm9tRJJ+xtU14NCsteNZ6uBlJNrAo0uKkqRzS5IBJ5BG
-         OEnIOpYfm3nivDoYArIXnKsgYJAQV7V1QpRsRA3CdoCvZs3ilPuEhdlUOp7cSu1lnt
-         FLnoEI2TYRuNiEaLrDgaJROpvG6qsggYlaha2j9c=
+        b=AVyF/DSPakU4u4UyKXzZFwomkzUgfTAnlp4PZjFTbVMCYCWf0ixlvw1gUy9cKZbFQ
+         obzNCEOD2+ile096A6evWKKxXzkIV/cCmC7gYh6vhCP5Hs4w4uWMIYeRxVmtlbgvS7
+         PmGrMO8QWAVXsSDSgRXnRJ0CCHzF6kv/3MZY7r9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nathan Huckleberry <nhuck@google.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Bryan ODonoghue <pure.logic@nexus-software.ie>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 449/639] clk: qcom: Fix -Wunused-const-variable
-Date:   Fri, 24 Jan 2020 10:30:19 +0100
-Message-Id: <20200124093143.233520910@linuxfoundation.org>
+Subject: [PATCH 4.19 450/639] nvmem: imx-ocotp: Ensure WAIT bits are preserved when setting timing
+Date:   Fri, 24 Jan 2020 10:30:20 +0100
+Message-Id: <20200124093143.361582651@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,96 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
 
-[ Upstream commit da642427bd7710ec4f4140f693f59aa8521a358c ]
+[ Upstream commit 0493c4792b4eb260441e57f52cc11a9ded48b5a7 ]
 
-Clang produces the following warning
+The i.MX6 and i.MX8 both have a bit-field spanning bits 27:22 called the
+WAIT field.
 
-drivers/clk/qcom/gcc-msm8996.c:133:32: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map' [-Wunused-const-variable]
-static const struct
-parent_map gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map[] =
-{ ^drivers/clk/qcom/gcc-msm8996.c:141:27: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div' [-Wunused-const-variable] static
-const char * const gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div[] = { ^
-drivers/clk/qcom/gcc-msm8996.c:187:32: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map'
-[-Wunused-const-variable] static const struct parent_map
-gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map[] = { ^
-drivers/clk/qcom/gcc-msm8996.c:197:27: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div'
-[-Wunused-const-variable] static const char * const
-gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div[] = {
+The WAIT field according to the documentation for both parts "specifies
+time interval between auto read and write access in one time program. It is
+given in number of ipg_clk periods."
 
-It looks like these were never used.
+This patch ensures that the relevant field is read and written back to the
+timing register.
 
-Fixes: b1e010c0730a ("clk: qcom: Add MSM8996 Global Clock Control (GCC) driver")
-Cc: clang-built-linux@googlegroups.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/518
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 0642bac7da42 ("nvmem: imx-ocotp: add write support")
+
+Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8996.c | 36 ----------------------------------
- 1 file changed, 36 deletions(-)
+ drivers/nvmem/imx-ocotp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8996.c b/drivers/clk/qcom/gcc-msm8996.c
-index 9a3290fdd01b1..bea55c461cee9 100644
---- a/drivers/clk/qcom/gcc-msm8996.c
-+++ b/drivers/clk/qcom/gcc-msm8996.c
-@@ -138,22 +138,6 @@ static const char * const gcc_xo_gpll0_gpll4_gpll0_early_div[] = {
- 	"gpll0_early_div"
- };
+diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
+index 926d9cc080cf4..04421a73f74aa 100644
+--- a/drivers/nvmem/imx-ocotp.c
++++ b/drivers/nvmem/imx-ocotp.c
+@@ -189,7 +189,8 @@ static void imx_ocotp_set_imx6_timing(struct ocotp_priv *priv)
+ 	strobe_prog = clk_rate / (1000000000 / 10000) + 2 * (DEF_RELAX + 1) - 1;
+ 	strobe_read = clk_rate / (1000000000 / 40) + 2 * (DEF_RELAX + 1) - 1;
  
--static const struct parent_map gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map[] = {
--	{ P_XO, 0 },
--	{ P_GPLL0, 1 },
--	{ P_GPLL2, 2 },
--	{ P_GPLL3, 3 },
--	{ P_GPLL0_EARLY_DIV, 6 }
--};
--
--static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div[] = {
--	"xo",
--	"gpll0",
--	"gpll2",
--	"gpll3",
--	"gpll0_early_div"
--};
--
- static const struct parent_map gcc_xo_gpll0_gpll1_early_div_gpll1_gpll4_gpll0_early_div_map[] = {
- 	{ P_XO, 0 },
- 	{ P_GPLL0, 1 },
-@@ -192,26 +176,6 @@ static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll2_early_gpll0_early
- 	"gpll0_early_div"
- };
+-	timing = strobe_prog & 0x00000FFF;
++	timing = readl(priv->base + IMX_OCOTP_ADDR_TIMING) & 0x0FC00000;
++	timing |= strobe_prog & 0x00000FFF;
+ 	timing |= (relax       << 12) & 0x0000F000;
+ 	timing |= (strobe_read << 16) & 0x003F0000;
  
--static const struct parent_map gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map[] = {
--	{ P_XO, 0 },
--	{ P_GPLL0, 1 },
--	{ P_GPLL2, 2 },
--	{ P_GPLL3, 3 },
--	{ P_GPLL1, 4 },
--	{ P_GPLL4, 5 },
--	{ P_GPLL0_EARLY_DIV, 6 }
--};
--
--static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div[] = {
--	"xo",
--	"gpll0",
--	"gpll2",
--	"gpll3",
--	"gpll1",
--	"gpll4",
--	"gpll0_early_div"
--};
--
- static struct clk_fixed_factor xo = {
- 	.mult = 1,
- 	.div = 1,
 -- 
 2.20.1
 
