@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0ED2148828
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:27:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C4C148837
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405236AbgAXOVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:21:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43026 "EHLO mail.kernel.org"
+        id S2390460AbgAXO1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:27:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387438AbgAXOVV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:21:21 -0500
+        id S2387426AbgAXOVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:21:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4390520661;
-        Fri, 24 Jan 2020 14:21:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CC762087E;
+        Fri, 24 Jan 2020 14:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875681;
-        bh=gbSUbp2Y+lwHdwPhmX4qakw92SmAT6LU7/lz0wpkvoE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=iNvib8P4xgHXDvO+yujxMVfxOXxeeG/qNJFsdSieLaDIMYJRXksz0dhX/343yjZBk
-         +982aIIQdqNqX/Oo8uRpyb2y6y7oJjh3g0Eexf7quNaHzSXVbTj64L/GRTMl2ZT8D4
-         t19RrIj0tw/4beNmphD+VehdxQ2AH/aOsgaF4s5E=
+        s=default; t=1579875682;
+        bh=qrQvkU+aV1DaKdMny9iBbnqh9o3QeD2Mk64oFml+xUo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BpJWH2AqDy/5YbiNFI6su06fOu2g6qrUwc02pwfgqHF19dI6DJKqQ2m58MPJomWqW
+         ffdigt5EVV/ywKdy4ZPxO5gHMuQ41yEDoDg3HiPFLw/OTSwYCGs2t1iXjkqbVX0q+A
+         1HgY+pN5WD1xpLL1GzNWC9O5p9nGI/vETtr866DE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>,
-        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/32] batman-adv: Fix DAT candidate selection on little endian systems
-Date:   Fri, 24 Jan 2020 09:20:48 -0500
-Message-Id: <20200124142119.30484-1-sashal@kernel.org>
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 02/32] dt-bindings: reset: meson8b: fix duplicate reset IDs
+Date:   Fri, 24 Jan 2020 09:20:49 -0500
+Message-Id: <20200124142119.30484-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200124142119.30484-1-sashal@kernel.org>
+References: <20200124142119.30484-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,51 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 4cc4a1708903f404d2ca0dfde30e71e052c6cbc9 ]
+[ Upstream commit 4881873f4cc1460f63d85fa81363d56be328ccdc ]
 
-The distributed arp table is using a DHT to store and retrieve MAC address
-information for an IP address. This is done using unicast messages to
-selected peers. The potential peers are looked up using the IP address and
-the VID.
+According to the public S805 datasheet the RESET2 register uses the
+following bits for the PIC_DC, PSC and NAND reset lines:
+- PIC_DC is at bit 3 (meaning: RESET_VD_RMEM + 3)
+- PSC is at bit 4 (meaning: RESET_VD_RMEM + 4)
+- NAND is at bit 5 (meaning: RESET_VD_RMEM + 4)
 
-While the IP address is always stored in big endian byte order, this is not
-the case of the VID. It can (depending on the host system) either be big
-endian or little endian. The host must therefore always convert it to big
-endian to ensure that all devices calculate the same peers for the same
-lookup data.
+Update the reset IDs of these three reset lines so they don't conflict
+with PIC_DC and map to the actual hardware reset lines.
 
-Fixes: be1db4f6615b ("batman-adv: make the Distributed ARP Table vlan aware")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Fixes: 79795e20a184eb ("dt-bindings: reset: Add bindings for the Meson SoC Reset Controller")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/distributed-arp-table.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/dt-bindings/reset/amlogic,meson8b-reset.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
-index 8d1d0fdb157e7..1519cbf70150b 100644
---- a/net/batman-adv/distributed-arp-table.c
-+++ b/net/batman-adv/distributed-arp-table.c
-@@ -243,6 +243,7 @@ static u32 batadv_hash_dat(const void *data, u32 size)
- 	u32 hash = 0;
- 	const struct batadv_dat_entry *dat = data;
- 	const unsigned char *key;
-+	__be16 vid;
- 	u32 i;
- 
- 	key = (const unsigned char *)&dat->ip;
-@@ -252,7 +253,8 @@ static u32 batadv_hash_dat(const void *data, u32 size)
- 		hash ^= (hash >> 6);
- 	}
- 
--	key = (const unsigned char *)&dat->vid;
-+	vid = htons(dat->vid);
-+	key = (__force const unsigned char *)&vid;
- 	for (i = 0; i < sizeof(dat->vid); i++) {
- 		hash += key[i];
- 		hash += (hash << 10);
+diff --git a/include/dt-bindings/reset/amlogic,meson8b-reset.h b/include/dt-bindings/reset/amlogic,meson8b-reset.h
+index 614aff2c7affe..a03e86fe2c570 100644
+--- a/include/dt-bindings/reset/amlogic,meson8b-reset.h
++++ b/include/dt-bindings/reset/amlogic,meson8b-reset.h
+@@ -95,9 +95,9 @@
+ #define RESET_VD_RMEM			64
+ #define RESET_AUDIN			65
+ #define RESET_DBLK			66
+-#define RESET_PIC_DC			66
+-#define RESET_PSC			66
+-#define RESET_NAND			66
++#define RESET_PIC_DC			67
++#define RESET_PSC			68
++#define RESET_NAND			69
+ #define RESET_GE2D			70
+ #define RESET_PARSER_REG		71
+ #define RESET_PARSER_FETCH		72
 -- 
 2.20.1
 
