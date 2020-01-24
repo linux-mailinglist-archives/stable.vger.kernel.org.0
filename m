@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C14147F0D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27559147F13
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728831AbgAXKzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:55:17 -0500
-Received: from hr2.samba.org ([144.76.82.148]:41274 "EHLO hr2.samba.org"
+        id S1729235AbgAXKz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:55:28 -0500
+Received: from hr2.samba.org ([144.76.82.148]:41330 "EHLO hr2.samba.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726294AbgAXKzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:55:16 -0500
-X-Greylist: delayed 1024 seconds by postgrey-1.27 at vger.kernel.org; Fri, 24 Jan 2020 05:55:12 EST
+        id S1726294AbgAXKzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:55:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Date:Message-ID:From:Cc:To;
-        bh=7g/W3RiFWgJXnZPXe+eFtIbhct/zvS1ghi/HkhrX7kc=; b=SwgXnPk2jiVHD+LtIG2RV8esQ5
-        pvwdX0POoIIoHPFyeef/shMBVp8CfooZ2Aa05B1geUyyI3gCpB+59HFGAPDj5pJ8ARCDn4F3qrM3Q
-        tpwYT6oXvUe0r2Jxx+aF0zM8P5FJUWRR1bTkB4NjmTIjJKr/+NTcNaSVa4m7+K6NBBr3oIhe8DcX2
-        1/T4gcelk/7VGaBX3X1FY/FVznoINy5RK5KB02hL8K/+LQvIAoys3bYDJKHTehKfB6t/jpVl1+Omz
-        v7pTpTZ276Jtr8mQZwDTd3sgv7AIsLb21MwqliAQ9sNoIBO5/2AtEo4wixPXN177Y14wlFCVQzVaQ
-        h/q6xERQQ44ew6EeU04Z2HS0T45/47LSvZqut5OpevayedFA1M/HXFyXNa0pNGnaBXXnVuq8k8bPX
-        4sQm7TVAHFpm9kC8FstA7+EOo7fyKt2ySZDbme0u0iqL4nPeatG2/iFJlx4AHLoo/twjZp1Yg9wBT
-        plrsWavso4KfMywNfZ9kOKqa;
+         s=42; h=Date:Message-ID:Cc:To:From;
+        bh=yS2DfahSZo9DrnjmJyyr/RPLxU01Xa46pRvzjEvlG0w=; b=mPyj/MS1lM7Z7FJ2OL50bklprm
+        Coe9HwUTpjLDp33zANR0dB2kmyMaao8Rbvl+abqGDVHl7oUZCDcUsE57khWzo5KtCVhNSZxUlI41r
+        eKrPhlbkKZSbxN3c03rkRchQO1DFkOAhJIQESCO8GNNPIlfG9HXObaBWSRMEEoGCHUNiv1R3t4a5u
+        q1+CXglAKh/3R+Rpz+s1JNA3I0IGHmVgO8fOUW9f1DZxrigl50ZV59pjF+ftZrQiOok67hTwoyi74
+        q4/RJg27Zw8mJkebGc3p68pBy8gomH/j0kBScJXZNAreKEYANZCx80ottw+NoNu6tMLZZP4CjzX+/
+        8czDNLhGSlB+Fjifrqse3DYqTzbmoWikFm3q/LLFjE1qpS1Sd3As+LtgjQvDezG1i5iEv/Jf89lyn
+        sDww3ZSsafF2TgJ5grW2XBm7LWQxa2f9aeW5FVGlvzxOl/bJoKpACVx8xZRNnm+i1SBMHBF1SfISq
+        pSfU+Ob6uHd6L1BR4hEyBjFn;
 Received: from [127.0.0.2] (localhost [127.0.0.1])
         by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
         (Exim)
-        id 1iuwLm-0002Sr-U8; Fri, 24 Jan 2020 10:38:07 +0000
+        id 1iuwOu-0002U7-Ft; Fri, 24 Jan 2020 10:41:20 +0000
+From:   Stefan Metzmacher <metze@samba.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         io-uring <io-uring@vger.kernel.org>
 References: <20200122092833.339495161@linuxfoundation.org>
  <20200122092835.852416399@linuxfoundation.org>
-From:   Stefan Metzmacher <metze@samba.org>
+ <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
 Autocrypt: addr=metze@samba.org; prefer-encrypt=mutual; keydata=
  xsNNBFYI3MgBIACtBo6mgqbCv5vkv8GSjJH607nvXIT65moPUe6qAm2lYPP6oZUI5SNLhbO3
  rMYfMxBFfWS/0WF8840mDvhqPI+lJGfvJ1Y2r8a9JPuqsk6vwLedv62TQe5J3qMCR2y4TTK1
@@ -347,155 +347,112 @@ Autocrypt: addr=metze@samba.org; prefer-encrypt=mutual; keydata=
  iY0Rj0D34DQVeKAa4qUlOcBgX2D9VHRap9GKQRWs//egCueqDZNmIk3071aFV+BSiBSTZIIG
  t/YZOE37yKSj2rcCbqg=
 Subject: Re: [PATCH 5.4 033/222] io_uring: only allow submit from owning task
-Message-ID: <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
-Date:   Fri, 24 Jan 2020 11:38:02 +0100
+Message-ID: <c7fd4357-79b8-60a9-14cf-31ec07a1153d@samba.org>
+Date:   Fri, 24 Jan 2020 11:41:16 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200122092835.852416399@linuxfoundation.org>
+In-Reply-To: <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
 Content-Type: multipart/signed; micalg=pgp-sha512;
  protocol="application/pgp-signature";
- boundary="r6J6mLjvdqw1TxoqnmSwtjwf1dVJWqzd0"
+ boundary="Kk4QxkLRj4fUMXgNlovSflVAGMD1dX78V"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---r6J6mLjvdqw1TxoqnmSwtjwf1dVJWqzd0
-Content-Type: multipart/mixed; boundary="08ifXq7B35qYgABXunm0mbeROcydFK5PL";
+--Kk4QxkLRj4fUMXgNlovSflVAGMD1dX78V
+Content-Type: multipart/mixed; boundary="iivdxaSQjXDtVg1hs0jEIzy9sJ4QDPYHy";
  protected-headers="v1"
 From: Stefan Metzmacher <metze@samba.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
  io-uring <io-uring@vger.kernel.org>
-Message-ID: <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
+Message-ID: <c7fd4357-79b8-60a9-14cf-31ec07a1153d@samba.org>
 Subject: Re: [PATCH 5.4 033/222] io_uring: only allow submit from owning task
 References: <20200122092833.339495161@linuxfoundation.org>
  <20200122092835.852416399@linuxfoundation.org>
-In-Reply-To: <20200122092835.852416399@linuxfoundation.org>
+ <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
+In-Reply-To: <1b4a79c1-6cda-12a8-219b-0c1c146faeff@samba.org>
 
---08ifXq7B35qYgABXunm0mbeROcydFK5PL
+--iivdxaSQjXDtVg1hs0jEIzy9sJ4QDPYHy
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-Am 22.01.20 um 10:26 schrieb Greg Kroah-Hartman:
-> From: Jens Axboe <axboe@kernel.dk>
+Am 24.01.20 um 11:38 schrieb Stefan Metzmacher:
+> Am 22.01.20 um 10:26 schrieb Greg Kroah-Hartman:
+>> From: Jens Axboe <axboe@kernel.dk>
+>>
+>> commit 44d282796f81eb1debc1d7cb53245b4cb3214cb5 upstream.
+>>
+>> If the credentials or the mm doesn't match, don't allow the task to
+>> submit anything on behalf of this ring. The task that owns the ring ca=
+n
+>> pass the file descriptor to another task, but we don't want to allow
+>> that task to submit an SQE that then assumes the ring mm and creds if
+>> it needs to go async.
+>>
+>> Cc: stable@vger.kernel.org
+>> Suggested-by: Stefan Metzmacher <metze@samba.org>
+>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>
+>>
+>> ---
+>>  fs/io_uring.c |    6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -3716,6 +3716,12 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned
+>>  			wake_up(&ctx->sqo_wait);
+>>  		submitted =3D to_submit;
+>>  	} else if (to_submit) {
+>> +		if (current->mm !=3D ctx->sqo_mm ||
+>> +		    current_cred() !=3D ctx->creds) {
+>> +			ret =3D -EPERM;
+>> +			goto out;
+>> +		}
+>> +
 >=20
-> commit 44d282796f81eb1debc1d7cb53245b4cb3214cb5 upstream.
+> I thought about this a bit more.
 >=20
-> If the credentials or the mm doesn't match, don't allow the task to
-> submit anything on behalf of this ring. The task that owns the ring can=
+> I'm not sure if this is actually to restrictive,
+> because it means applications like Samba won't
+> be able to use io-uring at all.
 
-> pass the file descriptor to another task, but we don't want to allow
-> that task to submit an SQE that then assumes the ring mm and creds if
-> it needs to go async.
->=20
-> Cc: stable@vger.kernel.org
-> Suggested-by: Stefan Metzmacher <metze@samba.org>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->=20
->=20
-> ---
->  fs/io_uring.c |    6 ++++++
->  1 file changed, 6 insertions(+)
->=20
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -3716,6 +3716,12 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned
->  			wake_up(&ctx->sqo_wait);
->  		submitted =3D to_submit;
->  	} else if (to_submit) {
-> +		if (current->mm !=3D ctx->sqo_mm ||
-> +		    current_cred() !=3D ctx->creds) {
-> +			ret =3D -EPERM;
-> +			goto out;
-> +		}
-> +
-
-I thought about this a bit more.
-
-I'm not sure if this is actually to restrictive,
-because it means applications like Samba won't
-be able to use io-uring at all.
-
-As even if current_cred() and ctx->creds describe the same
-set of uid,gids the !=3D won't ever match again and
-makes the whole ring unuseable.
-
-I'm not sure about what the best short term solution could be...
-
-1. May just doing the check for path based operations?
-  and fail individual requests with EPERM.
-
-2. Or force REQ_F_FORCE_ASYNC for path based operations,
-  so that they're always executed from within the workqueue
-  with were ctx->creds is active.
-
-3. Or (as proposed earlier) do the override_creds/revert_creds dance
-  (and similar for mm) if needed.
-
-To summaries the problem again:
-
-For path based operations like:
-- IORING_OP_CONNECT (maybe also - IORING_OP_ACCEPT???)
-- IORING_OP_SEND*, IORING_OP_RECV* on DGRAM sockets
-- IORING_OP_OPENAT, IORING_OP_STATX, IORING_OP_OPENAT2
-it's important under which current_cred they are called.
-
-Are IORING_OP_MADVISE, IORING_OP_FADVISE and IORING_OP_FALLOCATE
-are only bound to the credentials of the passed fd they operate on?
-
-The current assumption is that the io_uring_setup() syscall captures
-the current_cred() to ctx->cred and all operations on the ring
-are executed under the context of ctx->cred.
-Therefore all helper threads do the override_creds/revert_creds dance.
-
-But the possible non-blocking line execution of operations in
-the io_uring_enter() syscall doesn't do the override_creds/revert_creds
-dance and execute the operations under current_cred().
-
-This means it's random depending on filled cached under what
-credentials an operation is executed.
-
-In order to prevent security problems the current patch is enough,
-but as outlined above it will make io-uring complete unuseable
-for applications using any syscall that changes current_cred().
-
-Change 1. would be a little bit better, but still not really useful.
-
-I'd actually prefer solution 3. as it's still possible to make
-use of non-blocking operations, while the security is the
-same as solution 2.
+Even for simple operations like IORING_OP_READ*, IORING_OP_WRITE*,
+IORING_OP_FSYNC and IORING_OP_SYNC_FILE_RANGE, which only operate
+on the given fd.
 
 metze
 
 
---08ifXq7B35qYgABXunm0mbeROcydFK5PL--
+--iivdxaSQjXDtVg1hs0jEIzy9sJ4QDPYHy--
 
---r6J6mLjvdqw1TxoqnmSwtjwf1dVJWqzd0
+--Kk4QxkLRj4fUMXgNlovSflVAGMD1dX78V
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEfFbGo3YXpfgryIw9DbX1YShpvVYFAl4qyQoACgkQDbX1YShp
-vVZeEA/8CBPEJYiu4wd9YbU8+R8JLXL1ykRZH1obAAIwC8B0efnC5GRbeG6qcMtb
-YqSxX3RzlkK9ev2G8WVDrRCqEWGY9W0f+8czswJObsRUdPc+SWVJEGOSKnKYvGRb
-LxFGgQGckTsWosvbcekn6UemtQzR/Ynd7Z/oByCAEcgz10oJfNXM0sZAQ4v5MDFi
-zmKF8rdEBdvCWx5pyg9syilYjOPDkBfFM9XzQEydhQMh8RcSqoZ8KZQ/Mvdtk/9/
-uad4X6gXLH0hLvSlmiRd9RMOgO6YvqaVtzCFMNNLJyY8PkUu0YjlZWdhnqGrHidK
-zsADq7Cib2v0LeDEGiGKzy9MA/yIGInb0vX9F+Hl5lwaO361Kfiy5lrnjC9M6gnR
-mZCF2DY1aZrVeki1wwix8xTCBX9My4ECZE6PXPb/uySsAw3ss+7k4tGojAqLXqn6
-Ft5FCr+hSG+nsYoCvadY41pDlGGZ1CoMXO6WBxRf31SS9jtgWZRNnl56kPL95BH0
-k+qJom2DhmuQbSL+aV/Ik8ty2VvhvOLG3D9v9XjMwVLYMqI9usg86Q1n69z/JD+/
-X1qzHo8VX0GHpPaztp6yQ1zrPVQdFedqIxI5P7N+61ltxwWjMpL0p7KXYxHvc52H
-+MwiD2OOQhjdsc7IG0hBKgpn2Go3ME9LH6gdszA82j0+DayotoE=
-=2eA/
+iQIzBAEBCgAdFiEEfFbGo3YXpfgryIw9DbX1YShpvVYFAl4qycwACgkQDbX1YShp
+vVYPYA/+ILHFgOqObghm24PN+a1UypzHTSoNgtA/MQjHfFViGua11s36nnjAEUHU
+hKLano2u8l89rB0VqrW2RHrpTxi/1EjXZFlp1sc9NNXPibXJAzJw2YVfthKwRTS7
+xdDzOwbHZWQ/DRxZofsKItsxbflkjtHSJ36/uobIQxwr2eSXzc98rxdvuMOD1Lr0
+hYv+hqkN2r7avggNO0I8YJfCSssb8LsR5NqhuqPgtgxXm/K8vh+vrXa+zYIcG1Kg
+Lmqpr6zWRb8GE0kLLAG6oNxvjGURhMsAr5H1tS9NsIYchMm0rcXJe0onzv7D4PYS
+K3Z2h61lpRI1Qnqj3ZnD+nVZSobf50A4zDRuX8dqNsIs+rHT6MoDH61Ohj1yRN+A
+nTW7yrGoMhQpdkUFQjy6X4jjO8Lf1wfVJN3M5IdnJKrTLmFa5mhvtVt1nyqZuV9N
+sREiI2uFp0H8oCibcyq7dTmZIOmrYw7DmikbBe3SmfWyF53lCE2/r0UJjgQuftv8
+c9b6XhJKlDB7cbetujAC/LeFSuEH8Lwd0IGKJrlBtlcm28hJRU5hEAb/jHwyDPVo
+REb7+f2XQBjNDmHr9d7J3XmYxX7vLLboT3Ogjt/s6JLuIlJIevVUf21N70di8MTe
+r2Xh6eYetvbz3Qq0qGdcwDBPXBaLr8eLIp+dvzUrT6LogB5x02Q=
+=L/t2
 -----END PGP SIGNATURE-----
 
---r6J6mLjvdqw1TxoqnmSwtjwf1dVJWqzd0--
+--Kk4QxkLRj4fUMXgNlovSflVAGMD1dX78V--
