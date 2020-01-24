@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6C5148068
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE09F14805D
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387606AbgAXLKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:10:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
+        id S1732916AbgAXLKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:10:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388348AbgAXLKl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:10:41 -0500
+        id S1731494AbgAXLKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:10:12 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D585920708;
-        Fri, 24 Jan 2020 11:10:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DE8520663;
+        Fri, 24 Jan 2020 11:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864240;
-        bh=IEF1OaN19hiJyhy0Lp/4TiusDtysAMWihnmd/fmyvlM=;
+        s=default; t=1579864212;
+        bh=8DUr0XJniirH8876wu3ciyN2L3R147bhI/RTwJO5dzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzUEgM4idIHHa+I7WOKqiOYNdtdEbEUAXJEXy7DRbllGH7q6fV8bg0s0paC13RXkA
-         oC9Z6NgzY+jq7DEcBeZsMySrSwDbPOWofafB7+7Pnv761MBRFQnyqqdjNwQlThXCFE
-         0QNodyzG/5l+K7LesnZyFQsAkd698lSe2129M8Yk=
+        b=0O/val5KfFP9ql4PhhNObAGoRzL5/uoej1wvYkwDgJ+bgigT0IN+tztKWvTYe8Qj7
+         f0C80nAqdYR2gMMtywxpOE6q2WOZ/mMx7vHe7OoqfLATmta+vKFyjE1PmHDN+81WGO
+         ESyYJOJ00tAcJyCIisUGyWTjGA4iQ2Oe5alXB2lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Selles <paul.selles@microchip.com>,
-        Wesley Sheng <wesley.sheng@microchip.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/639] ntb_hw_switchtec: debug print 64bit aligned crosslink BAR Numbers
-Date:   Fri, 24 Jan 2020 10:25:58 +0100
-Message-Id: <20200124093110.666436454@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 190/639] pinctrl: sh-pfc: emev2: Add missing pinmux functions
+Date:   Fri, 24 Jan 2020 10:26:00 +0100
+Message-Id: <20200124093110.905864779@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,37 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Selles <paul.selles@microchip.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit cce8e04cf79e47809455215744685e8eb56f94bb ]
+[ Upstream commit 1ecd8c9cb899ae277e6986ae134635cb1a50f5de ]
 
-Switchtec NTB crosslink BARs are 64bit addressed but they are printed as
-32bit addressed BARs. Fix debug log to increment the BAR numbers by 2 to
-reflect the 64bit address alignment.
+The err_rst_reqb, ext_clki, lowpwr, and ref_clko pin groups are present,
+but no pinmux functions refer to them, hence they can not be selected.
 
-Fixes: 017525018202 ("ntb_hw_switchtec: Add initialization code for crosslink")
-Signed-off-by: Paul Selles <paul.selles@microchip.com>
-Signed-off-by: Wesley Sheng <wesley.sheng@microchip.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Fixes: 1e7d5d849cf4f0c5 ("sh-pfc: Add emev2 pinmux support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/mscc/ntb_hw_switchtec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/sh-pfc/pfc-emev2.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/ntb/hw/mscc/ntb_hw_switchtec.c b/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-index 5ee5f40b4dfc3..9916bc5b6759a 100644
---- a/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-+++ b/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-@@ -1120,7 +1120,7 @@ static int crosslink_enum_partition(struct switchtec_ntb *sndev,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-emev2.c b/drivers/pinctrl/sh-pfc/pfc-emev2.c
+index 1cbbe04d7df65..eafd8edbcbe95 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-emev2.c
++++ b/drivers/pinctrl/sh-pfc/pfc-emev2.c
+@@ -1263,6 +1263,14 @@ static const char * const dtv_groups[] = {
+ 	"dtv_b",
+ };
  
- 		dev_dbg(&sndev->stdev->dev,
- 			"Crosslink BAR%d addr: %llx\n",
--			i, bar_addr);
-+			i*2, bar_addr);
++static const char * const err_rst_reqb_groups[] = {
++	"err_rst_reqb",
++};
++
++static const char * const ext_clki_groups[] = {
++	"ext_clki",
++};
++
+ static const char * const iic0_groups[] = {
+ 	"iic0",
+ };
+@@ -1285,6 +1293,10 @@ static const char * const lcd_groups[] = {
+ 	"yuv3",
+ };
  
- 		if (bar_addr != bar_space * i)
- 			continue;
++static const char * const lowpwr_groups[] = {
++	"lowpwr",
++};
++
+ static const char * const ntsc_groups[] = {
+ 	"ntsc_clk",
+ 	"ntsc_data",
+@@ -1298,6 +1310,10 @@ static const char * const pwm1_groups[] = {
+ 	"pwm1",
+ };
+ 
++static const char * const ref_clko_groups[] = {
++	"ref_clko",
++};
++
+ static const char * const sd_groups[] = {
+ 	"sd_cki",
+ };
+@@ -1391,13 +1407,17 @@ static const struct sh_pfc_function pinmux_functions[] = {
+ 	SH_PFC_FUNCTION(cam),
+ 	SH_PFC_FUNCTION(cf),
+ 	SH_PFC_FUNCTION(dtv),
++	SH_PFC_FUNCTION(err_rst_reqb),
++	SH_PFC_FUNCTION(ext_clki),
+ 	SH_PFC_FUNCTION(iic0),
+ 	SH_PFC_FUNCTION(iic1),
+ 	SH_PFC_FUNCTION(jtag),
+ 	SH_PFC_FUNCTION(lcd),
++	SH_PFC_FUNCTION(lowpwr),
+ 	SH_PFC_FUNCTION(ntsc),
+ 	SH_PFC_FUNCTION(pwm0),
+ 	SH_PFC_FUNCTION(pwm1),
++	SH_PFC_FUNCTION(ref_clko),
+ 	SH_PFC_FUNCTION(sd),
+ 	SH_PFC_FUNCTION(sdi0),
+ 	SH_PFC_FUNCTION(sdi1),
 -- 
 2.20.1
 
