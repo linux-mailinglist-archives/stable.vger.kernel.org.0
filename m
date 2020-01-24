@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C36A6148391
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:37:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CA814837F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390178AbgAXLhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57436 "EHLO mail.kernel.org"
+        id S2404568AbgAXLgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:36:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405005AbgAXLhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:37:12 -0500
+        id S2391938AbgAXLgk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:36:40 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78A4320708;
-        Fri, 24 Jan 2020 11:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F6F0206D4;
+        Fri, 24 Jan 2020 11:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865832;
-        bh=jN5jFkYLIzZeGB7KaOEPnbwydSwsQj/7kyt+TV/+nz0=;
+        s=default; t=1579865800;
+        bh=k+jTFQk3X8t0HDDXYfCH0ipj/Bck3QikThdhT2n3CZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4Xhw1En5KmgWTkjM5mxH8pxuF66b0qoFP/Z1YzcXP38NNrwUczUhb1j+A+nVyjVn
-         rulnkMOlEOkBl2kfp1IZpmWJs/vS99aUDsV3cmpCPCegtnuwKO3KjDgsszU03mKJZw
-         xkPL70ocLB0dp1sVQW7IYiMree7p1i6+72n4pHS4=
+        b=g1D3gGtSuBx91wxdfPxmZg8UXrUURcGLxq96D2YIVoRN8ElOks1Ej1rZlftkwOLjp
+         arJgJNHANmEMwS0smDLN57KWqwdq528JPcOHsd9CmIItk1ZTZw7zypE/8jDGsmqAuQ
+         4gv9tXWx/29dJ0LdRxLGHnjjA33wkaGFKoiZinh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        stable@vger.kernel.org,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 637/639] serial: stm32: fix clearing interrupt error flags
-Date:   Fri, 24 Jan 2020 10:33:27 +0100
-Message-Id: <20200124093209.427228822@linuxfoundation.org>
+Subject: [PATCH 4.19 638/639] arm64: dts: meson-gxm-khadas-vim2: fix uart_A bluetooth node
+Date:   Fri, 24 Jan 2020 10:33:28 +0100
+Message-Id: <20200124093209.538436193@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,50 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 1250ed7114a977cdc2a67a0c09d6cdda63970eb9 ]
+[ Upstream commit 388a2772979b625042524d8b91280616ab4ff5ee ]
 
-The interrupt clear flag register is a "write 1 to clear" register.
-So, only writing ones allows to clear flags:
-- Replace buggy stm32_clr_bits() by a simple write to clear error flags
-- Replace useless read/modify/write stm32_set_bits() routine by a
-  simple write to clear TC (transfer complete) flag.
-
-Fixes: 4f01d833fdcd ("serial: stm32: fix rx error handling")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1574323849-1909-1-git-send-email-fabrice.gasnier@st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 33344e2111a3 ("arm64: dts: meson-gxm-khadas-vim2: fix Bluetooth support")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index d096e552176cc..bce4ac1787add 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -239,8 +239,8 @@ static void stm32_receive_chars(struct uart_port *port, bool threaded)
- 		 * cleared by the sequence [read SR - read DR].
- 		 */
- 		if ((sr & USART_SR_ERR_MASK) && ofs->icr != UNDEF_REG)
--			stm32_clr_bits(port, ofs->icr, USART_ICR_ORECF |
--				       USART_ICR_PECF | USART_ICR_FECF);
-+			writel_relaxed(sr & USART_SR_ERR_MASK,
-+				       port->membase + ofs->icr);
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+index 785240733d946..bdf7c6c5983ce 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+@@ -413,6 +413,9 @@
+ 	bluetooth {
+ 		compatible = "brcm,bcm43438-bt";
+ 		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
++		max-speed = <2000000>;
++		clocks = <&wifi32k>;
++		clock-names = "lpo";
+ 	};
+ };
  
- 		c = stm32_get_char(port, &sr, &stm32_port->last_res);
- 		port->icount.rx++;
-@@ -409,7 +409,7 @@ static void stm32_transmit_chars(struct uart_port *port)
- 	if (ofs->icr == UNDEF_REG)
- 		stm32_clr_bits(port, ofs->isr, USART_SR_TC);
- 	else
--		stm32_set_bits(port, ofs->icr, USART_ICR_TCCF);
-+		writel_relaxed(USART_ICR_TCCF, port->membase + ofs->icr);
- 
- 	if (stm32_port->tx_ch)
- 		stm32_transmit_chars_dma(port);
 -- 
 2.20.1
 
