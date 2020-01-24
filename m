@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C28251481BD
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 281111481C0
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390948AbgAXLWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:22:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        id S2391208AbgAXLW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:22:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391195AbgAXLWW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:22:22 -0500
+        id S2391195AbgAXLW2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:22:28 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6767E20718;
-        Fri, 24 Jan 2020 11:22:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80851206D4;
+        Fri, 24 Jan 2020 11:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864941;
-        bh=t1fMeQ0Q+Zpo5xEOHE1aoeS1msL+zwYOGpA9Q9eaKdE=;
+        s=default; t=1579864948;
+        bh=g1bklclulOfUGGTkxLgElSyO7t5xiu/IgxxpDobmRbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pC6wD87ZQB72p2YU3xWRiN1yYpTVdwuBS85eusgS/fSWClDKYCIAntZMgghV1GWU+
-         aHz5bnmW2P3C/kH49rxDH5jLi6E0vUQGV4DZzfYjgw14P1fJ4sv38c0Y5k4PS7aOH4
-         UPElyvs6Hs+Ts7XjhK/AigARDC5gtFEepMarBNdk=
+        b=M2lgaRbBDNVOImmJqI/mMKIyhjFWYuB8eoY1mwD2zuRwGv1laGSWy81j69z3RcCld
+         Ua1xuu12NxLGCYe45OtlxpIVipV7t5CBvFRYsktoUN42YKdQtkJKfR+v5FoTfZMjwz
+         aH44zrtUR6GIoqRotMURMXRVFChw4pI/6jp84JLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 408/639] phy: qcom-qusb2: fix missing assignment of ret when calling clk_prepare_enable
-Date:   Fri, 24 Jan 2020 10:29:38 +0100
-Message-Id: <20200124093138.168501901@linuxfoundation.org>
+Subject: [PATCH 4.19 410/639] cpufreq: brcmstb-avs-cpufreq: Fix types for voltage/frequency
+Date:   Fri, 24 Jan 2020 10:29:40 +0100
+Message-Id: <20200124093138.404709035@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,36 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit d98010817a26eba8d4d1e8a639e0b7d7f042308a ]
+[ Upstream commit 4c5681fcc684c762b09435de3e82ffeee7769d21 ]
 
-The error return from the call to clk_prepare_enable is not being assigned
-to variable ret even though ret is being used to check if the call failed.
-Fix this by adding in the missing assignment.
+What we read back from the register is going to be capped at 32-bits,
+and cpufreq_freq_table.frequency is an unsigned int. Avoid any possible
+value truncation by using the appropriate return value.
 
-Addresses-Coverity: ("Logically dead code")
-Fixes: 891a96f65ac3 ("phy: qcom-qusb2: Add support for runtime PM")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fixes: de322e085995 ("cpufreq: brcmstb-avs-cpufreq: AVS CPUfreq driver for Broadcom STB SoCs")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Markus Mayer <mmayer@broadcom.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qusb2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/brcmstb-avs-cpufreq.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qusb2.c b/drivers/phy/qualcomm/phy-qcom-qusb2.c
-index 69c92843eb3b2..9b7ae93e9df1e 100644
---- a/drivers/phy/qualcomm/phy-qcom-qusb2.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qusb2.c
-@@ -526,7 +526,7 @@ static int __maybe_unused qusb2_phy_runtime_resume(struct device *dev)
- 	}
+diff --git a/drivers/cpufreq/brcmstb-avs-cpufreq.c b/drivers/cpufreq/brcmstb-avs-cpufreq.c
+index 6ed53ca8aa980..77b0e5d0fb134 100644
+--- a/drivers/cpufreq/brcmstb-avs-cpufreq.c
++++ b/drivers/cpufreq/brcmstb-avs-cpufreq.c
+@@ -384,12 +384,12 @@ static int brcm_avs_set_pstate(struct private_data *priv, unsigned int pstate)
+ 	return __issue_avs_command(priv, AVS_CMD_SET_PSTATE, true, args);
+ }
  
- 	if (!qphy->has_se_clk_scheme) {
--		clk_prepare_enable(qphy->ref_clk);
-+		ret = clk_prepare_enable(qphy->ref_clk);
- 		if (ret) {
- 			dev_err(dev, "failed to enable ref clk, %d\n", ret);
- 			goto disable_ahb_clk;
+-static unsigned long brcm_avs_get_voltage(void __iomem *base)
++static u32 brcm_avs_get_voltage(void __iomem *base)
+ {
+ 	return readl(base + AVS_MBOX_VOLTAGE1);
+ }
+ 
+-static unsigned long brcm_avs_get_frequency(void __iomem *base)
++static u32 brcm_avs_get_frequency(void __iomem *base)
+ {
+ 	return readl(base + AVS_MBOX_FREQUENCY) * 1000;	/* in kHz */
+ }
+@@ -653,14 +653,14 @@ static ssize_t show_brcm_avs_voltage(struct cpufreq_policy *policy, char *buf)
+ {
+ 	struct private_data *priv = policy->driver_data;
+ 
+-	return sprintf(buf, "0x%08lx\n", brcm_avs_get_voltage(priv->base));
++	return sprintf(buf, "0x%08x\n", brcm_avs_get_voltage(priv->base));
+ }
+ 
+ static ssize_t show_brcm_avs_frequency(struct cpufreq_policy *policy, char *buf)
+ {
+ 	struct private_data *priv = policy->driver_data;
+ 
+-	return sprintf(buf, "0x%08lx\n", brcm_avs_get_frequency(priv->base));
++	return sprintf(buf, "0x%08x\n", brcm_avs_get_frequency(priv->base));
+ }
+ 
+ cpufreq_freq_attr_ro(brcm_avs_pstate);
 -- 
 2.20.1
 
