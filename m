@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E58B147E46
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D988147E48
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:13:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389402AbgAXKHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:07:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44166 "EHLO mail.kernel.org"
+        id S1733183AbgAXKHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:07:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389270AbgAXKHe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:07:34 -0500
+        id S2389036AbgAXKHj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:07:39 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58B2F2087E;
-        Fri, 24 Jan 2020 10:07:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AB632087E;
+        Fri, 24 Jan 2020 10:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860453;
-        bh=W+ghIg8vbK9+KDIfK1m37fdGIZBEAJCRl5MwjpWOGIM=;
+        s=default; t=1579860459;
+        bh=1SRjTnV20dg5/VzTUjEQ4H/tE+oFjJK7N8fz5kY4F0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdoOx3TCcWOcU2snvcEZbPgli67KVQliHbE8RkqKc7LwKzZdXrJJq+fn2ipEQGzsT
-         8f7xnBVk4NNggK7gR32P6ayO5rFar+0Ofx8oaflyRHR5wIYJshprYKtFeXwQeDnCQY
-         UHS7QhVCvf2/Hdzr6DproFGr0NPxRRFrQvtA45UY=
+        b=QgC6k5nJ05sloGLfDGedP0EbmPssk2b1v6oPgK06wnrxlcNcOM8dE5hMBXDdyqmbZ
+         p7QN/Pxq+yKob+H/arw0aQAvKILXHhK94DCyNpwPaw8ItCypohmSdcNquyWzfHblyz
+         SiSs+/iS1SyFJ1pLPUKRVTwKLByEXR0UKaPEqakw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 340/343] arm64: dts: juno: Fix UART frequency
-Date:   Fri, 24 Jan 2020 10:32:38 +0100
-Message-Id: <20200124093004.492901541@linuxfoundation.org>
+Subject: [PATCH 4.14 341/343] IB/iser: Fix dma_nents type definition
+Date:   Fri, 24 Jan 2020 10:32:39 +0100
+Message-Id: <20200124093004.613711197@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,52 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Max Gurtovoy <maxg@mellanox.com>
 
-[ Upstream commit 39a1a8941b27c37f79508426e27a2ec29829d66c ]
+[ Upstream commit c1545f1a200f4adc4ef8dd534bf33e2f1aa22c2f ]
 
-Older versions of the Juno *SoC* TRM [1] recommended that the UART clock
-source should be 7.2738 MHz, whereas the *system* TRM [2] stated a more
-correct value of 7.3728 MHz. Somehow the wrong value managed to end up in
-our DT.
+The retured value from ib_dma_map_sg saved in dma_nents variable. To avoid
+future mismatch between types, define dma_nents as an integer instead of
+unsigned.
 
-Doing a prime factorisation, a modulo divide by 115200 and trying
-to buy a 7.2738 MHz crystal at your favourite electronics dealer suggest
-that the old value was actually a typo. The actual UART clock is driven
-by a PLL, configured via a parameter in some board.txt file in the
-firmware, which reads 7.37 MHz (sic!).
-
-Fix this to correct the baud rate divisor calculation on the Juno board.
-
-[1] http://infocenter.arm.com/help/topic/com.arm.doc.ddi0515b.b/DDI0515B_b_juno_arm_development_platform_soc_trm.pdf
-[2] http://infocenter.arm.com/help/topic/com.arm.doc.100113_0000_07_en/arm_versatile_express_juno_development_platform_(v2m_juno)_technical_reference_manual_100113_0000_07_en.pdf
-
-Fixes: 71f867ec130e ("arm64: Add Juno board device tree.")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 57b26497fabe ("IB/iser: Pass the correct number of entries for dma mapped SGL")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Israel Rukshin <israelr@mellanox.com>
+Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-clocks.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/iser/iscsi_iser.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-clocks.dtsi b/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-index e5e265dfa9025..2870b5eeb1984 100644
---- a/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-@@ -8,10 +8,10 @@
-  */
- / {
- 	/* SoC fixed clocks */
--	soc_uartclk: refclk7273800hz {
-+	soc_uartclk: refclk7372800hz {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
--		clock-frequency = <7273800>;
-+		clock-frequency = <7372800>;
- 		clock-output-names = "juno:uartclk";
- 	};
+diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.h b/drivers/infiniband/ulp/iser/iscsi_iser.h
+index c1ae4aeae2f90..46dfc6ae9d1c1 100644
+--- a/drivers/infiniband/ulp/iser/iscsi_iser.h
++++ b/drivers/infiniband/ulp/iser/iscsi_iser.h
+@@ -197,7 +197,7 @@ struct iser_data_buf {
+ 	struct scatterlist *sg;
+ 	int                size;
+ 	unsigned long      data_len;
+-	unsigned int       dma_nents;
++	int                dma_nents;
+ };
  
+ /* fwd declarations */
 -- 
 2.20.1
 
