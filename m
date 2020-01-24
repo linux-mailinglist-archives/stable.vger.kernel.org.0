@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7914E147684
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D60F14767F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730163AbgAXBUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:20:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60428 "EHLO mail.kernel.org"
+        id S1730378AbgAXBR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730418AbgAXBR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:26 -0500
+        id S1730427AbgAXBR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8518924673;
-        Fri, 24 Jan 2020 01:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9431E21D7D;
+        Fri, 24 Jan 2020 01:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828645;
-        bh=Zq4F/Ve3Iyslt78uHqrrDIEnnHV8eM3FeTzoQFH0KQA=;
+        s=default; t=1579828646;
+        bh=YgsZRwJQo5NDjLt5Mz+9Gt6+Z3gsDcXgk385OZZSpSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dx1aHijLcKR2DOQLj3o6RE1IDVHj354x+Toe1+TRo5Ok4ZcH7DpEMLXy/Vb2y2Cvb
-         V14CsyWDP6h31/hnEqY8EvpQw6PQRhjTZUEwUIBVvHgA3umkpQwRy57PlaTGIrn/cv
-         R3FhLzxfcqEPMQgSdkeKcljL6W8OrPjMTlt29xo0=
+        b=gRKXkNMr90SG3qiom6HQ/MM7zJDYFVbpkmKVSwTaSYvUCUvIAQUpgGhZg9l1uLyLb
+         Jta+68oL4OekJXt4mHoJqs9GiQfPNCZmuJhQXMHjwDTKI91UXblPq8wgJ+WFWrNTbA
+         fWMhfaRMFLSWs1O82cKC9cYVrkJaQ/VupM6lpGOw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Logan Gunthorpe <logang@deltatee.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 14/33] iommu/amd: Support multiple PCI DMA aliases in IRQ Remapping
-Date:   Thu, 23 Jan 2020 20:16:49 -0500
-Message-Id: <20200124011708.18232-14-sashal@kernel.org>
+Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 15/33] perf/imx_ddr: Add enhanced AXI ID filter support
+Date:   Thu, 23 Jan 2020 20:16:50 -0500
+Message-Id: <20200124011708.18232-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -44,121 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit 3c124435e8dd516df4b2fc983f4415386fd6edae ]
+[ Upstream commit 44f8bd014a94ed679ddb77d0b92350d4ac4f23a5 ]
 
-Non-Transparent Bridge (NTB) devices (among others) may have many DMA
-aliases seeing the hardware will send requests with different device ids
-depending on their origin across the bridged hardware.
+With DDR_CAP_AXI_ID_FILTER quirk, indicating HW supports AXI ID filter
+which only can get bursts from DDR transaction, i.e. DDR read/write
+requests.
 
-See commit ad281ecf1c7d ("PCI: Add DMA alias quirk for Microsemi Switchtec
-NTB") for more information on this.
+This patch add DDR_CAP_AXI_ID_ENHANCED_FILTER quirk, indicating HW
+supports AXI ID filter which can get bursts and bytes from DDR
+transaction at the same time. We hope PMU always return bytes in the
+driver due to it is more meaningful for users.
 
-The AMD IOMMU IRQ remapping functionality ignores all PCI aliases for
-IRQs so if devices send an interrupt from one of their aliases they
-will be blocked on AMD hardware with the IOMMU enabled.
-
-To fix this, ensure IRQ remapping is enabled for all aliases with
-MSI interrupts.
-
-This is analogous to the functionality added to the Intel IRQ remapping
-code in commit 3f0c625c6ae7 ("iommu/vt-d: Allow interrupts from the entire
-bus for aliased devices")
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 37 ++++++++++++++++++++++++++++++-------
- 1 file changed, 30 insertions(+), 7 deletions(-)
+ drivers/perf/fsl_imx8_ddr_perf.c | 63 +++++++++++++++++++++-----------
+ 1 file changed, 42 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 16e0e3af2de0e..454695b372c8c 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -3741,7 +3741,20 @@ static void set_remap_table_entry(struct amd_iommu *iommu, u16 devid,
- 	iommu_flush_dte(iommu, devid);
- }
+diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
+index ce7345745b42c..2a3966d059e70 100644
+--- a/drivers/perf/fsl_imx8_ddr_perf.c
++++ b/drivers/perf/fsl_imx8_ddr_perf.c
+@@ -45,7 +45,8 @@
+ static DEFINE_IDA(ddr_ida);
  
--static struct irq_remap_table *alloc_irq_table(u16 devid)
-+static int set_remap_table_entry_alias(struct pci_dev *pdev, u16 alias,
-+				       void *data)
+ /* DDR Perf hardware feature */
+-#define DDR_CAP_AXI_ID_FILTER          0x1     /* support AXI ID filter */
++#define DDR_CAP_AXI_ID_FILTER			0x1     /* support AXI ID filter */
++#define DDR_CAP_AXI_ID_FILTER_ENHANCED		0x3     /* support enhanced AXI ID filter */
+ 
+ struct fsl_ddr_devtype_data {
+ 	unsigned int quirks;    /* quirks needed for different DDR Perf core */
+@@ -178,6 +179,36 @@ static const struct attribute_group *attr_groups[] = {
+ 	NULL,
+ };
+ 
++static bool ddr_perf_is_filtered(struct perf_event *event)
 +{
-+	struct irq_remap_table *table = data;
-+
-+	irq_lookup_table[alias] = table;
-+	set_dte_irq_entry(alias, table);
-+
-+	iommu_flush_dte(amd_iommu_rlookup_table[alias], alias);
-+
-+	return 0;
++	return event->attr.config == 0x41 || event->attr.config == 0x42;
 +}
 +
-+static struct irq_remap_table *alloc_irq_table(u16 devid, struct pci_dev *pdev)
- {
- 	struct irq_remap_table *table = NULL;
- 	struct irq_remap_table *new_table = NULL;
-@@ -3787,7 +3800,12 @@ static struct irq_remap_table *alloc_irq_table(u16 devid)
- 	table = new_table;
- 	new_table = NULL;
- 
--	set_remap_table_entry(iommu, devid, table);
-+	if (pdev)
-+		pci_for_each_dma_alias(pdev, set_remap_table_entry_alias,
-+				       table);
-+	else
-+		set_remap_table_entry(iommu, devid, table);
++static u32 ddr_perf_filter_val(struct perf_event *event)
++{
++	return event->attr.config1;
++}
 +
- 	if (devid != alias)
- 		set_remap_table_entry(iommu, alias, table);
++static bool ddr_perf_filters_compatible(struct perf_event *a,
++					struct perf_event *b)
++{
++	if (!ddr_perf_is_filtered(a))
++		return true;
++	if (!ddr_perf_is_filtered(b))
++		return true;
++	return ddr_perf_filter_val(a) == ddr_perf_filter_val(b);
++}
++
++static bool ddr_perf_is_enhanced_filtered(struct perf_event *event)
++{
++	unsigned int filt;
++	struct ddr_pmu *pmu = to_ddr_pmu(event->pmu);
++
++	filt = pmu->devtype_data->quirks & DDR_CAP_AXI_ID_FILTER_ENHANCED;
++	return (filt == DDR_CAP_AXI_ID_FILTER_ENHANCED) &&
++		ddr_perf_is_filtered(event);
++}
++
+ static u32 ddr_perf_alloc_counter(struct ddr_pmu *pmu, int event)
+ {
+ 	int i;
+@@ -209,27 +240,17 @@ static void ddr_perf_free_counter(struct ddr_pmu *pmu, int counter)
  
-@@ -3804,7 +3822,8 @@ out_unlock:
- 	return table;
+ static u32 ddr_perf_read_counter(struct ddr_pmu *pmu, int counter)
+ {
+-	return readl_relaxed(pmu->base + COUNTER_READ + counter * 4);
+-}
+-
+-static bool ddr_perf_is_filtered(struct perf_event *event)
+-{
+-	return event->attr.config == 0x41 || event->attr.config == 0x42;
+-}
++	struct perf_event *event = pmu->events[counter];
++	void __iomem *base = pmu->base;
+ 
+-static u32 ddr_perf_filter_val(struct perf_event *event)
+-{
+-	return event->attr.config1;
+-}
+-
+-static bool ddr_perf_filters_compatible(struct perf_event *a,
+-					struct perf_event *b)
+-{
+-	if (!ddr_perf_is_filtered(a))
+-		return true;
+-	if (!ddr_perf_is_filtered(b))
+-		return true;
+-	return ddr_perf_filter_val(a) == ddr_perf_filter_val(b);
++	/*
++	 * return bytes instead of bursts from ddr transaction for
++	 * axid-read and axid-write event if PMU core supports enhanced
++	 * filter.
++	 */
++	base += ddr_perf_is_enhanced_filtered(event) ? COUNTER_DPCR1 :
++						       COUNTER_READ;
++	return readl_relaxed(base + counter * 4);
  }
  
--static int alloc_irq_index(u16 devid, int count, bool align)
-+static int alloc_irq_index(u16 devid, int count, bool align,
-+			   struct pci_dev *pdev)
- {
- 	struct irq_remap_table *table;
- 	int index, c, alignment = 1;
-@@ -3814,7 +3833,7 @@ static int alloc_irq_index(u16 devid, int count, bool align)
- 	if (!iommu)
- 		return -ENODEV;
- 
--	table = alloc_irq_table(devid);
-+	table = alloc_irq_table(devid, pdev);
- 	if (!table)
- 		return -ENODEV;
- 
-@@ -4247,7 +4266,7 @@ static int irq_remapping_alloc(struct irq_domain *domain, unsigned int virq,
- 		struct irq_remap_table *table;
- 		struct amd_iommu *iommu;
- 
--		table = alloc_irq_table(devid);
-+		table = alloc_irq_table(devid, NULL);
- 		if (table) {
- 			if (!table->min_index) {
- 				/*
-@@ -4264,11 +4283,15 @@ static int irq_remapping_alloc(struct irq_domain *domain, unsigned int virq,
- 		} else {
- 			index = -ENOMEM;
- 		}
--	} else {
-+	} else if (info->type == X86_IRQ_ALLOC_TYPE_MSI ||
-+		   info->type == X86_IRQ_ALLOC_TYPE_MSIX) {
- 		bool align = (info->type == X86_IRQ_ALLOC_TYPE_MSI);
- 
--		index = alloc_irq_index(devid, nr_irqs, align);
-+		index = alloc_irq_index(devid, nr_irqs, align, info->msi_dev);
-+	} else {
-+		index = alloc_irq_index(devid, nr_irqs, false, NULL);
- 	}
-+
- 	if (index < 0) {
- 		pr_warn("Failed to allocate IRTE\n");
- 		ret = index;
+ static int ddr_perf_event_init(struct perf_event *event)
 -- 
 2.20.1
 
