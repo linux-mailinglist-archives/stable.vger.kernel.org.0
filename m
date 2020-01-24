@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A5D148396
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:37:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A047014838B
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:37:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404956AbgAXLg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:36:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57114 "EHLO mail.kernel.org"
+        id S2404976AbgAXLhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:37:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404952AbgAXLgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:36:55 -0500
+        id S2388743AbgAXLhA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:37:00 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4913206D4;
-        Fri, 24 Jan 2020 11:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58F3D206D4;
+        Fri, 24 Jan 2020 11:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865815;
-        bh=W+ghIg8vbK9+KDIfK1m37fdGIZBEAJCRl5MwjpWOGIM=;
+        s=default; t=1579865819;
+        bh=aQyNDUQ3C6+QBGz+8iD6Fpox3yVMod9VJAD6N27FgzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMm9PfDAh4/ryml32psknfHPzDzYEE6FBauULgycPWvSXvllkqdNjobFGgxZCmTOe
-         LPmwuP9FiAO77yLbJBUGccawttrU8Jun0d/75UInRO7dvBIY5vjhlbXLZUvHk/d84y
-         biFR+uhSkWjVzXKUMmxqDDUT4v3tnc2txMasNfMs=
+        b=iKuhRvDdaEnY3uyjab8I2fpXUdfVmS7X3vAe6rrddf4QQ5Oi8Szn1GguzfAZliq7W
+         nPU17UzSoPZmEP/uD4vek7JKIrpCq/S/WnuUHjW5Xr9oLfgGIo2+rPU2aT3Z8UFhBk
+         IfFWHYc4BtEyDC7TZZxJwHe3JuSI75zJWqNhk4vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Andrii Nakryiko <andriin@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 633/639] arm64: dts: juno: Fix UART frequency
-Date:   Fri, 24 Jan 2020 10:33:23 +0100
-Message-Id: <20200124093208.919433668@linuxfoundation.org>
+Subject: [PATCH 4.19 634/639] samples/bpf: Fix broken xdp_rxq_info due to map order assumptions
+Date:   Fri, 24 Jan 2020 10:33:24 +0100
+Message-Id: <20200124093209.035359872@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,52 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit 39a1a8941b27c37f79508426e27a2ec29829d66c ]
+[ Upstream commit edbca120a8cdfa5a5793707e33497aa5185875ca ]
 
-Older versions of the Juno *SoC* TRM [1] recommended that the UART clock
-source should be 7.2738 MHz, whereas the *system* TRM [2] stated a more
-correct value of 7.3728 MHz. Somehow the wrong value managed to end up in
-our DT.
+In the days of using bpf_load.c the order in which the 'maps' sections
+were defines in BPF side (*_kern.c) file, were used by userspace side
+to identify the map via using the map order as an index. In effect the
+order-index is created based on the order the maps sections are stored
+in the ELF-object file, by the LLVM compiler.
 
-Doing a prime factorisation, a modulo divide by 115200 and trying
-to buy a 7.2738 MHz crystal at your favourite electronics dealer suggest
-that the old value was actually a typo. The actual UART clock is driven
-by a PLL, configured via a parameter in some board.txt file in the
-firmware, which reads 7.37 MHz (sic!).
+This have also carried over in libbpf via API bpf_map__next(NULL, obj)
+to extract maps in the order libbpf parsed the ELF-object file.
 
-Fix this to correct the baud rate divisor calculation on the Juno board.
+When BTF based maps were introduced a new section type ".maps" were
+created. I found that the LLVM compiler doesn't create the ".maps"
+sections in the order they are defined in the C-file. The order in the
+ELF file is based on the order the map pointer is referenced in the code.
 
-[1] http://infocenter.arm.com/help/topic/com.arm.doc.ddi0515b.b/DDI0515B_b_juno_arm_development_platform_soc_trm.pdf
-[2] http://infocenter.arm.com/help/topic/com.arm.doc.100113_0000_07_en/arm_versatile_express_juno_development_platform_(v2m_juno)_technical_reference_manual_100113_0000_07_en.pdf
+This combination of changes lead to xdp_rxq_info mixing up the map
+file-descriptors in userspace, resulting in very broken behaviour, but
+without warning the user.
 
-Fixes: 71f867ec130e ("arm64: Add Juno board device tree.")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+This patch fix issue by instead using bpf_object__find_map_by_name()
+to find maps via their names. (Note, this is the ELF name, which can
+be longer than the name the kernel retains).
+
+Fixes: be5bca44aa6b ("samples: bpf: convert some XDP samples from bpf_load to libbpf")
+Fixes: 451d1dc886b5 ("samples: bpf: update map definition to new syntax BTF-defined map")
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/157529025128.29832.5953245340679936909.stgit@firesoul
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-clocks.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ samples/bpf/xdp_rxq_info_user.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-clocks.dtsi b/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-index e5e265dfa9025..2870b5eeb1984 100644
---- a/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-@@ -8,10 +8,10 @@
-  */
- / {
- 	/* SoC fixed clocks */
--	soc_uartclk: refclk7273800hz {
-+	soc_uartclk: refclk7372800hz {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
--		clock-frequency = <7273800>;
-+		clock-frequency = <7372800>;
- 		clock-output-names = "juno:uartclk";
- 	};
+diff --git a/samples/bpf/xdp_rxq_info_user.c b/samples/bpf/xdp_rxq_info_user.c
+index ef26f882f92f4..a55c81301c1a9 100644
+--- a/samples/bpf/xdp_rxq_info_user.c
++++ b/samples/bpf/xdp_rxq_info_user.c
+@@ -472,9 +472,9 @@ int main(int argc, char **argv)
+ 	if (bpf_prog_load_xattr(&prog_load_attr, &obj, &prog_fd))
+ 		return EXIT_FAIL;
  
+-	map = bpf_map__next(NULL, obj);
+-	stats_global_map = bpf_map__next(map, obj);
+-	rx_queue_index_map = bpf_map__next(stats_global_map, obj);
++	map =  bpf_object__find_map_by_name(obj, "config_map");
++	stats_global_map = bpf_object__find_map_by_name(obj, "stats_global_map");
++	rx_queue_index_map = bpf_object__find_map_by_name(obj, "rx_queue_index_map");
+ 	if (!map || !stats_global_map || !rx_queue_index_map) {
+ 		printf("finding a map in obj file failed\n");
+ 		return EXIT_FAIL;
 -- 
 2.20.1
 
