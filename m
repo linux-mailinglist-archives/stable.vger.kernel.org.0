@@ -2,100 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4E3148C7D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 17:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C0D148C82
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 17:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389304AbgAXQtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 11:49:04 -0500
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:41365 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389151AbgAXQtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 11:49:04 -0500
-Received: by mail-ed1-f68.google.com with SMTP id c26so3006444eds.8
-        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 08:49:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lyle-org.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=j/pCUkUXqt7IJRuIMfwIokzok7Si+AnLB+RYtRYMUPw=;
-        b=q+M5/Wbr2gTYL/RwnfBG6o+uBV20hu+ShB/5u1W0Uz93y0SkZrYr+o5m47rKfRCdVq
-         GzLicSRnHOP55u4tefuMTSMrfPzyqecPE/hIE0RQiriXzdXtPALIjhUSUc+pPWRGkTTT
-         JklX1WTyghosTYHOSYAAopSxiPc4IGe0S6I8O/5NNIY77Bdm5ogjsj54hYc6xJ5jMnq6
-         ohz/vIACAmgc9Bm1NNm/5NoqwLuXB/sZPfQA2lxvlHyfP3/+Mow5iiinfG/Upjo1BvDY
-         w2YMIM1ZRYorx9pUEMX179VAm74fOozvEHSLbhmX7N5h2pDjp0NcGxG8cka/hDhPPahc
-         NXNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=j/pCUkUXqt7IJRuIMfwIokzok7Si+AnLB+RYtRYMUPw=;
-        b=Lj9qOGyRfYic63eQbaLpiC3cn19VQe8YJK76HR7Cla63ULw18DclIfZkiTYEBvbtoj
-         fZ+deHAWG+yMwMeonSfBw9vX8t1hK+wIFty29jfNMcMh/xN9mz5607Y/98BuI853BGlp
-         zjcJrjQ9O1d2O+EgxLDkawTkasn9PJsfgQZ/wHT47mEw9tcrCp/ZeJIRXtHQI8NdTfVG
-         5PENS4W3t8+DGuiPz6FZ6yO5wy+fUhyQCUhhrLmotqKzmlzIuMzzUqxdIz4QCtErBvtw
-         FotIeIi4l8pcPz4XMTvEX8G9i0mAbixXktdiBTuumiy8Msj0NqZQp7f2wDaoCCXixVh7
-         AYyA==
-X-Gm-Message-State: APjAAAWDSTLu/kxH3cTzblmnOBhWZ9nAxBWEr0kFwQq6+XA4QtcQoJ66
-        ai0x8c9FGzS0kLr1aiPvy4cmQUlJ1F8IIy5Gaup28Q==
-X-Google-Smtp-Source: APXvYqxHM6dnZ9+d3MhfdaXHEVzrjYeeX80fsXkv9h/1xIE8MmMgPBF2bcFvbExVRjnFjC4j64qY7rYyQQTD1ly0GSo=
-X-Received: by 2002:a17:906:1cd0:: with SMTP id i16mr2036189ejh.186.1579884542578;
- Fri, 24 Jan 2020 08:49:02 -0800 (PST)
+        id S2389186AbgAXQuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 11:50:46 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15372 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2387875AbgAXQuq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 11:50:46 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00OGocjN037085
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 11:50:43 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xq3ma59n4-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 11:50:43 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
+        Fri, 24 Jan 2020 16:50:28 -0000
+Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 24 Jan 2020 16:50:27 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 00OGoQHN39911832
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 24 Jan 2020 16:50:26 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35D4E4C05C;
+        Fri, 24 Jan 2020 16:50:26 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F1A494C058;
+        Fri, 24 Jan 2020 16:50:25 +0000 (GMT)
+Received: from thinkpad (unknown [9.145.149.112])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 24 Jan 2020 16:50:25 +0000 (GMT)
+Date:   Fri, 24 Jan 2020 17:50:24 +0100
+From:   Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To:     Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc:     linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] s390: prevent leaking kernel address in BEAR
+In-Reply-To: <20200124122515.80348-1-svens@linux.ibm.com>
+References: <20200124122515.80348-1-svens@linux.ibm.com>
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20200123170142.98974-1-colyli@suse.de> <20200123170142.98974-15-colyli@suse.de>
- <CAJ+L6qckUd+Kw8_jKov0dNnSiGxxvXSgc=2dPai+1ANaEdfWPQ@mail.gmail.com> <efdfdd2b-b22e-42d1-c642-6c398db6864c@suse.de>
-In-Reply-To: <efdfdd2b-b22e-42d1-c642-6c398db6864c@suse.de>
-From:   Michael Lyle <mlyle@lyle.org>
-Date:   Fri, 24 Jan 2020 08:48:23 -0800
-Message-ID: <CAJ+L6qdThUX-Lk5T7-_xw-8KTtR73-Cbxj+oSr0n_tmth5EM+A@mail.gmail.com>
-Subject: Re: [PATCH 14/17] bcache: back to cache all readahead I/Os
-To:     Coly Li <colyli@suse.de>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        linux-bcache <linux-bcache@vger.kernel.org>,
-        linux-block@vger.kernel.org, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 20012416-0008-0000-0000-0000034C64AE
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20012416-0009-0000-0000-00004A6CD4F0
+Message-Id: <20200124175024.6ebfc8c4@thinkpad>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-01-24_06:2020-01-24,2020-01-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ mlxlogscore=999 mlxscore=0 adultscore=0 clxscore=1011 priorityscore=1501
+ malwarescore=0 lowpriorityscore=0 spamscore=0 impostorscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-2001240137
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Coly---
+On Fri, 24 Jan 2020 13:25:15 +0100
+Sven Schnelle <svens@linux.ibm.com> wrote:
 
-Thank you for holding the patch.  I'm sorry for the late review (I was
-travelling).
+> When userspace executes a syscall or gets interrupted,
+> BEAR contains a kernel address when returning to userspace.
+> This make it pretty easy to figure out where the kernel is
+> mapped even with KASLR enabled. To fix this, add lpswe to
+> lowcore and always execute it there, so userspace sees only
+> the lowcore address of lpswe. For this we have to extend
+> both critical_cleanup and the SWITCH_ASYNC macro to also check
+> for lpswe addresses in lowcore.
+> 
+> Fixes: b2d24b97b2a9 ("s390/kernel: add support for kernel address space layout randomization (KASLR)")
+> Cc: <stable@vger.kernel.org> # v5.2+
+> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+> ---
 
-(We sure have a lot of settings and a lot of code dealing with them
-all, which is unfortunate... but workloads / hardware used with bcache
-are so varied).
+Looks good,
+Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Mike
+I think you can push to devel, but this should hang around a bit before
+sending upstream (@Vasily). Maybe at least wait until Heiko can also
+have a look.
 
-On Thu, Jan 23, 2020 at 9:28 AM Coly Li <colyli@suse.de> wrote:
->
-> On 2020/1/24 1:19 =E4=B8=8A=E5=8D=88, Michael Lyle wrote:
-> > Hi Coly and Jens--
-> >
-> > One concern I have with this is that it's going to wear out
-> > limited-lifetime SSDs a -lot- faster.  Was any thought given to making
-> > this a tunable instead of just changing the behavior?  Even if we have
-> > an anecdote or two that it seems to have increased performance for
-> > some workloads, I don't expect it will have increased performance in
-> > general and it may even be costly for some workloads (it all comes
-> > down to what is more useful in the cache-- somewhat-recently readahead
-> > data, or the data that it is displacing).
->
-> Hi Mike,
->
-> Copied. This is good suggestion, I will do it after I back from Lunar
-> New Year vacation, and submit it with other tested patches in following
-> v5.6-rc versions.
->
-> Thanks.
->
-> Coly Li
->
-> [snipped]
->
-> --
->
-> Coly Li
+Since the small extra window for critical section cleanup introduced by
+the lowcore lpswe is hit surprisingly easy and often, this will get some
+good testing on devel branch.
+
