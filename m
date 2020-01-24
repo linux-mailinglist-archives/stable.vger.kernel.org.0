@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D622147D76
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A485147D78
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388804AbgAXKAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:00:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36296 "EHLO mail.kernel.org"
+        id S1732436AbgAXKBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:01:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733301AbgAXKAv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:00:51 -0500
+        id S1732391AbgAXKBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:01:02 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A66520709;
-        Fri, 24 Jan 2020 10:00:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73734206D5;
+        Fri, 24 Jan 2020 10:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860051;
-        bh=uEHml99Vu7T5nMz6INsN49qJjRwyT1Zq+sMOwD2QEAI=;
+        s=default; t=1579860061;
+        bh=lflvk4ltYduJLiDudJOYke5SudmAPJV7JNdmAPjJeno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWsa+Mz/gZ2TDnAWOQ2Ihg+RDlqX94xg4W+TlGT7jbiYUzcBCjizJbWAGa0P3SysO
-         R/U99nMd50mJnZX6fsmitO2Aby3WXZ8cuSAABOR6KaJQA9ffsqz9OMBcieL/ZQRWQB
-         rgwfudzqE68DQELsjgs+RGLSRQU4AtMZguHma0Qk=
+        b=TbiuNRvKd3MfpJf0KOmdGiDPokEQIDkaPQZnAG0LS57Vn809pmRZomObTKv78d1+/
+         1Sh6DY3XQ8B2QAbhRk2FA3AGLl7jo6rqRyl2nr0875KWiihIrs+OV20OHX7hYwDBEf
+         MMMJnQ8z/kQ+GFQALkebiJpxG2wGVQC6QUdd2sys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Mitchell <kevmitch@arista.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 248/343] iommu/amd: Make iommu_disable safer
-Date:   Fri, 24 Jan 2020 10:31:06 +0100
-Message-Id: <20200124092952.707763954@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 249/343] mfd: intel-lpss: Release IDA resources
+Date:   Fri, 24 Jan 2020 10:31:07 +0100
+Message-Id: <20200124092952.821502952@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -43,38 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Mitchell <kevmitch@arista.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 3ddbe913e55516d3e2165d43d4d5570761769878 ]
+[ Upstream commit 02f36911c1b41fcd8779fa0c135aab0554333fa5 ]
 
-Make it safe to call iommu_disable during early init error conditions
-before mmio_base is set, but after the struct amd_iommu has been added
-to the amd_iommu_list. For example, this happens if firmware fails to
-fill in mmio_phys in the ACPI table leading to a NULL pointer
-dereference in iommu_feature_disable.
+ida instances allocate some internal memory for ->free_bitmap
+in addition to the base 'struct ida'. Use ida_destroy() to release
+that memory at module_exit().
 
-Fixes: 2c0ae1720c09c ('iommu/amd: Convert iommu initialization to state machine')
-Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 4b45efe85263 ("mfd: Add support for Intel Sunrisepoint LPSS devices")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_init.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mfd/intel-lpss.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 6a3cf4d0bd5e3..4d2920988d607 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -420,6 +420,9 @@ static void iommu_enable(struct amd_iommu *iommu)
+diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
+index b5c4f8f974aa7..9ed573e232c00 100644
+--- a/drivers/mfd/intel-lpss.c
++++ b/drivers/mfd/intel-lpss.c
+@@ -541,6 +541,7 @@ module_init(intel_lpss_init);
  
- static void iommu_disable(struct amd_iommu *iommu)
+ static void __exit intel_lpss_exit(void)
  {
-+	if (!iommu->mmio_base)
-+		return;
-+
- 	/* Disable command buffer */
- 	iommu_feature_disable(iommu, CONTROL_CMDBUF_EN);
- 
++	ida_destroy(&intel_lpss_devid_ida);
+ 	debugfs_remove(intel_lpss_debugfs);
+ }
+ module_exit(intel_lpss_exit);
 -- 
 2.20.1
 
