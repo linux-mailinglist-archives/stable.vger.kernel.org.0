@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5271147B2C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E64147B2E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732216AbgAXJl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:41:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38902 "EHLO mail.kernel.org"
+        id S1732914AbgAXJlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:41:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731098AbgAXJl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:41:27 -0500
+        id S1732908AbgAXJla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:41:30 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E43120718;
-        Fri, 24 Jan 2020 09:41:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD976208C4;
+        Fri, 24 Jan 2020 09:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858886;
-        bh=a26bR0eyZ3OmcnnUGX2n20H33BxPG6gZJMNQPKVL05Q=;
+        s=default; t=1579858890;
+        bh=whAYpwwCTNHlGSDWqFos4rG0RuxrsjdUqx3iFZYLB/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=La/pRA22jUtw6G91oVuZnfVOwWx/W1y+Wspa2+VURqRaZYFaO7j9zi9dNvT9mpSCA
-         TNYOUL1VWVu1pPYJ6HSgr4WagvxJaPlqK5WXAQGAVn51Ue6JlYMDR652dR26O7zRUA
-         SqtCAsNPam1Oqtn+bNZ3PY6/vZ29jinOgbaGfsPg=
+        b=X6+xc6D5JlN2Taj9haVOGElAbOdOSjY+ocLDCZjKGL0ZLVxitUMKThvP9r+RlOwT3
+         3IJJazmEq2bc/YTklrQB5fieWN7JVDSMsyUMghnEtdAYXFYqbjfCodFGh+yvOGsLnP
+         NtcS6621PI+zLAV4d/lh/aSytoefkko2Mpd90rTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, wbob <wbob@jify.de>,
-        Roman Yeryomin <roman@advem.lv>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Stanislaw Gruszka <sgruszka@redhat.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/102] rt2800: remove errornous duplicate condition
-Date:   Fri, 24 Jan 2020 10:31:15 +0100
-Message-Id: <20200124092817.829726960@linuxfoundation.org>
+Subject: [PATCH 5.4 075/102] net: neigh: use long type to store jiffies delta
+Date:   Fri, 24 Jan 2020 10:31:16 +0100
+Message-Id: <20200124092817.980055771@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -47,77 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit a1f7c2cabf701a17b1a05d6526bbdadc3d05e05c ]
+[ Upstream commit 9d027e3a83f39b819e908e4e09084277a2e45e95 ]
 
-On 2019-10-28 06:07, wbob wrote:
-> Hello Roman,
->
-> while reading around drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-> I stumbled on what I think is an edit of yours made in error in march
-> 2017:
->
-> https://github.com/torvalds/linux/commit/41977e86#diff-dae5dc10da180f3b055809a48118e18aR5281
->
-> RT6352 in line 5281 should not have been introduced as the "else if"
-> below line 5291 can then not take effect for a RT6352 device. Another
-> possibility is for line 5291 to be not for RT6352, but this seems
-> very unlikely. Are you able to clarify still after this substantial time?
->
-> 5277: static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
-> ...
-> 5279:  } else if (rt2x00_rt(rt2x00dev, RT5390) ||
-> 5280:         rt2x00_rt(rt2x00dev, RT5392) ||
-> 5281:         rt2x00_rt(rt2x00dev, RT6352)) {
-> ...
-> 5291:  } else if (rt2x00_rt(rt2x00dev, RT6352)) {
-> ...
+A difference of two unsigned long needs long storage.
 
-Hence remove errornous line 5281 to make the driver actually
-execute the correct initialization routine for MT7620 chips.
-
-As it was requested by Stanislaw Gruszka remove setting values of
-MIMO_PS_CFG and TX_PIN_CFG. MIMO_PS_CFG is responsible for MIMO
-power-safe mode (which is disabled), hence we can drop setting it.
-TX_PIN_CFG is set correctly in other functions, and as setting this
-value breaks some devices, rather don't set it here during init, but
-only modify it later on.
-
-Fixes: 41977e86c984 ("rt2x00: add support for MT7620")
-Reported-by: wbob <wbob@jify.de>
-Reported-by: Roman Yeryomin <roman@advem.lv>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Acked-by: Stanislaw Gruszka <sgruszka@redhat.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: c7fb64db001f ("[NETLINK]: Neighbour table configuration and statistics via rtnetlink")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ net/core/neighbour.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index f1cdcd61c54a5..c99f1912e2660 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -5839,8 +5839,7 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
- 		rt2800_register_write(rt2x00dev, TX_TXBF_CFG_0, 0x8000fc21);
- 		rt2800_register_write(rt2x00dev, TX_TXBF_CFG_3, 0x00009c40);
- 	} else if (rt2x00_rt(rt2x00dev, RT5390) ||
--		   rt2x00_rt(rt2x00dev, RT5392) ||
--		   rt2x00_rt(rt2x00dev, RT6352)) {
-+		   rt2x00_rt(rt2x00dev, RT5392)) {
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000404);
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x00080606);
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
-@@ -5854,8 +5853,6 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000401);
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0000);
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
--		rt2800_register_write(rt2x00dev, MIMO_PS_CFG, 0x00000002);
--		rt2800_register_write(rt2x00dev, TX_PIN_CFG, 0x00150F0F);
- 		rt2800_register_write(rt2x00dev, TX_ALC_VGA3, 0x00000000);
- 		rt2800_register_write(rt2x00dev, TX0_BB_GAIN_ATTEN, 0x0);
- 		rt2800_register_write(rt2x00dev, TX1_BB_GAIN_ATTEN, 0x0);
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index f2452496ad9f8..920784a9b7ffa 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -2049,8 +2049,8 @@ static int neightbl_fill_info(struct sk_buff *skb, struct neigh_table *tbl,
+ 		goto nla_put_failure;
+ 	{
+ 		unsigned long now = jiffies;
+-		unsigned int flush_delta = now - tbl->last_flush;
+-		unsigned int rand_delta = now - tbl->last_rand;
++		long flush_delta = now - tbl->last_flush;
++		long rand_delta = now - tbl->last_rand;
+ 		struct neigh_hash_table *nht;
+ 		struct ndt_config ndc = {
+ 			.ndtc_key_len		= tbl->key_len,
 -- 
 2.20.1
 
