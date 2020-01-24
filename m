@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06CE4147B1F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5918147BBE
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732700AbgAXJlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:41:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38452 "EHLO mail.kernel.org"
+        id S1731825AbgAXJlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:41:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732698AbgAXJlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:41:00 -0500
+        id S1732698AbgAXJlE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:41:04 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81A672070A;
-        Fri, 24 Jan 2020 09:40:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 587C82070A;
+        Fri, 24 Jan 2020 09:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858860;
-        bh=BXctlGOcfWv4MWr3GFpCvdltF7/9dfdT7dPsRIp0+TY=;
+        s=default; t=1579858864;
+        bh=tiERmv/8h8E8De24hSoO7PsoVcthP/fVu/lPSIIUBUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GIlKOafw9E6LqUr/ASudcTj3NzK9fl2kIEYsEG7LKC2PdAljTyq66tcLyrMOi4jY
-         fsI76cD4Zi+hb0qdPEEeyjYu+Dq7gt6OXDXZ4taLucG/qODd8Bku3ebcl96oDXda5m
-         F2+EFjA8vH7S+IL5CzhrRAeUqktIUw2lDKM4Ck5A=
+        b=rAs3N4DABhBT9C9FsT5VbqUYQLX5h1vu4DFQf8F91g7xQKxeLaX/xz4Xc3S0fmsRh
+         AXcVFh3cEwAzeZhbIhFfn4LjlkffZOqd3mzuBINuGYdvCTZqDfVA7rKMn3m1PusGcK
+         RicHWYJ4NMxhFOjEYPVVgjYD/en44JeyA0JMcT0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/102] libbpf: Dont use kernel-side u32 type in xsk.c
-Date:   Fri, 24 Jan 2020 10:31:08 +0100
-Message-Id: <20200124092816.569936132@linuxfoundation.org>
+Subject: [PATCH 5.4 068/102] rcu: Fix uninitialized variable in nocb_gp_wait()
+Date:   Fri, 24 Jan 2020 10:31:09 +0100
+Message-Id: <20200124092816.849855361@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -46,55 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a566e35f1e8b4b3be1e96a804d1cca38b578167c ]
+[ Upstream commit b8889c9c89a2655a231dfed93cc9bdca0930ea67 ]
 
-u32 is a kernel-side typedef. User-space library is supposed to use __u32.
-This breaks Github's projection of libbpf. Do u32 -> __u32 fix.
+We never set this to false.  This probably doesn't affect most people's
+runtime because GCC will automatically initialize it to false at certain
+common optimization levels.  But that behavior is related to a bug in
+GCC and obviously should not be relied on.
 
-Fixes: 94ff9ebb49a5 ("libbpf: Fix compatibility for kernels without need_wakeup")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Cc: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20191029055953.2461336-1-andriin@fb.com
+Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/xsk.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/rcu/tree_plugin.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index b29d37fba2b0e..0c7386b0e42e4 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -161,22 +161,22 @@ static void xsk_mmap_offsets_v1(struct xdp_mmap_offsets *off)
- 	off->rx.producer = off_v1.rx.producer;
- 	off->rx.consumer = off_v1.rx.consumer;
- 	off->rx.desc = off_v1.rx.desc;
--	off->rx.flags = off_v1.rx.consumer + sizeof(u32);
-+	off->rx.flags = off_v1.rx.consumer + sizeof(__u32);
- 
- 	off->tx.producer = off_v1.tx.producer;
- 	off->tx.consumer = off_v1.tx.consumer;
- 	off->tx.desc = off_v1.tx.desc;
--	off->tx.flags = off_v1.tx.consumer + sizeof(u32);
-+	off->tx.flags = off_v1.tx.consumer + sizeof(__u32);
- 
- 	off->fr.producer = off_v1.fr.producer;
- 	off->fr.consumer = off_v1.fr.consumer;
- 	off->fr.desc = off_v1.fr.desc;
--	off->fr.flags = off_v1.fr.consumer + sizeof(u32);
-+	off->fr.flags = off_v1.fr.consumer + sizeof(__u32);
- 
- 	off->cr.producer = off_v1.cr.producer;
- 	off->cr.consumer = off_v1.cr.consumer;
- 	off->cr.desc = off_v1.cr.desc;
--	off->cr.flags = off_v1.cr.consumer + sizeof(u32);
-+	off->cr.flags = off_v1.cr.consumer + sizeof(__u32);
- }
- 
- static int xsk_get_mmap_offsets(int fd, struct xdp_mmap_offsets *off)
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index 2defc7fe74c39..fa08d55f7040c 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1946,7 +1946,7 @@ static void nocb_gp_wait(struct rcu_data *my_rdp)
+ 	int __maybe_unused cpu = my_rdp->cpu;
+ 	unsigned long cur_gp_seq;
+ 	unsigned long flags;
+-	bool gotcbs;
++	bool gotcbs = false;
+ 	unsigned long j = jiffies;
+ 	bool needwait_gp = false; // This prevents actual uninitialized use.
+ 	bool needwake;
 -- 
 2.20.1
 
