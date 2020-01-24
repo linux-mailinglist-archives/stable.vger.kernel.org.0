@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BABD1481ED
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F8371481EF
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391378AbgAXLXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:23:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36710 "EHLO mail.kernel.org"
+        id S2391036AbgAXLX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:23:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391036AbgAXLXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:23:51 -0500
+        id S2391185AbgAXLXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:23:55 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EE5E20718;
-        Fri, 24 Jan 2020 11:23:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7099120718;
+        Fri, 24 Jan 2020 11:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865030;
-        bh=nWOspyYfqh+yUgfwHbQ9dQkYt70urttxiOR6cpIx6Vs=;
+        s=default; t=1579865034;
+        bh=A1zxiRawvAJZwu2j3J2CW7P54HNwippz+/u329+z9do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bectz846a+GXtdqUI/RqEvJ99TMAGsKsBljXngZ9S1V8T/B5jXqHUM1MLqD2BVCs
-         /9VYv+IGHVtgtNkMs/xiKf9OKQDGLu7rj0qkWb3fb4ZdgJ90Yl/TxAXBVWKcT8AqDg
-         TAFWoSBgL9IBPSjk+g8UnUobj4M8sAfwfyi+1PZo=
+        b=V3kPdGxbWiE/OCW7GTtE3XGFtbE9Q7oi41rgASm+qDSY/nOxvD7PzUczinVYlJT6M
+         2gntlPXQJG0bC748GSZwDsq0F5FuGi6k5JCFgGMTpKAoqOHCxgz8SPzHZ1eYZIVXCA
+         5G57k0rUePTCXDSOc+16Q/SNrANbZ9ui8ZcBZsMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 419/639] arm64: dts: meson-gxm-khadas-vim2: fix Bluetooth support
-Date:   Fri, 24 Jan 2020 10:29:49 +0100
-Message-Id: <20200124093139.537056590@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 420/639] iommu/vt-d: Duplicate iommu_resv_region objects per device list
+Date:   Fri, 24 Jan 2020 10:29:50 +0100
+Message-Id: <20200124093139.669851693@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,51 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit 33344e2111a3a07097a66f339ad213b047ccdfd2 ]
+[ Upstream commit 5f64ce5411b467f1cfea6c63e2494c22b773582b ]
 
-- Remove serial1 alias
-- Add support for uart_A rts/cts
-- Add bluetooth uart_A subnode qith shutdown gpio
+intel_iommu_get_resv_regions() aims to return the list of
+reserved regions accessible by a given @device. However several
+devices can access the same reserved memory region and when
+building the list it is not safe to use a single iommu_resv_region
+object, whose container is the RMRR. This iommu_resv_region must
+be duplicated per device reserved region list.
 
-Fixes: b8b74dda3908 ("ARM64: dts: meson-gxm: Add support for Khadas VIM2")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Let's remove the struct iommu_resv_region from the RMRR unit
+and allocate the iommu_resv_region directly in
+intel_iommu_get_resv_regions(). We hold the dmar_global_lock instead
+of the rcu-lock to allow sleeping.
+
+Fixes: 0659b8dc45a6 ("iommu/vt-d: Implement reserved region get/put callbacks")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/iommu/intel-iommu.c | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
-index bfd3a510ff162..785240733d946 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
-@@ -18,7 +18,6 @@
- 
- 	aliases {
- 		serial0 = &uart_AO;
--		serial1 = &uart_A;
- 		serial2 = &uart_AO_B;
- 	};
- 
-@@ -407,8 +406,14 @@
- /* This one is connected to the Bluetooth module */
- &uart_A {
- 	status = "okay";
--	pinctrl-0 = <&uart_a_pins>;
-+	pinctrl-0 = <&uart_a_pins>, <&uart_a_cts_rts_pins>;
- 	pinctrl-names = "default";
-+	uart-has-rtscts;
-+
-+	bluetooth {
-+		compatible = "brcm,bcm43438-bt";
-+		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
-+	};
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index abbbc614c5225..9df3b84412274 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -387,7 +387,6 @@ struct dmar_rmrr_unit {
+ 	u64	end_address;		/* reserved end address */
+ 	struct dmar_dev_scope *devices;	/* target devices */
+ 	int	devices_cnt;		/* target device count */
+-	struct iommu_resv_region *resv; /* reserved region handle */
  };
  
- /* This is brought out on the Linux_RX (18) and Linux_TX (19) pins: */
+ struct dmar_atsr_unit {
+@@ -4185,7 +4184,6 @@ static inline void init_iommu_pm_ops(void) {}
+ int __init dmar_parse_one_rmrr(struct acpi_dmar_header *header, void *arg)
+ {
+ 	struct acpi_dmar_reserved_memory *rmrr;
+-	int prot = DMA_PTE_READ|DMA_PTE_WRITE;
+ 	struct dmar_rmrr_unit *rmrru;
+ 	size_t length;
+ 
+@@ -4199,22 +4197,16 @@ int __init dmar_parse_one_rmrr(struct acpi_dmar_header *header, void *arg)
+ 	rmrru->end_address = rmrr->end_address;
+ 
+ 	length = rmrr->end_address - rmrr->base_address + 1;
+-	rmrru->resv = iommu_alloc_resv_region(rmrr->base_address, length, prot,
+-					      IOMMU_RESV_DIRECT);
+-	if (!rmrru->resv)
+-		goto free_rmrru;
+ 
+ 	rmrru->devices = dmar_alloc_dev_scope((void *)(rmrr + 1),
+ 				((void *)rmrr) + rmrr->header.length,
+ 				&rmrru->devices_cnt);
+ 	if (rmrru->devices_cnt && rmrru->devices == NULL)
+-		goto free_all;
++		goto free_rmrru;
+ 
+ 	list_add(&rmrru->list, &dmar_rmrr_units);
+ 
+ 	return 0;
+-free_all:
+-	kfree(rmrru->resv);
+ free_rmrru:
+ 	kfree(rmrru);
+ out:
+@@ -4432,7 +4424,6 @@ static void intel_iommu_free_dmars(void)
+ 	list_for_each_entry_safe(rmrru, rmrr_n, &dmar_rmrr_units, list) {
+ 		list_del(&rmrru->list);
+ 		dmar_free_dev_scope(&rmrru->devices, &rmrru->devices_cnt);
+-		kfree(rmrru->resv);
+ 		kfree(rmrru);
+ 	}
+ 
+@@ -5206,22 +5197,33 @@ static void intel_iommu_remove_device(struct device *dev)
+ static void intel_iommu_get_resv_regions(struct device *device,
+ 					 struct list_head *head)
+ {
++	int prot = DMA_PTE_READ | DMA_PTE_WRITE;
+ 	struct iommu_resv_region *reg;
+ 	struct dmar_rmrr_unit *rmrr;
+ 	struct device *i_dev;
+ 	int i;
+ 
+-	rcu_read_lock();
++	down_read(&dmar_global_lock);
+ 	for_each_rmrr_units(rmrr) {
+ 		for_each_active_dev_scope(rmrr->devices, rmrr->devices_cnt,
+ 					  i, i_dev) {
++			struct iommu_resv_region *resv;
++			size_t length;
++
+ 			if (i_dev != device)
+ 				continue;
+ 
+-			list_add_tail(&rmrr->resv->list, head);
++			length = rmrr->end_address - rmrr->base_address + 1;
++			resv = iommu_alloc_resv_region(rmrr->base_address,
++						       length, prot,
++						       IOMMU_RESV_DIRECT);
++			if (!resv)
++				break;
++
++			list_add_tail(&resv->list, head);
+ 		}
+ 	}
+-	rcu_read_unlock();
++	up_read(&dmar_global_lock);
+ 
+ 	reg = iommu_alloc_resv_region(IOAPIC_RANGE_START,
+ 				      IOAPIC_RANGE_END - IOAPIC_RANGE_START + 1,
+@@ -5236,10 +5238,8 @@ static void intel_iommu_put_resv_regions(struct device *dev,
+ {
+ 	struct iommu_resv_region *entry, *next;
+ 
+-	list_for_each_entry_safe(entry, next, head, list) {
+-		if (entry->type == IOMMU_RESV_MSI)
+-			kfree(entry);
+-	}
++	list_for_each_entry_safe(entry, next, head, list)
++		kfree(entry);
+ }
+ 
+ #ifdef CONFIG_INTEL_IOMMU_SVM
 -- 
 2.20.1
 
