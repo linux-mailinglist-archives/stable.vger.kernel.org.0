@@ -2,83 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A718A148556
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 13:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42983148583
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 13:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387597AbgAXMpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 07:45:16 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:35694 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387574AbgAXMpP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 07:45:15 -0500
-Received: by mail-wm1-f67.google.com with SMTP id p17so1599246wmb.0;
-        Fri, 24 Jan 2020 04:45:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=j+mBBTpQJ4wbg8K52L8M4km/ID9qCvpn337om+dHJcg=;
-        b=fdHlWwGYPjfw1Ny99VNqIHv7bDzqZDoVW4n0C8WSqvY63tYJ2HMLuDAMQwgCxjnBRv
-         8KEf0IQRR7pUczoEdpU70ftrD4wYXvZG/cnspnutGv+CfBNClBBfGiyy6Pm0Tqnsutc/
-         JPowucQAKQvfOuQa3GPqk8X4E0bkTEk+YRY5/gR61Fk+7oBviF/spObsda+0HDiJbnkZ
-         DsOlGjJR2MwlNXSjpt1CeL47jlZ/buX/2QErkoOw1oxAjg90ijW1p+y/ZiCk3qQXaki2
-         7eQG1OdaLuwSHVz5b+wDmh4YuzjUjwpsGC4F3nTRNzifeC2eSwFvk4KKMAnD65ltq1RH
-         RLCA==
-X-Gm-Message-State: APjAAAXRQUXIVFxj9It/7WgwhK1HmbmDY2npWkBvZcsTd4amJ4VhlaFk
-        vG23a35xXUPLhsxNRAKq0NE=
-X-Google-Smtp-Source: APXvYqw48IZitTegCDEqW/DRYA1NjgNNLdiLHQ9/3fjlhxhOgsQMrqFvY7FUdFcstQQHzviWIpDW8Q==
-X-Received: by 2002:a1c:bc08:: with SMTP id m8mr2654997wmf.189.1579869913658;
-        Fri, 24 Jan 2020 04:45:13 -0800 (PST)
-Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
-        by smtp.gmail.com with ESMTPSA id g25sm14465121wmh.3.2020.01.24.04.45.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jan 2020 04:45:12 -0800 (PST)
-Date:   Fri, 24 Jan 2020 13:45:12 +0100
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm/memory_hotplug: Fix remove_memory() lockdep splat
-Message-ID: <20200124124512.GT29276@dhcp22.suse.cz>
-References: <e60e64f9-894b-4121-d97b-fb61459cbbe5@redhat.com>
- <CAPcyv4jm=fmP=-5vbo2jxzMe2qXqZP=zDYF8G_rs3X6_Om0wPg@mail.gmail.com>
- <4d0334e2-c4e7-6d3f-99ba-2ca0495e1549@redhat.com>
- <CAPcyv4jixmv8fJ5FiYE=97Jud3Mc+6QzRX1txceSYU+WY_0rQA@mail.gmail.com>
- <fc0cfb97-5a60-7e73-4f85-d8e6947c5e28@redhat.com>
- <CAPcyv4jVpN26RGQLRn4BewYtzHDoQfvh37DEdEBq1dd4-BP0kw@mail.gmail.com>
- <64902066-51dd-9693-53fc-4a5975c58409@redhat.com>
- <CAPcyv4hcDNeQO3CfnqTRou+6R5gZwyi4pVUMxp1DadAOp7kJGQ@mail.gmail.com>
- <516aa930-9b64-b377-557c-5413ed9fe336@redhat.com>
- <CAPcyv4iiYtN6iGt=rVuNR=O=H9YcY1b1yWp+5TuDhu0QoVqT_A@mail.gmail.com>
+        id S2387437AbgAXM6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 07:58:38 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:58532 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387393AbgAXM6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 07:58:38 -0500
+Received: from [IPv6:2a00:5f00:102:0:8b5:67ff:fe5d:5a19] (unknown [IPv6:2a00:5f00:102:0:8b5:67ff:fe5d:5a19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: gtucker)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 570E8294B1B;
+        Fri, 24 Jan 2020 12:58:35 +0000 (GMT)
+Subject: Re: stable-rc/linux-4.19.y bisection: baseline.login on
+ sun8i-h3-libretech-all-h3-cc
+To:     Linus Walleij <linus.walleij@linaro.org>
+References: <5e2ad951.1c69fb81.6d762.dd8e@mx.google.com>
+Cc:     khilman@baylibre.com, tomeu.vizoso@collabora.com,
+        mgalka@collabora.com, enric.balletbo@collabora.com,
+        broonie@kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Guillaume Tucker <guillaume.tucker@collabora.com>
+Message-ID: <0ed4668a-fb29-fca8-558e-385ef118d432@collabora.com>
+Date:   Fri, 24 Jan 2020 12:58:32 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4iiYtN6iGt=rVuNR=O=H9YcY1b1yWp+5TuDhu0QoVqT_A@mail.gmail.com>
+In-Reply-To: <5e2ad951.1c69fb81.6d762.dd8e@mx.google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 10-01-20 13:27:24, Dan Williams wrote:
-> On Fri, Jan 10, 2020 at 9:42 AM David Hildenbrand <david@redhat.com> wrote:
-[...]
-> > For your reference (roughly 5 months ago, so not that old)
-> >
-> > https://lkml.kernel.org/r/20190724143017.12841-1-david@redhat.com
+Hi Linus,
+
+Please see the bisection report below about a boot failure, it
+looks legit as this commit was made today:
+
+
+commit 5f9277249f9b126f815e23c3078cff3b69ce2715
+Author:     Linus Walleij <linus.walleij@linaro.org>
+AuthorDate: Mon Oct 1 22:43:46 2018 +0200
+Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CommitDate: Fri Jan 24 10:27:24 2020 +0100
+
+    regulator: fixed: Default enable high on DT regulators
+    
+    [ Upstream commit 28be5f15df2ee6882b0a122693159c96a28203c7 ]
+
+
+KernelCI bisection reports are not publicly sent at the moment
+while we're trialing some new bisection features.
+
+Thanks,
+Guillaume
+
+On 24/01/2020 11:47, kernelci.org bot wrote:
+> * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+> * This automated bisection report was sent to you on the basis  *
+> * that you may be involved with the breaking commit it has      *
+> * found.  No manual investigation has been done to verify it,   *
+> * and the root cause of the problem may be somewhere else.      *
+> *                                                               *
+> * If you do send a fix, please include this trailer:            *
+> *   Reported-by: "kernelci.org bot" <bot@kernelci.org>          *
+> *                                                               *
+> * Hope this helps!                                              *
+> * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 > 
-> Oh, now I see the problem. You need to add that lock so far away from
-> the __add_memory() to avoid lock inversion problems with the
-> acpi_scan_lock. The organization I was envisioning would not work
-> without deeper refactoring.
+> stable-rc/linux-4.19.y bisection: baseline.login on sun8i-h3-libretech-all-h3-cc
+> 
+> Summary:
+>   Start:      be6fe2fc68d0 Linux 4.19.99-rc1
+>   Plain log:  https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.98-640-gbe6fe2fc68d0/arm/sunxi_defconfig/gcc-8/lab-baylibre/baseline-sun8i-h3-libretech-all-h3-cc.txt
+>   HTML log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.98-640-gbe6fe2fc68d0/arm/sunxi_defconfig/gcc-8/lab-baylibre/baseline-sun8i-h3-libretech-all-h3-cc.html
+>   Result:     250d67d6bc05 regulator: fixed: Default enable high on DT regulators
+> 
+> Checks:
+>   revert:     PASS
+>   verify:     PASS
+> 
+> Parameters:
+>   Tree:       stable-rc
+>   URL:        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>   Branch:     linux-4.19.y
+>   Target:     sun8i-h3-libretech-all-h3-cc
+>   CPU arch:   arm
+>   Lab:        lab-baylibre
+>   Compiler:   gcc-8
+>   Config:     sunxi_defconfig
+>   Test case:  baseline.login
+> 
+> Breaking commit found:
+> 
+> -------------------------------------------------------------------------------
+> commit 250d67d6bc0597c0c0de47b3ea32dc6d4e3f9322
+> Author: Linus Walleij <linus.walleij@linaro.org>
+> Date:   Mon Oct 1 22:43:46 2018 +0200
+> 
+>     regulator: fixed: Default enable high on DT regulators
+>     
+>     [ Upstream commit 28be5f15df2ee6882b0a122693159c96a28203c7 ]
+>     
+>     commit efdfeb079cc3
+>     ("regulator: fixed: Convert to use GPIO descriptor only")
+>     switched to use gpiod_get() to look up the regulator from the
+>     gpiolib core whether that is device tree or boardfile.
+>     
+>     This meant that we activate the code in
+>     a603a2b8d86e ("gpio: of: Add special quirk to parse regulator flags")
+>     which means the descriptors coming from the device tree already
+>     have the right inversion and open drain semantics set up from
+>     the gpiolib core.
+>     
+>     As the fixed regulator was inspected again we got the
+>     inverted inversion and things broke.
+>     
+>     Fix it by ignoring the config in the device tree for now: the
+>     later patches in the series will push all inversion handling
+>     over to the gpiolib core and set it up properly in the
+>     boardfiles for legacy devices, but I did not finish that
+>     for this kernel cycle.
+>     
+>     Fixes: commit efdfeb079cc3 ("regulator: fixed: Convert to use GPIO descriptor only")
+>     Reported-by: Leonard Crestez <leonard.crestez@nxp.com>
+>     Reported-by: Fabio Estevam <festevam@gmail.com>
+>     Reported-by: John Stultz <john.stultz@linaro.org>
+>     Reported-by: Anders Roxell <anders.roxell@linaro.org>
+>     Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>     Tested-by: John Stultz <john.stultz@linaro.org>
+>     Signed-off-by: Mark Brown <broonie@kernel.org>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
+> index 988a7472c2ab..d68ff65a5adc 100644
+> --- a/drivers/regulator/fixed.c
+> +++ b/drivers/regulator/fixed.c
+> @@ -84,9 +84,14 @@ of_get_fixed_voltage_config(struct device *dev,
+>  
+>  	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
+>  
+> -	config->enable_high = of_property_read_bool(np, "enable-active-high");
+> -	config->gpio_is_open_drain = of_property_read_bool(np,
+> -							   "gpio-open-drain");
+> +	/*
+> +	 * FIXME: we pulled active low/high and open drain handling into
+> +	 * gpiolib so it will be handled there. Delete this in the second
+> +	 * step when we also remove the custom inversion handling for all
+> +	 * legacy boardfiles.
+> +	 */
+> +	config->enable_high = 1;
+> +	config->gpio_is_open_drain = 0;
+>  
+>  	if (of_find_property(np, "vin-supply", NULL))
+>  		config->input_supply = "vin";
+> -------------------------------------------------------------------------------
+> 
+> 
+> Git bisection log:
+> 
+> -------------------------------------------------------------------------------
+> git bisect start
+> # good: [d183c8e2647a7d45202c14a33631f6c09020f8ac] Linux 4.19.98
+> git bisect good d183c8e2647a7d45202c14a33631f6c09020f8ac
+> # bad: [be6fe2fc68d0d7571c06b5fc11d2282a6544ec0f] Linux 4.19.99-rc1
+> git bisect bad be6fe2fc68d0d7571c06b5fc11d2282a6544ec0f
+> # bad: [62715658388c5d59c35c4f7fdcffbc8e8772f39e] ARM: dts: ls1021: Fix SGMII PCS link remaining down after PHY disconnect
+> git bisect bad 62715658388c5d59c35c4f7fdcffbc8e8772f39e
+> # bad: [2d2f9b317958a34ebecf731ac7510c649a2ab33c] driver core: Do not resume suppliers under device_links_write_lock()
+> git bisect bad 2d2f9b317958a34ebecf731ac7510c649a2ab33c
+> # bad: [83ab4275fc5a25992200a394c692542ad8584276] mailbox: ti-msgmgr: Off by one in ti_msgmgr_of_xlate()
+> git bisect bad 83ab4275fc5a25992200a394c692542ad8584276
+> # good: [864d924463eb890af4ea92cbb4108ebcba42bd6c] usb: gadget: fsl_udc_core: check allocation return value and cleanup on failure
+> git bisect good 864d924463eb890af4ea92cbb4108ebcba42bd6c
+> # bad: [51ee3169bec81a0f48bdb0a7402bfa1d863d6006] mlxsw: reg: QEEC: Add minimum shaper fields
+> git bisect bad 51ee3169bec81a0f48bdb0a7402bfa1d863d6006
+> # bad: [bf4a2476e727c5a302c40a0e66e1702c2c135b7c] pwm: lpss: Release runtime-pm reference from the driver's remove callback
+> git bisect bad bf4a2476e727c5a302c40a0e66e1702c2c135b7c
+> # bad: [d54e7094b7bd73384d64cc328a0c979522e3cb67] of: Fix property name in of_node_get_device_type
+> git bisect bad d54e7094b7bd73384d64cc328a0c979522e3cb67
+> # bad: [250d67d6bc0597c0c0de47b3ea32dc6d4e3f9322] regulator: fixed: Default enable high on DT regulators
+> git bisect bad 250d67d6bc0597c0c0de47b3ea32dc6d4e3f9322
+> # good: [9b2060c15a1b2524fb4ac3f3cc2cf5dcbc293955] cfg80211: regulatory: make initialization more robust
+> git bisect good 9b2060c15a1b2524fb4ac3f3cc2cf5dcbc293955
+> # first bad commit: [250d67d6bc0597c0c0de47b3ea32dc6d4e3f9322] regulator: fixed: Default enable high on DT regulators
+> -------------------------------------------------------------------------------
+> 
 
-Sorry to come back to this late. Has this been resolved?
-
--- 
-Michal Hocko
-SUSE Labs
