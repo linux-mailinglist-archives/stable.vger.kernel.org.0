@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EDB2147C1C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:49:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E1A147C51
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:51:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgAXJtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:49:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
+        id S2387866AbgAXJvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:51:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731158AbgAXJtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:49:15 -0500
+        id S1730738AbgAXJvG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:51:06 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82B26206D5;
-        Fri, 24 Jan 2020 09:49:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5475321556;
+        Fri, 24 Jan 2020 09:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859355;
-        bh=de6GOiqLAJaWWG2EvgMbPEP2AjO6yvDcHgRQ+i6nb18=;
+        s=default; t=1579859465;
+        bh=hHQnTI/fZocNtpaKKw3mSDU3iQ/BXJSK2ON7LgSsyo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcGfN5TyxiiC94Mq7g4NYGy13GQF1z1+ebyuosdFyoZ4pDSh1D65FmfstDMypfC9W
-         LQWRaRQsKNWC6QIN3GF5vn2aekAdJjKuVqtYXbif/WMz6sj89+dXfvbvctUSYYiKQF
-         T18ui/9c/ZIGuHLf3G0RCmWB1f2KvjwE01cEoNE4=
+        b=Kl7shB5Z5ZxbJ4k2GD4eGMQrOOPTT5xwYFcl0qkniIRx6voNyCzrpUAC+m10lajhK
+         77rABdzSYXMXQQmkJ7mF7ARgdtUVdmDL+czxpPXdw4G0FK3AViQeyYkqKxjXFtGu0+
+         dkOJmxNYiT4SbJppqIcdPGAyJ/uTF05kDBK7uiSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wise <swise@opengridcomputing.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 098/343] iw_cxgb4: use tos when finding ipv6 routes
-Date:   Fri, 24 Jan 2020 10:28:36 +0100
-Message-Id: <20200124092932.952839916@linuxfoundation.org>
+Subject: [PATCH 4.14 099/343] drm/etnaviv: potential NULL dereference
+Date:   Fri, 24 Jan 2020 10:28:37 +0100
+Message-Id: <20200124092933.079661717@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,44 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wise <swise@opengridcomputing.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c8a7eb554a83214c3d8ee5cb322da8c72810d2dc ]
+[ Upstream commit 9e05352340d3a3e68c144136db9810b26ebb88c3 ]
 
-When IPv6 support was added, the correct tos was not passed to
-cxgb_find_route6(). This potentially results in the wrong route entry.
+The etnaviv_gem_prime_get_sg_table() is supposed to return error
+pointers.  Otherwise it can lead to a NULL dereference when it's called
+from drm_gem_map_dma_buf().
 
-Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 5f4a4a73f437 ("drm/etnaviv: fix gem_prime_get_sg_table to return new SG table")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 942403e42dd0f..7eb1cc1b1aa04 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -2147,7 +2147,8 @@ static int c4iw_reconnect(struct c4iw_ep *ep)
- 					   laddr6->sin6_addr.s6_addr,
- 					   raddr6->sin6_addr.s6_addr,
- 					   laddr6->sin6_port,
--					   raddr6->sin6_port, 0,
-+					   raddr6->sin6_port,
-+					   ep->com.cm_id->tos,
- 					   raddr6->sin6_scope_id);
- 		iptype = 6;
- 		ra = (__u8 *)&raddr6->sin6_addr;
-@@ -3298,7 +3299,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 					   laddr6->sin6_addr.s6_addr,
- 					   raddr6->sin6_addr.s6_addr,
- 					   laddr6->sin6_port,
--					   raddr6->sin6_port, 0,
-+					   raddr6->sin6_port, cm_id->tos,
- 					   raddr6->sin6_scope_id);
- 	}
- 	if (!ep->dst) {
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+index ae884723e9b1b..880b95511b987 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+@@ -26,7 +26,7 @@ struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj)
+ 	int npages = obj->size >> PAGE_SHIFT;
+ 
+ 	if (WARN_ON(!etnaviv_obj->pages))  /* should have already pinned! */
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	return drm_prime_pages_to_sg(etnaviv_obj->pages, npages);
+ }
 -- 
 2.20.1
 
