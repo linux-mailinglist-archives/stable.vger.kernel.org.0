@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03BBC147AA7
+	by mail.lfdr.de (Postfix) with ESMTP id EC25B147AA9
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:37:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729122AbgAXJgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:36:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
+        id S1730225AbgAXJgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:36:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbgAXJgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:36:46 -0500
+        id S1726695AbgAXJgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:36:50 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0C832087E;
-        Fri, 24 Jan 2020 09:36:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14D0A2087E;
+        Fri, 24 Jan 2020 09:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858605;
-        bh=s4GsLQ3Nay7jIeN2aeWUG5EVdhTwGoAYzbUUuzGRars=;
+        s=default; t=1579858609;
+        bh=A4VOQoF9dWI8S5tSrJ048hbisbbfIjDHmUMOCk3lkHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xIQt1/P/sSfHGdJNXj5i8TE9ikNwLbeNHfic2K2I9aqVUU772to6v2nvE76XyH81E
-         zomCrGTFYKxesNpV8IIyG9w21Rs6EYL+SMYh42xrFSSeqaPrJ6mJRORC3SK94JGXyl
-         e7M/z+eUBDT6wVyJKqIG8QZ+4fogw/5Anql+g8fs=
+        b=p5OkEeuDv0bOftGzHB4BYBvatX19xscPK34FVJmK7ebR2bB05Pgod1T6i8fGpFPX8
+         K3IMPm1gevWZQ02DWarZ+0sZzFsQV1Tzrr7wV/L1g3VcxlHzUlVrl8jJu/hM+vgsKt
+         0yDJbC7g4+j8SwmwOWmCR2PueW81MtDN6/VASNWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 004/343] tipc: fix wrong timeout input for tipc_wait_for_cond()
-Date:   Fri, 24 Jan 2020 10:27:02 +0100
-Message-Id: <20200124092920.128807644@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kubakici@wp.pl>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 005/343] mt7601u: fix bbp version check in mt7601u_wait_bbp_ready
+Date:   Fri, 24 Jan 2020 10:27:03 +0100
+Message-Id: <20200124092920.259665009@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,36 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 12db3c8083fcab4270866a88191933f2d9f24f89 upstream.
+commit 15e14f76f85f4f0eab3b8146e1cd3c58ce272823 upstream.
 
-In function __tipc_shutdown(), the timeout value passed to
-tipc_wait_for_cond() is not jiffies.
+Fix bbp ready check in mt7601u_wait_bbp_ready. The issue is reported by
+coverity with the following error:
 
-This commit fixes it by converting that value from milliseconds
-to jiffies.
+Logical vs. bitwise operator
+The expression's value does not depend on the operands; inadvertent use
+of the wrong operator is a likely logic error.
 
-Fixes: 365ad353c256 ("tipc: reduce risk of user starvation during link congestion")
-Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Addresses-Coverity-ID: 1309441 ("Logical vs. bitwise operator")
+Fixes: c869f77d6abb ("add mt7601u driver")
+Acked-by: Jakub Kicinski <kubakici@wp.pl>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/socket.c |    2 +-
+ drivers/net/wireless/mediatek/mt7601u/phy.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -487,7 +487,7 @@ static void __tipc_shutdown(struct socke
- 	struct sock *sk = sock->sk;
- 	struct tipc_sock *tsk = tipc_sk(sk);
- 	struct net *net = sock_net(sk);
--	long timeout = CONN_TIMEOUT_DEFAULT;
-+	long timeout = msecs_to_jiffies(CONN_TIMEOUT_DEFAULT);
- 	u32 dnode = tsk_peer_node(tsk);
- 	struct sk_buff *skb;
+--- a/drivers/net/wireless/mediatek/mt7601u/phy.c
++++ b/drivers/net/wireless/mediatek/mt7601u/phy.c
+@@ -221,7 +221,7 @@ int mt7601u_wait_bbp_ready(struct mt7601
+ 
+ 	do {
+ 		val = mt7601u_bbp_rr(dev, MT_BBP_REG_VERSION);
+-		if (val && ~val)
++		if (val && val != 0xff)
+ 			break;
+ 	} while (--i);
  
 
 
