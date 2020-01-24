@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5307C147F8E
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 717C0147F8C
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730313AbgAXLDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:03:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36948 "EHLO mail.kernel.org"
+        id S2387742AbgAXLDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:03:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387800AbgAXLDK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:03:10 -0500
+        id S1732351AbgAXLDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:03:14 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76D1A2075D;
-        Fri, 24 Jan 2020 11:03:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38F7C2071A;
+        Fri, 24 Jan 2020 11:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863790;
-        bh=2H0OlEXUigJTXu7tQLf7/KBOB9u+oISf7XJnwBADS0Y=;
+        s=default; t=1579863793;
+        bh=krPjveAxai31dVBH2XtPMEbjZ10IPJzFydcobYwpLRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=df2qHYF2EcNl8ghg/UhkbixuD6WnoBTv6gCPntMOAC71b/lZCDsvVwZUCckwZUs7F
-         L5rp619yVJsEcVWtAf+W1BiYu1UXDIjvXAe4eIprwxvyvfDd+TK0t4UVAneFlV+2k9
-         N1bzqLXilW8t4nKA7XtPiwOvxzSxTE+h/TnK8fZc=
+        b=twoCXAFv15Y8+bFsGeyzw/JEVJtFNhIVC+57MHo2k02boPYU2GatqTYtr27WuB08F
+         R5ehiqpNCFc8C3rveHmEf0j//umh902zty6cw4jysTH/eBjiOCnGa+6mgeGHWogrN3
+         9dikQEibpOsaVqXk7eV5mmKyinJk0Jzn+BsrChEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/639] pinctrl: sh-pfc: sh73a0: Add missing TO pin to tpu4_to3 group
-Date:   Fri, 24 Jan 2020 10:24:19 +0100
-Message-Id: <20200124093058.483991161@linuxfoundation.org>
+Subject: [PATCH 4.19 090/639] pinctrl: sh-pfc: r8a7794: Remove bogus IPSR9 field
+Date:   Fri, 24 Jan 2020 10:24:20 +0100
+Message-Id: <20200124093058.604641414@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,33 +47,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 124cde98f856b6206b804acbdec3b7c80f8c3427 ]
+[ Upstream commit 6a6c195d98a1a5e70faa87f594d7564af1dd1bed ]
 
-The tpu4_to3_mux[] array contains the TPU4TO3 pin mark, but the
-tpu4_to3_pins[] array lacks the corresponding pin number.
+The Peripheral Function Select Register 9 contains 12 fields, but the
+variable field descriptor contains a 13th bogus field of 3 bits.
 
-Add the missing pin number, for non-GPIO pin F26.
-
-Fixes: 5da4eb049de803c7 ("sh-pfc: sh73a0: Add TPU pin groups and functions")
+Fixes: 43c4436e2f1890a7 ("pinctrl: sh-pfc: add R8A7794 PFC support")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-sh73a0.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/sh-pfc/pfc-r8a7794.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh73a0.c b/drivers/pinctrl/sh-pfc/pfc-sh73a0.c
-index d25e6f674d0ab..f8fbedb46585d 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh73a0.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh73a0.c
-@@ -3086,6 +3086,7 @@ static const unsigned int tpu4_to2_mux[] = {
- };
- static const unsigned int tpu4_to3_pins[] = {
- 	/* TO */
-+	PIN_NUMBER(6, 26),
- };
- static const unsigned int tpu4_to3_mux[] = {
- 	TPU4TO3_MARK,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7794.c b/drivers/pinctrl/sh-pfc/pfc-r8a7794.c
+index 1640024375946..24b9bb1ee1fe5 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7794.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7794.c
+@@ -5215,7 +5215,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 		FN_AVB_MDC, FN_SSI_SDATA6_B, 0, 0, }
+ 	},
+ 	{ PINMUX_CFG_REG_VAR("IPSR9", 0xE6060044, 32,
+-			     1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3) {
++			     1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3) {
+ 		/* IP9_31 [1] */
+ 		0, 0,
+ 		/* IP9_30_28 [3] */
 -- 
 2.20.1
 
