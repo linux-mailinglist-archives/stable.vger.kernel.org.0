@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F87148315
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB4C148317
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404544AbgAXLdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:33:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52588 "EHLO mail.kernel.org"
+        id S2404565AbgAXLdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:33:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404554AbgAXLdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:33:12 -0500
+        id S2404298AbgAXLdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:33:16 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D3FE20704;
-        Fri, 24 Jan 2020 11:33:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B4E120704;
+        Fri, 24 Jan 2020 11:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865592;
-        bh=N1lZJQd5ITxkNjiZcGkSA8GurHA4toeYev0oUfY+YSo=;
+        s=default; t=1579865596;
+        bh=l7sfTKa4zeehDC6TY34c96HkC1AAaWqOrVcSqeuLV60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAn8DQERRXVG7kWkk4jHxhj7pgckyo8jdKakRZR3aF7MtPnkENqRinOac8s+9Rx01
-         zDRBLc1BrGwc0Z4JlqsSqEsqiRBmzUbazZBKO64QGAXKVpYryrTg/sPeAIAY4MDDzy
-         A5IvE8FGW0HssQ9aqptIl1UJwuzHQrQDWYTp+tOo=
+        b=TYQ9sc4fdvlK81Mu2TM1cIXWRnGJTC5ucAC9YCTmC1RGXe5qQZWGGCUqa8dawV8Ej
+         DeGw0rJDzm4tAqv8cW/yKKzEkEtAaa9qJVgtQD+3KV9zbRj6LuSn4MK8k852hT8E8j
+         vbghJ+vqVIYCasOl+f42gmi87nTmQsa5/5+gmyEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 588/639] rxrpc: Fix trace-after-put looking at the put connection record
-Date:   Fri, 24 Jan 2020 10:32:38 +0100
-Message-Id: <20200124093203.109044279@linuxfoundation.org>
+Subject: [PATCH 4.19 589/639] mac80211: accept deauth frames in IBSS mode
+Date:   Fri, 24 Jan 2020 10:32:39 +0100
+Message-Id: <20200124093203.224659480@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,172 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 4c1295dccc0afe0905b6ca4c62ade7f2406f2cfb ]
+[ Upstream commit 95697f9907bfe3eab0ef20265a766b22e27dde64 ]
 
-rxrpc_put_*conn() calls trace_rxrpc_conn() after they have done the
-decrement of the refcount - which looks at the debug_id in the connection
-record.  But unless the refcount was reduced to zero, we no longer have the
-right to look in the record and, indeed, it may be deleted by some other
-thread.
+We can process deauth frames and all, but we drop them very
+early in the RX path today - this could never have worked.
 
-Fix this by getting the debug_id out before decrementing the refcount and
-then passing that into the tracepoint.
-
-Fixes: 363deeab6d0f ("rxrpc: Add connection tracepoint and client conn state tracepoint")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 2cc59e784b54 ("mac80211: reply to AUTH with DEAUTH if sta allocation fails in IBSS")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20191004123706.15768-2-luca@coelho.fi
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h |  6 +++---
- net/rxrpc/call_accept.c      |  2 +-
- net/rxrpc/conn_client.c      |  6 ++++--
- net/rxrpc/conn_object.c      | 13 +++++++------
- net/rxrpc/conn_service.c     |  2 +-
- 5 files changed, 16 insertions(+), 13 deletions(-)
+ net/mac80211/rx.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index a08916eb76152..0924119bcfa40 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -554,10 +554,10 @@ TRACE_EVENT(rxrpc_peer,
- 	    );
- 
- TRACE_EVENT(rxrpc_conn,
--	    TP_PROTO(struct rxrpc_connection *conn, enum rxrpc_conn_trace op,
-+	    TP_PROTO(unsigned int conn_debug_id, enum rxrpc_conn_trace op,
- 		     int usage, const void *where),
- 
--	    TP_ARGS(conn, op, usage, where),
-+	    TP_ARGS(conn_debug_id, op, usage, where),
- 
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,	conn		)
-@@ -567,7 +567,7 @@ TRACE_EVENT(rxrpc_conn,
- 			     ),
- 
- 	    TP_fast_assign(
--		    __entry->conn = conn->debug_id;
-+		    __entry->conn = conn_debug_id;
- 		    __entry->op = op;
- 		    __entry->usage = usage;
- 		    __entry->where = where;
-diff --git a/net/rxrpc/call_accept.c b/net/rxrpc/call_accept.c
-index 8079aacaecace..c5566bc4aaca3 100644
---- a/net/rxrpc/call_accept.c
-+++ b/net/rxrpc/call_accept.c
-@@ -88,7 +88,7 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
- 		smp_store_release(&b->conn_backlog_head,
- 				  (head + 1) & (size - 1));
- 
--		trace_rxrpc_conn(conn, rxrpc_conn_new_service,
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_service,
- 				 atomic_read(&conn->usage), here);
- 	}
- 
-diff --git a/net/rxrpc/conn_client.c b/net/rxrpc/conn_client.c
-index 3dbb126e60608..38d5485320242 100644
---- a/net/rxrpc/conn_client.c
-+++ b/net/rxrpc/conn_client.c
-@@ -217,7 +217,8 @@ rxrpc_alloc_client_connection(struct rxrpc_conn_parameters *cp, gfp_t gfp)
- 	rxrpc_get_local(conn->params.local);
- 	key_get(conn->params.key);
- 
--	trace_rxrpc_conn(conn, rxrpc_conn_new_client, atomic_read(&conn->usage),
-+	trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_client,
-+			 atomic_read(&conn->usage),
- 			 __builtin_return_address(0));
- 	trace_rxrpc_client(conn, -1, rxrpc_client_alloc);
- 	_leave(" = %p", conn);
-@@ -989,11 +990,12 @@ rxrpc_put_one_client_conn(struct rxrpc_connection *conn)
- void rxrpc_put_client_conn(struct rxrpc_connection *conn)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = conn->debug_id;
- 	int n;
- 
- 	do {
- 		n = atomic_dec_return(&conn->usage);
--		trace_rxrpc_conn(conn, rxrpc_conn_put_client, n, here);
-+		trace_rxrpc_conn(debug_id, rxrpc_conn_put_client, n, here);
- 		if (n > 0)
- 			return;
- 		ASSERTCMP(n, >=, 0);
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index 004a6eb529bc1..f338efd2880aa 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -272,7 +272,7 @@ bool rxrpc_queue_conn(struct rxrpc_connection *conn)
- 	if (n == 0)
- 		return false;
- 	if (rxrpc_queue_work(&conn->processor))
--		trace_rxrpc_conn(conn, rxrpc_conn_queued, n + 1, here);
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_queued, n + 1, here);
- 	else
- 		rxrpc_put_connection(conn);
- 	return true;
-@@ -287,7 +287,7 @@ void rxrpc_see_connection(struct rxrpc_connection *conn)
- 	if (conn) {
- 		int n = atomic_read(&conn->usage);
- 
--		trace_rxrpc_conn(conn, rxrpc_conn_seen, n, here);
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_seen, n, here);
- 	}
- }
- 
-@@ -299,7 +299,7 @@ void rxrpc_get_connection(struct rxrpc_connection *conn)
- 	const void *here = __builtin_return_address(0);
- 	int n = atomic_inc_return(&conn->usage);
- 
--	trace_rxrpc_conn(conn, rxrpc_conn_got, n, here);
-+	trace_rxrpc_conn(conn->debug_id, rxrpc_conn_got, n, here);
- }
- 
- /*
-@@ -313,7 +313,7 @@ rxrpc_get_connection_maybe(struct rxrpc_connection *conn)
- 	if (conn) {
- 		int n = atomic_fetch_add_unless(&conn->usage, 1, 0);
- 		if (n > 0)
--			trace_rxrpc_conn(conn, rxrpc_conn_got, n + 1, here);
-+			trace_rxrpc_conn(conn->debug_id, rxrpc_conn_got, n + 1, here);
- 		else
- 			conn = NULL;
- 	}
-@@ -336,10 +336,11 @@ static void rxrpc_set_service_reap_timer(struct rxrpc_net *rxnet,
- void rxrpc_put_service_conn(struct rxrpc_connection *conn)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = conn->debug_id;
- 	int n;
- 
- 	n = atomic_dec_return(&conn->usage);
--	trace_rxrpc_conn(conn, rxrpc_conn_put_service, n, here);
-+	trace_rxrpc_conn(debug_id, rxrpc_conn_put_service, n, here);
- 	ASSERTCMP(n, >=, 0);
- 	if (n == 1)
- 		rxrpc_set_service_reap_timer(conn->params.local->rxnet,
-@@ -423,7 +424,7 @@ void rxrpc_service_connection_reaper(struct work_struct *work)
- 		 */
- 		if (atomic_cmpxchg(&conn->usage, 1, 0) != 1)
- 			continue;
--		trace_rxrpc_conn(conn, rxrpc_conn_reap_service, 0, NULL);
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_reap_service, 0, NULL);
- 
- 		if (rxrpc_conn_is_client(conn))
- 			BUG();
-diff --git a/net/rxrpc/conn_service.c b/net/rxrpc/conn_service.c
-index 80773a50c7551..6da7c4bf15e88 100644
---- a/net/rxrpc/conn_service.c
-+++ b/net/rxrpc/conn_service.c
-@@ -138,7 +138,7 @@ struct rxrpc_connection *rxrpc_prealloc_service_connection(struct rxrpc_net *rxn
- 		list_add_tail(&conn->proc_link, &rxnet->conn_proc_list);
- 		write_unlock(&rxnet->conn_lock);
- 
--		trace_rxrpc_conn(conn, rxrpc_conn_new_service,
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_service,
- 				 atomic_read(&conn->usage),
- 				 __builtin_return_address(0));
- 	}
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index b12f23c996f4e..02d0b22d01141 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -3391,9 +3391,18 @@ ieee80211_rx_h_mgmt(struct ieee80211_rx_data *rx)
+ 	case cpu_to_le16(IEEE80211_STYPE_PROBE_RESP):
+ 		/* process for all: mesh, mlme, ibss */
+ 		break;
++	case cpu_to_le16(IEEE80211_STYPE_DEAUTH):
++		if (is_multicast_ether_addr(mgmt->da) &&
++		    !is_broadcast_ether_addr(mgmt->da))
++			return RX_DROP_MONITOR;
++
++		/* process only for station/IBSS */
++		if (sdata->vif.type != NL80211_IFTYPE_STATION &&
++		    sdata->vif.type != NL80211_IFTYPE_ADHOC)
++			return RX_DROP_MONITOR;
++		break;
+ 	case cpu_to_le16(IEEE80211_STYPE_ASSOC_RESP):
+ 	case cpu_to_le16(IEEE80211_STYPE_REASSOC_RESP):
+-	case cpu_to_le16(IEEE80211_STYPE_DEAUTH):
+ 	case cpu_to_le16(IEEE80211_STYPE_DISASSOC):
+ 		if (is_multicast_ether_addr(mgmt->da) &&
+ 		    !is_broadcast_ether_addr(mgmt->da))
 -- 
 2.20.1
 
