@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF7D147BD7
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F123147BD9
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732644AbgAXJqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:46:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46132 "EHLO mail.kernel.org"
+        id S1731698AbgAXJqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:46:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731991AbgAXJqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:46:39 -0500
+        id S1730743AbgAXJqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:46:49 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D46C208C4;
-        Fri, 24 Jan 2020 09:46:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6683B206D5;
+        Fri, 24 Jan 2020 09:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859198;
-        bh=HnhWlxIikpdOADLeprnpMCbgsSHmALak6TEdFx/BN84=;
+        s=default; t=1579859209;
+        bh=UpmcHSnUc8E62hyYWj8ClyaU2/BTlDYrix38raABp5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqfvKHXyGS84o5cwuJEB3yljIoY0GNQWmdNP76p8Mx4lsoKNZjJDXFXQRgHy0ljFu
-         YnQnAdNPVhVjXLaDgOqlbJXG6ndnfXjQDUEF1FuzC7aSrvBmSHjV0fIz7ypuKaFhLZ
-         tHptpf9qAF/sNFJraQynF8uZBvWLcBBT1lnyRb5U=
+        b=BFvBV76sqW+gcG2cAno69+XZVNMIqU9Iv3hO322jgJtO+mmq0a+k/RTsKpvPukKSl
+         0fFDPGg5H/hIcom2tdD1QCTTaO8LlTpTjP4xK8rTG7NU6/bCZnux7usdbs5XXBKDOt
+         Yuvb9TQOhbsH8JdJXAXnzysRPLKDLZ7rPrcD4gmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 066/343] kbuild: mark prepare0 as PHONY to fix external module build
-Date:   Fri, 24 Jan 2020 10:28:04 +0100
-Message-Id: <20200124092928.488869344@linuxfoundation.org>
+Subject: [PATCH 4.14 067/343] crypto: brcm - Fix some set-but-not-used warning
+Date:   Fri, 24 Jan 2020 10:28:05 +0100
+Message-Id: <20200124092928.617723961@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -46,70 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit e00d8880481497474792d28c14479a9fb6752046 ]
+[ Upstream commit 707d0cf8f7cff6dfee9197002859912310532c4f ]
 
-Commit c3ff2a5193fa ("powerpc/32: add stack protector support")
-caused kernel panic on PowerPC when an external module is used with
-CONFIG_STACKPROTECTOR because the 'prepare' target was not executed
-for the external module build.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Commit e07db28eea38 ("kbuild: fix single target build for external
-module") turned it into a build error because the 'prepare' target is
-now executed but the 'prepare0' target is missing for the external
-module build.
+drivers/crypto/bcm/cipher.c: In function 'handle_ahash_req':
+drivers/crypto/bcm/cipher.c:720:15: warning:
+ variable 'chunk_start' set but not used [-Wunused-but-set-variable]
 
-External module on arm/arm64 with CONFIG_STACKPROTECTOR_PER_TASK is
-also broken in the same way.
+drivers/crypto/bcm/cipher.c: In function 'spu_rx_callback':
+drivers/crypto/bcm/cipher.c:1679:31: warning:
+ variable 'areq' set but not used [-Wunused-but-set-variable]
 
-Move 'PHONY += prepare0' to the common place. GNU Make is fine with
-missing rule for phony targets. I also removed the comment which is
-wrong irrespective of this commit.
+drivers/crypto/bcm/cipher.c:1678:22: warning:
+ variable 'ctx' set but not used [-Wunused-but-set-variable]
 
-I minimize the change so it can be easily backported to 4.20.x
-
-To fix v4.20, please backport e07db28eea38 ("kbuild: fix single target
-build for external module"), and then this commit.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=201891
-Fixes: e07db28eea38 ("kbuild: fix single target build for external module")
-Fixes: c3ff2a5193fa ("powerpc/32: add stack protector support")
-Fixes: 189af4657186 ("ARM: smp: add support for per-task stack canaries")
-Fixes: 0a1213fa7432 ("arm64: enable per-task stack canaries")
-Cc: linux-stable <stable@vger.kernel.org> # v4.20
-Reported-by: Samuel Holland <samuel@sholland.org>
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/bcm/cipher.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 3e8eaabf2bcbd..b538e6170f730 100644
---- a/Makefile
-+++ b/Makefile
-@@ -971,6 +971,7 @@ ifdef CONFIG_STACK_VALIDATION
-   endif
- endif
+diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
+index 84422435f39b4..279e907590e98 100644
+--- a/drivers/crypto/bcm/cipher.c
++++ b/drivers/crypto/bcm/cipher.c
+@@ -718,7 +718,7 @@ static int handle_ahash_req(struct iproc_reqctx_s *rctx)
+ 	 */
+ 	unsigned int new_data_len;
  
-+PHONY += prepare0
+-	unsigned int chunk_start = 0;
++	unsigned int __maybe_unused chunk_start = 0;
+ 	u32 db_size;	 /* Length of data field, incl gcm and hash padding */
+ 	int pad_len = 0; /* total pad len, including gcm, hash, stat padding */
+ 	u32 data_pad_len = 0;	/* length of GCM/CCM padding */
+@@ -1676,8 +1676,6 @@ static void spu_rx_callback(struct mbox_client *cl, void *msg)
+ 	struct spu_hw *spu = &iproc_priv.spu;
+ 	struct brcm_message *mssg = msg;
+ 	struct iproc_reqctx_s *rctx;
+-	struct iproc_ctx_s *ctx;
+-	struct crypto_async_request *areq;
+ 	int err = 0;
  
- ifeq ($(KBUILD_EXTMOD),)
- core-y		+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/ block/
-@@ -1065,8 +1066,7 @@ include/config/kernel.release: include/config/auto.conf FORCE
- # archprepare is used in arch Makefiles and when processed asm symlink,
- # version.h and scripts_basic is processed / created.
+ 	rctx = mssg->ctx;
+@@ -1687,8 +1685,6 @@ static void spu_rx_callback(struct mbox_client *cl, void *msg)
+ 		err = -EFAULT;
+ 		goto cb_finish;
+ 	}
+-	areq = rctx->parent;
+-	ctx = rctx->ctx;
  
--# Listed in dependency order
--PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
-+PHONY += prepare archprepare prepare1 prepare2 prepare3
- 
- # prepare3 is used to check if we are building in a separate output directory,
- # and if so do:
+ 	/* process the SPU status */
+ 	err = spu->spu_status_process(rctx->msg_buf.rx_stat);
 -- 
 2.20.1
 
