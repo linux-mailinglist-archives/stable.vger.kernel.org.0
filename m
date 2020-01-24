@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 817C214766D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB8F147663
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730651AbgAXBRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:17:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60716 "EHLO mail.kernel.org"
+        id S1730664AbgAXBRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730540AbgAXBRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:36 -0500
+        id S1730656AbgAXBRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A53022467E;
-        Fri, 24 Jan 2020 01:17:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B21A4206A2;
+        Fri, 24 Jan 2020 01:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828656;
-        bh=E0awQwTam+1n25uIcPvb3MI3juss7eRUO4EghGen+rs=;
+        s=default; t=1579828657;
+        bh=xjiIuT2evy8epx2GISn700fzYHTLGE7gpt2NB0cwO60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znA0DuXbodEf0gBTFYekrABxloKNS/03GdIQ4uOpYXzqI6P9ow9CRxS8xrYMnPgQM
-         u/E2Y9kLVZ9mJPSOEXpHCLD+VToNR0A8rIg+UPo8yH7gZWs9YVgPBMkkhkj4L2vTXL
-         i9SOExu7IJp8cWFQU15f/nn2FGdgv0CgEh5tzSvY=
+        b=mhf8VvsmofmyoN59NrisBDNTQnqteliPkpphYbdsZM6QzjujQPf1Jpnc71lkO4rS1
+         bjmsJ0feVsuNUP2CjdXTqKKDzqQ0I5bmmZ5K0cCHbzI3+UjJJZYV1kq5In3wthPYNn
+         5c0uR97qiS+PADpieIqjaCaahFg5P2euq1wWoWNM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 24/33] mmc: core: fix wl1251 sdio quirks
-Date:   Thu, 23 Jan 2020 20:16:59 -0500
-Message-Id: <20200124011708.18232-24-sashal@kernel.org>
+Cc:     Laura Abbott <labbott@fedoraproject.org>,
+        Steven Ellis <sellis@redhat.com>,
+        Pacho Ramos <pachoramos@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        usb-storage@lists.one-eyed-alien.net
+Subject: [PATCH AUTOSEL 5.4 25/33] usb-storage: Disable UAS on JMicron SATA enclosure
+Date:   Thu, 23 Jan 2020 20:17:00 -0500
+Message-Id: <20200124011708.18232-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -43,41 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
+From: Laura Abbott <labbott@fedoraproject.org>
 
-[ Upstream commit 16568b4a4f0c34bd35cfadac63303c7af7812764 ]
+[ Upstream commit bc3bdb12bbb3492067c8719011576370e959a2e6 ]
 
-wl1251 and wl1271 have different vendor id and device id.
-So we need to handle both with sdio quirks.
+Steve Ellis reported incorrect block sizes and alignement
+offsets with a SATA enclosure. Adding a quirk to disable
+UAS fixes the problems.
 
-Fixes: 884f38607897 ("mmc: core: move some sdio IDs out of quirks file")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: <stable@vger.kernel.org> # v4.11+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Steven Ellis <sellis@redhat.com>
+Cc: Pacho Ramos <pachoramos@gmail.com>
+Signed-off-by: Laura Abbott <labbott@fedoraproject.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/quirks.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/storage/unusual_uas.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/quirks.h b/drivers/mmc/core/quirks.h
-index 2d2d9ea8be4f3..3dba15bccce25 100644
---- a/drivers/mmc/core/quirks.h
-+++ b/drivers/mmc/core/quirks.h
-@@ -119,7 +119,14 @@ static const struct mmc_fixup mmc_ext_csd_fixups[] = {
- 	END_FIXUP
- };
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index d0bdebd87ce3a..1b23741036ee8 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -87,12 +87,15 @@ UNUSUAL_DEV(0x2537, 0x1068, 0x0000, 0x9999,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_IGNORE_UAS),
  
-+
- static const struct mmc_fixup sdio_fixup_methods[] = {
-+	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
-+		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
-+
-+	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
-+		   add_quirk, MMC_QUIRK_DISABLE_CD),
-+
- 	SDIO_FIXUP(SDIO_VENDOR_ID_TI, SDIO_DEVICE_ID_TI_WL1271,
- 		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
+-/* Reported-by: Takeo Nakayama <javhera@gmx.com> */
++/*
++ * Initially Reported-by: Takeo Nakayama <javhera@gmx.com>
++ * UAS Ignore Reported by Steven Ellis <sellis@redhat.com>
++ */
+ UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
+ 		"JMicron",
+ 		"JMS566",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_NO_REPORT_OPCODES),
++		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
  
+ /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
+ UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
 -- 
 2.20.1
 
