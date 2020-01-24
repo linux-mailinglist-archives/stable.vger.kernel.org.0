@@ -2,209 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D112F147543
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 01:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A06551475A4
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 01:40:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbgAXAHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 19:07:16 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:55702 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726584AbgAXAHQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Jan 2020 19:07:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579824434;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=6MlL98tE2HsGeMaYno7PPmn4gDFAOvEvYJ8JHfbl71o=;
-        b=EbfhGiQcUflI+NEvc3ehz6zYsBPmyXj+xra2PBgvzRxRjfHyvgGE42fUIbG6uinLE3S72W
-        7HQlYBTOvbUI5flmQVszdLDW2dlgC7AXSyyF3xF69tSL125VvVlfvj5CsU479uUQym1JJw
-        2tTfr++AjVjPEej3AmbdnKWQ5KZfkLQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-116-rYs5f4gzNyy736q3p4x9cQ-1; Thu, 23 Jan 2020 19:07:12 -0500
-X-MC-Unique: rYs5f4gzNyy736q3p4x9cQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 82886800D48;
-        Fri, 24 Jan 2020 00:07:09 +0000 (UTC)
-Received: from malachite.redhat.com (ovpn-124-168.rdu2.redhat.com [10.10.124.168])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 661AD60BF3;
-        Fri, 24 Jan 2020 00:07:03 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     amd-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Mikita Lipski <mikita.lipski@amd.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        David Francis <David.Francis@amd.com>,
-        Martin Tsai <martin.tsai@amd.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Alvin Lee <alvin.lee2@amd.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/amd/dm/mst: Ignore payload update failures on disable
-Date:   Thu, 23 Jan 2020 19:06:42 -0500
-Message-Id: <20200124000643.99859-1-lyude@redhat.com>
+        id S1729473AbgAXAkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 19:40:24 -0500
+Received: from mga11.intel.com ([192.55.52.93]:37450 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729387AbgAXAkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 19:40:24 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Jan 2020 16:40:22 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,355,1574150400"; 
+   d="scan'208";a="228183404"
+Received: from fmsmsx106.amr.corp.intel.com ([10.18.124.204])
+  by orsmga003.jf.intel.com with ESMTP; 23 Jan 2020 16:40:22 -0800
+Received: from fmsmsx111.amr.corp.intel.com (10.18.116.5) by
+ FMSMSX106.amr.corp.intel.com (10.18.124.204) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Thu, 23 Jan 2020 16:40:18 -0800
+Received: from fmsmsx123.amr.corp.intel.com ([169.254.7.14]) by
+ fmsmsx111.amr.corp.intel.com ([169.254.12.199]) with mapi id 14.03.0439.000;
+ Thu, 23 Jan 2020 16:40:18 -0800
+From:   "Saleem, Shiraz" <shiraz.saleem@intel.com>
+To:     Gal Pressman <galpress@amazon.com>,
+        Leon Romanovsky <leon@kernel.org>
+CC:     Jason Gunthorpe <jgg@ziepe.ca>, Doug Ledford <dledford@redhat.com>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "Alexander Matushevsky" <matua@amazon.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Leybovich, Yossi" <sleybo@amazon.com>
+Subject: RE: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous
+ memory blocks aligned to device supported page size"
+Thread-Topic: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous
+ memory blocks aligned to device supported page size"
+Thread-Index: AQHVz5toT/HPCKVY4k6ca7L8Mx85A6f1W0WAgAB6KwCAAQSKgIAB/qGAgAABawCAAAuqAA==
+Date:   Fri, 24 Jan 2020 00:40:18 +0000
+Message-ID: <9DD61F30A802C4429A01CA4200E302A7C57244BB@fmsmsx123.amr.corp.intel.com>
+References: <20200120141001.63544-1-galpress@amazon.com>
+ <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
+ <20200121162436.GL51881@unreal>
+ <47c20471-2251-b93b-053d-87880fa0edf5@amazon.com>
+ <20200123142443.GN7018@unreal>
+ <60d8c528-1088-df8d-76f0-4746acfcfc7a@amazon.com>
+In-Reply-To: <60d8c528-1088-df8d-76f0-4746acfcfc7a@amazon.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ctpclassification: CTP_NT
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiMWJkNmZiNDItMTM5Yi00NmI3LTk1OWEtNWI2MDRkODRkNGUxIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoidlpHWU83XC9iMU0xXC9jUzd0NUljMVZMajhZUVwvK3ZcL0pGVFBvNVMxS1lDY1diQXR3aDZicTNIQ3BZSHlUK2wzXC9JIn0=
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.1.200.106]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Disabling a display on MST can potentially happen after the entire MST
-topology has been removed, which means that we can't communicate with
-the topology at all in this scenario. Likewise, this also means that we
-can't properly update payloads on the topology and as such, it's a good
-idea to ignore payload update failures when disabling displays.
-Currently, amdgpu makes the mistake of halting the payload update
-process when any payload update failures occur, resulting in leaving
-DC's local copies of the payload tables out of date.
-
-This ends up causing problems with hotplugging MST topologies, and
-causes modesets on the second hotplug to fail like so:
-
-[drm] Failed to updateMST allocation table forpipe idx:1
-------------[ cut here ]------------
-WARNING: CPU: 5 PID: 1511 at
-drivers/gpu/drm/amd/amdgpu/../display/dc/core/dc_link.c:2677
-update_mst_stream_alloc_table+0x11e/0x130 [amdgpu]
-Modules linked in: cdc_ether usbnet fuse xt_conntrack nf_conntrack
-nf_defrag_ipv6 libcrc32c nf_defrag_ipv4 ipt_REJECT nf_reject_ipv4
-nft_counter nft_compat nf_tables nfnetlink tun bridge stp llc sunrpc
-vfat fat wmi_bmof uvcvideo snd_hda_codec_realtek snd_hda_codec_generic
-snd_hda_codec_hdmi videobuf2_vmalloc snd_hda_intel videobuf2_memops
-videobuf2_v4l2 snd_intel_dspcfg videobuf2_common crct10dif_pclmul
-snd_hda_codec videodev crc32_pclmul snd_hwdep snd_hda_core
-ghash_clmulni_intel snd_seq mc joydev pcspkr snd_seq_device snd_pcm
-sp5100_tco k10temp i2c_piix4 snd_timer thinkpad_acpi ledtrig_audio snd
-wmi soundcore video i2c_scmi acpi_cpufreq ip_tables amdgpu(O)
-rtsx_pci_sdmmc amd_iommu_v2 gpu_sched mmc_core i2c_algo_bit ttm
-drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec drm
-crc32c_intel serio_raw hid_multitouch r8152 mii nvme r8169 nvme_core
-rtsx_pci pinctrl_amd
-CPU: 5 PID: 1511 Comm: gnome-shell Tainted: G           O      5.5.0-rc7L=
-yude-Test+ #4
-Hardware name: LENOVO FA495SIT26/FA495SIT26, BIOS R12ET22W(0.22 ) 01/31/2=
-019
-RIP: 0010:update_mst_stream_alloc_table+0x11e/0x130 [amdgpu]
-Code: 28 00 00 00 75 2b 48 8d 65 e0 5b 41 5c 41 5d 41 5e 5d c3 0f b6 06
-49 89 1c 24 41 88 44 24 08 0f b6 46 01 41 88 44 24 09 eb 93 <0f> 0b e9
-2f ff ff ff e8 a6 82 a3 c2 66 0f 1f 44 00 00 0f 1f 44 00
-RSP: 0018:ffffac428127f5b0 EFLAGS: 00010202
-RAX: 0000000000000002 RBX: ffff8d1e166eee80 RCX: 0000000000000000
-RDX: ffffac428127f668 RSI: ffff8d1e166eee80 RDI: ffffac428127f610
-RBP: ffffac428127f640 R08: ffffffffc03d94a8 R09: 0000000000000000
-R10: ffff8d1e24b02000 R11: ffffac428127f5b0 R12: ffff8d1e1b83d000
-R13: ffff8d1e1bea0b08 R14: 0000000000000002 R15: 0000000000000002
-FS:  00007fab23ffcd80(0000) GS:ffff8d1e28b40000(0000) knlGS:0000000000000=
-000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f151f1711e8 CR3: 00000005997c0000 CR4: 00000000003406e0
-Call Trace:
- ? mutex_lock+0xe/0x30
- dc_link_allocate_mst_payload+0x9a/0x210 [amdgpu]
- ? dm_read_reg_func+0x39/0xb0 [amdgpu]
- ? core_link_enable_stream+0x656/0x730 [amdgpu]
- core_link_enable_stream+0x656/0x730 [amdgpu]
- dce110_apply_ctx_to_hw+0x58e/0x5d0 [amdgpu]
- ? dcn10_verify_allow_pstate_change_high+0x1d/0x280 [amdgpu]
- ? dcn10_wait_for_mpcc_disconnect+0x3c/0x130 [amdgpu]
- dc_commit_state+0x292/0x770 [amdgpu]
- ? add_timer+0x101/0x1f0
- ? ttm_bo_put+0x1a1/0x2f0 [ttm]
- amdgpu_dm_atomic_commit_tail+0xb59/0x1ff0 [amdgpu]
- ? amdgpu_move_blit.constprop.0+0xb8/0x1f0 [amdgpu]
- ? amdgpu_bo_move+0x16d/0x2b0 [amdgpu]
- ? ttm_bo_handle_move_mem+0x118/0x570 [ttm]
- ? ttm_bo_validate+0x134/0x150 [ttm]
- ? dm_plane_helper_prepare_fb+0x1b9/0x2a0 [amdgpu]
- ? _cond_resched+0x15/0x30
- ? wait_for_completion_timeout+0x38/0x160
- ? _cond_resched+0x15/0x30
- ? wait_for_completion_interruptible+0x33/0x190
- commit_tail+0x94/0x130 [drm_kms_helper]
- drm_atomic_helper_commit+0x113/0x140 [drm_kms_helper]
- drm_atomic_helper_set_config+0x70/0xb0 [drm_kms_helper]
- drm_mode_setcrtc+0x194/0x6a0 [drm]
- ? _cond_resched+0x15/0x30
- ? mutex_lock+0xe/0x30
- ? drm_mode_getcrtc+0x180/0x180 [drm]
- drm_ioctl_kernel+0xaa/0xf0 [drm]
- drm_ioctl+0x208/0x390 [drm]
- ? drm_mode_getcrtc+0x180/0x180 [drm]
- amdgpu_drm_ioctl+0x49/0x80 [amdgpu]
- do_vfs_ioctl+0x458/0x6d0
- ksys_ioctl+0x5e/0x90
- __x64_sys_ioctl+0x16/0x20
- do_syscall_64+0x55/0x1b0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7fab2121f87b
-Code: 0f 1e fa 48 8b 05 0d 96 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff
-ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 8b 0d dd 95 2c 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffd045f9068 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007ffd045f90a0 RCX: 00007fab2121f87b
-RDX: 00007ffd045f90a0 RSI: 00000000c06864a2 RDI: 000000000000000b
-RBP: 00007ffd045f90a0 R08: 0000000000000000 R09: 000055dbd2985d10
-R10: 000055dbd2196280 R11: 0000000000000246 R12: 00000000c06864a2
-R13: 000000000000000b R14: 0000000000000000 R15: 000055dbd2196280
----[ end trace 6ea888c24d2059cd ]---
-
-Note as well, I have only been able to reproduce this on setups with 2
-MST displays.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c b/=
-drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-index 069b7a6f5597..252fa60c6775 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-@@ -216,6 +216,7 @@ bool dm_helpers_dp_mst_write_payload_allocation_table=
-(
- 		drm_dp_mst_reset_vcpi_slots(mst_mgr, mst_port);
- 	}
-=20
-+	/* If disabling, it's OK for this to fail */
- 	ret =3D drm_dp_update_payload_part1(mst_mgr);
-=20
- 	/* mst_mgr->->payloads are VC payload notify MST branch using DPCD or
-@@ -225,7 +226,7 @@ bool dm_helpers_dp_mst_write_payload_allocation_table=
-(
-=20
- 	get_payload_table(aconnector, proposed_table);
-=20
--	if (ret)
-+	if (ret && !enable)
- 		return false;
-=20
- 	return true;
-@@ -299,9 +300,9 @@ bool dm_helpers_dp_mst_send_payload_allocation(
- 	if (!mst_mgr->mst_state)
- 		return false;
-=20
-+	/* If disabling, it's OK for this to fail */
- 	ret =3D drm_dp_update_payload_part2(mst_mgr);
--
--	if (ret)
-+	if (enable && ret)
- 		return false;
-=20
- 	if (!enable)
---=20
-2.24.1
-
+PiBTdWJqZWN0OiBSZTogW1BBVENIIGZvci1yY10gUmV2ZXJ0ICJSRE1BL2VmYTogVXNlIEFQSSB0
+byBnZXQgY29udGlndW91cw0KPiBtZW1vcnkgYmxvY2tzIGFsaWduZWQgdG8gZGV2aWNlIHN1cHBv
+cnRlZCBwYWdlIHNpemUiDQo+IA0KPiBPbiAyMy8wMS8yMDIwIDE2OjI0LCBMZW9uIFJvbWFub3Zz
+a3kgd3JvdGU6DQo+ID4gT24gV2VkLCBKYW4gMjIsIDIwMjAgYXQgMDk6NTc6MDdBTSArMDIwMCwg
+R2FsIFByZXNzbWFuIHdyb3RlOg0KPiA+PiBPbiAyMS8wMS8yMDIwIDE4OjI0LCBMZW9uIFJvbWFu
+b3Zza3kgd3JvdGU6DQo+ID4+PiBPbiBUdWUsIEphbiAyMSwgMjAyMCBhdCAxMTowNzoyMUFNICsw
+MjAwLCBHYWwgUHJlc3NtYW4gd3JvdGU6DQo+ID4+Pj4gT24gMjAvMDEvMjAyMCAxNjoxMCwgR2Fs
+IFByZXNzbWFuIHdyb3RlOg0KPiA+Pj4+PiBUaGUgY2l0ZWQgY29tbWl0IGxlYWRzIHRvIHJlZ2lz
+dGVyIE1SIGZhaWx1cmVzIGFuZCByYW5kb20gaGFuZ3MNCj4gPj4+Pj4gd2hlbiBydW5uaW5nIGRp
+ZmZlcmVudCBNUEkgYXBwbGljYXRpb25zLiBUaGUgZXhhY3Qgcm9vdCBjYXVzZSBmb3INCj4gPj4+
+Pj4gdGhlIGlzc3VlIGlzIHN0aWxsIG5vdCBjbGVhciwgdGhpcyByZXZlcnQgYnJpbmdzIHVzIGJh
+Y2sgdG8gYSBzdGFibGUgc3RhdGUuDQo+ID4+Pj4+DQo+ID4+Pj4+IFRoaXMgcmV2ZXJ0cyBjb21t
+aXQgNDBkZGIzZjAyMDgzNGY5YWZiN2FhYjMxMzg1OTk0ODExZjRkYjI1OS4NCj4gPj4+Pj4NCj4g
+Pj4+Pj4gRml4ZXM6IDQwZGRiM2YwMjA4MyAoIlJETUEvZWZhOiBVc2UgQVBJIHRvIGdldCBjb250
+aWd1b3VzIG1lbW9yeQ0KPiA+Pj4+PiBibG9ja3MgYWxpZ25lZCB0byBkZXZpY2Ugc3VwcG9ydGVk
+IHBhZ2Ugc2l6ZSIpDQo+ID4+Pj4+IENjOiBTaGlyYXogU2FsZWVtIDxzaGlyYXouc2FsZWVtQGlu
+dGVsLmNvbT4NCj4gPj4+Pj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyA1LjMNCj4gPj4+
+Pj4gU2lnbmVkLW9mZi1ieTogR2FsIFByZXNzbWFuIDxnYWxwcmVzc0BhbWF6b24uY29tPg0KPiA+
+Pj4+DQo+ID4+Pj4gU2hpcmF6LCBJIHRoaW5rIEkgZm91bmQgdGhlIHJvb3QgY2F1c2UgaGVyZS4N
+Cj4gPj4+PiBJJ20gbm90aWNpbmcgYSByZWdpc3RlciBNUiBvZiBzaXplIDMyaywgd2hpY2ggaXMg
+Y29uc3RydWN0ZWQgZnJvbQ0KPiA+Pj4+IHR3byBzZ2VzLCB0aGUgZmlyc3Qgc2dlIG9mIHNpemUg
+MTJrIGFuZCB0aGUgc2Vjb25kIG9mIDIway4NCj4gPj4+Pg0KPiA+Pj4+IGliX3VtZW1fZmluZF9i
+ZXN0X3Bnc3ogcmV0dXJucyBwYWdlIHNoaWZ0IDEzIGluIHRoZSBmb2xsb3dpbmcgd2F5Og0KPiA+
+Pj4+DQo+ID4+Pj4gMHgxMDNkY2IyMDAwICAgICAgMHgxMDNkY2I1MDAwICAgICAgIDB4MTAzZGQ1
+ZDAwMCAgICAgICAgICAgMHgxMDNkZDYyMDAwDQo+ID4+Pj4gICAgICAgICAgICstLS0tLS0tLS0t
+KyAgICAgICAgICAgICAgICAgICAgICArLS0tLS0tLS0tLS0tLS0tLS0tKw0KPiA+Pj4+ICAgICAg
+ICAgICB8ICAgICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAg
+IHwNCj4gPj4+PiAgICAgICAgICAgfCAgMTJrICAgICB8ICAgICAgICAgICAgICAgICAgICAgIHwg
+ICAgIDIwayAgICAgICAgICB8DQo+ID4+Pj4gICAgICAgICAgICstLS0tLS0tLS0tKyAgICAgICAg
+ICAgICAgICAgICAgICArLS0tLS0tLS0tLS0tLS0tLS0tKw0KPiA+Pj4+DQo+ID4+Pj4gICAgICAg
+ICAgICstLS0tLS0rLS0tLS0tKyAgICAgICAgICAgICAgICAgKy0tLS0tLSstLS0tLS0rLS0tLS0t
+Kw0KPiA+Pj4+ICAgICAgICAgICB8ICAgICAgfCAgICAgIHwgICAgICAgICAgICAgICAgIHwgICAg
+ICB8ICAgICAgfCAgICAgIHwNCj4gPj4+PiAgICAgICAgICAgfCA4ayAgIHwgOGsgICB8ICAgICAg
+ICAgICAgICAgICB8IDhrICAgfCA4ayAgIHwgOGsgICB8DQo+ID4+Pj4gICAgICAgICAgICstLS0t
+LS0rLS0tLS0tKyAgICAgICAgICAgICAgICAgKy0tLS0tLSstLS0tLS0rLS0tLS0tKw0KPiA+Pj4+
+IDB4MTAzZGNiMjAwMCAgICAgICAweDEwM2RjYjYwMDAgICAweDEwM2RkNWMwMDAgICAgICAgICAg
+ICAgIDB4MTAzZGQ2MjAwMA0KPiA+Pj4+DQo+ID4+Pj4NCj4gPj4+PiBUaGUgdG9wIHJvdyBpcyB0
+aGUgb3JpZ2luYWwgdW1lbSBzZ2wsIGFuZCB0aGUgYm90dG9tIGlzIHRoZSBzZ2wNCj4gPj4+PiBj
+b25zdHJ1Y3RlZCBieSByZG1hX2Zvcl9lYWNoX2Jsb2NrIHdpdGggcGFnZSBzaXplIG9mIDhrLg0K
+PiA+Pj4+DQo+ID4+Pj4gSXMgdGhpcyB0aGUgZXhwZWN0ZWQgb3V0cHV0PyBUaGUgOGsgcGFnZXMg
+Y292ZXIgYWRkcmVzc2VzIHdoaWNoDQo+ID4+Pj4gYXJlbid0IHBhcnQgb2YgdGhlIE1SLiBUaGlz
+IGJyZWFrcyBzb21lIG9mIHRoZSBhc3N1bXB0aW9ucyBpbiB0aGUNCj4gPj4+PiBkcml2ZXIgKGZv
+ciBleGFtcGxlLCB0aGUgd2F5IHdlIGNhbGN1bGF0ZSB0aGUgbnVtYmVyIG9mIHBhZ2VzIGluDQo+
+ID4+Pj4gdGhlIE1SKSBhbmQgSSdtIG5vdCBzdXJlIG91ciBkZXZpY2UgY2FuIGhhbmRsZSBzdWNo
+IHNnbC4NCj4gPj4+DQo+ID4+PiBBcnRlbXkgd3JvdGUgdGhpcyBmaXggdGhhdCBjYW4gaGVscCB5
+b3UuDQo+ID4+Pg0KPiA+Pj4gY29tbWl0IDYwYzlmZTJkMThiNjU3ZGY5NTBhNWY0ZDVhNzk1NTY5
+NGJkMDhlNjMNCj4gPj4+IEF1dGhvcjogQXJ0ZW15IEtvdmFseW92IDxhcnRlbXlrb0BtZWxsYW5v
+eC5jb20+DQo+ID4+PiBEYXRlOiAgIFN1biBEZWMgMTUgMTI6NDM6MTMgMjAxOSArMDIwMA0KPiA+
+Pj4NCj4gPj4+ICAgICBSRE1BL3VtZW06IEZpeCBpYl91bWVtX2ZpbmRfYmVzdF9wZ3N6KCkNCj4g
+Pj4+DQo+ID4+PiAgICAgRXhjZXB0IGZvciB0aGUgbGFzdCBlbnRyeSwgdGhlIGVuZGluZyBpb3Zh
+IGFsaWdubWVudCBzZXRzIHRoZSBtYXhpbXVtDQo+ID4+PiAgICAgcG9zc2libGUgcGFnZSBzaXpl
+IGFzIHRoZSBsb3cgYml0cyBvZiB0aGUgaW92YSBtdXN0IGJlIHplcm8gd2hlbg0KPiA+Pj4gICAg
+IHN0YXJ0aW5nIHRoZSBuZXh0IGNodW5rLg0KPiA+Pj4NCj4gPj4+ICAgICBGaXhlczogNGEzNTMz
+OTk1OGYxICgiUkRNQS91bWVtOiBBZGQgQVBJIHRvIGZpbmQgYmVzdCBkcml2ZXIgc3VwcG9ydGVk
+DQo+IHBhZ2Ugc2l6ZSBpbiBhbiBNUiIpDQo+ID4+PiAgICAgU2lnbmVkLW9mZi1ieTogQXJ0ZW15
+IEtvdmFseW92IDxhcnRlbXlrb0BtZWxsYW5veC5jb20+DQo+ID4+PiAgICAgU2lnbmVkLW9mZi1i
+eTogTGVvbiBSb21hbm92c2t5IDxsZW9ucm9AbWVsbGFub3guY29tPg0KPiA+Pj4NCj4gPj4+IGRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2luZmluaWJhbmQvY29yZS91bWVtLmMNCj4gPj4+IGIvZHJpdmVy
+cy9pbmZpbmliYW5kL2NvcmUvdW1lbS5jIGluZGV4IGMzNzY5YTVmMDk2ZC4uMDZiNjEyNWI1YWUx
+DQo+ID4+PiAxMDA2NDQNCj4gPj4+IC0tLSBhL2RyaXZlcnMvaW5maW5pYmFuZC9jb3JlL3VtZW0u
+Yw0KPiA+Pj4gKysrIGIvZHJpdmVycy9pbmZpbmliYW5kL2NvcmUvdW1lbS5jDQo+ID4+PiBAQCAt
+MTY2LDEwICsxNjYsMTMgQEAgdW5zaWduZWQgbG9uZyBpYl91bWVtX2ZpbmRfYmVzdF9wZ3N6KHN0
+cnVjdA0KPiBpYl91bWVtICp1bWVtLA0KPiA+Pj4gICAgICAgICAgICAgICAgICAqIGZvciBhbnkg
+YWRkcmVzcy4NCj4gPj4+ICAgICAgICAgICAgICAgICAgKi8NCj4gPj4+ICAgICAgICAgICAgICAg
+ICBtYXNrIHw9IChzZ19kbWFfYWRkcmVzcyhzZykgKyBwZ29mZikgXiB2YTsNCj4gPj4+IC0gICAg
+ICAgICAgICAgICBpZiAoaSAmJiBpICE9ICh1bWVtLT5ubWFwIC0gMSkpDQo+ID4+PiAtICAgICAg
+ICAgICAgICAgICAgICAgICAvKiByZXN0cmljdCBieSBsZW5ndGggYXMgd2VsbCBmb3IgaW50ZXJp
+b3IgU0dFcyAqLw0KPiA+Pj4gLSAgICAgICAgICAgICAgICAgICAgICAgbWFzayB8PSBzZ19kbWFf
+bGVuKHNnKTsNCj4gPj4+ICAgICAgICAgICAgICAgICB2YSArPSBzZ19kbWFfbGVuKHNnKSAtIHBn
+b2ZmOw0KPiA+Pj4gKyAgICAgICAgICAgICAgIC8qIEV4Y2VwdCBmb3IgdGhlIGxhc3QgZW50cnks
+IHRoZSBlbmRpbmcgaW92YSBhbGlnbm1lbnQgc2V0cw0KPiA+Pj4gKyAgICAgICAgICAgICAgICAq
+IHRoZSBtYXhpbXVtIHBvc3NpYmxlIHBhZ2Ugc2l6ZSBhcyB0aGUgbG93IGJpdHMgb2YgdGhlIGlv
+dmENCj4gPj4+ICsgICAgICAgICAgICAgICAgKiBtdXN0IGJlIHplcm8gd2hlbiBzdGFydGluZyB0
+aGUgbmV4dCBjaHVuay4NCj4gPj4+ICsgICAgICAgICAgICAgICAgKi8NCj4gPj4+ICsgICAgICAg
+ICAgICAgICBpZiAoaSAhPSAodW1lbS0+bm1hcCAtIDEpKQ0KPiA+Pj4gKyAgICAgICAgICAgICAg
+ICAgICAgICAgbWFzayB8PSB2YTsNCj4gPj4+ICAgICAgICAgICAgICAgICBwZ29mZiA9IDA7DQo+
+ID4+PiAgICAgICAgIH0NCj4gPj4+ICAgICAgICAgYmVzdF9wZ19iaXQgPSByZG1hX2ZpbmRfcGdf
+Yml0KG1hc2ssIHBnc3pfYml0bWFwKTsNCj4gPj4NCj4gPj4gVGhhbmtzIExlb24sIEknbGwgdGVz
+dCB0aGlzIGFuZCBsZXQgeW91IGtub3cgaWYgaXQgZml4ZXMgdGhlIGlzc3VlLg0KPiA+PiBXaGVu
+IGFyZSB5b3UgcGxhbm5pbmcgdG8gc3VibWl0IHRoaXM/DQo+ID4NCj4gPiBJZiBpdCBmaXhlcyB5
+b3VyIGlzc3VlcywgSSB3aWxsIGJlIGhhcHB5IHRvIGRvIGl0Lg0KPiANCj4gU28gZmFyIGl0IGxv
+b2tzIGdvb2QgdG8gbWUsIEknbGwgbGV0IGl0IHJ1biBvdmVyIHRoZSB3ZWVrZW5kIHRvIGJlIG9u
+IHRoZSBzYWZlIHNpZGUuDQo+IA0KPiBTaGlyYXosIGRvZXMgdGhpcyBmaXggbWFrZSBzZW5zZSB0
+byB5b3U/DQoNCkkgJ3RoaW5rJyB0aGUgY3VycmVudCBhbGdvcml0aG0gaXMgb2ZmIGJlY2F1c2Ug
+aXQgaXMgbm90IG1hbmRhdGluZyB0aGF0IHRoZSBwYWdlDQpzaXplIGJlIGFsaWduZWQgdG8gZW5k
+IG9mIHRoZSBmaXJzdCBzZ2UuDQoNClNvIGlmIEkgYXNzdW1lZCB1bWVtLT5hZGRyID0gaW92YSA9
+IDB4ODkwMDIwMDAsIHBnb2ZmID0gMC4NCm1hc2sgPSAweDgwMDAgdG8gc3RhcnQgd2l0aCBiZWZv
+cmUgd2UgZW50ZXIgZm9yX2VhY2hfc2dsIGxvb3AuDQoNCkluIHlvdXIgZXhhbXBsZSBvZiB0aGUg
+UEEgbGF5b3V0Lg0KDQpmb3JfZWFjaF9zZyh1bWVtLT5zZ19oZWFkLnNnbCwgc2csIHVtZW0tPm5t
+YXAsIGkpIHsNCgkJLyogV2FsayBTR0wgYW5kIHJlZHVjZSBtYXggcGFnZSBzaXplIGlmIFZBL1BB
+IGJpdHMgZGlmZmVyDQoJCSAqIGZvciBhbnkgYWRkcmVzcy4NCgkJICovDQoJCW1hc2sgfD0gKHNn
+X2RtYV9hZGRyZXNzKHNnKSArIHBnb2ZmKSBeIHZhOw0KCQkJDQoJCQkvKiBJbiBmaXJzdCBpdGVy
+YXRpb24sIA0KCQkJICogbWFzayA9IDB4ODAwMCB8ICgweDEwM2RjYjIwMDAgKyAwKSBeIDB4ODkw
+MDIwMDANCgkJCSAqIG1hc2sgPSAweDEwYjRjYjAwMDANCgkJCSovDQoNCg0KCQlpZiAoaSAmJiBp
+ICE9ICh1bWVtLT5ubWFwIC0gMSkpDQoJCQkvKiByZXN0cmljdCBieSBsZW5ndGggYXMgd2VsbCBm
+b3IgaW50ZXJpb3IgU0dFcyAqLw0KCQkJbWFzayB8PSBzZ19kbWFfbGVuKHNnKTsNCgkJdmEgKz0g
+c2dfZG1hX2xlbihzZykgLSBwZ29mZjsNCg0KCQkJLyogSW4gZmlyc3QgaXRlcmF0aW9uLCB2YSBp
+cyB1cGRhdGVkIHRvLA0KCQkgCSogdmEgPSAweDg5MDAyMDAwICsgMHgzMDAwID0gMHg4OTAwNTAw
+MCwgYWxpZ25lZCB0byA0Sw0KCQkJKi8NCg0KCQlwZ29mZiA9IDA7DQoJfQ0KDQoNCkJ1dCBpbiB0
+aGUgc2Vjb25kIGl0ZXJhdGlvbiwNCjB4MTBiNGNiMDAwMCAgfCAoMHgxMDNkZDVkMDAwKyAwKSBe
+IDB4ODkwMDUwMDAsIHNldHMgdGhlIG1hc2sgdG8gMHgxMGI0ZGY4MDAwDQphbmQgcmVsYXhlcyB0
+aGUgbWF4IHBhZ2Ugc2l6ZS4NCg0KSXQgd291bGQgYmUgZ29vZCB0byBnZXQgdGhlIGRlYnVnIGRh
+dGEgdG8gYmFjayB0aGlzIG9yIHByb3ZlIGl0IHdyb25nLg0KQnV0IGlmIHRoaXMgaXMgaW5kZWVk
+IHdoYXQncyBoYXBwZW5pbmcsIHRoZW4gT1JpbmcgaW4gdGhlIHNnbC0+bGVuZ3RoIGZvciB0aGUN
+CmZpcnN0IHNnZSB0byByZXN0cmljdCB0aGUgcGFnZSBzaXplIG1pZ2h0IGN1dCBpdC4gU28gc29t
+ZXRoaW5nIGxpa2UsDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2luZmluaWJhbmQvY29yZS91bWVt
+LmMgYi9kcml2ZXJzL2luZmluaWJhbmQvY29yZS91bWVtLmMNCmluZGV4IDdhM2I5OTUuLjFhY2Vi
+MWIgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2luZmluaWJhbmQvY29yZS91bWVtLmMNCisrKyBiL2Ry
+aXZlcnMvaW5maW5pYmFuZC9jb3JlL3VtZW0uYw0KQEAgLTE2Niw4ICsxNjYsOCBAQCB1bnNpZ25l
+ZCBsb25nIGliX3VtZW1fZmluZF9iZXN0X3Bnc3ooc3RydWN0IGliX3VtZW0gKnVtZW0sDQogICAg
+ICAgICAgICAgICAgICogZm9yIGFueSBhZGRyZXNzLg0KICAgICAgICAgICAgICAgICAqLw0KICAg
+ICAgICAgICAgICAgIG1hc2sgfD0gKHNnX2RtYV9hZGRyZXNzKHNnKSArIHBnb2ZmKSBeIHZhOw0K
+LSAgICAgICAgICAgICAgIGlmIChpICYmIGkgIT0gKHVtZW0tPm5tYXAgLSAxKSkNCi0gICAgICAg
+ICAgICAgICAgICAgICAgIC8qIHJlc3RyaWN0IGJ5IGxlbmd0aCBhcyB3ZWxsIGZvciBpbnRlcmlv
+ciBTR0VzICovDQorICAgICAgICAgICAgICAgaWYgKGkgIT0gKHVtZW0tPm5tYXAgLSAxKSkNCisg
+ICAgICAgICAgICAgICAgICAgICAgIC8qIHJlc3RyaWN0IGJ5IGxlbmd0aCBmb3IgYWxsIGJ1dCBs
+YXN0IFNHRSAqLw0KICAgICAgICAgICAgICAgICAgICAgICAgbWFzayB8PSBzZ19kbWFfbGVuKHNn
+KTsNCiAgICAgICAgICAgICAgICB2YSArPSBzZ19kbWFfbGVuKHNnKSAtIHBnb2ZmOw0KICAgICAg
+ICAgICAgICAgIHBnb2ZmID0gMDsNCg0KDQpBcnRlbXkgZml4IG9mIHVzaW5nIHRoZSBlbmRpbmcg
+aW92YSBhbGlnbm1lbnQgdG8gcmVzdHJpY3RzIHRoZSBwYWdlIHNpemUNCmFwcGVhcnMgdG8gYWNo
+aWV2ZSB0aGUgc2FtZSAuLg0KPiA+Pj4gICAgICAgICAgICAgICAgIHZhICs9IHNnX2RtYV9sZW4o
+c2cpIC0gcGdvZmY7DQo+ID4+PiArICAgICAgICAgICAgICAgLyogRXhjZXB0IGZvciB0aGUgbGFz
+dCBlbnRyeSwgdGhlIGVuZGluZyBpb3ZhIGFsaWdubWVudCBzZXRzDQo+ID4+PiArICAgICAgICAg
+ICAgICAgICogdGhlIG1heGltdW0gcG9zc2libGUgcGFnZSBzaXplIGFzIHRoZSBsb3cgYml0cyBv
+ZiB0aGUgaW92YQ0KPiA+Pj4gKyAgICAgICAgICAgICAgICAqIG11c3QgYmUgemVybyB3aGVuIHN0
+YXJ0aW5nIHRoZSBuZXh0IGNodW5rLg0KPiA+Pj4gKyAgICAgICAgICAgICAgICAqLw0KPiA+Pj4g
+KyAgICAgICAgICAgICAgIGlmIChpICE9ICh1bWVtLT5ubWFwIC0gMSkpDQo+ID4+PiArICAgICAg
+ICAgICAgICAgICAgICAgICBtYXNrIHw9IHZhOw0KDQpJbiBvdXIgZXhhbXBsZSwgYXQgZW5kIG9m
+IGZpcnN0IGl0ZXJhdGlvbiwgbWFzayA9IDB4MTBiNGNiMDAwMCAgfCAweDg5MDA1MDAwPSAweDEw
+YmRjYjUwMDAsDQp5b3Ugd291bGQgcmVzdHJpY3QgdG8gNEsuDQoNCg0KDQoNCg0K
