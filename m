@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D04CB1480DA
+	by mail.lfdr.de (Postfix) with ESMTP id 5BD181480D9
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389107AbgAXLPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:15:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
+        id S2390206AbgAXLPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:15:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731323AbgAXLO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:14:58 -0500
+        id S1731323AbgAXLPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:15:04 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8092B20663;
-        Fri, 24 Jan 2020 11:14:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A7422071A;
+        Fri, 24 Jan 2020 11:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864497;
-        bh=72QCrR6qXizsAjH+wzmpM16qXkayDUh90kShyfOb1dw=;
+        s=default; t=1579864504;
+        bh=6OjTw3TEj6HhTq5Xkir6kyaBIG8CIbwSSO8B832Xe8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGamyQ/+WME3vr9I8coqz9wz9bZkniy1IWyv/cKNFDN+E6hQVKRjn0m7lIt2mhv04
-         dUguJ9EqxZFansHw/nAORt6+Z6+PZo0Voyt9NylrInf1pBFFGWBQJ/cjiqxGj0k26q
-         JA5M/F5MEZ+b1gG+nHMl4aDQcRnxrBaW93vk0H6Y=
+        b=ar9FOYlN/PI+7BFEIbdREZV3XeVSO52IzcBtDQo5m5CwbY67vAPaqU9dabhw+H/+0
+         SLwks2bykYLCjltdc3pTKxg/2wnDman+KV7oz//J3fwvMwDSTm89uZSY5I7iDyonKT
+         voGkKKEaC1VtoRTmlpVKX4LO67jIe2j6kMO8qM5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 268/639] regulator: tps65086: Fix tps65086_ldoa1_ranges for selector 0xB
-Date:   Fri, 24 Jan 2020 10:27:18 +0100
-Message-Id: <20200124093120.275967712@linuxfoundation.org>
+Subject: [PATCH 4.19 270/639] jfs: fix bogus variable self-initialization
+Date:   Fri, 24 Jan 2020 10:27:20 +0100
+Message-Id: <20200124093120.515595476@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,43 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e69b394703e032e56a140172440ec4f9890b536d ]
+[ Upstream commit a5fdd713d256887b5f012608701149fa939e5645 ]
 
-selector 0xB (1011) should be 2.6V rather than 2.7V, fit ix.
+A statement was originally added in 2006 to shut up a gcc warning,
+now but now clang warns about it:
 
-Table 5-4. LDOA1 Output Voltage Options
-VID Bits VOUT VID Bits VOUT VID Bits VOUT VID Bits VOUT
-0000     1.35 0100     1.8  1000     2.3  1100     2.85
-0001     1.5  0101     1.9  1001     2.4  1101     3.0
-0010     1.6  0110     2.0  1010     2.5  1110     3.3
-0011     1.7  0111     2.1  1011     2.6  1111     Not Used
+fs/jfs/jfs_txnmgr.c:1932:15: error: variable 'pxd' is uninitialized when used within its own initialization
+      [-Werror,-Wuninitialized]
+                pxd_t pxd = pxd;        /* truncated extent of xad */
+                      ~~~   ^~~
 
-Fixes: d2a2e729a666 ("regulator: tps65086: Add regulator driver for the TPS65086 PMIC")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Andrew F. Davis <afd@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Modern versions of gcc are fine without the silly assignment, so just
+drop it. Tested with gcc-4.6 (released 2011), 4.7, 4.8, and 4.9.
+
+Fixes: c9e3ad6021e5 ("JFS: Get rid of "may be used uninitialized" warnings")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/tps65086-regulator.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/jfs/jfs_txnmgr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/tps65086-regulator.c b/drivers/regulator/tps65086-regulator.c
-index 45e96e1546900..5a5e9b5bf4bea 100644
---- a/drivers/regulator/tps65086-regulator.c
-+++ b/drivers/regulator/tps65086-regulator.c
-@@ -90,8 +90,8 @@ static const struct regulator_linear_range tps65086_buck345_25mv_ranges[] = {
- static const struct regulator_linear_range tps65086_ldoa1_ranges[] = {
- 	REGULATOR_LINEAR_RANGE(1350000, 0x0, 0x0, 0),
- 	REGULATOR_LINEAR_RANGE(1500000, 0x1, 0x7, 100000),
--	REGULATOR_LINEAR_RANGE(2300000, 0x8, 0xA, 100000),
--	REGULATOR_LINEAR_RANGE(2700000, 0xB, 0xD, 150000),
-+	REGULATOR_LINEAR_RANGE(2300000, 0x8, 0xB, 100000),
-+	REGULATOR_LINEAR_RANGE(2850000, 0xC, 0xD, 150000),
- 	REGULATOR_LINEAR_RANGE(3300000, 0xE, 0xE, 0),
- };
+diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
+index a5663cb621d8d..78789c5ed36b0 100644
+--- a/fs/jfs/jfs_txnmgr.c
++++ b/fs/jfs/jfs_txnmgr.c
+@@ -1928,8 +1928,7 @@ static void xtLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
+ 	 * header ?
+ 	 */
+ 	if (tlck->type & tlckTRUNCATE) {
+-		/* This odd declaration suppresses a bogus gcc warning */
+-		pxd_t pxd = pxd;	/* truncated extent of xad */
++		pxd_t pxd;	/* truncated extent of xad */
+ 		int twm;
  
+ 		/*
 -- 
 2.20.1
 
