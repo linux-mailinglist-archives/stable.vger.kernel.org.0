@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE601488D7
+	by mail.lfdr.de (Postfix) with ESMTP id 055851488D5
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403884AbgAXObQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:31:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41556 "EHLO mail.kernel.org"
+        id S2403761AbgAXObI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:31:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730970AbgAXOU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:20:29 -0500
+        id S1731125AbgAXOUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:20:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E61A21569;
-        Fri, 24 Jan 2020 14:20:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B93932087E;
+        Fri, 24 Jan 2020 14:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875628;
-        bh=7yves8TjxduWUO08r7fbAwx8OgmvxDGlAZ6NoGUW03I=;
+        s=default; t=1579875629;
+        bh=OHbEb95UQ/uDxKtaT7TWCgF3ujdAcFfh7VMwS96ofwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3YFs65x/FKi9nMuu+EWX1WYHhVuc5tIrZ7GoIbO5oZcr+dQQKlBSpOJrtEkOHaL/
-         5VJn+etVDx3C2WNM0a7V9TFTRmwNjdLM2aKXVJe1gMAv0PdZT0UQ5FTePx34L5GwCO
-         56sh5w6qiplnV5TVoQuB4CI6jpCB7OL05yvPQpPo=
+        b=rKXAwtcFg9OdFDhXzP9WZakOLJVTEj6lgRRpY24r46WPdAW9ZSnAUB0ZKf+Wp8Au3
+         Mb+nm8tFbEgVYf8prPx3UXycXx4PyjP0xGIqR5Nkc/rkp6CodwL7bLPAcKQnfqC+wD
+         F7zY71GQ3QidsRJpgXOqsmqmQB/rJ4pzdxjIxNsE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 13/56] clk: sunxi-ng: h6-r: Fix AR100/R_APB2 parent order
-Date:   Fri, 24 Jan 2020 09:19:29 -0500
-Message-Id: <20200124142012.29752-13-sashal@kernel.org>
+Cc:     Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 14/56] mac80211: mesh: restrict airtime metric to peered established plinks
+Date:   Fri, 24 Jan 2020 09:19:30 -0500
+Message-Id: <20200124142012.29752-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124142012.29752-1-sashal@kernel.org>
 References: <20200124142012.29752-1-sashal@kernel.org>
@@ -44,51 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-[ Upstream commit 0c545240aebc2ccb8f661dc54283a14d64659804 ]
+[ Upstream commit 02a614499600af836137c3fbc4404cd96365fff2 ]
 
-According to the BSP source code, both the AR100 and R_APB2 clocks have
-PLL_PERIPH0 as mux index 3, not 2 as it was on previous chips. The pre-
-divider used for PLL_PERIPH0 should be changed to index 3 to match.
+The following warning is triggered every time an unestablished mesh peer
+gets dumped. Checks if a peer link is established before retrieving the
+airtime link metric.
 
-This was verified by running a rough benchmark on the AR100 with various
-clock settings:
+[ 9563.022567] WARNING: CPU: 0 PID: 6287 at net/mac80211/mesh_hwmp.c:345
+               airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022697] Hardware name: PC Engines apu2/apu2, BIOS v4.10.0.3
+[ 9563.022756] RIP: 0010:airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022838] Call Trace:
+[ 9563.022897]  sta_set_sinfo+0x936/0xa10 [mac80211]
+[ 9563.022964]  ieee80211_dump_station+0x6d/0x90 [mac80211]
+[ 9563.023062]  nl80211_dump_station+0x154/0x2a0 [cfg80211]
+[ 9563.023120]  netlink_dump+0x17b/0x370
+[ 9563.023130]  netlink_recvmsg+0x2a4/0x480
+[ 9563.023140]  ____sys_recvmsg+0xa6/0x160
+[ 9563.023154]  ___sys_recvmsg+0x93/0xe0
+[ 9563.023169]  __sys_recvmsg+0x7e/0xd0
+[ 9563.023210]  do_syscall_64+0x4e/0x140
+[ 9563.023217]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-        | mux | pre-divider | iterations/second | clock source |
-        |=====|=============|===================|==============|
-        |   0 |           0 |  19033   (stable) |       osc24M |
-        |   2 |           5 |  11466 (unstable) |  iosc/osc16M |
-        |   2 |          17 |  11422 (unstable) |  iosc/osc16M |
-        |   3 |           5 |  85338   (stable) |  pll-periph0 |
-        |   3 |          17 |  27167   (stable) |  pll-periph0 |
-
-The relative performance numbers all match up (with pll-periph0 running
-at its default 600MHz).
-
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191203180644.70653-1-markus.theil@tu-ilmenau.de
+[rewrite commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/mesh_hwmp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c b/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c
-index 27554eaf69298..3f78035ff85af 100644
---- a/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c
-@@ -23,9 +23,9 @@
-  */
+diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
+index 6950cd0bf5940..740dc9fa127cd 100644
+--- a/net/mac80211/mesh_hwmp.c
++++ b/net/mac80211/mesh_hwmp.c
+@@ -326,6 +326,9 @@ static u32 airtime_link_metric_get(struct ieee80211_local *local,
+ 	unsigned long fail_avg =
+ 		ewma_mesh_fail_avg_read(&sta->mesh->fail_avg);
  
- static const char * const ar100_r_apb2_parents[] = { "osc24M", "osc32k",
--					     "pll-periph0", "iosc" };
-+						     "iosc", "pll-periph0" };
- static const struct ccu_mux_var_prediv ar100_r_apb2_predivs[] = {
--	{ .index = 2, .shift = 0, .width = 5 },
-+	{ .index = 3, .shift = 0, .width = 5 },
- };
- 
- static struct ccu_div ar100_clk = {
++	if (sta->mesh->plink_state != NL80211_PLINK_ESTAB)
++		return MAX_METRIC;
++
+ 	/* Try to get rate based on HW/SW RC algorithm.
+ 	 * Rate is returned in units of Kbps, correct this
+ 	 * to comply with airtime calculation units
 -- 
 2.20.1
 
