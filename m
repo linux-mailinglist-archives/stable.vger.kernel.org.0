@@ -2,162 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB208148CD7
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 18:18:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BBC3148CDB
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 18:19:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731753AbgAXRSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 12:18:48 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:45363 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731737AbgAXRSs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 12:18:48 -0500
-Received: by mail-lf1-f67.google.com with SMTP id 203so1591820lfa.12
-        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 09:18:47 -0800 (PST)
+        id S1731934AbgAXRTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 12:19:50 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:33292 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731616AbgAXRTu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 12:19:50 -0500
+Received: by mail-wm1-f66.google.com with SMTP id m10so3947484wmc.0
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 09:19:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=GGYB6jueNzLWlzDitXtevx7ZQ7yH7Ug1+jvT1w8K0OQ=;
-        b=QxlCezIMXJU2YkAbdVDQKpQb4nJ7CkAZKu+LFvDeNyff+P0KqUExZjeTOqm6PSH87v
-         tLNT1qMhznurTS16F5d4kgJVvMzNH4XaqRSmJrxgKHbAMWT6bsujqR5THdDDRMfDZzGC
-         0yrtL3YmJ9HdAoV9iGp1n6hJbjMXuOOko/idoDsBSUkZ6xprD0CA018k1lMPuP466GP/
-         vEUrvgR+bGjGT72lScwdloo573l02kGaBr+3rY8dgCkJ5UR+8mLHp5s556I5ROMStn04
-         O9+Zj5Up560+OkkRymhdydHrwWpzZaMs1Sr7fvp54jhRDPl4cuxbaICpBHMTLrpK9c49
-         ojiQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yN06qSv+Rp54XMaEzGLLeg1c8qESgisTmP8v6pDf2qs=;
+        b=h8TTU7tSqYMa24nO+5fyqhQmLGqR6WT0LmXEn9ze9uQrAEVISU13gGsgVGPozjpJGD
+         ksmfhnTASBK0yE2a2x4HeAHHU6cCgCM1pEqUkyjcLEXbeG8snCqOsvq2inaSMktb+QRg
+         Guz9fiMRLdhJjff6iiIJm3JhwqT3loV/jDEgv7Z6hMUYwsA68o56c3Y0PzabfDG8a5fH
+         xQmWb4a+G6mf//nJMkFU/WGpCStFXtaIwglGQCFL1JtNBN2phYfDI54GBZE4cjRpb2dD
+         yvM2Davg7rFYPhqCOsUuj9QFciDsm7U84svD7st7PwlsB3lXhGoQwF9sTHuArLZNWz2Y
+         VEAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=GGYB6jueNzLWlzDitXtevx7ZQ7yH7Ug1+jvT1w8K0OQ=;
-        b=qCUCXXbpD8RP1YS7EckgHwxEtYF74APcYqEJEESXpfxwy1dXB+Qsqpcu5vl0sl/epY
-         inhxl0bDhFSNvc2rKiLmwyl7nn+bQ2OsCmNhHrFRu3YzrF45LGhlfJjb0XJeK9U6SXlr
-         kS/vc0f05rf0iSrwA/4JaFqf1F3qHn/x4rYsLXACU/ElWc82AFWu7ANeF6Ot3JGaHruG
-         tfA4GFWVZ6VCZ5FpTePWBQv0wmJk/tiCKA9XuipqBs/Uhn+63wgBOcUzeEIs5cAfDr0f
-         1W4EP3el1VKPg0uTX61K30Onf1IsnXcaEquIJpW2n5OjvE/4xYjTJ8u098yF3iEphUCn
-         zFWA==
-X-Gm-Message-State: APjAAAVdDBRT7eqPgRo370SRDk+ak4iepOIePTzLgsfzpcyxTZxd6Ahe
-        +6UdbPe2sOH8g6hIgvmwUztka3+/sjYRbbWBXm1vPQ==
-X-Google-Smtp-Source: APXvYqzTZIrbrs3d7PShNVk9imhxRJTbJ4cw3aSNA1Hig1k0j4P+eWe9ts2FI9mOG102SbwHaGQD6JFXKcIsZJV/Jis=
-X-Received: by 2002:ac2:59dd:: with SMTP id x29mr1822640lfn.95.1579886326583;
- Fri, 24 Jan 2020 09:18:46 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yN06qSv+Rp54XMaEzGLLeg1c8qESgisTmP8v6pDf2qs=;
+        b=HYGH47UXFtgs5ufqHMyJ+SfcymoqLOIihC6DLf2HRfrjA02sRGhvDuniCOJm7AuuN9
+         HjjGPle1ie/vuZdDEP1NlHRtscCh1xZw/ZK//tmPual2eRZVqpsAXdToieCchMWFsMGn
+         CkqUhaEO4VO4INYf+22AvKovB4ddPKylfDLewhCMhIJvyBDIKuSnocNcDWkv56azrdzM
+         GaC3FL1SsWZGy1KZ3sB0kxbbUE0DrLmZEXpzcwcxbwfpYdZMrV//VMh+nFHr5UMLSWwY
+         9pnQSS98FgYPsZFMONVIxqSJ4AD6c2DIQmpoJZxI0gc6N+b364nul+tFUqHS5BplRwR/
+         Yvyw==
+X-Gm-Message-State: APjAAAXPzG5wIEqpOmAXQ/kaDVkUAp5Zq4AADQDEeH15z2fOQS8mPCqZ
+        yoGHtLgqoiTOZF0XNvgiX3grg3JPpF1aIg==
+X-Google-Smtp-Source: APXvYqwCtApwdpHLOf/WN9xAnW/j+4BetggkFZGRUqtvqd3xzT19+Bub3FDSmA4Ro0+kzInH9m2eqg==
+X-Received: by 2002:a05:600c:230d:: with SMTP id 13mr228548wmo.13.1579886388224;
+        Fri, 24 Jan 2020 09:19:48 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c17sm8005080wrr.87.2020.01.24.09.19.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Jan 2020 09:19:47 -0800 (PST)
+Message-ID: <5e2b2733.1c69fb81.6c79a.1f7b@mx.google.com>
+Date:   Fri, 24 Jan 2020 09:19:47 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200124092919.490687572@linuxfoundation.org>
-In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 24 Jan 2020 22:48:35 +0530
-Message-ID: <CA+G9fYvBS+VcFuanjpKf+UgNa1Z=_Ctk1jGcZezVNtWRzpXSKA@mail.gmail.com>
-Subject: Re: [PATCH 4.14 000/343] 4.14.168-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.167-344-g44ca37a00ad6
+Subject: stable-rc/linux-4.14.y boot: 95 boots: 1 failed,
+ 89 passed with 5 offline (v4.14.167-344-g44ca37a00ad6)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 24 Jan 2020 at 15:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.168 release.
-> There are 343 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 26 Jan 2020 09:26:30 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.168-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+stable-rc/linux-4.14.y boot: 95 boots: 1 failed, 89 passed with 5 offline (=
+v4.14.167-344-g44ca37a00ad6)
 
-Summary
-------------------------------------------------------------------------
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.167-344-g44ca37a00ad6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.167-344-g44ca37a00ad6/
 
-kernel: 4.14.168-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 44ca37a00ad6e970111780ebce3b3b2b127ba3d6
-git describe: v4.14.167-344-g44ca37a00ad6
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.167-344-g44ca37a00ad6
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.167-344-g44ca37a00ad6
+Git Commit: 44ca37a00ad6e970111780ebce3b3b2b127ba3d6
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 52 unique boards, 19 SoC families, 13 builds out of 189
 
-No regressions (compared to build v4.14.167)
+Boot Failure Detected:
 
-No fixes (compared to build v4.14.167)
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-Ran 22734 total tests in the following environments and test suites.
+Offline Platforms:
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+arm:
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* libhugetlbfs
-* linux-log-parser
-* ltp-containers-tests
-* kselftest
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* network-basic-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
