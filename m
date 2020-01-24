@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E90D1481E8
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 473801481EB
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391362AbgAXLXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:23:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36454 "EHLO mail.kernel.org"
+        id S2391166AbgAXLXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:23:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388604AbgAXLXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:23:43 -0500
+        id S2388604AbgAXLXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:23:47 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2BCB206D4;
-        Fri, 24 Jan 2020 11:23:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCF9A20718;
+        Fri, 24 Jan 2020 11:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865023;
-        bh=ubiPHxkmrdVJDYqoeAl2Gn8dF4bT82bZMoe81iJ6Z7A=;
+        s=default; t=1579865026;
+        bh=qqwOxpLS8x2nlKDakhBH12vZhKvEVKL2JUJSje/u0+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6uKD29GSbv1EPGf3Z00vqJsI4d+3WTRFmhvxiLXK9TWZrlLLscP3jgqG1c0W1KDM
-         deCUzyvcbOHM2GuBssKE5EDdllQFHNOUE/GlLOu0E5UNjCCmJcSZRbiszJLJy0xQ5t
-         HeME1vKYBFqpQ/CEG4Id6XdyKE/IAhkRNID7FO5k=
+        b=km0Mffk9nAgD59nIfsgCux6Jr8dEQazGUeRcG5KKFyjXVQNz/LCmGThZvAYyMBUU1
+         xZn7HWL30kfUSmZUC4r+wmy6MdNQdyOYYSBsJr2EZmlaYwndN8pXeXnkN3ktFswAYV
+         ACKf+MEjwxoU6VXs+7RH9piy2edv6uo4/z2xtHnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borut Seljak <borut.seljak@t-2.net>,
+        stable@vger.kernel.org,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 417/639] serial: stm32: fix a recursive locking in stm32_config_rs485
-Date:   Fri, 24 Jan 2020 10:29:47 +0100
-Message-Id: <20200124093139.236423702@linuxfoundation.org>
+Subject: [PATCH 4.19 418/639] arm64: dts: meson-gxm-khadas-vim2: fix gpio-keys-polled node
+Date:   Fri, 24 Jan 2020 10:29:48 +0100
+Message-Id: <20200124093139.363702575@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,43 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borut Seljak <borut.seljak@t-2.net>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 707aeea13a9c85520262e11899d86df3c4b48262 ]
+[ Upstream commit 0afd24c2fb61bd5163bab08ea1ee54d60d3ea37e ]
 
-Remove spin_lock_irqsave in stm32_config_rs485, it cause recursive locking.
-Already locked in uart_set_rs485_config.
+Fix DTC warnings:
 
-Fixes: 1bcda09d291081 ("serial: stm32: add support for RS485 hardware control mode")
-Signed-off-by: Borut Seljak <borut.seljak@t-2.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+meson-gxm-khadas-vim2.dtb: Warning (avoid_unnecessary_addr_size):
+   /gpio-keys-polled: unnecessary #address-cells/#size-cells
+	without "ranges" or child "reg" property
+
+Fixes: b8b74dda3908 ("ARM64: dts: meson-gxm: Add support for Khadas VIM2")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 1334e42939776..d096e552176cc 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -105,9 +105,7 @@ static int stm32_config_rs485(struct uart_port *port,
- 	struct stm32_usart_config *cfg = &stm32_port->info->cfg;
- 	u32 usartdiv, baud, cr1, cr3;
- 	bool over8;
--	unsigned long flags;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+index 782e9edac8051..bfd3a510ff162 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+@@ -63,11 +63,9 @@
  
--	spin_lock_irqsave(&port->lock, flags);
- 	stm32_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+ 	gpio-keys-polled {
+ 		compatible = "gpio-keys-polled";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		poll-interval = <100>;
  
- 	port->rs485 = *rs485conf;
-@@ -147,7 +145,6 @@ static int stm32_config_rs485(struct uart_port *port,
- 	}
- 
- 	stm32_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
--	spin_unlock_irqrestore(&port->lock, flags);
- 
- 	return 0;
- }
+-		button@0 {
++		power-button {
+ 			label = "power";
+ 			linux,code = <KEY_POWER>;
+ 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_LOW>;
 -- 
 2.20.1
 
