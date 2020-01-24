@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DEF14802D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C1B14802F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388307AbgAXLIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:08:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43742 "EHLO mail.kernel.org"
+        id S2389654AbgAXLIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:08:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389646AbgAXLIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:08:18 -0500
+        id S2389653AbgAXLIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:08:21 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F1A920708;
-        Fri, 24 Jan 2020 11:08:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A771214DB;
+        Fri, 24 Jan 2020 11:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864097;
-        bh=sV4iwM9SEHdmE/1iFpICkuFdnRHqZTyEZmb5uZesbaQ=;
+        s=default; t=1579864100;
+        bh=46K0VE5yxeH0yjttC/EOtWHpEMUhqhBXZ0fviqaYDh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOamHHZUhTGQU23Dgpx6XLuhUfMEVQTPqqUfjByiD79J3cJGvspp2yY706ayKIer2
-         dpf5YJzDxnljLprRe1QHX9sSvyLiR+xgImNzjaPFHgblwVTe8Md4zGfQHn3u89dWAG
-         Xe47s6/ZiOCsilFd73T+aAnKjt4/yu1ix26DXPZ0=
+        b=hchhxMUA4SSf4r7vob4VMr1yEr7EzwImkicHMITgInRpmcaWlEK+aWApbZjMO8Tj7
+         DxVpKF7Zvxo0sN5SzDfrGOV0FLR8TvwFOS+qahu5EDvJFyH4wJkZd6t7XK3m8DUGX2
+         NcfILsjB02ESjgSwRagJbfNLm/1gKapP2n9PiICA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 171/639] clk: ingenic: jz4740: Fix gating of UDC clock
-Date:   Fri, 24 Jan 2020 10:25:41 +0100
-Message-Id: <20200124093108.582423801@linuxfoundation.org>
+Subject: [PATCH 4.19 172/639] rtc: ds1672: fix unintended sign extension
+Date:   Fri, 24 Jan 2020 10:25:42 +0100
+Message-Id: <20200124093108.743673769@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,34 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit b7e29924a1a628aec60d18651b493fa1601bf944 ]
+[ Upstream commit f0c04c276739ed8acbb41b4868e942a55b128dca ]
 
-The UDC clock is gated when the bit is cleared, not when it is set.
+Shifting a u8 by 24 will cause the value to be promoted to an integer. If
+the top bit of the u8 is set then the following conversion to an unsigned
+long will sign extend the value causing the upper 32 bits to be set in
+the result.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
-Fixes: 2b555a4b9cae ("clk: ingenic: Add missing flag for UDC clock")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fix this by casting the u8 value to an unsigned long before the shift.
+
+Detected by CoverityScan, CID#138801 ("Unintended sign extension")
+
+Fixes: edf1aaa31fc5 ("[PATCH] RTC subsystem: DS1672 driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ingenic/jz4740-cgu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-ds1672.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/ingenic/jz4740-cgu.c b/drivers/clk/ingenic/jz4740-cgu.c
-index 4479c102e8994..b86edd3282493 100644
---- a/drivers/clk/ingenic/jz4740-cgu.c
-+++ b/drivers/clk/ingenic/jz4740-cgu.c
-@@ -165,7 +165,7 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
- 		.parents = { JZ4740_CLK_EXT, JZ4740_CLK_PLL_HALF, -1, -1 },
- 		.mux = { CGU_REG_CPCCR, 29, 1 },
- 		.div = { CGU_REG_CPCCR, 23, 1, 6, -1, -1, -1 },
--		.gate = { CGU_REG_SCR, 6 },
-+		.gate = { CGU_REG_SCR, 6, true },
- 	},
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 9caaccccaa575..b1ebca099b0df 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -58,7 +58,8 @@ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n",
+ 		__func__, buf[0], buf[1], buf[2], buf[3]);
  
- 	/* Gate-only clocks */
+-	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++	time = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
++	       (buf[1] << 8) | buf[0];
+ 
+ 	rtc_time_to_tm(time, tm);
+ 
 -- 
 2.20.1
 
