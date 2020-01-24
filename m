@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 751F6147DC5
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 698E9147DC7
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388047AbgAXKDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:03:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38678 "EHLO mail.kernel.org"
+        id S2388752AbgAXKDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:03:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388978AbgAXKDC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:03:02 -0500
+        id S2388984AbgAXKDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:03:06 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCCE7208C4;
-        Fri, 24 Jan 2020 10:03:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A4AD20709;
+        Fri, 24 Jan 2020 10:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860182;
-        bh=K7wja9+ppCZmKZ3AUMc5iP1LJ3dNe8J2iyH4Xa8UsNE=;
+        s=default; t=1579860186;
+        bh=pOWZgtTgHHlotF6QT7b3kDeyYUXeuvWpUTA61QfPb+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2ZfcIqgDl+dtWKT40K+u43Mp/Uh8jw3NHfqsi8E137cUObZEcGjKJzsPpCQdt+SJ
-         W5994ve3UgAK/DKvm0wSbJ0DvLQiJ7o4v6RjsmebKO9hfy+2d6h0fmXDd8Lfc05b2p
-         IBwqVUcbQKesvixBqMphpdeQdnT23oSBsHfjI064=
+        b=mCQJNAHlWeQdD+NwRgJHoQP3r4ivSpiFpkCSPufKvv0OynwHP8LdLSPmAwRzrVaI0
+         VRMEvqgP+RwbzRL7SQZQLMC0x45mEjVZxgbCfQWAwgftu1mND8XXaexTy/YUYIbXnl
+         rNoOyTtaCNU9ctrp6wvaskLH+6FgA+lYchcgF5VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Alexandre Kroupski <alexandre.kroupski@ingenico.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 278/343] mac80211: minstrel_ht: fix per-group max throughput rate initialization
-Date:   Fri, 24 Jan 2020 10:31:36 +0100
-Message-Id: <20200124092956.659636649@linuxfoundation.org>
+Subject: [PATCH 4.14 279/343] media: atmel: atmel-isi: fix timeout value for stop streaming
+Date:   Fri, 24 Jan 2020 10:31:37 +0100
+Message-Id: <20200124092956.783978655@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,35 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Alexandre Kroupski <alexandre.kroupski@ingenico.com>
 
-[ Upstream commit 56dd918ff06e3ee24d8067e93ed12b2a39e71394 ]
+[ Upstream commit 623fd246bb40234fe68dd4e7c1f1f081f9c45a3d ]
 
-The group number needs to be multiplied by the number of rates per group
-to get the full rate index
+In case of sensor malfunction, stop streaming timeout takes much longer
+than expected. This is due to conversion of time to jiffies: milliseconds
+multiplied with HZ (ticks/second) gives out a value of jiffies with 10^3
+greater. We need to also divide by 10^3 to obtain the right jiffies value.
+In other words FRAME_INTERVAL_MILLI_SEC must be in seconds in order to
+multiply by HZ and get the right jiffies value to add to the current
+jiffies for the timeout expire time.
 
-Fixes: 5935839ad735 ("mac80211: improve minstrel_ht rate sorting by throughput & probability")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20190820095449.45255-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 195ebc43bf76 ("[media] V4L: at91: add Atmel Image Sensor Interface (ISI) support")
+Signed-off-by: Alexandre Kroupski <alexandre.kroupski@ingenico.com>
+Reviewed-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ drivers/media/platform/atmel/atmel-isi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
-index e57811e4b91f6..7ba4272642c9f 100644
---- a/net/mac80211/rc80211_minstrel_ht.c
-+++ b/net/mac80211/rc80211_minstrel_ht.c
-@@ -529,7 +529,7 @@ minstrel_ht_update_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi)
+diff --git a/drivers/media/platform/atmel/atmel-isi.c b/drivers/media/platform/atmel/atmel-isi.c
+index 891fa2505efa0..2f962a3418f63 100644
+--- a/drivers/media/platform/atmel/atmel-isi.c
++++ b/drivers/media/platform/atmel/atmel-isi.c
+@@ -496,7 +496,7 @@ static void stop_streaming(struct vb2_queue *vq)
+ 	spin_unlock_irq(&isi->irqlock);
  
- 		/* (re)Initialize group rate indexes */
- 		for(j = 0; j < MAX_THR_RATES; j++)
--			tmp_group_tp_rate[j] = group;
-+			tmp_group_tp_rate[j] = MCS_GROUP_RATES * group;
- 
- 		for (i = 0; i < MCS_GROUP_RATES; i++) {
- 			if (!(mi->supported[group] & BIT(i)))
+ 	if (!isi->enable_preview_path) {
+-		timeout = jiffies + FRAME_INTERVAL_MILLI_SEC * HZ;
++		timeout = jiffies + (FRAME_INTERVAL_MILLI_SEC * HZ) / 1000;
+ 		/* Wait until the end of the current frame. */
+ 		while ((isi_readl(isi, ISI_STATUS) & ISI_CTRL_CDC) &&
+ 				time_before(jiffies, timeout))
 -- 
 2.20.1
 
