@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 868B61483C8
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9B21483C9
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403942AbgAXL0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:26:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40874 "EHLO mail.kernel.org"
+        id S2390795AbgAXL00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:26:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732638AbgAXL0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:26:17 -0500
+        id S2388623AbgAXL0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:26:25 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CA9B214DB;
-        Fri, 24 Jan 2020 11:26:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8960206D4;
+        Fri, 24 Jan 2020 11:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865176;
-        bh=d6SmrSsZRvzU5AcjXbfQGmEHzMEihDgEyQkQRTpSdsQ=;
+        s=default; t=1579865184;
+        bh=/nO3Ttx6srVgUV9YENUbndo2PQS8wsJTxorwB71OhYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nV08pYTDUODMMNQLHSnKZzK/gVwZd7Ee7wzmzyEd662ZMz7wl2XE3QBszg2/UDtEp
-         hQztbubBlxg4Rgge5uCDl10dXK3mRxPcOEn944ZXENej7IzLLBO4d6vNFOBJMH+FdL
-         pxCHm9FqvWXINNUE3yrjVTXYqyTmnpbMV+VYtp/c=
+        b=0tbC6gQpMYKpffFvGcGsyDbIzsHtCP8BQ1Q8oHIZoWRIYUTb8OAO9rShG14dF0yYb
+         Q0NvnjPDpebzPvm47pwvHYbgOzOEffpy8+PBu/mE0WCWbBZiE2S8+ZywdtK6AxszRD
+         L5PZStMj0FpHx7Isj6m7utMWNdxMEOug37Q8IAXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ilya Maximets <i.maximets@samsung.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        William Tu <u9012063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 474/639] net/tls: fix socket wmem accounting on fallback with netem
-Date:   Fri, 24 Jan 2020 10:30:44 +0100
-Message-Id: <20200124093147.268555945@linuxfoundation.org>
+Subject: [PATCH 4.19 476/639] xdp: fix possible cq entry leak
+Date:   Fri, 24 Jan 2020 10:30:46 +0100
+Message-Id: <20200124093147.759308228@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,38 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Ilya Maximets <i.maximets@samsung.com>
 
-[ Upstream commit 5c4b4608fe100838c62591877101128467e56c00 ]
+[ Upstream commit 675716400da6f15b9d3db04ef74ee74ca9a00af3 ]
 
-netem runs skb_orphan_partial() which "disconnects" the skb
-from normal TCP write memory accounting.  We should not adjust
-sk->sk_wmem_alloc on the fallback path for such skbs.
+Completion queue address reservation could not be undone.
+In case of bad 'queue_id' or skb allocation failure, reserved entry
+will be leaked reducing the total capacity of completion queue.
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix that by moving reservation to the point where failure is not
+possible. Additionally, 'queue_id' checking moved out from the loop
+since there is no point to check it there.
+
+Fixes: 35fcde7f8deb ("xsk: support for Tx")
+Signed-off-by: Ilya Maximets <i.maximets@samsung.com>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Tested-by: William Tu <u9012063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_device_fallback.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/xdp/xsk.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/net/tls/tls_device_fallback.c b/net/tls/tls_device_fallback.c
-index 426dd97725e4a..6cf832891b53e 100644
---- a/net/tls/tls_device_fallback.c
-+++ b/net/tls/tls_device_fallback.c
-@@ -208,6 +208,10 @@ static void complete_skb(struct sk_buff *nskb, struct sk_buff *skb, int headln)
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 547fc4554b22c..c90854bc3048e 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -218,6 +218,9 @@ static int xsk_generic_xmit(struct sock *sk, struct msghdr *m,
  
- 	update_chksum(nskb, headln);
+ 	mutex_lock(&xs->mutex);
  
-+	/* sock_efree means skb must gone through skb_orphan_partial() */
-+	if (nskb->destructor == sock_efree)
-+		return;
++	if (xs->queue_id >= xs->dev->real_num_tx_queues)
++		goto out;
 +
- 	delta = nskb->truesize - skb->truesize;
- 	if (likely(delta < 0))
- 		WARN_ON_ONCE(refcount_sub_and_test(-delta, &sk->sk_wmem_alloc));
+ 	while (xskq_peek_desc(xs->tx, &desc)) {
+ 		char *buffer;
+ 		u64 addr;
+@@ -228,12 +231,6 @@ static int xsk_generic_xmit(struct sock *sk, struct msghdr *m,
+ 			goto out;
+ 		}
+ 
+-		if (xskq_reserve_addr(xs->umem->cq))
+-			goto out;
+-
+-		if (xs->queue_id >= xs->dev->real_num_tx_queues)
+-			goto out;
+-
+ 		len = desc.len;
+ 		skb = sock_alloc_send_skb(sk, len, 1, &err);
+ 		if (unlikely(!skb)) {
+@@ -245,7 +242,7 @@ static int xsk_generic_xmit(struct sock *sk, struct msghdr *m,
+ 		addr = desc.addr;
+ 		buffer = xdp_umem_get_data(xs->umem, addr);
+ 		err = skb_store_bits(skb, 0, buffer, len);
+-		if (unlikely(err)) {
++		if (unlikely(err) || xskq_reserve_addr(xs->umem->cq)) {
+ 			kfree_skb(skb);
+ 			goto out;
+ 		}
 -- 
 2.20.1
 
