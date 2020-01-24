@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7673148478
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BBE148472
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732375AbgAXLJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:09:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45246 "EHLO mail.kernel.org"
+        id S1730974AbgAXLJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:09:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732591AbgAXLJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:09:38 -0500
+        id S1730766AbgAXLJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:09:04 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE7E420663;
-        Fri, 24 Jan 2020 11:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74F9E214AF;
+        Fri, 24 Jan 2020 11:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864177;
-        bh=trrOub68xFqzEaB5R7tLHssXE3rZFaaLL1IBSML6mDk=;
+        s=default; t=1579864144;
+        bh=+tH/XPHTQ24ltfvmKgNUIgkxxg1P3lqLg9hnLypw3ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oInkUIUgWUtJzNrxwo5lxfbdPEd9e8miI4EOd6OGeKVu1rsPMxHbHjpM0qF/xXzXb
-         xPI2XZQrTHnTusXO2AWKHmHrRYFByd3RjgCj4OrdPgt4gz8eCbHdynzNZ9ZawSy1DP
-         C2AnitQZOOklcZkhknIpEr9vw3A7eAmtADYnumXs=
+        b=yLzu7oUON2BB8FzZQP/BDWgIhmGtvi6RxsMwiberr/+jzS/U2PYXKplgLdl7UebLn
+         q8Z+00nmsLrOAM2qVV3ILXymXA09OLoFVa/2galLRNcM27HNrHM5mp7Cq4skU0zEV+
+         mSQFAbqS0aRouvhaXQtTdXHhHPL7Q/VTi1SMRbOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Steve Wise <swise@opengridcomputing.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 180/639] rtc: 88pm80x: fix unintended sign extension
-Date:   Fri, 24 Jan 2020 10:25:50 +0100
-Message-Id: <20200124093109.705047680@linuxfoundation.org>
+Subject: [PATCH 4.19 184/639] iw_cxgb4: use tos when finding ipv6 routes
+Date:   Fri, 24 Jan 2020 10:25:54 +0100
+Message-Id: <20200124093110.195764116@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,91 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Steve Wise <swise@opengridcomputing.com>
 
-[ Upstream commit fb0b322537a831b5b0cb948c56f8f958ce493d3a ]
+[ Upstream commit c8a7eb554a83214c3d8ee5cb322da8c72810d2dc ]
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+When IPv6 support was added, the correct tos was not passed to
+cxgb_find_route6(). This potentially results in the wrong route entry.
 
-Fix this by casting the u8 value to an unsigned long before the shift.
-
-Detected by CoverityScan, CID#714646-714649 ("Unintended sign extension")
-
-Fixes: 2985c29c1964 ("rtc: Add rtc support to 88PM80X PMIC")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-88pm80x.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index cab293cb2bf0b..1fc48ebd3cd05 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -114,12 +114,14 @@ static int pm80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	unsigned char buf[4];
- 	unsigned long ticks, base, data;
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
- 
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -137,7 +139,8 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	base = ticks - data;
- 	dev_dbg(info->dev, "set base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -158,11 +161,13 @@ static int pm80x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	int ret;
- 
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
- 
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE1_1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -185,12 +190,14 @@ static int pm80x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_ALARM1_EN, 0);
- 
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
- 
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index 3c8b7eae918c5..16145b0a14583 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -2166,7 +2166,8 @@ static int c4iw_reconnect(struct c4iw_ep *ep)
+ 					   laddr6->sin6_addr.s6_addr,
+ 					   raddr6->sin6_addr.s6_addr,
+ 					   laddr6->sin6_port,
+-					   raddr6->sin6_port, 0,
++					   raddr6->sin6_port,
++					   ep->com.cm_id->tos,
+ 					   raddr6->sin6_scope_id);
+ 		iptype = 6;
+ 		ra = (__u8 *)&raddr6->sin6_addr;
+@@ -3326,7 +3327,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
+ 					   laddr6->sin6_addr.s6_addr,
+ 					   raddr6->sin6_addr.s6_addr,
+ 					   laddr6->sin6_port,
+-					   raddr6->sin6_port, 0,
++					   raddr6->sin6_port, cm_id->tos,
+ 					   raddr6->sin6_scope_id);
+ 	}
+ 	if (!ep->dst) {
 -- 
 2.20.1
 
