@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 936A8148212
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:25:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 715AF148214
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:25:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403842AbgAXLZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:25:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38906 "EHLO mail.kernel.org"
+        id S2391455AbgAXLZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:25:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403836AbgAXLZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:25:03 -0500
+        id S2391454AbgAXLZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:25:06 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64F6E206D4;
-        Fri, 24 Jan 2020 11:25:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 886FF20704;
+        Fri, 24 Jan 2020 11:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865102;
-        bh=e/Q65EoOC/T9/Yf5HKWoSq1rPBPyrAcJUgEkmtb5s5M=;
+        s=default; t=1579865106;
+        bh=IemQ7rz1e8vyxmLwQVB7T2/D7RFWmrBCVgX2UnWu0OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSiYHlIqp+c+fU1zADKD7lVwi5oZIjc3uWz+excug3FD+PS3nAhmSZMtOe4dEXz49
-         4M4tV3aR4gNaIJw0gYtYGLLRtdhiDzbmvE8kiLbLgNjhcNSS5c7ilpHx2bHcP+13pH
-         g4tXTkwv1syYBDUMArJDAr8x51s52nkM60hE9Grk=
+        b=2ZrEqkZyXo+ny6fkdnCyTNKcrEuCj9ENqhtbUc9P7xYJQz6k0z97OYq5SGMNMZ6p1
+         jPlZRd/viSZATHBTq26GNJmDzNSlEgP0cpuP7khYxOc5fZyBBV+CR1htjaDySY0FlG
+         KI9lHwF0LoOPOeqvPHM6asGCL5DYFo7F9Y9hhLM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 454/639] fork,memcg: alloc_thread_stack_node needs to set tsk->stack
-Date:   Fri, 24 Jan 2020 10:30:24 +0100
-Message-Id: <20200124093144.002461222@linuxfoundation.org>
+Subject: [PATCH 4.19 455/639] bnxt_en: Fix ethtool selftest crash under error conditions.
+Date:   Fri, 24 Jan 2020 10:30:25 +0100
+Message-Id: <20200124093144.155714706@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,53 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 1bf4580e00a248a2c86269125390eb3648e1877c ]
+[ Upstream commit d27e2ca1166aefd54d9c48fb6647dee8115a5dfc ]
 
-Commit 5eed6f1dff87 ("fork,memcg: fix crash in free_thread_stack on
-memcg charge fail") corrected two instances, but there was a third
-instance of this bug.
+After ethtool loopback packet tests, we re-open the nic for the next
+IRQ test.  If the open fails, we must not proceed with the IRQ test
+or we will crash with NULL pointer dereference.  Fix it by checking
+the bnxt_open_nic() return code before proceeding.
 
-Without setting tsk->stack, if memcg_charge_kernel_stack fails, it'll
-execute free_thread_stack() on a dangling pointer.
-
-Enterprise kernels are compiled with VMAP_STACK=y so this isn't
-critical, but custom VMAP_STACK=n builds should have some performance
-advantage, with the drawback of risking to fail fork because compaction
-didn't succeed.  So as long as VMAP_STACK=n is a supported option it's
-worth fixing it upstream.
-
-Link: http://lkml.kernel.org/r/20190619011450.28048-1-aarcange@redhat.com
-Fixes: 9b6f7e163cd0 ("mm: rework memcg kernel stack accounting")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>
+Fixes: 67fea463fd87 ("bnxt_en: Add interrupt test to ethtool -t selftest.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 1bd119530a492..1a2d18e98bf99 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -240,7 +240,11 @@ static unsigned long *alloc_thread_stack_node(struct task_struct *tsk, int node)
- 	struct page *page = alloc_pages_node(node, THREADINFO_GFP,
- 					     THREAD_SIZE_ORDER);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 0a409ba4012a3..dc63d269f01dc 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2600,7 +2600,7 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
+ 	bool offline = false;
+ 	u8 test_results = 0;
+ 	u8 test_mask = 0;
+-	int rc, i;
++	int rc = 0, i;
  
--	return page ? page_address(page) : NULL;
-+	if (likely(page)) {
-+		tsk->stack = page_address(page);
-+		return tsk->stack;
-+	}
-+	return NULL;
- #endif
- }
- 
+ 	if (!bp->num_tests || !BNXT_SINGLE_PF(bp))
+ 		return;
+@@ -2671,9 +2671,9 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
+ 		}
+ 		bnxt_hwrm_phy_loopback(bp, false, false);
+ 		bnxt_half_close_nic(bp);
+-		bnxt_open_nic(bp, false, true);
++		rc = bnxt_open_nic(bp, false, true);
+ 	}
+-	if (bnxt_test_irq(bp)) {
++	if (rc || bnxt_test_irq(bp)) {
+ 		buf[BNXT_IRQ_TEST_IDX] = 1;
+ 		etest->flags |= ETH_TEST_FL_FAILED;
+ 	}
 -- 
 2.20.1
 
