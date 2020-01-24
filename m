@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED179147B85
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426DB147B68
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733276AbgAXJoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:44:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42566 "EHLO mail.kernel.org"
+        id S1733079AbgAXJnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:43:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733285AbgAXJoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:44:12 -0500
+        id S1732137AbgAXJnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:43:18 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50A67218AC;
-        Fri, 24 Jan 2020 09:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1F4F20718;
+        Fri, 24 Jan 2020 09:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859051;
-        bh=UpDhn7zetNpr1R/Uf2QSny7yWTZclJ94UCeA/hBkOFM=;
+        s=default; t=1579858998;
+        bh=yqDdAP7xTemVVOnjv6iA4MQlsYveHUOMTAuoXetQcgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/PC5ROe4K6zl1oe9/ICZSqowGvZNvR0IvWYVSi1yrXyLDH8EzhFU+gbyNxTEiPFi
-         SHP0PX3TLfXw4BBkf/FBAr8wTW1axv0HbnLv4XbVN8UxseSwiGmfZ7kHF6NQT7R/NY
-         KUyEXP5eUh4xm0wt8F81kQtXsT+c3xtvuKWdqmmA=
+        b=wJAShd2jS0B+QRQyi0ybAEbXsvca/0jGIhWt2Yq3k/BoL0S3yLF/DZ1jMmiGu2KfI
+         SiIJVOTmNDQz9Cv9+C7fV0Yx9zEvsQbaN3iRQ0UuaFSH6S7SiF4V/F9MwdZ9ON5Rn0
+         tU6+BlZxwkVoiZALlMUSJt7exbjaurRSSkSrtiTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 009/343] drm/virtio: fix bounds check in virtio_gpu_cmd_get_capset()
-Date:   Fri, 24 Jan 2020 10:27:07 +0100
-Message-Id: <20200124092920.863639090@linuxfoundation.org>
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 010/343] ALSA: hda: fix unused variable warning
+Date:   Fri, 24 Jan 2020 10:27:08 +0100
+Message-Id: <20200124092920.984673182@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,53 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 09c4b49457434fa74749ad6194ef28464d9f5df9 ]
+[ Upstream commit 5b03006d5c58ddd31caf542eef4d0269bcf265b3 ]
 
-This doesn't affect runtime because in the current code "idx" is always
-valid.
+When CONFIG_X86=n function azx_snoop doesn't use the variable chip it
+only returns true.
 
-First, we read from "vgdev->capsets[idx].max_size" before checking
-whether "idx" is within bounds.  And secondly the bounds check is off by
-one so we could end up reading one element beyond the end of the
-vgdev->capsets[] array.
+sound/pci/hda/hda_intel.c: In function ‘dma_alloc_pages’:
+sound/pci/hda/hda_intel.c:2002:14: warning: unused variable ‘chip’ [-Wunused-variable]
+  struct azx *chip = bus_to_azx(bus);
+              ^~~~
 
-Fixes: 62fb7a5e1096 ("virtio-gpu: add 3d/virgl support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20180704094250.m7sgvvzg3dhcvv3h@kili.mountain
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Create a inline function of azx_snoop.
+
+Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_controller.h | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 21c2de81f3e32..a3be65e689fd2 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -648,11 +648,11 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- {
- 	struct virtio_gpu_get_capset *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
--	int max_size = vgdev->capsets[idx].max_size;
-+	int max_size;
- 	struct virtio_gpu_drv_cap_cache *cache_ent;
- 	void *resp_buf;
+diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
+index 8a9dd4767b1ec..63cc10604afc7 100644
+--- a/sound/pci/hda/hda_controller.h
++++ b/sound/pci/hda/hda_controller.h
+@@ -176,11 +176,10 @@ struct azx {
+ #define azx_bus(chip)	(&(chip)->bus.core)
+ #define bus_to_azx(_bus)	container_of(_bus, struct azx, bus.core)
  
--	if (idx > vgdev->num_capsets)
-+	if (idx >= vgdev->num_capsets)
- 		return -EINVAL;
+-#ifdef CONFIG_X86
+-#define azx_snoop(chip)		((chip)->snoop)
+-#else
+-#define azx_snoop(chip)		true
+-#endif
++static inline bool azx_snoop(struct azx *chip)
++{
++	return !IS_ENABLED(CONFIG_X86) || chip->snoop;
++}
  
- 	if (version > vgdev->capsets[idx].max_version)
-@@ -662,6 +662,7 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- 	if (!cache_ent)
- 		return -ENOMEM;
- 
-+	max_size = vgdev->capsets[idx].max_size;
- 	cache_ent->caps_cache = kmalloc(max_size, GFP_KERNEL);
- 	if (!cache_ent->caps_cache) {
- 		kfree(cache_ent);
+ /*
+  * macros for easy use
 -- 
 2.20.1
 
