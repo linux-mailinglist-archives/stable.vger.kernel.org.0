@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB286147B87
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABA3147B93
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732483AbgAXJoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:44:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42716 "EHLO mail.kernel.org"
+        id S1732654AbgAXJop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:44:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730242AbgAXJoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:44:19 -0500
+        id S2387412AbgAXJoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:44:44 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FCE720718;
-        Fri, 24 Jan 2020 09:44:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9383208C4;
+        Fri, 24 Jan 2020 09:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859058;
-        bh=V0J3YtmWRb3U0/bhv2WCKbwi0Zy9UPHyBfnYd7xOJZo=;
+        s=default; t=1579859083;
+        bh=uU0bh2J2hZrp8oKSP5dPk8tOnzeripUYAzaDVpt6bbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4FtXatjVT+ybrSQf98IcW6f9ZRkF/DnE3FTEEp0r4GMMKCUa8J8FJLnhMXd+bL2O
-         IkBwWvDsydtxBChVGzfgXe2rqeOS6sB2tI1khkiwm5bEXiNpJReiR0mUKnVjWadBSB
-         Fazg6h69iujbcoe/Esrl1X7fpbXtaS5J+ci49sc0=
+        b=zvBJMVOzIGkOX73eK7xd73zLXIQnoahn1FNNMVepjZaDT2tZUwm2N45jmejbFzwET
+         KZtKD46LyBBOK0NH2EBRQjCMUdtqshA8SfSMAYvHZ7b44tBf284GUg7TceGdF0cArJ
+         MpNIo37gic4uAxAdq4AA+8jh8nnd40CfS+rgb+EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Jerry Zuo <Jerry.Zuo@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Sean Paul <seanpaul@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 025/343] exportfs: fix passing zero to ERR_PTR() warning
-Date:   Fri, 24 Jan 2020 10:27:23 +0100
-Message-Id: <20200124092922.899762739@linuxfoundation.org>
+Subject: [PATCH 4.14 026/343] drm/dp_mst: Skip validating ports during destruction, just ref
+Date:   Fri, 24 Jan 2020 10:27:24 +0100
+Message-Id: <20200124092923.029483746@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,36 +47,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit 909e22e05353a783c526829427e9a8de122fba9c ]
+[ Upstream commit c54c7374ff44de5e609506aca7c0deae4703b6d1 ]
 
-Fix a static code checker warning:
-  fs/exportfs/expfs.c:171 reconnect_one() warn: passing zero to 'ERR_PTR'
+Jerry Zuo pointed out a rather obscure hotplugging issue that it seems I
+accidentally introduced into DRM two years ago.
 
-The error path for lookup_one_len_unlocked failure
-should set err to PTR_ERR.
+Pretend we have a topology like this:
 
-Fixes: bbf7a8a3562f ("exportfs: move most of reconnect_path to helper function")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+|- DP-1: mst_primary
+   |- DP-4: active display
+   |- DP-5: disconnected
+   |- DP-6: active hub
+      |- DP-7: active display
+      |- DP-8: disconnected
+      |- DP-9: disconnected
+
+If we unplug DP-6, the topology starting at DP-7 will be destroyed but
+it's payloads will live on in DP-1's VCPI allocations and thus require
+removal. However, this removal currently fails because
+drm_dp_update_payload_part1() will (rightly so) try to validate the port
+before accessing it, fail then abort. If we keep going, eventually we
+run the MST hub out of bandwidth and all new allocations will start to
+fail (or in my case; all new displays just start flickering a ton).
+
+We could just teach drm_dp_update_payload_part1() not to drop the port
+ref in this case, but then we also need to teach
+drm_dp_destroy_payload_step1() to do the same thing, then hope no one
+ever adds anything to the that requires a validated port reference in
+drm_dp_destroy_connector_work(). Kind of sketchy.
+
+So let's go with a more clever solution: any port that
+drm_dp_destroy_connector_work() interacts with is guaranteed to still
+exist in memory until we say so. While said port might not be valid we
+don't really care: that's the whole reason we're destroying it in the
+first place! So, teach drm_dp_get_validated_port_ref() to use the all
+mighty current_work() function to avoid attempting to validate ports
+from the context of mgr->destroy_connector_work. I can't see any
+situation where this wouldn't be safe, and this avoids having to play
+whack-a-mole in the future of trying to work around port validation.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: 263efde31f97 ("drm/dp/mst: Get validated port ref in drm_dp_update_payload_part1()")
+Reported-by: Jerry Zuo <Jerry.Zuo@amd.com>
+Cc: Jerry Zuo <Jerry.Zuo@amd.com>
+Cc: Harry Wentland <Harry.Wentland@amd.com>
+Cc: <stable@vger.kernel.org> # v4.6+
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181113224613.28809-1-lyude@redhat.com
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exportfs/expfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
-index a561ae17cf435..c08960040dd05 100644
---- a/fs/exportfs/expfs.c
-+++ b/fs/exportfs/expfs.c
-@@ -147,6 +147,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
- 	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
- 	if (IS_ERR(tmp)) {
- 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
-+		err = PTR_ERR(tmp);
- 		goto out_err;
- 	}
- 	if (tmp != dentry) {
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index c8c83f84acedd..9d94c306c8ca1 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -982,9 +982,20 @@ static struct drm_dp_mst_port *drm_dp_mst_get_port_ref_locked(struct drm_dp_mst_
+ static struct drm_dp_mst_port *drm_dp_get_validated_port_ref(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port)
+ {
+ 	struct drm_dp_mst_port *rport = NULL;
++
+ 	mutex_lock(&mgr->lock);
+-	if (mgr->mst_primary)
+-		rport = drm_dp_mst_get_port_ref_locked(mgr->mst_primary, port);
++	/*
++	 * Port may or may not be 'valid' but we don't care about that when
++	 * destroying the port and we are guaranteed that the port pointer
++	 * will be valid until we've finished
++	 */
++	if (current_work() == &mgr->destroy_connector_work) {
++		kref_get(&port->kref);
++		rport = port;
++	} else if (mgr->mst_primary) {
++		rport = drm_dp_mst_get_port_ref_locked(mgr->mst_primary,
++						       port);
++	}
+ 	mutex_unlock(&mgr->lock);
+ 	return rport;
+ }
 -- 
 2.20.1
 
