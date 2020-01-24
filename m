@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B58E147C6D
+	by mail.lfdr.de (Postfix) with ESMTP id B414D147C6E
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387843AbgAXJvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:51:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
+        id S2388093AbgAXJv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:51:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732431AbgAXJvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:51:53 -0500
+        id S2388090AbgAXJv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:51:56 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21A6C206D5;
-        Fri, 24 Jan 2020 09:51:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FBA7206D5;
+        Fri, 24 Jan 2020 09:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859512;
-        bh=WmT37IdR2XUlVn7d6muDTg88hrjQp4q5NHia6lgWP/E=;
+        s=default; t=1579859516;
+        bh=oU0qeGWTfKOBe4QFO1GHtK0vjjNyYqKezAFh/lfhEvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gp64Srk3lDGDxFisRacKr4jp/UFz8I+79Qf3hz4fHKeFifdymg4bRqbmkYCXe2jWE
-         HDXWy5145/L0K3eDhrYmI0M4kAjGBeLeezqYZv1/e/sYcZ9IqVgJAO0d1V8tUM/6e5
-         NdsLE2aXmy2SqF8kadqWup+vdu6vmjjoWoslceRI=
+        b=unu+QK8V9jCTIm1tb3SSjV0yNI7Je/isnphI1hT3L1CLmpyio+EI9vsnzzqKLFvPv
+         Gxvx9Ds631zttld7Ac0HWQzYK6lSWuJU11FjSiStmQUPRoCnev8lEcQsDE6P3gZdlc
+         fInOEQ7AXzxW0aa5XbHQZKBViX0XceIny+e5sVY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Lai <plai@codeaurora.org>,
-        Banajit Goswami <bgoswami@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/343] ASoC: qcom: Fix of-node refcount unbalance in apq8016_sbc_parse_of()
-Date:   Fri, 24 Jan 2020 10:28:58 +0100
-Message-Id: <20200124092935.806502410@linuxfoundation.org>
+Subject: [PATCH 4.14 121/343] fs/nfs: Fix nfs_parse_devname to not modify its argument
+Date:   Fri, 24 Jan 2020 10:28:59 +0100
+Message-Id: <20200124092935.934226320@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,87 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 8d1667200850f8753c0265fa4bd25c9a6e5f94ce ]
+[ Upstream commit 40cc394be1aa18848b8757e03bd8ed23281f572e ]
 
-The apq8016 driver leaves the of-node refcount at aborting from the
-loop of for_each_child_of_node() in the error path.  Not only the
-iterator node of for_each_child_of_node(), the children nodes referred
-from it for codec and cpu have to be properly unreferenced.
+In the rare and unsupported case of a hostname list nfs_parse_devname
+will modify dev_name.  There is no need to modify dev_name as the all
+that is being computed is the length of the hostname, so the computed
+length can just be shorted.
 
-Fixes: bdb052e81f62 ("ASoC: qcom: add apq8016 sound card support")
-Cc: Patrick Lai <plai@codeaurora.org>
-Cc: Banajit Goswami <bgoswami@codeaurora.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: dc04589827f7 ("NFS: Use common device name parsing logic for NFSv4 and NFSv2/v3")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/apq8016_sbc.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ fs/nfs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/qcom/apq8016_sbc.c b/sound/soc/qcom/apq8016_sbc.c
-index d49adc822a110..8e6b88d68ca6c 100644
---- a/sound/soc/qcom/apq8016_sbc.c
-+++ b/sound/soc/qcom/apq8016_sbc.c
-@@ -163,41 +163,52 @@ static struct apq8016_sbc_data *apq8016_sbc_parse_of(struct snd_soc_card *card)
- 
- 		if (!cpu || !codec) {
- 			dev_err(dev, "Can't find cpu/codec DT node\n");
--			return ERR_PTR(-EINVAL);
-+			ret = -EINVAL;
-+			goto error;
- 		}
- 
- 		link->cpu_of_node = of_parse_phandle(cpu, "sound-dai", 0);
- 		if (!link->cpu_of_node) {
- 			dev_err(card->dev, "error getting cpu phandle\n");
--			return ERR_PTR(-EINVAL);
-+			ret = -EINVAL;
-+			goto error;
- 		}
- 
- 		ret = snd_soc_of_get_dai_name(cpu, &link->cpu_dai_name);
- 		if (ret) {
- 			dev_err(card->dev, "error getting cpu dai name\n");
--			return ERR_PTR(ret);
-+			goto error;
- 		}
- 
- 		ret = snd_soc_of_get_dai_link_codecs(dev, codec, link);
- 
- 		if (ret < 0) {
- 			dev_err(card->dev, "error getting codec dai name\n");
--			return ERR_PTR(ret);
-+			goto error;
- 		}
- 
- 		link->platform_of_node = link->cpu_of_node;
- 		ret = of_property_read_string(np, "link-name", &link->name);
- 		if (ret) {
- 			dev_err(card->dev, "error getting codec dai_link name\n");
--			return ERR_PTR(ret);
-+			goto error;
- 		}
- 
- 		link->stream_name = link->name;
- 		link->init = apq8016_sbc_dai_init;
- 		link++;
-+
-+		of_node_put(cpu);
-+		of_node_put(codec);
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index f464f8d9060c0..470b761839a51 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -1925,7 +1925,7 @@ static int nfs_parse_devname(const char *dev_name,
+ 		/* kill possible hostname list: not supported */
+ 		comma = strchr(dev_name, ',');
+ 		if (comma != NULL && comma < end)
+-			*comma = 0;
++			len = comma - dev_name;
  	}
  
- 	return data;
-+
-+ error:
-+	of_node_put(np);
-+	of_node_put(cpu);
-+	of_node_put(codec);
-+	return ERR_PTR(ret);
- }
- 
- static const struct snd_soc_dapm_widget apq8016_sbc_dapm_widgets[] = {
+ 	if (len > maxnamlen)
 -- 
 2.20.1
 
