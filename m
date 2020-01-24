@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E5FF147B00
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D604147B02
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732257AbgAXJkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:40:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37402 "EHLO mail.kernel.org"
+        id S1732306AbgAXJkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:40:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732126AbgAXJkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:40:07 -0500
+        id S1732283AbgAXJkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:40:10 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4C9920709;
-        Fri, 24 Jan 2020 09:40:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3C412070A;
+        Fri, 24 Jan 2020 09:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858806;
-        bh=HIhvtltE0jmuJ32MPiF+CHYwbmqxye5QcbU6Yoq552k=;
+        s=default; t=1579858809;
+        bh=O9Jvy2TlVkAc+RK8rKlLq3IrIZnt5MgaHxocavlgH/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQo8Oz6ilu17LwVj8lNt3KFAi92DFRyDqBvcMsUpySeBzZnOEGSRZwkCTUAL/OcQX
-         A34Xz3QqjBNlTFXUSkQqVlQYonrMh/l4l9TmvN/KFT1tGk+qSwFDZUUsr+E2ULVvAY
-         tpKCBkAL/1LfZBtTJc3S0x1+jo1INC8M7q6skXxY=
+        b=2YXIRNqXnO2FVFXu5H9ZJn2vuPm2jtH4w3NmG2/WC1jv9EXZjdCVDTM7D7ZLPC1rH
+         SSE60epRszRin09LeOkZrns5ArvGr1+qkWAuCUJM/XWUq0zDJFM2t1TaYYU0cFefhN
+         OUAvEHoC4VOAfyTyVXLTNNHw0xM7T9XthYELfQRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/102] ACPI: platform: Unregister stale platform devices
-Date:   Fri, 24 Jan 2020 10:31:02 +0100
-Message-Id: <20200124092815.541731799@linuxfoundation.org>
+Subject: [PATCH 5.4 062/102] pwm: sun4i: Fix incorrect calculation of duty_cycle/period
+Date:   Fri, 24 Jan 2020 10:31:03 +0100
+Message-Id: <20200124092815.700678973@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -45,104 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit cb0701acfa7e3fe9e919cf2aa2aa939b7fd603c2 ]
+[ Upstream commit 50cc7e3e4f26e3bf5ed74a8d061195c4d2161b8b ]
 
-When commit 68bdb6773289 ("ACPI: add support for ACPI reconfiguration
-notifiers") introduced reconfiguration notifiers, it missed the point
-that the ACPI table, which might be loaded and then unloaded via
-ConfigFS, could contain devices that were not enumerated by their
-parents.
+Since 5.4-rc1, pwm_apply_state calls ->get_state after ->apply
+if available, and this revealed an issue with integer precision
+when calculating duty_cycle and period for the currently set
+state in ->get_state callback.
 
-In such cases, the stale platform device is dangling in the system
-while the rest of the devices from the same table are already gone.
+This issue manifested in broken backlight on several Allwinner
+based devices.
 
-Introduce acpi_platform_device_remove_notify() notifier that, in
-similar way to I²C or SPI buses, unregisters the platform devices
-on table removal event.
+Previously this worked, because ->apply updated the passed state
+directly.
 
-Fixes: 68bdb6773289 ("ACPI: add support for ACPI reconfiguration notifiers")
-Depends-on: 00500147cbd3 ("drivers: Introduce device lookup variants by ACPI_COMPANION device")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-[ rjw: Changelog & function rename ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: deb9c462f4e53 ("pwm: sun4i: Don't update the state for the caller of pwm_apply_state")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_platform.c | 43 ++++++++++++++++++++++++++++++++++++
- drivers/acpi/scan.c          |  1 +
- 2 files changed, 44 insertions(+)
+ drivers/pwm/pwm-sun4i.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpi_platform.c b/drivers/acpi/acpi_platform.c
-index 00ec4f2bf0157..c05050f474cd3 100644
---- a/drivers/acpi/acpi_platform.c
-+++ b/drivers/acpi/acpi_platform.c
-@@ -31,6 +31,44 @@ static const struct acpi_device_id forbidden_id_list[] = {
- 	{"", 0},
- };
+diff --git a/drivers/pwm/pwm-sun4i.c b/drivers/pwm/pwm-sun4i.c
+index 6f5840a1a82dc..05273725a9fff 100644
+--- a/drivers/pwm/pwm-sun4i.c
++++ b/drivers/pwm/pwm-sun4i.c
+@@ -137,10 +137,10 @@ static void sun4i_pwm_get_state(struct pwm_chip *chip,
  
-+static struct platform_device *acpi_platform_device_find_by_companion(struct acpi_device *adev)
-+{
-+	struct device *dev;
-+
-+	dev = bus_find_device_by_acpi_dev(&platform_bus_type, adev);
-+	return dev ? to_platform_device(dev) : NULL;
-+}
-+
-+static int acpi_platform_device_remove_notify(struct notifier_block *nb,
-+					      unsigned long value, void *arg)
-+{
-+	struct acpi_device *adev = arg;
-+	struct platform_device *pdev;
-+
-+	switch (value) {
-+	case ACPI_RECONFIG_DEVICE_ADD:
-+		/* Nothing to do here */
-+		break;
-+	case ACPI_RECONFIG_DEVICE_REMOVE:
-+		if (!acpi_device_enumerated(adev))
-+			break;
-+
-+		pdev = acpi_platform_device_find_by_companion(adev);
-+		if (!pdev)
-+			break;
-+
-+		platform_device_unregister(pdev);
-+		put_device(&pdev->dev);
-+		break;
-+	}
-+
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block acpi_platform_notifier = {
-+	.notifier_call = acpi_platform_device_remove_notify,
-+};
-+
- static void acpi_platform_fill_resource(struct acpi_device *adev,
- 	const struct resource *src, struct resource *dest)
- {
-@@ -130,3 +168,8 @@ struct platform_device *acpi_create_platform_device(struct acpi_device *adev,
- 	return pdev;
+ 	val = sun4i_pwm_readl(sun4i_pwm, PWM_CH_PRD(pwm->hwpwm));
+ 
+-	tmp = prescaler * NSEC_PER_SEC * PWM_REG_DTY(val);
++	tmp = (u64)prescaler * NSEC_PER_SEC * PWM_REG_DTY(val);
+ 	state->duty_cycle = DIV_ROUND_CLOSEST_ULL(tmp, clk_rate);
+ 
+-	tmp = prescaler * NSEC_PER_SEC * PWM_REG_PRD(val);
++	tmp = (u64)prescaler * NSEC_PER_SEC * PWM_REG_PRD(val);
+ 	state->period = DIV_ROUND_CLOSEST_ULL(tmp, clk_rate);
  }
- EXPORT_SYMBOL_GPL(acpi_create_platform_device);
-+
-+void __init acpi_platform_init(void)
-+{
-+	acpi_reconfig_notifier_register(&acpi_platform_notifier);
-+}
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index aad6be5c0af0a..915650bf519f8 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -2174,6 +2174,7 @@ int __init acpi_scan_init(void)
- 	acpi_pci_root_init();
- 	acpi_pci_link_init();
- 	acpi_processor_init();
-+	acpi_platform_init();
- 	acpi_lpss_init();
- 	acpi_apd_init();
- 	acpi_cmos_rtc_init();
+ 
 -- 
 2.20.1
 
