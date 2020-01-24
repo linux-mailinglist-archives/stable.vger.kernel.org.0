@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0D4147DA9
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0C2147DD0
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388926AbgAXKCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:02:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38138 "EHLO mail.kernel.org"
+        id S2389011AbgAXKDW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:03:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733301AbgAXKCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:02:38 -0500
+        id S2388702AbgAXKDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:03:18 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53A572075D;
-        Fri, 24 Jan 2020 10:02:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB19D214DB;
+        Fri, 24 Jan 2020 10:03:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860157;
-        bh=03vxJpeyQt75CgTZoG1Wr9wuuaiFdoOiPQReOgQVZT8=;
+        s=default; t=1579860197;
+        bh=axqToh/DbSW01UKLnZ53M7BWxxBuK0lbFgSzF4K2ono=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ewelbu33uXWAhuwn39/Hfl7D56e8HyOSlrmfCAHyitPgqfLWpk2r76OOs90bUCVPk
-         d5cZoliOoxV8MV+T7lQ57DZsDGolLH6lFweJYEMv4Yo7guJaQ8CeNHGQATGq6O1TOR
-         V4xlhqdzen2C/Os4k7KXHYpWf+Y8bUp+oOcyckN0=
+        b=JGwgN2QrxmKxSG2O4KTSCxw4bWuppkIdTpiCn3tk4F0r5piKorOEi4uJ0cq5wppNO
+         7KnuM5PGPNI1eyyNjXW3qElrU9kRWmLqeJX6AcHn2WssO9d5HEytJr0BTKC2DRSetb
+         okECSo76qPjpdA9RMEhWRRLEtiSc3KNttpAxEkvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 263/343] ALSA: aoa: onyx: always initialize register read value
-Date:   Fri, 24 Jan 2020 10:31:21 +0100
-Message-Id: <20200124092954.615720135@linuxfoundation.org>
+        stable@vger.kernel.org, Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 264/343] tipc: reduce risk of wakeup queue starvation
+Date:   Fri, 24 Jan 2020 10:31:22 +0100
+Message-Id: <20200124092954.733946292@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,41 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes@sipsolutions.net>
+From: Jon Maloy <jon.maloy@ericsson.com>
 
-[ Upstream commit f474808acb3c4b30552d9c59b181244e0300d218 ]
+[ Upstream commit 7c5b42055964f587e55bd87ef334c3a27e95d144 ]
 
-A lot of places in the driver use onyx_read_register() without
-checking the return value, and it's been working OK for ~10 years
-or so, so probably never fails ... Rather than trying to check the
-return value everywhere, which would be relatively intrusive, at
-least make sure we don't use an uninitialized value.
+In commit 365ad353c256 ("tipc: reduce risk of user starvation during
+link congestion") we allowed senders to add exactly one list of extra
+buffers to the link backlog queues during link congestion (aka
+"oversubscription"). However, the criteria for when to stop adding
+wakeup messages to the input queue when the overload abates is
+inaccurate, and may cause starvation problems during very high load.
 
-Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Currently, we stop adding wakeup messages after 10 total failed attempts
+where we find that there is no space left in the backlog queue for a
+certain importance level. The counter for this is accumulated across all
+levels, which may lead the algorithm to leave the loop prematurely,
+although there may still be plenty of space available at some levels.
+The result is sometimes that messages near the wakeup queue tail are not
+added to the input queue as they should be.
+
+We now introduce a more exact algorithm, where we keep adding wakeup
+messages to a level as long as the backlog queue has free slots for
+the corresponding level, and stop at the moment there are no more such
+slots or when there are no more wakeup messages to dequeue.
+
+Fixes: 365ad35 ("tipc: reduce risk of user starvation during link congestion")
+Reported-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/aoa/codecs/onyx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/tipc/link.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/sound/aoa/codecs/onyx.c b/sound/aoa/codecs/onyx.c
-index d2d96ca082b71..6224fd3bbf7cc 100644
---- a/sound/aoa/codecs/onyx.c
-+++ b/sound/aoa/codecs/onyx.c
-@@ -74,8 +74,10 @@ static int onyx_read_register(struct onyx *onyx, u8 reg, u8 *value)
- 		return 0;
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index da749916faac4..82e4e0e152d16 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -811,18 +811,31 @@ static int link_schedule_user(struct tipc_link *l, struct tipc_msg *hdr)
+  */
+ void link_prepare_wakeup(struct tipc_link *l)
+ {
++	struct sk_buff_head *wakeupq = &l->wakeupq;
++	struct sk_buff_head *inputq = l->inputq;
+ 	struct sk_buff *skb, *tmp;
+-	int imp, i = 0;
++	struct sk_buff_head tmpq;
++	int avail[5] = {0,};
++	int imp = 0;
++
++	__skb_queue_head_init(&tmpq);
+ 
+-	skb_queue_walk_safe(&l->wakeupq, skb, tmp) {
++	for (; imp <= TIPC_SYSTEM_IMPORTANCE; imp++)
++		avail[imp] = l->backlog[imp].limit - l->backlog[imp].len;
++
++	skb_queue_walk_safe(wakeupq, skb, tmp) {
+ 		imp = TIPC_SKB_CB(skb)->chain_imp;
+-		if (l->backlog[imp].len < l->backlog[imp].limit) {
+-			skb_unlink(skb, &l->wakeupq);
+-			skb_queue_tail(l->inputq, skb);
+-		} else if (i++ > 10) {
+-			break;
+-		}
++		if (avail[imp] <= 0)
++			continue;
++		avail[imp]--;
++		__skb_unlink(skb, wakeupq);
++		__skb_queue_tail(&tmpq, skb);
  	}
- 	v = i2c_smbus_read_byte_data(onyx->i2c, reg);
--	if (v < 0)
-+	if (v < 0) {
-+		*value = 0;
- 		return -1;
-+	}
- 	*value = (u8)v;
- 	onyx->cache[ONYX_REG_CONTROL-FIRSTREGISTER] = *value;
- 	return 0;
++
++	spin_lock_bh(&inputq->lock);
++	skb_queue_splice_tail(&tmpq, inputq);
++	spin_unlock_bh(&inputq->lock);
++
+ }
+ 
+ void tipc_link_reset(struct tipc_link *l)
 -- 
 2.20.1
 
