@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3567147B42
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48F90147B43
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732558AbgAXJmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:42:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
+        id S1733123AbgAXJmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:42:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730039AbgAXJmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:42:05 -0500
+        id S1731535AbgAXJmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:42:09 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B531A20718;
-        Fri, 24 Jan 2020 09:42:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2847222D9;
+        Fri, 24 Jan 2020 09:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858925;
-        bh=Q05n3pFYLWclM3W5I8rQAaZ1i3N0gOCqBQNfC7Nji6M=;
+        s=default; t=1579858928;
+        bh=/XJ7uoeV3ZBLOj9+bODHJzvOanxWzqQdMHNnOhLskPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Za67siOWaQyQpydVSF1M4giRSiv7I8g9bViduhhWGrHdSXse6/erYu0LYamA4CTHm
-         YJvBj1Sya6sao89MahkZV4itvwBC4uwAvaO8FjqrXWyBbM0XeJNmJUXkD7VmUiz3Dy
-         cZxDwQALOI1cQX/yrxF8QRx/Yj28lbIFJz75rqcQ=
+        b=WP66bRFpkxW4hllPkG0Hwn8kK+hdwR6edFOBztYll6ctgl+P+7EUGKXHIYUkabGN3
+         5C7tmmeoin5UtEAeJIJMVQFco3MB/kQ9BC9zWnAQ3o4cXi8vu+GrWlFgdTNZ0XWAlF
+         Z8o43rbfzttxC1Xy15onVcb+3tiOs0ofpfe8hdSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hewenliang <hewenliang4@huawei.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/102] kselftests: cgroup: Avoid the reuse of fd after it is deallocated
-Date:   Fri, 24 Jan 2020 10:31:22 +0100
-Message-Id: <20200124092818.894685869@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 082/102] firmware: arm_scmi: Fix doorbell ring logic for !CONFIG_64BIT
+Date:   Fri, 24 Jan 2020 10:31:23 +0100
+Message-Id: <20200124092819.042059075@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -43,35 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hewenliang <hewenliang4@huawei.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit d671fa6393d6788fc65555d4643b71cb3a361f36 ]
+[ Upstream commit 7bd39bc6bfdf96f5df0f92199bbc1a3ee2f2adb8 ]
 
-It is necessary to set fd to -1 when inotify_add_watch() fails in
-cg_prepare_for_wait. Otherwise the fd which has been closed in
-cg_prepare_for_wait may be misused in other functions such as
-cg_enter_and_wait_for_frozen and cg_freeze_wait.
+The logic to ring the scmi performance fastchannel ignores the
+value read from the doorbell register in case of !CONFIG_64BIT.
+This bug also shows up as warning with '-Wunused-but-set-variable' gcc
+flag:
 
-Fixes: 5313bfe425c8 ("selftests: cgroup: add freezer controller self-tests")
-Signed-off-by: Hewenliang <hewenliang4@huawei.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+drivers/firmware/arm_scmi/perf.c: In function scmi_perf_fc_ring_db:
+drivers/firmware/arm_scmi/perf.c:323:7: warning: variable val set but
+			not used [-Wunused-but-set-variable]
+
+Fix the same by aligning the logic with CONFIG_64BIT as used in the
+macro SCMI_PERF_FC_RING_DB().
+
+Fixes: 823839571d76 ("firmware: arm_scmi: Make use SCMI v2.0 fastchannel for performance protocol")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reported-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/cgroup/test_freezer.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/arm_scmi/perf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/cgroup/test_freezer.c b/tools/testing/selftests/cgroup/test_freezer.c
-index 0fc1b6d4b0f9c..62a27ab3c2f3e 100644
---- a/tools/testing/selftests/cgroup/test_freezer.c
-+++ b/tools/testing/selftests/cgroup/test_freezer.c
-@@ -72,6 +72,7 @@ static int cg_prepare_for_wait(const char *cgroup)
- 	if (ret == -1) {
- 		debug("Error: inotify_add_watch() failed\n");
- 		close(fd);
-+		fd = -1;
- 	}
+diff --git a/drivers/firmware/arm_scmi/perf.c b/drivers/firmware/arm_scmi/perf.c
+index 4a8012e3cb8c3..601af4edad5e6 100644
+--- a/drivers/firmware/arm_scmi/perf.c
++++ b/drivers/firmware/arm_scmi/perf.c
+@@ -323,7 +323,7 @@ static void scmi_perf_fc_ring_db(struct scmi_fc_db_info *db)
  
- 	return fd;
+ 		if (db->mask)
+ 			val = ioread64_hi_lo(db->addr) & db->mask;
+-		iowrite64_hi_lo(db->set, db->addr);
++		iowrite64_hi_lo(db->set | val, db->addr);
+ 	}
+ #endif
+ }
 -- 
 2.20.1
 
