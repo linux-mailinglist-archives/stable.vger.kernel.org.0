@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C98D614822C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:26:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 936A8148212
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:25:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403884AbgAXLZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:25:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40206 "EHLO mail.kernel.org"
+        id S2403842AbgAXLZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:25:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403866AbgAXLZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:25:54 -0500
+        id S2403836AbgAXLZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:25:03 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30D8220704;
-        Fri, 24 Jan 2020 11:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64F6E206D4;
+        Fri, 24 Jan 2020 11:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865153;
-        bh=y2dLlM8guqKpltZjCUwHNqmlcjAi5k+ZqR+8aA9UrbU=;
+        s=default; t=1579865102;
+        bh=e/Q65EoOC/T9/Yf5HKWoSq1rPBPyrAcJUgEkmtb5s5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J362XDmZY4ClZZsmFH2WGXc+Ajfo8Qq8iQm/8XdNQWlclm0iD0asNJ7lXn94HuKXu
-         rvGsobnSMlrfIm3TcUWh0358Hh2a9vTq0e2W5m7o1RuRlgfYn3I0RLyYcBARdm9ZGn
-         uapehhEBFaGsFI54+CZpy+e623DgKJDmJWY3ba/s=
+        b=NSiYHlIqp+c+fU1zADKD7lVwi5oZIjc3uWz+excug3FD+PS3nAhmSZMtOe4dEXz49
+         4M4tV3aR4gNaIJw0gYtYGLLRtdhiDzbmvE8kiLbLgNjhcNSS5c7ilpHx2bHcP+13pH
+         g4tXTkwv1syYBDUMArJDAr8x51s52nkM60hE9Grk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Quentin Monnet <quentin.monnet@netronome.com>,
-        Roman Gushchin <guro@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 452/639] tools: bpftool: use correct argument in cgroup errors
-Date:   Fri, 24 Jan 2020 10:30:22 +0100
-Message-Id: <20200124093143.634353310@linuxfoundation.org>
+Subject: [PATCH 4.19 454/639] fork,memcg: alloc_thread_stack_node needs to set tsk->stack
+Date:   Fri, 24 Jan 2020 10:30:24 +0100
+Message-Id: <20200124093144.002461222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,53 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-[ Upstream commit 6c6874f401e5a0caab3b6a0663169e1fb5e930bb ]
+[ Upstream commit 1bf4580e00a248a2c86269125390eb3648e1877c ]
 
-cgroup code tries to use argv[0] as the cgroup path,
-but if it fails uses argv[1] to report errors.
+Commit 5eed6f1dff87 ("fork,memcg: fix crash in free_thread_stack on
+memcg charge fail") corrected two instances, but there was a third
+instance of this bug.
 
-Fixes: 5ccda64d38cc ("bpftool: implement cgroup bpf operations")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
+Without setting tsk->stack, if memcg_charge_kernel_stack fails, it'll
+execute free_thread_stack() on a dangling pointer.
+
+Enterprise kernels are compiled with VMAP_STACK=y so this isn't
+critical, but custom VMAP_STACK=n builds should have some performance
+advantage, with the drawback of risking to fail fork because compaction
+didn't succeed.  So as long as VMAP_STACK=n is a supported option it's
+worth fixing it upstream.
+
+Link: http://lkml.kernel.org/r/20190619011450.28048-1-aarcange@redhat.com
+Fixes: 9b6f7e163cd0 ("mm: rework memcg kernel stack accounting")
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Reviewed-by: Rik van Riel <riel@surriel.com>
 Acked-by: Roman Gushchin <guro@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/cgroup.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/fork.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/bpf/bpftool/cgroup.c b/tools/bpf/bpftool/cgroup.c
-index ee7a9765c6b32..adbcd84818f74 100644
---- a/tools/bpf/bpftool/cgroup.c
-+++ b/tools/bpf/bpftool/cgroup.c
-@@ -164,7 +164,7 @@ static int do_show(int argc, char **argv)
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 1bd119530a492..1a2d18e98bf99 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -240,7 +240,11 @@ static unsigned long *alloc_thread_stack_node(struct task_struct *tsk, int node)
+ 	struct page *page = alloc_pages_node(node, THREADINFO_GFP,
+ 					     THREAD_SIZE_ORDER);
  
- 	cgroup_fd = open(argv[0], O_RDONLY);
- 	if (cgroup_fd < 0) {
--		p_err("can't open cgroup %s", argv[1]);
-+		p_err("can't open cgroup %s", argv[0]);
- 		goto exit;
- 	}
- 
-@@ -345,7 +345,7 @@ static int do_attach(int argc, char **argv)
- 
- 	cgroup_fd = open(argv[0], O_RDONLY);
- 	if (cgroup_fd < 0) {
--		p_err("can't open cgroup %s", argv[1]);
-+		p_err("can't open cgroup %s", argv[0]);
- 		goto exit;
- 	}
- 
-@@ -403,7 +403,7 @@ static int do_detach(int argc, char **argv)
- 
- 	cgroup_fd = open(argv[0], O_RDONLY);
- 	if (cgroup_fd < 0) {
--		p_err("can't open cgroup %s", argv[1]);
-+		p_err("can't open cgroup %s", argv[0]);
- 		goto exit;
- 	}
+-	return page ? page_address(page) : NULL;
++	if (likely(page)) {
++		tsk->stack = page_address(page);
++		return tsk->stack;
++	}
++	return NULL;
+ #endif
+ }
  
 -- 
 2.20.1
