@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C25148257
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F014148259
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389542AbgAXL1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:27:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
+        id S2403953AbgAXL1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:27:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388423AbgAXL1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:27:10 -0500
+        id S2403826AbgAXL1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:27:14 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E0B220718;
-        Fri, 24 Jan 2020 11:27:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4027120718;
+        Fri, 24 Jan 2020 11:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865229;
-        bh=8lXkaBFiTdPgjwQ++No6cXoW17Z8A6bKUkuAlyV/ENk=;
+        s=default; t=1579865233;
+        bh=03vxJpeyQt75CgTZoG1Wr9wuuaiFdoOiPQReOgQVZT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SU9q5ZF3/Gql/LybDaLe39Ui1+kLXJQHC0tGzofMyririv5fxBTA9GDv/+iJxoZjG
-         e7QI5DtA6J71ZunIInRj6vvrpwrzA7KIWDDfFqlBdiiO8ZT7ebNTS8oPOBtBa72f0A
-         2/uV2XbM3ACzl3NdasI8xJaYLHueSZ0ggv6CYejc=
+        b=kxUsBIos4g4aRv5r0vxyKXEBRdd1aoajBWEJy603e4FPUYUqTqswooWTmEV3pKE+m
+         7vhC9jtx2iyAFkAiikl96+HRFFhyAE66WsAPbFCj+nO96kU/e/yUF6a9F9egDwb/tz
+         lpnI594MubkSCkvnujIqI30boNxCPM9xkPgAyRbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 489/639] crypto: ccp - Reduce maximum stack usage
-Date:   Fri, 24 Jan 2020 10:30:59 +0100
-Message-Id: <20200124093149.976539091@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 490/639] ALSA: aoa: onyx: always initialize register read value
+Date:   Fri, 24 Jan 2020 10:31:00 +0100
+Message-Id: <20200124093150.127919013@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,176 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Johannes Berg <johannes@sipsolutions.net>
 
-[ Upstream commit 72c8117adfced37df101c8c0b3f363e0906f83f0 ]
+[ Upstream commit f474808acb3c4b30552d9c59b181244e0300d218 ]
 
-Each of the operations in ccp_run_cmd() needs several hundred
-bytes of kernel stack. Depending on the inlining, these may
-need separate stack slots that add up to more than the warning
-limit, as shown in this clang based build:
+A lot of places in the driver use onyx_read_register() without
+checking the return value, and it's been working OK for ~10 years
+or so, so probably never fails ... Rather than trying to check the
+return value everywhere, which would be relatively intrusive, at
+least make sure we don't use an uninitialized value.
 
-drivers/crypto/ccp/ccp-ops.c:871:12: error: stack frame size of 1164 bytes in function 'ccp_run_aes_cmd' [-Werror,-Wframe-larger-than=]
-static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-
-The problem may also happen when there is no warning, e.g. in the
-ccp_run_cmd()->ccp_run_aes_cmd()->ccp_run_aes_gcm_cmd() call chain with
-over 2000 bytes.
-
-Mark each individual function as 'noinline_for_stack' to prevent
-this from happening, and move the calls to the two special cases for aes
-into the top-level function. This will keep the actual combined stack
-usage to the mimimum: 828 bytes for ccp_run_aes_gcm_cmd() and
-at most 524 bytes for each of the other cases.
-
-Fixes: 63b945091a07 ("crypto: ccp - CCP device driver and interface support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/ccp-ops.c | 52 +++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 21 deletions(-)
+ sound/aoa/codecs/onyx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
-index 4b48b8523a40c..330853a2702f0 100644
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -458,8 +458,8 @@ static int ccp_copy_from_sb(struct ccp_cmd_queue *cmd_q,
- 	return ccp_copy_to_from_sb(cmd_q, wa, jobid, sb, byte_swap, true);
- }
- 
--static int ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q,
--				struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_aes_engine *aes = &cmd->u.aes;
- 	struct ccp_dm_workarea key, ctx;
-@@ -614,8 +614,8 @@ e_key:
- 	return ret;
- }
- 
--static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
--			       struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_aes_engine *aes = &cmd->u.aes;
- 	struct ccp_dm_workarea key, ctx, final_wa, tag;
-@@ -897,7 +897,8 @@ e_key:
- 	return ret;
- }
- 
--static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_aes_engine *aes = &cmd->u.aes;
- 	struct ccp_dm_workarea key, ctx;
-@@ -907,12 +908,6 @@ static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	bool in_place = false;
- 	int ret;
- 
--	if (aes->mode == CCP_AES_MODE_CMAC)
--		return ccp_run_aes_cmac_cmd(cmd_q, cmd);
--
--	if (aes->mode == CCP_AES_MODE_GCM)
--		return ccp_run_aes_gcm_cmd(cmd_q, cmd);
--
- 	if (!((aes->key_len == AES_KEYSIZE_128) ||
- 	      (aes->key_len == AES_KEYSIZE_192) ||
- 	      (aes->key_len == AES_KEYSIZE_256)))
-@@ -1080,8 +1075,8 @@ e_key:
- 	return ret;
- }
- 
--static int ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q,
--			       struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_xts_aes_engine *xts = &cmd->u.xts;
- 	struct ccp_dm_workarea key, ctx;
-@@ -1280,7 +1275,8 @@ e_key:
- 	return ret;
- }
- 
--static int ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_des3_engine *des3 = &cmd->u.des3;
- 
-@@ -1476,7 +1472,8 @@ e_key:
- 	return ret;
- }
- 
--static int ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_sha_engine *sha = &cmd->u.sha;
- 	struct ccp_dm_workarea ctx;
-@@ -1820,7 +1817,8 @@ e_ctx:
- 	return ret;
- }
- 
--static int ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_rsa_engine *rsa = &cmd->u.rsa;
- 	struct ccp_dm_workarea exp, src, dst;
-@@ -1951,8 +1949,8 @@ e_sb:
- 	return ret;
- }
- 
--static int ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q,
--				struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_passthru_engine *pt = &cmd->u.passthru;
- 	struct ccp_dm_workarea mask;
-@@ -2083,7 +2081,8 @@ e_mask:
- 	return ret;
- }
- 
--static int ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
-+static noinline_for_stack int
-+ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
- 				      struct ccp_cmd *cmd)
- {
- 	struct ccp_passthru_nomap_engine *pt = &cmd->u.passthru_nomap;
-@@ -2424,7 +2423,8 @@ e_src:
- 	return ret;
- }
- 
--static int ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_ecc_engine *ecc = &cmd->u.ecc;
- 
-@@ -2461,7 +2461,17 @@ int ccp_run_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 
- 	switch (cmd->engine) {
- 	case CCP_ENGINE_AES:
--		ret = ccp_run_aes_cmd(cmd_q, cmd);
-+		switch (cmd->u.aes.mode) {
-+		case CCP_AES_MODE_CMAC:
-+			ret = ccp_run_aes_cmac_cmd(cmd_q, cmd);
-+			break;
-+		case CCP_AES_MODE_GCM:
-+			ret = ccp_run_aes_gcm_cmd(cmd_q, cmd);
-+			break;
-+		default:
-+			ret = ccp_run_aes_cmd(cmd_q, cmd);
-+			break;
-+		}
- 		break;
- 	case CCP_ENGINE_XTS_AES_128:
- 		ret = ccp_run_xts_aes_cmd(cmd_q, cmd);
+diff --git a/sound/aoa/codecs/onyx.c b/sound/aoa/codecs/onyx.c
+index d2d96ca082b71..6224fd3bbf7cc 100644
+--- a/sound/aoa/codecs/onyx.c
++++ b/sound/aoa/codecs/onyx.c
+@@ -74,8 +74,10 @@ static int onyx_read_register(struct onyx *onyx, u8 reg, u8 *value)
+ 		return 0;
+ 	}
+ 	v = i2c_smbus_read_byte_data(onyx->i2c, reg);
+-	if (v < 0)
++	if (v < 0) {
++		*value = 0;
+ 		return -1;
++	}
+ 	*value = (u8)v;
+ 	onyx->cache[ONYX_REG_CONTROL-FIRSTREGISTER] = *value;
+ 	return 0;
 -- 
 2.20.1
 
