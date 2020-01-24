@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D60F14767F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEFAC14767E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730378AbgAXBR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:17:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60462 "EHLO mail.kernel.org"
+        id S1730493AbgAXBRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730427AbgAXBR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:27 -0500
+        id S1730468AbgAXBR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9431E21D7D;
-        Fri, 24 Jan 2020 01:17:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A737D206A2;
+        Fri, 24 Jan 2020 01:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828646;
-        bh=YgsZRwJQo5NDjLt5Mz+9Gt6+Z3gsDcXgk385OZZSpSo=;
+        s=default; t=1579828647;
+        bh=S3Q/7HKETBNsxezU1zyq7X4p5x3UXFHpUKWfBenxpD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRKXkNMr90SG3qiom6HQ/MM7zJDYFVbpkmKVSwTaSYvUCUvIAQUpgGhZg9l1uLyLb
-         Jta+68oL4OekJXt4mHoJqs9GiQfPNCZmuJhQXMHjwDTKI91UXblPq8wgJ+WFWrNTbA
-         fWMhfaRMFLSWs1O82cKC9cYVrkJaQ/VupM6lpGOw=
+        b=2C4MoNeaZtkUgjLethbkT333fBvZ7hexwHFPhtqGX8pFCfzEM+c3vMx9ICicLHrdH
+         eD6C2gdRgMqrZq1rQ9AupamQG7EUuYoAr/WuCr36goTWy2HNIQuUAJvIb3ZijyUewI
+         BaYeovXtEkQGXyhLYplLOdmVvjUY6lMh2lA8aCOE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 15/33] perf/imx_ddr: Add enhanced AXI ID filter support
-Date:   Thu, 23 Jan 2020 20:16:50 -0500
-Message-Id: <20200124011708.18232-15-sashal@kernel.org>
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Chris Chiu <chiu@endlessm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 16/33] mfd: intel-lpss: Add default I2C device properties for Gemini Lake
+Date:   Thu, 23 Jan 2020 20:16:51 -0500
+Message-Id: <20200124011708.18232-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -43,115 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-[ Upstream commit 44f8bd014a94ed679ddb77d0b92350d4ac4f23a5 ]
+[ Upstream commit 3f31bc67e4dc6a555341dffefe328ddd58e8b431 ]
 
-With DDR_CAP_AXI_ID_FILTER quirk, indicating HW supports AXI ID filter
-which only can get bursts from DDR transaction, i.e. DDR read/write
-requests.
+It turned out Intel Gemini Lake doesn't use the same I2C timing
+parameters as Broxton.
 
-This patch add DDR_CAP_AXI_ID_ENHANCED_FILTER quirk, indicating HW
-supports AXI ID filter which can get bursts and bytes from DDR
-transaction at the same time. We hope PMU always return bytes in the
-driver due to it is more meaningful for users.
+I got confirmation from the Windows team that Gemini Lake systems should
+use updated timing parameters that differ from those used in Broxton
+based systems.
 
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: f80e78aa11ad ("mfd: intel-lpss: Add Intel Gemini Lake PCI IDs")
+Tested-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/fsl_imx8_ddr_perf.c | 63 +++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 21 deletions(-)
+ drivers/mfd/intel-lpss-pci.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
-index ce7345745b42c..2a3966d059e70 100644
---- a/drivers/perf/fsl_imx8_ddr_perf.c
-+++ b/drivers/perf/fsl_imx8_ddr_perf.c
-@@ -45,7 +45,8 @@
- static DEFINE_IDA(ddr_ida);
- 
- /* DDR Perf hardware feature */
--#define DDR_CAP_AXI_ID_FILTER          0x1     /* support AXI ID filter */
-+#define DDR_CAP_AXI_ID_FILTER			0x1     /* support AXI ID filter */
-+#define DDR_CAP_AXI_ID_FILTER_ENHANCED		0x3     /* support enhanced AXI ID filter */
- 
- struct fsl_ddr_devtype_data {
- 	unsigned int quirks;    /* quirks needed for different DDR Perf core */
-@@ -178,6 +179,36 @@ static const struct attribute_group *attr_groups[] = {
- 	NULL,
+diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+index 9355db29d2f97..1767f30a16761 100644
+--- a/drivers/mfd/intel-lpss-pci.c
++++ b/drivers/mfd/intel-lpss-pci.c
+@@ -122,6 +122,18 @@ static const struct intel_lpss_platform_info apl_i2c_info = {
+ 	.properties = apl_i2c_properties,
  };
  
-+static bool ddr_perf_is_filtered(struct perf_event *event)
-+{
-+	return event->attr.config == 0x41 || event->attr.config == 0x42;
-+}
++static struct property_entry glk_i2c_properties[] = {
++	PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 313),
++	PROPERTY_ENTRY_U32("i2c-sda-falling-time-ns", 171),
++	PROPERTY_ENTRY_U32("i2c-scl-falling-time-ns", 290),
++	{ },
++};
 +
-+static u32 ddr_perf_filter_val(struct perf_event *event)
-+{
-+	return event->attr.config1;
-+}
++static const struct intel_lpss_platform_info glk_i2c_info = {
++	.clk_rate = 133000000,
++	.properties = glk_i2c_properties,
++};
 +
-+static bool ddr_perf_filters_compatible(struct perf_event *a,
-+					struct perf_event *b)
-+{
-+	if (!ddr_perf_is_filtered(a))
-+		return true;
-+	if (!ddr_perf_is_filtered(b))
-+		return true;
-+	return ddr_perf_filter_val(a) == ddr_perf_filter_val(b);
-+}
-+
-+static bool ddr_perf_is_enhanced_filtered(struct perf_event *event)
-+{
-+	unsigned int filt;
-+	struct ddr_pmu *pmu = to_ddr_pmu(event->pmu);
-+
-+	filt = pmu->devtype_data->quirks & DDR_CAP_AXI_ID_FILTER_ENHANCED;
-+	return (filt == DDR_CAP_AXI_ID_FILTER_ENHANCED) &&
-+		ddr_perf_is_filtered(event);
-+}
-+
- static u32 ddr_perf_alloc_counter(struct ddr_pmu *pmu, int event)
- {
- 	int i;
-@@ -209,27 +240,17 @@ static void ddr_perf_free_counter(struct ddr_pmu *pmu, int counter)
- 
- static u32 ddr_perf_read_counter(struct ddr_pmu *pmu, int counter)
- {
--	return readl_relaxed(pmu->base + COUNTER_READ + counter * 4);
--}
--
--static bool ddr_perf_is_filtered(struct perf_event *event)
--{
--	return event->attr.config == 0x41 || event->attr.config == 0x42;
--}
-+	struct perf_event *event = pmu->events[counter];
-+	void __iomem *base = pmu->base;
- 
--static u32 ddr_perf_filter_val(struct perf_event *event)
--{
--	return event->attr.config1;
--}
--
--static bool ddr_perf_filters_compatible(struct perf_event *a,
--					struct perf_event *b)
--{
--	if (!ddr_perf_is_filtered(a))
--		return true;
--	if (!ddr_perf_is_filtered(b))
--		return true;
--	return ddr_perf_filter_val(a) == ddr_perf_filter_val(b);
-+	/*
-+	 * return bytes instead of bursts from ddr transaction for
-+	 * axid-read and axid-write event if PMU core supports enhanced
-+	 * filter.
-+	 */
-+	base += ddr_perf_is_enhanced_filtered(event) ? COUNTER_DPCR1 :
-+						       COUNTER_READ;
-+	return readl_relaxed(base + counter * 4);
- }
- 
- static int ddr_perf_event_init(struct perf_event *event)
+ static const struct intel_lpss_platform_info cnl_i2c_info = {
+ 	.clk_rate = 216000000,
+ 	.properties = spt_i2c_properties,
+@@ -174,14 +186,14 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
+ 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
+ 	/* GLK */
+-	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&bxt_i2c_info },
+-	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&bxt_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&glk_i2c_info },
++	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&glk_i2c_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31bc), (kernel_ulong_t)&bxt_uart_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31be), (kernel_ulong_t)&bxt_uart_info },
+ 	{ PCI_VDEVICE(INTEL, 0x31c0), (kernel_ulong_t)&bxt_uart_info },
 -- 
 2.20.1
 
