@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AFC8148016
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B1A148018
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387657AbgAXLHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:07:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
+        id S2389519AbgAXLHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:07:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389517AbgAXLHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:07:31 -0500
+        id S1731030AbgAXLHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:07:37 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6B4B2071A;
-        Fri, 24 Jan 2020 11:07:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F613214DB;
+        Fri, 24 Jan 2020 11:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864050;
-        bh=HAw4S1gBe/g/LNIX93+Cp4icEvnyUdS6ePsP+BY3Y1g=;
+        s=default; t=1579864057;
+        bh=XtRbgFtwDq1bRrqpR5hzKEXjrhq/GLxRgF+yg6Wcgi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMOkvHSsRvGyn+durmQST77xb8ctRNPwn0NCJ+fLBao4CXqaSjg+4NmdvFRRujL6t
-         uV3xs11fgtU9z5Ix9bbzClHAR08tHIEg3q5U0vEs3X2gFr9o6Ns8pPFUWDINnB0X4F
-         ECuV+VLXpcUmpZ8tCwlgH3TN9sPIySEmHnu9svHM=
+        b=bY4sdQ586s3GIUaJG+wKZMTA1OC4sISLBfT02ZFOkZ/kCgPaC2tWEybXU7ihHOzhj
+         GNX/r9EBb3YRYwdgaL5L0HaySjyjGJLzdkddDTdCYk3/qsYsnQgCQ2l4di0o/UM7i+
+         wBFSmGFn6WRhyt6QW5wQXAAWlBvjjTPVUVlfYveA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/639] spi/topcliff_pch: Fix potential NULL dereference on allocation error
-Date:   Fri, 24 Jan 2020 10:25:14 +0100
-Message-Id: <20200124093105.287334487@linuxfoundation.org>
+Subject: [PATCH 4.19 146/639] ARM: dts: sun8i-a23-a33: Move NAND controller device node to sort by address
+Date:   Fri, 24 Jan 2020 10:25:16 +0100
+Message-Id: <20200124093105.525053383@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,45 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit e902cdcb5112b89ee445588147964723fd69ffb4 ]
+[ Upstream commit d027521497592773cd23d016d36975574d3452db ]
 
-In pch_spi_handle_dma, it doesn't check for NULL returns of kcalloc
-so it would result in an Oops.
+The NAND controller device node was inserted into the wrong position,
+probably due to a rebase or merge, as the file's structure does not
+provide enough context for git to accurately match the previous device
+node block.
 
-Fixes: c37f3c2749b5 ("spi/topcliff_pch: DMA support")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d7b843df13ea ("ARM: dts: sun8i: add NAND controller node for A23/A33")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-topcliff-pch.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/sun8i-a23-a33.dtsi | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
-index 4389ab80c23e6..fa730a871d252 100644
---- a/drivers/spi/spi-topcliff-pch.c
-+++ b/drivers/spi/spi-topcliff-pch.c
-@@ -1008,6 +1008,9 @@ static void pch_spi_handle_dma(struct pch_spi_data *data, int *bpw)
+diff --git a/arch/arm/boot/dts/sun8i-a23-a33.dtsi b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+index c16ffcc4db7da..a272a69519a26 100644
+--- a/arch/arm/boot/dts/sun8i-a23-a33.dtsi
++++ b/arch/arm/boot/dts/sun8i-a23-a33.dtsi
+@@ -155,6 +155,19 @@
+ 			#dma-cells = <1>;
+ 		};
  
- 	/* RX */
- 	dma->sg_rx_p = kcalloc(num, sizeof(*dma->sg_rx_p), GFP_ATOMIC);
-+	if (!dma->sg_rx_p)
-+		return;
++		nfc: nand@1c03000 {
++			compatible = "allwinner,sun4i-a10-nand";
++			reg = <0x01c03000 0x1000>;
++			interrupts = <GIC_SPI 70 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_NAND>, <&ccu CLK_NAND>;
++			clock-names = "ahb", "mod";
++			resets = <&ccu RST_BUS_NAND>;
++			reset-names = "ahb";
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
 +
- 	sg_init_table(dma->sg_rx_p, num); /* Initialize SG table */
- 	/* offset, length setting */
- 	sg = dma->sg_rx_p;
-@@ -1068,6 +1071,9 @@ static void pch_spi_handle_dma(struct pch_spi_data *data, int *bpw)
- 	}
+ 		mmc0: mmc@1c0f000 {
+ 			compatible = "allwinner,sun7i-a20-mmc";
+ 			reg = <0x01c0f000 0x1000>;
+@@ -212,21 +225,6 @@
+ 			#size-cells = <0>;
+ 		};
  
- 	dma->sg_tx_p = kcalloc(num, sizeof(*dma->sg_tx_p), GFP_ATOMIC);
-+	if (!dma->sg_tx_p)
-+		return;
-+
- 	sg_init_table(dma->sg_tx_p, num); /* Initialize SG table */
- 	/* offset, length setting */
- 	sg = dma->sg_tx_p;
+-		nfc: nand@1c03000 {
+-			compatible = "allwinner,sun4i-a10-nand";
+-			reg = <0x01c03000 0x1000>;
+-			interrupts = <GIC_SPI 70 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ccu CLK_BUS_NAND>, <&ccu CLK_NAND>;
+-			clock-names = "ahb", "mod";
+-			resets = <&ccu RST_BUS_NAND>;
+-			reset-names = "ahb";
+-			pinctrl-names = "default";
+-			pinctrl-0 = <&nand_pins &nand_pins_cs0 &nand_pins_rb0>;
+-			status = "disabled";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-		};
+-
+ 		usb_otg: usb@1c19000 {
+ 			/* compatible gets set in SoC specific dtsi file */
+ 			reg = <0x01c19000 0x0400>;
 -- 
 2.20.1
 
