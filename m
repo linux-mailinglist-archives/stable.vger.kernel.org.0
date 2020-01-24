@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84EE3148371
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:36:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD2F14837C
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404739AbgAXLgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:36:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
+        id S2404907AbgAXLgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:36:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404887AbgAXLgK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:36:10 -0500
+        id S2404551AbgAXLgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:36:15 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A917214AF;
-        Fri, 24 Jan 2020 11:36:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 569E3206F0;
+        Fri, 24 Jan 2020 11:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865769;
-        bh=+PXbwDiudaVGICJcW9K7f8hU1Y36cPzlHj6uTliGLNE=;
+        s=default; t=1579865774;
+        bh=1g51mCM576KXk7ji3ixXcf9nDw3EQhTrDO8ED8Rl4u8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7ClZKTz9/gXQxXIvlTsO+oTp8Wc1DQGxPU1/iPz7ZgFady8vQG0Dktx3nPvTlbSB
-         Pyhh6UW+gwFkRM8odd5KSyDJY3hZc2qNf2qBJw5rmFVQ3CAE4ZyV1BldIP+ZYljmdK
-         wumHXzKnRbl8HofsfASOG2uAz1zW4OOdc2Nb6FjM=
+        b=k/6WRaXqDwscb1cPcoz2kO6B+R1tQKxGgoNtgCcU7PF0raRrTCdysNXFbUpknkVZ1
+         ugbEJ7i9EKvWavFBAejsRpI9IpfVkdnPemu+UCbmuYpvoqM8cPnauGH2W8i9SXsgh6
+         CsTALPHTP//h1xQY3AymeCxGA12U/eilQM0hHIj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 616/639] hv_netvsc: Fix send_table offset in case of a host bug
-Date:   Fri, 24 Jan 2020 10:33:06 +0100
-Message-Id: <20200124093206.751764426@linuxfoundation.org>
+Subject: [PATCH 4.19 617/639] afs: Fix large file support
+Date:   Fri, 24 Jan 2020 10:33:07 +0100
+Message-Id: <20200124093206.900172997@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,81 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Marc Dionne <marc.dionne@auristor.com>
 
-[ Upstream commit 171c1fd98df3d5948d9a9eb755274850fa5e59c6 ]
+[ Upstream commit b485275f1aca8a9da37fd35e4fad673935e827da ]
 
-If negotiated NVSP version <= NVSP_PROTOCOL_VERSION_6, the offset may
-be wrong (too small) due to a host bug. This can cause missing the
-end of the send indirection table, and add multiple zero entries from
-leading zeros before the data region. This bug adds extra burden on
-channel 0.
+By default s_maxbytes is set to MAX_NON_LFS, which limits the usable
+file size to 2GB, enforced by the vfs.
 
-So fix the offset by computing it from the data structure sizes. This
-will ensure netvsc driver runs normally on unfixed hosts, and future
-fixed hosts.
+Commit b9b1f8d5930a ("AFS: write support fixes") added support for the
+64-bit fetch and store server operations, but did not change this value.
+As a result, attempts to write past the 2G mark result in EFBIG errors:
 
-Fixes: 5b54dac856cb ("hyperv: Add support for virtual Receive Side Scaling (vRSS)")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ $ dd if=/dev/zero of=foo bs=1M count=1 seek=2048
+ dd: error writing 'foo': File too large
+
+Set s_maxbytes to MAX_LFS_FILESIZE.
+
+Fixes: b9b1f8d5930a ("AFS: write support fixes")
+Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ fs/afs/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index 68c23a64e565f..dbfd3a0c97d3b 100644
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -1182,6 +1182,7 @@ static int netvsc_receive(struct net_device *ndev,
- }
- 
- static void netvsc_send_table(struct net_device *ndev,
-+			      struct netvsc_device *nvscdev,
- 			      const struct nvsp_message *nvmsg,
- 			      u32 msglen)
- {
-@@ -1197,6 +1198,16 @@ static void netvsc_send_table(struct net_device *ndev,
- 		return;
- 	}
- 
-+	/* If negotiated version <= NVSP_PROTOCOL_VERSION_6, the offset may be
-+	 * wrong due to a host bug. So fix the offset here.
-+	 */
-+	if (nvscdev->nvsp_version <= NVSP_PROTOCOL_VERSION_6 &&
-+	    msglen >= sizeof(struct nvsp_message_header) +
-+	    sizeof(union nvsp_6_message_uber) + count * sizeof(u32))
-+		offset = sizeof(struct nvsp_message_header) +
-+			 sizeof(union nvsp_6_message_uber);
-+
-+	/* Boundary check for all versions */
- 	if (offset > msglen - count * sizeof(u32)) {
- 		netdev_err(ndev, "Received send-table offset too big:%u\n",
- 			   offset);
-@@ -1222,12 +1233,13 @@ static void netvsc_send_vf(struct net_device *ndev,
- }
- 
- static void netvsc_receive_inband(struct net_device *ndev,
-+				  struct netvsc_device *nvscdev,
- 				  const struct nvsp_message *nvmsg,
- 				  u32 msglen)
- {
- 	switch (nvmsg->hdr.msg_type) {
- 	case NVSP_MSG5_TYPE_SEND_INDIRECTION_TABLE:
--		netvsc_send_table(ndev, nvmsg, msglen);
-+		netvsc_send_table(ndev, nvscdev, nvmsg, msglen);
- 		break;
- 
- 	case NVSP_MSG4_TYPE_SEND_VF_ASSOCIATION:
-@@ -1260,7 +1272,7 @@ static int netvsc_process_raw_pkt(struct hv_device *device,
- 		break;
- 
- 	case VM_PKT_DATA_INBAND:
--		netvsc_receive_inband(ndev, nvmsg, msglen);
-+		netvsc_receive_inband(ndev, net_device, nvmsg, msglen);
- 		break;
- 
- 	default:
+diff --git a/fs/afs/super.c b/fs/afs/super.c
+index 18b9b7ca20c92..4961d32ccd1e0 100644
+--- a/fs/afs/super.c
++++ b/fs/afs/super.c
+@@ -393,6 +393,7 @@ static int afs_fill_super(struct super_block *sb,
+ 	/* fill in the superblock */
+ 	sb->s_blocksize		= PAGE_SIZE;
+ 	sb->s_blocksize_bits	= PAGE_SHIFT;
++	sb->s_maxbytes		= MAX_LFS_FILESIZE;
+ 	sb->s_magic		= AFS_FS_MAGIC;
+ 	sb->s_op		= &afs_super_ops;
+ 	if (!as->dyn_root)
 -- 
 2.20.1
 
