@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDF31489CD
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF6D1489C6
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:37:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387630AbgAXOhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:37:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
+        id S2387562AbgAXOhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:37:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391222AbgAXOTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:00 -0500
+        id S2391255AbgAXOTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A55720838;
-        Fri, 24 Jan 2020 14:18:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35123214AF;
+        Fri, 24 Jan 2020 14:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875539;
-        bh=aQOpUWDKW8nzsv57PXVUcVKwFvdSssAFFA6dAs6Vs6Q=;
+        s=default; t=1579875542;
+        bh=gITOntd6JjepyRqHUzvVgH4Fg1uLC6E0WP0cBUWuEUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfPMwzjh0nj3wkOQ+YVInYSgYeTN1kMsY3wfXrkRRnzZabnFJjdIsGp0HL9K64vok
-         ID7tvyy56FgVrA8NRwg5GJeZmLWb9SvwA7wP7tu6SXeJLha+IxyMdnWxbQcxILXW7J
-         0b1leoCbR/Mh3p+280yIuCjC+DYM2TGvpQyHOWlg=
+        b=aZDL0aGvq+AmgZKv/WjMhXqCszbGB/kN8Fd7OsLWn7cv08ybS8qPHk1C9/idCdkUA
+         Xm9AcHLBPQW+9BlJ1ETujyKrrC/1nfhYgzaP5c8anXnILiMgW+7Jq9DT0gDHd59JAe
+         Ucewostg4O+av5HOtdprVvWKeoqSIoNcXrgW6dG4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 036/107] s390/zcrypt: move ap device reset from bus to driver code
-Date:   Fri, 24 Jan 2020 09:17:06 -0500
-Message-Id: <20200124141817.28793-36-sashal@kernel.org>
+Cc:     Brett Creeley <brett.creeley@intel.com>,
+        Arkady Gilinksky <arkady.gilinsky@harmonicinc.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 038/107] i40e: Fix virtchnl_queue_select bitmap validation
+Date:   Fri, 24 Jan 2020 09:17:08 -0500
+Message-Id: <20200124141817.28793-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -43,132 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 0c874cd04292c7ee22d70eefc341fa2648f41f46 ]
+[ Upstream commit d9d6a9aed3f66f8ce5fa3ca6ca26007d75032296 ]
 
-This patch moves the reset invocation of an ap device when
-fresh detected from the ap bus to the probe() function of
-the driver responsible for this device.
+Currently in i40e_vc_disable_queues_msg() we are incorrectly
+validating the virtchnl queue select bitmaps. The
+virtchnl_queue_select rx_queues and tx_queue bitmap is being
+compared against ICE_MAX_VF_QUEUES, but the problem is that
+these bitmaps can have a value greater than I40E_MAX_VF_QUEUES.
+Fix this by comparing the bitmaps against BIT(I40E_MAX_VF_QUEUES).
 
-The virtualisation of ap devices makes it necessary to
-remove unconditioned resets on fresh appearing apqn devices.
-It may be that such a device is already enabled for guest
-usage. So there may be a race condition between host ap bus
-and guest ap bus doing the reset. This patch moves the
-reset from the ap bus to the zcrypt drivers. So if there
-is no zcrypt driver bound to an ap device - for example
-the ap device is bound to the vfio device driver - the
-ap device is untouched passed to the vfio device driver.
+Also, add the function i40e_vc_validate_vqs_bitmaps() that checks to see
+if both virtchnl_queue_select bitmaps are empty along with checking that
+the bitmaps only have valid bits set. This function can then be used in
+both the queue enable and disable flows.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Suggested-by: Arkady Gilinksky <arkady.gilinsky@harmonicinc.com>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/ap_bus.c       | 2 --
- drivers/s390/crypto/ap_bus.h       | 2 +-
- drivers/s390/crypto/ap_queue.c     | 5 +++--
- drivers/s390/crypto/zcrypt_cex2a.c | 1 +
- drivers/s390/crypto/zcrypt_cex2c.c | 2 ++
- drivers/s390/crypto/zcrypt_cex4.c  | 1 +
- 6 files changed, 8 insertions(+), 5 deletions(-)
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 22 +++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index a1915061932eb..5256e3ce84e56 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -793,8 +793,6 @@ static int ap_device_probe(struct device *dev)
- 		drvres = ap_drv->flags & AP_DRIVER_FLAG_DEFAULT;
- 		if (!!devres != !!drvres)
- 			return -ENODEV;
--		/* (re-)init queue's state machine */
--		ap_queue_reinit_state(to_ap_queue(dev));
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 3d24408388226..3515ace0f0201 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2322,6 +2322,22 @@ static int i40e_ctrl_vf_rx_rings(struct i40e_vsi *vsi, unsigned long q_map,
+ 	return ret;
+ }
+ 
++/**
++ * i40e_vc_validate_vqs_bitmaps - validate Rx/Tx queue bitmaps from VIRTHCHNL
++ * @vqs: virtchnl_queue_select structure containing bitmaps to validate
++ *
++ * Returns true if validation was successful, else false.
++ */
++static bool i40e_vc_validate_vqs_bitmaps(struct virtchnl_queue_select *vqs)
++{
++	if ((!vqs->rx_queues && !vqs->tx_queues) ||
++	    vqs->rx_queues >= BIT(I40E_MAX_VF_QUEUES) ||
++	    vqs->tx_queues >= BIT(I40E_MAX_VF_QUEUES))
++		return false;
++
++	return true;
++}
++
+ /**
+  * i40e_vc_enable_queues_msg
+  * @vf: pointer to the VF info
+@@ -2347,7 +2363,7 @@ static int i40e_vc_enable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		goto error_param;
  	}
  
- 	/* Add queue/card to list of active queues/cards */
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 433b7b64368d6..bb35ba4a8d243 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -261,7 +261,7 @@ void ap_queue_prepare_remove(struct ap_queue *aq);
- void ap_queue_remove(struct ap_queue *aq);
- void ap_queue_suspend(struct ap_device *ap_dev);
- void ap_queue_resume(struct ap_device *ap_dev);
--void ap_queue_reinit_state(struct ap_queue *aq);
-+void ap_queue_init_state(struct ap_queue *aq);
+-	if ((0 == vqs->rx_queues) && (0 == vqs->tx_queues)) {
++	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+ 	}
+@@ -2409,9 +2425,7 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		goto error_param;
+ 	}
  
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
-diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
-index dad2be333d826..37c3bdc3642dc 100644
---- a/drivers/s390/crypto/ap_queue.c
-+++ b/drivers/s390/crypto/ap_queue.c
-@@ -638,7 +638,7 @@ struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type)
- 	aq->ap_dev.device.type = &ap_queue_type;
- 	aq->ap_dev.device_type = device_type;
- 	aq->qid = qid;
--	aq->state = AP_STATE_RESET_START;
-+	aq->state = AP_STATE_UNBOUND;
- 	aq->interrupt = AP_INTR_DISABLED;
- 	spin_lock_init(&aq->lock);
- 	INIT_LIST_HEAD(&aq->list);
-@@ -771,10 +771,11 @@ void ap_queue_remove(struct ap_queue *aq)
- 	spin_unlock_bh(&aq->lock);
- }
- 
--void ap_queue_reinit_state(struct ap_queue *aq)
-+void ap_queue_init_state(struct ap_queue *aq)
- {
- 	spin_lock_bh(&aq->lock);
- 	aq->state = AP_STATE_RESET_START;
- 	ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
- 	spin_unlock_bh(&aq->lock);
- }
-+EXPORT_SYMBOL(ap_queue_init_state);
-diff --git a/drivers/s390/crypto/zcrypt_cex2a.c b/drivers/s390/crypto/zcrypt_cex2a.c
-index c50f3e86cc748..7cbb384ec5352 100644
---- a/drivers/s390/crypto/zcrypt_cex2a.c
-+++ b/drivers/s390/crypto/zcrypt_cex2a.c
-@@ -175,6 +175,7 @@ static int zcrypt_cex2a_queue_probe(struct ap_device *ap_dev)
- 	zq->queue = aq;
- 	zq->online = 1;
- 	atomic_set(&zq->load, 0);
-+	ap_queue_init_state(aq);
- 	ap_queue_init_reply(aq, &zq->reply);
- 	aq->request_timeout = CEX2A_CLEANUP_TIME,
- 	aq->private = zq;
-diff --git a/drivers/s390/crypto/zcrypt_cex2c.c b/drivers/s390/crypto/zcrypt_cex2c.c
-index 35c7c6672713b..c78c0d119806f 100644
---- a/drivers/s390/crypto/zcrypt_cex2c.c
-+++ b/drivers/s390/crypto/zcrypt_cex2c.c
-@@ -220,6 +220,7 @@ static int zcrypt_cex2c_queue_probe(struct ap_device *ap_dev)
- 	zq->queue = aq;
- 	zq->online = 1;
- 	atomic_set(&zq->load, 0);
-+	ap_rapq(aq->qid);
- 	rc = zcrypt_cex2c_rng_supported(aq);
- 	if (rc < 0) {
- 		zcrypt_queue_free(zq);
-@@ -231,6 +232,7 @@ static int zcrypt_cex2c_queue_probe(struct ap_device *ap_dev)
- 	else
- 		zq->ops = zcrypt_msgtype(MSGTYPE06_NAME,
- 					 MSGTYPE06_VARIANT_NORNG);
-+	ap_queue_init_state(aq);
- 	ap_queue_init_reply(aq, &zq->reply);
- 	aq->request_timeout = CEX2C_CLEANUP_TIME;
- 	aq->private = zq;
-diff --git a/drivers/s390/crypto/zcrypt_cex4.c b/drivers/s390/crypto/zcrypt_cex4.c
-index 442e3d6162f76..6fabc906114c0 100644
---- a/drivers/s390/crypto/zcrypt_cex4.c
-+++ b/drivers/s390/crypto/zcrypt_cex4.c
-@@ -381,6 +381,7 @@ static int zcrypt_cex4_queue_probe(struct ap_device *ap_dev)
- 	zq->queue = aq;
- 	zq->online = 1;
- 	atomic_set(&zq->load, 0);
-+	ap_queue_init_state(aq);
- 	ap_queue_init_reply(aq, &zq->reply);
- 	aq->request_timeout = CEX4_CLEANUP_TIME,
- 	aq->private = zq;
+-	if ((vqs->rx_queues == 0 && vqs->tx_queues == 0) ||
+-	    vqs->rx_queues > I40E_MAX_VF_QUEUES ||
+-	    vqs->tx_queues > I40E_MAX_VF_QUEUES) {
++	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+ 	}
 -- 
 2.20.1
 
