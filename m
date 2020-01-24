@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E04D414835E
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A40D148362
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388424AbgAXLfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:35:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
+        id S2404704AbgAXLfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:35:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388387AbgAXLff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:35:35 -0500
+        id S2404847AbgAXLfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:35:39 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D1572075D;
-        Fri, 24 Jan 2020 11:35:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15ADA206D4;
+        Fri, 24 Jan 2020 11:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865735;
-        bh=//fvSBPtYBMF1Igvz8lJoRgoyfEGurWut2PLs1x0Z64=;
+        s=default; t=1579865738;
+        bh=fIHDlve4Ao8B0AFVAsbET8j2qKXguODvTNdeLQuTIJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlH6bIP9TKKd6ybmyPWZmAJVSN/h5CVnu6eny6NZyVh90F/QRdkiObLtHoc8lh+kF
-         Y0Z56SS7p+0VZiRlPihAlNo/CfcwsjB9WERMepKZvQxqfrsPkSK/6aHywR9+4hjyJT
-         fiXG1AArMyKZzOQCDmuKbkipiFi423DZK2eNJ0K4=
+        b=k1v8VHaRkIpMQO7dvR4N53rM4fjUglxfRgXU+K3TAozyofjA3Z7mNTXpUANn+oD+8
+         OwHtjimmlqd1zuh+Vk9WkJBV0UmCZj9PgMZy1d/bXpQ58x9/0ePbg8pHf91mXkCg/s
+         h2Tp5HDM0IfcCdv1LI+vhi8QHHhFOQ/7dgWSXTFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 623/639] hv_netvsc: flag software created hash value
-Date:   Fri, 24 Jan 2020 10:33:13 +0100
-Message-Id: <20200124093207.654124652@linuxfoundation.org>
+Subject: [PATCH 4.19 624/639] net: neigh: use long type to store jiffies delta
+Date:   Fri, 24 Jan 2020 10:33:14 +0100
+Message-Id: <20200124093207.768059375@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,48 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Hemminger <sthemmin@microsoft.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit df9f540ca74297a84bafacfa197e9347b20beea5 ]
+[ Upstream commit 9d027e3a83f39b819e908e4e09084277a2e45e95 ]
 
-When the driver needs to create a hash value because it
-was not done at higher level, then the hash should be marked
-as a software not hardware hash.
+A difference of two unsigned long needs long storage.
 
-Fixes: f72860afa2e3 ("hv_netvsc: Exclude non-TCP port numbers from vRSS hashing")
-Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
+Fixes: c7fb64db001f ("[NETLINK]: Neighbour table configuration and statistics via rtnetlink")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/core/neighbour.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 54670c9905c79..7ab576d8b6227 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -295,9 +295,9 @@ static inline u32 netvsc_get_hash(
- 		else if (flow.basic.n_proto == htons(ETH_P_IPV6))
- 			hash = jhash2((u32 *)&flow.addrs.v6addrs, 8, hashrnd);
- 		else
--			hash = 0;
-+			return 0;
- 
--		skb_set_hash(skb, hash, PKT_HASH_TYPE_L3);
-+		__skb_set_sw_hash(skb, hash, false);
- 	}
- 
- 	return hash;
-@@ -804,8 +804,7 @@ static struct sk_buff *netvsc_alloc_recv_skb(struct net_device *net,
- 	    skb->protocol == htons(ETH_P_IP))
- 		netvsc_comp_ipcsum(skb);
- 
--	/* Do L4 checksum offload if enabled and present.
--	 */
-+	/* Do L4 checksum offload if enabled and present. */
- 	if (csum_info && (net->features & NETIF_F_RXCSUM)) {
- 		if (csum_info->receive.tcp_checksum_succeeded ||
- 		    csum_info->receive.udp_checksum_succeeded)
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index e260d44ebdca0..bf738ec68cb53 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -1885,8 +1885,8 @@ static int neightbl_fill_info(struct sk_buff *skb, struct neigh_table *tbl,
+ 		goto nla_put_failure;
+ 	{
+ 		unsigned long now = jiffies;
+-		unsigned int flush_delta = now - tbl->last_flush;
+-		unsigned int rand_delta = now - tbl->last_rand;
++		long flush_delta = now - tbl->last_flush;
++		long rand_delta = now - tbl->last_rand;
+ 		struct neigh_hash_table *nht;
+ 		struct ndt_config ndc = {
+ 			.ndtc_key_len		= tbl->key_len,
 -- 
 2.20.1
 
