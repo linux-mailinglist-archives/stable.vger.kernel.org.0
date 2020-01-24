@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1761481F6
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 807181481F9
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403760AbgAXLYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:24:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
+        id S2403755AbgAXLYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403755AbgAXLYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:24:12 -0500
+        id S2403769AbgAXLYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:24:15 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6411206D4;
-        Fri, 24 Jan 2020 11:24:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 542C92077C;
+        Fri, 24 Jan 2020 11:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865051;
-        bh=PsUIB5tB+C+Df+Kwo1yLhlbZhI8IM4nS7whCi62dcBk=;
+        s=default; t=1579865054;
+        bh=pVYcKDklVNe3eP66ozhKfPS28/oI1pn2K1p+tP0NuVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDFYOGPauHyecCUFycwcrJq6elAszRlbIQU8cguLXhzixOYUCHU1OOU0CN68pIwfr
-         FCtzm1KB1RBEqTLDTpg2G22vFgig04r0mSxdLxWnXeA0rjY+s6BquMP64cThUzJ3yO
-         maELDQblY44SSYt/cF128v76O4aDQklWpt0Ytg0Q=
+        b=YQipTolbRalAZFgIVTNmmqvRjL/oSDel9o0tUIvm0y8ZVDFtVrptZHaLlPYl/bLqH
+         /4Cc+Ta7/ZPJcfAeU803+ZuRErEgfAh0qSgLEw3dXuMKqTs+idc7iW64g2jXZHKfT5
+         umLsGqN02SHZZ6Y7O3yN6qzDj7m5IX8vvkp7dbE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 439/639] ASoC: ti: davinci-mcasp: Fix slot mask settings when using multiple AXRs
-Date:   Fri, 24 Jan 2020 10:30:09 +0100
-Message-Id: <20200124093142.028458462@linuxfoundation.org>
+Subject: [PATCH 4.19 440/639] rtc: pcf8563: Fix interrupt trigger method
+Date:   Fri, 24 Jan 2020 10:30:10 +0100
+Message-Id: <20200124093142.195904861@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,48 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit fd14f4436fd47d5418023c90e933e66d3645552e ]
+[ Upstream commit 65f662cbf829834fa4d94190eb7691e5a9cb92d8 ]
 
-If multiple serializers are connected in the system and the number of
-channels will need to use more than one serializer the mask to enable the
-serializers were left to 0 if tdm_mask is provided
+The PCF8563 datasheet says the interrupt line is active low and stays
+active until the events are cleared, i.e. a level trigger interrupt.
 
-Fixes: dd55ff8346a97 ("ASoC: davinci-mcasp: Add set_tdm_slots() support")
+Fix the flags used to request the interrupt.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/davinci/davinci-mcasp.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-pcf8563.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index 6a8c279a4b20b..14ab16e1369f8 100644
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -874,14 +874,13 @@ static int mcasp_i2s_hw_param(struct davinci_mcasp *mcasp, int stream,
- 		active_slots = hweight32(mcasp->tdm_mask[stream]);
- 		active_serializers = (channels + active_slots - 1) /
- 			active_slots;
--		if (active_serializers == 1) {
-+		if (active_serializers == 1)
- 			active_slots = channels;
--			for (i = 0; i < total_slots; i++) {
--				if ((1 << i) & mcasp->tdm_mask[stream]) {
--					mask |= (1 << i);
--					if (--active_slots <= 0)
--						break;
--				}
-+		for (i = 0; i < total_slots; i++) {
-+			if ((1 << i) & mcasp->tdm_mask[stream]) {
-+				mask |= (1 << i);
-+				if (--active_slots <= 0)
-+					break;
- 			}
- 		}
- 	} else {
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 3efc86c25d27a..e358313466f19 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -605,7 +605,7 @@ static int pcf8563_probe(struct i2c_client *client,
+ 	if (client->irq > 0) {
+ 		err = devm_request_threaded_irq(&client->dev, client->irq,
+ 				NULL, pcf8563_irq,
+-				IRQF_SHARED|IRQF_ONESHOT|IRQF_TRIGGER_FALLING,
++				IRQF_SHARED | IRQF_ONESHOT | IRQF_TRIGGER_LOW,
+ 				pcf8563_driver.driver.name, client);
+ 		if (err) {
+ 			dev_err(&client->dev, "unable to request IRQ %d\n",
 -- 
 2.20.1
 
