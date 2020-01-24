@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20E1914826F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DB614826E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:28:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404003AbgAXL2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:28:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43962 "EHLO mail.kernel.org"
+        id S2403997AbgAXL2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:28:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403988AbgAXL2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:28:02 -0500
+        id S2404000AbgAXL2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:28:04 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25BE620718;
-        Fri, 24 Jan 2020 11:27:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76E0020704;
+        Fri, 24 Jan 2020 11:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865280;
-        bh=9cOxf2mE9VQIyeIfaQGunaot7N1M4uX5K2mxFLK5bVo=;
+        s=default; t=1579865284;
+        bh=/IaTLdBbuG6dKIy+ihp0raSu/rsim54qUzxtpXP4YDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzXkQEU/sw0FKL+e06CgN2p8stXxl+xla3NCZd6Qza8APmVcldUSddo5eT30yTbi9
-         UrruH45d/NA6qDR22naGF5zpfRsVKPCUEak5RBPgb34H3WRo1AWdJs5Ul8ey0shmaW
-         QP5ydHWE63odS3AGuLms5lkoRu3fB8ZvAwtmtkPc=
+        b=kxL7BY8zYh3x4WhpzAb65W+bqlTvM7KguG6hNH5QwuOSflC8CDPkFyeRtN1SzLh7I
+         Vhod1sLb9edr1aZnR8Nisv1UdOXE+Db6JunjPnz6UP4aC+oclLQ8+OpDkxWXoEq0GC
+         nd7fWxL4OFAfN2CzpMr3cb48Yzcy5tVuGDb0vzz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xi Wang <wangxi11@huawei.com>,
-        Doug Ledford <dledford@redhat.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 503/639] RDMA/hns: bugfix for slab-out-of-bounds when loading hip08 driver
-Date:   Fri, 24 Jan 2020 10:31:13 +0100
-Message-Id: <20200124093151.815465127@linuxfoundation.org>
+Subject: [PATCH 4.19 504/639] ASoC: es8328: Fix copy-paste error in es8328_right_line_controls
+Date:   Fri, 24 Jan 2020 10:31:14 +0100
+Message-Id: <20200124093151.933033496@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,124 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xi Wang <wangxi11@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit bf8c02f961c89e5ccae5987b7ab28f5592a35101 ]
+[ Upstream commit 630742c296341a8cfe00dfd941392025ba8dd4e8 ]
 
-kasan will report a BUG when run command 'insmod hns_roce_hw_v2.ko', the
-calltrace is as follows:
+It seems 'es8328_rline_enum' should be used
+in es8328_right_line_controls
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hns_roce_v2_init_eq_table+0x1324/0x1948
-[hns_roce_hw_v2]
-Read of size 8 at addr ffff8020e7a10608 by task insmod/256
-
-CPU: 0 PID: 256 Comm: insmod Tainted: G           O      5.2.0-rc4 #1
-Hardware name: Huawei D06 /D06, BIOS Hisilicon D06 UEFI RC0
-Call trace:
-dump_backtrace+0x0/0x1e8
-show_stack+0x14/0x20
-dump_stack+0xc4/0xfc
-print_address_description+0x60/0x270
-__kasan_report+0x164/0x1b8
-kasan_report+0xc/0x18
-__asan_load8+0x84/0xa8
-hns_roce_v2_init_eq_table+0x1324/0x1948 [hns_roce_hw_v2]
-hns_roce_init+0xf8/0xfe0 [hns_roce]
-__hns_roce_hw_v2_init_instance+0x284/0x330 [hns_roce_hw_v2]
-hns_roce_hw_v2_init_instance+0xd0/0x1b8 [hns_roce_hw_v2]
-hclge_init_roce_client_instance+0x180/0x310 [hclge]
-hclge_init_client_instance+0xcc/0x508 [hclge]
-hnae3_init_client_instance.part.3+0x3c/0x80 [hnae3]
-hnae3_register_client+0x134/0x1a8 [hnae3]
-hns_roce_hw_v2_init+0x14/0x10000 [hns_roce_hw_v2]
-do_one_initcall+0x9c/0x3e0
-do_init_module+0xd4/0x2d8
-load_module+0x3284/0x3690
-__se_sys_init_module+0x274/0x308
-__arm64_sys_init_module+0x40/0x50
-el0_svc_handler+0xbc/0x210
-el0_svc+0x8/0xc
-
-Allocated by task 256:
-__kasan_kmalloc.isra.0+0xd0/0x180
-kasan_kmalloc+0xc/0x18
-__kmalloc+0x16c/0x328
-hns_roce_v2_init_eq_table+0x764/0x1948 [hns_roce_hw_v2]
-hns_roce_init+0xf8/0xfe0 [hns_roce]
-__hns_roce_hw_v2_init_instance+0x284/0x330 [hns_roce_hw_v2]
-hns_roce_hw_v2_init_instance+0xd0/0x1b8 [hns_roce_hw_v2]
-hclge_init_roce_client_instance+0x180/0x310 [hclge]
-hclge_init_client_instance+0xcc/0x508 [hclge]
-hnae3_init_client_instance.part.3+0x3c/0x80 [hnae3]
-hnae3_register_client+0x134/0x1a8 [hnae3]
-hns_roce_hw_v2_init+0x14/0x10000 [hns_roce_hw_v2]
-do_one_initcall+0x9c/0x3e0
-do_init_module+0xd4/0x2d8
-load_module+0x3284/0x3690
-__se_sys_init_module+0x274/0x308
-__arm64_sys_init_module+0x40/0x50
-el0_svc_handler+0xbc/0x210
-el0_svc+0x8/0xc
-
-Freed by task 0:
-(stack is not available)
-
-The buggy address belongs to the object at ffff8020e7a10600
-which belongs to the cache kmalloc-128 of size 128
-The buggy address is located 8 bytes inside of
-128-byte region [ffff8020e7a10600, ffff8020e7a10680)
-The buggy address belongs to the page:
-page:ffff7fe00839e840 refcount:1 mapcount:0 mapping:ffff802340020200 index:0x0
-flags: 0x5fffe00000000200(slab)
-raw: 5fffe00000000200 dead000000000100 dead000000000200 ffff802340020200
-raw: 0000000000000000 0000000081000100 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-ffff8020e7a10500: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
-ffff8020e7a10580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff8020e7a10600: 00 fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-^
-ffff8020e7a10680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-ffff8020e7a10700: 00 fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
-Disabling lock debugging due to kernel taint
-
-Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
-
-Signed-off-by: Xi Wang <wangxi11@huawei.com>
-Link: https://lore.kernel.org/r/1565343666-73193-7-git-send-email-oulijun@huawei.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Fixes: 567e4f98922c ("ASoC: add es8328 codec driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20190815092300.68712-1-yuehaibing@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/codecs/es8328.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 7021444f18b46..417de7ac0d5e2 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4833,7 +4833,8 @@ static int hns_roce_mhop_alloc_eq(struct hns_roce_dev *hr_dev,
- 				break;
- 		}
- 		eq->cur_eqe_ba = eq->buf_dma[0];
--		eq->nxt_eqe_ba = eq->buf_dma[1];
-+		if (ba_num > 1)
-+			eq->nxt_eqe_ba = eq->buf_dma[1];
+diff --git a/sound/soc/codecs/es8328.c b/sound/soc/codecs/es8328.c
+index e9fc2fd97d2f4..3afa163f7652d 100644
+--- a/sound/soc/codecs/es8328.c
++++ b/sound/soc/codecs/es8328.c
+@@ -231,7 +231,7 @@ static const struct soc_enum es8328_rline_enum =
+ 			      ARRAY_SIZE(es8328_line_texts),
+ 			      es8328_line_texts);
+ static const struct snd_kcontrol_new es8328_right_line_controls =
+-	SOC_DAPM_ENUM("Route", es8328_lline_enum);
++	SOC_DAPM_ENUM("Route", es8328_rline_enum);
  
- 	} else if (mhop_num == 2) {
- 		/* alloc L1 BT and buf */
-@@ -4875,7 +4876,8 @@ static int hns_roce_mhop_alloc_eq(struct hns_roce_dev *hr_dev,
- 				break;
- 		}
- 		eq->cur_eqe_ba = eq->buf_dma[0];
--		eq->nxt_eqe_ba = eq->buf_dma[1];
-+		if (ba_num > 1)
-+			eq->nxt_eqe_ba = eq->buf_dma[1];
- 	}
- 
- 	eq->l0_last_num = i + 1;
+ /* Left Mixer */
+ static const struct snd_kcontrol_new es8328_left_mixer_controls[] = {
 -- 
 2.20.1
 
