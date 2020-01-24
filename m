@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8247147BAC
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19690147B55
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732393AbgAXJnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:43:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41060 "EHLO mail.kernel.org"
+        id S1732685AbgAXJmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:42:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732782AbgAXJnL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:43:11 -0500
+        id S1731166AbgAXJmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:42:38 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6936020718;
-        Fri, 24 Jan 2020 09:43:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79F06208C4;
+        Fri, 24 Jan 2020 09:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858991;
-        bh=L2/UCNUEjW1SJywoJR6qxa6utPFIVwzjkPHb8D76B3U=;
+        s=default; t=1579858958;
+        bh=9ikAnuKXYVTrUYZSVlqYyhEwoHYAgpuy6/5q5PQ9Ins=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0eQTmHl+vx+hurWQ96tpRUOljLCNEM+ETvBkonqwy5SQzG5HvkIMIVW6N82ahSvc
-         l9UhfBQEIzMlhkesR4nB3gHa1RpVS4DJt/6ueqg31m7UHL0lZbiKx6u/3+ZYpOEoaZ
-         Y30xItoAkse2EDRRVAHKKFriBxpM0IPBn5I4bBqk=
+        b=OGgaB6atmizK5u+S7ctRvHxpKQ+pfwMEfICwmKRIplFIUT0cl9oJF0/kHLWpitmIn
+         ulX0gOyipy8FMUqpn0k8ZsQOflMZdb4U/sxvVieC5T14Y8YGXV44MdnGZ6j9JIqq0n
+         7JbSXnJ9KAoN1b4ebSM0Cj0q4P3FGuTVfwiU0iiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        David Miller <davem@davemloft.net>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/102] net-sysfs: Call dev_hold always in netdev_queue_add_kobject
-Date:   Fri, 24 Jan 2020 10:31:40 +0100
-Message-Id: <20200124092821.671503824@linuxfoundation.org>
+Subject: [PATCH 5.4 100/102] gpio: aspeed: avoid return type warning
+Date:   Fri, 24 Jan 2020 10:31:41 +0100
+Message-Id: <20200124092821.829200623@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -46,49 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Hogander <jouni.hogander@unikie.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e0b60903b434a7ee21ba8d8659f207ed84101e89 ]
+[ Upstream commit 11e299de3aced4ea23a9fb1fef6c983c8d516302 ]
 
-Dev_hold has to be called always in netdev_queue_add_kobject.
-Otherwise usage count drops below 0 in case of failure in
-kobject_init_and_add.
+gcc has a hard time tracking whether BUG_ON(1) ends
+execution or not:
 
-Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: David Miller <davem@davemloft.net>
-Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+drivers/gpio/gpio-aspeed-sgpio.c: In function 'bank_reg':
+drivers/gpio/gpio-aspeed-sgpio.c:112:1: error: control reaches end of non-void function [-Werror=return-type]
+
+Use the simpler BUG() that gcc knows cannot continue.
+
+Fixes: f8b410e3695a ("gpio: aspeed-sgpio: Rename and add Kconfig/Makefile")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net-sysfs.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpio/sgpio-aspeed.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index b4db68e5caa9a..4c826b8bf9b1e 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1462,14 +1462,17 @@ static int netdev_queue_add_kobject(struct net_device *dev, int index)
- 	struct kobject *kobj = &queue->kobj;
- 	int error = 0;
+diff --git a/drivers/gpio/sgpio-aspeed.c b/drivers/gpio/sgpio-aspeed.c
+index 7e99860ca447e..8319812593e31 100644
+--- a/drivers/gpio/sgpio-aspeed.c
++++ b/drivers/gpio/sgpio-aspeed.c
+@@ -107,7 +107,7 @@ static void __iomem *bank_reg(struct aspeed_sgpio *gpio,
+ 		return gpio->base + bank->irq_regs + GPIO_IRQ_STATUS;
+ 	default:
+ 		/* acturally if code runs to here, it's an error case */
+-		BUG_ON(1);
++		BUG();
+ 	}
+ }
  
-+	/* Kobject_put later will trigger netdev_queue_release call
-+	 * which decreases dev refcount: Take that reference here
-+	 */
-+	dev_hold(queue->dev);
-+
- 	kobj->kset = dev->queues_kset;
- 	error = kobject_init_and_add(kobj, &netdev_queue_ktype, NULL,
- 				     "tx-%u", index);
- 	if (error)
- 		goto err;
- 
--	dev_hold(queue->dev);
--
- #ifdef CONFIG_BQL
- 	error = sysfs_create_group(kobj, &dql_group);
- 	if (error)
 -- 
 2.20.1
 
