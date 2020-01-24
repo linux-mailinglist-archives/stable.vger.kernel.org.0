@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E92D8148194
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:21:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1424148192
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390825AbgAXLVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:21:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58938 "EHLO mail.kernel.org"
+        id S2390993AbgAXLVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:21:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390993AbgAXLVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:21:01 -0500
+        id S2391007AbgAXLVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:21:05 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AEFF214AF;
-        Fri, 24 Jan 2020 11:21:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84E4F20702;
+        Fri, 24 Jan 2020 11:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864860;
-        bh=RdrUScjQ4MYppyBddLWVOttt3KTsGUskbpY4fRW3W0U=;
+        s=default; t=1579864864;
+        bh=cEaiigIRC+oQi2bGiOCmq13x7YNUr+eb0hcx3dQmyD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErrqAKPG5UiNC24LHbED9qiVU5lqa9JhdzognUPA3B2yXeYHwN8qFKKaGVRAOwTF7
-         F9Fo2WOKWabXdXm5a30IVxZTXJ2zSdPXAEcLymt7ugbGGb544fpAUcRmmCmw6L8N/M
-         CvkwgrGFO84yIQ8tmFoCxdZyEc/vxZ9Zc6SpnXzw=
+        b=LnYuzVSAe5YOxc6DDMW9HbjL+iwvV8u3bvJrz3v8VCRNvqCr37+Ry8QA3WDHrWlbS
+         dI5o4UpUPdHtm1ePSSUF0C/KvgwN3v92DzQ0EfzeSnFRcXarLKfeEG/sCeuZy/buEp
+         T9WafxWI655bAwAOO9Ch5NxwuNYS8duxZ2txXMZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
-        Borislav Petkov <bp@suse.de>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 374/639] EDAC/mc: Fix edac_mc_find() in case no device is found
-Date:   Fri, 24 Jan 2020 10:29:04 +0100
-Message-Id: <20200124093133.875709390@linuxfoundation.org>
+Subject: [PATCH 4.19 375/639] afs: Fix key leak in afs_release() and afs_evict_inode()
+Date:   Fri, 24 Jan 2020 10:29:05 +0100
+Message-Id: <20200124093133.996498676@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,63 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@marvell.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 29a0c843973bc385918158c6976e4dbe891df969 ]
+[ Upstream commit a1b879eefc2b34cd3f17187ef6fc1cf3960e9518 ]
 
-The function should return NULL in case no device is found, but it
-always returns the last checked mc device from the list even if the
-index did not match. Fix that.
+Fix afs_release() to go through the cleanup part of the function if
+FMODE_WRITE is set rather than exiting through vfs_fsync() (which skips the
+cleanup).  The cleanup involves discarding the refs on the key used for
+file ops and the writeback key record.
 
-I did some analysis why this did not raise any issues for about 3 years
-and the reason is that edac_mc_find() is mostly used to search for
-existing devices. Thus, the bug is not triggered.
+Also fix afs_evict_inode() to clean up any left over wb keys attached to
+the inode/vnode when it is removed.
 
- [ bp: Drop the if (mci->mc_idx > idx) test in favor of readability. ]
-
-Fixes: c73e8833bec5 ("EDAC, mc: Fix locking around mc_devices list")
-Signed-off-by: Robert Richter <rrichter@marvell.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Link: https://lkml.kernel.org/r/20190514104838.15065-1-rrichter@marvell.com
+Fixes: 5a8132761609 ("afs: Do better accretion of small writes on newly created content")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ fs/afs/file.c  | 7 ++++---
+ fs/afs/inode.c | 1 +
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
-index f59511bd99261..fd440b35d76ed 100644
---- a/drivers/edac/edac_mc.c
-+++ b/drivers/edac/edac_mc.c
-@@ -681,22 +681,18 @@ static int del_mc_from_global_list(struct mem_ctl_info *mci)
- 
- struct mem_ctl_info *edac_mc_find(int idx)
+diff --git a/fs/afs/file.c b/fs/afs/file.c
+index 843d3b970b845..0bd78df6a64e6 100644
+--- a/fs/afs/file.c
++++ b/fs/afs/file.c
+@@ -169,11 +169,12 @@ int afs_release(struct inode *inode, struct file *file)
  {
--	struct mem_ctl_info *mci = NULL;
-+	struct mem_ctl_info *mci;
- 	struct list_head *item;
+ 	struct afs_vnode *vnode = AFS_FS_I(inode);
+ 	struct afs_file *af = file->private_data;
++	int ret = 0;
  
- 	mutex_lock(&mem_ctls_mutex);
+ 	_enter("{%x:%u},", vnode->fid.vid, vnode->fid.vnode);
  
- 	list_for_each(item, &mc_devices) {
- 		mci = list_entry(item, struct mem_ctl_info, link);
--
--		if (mci->mc_idx >= idx) {
--			if (mci->mc_idx == idx) {
--				goto unlock;
--			}
--			break;
--		}
-+		if (mci->mc_idx == idx)
-+			goto unlock;
+ 	if ((file->f_mode & FMODE_WRITE))
+-		return vfs_fsync(file, 0);
++		ret = vfs_fsync(file, 0);
+ 
+ 	file->private_data = NULL;
+ 	if (af->wb)
+@@ -181,8 +182,8 @@ int afs_release(struct inode *inode, struct file *file)
+ 	key_put(af->key);
+ 	kfree(af);
+ 	afs_prune_wb_keys(vnode);
+-	_leave(" = 0");
+-	return 0;
++	_leave(" = %d", ret);
++	return ret;
+ }
+ 
+ /*
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 0726e40db0f8b..718fab2f151a1 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -541,6 +541,7 @@ void afs_evict_inode(struct inode *inode)
  	}
+ #endif
  
-+	mci = NULL;
- unlock:
- 	mutex_unlock(&mem_ctls_mutex);
- 	return mci;
++	afs_prune_wb_keys(vnode);
+ 	afs_put_permits(rcu_access_pointer(vnode->permit_cache));
+ 	key_put(vnode->lock_key);
+ 	vnode->lock_key = NULL;
 -- 
 2.20.1
 
