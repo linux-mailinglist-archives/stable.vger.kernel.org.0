@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B43147AFC
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 613BA147AFE
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731184AbgAXJkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:40:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
+        id S1731991AbgAXJkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:40:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731991AbgAXJkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:40:01 -0500
+        id S1732126AbgAXJkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:40:04 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98E842070A;
-        Fri, 24 Jan 2020 09:39:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3E0020709;
+        Fri, 24 Jan 2020 09:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858800;
-        bh=14siYZSO9Gnx/JKTpNTZO/Ck4Uyg4bLyMf/9qF8vPhM=;
+        s=default; t=1579858803;
+        bh=MBmjJhk/s+760/iUrsthu7tkS/PC5QejrvAu9pQQfZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhbRJSlqrVV4TufD3zqTpoblCZDdx26UAyf+++RstnZsNF20asFN8Nt2c+Dv/vvco
-         T6UDMGfg6aykw7CykEv4rYKYHz3kzKT3WH2STNMH1qz6F+gTe9vhIUDNR6Y7jRrMQp
-         9bViBtzINUL8qHQ3Dpe+MwTcXAGOqTzN3yJQ8/Xg=
+        b=bTLf/mlQfMHmLUmpTcsxKDPJIeorfsPqg6Y/0mOZsysoaWAlBv+wRFklTcwigMPjb
+         Wp/PedktULRfAb+dC/l3SxOcyJTm0AwsMtlPgI1QoqxLsw26Y2FFYNIt8/1zWFXqt2
+         AemRWjsTNDKcpKhTlVBsiMgPXkV7mQRoJ8s2gvo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/102] drm: rcar_lvds: Fix color mismatches on R-Car H2 ES2.0 and later
-Date:   Fri, 24 Jan 2020 10:31:00 +0100
-Message-Id: <20200124092815.243746922@linuxfoundation.org>
+Subject: [PATCH 5.4 060/102] net: netsec: Correct dma sync for XDP_TX frames
+Date:   Fri, 24 Jan 2020 10:31:01 +0100
+Message-Id: <20200124092815.386631955@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -47,101 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 
-[ Upstream commit 3986457110a054466bf02f9c4a85aa2bba96177b ]
+[ Upstream commit d9496f3ecfe4823c1e12aecbcc29220147fa012c ]
 
-Commit 5cca30ebe089be23 ("drm/rcar-du: Add LVDS_LANES quirk") states
-that LVDS lanes 1 and 3 are inverted on R-Car H2 ES1 only, and that the
-problem has been fixed in newer revisions.
+bpf_xdp_adjust_head() can change the frame boundaries. Account for the
+potential shift properly by calculating the new offset before
+syncing the buffer to the device for XDP_TX
 
-However, the code didn't take into account the actual hardware revision,
-thus applying the quirk also on newer hardware revisions, causing green
-color reversals.
-
-Fix this by applying the quirk when running on R-Car H2 ES1.x only.
-
-Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Fixes: 5cca30ebe089be23 ("drm/rcar-du: Add LVDS_LANES quirk")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Fixes: ba2b232108d3 ("net: netsec: add XDP support")
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_lvds.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_lvds.c b/drivers/gpu/drm/rcar-du/rcar_lvds.c
-index 3fc7e6899cab5..50c11a7f0467f 100644
---- a/drivers/gpu/drm/rcar-du/rcar_lvds.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_lvds.c
-@@ -16,6 +16,7 @@
- #include <linux/of_graph.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
-+#include <linux/sys_soc.h>
+diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
+index f9e6744d8fd6e..41ddd8fff2a73 100644
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -847,8 +847,8 @@ static u32 netsec_xdp_queue_one(struct netsec_priv *priv,
+ 		enum dma_data_direction dma_dir =
+ 			page_pool_get_dma_dir(rx_ring->page_pool);
  
- #include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
-@@ -842,8 +843,23 @@ static int rcar_lvds_get_clocks(struct rcar_lvds *lvds)
- 	return 0;
- }
- 
-+static const struct rcar_lvds_device_info rcar_lvds_r8a7790es1_info = {
-+	.gen = 2,
-+	.quirks = RCAR_LVDS_QUIRK_LANES,
-+	.pll_setup = rcar_lvds_pll_setup_gen2,
-+};
-+
-+static const struct soc_device_attribute lvds_quirk_matches[] = {
-+	{
-+		.soc_id = "r8a7790", .revision = "ES1.*",
-+		.data = &rcar_lvds_r8a7790es1_info,
-+	},
-+	{ /* sentinel */ }
-+};
-+
- static int rcar_lvds_probe(struct platform_device *pdev)
- {
-+	const struct soc_device_attribute *attr;
- 	struct rcar_lvds *lvds;
- 	struct resource *mem;
- 	int ret;
-@@ -857,6 +873,10 @@ static int rcar_lvds_probe(struct platform_device *pdev)
- 	lvds->dev = &pdev->dev;
- 	lvds->info = of_device_get_match_data(&pdev->dev);
- 
-+	attr = soc_device_match(lvds_quirk_matches);
-+	if (attr)
-+		lvds->info = attr->data;
-+
- 	ret = rcar_lvds_parse_dt(lvds);
- 	if (ret < 0)
- 		return ret;
-@@ -893,12 +913,6 @@ static const struct rcar_lvds_device_info rcar_lvds_gen2_info = {
- 	.pll_setup = rcar_lvds_pll_setup_gen2,
- };
- 
--static const struct rcar_lvds_device_info rcar_lvds_r8a7790_info = {
--	.gen = 2,
--	.quirks = RCAR_LVDS_QUIRK_LANES,
--	.pll_setup = rcar_lvds_pll_setup_gen2,
--};
--
- static const struct rcar_lvds_device_info rcar_lvds_gen3_info = {
- 	.gen = 3,
- 	.quirks = RCAR_LVDS_QUIRK_PWD,
-@@ -930,7 +944,7 @@ static const struct of_device_id rcar_lvds_of_table[] = {
- 	{ .compatible = "renesas,r8a7744-lvds", .data = &rcar_lvds_gen2_info },
- 	{ .compatible = "renesas,r8a774a1-lvds", .data = &rcar_lvds_gen3_info },
- 	{ .compatible = "renesas,r8a774c0-lvds", .data = &rcar_lvds_r8a77990_info },
--	{ .compatible = "renesas,r8a7790-lvds", .data = &rcar_lvds_r8a7790_info },
-+	{ .compatible = "renesas,r8a7790-lvds", .data = &rcar_lvds_gen2_info },
- 	{ .compatible = "renesas,r8a7791-lvds", .data = &rcar_lvds_gen2_info },
- 	{ .compatible = "renesas,r8a7793-lvds", .data = &rcar_lvds_gen2_info },
- 	{ .compatible = "renesas,r8a7795-lvds", .data = &rcar_lvds_gen3_info },
+-		dma_handle = page_pool_get_dma_addr(page) +
+-			NETSEC_RXBUF_HEADROOM;
++		dma_handle = page_pool_get_dma_addr(page) + xdpf->headroom +
++			sizeof(*xdpf);
+ 		dma_sync_single_for_device(priv->dev, dma_handle, xdpf->len,
+ 					   dma_dir);
+ 		tx_desc.buf_type = TYPE_NETSEC_XDP_TX;
 -- 
 2.20.1
 
