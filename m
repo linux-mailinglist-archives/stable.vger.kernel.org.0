@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C49147A6D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F98147A6F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730381AbgAXJdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:33:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59952 "EHLO mail.kernel.org"
+        id S1729715AbgAXJdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:33:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729715AbgAXJdc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:33:32 -0500
+        id S1729045AbgAXJdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:33:36 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F39202070A;
-        Fri, 24 Jan 2020 09:33:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1CE32077C;
+        Fri, 24 Jan 2020 09:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858410;
-        bh=kp3IHcUGCWSe9ZCqHXFVdUGxGW8YejMbbuy0RmSLS4Y=;
+        s=default; t=1579858414;
+        bh=XMMTOnTR4fkuOQfvrA6iNoVa2kpTSOO505e7+9tIZgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uFIstm8Fu44uVBMsf9QTGtcQHnQ4fo4DOmkCvCWMZc/TY690KoakSyd7afVeILOWO
-         8C9e+b9AfQOToev+ziFQodSAaeGgUIo0I0b7ZizkwU6gr84nqr89YanlSGy2nuAqn7
-         UFYqZPqz6HXMSNFii2P8FjI/unRQU9ikV54O2hzM=
+        b=pZpDqbSvXU6yqlIZGk+/HfBaBFPts30FC6j1C4LTP7tBnbK6AvVHEHRJz9aQ1S5n4
+         JvaatSeIfvH1A6vSjLnvieqKIEd/T8NtcJ0cNiovAI0U6Iic+KKM2iR6T1Kg9bKEfW
+         C6sc5rskvFPTW4p662dZUdG9HyJrEzzZLNCoPyfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
         Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.4 003/102] libbpf: Fix memory leak/double free issue
-Date:   Fri, 24 Jan 2020 10:30:04 +0100
-Message-Id: <20200124092806.581825738@linuxfoundation.org>
+Subject: [PATCH 5.4 004/102] libbpf: Fix potential overflow issue
+Date:   Fri, 24 Jan 2020 10:30:05 +0100
+Message-Id: <20200124092806.729162357@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -45,39 +45,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrii Nakryiko <andriin@fb.com>
 
-commit 3dc5e059821376974177cc801d377e3fcdac6712 upstream.
+commit 4ee1135615713387b869dfd099ffdf8656be6784 upstream.
 
-Coverity scan against Github libbpf code found the issue of not freeing memory and
-leaving already freed memory still referenced from bpf_program. Fix it by
-re-assigning successfully reallocated memory sooner.
+Fix a potential overflow issue found by LGTM analysis, based on Github libbpf
+source code.
 
-Fixes: 2993e0515bb4 ("tools/bpf: add support to read .BTF.ext sections")
+Fixes: 3d65014146c6 ("bpf: libbpf: Add btf_line_info support to libbpf")
 Signed-off-by: Andrii Nakryiko <andriin@fb.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191107020855.3834758-2-andriin@fb.com
+Link: https://lore.kernel.org/bpf/20191107020855.3834758-3-andriin@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/lib/bpf/libbpf.c |    2 +-
+ tools/lib/bpf/bpf.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3220,6 +3220,7 @@ bpf_program__reloc_text(struct bpf_progr
- 			pr_warning("oom in prog realloc\n");
- 			return -ENOMEM;
- 		}
-+		prog->insns = new_insn;
+--- a/tools/lib/bpf/bpf.c
++++ b/tools/lib/bpf/bpf.c
+@@ -189,7 +189,7 @@ static void *
+ alloc_zero_tailing_info(const void *orecord, __u32 cnt,
+ 			__u32 actual_rec_size, __u32 expected_rec_size)
+ {
+-	__u64 info_len = actual_rec_size * cnt;
++	__u64 info_len = (__u64)actual_rec_size * cnt;
+ 	void *info, *nrecord;
+ 	int i;
  
- 		if (obj->btf_ext) {
- 			err = bpf_program_reloc_btf_ext(prog, obj,
-@@ -3231,7 +3232,6 @@ bpf_program__reloc_text(struct bpf_progr
- 
- 		memcpy(new_insn + prog->insns_cnt, text->insns,
- 		       text->insns_cnt * sizeof(*insn));
--		prog->insns = new_insn;
- 		prog->main_prog_cnt = prog->insns_cnt;
- 		prog->insns_cnt = new_cnt;
- 		pr_debug("added %zd insn from %s to prog %s\n",
 
 
