@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A142148107
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D014714810A
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:16:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390373AbgAXLQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:16:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53304 "EHLO mail.kernel.org"
+        id S2390383AbgAXLQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:16:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390369AbgAXLQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:16:30 -0500
+        id S2390381AbgAXLQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:16:33 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 385812075D;
-        Fri, 24 Jan 2020 11:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72C1B2087E;
+        Fri, 24 Jan 2020 11:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864589;
-        bh=uho0PhkFgWD3meAJb5Lb5p+FMs+MeRiijl34yQ14bYs=;
+        s=default; t=1579864593;
+        bh=MpPqerH2hwZcvYMCl4E0E6RfTyJ9Ad/Av0H0g/6jTZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StboQCEM8F3kTKetMbEtCiezwdUHyLbwDqqhBUwtqtNkIQMjWdGIWVPiRleyA55Bc
-         JYycvhyf2Xjrg21mVB6iyO13pSW6KbIoE8sQz6DKInk+TOSN/J0UX32Q/mTH/l4eSL
-         3jrfqi4msT9Ybk4pTMBvEiAJz/vlsiC6EIsmOWls=
+        b=Fq6Ljtsjct/vDhVsOCzuMjdUREBOVP75WLD81uz0SBuhXEE5SnbdADy5taGE+V+6f
+         lO3ikWVnS0ISmTMXDofn16KSXv94YP0GEYqXLmpxXgHZrryyFm0pFfAhSyB2AF8hAE
+         nqTT1oISaK2+o4tkLQci/GsrZJxZha/o0lMJEHL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Ignatov <rdna@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Deepak Rawat <drawat@vmware.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 295/639] bpf: Add missed newline in verifier verbose log
-Date:   Fri, 24 Jan 2020 10:27:45 +0100
-Message-Id: <20200124093123.850706284@linuxfoundation.org>
+Subject: [PATCH 4.19 296/639] drm/vmwgfx: Remove set but not used variable restart
+Date:   Fri, 24 Jan 2020 10:27:46 +0100
+Message-Id: <20200124093123.983402506@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,43 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 1fbd20f8b77b366ea4aeb92ade72daa7f36a7e3b ]
+[ Upstream commit b2130cca9c8db5073b71d832da2a6c8311a8f3bb ]
 
-check_stack_access() that prints verbose log is used in
-adjust_ptr_min_max_vals() that prints its own verbose log and now they
-stick together, e.g.:
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-  variable stack access var_off=(0xfffffffffffffff0; 0x4) off=-16
-  size=1R2 stack pointer arithmetic goes out of range, prohibited for
-  !root
+drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c: In function 'vmw_cmdbuf_work_func':
+drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c:514:7: warning:
+ variable 'restart' set but not used [-Wunused-but-set-variable]
 
-Add missing newline so that log is more readable:
-  variable stack access var_off=(0xfffffffffffffff0; 0x4) off=-16 size=1
-  R2 stack pointer arithmetic goes out of range, prohibited for !root
+It not used any more after commit dc366364c4ef ("drm/vmwgfx: Fix multiple
+command buffer context use")
 
-Fixes: f1174f77b50c ("bpf/verifier: rework value tracking")
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Deepak Rawat <drawat@vmware.com>
+Signed-off-by: Deepak Rawat <drawat@vmware.com>
+Fixes: dc366364c4ef ("drm/vmwgfx: Fix multiple command buffer context use")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 9bbfb1ff4ac94..e85636fb81b9c 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1253,7 +1253,7 @@ static int check_stack_access(struct bpf_verifier_env *env,
- 		char tn_buf[48];
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c
+index e7e4655d3f36b..ce1ad7cd78996 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c
+@@ -511,17 +511,14 @@ static void vmw_cmdbuf_work_func(struct work_struct *work)
+ 		container_of(work, struct vmw_cmdbuf_man, work);
+ 	struct vmw_cmdbuf_header *entry, *next;
+ 	uint32_t dummy;
+-	bool restart[SVGA_CB_CONTEXT_MAX];
+ 	bool send_fence = false;
+ 	struct list_head restart_head[SVGA_CB_CONTEXT_MAX];
+ 	int i;
+ 	struct vmw_cmdbuf_context *ctx;
+ 	bool global_block = false;
  
- 		tnum_strn(tn_buf, sizeof(tn_buf), reg->var_off);
--		verbose(env, "variable stack access var_off=%s off=%d size=%d",
-+		verbose(env, "variable stack access var_off=%s off=%d size=%d\n",
- 			tn_buf, off, size);
- 		return -EACCES;
- 	}
+-	for_each_cmdbuf_ctx(man, i, ctx) {
++	for_each_cmdbuf_ctx(man, i, ctx)
+ 		INIT_LIST_HEAD(&restart_head[i]);
+-		restart[i] = false;
+-	}
+ 
+ 	mutex_lock(&man->error_mutex);
+ 	spin_lock(&man->lock);
+@@ -533,7 +530,6 @@ static void vmw_cmdbuf_work_func(struct work_struct *work)
+ 		const char *cmd_name;
+ 
+ 		list_del_init(&entry->list);
+-		restart[entry->cb_context] = true;
+ 		global_block = true;
+ 
+ 		if (!vmw_cmd_describe(header, &error_cmd_size, &cmd_name)) {
 -- 
 2.20.1
 
