@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EAD148964
+	by mail.lfdr.de (Postfix) with ESMTP id 9832D148965
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:35:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392043AbgAXOTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:19:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40292 "EHLO mail.kernel.org"
+        id S2392072AbgAXOTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:19:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391979AbgAXOTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2392033AbgAXOTq (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 24 Jan 2020 09:19:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C210622522;
-        Fri, 24 Jan 2020 14:19:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F043B208C4;
+        Fri, 24 Jan 2020 14:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875584;
-        bh=tGCo++9ocfg6qxKLzz8rWF8r+kIwiD+ceOvC7Djypy0=;
+        s=default; t=1579875585;
+        bh=uMac/Qb35WZ/wjQxYtUQWcywMiZSB3Xt5amfKApo7qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVOMRYGjvIj2ooC8qVjUp6rv0lJWniEZViPBp/cf+Dx1xL0/AiwEQndBWH310E65x
-         L1pAIgbfkGfjenFJWTtb2uqH8ALuxSdLlr331hHtnuWDj2b0y+/xCiN3WUbU7x4df/
-         /Ms+b/TbMa1uYyr3paPTKhxjjyHSSUA5fvStocQw=
+        b=A2LSGj/bCfUkHFbc72UkigUMwQQNz3yrDiresyIkSqlqudvV2Vtl1JnJvlmEuuQtZ
+         fBD8sPbyO/F6K6DqvtredJBvD+PeejKDA7vsndR1BWb9QE7Q1S0EHIstBjvHVT4Oi3
+         n8lrbXWBs8uQt132jvucbfUJzCXyutU8kMSBie8k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ido Schimmel <idosch@mellanox.com>,
@@ -30,9 +30,9 @@ Cc:     Ido Schimmel <idosch@mellanox.com>,
         Jiri Pirko <jiri@mellanox.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 075/107] mlxsw: spectrum: Do not modify cloned SKBs during xmit
-Date:   Fri, 24 Jan 2020 09:17:45 -0500
-Message-Id: <20200124141817.28793-75-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 076/107] mlxsw: switchx2: Do not modify cloned SKBs during xmit
+Date:   Fri, 24 Jan 2020 09:17:46 -0500
+Message-Id: <20200124141817.28793-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -47,7 +47,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 2da51ce75d86ab1f7770ac1391a9a1697ddaa60c ]
+[ Upstream commit 63963d0f9d17be83d0e419e03282847ecc2c3715 ]
 
 The driver needs to prepend a Tx header to each packet it is
 transmitting. The header includes information such as the egress port
@@ -81,33 +81,33 @@ v2:
 * Use skb_cow_head() instead of skb_unshare() as suggested by Jakub
 * Remove unnecessary check regarding headroom
 
-Fixes: 56ade8fe3fe1 ("mlxsw: spectrum: Add initial support for Spectrum ASIC")
+Fixes: 31557f0f9755 ("mlxsw: Introduce Mellanox SwitchX-2 ASIC support")
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Reported-by: Shalom Toledo <shalomt@mellanox.com>
 Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/switchx2.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 3ec18fb0d479c..45f6836fcc629 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -812,23 +812,17 @@ static netdev_tx_t mlxsw_sp_port_xmit(struct sk_buff *skb,
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/switchx2.c b/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
+index 1c14c051ee525..63e7a058b7c6a 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
+@@ -299,22 +299,17 @@ static netdev_tx_t mlxsw_sx_port_xmit(struct sk_buff *skb,
  	u64 len;
  	int err;
  
 +	if (skb_cow_head(skb, MLXSW_TXHDR_LEN)) {
-+		this_cpu_inc(mlxsw_sp_port->pcpu_stats->tx_dropped);
++		this_cpu_inc(mlxsw_sx_port->pcpu_stats->tx_dropped);
 +		dev_kfree_skb_any(skb);
 +		return NETDEV_TX_OK;
 +	}
 +
  	memset(skb->cb, 0, sizeof(struct mlxsw_skb_cb));
  
- 	if (mlxsw_core_skb_transmit_busy(mlxsw_sp->core, &tx_info))
+ 	if (mlxsw_core_skb_transmit_busy(mlxsw_sx->core, &tx_info))
  		return NETDEV_TX_BUSY;
  
 -	if (unlikely(skb_headroom(skb) < MLXSW_TXHDR_LEN)) {
@@ -115,16 +115,15 @@ index 3ec18fb0d479c..45f6836fcc629 100644
 -
 -		skb = skb_realloc_headroom(skb, MLXSW_TXHDR_LEN);
 -		if (!skb) {
--			this_cpu_inc(mlxsw_sp_port->pcpu_stats->tx_dropped);
+-			this_cpu_inc(mlxsw_sx_port->pcpu_stats->tx_dropped);
 -			dev_kfree_skb_any(skb_orig);
 -			return NETDEV_TX_OK;
 -		}
 -		dev_consume_skb_any(skb_orig);
 -	}
--
- 	if (eth_skb_pad(skb)) {
- 		this_cpu_inc(mlxsw_sp_port->pcpu_stats->tx_dropped);
- 		return NETDEV_TX_OK;
+ 	mlxsw_sx_txhdr_construct(skb, &tx_info);
+ 	/* TX header is consumed by HW on the way so we shouldn't count its
+ 	 * bytes as being sent.
 -- 
 2.20.1
 
