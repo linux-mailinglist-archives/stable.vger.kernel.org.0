@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D42A1475FF
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:17:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6802514768E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730385AbgAXBRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:17:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60292 "EHLO mail.kernel.org"
+        id S1730735AbgAXBUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730378AbgAXBRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:20 -0500
+        id S1730336AbgAXBRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E542E22522;
-        Fri, 24 Jan 2020 01:17:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3209924125;
+        Fri, 24 Jan 2020 01:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828639;
-        bh=dpSH7wm6P98BNVbE4Ngg343Teh85IXSxwMZFTo00bpY=;
+        s=default; t=1579828640;
+        bh=Xur6KrKipTRqWWNla9uWgEdvtDZqeoxFAJREB2/ToTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6H7s39f5ZeJroC4q82leH12w8RFXbPV9G1W/CfV8kxb2qMl3T6zcZ3d68rI3viu/
-         9O/x8zYgBjUqcpjgCsp4hu4IYftnz+2c3BkSb+sgD4bZeiizxlMtX0a1ZJGcQiA74+
-         BZLE4VfqxOpN1s/CNjSbtD5TRgQxtlq/pgaDy3xU=
+        b=CBKSYrom65fC0DdZYEG0hXYj+M3JHDl/Yoq0rX412KIUIyIb3lOxd8LHlgXH1PjVN
+         OkE6fP5NXdscUYamgE5queWWsIoOvx6wmEbfW81//E9mbUPwn7SB+kxECnRHC5YGWf
+         K1ljAY5NSIA9OHnL+Kdme5IcB9x7h7YAi8RjkdNE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Voegtle <tv@lio96.de>, Jan Pieter van Woerkom <jp@jpvw.nl>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/33] media: dvbsky: add support for eyeTV Geniatech T2 lite
-Date:   Thu, 23 Jan 2020 20:16:44 -0500
-Message-Id: <20200124011708.18232-9-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/33] bus: ti-sysc: Handle mstandby quirk and use it for musb
+Date:   Thu, 23 Jan 2020 20:16:45 -0500
+Message-Id: <20200124011708.18232-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -44,49 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Voegtle <tv@lio96.de>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 14494583336880640654300c76d0f5df3360d85f ]
+[ Upstream commit 03856e928b0e1a1c274eece1dfe4330a362c37f3 ]
 
-Adds USB ID for the eyeTV Geniatech T2 lite to the dvbsky driver.
-This is a Geniatech T230C based stick without IR and a different USB ID.
+We need swsup quirks for sidle and mstandby for musb to work
+properly.
 
-Signed-off-by: Thomas Voegtle <tv@lio96.de>
-Tested-by: Jan Pieter van Woerkom <jp@jpvw.nl>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb-v2/dvbsky.c | 3 +++
- include/media/dvb-usb-ids.h           | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/bus/ti-sysc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/dvbsky.c b/drivers/media/usb/dvb-usb-v2/dvbsky.c
-index 617a306f6815d..dc380c0c95369 100644
---- a/drivers/media/usb/dvb-usb-v2/dvbsky.c
-+++ b/drivers/media/usb/dvb-usb-v2/dvbsky.c
-@@ -792,6 +792,9 @@ static const struct usb_device_id dvbsky_id_table[] = {
- 	{ DVB_USB_DEVICE(USB_VID_CONEXANT, USB_PID_MYGICA_T230C,
- 		&mygica_t230c_props, "MyGica Mini DVB-T2 USB Stick T230C",
- 		RC_MAP_TOTAL_MEDIA_IN_HAND_02) },
-+	{ DVB_USB_DEVICE(USB_VID_CONEXANT, USB_PID_MYGICA_T230C_LITE,
-+		&mygica_t230c_props, "MyGica Mini DVB-T2 USB Stick T230C Lite",
-+		NULL) },
- 	{ DVB_USB_DEVICE(USB_VID_CONEXANT, USB_PID_MYGICA_T230C2,
- 		&mygica_t230c_props, "MyGica Mini DVB-T2 USB Stick T230C v2",
- 		RC_MAP_TOTAL_MEDIA_IN_HAND_02) },
-diff --git a/include/media/dvb-usb-ids.h b/include/media/dvb-usb-ids.h
-index 7ce4e83324219..1409230ad3a4c 100644
---- a/include/media/dvb-usb-ids.h
-+++ b/include/media/dvb-usb-ids.h
-@@ -389,6 +389,7 @@
- #define USB_PID_MYGICA_T230				0xc688
- #define USB_PID_MYGICA_T230C				0xc689
- #define USB_PID_MYGICA_T230C2				0xc68a
-+#define USB_PID_MYGICA_T230C_LITE			0xc699
- #define USB_PID_ELGATO_EYETV_DIVERSITY			0x0011
- #define USB_PID_ELGATO_EYETV_DTT			0x0021
- #define USB_PID_ELGATO_EYETV_DTT_2			0x003f
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 34bd9bf4e68ab..087684e5e0941 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -917,6 +917,9 @@ set_midle:
+ 		return -EINVAL;
+ 	}
+ 
++	if (ddata->cfg.quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
++		best_mode = SYSC_IDLE_NO;
++
+ 	reg &= ~(SYSC_IDLE_MASK << regbits->midle_shift);
+ 	reg |= best_mode << regbits->midle_shift;
+ 	sysc_write(ddata, ddata->offsets[SYSC_SYSCONFIG], reg);
+@@ -978,6 +981,9 @@ static int sysc_disable_module(struct device *dev)
+ 		return ret;
+ 	}
+ 
++	if (ddata->cfg.quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
++		best_mode = SYSC_IDLE_FORCE;
++
+ 	reg &= ~(SYSC_IDLE_MASK << regbits->midle_shift);
+ 	reg |= best_mode << regbits->midle_shift;
+ 	sysc_write(ddata, ddata->offsets[SYSC_SYSCONFIG], reg);
+@@ -1251,6 +1257,8 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	SYSC_QUIRK("gpu", 0x50000000, 0x14, -1, -1, 0x00010201, 0xffffffff, 0),
+ 	SYSC_QUIRK("gpu", 0x50000000, 0xfe00, 0xfe10, -1, 0x40000000 , 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_SGX),
++	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
++		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
+ 	SYSC_QUIRK("wdt", 0, 0, 0x10, 0x14, 0x502a0500, 0xfffff0f0,
+ 		   SYSC_MODULE_QUIRK_WDT),
+ 	/* Watchdog on am3 and am4 */
+@@ -1309,8 +1317,6 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	SYSC_QUIRK("usbhstll", 0, 0, 0x10, 0x14, 0x00000008, 0xffffffff, 0),
+ 	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, 0x14, 0x50700100, 0xffffffff, 0),
+ 	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, -1, 0x50700101, 0xffffffff, 0),
+-	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
+-		   0xffffffff, 0),
+ 	SYSC_QUIRK("vfpe", 0, 0, 0x104, -1, 0x4d001200, 0xffffffff, 0),
+ #endif
+ };
 -- 
 2.20.1
 
