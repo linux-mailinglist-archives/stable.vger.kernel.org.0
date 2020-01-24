@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C729148487
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FF3148482
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389759AbgAXLLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:11:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47452 "EHLO mail.kernel.org"
+        id S1733175AbgAXLLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:11:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388450AbgAXLLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:11:30 -0500
+        id S1731122AbgAXLLJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:11:09 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8769920708;
-        Fri, 24 Jan 2020 11:11:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A0B020708;
+        Fri, 24 Jan 2020 11:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864290;
-        bh=G4tfkGkVxGfOb6rWktH3tl5zNrvKAE42h5/a4FwKegY=;
+        s=default; t=1579864268;
+        bh=ve1OCC4JQ1RHqCH6kBY51jI1ez7VQNaWeqSXiQ0bBOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UF5HxFZcTl6LR0IblEz/QCFl84thamBRZwjfpwQ2kip78pBlVetwBv4HpSecgLr1O
-         zAl1YCGqNn9HSc2XwK77SLjKoDxPOpyEPdI6jjPiCM6r+SOiRlk2EefWH4St887ZJx
-         6lTyL9zK/R/GTKB9yTbQ1H5pcUGlYkUkAo2ygi0E=
+        b=jLIY/trfLOGG8Zjkp7SyUwqw2F8f7B+c6AJbMLPH3P89v1biiLXuFdlrYrqmdlert
+         He4V240e5Kr++puOv6ZB7Ly9xt0Q8uGyxgf0VO5VWB5QvusrywSTEfX+PPjr2ht49n
+         Oh9JFwl/40bIqmxcMb1ED9foru+79NXj7dkaoPJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 203/639] mt76: usb: fix possible memory leak in mt76u_buf_free
-Date:   Fri, 24 Jan 2020 10:26:13 +0100
-Message-Id: <20200124093112.459167813@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 207/639] mdio_bus: Fix PTR_ERR() usage after initialization to constant
+Date:   Fri, 24 Jan 2020 10:26:17 +0100
+Message-Id: <20200124093112.954681712@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,63 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit cb83585e1121bd6d6c039cf09fa32380bf8b6258 ]
+[ Upstream commit 780feae7eb69388c8d8b661cda6706b0dc0f642b ]
 
-Move q->ndesc initialization before the for loop in mt76u_alloc_rx
-since otherwise allocated urbs will not be freed in mt76u_buf_free
-Double-check scatterlist pointer in mt76u_buf_free
+Fix coccinelle warning:
 
-Fixes: b40b15e1521f ("mt76: add usb support to mt76 layer")
-Signed-off-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+./drivers/net/phy/mdio_bus.c:51:5-12: ERROR: PTR_ERR applied after initialization to constant on line 44
+./drivers/net/phy/mdio_bus.c:52:5-12: ERROR: PTR_ERR applied after initialization to constant on line 44
+
+fix this by using IS_ERR before PTR_ERR
+
+Fixes: bafbdd527d56 ("phylib: Add device reset GPIO support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/usb.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/net/phy/mdio_bus.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
-index 8d40e92fb6f27..dcf927de65f39 100644
---- a/drivers/net/wireless/mediatek/mt76/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/usb.c
-@@ -273,10 +273,16 @@ EXPORT_SYMBOL_GPL(mt76u_buf_alloc);
- void mt76u_buf_free(struct mt76u_buf *buf)
- {
- 	struct urb *urb = buf->urb;
-+	struct scatterlist *sg;
- 	int i;
- 
--	for (i = 0; i < urb->num_sgs; i++)
--		skb_free_frag(sg_virt(&urb->sg[i]));
-+	for (i = 0; i < urb->num_sgs; i++) {
-+		sg = &urb->sg[i];
-+		if (!sg)
-+			continue;
-+
-+		skb_free_frag(sg_virt(sg));
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index c5588d4508f97..5c89a310359de 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -56,11 +56,12 @@ static int mdiobus_register_gpiod(struct mdio_device *mdiodev)
+ 		gpiod = fwnode_get_named_gpiod(&mdiodev->dev.of_node->fwnode,
+ 					       "reset-gpios", 0, GPIOD_OUT_LOW,
+ 					       "PHY reset");
+-	if (PTR_ERR(gpiod) == -ENOENT ||
+-	    PTR_ERR(gpiod) == -ENOSYS)
+-		gpiod = NULL;
+-	else if (IS_ERR(gpiod))
+-		return PTR_ERR(gpiod);
++	if (IS_ERR(gpiod)) {
++		if (PTR_ERR(gpiod) == -ENOENT || PTR_ERR(gpiod) == -ENOSYS)
++			gpiod = NULL;
++		else
++			return PTR_ERR(gpiod);
 +	}
- 	usb_free_urb(buf->urb);
- }
- EXPORT_SYMBOL_GPL(mt76u_buf_free);
-@@ -478,7 +484,8 @@ static int mt76u_alloc_rx(struct mt76_dev *dev)
- 		nsgs = 1;
- 	}
  
--	for (i = 0; i < MT_NUM_RX_ENTRIES; i++) {
-+	q->ndesc = MT_NUM_RX_ENTRIES;
-+	for (i = 0; i < q->ndesc; i++) {
- 		err = mt76u_buf_alloc(dev, &q->entry[i].ubuf,
- 				      nsgs, q->buf_size,
- 				      SKB_WITH_OVERHEAD(q->buf_size),
-@@ -486,7 +493,6 @@ static int mt76u_alloc_rx(struct mt76_dev *dev)
- 		if (err < 0)
- 			return err;
- 	}
--	q->ndesc = MT_NUM_RX_ENTRIES;
+ 	mdiodev->reset = gpiod;
  
- 	return mt76u_submit_rx_buffers(dev);
- }
 -- 
 2.20.1
 
