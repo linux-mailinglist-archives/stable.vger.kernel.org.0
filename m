@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB68147C3B
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:50:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABF9147C3D
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387617AbgAXJuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:50:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50886 "EHLO mail.kernel.org"
+        id S2387908AbgAXJuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:50:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387908AbgAXJuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:50:13 -0500
+        id S2387920AbgAXJuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:50:17 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 723EF20718;
-        Fri, 24 Jan 2020 09:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 417B421556;
+        Fri, 24 Jan 2020 09:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859413;
-        bh=yIv3zvrWLDMR4xueYpu26orbFeueFVTq0Dg0Uv4aIrE=;
+        s=default; t=1579859417;
+        bh=37rXhZGNRoB2mPBAkMrE4GN7tlMk7RX9B6XaAhF4PWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYakQU9r2XVblPwJc9oKK80H0kXj+wUvCDqOu3B6r3tJAUgELRH5yUp+SxUJwnE2D
-         /almIKXEm/N4OMkcVTVAKx5WuRCb1Gwbsn1rGoopEmThj9ZDMay2ZB9s9tH5VxbCWN
-         O3g2GM5OL5zxNccPaKihSajzmHfbqohmA2B3jNjE=
+        b=fE/6ukgysRynJaSsx55tcnV4mrMcXF2ts9C/2u5Cq3rZ9hbM1y3FTMLyMgkmi9FU7
+         WeCONYKqn2e5ayh6yRRPOCrWhBnrn095wG0j0cCfAlOp6314v3rxMjHUqu5ejoCMWD
+         lGk/UYacsnpdroVDcLJkxPQhlu0EhqGCwhVQ8hAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 112/343] dmaengine: mv_xor: Use correct device for DMA API
-Date:   Fri, 24 Jan 2020 10:28:50 +0100
-Message-Id: <20200124092934.764865076@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 113/343] cdc-wdm: pass return value of recover_from_urb_loss
+Date:   Fri, 24 Jan 2020 10:28:51 +0100
+Message-Id: <20200124092934.895015110@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,51 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 3e5daee5ecf314da33a890fabaa2404244cd2a36 ]
+[ Upstream commit 0742a338f5b3446a26de551ad8273fb41b2787f2 ]
 
-Using dma_dev->dev for mappings before it's assigned with the correct
-device is unlikely to work as expected, and with future dma-direct
-changes, passing a NULL device may end up crashing entirely. I don't
-know enough about this hardware or the mv_xor_prep_dma_interrupt()
-operation to implement the appropriate error-handling logic that would
-have revealed those dma_map_single() calls failing on arm64 for as long
-as the driver has been enabled there, but moving the assignment earlier
-will at least make the current code operate as intended.
+'rv' is the correct return value, pass it upstream instead of 0
 
-Fixes: 22843545b200 ("dma: mv_xor: Add support for DMA_INTERRUPT")
-Reported-by: John David Anglin <dave.anglin@bell.net>
-Tested-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Tested-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 17d80d562fd7 ("USB: autosuspend for cdc-wdm")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mv_xor.c | 2 +-
+ drivers/usb/class/cdc-wdm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/mv_xor.c b/drivers/dma/mv_xor.c
-index 1993889003fd1..1c57577f49fea 100644
---- a/drivers/dma/mv_xor.c
-+++ b/drivers/dma/mv_xor.c
-@@ -1059,6 +1059,7 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
- 		mv_chan->op_in_desc = XOR_MODE_IN_DESC;
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index a593cdfc897fd..d5d42dccda10a 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -1085,7 +1085,7 @@ static int wdm_post_reset(struct usb_interface *intf)
+ 	rv = recover_from_urb_loss(desc);
+ 	mutex_unlock(&desc->wlock);
+ 	mutex_unlock(&desc->rlock);
+-	return 0;
++	return rv;
+ }
  
- 	dma_dev = &mv_chan->dmadev;
-+	dma_dev->dev = &pdev->dev;
- 	mv_chan->xordev = xordev;
- 
- 	/*
-@@ -1091,7 +1092,6 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
- 	dma_dev->device_free_chan_resources = mv_xor_free_chan_resources;
- 	dma_dev->device_tx_status = mv_xor_status;
- 	dma_dev->device_issue_pending = mv_xor_issue_pending;
--	dma_dev->dev = &pdev->dev;
- 
- 	/* set prep routines based on capability */
- 	if (dma_has_cap(DMA_INTERRUPT, dma_dev->cap_mask))
+ static struct usb_driver wdm_driver = {
 -- 
 2.20.1
 
