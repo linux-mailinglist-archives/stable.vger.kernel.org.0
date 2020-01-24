@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B317147FE4
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D4C147FE6
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388328AbgAXLGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:06:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40668 "EHLO mail.kernel.org"
+        id S2387645AbgAXLGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:06:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732644AbgAXLGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:06:04 -0500
+        id S2388631AbgAXLGH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:06:07 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EEA120663;
-        Fri, 24 Jan 2020 11:06:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8027820663;
+        Fri, 24 Jan 2020 11:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863963;
-        bh=FEz5wwYgE1K+I9svTO2hpZMPGr485rBFku3mYnXeNlk=;
+        s=default; t=1579863967;
+        bh=8KFRc7Oz1dUbCB7vzQ2Ru6OK9vKujcC8NPQLgM0Su4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZDYGFHf567w7wldtP4LCVpZ12RwkefOXKP2MtpOcuILsqGPkk5FvLIv6/M81xHLf
-         /Q3TdLEO5P+XlBrMIsNWxIlWT/ctlCeS6vUnIjTSbIOZx7pOCwKY1V76brEYyn+ef4
-         FJ7fYoNTIfcJY1j6IgXiX9GmqTbrPuqar8XcLlJs=
+        b=mCbJ9OTBjc/fJDpLBsAkap9SKmAiaMDIemkprRr/wqkurexQW2wREhhQD2CgqCnUr
+         GH8sph/nsP7poAyhKtBKwe2ITHMu++IAshTeovJUlzTcgcoP9wwCBp+QcRJBRqbrxT
+         3rZ4ACZD7v1gg3qarnARieo2vObU/aWAhQun3lO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
+        stable@vger.kernel.org,
+        Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 133/639] drm/etnaviv: NULL vs IS_ERR() buf in etnaviv_core_dump()
-Date:   Fri, 24 Jan 2020 10:25:03 +0100
-Message-Id: <20200124093103.939996199@linuxfoundation.org>
+Subject: [PATCH 4.19 134/639] media: s5p-jpeg: Correct step and max values for V4L2_CID_JPEG_RESTART_INTERVAL
+Date:   Fri, 24 Jan 2020 10:25:04 +0100
+Message-Id: <20200124093104.063652193@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,34 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-[ Upstream commit f8261c376e7f8cb9024af5a6c54be540c7f9108e ]
+[ Upstream commit 19c624c6b29e244c418f8b44a711cbf5e82e3cd4 ]
 
-The etnaviv_gem_get_pages() never returns NULL.  It returns error
-pointers on error.
+This commit corrects max and step values for v4l2 control for
+V4L2_CID_JPEG_RESTART_INTERVAL. Max should be 0xffff and step should be 1.
+It was found by using v4l2-compliance tool and checking result of
+VIDIOC_QUERY_EXT_CTRL/QUERYMENU test.
+Previously it was complaining that step was bigger than difference
+between max and min.
 
-Fixes: a8c21a5451d8 ("drm/etnaviv: add initial etnaviv DRM driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Fixes: 15f4bc3b1f42 ("[media] s5p-jpeg: Add JPEG controls support")
+
+Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_dump.c | 2 +-
+ drivers/media/platform/s5p-jpeg/jpeg-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_dump.c b/drivers/gpu/drm/etnaviv/etnaviv_dump.c
-index 468dff2f79040..9d839b4fd8f78 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_dump.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_dump.c
-@@ -217,7 +217,7 @@ void etnaviv_core_dump(struct etnaviv_gpu *gpu)
- 		mutex_lock(&obj->lock);
- 		pages = etnaviv_gem_get_pages(obj);
- 		mutex_unlock(&obj->lock);
--		if (pages) {
-+		if (!IS_ERR(pages)) {
- 			int j;
+diff --git a/drivers/media/platform/s5p-jpeg/jpeg-core.c b/drivers/media/platform/s5p-jpeg/jpeg-core.c
+index 350afaa29a620..fa7c42cf4b4ef 100644
+--- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
++++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
+@@ -2005,7 +2005,7 @@ static int s5p_jpeg_controls_create(struct s5p_jpeg_ctx *ctx)
  
- 			iter.hdr->data[0] = bomap - bomap_start;
+ 		v4l2_ctrl_new_std(&ctx->ctrl_handler, &s5p_jpeg_ctrl_ops,
+ 				  V4L2_CID_JPEG_RESTART_INTERVAL,
+-				  0, 3, 0xffff, 0);
++				  0, 0xffff, 1, 0);
+ 		if (ctx->jpeg->variant->version == SJPEG_S5P)
+ 			mask = ~0x06; /* 422, 420 */
+ 	}
 -- 
 2.20.1
 
