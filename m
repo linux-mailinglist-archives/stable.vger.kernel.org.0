@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0528148383
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:37:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C1E148385
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:37:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404810AbgAXLgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:36:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56978 "EHLO mail.kernel.org"
+        id S2404945AbgAXLgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:36:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391962AbgAXLgs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:36:48 -0500
+        id S2404918AbgAXLgw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:36:52 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCBE82075D;
-        Fri, 24 Jan 2020 11:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD574206F0;
+        Fri, 24 Jan 2020 11:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865807;
-        bh=BFvTo5ib+88QZ4+i3IbuWcI70HqA+S9+gl/ABkQJWRg=;
+        s=default; t=1579865811;
+        bh=G7tPqalEhJLil09kkkTeiz+2KGb+9Y79KoNvi9vW+BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NMP4LlABA1QJBy7MGVc1Mw3MkLnNsQSTK7gp4KY+tcFFzEMHkvwoaw60QTLBi6Qt
-         y72xXOFNnyGpatgEAbpIbzp7ueULZigS0mGtGrM4O/5UmeRebchDgH37LVNG+621zf
-         5MqQfsZBpckCM4SXTUHWwdRi1aIrD7ZUl0Z5Om6U=
+        b=xAC99ED1sL2y8bbDDInmH3zn6dOHs7FnzxYAj1/dEWSOLivvBJRADv/7osFGXthAW
+         bjpi70yGnTUqlESkUdNfAvlWk4xFUtrqfOpHJcm6c76TfBnvUz5L9z3Mg34vDYFtuW
+         j55RoGjzr6pBUO7VT3uYOetVkB9EYR4i2pNymrFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 631/639] dmaengine: ti: edma: fix missed failure handling
-Date:   Fri, 24 Jan 2020 10:33:21 +0100
-Message-Id: <20200124093208.686655228@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 632/639] drm/radeon: fix bad DMA from INTERRUPT_CNTL2
+Date:   Fri, 24 Jan 2020 10:33:22 +0100
+Message-Id: <20200124093208.801874392@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,39 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit 340049d453682a9fe8d91fe794dd091730f4bb25 ]
+[ Upstream commit 62d91dd2851e8ae2ca552f1b090a3575a4edf759 ]
 
-When devm_kcalloc fails, it forgets to call edma_free_slot.
-Replace direct return with failure handler to fix it.
+The INTERRUPT_CNTL2 register expects a valid DMA address, but is
+currently set with a GPU MC address.  This can cause problems on
+systems that detect the resulting DMA read from an invalid address
+(found on a Power8 guest).
 
-Fixes: 1be5336bc7ba ("dmaengine: edma: New device tree binding")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/20191118073802.28424-1-hslester96@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Instead, use the DMA address of the dummy page because it will always
+be safe.
+
+Fixes: d8f60cfc9345 ("drm/radeon/kms: Add support for interrupts on r6xx/r7xx chips (v3)")
+Fixes: 25a857fbe973 ("drm/radeon/kms: add support for interrupts on SI")
+Fixes: a59781bbe528 ("drm/radeon: add support for interrupts on CIK (v5)")
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/edma.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/cik.c  | 4 ++--
+ drivers/gpu/drm/radeon/r600.c | 4 ++--
+ drivers/gpu/drm/radeon/si.c   | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/dma/ti/edma.c b/drivers/dma/ti/edma.c
-index 982631d4e1f8a..44158fa859737 100644
---- a/drivers/dma/ti/edma.c
-+++ b/drivers/dma/ti/edma.c
-@@ -2345,8 +2345,10 @@ static int edma_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/radeon/cik.c b/drivers/gpu/drm/radeon/cik.c
+index ebce4601a3056..827d551962d98 100644
+--- a/drivers/gpu/drm/radeon/cik.c
++++ b/drivers/gpu/drm/radeon/cik.c
+@@ -6965,8 +6965,8 @@ static int cik_irq_init(struct radeon_device *rdev)
+ 	}
  
- 		ecc->tc_list = devm_kcalloc(dev, ecc->num_tc,
- 					    sizeof(*ecc->tc_list), GFP_KERNEL);
--		if (!ecc->tc_list)
--			return -ENOMEM;
-+		if (!ecc->tc_list) {
-+			ret = -ENOMEM;
-+			goto err_reg1;
-+		}
+ 	/* setup interrupt control */
+-	/* XXX this should actually be a bus address, not an MC address. same on older asics */
+-	WREG32(INTERRUPT_CNTL2, rdev->ih.gpu_addr >> 8);
++	/* set dummy read address to dummy page address */
++	WREG32(INTERRUPT_CNTL2, rdev->dummy_page.addr >> 8);
+ 	interrupt_cntl = RREG32(INTERRUPT_CNTL);
+ 	/* IH_DUMMY_RD_OVERRIDE=0 - dummy read disabled with msi, enabled without msi
+ 	 * IH_DUMMY_RD_OVERRIDE=1 - dummy read controlled by IH_DUMMY_RD_EN
+diff --git a/drivers/gpu/drm/radeon/r600.c b/drivers/gpu/drm/radeon/r600.c
+index e06e2d8feab39..a724bb87cfad7 100644
+--- a/drivers/gpu/drm/radeon/r600.c
++++ b/drivers/gpu/drm/radeon/r600.c
+@@ -3690,8 +3690,8 @@ int r600_irq_init(struct radeon_device *rdev)
+ 	}
  
- 		for (i = 0;; i++) {
- 			ret = of_parse_phandle_with_fixed_args(node, "ti,tptcs",
+ 	/* setup interrupt control */
+-	/* set dummy read address to ring address */
+-	WREG32(INTERRUPT_CNTL2, rdev->ih.gpu_addr >> 8);
++	/* set dummy read address to dummy page address */
++	WREG32(INTERRUPT_CNTL2, rdev->dummy_page.addr >> 8);
+ 	interrupt_cntl = RREG32(INTERRUPT_CNTL);
+ 	/* IH_DUMMY_RD_OVERRIDE=0 - dummy read disabled with msi, enabled without msi
+ 	 * IH_DUMMY_RD_OVERRIDE=1 - dummy read controlled by IH_DUMMY_RD_EN
+diff --git a/drivers/gpu/drm/radeon/si.c b/drivers/gpu/drm/radeon/si.c
+index 85c604d292358..639f0698f961c 100644
+--- a/drivers/gpu/drm/radeon/si.c
++++ b/drivers/gpu/drm/radeon/si.c
+@@ -5993,8 +5993,8 @@ static int si_irq_init(struct radeon_device *rdev)
+ 	}
+ 
+ 	/* setup interrupt control */
+-	/* set dummy read address to ring address */
+-	WREG32(INTERRUPT_CNTL2, rdev->ih.gpu_addr >> 8);
++	/* set dummy read address to dummy page address */
++	WREG32(INTERRUPT_CNTL2, rdev->dummy_page.addr >> 8);
+ 	interrupt_cntl = RREG32(INTERRUPT_CNTL);
+ 	/* IH_DUMMY_RD_OVERRIDE=0 - dummy read disabled with msi, enabled without msi
+ 	 * IH_DUMMY_RD_OVERRIDE=1 - dummy read controlled by IH_DUMMY_RD_EN
 -- 
 2.20.1
 
