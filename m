@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59151148279
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:28:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379C314827B
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:28:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390053AbgAXL2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:28:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
+        id S2404071AbgAXL21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:28:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404058AbgAXL2V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:28:21 -0500
+        id S2404066AbgAXL20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:28:26 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A43CE20704;
-        Fri, 24 Jan 2020 11:28:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C45CC20704;
+        Fri, 24 Jan 2020 11:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865301;
-        bh=WRG0LT9cWoMHdHEXOHTJZ6UsZ+RTE2gdeEmO9QK1Y4A=;
+        s=default; t=1579865306;
+        bh=wUnQPA2gWOAo9yxaNNxXMNczT1iu46ZLwMyUNv8rzAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MeGiinrzitx5WRPj2b131FrRtlixgSeDZIoYEyCtpYFnAFZZbcUnLqY3iC/8MHZT8
-         /Nt3xnpgOgUWOgeEy1NBr2BmRyrHvwY57E16+yABGreqXpugg3y0anOVu1DzCScRYz
-         mB4zbMvtTMEsv4cryZ9H1WUO0JkWdpr/3rWMIFSM=
+        b=H3aXU26wugtIbmzmQLHvRNhahInhiuqldutZjxUtFiWsE20xzEof8e1X2t20R9nsb
+         FPuXll+kmtoxli5WSJ3LIEiMi3YmPE+xJ1J0R0bO9RRIpz04bbHTwgpD1Zc1fB7NCk
+         alUCf/VgoxPCgTWsrBDUnrjsGE101NuQxbBt9dLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Brandon Cazander <brandon.cazander@multapplied.net>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 496/639] iio: tsl2772: Use devm_add_action_or_reset for tsl2772_chip_off
-Date:   Fri, 24 Jan 2020 10:31:06 +0100
-Message-Id: <20200124093150.905281923@linuxfoundation.org>
+Subject: [PATCH 4.19 497/639] net: fix bpf_xdp_adjust_head regression for generic-XDP
+Date:   Fri, 24 Jan 2020 10:31:07 +0100
+Message-Id: <20200124093151.018095250@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,72 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit 338084135aeddb103624a6841972fb8588295cc6 ]
+[ Upstream commit 065af355470519bd184019a93ac579f22b036045 ]
 
-Use devm_add_action_or_reset to call tsl2772_chip_off
-when the device is removed.
-This also fixes the issue that the chip is turned off
-before the device is unregistered.
+When generic-XDP was moved to a later processing step by commit
+458bf2f224f0 ("net: core: support XDP generic on stacked devices.")
+a regression was introduced when using bpf_xdp_adjust_head.
 
-Not marked for stable as fairly hard to hit the bug and
-this is in the middle of a set making other cleanups
-to the driver.  Hence will probably need explicit backporting.
+The issue is that after this commit the skb->network_header is now
+changed prior to calling generic XDP and not after. Thus, if the header
+is changed by XDP (via bpf_xdp_adjust_head), then skb->network_header
+also need to be updated again.  Fix by calling skb_reset_network_header().
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Fixes: c06c4d793584 ("staging: iio: tsl2x7x/tsl2772: move out of staging")
-Reviewed-by: Brian Masney <masneyb@onstation.org>
-Tested-by: Brian Masney <masneyb@onstation.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 458bf2f224f0 ("net: core: support XDP generic on stacked devices.")
+Reported-by: Brandon Cazander <brandon.cazander@multapplied.net>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/tsl2772.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/core/dev.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iio/light/tsl2772.c b/drivers/iio/light/tsl2772.c
-index df5b2a0da96c4..f2e308c6d6d7b 100644
---- a/drivers/iio/light/tsl2772.c
-+++ b/drivers/iio/light/tsl2772.c
-@@ -716,6 +716,13 @@ static int tsl2772_chip_off(struct iio_dev *indio_dev)
- 	return tsl2772_write_control_reg(chip, 0x00);
- }
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 935fe158cfaff..73ebacabfde8d 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4349,12 +4349,17 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
  
-+static void tsl2772_chip_off_action(void *data)
-+{
-+	struct iio_dev *indio_dev = data;
+ 	act = bpf_prog_run_xdp(xdp_prog, xdp);
+ 
++	/* check if bpf_xdp_adjust_head was used */
+ 	off = xdp->data - orig_data;
+-	if (off > 0)
+-		__skb_pull(skb, off);
+-	else if (off < 0)
+-		__skb_push(skb, -off);
+-	skb->mac_header += off;
++	if (off) {
++		if (off > 0)
++			__skb_pull(skb, off);
++		else if (off < 0)
++			__skb_push(skb, -off);
 +
-+	tsl2772_chip_off(indio_dev);
-+}
-+
- /**
-  * tsl2772_invoke_change - power cycle the device to implement the user
-  *                         parameters
-@@ -1711,9 +1718,14 @@ static int tsl2772_probe(struct i2c_client *clientp,
- 	if (ret < 0)
- 		return ret;
++		skb->mac_header += off;
++		skb_reset_network_header(skb);
++	}
  
-+	ret = devm_add_action_or_reset(&clientp->dev,
-+					tsl2772_chip_off_action,
-+					indio_dev);
-+	if (ret < 0)
-+		return ret;
-+
- 	ret = iio_device_register(indio_dev);
- 	if (ret) {
--		tsl2772_chip_off(indio_dev);
- 		dev_err(&clientp->dev,
- 			"%s: iio registration failed\n", __func__);
- 		return ret;
-@@ -1740,8 +1752,6 @@ static int tsl2772_remove(struct i2c_client *client)
- {
- 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
- 
--	tsl2772_chip_off(indio_dev);
--
- 	iio_device_unregister(indio_dev);
- 
- 	return 0;
+ 	/* check if bpf_xdp_adjust_tail was used. it can only "shrink"
+ 	 * pckt.
 -- 
 2.20.1
 
