@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D432148750
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:23:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC601487AE
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:24:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgAXOWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:22:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44116 "EHLO mail.kernel.org"
+        id S1730461AbgAXOWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:22:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727295AbgAXOWE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:22:04 -0500
+        id S1729789AbgAXOWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:22:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01A7524673;
-        Fri, 24 Jan 2020 14:22:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3559722527;
+        Fri, 24 Jan 2020 14:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875723;
-        bh=l6cloJhamHOBRbigpyNLbKO8rrDSvstEKce5/7sOMOc=;
+        s=default; t=1579875725;
+        bh=QoKHv3rBnUe/lR2P6PAbjkqsqRT5HPz8zic5VYobNI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z38zTaHl9FJtyGRSKUPiNElLf8FiWARhGO0XY4H2DrxTNS1NAuylGK49/3nMQ9DF9
-         K/1bWH0s7b8OrdK6YD5g6nlQH/kvknFE98cpC9E+Bxtl3xPeiSCDacHfRs1GH5+fsD
-         gBTw52PSXcvQ7U+Pi0IqG05sJ76I4N/dmSlzMdGQ=
+        b=zEcGiWL9jIm0Yc60HelnKHKPaaBL78CxVaJtlM3XY+mtHptlQ4CM8pWz8FdQ9oO7E
+         FstHBCH/FaWSEGVWRI2dEEos4hUlr41QIw0RzqRD6WRCZibaM274KQ99wPf7517n0y
+         xKJZNJtQBN8AUwAJVVQ2/YgzQraFRIrzqFPQLBDI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Gerlach <d-gerlach@ti.com>, Suman Anna <s-anna@ti.com>,
-        Santosh Shilimkar <ssantosh@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 04/18] soc: ti: wkup_m3_ipc: Fix race condition with rproc_boot
-Date:   Fri, 24 Jan 2020 09:21:43 -0500
-Message-Id: <20200124142157.30931-4-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 05/18] clk: Don't try to enable critical clocks if prepare failed
+Date:   Fri, 24 Jan 2020 09:21:44 -0500
+Message-Id: <20200124142157.30931-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124142157.30931-1-sashal@kernel.org>
 References: <20200124142157.30931-1-sashal@kernel.org>
@@ -45,53 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Gerlach <d-gerlach@ti.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 03729cfa0d543bc996bf959e762ec999afc8f3d2 ]
+[ Upstream commit 12ead77432f2ce32dea797742316d15c5800cb32 ]
 
-Any user of wkup_m3_ipc calls wkup_m3_ipc_get to get a handle and this
-checks the value of the static variable m3_ipc_state to see if the
-wkup_m3 is ready. Currently this is populated during probe before
-rproc_boot has been called, meaning there is a window of time that
-wkup_m3_ipc_get can return a valid handle but the wkup_m3 itself is not
-ready, leading to invalid IPC calls to the wkup_m3 and system
-instability.
+The following traceback is seen if a critical clock fails to prepare.
 
-To avoid this, move the population of the m3_ipc_state variable until
-after rproc_boot has succeeded to guarantee a valid and usable handle
-is always returned.
+bcm2835-clk 3f101000.cprman: plld: couldn't lock PLL
+------------[ cut here ]------------
+Enabling unprepared plld_per
+WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:1014 clk_core_enable+0xcc/0x2c0
+...
+Call trace:
+ clk_core_enable+0xcc/0x2c0
+ __clk_register+0x5c4/0x788
+ devm_clk_hw_register+0x4c/0xb0
+ bcm2835_register_pll_divider+0xc0/0x150
+ bcm2835_clk_probe+0x134/0x1e8
+ platform_drv_probe+0x50/0xa0
+ really_probe+0xd4/0x308
+ driver_probe_device+0x54/0xe8
+ device_driver_attach+0x6c/0x78
+ __driver_attach+0x54/0xd8
+...
 
-Reported-by: Suman Anna <s-anna@ti.com>
-Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Check return values from clk_core_prepare() and clk_core_enable() and
+bail out if any of those functions returns an error.
+
+Cc: Jerome Brunet <jbrunet@baylibre.com>
+Fixes: 99652a469df1 ("clk: migrate the count of orphaned clocks at init")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lkml.kernel.org/r/20191225163429.29694-1-linux@roeck-us.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/clk.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
-index 5bb376009d98b..fc33bfdc957cc 100644
---- a/drivers/soc/ti/wkup_m3_ipc.c
-+++ b/drivers/soc/ti/wkup_m3_ipc.c
-@@ -377,6 +377,8 @@ static void wkup_m3_rproc_boot_thread(struct wkup_m3_ipc *m3_ipc)
- 	ret = rproc_boot(m3_ipc->rproc);
- 	if (ret)
- 		dev_err(dev, "rproc_boot failed\n");
-+	else
-+		m3_ipc_state = m3_ipc;
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index c745dad7f85e9..af4f2ffc4fc50 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -2448,11 +2448,17 @@ static int __clk_core_init(struct clk_core *core)
+ 	if (core->flags & CLK_IS_CRITICAL) {
+ 		unsigned long flags;
  
- 	do_exit(0);
- }
-@@ -463,8 +465,6 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
- 		goto err_put_rproc;
+-		clk_core_prepare(core);
++		ret = clk_core_prepare(core);
++		if (ret)
++			goto out;
+ 
+ 		flags = clk_enable_lock();
+-		clk_core_enable(core);
++		ret = clk_core_enable(core);
+ 		clk_enable_unlock(flags);
++		if (ret) {
++			clk_core_unprepare(core);
++			goto out;
++		}
  	}
  
--	m3_ipc_state = m3_ipc;
--
- 	return 0;
- 
- err_put_rproc:
+ 	/*
 -- 
 2.20.1
 
