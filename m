@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2904147F88
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEC2147F72
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:03:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387502AbgAXLDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:03:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
+        id S1732560AbgAXLCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:02:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731809AbgAXLDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:03:00 -0500
+        id S1733245AbgAXLCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:02:20 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEB0B2071A;
-        Fri, 24 Jan 2020 11:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7C262075D;
+        Fri, 24 Jan 2020 11:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863779;
-        bh=fy2M3xR3wpkWQhh+QyG69LM9fOJD6ppSxAtIJL0QPnY=;
+        s=default; t=1579863739;
+        bh=1M6RGpSA1qMYlEsveMhi1c2vbkAkmrDwYHubL87kjsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpqQy4aMg7cWVfy9qBkkqzDn2OZCECjzKihUt+qh2QK5NbSVt3AQXBoy+hpKvecXm
-         Y/RryD1iqvUp8pLSMt9uNchdIaaNDXMkCEACxgBufVPZFCgMdGFpYYA7BU+q3TK06h
-         XqxMcAYkDfYRNvVwywrX6JEOF/azc2BC7ZBZPX3E=
+        b=EotBbwM+8dfiy4PIF2VOSqnl1mfuenEvdEhskxsAI2f2ES+lxFFn4WYN8g6SPVJK1
+         xWur2k9o+0Labs567lTQPJPnhA4gqk98pw2T8PwgbmFfh1Bs+ES9kjAv+buEI+hcaB
+         Ya4qdhNR56h1vlf34WcTQyMsZY9FGLL5Yi7y8eI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Jerry Zuo <Jerry.Zuo@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/639] drm/dp_mst: Skip validating ports during destruction, just ref
-Date:   Fri, 24 Jan 2020 10:24:03 +0100
-Message-Id: <20200124093056.539811118@linuxfoundation.org>
+Subject: [PATCH 4.19 075/639] arm64: dts: renesas: r8a7795-es1: Add missing power domains to IPMMU nodes
+Date:   Fri, 24 Jan 2020 10:24:05 +0100
+Message-Id: <20200124093056.791308676@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,88 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit c54c7374ff44de5e609506aca7c0deae4703b6d1 ]
+[ Upstream commit 41e30b515a003a90e336b7a456c7c82d8c3aa6a7 ]
 
-Jerry Zuo pointed out a rather obscure hotplugging issue that it seems I
-accidentally introduced into DRM two years ago.
+While commit 3b7e7848f0e88b36 ("arm64: dts: renesas: r8a7795: Add IPMMU
+device nodes") for R-Car H3 ES2.0 did include power-domains properties,
+they were forgotten in the counterpart for older R-Car H3 ES1.x SoCs.
 
-Pretend we have a topology like this:
-
-|- DP-1: mst_primary
-   |- DP-4: active display
-   |- DP-5: disconnected
-   |- DP-6: active hub
-      |- DP-7: active display
-      |- DP-8: disconnected
-      |- DP-9: disconnected
-
-If we unplug DP-6, the topology starting at DP-7 will be destroyed but
-it's payloads will live on in DP-1's VCPI allocations and thus require
-removal. However, this removal currently fails because
-drm_dp_update_payload_part1() will (rightly so) try to validate the port
-before accessing it, fail then abort. If we keep going, eventually we
-run the MST hub out of bandwidth and all new allocations will start to
-fail (or in my case; all new displays just start flickering a ton).
-
-We could just teach drm_dp_update_payload_part1() not to drop the port
-ref in this case, but then we also need to teach
-drm_dp_destroy_payload_step1() to do the same thing, then hope no one
-ever adds anything to the that requires a validated port reference in
-drm_dp_destroy_connector_work(). Kind of sketchy.
-
-So let's go with a more clever solution: any port that
-drm_dp_destroy_connector_work() interacts with is guaranteed to still
-exist in memory until we say so. While said port might not be valid we
-don't really care: that's the whole reason we're destroying it in the
-first place! So, teach drm_dp_get_validated_port_ref() to use the all
-mighty current_work() function to avoid attempting to validate ports
-from the context of mgr->destroy_connector_work. I can't see any
-situation where this wouldn't be safe, and this avoids having to play
-whack-a-mole in the future of trying to work around port validation.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 263efde31f97 ("drm/dp/mst: Get validated port ref in drm_dp_update_payload_part1()")
-Reported-by: Jerry Zuo <Jerry.Zuo@amd.com>
-Cc: Jerry Zuo <Jerry.Zuo@amd.com>
-Cc: Harry Wentland <Harry.Wentland@amd.com>
-Cc: <stable@vger.kernel.org> # v4.6+
-Reviewed-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20181113224613.28809-1-lyude@redhat.com
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Fixes: e4b9a493df45075b ("arm64: dts: renesas: r8a7795-es1: Add IPMMU device nodes")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 4d77158453060..58fe3945494cf 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -1022,9 +1022,20 @@ static struct drm_dp_mst_port *drm_dp_mst_get_port_ref_locked(struct drm_dp_mst_
- static struct drm_dp_mst_port *drm_dp_get_validated_port_ref(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port)
- {
- 	struct drm_dp_mst_port *rport = NULL;
-+
- 	mutex_lock(&mgr->lock);
--	if (mgr->mst_primary)
--		rport = drm_dp_mst_get_port_ref_locked(mgr->mst_primary, port);
-+	/*
-+	 * Port may or may not be 'valid' but we don't care about that when
-+	 * destroying the port and we are guaranteed that the port pointer
-+	 * will be valid until we've finished
-+	 */
-+	if (current_work() == &mgr->destroy_connector_work) {
-+		kref_get(&port->kref);
-+		rport = port;
-+	} else if (mgr->mst_primary) {
-+		rport = drm_dp_mst_get_port_ref_locked(mgr->mst_primary,
-+						       port);
-+	}
- 	mutex_unlock(&mgr->lock);
- 	return rport;
- }
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
+index 7b2fbaec9aef8..3dc61b7e1d08a 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
+@@ -28,6 +28,7 @@
+ 		compatible = "renesas,ipmmu-r8a7795";
+ 		reg = <0 0xec680000 0 0x1000>;
+ 		renesas,ipmmu-main = <&ipmmu_mm 5>;
++		power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 		#iommu-cells = <1>;
+ 	};
+ 
+@@ -35,6 +36,7 @@
+ 		compatible = "renesas,ipmmu-r8a7795";
+ 		reg = <0 0xe7730000 0 0x1000>;
+ 		renesas,ipmmu-main = <&ipmmu_mm 8>;
++		power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 		#iommu-cells = <1>;
+ 	};
+ 
 -- 
 2.20.1
 
