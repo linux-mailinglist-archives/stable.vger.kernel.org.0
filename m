@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3D0147C03
+	by mail.lfdr.de (Postfix) with ESMTP id 62A1C147C02
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732351AbgAXJsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:48:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48322 "EHLO mail.kernel.org"
+        id S2387502AbgAXJsU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:48:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730051AbgAXJsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:48:16 -0500
+        id S1730051AbgAXJsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:48:20 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BB69222C2;
-        Fri, 24 Jan 2020 09:48:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E72720718;
+        Fri, 24 Jan 2020 09:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859296;
-        bh=XAFP6KUXPGImgfU6SZ4inFRtYmvP+aQsdVDRRUu36jg=;
+        s=default; t=1579859299;
+        bh=ccPKpFvqEPTS5f6vsWZaxPDSGFw47FvD1vLeAa86TEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xIZh2cYT6QuWVQ8YOK64G3v2/GbksbjqLlAiBFgRmREJaiC36X71nhDZLRd8MtgEE
-         eNPLznhA33Xxg3GIRn4povtt6qVO7RUCwSaRinAJalIbPL4iWrEPoLphiadEw4VvA+
-         EyXWmBf7FLDd1cgIduow3ybuoiBpNfU1Tw88IJzg=
+        b=MfLQRfJQ6YxE101Jx+aCx61PyZsiG/RXm4XVs7T1uUPITjDtTnXuMHPvH5UwcR/k1
+         1AHoqvMmL6Wm676Jq9qpuy5NuxGgCpRaP3Auuf5MlQjfaztjCmD8ZYgoQ3w9/AeZ7Q
+         2IvsDQFIaGJD14x86M3ImdUb2+LZ+D3A3WE+C5Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
+        stable@vger.kernel.org,
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/343] clk: sunxi-ng: sun8i-a23: Enable PLL-MIPI LDOs when ungating it
-Date:   Fri, 24 Jan 2020 10:28:11 +0100
-Message-Id: <20200124092929.425593614@linuxfoundation.org>
+Subject: [PATCH 4.14 074/343] iwlwifi: mvm: avoid possible access out of array.
+Date:   Fri, 24 Jan 2020 10:28:12 +0100
+Message-Id: <20200124092929.553652846@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,37 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
 
-[ Upstream commit 108a459ef4cd17a28711d81092044e597b5c7618 ]
+[ Upstream commit b0d795a9ae558209656b18930c2b4def5f8fdfb8 ]
 
-The PLL-MIPI clock is somewhat special as it has its own LDOs which
-need to be turned on for this PLL to actually work and output a clock
-signal.
+The value in txq_id can be out of array scope,
+validate it before accessing the array.
 
-Add the 2 LDO enable bits to the gate bits.
-
-Fixes: 5690879d93e8 ("clk: sunxi-ng: Add A23 CCU")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Fixes: cf961e16620f ("iwlwifi: mvm: support dqa-mode agg on non-shared queue")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun8i-a23.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-a23.c b/drivers/clk/sunxi-ng/ccu-sun8i-a23.c
-index d93b452f0df97..1cef040ebe829 100644
---- a/drivers/clk/sunxi-ng/ccu-sun8i-a23.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun8i-a23.c
-@@ -132,7 +132,7 @@ static SUNXI_CCU_NKM_WITH_GATE_LOCK(pll_mipi_clk, "pll-mipi",
- 				    8, 4,		/* N */
- 				    4, 2,		/* K */
- 				    0, 4,		/* M */
--				    BIT(31),		/* gate */
-+				    BIT(31) | BIT(23) | BIT(22), /* gate */
- 				    BIT(28),		/* lock */
- 				    CLK_SET_RATE_UNGATE);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+index 0cfdbaa2af3a7..684c0f65a0528 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -2417,7 +2417,7 @@ int iwl_mvm_sta_tx_agg_start(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
+ 	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+ 	struct iwl_mvm_tid_data *tid_data;
+ 	u16 normalized_ssn;
+-	int txq_id;
++	u16 txq_id;
+ 	int ret;
  
+ 	if (WARN_ON_ONCE(tid >= IWL_MAX_TID_COUNT))
+@@ -2452,17 +2452,24 @@ int iwl_mvm_sta_tx_agg_start(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
+ 	 */
+ 	txq_id = mvmsta->tid_data[tid].txq_id;
+ 	if (txq_id == IWL_MVM_INVALID_QUEUE) {
+-		txq_id = iwl_mvm_find_free_queue(mvm, mvmsta->sta_id,
+-						 IWL_MVM_DQA_MIN_DATA_QUEUE,
+-						 IWL_MVM_DQA_MAX_DATA_QUEUE);
+-		if (txq_id < 0) {
+-			ret = txq_id;
++		ret = iwl_mvm_find_free_queue(mvm, mvmsta->sta_id,
++					      IWL_MVM_DQA_MIN_DATA_QUEUE,
++					      IWL_MVM_DQA_MAX_DATA_QUEUE);
++		if (ret < 0) {
+ 			IWL_ERR(mvm, "Failed to allocate agg queue\n");
+ 			goto release_locks;
+ 		}
+ 
++		txq_id = ret;
++
+ 		/* TXQ hasn't yet been enabled, so mark it only as reserved */
+ 		mvm->queue_info[txq_id].status = IWL_MVM_QUEUE_RESERVED;
++	} else if (WARN_ON(txq_id >= IWL_MAX_HW_QUEUES)) {
++		ret = -ENXIO;
++		IWL_ERR(mvm, "tid_id %d out of range (0, %d)!\n",
++			tid, IWL_MAX_HW_QUEUES - 1);
++		goto out;
++
+ 	} else if (unlikely(mvm->queue_info[txq_id].status ==
+ 			    IWL_MVM_QUEUE_SHARED)) {
+ 		ret = -ENXIO;
 -- 
 2.20.1
 
