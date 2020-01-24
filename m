@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4296148462
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B06D148463
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387542AbgAXLF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40538 "EHLO mail.kernel.org"
+        id S2387860AbgAXLGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:06:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732644AbgAXLF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:05:57 -0500
+        id S1732644AbgAXLGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:06:00 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4B5A20663;
-        Fri, 24 Jan 2020 11:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79E4120663;
+        Fri, 24 Jan 2020 11:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863956;
-        bh=sW0JEfjDsZMoCmQzP96dh5i2+m/FbYoUPESR4+ht1uU=;
+        s=default; t=1579863960;
+        bh=pleHYfFuolpnnq+6nCW1//6E9yDhm2FdQf3zhWHjvc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgdDTpYi9TWLNzf1hMo8chGRQpGH1G6wGiHxYfVe1B+WAfl11QjWcgnN+wZ7vPHkH
-         YKTUeeSKBhcpdmPTkHuYqkjxYi8i4Eel/9HcOHmBELCKo8oTaYAUfAuKeeV6Xg6zlM
-         PFxwuZjzaXwXv9sPbcItkMJqPK+gjVA7Hprca1gw=
+        b=lJHWKjVyGXa+7etEqOUI4UCK+NBNZesprVUAJsdYu1qauZHLfMrakKUU+1lby+WfU
+         K5PSzz4YXgBkWGvVimCVhBPjg2U/FvKto2GUqyEPBuIId9gDyq+afvp+OptldzvJi9
+         Y0i9gol889VMqYYSPn8BAjHp/SwNTn9ChKGBE15Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Parvi Kaustubhi <pkaustub@cisco.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/639] clk: imx7d: fix refcount leak in imx7d_clocks_init()
-Date:   Fri, 24 Jan 2020 10:24:38 +0100
-Message-Id: <20200124093100.882561051@linuxfoundation.org>
+Subject: [PATCH 4.19 124/639] IB/usnic: Fix out of bounds index check in query pkey
+Date:   Fri, 24 Jan 2020 10:24:54 +0100
+Message-Id: <20200124093102.835711596@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,34 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit 5f8c183a996b76bb09748073c856e4246fd4ce95 ]
+[ Upstream commit 4959d5da5737dd804255c75b8cea0a2929ce279a ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+The pkey table size is one element, index should be tested for > 0 instead
+of > 1.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Fixes: 8f6d8094b215 ("ARM: imx: add imx7d clk tree support")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: e3cf00d0a87f ("IB/usnic: Add Cisco VIC low-level hardware driver")
+Signed-off-by: Gal Pressman <galpress@amazon.com>
+Acked-by: Parvi Kaustubhi <pkaustub@cisco.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx7d.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imx/clk-imx7d.c b/drivers/clk/imx/clk-imx7d.c
-index 881b772c4ac97..83412bc36ebfb 100644
---- a/drivers/clk/imx/clk-imx7d.c
-+++ b/drivers/clk/imx/clk-imx7d.c
-@@ -413,6 +413,7 @@ static void __init imx7d_clocks_init(struct device_node *ccm_node)
- 	np = of_find_compatible_node(NULL, NULL, "fsl,imx7d-anatop");
- 	base = of_iomap(np, 0);
- 	WARN_ON(!base);
-+	of_node_put(np);
+diff --git a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+index 3db232429630e..e611f133aa97b 100644
+--- a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
++++ b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+@@ -447,7 +447,7 @@ struct net_device *usnic_get_netdev(struct ib_device *device, u8 port_num)
+ int usnic_ib_query_pkey(struct ib_device *ibdev, u8 port, u16 index,
+ 				u16 *pkey)
+ {
+-	if (index > 1)
++	if (index > 0)
+ 		return -EINVAL;
  
- 	clks[IMX7D_PLL_ARM_MAIN_SRC]  = imx_clk_mux("pll_arm_main_src", base + 0x60, 14, 2, pll_bypass_src_sel, ARRAY_SIZE(pll_bypass_src_sel));
- 	clks[IMX7D_PLL_DRAM_MAIN_SRC] = imx_clk_mux("pll_dram_main_src", base + 0x70, 14, 2, pll_bypass_src_sel, ARRAY_SIZE(pll_bypass_src_sel));
+ 	*pkey = 0xffff;
 -- 
 2.20.1
 
