@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEC21480DE
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 497241480EF
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731323AbgAXLPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:15:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51788 "EHLO mail.kernel.org"
+        id S2388387AbgAXLPl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:15:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390252AbgAXLPP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:15:15 -0500
+        id S2390305AbgAXLPk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:15:40 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEF6A20708;
-        Fri, 24 Jan 2020 11:15:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7586520708;
+        Fri, 24 Jan 2020 11:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864514;
-        bh=DWHxIEmlcXQtbk9/JbT7Rb496vClcmVlnlGlJ4BO0WU=;
+        s=default; t=1579864540;
+        bh=tUh6CLf0IpiGLRBcHFAphW+usAQVEqq6YxT2MviT4vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rckyuJ/WZ5EWnhip+6bQBAPCv7AW14TXuYqUEo5zBwPr31RajviOHhgCdpxHtW0e
-         yVGQKW2ucperd7QoA7qVa2k4VQFF1S8cKYHGetYaCYs8VRQWXxBuddfVI3vkkbKbJ1
-         YvmqHHXyaFVShOXjHTUYHjh9JRaf+skOoSmTFHkI=
+        b=FRVI9Gv8b7Aev3xPT5LSCo9JptQQZfdjxsfPS7IcYU5Aas31b1mbiyCy2syfK7cVf
+         M+7GyqUnR7GOvAP7ssBIIZblEki7xs1eIcuIeDul6yN/bIkyLjDphWZJYbF/mi2b0r
+         grdvbwa8sVCbDQhGmc6yWqCbxihLHyBdex5z8c4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <andy.gross@linaro.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 279/639] soc: qcom: cmd-db: Fix an error code in cmd_db_dev_probe()
-Date:   Fri, 24 Jan 2020 10:27:29 +0100
-Message-Id: <20200124093121.775556132@linuxfoundation.org>
+Subject: [PATCH 4.19 281/639] media: tw5864: Fix possible NULL pointer dereference in tw5864_handle_frame
+Date:   Fri, 24 Jan 2020 10:27:31 +0100
+Message-Id: <20200124093122.017268600@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,38 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 93b260528020792032e50725383f27a27897bb0f ]
+[ Upstream commit 2e7682ebfc750177a4944eeb56e97a3f05734528 ]
 
-The memremap() function doesn't return error pointers, it returns NULL.
-This code is returning "ret = PTR_ERR(NULL);" which is success, but it
-should return -ENOMEM.
+'vb' null check should be done before dereferencing it in
+tw5864_handle_frame, otherwise a NULL pointer dereference
+may occur.
 
-Fixes: 312416d9171a ("drivers: qcom: add command DB driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Fixes: 34d1324edd31 ("[media] pci: Add tw5864 driver")
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/cmd-db.c | 4 ++--
+ drivers/media/pci/tw5864/tw5864-video.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/qcom/cmd-db.c b/drivers/soc/qcom/cmd-db.c
-index a6f646295f067..78d73ec587e11 100644
---- a/drivers/soc/qcom/cmd-db.c
-+++ b/drivers/soc/qcom/cmd-db.c
-@@ -283,8 +283,8 @@ static int cmd_db_dev_probe(struct platform_device *pdev)
+diff --git a/drivers/media/pci/tw5864/tw5864-video.c b/drivers/media/pci/tw5864/tw5864-video.c
+index ff2b7da90c088..6c40e60ac9939 100644
+--- a/drivers/media/pci/tw5864/tw5864-video.c
++++ b/drivers/media/pci/tw5864/tw5864-video.c
+@@ -1395,13 +1395,13 @@ static void tw5864_handle_frame(struct tw5864_h264_frame *frame)
+ 	input->vb = NULL;
+ 	spin_unlock_irqrestore(&input->slock, flags);
+ 
+-	v4l2_buf = to_vb2_v4l2_buffer(&vb->vb.vb2_buf);
+-
+ 	if (!vb) { /* Gone because of disabling */
+ 		dev_dbg(&dev->pci->dev, "vb is empty, dropping frame\n");
+ 		return;
  	}
  
- 	cmd_db_header = memremap(rmem->base, rmem->size, MEMREMAP_WB);
--	if (IS_ERR_OR_NULL(cmd_db_header)) {
--		ret = PTR_ERR(cmd_db_header);
-+	if (!cmd_db_header) {
-+		ret = -ENOMEM;
- 		cmd_db_header = NULL;
- 		return ret;
- 	}
++	v4l2_buf = to_vb2_v4l2_buffer(&vb->vb.vb2_buf);
++
+ 	/*
+ 	 * Check for space.
+ 	 * Mind the overhead of startcode emulation prevention.
 -- 
 2.20.1
 
