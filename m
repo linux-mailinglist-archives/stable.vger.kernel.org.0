@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46174148265
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCFD148269
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391655AbgAXL1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:27:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43456 "EHLO mail.kernel.org"
+        id S2391243AbgAXL1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:27:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391661AbgAXL1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:27:43 -0500
+        id S2391675AbgAXL1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:27:47 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BEA02075D;
-        Fri, 24 Jan 2020 11:27:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B9D620718;
+        Fri, 24 Jan 2020 11:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865263;
-        bh=xWk2oEJWg+aEf/TJMfstF2XmROQRtAxpW4vgKbueuwc=;
+        s=default; t=1579865266;
+        bh=X6KHqZed0cZZ5GRpXrqxZDyc5oNFbNlmfzErILPwf6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KN5kCCmSAeacpd+iM7G29xcTzhKgj5nI495gyIejgIN26o1onEw83R9wuyjgiUzpf
-         JQueJxQvoFlRJd6uYIZUcbvAlpSO1dsBrj/j+fctnDvY6oRfVp1g7GWXWJ9tkqfTgX
-         r8QCfBX4anxNrk9/C+6uxr2NJ5AekHeBjwyHcPrU=
+        b=c9Xw4eAVvfvw9seMbjNxymAnTB0SHrqj5Juv7mtKpW+Rns9bnHabgFAjXjTBMsrPm
+         K474Ss4E4gpL4L06eduFFHCJhknxgwIbJBoLOFabscFEBZ3UtiVBnUfCLu039qyEFw
+         qk0jZ1AXlKck4mttsjHwzkm01zogpiQYBkvplNMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 485/639] usb: host: xhci-hub: fix extra endianness conversion
-Date:   Fri, 24 Jan 2020 10:30:55 +0100
-Message-Id: <20200124093149.481211942@linuxfoundation.org>
+Subject: [PATCH 4.19 486/639] media: rcar-vin: Clean up correct notifier in error path
+Date:   Fri, 24 Jan 2020 10:30:56 +0100
+Message-Id: <20200124093149.593453726@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,42 +50,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit 6269e4c76eacabaea0d0099200ae1a455768d208 ]
+[ Upstream commit 0bd465765f8d1300040de627f0a0971a8849d654 ]
 
-Don't do extra cpu_to_le32 conversion for
-put_unaligned_le32 because it is already implemented
-in this function.
+The parallel input initialization error path cleans up the wrong
+async notifier, fix this by cleaning up the correct notifier.
 
-Fixes sparse error:
-xhci-hub.c:1152:44: warning: incorrect type in argument 1 (different base types)
-xhci-hub.c:1152:44:    expected unsigned int [usertype] val
-xhci-hub.c:1152:44:    got restricted __le32 [usertype]
-
-Fixes: 395f540 "xhci: support new USB 3.1 hub request to get extended port status"
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1562501839-26522-1-git-send-email-ruslan.bilovol@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9863bc8695bc36e3 ("media: rcar-vin: Cleanup notifier in error path")
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-hub.c | 2 +-
+ drivers/media/platform/rcar-vin/rcar-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index 8f180bf7561a2..9772c0de59b7d 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1104,7 +1104,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			}
- 			port_li = readl(ports[wIndex]->addr + PORTLI);
- 			status = xhci_get_ext_port_status(temp, port_li);
--			put_unaligned_le32(cpu_to_le32(status), &buf[4]);
-+			put_unaligned_le32(status, &buf[4]);
- 		}
- 		break;
- 	case SetPortFeature:
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index 485fa3fa8b49a..c389ba9ba74d2 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -631,7 +631,7 @@ static int rvin_parallel_init(struct rvin_dev *vin)
+ 	ret = v4l2_async_notifier_register(&vin->v4l2_dev, &vin->notifier);
+ 	if (ret < 0) {
+ 		vin_err(vin, "Notifier registration failed\n");
+-		v4l2_async_notifier_cleanup(&vin->group->notifier);
++		v4l2_async_notifier_cleanup(&vin->notifier);
+ 		return ret;
+ 	}
+ 
 -- 
 2.20.1
 
