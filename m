@@ -2,157 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE3A148B5E
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 16:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A260148B86
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 16:54:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388566AbgAXPkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 10:40:19 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:46196 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388413AbgAXPkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 10:40:19 -0500
-Received: by mail-wr1-f67.google.com with SMTP id z7so2480211wrl.13;
-        Fri, 24 Jan 2020 07:40:17 -0800 (PST)
+        id S2389227AbgAXPys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 10:54:48 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:52790 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389172AbgAXPys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 10:54:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579881287;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NVWDSNWG2YBJMb5h9YSxyXIldji6NzcE4XoLI2HHWzc=;
+        b=ORo8l2ZPHj7RLVaazQFnFG0u98y4Y8jUhaOZPdiLFSvQZ8aipGGzusazUbPNoZxyHEJahy
+        17Swyz7ak1l6M4hMj007+esD0o/13h14YSVNPGzX5GMX1OBM3Gx09YYdntlOD+1XMf4/tt
+        LDxfolWF6XPs5ZmpkF6eDYZNcmD+0o8=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-363-xwmuehwJPsKYg30D1TkObw-1; Fri, 24 Jan 2020 10:54:45 -0500
+X-MC-Unique: xwmuehwJPsKYg30D1TkObw-1
+Received: by mail-wr1-f69.google.com with SMTP id o6so1541497wrp.8
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 07:54:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4fSpakkXt7XJRLfsrbxsymX5+CsRlMsI5kEt8m9uUJc=;
-        b=BRIfpTlTzvcE9xfK3Msu6eZsTeESMAS7PxwlrFM33BJpQgDepS5Y12YyECxNWwzDtQ
-         C3YGd3DwmImBOJAmA+E5VFNSnzFdxR3EQKb27cngPX6+oAqlK0Uc5vXCBuLnEwiHS0pX
-         JqT+xcmYZlv+L1K2/ZbEIxBiADUdMqyTdnoFaJtdrVuwN8DXobJ26L1KRkGLbJWeosuq
-         xS5zVX/VRCBNyC1rGPOJcEgT+n52IpCldHzb1MEJ4Fitd3kH8XTc2scI0OjtzEmtH1lI
-         HokPFX+Q80Buig5RCE0MqyDjTM2eQNi+ofBUM3K7F+2rOn2RCa4UWUtgwzKikeQiHoUZ
-         MqmQ==
-X-Gm-Message-State: APjAAAVuERDe4WMujyUTyQHdKdqYzCj3KAKDCrhJpl6VF9DRC1uiWvAP
-        xfRE/K/P0jr2Y71sjeF3cvnxf27+
-X-Google-Smtp-Source: APXvYqw/ikY9aTlEmhbvA3VEnZFfBXKY17UC6N1FnkK/VeK4UC5UgZ/QIMX+XixzBusWTkX5JkfUlg==
-X-Received: by 2002:adf:82e7:: with SMTP id 94mr5444569wrc.60.1579880416703;
-        Fri, 24 Jan 2020 07:40:16 -0800 (PST)
-Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
-        by smtp.gmail.com with ESMTPSA id x132sm13887991wmg.0.2020.01.24.07.40.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jan 2020 07:40:15 -0800 (PST)
-Date:   Fri, 24 Jan 2020 16:40:15 +0100
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Wei Yang <richardw.yang@linux.intel.com>
-Cc:     g@richard.suse.de, Yang Shi <yang.shi@linux.alibaba.com>,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [v2 PATCH] mm: move_pages: report the number of non-attempted
- pages
-Message-ID: <20200124154015.GW29276@dhcp22.suse.cz>
-References: <1579736331-85494-1-git-send-email-yang.shi@linux.alibaba.com>
- <20200123032736.GA22196@richard>
- <20200123085526.GH29276@dhcp22.suse.cz>
- <20200123225647.GB29851@richard>
- <20200124064649.GM29276@dhcp22.suse.cz>
- <20200124152642.GB12509@richard>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=NVWDSNWG2YBJMb5h9YSxyXIldji6NzcE4XoLI2HHWzc=;
+        b=YxMBnKpCXMrgowytukajgzeVWZyaarKYOqac8uAk3m4L+I27zwRtpF0BkuOEu7jT+U
+         rNe0YrjE04v7srGi4wAb7ENA/FJUECCAHS2ogsKl5/Ecqp/edN0JvocB0lIoXtzgWHc+
+         hc+FCJIY9iela1CsHFHV2ef0c8rc+Wz4voermbsFdOr/0/N4mgWQG7fCnbMAMbdWB+kP
+         xO7Un2KbN32CP7+r44wGIrKgCCSiTcADmRbYh7L/nJT+Py7OIA1aoK+iyPbpBb6BiAH1
+         8IXSD3lDkImEfnqPsJQON7TaNgDiduf+uL2rKhlGjyXqZkTyOJJHkB0hoZuAnThHZPfM
+         i4tw==
+X-Gm-Message-State: APjAAAX3Qfjed58n/UtuKJc4v4saeqJRlUhFSJrNXHbD3SDRKcqh34ok
+        yvHasm74GBPS+ecLI5n9eURLXXof8giwRPp5WDHQTrJa76qSSatG8tE/ZlY4r/gesogZw7fAaZv
+        BDf3c4FRXFngcgZLK
+X-Received: by 2002:a1c:b4c3:: with SMTP id d186mr4074204wmf.140.1579881284294;
+        Fri, 24 Jan 2020 07:54:44 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzogXgz6eTRvTJTnIRAJ0NJbB5DE5bi6k5zNhAyU8p2PLfZwHBI0nZO2cDrzJW3xMW3fb0Xdg==
+X-Received: by 2002:a1c:b4c3:: with SMTP id d186mr4074179wmf.140.1579881284027;
+        Fri, 24 Jan 2020 07:54:44 -0800 (PST)
+Received: from dhcp-44-196.space.revspace.nl ([2a0e:5700:4:11:6eb:1143:b8be:2b8])
+        by smtp.gmail.com with ESMTPSA id t12sm7536527wrs.96.2020.01.24.07.54.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Jan 2020 07:54:43 -0800 (PST)
+Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+ Intel Bay Trail SoC
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        vipul kumar <vipulk0511@gmail.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        x86@kernel.org, Len Brown <len.brown@intel.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>
+References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
+ <87eevs7lfd.fsf@nanos.tec.linutronix.de>
+ <CADdC98RJpsvu_zWehNGDDN=W11rD11NSPaodg-zuaXsHuOJYTQ@mail.gmail.com>
+ <878slzeeim.fsf@nanos.tec.linutronix.de>
+ <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com>
+ <20200123144108.GU32742@smile.fi.intel.com>
+ <df04f43d-8c6d-7602-cb50-535b85cf2aaa@redhat.com>
+ <87iml11ccf.fsf@nanos.tec.linutronix.de>
+ <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com>
+ <87ftg5131x.fsf@nanos.tec.linutronix.de>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <37321319-e110-81f5-2488-cedf000da04d@redhat.com>
+Date:   Fri, 24 Jan 2020 16:54:42 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200124152642.GB12509@richard>
+In-Reply-To: <87ftg5131x.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 24-01-20 23:26:42, Wei Yang wrote:
-> On Fri, Jan 24, 2020 at 07:46:49AM +0100, Michal Hocko wrote:
-> >On Fri 24-01-20 06:56:47, Wei Yang wrote:
-> >> On Thu, Jan 23, 2020 at 09:55:26AM +0100, Michal Hocko wrote:
-> >> >On Thu 23-01-20 11:27:36, Wei Yang wrote:
-> >> >> On Thu, Jan 23, 2020 at 07:38:51AM +0800, Yang Shi wrote:
-> >> >> >Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
-> >> >> >the semantic of move_pages() was changed to return the number of
-> >> >> >non-migrated pages (failed to migration) and the call would be aborted
-> >> >> >immediately if migrate_pages() returns positive value.  But it didn't
-> >> >> >report the number of pages that we even haven't attempted to migrate.
-> >> >> >So, fix it by including non-attempted pages in the return value.
-> >> >> >
-> >> >> 
-> >> >> First, we want to change the semantic of move_pages(2). The return value
-> >> >> indicates the number of pages we didn't managed to migrate?
-> >> >> 
-> >> >> Second, the return value from migrate_pages() doesn't mean the number of pages
-> >> >> we failed to migrate. For example, one -ENOMEM is returned on the first page,
-> >> >> migrate_pages() would return 1. But actually, no page successfully migrated.
-> >> >
-> >> >ENOMEM is considered a permanent failure and as such it is returned by
-> >> >migrate pages (see goto out).
-> >> >
-> >> >> Third, even the migrate_pages() return the exact non-migrate page, we are not
-> >> >> sure those non-migrated pages are at the tail of the list. Because in the last
-> >> >> case in migrate_pages(), it just remove the page from list. It could be a page
-> >> >> in the middle of the list. Then, in userspace, how the return value be
-> >> >> leveraged to determine the valid status? Any page in the list could be the
-> >> >> victim.
-> >> >
-> >> >Yes, I was wrong when stating that the caller would know better which
-> >> >status to check. I misremembered the original patch as it was quite some
-> >> >time ago. While storing the error code would be possible after some
-> >> >massaging of migrate_pages is this really something we deeply care
-> >> >about. The caller can achieve the same by initializing the status array
-> >> >to a non-node number - e.g. -1 - and check based on that.
-> >> >
-> >> 
-> >> So for a user, the best practice is to initialize the status array to -1 and
-> >> check each status to see whether the page is migrated successfully?
-> >
-> >Yes IMO. Just consider -errno return value. You have no way to find out
-> >which pages have been migrated until we reached that error. The
-> >possitive return value would fall into the same case.
-> >
-> >> Then do we need to return the number of non-migrated page? What benefit could
-> >> user get from the number. How about just return an error code to indicate the
-> >> failure? I may miss some point, would you mind giving me a hint?
-> >
-> >This is certainly possible. We can return -EAGAIN if some pages couldn't
-> >be migrated because they are pinned. But please read my previous email
-> >to the very end for arguments why this might cause more problems than it
-> >actually solves.
-> >
-> 
-> Let me put your comment here:
-> 
->     Because new users could have started depending on it. It
->     is not all that unlikely that the current implementation would just
->     work for them because they are migrating a set of pages on to the same
->     node so the batch would be a single list throughout the whole given
->     page set.
-> 
-> Your idea is to preserve current semantic, return non-migrated pages number to
-> userspace.
-> 
-> And the reason is:
-> 
->    1. Users have started depending on it.
->    2. No real bug reported yet.
->    3. User always migrate page to the same node. (If my understanding is
->       correct)
-> 
-> I think this gets some reason, since we want to minimize the impact to
-> userland.
-> 
-> While let's see what user probably use this syscall. Since from the man page,
-> we never told the return value could be positive, the number of non-migrated
-> pages, user would think only 0 means a successful migration and all other
-> cases are failure. Then user probably handle negative and positive return
-> value the same way, like (!err).
-> 
-> If my guess is true, return a negative error value for this case could
-> minimize the impact to userland here.
->    1. Preserve the semantic of move_pages(2): 0 means success, negative means
->       some error and needs extra handling.
->    2. Trivial change to the man page.
->    3. Suppose no change to users.
+Hi,
 
-Do you have any actual proposal we can discuss? I suspect we are going
-in circles here. Sure both ways are possible. The disucssion we are
-having here is which behavior makes more sense. The interface is and has
-been in the past very awkward. Some corner cases have been fixed some
-new created. While I am not happy about the later we should finally land
-with some decision.
--- 
-Michal Hocko
-SUSE Labs
+On 1/24/20 12:55 PM, Thomas Gleixner wrote:
+> Hans,
+> 
+> Hans de Goede <hdegoede@redhat.com> writes:
+>> On 1/24/20 9:35 AM, Thomas Gleixner wrote:
+>>> Where does that number come from? Just math?
+>>
+>> Yes just math, but perhaps the Intel folks can see if they can find some
+>> datasheet to back this up ?
+> 
+> Can you observe the issue on one of the machines in your zoo as well?
+
+I haven't tried yet. Looking at the thread sofar the problem was noticed on
+a system with a Celeron N2930, I don't have access to one of those, I
+do have access to a system with a closely related N2840 I will give that
+a try as well as see if I can reproduce this on one of the tablet
+oriented Z3735x SoCs.
+
+I'll report back when I have had a chance to test this.
+
+Regards,
+
+Hans
+
