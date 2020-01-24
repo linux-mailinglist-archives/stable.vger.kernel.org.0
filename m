@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D38E1147D72
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0896147D74
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388301AbgAXKAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:00:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36148 "EHLO mail.kernel.org"
+        id S2388795AbgAXKAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:00:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733301AbgAXKAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:00:44 -0500
+        id S2387604AbgAXKAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:00:47 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F0D52075D;
-        Fri, 24 Jan 2020 10:00:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C07C320709;
+        Fri, 24 Jan 2020 10:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860043;
-        bh=qjRaUF6rF2gylEZgTF/220Ah5kc2TWJb/myooLD5+sM=;
+        s=default; t=1579860047;
+        bh=nPDfvmTBMEFTTWIr/Pj/1sN/RS82nFMkU0vuHnzTFpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1Qxr07Y/RsId0hB3WoJKtllJMy4Lw7Mwek3ErizxFlEtc9RPEHZXcigP1tjsbNa9
-         kNWmkPo9VUdTMu3/F0JQ8Y8d3xvq5NAl7kX04fToC1WwJ4wPpbzUbBvt2CCXXzrMTq
-         sK4g0UFVVcuYGfOPwVraVMHECMnm8XxKt7OL3OPc=
+        b=xQt0Mm5TjMHCQFvcmQQVaFtLnDMUQZQisPUdiBZodtEZ/49XSYZgG0zxqsB4NQPQZ
+         aSCc0JOPwJ5q6hZniVOGuXfYwvdeCcm6B0w6pcCi8Y3qrLBhsCTINbRIxI5n+TEXqt
+         M50twuUk/AgQBGoOJE4HSBcx0DELzZylWN3yJ8rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bryan ODonoghue <pure.logic@nexus-software.ie>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 246/343] nvmem: imx-ocotp: Ensure WAIT bits are preserved when setting timing
-Date:   Fri, 24 Jan 2020 10:31:04 +0100
-Message-Id: <20200124092952.447203110@linuxfoundation.org>
+Subject: [PATCH 4.14 247/343] bnxt_en: Fix ethtool selftest crash under error conditions.
+Date:   Fri, 24 Jan 2020 10:31:05 +0100
+Message-Id: <20200124092952.575980582@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -46,45 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 0493c4792b4eb260441e57f52cc11a9ded48b5a7 ]
+[ Upstream commit d27e2ca1166aefd54d9c48fb6647dee8115a5dfc ]
 
-The i.MX6 and i.MX8 both have a bit-field spanning bits 27:22 called the
-WAIT field.
+After ethtool loopback packet tests, we re-open the nic for the next
+IRQ test.  If the open fails, we must not proceed with the IRQ test
+or we will crash with NULL pointer dereference.  Fix it by checking
+the bnxt_open_nic() return code before proceeding.
 
-The WAIT field according to the documentation for both parts "specifies
-time interval between auto read and write access in one time program. It is
-given in number of ipg_clk periods."
-
-This patch ensures that the relevant field is read and written back to the
-timing register.
-
-Fixes: 0642bac7da42 ("nvmem: imx-ocotp: add write support")
-
-Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>
+Fixes: 67fea463fd87 ("bnxt_en: Add interrupt test to ethtool -t selftest.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/imx-ocotp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
-index 193ca8fd350a4..0c8c3b9bb6a7a 100644
---- a/drivers/nvmem/imx-ocotp.c
-+++ b/drivers/nvmem/imx-ocotp.c
-@@ -199,7 +199,8 @@ static int imx_ocotp_write(void *context, unsigned int offset, void *val,
- 	strobe_prog = clk_rate / (1000000000 / 10000) + 2 * (DEF_RELAX + 1) - 1;
- 	strobe_read = clk_rate / (1000000000 / 40) + 2 * (DEF_RELAX + 1) - 1;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index fc8e185718a1d..963beaa8fabbc 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2463,7 +2463,7 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
+ 	bool offline = false;
+ 	u8 test_results = 0;
+ 	u8 test_mask = 0;
+-	int rc, i;
++	int rc = 0, i;
  
--	timing = strobe_prog & 0x00000FFF;
-+	timing = readl(priv->base + IMX_OCOTP_ADDR_TIMING) & 0x0FC00000;
-+	timing |= strobe_prog & 0x00000FFF;
- 	timing |= (relax       << 12) & 0x0000F000;
- 	timing |= (strobe_read << 16) & 0x003F0000;
- 
+ 	if (!bp->num_tests || !BNXT_SINGLE_PF(bp))
+ 		return;
+@@ -2521,9 +2521,9 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
+ 		}
+ 		bnxt_hwrm_phy_loopback(bp, false);
+ 		bnxt_half_close_nic(bp);
+-		bnxt_open_nic(bp, false, true);
++		rc = bnxt_open_nic(bp, false, true);
+ 	}
+-	if (bnxt_test_irq(bp)) {
++	if (rc || bnxt_test_irq(bp)) {
+ 		buf[BNXT_IRQ_TEST_IDX] = 1;
+ 		etest->flags |= ETH_TEST_FL_FAILED;
+ 	}
 -- 
 2.20.1
 
