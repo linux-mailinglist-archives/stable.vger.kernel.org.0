@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CAF1484A5
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4296148462
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbgAXLnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:43:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37552 "EHLO mail.kernel.org"
+        id S2387542AbgAXLF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:05:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387683AbgAXLDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:03:40 -0500
+        id S1732644AbgAXLF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:05:57 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 436C22071A;
-        Fri, 24 Jan 2020 11:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4B5A20663;
+        Fri, 24 Jan 2020 11:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863819;
-        bh=0yewvMhf8AqFzUJFiC+c4tjGMKVsBQlw6gbehAq0MtE=;
+        s=default; t=1579863956;
+        bh=sW0JEfjDsZMoCmQzP96dh5i2+m/FbYoUPESR4+ht1uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rf7kEW83T1kTw7iJ/CHx6hzbb6Q8ub5wrR618cHuI7qLBXKU1N4P+CrHtE61hhClu
-         EPM5QU0TfaeiUW7d2iVZ7qiE+ZKrVDRs2iCJYeFrQD83PPvGW/hYZR1IFeo4gE18Er
-         HgacD1P/eu2+8aLIzq5O4aFz8y2EadlqCdyxVGiU=
+        b=MgdDTpYi9TWLNzf1hMo8chGRQpGH1G6wGiHxYfVe1B+WAfl11QjWcgnN+wZ7vPHkH
+         YKTUeeSKBhcpdmPTkHuYqkjxYi8i4Eel/9HcOHmBELCKo8oTaYAUfAuKeeV6Xg6zlM
+         PFxwuZjzaXwXv9sPbcItkMJqPK+gjVA7Hprca1gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/639] ipv6: add missing tx timestamping on IPPROTO_RAW
-Date:   Fri, 24 Jan 2020 10:24:14 +0100
-Message-Id: <20200124093057.889176715@linuxfoundation.org>
+Subject: [PATCH 4.19 108/639] clk: imx7d: fix refcount leak in imx7d_clocks_init()
+Date:   Fri, 24 Jan 2020 10:24:38 +0100
+Message-Id: <20200124093100.882561051@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,38 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Yangtao Li <tiny.windzz@gmail.com>
 
-[ Upstream commit fbfb2321e950918b430e7225546296b2dcadf725 ]
+[ Upstream commit 5f8c183a996b76bb09748073c856e4246fd4ce95 ]
 
-Raw sockets support tx timestamping, but one case is missing.
+The of_find_compatible_node() returns a node pointer with refcount
+incremented, but there is the lack of use of the of_node_put() when
+done. Add the missing of_node_put() to release the refcount.
 
-IPPROTO_RAW takes a separate packet construction path. raw_send_hdrinc
-has an explicit call to sock_tx_timestamp, but rawv6_send_hdrinc does
-not. Add it.
-
-Fixes: 11878b40ed5c ("net-timestamp: SOCK_RAW and PING timestamping")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+Fixes: 8f6d8094b215 ("ARM: imx: add imx7d clk tree support")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/raw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clk/imx/clk-imx7d.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index 4856d9320b28e..a41156a00dd44 100644
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -660,6 +660,8 @@ static int rawv6_send_hdrinc(struct sock *sk, struct msghdr *msg, int length,
+diff --git a/drivers/clk/imx/clk-imx7d.c b/drivers/clk/imx/clk-imx7d.c
+index 881b772c4ac97..83412bc36ebfb 100644
+--- a/drivers/clk/imx/clk-imx7d.c
++++ b/drivers/clk/imx/clk-imx7d.c
+@@ -413,6 +413,7 @@ static void __init imx7d_clocks_init(struct device_node *ccm_node)
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx7d-anatop");
+ 	base = of_iomap(np, 0);
+ 	WARN_ON(!base);
++	of_node_put(np);
  
- 	skb->ip_summed = CHECKSUM_NONE;
- 
-+	sock_tx_timestamp(sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
-+
- 	if (flags & MSG_CONFIRM)
- 		skb_set_dst_pending_confirm(skb, 1);
- 
+ 	clks[IMX7D_PLL_ARM_MAIN_SRC]  = imx_clk_mux("pll_arm_main_src", base + 0x60, 14, 2, pll_bypass_src_sel, ARRAY_SIZE(pll_bypass_src_sel));
+ 	clks[IMX7D_PLL_DRAM_MAIN_SRC] = imx_clk_mux("pll_dram_main_src", base + 0x70, 14, 2, pll_bypass_src_sel, ARRAY_SIZE(pll_bypass_src_sel));
 -- 
 2.20.1
 
