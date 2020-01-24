@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C5F147CDB
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:56:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49BCF147CC5
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388374AbgAXJyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:54:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57598 "EHLO mail.kernel.org"
+        id S1731584AbgAXJyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:54:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731584AbgAXJyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:54:32 -0500
+        id S2388408AbgAXJyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:54:36 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD0F620709;
-        Fri, 24 Jan 2020 09:54:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A10242075D;
+        Fri, 24 Jan 2020 09:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859671;
-        bh=rO20ReY0D17Z08+D6hDKugrRpVERf/wymJFyg4vn6yo=;
+        s=default; t=1579859675;
+        bh=kjxB2YLCBW5XIp3R6Oao0Og3Dup5E5WmD6hIuKn/hB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlqwVO9EaC0s1RpRf0Ne0zEy1IWSPc3Qp8K2tQZMF9y2r4OUPOjs5RERjwdNDk9Ke
-         ho8rqVUSJrm/kobLZ6K7MHp4eeVkzWAea66kd7anGD6HxZHHQtMNmxrlJJDJYuKfpN
-         uBj12tbB2Qs9zVR64pP64fAAM23fQl4BmyJ+y33E=
+        b=DuBE3uNzS5yv8IUFx2Vlm2IrqIdUiJbGlb2XUPUluCDf0sr+WaFG1ikpm0L2jcCDd
+         vXLroGGkevBGFSVh5ZCY2DTfHwDFie6k5/YpGMgsAMpvwHz1hB4Ks7JXiyeC6Ag5Vn
+         jsxv8UCrsdmNASGKKcPVKfhqcw+Y5FIeg8MCvmRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Liu <liujie165@huawei.com>,
-        Qiang Ning <ningqiang1@huawei.com>,
-        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 170/343] tipc: set sysctl_tipc_rmem and named_timeout right range
-Date:   Fri, 24 Jan 2020 10:29:48 +0100
-Message-Id: <20200124092942.358845182@linuxfoundation.org>
+Subject: [PATCH 4.14 171/343] selftests/ipc: Fix msgque compiler warnings
+Date:   Fri, 24 Jan 2020 10:29:49 +0100
+Message-Id: <20200124092942.501565706@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -47,58 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Liu <liujie165@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 4bcd4ec1017205644a2697bccbc3b5143f522f5f ]
+[ Upstream commit a147faa96f832f76e772b1e448e94ea84c774081 ]
 
-We find that sysctl_tipc_rmem and named_timeout do not have the right minimum
-setting. sysctl_tipc_rmem should be larger than zero, like sysctl_tcp_rmem.
-And named_timeout as a timeout setting should be not less than zero.
+This fixes the various compiler warnings when building the msgque
+selftest. The primary change is using sys/msg.h instead of linux/msg.h
+directly to gain the API declarations.
 
-Fixes: cc79dd1ba9c10 ("tipc: change socket buffer overflow control to respect sk_rcvbuf")
-Fixes: a5325ae5b8bff ("tipc: add name distributor resiliency queue")
-Signed-off-by: Jie Liu <liujie165@huawei.com>
-Reported-by: Qiang Ning <ningqiang1@huawei.com>
-Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/sysctl.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/testing/selftests/ipc/msgque.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/tipc/sysctl.c b/net/tipc/sysctl.c
-index 1a779b1e85100..40f6d82083d7b 100644
---- a/net/tipc/sysctl.c
-+++ b/net/tipc/sysctl.c
-@@ -37,6 +37,8 @@
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index ee9382bdfadc8..c5587844fbb8c 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -1,9 +1,10 @@
+ // SPDX-License-Identifier: GPL-2.0
++#define _GNU_SOURCE
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <errno.h>
+-#include <linux/msg.h>
++#include <sys/msg.h>
+ #include <fcntl.h>
  
- #include <linux/sysctl.h>
+ #include "../kselftest.h"
+@@ -73,7 +74,7 @@ int restore_queue(struct msgque_data *msgque)
+ 	return 0;
  
-+static int zero;
-+static int one = 1;
- static struct ctl_table_header *tipc_ctl_hdr;
+ destroy:
+-	if (msgctl(id, IPC_RMID, 0))
++	if (msgctl(id, IPC_RMID, NULL))
+ 		printf("Failed to destroy queue: %d\n", -errno);
+ 	return ret;
+ }
+@@ -120,7 +121,7 @@ int check_and_destroy_queue(struct msgque_data *msgque)
  
- static struct ctl_table tipc_table[] = {
-@@ -45,14 +47,16 @@ static struct ctl_table tipc_table[] = {
- 		.data		= &sysctl_tipc_rmem,
- 		.maxlen		= sizeof(sysctl_tipc_rmem),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1         = &one,
- 	},
- 	{
- 		.procname	= "named_timeout",
- 		.data		= &sysctl_tipc_named_timeout,
- 		.maxlen		= sizeof(sysctl_tipc_named_timeout),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1         = &zero,
- 	},
- 	{}
- };
+ 	ret = 0;
+ err:
+-	if (msgctl(msgque->msq_id, IPC_RMID, 0)) {
++	if (msgctl(msgque->msq_id, IPC_RMID, NULL)) {
+ 		printf("Failed to destroy queue: %d\n", -errno);
+ 		return -errno;
+ 	}
+@@ -129,7 +130,7 @@ err:
+ 
+ int dump_queue(struct msgque_data *msgque)
+ {
+-	struct msqid64_ds ds;
++	struct msqid_ds ds;
+ 	int kern_id;
+ 	int i, ret;
+ 
+@@ -246,7 +247,7 @@ int main(int argc, char **argv)
+ 	return ksft_exit_pass();
+ 
+ err_destroy:
+-	if (msgctl(msgque.msq_id, IPC_RMID, 0)) {
++	if (msgctl(msgque.msq_id, IPC_RMID, NULL)) {
+ 		printf("Failed to destroy queue: %d\n", -errno);
+ 		return ksft_exit_fail();
+ 	}
 -- 
 2.20.1
 
