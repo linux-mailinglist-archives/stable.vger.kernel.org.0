@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E82461489E9
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A181489E2
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388660AbgAXOie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:38:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38494 "EHLO mail.kernel.org"
+        id S2391075AbgAXOSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:18:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389267AbgAXOSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:18:44 -0500
+        id S2390973AbgAXOSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:18:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0413C208C4;
-        Fri, 24 Jan 2020 14:18:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1510B22464;
+        Fri, 24 Jan 2020 14:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875523;
-        bh=vQ+VRUWqZvHfu70GmDAAlI1wZqRONm9x3XytVHCr2A4=;
+        s=default; t=1579875524;
+        bh=cOyqk97cutL1s+fJwmtKJKAfj/jZXdg6ZAmb/dhgNH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/C2jBPsTzKbWMqVEyktoIBy60KaO24eiClo8U/EE/RW7MKSzUP0j1LATGcWLss+w
-         D6sR+b4D35iNJ4Kz79/0X+jnrW9R+U3PyHNrYeP4gYSaGzPxpk2c0/3HtOuHHZox4+
-         hERPDqzKMs4dfqAAooeSttHRdwPUB5GmTx0uLBPU=
+        b=Tk71IFufMPoskqSClLRkmX0e9oOII1vq0algWcVLbXHMAQTKRxDqcyJJaKM6apr22
+         RVbRpPw/sH9oYaJ0SzEWqJ4bECqUwobgKjeTRIZkngfTo33rfOMy0I77Tm/i8jvgef
+         ocwABviNIL1l9lvpPChdqGhmRkIDrbJARrZbV8Zk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 022/107] clk: Don't try to enable critical clocks if prepare failed
-Date:   Fri, 24 Jan 2020 09:16:52 -0500
-Message-Id: <20200124141817.28793-22-sashal@kernel.org>
+Cc:     Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 023/107] clk: sunxi-ng: sun8i-r: Fix divider on APB0 clock
+Date:   Fri, 24 Jan 2020 09:16:53 -0500
+Message-Id: <20200124141817.28793-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,67 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 12ead77432f2ce32dea797742316d15c5800cb32 ]
+[ Upstream commit 47d64fef1f3ffbdf960d3330b9865fc9f12fdf84 ]
 
-The following traceback is seen if a critical clock fails to prepare.
+According to the BSP source code, the APB0 clock on the H3 and H5 has a
+normal M divider, not a power-of-two divider. This matches the hardware
+in the A83T (as described in both the BSP source code and the manual).
+Since the A83T and H3/A64 clocks are actually the same, we can merge the
+definitions.
 
-bcm2835-clk 3f101000.cprman: plld: couldn't lock PLL
-------------[ cut here ]------------
-Enabling unprepared plld_per
-WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:1014 clk_core_enable+0xcc/0x2c0
-...
-Call trace:
- clk_core_enable+0xcc/0x2c0
- __clk_register+0x5c4/0x788
- devm_clk_hw_register+0x4c/0xb0
- bcm2835_register_pll_divider+0xc0/0x150
- bcm2835_clk_probe+0x134/0x1e8
- platform_drv_probe+0x50/0xa0
- really_probe+0xd4/0x308
- driver_probe_device+0x54/0xe8
- device_driver_attach+0x6c/0x78
- __driver_attach+0x54/0xd8
-...
-
-Check return values from clk_core_prepare() and clk_core_enable() and
-bail out if any of those functions returns an error.
-
-Cc: Jerome Brunet <jbrunet@baylibre.com>
-Fixes: 99652a469df1 ("clk: migrate the count of orphaned clocks at init")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lkml.kernel.org/r/20191225163429.29694-1-linux@roeck-us.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun8i-r.c | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 4fc294c2f9e8f..67f592fa083ab 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -3408,11 +3408,17 @@ static int __clk_core_init(struct clk_core *core)
- 	if (core->flags & CLK_IS_CRITICAL) {
- 		unsigned long flags;
+diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-r.c b/drivers/clk/sunxi-ng/ccu-sun8i-r.c
+index 4646fdc61053b..4c8c491b87c27 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-r.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-r.c
+@@ -51,19 +51,7 @@ static struct ccu_div ar100_clk = {
  
--		clk_core_prepare(core);
-+		ret = clk_core_prepare(core);
-+		if (ret)
-+			goto out;
+ static CLK_FIXED_FACTOR_HW(ahb0_clk, "ahb0", &ar100_clk.common.hw, 1, 1, 0);
  
- 		flags = clk_enable_lock();
--		clk_core_enable(core);
-+		ret = clk_core_enable(core);
- 		clk_enable_unlock(flags);
-+		if (ret) {
-+			clk_core_unprepare(core);
-+			goto out;
-+		}
- 	}
+-static struct ccu_div apb0_clk = {
+-	.div		= _SUNXI_CCU_DIV_FLAGS(0, 2, CLK_DIVIDER_POWER_OF_TWO),
+-
+-	.common		= {
+-		.reg		= 0x0c,
+-		.hw.init	= CLK_HW_INIT_HW("apb0",
+-						 &ahb0_clk.hw,
+-						 &ccu_div_ops,
+-						 0),
+-	},
+-};
+-
+-static SUNXI_CCU_M(a83t_apb0_clk, "apb0", "ahb0", 0x0c, 0, 2, 0);
++static SUNXI_CCU_M(apb0_clk, "apb0", "ahb0", 0x0c, 0, 2, 0);
  
- 	clk_core_reparent_orphans_nolock();
+ /*
+  * Define the parent as an array that can be reused to save space
+@@ -127,7 +115,7 @@ static struct ccu_mp a83t_ir_clk = {
+ 
+ static struct ccu_common *sun8i_a83t_r_ccu_clks[] = {
+ 	&ar100_clk.common,
+-	&a83t_apb0_clk.common,
++	&apb0_clk.common,
+ 	&apb0_pio_clk.common,
+ 	&apb0_ir_clk.common,
+ 	&apb0_timer_clk.common,
+@@ -167,7 +155,7 @@ static struct clk_hw_onecell_data sun8i_a83t_r_hw_clks = {
+ 	.hws	= {
+ 		[CLK_AR100]		= &ar100_clk.common.hw,
+ 		[CLK_AHB0]		= &ahb0_clk.hw,
+-		[CLK_APB0]		= &a83t_apb0_clk.common.hw,
++		[CLK_APB0]		= &apb0_clk.common.hw,
+ 		[CLK_APB0_PIO]		= &apb0_pio_clk.common.hw,
+ 		[CLK_APB0_IR]		= &apb0_ir_clk.common.hw,
+ 		[CLK_APB0_TIMER]	= &apb0_timer_clk.common.hw,
+@@ -282,9 +270,6 @@ static void __init sunxi_r_ccu_init(struct device_node *node,
+ 
+ static void __init sun8i_a83t_r_ccu_setup(struct device_node *node)
+ {
+-	/* Fix apb0 bus gate parents here */
+-	apb0_gate_parent[0] = &a83t_apb0_clk.common.hw;
+-
+ 	sunxi_r_ccu_init(node, &sun8i_a83t_r_ccu_desc);
+ }
+ CLK_OF_DECLARE(sun8i_a83t_r_ccu, "allwinner,sun8i-a83t-r-ccu",
 -- 
 2.20.1
 
