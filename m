@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A295A147637
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF6F14763F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730807AbgAXBR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:17:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33024 "EHLO mail.kernel.org"
+        id S1730177AbgAXBSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:18:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729316AbgAXBR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:57 -0500
+        id S1730816AbgAXBR6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 563E721D7E;
-        Fri, 24 Jan 2020 01:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A428021D7D;
+        Fri, 24 Jan 2020 01:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828676;
-        bh=xjiIuT2evy8epx2GISn700fzYHTLGE7gpt2NB0cwO60=;
+        s=default; t=1579828677;
+        bh=8Fe2iBeciYBwPKPi0FEOt8js/IBKrjykSDBPJL7NGm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lEpOucFuMhjdV97nN50aalPNQfiAjn0tiqKQutag4+oFEQlu2W35BU9okjRFNpUR
-         pONDzLncejMEcVedeADipaQWxB1V+tbKHjLm0ezNaP7SXELnw4pf+obkRLwqzy0FNx
-         NvWqm99hWn1BB7MPXOaIhwemDHKksI5A48g4BGy4=
+        b=Q4i0vFAwbCzRswYWIvt02R853RU3yI5PNYOSvSa7ALYzc5GaRJezqWVs3D1PTModo
+         zc9OPBOc1QL/8W8f0h463CKNVSh7tYEmcQo5aBdi7mb/BdqnZ/vXj6rUKd09CKJNqU
+         z+J99CDZLmiGSHaGk5QvFYNixdIj47+HkRRBH9IY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laura Abbott <labbott@fedoraproject.org>,
-        Steven Ellis <sellis@redhat.com>,
-        Pacho Ramos <pachoramos@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 4.19 07/11] usb-storage: Disable UAS on JMicron SATA enclosure
-Date:   Thu, 23 Jan 2020 20:17:43 -0500
-Message-Id: <20200124011747.18575-7-sashal@kernel.org>
+Cc:     Priit Laes <plaes@plaes.org>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 08/11] HID: Add quirk for Xin-Mo Dual Controller
+Date:   Thu, 23 Jan 2020 20:17:44 -0500
+Message-Id: <20200124011747.18575-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011747.18575-1-sashal@kernel.org>
 References: <20200124011747.18575-1-sashal@kernel.org>
@@ -46,45 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@fedoraproject.org>
+From: Priit Laes <plaes@plaes.org>
 
-[ Upstream commit bc3bdb12bbb3492067c8719011576370e959a2e6 ]
+[ Upstream commit c62f7cd8ed066a93a243643ebf57ca99f754388e ]
 
-Steve Ellis reported incorrect block sizes and alignement
-offsets with a SATA enclosure. Adding a quirk to disable
-UAS fixes the problems.
+Without the quirk, joystick shows up as single controller
+for both first and second player pads/pins.
 
-Reported-by: Steven Ellis <sellis@redhat.com>
-Cc: Pacho Ramos <pachoramos@gmail.com>
-Signed-off-by: Laura Abbott <labbott@fedoraproject.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Priit Laes <plaes@plaes.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/hid/hid-quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index d0bdebd87ce3a..1b23741036ee8 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -87,12 +87,15 @@ UNUSUAL_DEV(0x2537, 0x1068, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 57d6fe9ed4163..b9529bed4d763 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -175,6 +175,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
  
--/* Reported-by: Takeo Nakayama <javhera@gmx.com> */
-+/*
-+ * Initially Reported-by: Takeo Nakayama <javhera@gmx.com>
-+ * UAS Ignore Reported by Steven Ellis <sellis@redhat.com>
-+ */
- UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
- 		"JMicron",
- 		"JMS566",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_NO_REPORT_OPCODES),
-+		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
- 
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
+ 	{ 0 }
+ };
 -- 
 2.20.1
 
