@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 796D1147B9B
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5729C147B9D
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:45:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732464AbgAXJpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:45:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
+        id S2387443AbgAXJpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:45:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732257AbgAXJpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:45:03 -0500
+        id S1732257AbgAXJpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:45:06 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 814E420718;
-        Fri, 24 Jan 2020 09:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D01620718;
+        Fri, 24 Jan 2020 09:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859102;
-        bh=+eFq1Vi9Mp4gWPRSaTrPqaP333Ytd51PTucRNr71yOM=;
+        s=default; t=1579859106;
+        bh=X4amnK01gW+2xfYpl8AWAM09rH3DOAbZ03jIt5KWxTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntfVh2AxEUWw1so0YHOe1myeoBXSOEB0Qi9ILCUO4Pz+ytqMNIrhgHPZFX2CE3H6p
-         7+eDy1cPiocY9Ub9tMMN+BZbyrTKc3QXeNdNAmP+BO+gWbMutrkfwNcBzK7OZfiY72
-         lCT+oJDRfLaL1jil9pl9JnzChPlli9jaKINNfHWs=
+        b=p/V747UfmbX7ICTTWUAPkFxpqMKwlQvnyscTDVEnKAyyo2+/NxufuzKGTjYnzS6DE
+         XB9oiet7PrJ8jWyy4jwbq0KrGkbi+HtNFKSTqzNLbxQnOXqFTB7ckjsJwcC+9926Cv
+         MZHcfJPy8vUYgzrWxpqFQ9bvJ0EybdAJB+sumAxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Kelvin Cao <kelvin.cao@microchip.com>,
+        Wesley Sheng <wesley.sheng@microchip.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 029/343] staging: bcm2835-camera: Abort probe if there is no camera
-Date:   Fri, 24 Jan 2020 10:27:27 +0100
-Message-Id: <20200124092923.664049032@linuxfoundation.org>
+Subject: [PATCH 4.14 030/343] switchtec: Remove immediate status check after submitting MRPC command
+Date:   Fri, 24 Jan 2020 10:27:28 +0100
+Message-Id: <20200124092923.791491353@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -45,51 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Kelvin Cao <kelvin.cao@microchip.com>
 
-[ Upstream commit 7566f39dfdc11f8a97d5810c6e6295a88f97ef91 ]
+[ Upstream commit 526180408b815aa7b96fd48bd23cdd33ef04e38e ]
 
-Abort the probing of the camera driver in case there isn't a camera
-actually connected to the Raspberry Pi. This solution also avoids a
-NULL ptr dereference of mmal instance on driver unload.
+After submitting a Firmware Download MRPC command, Switchtec firmware will
+delay Management EP BAR MemRd TLP responses by more than 10ms.  This is a
+firmware limitation.  Delayed MemRd completions are a problem for systems
+with a low Completion Timeout (CTO).
 
-Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The current driver checks the MRPC status immediately after submitting an
+MRPC command, which results in a delayed MemRd completion that may cause a
+Completion Timeout.
+
+Remove the immediate status check and rely on the check after receiving an
+interrupt or timing out.
+
+This is only a software workaround to the READ issue and a proper fix of
+this should be done in firmware.
+
+Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
+Signed-off-by: Kelvin Cao <kelvin.cao@microchip.com>
+Signed-off-by: Wesley Sheng <wesley.sheng@microchip.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../vc04_services/bcm2835-camera/bcm2835-camera.c        | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pci/switch/switchtec.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-index 377da037f31c3..b521752d9aa01 100644
---- a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-@@ -1849,6 +1849,12 @@ static int __init bm2835_mmal_init(void)
- 	num_cameras = get_num_cameras(instance,
- 				      resolutions,
- 				      MAX_BCM2835_CAMERAS);
-+
-+	if (num_cameras < 1) {
-+		ret = -ENODEV;
-+		goto cleanup_mmal;
-+	}
-+
- 	if (num_cameras > MAX_BCM2835_CAMERAS)
- 		num_cameras = MAX_BCM2835_CAMERAS;
+diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+index 0941555b84a52..73dba2739849b 100644
+--- a/drivers/pci/switch/switchtec.c
++++ b/drivers/pci/switch/switchtec.c
+@@ -399,10 +399,6 @@ static void mrpc_cmd_submit(struct switchtec_dev *stdev)
+ 		    stuser->data, stuser->data_len);
+ 	iowrite32(stuser->cmd, &stdev->mmio_mrpc->cmd);
  
-@@ -1948,6 +1954,9 @@ cleanup_gdev:
- 	pr_info("%s: error %d while loading driver\n",
- 		BM2835_MMAL_MODULE_NAME, ret);
- 
-+cleanup_mmal:
-+	vchiq_mmal_finalise(instance);
-+
- 	return ret;
+-	stuser->status = ioread32(&stdev->mmio_mrpc->status);
+-	if (stuser->status != SWITCHTEC_MRPC_STATUS_INPROGRESS)
+-		mrpc_complete_cmd(stdev);
+-
+ 	schedule_delayed_work(&stdev->mrpc_timeout,
+ 			      msecs_to_jiffies(500));
  }
- 
 -- 
 2.20.1
 
