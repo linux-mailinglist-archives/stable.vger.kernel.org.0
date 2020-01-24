@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F910147AA5
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:37:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BBC147AA7
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:37:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730135AbgAXJgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:36:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
+        id S1729122AbgAXJgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:36:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbgAXJgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:36:42 -0500
+        id S1726695AbgAXJgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:36:46 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335572070A;
-        Fri, 24 Jan 2020 09:36:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0C832087E;
+        Fri, 24 Jan 2020 09:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858601;
-        bh=2BOKliKYONPM7G3oQGicFAME9v7YSWM/c/y81Ych7cE=;
+        s=default; t=1579858605;
+        bh=s4GsLQ3Nay7jIeN2aeWUG5EVdhTwGoAYzbUUuzGRars=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLb07CSH4aZnPQfTGKHymrioyEAR5LPSCcX/Bd3OKzOdp/I3IwM3Q5gR21L/ijwOd
-         EgcAi2gD58Pksuy5qujwW+wJ0dXCkBCd2aNoDkY4qixa1xlHsSOWUyfaGbbhPWPW7p
-         zw+OSVpRklycXK4CcuDCenWLwsfSvZ+vzyOWpsZU=
+        b=xIQt1/P/sSfHGdJNXj5i8TE9ikNwLbeNHfic2K2I9aqVUU772to6v2nvE76XyH81E
+         zomCrGTFYKxesNpV8IIyG9w21Rs6EYL+SMYh42xrFSSeqaPrJ6mJRORC3SK94JGXyl
+         e7M/z+eUBDT6wVyJKqIG8QZ+4fogw/5Anql+g8fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 003/343] powerpc/archrandom: fix arch_get_random_seed_int()
-Date:   Fri, 24 Jan 2020 10:27:01 +0100
-Message-Id: <20200124092919.983473574@linuxfoundation.org>
+        stable@vger.kernel.org, Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 004/343] tipc: fix wrong timeout input for tipc_wait_for_cond()
+Date:   Fri, 24 Jan 2020 10:27:02 +0100
+Message-Id: <20200124092920.128807644@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -43,43 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-commit b6afd1234cf93aa0d71b4be4788c47534905f0be upstream.
+commit 12db3c8083fcab4270866a88191933f2d9f24f89 upstream.
 
-Commit 01c9348c7620ec65
+In function __tipc_shutdown(), the timeout value passed to
+tipc_wait_for_cond() is not jiffies.
 
-  powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*
+This commit fixes it by converting that value from milliseconds
+to jiffies.
 
-updated arch_get_random_[int|long]() to be NOPs, and moved the hardware
-RNG backing to arch_get_random_seed_[int|long]() instead. However, it
-failed to take into account that arch_get_random_int() was implemented
-in terms of arch_get_random_long(), and so we ended up with a version
-of the former that is essentially a NOP as well.
-
-Fix this by calling arch_get_random_seed_long() from
-arch_get_random_seed_int() instead.
-
-Fixes: 01c9348c7620ec65 ("powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191204115015.18015-1-ardb@kernel.org
+Fixes: 365ad353c256 ("tipc: reduce risk of user starvation during link congestion")
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/archrandom.h |    2 +-
+ net/tipc/socket.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -28,7 +28,7 @@ static inline int arch_get_random_seed_i
- 	unsigned long val;
- 	int rc;
- 
--	rc = arch_get_random_long(&val);
-+	rc = arch_get_random_seed_long(&val);
- 	if (rc)
- 		*v = val;
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -487,7 +487,7 @@ static void __tipc_shutdown(struct socke
+ 	struct sock *sk = sock->sk;
+ 	struct tipc_sock *tsk = tipc_sk(sk);
+ 	struct net *net = sock_net(sk);
+-	long timeout = CONN_TIMEOUT_DEFAULT;
++	long timeout = msecs_to_jiffies(CONN_TIMEOUT_DEFAULT);
+ 	u32 dnode = tsk_peer_node(tsk);
+ 	struct sk_buff *skb;
  
 
 
