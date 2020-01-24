@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D406147ABF
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F751147AC1
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:40:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731123AbgAXJhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:37:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34776 "EHLO mail.kernel.org"
+        id S1731165AbgAXJhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:37:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731117AbgAXJhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:37:32 -0500
+        id S1731117AbgAXJhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:37:36 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26C7520838;
-        Fri, 24 Jan 2020 09:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6272B2087E;
+        Fri, 24 Jan 2020 09:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858652;
-        bh=LdMtAhIRiJYllcyWrGJwebZShdEmQUxBWrHKPuLMNuA=;
+        s=default; t=1579858656;
+        bh=RjDUI98HAqHd50YG3eZo+wZaN3CrmXTcY7Au7dHUg0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZEm1EGLJbKyyPgc0Eb+7puxW0tu8/CL0+lJEacJm6I/wbX/m8QaWivnG/Dx/u+7En
-         8ztPzNw1Uu2BI28KPkfE75dttb08jMczP+6Jczm5iM5hAhvfIEok4kv61jtAK7+u4M
-         97Op4SwjRc0blpapjGBeBvWt/UYCsiLVUMl/W488=
+        b=h1Gn6NU7WzccaX3KZ1uPCWCqo2ZZiD7nkK3sbSf97WRM6VlvVZUbE1mGocbxDXFxU
+         T3R0+2/uPkljsDg7Wtyitg5XSabBFUzQXWLiaANuUySd7APd5kQ06MI/c3mn9L8H99
+         h1aFDK9HZnQLce7AdJE/6bM+p+lvqeOxZzygjWNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Waiman Long <longman@redhat.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 001/639] Revert "efi: Fix debugobjects warning on efi_rts_work"
-Date:   Fri, 24 Jan 2020 10:22:51 +0100
-Message-Id: <20200124093047.257102718@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
+        Jan Kara <jack@suse.cz>, Eric Sandeen <sandeen@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: [PATCH 4.19 002/639] xfs: Sanity check flags of Q_XQUOTARM call
+Date:   Fri, 24 Jan 2020 10:22:52 +0100
+Message-Id: <20200124093047.381188475@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,39 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jan Kara <jack@suse.cz>
 
-This reverts commit 3e6b472f474accf757e107919f8ee42e7315ac0d which is
-commit ef1491e791308317bb9851a0ad380c4a68b58d54 upstream.
+commit 3dd4d40b420846dd35869ccc8f8627feef2cff32 upstream.
 
-Chris reports that this commit has problems and should not have been
-backported to 4.19.y
+Flags passed to Q_XQUOTARM were not sanity checked for invalid values.
+Fix that.
 
-Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
+Fixes: 9da93f9b7cdf ("xfs: fix Q_XQUOTARM ioctl")
+Reported-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/firmware/efi/runtime-wrappers.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -95,7 +95,7 @@ struct efi_runtime_work {
- 	efi_rts_work.status = EFI_ABORTED;				\
- 									\
- 	init_completion(&efi_rts_work.efi_rts_comp);			\
--	INIT_WORK(&efi_rts_work.work, efi_call_rts);			\
-+	INIT_WORK_ONSTACK(&efi_rts_work.work, efi_call_rts);		\
- 	efi_rts_work.arg1 = _arg1;					\
- 	efi_rts_work.arg2 = _arg2;					\
- 	efi_rts_work.arg3 = _arg3;					\
+---
+ fs/xfs/xfs_quotaops.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/fs/xfs/xfs_quotaops.c
++++ b/fs/xfs/xfs_quotaops.c
+@@ -202,6 +202,9 @@ xfs_fs_rm_xquota(
+ 	if (XFS_IS_QUOTA_ON(mp))
+ 		return -EINVAL;
+ 
++	if (uflags & ~(FS_USER_QUOTA | FS_GROUP_QUOTA | FS_PROJ_QUOTA))
++		return -EINVAL;
++
+ 	if (uflags & FS_USER_QUOTA)
+ 		flags |= XFS_DQ_USER;
+ 	if (uflags & FS_GROUP_QUOTA)
 
 
