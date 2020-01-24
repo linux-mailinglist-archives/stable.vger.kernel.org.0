@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E70A61481B0
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F761481B2
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:22:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390923AbgAXLWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:22:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32774 "EHLO mail.kernel.org"
+        id S2391154AbgAXLWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:22:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387407AbgAXLWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:22:01 -0500
+        id S2387407AbgAXLWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:22:05 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B25022077C;
-        Fri, 24 Jan 2020 11:21:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5A762075D;
+        Fri, 24 Jan 2020 11:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864920;
-        bh=1CALuaOOM/VwzPqkDA6OmFCVVQCzwi3w2moNt9t3L2Y=;
+        s=default; t=1579864923;
+        bh=dXKVoZ3TXP/8Vc1N6CdayeWVUoSu9hhrM7t5/chvkFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWp2SxA/0d7SNgT/+cmor31lJWF9HjL2v3VP5iqPMSvuUAFkX6xoS3ii5X6bQ/TNl
-         QfObpVovaOJ5UmjK1QYah8Z3kvayNpCSWpp5//Inq057Xejb6gaLwdb8ZS94Ch7McS
-         n++A6M9Lfjc561KkNHQ3mfh4PdtPNEMYBFO4Vx/8=
+        b=fNGMsy+D9t5RSCrmm5Ha5ap+Jg0jIZugcbfdCensYkXOnk6L5rR4Ckgc8nWibnaFL
+         CStNO5ipWzIxYrtP0V+9FtPCyVs9KsZ5ZqOQQmPXt0oTWDC9cmis4nlu3jDMNo3FLx
+         99aCMctKIPjATb+082ZBr7DM44PLL2J7m0ss4M9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 388/639] serial: stm32: fix word length configuration
-Date:   Fri, 24 Jan 2020 10:29:18 +0100
-Message-Id: <20200124093135.559514503@linuxfoundation.org>
+Subject: [PATCH 4.19 389/639] serial: stm32: fix rx error handling
+Date:   Fri, 24 Jan 2020 10:29:19 +0100
+Message-Id: <20200124093135.685638101@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -45,131 +45,160 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@st.com>
 
-[ Upstream commit c8a9d043947b4acb19a65f7fac2bd0893e581cd5 ]
+[ Upstream commit 4f01d833fdcdd6f9b85d9e5d5d7568eb683626a7 ]
 
-STM32 supports either:
-- 8 and 9 bits word length (including parity bit) for stm32f4 compatible
-  devices
-- 7, 8 and 9 bits word length (including parity bit) for stm32f7 and
-  stm32h7 compatible devices.
+- Fixes parity and framing error bit by clearing parity and framing error
+  flag. The current implementation doesn't clear the error bits when an
+  error is detected.
+- Fixes the incorrect name of framing error clearing flag in header file.
+- Fixes misalignement between data frame and errors status. The status
+  read for "n" frame was the status of "n+1" frame".
+- Fixes break detection was not triggered by the expected register.
 
-As a consequence STM32 supports the following termios configurations:
-- CS7 with parity bit, and CS8 (with or without parity bit) for stm32f4
-  compatible devices.
-- CS6 with parity bit, CS7 and CS8 (with or without parity bit) for
-  stm32f7 and stm32h7 compatible devices.
-
-This patch is fixing word length by configuring correctly the SoC with
-supported configurations.
-
-Fixes: ada8618ff3bf ("serial: stm32: adding support for stm32f7")
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
 Signed-off-by: Erwan Le Ray <erwan.leray@st.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 56 ++++++++++++++++++++++++++++----
- drivers/tty/serial/stm32-usart.h |  3 +-
- 2 files changed, 50 insertions(+), 9 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 54 +++++++++++++++++++++-----------
+ drivers/tty/serial/stm32-usart.h | 10 ++----
+ 2 files changed, 37 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index e8d7a7bb4339e..e8321850938af 100644
+index e8321850938af..f6b739351ddec 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -599,6 +599,36 @@ static void stm32_shutdown(struct uart_port *port)
- 	free_irq(port->irq, port);
- }
+@@ -225,35 +225,51 @@ static void stm32_receive_chars(struct uart_port *port, bool threaded)
  
-+unsigned int stm32_get_databits(struct ktermios *termios)
-+{
-+	unsigned int bits;
-+
-+	tcflag_t cflag = termios->c_cflag;
-+
-+	switch (cflag & CSIZE) {
-+	/*
-+	 * CSIZE settings are not necessarily supported in hardware.
-+	 * CSIZE unsupported configurations are handled here to set word length
-+	 * to 8 bits word as default configuration and to print debug message.
-+	 */
-+	case CS5:
-+		bits = 5;
-+		break;
-+	case CS6:
-+		bits = 6;
-+		break;
-+	case CS7:
-+		bits = 7;
-+		break;
-+	/* default including CS8 */
-+	default:
-+		bits = 8;
-+		break;
-+	}
-+
-+	return bits;
-+}
-+
- static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
- 			    struct ktermios *old)
- {
-@@ -606,7 +636,7 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
- 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
- 	struct stm32_usart_config *cfg = &stm32_port->info->cfg;
- 	struct serial_rs485 *rs485conf = &port->rs485;
--	unsigned int baud;
-+	unsigned int baud, bits;
- 	u32 usartdiv, mantissa, fraction, oversampling;
- 	tcflag_t cflag = termios->c_cflag;
- 	u32 cr1, cr2, cr3;
-@@ -632,16 +662,28 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
- 	if (cflag & CSTOPB)
- 		cr2 |= USART_CR2_STOP_2B;
+ 	while (stm32_pending_rx(port, &sr, &stm32_port->last_res, threaded)) {
+ 		sr |= USART_SR_DUMMY_RX;
+-		c = stm32_get_char(port, &sr, &stm32_port->last_res);
+ 		flag = TTY_NORMAL;
+-		port->icount.rx++;
  
-+	bits = stm32_get_databits(termios);
++		/*
++		 * Status bits has to be cleared before reading the RDR:
++		 * In FIFO mode, reading the RDR will pop the next data
++		 * (if any) along with its status bits into the SR.
++		 * Not doing so leads to misalignement between RDR and SR,
++		 * and clear status bits of the next rx data.
++		 *
++		 * Clear errors flags for stm32f7 and stm32h7 compatible
++		 * devices. On stm32f4 compatible devices, the error bit is
++		 * cleared by the sequence [read SR - read DR].
++		 */
++		if ((sr & USART_SR_ERR_MASK) && ofs->icr != UNDEF_REG)
++			stm32_clr_bits(port, ofs->icr, USART_ICR_ORECF |
++				       USART_ICR_PECF | USART_ICR_FECF);
 +
- 	if (cflag & PARENB) {
-+		bits++;
- 		cr1 |= USART_CR1_PCE;
--		if ((cflag & CSIZE) == CS8) {
--			if (cfg->has_7bits_data)
--				cr1 |= USART_CR1_M0;
--			else
--				cr1 |= USART_CR1_M;
--		}
- 	}
++		c = stm32_get_char(port, &sr, &stm32_port->last_res);
++		port->icount.rx++;
+ 		if (sr & USART_SR_ERR_MASK) {
+-			if (sr & USART_SR_LBD) {
+-				port->icount.brk++;
+-				if (uart_handle_break(port))
+-					continue;
+-			} else if (sr & USART_SR_ORE) {
+-				if (ofs->icr != UNDEF_REG)
+-					writel_relaxed(USART_ICR_ORECF,
+-						       port->membase +
+-						       ofs->icr);
++			if (sr & USART_SR_ORE) {
+ 				port->icount.overrun++;
+ 			} else if (sr & USART_SR_PE) {
+ 				port->icount.parity++;
+ 			} else if (sr & USART_SR_FE) {
+-				port->icount.frame++;
++				/* Break detection if character is null */
++				if (!c) {
++					port->icount.brk++;
++					if (uart_handle_break(port))
++						continue;
++				} else {
++					port->icount.frame++;
++				}
+ 			}
  
-+	/*
-+	 * Word length configuration:
-+	 * CS8 + parity, 9 bits word aka [M1:M0] = 0b01
-+	 * CS7 or (CS6 + parity), 7 bits word aka [M1:M0] = 0b10
-+	 * CS8 or (CS7 + parity), 8 bits word aka [M1:M0] = 0b00
-+	 * M0 and M1 already cleared by cr1 initialization.
-+	 */
-+	if (bits == 9)
-+		cr1 |= USART_CR1_M0;
-+	else if ((bits == 7) && cfg->has_7bits_data)
-+		cr1 |= USART_CR1_M1;
-+	else if (bits != 8)
-+		dev_dbg(port->dev, "Unsupported data bits config: %u bits\n"
-+			, bits);
-+
- 	if (cflag & PARODD)
- 		cr1 |= USART_CR1_PS;
+ 			sr &= port->read_status_mask;
  
+-			if (sr & USART_SR_LBD)
+-				flag = TTY_BREAK;
+-			else if (sr & USART_SR_PE)
++			if (sr & USART_SR_PE) {
+ 				flag = TTY_PARITY;
+-			else if (sr & USART_SR_FE)
+-				flag = TTY_FRAME;
++			} else if (sr & USART_SR_FE) {
++				if (!c)
++					flag = TTY_BREAK;
++				else
++					flag = TTY_FRAME;
++			}
+ 		}
+ 
+ 		if (uart_handle_sysrq_char(port, c))
+@@ -721,14 +737,14 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	if (termios->c_iflag & INPCK)
+ 		port->read_status_mask |= USART_SR_PE | USART_SR_FE;
+ 	if (termios->c_iflag & (IGNBRK | BRKINT | PARMRK))
+-		port->read_status_mask |= USART_SR_LBD;
++		port->read_status_mask |= USART_SR_FE;
+ 
+ 	/* Characters to ignore */
+ 	port->ignore_status_mask = 0;
+ 	if (termios->c_iflag & IGNPAR)
+ 		port->ignore_status_mask = USART_SR_PE | USART_SR_FE;
+ 	if (termios->c_iflag & IGNBRK) {
+-		port->ignore_status_mask |= USART_SR_LBD;
++		port->ignore_status_mask |= USART_SR_FE;
+ 		/*
+ 		 * If we're ignoring parity and break indicators,
+ 		 * ignore overruns too (for real raw support).
 diff --git a/drivers/tty/serial/stm32-usart.h b/drivers/tty/serial/stm32-usart.h
-index 6f294e280ea30..a70aa5006ab97 100644
+index a70aa5006ab97..8d34802e572ed 100644
 --- a/drivers/tty/serial/stm32-usart.h
 +++ b/drivers/tty/serial/stm32-usart.h
-@@ -151,8 +151,7 @@ struct stm32_usart_info stm32h7_info = {
- #define USART_CR1_PS		BIT(9)
- #define USART_CR1_PCE		BIT(10)
- #define USART_CR1_WAKE		BIT(11)
--#define USART_CR1_M		BIT(12)
--#define USART_CR1_M0		BIT(12)		/* F7 */
-+#define USART_CR1_M0		BIT(12)		/* F7 (CR1_M for F4) */
- #define USART_CR1_MME		BIT(13)		/* F7 */
- #define USART_CR1_CMIE		BIT(14)		/* F7 */
- #define USART_CR1_OVER8		BIT(15)
+@@ -108,7 +108,6 @@ struct stm32_usart_info stm32h7_info = {
+ #define USART_SR_RXNE		BIT(5)
+ #define USART_SR_TC		BIT(6)
+ #define USART_SR_TXE		BIT(7)
+-#define USART_SR_LBD		BIT(8)
+ #define USART_SR_CTSIF		BIT(9)
+ #define USART_SR_CTS		BIT(10)		/* F7 */
+ #define USART_SR_RTOF		BIT(11)		/* F7 */
+@@ -120,8 +119,7 @@ struct stm32_usart_info stm32h7_info = {
+ #define USART_SR_SBKF		BIT(18)		/* F7 */
+ #define USART_SR_WUF		BIT(20)		/* H7 */
+ #define USART_SR_TEACK		BIT(21)		/* F7 */
+-#define USART_SR_ERR_MASK	(USART_SR_LBD | USART_SR_ORE | \
+-				 USART_SR_FE | USART_SR_PE)
++#define USART_SR_ERR_MASK	(USART_SR_ORE | USART_SR_FE | USART_SR_PE)
+ /* Dummy bits */
+ #define USART_SR_DUMMY_RX	BIT(16)
+ 
+@@ -168,8 +166,6 @@ struct stm32_usart_info stm32h7_info = {
+ /* USART_CR2 */
+ #define USART_CR2_ADD_MASK	GENMASK(3, 0)	/* F4 */
+ #define USART_CR2_ADDM7		BIT(4)		/* F7 */
+-#define USART_CR2_LBDL		BIT(5)
+-#define USART_CR2_LBDIE		BIT(6)
+ #define USART_CR2_LBCL		BIT(8)
+ #define USART_CR2_CPHA		BIT(9)
+ #define USART_CR2_CPOL		BIT(10)
+@@ -226,12 +222,10 @@ struct stm32_usart_info stm32h7_info = {
+ 
+ /* USART_ICR */
+ #define USART_ICR_PECF		BIT(0)		/* F7 */
+-#define USART_ICR_FFECF		BIT(1)		/* F7 */
+-#define USART_ICR_NCF		BIT(2)		/* F7 */
++#define USART_ICR_FECF		BIT(1)		/* F7 */
+ #define USART_ICR_ORECF		BIT(3)		/* F7 */
+ #define USART_ICR_IDLECF	BIT(4)		/* F7 */
+ #define USART_ICR_TCCF		BIT(6)		/* F7 */
+-#define USART_ICR_LBDCF		BIT(8)		/* F7 */
+ #define USART_ICR_CTSCF		BIT(9)		/* F7 */
+ #define USART_ICR_RTOCF		BIT(11)		/* F7 */
+ #define USART_ICR_EOBCF		BIT(12)		/* F7 */
 -- 
 2.20.1
 
