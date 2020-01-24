@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C999614764B
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6107147647
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731131AbgAXBTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:19:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
+        id S1730745AbgAXBRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:17:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729504AbgAXBRv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:51 -0500
+        id S1730035AbgAXBRw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D77324691;
-        Fri, 24 Jan 2020 01:17:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1D202253D;
+        Fri, 24 Jan 2020 01:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828670;
-        bh=/725mQE0pLiU1D6ulEOt18A2RFyO+sN4CjajKAlYmIU=;
+        s=default; t=1579828671;
+        bh=5zkD8g7X0trOuWlFmb0GO+S7roKuMSJa0/veDwFR97M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y48DWO7P5aTaF75pVueY78mNWZYTC2Ro0PiUlUMKN3nEo5lUy3VqedbR7XXcWQOtI
-         IbAzJ6o87Y9T3hUy2PfJR0YOTykDRdMrTlqW1Ums/ffS8yUjaYX0E95z05KBRMifmK
-         XfHMWuyj+L8Si2AaD37bMa9VNVB/zptbkuDUGEqE=
+        b=Oz4m/6/ACLcFQo8Ua1NgsCB2xhvb73R+5CVrhZyeRuZk4UuE4kTsr8+sJ5oye06FN
+         nsgqCUcXp6PITr6A+dqr8QhzqTERS+oGIVcNNTJEOtwfTAQ89qbRYKo3AZhjlZNVVL
+         X0casbu71e4ygwyOKWRNUbkesdbFirZlLRWuIGfo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Slawomir Pawlowski <slawomir.pawlowski@intel.com>,
-        Przemek Kitszel <przemyslawx.kitszel@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/11] PCI: Add DMA alias quirk for Intel VCA NTB
-Date:   Thu, 23 Jan 2020 20:17:38 -0500
-Message-Id: <20200124011747.18575-2-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 03/11] iommu/amd: Support multiple PCI DMA aliases in IRQ Remapping
+Date:   Thu, 23 Jan 2020 20:17:39 -0500
+Message-Id: <20200124011747.18575-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011747.18575-1-sashal@kernel.org>
 References: <20200124011747.18575-1-sashal@kernel.org>
@@ -44,78 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Pawlowski <slawomir.pawlowski@intel.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 56b4cd4b7da9ee95778eb5c8abea49f641ebfd91 ]
+[ Upstream commit 3c124435e8dd516df4b2fc983f4415386fd6edae ]
 
-Intel Visual Compute Accelerator (VCA) is a family of PCIe add-in devices
-exposing computational units via Non Transparent Bridges (NTB, PEX 87xx).
+Non-Transparent Bridge (NTB) devices (among others) may have many DMA
+aliases seeing the hardware will send requests with different device ids
+depending on their origin across the bridged hardware.
 
-Similarly to MIC x200, we need to add DMA aliases to allow buffer access
-when IOMMU is enabled.
+See commit ad281ecf1c7d ("PCI: Add DMA alias quirk for Microsemi Switchtec
+NTB") for more information on this.
 
-Add aliases to allow computational unit access to host memory.  These
-aliases mark the whole VCA device as one IOMMU group.
+The AMD IOMMU IRQ remapping functionality ignores all PCI aliases for
+IRQs so if devices send an interrupt from one of their aliases they
+will be blocked on AMD hardware with the IOMMU enabled.
 
-All possible slot numbers (0x20) are used, since we are unable to tell what
-slot is used on other side.  This quirk is intended for both host and
-computational unit sides.  The VCA devices have up to five functions: four
-for DMA channels and one additional.
+To fix this, ensure IRQ remapping is enabled for all aliases with
+MSI interrupts.
 
-Link: https://lore.kernel.org/r/5683A335CC8BE1438C3C30C49DCC38DF637CED8E@IRSMSX102.ger.corp.intel.com
-Signed-off-by: Slawomir Pawlowski <slawomir.pawlowski@intel.com>
-Signed-off-by: Przemek Kitszel <przemyslawx.kitszel@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+This is analogous to the functionality added to the Intel IRQ remapping
+code in commit 3f0c625c6ae7 ("iommu/vt-d: Allow interrupts from the entire
+bus for aliased devices")
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ drivers/iommu/amd_iommu.c | 37 ++++++++++++++++++++++++++++++-------
+ 1 file changed, 30 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 20a57a48ae1e4..ae7b3a2ade0ef 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3986,6 +3986,40 @@ static void quirk_mic_x200_dma_alias(struct pci_dev *pdev)
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2260, quirk_mic_x200_dma_alias);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2264, quirk_mic_x200_dma_alias);
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 9991386fb7000..c60c9829d37fd 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -3707,7 +3707,20 @@ static void set_remap_table_entry(struct amd_iommu *iommu, u16 devid,
+ 	iommu_flush_dte(iommu, devid);
+ }
  
-+/*
-+ * Intel Visual Compute Accelerator (VCA) is a family of PCIe add-in devices
-+ * exposing computational units via Non Transparent Bridges (NTB, PEX 87xx).
-+ *
-+ * Similarly to MIC x200, we need to add DMA aliases to allow buffer access
-+ * when IOMMU is enabled.  These aliases allow computational unit access to
-+ * host memory.  These aliases mark the whole VCA device as one IOMMU
-+ * group.
-+ *
-+ * All possible slot numbers (0x20) are used, since we are unable to tell
-+ * what slot is used on other side.  This quirk is intended for both host
-+ * and computational unit sides.  The VCA devices have up to five functions
-+ * (four for DMA channels and one additional).
-+ */
-+static void quirk_pex_vca_alias(struct pci_dev *pdev)
+-static struct irq_remap_table *alloc_irq_table(u16 devid)
++static int set_remap_table_entry_alias(struct pci_dev *pdev, u16 alias,
++				       void *data)
 +{
-+	const unsigned int num_pci_slots = 0x20;
-+	unsigned int slot;
++	struct irq_remap_table *table = data;
 +
-+	for (slot = 0; slot < num_pci_slots; slot++) {
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x0));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x1));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x2));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x3));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x4));
-+	}
++	irq_lookup_table[alias] = table;
++	set_dte_irq_entry(alias, table);
++
++	iommu_flush_dte(amd_iommu_rlookup_table[alias], alias);
++
++	return 0;
 +}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2954, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2955, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2956, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2958, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2959, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x295A, quirk_pex_vca_alias);
 +
- /*
-  * The IOMMU and interrupt controller on Broadcom Vulcan/Cavium ThunderX2 are
-  * associated not at the root bus, but at a bridge below. This quirk avoids
++static struct irq_remap_table *alloc_irq_table(u16 devid, struct pci_dev *pdev)
+ {
+ 	struct irq_remap_table *table = NULL;
+ 	struct irq_remap_table *new_table = NULL;
+@@ -3753,7 +3766,12 @@ static struct irq_remap_table *alloc_irq_table(u16 devid)
+ 	table = new_table;
+ 	new_table = NULL;
+ 
+-	set_remap_table_entry(iommu, devid, table);
++	if (pdev)
++		pci_for_each_dma_alias(pdev, set_remap_table_entry_alias,
++				       table);
++	else
++		set_remap_table_entry(iommu, devid, table);
++
+ 	if (devid != alias)
+ 		set_remap_table_entry(iommu, alias, table);
+ 
+@@ -3770,7 +3788,8 @@ static struct irq_remap_table *alloc_irq_table(u16 devid)
+ 	return table;
+ }
+ 
+-static int alloc_irq_index(u16 devid, int count, bool align)
++static int alloc_irq_index(u16 devid, int count, bool align,
++			   struct pci_dev *pdev)
+ {
+ 	struct irq_remap_table *table;
+ 	int index, c, alignment = 1;
+@@ -3780,7 +3799,7 @@ static int alloc_irq_index(u16 devid, int count, bool align)
+ 	if (!iommu)
+ 		return -ENODEV;
+ 
+-	table = alloc_irq_table(devid);
++	table = alloc_irq_table(devid, pdev);
+ 	if (!table)
+ 		return -ENODEV;
+ 
+@@ -4213,7 +4232,7 @@ static int irq_remapping_alloc(struct irq_domain *domain, unsigned int virq,
+ 		struct irq_remap_table *table;
+ 		struct amd_iommu *iommu;
+ 
+-		table = alloc_irq_table(devid);
++		table = alloc_irq_table(devid, NULL);
+ 		if (table) {
+ 			if (!table->min_index) {
+ 				/*
+@@ -4230,11 +4249,15 @@ static int irq_remapping_alloc(struct irq_domain *domain, unsigned int virq,
+ 		} else {
+ 			index = -ENOMEM;
+ 		}
+-	} else {
++	} else if (info->type == X86_IRQ_ALLOC_TYPE_MSI ||
++		   info->type == X86_IRQ_ALLOC_TYPE_MSIX) {
+ 		bool align = (info->type == X86_IRQ_ALLOC_TYPE_MSI);
+ 
+-		index = alloc_irq_index(devid, nr_irqs, align);
++		index = alloc_irq_index(devid, nr_irqs, align, info->msi_dev);
++	} else {
++		index = alloc_irq_index(devid, nr_irqs, false, NULL);
+ 	}
++
+ 	if (index < 0) {
+ 		pr_warn("Failed to allocate IRTE\n");
+ 		ret = index;
 -- 
 2.20.1
 
