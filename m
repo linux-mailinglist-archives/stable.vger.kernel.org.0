@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3E6F14883D
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 630B814872F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:21:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387426AbgAXO1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:27:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42906 "EHLO mail.kernel.org"
+        id S2389385AbgAXOVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:21:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405265AbgAXOVR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:21:17 -0500
+        id S2405270AbgAXOVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:21:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6298A21556;
-        Fri, 24 Jan 2020 14:21:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EB1F2077C;
+        Fri, 24 Jan 2020 14:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1579875677;
-        bh=3v/fM/ecCBvsIgWS4BzRSVHHVFOa8m8sqfvh1xJbbkc=;
+        bh=KCRqnPrC1zoA3FxXCtQkGkNTNDI8yiqkX4GiR5ndBRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJYrGnogD4tlnVXMNr+uLrtFxZn7XM1vg81Ns3D4sfzSdvw5ZTVX2BJvBzft4kk5r
-         7cgGj/e2YAW3qwvQ3epB0jTJ70f1fDXSFwTz79L1giJknQRPL/40pqkUVRnHt9gwB9
-         q9KrGmW0KQ8j/TgYH2OQIctRurUne+VOPii/W+d8=
+        b=lc1QAqh6C8QomWQdq62u6UcKpVE+M9+WEMhJ55vfvx1lZAmRonGY3ADuBTQi9gORb
+         8GJJuaHUIXws2p0E51zm3g58HNttI23mqS5HXz1MXSWj3uFvMRCLp2D/YUkwpYS9Mg
+         2CilCDsaqUkgIwg6J5TTzvJNzaJi+gVsXrJuz9Q8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 55/56] bnxt_en: Fix ipv6 RFS filter matching logic.
-Date:   Fri, 24 Jan 2020 09:20:11 -0500
-Message-Id: <20200124142012.29752-55-sashal@kernel.org>
+Cc:     Ilie Halip <ilie.halip@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 56/56] riscv: delete temporary files
+Date:   Fri, 24 Jan 2020 09:20:12 -0500
+Message-Id: <20200124142012.29752-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124142012.29752-1-sashal@kernel.org>
 References: <20200124142012.29752-1-sashal@kernel.org>
@@ -43,55 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Ilie Halip <ilie.halip@gmail.com>
 
-[ Upstream commit 6fc7caa84e713f7627e171ab1e7c4b5be0dc9b3d ]
+[ Upstream commit 95f4d9cced96afa9c69b3da8e79e96102c84fc60 ]
 
-Fix bnxt_fltr_match() to match ipv6 source and destination addresses.
-The function currently only checks ipv4 addresses and will not work
-corrently on ipv6 filters.
+Temporary files used in the VDSO build process linger on even after make
+mrproper: vdso-dummy.o.tmp, vdso.so.dbg.tmp.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Delete them once they're no longer needed.
+
+Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ arch/riscv/kernel/vdso/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 2f61175f5655a..5cf85a89016e0 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8215,11 +8215,23 @@ static bool bnxt_fltr_match(struct bnxt_ntuple_filter *f1,
- 	struct flow_keys *keys1 = &f1->fkeys;
- 	struct flow_keys *keys2 = &f2->fkeys;
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index eed1c137f6183..87f71a6cd3ef8 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -55,7 +55,8 @@ quiet_cmd_vdsold = VDSOLD  $@
+       cmd_vdsold = $(CC) $(KBUILD_CFLAGS) $(call cc-option, -no-pie) -nostdlib -nostartfiles $(SYSCFLAGS_$(@F)) \
+                            -Wl,-T,$(filter-out FORCE,$^) -o $@.tmp && \
+                    $(CROSS_COMPILE)objcopy \
+-                           $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@
++                           $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
++                   rm $@.tmp
  
--	if (keys1->addrs.v4addrs.src == keys2->addrs.v4addrs.src &&
--	    keys1->addrs.v4addrs.dst == keys2->addrs.v4addrs.dst &&
--	    keys1->ports.ports == keys2->ports.ports &&
--	    keys1->basic.ip_proto == keys2->basic.ip_proto &&
--	    keys1->basic.n_proto == keys2->basic.n_proto &&
-+	if (keys1->basic.n_proto != keys2->basic.n_proto ||
-+	    keys1->basic.ip_proto != keys2->basic.ip_proto)
-+		return false;
-+
-+	if (keys1->basic.n_proto == htons(ETH_P_IP)) {
-+		if (keys1->addrs.v4addrs.src != keys2->addrs.v4addrs.src ||
-+		    keys1->addrs.v4addrs.dst != keys2->addrs.v4addrs.dst)
-+			return false;
-+	} else {
-+		if (memcmp(&keys1->addrs.v6addrs.src, &keys2->addrs.v6addrs.src,
-+			   sizeof(keys1->addrs.v6addrs.src)) ||
-+		    memcmp(&keys1->addrs.v6addrs.dst, &keys2->addrs.v6addrs.dst,
-+			   sizeof(keys1->addrs.v6addrs.dst)))
-+			return false;
-+	}
-+
-+	if (keys1->ports.ports == keys2->ports.ports &&
- 	    keys1->control.flags == keys2->control.flags &&
- 	    ether_addr_equal(f1->src_mac_addr, f2->src_mac_addr) &&
- 	    ether_addr_equal(f1->dst_mac_addr, f2->dst_mac_addr))
+ # install commands for the unstripped file
+ quiet_cmd_vdso_install = INSTALL $@
 -- 
 2.20.1
 
