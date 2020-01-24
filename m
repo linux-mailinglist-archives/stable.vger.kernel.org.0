@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3798A148455
+	by mail.lfdr.de (Postfix) with ESMTP id AFA3F148456
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:44:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732914AbgAXLAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:00:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
+        id S1730572AbgAXLAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:00:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732904AbgAXLAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:00:07 -0500
+        id S1733089AbgAXLAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:00:13 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80B392071A;
-        Fri, 24 Jan 2020 11:00:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A81112075D;
+        Fri, 24 Jan 2020 11:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579863606;
-        bh=yqDdAP7xTemVVOnjv6iA4MQlsYveHUOMTAuoXetQcgM=;
+        s=default; t=1579863613;
+        bh=ZKI9m9r9ZBkJSDjSyGik+RALoIn8moPnYi4EQWm8ZBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzlqJdpC4ojs8yHXgWQk37xiD6q+fgSSQVsfo+62bxDDA8VMUDq/3jfqJvOUUaZtL
-         3uB/9149kKp7DvYKGGJOXDzJVHR/sDji3Ic7udKgQJnQ9ECnQCErPs3y1BBv8dEwOK
-         tie2Bq2+a72JbC/e5+BSbx37MExbiqbNOGz1VOPg=
+        b=CTNQMYzpUsYzamqLXxm87tVz9pV6cxIkpPIcp9henuXP2aYZTf85uOWycKh+NIZoi
+         DkuByJfDLXreQRhOUjDZpPvSkVyrDC6OlxCHH8kNcTWC/gfiA0VzDiekNDDKcv3Dtu
+         nyx+/K1a/yZu+xkirBE87pPMGbaQZDi6xUYHr0jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 025/639] ALSA: hda: fix unused variable warning
-Date:   Fri, 24 Jan 2020 10:23:15 +0100
-Message-Id: <20200124093050.429263453@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Rowand <frank.rowand@sony.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <andy.gross@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 027/639] ARM: qcom_defconfig: Enable MAILBOX
+Date:   Fri, 24 Jan 2020 10:23:17 +0100
+Message-Id: <20200124093050.738625323@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -43,48 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Frank Rowand <frank.rowand@sony.com>
 
-[ Upstream commit 5b03006d5c58ddd31caf542eef4d0269bcf265b3 ]
+[ Upstream commit 54c2678cd198f61555796bbda5e1727e6e1858f1 ]
 
-When CONFIG_X86=n function azx_snoop doesn't use the variable chip it
-only returns true.
+Problem:
+ab460a2e72da ("rpmsg: qcom_smd: Access APCS through mailbox framework"
+added a "depends on MAILBOX") to RPMSG_QCOM_SMD, thus RPMSG_QCOM_SMD
+becomes unset since MAILBOX was not enabled in qcom_defconfig and is
+not otherwise selected for the dragonboard.  When the resulting
+kernel is booted the mmc device which contains the root file system
+is not available.
 
-sound/pci/hda/hda_intel.c: In function ‘dma_alloc_pages’:
-sound/pci/hda/hda_intel.c:2002:14: warning: unused variable ‘chip’ [-Wunused-variable]
-  struct azx *chip = bus_to_azx(bus);
-              ^~~~
+Fix:
+add CONFIG_MAILBOX to qcom_defconfig
 
-Create a inline function of azx_snoop.
+Fixes: ab460a2e72da ("rpmsg: qcom_smd: Access APCS through mailbox framework"
+added a "depends on MAILBOX")
 
-Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Frank Rowand <frank.rowand@sony.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_controller.h | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/arm/configs/qcom_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
-index 8a9dd4767b1ec..63cc10604afc7 100644
---- a/sound/pci/hda/hda_controller.h
-+++ b/sound/pci/hda/hda_controller.h
-@@ -176,11 +176,10 @@ struct azx {
- #define azx_bus(chip)	(&(chip)->bus.core)
- #define bus_to_azx(_bus)	container_of(_bus, struct azx, bus.core)
- 
--#ifdef CONFIG_X86
--#define azx_snoop(chip)		((chip)->snoop)
--#else
--#define azx_snoop(chip)		true
--#endif
-+static inline bool azx_snoop(struct azx *chip)
-+{
-+	return !IS_ENABLED(CONFIG_X86) || chip->snoop;
-+}
- 
- /*
-  * macros for easy use
+diff --git a/arch/arm/configs/qcom_defconfig b/arch/arm/configs/qcom_defconfig
+index 6aa7046fb91ff..bd6440f234939 100644
+--- a/arch/arm/configs/qcom_defconfig
++++ b/arch/arm/configs/qcom_defconfig
+@@ -207,6 +207,7 @@ CONFIG_MSM_MMCC_8974=y
+ CONFIG_MSM_IOMMU=y
+ CONFIG_HWSPINLOCK=y
+ CONFIG_HWSPINLOCK_QCOM=y
++CONFIG_MAILBOX=y
+ CONFIG_REMOTEPROC=y
+ CONFIG_QCOM_ADSP_PIL=y
+ CONFIG_QCOM_Q6V5_PIL=y
 -- 
 2.20.1
 
