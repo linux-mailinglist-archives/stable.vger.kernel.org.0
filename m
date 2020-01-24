@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5662E148322
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 672A0148324
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404315AbgAXLdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:33:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53244 "EHLO mail.kernel.org"
+        id S2404625AbgAXLdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:33:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404615AbgAXLdh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:33:37 -0500
+        id S2404620AbgAXLdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:33:41 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD46206D4;
-        Fri, 24 Jan 2020 11:33:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F35822075D;
+        Fri, 24 Jan 2020 11:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865617;
-        bh=/jb/StiBkQnNp1GN92R6qCVPT5kDpfSTD9GsgwK4vug=;
+        s=default; t=1579865620;
+        bh=MK+0H2m0NwaFC2Z2/WNt1A4Nh/a09D9UD1TDwoJi0r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CzwlVZPKQGMszjmjz/k0gskyQvf2DtGSQPql+aojzJFLpojMutE6rU7LozesQxbDP
-         lAwqKFxHKNIqJyhWTv7PcDyu7IWt4aeY7pr2XVU9pOuyp3chQSJxyV8RW/4dCkH/VC
-         ko6X/lMIBDoyfcGyX1kQKE51v9im8+hjQayvpkyQ=
+        b=I5TfdPVxbsB+FMNVNBclKXNMHZoVIW3oO2/zmbFOSmfKo/bv+Lxa+n7sh0JxdXVjk
+         y8BL8oMrMdTWdDpzY2OnEfQ8mKDHWhqTLNVd1jm1+rqmm1WIXjQ2iMd2FF7vccnxzT
+         FEdHQ6zAVz13oQEofjtY2laMzfTbfk5x8AcHytto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonio Borneo <antonio.borneo@st.com>,
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 594/639] net: stmmac: fix disabling flexible PPS output
-Date:   Fri, 24 Jan 2020 10:32:44 +0100
-Message-Id: <20200124093203.802759279@linuxfoundation.org>
+Subject: [PATCH 4.19 595/639] sctp: add chunks to sk_backlog when the newsk sk_socket is not set
+Date:   Fri, 24 Jan 2020 10:32:45 +0100
+Message-Id: <20200124093203.915043986@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,45 +47,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 520cf6002147281d1e7b522bb338416b623dcb93 ]
+[ Upstream commit 819be8108fded0b9e710bbbf81193e52f7bab2f7 ]
 
-Accordingly to Synopsys documentation [1] and [2], when bit PPSEN0
-in register MAC_PPS_CONTROL is set it selects the functionality
-command in the same register, otherwise selects the functionality
-control.
-Command functionality is required to either enable (command 0x2)
-and disable (command 0x5) the flexible PPS output, but the bit
-PPSEN0 is currently set only for enabling.
+This patch is to fix a NULL-ptr deref in selinux_socket_connect_helper:
 
-Set the bit PPSEN0 to properly disable flexible PPS output.
+  [...] kasan: GPF could be caused by NULL-ptr deref or user memory access
+  [...] RIP: 0010:selinux_socket_connect_helper+0x94/0x460
+  [...] Call Trace:
+  [...]  selinux_sctp_bind_connect+0x16a/0x1d0
+  [...]  security_sctp_bind_connect+0x58/0x90
+  [...]  sctp_process_asconf+0xa52/0xfd0 [sctp]
+  [...]  sctp_sf_do_asconf+0x785/0x980 [sctp]
+  [...]  sctp_do_sm+0x175/0x5a0 [sctp]
+  [...]  sctp_assoc_bh_rcv+0x285/0x5b0 [sctp]
+  [...]  sctp_backlog_rcv+0x482/0x910 [sctp]
+  [...]  __release_sock+0x11e/0x310
+  [...]  release_sock+0x4f/0x180
+  [...]  sctp_accept+0x3f9/0x5a0 [sctp]
+  [...]  inet_accept+0xe7/0x720
 
-Tested on STM32MP15x, based on dwmac 4.10a.
+It was caused by that the 'newsk' sk_socket was not set before going to
+security sctp hook when processing asconf chunk with SCTP_PARAM_ADD_IP
+or SCTP_PARAM_SET_PRIMARY:
 
-[1] DWC Ethernet QoS Databook 4.10a October 2014
-[2] DWC Ethernet QoS Databook 5.00a September 2017
+  inet_accept()->
+    sctp_accept():
+      lock_sock():
+          lock listening 'sk'
+                                          do_softirq():
+                                            sctp_rcv():  <-- [1]
+                                                asconf chunk arrives and
+                                                enqueued in 'sk' backlog
+      sctp_sock_migrate():
+          set asoc's sk to 'newsk'
+      release_sock():
+          sctp_backlog_rcv():
+            lock 'newsk'
+            sctp_process_asconf()  <-- [2]
+            unlock 'newsk'
+    sock_graft():
+        set sk_socket  <-- [3]
 
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Fixes: 9a8a02c9d46d ("net: stmmac: Add Flexible PPS support")
+As it shows, at [1] the asconf chunk would be put into the listening 'sk'
+backlog, as accept() was holding its sock lock. Then at [2] asconf would
+get processed with 'newsk' as asoc's sk had been set to 'newsk'. However,
+'newsk' sk_socket is not set until [3], while selinux_sctp_bind_connect()
+would deref it, then kernel crashed.
+
+Here to fix it by adding the chunk to sk_backlog until newsk sk_socket is
+set when .accept() is done.
+
+Note that sk->sk_socket can be NULL when the sock is closed, so SOCK_DEAD
+flag is also needed to check in sctp_newsk_ready().
+
+Thanks to Ondrej for reviewing the code.
+
+Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Suggested-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac5.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/sctp/sctp.h |  5 +++++
+ net/sctp/input.c        | 12 +++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac5.c b/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
-index 3f4f3132e16b3..e436fa160c7d6 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
-@@ -515,6 +515,7 @@ int dwmac5_flex_pps_config(void __iomem *ioaddr, int index,
+diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
+index 2abbc15824af9..2c6570e6fcfec 100644
+--- a/include/net/sctp/sctp.h
++++ b/include/net/sctp/sctp.h
+@@ -625,4 +625,9 @@ static inline __u32 sctp_min_frag_point(struct sctp_sock *sp, __u16 datasize)
+ 	return sctp_mtu_payload(sp, SCTP_DEFAULT_MINSEGMENT, datasize);
+ }
  
- 	if (!enable) {
- 		val |= PPSCMDx(index, 0x5);
-+		val |= PPSEN0;
- 		writel(val, ioaddr + MAC_PPS_CONTROL);
- 		return 0;
++static inline bool sctp_newsk_ready(const struct sock *sk)
++{
++	return sock_flag(sk, SOCK_DEAD) || sk->sk_socket;
++}
++
+ #endif /* __net_sctp_h__ */
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index bfe29158afccb..f64d882c86985 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -255,7 +255,7 @@ int sctp_rcv(struct sk_buff *skb)
+ 		bh_lock_sock(sk);
  	}
+ 
+-	if (sock_owned_by_user(sk)) {
++	if (sock_owned_by_user(sk) || !sctp_newsk_ready(sk)) {
+ 		if (sctp_add_backlog(sk, skb)) {
+ 			bh_unlock_sock(sk);
+ 			sctp_chunk_free(chunk);
+@@ -333,7 +333,7 @@ int sctp_backlog_rcv(struct sock *sk, struct sk_buff *skb)
+ 		local_bh_disable();
+ 		bh_lock_sock(sk);
+ 
+-		if (sock_owned_by_user(sk)) {
++		if (sock_owned_by_user(sk) || !sctp_newsk_ready(sk)) {
+ 			if (sk_add_backlog(sk, skb, sk->sk_rcvbuf))
+ 				sctp_chunk_free(chunk);
+ 			else
+@@ -348,7 +348,13 @@ int sctp_backlog_rcv(struct sock *sk, struct sk_buff *skb)
+ 		if (backloged)
+ 			return 0;
+ 	} else {
+-		sctp_inq_push(inqueue, chunk);
++		if (!sctp_newsk_ready(sk)) {
++			if (!sk_add_backlog(sk, skb, sk->sk_rcvbuf))
++				return 0;
++			sctp_chunk_free(chunk);
++		} else {
++			sctp_inq_push(inqueue, chunk);
++		}
+ 	}
+ 
+ done:
 -- 
 2.20.1
 
