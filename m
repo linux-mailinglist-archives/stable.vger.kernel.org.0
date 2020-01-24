@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8770E148971
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9757B14896F
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729971AbgAXOes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:34:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40228 "EHLO mail.kernel.org"
+        id S1729991AbgAXOei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:34:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391889AbgAXOTn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:43 -0500
+        id S2391922AbgAXOTp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCA6A214AF;
-        Fri, 24 Jan 2020 14:19:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C25DC2077C;
+        Fri, 24 Jan 2020 14:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875582;
-        bh=uxaQhTJ3xY834h66j3b8LwsyQJSzuY/eeYAcdmcwrW8=;
+        s=default; t=1579875583;
+        bh=+uGDckXAX36NT4qbLa/lLE/b8W+14HDi+rzSH0CXCYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3NU432OHbJ8IgJ3oE+Qnpnff73fakOsl0V2Q+bphDcDWPvStNnEFbQ73uT5a/15u
-         yVVBWyiMEtZTruJrD9Mbkj4PcglUMXqMbv5+1bHuewnPwCaSUMizoFqgEIqzWbSXUP
-         /ljVZugpg3zuPftsRLpokhbuFYsxjBCVRGhgsu+E=
+        b=VxiEdC7tLjDF6ZT4elBiNj0+Kplz1ZAXQu94K1jG9LQ6E7W+MegsS1ViDtZcv0aeU
+         pXu5xKo+EQh4iKEqRwsy5AK+N8ZbmioNCcvUvSgJr0zl+WuQ25fTqDRkE9hYkKapx+
+         mAKQrzAewBgqGYBmMzmRW8gjIqiD7u2P5iG+lrg4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 073/107] tick/sched: Annotate lockless access to last_jiffies_update
-Date:   Fri, 24 Jan 2020 09:17:43 -0500
-Message-Id: <20200124141817.28793-73-sashal@kernel.org>
+Cc:     Kevin Hao <haokexin@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 074/107] Revert "gpio: thunderx: Switch to GPIOLIB_IRQCHIP"
+Date:   Fri, 24 Jan 2020 09:17:44 -0500
+Message-Id: <20200124141817.28793-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,122 +43,313 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-[ Upstream commit de95a991bb72e009f47e0c4bbc90fc5f594588d5 ]
+[ Upstream commit a564ac35d60564dd5b509e32afdc04e7aafee40e ]
 
-syzbot (KCSAN) reported a data-race in tick_do_update_jiffies64():
+This reverts commit a7fc89f9d5fcc10a5474cfe555f5a9e5df8b0f1f because
+there are some bugs in this commit, and we don't have a simple way to
+fix these bugs. So revert this commit to make the thunderx gpio work
+on the stable kernel at least. We will switch to GPIOLIB_IRQCHIP
+for thunderx gpio by following patches.
 
-BUG: KCSAN: data-race in tick_do_update_jiffies64 / tick_do_update_jiffies64
-
-write to 0xffffffff8603d008 of 8 bytes by interrupt on cpu 1:
- tick_do_update_jiffies64+0x100/0x250 kernel/time/tick-sched.c:73
- tick_sched_do_timer+0xd4/0xe0 kernel/time/tick-sched.c:138
- tick_sched_timer+0x43/0xe0 kernel/time/tick-sched.c:1292
- __run_hrtimer kernel/time/hrtimer.c:1514 [inline]
- __hrtimer_run_queues+0x274/0x5f0 kernel/time/hrtimer.c:1576
- hrtimer_interrupt+0x22a/0x480 kernel/time/hrtimer.c:1638
- local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1110 [inline]
- smp_apic_timer_interrupt+0xdc/0x280 arch/x86/kernel/apic/apic.c:1135
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
- arch_local_irq_restore arch/x86/include/asm/paravirt.h:756 [inline]
- kcsan_setup_watchpoint+0x1d4/0x460 kernel/kcsan/core.c:436
- check_access kernel/kcsan/core.c:466 [inline]
- __tsan_read1 kernel/kcsan/core.c:593 [inline]
- __tsan_read1+0xc2/0x100 kernel/kcsan/core.c:593
- kallsyms_expand_symbol.constprop.0+0x70/0x160 kernel/kallsyms.c:79
- kallsyms_lookup_name+0x7f/0x120 kernel/kallsyms.c:170
- insert_report_filterlist kernel/kcsan/debugfs.c:155 [inline]
- debugfs_write+0x14b/0x2d0 kernel/kcsan/debugfs.c:256
- full_proxy_write+0xbd/0x100 fs/debugfs/file.c:225
- __vfs_write+0x67/0xc0 fs/read_write.c:494
- vfs_write fs/read_write.c:558 [inline]
- vfs_write+0x18a/0x390 fs/read_write.c:542
- ksys_write+0xd5/0x1b0 fs/read_write.c:611
- __do_sys_write fs/read_write.c:623 [inline]
- __se_sys_write fs/read_write.c:620 [inline]
- __x64_sys_write+0x4c/0x60 fs/read_write.c:620
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-read to 0xffffffff8603d008 of 8 bytes by task 0 on cpu 0:
- tick_do_update_jiffies64+0x2b/0x250 kernel/time/tick-sched.c:62
- tick_nohz_update_jiffies kernel/time/tick-sched.c:505 [inline]
- tick_nohz_irq_enter kernel/time/tick-sched.c:1257 [inline]
- tick_irq_enter+0x139/0x1c0 kernel/time/tick-sched.c:1274
- irq_enter+0x4f/0x60 kernel/softirq.c:354
- entering_irq arch/x86/include/asm/apic.h:517 [inline]
- entering_ack_irq arch/x86/include/asm/apic.h:523 [inline]
- smp_apic_timer_interrupt+0x55/0x280 arch/x86/kernel/apic/apic.c:1133
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
- native_safe_halt+0xe/0x10 arch/x86/include/asm/irqflags.h:60
- arch_cpu_idle+0xa/0x10 arch/x86/kernel/process.c:571
- default_idle_call+0x1e/0x40 kernel/sched/idle.c:94
- cpuidle_idle_call kernel/sched/idle.c:154 [inline]
- do_idle+0x1af/0x280 kernel/sched/idle.c:263
- cpu_startup_entry+0x1b/0x20 kernel/sched/idle.c:355
- rest_init+0xec/0xf6 init/main.c:452
- arch_call_rest_init+0x17/0x37
- start_kernel+0x838/0x85e init/main.c:786
- x86_64_start_reservations+0x29/0x2b arch/x86/kernel/head64.c:490
- x86_64_start_kernel+0x72/0x76 arch/x86/kernel/head64.c:471
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc7+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Use READ_ONCE() and WRITE_ONCE() to annotate this expected race.
-
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20191205045619.204946-1-edumazet@google.com
+Fixes: a7fc89f9d5fc ("gpio: thunderx: Switch to GPIOLIB_IRQCHIP")
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Link: https://lore.kernel.org/r/20200114082821.14015-2-haokexin@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/tick-sched.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/gpio/Kconfig         |   1 -
+ drivers/gpio/gpio-thunderx.c | 163 +++++++++++++++++++++++------------
+ 2 files changed, 107 insertions(+), 57 deletions(-)
 
-diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index 955851748dc38..5c9fcc72460df 100644
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -58,8 +58,9 @@ static void tick_do_update_jiffies64(ktime_t now)
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 38e096e6925fa..ceb908f7dbe51 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -546,7 +546,6 @@ config GPIO_THUNDERX
+ 	tristate "Cavium ThunderX/OCTEON-TX GPIO"
+ 	depends on ARCH_THUNDER || (64BIT && COMPILE_TEST)
+ 	depends on PCI_MSI
+-	select GPIOLIB_IRQCHIP
+ 	select IRQ_DOMAIN_HIERARCHY
+ 	select IRQ_FASTEOI_HIERARCHY_HANDLERS
+ 	help
+diff --git a/drivers/gpio/gpio-thunderx.c b/drivers/gpio/gpio-thunderx.c
+index ddad5c7ea6176..715371b5102a5 100644
+--- a/drivers/gpio/gpio-thunderx.c
++++ b/drivers/gpio/gpio-thunderx.c
+@@ -53,6 +53,7 @@ struct thunderx_line {
+ struct thunderx_gpio {
+ 	struct gpio_chip	chip;
+ 	u8 __iomem		*register_base;
++	struct irq_domain	*irqd;
+ 	struct msix_entry	*msix_entries;	/* per line MSI-X */
+ 	struct thunderx_line	*line_entries;	/* per line irq info */
+ 	raw_spinlock_t		lock;
+@@ -282,60 +283,54 @@ static void thunderx_gpio_set_multiple(struct gpio_chip *chip,
+ 	}
+ }
  
- 	/*
- 	 * Do a quick check without holding jiffies_lock:
-+	 * The READ_ONCE() pairs with two updates done later in this function.
- 	 */
--	delta = ktime_sub(now, last_jiffies_update);
-+	delta = ktime_sub(now, READ_ONCE(last_jiffies_update));
- 	if (delta < tick_period)
- 		return;
+-static void thunderx_gpio_irq_ack(struct irq_data *d)
++static void thunderx_gpio_irq_ack(struct irq_data *data)
+ {
+-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+-	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
  
-@@ -70,8 +71,9 @@ static void tick_do_update_jiffies64(ktime_t now)
- 	if (delta >= tick_period) {
+ 	writeq(GPIO_INTR_INTR,
+-	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
++	       txline->txgpio->register_base + intr_reg(txline->line));
+ }
  
- 		delta = ktime_sub(delta, tick_period);
--		last_jiffies_update = ktime_add(last_jiffies_update,
--						tick_period);
-+		/* Pairs with the lockless read in this function. */
-+		WRITE_ONCE(last_jiffies_update,
-+			   ktime_add(last_jiffies_update, tick_period));
+-static void thunderx_gpio_irq_mask(struct irq_data *d)
++static void thunderx_gpio_irq_mask(struct irq_data *data)
+ {
+-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+-	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
  
- 		/* Slow path for long timeouts */
- 		if (unlikely(delta >= tick_period)) {
-@@ -79,8 +81,10 @@ static void tick_do_update_jiffies64(ktime_t now)
+ 	writeq(GPIO_INTR_ENA_W1C,
+-	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
++	       txline->txgpio->register_base + intr_reg(txline->line));
+ }
  
- 			ticks = ktime_divns(delta, incr);
+-static void thunderx_gpio_irq_mask_ack(struct irq_data *d)
++static void thunderx_gpio_irq_mask_ack(struct irq_data *data)
+ {
+-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+-	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
  
--			last_jiffies_update = ktime_add_ns(last_jiffies_update,
--							   incr * ticks);
-+			/* Pairs with the lockless read in this function. */
-+			WRITE_ONCE(last_jiffies_update,
-+				   ktime_add_ns(last_jiffies_update,
-+						incr * ticks));
- 		}
- 		do_timer(++ticks);
+ 	writeq(GPIO_INTR_ENA_W1C | GPIO_INTR_INTR,
+-	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
++	       txline->txgpio->register_base + intr_reg(txline->line));
+ }
  
+-static void thunderx_gpio_irq_unmask(struct irq_data *d)
++static void thunderx_gpio_irq_unmask(struct irq_data *data)
+ {
+-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+-	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
+ 
+ 	writeq(GPIO_INTR_ENA_W1S,
+-	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
++	       txline->txgpio->register_base + intr_reg(txline->line));
+ }
+ 
+-static int thunderx_gpio_irq_set_type(struct irq_data *d,
++static int thunderx_gpio_irq_set_type(struct irq_data *data,
+ 				      unsigned int flow_type)
+ {
+-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+-	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+-	struct thunderx_line *txline =
+-		&txgpio->line_entries[irqd_to_hwirq(d)];
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
++	struct thunderx_gpio *txgpio = txline->txgpio;
+ 	u64 bit_cfg;
+ 
+-	irqd_set_trigger_type(d, flow_type);
++	irqd_set_trigger_type(data, flow_type);
+ 
+ 	bit_cfg = txline->fil_bits | GPIO_BIT_CFG_INT_EN;
+ 
+ 	if (flow_type & IRQ_TYPE_EDGE_BOTH) {
+-		irq_set_handler_locked(d, handle_fasteoi_ack_irq);
++		irq_set_handler_locked(data, handle_fasteoi_ack_irq);
+ 		bit_cfg |= GPIO_BIT_CFG_INT_TYPE;
+ 	} else {
+-		irq_set_handler_locked(d, handle_fasteoi_mask_irq);
++		irq_set_handler_locked(data, handle_fasteoi_mask_irq);
+ 	}
+ 
+ 	raw_spin_lock(&txgpio->lock);
+@@ -364,6 +359,33 @@ static void thunderx_gpio_irq_disable(struct irq_data *data)
+ 	irq_chip_disable_parent(data);
+ }
+ 
++static int thunderx_gpio_irq_request_resources(struct irq_data *data)
++{
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
++	struct thunderx_gpio *txgpio = txline->txgpio;
++	int r;
++
++	r = gpiochip_lock_as_irq(&txgpio->chip, txline->line);
++	if (r)
++		return r;
++
++	r = irq_chip_request_resources_parent(data);
++	if (r)
++		gpiochip_unlock_as_irq(&txgpio->chip, txline->line);
++
++	return r;
++}
++
++static void thunderx_gpio_irq_release_resources(struct irq_data *data)
++{
++	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
++	struct thunderx_gpio *txgpio = txline->txgpio;
++
++	irq_chip_release_resources_parent(data);
++
++	gpiochip_unlock_as_irq(&txgpio->chip, txline->line);
++}
++
+ /*
+  * Interrupts are chained from underlying MSI-X vectors.  We have
+  * these irq_chip functions to be able to handle level triggering
+@@ -380,24 +402,50 @@ static struct irq_chip thunderx_gpio_irq_chip = {
+ 	.irq_unmask		= thunderx_gpio_irq_unmask,
+ 	.irq_eoi		= irq_chip_eoi_parent,
+ 	.irq_set_affinity	= irq_chip_set_affinity_parent,
++	.irq_request_resources	= thunderx_gpio_irq_request_resources,
++	.irq_release_resources	= thunderx_gpio_irq_release_resources,
+ 	.irq_set_type		= thunderx_gpio_irq_set_type,
+ 
+ 	.flags			= IRQCHIP_SET_TYPE_MASKED
+ };
+ 
+-static int thunderx_gpio_child_to_parent_hwirq(struct gpio_chip *gc,
+-					       unsigned int child,
+-					       unsigned int child_type,
+-					       unsigned int *parent,
+-					       unsigned int *parent_type)
++static int thunderx_gpio_irq_translate(struct irq_domain *d,
++				       struct irq_fwspec *fwspec,
++				       irq_hw_number_t *hwirq,
++				       unsigned int *type)
+ {
+-	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+-
+-	*parent = txgpio->base_msi + (2 * child);
+-	*parent_type = IRQ_TYPE_LEVEL_HIGH;
++	struct thunderx_gpio *txgpio = d->host_data;
++
++	if (WARN_ON(fwspec->param_count < 2))
++		return -EINVAL;
++	if (fwspec->param[0] >= txgpio->chip.ngpio)
++		return -EINVAL;
++	*hwirq = fwspec->param[0];
++	*type = fwspec->param[1] & IRQ_TYPE_SENSE_MASK;
+ 	return 0;
+ }
+ 
++static int thunderx_gpio_irq_alloc(struct irq_domain *d, unsigned int virq,
++				   unsigned int nr_irqs, void *arg)
++{
++	struct thunderx_line *txline = arg;
++
++	return irq_domain_set_hwirq_and_chip(d, virq, txline->line,
++					     &thunderx_gpio_irq_chip, txline);
++}
++
++static const struct irq_domain_ops thunderx_gpio_irqd_ops = {
++	.alloc		= thunderx_gpio_irq_alloc,
++	.translate	= thunderx_gpio_irq_translate
++};
++
++static int thunderx_gpio_to_irq(struct gpio_chip *chip, unsigned int offset)
++{
++	struct thunderx_gpio *txgpio = gpiochip_get_data(chip);
++
++	return irq_find_mapping(txgpio->irqd, offset);
++}
++
+ static int thunderx_gpio_probe(struct pci_dev *pdev,
+ 			       const struct pci_device_id *id)
+ {
+@@ -405,7 +453,6 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
+ 	struct device *dev = &pdev->dev;
+ 	struct thunderx_gpio *txgpio;
+ 	struct gpio_chip *chip;
+-	struct gpio_irq_chip *girq;
+ 	int ngpio, i;
+ 	int err = 0;
+ 
+@@ -450,8 +497,8 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
+ 	}
+ 
+ 	txgpio->msix_entries = devm_kcalloc(dev,
+-					    ngpio, sizeof(struct msix_entry),
+-					    GFP_KERNEL);
++					  ngpio, sizeof(struct msix_entry),
++					  GFP_KERNEL);
+ 	if (!txgpio->msix_entries) {
+ 		err = -ENOMEM;
+ 		goto out;
+@@ -492,6 +539,27 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
+ 	if (err < 0)
+ 		goto out;
+ 
++	/*
++	 * Push GPIO specific irqdomain on hierarchy created as a side
++	 * effect of the pci_enable_msix()
++	 */
++	txgpio->irqd = irq_domain_create_hierarchy(irq_get_irq_data(txgpio->msix_entries[0].vector)->domain,
++						   0, 0, of_node_to_fwnode(dev->of_node),
++						   &thunderx_gpio_irqd_ops, txgpio);
++	if (!txgpio->irqd) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	/* Push on irq_data and the domain for each line. */
++	for (i = 0; i < ngpio; i++) {
++		err = irq_domain_push_irq(txgpio->irqd,
++					  txgpio->msix_entries[i].vector,
++					  &txgpio->line_entries[i]);
++		if (err < 0)
++			dev_err(dev, "irq_domain_push_irq: %d\n", err);
++	}
++
+ 	chip->label = KBUILD_MODNAME;
+ 	chip->parent = dev;
+ 	chip->owner = THIS_MODULE;
+@@ -506,28 +574,11 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
+ 	chip->set = thunderx_gpio_set;
+ 	chip->set_multiple = thunderx_gpio_set_multiple;
+ 	chip->set_config = thunderx_gpio_set_config;
+-	girq = &chip->irq;
+-	girq->chip = &thunderx_gpio_irq_chip;
+-	girq->fwnode = of_node_to_fwnode(dev->of_node);
+-	girq->parent_domain =
+-		irq_get_irq_data(txgpio->msix_entries[0].vector)->domain;
+-	girq->child_to_parent_hwirq = thunderx_gpio_child_to_parent_hwirq;
+-	girq->handler = handle_bad_irq;
+-	girq->default_type = IRQ_TYPE_NONE;
+-
++	chip->to_irq = thunderx_gpio_to_irq;
+ 	err = devm_gpiochip_add_data(dev, chip, txgpio);
+ 	if (err)
+ 		goto out;
+ 
+-	/* Push on irq_data and the domain for each line. */
+-	for (i = 0; i < ngpio; i++) {
+-		err = irq_domain_push_irq(chip->irq.domain,
+-					  txgpio->msix_entries[i].vector,
+-					  chip);
+-		if (err < 0)
+-			dev_err(dev, "irq_domain_push_irq: %d\n", err);
+-	}
+-
+ 	dev_info(dev, "ThunderX GPIO: %d lines with base %d.\n",
+ 		 ngpio, chip->base);
+ 	return 0;
+@@ -542,10 +593,10 @@ static void thunderx_gpio_remove(struct pci_dev *pdev)
+ 	struct thunderx_gpio *txgpio = pci_get_drvdata(pdev);
+ 
+ 	for (i = 0; i < txgpio->chip.ngpio; i++)
+-		irq_domain_pop_irq(txgpio->chip.irq.domain,
++		irq_domain_pop_irq(txgpio->irqd,
+ 				   txgpio->msix_entries[i].vector);
+ 
+-	irq_domain_remove(txgpio->chip.irq.domain);
++	irq_domain_remove(txgpio->irqd);
+ 
+ 	pci_set_drvdata(pdev, NULL);
+ }
 -- 
 2.20.1
 
