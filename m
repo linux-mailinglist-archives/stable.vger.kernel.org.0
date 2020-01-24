@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB8F147663
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:19:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDF6147672
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 02:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730664AbgAXBRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Jan 2020 20:17:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60738 "EHLO mail.kernel.org"
+        id S1729497AbgAXBTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Jan 2020 20:19:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730656AbgAXBRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:38 -0500
+        id S1730661AbgAXBRj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B21A4206A2;
-        Fri, 24 Jan 2020 01:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1224C22464;
+        Fri, 24 Jan 2020 01:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828657;
-        bh=xjiIuT2evy8epx2GISn700fzYHTLGE7gpt2NB0cwO60=;
+        s=default; t=1579828658;
+        bh=Pt57xNn7PwEg7RGA+JlsfMYabBJJPJkE2lr3e5SGsSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhf8VvsmofmyoN59NrisBDNTQnqteliPkpphYbdsZM6QzjujQPf1Jpnc71lkO4rS1
-         bjmsJ0feVsuNUP2CjdXTqKKDzqQ0I5bmmZ5K0cCHbzI3+UjJJZYV1kq5In3wthPYNn
-         5c0uR97qiS+PADpieIqjaCaahFg5P2euq1wWoWNM=
+        b=G/wLQSCoMWcFD6yqaQ5VUH4v4QQwUqUGXHtwSfBa05oI2ceBdeTQPVb+c2PjiF1ox
+         nXwe1BGOS120pRGWqGZN6wNJ7gkOFwb0JJLqHAboqMK3OGPm3usUPBdRHLyxSbv0Z3
+         imAmxH8wRe1v6Yf715mt22x9g4M/mm5Q8leFay2Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laura Abbott <labbott@fedoraproject.org>,
-        Steven Ellis <sellis@redhat.com>,
-        Pacho Ramos <pachoramos@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 5.4 25/33] usb-storage: Disable UAS on JMicron SATA enclosure
-Date:   Thu, 23 Jan 2020 20:17:00 -0500
-Message-Id: <20200124011708.18232-25-sashal@kernel.org>
+Cc:     Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 26/33] ALSA: hda/realtek - Move some alc236 pintbls to fallback table
+Date:   Thu, 23 Jan 2020 20:17:01 -0500
+Message-Id: <20200124011708.18232-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -46,45 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@fedoraproject.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit bc3bdb12bbb3492067c8719011576370e959a2e6 ]
+[ Upstream commit d64ebdbfd4f71406f58210f5ccb16977b4cd31d2 ]
 
-Steve Ellis reported incorrect block sizes and alignement
-offsets with a SATA enclosure. Adding a quirk to disable
-UAS fixes the problems.
+We have a new Dell machine which needs to apply the quirk
+ALC255_FIXUP_DELL1_MIC_NO_PRESENCE, try to use the fallback table
+to fix it this time. And we could remove all pintbls of alc236
+for applying DELL1_MIC_NO_PRESENCE on Dell machines.
 
-Reported-by: Steven Ellis <sellis@redhat.com>
-Cc: Pacho Ramos <pachoramos@gmail.com>
-Signed-off-by: Laura Abbott <labbott@fedoraproject.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20191121022644.8078-2-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c | 17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index d0bdebd87ce3a..1b23741036ee8 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -87,12 +87,15 @@ UNUSUAL_DEV(0x2537, 0x1068, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index d293488dc3dd3..68832f52c1ad2 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7563,20 +7563,6 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
+ 		{0x19, 0x02a11020},
+ 		{0x1a, 0x02a11030},
+ 		{0x21, 0x0221101f}),
+-	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
+-		{0x12, 0x90a60140},
+-		{0x14, 0x90170110},
+-		{0x21, 0x02211020}),
+-	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
+-		{0x12, 0x90a60140},
+-		{0x14, 0x90170150},
+-		{0x21, 0x02211020}),
+-	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
+-		{0x21, 0x02211020}),
+-	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
+-		{0x12, 0x40000000},
+-		{0x14, 0x90170110},
+-		{0x21, 0x02211020}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1028, "Dell", ALC255_FIXUP_DELL2_MIC_NO_PRESENCE,
+ 		{0x14, 0x90170110},
+ 		{0x21, 0x02211020}),
+@@ -7901,6 +7887,9 @@ static const struct snd_hda_pin_quirk alc269_fallback_pin_fixup_tbl[] = {
+ 	SND_HDA_PIN_QUIRK(0x10ec0274, 0x1028, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
+ 		{0x19, 0x40000000},
+ 		{0x1a, 0x40000000}),
++	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
++		{0x19, 0x40000000},
++		{0x1a, 0x40000000}),
+ 	{}
+ };
  
--/* Reported-by: Takeo Nakayama <javhera@gmx.com> */
-+/*
-+ * Initially Reported-by: Takeo Nakayama <javhera@gmx.com>
-+ * UAS Ignore Reported by Steven Ellis <sellis@redhat.com>
-+ */
- UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
- 		"JMicron",
- 		"JMS566",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_NO_REPORT_OPCODES),
-+		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
- 
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
 -- 
 2.20.1
 
