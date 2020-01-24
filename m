@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B038147C86
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F917147C8C
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387743AbgAXJwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:52:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
+        id S2388179AbgAXJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:52:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731453AbgAXJwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:52:45 -0500
+        id S1731453AbgAXJwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:52:49 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AC3D214AF;
-        Fri, 24 Jan 2020 09:52:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F48320709;
+        Fri, 24 Jan 2020 09:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859565;
-        bh=DTzS7/xMcw4MB5IeIYo9NeKjeT4fBH68jiJAbPCx9Ms=;
+        s=default; t=1579859568;
+        bh=xmJ6Yq12MlaEQQHRa9y9gtOJJsLZW8uh5VcTiWaOeTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQ2+fxuCr99HQ2vB3vDl1afSRpN2RKaAYh6YspTss8KM5TX83He/uk5Hu+GbF6imf
-         9S4vLguIs8lM6pZyxMnh9X9ldEwuCOn7oqzRZ3ClkNbmXNeUb3+bvg90Dqdvbkbwy/
-         DaYMS/sCvKy7ewW8zDclddnBoBIXAKhKe6F6TMdA=
+        b=oOiKorbggX1KkrTUslWc4+Gj6GAHUEzymD1QIcs+OF3JRFADYwHHvM0lpJvAiVG6+
+         koHSC5p9GRXqgvS4TFPMcnuZz1E5Atcjnl6Cr3J9FuejUXmtO1yMYztS7130OQCMyS
+         clF5ZbaFh3cKjVTfvvSzCJEPmJPHQGN2g35z0TDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 144/343] media: ivtv: update *pos correctly in ivtv_read_pos()
-Date:   Fri, 24 Jan 2020 10:29:22 +0100
-Message-Id: <20200124092938.941073195@linuxfoundation.org>
+Subject: [PATCH 4.14 145/343] media: cx18: update *pos correctly in cx18_read_pos()
+Date:   Fri, 24 Jan 2020 10:29:23 +0100
+Message-Id: <20200124092939.077255169@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -47,27 +47,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f8e579f3ca0973daef263f513da5edff520a6c0d ]
+[ Upstream commit 7afb0df554292dca7568446f619965fb8153085d ]
 
-We had intended to update *pos, but the current code is a no-op.
+We should be updating *pos.  The current code is a no-op.
 
-Fixes: 1a0adaf37c30 ("V4L/DVB (5345): ivtv driver for Conexant cx23416/cx23415 MPEG encoder/decoder")
+Fixes: 1c1e45d17b66 ("V4L/DVB (7786): cx18: new driver for the Conexant CX23418 MPEG encoder chip")
 
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/ivtv/ivtv-fileops.c | 2 +-
+ drivers/media/pci/cx18/cx18-fileops.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/ivtv/ivtv-fileops.c b/drivers/media/pci/ivtv/ivtv-fileops.c
-index c9bd018e53de6..e2b19c3eaa876 100644
---- a/drivers/media/pci/ivtv/ivtv-fileops.c
-+++ b/drivers/media/pci/ivtv/ivtv-fileops.c
-@@ -420,7 +420,7 @@ static ssize_t ivtv_read_pos(struct ivtv_stream *s, char __user *ubuf, size_t co
+diff --git a/drivers/media/pci/cx18/cx18-fileops.c b/drivers/media/pci/cx18/cx18-fileops.c
+index 98467b2089fa8..099d59b992c1b 100644
+--- a/drivers/media/pci/cx18/cx18-fileops.c
++++ b/drivers/media/pci/cx18/cx18-fileops.c
+@@ -484,7 +484,7 @@ static ssize_t cx18_read_pos(struct cx18_stream *s, char __user *ubuf,
  
- 	IVTV_DEBUG_HI_FILE("read %zd from %s, got %zd\n", count, s->name, rc);
+ 	CX18_DEBUG_HI_FILE("read %zd from %s, got %zd\n", count, s->name, rc);
  	if (rc > 0)
 -		pos += rc;
 +		*pos += rc;
