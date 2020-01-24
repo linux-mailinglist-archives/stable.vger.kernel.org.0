@@ -2,169 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6FB148D40
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 18:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2514148D6C
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 19:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390771AbgAXRsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 12:48:40 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:43624 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390378AbgAXRsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 12:48:40 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07417;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0ToSpJP6_1579888114;
-Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0ToSpJP6_1579888114)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 25 Jan 2020 01:48:37 +0800
-Subject: Re: [v2 PATCH] mm: move_pages: report the number of non-attempted
- pages
-To:     Wei Yang <richardw.yang@linux.intel.com>,
-        Michal Hocko <mhocko@kernel.org>
-Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <1579736331-85494-1-git-send-email-yang.shi@linux.alibaba.com>
- <20200123032736.GA22196@richard> <20200123085526.GH29276@dhcp22.suse.cz>
- <20200123225647.GB29851@richard> <20200124064649.GM29276@dhcp22.suse.cz>
- <20200124152642.GB12509@richard>
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-Message-ID: <9aa3ff03-8397-4ca9-dc55-d893948f7ece@linux.alibaba.com>
-Date:   Fri, 24 Jan 2020 09:48:30 -0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
- Gecko/20100101 Thunderbird/52.7.0
+        id S2390769AbgAXSFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 13:05:03 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:37950 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390693AbgAXSFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Jan 2020 13:05:03 -0500
+Received: by mail-ot1-f67.google.com with SMTP id z9so2467384oth.5
+        for <stable@vger.kernel.org>; Fri, 24 Jan 2020 10:05:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jRTNXnXM7oz5Drw0JUEzLHf8Tl/lM2SK6ojzvbVm3Do=;
+        b=JPa2uVHTQnO/DXnNRVd8XmoPi8VpJuIDhI+MwREr6Mb8Ij5HVUDpA6TxomyZ+Lff6W
+         Y0DI9Cm0csX4gVNf0fT2szWUMfB8PaOM+JHgiQ6lHgp2HYGhZ1FLuEQr0mFTp/UHZGEJ
+         4+wmRzEAsVw/5tyikkUBaJSaYwn1dj9gvK9c5x/AxAQpvh0podrIffNwzqKp0EkArmJ1
+         oMwVvXtqQAlFZUlPokk+ed89Py3Hp2N12VOLnaJO0t5fYarr08YbsRzuILrxgeCojT/8
+         rcUiO4nPjlpm1y4ofxPB9A4MFUjfm6TIH4pRlXvUZhWjjbyJWGoW4+7jNw2e/p4KVf8Q
+         t5qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jRTNXnXM7oz5Drw0JUEzLHf8Tl/lM2SK6ojzvbVm3Do=;
+        b=qL69X1ouEEQOYcjU5Kydh0U2r04WltdmC5Q70o8527gMWTvLY7tlgS2cevf49cZi9i
+         YJ30MIMAsxlpN3e2ytJJPlJK4NoDL6CJp75EX0i7hewHQ197XeHfCb9Q7Z8GLTw6ANQ3
+         SGF0p2IbR/hJF1cPZJOWo6qJo7TC7yyCmZbjkCNjn51JHHXxat13QjN5kCxrderu2izZ
+         2DTy53lEn7BOgw2jUolcWCQ9WyGfdHBPbN/QJQEofFhMtjydutdpMWtbT5G2IoVdEd1g
+         QEGhhJIf0XWRh7F6GPkvdP/4kdixy4U4GZvdypRwkxADAb+DXwHf/aGgwtW2eir8meqP
+         Nx0w==
+X-Gm-Message-State: APjAAAUDfIJndI+KAxCP+B982qz+ZtTRoFjdVeAeiMPLI6NXbmWf/QSF
+        gCV1FSUk6X+gDawcn9qRpaFybSn3tPhpB76pQtOY5g==
+X-Google-Smtp-Source: APXvYqzFJoNGdvBkNazI2Gmjmm0Jg7CrgLUOGYJxHStstoF4GHQEZ08I0ffdQ1SOyeaigHkZmgGXPCfxHkNpYgjxS48=
+X-Received: by 2002:a9d:68d3:: with SMTP id i19mr3393231oto.71.1579889102817;
+ Fri, 24 Jan 2020 10:05:02 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200124152642.GB12509@richard>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <e60e64f9-894b-4121-d97b-fb61459cbbe5@redhat.com>
+ <CAPcyv4jm=fmP=-5vbo2jxzMe2qXqZP=zDYF8G_rs3X6_Om0wPg@mail.gmail.com>
+ <4d0334e2-c4e7-6d3f-99ba-2ca0495e1549@redhat.com> <CAPcyv4jixmv8fJ5FiYE=97Jud3Mc+6QzRX1txceSYU+WY_0rQA@mail.gmail.com>
+ <fc0cfb97-5a60-7e73-4f85-d8e6947c5e28@redhat.com> <CAPcyv4jVpN26RGQLRn4BewYtzHDoQfvh37DEdEBq1dd4-BP0kw@mail.gmail.com>
+ <64902066-51dd-9693-53fc-4a5975c58409@redhat.com> <CAPcyv4hcDNeQO3CfnqTRou+6R5gZwyi4pVUMxp1DadAOp7kJGQ@mail.gmail.com>
+ <516aa930-9b64-b377-557c-5413ed9fe336@redhat.com> <CAPcyv4iiYtN6iGt=rVuNR=O=H9YcY1b1yWp+5TuDhu0QoVqT_A@mail.gmail.com>
+ <20200124124512.GT29276@dhcp22.suse.cz>
+In-Reply-To: <20200124124512.GT29276@dhcp22.suse.cz>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Fri, 24 Jan 2020 10:04:52 -0800
+Message-ID: <CAPcyv4jcCnfGy5HcYimxcyF6v_Anw4nMdaNHQt4tMrqUaN70Rg@mail.gmail.com>
+Subject: Re: [PATCH] mm/memory_hotplug: Fix remove_memory() lockdep splat
+To:     Michal Hocko <mhocko@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable <stable@vger.kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jan 24, 2020 at 4:56 AM Michal Hocko <mhocko@kernel.org> wrote:
+>
+> On Fri 10-01-20 13:27:24, Dan Williams wrote:
+> > On Fri, Jan 10, 2020 at 9:42 AM David Hildenbrand <david@redhat.com> wrote:
+> [...]
+> > > For your reference (roughly 5 months ago, so not that old)
+> > >
+> > > https://lkml.kernel.org/r/20190724143017.12841-1-david@redhat.com
+> >
+> > Oh, now I see the problem. You need to add that lock so far away from
+> > the __add_memory() to avoid lock inversion problems with the
+> > acpi_scan_lock. The organization I was envisioning would not work
+> > without deeper refactoring.
+>
+> Sorry to come back to this late. Has this been resolved?
 
+The mem_hotplug_lock lockdep splat fix in this patch has not landed.
+David and I have not quite come to consensus on how to resolve online
+racing removal. IIUC David wants that invalidation to be
+pages_correctly_probed(), I would prefer it to be directly tied to the
+object, struct memory_block, that remove_memory_block_devices() has
+modified, mem->section_count = 0.
 
-On 1/24/20 7:26 AM, Wei Yang wrote:
-> On Fri, Jan 24, 2020 at 07:46:49AM +0100, Michal Hocko wrote:
->> On Fri 24-01-20 06:56:47, Wei Yang wrote:
->>> On Thu, Jan 23, 2020 at 09:55:26AM +0100, Michal Hocko wrote:
->>>> On Thu 23-01-20 11:27:36, Wei Yang wrote:
->>>>> On Thu, Jan 23, 2020 at 07:38:51AM +0800, Yang Shi wrote:
->>>>>> Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
->>>>>> the semantic of move_pages() was changed to return the number of
->>>>>> non-migrated pages (failed to migration) and the call would be aborted
->>>>>> immediately if migrate_pages() returns positive value.  But it didn't
->>>>>> report the number of pages that we even haven't attempted to migrate.
->>>>>> So, fix it by including non-attempted pages in the return value.
->>>>>>
->>>>> First, we want to change the semantic of move_pages(2). The return value
->>>>> indicates the number of pages we didn't managed to migrate?
->>>>>
->>>>> Second, the return value from migrate_pages() doesn't mean the number of pages
->>>>> we failed to migrate. For example, one -ENOMEM is returned on the first page,
->>>>> migrate_pages() would return 1. But actually, no page successfully migrated.
->>>> ENOMEM is considered a permanent failure and as such it is returned by
->>>> migrate pages (see goto out).
->>>>
->>>>> Third, even the migrate_pages() return the exact non-migrate page, we are not
->>>>> sure those non-migrated pages are at the tail of the list. Because in the last
->>>>> case in migrate_pages(), it just remove the page from list. It could be a page
->>>>> in the middle of the list. Then, in userspace, how the return value be
->>>>> leveraged to determine the valid status? Any page in the list could be the
->>>>> victim.
->>>> Yes, I was wrong when stating that the caller would know better which
->>>> status to check. I misremembered the original patch as it was quite some
->>>> time ago. While storing the error code would be possible after some
->>>> massaging of migrate_pages is this really something we deeply care
->>>> about. The caller can achieve the same by initializing the status array
->>>> to a non-node number - e.g. -1 - and check based on that.
->>>>
->>> So for a user, the best practice is to initialize the status array to -1 and
->>> check each status to see whether the page is migrated successfully?
->> Yes IMO. Just consider -errno return value. You have no way to find out
->> which pages have been migrated until we reached that error. The
->> possitive return value would fall into the same case.
->>
->>> Then do we need to return the number of non-migrated page? What benefit could
->>> user get from the number. How about just return an error code to indicate the
->>> failure? I may miss some point, would you mind giving me a hint?
->> This is certainly possible. We can return -EAGAIN if some pages couldn't
->> be migrated because they are pinned. But please read my previous email
->> to the very end for arguments why this might cause more problems than it
->> actually solves.
->>
-> Let me put your comment here:
->
->      Because new users could have started depending on it. It
->      is not all that unlikely that the current implementation would just
->      work for them because they are migrating a set of pages on to the same
->      node so the batch would be a single list throughout the whole given
->      page set.
->
-> Your idea is to preserve current semantic, return non-migrated pages number to
-> userspace.
->
-> And the reason is:
->
->     1. Users have started depending on it.
->     2. No real bug reported yet.
->     3. User always migrate page to the same node. (If my understanding is
->        correct)
->
-> I think this gets some reason, since we want to minimize the impact to
-> userland.
->
-> While let's see what user probably use this syscall. Since from the man page,
-> we never told the return value could be positive, the number of non-migrated
-> pages, user would think only 0 means a successful migration and all other
-> cases are failure. Then user probably handle negative and positive return
-> value the same way, like (!err).
->
-> If my guess is true, return a negative error value for this case could
-> minimize the impact to userland here.
->     1. Preserve the semantic of move_pages(2): 0 means success, negative means
->        some error and needs extra handling.
->     2. Trivial change to the man page.
->     3. Suppose no change to users.
->
-> Well, in case I missed your point, sorry about that.
-
-I think we should compare the new semantic with the old one. With the 
-old semantic the move_pages() return 0 for both success *and* migration 
-failure. So, I'm supposed (I don't have any real usecase) the user may 
-do the below with the old semantic:
-     - Just check if it is failed (ignore migration failure), "!err" is 
-good enough.  This usecase is fine as well with the new semantic since 
-migration failure is also a kind of error cases.
-      - Care about migration failure, the user needs traverse all bits 
-in the status array. With the new semantic they just need check if "err 
- > 0", if they want to know what specific pages are failed to migrate, 
-then traverse the status array (with initialized as -1 as Michal 
-suggested in earlier email).
-
-So, with returning errno for migration failure if the userspace wants to 
-see if migration is failed, they need do:
-     1. Check "!err"
-     2. Read errno if #1 returns false
-     3. Traverse status array to see how many pages are failed to migrate
-
-But with the new semantic they just need check if "err > 0", one step is 
-fine for the most cases. So I said this approach seems more 
-straightforward to the userspace and makes more sense IMHO.
-
->>>> This system call has quite a complex semantic and I am not 100% sure
->>>> what is the right thing to do here. Maybe we do want to continue and try
->>>> to migrate as much as possible on non-fatal migration failures and
->>>> accumulate the number of failed pages while doing so.
->>>>
->>>> The main problem is that we can have an academic discussion but
->>>> the primary question is what do actual users want. A lack of real
->>>> bug reports suggests that nobody has actually noticed this. So I
->>>> would rather keep returning the correct number of non-migrated
->>>> pages. Why? Because new users could have started depending on it. It
->>>> is not all that unlikely that the current implementation would just
->>>> work for them because they are migrating a set of pages on to the same
->>>> node so the batch would be a single list throughout the whole given
->>>> page set.
->> -- 
->> Michal Hocko
->> SUSE Labs
-
+...or are you referring to the discussion about acpi_scan_lock()? I
+came around to agreeing with your position that documenting was better
+than adding superfluous locking especially because the
+acpi_scan_lock() is take so far away from where the device_hotplug
+lock is needed.
