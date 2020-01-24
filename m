@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBF9147C35
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50FB1147C37
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387729AbgAXJuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:50:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50624 "EHLO mail.kernel.org"
+        id S2387747AbgAXJuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:50:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730321AbgAXJuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:50:02 -0500
+        id S1730321AbgAXJuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:50:06 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B6D7206D5;
-        Fri, 24 Jan 2020 09:50:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F8DC20718;
+        Fri, 24 Jan 2020 09:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859402;
-        bh=OT71+5E1Ja8X2ipIEcrWpHYmjwcMy5GNtYtKWURAuiI=;
+        s=default; t=1579859405;
+        bh=JHQF3YTiUEq07UgmOGJhPmx5WWuS0Ke7mUJr69tW1cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmAB9FSUqXMCaYR7fLNUsyOoNNKAtxIeMwKR5OE+pVodQ4+aVCCMOXs7UWAoXdmeB
-         hzDgeJqQMmHbDtJozeGhPO1XbWC1Si5V+bWvOqgXZZDIsIqqjrh5ZoDnSDlCMl+vRe
-         pfQTt0wrd5VACFNrQHSX8NWNHLGJHYkm0uEKiVGI=
+        b=W7KnTQoJz1G/YDaR6snpP5Xhma4glx/UiMY+uoHESL4yQ/6rvWLauYHHgITCX8W3A
+         U9Yf9izKK34S3lU9z/hPXWJn85g3RL1VTx1VTjw07/sjrIQTDzUCErBVK6V6SNIEN2
+         uRXUgpljnawY/4w8XF9vYAiLRsk3Du6fOo6AqKzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 109/343] hwmon: (pmbus/tps53679) Fix driver info initialization in probe routine
-Date:   Fri, 24 Jan 2020 10:28:47 +0100
-Message-Id: <20200124092934.392432277@linuxfoundation.org>
+Subject: [PATCH 4.14 110/343] KVM: PPC: Release all hardware TCE tables attached to a group
+Date:   Fri, 24 Jan 2020 10:28:48 +0100
+Message-Id: <20200124092934.519656053@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,45 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit ff066653aeed8ee2d4dadb1e35774dd91ecbb19f ]
+[ Upstream commit a67614cc05a5052b265ea48196dab2fce11f5f2e ]
 
-Fix tps53679_probe() by using dynamically allocated "pmbus_driver_info"
-structure instead of static. Usage of static structures causes
-overwritten of the field "vrm_version", in case the system is equipped
-with several tps53679 devices with the different "vrm_version".
-In such case the last probed device overwrites this field for all
-others.
+The SPAPR TCE KVM device references all hardware IOMMU tables assigned to
+some IOMMU group to ensure that in-kernel KVM acceleration of H_PUT_TCE
+can work. The tables are references when an IOMMU group gets registered
+with the VFIO KVM device by the KVM_DEV_VFIO_GROUP_ADD ioctl;
+KVM_DEV_VFIO_GROUP_DEL calls into the dereferencing code
+in kvm_spapr_tce_release_iommu_group() which walks through the list of
+LIOBNs, finds a matching IOMMU table and calls kref_put() when found.
 
-Fixes: 610526527a13 ("hwmon: (pmbus) Add support for Texas Instruments tps53679 device")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+However that code stops after the very first successful derefencing
+leaving other tables referenced till the SPAPR TCE KVM device is destroyed
+which normally happens on guest reboot or termination so if we do hotplug
+and unplug in a loop, we are leaking IOMMU tables here.
+
+This removes a premature return to let kvm_spapr_tce_release_iommu_group()
+find and dereference all attached tables.
+
+Fixes: 121f80ba68f ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/tps53679.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_64_vio.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/tps53679.c b/drivers/hwmon/pmbus/tps53679.c
-index 85b515cd9df0e..2bc352c5357f4 100644
---- a/drivers/hwmon/pmbus/tps53679.c
-+++ b/drivers/hwmon/pmbus/tps53679.c
-@@ -80,7 +80,14 @@ static struct pmbus_driver_info tps53679_info = {
- static int tps53679_probe(struct i2c_client *client,
- 			  const struct i2c_device_id *id)
- {
--	return pmbus_do_probe(client, id, &tps53679_info);
-+	struct pmbus_driver_info *info;
-+
-+	info = devm_kmemdup(&client->dev, &tps53679_info, sizeof(*info),
-+			    GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	return pmbus_do_probe(client, id, info);
- }
+diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
+index 5e44462960213..ef6a58838e7ce 100644
+--- a/arch/powerpc/kvm/book3s_64_vio.c
++++ b/arch/powerpc/kvm/book3s_64_vio.c
+@@ -134,7 +134,6 @@ extern void kvm_spapr_tce_release_iommu_group(struct kvm *kvm,
+ 					continue;
  
- static const struct i2c_device_id tps53679_id[] = {
+ 				kref_put(&stit->kref, kvm_spapr_tce_liobn_put);
+-				return;
+ 			}
+ 		}
+ 	}
 -- 
 2.20.1
 
