@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9390147C96
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:53:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EDF2147C9B
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388072AbgAXJxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:53:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55434 "EHLO mail.kernel.org"
+        id S2388060AbgAXJxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:53:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731494AbgAXJxH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:53:07 -0500
+        id S1731494AbgAXJxK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:53:10 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C450206D5;
-        Fri, 24 Jan 2020 09:53:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7633F206D5;
+        Fri, 24 Jan 2020 09:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859586;
-        bh=bxsM9wkTKbbaw5X9lfoDF/LZA8vY4wzEaVce2Y8TZNs=;
+        s=default; t=1579859590;
+        bh=VvSibKq753/s59zv98ZkJnPBMNgquUoI6vaeTogOPGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqhQM7UAgbgmhxP8gUQ4i67F2qizHcXMOhfBuqkThcCzpvr+Ar4guE3/gUy9v0Lli
-         RPM4mgelfDQuQuIPz0GfJIQsix+moS/ot6B459QDXtvC5hBaLayuBh/7pPrOys3zpQ
-         emRLRPOKYz2DeXGlJwJpgXb6mJPcxpcxsrph2atg=
+        b=bbN6WncshULrXrRXTAbhD5GMQtZg0ZEShA1kT7kQjLkfM8OHP0UYb6wZRyIOiPRkK
+         DDnOEJ/HfFKuK9K9tz+ebnVdCN0FsKgUeyM3Dc3b+ePSJfO2wP8meM6eJcdr0xRnn5
+         7MR2IytqL02blkxU0IBUH4W5xxr4z1wq4JoDrp04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 149/343] jfs: fix bogus variable self-initialization
-Date:   Fri, 24 Jan 2020 10:29:27 +0100
-Message-Id: <20200124092939.619729768@linuxfoundation.org>
+Subject: [PATCH 4.14 150/343] tipc: tipc clang warning
+Date:   Fri, 24 Jan 2020 10:29:28 +0100
+Message-Id: <20200124092939.750383432@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,43 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jon Maloy <jon.maloy@ericsson.com>
 
-[ Upstream commit a5fdd713d256887b5f012608701149fa939e5645 ]
+[ Upstream commit 737889efe9713a0f20a75fd0de952841d9275e6b ]
 
-A statement was originally added in 2006 to shut up a gcc warning,
-now but now clang warns about it:
+When checking the code with clang -Wsometimes-uninitialized we get the
+following warning:
 
-fs/jfs/jfs_txnmgr.c:1932:15: error: variable 'pxd' is uninitialized when used within its own initialization
-      [-Werror,-Wuninitialized]
-                pxd_t pxd = pxd;        /* truncated extent of xad */
-                      ~~~   ^~~
+if (!tipc_link_is_establishing(l)) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net/tipc/node.c:847:46: note: uninitialized use occurs here
+      tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
 
-Modern versions of gcc are fine without the silly assignment, so just
-drop it. Tested with gcc-4.6 (released 2011), 4.7, 4.8, and 4.9.
+net/tipc/node.c:831:2: note: remove the 'if' if its condition is always
+true
+if (!tipc_link_is_establishing(l)) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net/tipc/node.c:821:31: note: initialize the variable 'maddr' to silence
+this warning
+struct tipc_media_addr *maddr;
 
-Fixes: c9e3ad6021e5 ("JFS: Get rid of "may be used uninitialized" warnings")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+We fix this by initializing 'maddr' to NULL. For the matter of clarity,
+we also test if 'xmitq' is non-empty before we use it and 'maddr'
+further down in the  function. It will never happen that 'xmitq' is non-
+empty at the same time as 'maddr' is NULL, so this is a sufficient test.
+
+Fixes: 598411d70f85 ("tipc: make resetting of links non-atomic")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_txnmgr.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/tipc/node.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
-index 4d973524c8879..224ef034004b7 100644
---- a/fs/jfs/jfs_txnmgr.c
-+++ b/fs/jfs/jfs_txnmgr.c
-@@ -1928,8 +1928,7 @@ static void xtLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
- 	 * header ?
- 	 */
- 	if (tlck->type & tlckTRUNCATE) {
--		/* This odd declaration suppresses a bogus gcc warning */
--		pxd_t pxd = pxd;	/* truncated extent of xad */
-+		pxd_t pxd;	/* truncated extent of xad */
- 		int twm;
+diff --git a/net/tipc/node.c b/net/tipc/node.c
+index 42e9bdcc4bb6e..82f8f69f4d6b0 100644
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -688,10 +688,10 @@ static void __tipc_node_link_down(struct tipc_node *n, int *bearer_id,
+ static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
+ {
+ 	struct tipc_link_entry *le = &n->links[bearer_id];
++	struct tipc_media_addr *maddr = NULL;
+ 	struct tipc_link *l = le->link;
+-	struct tipc_media_addr *maddr;
+-	struct sk_buff_head xmitq;
+ 	int old_bearer_id = bearer_id;
++	struct sk_buff_head xmitq;
  
- 		/*
+ 	if (!l)
+ 		return;
+@@ -713,7 +713,8 @@ static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
+ 	tipc_node_write_unlock(n);
+ 	if (delete)
+ 		tipc_mon_remove_peer(n->net, n->addr, old_bearer_id);
+-	tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
++	if (!skb_queue_empty(&xmitq))
++		tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
+ 	tipc_sk_rcv(n->net, &le->inputq);
+ }
+ 
 -- 
 2.20.1
 
