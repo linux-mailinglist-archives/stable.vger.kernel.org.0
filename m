@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F5C14818E
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:21:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E92D8148194
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390751AbgAXLU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:20:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58848 "EHLO mail.kernel.org"
+        id S2390825AbgAXLVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:21:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390993AbgAXLU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:20:58 -0500
+        id S2390993AbgAXLVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:21:01 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FC1C206D4;
-        Fri, 24 Jan 2020 11:20:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AEFF214AF;
+        Fri, 24 Jan 2020 11:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864857;
-        bh=oaS5PdRIJasK361TaI2wE1xqw34aE4ocGmmJxL3IzLE=;
+        s=default; t=1579864860;
+        bh=RdrUScjQ4MYppyBddLWVOttt3KTsGUskbpY4fRW3W0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZgD2y5mTaIUfYtQvom0icqX0bQRId/jHqfqIPIPoWwLdiVNY8k9Rh4xjFQ2a6ud6
-         rqITsbve19p9kZFxYPU3+bRu6QMC7vry+1v13rO/OBQ87P/MEcs8M/cHzxYK1HZLfA
-         1xsGDUHMud7bobwhYrmxA09b73UwrAZMHChDmFZ4=
+        b=ErrqAKPG5UiNC24LHbED9qiVU5lqa9JhdzognUPA3B2yXeYHwN8qFKKaGVRAOwTF7
+         F9Fo2WOKWabXdXm5a30IVxZTXJ2zSdPXAEcLymt7ugbGGb544fpAUcRmmCmw6L8N/M
+         CvkwgrGFO84yIQ8tmFoCxdZyEc/vxZ9Zc6SpnXzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Javi Merino <javi.merino@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
+        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 373/639] thermal: cpu_cooling: Actually trace CPU load in thermal_power_cpu_get_power
-Date:   Fri, 24 Jan 2020 10:29:03 +0100
-Message-Id: <20200124093133.756170983@linuxfoundation.org>
+Subject: [PATCH 4.19 374/639] EDAC/mc: Fix edac_mc_find() in case no device is found
+Date:   Fri, 24 Jan 2020 10:29:04 +0100
+Message-Id: <20200124093133.875709390@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -47,56 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Robert Richter <rrichter@marvell.com>
 
-[ Upstream commit bf45ac18b78038e43af3c1a273cae4ab5704d2ce ]
+[ Upstream commit 29a0c843973bc385918158c6976e4dbe891df969 ]
 
-The CPU load values passed to the thermal_power_cpu_get_power
-tracepoint are zero for all CPUs, unless, unless the
-thermal_power_cpu_limit tracepoint is enabled too:
+The function should return NULL in case no device is found, but it
+always returns the last checked mc device from the list even if the
+index did not match. Fix that.
 
-  irq/41-rockchip-98    [000] ....   290.972410: thermal_power_cpu_get_power:
-  cpus=0000000f freq=1800000 load={{0x0,0x0,0x0,0x0}} dynamic_power=4815
+I did some analysis why this did not raise any issues for about 3 years
+and the reason is that edac_mc_find() is mostly used to search for
+existing devices. Thus, the bug is not triggered.
 
-vs
+ [ bp: Drop the if (mci->mc_idx > idx) test in favor of readability. ]
 
-  irq/41-rockchip-96    [000] ....    95.773585: thermal_power_cpu_get_power:
-  cpus=0000000f freq=1800000 load={{0x56,0x64,0x64,0x5e}} dynamic_power=4959
-  irq/41-rockchip-96    [000] ....    95.773596: thermal_power_cpu_limit:
-  cpus=0000000f freq=408000 cdev_state=10 power=416
-
-There seems to be no good reason for omitting the CPU load information
-depending on another tracepoint. My guess is that the intention was to
-check whether thermal_power_cpu_get_power is (still) enabled, however
-'load_cpu != NULL' already indicates that it was at least enabled when
-cpufreq_get_requested_power() was entered, there seems little gain
-from omitting the assignment if the tracepoint was just disabled, so
-just remove the check.
-
-Fixes: 6828a4711f99 ("thermal: add trace events to the power allocator governor")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Acked-by: Javi Merino <javi.merino@kernel.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+Fixes: c73e8833bec5 ("EDAC, mc: Fix locking around mc_devices list")
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lkml.kernel.org/r/20190514104838.15065-1-rrichter@marvell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/cpu_cooling.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/edac/edac_mc.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/thermal/cpu_cooling.c b/drivers/thermal/cpu_cooling.c
-index dfd23245f778a..9df6b72604667 100644
---- a/drivers/thermal/cpu_cooling.c
-+++ b/drivers/thermal/cpu_cooling.c
-@@ -458,7 +458,7 @@ static int cpufreq_get_requested_power(struct thermal_cooling_device *cdev,
- 			load = 0;
+diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
+index f59511bd99261..fd440b35d76ed 100644
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -681,22 +681,18 @@ static int del_mc_from_global_list(struct mem_ctl_info *mci)
  
- 		total_load += load;
--		if (trace_thermal_power_cpu_limit_enabled() && load_cpu)
-+		if (load_cpu)
- 			load_cpu[i] = load;
+ struct mem_ctl_info *edac_mc_find(int idx)
+ {
+-	struct mem_ctl_info *mci = NULL;
++	struct mem_ctl_info *mci;
+ 	struct list_head *item;
  
- 		i++;
+ 	mutex_lock(&mem_ctls_mutex);
+ 
+ 	list_for_each(item, &mc_devices) {
+ 		mci = list_entry(item, struct mem_ctl_info, link);
+-
+-		if (mci->mc_idx >= idx) {
+-			if (mci->mc_idx == idx) {
+-				goto unlock;
+-			}
+-			break;
+-		}
++		if (mci->mc_idx == idx)
++			goto unlock;
+ 	}
+ 
++	mci = NULL;
+ unlock:
+ 	mutex_unlock(&mem_ctls_mutex);
+ 	return mci;
 -- 
 2.20.1
 
