@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E65A314830F
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:33:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5279148336
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391912AbgAXLdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:33:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52416 "EHLO mail.kernel.org"
+        id S2404547AbgAXLdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:33:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391908AbgAXLdF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:33:05 -0500
+        id S2404544AbgAXLdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:33:09 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EDEE20704;
-        Fri, 24 Jan 2020 11:33:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3938320704;
+        Fri, 24 Jan 2020 11:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865585;
-        bh=QxKbSpHZntZauEiARxlmuXAbUDqksp+NtwrnoUJp3qQ=;
+        s=default; t=1579865588;
+        bh=1EsJ6qn9dEwaKmDyj1yN7qxoHEKJa6koM+zwdvlK2Y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilZWFYbNQdw7cfcpAbFStHlWFvqFuF2hn7eJEIzfy/3D2g6PPidKpGCxD7wQz6l4G
-         vS3A/e8pgc8Rrf5qfGZZdwwOGX4bpLEdwieWgFBhPZTmycxYFkWHaottKVpySc/4Kw
-         fhFJVPZOBHign6Ib3tjiMpvBCohxV1rb6Sp6eemA=
+        b=R2kd5aLzT0VxhpwQplXXLBzUaq+lEhuqUGRHIOEjT8hwFJ4BH/qJJDe1AAz5XKx/h
+         83rp0HjKzjrHz8Dub9VBPQAsm4l6aXN8Jw2ss1W5Bo/Xv7YnBuUPXxsnkWb6Uvr82B
+         OatblQC4/30YEWNN629f9j4GsiJxcKDh1ntmfiRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 586/639] nvme: retain split access workaround for capability reads
-Date:   Fri, 24 Jan 2020 10:32:36 +0100
-Message-Id: <20200124093202.878097814@linuxfoundation.org>
+Subject: [PATCH 4.19 587/639] net: stmmac: gmac4+: Not all Unicast addresses may be available
+Date:   Fri, 24 Jan 2020 10:32:37 +0100
+Message-Id: <20200124093202.992850194@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,55 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 3a8ecc935efabdad106b5e06d07b150c394b4465 ]
+[ Upstream commit 25683bab09a70542b9f8e3e28f79b3369e56701f ]
 
-Commit 7fd8930f26be4
+Some setups may not have all Unicast addresses filters available. Check
+the number of available filters before trying to setup it.
 
-  "nvme: add a common helper to read Identify Controller data"
-
-has re-introduced an issue that we have attempted to work around in the
-past, in commit a310acd7a7ea ("NVMe: use split lo_hi_{read,write}q").
-
-The problem is that some PCIe NVMe controllers do not implement 64-bit
-outbound accesses correctly, which is why the commit above switched
-to using lo_hi_[read|write]q for all 64-bit BAR accesses occuring in
-the code.
-
-In the mean time, the NVMe subsystem has been refactored, and now calls
-into the PCIe support layer for NVMe via a .reg_read64() method, which
-fails to use lo_hi_readq(), and thus reintroduces the problem that the
-workaround above aimed to address.
-
-Given that, at the moment, .reg_read64() is only used to read the
-capability register [which is known to tolerate split reads], let's
-switch .reg_read64() to lo_hi_readq() as well.
-
-This fixes a boot issue on some ARM boxes with NVMe behind a Synopsys
-DesignWare PCIe host controller.
-
-Fixes: 7fd8930f26be4 ("nvme: add a common helper to read Identify Controller data")
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Fixes: 477286b53f55 ("stmmac: add GMAC4 core support")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 124f41157173e..3c68a5b35ec1b 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2396,7 +2396,7 @@ static int nvme_pci_reg_write32(struct nvme_ctrl *ctrl, u32 off, u32 val)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index 48cf5e2b24417..bc8871e7351f2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -443,7 +443,7 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
+ 	}
  
- static int nvme_pci_reg_read64(struct nvme_ctrl *ctrl, u32 off, u64 *val)
- {
--	*val = readq(to_nvme_dev(ctrl)->bar + off);
-+	*val = lo_hi_readq(to_nvme_dev(ctrl)->bar + off);
- 	return 0;
- }
- 
+ 	/* Handle multiple unicast addresses */
+-	if (netdev_uc_count(dev) > GMAC_MAX_PERFECT_ADDRESSES) {
++	if (netdev_uc_count(dev) > hw->unicast_filter_entries) {
+ 		/* Switch to promiscuous mode if more than 128 addrs
+ 		 * are required
+ 		 */
 -- 
 2.20.1
 
