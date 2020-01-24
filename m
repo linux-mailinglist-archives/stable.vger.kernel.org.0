@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 164CC148296
+	by mail.lfdr.de (Postfix) with ESMTP id 7EABC148297
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:29:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391777AbgAXL3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:29:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
+        id S2391787AbgAXL3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:29:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391681AbgAXL3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:29:18 -0500
+        id S2391782AbgAXL3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:29:22 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FD872075D;
-        Fri, 24 Jan 2020 11:29:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F08EE20704;
+        Fri, 24 Jan 2020 11:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865358;
-        bh=lmUc0VtjCgXhUX9tYSOjITsm7gVF5YfOIr6LCpdPBGk=;
+        s=default; t=1579865361;
+        bh=9mJTFhYXrEZ/LGgFyxWlpc6b0i8kWtPtJUtFU9aLHjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/Y/apHxkMik3pOD26IkokGzCipIZJ8qO1VOybzoNXhWwISQNU187MUw/Q8darXlK
-         B7PTI2eZRrJSE8qf3B/nAZHDbpi2BBdnEI+0LzapLisErpmx5GTK/YGdKzlql0ZelU
-         M+aovN+3aUk84gPfzht8XEJ3jUSgyE7xmW+pyCJA=
+        b=b9mV/zwDypIvwmjG6EOgHBkzaS9rSRrsZP7uOwB0z1B1X6T7VZfwZKSm+54hfSOUH
+         oQG1fOnIno4ZxwYtiLi4kzHwaEuHXH6UTXcn7KVvAtuqPxuAVKzOniF0vG4fovZsDp
+         3XeS6ozLR9GwhgzAPADewRkeSSuuJVzBtSWNaO40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, ronnie sahlberg <ronniesahlberg@gmail.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>,
+        Steve French <smfrench@gmail.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 511/639] bnxt_en: Fix handling FRAG_ERR when NVM_INSTALL_UPDATE cmd fails
-Date:   Fri, 24 Jan 2020 10:31:21 +0100
-Message-Id: <20200124093152.821324986@linuxfoundation.org>
+Subject: [PATCH 4.19 512/639] signal: Allow cifs and drbd to receive their terminating signals
+Date:   Fri, 24 Jan 2020 10:31:22 +0100
+Message-Id: <20200124093152.952887591@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,55 +49,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit dd2ebf3404c7c295014bc025dea23960960ceb1a ]
+[ Upstream commit 33da8e7c814f77310250bb54a9db36a44c5de784 ]
 
-If FW returns FRAG_ERR in response error code, driver is resending the
-command only when HWRM command returns success. Fix the code to resend
-NVM_INSTALL_UPDATE command with DEFRAG install flags, if FW returns
-FRAG_ERR in its response error code.
+My recent to change to only use force_sig for a synchronous events
+wound up breaking signal reception cifs and drbd.  I had overlooked
+the fact that by default kthreads start out with all signals set to
+SIG_IGN.  So a change I thought was safe turned out to have made it
+impossible for those kernel thread to catch their signals.
 
-Fixes: cb4d1d626145 ("bnxt_en: Retry failed NVM_INSTALL_UPDATE with defragmentation flag enabled.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reverting the work on force_sig is a bad idea because what the code
+was doing was very much a misuse of force_sig.  As the way force_sig
+ultimately allowed the signal to happen was to change the signal
+handler to SIG_DFL.  Which after the first signal will allow userspace
+to send signals to these kernel threads.  At least for
+wake_ack_receiver in drbd that does not appear actively wrong.
+
+So correct this problem by adding allow_kernel_signal that will allow
+signals whose siginfo reports they were sent by the kernel through,
+but will not allow userspace generated signals, and update cifs and
+drbd to call allow_kernel_signal in an appropriate place so that their
+thread can receive this signal.
+
+Fixing things this way ensures that userspace won't be able to send
+signals and cause problems, that it is clear which signals the
+threads are expecting to receive, and it guarantees that nothing
+else in the system will be affected.
+
+This change was partly inspired by similar cifs and drbd patches that
+added allow_signal.
+
+Reported-by: ronnie sahlberg <ronniesahlberg@gmail.com>
+Reported-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Tested-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Cc: Steve French <smfrench@gmail.com>
+Cc: Philipp Reisner <philipp.reisner@linbit.com>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Fixes: 247bc9470b1e ("cifs: fix rmmod regression in cifs.ko caused by force_sig changes")
+Fixes: 72abe3bcf091 ("signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig")
+Fixes: fee109901f39 ("signal/drbd: Use send_sig not force_sig")
+Fixes: 3cf5d076fb4d ("signal: Remove task parameter from force_sig")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/block/drbd/drbd_main.c |  2 ++
+ fs/cifs/connect.c              |  2 +-
+ include/linux/signal.h         | 15 ++++++++++++++-
+ kernel/signal.c                |  5 +++++
+ 4 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index dc63d269f01dc..cdbb8940a4ae5 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1778,21 +1778,19 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
- 	mutex_lock(&bp->hwrm_cmd_lock);
- 	hwrm_err = _hwrm_send_message(bp, &install, sizeof(install),
- 				      INSTALL_PACKAGE_TIMEOUT);
--	if (hwrm_err)
--		goto flash_pkg_exit;
--
--	if (resp->error_code) {
-+	if (hwrm_err) {
- 		u8 error_code = ((struct hwrm_err_output *)resp)->cmd_err;
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index a49a8d91a5990..5e3885f5729b0 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -334,6 +334,8 @@ static int drbd_thread_setup(void *arg)
+ 		 thi->name[0],
+ 		 resource->name);
  
--		if (error_code == NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
-+		if (resp->error_code && error_code ==
-+		    NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
- 			install.flags |= cpu_to_le16(
- 			       NVM_INSTALL_UPDATE_REQ_FLAGS_ALLOWED_TO_DEFRAG);
- 			hwrm_err = _hwrm_send_message(bp, &install,
- 						      sizeof(install),
- 						      INSTALL_PACKAGE_TIMEOUT);
--			if (hwrm_err)
--				goto flash_pkg_exit;
- 		}
-+		if (hwrm_err)
-+			goto flash_pkg_exit;
- 	}
++	allow_kernel_signal(DRBD_SIGKILL);
++	allow_kernel_signal(SIGXCPU);
+ restart:
+ 	retval = thi->function(thi);
  
- 	if (resp->result) {
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index a8790bf04e95d..576cf71576da1 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -970,7 +970,7 @@ cifs_demultiplex_thread(void *p)
+ 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
+ 
+ 	set_freezable();
+-	allow_signal(SIGKILL);
++	allow_kernel_signal(SIGKILL);
+ 	while (server->tcpStatus != CifsExiting) {
+ 		if (try_to_freeze())
+ 			continue;
+diff --git a/include/linux/signal.h b/include/linux/signal.h
+index e4d01469ed60c..0be5ce2375cb9 100644
+--- a/include/linux/signal.h
++++ b/include/linux/signal.h
+@@ -272,6 +272,9 @@ extern void signal_setup_done(int failed, struct ksignal *ksig, int stepping);
+ extern void exit_signals(struct task_struct *tsk);
+ extern void kernel_sigaction(int, __sighandler_t);
+ 
++#define SIG_KTHREAD ((__force __sighandler_t)2)
++#define SIG_KTHREAD_KERNEL ((__force __sighandler_t)3)
++
+ static inline void allow_signal(int sig)
+ {
+ 	/*
+@@ -279,7 +282,17 @@ static inline void allow_signal(int sig)
+ 	 * know it'll be handled, so that they don't get converted to
+ 	 * SIGKILL or just silently dropped.
+ 	 */
+-	kernel_sigaction(sig, (__force __sighandler_t)2);
++	kernel_sigaction(sig, SIG_KTHREAD);
++}
++
++static inline void allow_kernel_signal(int sig)
++{
++	/*
++	 * Kernel threads handle their own signals. Let the signal code
++	 * know signals sent by the kernel will be handled, so that they
++	 * don't get silently dropped.
++	 */
++	kernel_sigaction(sig, SIG_KTHREAD_KERNEL);
+ }
+ 
+ static inline void disallow_signal(int sig)
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 7278302e34850..08911bb6fe9ab 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -86,6 +86,11 @@ static bool sig_task_ignored(struct task_struct *t, int sig, bool force)
+ 	    handler == SIG_DFL && !(force && sig_kernel_only(sig)))
+ 		return true;
+ 
++	/* Only allow kernel generated signals to this kthread */
++	if (unlikely((t->flags & PF_KTHREAD) &&
++		     (handler == SIG_KTHREAD_KERNEL) && !force))
++		return true;
++
+ 	return sig_handler_ignored(handler, sig);
+ }
+ 
 -- 
 2.20.1
 
