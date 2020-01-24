@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0DA5147CB2
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92293147C77
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388316AbgAXJxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:53:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56698 "EHLO mail.kernel.org"
+        id S2388136AbgAXJwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:52:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730133AbgAXJxw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:53:52 -0500
+        id S1733229AbgAXJwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:52:16 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B172C20709;
-        Fri, 24 Jan 2020 09:53:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12258206D5;
+        Fri, 24 Jan 2020 09:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859632;
-        bh=x2uuj7uGJLjRNyf1Xo+Hrb0zCDBdgtExyQg0lzggqB0=;
+        s=default; t=1579859535;
+        bh=0zZV0dTPDUCb8HtAqdx6Q4qpJXTfSjiOOIf97eWgWmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmUchGV42vE3Bo1T5Lk+urPg3TivL4XAEYY2HIH3v5yJ+UWd6Rg5S1beSSoLsmiOi
-         dYGVxhYUT1s9OVGUIgiWcVKhf4PUafQUAAMPSD1d50aDhvc1iQuOFHf9J2pNrn4UqO
-         YyrbtQsyuIfa69ejtnTUsvp392qdSsPH8keVZgBs=
+        b=CPwDMvDsZoTx0XO5aHuooBrzKGUdqdkC0mDmuyXvqVhBvuWDDML9FTCIpVeDmVuMy
+         iwEMUC8s8UYF8CT6yWXyEudu1x44SWKBsmf9RGgLjFktilehqZjsVc2o4Jx38Xq2hj
+         jQhk+XCEzZbTSk1GK2OwKextHoywp91TgGjg7EUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andyt Lutomirski <luto@kernel.org>,
-        dave.hansen@linux.intel.com, peterz@infradead.org, bp@alien8.de,
-        hpa@zytor.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 138/343] x86/mm: Remove unused variable cpu
-Date:   Fri, 24 Jan 2020 10:29:16 +0100
-Message-Id: <20200124092938.112917821@linuxfoundation.org>
+        stable@vger.kernel.org, Steve Sistare <steven.sistare@oracle.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 139/343] scsi: megaraid_sas: reduce module load time
+Date:   Fri, 24 Jan 2020 10:29:17 +0100
+Message-Id: <20200124092938.265228060@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -46,48 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Steve Sistare <steven.sistare@oracle.com>
 
-[ Upstream commit 3609e31bc8dc03b701390f79c74fc7fe92b95039 ]
+[ Upstream commit 31b6a05f86e690e1818116fd23c3be915cc9d9ed ]
 
-The commit a2055abe9c67 ("x86/mm: Pass flush_tlb_info to
-flush_tlb_others() etc") removed the unnecessary cpu parameter from
-uv_flush_tlb_others() but left an unused variable.
+megaraid_sas takes 1+ seconds to load while waiting for firmware:
 
-arch/x86/mm/tlb.c: In function 'native_flush_tlb_others':
-arch/x86/mm/tlb.c:688:16: warning: variable 'cpu' set but not used
-[-Wunused-but-set-variable]
-   unsigned int cpu;
-                ^~~
+[2.822603] megaraid_sas 0000:03:00.0: Waiting for FW to come to ready state
+[3.871003] megaraid_sas 0000:03:00.0: FW now in Ready state
 
-Fixes: a2055abe9c67 ("x86/mm: Pass flush_tlb_info to flush_tlb_others() etc")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Andyt Lutomirski <luto@kernel.org>
-Cc: dave.hansen@linux.intel.com
-Cc: peterz@infradead.org
-Cc: bp@alien8.de
-Cc: hpa@zytor.com
-Link: https://lkml.kernel.org/r/20190228220155.88124-1-cai@lca.pw
+This is due to the following loop in megasas_transition_to_ready(), which
+waits a minimum of 1 second, even though the FW becomes ready in tens of
+millisecs:
+
+        /*
+         * The cur_state should not last for more than max_wait secs
+         */
+        for (i = 0; i < max_wait; i++) {
+                ...
+                msleep(1000);
+        ...
+        dev_info(&instance->pdev->dev, "FW now in Ready state\n");
+
+This is a regression, caused by a change of the msleep granularity from 1
+to 1000 due to concern about waiting too long on systems with coarse
+jiffies.
+
+To fix, increase iterations and use msleep(20), which results in:
+
+[2.670627] megaraid_sas 0000:03:00.0: Waiting for FW to come to ready state
+[2.739386] megaraid_sas 0000:03:00.0: FW now in Ready state
+
+Fixes: fb2f3e96d80f ("scsi: megaraid_sas: Fix msleep granularity")
+Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+Acked-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/tlb.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 5400a24e1a8c0..c5d7b4ae17cab 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -651,9 +651,6 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
- 		 * that UV should be updated so that smp_call_function_many(),
- 		 * etc, are optimal on UV.
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 577513649afbe..6abad63b127af 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -3823,12 +3823,12 @@ megasas_transition_to_ready(struct megasas_instance *instance, int ocr)
+ 		/*
+ 		 * The cur_state should not last for more than max_wait secs
  		 */
--		unsigned int cpu;
--
--		cpu = smp_processor_id();
- 		cpumask = uv_flush_tlb_others(cpumask, info);
- 		if (cpumask)
- 			smp_call_function_many(cpumask, flush_tlb_func_remote,
+-		for (i = 0; i < max_wait; i++) {
++		for (i = 0; i < max_wait * 50; i++) {
+ 			curr_abs_state = instance->instancet->
+ 				read_fw_status_reg(instance->reg_set);
+ 
+ 			if (abs_state == curr_abs_state) {
+-				msleep(1000);
++				msleep(20);
+ 			} else
+ 				break;
+ 		}
 -- 
 2.20.1
 
