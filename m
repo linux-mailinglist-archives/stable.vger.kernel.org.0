@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B949147CE8
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF04147CFB
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:56:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732937AbgAXJz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:55:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58608 "EHLO mail.kernel.org"
+        id S2388499AbgAXJ4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:56:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388445AbgAXJz0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:55:26 -0500
+        id S1731830AbgAXJ4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:56:07 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EAA8206D5;
-        Fri, 24 Jan 2020 09:55:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C2F120709;
+        Fri, 24 Jan 2020 09:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859725;
-        bh=0nP3cWKO/WEmZ1SNhRfG5YujXVlnGbBS7WJQPo+lyw4=;
+        s=default; t=1579859767;
+        bh=gHH+EGP3Q2crbuz4UDGnrMfx3iIAgUGN75u1sKhpUAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/8cd+IlGLnUFU0BL8qoH7h01oTerAiY4ADCIiwBoaGQqp/hk+Xuhh4rpOtliy0Qt
-         wtu5CyLQhu8FHGSHogCDgBnqKsl9uokOJVoabfm7TnBAhAVKmgdtVzS5lTQgXltKNP
-         iTACX1UAXJ3NqEt/vr03e2gguTVg3RXxCuMtPaxM=
+        b=W+N0FrCf2tGlMWGyTmDK2l6ZW881V9dX0xKE+8exQ+vs6KyPkETTu9c2pu1o0H0sl
+         csx4edU3nAnCkFexsTmeuJaXrd8wXWHwX54P3tLCrO5lAtfe9uLKW7of+CM47GXxsK
+         ziVbsG1ebXW19SEuIGKAaC4ZfDdWAKF+VVWY4Q5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Giridhar Malavali <gmalavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, David Laight <David.Laight@aculab.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 180/343] scsi: qla2xxx: Fix a format specifier
-Date:   Fri, 24 Jan 2020 10:29:58 +0100
-Message-Id: <20200124092943.664950338@linuxfoundation.org>
+Subject: [PATCH 4.14 182/343] packet: in recvmsg msg_name return at least sizeof sockaddr_ll
+Date:   Fri, 24 Jan 2020 10:30:00 +0100
+Message-Id: <20200124092943.967185392@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -46,37 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 19ce192cd718e02f880197c0983404ca48236807 ]
+[ Upstream commit b2cf86e1563e33a14a1c69b3e508d15dc12f804c ]
 
-Since mcmd->sess->port_name is eight bytes long, use %8phC to format that
-port name instead of %phC.
+Packet send checks that msg_name is at least sizeof sockaddr_ll.
+Packet recv must return at least this length, so that its output
+can be passed unmodified to packet send.
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Giridhar Malavali <gmalavali@marvell.com>
-Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery") # v4.11.
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This ceased to be true since adding support for lladdr longer than
+sll_addr. Since, the return value uses true address length.
+
+Always return at least sizeof sockaddr_ll, even if address length
+is shorter. Zero the padding bytes.
+
+Change v1->v2: do not overwrite zeroed padding again. use copy_len.
+
+Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
+Suggested-by: David Laight <David.Laight@aculab.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/packet/af_packet.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 55227d20496a0..1000422ef4f8a 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -2179,7 +2179,7 @@ void qlt_xmit_tm_rsp(struct qla_tgt_mgmt_cmd *mcmd)
- 		    mcmd->orig_iocb.imm_ntfy.u.isp24.status_subcode ==
- 		    ELS_TPRLO) {
- 			ql_dbg(ql_dbg_disc, vha, 0x2106,
--			    "TM response logo %phC status %#x state %#x",
-+			    "TM response logo %8phC status %#x state %#x",
- 			    mcmd->sess->port_name, mcmd->fc_tm_rsp,
- 			    mcmd->flags);
- 			qlt_schedule_sess_for_deletion_lock(mcmd->sess);
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 4e1058159b082..e788f9c7c3984 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -3407,20 +3407,29 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	sock_recv_ts_and_drops(msg, sk, skb);
+ 
+ 	if (msg->msg_name) {
++		int copy_len;
++
+ 		/* If the address length field is there to be filled
+ 		 * in, we fill it in now.
+ 		 */
+ 		if (sock->type == SOCK_PACKET) {
+ 			__sockaddr_check_size(sizeof(struct sockaddr_pkt));
+ 			msg->msg_namelen = sizeof(struct sockaddr_pkt);
++			copy_len = msg->msg_namelen;
+ 		} else {
+ 			struct sockaddr_ll *sll = &PACKET_SKB_CB(skb)->sa.ll;
+ 
+ 			msg->msg_namelen = sll->sll_halen +
+ 				offsetof(struct sockaddr_ll, sll_addr);
++			copy_len = msg->msg_namelen;
++			if (msg->msg_namelen < sizeof(struct sockaddr_ll)) {
++				memset(msg->msg_name +
++				       offsetof(struct sockaddr_ll, sll_addr),
++				       0, sizeof(sll->sll_addr));
++				msg->msg_namelen = sizeof(struct sockaddr_ll);
++			}
+ 		}
+-		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa,
+-		       msg->msg_namelen);
++		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
+ 	}
+ 
+ 	if (pkt_sk(sk)->auxdata) {
 -- 
 2.20.1
 
