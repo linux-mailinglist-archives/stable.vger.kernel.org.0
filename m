@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8263D1489E6
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD541489DF
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:38:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388403AbgAXOiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:38:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38640 "EHLO mail.kernel.org"
+        id S2387821AbgAXOiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:38:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389176AbgAXOSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:18:47 -0500
+        id S2389002AbgAXOSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:18:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA0722527;
-        Fri, 24 Jan 2020 14:18:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5239620838;
+        Fri, 24 Jan 2020 14:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875527;
-        bh=qVSo41/s7T8HG9ndWY0t08ZWXbSoREZ6+XJRms8b+Lw=;
+        s=default; t=1579875528;
+        bh=OpUBZL5ybbPdTleQ7Tq34gwcRNz1+6TS91I3X9ZpkjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRrDN2qc5rZuPdOl/hcOzoZvJaUMxf/qSttT5miHDVuLjyituOVErNZqZTFptkYSG
-         7l6HbnrHNyZxMYgZRem0imRT4xlv5txFAJ0hU4dfMV8asZqeld/P6V4ts0IRfQN82B
-         M6b1JsWyjkLtQuhAEe8xxgTsM6HNfFlWhkbyYUIo=
+        b=xW3e4MbMI4GMCfjlQf7ZUlJ+b6pZVMEKa05SV68wk2mt6u68E2rnYUkwtU2sgJqRB
+         zo0UQV2IFHU+B4Sut9KKe24HPFwOEFpXIqRy+rn962oNQHUBsO1i8kjeTZlpci78L3
+         /1Nd4nQ6p5MOsmzLDK+A8Zh4e67p1CKMumRmsLj0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Markus Theil <markus.theil@tu-ilmenau.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 025/107] mac80211: mesh: restrict airtime metric to peered established plinks
-Date:   Fri, 24 Jan 2020 09:16:55 -0500
-Message-Id: <20200124141817.28793-25-sashal@kernel.org>
+Cc:     Shakeel Butt <shakeelb@google.com>, Borislav Petkov <bp@suse.de>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 026/107] x86/resctrl: Fix potential memory leak
+Date:   Fri, 24 Jan 2020 09:16:56 -0500
+Message-Id: <20200124141817.28793-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -44,53 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit 02a614499600af836137c3fbc4404cd96365fff2 ]
+[ Upstream commit ab6a2114433a3b5b555983dcb9b752a85255f04b ]
 
-The following warning is triggered every time an unestablished mesh peer
-gets dumped. Checks if a peer link is established before retrieving the
-airtime link metric.
+set_cache_qos_cfg() is leaking memory when the given level is not
+RDT_RESOURCE_L3 or RDT_RESOURCE_L2. At the moment, this function is
+called with only valid levels but move the allocation after the valid
+level checks in order to make it more robust and future proof.
 
-[ 9563.022567] WARNING: CPU: 0 PID: 6287 at net/mac80211/mesh_hwmp.c:345
-               airtime_link_metric_get+0xa2/0xb0 [mac80211]
-[ 9563.022697] Hardware name: PC Engines apu2/apu2, BIOS v4.10.0.3
-[ 9563.022756] RIP: 0010:airtime_link_metric_get+0xa2/0xb0 [mac80211]
-[ 9563.022838] Call Trace:
-[ 9563.022897]  sta_set_sinfo+0x936/0xa10 [mac80211]
-[ 9563.022964]  ieee80211_dump_station+0x6d/0x90 [mac80211]
-[ 9563.023062]  nl80211_dump_station+0x154/0x2a0 [cfg80211]
-[ 9563.023120]  netlink_dump+0x17b/0x370
-[ 9563.023130]  netlink_recvmsg+0x2a4/0x480
-[ 9563.023140]  ____sys_recvmsg+0xa6/0x160
-[ 9563.023154]  ___sys_recvmsg+0x93/0xe0
-[ 9563.023169]  __sys_recvmsg+0x7e/0xd0
-[ 9563.023210]  do_syscall_64+0x4e/0x140
-[ 9563.023217]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ [ bp: Massage commit message. ]
 
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20191203180644.70653-1-markus.theil@tu-ilmenau.de
-[rewrite commit message]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 99adde9b370de ("x86/intel_rdt: Enable L2 CDP in MSR IA32_L2_QOS_CFG")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Reinette Chatre <reinette.chatre@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20200102165844.133133-1-shakeelb@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_hwmp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
-index 68af623063858..d699833703819 100644
---- a/net/mac80211/mesh_hwmp.c
-+++ b/net/mac80211/mesh_hwmp.c
-@@ -328,6 +328,9 @@ u32 airtime_link_metric_get(struct ieee80211_local *local,
- 	unsigned long fail_avg =
- 		ewma_mesh_fail_avg_read(&sta->mesh->fail_avg);
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 2e3b06d6bbc6d..dac7209a07084 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -1741,9 +1741,6 @@ static int set_cache_qos_cfg(int level, bool enable)
+ 	struct rdt_domain *d;
+ 	int cpu;
  
-+	if (sta->mesh->plink_state != NL80211_PLINK_ESTAB)
-+		return MAX_METRIC;
+-	if (!zalloc_cpumask_var(&cpu_mask, GFP_KERNEL))
+-		return -ENOMEM;
+-
+ 	if (level == RDT_RESOURCE_L3)
+ 		update = l3_qos_cfg_update;
+ 	else if (level == RDT_RESOURCE_L2)
+@@ -1751,6 +1748,9 @@ static int set_cache_qos_cfg(int level, bool enable)
+ 	else
+ 		return -EINVAL;
+ 
++	if (!zalloc_cpumask_var(&cpu_mask, GFP_KERNEL))
++		return -ENOMEM;
 +
- 	/* Try to get rate based on HW/SW RC algorithm.
- 	 * Rate is returned in units of Kbps, correct this
- 	 * to comply with airtime calculation units
+ 	r_l = &rdt_resources_all[level];
+ 	list_for_each_entry(d, &r_l->domains, list) {
+ 		/* Pick one CPU from each domain instance to update MSR */
 -- 
 2.20.1
 
