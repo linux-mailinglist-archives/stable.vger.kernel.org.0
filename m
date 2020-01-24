@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9CC147C55
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:51:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6C6147C57
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:51:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733183AbgAXJvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:51:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52358 "EHLO mail.kernel.org"
+        id S1731675AbgAXJvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:51:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730738AbgAXJvO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:51:14 -0500
+        id S1730738AbgAXJvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:51:18 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF5DC214AF;
-        Fri, 24 Jan 2020 09:51:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F205420718;
+        Fri, 24 Jan 2020 09:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859473;
-        bh=E0IC9ExeDYq24uIjpOHqlMMq+cnmSCI5V04gzU4UAQ8=;
+        s=default; t=1579859477;
+        bh=karqSpi1eGtZ7fJsGTc6LA/4uwUn+antl6nfbZc0Z2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mot1pbovG24+PCG6LEANG/qoAezfIs3TPBwpBSxQf17ogGlXI+guKSo7lVUyKZyNs
-         /x5Nh4hemgX4W1LGPOmmxHPMVE+xG6SnOvJHVSwU6wNkp/K/8OacCzZb3s+hYOQABJ
-         n5Z4VRiDlNheMzoUFshryOhLehSwJ4xd+0bpGiHk=
+        b=DO1YsCYv8A3kiniCUL3IEv/Inth35YL74nBs5ELJ3Mu/O4SL6jpx6qtwBsL/EkfCF
+         r6K/r05JCApjkkARlvc7rCl34xAbm/Teqor4CVaQQNGXXWSuqt6XSEEWWaXyeDr7Bt
+         fSVnmtg7e+zGUodc0qmFfSs4mNPwxcYxwDoKa2LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/343] NFS: Fix a soft lockup in the delegation recovery code
-Date:   Fri, 24 Jan 2020 10:29:02 +0100
-Message-Id: <20200124092936.305935173@linuxfoundation.org>
+Subject: [PATCH 4.14 125/343] clocksource/drivers/sun5i: Fail gracefully when clock rate is unavailable
+Date:   Fri, 24 Jan 2020 10:29:03 +0100
+Message-Id: <20200124092936.444496393@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,81 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 6f9449be53f3ce383caed797708b332ede8d952c ]
+[ Upstream commit e7e7e0d7beafebd11b0c065cd5fbc1e5759c5aab ]
 
-Fix a soft lockup when NFS client delegation recovery is attempted
-but the inode is in the process of being freed. When the
-igrab(inode) call fails, and we have to restart the recovery process,
-we need to ensure that we won't attempt to recover the same delegation
-again.
+If the clock tree is not fully populated when the timer-sun5i init code
+is called, attempts to get the clock rate for the timer would fail and
+return 0.
 
-Fixes: 45870d6909d5a ("NFSv4.1: Test delegation stateids when server...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Make the init code for both clock events and clocksource check the
+returned clock rate and fail gracefully if the result is 0, instead of
+causing a divide by 0 exception later on.
+
+Fixes: 4a59058f0b09 ("clocksource/drivers/sun5i: Refactor the current code")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 20 ++++++++++++--------
- fs/nfs/delegation.h |  1 +
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/clocksource/timer-sun5i.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 04d57e11577e0..09b3bcb86d328 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -234,6 +234,8 @@ static struct inode *nfs_delegation_grab_inode(struct nfs_delegation *delegation
- 	spin_lock(&delegation->lock);
- 	if (delegation->inode != NULL)
- 		inode = igrab(delegation->inode);
-+	if (!inode)
-+		set_bit(NFS_DELEGATION_INODE_FREEING, &delegation->flags);
- 	spin_unlock(&delegation->lock);
- 	return inode;
- }
-@@ -863,10 +865,11 @@ restart:
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry_rcu(delegation, &server->delegations,
- 								super_list) {
--			if (test_bit(NFS_DELEGATION_RETURNING,
--						&delegation->flags))
--				continue;
--			if (test_bit(NFS_DELEGATION_NEED_RECLAIM,
-+			if (test_bit(NFS_DELEGATION_INODE_FREEING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_RETURNING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_NEED_RECLAIM,
- 						&delegation->flags) == 0)
- 				continue;
- 			if (!nfs_sb_active(server->super))
-@@ -971,10 +974,11 @@ restart:
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry_rcu(delegation, &server->delegations,
- 								super_list) {
--			if (test_bit(NFS_DELEGATION_RETURNING,
--						&delegation->flags))
--				continue;
--			if (test_bit(NFS_DELEGATION_TEST_EXPIRED,
-+			if (test_bit(NFS_DELEGATION_INODE_FREEING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_RETURNING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_TEST_EXPIRED,
- 						&delegation->flags) == 0)
- 				continue;
- 			if (!nfs_sb_active(server->super))
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index df41d16dc6ab4..510c9edcc712d 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -34,6 +34,7 @@ enum {
- 	NFS_DELEGATION_RETURNING,
- 	NFS_DELEGATION_REVOKED,
- 	NFS_DELEGATION_TEST_EXPIRED,
-+	NFS_DELEGATION_INODE_FREEING,
- };
+diff --git a/drivers/clocksource/timer-sun5i.c b/drivers/clocksource/timer-sun5i.c
+index 2a3fe83ec3377..6f4a9a8faccc2 100644
+--- a/drivers/clocksource/timer-sun5i.c
++++ b/drivers/clocksource/timer-sun5i.c
+@@ -202,6 +202,11 @@ static int __init sun5i_setup_clocksource(struct device_node *node,
+ 	}
  
- int nfs_inode_set_delegation(struct inode *inode, struct rpc_cred *cred, struct nfs_openres *res);
+ 	rate = clk_get_rate(clk);
++	if (!rate) {
++		pr_err("Couldn't get parent clock rate\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
++	}
+ 
+ 	cs->timer.base = base;
+ 	cs->timer.clk = clk;
+@@ -275,6 +280,11 @@ static int __init sun5i_setup_clockevent(struct device_node *node, void __iomem
+ 	}
+ 
+ 	rate = clk_get_rate(clk);
++	if (!rate) {
++		pr_err("Couldn't get parent clock rate\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
++	}
+ 
+ 	ce->timer.base = base;
+ 	ce->timer.ticks_per_jiffy = DIV_ROUND_UP(rate, HZ);
 -- 
 2.20.1
 
