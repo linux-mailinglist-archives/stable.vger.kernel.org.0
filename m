@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1D0147B36
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EDF5147B38
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:42:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733067AbgAXJlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:41:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39296 "EHLO mail.kernel.org"
+        id S1733077AbgAXJlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:41:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731809AbgAXJlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:41:45 -0500
+        id S1731809AbgAXJlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:41:49 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49C3820718;
-        Fri, 24 Jan 2020 09:41:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE811214DB;
+        Fri, 24 Jan 2020 09:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579858905;
-        bh=sDI6lGzmww86chtQAgCBVr2HYzxBsS5wuFzI9E7yLr0=;
+        s=default; t=1579858908;
+        bh=5tqfyQQVd7lHz3TN0TiyuYVkJuUZgmznwCFWmtfB1sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5yCG5lRNop9QGPcgkpRExKJ7WNaOaMzM8gcakZRVj0rqhFtKvY9oCmEE5fSrryP7
-         8p3mVCiwklwFuAv3WePZGtp+dApN7UcsOciBBBWaXAAWU/w+N9j7I1kJmFEmNzW1M7
-         3PfNIoNdrcVYI5f+XU8PzBygjXKN5eQ5uN5S3RSU=
+        b=TsOnjl1lfMDH5n+w3xDv/3ZrYkIgxHCUF0kHmxP5tZXEOIENjQ0rCnKNZqzXik19w
+         TUYmhecJH1jvrJk1vvHWZ5zCLl5fTWfC8dpIsZZ9/lGAoNr2P/xJWXpIJmmFuUdVp/
+         5vdVWXcoI0ZjSEqeW7mAjOnOYnMKQFbTF+LLd19g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/102] workqueue: Add RCU annotation for pwq list walk
-Date:   Fri, 24 Jan 2020 10:31:28 +0100
-Message-Id: <20200124092819.804917979@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 088/102] SUNRPC: Fix another issue with MIC buffer space
+Date:   Fri, 24 Jan 2020 10:31:29 +0100
+Message-Id: <20200124092819.954760851@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092806.004582306@linuxfoundation.org>
 References: <20200124092806.004582306@linuxfoundation.org>
@@ -44,40 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 49e9d1a9faf2f71fdfd80a30697ee9a15070626d ]
+[ Upstream commit e8d70b321ecc9b23d09b8df63e38a2f73160c209 ]
 
-An additional check has been recently added to ensure that a RCU related lock
-is held while the RCU list is iterated.
-The `pwqs' are sometimes iterated without a RCU lock but with the &wq->mutex
-acquired leading to a warning.
+xdr_shrink_pagelen() BUG's when @len is larger than buf->page_len.
+This can happen when xdr_buf_read_mic() is given an xdr_buf with
+a small page array (like, only a few bytes).
 
-Teach list_for_each_entry_rcu() that the RCU usage is okay if &wq->mutex
-is acquired during the list traversal.
+Instead, just cap the number of bytes that xdr_shrink_pagelen()
+will move.
 
-Fixes: 28875945ba98d ("rcu: Add support for consolidated-RCU reader checking")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 5f1bc39979d ("SUNRPC: Fix buffer handling of GSS MIC ... ")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sunrpc/xdr.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 649687622654b..e9c63b79e03f4 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -425,7 +425,8 @@ static void workqueue_sysfs_unregister(struct workqueue_struct *wq);
-  * ignored.
-  */
- #define for_each_pwq(pwq, wq)						\
--	list_for_each_entry_rcu((pwq), &(wq)->pwqs, pwqs_node)		\
-+	list_for_each_entry_rcu((pwq), &(wq)->pwqs, pwqs_node,		\
-+				lockdep_is_held(&wq->mutex))		\
- 		if (({ assert_rcu_or_wq_mutex(wq); false; })) { }	\
- 		else
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index 14ba9e72a2049..f3104be8ff5dc 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -436,13 +436,12 @@ xdr_shrink_bufhead(struct xdr_buf *buf, size_t len)
+ }
  
+ /**
+- * xdr_shrink_pagelen
++ * xdr_shrink_pagelen - shrinks buf->pages by up to @len bytes
+  * @buf: xdr_buf
+  * @len: bytes to remove from buf->pages
+  *
+- * Shrinks XDR buffer's page array buf->pages by
+- * 'len' bytes. The extra data is not lost, but is instead
+- * moved into the tail.
++ * The extra data is not lost, but is instead moved into buf->tail.
++ * Returns the actual number of bytes moved.
+  */
+ static unsigned int
+ xdr_shrink_pagelen(struct xdr_buf *buf, size_t len)
+@@ -455,8 +454,8 @@ xdr_shrink_pagelen(struct xdr_buf *buf, size_t len)
+ 
+ 	result = 0;
+ 	tail = buf->tail;
+-	BUG_ON (len > pglen);
+-
++	if (len > buf->page_len)
++		len = buf-> page_len;
+ 	tailbuf_len = buf->buflen - buf->head->iov_len - buf->page_len;
+ 
+ 	/* Shift the tail first */
 -- 
 2.20.1
 
