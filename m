@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC06147D9B
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA424147DDF
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388729AbgAXKB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 05:01:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37354 "EHLO mail.kernel.org"
+        id S2388473AbgAXKD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 05:03:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388518AbgAXKB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 05:01:59 -0500
+        id S1727215AbgAXKD4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 05:03:56 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15543206D5;
-        Fri, 24 Jan 2020 10:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE401214DB;
+        Fri, 24 Jan 2020 10:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579860118;
-        bh=AWANv358SCCe+zsonAa1awzaNFZZS6khwqstwCg5sCA=;
+        s=default; t=1579860235;
+        bh=8lXkaBFiTdPgjwQ++No6cXoW17Z8A6bKUkuAlyV/ENk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdKE4CKMW1PcScGqc+6m+g4R4kvMMse6e8/Ufu57GvFudXwTpN8mIMh9mYYiUrZEb
-         lwBJj34cKS0m7Ikd7bLectb5+tTeMMtBzyyLsh2aiRBs62fdIewY0IjfGq6xdcUcCy
-         QpxB4ALDxKCQyt7hUSTc8V7+Py3C6LsxG+6OLzHw=
+        b=coTQLNWQXoNPKN9AHLlEuRPzQDEzeX4A97VE74Pb7eQ0DEK8NKaot4z1Eyfr/TSOU
+         pKOxlN4lS0zGYV6vDREsw8K4gk77oMUsfI9wbrtxo18zwMjDSOX28say8XqV3Q8Mns
+         h6qO1R4BCCdlmEzHjhNl5AKa21WvFvShMc7eS1wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 261/343] x86/kgbd: Use NMI_VECTOR not APIC_DM_NMI
-Date:   Fri, 24 Jan 2020 10:31:19 +0100
-Message-Id: <20200124092954.374327251@linuxfoundation.org>
+Subject: [PATCH 4.14 262/343] crypto: ccp - Reduce maximum stack usage
+Date:   Fri, 24 Jan 2020 10:31:20 +0100
+Message-Id: <20200124092954.488805431@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,39 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 2591bc4e8d70b4e1330d327fb7e3921f4e070a51 ]
+[ Upstream commit 72c8117adfced37df101c8c0b3f363e0906f83f0 ]
 
-apic->send_IPI_allbutself() takes a vector number as argument.
+Each of the operations in ccp_run_cmd() needs several hundred
+bytes of kernel stack. Depending on the inlining, these may
+need separate stack slots that add up to more than the warning
+limit, as shown in this clang based build:
 
-APIC_DM_NMI is clearly not a vector number. It's defined to 0x400 which is
-outside the vector space.
+drivers/crypto/ccp/ccp-ops.c:871:12: error: stack frame size of 1164 bytes in function 'ccp_run_aes_cmd' [-Werror,-Wframe-larger-than=]
+static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
 
-Use NMI_VECTOR instead as that's what it is intended to be.
+The problem may also happen when there is no warning, e.g. in the
+ccp_run_cmd()->ccp_run_aes_cmd()->ccp_run_aes_gcm_cmd() call chain with
+over 2000 bytes.
 
-Fixes: 82da3ff89dc2 ("x86: kgdb support")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20190722105218.855189979@linutronix.de
+Mark each individual function as 'noinline_for_stack' to prevent
+this from happening, and move the calls to the two special cases for aes
+into the top-level function. This will keep the actual combined stack
+usage to the mimimum: 828 bytes for ccp_run_aes_gcm_cmd() and
+at most 524 bytes for each of the other cases.
+
+Fixes: 63b945091a07 ("crypto: ccp - CCP device driver and interface support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kgdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-ops.c | 52 +++++++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 21 deletions(-)
 
-diff --git a/arch/x86/kernel/kgdb.c b/arch/x86/kernel/kgdb.c
-index 8e36f249646e2..904e18bb38c52 100644
---- a/arch/x86/kernel/kgdb.c
-+++ b/arch/x86/kernel/kgdb.c
-@@ -438,7 +438,7 @@ static void kgdb_disable_hw_debug(struct pt_regs *regs)
-  */
- void kgdb_roundup_cpus(unsigned long flags)
- {
--	apic->send_IPI_allbutself(APIC_DM_NMI);
-+	apic->send_IPI_allbutself(NMI_VECTOR);
+diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
+index 4b48b8523a40c..330853a2702f0 100644
+--- a/drivers/crypto/ccp/ccp-ops.c
++++ b/drivers/crypto/ccp/ccp-ops.c
+@@ -458,8 +458,8 @@ static int ccp_copy_from_sb(struct ccp_cmd_queue *cmd_q,
+ 	return ccp_copy_to_from_sb(cmd_q, wa, jobid, sb, byte_swap, true);
  }
- #endif
  
+-static int ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q,
+-				struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_aes_engine *aes = &cmd->u.aes;
+ 	struct ccp_dm_workarea key, ctx;
+@@ -614,8 +614,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
+-			       struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_aes_engine *aes = &cmd->u.aes;
+ 	struct ccp_dm_workarea key, ctx, final_wa, tag;
+@@ -897,7 +897,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_aes_engine *aes = &cmd->u.aes;
+ 	struct ccp_dm_workarea key, ctx;
+@@ -907,12 +908,6 @@ static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ 	bool in_place = false;
+ 	int ret;
+ 
+-	if (aes->mode == CCP_AES_MODE_CMAC)
+-		return ccp_run_aes_cmac_cmd(cmd_q, cmd);
+-
+-	if (aes->mode == CCP_AES_MODE_GCM)
+-		return ccp_run_aes_gcm_cmd(cmd_q, cmd);
+-
+ 	if (!((aes->key_len == AES_KEYSIZE_128) ||
+ 	      (aes->key_len == AES_KEYSIZE_192) ||
+ 	      (aes->key_len == AES_KEYSIZE_256)))
+@@ -1080,8 +1075,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q,
+-			       struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_xts_aes_engine *xts = &cmd->u.xts;
+ 	struct ccp_dm_workarea key, ctx;
+@@ -1280,7 +1275,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_des3_engine *des3 = &cmd->u.des3;
+ 
+@@ -1476,7 +1472,8 @@ e_key:
+ 	return ret;
+ }
+ 
+-static int ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_sha_engine *sha = &cmd->u.sha;
+ 	struct ccp_dm_workarea ctx;
+@@ -1820,7 +1817,8 @@ e_ctx:
+ 	return ret;
+ }
+ 
+-static int ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_rsa_engine *rsa = &cmd->u.rsa;
+ 	struct ccp_dm_workarea exp, src, dst;
+@@ -1951,8 +1949,8 @@ e_sb:
+ 	return ret;
+ }
+ 
+-static int ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q,
+-				struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_passthru_engine *pt = &cmd->u.passthru;
+ 	struct ccp_dm_workarea mask;
+@@ -2083,7 +2081,8 @@ e_mask:
+ 	return ret;
+ }
+ 
+-static int ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
++static noinline_for_stack int
++ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
+ 				      struct ccp_cmd *cmd)
+ {
+ 	struct ccp_passthru_nomap_engine *pt = &cmd->u.passthru_nomap;
+@@ -2424,7 +2423,8 @@ e_src:
+ 	return ret;
+ }
+ 
+-static int ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
++static noinline_for_stack int
++ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ {
+ 	struct ccp_ecc_engine *ecc = &cmd->u.ecc;
+ 
+@@ -2461,7 +2461,17 @@ int ccp_run_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
+ 
+ 	switch (cmd->engine) {
+ 	case CCP_ENGINE_AES:
+-		ret = ccp_run_aes_cmd(cmd_q, cmd);
++		switch (cmd->u.aes.mode) {
++		case CCP_AES_MODE_CMAC:
++			ret = ccp_run_aes_cmac_cmd(cmd_q, cmd);
++			break;
++		case CCP_AES_MODE_GCM:
++			ret = ccp_run_aes_gcm_cmd(cmd_q, cmd);
++			break;
++		default:
++			ret = ccp_run_aes_cmd(cmd_q, cmd);
++			break;
++		}
+ 		break;
+ 	case CCP_ENGINE_XTS_AES_128:
+ 		ret = ccp_run_xts_aes_cmd(cmd_q, cmd);
 -- 
 2.20.1
 
