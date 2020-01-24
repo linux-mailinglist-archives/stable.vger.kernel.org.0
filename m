@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C88147D08
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98824147D0A
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 11:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbgAXJ4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:56:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60126 "EHLO mail.kernel.org"
+        id S1732393AbgAXJ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:56:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733156AbgAXJ4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:56:24 -0500
+        id S1731098AbgAXJ42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:56:28 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C60D20718;
-        Fri, 24 Jan 2020 09:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDF6620718;
+        Fri, 24 Jan 2020 09:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859783;
-        bh=Nym0iD4z5NaCeFn5Wys1xYI74+4vhLSYjFRC9SEUaek=;
+        s=default; t=1579859787;
+        bh=GT79FooQqGTj/KIsUOKgKa9dqw9ObSDXS8vyvK6kufQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oefFpxuUt4z3jBM3kM84L/2QTUCPid0IFm64oHMfBOoZLrUdr3+OIzis31F2xEa9
-         rYRcT5lQk42g+oHn2jjeAbagKdJR2pudTYAlW0Zw2IeSZBC+jVLV1KPUzDWMPY75Nt
-         dZ8pnum9Gqib+7hbfmTxFRCZIWpQTmWvfRHGlrPQ=
+        b=eFl0b07mu7Y8f2ycp/M7hxGt9nbovQe1ilM/zR0XQ3BeyYpHd01flzM3ceWlHf/NS
+         SvO81fxZnz8rP3g6KmbZu4DLQCzXzfy/KsEJjxoJ+jtRHTEPHSF5AIBr02fb7xlTSS
+         wP/ZCTA7Of/yCsrDOPULcS6eIC2WlJajF7eI9Jpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Konopko <igor.j.konopko@intel.com>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        Hans Holmberg <hans.holmberg@cnexlabs.com>,
-        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 194/343] lightnvm: pblk: fix lock order in pblk_rb_tear_down_check
-Date:   Fri, 24 Jan 2020 10:30:12 +0100
-Message-Id: <20200124092945.501276564@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 195/343] afs: Fix the afs.cell and afs.volume xattr handlers
+Date:   Fri, 24 Jan 2020 10:30:13 +0100
+Message-Id: <20200124092945.633348648@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -46,38 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Konopko <igor.j.konopko@intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 486b5aac85f6ec0b2df3e82a6a629d5eb7804db5 ]
+[ Upstream commit c73aa4102f5b9f261a907c3b3df94cd2c478504d ]
 
-In pblk_rb_tear_down_check() the spinlock functions are not
-called in proper order.
+Fix the ->get handlers for the afs.cell and afs.volume xattrs to pass the
+source data size to memcpy() rather than target buffer size.
 
-Fixes: a4bd217 ("lightnvm: physical block device (pblk) target")
-Signed-off-by: Igor Konopko <igor.j.konopko@intel.com>
-Reviewed-by: Javier González <javier@javigon.com>
-Reviewed-by: Hans Holmberg <hans.holmberg@cnexlabs.com>
-Signed-off-by: Matias Bjørling <mb@lightnvm.io>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Overcopying the source data occasionally causes the kernel to oops.
+
+Fixes: d3e3b7eac886 ("afs: Add metadata xattrs")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/lightnvm/pblk-rb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/xattr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/lightnvm/pblk-rb.c b/drivers/lightnvm/pblk-rb.c
-index c0dd17a821709..73de2deaba673 100644
---- a/drivers/lightnvm/pblk-rb.c
-+++ b/drivers/lightnvm/pblk-rb.c
-@@ -825,8 +825,8 @@ int pblk_rb_tear_down_check(struct pblk_rb *rb)
- 	}
- 
- out:
--	spin_unlock(&rb->w_lock);
- 	spin_unlock_irq(&rb->s_lock);
-+	spin_unlock(&rb->w_lock);
- 
- 	return ret;
+diff --git a/fs/afs/xattr.c b/fs/afs/xattr.c
+index 2830e4f48d854..7c6b62a94e7e7 100644
+--- a/fs/afs/xattr.c
++++ b/fs/afs/xattr.c
+@@ -50,7 +50,7 @@ static int afs_xattr_get_cell(const struct xattr_handler *handler,
+ 		return namelen;
+ 	if (namelen > size)
+ 		return -ERANGE;
+-	memcpy(buffer, cell->name, size);
++	memcpy(buffer, cell->name, namelen);
+ 	return namelen;
  }
+ 
+@@ -104,7 +104,7 @@ static int afs_xattr_get_volume(const struct xattr_handler *handler,
+ 		return namelen;
+ 	if (namelen > size)
+ 		return -ERANGE;
+-	memcpy(buffer, volname, size);
++	memcpy(buffer, volname, namelen);
+ 	return namelen;
+ }
+ 
 -- 
 2.20.1
 
