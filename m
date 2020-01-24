@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F52514898C
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F82B14898E
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392083AbgAXOfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:35:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
+        id S2388837AbgAXOfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:35:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391673AbgAXOT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:29 -0500
+        id S2391715AbgAXOTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:19:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8940221556;
-        Fri, 24 Jan 2020 14:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB9EB22522;
+        Fri, 24 Jan 2020 14:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875568;
-        bh=oeW6U2MkcM5rIUI9vPpzZNq4TO61iMRDiVW1cUgizZw=;
+        s=default; t=1579875569;
+        bh=QFIDya6ivalEWjHBowgAtT7ZFFosbE3XxUDc3fLxS0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcWUxSfbN1pNWtwMh5zEVeqKfQP4HmrhmG3GuNq3SryGsWkjr40Cjb8zj9jzVb1zn
-         tYXmWkeAx8sHMQZGsI5CH4Nc85lytPVX75Q98QFmkB4Up3RomCUF5eukAj9bl40cRn
-         oB24fBm/TtKOFEP+CDlwGQ3MzZgLF+f8AKtdoAU8=
+        b=gFlju4nnIDoFDyU9DrxA7yzDclo1/Tll8jCvY/8S++KHzfFHKBNPFfWtLubE7L4R4
+         n1+CvCn2IJAEWUkQiqdWpu2nucAchZdxWNdcD+kS6jc5GhkjcIPXfZaevlfYbKLvYT
+         D714tjoT2HH7uA7uvg0mNj912WIr3lDgontLyTVk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kristian Evensen <kristian.evensen@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 061/107] qmi_wwan: Add support for Quectel RM500Q
-Date:   Fri, 24 Jan 2020 09:17:31 -0500
-Message-Id: <20200124141817.28793-61-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-wireless@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 062/107] NFC: pn533: fix bulk-message timeout
+Date:   Fri, 24 Jan 2020 09:17:32 -0500
+Message-Id: <20200124141817.28793-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,34 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Evensen <kristian.evensen@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit a9ff44f0e61d074f29770413fef6a5452be7b83e ]
+[ Upstream commit a112adafcb47760feff959ee1ecd10b74d2c5467 ]
 
-RM500Q is a 5G module from Quectel, supporting both standalone and
-non-standalone modes. The normal Quectel quirks apply (DTR and dynamic
-interface numbers).
+The driver was doing a synchronous uninterruptible bulk-transfer without
+using a timeout. This could lead to the driver hanging on probe due to a
+malfunctioning (or malicious) device until the device is physically
+disconnected. While sleeping in probe the driver prevents other devices
+connected to the same hub from being added to (or removed from) the bus.
 
-Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
+An arbitrary limit of five seconds should be more than enough.
+
+Fixes: dbafc28955fa ("NFC: pn533: don't send USB data off of the stack")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nfc/pn533/usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 4196c0e327403..9485c8d1de8a3 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1062,6 +1062,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_QUIRK_QUECTEL_DYNCFG(0x2c7c, 0x0125)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
- 	{QMI_QUIRK_QUECTEL_DYNCFG(0x2c7c, 0x0306)},	/* Quectel EP06/EG06/EM06 */
- 	{QMI_QUIRK_QUECTEL_DYNCFG(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
-+	{QMI_QUIRK_QUECTEL_DYNCFG(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index e897e4d768ef7..d7a355d053687 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -391,7 +391,7 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
+ 		       cmd, sizeof(cmd), false);
  
- 	/* 3. Combined interface devices matching on interface number */
- 	{QMI_FIXED_INTF(0x0408, 0xea42, 4)},	/* Yota / Megafon M100-1 */
+ 	rc = usb_bulk_msg(phy->udev, phy->out_urb->pipe, buffer, sizeof(cmd),
+-			  &transferred, 0);
++			  &transferred, 5000);
+ 	kfree(buffer);
+ 	if (rc || (transferred != sizeof(cmd))) {
+ 		nfc_err(&phy->udev->dev,
 -- 
 2.20.1
 
