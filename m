@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2BB1486FE
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA30148700
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 15:20:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404255AbgAXOT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 09:19:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40616 "EHLO mail.kernel.org"
+        id S2404351AbgAXOUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 09:20:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404184AbgAXOT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:19:56 -0500
+        id S2404345AbgAXOUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 09:20:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9076C22527;
-        Fri, 24 Jan 2020 14:19:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B89F222D9;
+        Fri, 24 Jan 2020 14:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579875595;
-        bh=EjpoKTcnU0pwJ5XjcH6CvI+6ThgKGdm5gNCySFfzE3k=;
+        s=default; t=1579875601;
+        bh=6J0/GOKN5YQoNJVfktllwsQTAUpa12zICp72WrsWBdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o77kV+9QOJSck3jkvp6CxsUZeeyctpry5dnMkCX2SsC+8dMGHrcpkBxPq5QmG+9UH
-         A+XlVKQtCY8zbl5S/DHJKLIMX54EWdUq3Rvg9V92BQXxjEQlsXavqlzsIAHV4lbGt5
-         EzlSJ8z1wMiawSE75aLxC2qgPc4RCS6wcjCMLu+Y=
+        b=qInIpqUUNvHTjH4hAwuY3rvUWkhm4bxb0gbluN2SGRoA0IcKD7H08DHAGiJsKGoGk
+         mOOc5Zv7AbUHv2VvIbQDgA+JjZPJ3inUi5I/fn6kIblgw54vucs+pfWXQAT8G7ja36
+         I8Hvckc5/InNbQaNiK0REkD4GHN95gN34DvIfRig=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 084/107] net: stmmac: selftests: Make it work in Synopsys AXS101 boards
-Date:   Fri, 24 Jan 2020 09:17:54 -0500
-Message-Id: <20200124141817.28793-84-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 089/107] net: ethernet: ave: Avoid lockdep warning
+Date:   Fri, 24 Jan 2020 09:17:59 -0500
+Message-Id: <20200124141817.28793-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
 References: <20200124141817.28793-1-sashal@kernel.org>
@@ -43,93 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 0b9f932edc1a461933bfde08e620362e2190e0dd ]
+[ Upstream commit 82d5d6a638cbd12b7dfe8acafd9efd87a656cc06 ]
 
-Synopsys AXS101 boards do not support unaligned memory loads or stores.
-Change the selftests mechanism to explicity:
-- Not add extra alignment in TX SKB
-- Use the unaligned version of ether_addr_equal()
+When building with PROVE_LOCKING=y, lockdep shows the following
+dump message.
 
-Fixes: 091810dbded9 ("net: stmmac: Introduce selftests support")
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+    INFO: trying to register non-static key.
+    the code is fine but needs lockdep annotation.
+    turning off the locking correctness validator.
+     ...
+
+Calling device_set_wakeup_enable() directly occurs this issue,
+and it isn't necessary for initialization, so this patch creates
+internal function __ave_ethtool_set_wol() and replaces with this
+in ave_init() and ave_resume().
+
+Fixes: 7200f2e3c9e2 ("net: ethernet: ave: Set initial wol state to disabled")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../stmicro/stmmac/stmmac_selftests.c         | 20 ++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/socionext/sni_ave.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-index 3679d123a2ab7..36ef8bee5fcfd 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-@@ -80,7 +80,7 @@ static struct sk_buff *stmmac_test_get_udp_skb(struct stmmac_priv *priv,
- 	if (attr->max_size && (attr->max_size > size))
- 		size = attr->max_size;
+diff --git a/drivers/net/ethernet/socionext/sni_ave.c b/drivers/net/ethernet/socionext/sni_ave.c
+index 6e984d5a729fe..38d39c4b5ac83 100644
+--- a/drivers/net/ethernet/socionext/sni_ave.c
++++ b/drivers/net/ethernet/socionext/sni_ave.c
+@@ -424,16 +424,22 @@ static void ave_ethtool_get_wol(struct net_device *ndev,
+ 		phy_ethtool_get_wol(ndev->phydev, wol);
+ }
  
--	skb = netdev_alloc_skb_ip_align(priv->dev, size);
-+	skb = netdev_alloc_skb(priv->dev, size);
- 	if (!skb)
- 		return NULL;
- 
-@@ -244,6 +244,8 @@ static int stmmac_test_loopback_validate(struct sk_buff *skb,
- 					 struct net_device *orig_ndev)
+-static int ave_ethtool_set_wol(struct net_device *ndev,
+-			       struct ethtool_wolinfo *wol)
++static int __ave_ethtool_set_wol(struct net_device *ndev,
++				 struct ethtool_wolinfo *wol)
  {
- 	struct stmmac_test_priv *tpriv = pt->af_packet_priv;
-+	unsigned char *src = tpriv->packet->src;
-+	unsigned char *dst = tpriv->packet->dst;
- 	struct stmmachdr *shdr;
- 	struct ethhdr *ehdr;
- 	struct udphdr *uhdr;
-@@ -260,15 +262,15 @@ static int stmmac_test_loopback_validate(struct sk_buff *skb,
- 		goto out;
+-	int ret;
+-
+ 	if (!ndev->phydev ||
+ 	    (wol->wolopts & (WAKE_ARP | WAKE_MAGICSECURE)))
+ 		return -EOPNOTSUPP;
  
- 	ehdr = (struct ethhdr *)skb_mac_header(skb);
--	if (tpriv->packet->dst) {
--		if (!ether_addr_equal(ehdr->h_dest, tpriv->packet->dst))
-+	if (dst) {
-+		if (!ether_addr_equal_unaligned(ehdr->h_dest, dst))
- 			goto out;
- 	}
- 	if (tpriv->packet->sarc) {
--		if (!ether_addr_equal(ehdr->h_source, ehdr->h_dest))
-+		if (!ether_addr_equal_unaligned(ehdr->h_source, ehdr->h_dest))
- 			goto out;
--	} else if (tpriv->packet->src) {
--		if (!ether_addr_equal(ehdr->h_source, tpriv->packet->src))
-+	} else if (src) {
-+		if (!ether_addr_equal_unaligned(ehdr->h_source, src))
- 			goto out;
- 	}
+-	ret = phy_ethtool_set_wol(ndev->phydev, wol);
++	return phy_ethtool_set_wol(ndev->phydev, wol);
++}
++
++static int ave_ethtool_set_wol(struct net_device *ndev,
++			       struct ethtool_wolinfo *wol)
++{
++	int ret;
++
++	ret = __ave_ethtool_set_wol(ndev, wol);
+ 	if (!ret)
+ 		device_set_wakeup_enable(&ndev->dev, !!wol->wolopts);
  
-@@ -714,7 +716,7 @@ static int stmmac_test_flowctrl_validate(struct sk_buff *skb,
- 	struct ethhdr *ehdr;
+@@ -1216,7 +1222,7 @@ static int ave_init(struct net_device *ndev)
  
- 	ehdr = (struct ethhdr *)skb_mac_header(skb);
--	if (!ether_addr_equal(ehdr->h_source, orig_ndev->dev_addr))
-+	if (!ether_addr_equal_unaligned(ehdr->h_source, orig_ndev->dev_addr))
- 		goto out;
- 	if (ehdr->h_proto != htons(ETH_P_PAUSE))
- 		goto out;
-@@ -856,7 +858,7 @@ static int stmmac_test_vlan_validate(struct sk_buff *skb,
- 	}
+ 	/* set wol initial state disabled */
+ 	wol.wolopts = 0;
+-	ave_ethtool_set_wol(ndev, &wol);
++	__ave_ethtool_set_wol(ndev, &wol);
  
- 	ehdr = (struct ethhdr *)skb_mac_header(skb);
--	if (!ether_addr_equal(ehdr->h_dest, tpriv->packet->dst))
-+	if (!ether_addr_equal_unaligned(ehdr->h_dest, tpriv->packet->dst))
- 		goto out;
+ 	if (!phy_interface_is_rgmii(phydev))
+ 		phy_set_max_speed(phydev, SPEED_100);
+@@ -1768,7 +1774,7 @@ static int ave_resume(struct device *dev)
  
- 	ihdr = ip_hdr(skb);
-@@ -1554,7 +1556,7 @@ static int stmmac_test_arp_validate(struct sk_buff *skb,
- 	struct arphdr *ahdr;
+ 	ave_ethtool_get_wol(ndev, &wol);
+ 	wol.wolopts = priv->wolopts;
+-	ave_ethtool_set_wol(ndev, &wol);
++	__ave_ethtool_set_wol(ndev, &wol);
  
- 	ehdr = (struct ethhdr *)skb_mac_header(skb);
--	if (!ether_addr_equal(ehdr->h_dest, tpriv->packet->src))
-+	if (!ether_addr_equal_unaligned(ehdr->h_dest, tpriv->packet->src))
- 		goto out;
- 
- 	ahdr = arp_hdr(skb);
+ 	if (ndev->phydev) {
+ 		ret = phy_resume(ndev->phydev);
 -- 
 2.20.1
 
