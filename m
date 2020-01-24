@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FB11483D3
+	by mail.lfdr.de (Postfix) with ESMTP id 720F51483D2
 	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:41:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391602AbgAXL2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:28:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
+        id S2404029AbgAXL2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391595AbgAXL2e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:28:34 -0500
+        id S2404024AbgAXL2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:28:11 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA4AE20704;
-        Fri, 24 Jan 2020 11:28:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B9562075D;
+        Fri, 24 Jan 2020 11:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865313;
-        bh=tI8kzxHMvf6+J4m912VloVg5T/1uTatzsQrLbDVcFTM=;
+        s=default; t=1579865291;
+        bh=v0KaQj/4lCbT9772pLn9i1i8cmdQpagh76KDE2nXRJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZ++jvD+6h2LiG67KSUgoYZpEaJu6xTFAbhWWgwbkXLih84IuPAL7mIKsRWtoXmsu
-         cyZ3WqBDraRGpA/t4/EQDwsz4g64viAhAN6lTadf1zVNQd2n9/xgKjZJSj2FIhAoI1
-         fVqf16a8lEe/OsalhEd8UwB8e90hXeznY35eQyIg=
+        b=Ucuve+9+OCiXn9RiVhkQQSMl3SR9BGG/aiehoAqNbOLKSELG6i2XLSwZXhmN7rmUw
+         Q4Dm9+8elr+OTn6qhYQoVjnSkUaErko691ryxZAnXslHlqwPVJody4/gRGa8xs10Nq
+         Zo6/JN4i4jaJuxwKIkukdmllyFLVifd4Nrk8ss/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 499/639] cxgb4: smt: Add lock for atomic_dec_and_test
-Date:   Fri, 24 Jan 2020 10:31:09 +0100
-Message-Id: <20200124093151.278803235@linuxfoundation.org>
+Subject: [PATCH 4.19 506/639] ASoC: wm8737: Fix copy-paste error in wm8737_snd_controls
+Date:   Fri, 24 Jan 2020 10:31:16 +0100
+Message-Id: <20200124093152.190752874@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -44,50 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 4a8937b83892cb69524291cae6cdabad4a8be033 ]
+[ Upstream commit 554b75bde64bcad9662530726d1483f7ef012069 ]
 
-The atomic_dec_and_test() is not safe because it is
-outside of locks.
-Move the locks of t4_smte_free() to its caller,
-cxgb4_smt_release() to protect the atomic decrement.
+sound/soc/codecs/wm8737.c:112:29: warning:
+ high_3d defined but not used [-Wunused-const-variable=]
 
-Fixes: 3bdb376e6944 ("cxgb4: introduce SMT ops to prepare for SMAC rewrite support")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+'high_3d' should be used for 3D High Cut-off.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 2a9ae13a2641 ("ASoC: Add initial WM8737 driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20190815091920.64480-1-yuehaibing@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/smt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm8737.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/smt.c b/drivers/net/ethernet/chelsio/cxgb4/smt.c
-index 7b2207a2a130f..9b3f4205cb4d4 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/smt.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/smt.c
-@@ -98,11 +98,9 @@ found_reuse:
+diff --git a/sound/soc/codecs/wm8737.c b/sound/soc/codecs/wm8737.c
+index e9ae821e76098..568b77692f5f0 100644
+--- a/sound/soc/codecs/wm8737.c
++++ b/sound/soc/codecs/wm8737.c
+@@ -170,7 +170,7 @@ SOC_DOUBLE("Polarity Invert Switch", WM8737_ADC_CONTROL, 5, 6, 1, 0),
+ SOC_SINGLE("3D Switch", WM8737_3D_ENHANCE, 0, 1, 0),
+ SOC_SINGLE("3D Depth", WM8737_3D_ENHANCE, 1, 15, 0),
+ SOC_ENUM("3D Low Cut-off", low_3d),
+-SOC_ENUM("3D High Cut-off", low_3d),
++SOC_ENUM("3D High Cut-off", high_3d),
+ SOC_SINGLE_TLV("3D ADC Volume", WM8737_3D_ENHANCE, 7, 1, 1, adc_tlv),
  
- static void t4_smte_free(struct smt_entry *e)
- {
--	spin_lock_bh(&e->lock);
- 	if (atomic_read(&e->refcnt) == 0) {  /* hasn't been recycled */
- 		e->state = SMT_STATE_UNUSED;
- 	}
--	spin_unlock_bh(&e->lock);
- }
- 
- /**
-@@ -112,8 +110,10 @@ static void t4_smte_free(struct smt_entry *e)
-  */
- void cxgb4_smt_release(struct smt_entry *e)
- {
-+	spin_lock_bh(&e->lock);
- 	if (atomic_dec_and_test(&e->refcnt))
- 		t4_smte_free(e);
-+	spin_unlock_bh(&e->lock);
- }
- EXPORT_SYMBOL(cxgb4_smt_release);
- 
+ SOC_SINGLE("Noise Gate Switch", WM8737_NOISE_GATE, 0, 1, 0),
 -- 
 2.20.1
 
