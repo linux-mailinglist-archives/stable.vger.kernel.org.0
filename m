@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A48148000
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E56147FF0
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387781AbgAXLGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:06:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41826 "EHLO mail.kernel.org"
+        id S2389143AbgAXLG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:06:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387790AbgAXLGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:06:53 -0500
+        id S1730222AbgAXLGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:06:25 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25E9020663;
-        Fri, 24 Jan 2020 11:06:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69C4E2071A;
+        Fri, 24 Jan 2020 11:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579864012;
-        bh=CMmrG1Krn981BFeYs8Nwv5F3gDnF8U99tH+6SAxUW8s=;
+        s=default; t=1579863985;
+        bh=+usNTdRjwYvntG+3pkqYcKVDxPiWH6pWpC3z81O3kAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1LuUbbm4eqbCwwddjFepkyorM9bQd1xu1JhS6C6s61blb6dNzAjDdHykXpemKtCa
-         amBa5d4wOmtxes5MkCrm+VhzBgA7/iGROBaIyfxnnHavAXW60s7f65L9mB72lifJ+w
-         fl9pGXKP4JFtSaMVxmEOVHXXIgkRgpKdyvjz8ERA=
+        b=ZGmEckPjbNqdi7H/l1AqPzNeBbHQrZdQds2N+TznHhr9Nn755E0O74+Se4dmDPKrB
+         WRhqDOQEx0CqGZ+7xmbsZFoBLe84htIt4uLBVQH52yYyHsTAjQgt/u8/OO+KSqOMm/
+         2WrP+0ObQhLmM/Abr3nBER2oIudYrLPaOfDo/qbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/639] fork, memcg: fix cached_stacks case
-Date:   Fri, 24 Jan 2020 10:24:53 +0100
-Message-Id: <20200124093102.707201224@linuxfoundation.org>
+Subject: [PATCH 4.19 125/639] RDMA/ocrdma: Fix out of bounds index check in query pkey
+Date:   Fri, 24 Jan 2020 10:24:55 +0100
+Message-Id: <20200124093102.963229325@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -50,45 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit ba4a45746c362b665e245c50b870615f02f34781 ]
+[ Upstream commit b188940796c7be31c1b8c25a9a0e0842c2e7a49e ]
 
-Commit 5eed6f1dff87 ("fork,memcg: fix crash in free_thread_stack on
-memcg charge fail") fixes a crash caused due to failed memcg charge of
-the kernel stack.  However the fix misses the cached_stacks case which
-this patch fixes.  So, the same crash can happen if the memcg charge of
-a cached stack is failed.
+The pkey table size is one element, index should be tested for > 0 instead
+of > 1.
 
-Link: http://lkml.kernel.org/r/20190102180145.57406-1-shakeelb@google.com
-Fixes: 5eed6f1dff87 ("fork,memcg: fix crash in free_thread_stack on memcg charge fail")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Rik van Riel <riel@surriel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: fe2caefcdf58 ("RDMA/ocrdma: Add driver for Emulex OneConnect IBoE RDMA adapter")
+Signed-off-by: Gal Pressman <galpress@amazon.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/ocrdma/ocrdma_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 5718c5decc55b..1bd119530a492 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -216,6 +216,7 @@ static unsigned long *alloc_thread_stack_node(struct task_struct *tsk, int node)
- 		memset(s->addr, 0, THREAD_SIZE);
+diff --git a/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c b/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
+index c158ca9fde6dc..08271fce0b9e4 100644
+--- a/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
++++ b/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
+@@ -55,7 +55,7 @@
  
- 		tsk->stack_vm_area = s;
-+		tsk->stack = s->addr;
- 		return s->addr;
- 	}
+ int ocrdma_query_pkey(struct ib_device *ibdev, u8 port, u16 index, u16 *pkey)
+ {
+-	if (index > 1)
++	if (index > 0)
+ 		return -EINVAL;
  
+ 	*pkey = 0xffff;
 -- 
 2.20.1
 
