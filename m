@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49BCF147CC5
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 292B0147CC7
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 10:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731584AbgAXJyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 04:54:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
+        id S2388458AbgAXJyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 04:54:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388408AbgAXJyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 04:54:36 -0500
+        id S2388408AbgAXJyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 04:54:40 -0500
 Received: from localhost (unknown [145.15.244.15])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A10242075D;
-        Fri, 24 Jan 2020 09:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4175E20709;
+        Fri, 24 Jan 2020 09:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579859675;
-        bh=kjxB2YLCBW5XIp3R6Oao0Og3Dup5E5WmD6hIuKn/hB8=;
+        s=default; t=1579859680;
+        bh=mTKVBEIHi6cF1lzOJRCj3dTPD4jl2lFvF1kikQa7370=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuBE3uNzS5yv8IUFx2Vlm2IrqIdUiJbGlb2XUPUluCDf0sr+WaFG1ikpm0L2jcCDd
-         vXLroGGkevBGFSVh5ZCY2DTfHwDFie6k5/YpGMgsAMpvwHz1hB4Ks7JXiyeC6Ag5Vn
-         jsxv8UCrsdmNASGKKcPVKfhqcw+Y5FIeg8MCvmRw=
+        b=ExNobaxuxd+WHVo0474ggJJKxDjCiVXdWUid74qHulcaJ07NBa/1aGuj6otJsz/hE
+         nOGQhPQhEM/ftBpmOmZ4KGPiaYEL1EH+vmnVp81bR47jGIj81CD1jOa1p0zGWZ/zTr
+         fkQJ0xHmIZUxsoswqsp0HUMobOWOb+17u+TSZR04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 171/343] selftests/ipc: Fix msgque compiler warnings
-Date:   Fri, 24 Jan 2020 10:29:49 +0100
-Message-Id: <20200124092942.501565706@linuxfoundation.org>
+Subject: [PATCH 4.14 172/343] powerpc: vdso: Make vdso32 installation conditional in vdso_install
+Date:   Fri, 24 Jan 2020 10:29:50 +0100
+Message-Id: <20200124092942.633812456@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124092919.490687572@linuxfoundation.org>
 References: <20200124092919.490687572@linuxfoundation.org>
@@ -44,74 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit a147faa96f832f76e772b1e448e94ea84c774081 ]
+[ Upstream commit ff6d27823f619892ab96f7461764840e0d786b15 ]
 
-This fixes the various compiler warnings when building the msgque
-selftest. The primary change is using sys/msg.h instead of linux/msg.h
-directly to gain the API declarations.
+The 32-bit vDSO is not needed and not normally built for 64-bit
+little-endian configurations.  However, the vdso_install target still
+builds and installs it.  Add the same config condition as is normally
+used for the build.
 
-Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: e0d005916994 ("powerpc/vdso: Disable building the 32-bit VDSO ...")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/ipc/msgque.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/powerpc/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
-index ee9382bdfadc8..c5587844fbb8c 100644
---- a/tools/testing/selftests/ipc/msgque.c
-+++ b/tools/testing/selftests/ipc/msgque.c
-@@ -1,9 +1,10 @@
- // SPDX-License-Identifier: GPL-2.0
-+#define _GNU_SOURCE
- #include <stdlib.h>
- #include <stdio.h>
- #include <string.h>
- #include <errno.h>
--#include <linux/msg.h>
-+#include <sys/msg.h>
- #include <fcntl.h>
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 0f04c878113ef..9c78ef2982572 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -385,7 +385,9 @@ vdso_install:
+ ifeq ($(CONFIG_PPC64),y)
+ 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso64 $@
+ endif
++ifdef CONFIG_VDSO32
+ 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso32 $@
++endif
  
- #include "../kselftest.h"
-@@ -73,7 +74,7 @@ int restore_queue(struct msgque_data *msgque)
- 	return 0;
- 
- destroy:
--	if (msgctl(id, IPC_RMID, 0))
-+	if (msgctl(id, IPC_RMID, NULL))
- 		printf("Failed to destroy queue: %d\n", -errno);
- 	return ret;
- }
-@@ -120,7 +121,7 @@ int check_and_destroy_queue(struct msgque_data *msgque)
- 
- 	ret = 0;
- err:
--	if (msgctl(msgque->msq_id, IPC_RMID, 0)) {
-+	if (msgctl(msgque->msq_id, IPC_RMID, NULL)) {
- 		printf("Failed to destroy queue: %d\n", -errno);
- 		return -errno;
- 	}
-@@ -129,7 +130,7 @@ err:
- 
- int dump_queue(struct msgque_data *msgque)
- {
--	struct msqid64_ds ds;
-+	struct msqid_ds ds;
- 	int kern_id;
- 	int i, ret;
- 
-@@ -246,7 +247,7 @@ int main(int argc, char **argv)
- 	return ksft_exit_pass();
- 
- err_destroy:
--	if (msgctl(msgque.msq_id, IPC_RMID, 0)) {
-+	if (msgctl(msgque.msq_id, IPC_RMID, NULL)) {
- 		printf("Failed to destroy queue: %d\n", -errno);
- 		return ksft_exit_fail();
- 	}
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(boot)
 -- 
 2.20.1
 
