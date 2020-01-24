@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EAE21481E1
-	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F9F1481E3
+	for <lists+stable@lfdr.de>; Fri, 24 Jan 2020 12:23:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391136AbgAXLXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Jan 2020 06:23:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36056 "EHLO mail.kernel.org"
+        id S2390981AbgAXLXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Jan 2020 06:23:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390981AbgAXLX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Jan 2020 06:23:29 -0500
+        id S2391338AbgAXLXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Jan 2020 06:23:34 -0500
 Received: from localhost (ip-213-127-102-57.ip.prioritytelecom.net [213.127.102.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 007A221569;
-        Fri, 24 Jan 2020 11:23:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E94CD206D4;
+        Fri, 24 Jan 2020 11:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579865008;
-        bh=M52LSmbwEf6E1f7MLtsXshZzO/h73dEq7sLvHij0OIM=;
+        s=default; t=1579865012;
+        bh=3zzxrY043VOacSysViHqR4O9nVOrozHGqKOsPmJqvJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KCo+Y1hJUvFXdBKPv/IRq6orPpNT8Neb1g5W9qkghEwRcQHMwtyTht4IWVEEyTn2h
-         uDiTVRokhtfzICV/lUw2s0+n7MIme21Ig+0f4tVzJvpViOV5BHxPbodb2UqwFCpoA9
-         fZipZ33gZV+t60tGkklNDgZeDgG89ohIenPwU0Bs=
+        b=DhiGzNUoFDX7Y22aPu+dpzIJCPqrgOrPiWyxUefe6nKHdFWgwvgFC+naFKiTTIbED
+         Ht0jwUK4vbhhyZpaqTGWKQZUzREI4/ECtGveDX8jYXm8RIQuKMlKlV+2s+wZLNah7C
+         08ErPcKffTfijAp+kVXbVPPPhsVubL4fAjIOAM44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Ariel Elior <ariel.elior@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 427/639] PCI: PM: Skip devices in D0 for suspend-to-idle
-Date:   Fri, 24 Jan 2020 10:29:57 +0100
-Message-Id: <20200124093140.491024133@linuxfoundation.org>
+Subject: [PATCH 4.19 428/639] qed: iWARP - Use READ_ONCE and smp_store_release to access ep->state
+Date:   Fri, 24 Jan 2020 10:29:58 +0100
+Message-Id: <20200124093140.627981240@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200124093047.008739095@linuxfoundation.org>
 References: <20200124093047.008739095@linuxfoundation.org>
@@ -46,124 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit 3e26c5feed2add218046ecf91bab3cfa9bf762a6 ]
+[ Upstream commit 6117561e1bb30b2fe7f51e1961f34dbedd0bec8a ]
 
-Commit d491f2b75237 ("PCI: PM: Avoid possible suspend-to-idle issue")
-attempted to avoid a problem with devices whose drivers want them to
-stay in D0 over suspend-to-idle and resume, but it did not go as far
-as it should with that.
+Destroy QP waits for it's ep object state to be set to CLOSED
+before proceeding. ep->state can be updated from a different
+context. Add smp_store_release/READ_ONCE to synchronize.
 
-Namely, first of all, the power state of a PCI bridge with a
-downstream device in D0 must be D0 (based on the PCI PM spec r1.2,
-sec 6, table 6-1, if the bridge is not in D0, there can be no PCI
-transactions on its secondary bus), but that is not actively enforced
-during system-wide PM transitions, so use the skip_bus_pm flag
-introduced by commit d491f2b75237 for that.
-
-Second, the configuration of devices left in D0 (whatever the reason)
-during suspend-to-idle need not be changed and attempting to put them
-into D0 again by force is pointless, so explicitly avoid doing that.
-
-Fixes: d491f2b75237 ("PCI: PM: Avoid possible suspend-to-idle issue")
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Fixes: fc4c6065e661 ("qed: iWARP implement disconnect flows")
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-driver.c | 47 ++++++++++++++++++++++++++++++----------
- 1 file changed, 35 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 5c9873fcbd08b..e69af9b8361dc 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -526,7 +526,6 @@ static void pci_pm_default_resume_early(struct pci_dev *pci_dev)
- 	pci_power_up(pci_dev);
- 	pci_restore_state(pci_dev);
- 	pci_pme_restore(pci_dev);
--	pci_fixup_device(pci_fixup_resume_early, pci_dev);
- }
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+index 7002a660b6b4c..c77babd0ef952 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+@@ -532,7 +532,8 @@ int qed_iwarp_destroy_qp(struct qed_hwfn *p_hwfn, struct qed_rdma_qp *qp)
  
- /*
-@@ -833,18 +832,16 @@ static int pci_pm_suspend_noirq(struct device *dev)
+ 	/* Make sure ep is closed before returning and freeing memory. */
+ 	if (ep) {
+-		while (ep->state != QED_IWARP_EP_CLOSED && wait_count++ < 200)
++		while (READ_ONCE(ep->state) != QED_IWARP_EP_CLOSED &&
++		       wait_count++ < 200)
+ 			msleep(100);
  
- 	if (pci_dev->skip_bus_pm) {
- 		/*
--		 * The function is running for the second time in a row without
-+		 * Either the device is a bridge with a child in D0 below it, or
-+		 * the function is running for the second time in a row without
- 		 * going through full resume, which is possible only during
--		 * suspend-to-idle in a spurious wakeup case.  Moreover, the
--		 * device was originally left in D0, so its power state should
--		 * not be changed here and the device register values saved
--		 * originally should be restored on resume again.
-+		 * suspend-to-idle in a spurious wakeup case.  The device should
-+		 * be in D0 at this point, but if it is a bridge, it may be
-+		 * necessary to save its state.
- 		 */
--		pci_dev->state_saved = true;
--	} else if (pci_dev->state_saved) {
--		if (pci_dev->current_state == PCI_D0)
--			pci_dev->skip_bus_pm = true;
--	} else {
-+		if (!pci_dev->state_saved)
-+			pci_save_state(pci_dev);
-+	} else if (!pci_dev->state_saved) {
- 		pci_save_state(pci_dev);
- 		if (pci_power_manageable(pci_dev))
- 			pci_prepare_to_sleep(pci_dev);
-@@ -853,6 +850,22 @@ static int pci_pm_suspend_noirq(struct device *dev)
- 	dev_dbg(dev, "PCI PM: Suspend power state: %s\n",
- 		pci_power_name(pci_dev->current_state));
+ 		if (ep->state != QED_IWARP_EP_CLOSED)
+@@ -1023,8 +1024,6 @@ qed_iwarp_mpa_complete(struct qed_hwfn *p_hwfn,
  
-+	if (pci_dev->current_state == PCI_D0) {
-+		pci_dev->skip_bus_pm = true;
-+		/*
-+		 * Per PCI PM r1.2, table 6-1, a bridge must be in D0 if any
-+		 * downstream device is in D0, so avoid changing the power state
-+		 * of the parent bridge by setting the skip_bus_pm flag for it.
-+		 */
-+		if (pci_dev->bus->self)
-+			pci_dev->bus->self->skip_bus_pm = true;
-+	}
-+
-+	if (pci_dev->skip_bus_pm && !pm_suspend_via_firmware()) {
-+		dev_dbg(dev, "PCI PM: Skipped\n");
-+		goto Fixup;
-+	}
-+
- 	pci_pm_set_unknown_state(pci_dev);
+ 	params.ep_context = ep;
  
- 	/*
-@@ -900,7 +913,16 @@ static int pci_pm_resume_noirq(struct device *dev)
- 	if (dev_pm_smart_suspend_and_suspended(dev))
- 		pm_runtime_set_active(dev);
- 
--	pci_pm_default_resume_early(pci_dev);
-+	/*
-+	 * In the suspend-to-idle case, devices left in D0 during suspend will
-+	 * stay in D0, so it is not necessary to restore or update their
-+	 * configuration here and attempting to put them into D0 again may
-+	 * confuse some firmware, so avoid doing that.
-+	 */
-+	if (!pci_dev->skip_bus_pm || pm_suspend_via_firmware())
-+		pci_pm_default_resume_early(pci_dev);
-+
-+	pci_fixup_device(pci_fixup_resume_early, pci_dev);
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_resume_early(dev);
-@@ -1201,6 +1223,7 @@ static int pci_pm_restore_noirq(struct device *dev)
+-	ep->state = QED_IWARP_EP_CLOSED;
+-
+ 	switch (fw_return_code) {
+ 	case RDMA_RETURN_OK:
+ 		ep->qp->max_rd_atomic_req = ep->cm_info.ord;
+@@ -1084,6 +1083,10 @@ qed_iwarp_mpa_complete(struct qed_hwfn *p_hwfn,
+ 		break;
  	}
  
- 	pci_pm_default_resume_early(pci_dev);
-+	pci_fixup_device(pci_fixup_resume_early, pci_dev);
++	if (fw_return_code != RDMA_RETURN_OK)
++		/* paired with READ_ONCE in destroy_qp */
++		smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
++
+ 	ep->event_cb(ep->cb_context, &params);
  
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_resume_early(dev);
+ 	/* on passive side, if there is no associated QP (REJECT) we need to
+@@ -2828,7 +2831,9 @@ static void qed_iwarp_qp_in_error(struct qed_hwfn *p_hwfn,
+ 	params.status = (fw_return_code == IWARP_QP_IN_ERROR_GOOD_CLOSE) ?
+ 			 0 : -ECONNRESET;
+ 
+-	ep->state = QED_IWARP_EP_CLOSED;
++	/* paired with READ_ONCE in destroy_qp */
++	smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
++
+ 	spin_lock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
+ 	list_del(&ep->list_entry);
+ 	spin_unlock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
+@@ -2917,7 +2922,8 @@ qed_iwarp_tcp_connect_unsuccessful(struct qed_hwfn *p_hwfn,
+ 	params.event = QED_IWARP_EVENT_ACTIVE_COMPLETE;
+ 	params.ep_context = ep;
+ 	params.cm_info = &ep->cm_info;
+-	ep->state = QED_IWARP_EP_CLOSED;
++	/* paired with READ_ONCE in destroy_qp */
++	smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
+ 
+ 	switch (fw_return_code) {
+ 	case IWARP_CONN_ERROR_TCP_CONNECT_INVALID_PACKET:
 -- 
 2.20.1
 
