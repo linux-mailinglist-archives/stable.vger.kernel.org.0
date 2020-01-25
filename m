@@ -2,96 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 525231493D3
-	for <lists+stable@lfdr.de>; Sat, 25 Jan 2020 07:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E104B1493EB
+	for <lists+stable@lfdr.de>; Sat, 25 Jan 2020 08:33:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725987AbgAYG5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jan 2020 01:57:01 -0500
-Received: from mout.gmx.net ([212.227.17.21]:59919 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725781AbgAYG5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Jan 2020 01:57:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1579935419;
-        bh=Pyp1Nu1ufI5bta/P31WpriK/UXcofmAdUmNwxcEi44s=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=e9YXXj4avWz6uJ5x7dOjlvLjZVihgNirp0quUr1OAUUSMNGCMu1r8uHLAX9AMWbQl
-         Tgusxc8luoM9hRazbALNn7vJ4d6lVwbzo8kHBCk3KgVGy+VTyQQIYaEWxkYNcAlvTb
-         OAA4BYZAerVtj3z7XopYACDgvCpkRS3x6QxJSQ0I=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from b450.fritz.box ([79.213.222.219]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mn2WF-1jLk5d46JL-00k8GT; Sat, 25
- Jan 2020 07:56:59 +0100
-From:   Tim Schumacher <timschumi@gmx.de>
-To:     stern@rowland.harvard.edu
-Cc:     linux-usb@vger.kernel.org, timschumi@gmx.de, stable@vger.kernel.org
-Subject: [PATCH] USB: uas: Add the no-UAS quirk for JMicron JMS561U
-Date:   Sat, 25 Jan 2020 07:48:38 +0100
-Message-Id: <20200125064838.2511-1-timschumi@gmx.de>
-X-Mailer: git-send-email 2.25.0
+        id S1726565AbgAYHd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jan 2020 02:33:56 -0500
+Received: from sonic307-1.consmr.mail.bf2.yahoo.com ([74.6.134.40]:40403 "EHLO
+        sonic307-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726303AbgAYHd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jan 2020 02:33:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1579937635; bh=ZuyEM3dgJG1J7uxm4tvg+0sEPyOCN4U5wrhpxYfWco0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=OIjjD9HYM72YMrGSVPn3OSpZI6WQNXCEn/7nCTrVeNZAsA2wkQxaUgkSfQyigzGHFbXCymSymUZCH41Xm3dSEKEKfo8qZVUGbr2DSafDK7sG1jirCSSWZHQd0ZWQSHWEkhedoqdMNFqF/hWMTat8iegU97a6x9OGT3CR90xMpu1J3Dg/uvM/65kP5NtoPHob44tSPBWTMipz4basLK+gSIe4DZIufx+/KnTmZOw/iz9kDu1651OFBiKl2N7FEiFhZmnXBNcVOvKbR54gQFFj2IsYt12q5RpDHJ6Tf/U07W4zWnBA4hcaBB8ubTn6ftDJc3glJldXDEBiVJ21ZVkgeQ==
+X-YMail-OSG: DsU_FZUVM1nJno3WNZ_GdAVyhHFnPooQWBnj2ZfL7mZ56tzdJ9AhyGvz7_33RgX
+ v2Bsc5N_UlfQw7Jv8yjQ88r27I1d6eKrzQf340KSnzDzlYFJT42qoHEah8zblvoYVZLB3OYPZPhG
+ T.L5K9uWt.WEkOkmk49hzKTqiDLLxi_ZsUYKwfyZY.9Uh1tqPtWrRuDdO122XGYrIqQVx1WdTqFN
+ MXDREzhkZgllaEqvHH.blyAIE0z_SMoXTvR5TSj1Gl7MK.EmQB51lE.71kYAEwNd2eKGOSk4yyxZ
+ HclgO8xHNZ5BkXN5poCV.Lq0n3YPAlHt9NmgI.QQnnxLSDwbh5cP2tMLjW89PYogm.WpvIS87YPK
+ Y_Z_UfT_baZBBtocYJPH6AfMtGsrvZhjTqlkhdviDKQfuRg5eL4jWer2.4qF7IHC3uXfHK.WKz_p
+ JYiWMygo82VX_pFRtEi1IGXV.GRFC22hFckhcZHeIq2ozl243wBErHLbNu_fiy6bMhtZv7uGkXZ0
+ ZrDJndmQzMCt.EY0qGsdeJG7RsjaxTXiMWvpveGNJtS7EREurIa0Plox08pvjLZ0PuP8ruQFQVPi
+ No94OtHOGBAIMbPwMRrAOTLu6NqLIUYZXHdEhur4sY2SNCOya8WgYMzYXNop7dFIk5BmHWBG5fEW
+ ABG._jX8fla._bEVsi3rrczxQstHyARzLUdt4JZZVFqcMQ.x30DaDSUe6.hhSgCjEPcYvIAcxvHw
+ r5dvRzMXl2ahTRbHW8CnmqUOkyLe6Jyy8dmZ0XfME9w52_M4DXQSvPsHGfRpg7A4KVOmvhNxxUC3
+ UQ5UvgFy_XFeX2_OYrUReBhfKOba0edzU3HnAuLrO_2ksn9y.NXGGLjaBZTbdFl6tFkCRuqf5nC_
+ Q0kwicKnGDUvFyn28H4ijHHapSkizYV1ri8OyZqcAnxSLbX7xZ07LM56wEcVGEICvyn36LSbyFIW
+ JFK3QegbtXG4kA8_sY3DRPjPqlHNq24cw.cC6ev32JG_wkUELybDWukozF7bxL29C5tfP4JWmhLR
+ WrjxjW9HhQXGsPoHk6xnsLkJQejEdnrJuCrILoIL_I.kX25bnidbDRC4QzBf8bhf6ARzXXSq5pnc
+ TRm.vEAQ0Q4UTIIFzReo7fC2VyTlwdZ5o2hjyxpAhXVq6vQjlhLl5cC6nB6fjigt9a2VOIQ9mJ6p
+ ms6Bk1M9jdYC2etjYgToH0W8EA53X7xhxQhp8vJAkSHYxYPrGj2U7.VZZIAxptn5ICf_pGvo6CM6
+ pxBRENDycMRfwan_5SjcQB4mLCISBwPc_68H3amFw.N3gF41F9lD3m1pbWju.UuTxduEjnNdteHB
+ Cs5M-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.bf2.yahoo.com with HTTP; Sat, 25 Jan 2020 07:33:55 +0000
+Date:   Sat, 25 Jan 2020 07:33:54 +0000 (UTC)
+From:   Mrs Dhawan Nisha Pradeep <peterobiokoye123@gmail.com>
+Reply-To: mrsdhawannishapradeep@gmail.com
+Message-ID: <788721498.11396639.1579937634861@mail.yahoo.com>
+Subject: Greetings From Mrs Dhawan Nisha Pradeep,
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:2Szw5nCdli4UyPDgdZc6J706v5cIOblg7OaOuGGujjBkPPf4sSW
- nXFHQUauZIK3bq3ZoirYloImhvc0sYxoJwjLNsbb4wYgWxIzd17Qn/DDuZZEjchrKJfXQjk
- JnhJu51uXDU2diA2GX/lTeRNbDEK6FzbnLJZDiNksZFXYh6zVVLFb37vooQRhZU9pcY1HaQ
- GcscTdu2gqSWPafEYI4RA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:NrTWlySXpVY=:mPTYSNjNhMIVq+Z8QD1cKW
- emrM/SE+4Xsx+Fdt3Tgv0b/DZHvcZZtN3SkBX8duqffLJwSZxf11fKIMKAoTNvhSFQzsIN0mg
- NNIGQ6x9tl69HmQ3SnxiKZaYVba+7FP32KcjLg9OScQcpqmiTzglfEqh9wkBzZTksUk8AHMuF
- FRHnbbxu9AX531PLR+izeBFEYqTi5kFefPT8dlRPJTkKzhwdZPD8i8C9K7UVBwICrVmkmaV2b
- UmJcOHnu8PigUmaWo9zThBP/p06/57Q++5gpgI3DPPc8dq8vLVJcbyVJS3MxSCFgPakn3OUPX
- rmaPRCAyVjSBUCuJyzHSELI6UmOW0CcPZbH5eIwpvZHH+7qVANeWHK5pmDM0raqNJN41TFr87
- yFmh+8nIZqzv+FeQSxPvBie0qouPjsYppnTpIzH78f//V0IZGc3baCclEryPWxOcr87cCqMOW
- rnGhHT2YnULIsOZmd8WZvWSSIBZvp3d67Arv2DDd4qYrKP6XwnbmDsXZ+k6TPa88Qhmibwnj8
- htqDej2lt/Z6rbIJUIt6/0ufUPDWejpjT75jG+Xuq/OWSGBExXrdLygrj/5aB+SxiRDie1ILV
- SzDZD1lATXFLaW+VU74Y/REJeih8ZNJXcbE/5vxuCXwXvxUtOa9Dyma+0lPIY5cK1457xfrVW
- WP7VCPdbMV8ElBDU7Z10csr94lwnFcAfFGUkDURL2nNSd00+s9ZuwOwmzhaB4y+x9A5cR+sBC
- GprKSQ30PCGHTcygSSa6wnm8P6zIbZX7Fu7VEbJWbdU9ELlCDxIf6hTtmvb01FJka5bjM9Zqv
- xNHl9RgN1WDCz6r/NBGSbZ9fWBI2EUntZ5427RR2h+AoZsIIG7pXB4JtQZvgF3FI2enAAIZnE
- mWmt3C8btr2WWza5hApOqqs3nbRkjHSzEQ6DAj5a2kWXyoLKda8U4gCuiQ0yQ5E/GA+9pM47i
- I6ej2ZCCIUdyp1hEfGIFezRRIfbAhhQngYZ8iRL4qr6cvb1Ry5WeQX2+VFy+18ZsxKpc/hUmu
- vr3w+Js0p4W1U5bOfg6IGLDK4PCVNc74NMKYDjKUVSWItrqGMPy63ZtI0Ka2WbHpd/iu06C7E
- DaeD7usT2BK/CFkF3BQUEv/yP2VVIWzLkvFloriF00h/4SWboF4PlAJpuRyB5Y+/8SARX/Yt7
- /9KkLNzvFS2R+bJLgOaFVaaPUm5wZAvQHpACLhkxP5QFWjm6jd7MWKRYQcSy0FX1HrSMwWIwP
- c44Zrd52aQTNqb38G
+References: <788721498.11396639.1579937634861.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.14873 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:72.0) Gecko/20100101 Firefox/72.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The JMicron JMS561U (notably used in the Sabrent SATA-to-USB
-bridge) appears to have UAS-related issues when copying large
-amounts of data, causing it to stall.
 
-Disabling the advertised UAS (either through a command-line
-quirk or through this patch) mitigates those issues.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Tim Schumacher <timschumi@gmx.de>
-=2D--
- drivers/usb/storage/unusual_uas.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+Greetings From Mrs Dhawan Nisha Pradeep,
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusu=
-al_uas.h
-index 1b23741036ee..eaec7d4973b7 100644
-=2D-- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -97,6 +97,13 @@ UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIS=
+T the giver of every good thing. Good day,i know this letter will definitel=
+y come to you as a huge surprise, but I implore you to take the time to go =
+through it carefully as the decision you make will go off a long way to det=
+ermine my future and continued existence. I am Mrs Dhawan Nisha Pradeep agi=
+ng widow suffering from long time illness. I have some funds I inherited fr=
+om my late husband which we work together for.
 
-+/* Reported-by: Tim Schumacher <timschumi@gmx.de> */
-+UNUSUAL_DEV(0x152d, 0x1561, 0x0000, 0x9999,
-+		"JMicron",
-+		"JMS561U",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
- 		"Hitachi",
-=2D-
-2.25.0
+The sum of (=E2=82=AC4.5 MILLION EURO) and I needed a very honest and God f=
+earing who can withdraw this money then use the funds for Charity works. I =
+WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email addres=
+s from the internet after honest prayers to the LORD to bring me a helper a=
+nd i decided to contact you if you may be willing and interested to handle =
+these trust funds in good faith before anything happens to me.
 
+I accept this decision because I do not have any child who will inherit thi=
+s money after I die. I want your urgent reply to me so that I will give you=
+ the deposit receipt which the bank issued to me as next of kin for immedia=
+te transfer of the money to your account in your country, to start the good=
+ work of God, I want you to use the 50/percent of the total amount to help =
+yourself in doing the project.
+
+I am desperately in keen need of assistance and I have summoned up courage =
+to contact you for this task, you must not fail me and the millions of the =
+poor people in our today WORLD. This is no stolen money and there are no da=
+ngers involved,100% RISK FREE with full legal proof. Please if you would be=
+ able to use the funds for the Charity works kindly let me know immediately=
+.Please i want you to send your details as listed below so that i will forw=
+ard it to the bank as requested for the processing of the transfer of the f=
+und into your bank account.
+
+Your complete name
+Address (home/office)
+Your mobile number
+Your age
+Occupation
+A copy of your ID
+
+I will appreciate your utmost confidentiality and trust in this matter to a=
+ccomplish my heart desire, as I don't want anything that will jeopardize my=
+ last wish. I want you to take 50 percent of the total money for your perso=
+nal use while 50% of the money will go to charity. I will appreciate your u=
+tmost confidentiality and trust in this matter to accomplish my heart desir=
+e, as I don't want anything that will jeopardize my last wish.
+
+Thanks and God bless you.
+Mrs Dhawan Nisha Pradeep
