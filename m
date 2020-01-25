@@ -2,79 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0745C149716
-	for <lists+stable@lfdr.de>; Sat, 25 Jan 2020 19:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3505149735
+	for <lists+stable@lfdr.de>; Sat, 25 Jan 2020 19:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgAYSKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Jan 2020 13:10:37 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:54533 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726448AbgAYSKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Jan 2020 13:10:36 -0500
+        id S1726338AbgAYShH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Jan 2020 13:37:07 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29290 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726300AbgAYShH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Jan 2020 13:37:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579975835;
+        s=mimecast20190719; t=1579977426;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=l5BsgYdFO1ghceyovlDf/lBvRehsk4J2RDjUF7pfet8=;
-        b=QlLLque+RfoOrB1cC9QwYbehM3m11+PVYBOSGguk5PBOvyzbGyrImLsaOftF5ZFfci7ghC
-        euP8lsPZy9WqNbcdI4H7yi9SuqtOv5QN7jNEqjc780uY+ParzlZr4sapd8sKTmLAhzkFNX
-        JdIua6QwrCkeaHRjtfwr5uaPMTxM4/A=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-6-iimH4PKBM8u3Lqm5KX8HFw-1; Sat, 25 Jan 2020 13:10:31 -0500
-X-MC-Unique: iimH4PKBM8u3Lqm5KX8HFw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 76250107ACC4;
-        Sat, 25 Jan 2020 18:10:29 +0000 (UTC)
-Received: from dhcp-44-196.space.revspace.nl (unknown [10.36.112.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1112260BEC;
-        Sat, 25 Jan 2020 18:10:26 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Takashi Iwai <tiwai@suse.com>, Jaroslav Kysela <perex@perex.cz>
-Cc:     Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org,
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JFT3buwsDHilRidy9DdVxUMO6CwAHjVI733OjaznBgI=;
+        b=FOMpgJfSuIDyfDjlcg3/rwK3DYQ24PiTZ68CjVdXWHdDdKA0hWwkGP3r1DeoUpOuv4cEvQ
+        l3N2PJOGWTXg0iXtuNzjybjzFIAHSMBexthFHchU1zYTL/1PcSlhsKJHaAVzl8e6IovU/g
+        d/Of5wzP++qOOEdC88mh8swub0UGo8o=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-59-LmkIh6lrOse-vbAvHEUXRg-1; Sat, 25 Jan 2020 13:37:04 -0500
+X-MC-Unique: LmkIh6lrOse-vbAvHEUXRg-1
+Received: by mail-wr1-f72.google.com with SMTP id z15so3377948wrw.0
+        for <stable@vger.kernel.org>; Sat, 25 Jan 2020 10:37:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JFT3buwsDHilRidy9DdVxUMO6CwAHjVI733OjaznBgI=;
+        b=Dez1rEnWabsYstKj1N7W+QRY6RdU5NpVkjQP74Nsi6efnUoO+x/m2q6fmPFUMrfWjh
+         4lrMjBnbtC0Yeul6N9UoBPDyXKEH8M+Z6DHTIfQWi4Xpi/sOEDWa8IDNCZGoqietlyXy
+         i2ROB2hTpPz1ICfQJxelHcK9SqbA2YN+/jkCcYwhzFYHf0XL34ijfq7jAKLrkftrFu5u
+         YRGUV8Wwh+z/g+oxQgrRo4kx7H6/ZiV6RcKvKR5EzEXIKqrMDZAnc8XhxGKhwgy985SF
+         Q1EeoIhLCSQmXWQu0lrtFKOptzwdHH1TQ3mlP28SX7ktY5NvS8ZqEBFbz3B0nvfmIVmx
+         cS1A==
+X-Gm-Message-State: APjAAAX2b4xErBYt9wNvp4uDbYFep1zXEuMUoaox+n3BD57KWJ7QdzcP
+        jqiZfvdD0Bkr5YJIazo++y+OKsG7uJvywO7g/8ts1NSaMLAQPv08IZsiOe7sv65b8hmiQ5DJsdH
+        5Cg74kIp15q+xnLmT
+X-Received: by 2002:adf:f288:: with SMTP id k8mr12155748wro.301.1579977423425;
+        Sat, 25 Jan 2020 10:37:03 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxyKXb/IHb/Bmj8rtpUpHFjt3gUQWbfOgudeoOGgCvqXdstE5UJ9DaEKk4dhxwDrj6PGdU4cQ==
+X-Received: by 2002:adf:f288:: with SMTP id k8mr12155734wro.301.1579977423229;
+        Sat, 25 Jan 2020 10:37:03 -0800 (PST)
+Received: from dhcp-44-196.space.revspace.nl ([2a0e:5700:4:11:6eb:1143:b8be:2b8])
+        by smtp.gmail.com with ESMTPSA id y185sm5902841wmg.2.2020.01.25.10.37.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 25 Jan 2020 10:37:02 -0800 (PST)
+Subject: Re: [PATCH v2] USB: uas: Add the no-UAS quirk for JMicron JMS561U
+To:     Tim Schumacher <timschumi@gmx.de>
+Cc:     stern@rowland.harvard.edu, linux-usb@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH] ALSA: hda: Add Clevo W65_67SB the power_save blacklist
-Date:   Sat, 25 Jan 2020 19:10:21 +0100
-Message-Id: <20200125181021.70446-1-hdegoede@redhat.com>
+References: <20200125064838.2511-1-timschumi@gmx.de>
+ <20200125170030.25331-1-timschumi@gmx.de>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <fccf2105-d415-7f44-e111-729d2d517ea7@redhat.com>
+Date:   Sat, 25 Jan 2020 19:37:00 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200125170030.25331-1-timschumi@gmx.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Using HDA power-saving on the Clevo W65_67SB causes the first 0.5
-seconds of audio to be missing every time audio starts playing.
+Hi,
 
-This commit adds the Clevo W65_67SB the power_save blacklist to avoid
-this issue.
+On 1/25/20 6:00 PM, Tim Schumacher wrote:
+> The JMicron JMS561U (notably used in the Sabrent SATA-to-USB
+> bridge) appears to have UAS-related issues when copying large
+> amounts of data, causing it to stall.
+> 
+> Disabling the advertised UAS (either through a command-line
+> quirk or through this patch) mitigates those issues.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tim Schumacher <timschumi@gmx.de>
 
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- sound/pci/hda/hda_intel.c | 2 ++
- 1 file changed, 2 insertions(+)
+Hmm, this is a quiete popular usb2sata bridge and disabling uas
+is quite bad for performance.
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 5b92f290cbb0..54d9ea1750f9 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2185,6 +2185,8 @@ static struct snd_pci_quirk power_save_blacklist[] =
-=3D {
- 	/* https://bugzilla.redhat.com/show_bug.cgi?id=3D1581607 */
- 	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", 0),
- 	/* https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 */
-+	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
-+	/* https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 */
- 	SND_PCI_QUIRK(0x1028, 0x0497, "Dell Precision T3600", 0),
- 	/* https://bugzilla.redhat.com/show_bug.cgi?id=3D1525104 */
- 	/* Note the P55A-UD3 and Z87-D3HP share the subsys id for the HDA dev *=
-/
---=20
-2.23.0
+I notice that there is no link to a bug report and AFAIK we have
+no one else reporting this issue.
+
+So this feels like a much too big hammer for the problem which you
+are seeing.
+
+When you say "stall" what exactly happens? Do you see any errors
+in dmesg for example?
+
+Also note that using UAS, since it has much better performance,
+will often expose bugs which are not caused by it. One typical
+example is bus-powered devices where the USB port does not deliver
+enough power (typically the driver draws more then the port
+guanrantees). Copying large amounts of data on a fast device is
+a good way to make the current consumption go up and thus
+trigger these kind of issues.  Does the driver enclosure
+you see this on use a separate power supply, or is it
+bus-powered?
+
+Regards,
+
+Hans
+
+
+
+> ---
+> v2: Fixed entry order. Also, CCing the correct people now.
+> ---
+>   drivers/usb/storage/unusual_uas.h | 7 +++++++
+>   1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+> index 1b23741036ee..a590f4a0d4b9 100644
+> --- a/drivers/usb/storage/unusual_uas.h
+> +++ b/drivers/usb/storage/unusual_uas.h
+> @@ -73,6 +73,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x9999,
+>   		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+>   		US_FL_BROKEN_FUA),
+> 
+> +/* Reported-by: Tim Schumacher <timschumi@gmx.de> */
+> +UNUSUAL_DEV(0x152d, 0x1561, 0x0000, 0x9999,
+> +		"JMicron",
+> +		"JMS561U",
+> +		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+> +		US_FL_IGNORE_UAS),
+> +
+>   /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
+>   UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
+>   		"VIA",
+> --
+> 2.25.0
+> 
 
