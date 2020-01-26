@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A03149A11
-	for <lists+stable@lfdr.de>; Sun, 26 Jan 2020 11:26:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E361149A6C
+	for <lists+stable@lfdr.de>; Sun, 26 Jan 2020 12:37:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729271AbgAZK0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Jan 2020 05:26:38 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:48588 "EHLO
+        id S1729317AbgAZLgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Jan 2020 06:36:19 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52142 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729213AbgAZK0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Jan 2020 05:26:38 -0500
+        with ESMTP id S1728689AbgAZLgT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Jan 2020 06:36:19 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id AEBE51C228F; Sun, 26 Jan 2020 11:26:35 +0100 (CET)
-Date:   Sun, 26 Jan 2020 11:26:35 +0100
+        id 68FEA1C2103; Sun, 26 Jan 2020 12:36:17 +0100 (CET)
+Date:   Sun, 26 Jan 2020 12:36:16 +0100
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bruno Thomsen <bruno.thomsen@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 521/639] rtc: pcf2127: bugfix: read rtc disables
- watchdog
-Message-ID: <20200126102634.GA19082@duo.ucw.cz>
+Subject: Re: [PATCH 4.19 540/639] wcn36xx: use dynamic allocation for large
+ variables
+Message-ID: <20200126113616.GB19082@duo.ucw.cz>
 References: <20200124093047.008739095@linuxfoundation.org>
- <20200124093154.044998307@linuxfoundation.org>
+ <20200124093156.657476612@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+        protocol="application/pgp-signature"; boundary="/NkBOFFp2J2Af1nK"
 Content-Disposition: inline
-In-Reply-To: <20200124093154.044998307@linuxfoundation.org>
+In-Reply-To: <20200124093156.657476612@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -37,82 +37,87 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---qMm9M+Fa2AknHoGS
+--/NkBOFFp2J2Af1nK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri 2020-01-24 10:31:31, Greg Kroah-Hartman wrote:
-> From: Bruno Thomsen <bruno.thomsen@gmail.com>
->=20
-> [ Upstream commit 7f43020e3bdb63d65661ed377682702f8b34d3ea ]
->=20
-> The previous fix listed bulk read of registers as root cause of
-> accendential disabling of watchdog, since the watchdog counter
-> register (WD_VAL) was zeroed.
->=20
-> Fixes: 3769a375ab83 rtc: pcf2127: bulk read only date and time registers.
->=20
-> Tested with the same PCF2127 chip as Sean reveled root cause
-> of WD_VAL register value zeroing was caused by reading CTRL2
-> register which is one of the watchdog feature control registers.
->=20
-> So the solution is to not read the first two control registers
-> (CTRL1 and CTRL2) in pcf2127_rtc_read_time as they are not
-> needed anyway. Size of local buf variable is kept to allow
-> easy usage of register defines to improve readability of code.
+Hi!
 
-Should the array be zeroed before or something? This way, one array
-contains both undefined values and valid data...
+> From: Arnd Bergmann <arnd@arndb.de>
+>=20
+> [ Upstream commit 355cf31912014e6ff1bb1019ae4858cad12c68cf ]
+>=20
+> clang triggers a warning about oversized stack frames that gcc does not
+> notice because of slightly different inlining decisions:
+>=20
+> ath/wcn36xx/smd.c:1409:5: error: stack frame size of 1040 bytes in functi=
+on 'wcn36xx_smd_config_bss' [-Werror,-Wframe-larger-than=3D]
+> ath/wcn36xx/smd.c:640:5: error: stack frame size of 1032 bytes in functio=
+n 'wcn36xx_smd_start_hw_scan' [-Werror,-Wframe-larger-than=3D]
+>=20
+> Basically the wcn36xx_hal_start_scan_offload_req_msg,
+> wcn36xx_hal_config_bss_req_msg_v1, and wcn36xx_hal_config_bss_req_msg
+> structures are too large to be put on the kernel stack, but small
+> enough that gcc does not warn about them.
+>=20
+> Use kzalloc() to allocate them all. There are similar structures in other
+> parts of this driver, but they are all smaller, with the next largest
+> stack frame at 480 bytes for wcn36xx_smd_send_beacon.
 
-> Debug trace line was updated after CTRL1 and CTRL2 are no longer
-> read from the chip. Also replaced magic numbers in buf access
-> with register defines.
-
-That part is not an improvement. Previously the code was formatted so
-that you could parse what is being printed.
-
-Best regards,							Pavel
-
-> @@ -91,14 +85,12 @@ static int pcf2127_rtc_read_time(struct device *dev, =
-struct rtc_time *tm)
->  	}
+>  	int ret, i;
 > =20
->  	dev_dbg(dev,
-> -		"%s: raw data is cr1=3D%02x, cr2=3D%02x, cr3=3D%02x, "
-> -		"sec=3D%02x, min=3D%02x, hr=3D%02x, "
-> +		"%s: raw data is cr3=3D%02x, sec=3D%02x, min=3D%02x, hr=3D%02x, "
->  		"mday=3D%02x, wday=3D%02x, mon=3D%02x, year=3D%02x\n",
-> -		__func__,
-> -		buf[0], buf[1], buf[2],
-> -		buf[3], buf[4], buf[5],
-> -		buf[6], buf[7], buf[8], buf[9]);
-> -
-> +		__func__, buf[PCF2127_REG_CTRL3], buf[PCF2127_REG_SC],
-> +		buf[PCF2127_REG_MN], buf[PCF2127_REG_HR],
-> +		buf[PCF2127_REG_DM], buf[PCF2127_REG_DW],
-> +		buf[PCF2127_REG_MO], buf[PCF2127_REG_YR]);
+>  	if (req->ie_len > WCN36XX_MAX_SCAN_IE_LEN)
+>  		return -EINVAL;
 > =20
->  	tm->tm_sec =3D bcd2bin(buf[PCF2127_REG_SC] & 0x7F);
->  	tm->tm_min =3D bcd2bin(buf[PCF2127_REG_MN] & 0x7F);
-> --=20
-> 2.20.1
->=20
->=20
+>  	mutex_lock(&wcn->hal_mutex);
+> -	INIT_HAL_MSG(msg_body, WCN36XX_HAL_START_SCAN_OFFLOAD_REQ);
+> +	msg_body =3D kzalloc(sizeof(*msg_body), GFP_KERNEL);
+> +	if (!msg_body) {
+> +		ret =3D -ENOMEM;
+> +		goto out;
+> +	}
 
+The allocation can be done outside the lock.
+
+> @@ -1410,16 +1428,21 @@ int wcn36xx_smd_config_bss(struct wcn36xx *wcn, s=
+truct ieee80211_vif *vif,
+>  			   struct ieee80211_sta *sta, const u8 *bssid,
+>  			   bool update)
+>  {
+> -	struct wcn36xx_hal_config_bss_req_msg msg;
+> +	struct wcn36xx_hal_config_bss_req_msg *msg;
+>  	struct wcn36xx_hal_config_bss_params *bss;
+>  	struct wcn36xx_hal_config_sta_params *sta_params;
+>  	struct wcn36xx_vif *vif_priv =3D wcn36xx_vif_to_priv(vif);
+>  	int ret;
+> =20
+>  	mutex_lock(&wcn->hal_mutex);
+> -	INIT_HAL_MSG(msg, WCN36XX_HAL_CONFIG_BSS_REQ);
+> +	msg =3D kzalloc(sizeof(*msg), GFP_KERNEL);
+> +	if (!msg) {
+> +		ret =3D -ENOMEM;
+> +		goto out;
+> +	}
+> +	INIT_HAL_MSG((*msg), WCN36XX_HAL_CONFIG_BSS_REQ);
+
+Same here.
+
+Best regards,
+									Pavel
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---qMm9M+Fa2AknHoGS
+--/NkBOFFp2J2Af1nK
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXi1pWgAKCRAw5/Bqldv6
-8lXvAKCuBbJsd+Ad8O49Zkovk64+OagFnACfXDkYo06jdIlgrJvug0hvl1dpMuo=
-=GfFi
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXi15sAAKCRAw5/Bqldv6
+8jrlAJ96jj/ngctVdO0FcxlO4LRn9I1GRwCgsrfJ9BdWXm1gqcF4PqOnk5kpq2U=
+=wSzG
 -----END PGP SIGNATURE-----
 
---qMm9M+Fa2AknHoGS--
+--/NkBOFFp2J2Af1nK--
