@@ -2,121 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C3E14A87D
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 17:58:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4500D14A975
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 19:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgA0Q6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 11:58:01 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:59686 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725930AbgA0Q6B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 11:58:01 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0TocxOzG_1580144268;
-Received: from localhost(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TocxOzG_1580144268)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 28 Jan 2020 00:57:56 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     mhocko@suse.com, richardw.yang@linux.intel.com,
-        akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v3 PATCH] mm: move_pages: report the number of non-attempted pages
-Date:   Tue, 28 Jan 2020 00:57:48 +0800
-Message-Id: <1580144268-79620-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1725893AbgA0SL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 13:11:29 -0500
+Received: from foss.arm.com ([217.140.110.172]:47878 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725845AbgA0SL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jan 2020 13:11:29 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2A735106F;
+        Mon, 27 Jan 2020 10:11:29 -0800 (PST)
+Received: from localhost (unknown [10.37.6.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 781663F67D;
+        Mon, 27 Jan 2020 10:11:28 -0800 (PST)
+Date:   Mon, 27 Jan 2020 18:11:26 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     alsa-devel@alsa-project.org, broonie@kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.de>, tiwai@suse.de
+Subject: Applied "ASoC: SOF: core: release resources on errors in probe_continue" to the asoc tree
+In-Reply-To: <20200124213625.30186-4-pierre-louis.bossart@linux.intel.com>
+Message-Id: <applied-20200124213625.30186-4-pierre-louis.bossart@linux.intel.com>
+X-Patchwork-Hint: ignore
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 49bd4d71637 ("mm, numa: rework do_pages_move"),
-the semantic of move_pages() has changed to return the number of
-non-migrated pages if they were result of a non-fatal reasons (usually a
-busy page).  This was an unintentional change that hasn't been noticed
-except for LTP tests which checked for the documented behavior.
+The patch
 
-There are two ways to go around this change.  We can even get back to the
-original behavior and return -EAGAIN whenever migrate_pages is not able
-to migrate pages due to non-fatal reasons.  Another option would be to
-simply continue with the changed semantic and extend move_pages
-documentation to clarify that -errno is returned on an invalid input or
-when migration simply cannot succeed (e.g. -ENOMEM, -EBUSY) or the
-number of pages that couldn't have been migrated due to ephemeral
-reasons (e.g. page is pinned or locked for other reasons).
+   ASoC: SOF: core: release resources on errors in probe_continue
 
-This patch implements the second option because this behavior is in
-place for some time without anybody complaining and possibly new users
-depending on it.  Also it allows to have a slightly easier error handling
-as the caller knows that it is worth to retry when err > 0.
+has been applied to the asoc tree at
 
-But since the new semantic would be aborted immediately if migration is
-failed due to ephemeral reasons, need include the number of non-attempted
-pages in the return value too.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-5.6
 
-Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: <stable@vger.kernel.org>    [4.17+]
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+From 410e5e55c9c1c9c0d452ac5b9adb37b933a7747e Mon Sep 17 00:00:00 2001
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Date: Fri, 24 Jan 2020 15:36:21 -0600
+Subject: [PATCH] ASoC: SOF: core: release resources on errors in
+ probe_continue
+
+The initial intent of releasing resources in the .remove does not work
+well with HDaudio codecs. If the probe_continue() fails in a work
+queue, e.g. due to missing firmware or authentication issues, we don't
+release any resources, and as a result the kernel oopses during
+suspend operations.
+
+The suggested fix is to release all resources during errors in
+probe_continue(), and use fw_state to track resource allocation
+state, so that .remove does not attempt to release the same
+hardware resources twice. PM operations are also modified so that
+no action is done if DSP resources have been freed due to
+an error at probe.
+
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Co-developed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Bugzilla:  http://bugzilla.suse.com/show_bug.cgi?id=1161246
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200124213625.30186-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 ---
-v3: Rephrased the commit log per Michal and added Michal's Acked-by
-v2: Rebased on top of the latest mainline kernel per Andrew
+ sound/soc/sof/core.c | 33 ++++++++++++---------------------
+ sound/soc/sof/pm.c   |  4 ++++
+ 2 files changed, 16 insertions(+), 21 deletions(-)
 
- mm/migrate.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
-
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 86873b6..9b8eb5d 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -1627,8 +1627,18 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
- 			start = i;
- 		} else if (node != current_node) {
- 			err = do_move_pages_to_node(mm, &pagelist, current_node);
--			if (err)
-+			if (err) {
-+				/*
-+				 * Possitive err means the number of failed
-+				 * pages to migrate.  Since we are going to
-+				 * abort and return the number of non-migrated
-+				 * pages, so need incude the rest of the
-+				 * nr_pages that have not attempted as well.
-+				 */
-+				if (err > 0)
-+					err += nr_pages - i - 1;
- 				goto out;
-+			}
- 			err = store_status(status, start, current_node, i - start);
- 			if (err)
- 				goto out;
-@@ -1659,8 +1669,11 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
- 			goto out_flush;
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index f517ab448a1d..34cefbaf2d2a 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -244,7 +244,6 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
  
- 		err = do_move_pages_to_node(mm, &pagelist, current_node);
--		if (err)
-+		if (err) {
-+			if (err > 0)
-+				err += nr_pages - i - 1;
- 			goto out;
-+		}
- 		if (i > start) {
- 			err = store_status(status, start, current_node, i - start);
- 			if (err)
-@@ -1674,6 +1687,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ 	return 0;
  
- 	/* Make sure we do not overwrite the existing error */
- 	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
-+	/*
-+	 * Don't have to report non-attempted pages here since:
-+	 *     - If the above loop is done gracefully there is not non-attempted
-+	 *       page.
-+	 *     - If the above loop is aborted to it means more fatal error
-+	 *       happened, should return err.
-+	 */   
- 	if (!err1)
- 		err1 = store_status(status, start, current_node, i - start);
- 	if (!err)
+-#if !IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
+ fw_trace_err:
+ 	snd_sof_free_trace(sdev);
+ fw_run_err:
+@@ -255,22 +254,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 	snd_sof_free_debug(sdev);
+ dbg_err:
+ 	snd_sof_remove(sdev);
+-#else
+ 
+-	/*
+-	 * when the probe_continue is handled in a work queue, the
+-	 * probe does not fail so we don't release resources here.
+-	 * They will be released with an explicit call to
+-	 * snd_sof_device_remove() when the PCI/ACPI device is removed
+-	 */
+-
+-fw_trace_err:
+-fw_run_err:
+-fw_load_err:
+-ipc_err:
+-dbg_err:
+-
+-#endif
++	/* all resources freed, update state to match */
++	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
++	sdev->first_boot = true;
+ 
+ 	return ret;
+ }
+@@ -353,10 +340,12 @@ int snd_sof_device_remove(struct device *dev)
+ 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+ 		cancel_work_sync(&sdev->probe_work);
+ 
+-	snd_sof_fw_unload(sdev);
+-	snd_sof_ipc_free(sdev);
+-	snd_sof_free_debug(sdev);
+-	snd_sof_free_trace(sdev);
++	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED) {
++		snd_sof_fw_unload(sdev);
++		snd_sof_ipc_free(sdev);
++		snd_sof_free_debug(sdev);
++		snd_sof_free_trace(sdev);
++	}
+ 
+ 	/*
+ 	 * Unregister machine driver. This will unbind the snd_card which
+@@ -364,13 +353,15 @@ int snd_sof_device_remove(struct device *dev)
+ 	 * before freeing the snd_card.
+ 	 */
+ 	snd_sof_machine_unregister(sdev, pdata);
++
+ 	/*
+ 	 * Unregistering the machine driver results in unloading the topology.
+ 	 * Some widgets, ex: scheduler, attempt to power down the core they are
+ 	 * scheduled on, when they are unloaded. Therefore, the DSP must be
+ 	 * removed only after the topology has been unloaded.
+ 	 */
+-	snd_sof_remove(sdev);
++	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED)
++		snd_sof_remove(sdev);
+ 
+ 	/* release firmware */
+ 	release_firmware(pdata->fw);
+diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
+index 84290bbeebdd..a0cde053b61a 100644
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -56,6 +56,10 @@ static int sof_resume(struct device *dev, bool runtime_resume)
+ 	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
+ 		return 0;
+ 
++	/* DSP was never successfully started, nothing to resume */
++	if (sdev->first_boot)
++		return 0;
++
+ 	/*
+ 	 * if the runtime_resume flag is set, call the runtime_resume routine
+ 	 * or else call the system resume routine
 -- 
-1.8.3.1
+2.20.1
 
