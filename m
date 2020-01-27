@@ -2,76 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6FF14ABA2
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 22:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1BC14ABB0
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 22:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726191AbgA0V27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 16:28:59 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:52700 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725955AbgA0V27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 16:28:59 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0TodWSHI_1580160527;
-Received: from localhost(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TodWSHI_1580160527)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 28 Jan 2020 05:28:55 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     mhocko@suse.com, richardw.yang@linux.intel.com,
-        willy@infradead.org, akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v4 PATCH] mm: move_pages: report the number of non-attempted pages
-Date:   Tue, 28 Jan 2020 05:28:47 +0800
-Message-Id: <1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1725955AbgA0Vdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 16:33:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50770 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725946AbgA0Vdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jan 2020 16:33:52 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8B4E2465B;
+        Mon, 27 Jan 2020 21:33:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580160831;
+        bh=dqyyLd+f6lrZa2+Ga+9KqLmmcz7yKP7WQo/qZzkgmp0=;
+        h=Date:From:To:Subject:From;
+        b=EcmSrgKSjtP6xbvyN7oKE1W5hvZytFWJWDVd2aVZxPtM1o++mnDsPstvKN8MWIT0I
+         z9VxdFYR0Zitx1toKnpNZ/Q6eys3z18E2TnUksOR/DK0o73lYoqj9Q+0oKkdULEGOt
+         kGt3KFaZ7cET0G70Er5cEE+AollJGClM8jZRsAuk=
+Date:   Mon, 27 Jan 2020 13:33:50 -0800
+From:   akpm@linux-foundation.org
+To:     mhocko@suse.com, mm-commits@vger.kernel.org,
+        richardw.yang@linux.intel.com, stable@vger.kernel.org,
+        yang.shi@linux.alibaba.com
+Subject:  +
+ mm-move_pages-report-the-number-of-non-attempted-pages.patch added to -mm
+ tree
+Message-ID: <20200127213350.vCt6QvmJu%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
-the semantic of move_pages() has changed to return the number of
-non-migrated pages if they were result of a non-fatal reasons (usually a
-busy page).  This was an unintentional change that hasn't been noticed
-except for LTP tests which checked for the documented behavior.
+
+The patch titled
+     Subject: mm: move_pages: report the number of non-attempted pages
+has been added to the -mm tree.  Its filename is
+     mm-move_pages-report-the-number-of-non-attempted-pages.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-move_pages-report-the-number-of-non-attempted-pages.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-move_pages-report-the-number-of-non-attempted-pages.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Yang Shi <yang.shi@linux.alibaba.com>
+Subject: mm: move_pages: report the number of non-attempted pages
+
+Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"), the semantic
+of move_pages() has changed to return the number of non-migrated pages if
+they were result of a non-fatal reasons (usually a busy page).  This was
+an unintentional change that hasn't been noticed except for LTP tests
+which checked for the documented behavior.
 
 There are two ways to go around this change.  We can even get back to the
-original behavior and return -EAGAIN whenever migrate_pages is not able
-to migrate pages due to non-fatal reasons.  Another option would be to
-simply continue with the changed semantic and extend move_pages
-documentation to clarify that -errno is returned on an invalid input or
-when migration simply cannot succeed (e.g. -ENOMEM, -EBUSY) or the
-number of pages that couldn't have been migrated due to ephemeral
-reasons (e.g. page is pinned or locked for other reasons).
+original behavior and return -EAGAIN whenever migrate_pages is not able to
+migrate pages due to non-fatal reasons.  Another option would be to simply
+continue with the changed semantic and extend move_pages documentation to
+clarify that -errno is returned on an invalid input or when migration
+simply cannot succeed (e.g.  -ENOMEM, -EBUSY) or the number of pages that
+couldn't have been migrated due to ephemeral reasons (e.g.  page is pinned
+or locked for other reasons).
 
-This patch implements the second option because this behavior is in
-place for some time without anybody complaining and possibly new users
-depending on it.  Also it allows to have a slightly easier error handling
-as the caller knows that it is worth to retry when err > 0.
+This patch implements the second option because this behavior is in place
+for some time without anybody complaining and possibly new users depending
+on it.  Also it allows to have a slightly easier error handling as the
+caller knows that it is worth to retry when err > 0.
 
 But since the new semantic would be aborted immediately if migration is
 failed due to ephemeral reasons, need include the number of non-attempted
 pages in the return value too.
 
+Link: http://lkml.kernel.org/r/1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com
 Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
 Suggested-by: Michal Hocko <mhocko@suse.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
 Cc: Wei Yang <richardw.yang@linux.intel.com>
 Cc: <stable@vger.kernel.org>    [4.17+]
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-v4: Fixed some typo and grammar errors caught by Willy
-v3: Rephrased the commit log per Michal and added Michal's Acked-by
-v2: Rebased on top of the latest mainline kernel per Andrew
 
- mm/migrate.c | 25 +++++++++++++++++++++++--
+ mm/migrate.c |   25 +++++++++++++++++++++++--
  1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 86873b6..2530860 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -1627,8 +1627,19 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+--- a/mm/migrate.c~mm-move_pages-report-the-number-of-non-attempted-pages
++++ a/mm/migrate.c
+@@ -1627,8 +1627,19 @@ static int do_pages_move(struct mm_struc
  			start = i;
  		} else if (node != current_node) {
  			err = do_move_pages_to_node(mm, &pagelist, current_node);
@@ -92,7 +124,7 @@ index 86873b6..2530860 100644
  			err = store_status(status, start, current_node, i - start);
  			if (err)
  				goto out;
-@@ -1659,8 +1670,11 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+@@ -1659,8 +1670,11 @@ static int do_pages_move(struct mm_struc
  			goto out_flush;
  
  		err = do_move_pages_to_node(mm, &pagelist, current_node);
@@ -105,7 +137,7 @@ index 86873b6..2530860 100644
  		if (i > start) {
  			err = store_status(status, start, current_node, i - start);
  			if (err)
-@@ -1674,6 +1688,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+@@ -1674,6 +1688,13 @@ out_flush:
  
  	/* Make sure we do not overwrite the existing error */
  	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
@@ -118,7 +150,10 @@ index 86873b6..2530860 100644
 +	 */
  	if (!err1)
  		err1 = store_status(status, start, current_node, i - start);
- 	if (!err)
--- 
-1.8.3.1
+ 	if (err >= 0)
+_
+
+Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
+
+mm-move_pages-report-the-number-of-non-attempted-pages.patch
 
