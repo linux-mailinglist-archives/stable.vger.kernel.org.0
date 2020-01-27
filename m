@@ -2,76 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6883C14A60B
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 15:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBD514A630
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 15:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728904AbgA0O2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 09:28:21 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:52103 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728866AbgA0O2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 09:28:21 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 271704D6;
-        Mon, 27 Jan 2020 09:28:20 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 27 Jan 2020 09:28:20 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=4FaZ0yFxteeeNRftK7mgNkM/Igb
-        FpTvUNX476Mi1q+8=; b=QnnQpYi7CZ3+zFYUpTCa3ipSKcbenD+mJ5crV5BcqyE
-        b1gA1TnZsCWpJz7z11IeWQc/UFNBxb7uucTYtTjWlQtHyMmLeew70TMLg7/J4zC/
-        Irl1xJ0zD+RQDjJB/i0jeRIP0mMdCZeVjVNbMPhCfBT/yNZJgBGXplbde5X+vB9u
-        vA7divG5Cqk/GaPjs5hL7cRaTDK6cgktyORYT7VR9sqel31WeTJRyzf3pl+teBvz
-        JmUAu1qRkMsKev/pFLy97SFL+djG5Hu005++ErOjEjHllMG3lCq1kLWDKawOr/Dy
-        NgiM9t4OaC24DhT5eK6TV1SqRxNj1vKzzt2/hZHS+SQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=4FaZ0y
-        FxteeeNRftK7mgNkM/IgbFpTvUNX476Mi1q+8=; b=LE3Lzlz/MEvASZ6P2zkgn3
-        T3OUQImBNz/sPu3voHR9dUIQWdNrKQF6KkMlEeBCRrT4uSCBxBi0Ax2LiDkq3KBF
-        r6olSk8+XaYT+dbZjrgGwI6NzqUKdaL/KOZ7YL9iDGmSL153euktuN01xlJ2vDO6
-        mnXkQjeHekA8rKgLM+o8GjH/Z3Ci2qxqXDWu8JDBVvZSrDPOqGWV7pHooWTcL/E2
-        Bqz70+w8n41M44hwYWt3tFV2d7V1xpn6OsU166NzaSB71padDud0uEMbPPkjEyWn
-        Zr6/5PUs7nFg9gwA38yW4fU/rM8JI8vnAVYI7becsuz81V6BYrjJdLlHiTw2NCQg
-        ==
-X-ME-Sender: <xms:g_MuXoXCVyR7rP7R7_8wFSmR0sUb-88NjvkKRrlXl8KIJkeaeyjvkg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfedvgdeigecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
-    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
-    gheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:g_MuXoSH7MiF0EMZ9gwLV9SiDRCsbYEkJGsZU9nT8Q4gkjdW6g_fBw>
-    <xmx:g_MuXkY_1uQXSXBX9Wqbfq4tkYEHI22AooNQwn8emGNo_U-q2Loiiw>
-    <xmx:g_MuXldkVDnm9Dx6AqVB2rWooLRvwIKMHC_jtAwGtsoC0w8e4rol1Q>
-    <xmx:g_MuXpnAI5SvA2CeDp-fYYcONrZspWWRPX72kcKYLcE19VXgncOC-g>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 565163280066;
-        Mon, 27 Jan 2020 09:28:19 -0500 (EST)
-Date:   Mon, 27 Jan 2020 15:27:44 +0100
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20200127142744.GA582307@kroah.com>
-References: <20200127.121617.552910234324463565.davem@davemloft.net>
+        id S1728760AbgA0Odi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 09:33:38 -0500
+Received: from mail25.static.mailgun.info ([104.130.122.25]:21255 "EHLO
+        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727817AbgA0Odi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 09:33:38 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1580135617; h=Date: Message-Id: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=7+xkR3BHg9A0v14RQ5mF55Y04fzclGoR+oy704vl4Fc=;
+ b=LDOSuqK4EiPo9x3GCa26paev9eaNUmWSWxobefwkjMgp9q2zizS440bkNKIm7kb+33bp4b1a
+ fTJ6aq928eAdczu1NrUZ7XuCA6/ua6GkyzdAg4Y1mxUss00MRM8SJ9kj7L0Ml+KGIPkZVYgd
+ man/42mZbKMOyb2aP7xvpVahNF0=
+X-Mailgun-Sending-Ip: 104.130.122.25
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e2ef4bc.7fb04834eea0-smtp-out-n02;
+ Mon, 27 Jan 2020 14:33:32 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id D78F4C433CB; Mon, 27 Jan 2020 14:33:32 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE autolearn=no autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id EBDCEC433CB;
+        Mon, 27 Jan 2020 14:33:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org EBDCEC433CB
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200127.121617.552910234324463565.davem@davemloft.net>
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] mwifiex: fix unbalanced locking in
+ mwifiex_process_country_ie()
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20200106224212.189763-1-briannorris@chromium.org>
+References: <20200106224212.189763-1-briannorris@chromium.org>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     linux-wireless@vger.kernel.org, <linux-kernel@vger.kernel.org>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Nishant Sarmukadam <nishants@marvell.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Brian Norris <briannorris@chromium.org>,
+        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20200127143332.D78F4C433CB@smtp.codeaurora.org>
+Date:   Mon, 27 Jan 2020 14:33:32 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 27, 2020 at 12:16:17PM +0100, David Miller wrote:
+Brian Norris <briannorris@chromium.org> wrote:
+
+> We called rcu_read_lock(), so we need to call rcu_read_unlock() before
+> we return.
 > 
-> Please queue up the following networking bug fixes for v4.19
-> and v5.4 -stable, respectively.
+> Fixes: 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+> Cc: stable@vger.kernel.org
+> Cc: huangwen <huangwenabc@gmail.com>
+> Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
 
-All now queued up, thanks!
+Patch applied to wireless-drivers.git, thanks.
 
-greg k-h
+65b1aae0d9d5 mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
+
+-- 
+https://patchwork.kernel.org/patch/11320227/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
