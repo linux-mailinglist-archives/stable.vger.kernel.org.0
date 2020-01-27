@@ -2,161 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D9114AA08
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 19:47:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F97C14AA0C
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 19:48:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgA0Sr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 13:47:56 -0500
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:38666 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725845AbgA0Sr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 13:47:56 -0500
-Received: by mail-pj1-f67.google.com with SMTP id m4so3464544pjv.3
-        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 10:47:55 -0800 (PST)
+        id S1726191AbgA0Ss0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 13:48:26 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:44270 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725990AbgA0Ss0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 13:48:26 -0500
+Received: by mail-ot1-f67.google.com with SMTP id h9so9411750otj.11
+        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 10:48:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=srYbtCDEGV/WxHrV6MuHQ32O3r1jyERWbs4eZucN3Mk=;
-        b=oDAO4/fE5HEOEIt0C75vwXUc3590RH2zMXGhqB46LIXuyBeobl2o5lVlv+jtIgaLr4
-         NETCYgG7jd9RAEdBuxojr6tq+1lBBaGQ/sl6wmFhQS1jtfprA2v0xOzc/lNInQXhV+5+
-         iVehr/qT1CYFF7kgBTUre2QSK0TOt6q3tpjjq3sxwrEXrH5oEE0ruaCkRbdb8II/ya5K
-         m66e53cZqDLXXQpNbSRCd1yeVH2v3v+86zy8Wy+p1Xt9AgjfjtrJvgsAnq+9ZdBQiARC
-         JU/RYetBqweKidxLuV2AsuFtYmUZ4U3o5lAk9FiF69cbTLsQDgoNkac4pM2CRnfQ51qs
-         NZ0Q==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zw+XZaa7gsUARBGtJkOR+0K2wPyg8TohxAXhDQGURpc=;
+        b=DxhuDK2AbqHMU9yVMFAZ7NqQXRXIIMwO1AgBZ7eaYuLRku77A1qgEOxEpHK3Gd7Z6A
+         VugoQRFhLt/2slyfuaH65zJy0g4AegqT2Ja7PrwfYGgQ+Ggzv1zpwfCJg0lwgdluMBZA
+         4bXh5/pnRzn8+rgwNJAMY7kFUp/yIt3Zu6LJLLdaq1lTH+dKM5cRymOIolHl9bafWxNn
+         kHu1eFv/q0GvDY1di17cMHNSNjyvF1/akb/yLLjH+UkBtbntj5YEp0zYa06OeHqyas5u
+         f6css1Ix9JXmXySXn75uTOuGr/9iUjoMogs0t5mB7WuQLxB/P4KmdVd3NleFhYJ7gIyA
+         LJRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=srYbtCDEGV/WxHrV6MuHQ32O3r1jyERWbs4eZucN3Mk=;
-        b=YoLiSZWwzCBlN3o+aCUcLMkJ1X50qVOMYMTCauW0kNFHxvgy//W2xyA9lwTneOtIuL
-         +VWZ+vuhHoWGq4KngQRxvkV68QPn9bDb1OlDhULWHvOJkvWg5dU8qX1/n3PbCI9lYX81
-         /EEN53hQj93gUKrzUvqPcqoGCf+rlgNyn43/9HVsePur6Qe3PPYQAYwfBmxmG7VV4JT2
-         J9bkA6IxCt8ItTubBp/HbU8kX1NghlAKRYzEUMoTnF95YuhWJTJzvklJQmdcTjGLK8rZ
-         vWB3hgxwZK8L27GYVqtQbnLG3GNTAJagTKyS6VwJeG2Ol0wm5xA7EIgeOwlO7wMEkIRd
-         jYlA==
-X-Gm-Message-State: APjAAAVq05UGRGjsp7y4rBZ3FO0J9w2QWPiEJvrWgPeBy/8c3hh2ZgCj
-        dKApt9DR15k+aVustUJyMzI=
-X-Google-Smtp-Source: APXvYqxRiDxHJdCyA6EZzBBWmTUqtOtzso2sxiMBjkSB0F3ffFDI/clVIfDUptX5gdFVVQb1UsS1xQ==
-X-Received: by 2002:a17:90a:3ae5:: with SMTP id b92mr72133pjc.26.1580150875531;
-        Mon, 27 Jan 2020 10:47:55 -0800 (PST)
-Received: from [10.67.50.115] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id d73sm5965332pfd.109.2020.01.27.10.47.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Jan 2020 10:47:54 -0800 (PST)
-Subject: Re: Request to backport "Documentation: Document arm64 kpti control"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Jeremy Linton <jeremy.linton@arm.com>, stable@vger.kernel.org,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>
-References: <520fee3a-4d14-9a78-e542-cce98acae9f6@gmail.com>
- <20200126135233.GB11467@sasha-vm> <20200127155106.GA668073@kroah.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Autocrypt: addr=f.fainelli@gmail.com; prefer-encrypt=mutual; keydata=
- xsDiBEjPuBIRBACW9MxSJU9fvEOCTnRNqG/13rAGsj+vJqontvoDSNxRgmafP8d3nesnqPyR
- xGlkaOSDuu09rxuW+69Y2f1TzjFuGpBk4ysWOR85O2Nx8AJ6fYGCoeTbovrNlGT1M9obSFGQ
- X3IzRnWoqlfudjTO5TKoqkbOgpYqIo5n1QbEjCCwCwCg3DOH/4ug2AUUlcIT9/l3pGvoRJ0E
- AICDzi3l7pmC5IWn2n1mvP5247urtHFs/uusE827DDj3K8Upn2vYiOFMBhGsxAk6YKV6IP0d
- ZdWX6fqkJJlu9cSDvWtO1hXeHIfQIE/xcqvlRH783KrihLcsmnBqOiS6rJDO2x1eAgC8meAX
- SAgsrBhcgGl2Rl5gh/jkeA5ykwbxA/9u1eEuL70Qzt5APJmqVXR+kWvrqdBVPoUNy/tQ8mYc
- nzJJ63ng3tHhnwHXZOu8hL4nqwlYHRa9eeglXYhBqja4ZvIvCEqSmEukfivk+DlIgVoOAJbh
- qIWgvr3SIEuR6ayY3f5j0f2ejUMYlYYnKdiHXFlF9uXm1ELrb0YX4GMHz80nRmxvcmlhbiBG
- YWluZWxsaSA8Zi5mYWluZWxsaUBnbWFpbC5jb20+wmYEExECACYCGyMGCwkIBwMCBBUCCAME
- FgIDAQIeAQIXgAUCVF/S8QUJHlwd3wAKCRBhV5kVtWN2DvCVAJ4u4/bPF4P3jxb4qEY8I2gS
- 6hG0gACffNWlqJ2T4wSSn+3o7CCZNd7SLSDOwU0EVxvH8AEQAOqv6agYuT4x3DgFIJNv9i0e
- S443rCudGwmg+CbjXGA4RUe1bNdPHYgbbIaN8PFkXfb4jqg64SyU66FXJJJO+DmPK/t7dRNA
- 3eMB1h0GbAHlLzsAzD0DKk1ARbjIusnc02aRQNsAUfceqH5fAMfs2hgXBa0ZUJ4bLly5zNbr
- r0t/fqZsyI2rGQT9h1D5OYn4oF3KXpSpo+orJD93PEDeseho1EpmMfsVH7PxjVUlNVzmZ+tc
- IDw24CDSXf0xxnaojoicQi7kzKpUrJodfhNXUnX2JAm/d0f9GR7zClpQMezJ2hYAX7BvBajb
- Wbtzwi34s8lWGI121VjtQNt64mSqsK0iQAE6OYk0uuQbmMaxbBTT63+04rTPBO+gRAWZNDmQ
- b2cTLjrOmdaiPGClSlKx1RhatzW7j1gnUbpfUl91Xzrp6/Rr9BgAZydBE/iu57KWsdMaqu84
- JzO9UBGomh9eyBWBkrBt+Fe1qN78kM7JO6i3/QI56NA4SflV+N4PPgI8TjDVaxgrfUTV0gVa
- cr9gDE5VgnSeSiOleChM1jOByZu0JTShOkT6AcSVW0kCz3fUrd4e5sS3J3uJezSvXjYDZ53k
- +0GS/Hy//7PSvDbNVretLkDWL24Sgxu/v8i3JiYIxe+F5Br8QpkwNa1tm7FK4jOd95xvYADl
- BUI1EZMCPI7zABEBAAHCwagEGBECAAkFAlcbx/ACGwICKQkQYVeZFbVjdg7BXSAEGQECAAYF
- Alcbx/AACgkQh9CWnEQHBwSJBw//Z5n6IO19mVzMy/ZLU/vu8flv0Aa0kwk5qvDyvuvfiDTd
- WQzq2PLs+obX0y1ffntluhvP+8yLzg7h5O6/skOfOV26ZYD9FeV3PIgR3QYF26p2Ocwa3B/k
- P6ENkk2pRL2hh6jaA1Bsi0P34iqC2UzzLq+exctXPa07ioknTIJ09BT31lQ36Udg7NIKalnj
- 5UbkRjqApZ+Rp0RAP9jFtq1n/gjvZGyEfuuo/G+EVCaiCt3Vp/cWxDYf2qsX6JxkwmUNswuL
- C3duQ0AOMNYrT6Pn+Vf0kMboZ5UJEzgnSe2/5m8v6TUc9ZbC5I517niyC4+4DY8E2m2V2LS9
- es9uKpA0yNcd4PfEf8bp29/30MEfBWOf80b1yaubrP5y7yLzplcGRZMF3PgBfi0iGo6kM/V2
- 13iD/wQ45QTV0WTXaHVbklOdRDXDHIpT69hFJ6hAKnnM7AhqZ70Qi31UHkma9i/TeLLzYYXz
- zhLHGIYaR04dFT8sSKTwTSqvm8rmDzMpN54/NeDSoSJitDuIE8givW/oGQFb0HGAF70qLgp0
- 2XiUazRyRU4E4LuhNHGsUxoHOc80B3l+u3jM6xqJht2ZyMZndbAG4LyVA2g9hq2JbpX8BlsF
- skzW1kbzIoIVXT5EhelxYEGqLFsZFdDhCy8tjePOWK069lKuuFSssaZ3C4edHtkZ8gCfWWtA
- 8dMsqeOIg9Trx7ZBCDOZGNAAnjYQmSb2eYOAti3PX3Ex7vI8ZhJCzsNNBEjPuBIQEAC/6NPW
- 6EfQ91ZNU7e/oKWK91kOoYGFTjfdOatp3RKANidHUMSTUcN7J2mxww80AQHKjr3Yu2InXwVX
- SotMMR4UrkQX7jqabqXV5G+88bj0Lkr3gi6qmVkUPgnNkIBe0gaoM523ujYKLreal2OQ3GoJ
- PS6hTRoSUM1BhwLCLIWqdX9AdT6FMlDXhCJ1ffA/F3f3nTN5oTvZ0aVF0SvQb7eIhGVFxrlb
- WS0+dpyulr9hGdU4kzoqmZX9T/r8WCwcfXipmmz3Zt8o2pYWPMq9Utby9IEgPwultaP06MHY
- nhda1jfzGB5ZKco/XEaXNvNYADtAD91dRtNGMwRHWMotIGiWwhEJ6vFc9bw1xcR88oYBs+7p
- gbFSpmMGYAPA66wdDKGj9+cLhkd0SXGht9AJyaRA5AWB85yNmqcXXLkzzh2chIpSEawRsw8B
- rQIZXc5QaAcBN2dzGN9UzqQArtWaTTjMrGesYhN+aVpMHNCmJuISQORhX5lkjeg54oplt6Zn
- QyIsOCH3MfG95ha0TgWwyFtdxOdY/UY2zv5wGivZ3WeS0TtQf/BcGre2y85rAohFziWOzTaS
- BKZKDaBFHwnGcJi61Pnjkz82hena8OmsnsBIucsz4N0wE+hVd6AbDYN8ZcFNIDyt7+oGD1+c
- PfqLz2df6qjXzq27BBUboklbGUObNwADBQ//V45Z51Q4fRl/6/+oY5q+FPbRLDPlUF2lV6mb
- hymkpqIzi1Aj/2FUKOyImGjbLAkuBQj3uMqy+BSSXyQLG3sg8pDDe8AJwXDpG2fQTyTzQm6l
- OnaMCzosvALk2EOPJryMkOCI52+hk67cSFA0HjgTbkAv4Mssd52y/5VZR28a+LW+mJIZDurI
- Y14UIe50G99xYxjuD1lNdTa/Yv6qFfEAqNdjEBKNuOEUQOlTLndOsvxOOPa1mRUk8Bqm9BUt
- LHk3GDb8bfDwdos1/h2QPEi+eI+O/bm8YX7qE7uZ13bRWBY+S4+cd+Cyj8ezKYAJo9B+0g4a
- RVhdhc3AtW44lvZo1h2iml9twMLfewKkGV3oG35CcF9mOd7n6vDad3teeNpYd/5qYhkopQrG
- k2oRBqxyvpSLrJepsyaIpfrt5NNaH7yTCtGXcxlGf2jzGdei6H4xQPjDcVq2Ra5GJohnb/ix
- uOc0pWciL80ohtpSspLlWoPiIowiKJu/D/Y0bQdatUOZcGadkywCZc/dg5hcAYNYchc8AwA4
- 2dp6w8SlIsm1yIGafWlNnfvqbRBglSTnxFuKqVggiz2zk+1wa/oP+B96lm7N4/3Aw6uy7lWC
- HvsHIcv4lxCWkFXkwsuWqzEKK6kxVpRDoEQPDj+Oy/ZJ5fYuMbkdHrlegwoQ64LrqdmiVVPC
- TwQYEQIADwIbDAUCVF/S8QUJHlwd3wAKCRBhV5kVtWN2Do+FAJ956xSz2XpDHql+Wg/2qv3b
- G10n8gCguORqNGMsVRxrlLs7/himep7MrCc=
-Message-ID: <406719bd-1d6f-d19e-fae4-4da3f0f76138@gmail.com>
-Date:   Mon, 27 Jan 2020 10:47:53 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zw+XZaa7gsUARBGtJkOR+0K2wPyg8TohxAXhDQGURpc=;
+        b=bWCogHzN/8WPbrMZVbBz3NkiE8UH6oqsOrzXoXsdtCIFaBLWt/1jgCKoQl2gPu4lv8
+         l9D8XlQfjiR0TPBBr5wYQ6fr/GbAlp7pq1cgOaTWF8wKIckihqlAzAsfEmts9O9zk6M/
+         lSUhbYd1gWMGPeNCtjIHhTrYjX1uKPRdfKl2MttYElPXOcyR2kMEK739mRzneM7EUhgW
+         +T6bieHYBzfpQ1qtosYN9v3BNX5gG0uq7T+n3Rzz/G/08lPBWdHaVxA/8CDabeMuvb1V
+         3cpFjgAVXPweNip0tsV+iUDlXj3VPhoysfFeYBpipoAhQ3FID+FdsWGRqx35NU/1HMTm
+         77Yw==
+X-Gm-Message-State: APjAAAWZoZ9Cp4HpBIQ/vrtspQVrbDtY0dksW0jl/ahjfFBMM/7SGVNG
+        7AiIwiIB3mfqP8qmqD3BWfQePCCrp8430KMvJHau4Q==
+X-Google-Smtp-Source: APXvYqz98obeG+UIMNKdbaDJLwPj2RseT8dj+H7fy5qimmJNzzbcezjsN0a7jhxxpkpL5CTCcRzVOBvFgWSEr6S7DwI=
+X-Received: by 2002:a9d:6304:: with SMTP id q4mr13597186otk.332.1580150904289;
+ Mon, 27 Jan 2020 10:48:24 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200127155106.GA668073@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200122222645.38805-1-john.stultz@linaro.org>
+ <20200122222645.38805-2-john.stultz@linaro.org> <87tv4m4ov2.fsf@kernel.org>
+ <CALAqxLUeBf2Jx2tLW1yzJk6JHM0RP9cJbTt7m19Qdz-rWMw2mQ@mail.gmail.com>
+ <87iml147sd.fsf@kernel.org> <CALAqxLVBv_1AJLZAiB3yLuf-MY2p4Nt5p3xTsbR0qkmyNV5U9g@mail.gmail.com>
+ <877e1fu7d8.fsf@kernel.org>
+In-Reply-To: <877e1fu7d8.fsf@kernel.org>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Mon, 27 Jan 2020 10:48:12 -0800
+Message-ID: <CALAqxLWw5ydkHGoZZk7RKZj_0HXeJ_oV-Q0J_iN8dDjX9DTVOw@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2] usb: dwc3: gadget: Check for IOC/LST bit in both
+ event->status and TRB->ctrl fields
+To:     Felipe Balbi <balbi@kernel.org>
+Cc:     lkml <linux-kernel@vger.kernel.org>,
+        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
+        Yang Fei <fei.yang@intel.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Tejas Joglekar <tejas.joglekar@synopsys.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/27/20 7:51 AM, Greg Kroah-Hartman wrote:
-> On Sun, Jan 26, 2020 at 08:52:33AM -0500, Sasha Levin wrote:
->> On Sat, Jan 25, 2020 at 08:03:25PM -0800, Florian Fainelli wrote:
->>> Hi Greg, Sasha,
->>>
->>> Could you backport upstream commit
->>> de19055564c8f8f9d366f8db3395836da0b2176c ("Documentation: Document arm64
->>> kpti control") to the stable 4.9, 4.14 and 4.19 kernels since they all
->>> support the command line parameter.
->>
->> Hey Florian,
->>
->> We don't normally take documentation patches into stable trees.
-> 
-> Normally we do not, but this is simple enough I've queued it up for 4.19
-> and 4.14.  Are you sure it is ok for 4.9?  If so, Florian, can you
-> provide a backported version of it?
+On Sat, Jan 25, 2020 at 3:01 AM Felipe Balbi <balbi@kernel.org> wrote:
+>
+>
+> Hi,
+>
+> John Stultz <john.stultz@linaro.org> writes:
+> >> > On Wed, Jan 22, 2020 at 11:23 PM Felipe Balbi <balbi@kernel.org> wrote:
+> >> >> > From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+> >> >> >
+> >> >> > The present code in dwc3_gadget_ep_reclaim_completed_trb() will check
+> >> >> > for IOC/LST bit in the event->status and returns if IOC/LST bit is
+> >> >> > set. This logic doesn't work if multiple TRBs are queued per
+> >> >> > request and the IOC/LST bit is set on the last TRB of that request.
+> >> >> > Consider an example where a queued request has multiple queued TRBs
+> >> >> > and IOC/LST bit is set only for the last TRB. In this case, the Core
+> >> >> > generates XferComplete/XferInProgress events only for the last TRB
+> >> >> > (since IOC/LST are set only for the last TRB). As per the logic in
+> >> >> > dwc3_gadget_ep_reclaim_completed_trb() event->status is checked for
+> >> >> > IOC/LST bit and returns on the first TRB. This makes the remaining
+> >> >> > TRBs left unhandled.
+> >> >> > To aviod this, changed the code to check for IOC/LST bits in both
+> >> >>      avoid
+> >> >>
+> >> >> > event->status & TRB->ctrl. This patch does the same.
+> >> >>
+> >> >> We don't need to check both. It's very likely that checking the TRB is
+> >> >> enough.
+> >> >
+> >> > Sorry, just to clarify, are you suggesting instead of:
+> >> > -       if (event->status & DEPEVT_STATUS_IOC)
+> >> > +       if ((event->status & DEPEVT_STATUS_IOC) &&
+> >> > +           (trb->ctrl & DWC3_TRB_CTRL_IOC))
+> >> >
+> >> >
+> >> > We do something like:
+> >> > -       if (event->status & DEPEVT_STATUS_IOC)
+> >> > +       if (trb->ctrl & DWC3_TRB_CTRL_IOC)
+> >> > +               return 1;
+> >> > +
+> >> > +       if (trb->ctrl & DWC3_TRB_CTRL_LST)
+> >> >                 return 1;
+> >> >
+> >> > ?
+> >>
+> >> that's correct. In hindsight, I have no idea why I used the
+> >> event->status here since all other checks are done against the TRB
+> >> only.
+> >>
+> >> >> > At a practical level, this patch resolves USB transfer stalls seen
+> >> >> > with adb on dwc3 based HiKey960 after functionfs gadget added
+> >> >> > scatter-gather support around v4.20.
+> >> >>
+> >> >> Right, I remember asking for tracepoint data showing this problem
+> >> >> happening. It's the best way to figure out what's really going on.
+> >> >>
+> >> >> Before we accept these two patches, could you collect dwc3 tracepoint
+> >> >> data and share here?
+> >> >
+> >> > Sure. Attached is trace logs and regdumps for hikey960.
+> >>
+> >> Thanks
+> >>
+> >> > The one gotcha with the logs is that in the working case (with this
+> >> > patch applied), I booted with the usb-c cable disconnected (as
+> >> > suggested in the dwc3.rst doc), enabled tracing and plugged in the
+> >> > device, then ran adb logcat a few times to validate no stalls.
+> >> >
+> >> > In the failure case (without this patch), I booted with the usb-c
+> >> > cable disconnected, enabled tracing and then when I plugged in the
+> >> > device, it never was detected by adb (it seems perhaps the problem had
+> >> > already struck?).
+> >>
+> >> You never got a Reset Interrupt, so something else is going on. I
+> >> suggest putting a sniffer and first making sure the host *does* drive
+> >> reset signalling. Second step would be to look at your phy
+> >> configuration. Is it going in suspend for any reason? Might want to try
+> >> our snps,dis_u3_susphy_quirk and snps,dis_u2_susphy_quirk flags.
+> >>
+> >> > So I generated the failure2 log by booting with USB-C plugged in,
+> >> > enabling tracing, and running adb logcat on the host to observe the
+> >> > stall.
+> >>
+> >> Thank you. Here's a quick summary of what's in failure2:
+> >>
+> >> There is a series of 24-byte transfers on ep1out and that's the one
+> >> which shows a problem. We can clearly see that adb is issuing one
+> >> transfer at a time, only enqueueing transfer n+1 when transfer n is
+> >> completed and given back, so we see a series of similar blocks:
+> >>
+> >> - dwc3_alloc_request
+> >> - dwc3_ep_queue
+> >> - dwc3_prepare_trb
+> >> - dwc3_prepare_trb (for the chained bit)
+> >> - dwc3_gadget_ep_cmd (update transfer)
+> >> - dwc3_event (transfer in progress)
+> >> - dwc3_complete_trb
+> >> - dwc3_complete_trb (for the chained bit)
+> >> - dwc3_gadget_giveback
+> >> - dwc3_free_request
+> >>
+> >> So this works for several iterations. Note, however, that the TRB
+> >> addresses don't really make sense. DWC3 allocates a contiguous block of
+> >> memory to server as TRB pool, but we see non-consecutive addresses on
+> >> these TRBs. I'm assuming there's an IOMMU in your system.
+> >>
+> >> Anyway, the failing point is here:
+> >>
+> >> >          adbd-461   [002] d..1    49.855992: dwc3_alloc_request: ep1out: req 000000004e6eaaba length 0/0 zsI ==> 0
+> >> >          adbd-461   [002] d..2    49.855994: dwc3_ep_queue: ep1out: req 000000004e6eaaba length 0/24 zsI ==> -115
+> >> >          adbd-461   [002] d..2    49.855996: dwc3_prepare_trb: ep1out: trb 00000000bae39b48 buf 000000009eb0b100 size 24 ctrl 0000001d (HlCS:sc:normal)
+> >> >          adbd-461   [002] d..2    49.855997: dwc3_prepare_trb: ep1out: trb 000000009093a074 buf 0000000217da8000 size 488 ctrl 00000819 (HlcS:sC:normal)
+> >> >          adbd-461   [002] d..2    49.856003: dwc3_gadget_ep_cmd: ep1out: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+> >> >   irq/65-dwc3-498   [000] d..1    53.902752: dwc3_event: event (00006084): ep1out: Transfer In Progress [0] (SIm)
+> >> >   irq/65-dwc3-498   [000] d..1    53.902763: dwc3_complete_trb: ep1out: trb 00000000bae39b48 buf 000000009eb0b100 size 0 ctrl 0000001c (hlCS:sc:normal)
+> >> >   irq/65-dwc3-498   [000] d..1    53.902769: dwc3_complete_trb: ep1out: trb 000000009093a074 buf 0000000217da8000 size 488 ctrl 00000819 (HlcS:sC:normal)
+> >> >   irq/65-dwc3-498   [000] d..1    53.902781: dwc3_gadget_giveback: ep1out: req 000000004e6eaaba length 24/24 zsI ==> 0
+> >> > kworker/u16:0-7     [000] ....    53.903020: dwc3_free_request: ep1out: req 000000004e6eaaba length 24/24 zsI ==> 0
+> >> >          adbd-461   [002] d..1    53.903273: dwc3_alloc_request: ep1out: req 00000000c769beab length 0/0 zsI ==> 0
+> >> >          adbd-461   [002] d..2    53.903285: dwc3_ep_queue: ep1out: req 00000000c769beab length 0/24 zsI ==> -115
+> >> >          adbd-461   [002] d..2    53.903292: dwc3_prepare_trb: ep1out: trb 00000000f0ffa827 buf 000000009eb11e80 size 24 ctrl 0000001d (HlCS:sc:normal)
+> >> >          adbd-461   [002] d..2    53.903296: dwc3_prepare_trb: ep1out: trb 00000000d6a9892a buf 0000000217da8000 size 488 ctrl 00000819 (HlcS:sC:normal)
+> >> >          adbd-461   [002] d..2    53.903315: dwc3_gadget_ep_cmd: ep1out: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+> >>
+> >> Note that this transfer, after started, took 4 seconds to complete,
+> >> while all others completed within a few ms. There's no real reason for
+> >> this visible from dwc3 driver itself. What follows, is a transfer that
+> >> never completed.
+> >>
+> >> The only thing I can come up with, is that we starve the TRB ring, by
+> >> continuously reclaiming a single TRB. We have 255 usable TRBs, so after
+> >> a few iterations, we would see a stall due to starved TRB ring.
+> >>
+> >> There is a way to verify this by tracking trb_enqueue and trb_dequeue,
+> >> if you're willing to do that, that'll help us prove that this is really
+> >> the problem and, since current tracepoints doen't really show that
+> >> information, it may be a good idea to add this information to
+> >> dwc3_log_trb tracepoint class. Something like below should be enough,
+> >> could you re-run the test of failure2 with this patch applied?
+> >
+> >
+> > Ok. Attached is the trace logs using the new tracepoints with and
+> > without the patch. In both cases, I started with the usb-c cable
+> > plugged in, started tracing and ran "adb logcat -d" a few times.
+> >
+> > Also, in the -with-fix case, I'm using the patch modified as we
+> > discussed yesterday (which still avoids the issue). If this log
+> > confirms your suspicions I'll go ahead and resubmit the new patch.
+>
+> So the problem is caused with ep1in, not ep1out as I originally
+> though. Here's snippet with the fix:
+>
+>             adbd-2020  [005] d..2   696.765411: dwc3_ep_queue: ep1in: req 0000000090c1f3b7 length 0/8197 zsI ==> -115
+>             adbd-2020  [005] d..2   696.765414: dwc3_prepare_trb: ep1in: trb 00000000c0b7b1ee (E97:D96) buf 00000000aac5d000 size 4096 ctrl 00000015 (HlCs:sc:normal)
+>             adbd-2020  [005] d..2   696.765415: dwc3_prepare_trb: ep1in: trb 00000000cd8ddc31 (E98:D96) buf 00000000adf18000 size 4101 ctrl 00000811 (Hlcs:sC:normal)
+>             adbd-2020  [005] d..2   696.765419: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+>      irq/65-dwc3-2021  [000] d..1   696.765640: dwc3_event: event (00004086): ep1in: Transfer In Progress [0] (sIm)
+>      irq/65-dwc3-2021  [000] d..1   696.765642: dwc3_complete_trb: ep1in: trb 00000000c0b7b1ee (E98:D97) buf 00000000aac5d000 size 0 ctrl 00000014 (hlCs:sc:normal)
+>      irq/65-dwc3-2021  [000] d..1   696.765644: dwc3_complete_trb: ep1in: trb 00000000cd8ddc31 (E98:D98) buf 00000000adf18000 size 0 ctrl 00000810 (hlcs:sC:normal)
+>      irq/65-dwc3-2021  [000] d..1   696.765647: dwc3_gadget_giveback: ep1in: req 0000000090c1f3b7 length 8197/8197 zsI ==> 0
+>    kworker/u16:0-7     [003] ....   696.765667: dwc3_free_request: ep1in: req 0000000090c1f3b7 length 8197/8197 zsI ==> 0
+>
+> And without the fix:
+>
+>             adbd-469   [005] d..1    40.118540: dwc3_alloc_request: ep1in: req 000000000dca92a3 length 0/0 zsI ==> 0
+>             adbd-469   [005] d..2    40.118541: dwc3_ep_queue: ep1in: req 000000000dca92a3 length 0/5424 zsI ==> -115
+>             adbd-469   [005] d..2    40.118543: dwc3_prepare_trb: ep1in: trb 0000000020352887 (E77:D76) buf 0000000057db5000 size 4096 ctrl 00000015 (HlCs:sc:normal)
+>             adbd-469   [005] d..2    40.118543: dwc3_prepare_trb: ep1in: trb 00000000227d614e (E78:D76) buf 0000000057db4000 size 1328 ctrl 00000811 (Hlcs:sC:normal)
+>             adbd-469   [005] d..2    40.118547: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+>      irq/65-dwc3-473   [000] d..1    40.118720: dwc3_event: event (00004086): ep1in: Transfer In Progress [0] (sIm)
+>      irq/65-dwc3-473   [000] d..1    40.118721: dwc3_complete_trb: ep1in: trb 0000000020352887 (E78:D77) buf 0000000057db5000 size 0 ctrl 00000014 (hlCs:sc:normal)
+>      irq/65-dwc3-473   [000] d..1    40.118730: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+>
+> Note that we completed a single TRB in the failure case. The odd thing
+> is why this doesn't happen with OUT direction? (/me goes look at the
+> code).
+>
+> Okay, here's the answer: With OUT direction, DWC3, itself, is adding an
+> extra chained TRB because OUT transfers must be aligned to
+> wMaxPacketSize. Because of that we set needs_extra_trb flag which causes
+> this flow:
+>
+> XferInProgress
+>   dwc3_gadget_ep_cleanup_completed_request
+>     dwc3_gadget_ep_reclaim_trb_sg
+>       for_each_sg {
+>         dwc3_gadget_ep_reclaim_completed_trb
+>           if (IOC)
+>             break;
+>       }
+>       if (needs_extra_trb)
+>         dwc3_gadget_ep_reclaim_trb_linear
+>           dwc3_gadget_ep_reclaim_completed_trb
+>
+> In summary, OUT directions work solely out of luck :-) If gadget
+> function enqueues an unaligned request with sglist already in it, it
+> should fail the same way, since we will append another TRB to something
+> that already uses more than one TRB.
+>
+> We should probably add some of this explanation to commit log as well
+> and, BTW, tracepoints actually had the data to show where the problem
+> was, arguably printing out enqueue and dequeue points made it easier to
+> see the issue.
+>
+> I'm now convinced of what the problem really is, please resend the
+> modified patch so we can apply and backport it.
 
-Yes, I am positive this parameter is relevant for the stable-4.9 tree, too:
+Sure thing! Though I'm not as adept at staring at the matrix/tracelogs
+as you, so I'll do my best to add a comment to the commit log to the
+effect of the above, but it may not be accurate so feel free to reword
+it yourself to correct it after I send it out. :)
 
-git show linux-stable/linux-4.9.y
-
-static int __init parse_kpti(char *str)
-{
-        bool enabled;
-        int ret = strtobool(str, &enabled);
-
-        if (ret)
-                return ret;
-
-        __kpti_forced = enabled ? 1 : -1;
-        return 0;
-}
-early_param("kpti", parse_kpti);
-
-I will be sending you a targeted patch in a short while.
--- 
-Florian
+thanks so much again for taking a look at this!
+-john
