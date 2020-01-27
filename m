@@ -2,239 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77DBA14A9DD
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 19:36:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D9114AA08
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 19:47:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725893AbgA0SgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 13:36:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725845AbgA0SgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jan 2020 13:36:24 -0500
-Received: from tzanussi-mobl (c-98-220-238-81.hsd1.il.comcast.net [98.220.238.81])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9AAC214D8;
-        Mon, 27 Jan 2020 18:36:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580150183;
-        bh=4Jv1bz1IfjMS8uuE2F+6lHYB2szU7cXZTH13JKTr9Uc=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=DCt0zij1omKjyIkb6h5uls2cobG6sRe6Rp5nsoq/7/wyZqyWPC+UbnxKpiKkNoxAy
-         ckr1TH7Gf9hBbtvdg3AD5FFvKVMjaPzYQlG9x7d6JUYPmZtqYKnzbxGoDeJqRribIz
-         fJHlBsyxgQtYn030HHqg+2dAmHSjngpYca68tiAo=
-Message-ID: <1580150181.5072.5.camel@kernel.org>
-Subject: Re: FAILED: patch "[PATCH] tracing: Fix histogram code when
- expression has same var as" failed to apply to 4.19-stable tree
-From:   Tom Zanussi <zanussi@kernel.org>
-To:     gregkh@linuxfoundation.org, rostedt@goodmis.org
-Cc:     stable@vger.kernel.org
-Date:   Mon, 27 Jan 2020 12:36:21 -0600
-In-Reply-To: <15801394743854@kroah.com>
-References: <15801394743854@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.1-1 
-Mime-Version: 1.0
+        id S1726004AbgA0Sr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 13:47:56 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:38666 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725845AbgA0Sr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 13:47:56 -0500
+Received: by mail-pj1-f67.google.com with SMTP id m4so3464544pjv.3
+        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 10:47:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=srYbtCDEGV/WxHrV6MuHQ32O3r1jyERWbs4eZucN3Mk=;
+        b=oDAO4/fE5HEOEIt0C75vwXUc3590RH2zMXGhqB46LIXuyBeobl2o5lVlv+jtIgaLr4
+         NETCYgG7jd9RAEdBuxojr6tq+1lBBaGQ/sl6wmFhQS1jtfprA2v0xOzc/lNInQXhV+5+
+         iVehr/qT1CYFF7kgBTUre2QSK0TOt6q3tpjjq3sxwrEXrH5oEE0ruaCkRbdb8II/ya5K
+         m66e53cZqDLXXQpNbSRCd1yeVH2v3v+86zy8Wy+p1Xt9AgjfjtrJvgsAnq+9ZdBQiARC
+         JU/RYetBqweKidxLuV2AsuFtYmUZ4U3o5lAk9FiF69cbTLsQDgoNkac4pM2CRnfQ51qs
+         NZ0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=srYbtCDEGV/WxHrV6MuHQ32O3r1jyERWbs4eZucN3Mk=;
+        b=YoLiSZWwzCBlN3o+aCUcLMkJ1X50qVOMYMTCauW0kNFHxvgy//W2xyA9lwTneOtIuL
+         +VWZ+vuhHoWGq4KngQRxvkV68QPn9bDb1OlDhULWHvOJkvWg5dU8qX1/n3PbCI9lYX81
+         /EEN53hQj93gUKrzUvqPcqoGCf+rlgNyn43/9HVsePur6Qe3PPYQAYwfBmxmG7VV4JT2
+         J9bkA6IxCt8ItTubBp/HbU8kX1NghlAKRYzEUMoTnF95YuhWJTJzvklJQmdcTjGLK8rZ
+         vWB3hgxwZK8L27GYVqtQbnLG3GNTAJagTKyS6VwJeG2Ol0wm5xA7EIgeOwlO7wMEkIRd
+         jYlA==
+X-Gm-Message-State: APjAAAVq05UGRGjsp7y4rBZ3FO0J9w2QWPiEJvrWgPeBy/8c3hh2ZgCj
+        dKApt9DR15k+aVustUJyMzI=
+X-Google-Smtp-Source: APXvYqxRiDxHJdCyA6EZzBBWmTUqtOtzso2sxiMBjkSB0F3ffFDI/clVIfDUptX5gdFVVQb1UsS1xQ==
+X-Received: by 2002:a17:90a:3ae5:: with SMTP id b92mr72133pjc.26.1580150875531;
+        Mon, 27 Jan 2020 10:47:55 -0800 (PST)
+Received: from [10.67.50.115] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id d73sm5965332pfd.109.2020.01.27.10.47.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Jan 2020 10:47:54 -0800 (PST)
+Subject: Re: Request to backport "Documentation: Document arm64 kpti control"
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Jeremy Linton <jeremy.linton@arm.com>, stable@vger.kernel.org,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>
+References: <520fee3a-4d14-9a78-e542-cce98acae9f6@gmail.com>
+ <20200126135233.GB11467@sasha-vm> <20200127155106.GA668073@kroah.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Autocrypt: addr=f.fainelli@gmail.com; prefer-encrypt=mutual; keydata=
+ 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
+ G10n8gCguORqNGMsVRxrlLs7/himep7MrCc=
+Message-ID: <406719bd-1d6f-d19e-fae4-4da3f0f76138@gmail.com>
+Date:   Mon, 27 Jan 2020 10:47:53 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <20200127155106.GA668073@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Steve,
+On 1/27/20 7:51 AM, Greg Kroah-Hartman wrote:
+> On Sun, Jan 26, 2020 at 08:52:33AM -0500, Sasha Levin wrote:
+>> On Sat, Jan 25, 2020 at 08:03:25PM -0800, Florian Fainelli wrote:
+>>> Hi Greg, Sasha,
+>>>
+>>> Could you backport upstream commit
+>>> de19055564c8f8f9d366f8db3395836da0b2176c ("Documentation: Document arm64
+>>> kpti control") to the stable 4.9, 4.14 and 4.19 kernels since they all
+>>> support the command line parameter.
+>>
+>> Hey Florian,
+>>
+>> We don't normally take documentation patches into stable trees.
+> 
+> Normally we do not, but this is simple enough I've queued it up for 4.19
+> and 4.14.  Are you sure it is ok for 4.9?  If so, Florian, can you
+> provide a backported version of it?
 
-For 4.19, this patch applies if these patches are applied first:
+Yes, I am positive this parameter is relevant for the stable-4.9 tree, too:
 
-commit 656fe2ba85e81d00e4447bf77b8da2be3c47acb2
-Author: Tom Zanussi <tom.zanussi@linux.intel.com>
-Date:   Tue Dec 18 14:33:24 2018 -0600
+git show linux-stable/linux-4.9.y
 
-    tracing: Use hist trigger's var_ref array to destroy var_refs
+static int __init parse_kpti(char *str)
+{
+        bool enabled;
+        int ret = strtobool(str, &enabled);
 
-commit de40f033d4e84e843d6a12266e3869015ea9097c
-Author: Tom Zanussi <tom.zanussi@linux.intel.com>
-Date:   Tue Dec 18 14:33:23 2018 -0600
+        if (ret)
+                return ret;
 
-    tracing: Remove open-coding of hist trigger var_ref management
+        __kpti_forced = enabled ? 1 : -1;
+        return 0;
+}
+early_param("kpti", parse_kpti);
 
-After applying all 3 to 4.19, I built and ran the ftrace/trigger
-selftests and didn't see any problems.
-
-Tom
-
-
-On Mon, 2020-01-27 at 16:37 +0100, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git
-> commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 8bcebc77e85f3d7536f96845a0fe94b1dddb6af0 Mon Sep 17 00:00:00
-> 2001
-> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-> Date: Mon, 20 Jan 2020 13:07:31 -0500
-> Subject: [PATCH] tracing: Fix histogram code when expression has same
-> var as
->  value
-> 
-> While working on a tool to convert SQL syntex into the histogram
-> language of
-> the kernel, I discovered the following bug:
-> 
->  # echo 'first u64 start_time u64 end_time pid_t pid u64 delta' >>
-> synthetic_events
->  # echo 'hist:keys=pid:start=common_timestamp' >
-> events/sched/sched_waking/trigger
->  # echo 'hist:keys=next_pid:delta=common_timestamp-
-> $start,start2=$start:onmatch(sched.sched_waking).trace(first,$start2,
-> common_timestamp,next_pid,$delta)' >
-> events/sched/sched_switch/trigger
-> 
-> Would not display any histograms in the sched_switch histogram side.
-> 
-> But if I were to swap the location of
-> 
->   "delta=common_timestamp-$start" with "start2=$start"
-> 
-> Such that the last line had:
-> 
->  # echo 'hist:keys=next_pid:start2=$start,delta=common_timestamp-
-> $start:onmatch(sched.sched_waking).trace(first,$start2,common_timesta
-> mp,next_pid,$delta)' > events/sched/sched_switch/trigger
-> 
-> The histogram works as expected.
-> 
-> What I found out is that the expressions clear out the value once it
-> is
-> resolved. As the variables are resolved in the order listed, when
-> processing:
-> 
->   delta=common_timestamp-$start
-> 
-> The $start is cleared. When it gets to "start2=$start", it errors out
-> with
-> "unresolved symbol" (which is silent as this happens at the location
-> of the
-> trace), and the histogram is dropped.
-> 
-> When processing the histogram for variable references, instead of
-> adding a
-> new reference for a variable used twice, use the same reference. That
-> way,
-> not only is it more efficient, but the order will no longer matter in
-> processing of the variables.
-> 
-> From Tom Zanussi:
-> 
->  "Just to clarify some more about what the problem was is that
-> without
->   your patch, we would have two separate references to the same
-> variable,
->   and during resolve_var_refs(), they'd both want to be resolved
->   separately, so in this case, since the first reference to start
-> wasn't
->   part of an expression, it wouldn't get the read-once flag set, so
-> would
->   be read normally, and then the second reference would do the read-
-> once
->   read and also be read but using read-once.  So everything worked
-> and
->   you didn't see a problem:
-> 
->    from: start2=$start,delta=common_timestamp-$start
-> 
->   In the second case, when you switched them around, the first
-> reference
->   would be resolved by doing the read-once, and following that the
-> second
->   reference would try to resolve and see that the variable had
-> already
->   been read, so failed as unset, which caused it to short-circuit out
-> and
->   not do the trigger action to generate the synthetic event:
-> 
->    to: delta=common_timestamp-$start,start2=$start
-> 
->   With your patch, we only have the single resolution which happens
->   correctly the one time it's resolved, so this can't happen."
-> 
-> Link: https://lore.kernel.org/r/20200116154216.58ca08eb@gandalf.local
-> .home
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 067fe038e70f6 ("tracing: Add variable reference handling to
-> hist triggers")
-> Reviewed-by: Tom Zanuss <zanussi@kernel.org>
-> Tested-by: Tom Zanussi <zanussi@kernel.org>
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> 
-> diff --git a/kernel/trace/trace_events_hist.c
-> b/kernel/trace/trace_events_hist.c
-> index d33b046f985a..6ac35b9e195d 100644
-> --- a/kernel/trace/trace_events_hist.c
-> +++ b/kernel/trace/trace_events_hist.c
-> @@ -116,6 +116,7 @@ struct hist_field {
->  	struct ftrace_event_field	*field;
->  	unsigned long			flags;
->  	hist_field_fn_t			fn;
-> +	unsigned int			ref;
->  	unsigned int			size;
->  	unsigned int			offset;
->  	unsigned int                    is_signed;
-> @@ -2427,8 +2428,16 @@ static int contains_operator(char *str)
->  	return field_op;
->  }
->  
-> +static void get_hist_field(struct hist_field *hist_field)
-> +{
-> +	hist_field->ref++;
-> +}
-> +
->  static void __destroy_hist_field(struct hist_field *hist_field)
->  {
-> +	if (--hist_field->ref > 1)
-> +		return;
-> +
->  	kfree(hist_field->var.name);
->  	kfree(hist_field->name);
->  	kfree(hist_field->type);
-> @@ -2470,6 +2479,8 @@ static struct hist_field
-> *create_hist_field(struct hist_trigger_data *hist_data,
->  	if (!hist_field)
->  		return NULL;
->  
-> +	hist_field->ref = 1;
-> +
->  	hist_field->hist_data = hist_data;
->  
->  	if (flags & HIST_FIELD_FL_EXPR || flags &
-> HIST_FIELD_FL_ALIAS)
-> @@ -2665,6 +2676,17 @@ static struct hist_field
-> *create_var_ref(struct hist_trigger_data *hist_data,
->  {
->  	unsigned long flags = HIST_FIELD_FL_VAR_REF;
->  	struct hist_field *ref_field;
-> +	int i;
-> +
-> +	/* Check if the variable already exists */
-> +	for (i = 0; i < hist_data->n_var_refs; i++) {
-> +		ref_field = hist_data->var_refs[i];
-> +		if (ref_field->var.idx == var_field->var.idx &&
-> +		    ref_field->var.hist_data == var_field-
-> >hist_data) {
-> +			get_hist_field(ref_field);
-> +			return ref_field;
-> +		}
-> +	}
->  
->  	ref_field = create_hist_field(var_field->hist_data, NULL,
-> flags, NULL);
->  	if (ref_field) {
-> 
+I will be sending you a targeted patch in a short while.
+-- 
+Florian
