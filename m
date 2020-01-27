@@ -2,80 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C3114AA5E
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 20:19:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA7814AA7D
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 20:30:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726428AbgA0TTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 14:19:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726191AbgA0TTa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jan 2020 14:19:30 -0500
-Received: from tzanussi-mobl (c-98-220-238-81.hsd1.il.comcast.net [98.220.238.81])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 627C022527;
-        Mon, 27 Jan 2020 19:19:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580152769;
-        bh=l3hv0mBl+U89dePJkixtoIoZNEwUaj6eI67Zg/RJg4g=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=N8KfS023Mdid3RRKLAKE7tS2GQGgC4lvtfzfvp8gWJ8N09x42LX92iecxkakQ3G20
-         gELH2uAzD2chEMJjOpqXJq+d9P5tXY5fSg1SRh+DxjTqzKPNMqxZk0/25bXf+KdcsX
-         0rfXUStlhYgyUahVR2bAbmaRO1eClXLQETJYShg8=
-Message-ID: <1580152768.2442.2.camel@kernel.org>
-Subject: Re: FAILED: patch "[PATCH] tracing: Fix histogram code when
- expression has same var as" failed to apply to 4.19-stable tree
-From:   Tom Zanussi <zanussi@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Date:   Mon, 27 Jan 2020 13:19:28 -0600
-In-Reply-To: <20200127135147.5c1ae6d1@gandalf.local.home>
-References: <15801394743854@kroah.com> <1580150181.5072.5.camel@kernel.org>
-         <20200127135147.5c1ae6d1@gandalf.local.home>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.1-1 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        id S1725845AbgA0Tav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 14:30:51 -0500
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:33729 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725893AbgA0Tau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 14:30:50 -0500
+Received: by mail-pl1-f195.google.com with SMTP id ay11so4116307plb.0
+        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 11:30:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=4FpDeS7FVDfifQejKt5Fo3FpOuyI3aVXyTigplJTJKg=;
+        b=elJrTPL4i5D0s3VuCe3A4IDJCMJuckpknfF6RIj8HfDon93rN/Eqzm8gM7opbJMwtg
+         +olHjcgUyYyCp6ww5p5oyoHP5iI0CRYn81PHwx0DJxXLDgTpxKOJQ9U87JTTzHWG7Q0Q
+         ZU7VDPNvyMmPVgsEaV3yLk0o2tiP1EGvzlAy/THV0fNIp2kl8NcYAicRC8bdPPvYXuiN
+         nftlTxOTXAO2K0Z4hKH7cYPykfFl9cqSVl11uuxm6YXeRxO8g9DdkB8Fw+8Ux5+dO+1k
+         EpKJAVe9HrdQX3VpnlSo8njj5kQdqYeb5f6yjOXsP3e4VhjxFigNXszMJNPAujQRe42Y
+         PQRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=4FpDeS7FVDfifQejKt5Fo3FpOuyI3aVXyTigplJTJKg=;
+        b=mTn6D31SoCQdD+hO3/v5L/wWJ2q6kC1CIb035hTHZZTG9IHguuHoFJmEHnf2f+TPTX
+         WHGzefqgar/VOYbiNRdShdNoG1srouEFTE/UGM3/AS1MaA1/RlYathPw9FPPUugjXknw
+         R0rtPESIdmlFSfFrc4/mMonijLysvYTLjbUdGtisIMQKNBM7gAZpU9gGl5Fg66T1CYIn
+         9znmJ0GClQEbA0iDpM90H1nWeOv+V3gEjB8CZJYd7LdtDAemO2ffxBotS74KqGT+G1pV
+         IoKXJGXYeyGWYqwmGEUmh2hB9P3tKR3kdsiVktsryMIaz6xikPqYGVGXUpAOSX1fKYF/
+         zSVA==
+X-Gm-Message-State: APjAAAV3Cgnb0tkcHMevgrK37zQAa7S7ASBBgfOOZb/pNwn/4a/3+Ege
+        ezgGq3md2WLznFXY83FrpPFAGg==
+X-Google-Smtp-Source: APXvYqzh/Vr2MusTZAdq4TOlr4ztx3Wty77tirQdE63vSY4MuktYCgn7bpoGIcSfXi+Hff+43HUCfw==
+X-Received: by 2002:a17:90a:858a:: with SMTP id m10mr200813pjn.117.1580153450023;
+        Mon, 27 Jan 2020 11:30:50 -0800 (PST)
+Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
+        by smtp.gmail.com with ESMTPSA id k26sm9349186pfp.47.2020.01.27.11.30.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jan 2020 11:30:49 -0800 (PST)
+From:   John Stultz <john.stultz@linaro.org>
+To:     lkml <linux-kernel@vger.kernel.org>
+Cc:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
+        Felipe Balbi <balbi@kernel.org>, Yang Fei <fei.yang@intel.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Tejas Joglekar <tejas.joglekar@synopsys.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        John Stultz <john.stultz@linaro.org>
+Subject: [PATCH v2] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
+Date:   Mon, 27 Jan 2020 19:30:46 +0000
+Message-Id: <20200127193046.110258-1-john.stultz@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2020-01-27 at 13:51 -0500, Steven Rostedt wrote:
-> On Mon, 27 Jan 2020 12:36:21 -0600
-> Tom Zanussi <zanussi@kernel.org> wrote:
-> 
-> > Hi Steve,
-> > 
-> > For 4.19, this patch applies if these patches are applied first:
-> > 
-> > commit 656fe2ba85e81d00e4447bf77b8da2be3c47acb2
-> > Author: Tom Zanussi <tom.zanussi@linux.intel.com>
-> > Date:   Tue Dec 18 14:33:24 2018 -0600
-> > 
-> >     tracing: Use hist trigger's var_ref array to destroy var_refs
-> > 
-> > commit de40f033d4e84e843d6a12266e3869015ea9097c
-> > Author: Tom Zanussi <tom.zanussi@linux.intel.com>
-> > Date:   Tue Dec 18 14:33:23 2018 -0600
-> > 
-> >     tracing: Remove open-coding of hist trigger var_ref management
-> > 
-> > After applying all 3 to 4.19, I built and ran the ftrace/trigger
-> > selftests and didn't see any problems.
-> > 
-> 
-> Thanks, I was cherry-picking parts of those changes, but it wasn't
-> fixing the issue itself. Let me just backport both of them in full
-> and
-> see if that works.
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
 
-It does fix the issue for me and passes the selftests.  Remember that
-4.19 doesn't have the .trace() hist action - you need to use the event
-name e.g. .first()
+The current code in dwc3_gadget_ep_reclaim_completed_trb() will
+check for IOC/LST bit in the event->status and returns if
+IOC/LST bit is set. This logic doesn't work if multiple TRBs
+are queued per request and the IOC/LST bit is set on the last
+TRB of that request.
 
-Tom
+Consider an example where a queued request has multiple queued
+TRBs and IOC/LST bit is set only for the last TRB. In this case,
+the core generates XferComplete/XferInProgress events only for
+the last TRB (since IOC/LST are set only for the last TRB). As
+per the logic in dwc3_gadget_ep_reclaim_completed_trb()
+event->status is checked for IOC/LST bit and returns on the
+first TRB. This leaves the remaining TRBs left unhandled.
 
-> 
-> -- Steve
+Similarly, if the gadget function enqueues an unaligned request
+with sglist already in it, it should fail the same way, since we
+will append another TRB to something that already uses more than
+one TRB.
+
+To aviod this, this patch changes the code to check for IOC/LST
+bits in TRB->ctrl instead.
+
+At a practical level, this patch resolves USB transfer stalls seen
+with adb on dwc3 based HiKey960 after functionfs gadget added
+scatter-gather support around v4.20.
+
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Yang Fei <fei.yang@intel.com>
+Cc: Thinh Nguyen <thinhn@synopsys.com>
+Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: Jack Pham <jackp@codeaurora.org>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Linux USB List <linux-usb@vger.kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
+Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+[jstultz: forward ported to mainline, reworded commit log, reworked
+ to only check trb->ctrl as suggested by Felipe]
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+---
+v2:
+* Rework to only check trb->ctrl as suggested by Felipe
+* Reword the commit message to include more of Felipe's assessment
+---
+ drivers/usb/dwc3/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 154f3f3e8cff..9a085eee1ae3 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2420,7 +2420,8 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+ 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+ 		return 1;
+ 
+-	if (event->status & DEPEVT_STATUS_IOC)
++	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
++	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+ 		return 1;
+ 
+ 	return 0;
+-- 
+2.17.1
+
