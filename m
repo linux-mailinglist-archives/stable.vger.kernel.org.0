@@ -2,133 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AA7814AA7D
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 20:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D2114AA8D
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 20:35:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725845AbgA0Tav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 14:30:51 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:33729 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgA0Tau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 14:30:50 -0500
-Received: by mail-pl1-f195.google.com with SMTP id ay11so4116307plb.0
-        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 11:30:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=4FpDeS7FVDfifQejKt5Fo3FpOuyI3aVXyTigplJTJKg=;
-        b=elJrTPL4i5D0s3VuCe3A4IDJCMJuckpknfF6RIj8HfDon93rN/Eqzm8gM7opbJMwtg
-         +olHjcgUyYyCp6ww5p5oyoHP5iI0CRYn81PHwx0DJxXLDgTpxKOJQ9U87JTTzHWG7Q0Q
-         ZU7VDPNvyMmPVgsEaV3yLk0o2tiP1EGvzlAy/THV0fNIp2kl8NcYAicRC8bdPPvYXuiN
-         nftlTxOTXAO2K0Z4hKH7cYPykfFl9cqSVl11uuxm6YXeRxO8g9DdkB8Fw+8Ux5+dO+1k
-         EpKJAVe9HrdQX3VpnlSo8njj5kQdqYeb5f6yjOXsP3e4VhjxFigNXszMJNPAujQRe42Y
-         PQRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=4FpDeS7FVDfifQejKt5Fo3FpOuyI3aVXyTigplJTJKg=;
-        b=mTn6D31SoCQdD+hO3/v5L/wWJ2q6kC1CIb035hTHZZTG9IHguuHoFJmEHnf2f+TPTX
-         WHGzefqgar/VOYbiNRdShdNoG1srouEFTE/UGM3/AS1MaA1/RlYathPw9FPPUugjXknw
-         R0rtPESIdmlFSfFrc4/mMonijLysvYTLjbUdGtisIMQKNBM7gAZpU9gGl5Fg66T1CYIn
-         9znmJ0GClQEbA0iDpM90H1nWeOv+V3gEjB8CZJYd7LdtDAemO2ffxBotS74KqGT+G1pV
-         IoKXJGXYeyGWYqwmGEUmh2hB9P3tKR3kdsiVktsryMIaz6xikPqYGVGXUpAOSX1fKYF/
-         zSVA==
-X-Gm-Message-State: APjAAAV3Cgnb0tkcHMevgrK37zQAa7S7ASBBgfOOZb/pNwn/4a/3+Ege
-        ezgGq3md2WLznFXY83FrpPFAGg==
-X-Google-Smtp-Source: APXvYqzh/Vr2MusTZAdq4TOlr4ztx3Wty77tirQdE63vSY4MuktYCgn7bpoGIcSfXi+Hff+43HUCfw==
-X-Received: by 2002:a17:90a:858a:: with SMTP id m10mr200813pjn.117.1580153450023;
-        Mon, 27 Jan 2020 11:30:50 -0800 (PST)
-Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
-        by smtp.gmail.com with ESMTPSA id k26sm9349186pfp.47.2020.01.27.11.30.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2020 11:30:49 -0800 (PST)
-From:   John Stultz <john.stultz@linaro.org>
-To:     lkml <linux-kernel@vger.kernel.org>
-Cc:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        Felipe Balbi <balbi@kernel.org>, Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH v2] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
-Date:   Mon, 27 Jan 2020 19:30:46 +0000
-Message-Id: <20200127193046.110258-1-john.stultz@linaro.org>
-X-Mailer: git-send-email 2.17.1
+        id S1725845AbgA0Tfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 14:35:52 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:49904 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725990AbgA0Tfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 14:35:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=IoDsogQztWNxpuY+vnlbI0hiBbp6fUybRbb8amKHsKY=; b=lODGCgcsQOBjJTzSj8vhd8O2w
+        n6wKIqb0X5NqdICXs8/HIx+5tgDzesIVu8toY13vEAX/yr27PmGtuZZt6BT9S05Vqa7vTfbBJ4Zq3
+        hLDsRkca1ESDRPKY7R4XiBwqirSn1IioD9fAJIfBYqgG/9pRtQeXyFQSxc1K7EMI5BJw3yY+0M7xp
+        Urh6iR1RWlmtV2XlCibPass/WZxso1JWttjwuh7KNcO1imqXuoSa2/F6iRRRG93ecxmwE9L6eh+jm
+        B9kooeY07xsYG3Y6YL3Wp/JPgDua8j/NsPeu1Ysye83QWUKKkjjI9zYm2wZLeo++SmSXlgHz8TkBD
+        4a96zTX4w==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iwAAk-0003q2-3v; Mon, 27 Jan 2020 19:35:46 +0000
+Date:   Mon, 27 Jan 2020 11:35:46 -0800
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     mhocko@suse.com, richardw.yang@linux.intel.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v3 PATCH] mm: move_pages: report the number of non-attempted
+ pages
+Message-ID: <20200127193546.GB8708@bombadil.infradead.org>
+References: <1580144268-79620-1-git-send-email-yang.shi@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1580144268-79620-1-git-send-email-yang.shi@linux.alibaba.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+> @@ -1627,8 +1627,18 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+>  			start = i;
+>  		} else if (node != current_node) {
+>  			err = do_move_pages_to_node(mm, &pagelist, current_node);
+> -			if (err)
+> +			if (err) {
+> +				/*
+> +				 * Possitive err means the number of failed
 
-The current code in dwc3_gadget_ep_reclaim_completed_trb() will
-check for IOC/LST bit in the event->status and returns if
-IOC/LST bit is set. This logic doesn't work if multiple TRBs
-are queued per request and the IOC/LST bit is set on the last
-TRB of that request.
+"positive"
 
-Consider an example where a queued request has multiple queued
-TRBs and IOC/LST bit is set only for the last TRB. In this case,
-the core generates XferComplete/XferInProgress events only for
-the last TRB (since IOC/LST are set only for the last TRB). As
-per the logic in dwc3_gadget_ep_reclaim_completed_trb()
-event->status is checked for IOC/LST bit and returns on the
-first TRB. This leaves the remaining TRBs left unhandled.
+> +				 * pages to migrate.  Since we are going to
+> +				 * abort and return the number of non-migrated
+> +				 * pages, so need incude the rest of the
 
-Similarly, if the gadget function enqueues an unaligned request
-with sglist already in it, it should fail the same way, since we
-will append another TRB to something that already uses more than
-one TRB.
+"need to include"
 
-To aviod this, this patch changes the code to check for IOC/LST
-bits in TRB->ctrl instead.
+> +				 * nr_pages that have not attempted as well.
 
-At a practical level, this patch resolves USB transfer stalls seen
-with adb on dwc3 based HiKey960 after functionfs gadget added
-scatter-gather support around v4.20.
+"have not been attempted"
 
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Linux USB List <linux-usb@vger.kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-[jstultz: forward ported to mainline, reworded commit log, reworked
- to only check trb->ctrl as suggested by Felipe]
-Signed-off-by: John Stultz <john.stultz@linaro.org>
----
-v2:
-* Rework to only check trb->ctrl as suggested by Felipe
-* Reword the commit message to include more of Felipe's assessment
----
- drivers/usb/dwc3/gadget.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> @@ -1674,6 +1687,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+>  
+>  	/* Make sure we do not overwrite the existing error */
+>  	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
+> +	/*
+> +	 * Don't have to report non-attempted pages here since:
+> +	 *     - If the above loop is done gracefully there is not non-attempted
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 154f3f3e8cff..9a085eee1ae3 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2420,7 +2420,8 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
- 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
- 		return 1;
- 
--	if (event->status & DEPEVT_STATUS_IOC)
-+	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-+	    (trb->ctrl & DWC3_TRB_CTRL_LST))
- 		return 1;
- 
- 	return 0;
--- 
-2.17.1
+"all pages have been attempted"
+
+> +	 *       page.
+> +	 *     - If the above loop is aborted to it means more fatal error
+
+s/to// s/more/a/
+
+> +	 *       happened, should return err.
+> +	 */   
+
+I'd also be tempted to rename "err" to "ret" since it has meanings beyond
+"error" now.
+
 
