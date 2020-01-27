@@ -2,51 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63ECC14AA95
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 20:36:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE0714AABC
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 20:55:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726054AbgA0Tg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 14:36:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725990AbgA0Tg0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jan 2020 14:36:26 -0500
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4DEE2467F;
-        Mon, 27 Jan 2020 19:36:25 +0000 (UTC)
-Date:   Mon, 27 Jan 2020 14:36:24 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Tom Zanussi <zanussi@kernel.org>
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tracing: Fix histogram code when
- expression has same var as" failed to apply to 4.19-stable tree
-Message-ID: <20200127143624.78121b64@gandalf.local.home>
-In-Reply-To: <1580152768.2442.2.camel@kernel.org>
-References: <15801394743854@kroah.com>
-        <1580150181.5072.5.camel@kernel.org>
-        <20200127135147.5c1ae6d1@gandalf.local.home>
-        <1580152768.2442.2.camel@kernel.org>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1725893AbgA0Tz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 14:55:57 -0500
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:48909 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725845AbgA0Tz5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 14:55:57 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04396;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0TockCcP_1580154952;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TockCcP_1580154952)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 28 Jan 2020 03:55:54 +0800
+Subject: Re: [v3 PATCH] mm: move_pages: report the number of non-attempted
+ pages
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     mhocko@suse.com, richardw.yang@linux.intel.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <1580144268-79620-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20200127193546.GB8708@bombadil.infradead.org>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <a9a07fcb-0117-c995-0463-0afc3caa1cde@linux.alibaba.com>
+Date:   Mon, 27 Jan 2020 11:55:48 -0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200127193546.GB8708@bombadil.infradead.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 27 Jan 2020 13:19:28 -0600
-Tom Zanussi <zanussi@kernel.org> wrote:
 
-> It does fix the issue for me and passes the selftests.  Remember that
-> 4.19 doesn't have the .trace() hist action - you need to use the event
-> name e.g. .first()
 
-Yeah I did that, but it was still clearing out the start variable when
-I tried. I'll test the full commits next, right after I fix my git repo
-that got corrupted because it had an alternative based on a repo that
-rebased :-(
+On 1/27/20 11:35 AM, Matthew Wilcox wrote:
+>> @@ -1627,8 +1627,18 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+>>   			start = i;
+>>   		} else if (node != current_node) {
+>>   			err = do_move_pages_to_node(mm, &pagelist, current_node);
+>> -			if (err)
+>> +			if (err) {
+>> +				/*
+>> +				 * Possitive err means the number of failed
+> "positive"
+>
+>> +				 * pages to migrate.  Since we are going to
+>> +				 * abort and return the number of non-migrated
+>> +				 * pages, so need incude the rest of the
+> "need to include"
+>
+>> +				 * nr_pages that have not attempted as well.
+> "have not been attempted"
+>
+>> @@ -1674,6 +1687,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+>>   
+>>   	/* Make sure we do not overwrite the existing error */
+>>   	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
+>> +	/*
+>> +	 * Don't have to report non-attempted pages here since:
+>> +	 *     - If the above loop is done gracefully there is not non-attempted
+> "all pages have been attempted"
+>
+>> +	 *       page.
+>> +	 *     - If the above loop is aborted to it means more fatal error
+> s/to// s/more/a/
+>
+>> +	 *       happened, should return err.
+>> +	 */
+> I'd also be tempted to rename "err" to "ret" since it has meanings beyond
+> "error" now.
 
--- Steve
+Thanks for catching these problems. Will fix in v4.
+>
+
