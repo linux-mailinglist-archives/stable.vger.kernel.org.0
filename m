@@ -2,157 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F190514AC08
-	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 23:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A66C414AC0D
+	for <lists+stable@lfdr.de>; Mon, 27 Jan 2020 23:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbgA0Wav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 17:30:51 -0500
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:43144 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726205AbgA0Wav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 17:30:51 -0500
-Received: by mail-qk1-f194.google.com with SMTP id j20so11358056qka.10
-        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 14:30:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/xn6Inxb6zuojs0iU7vTmsWoRmbZmQqG7zN5KkIu1iw=;
-        b=RXYubqq5Vbt9/Yqh8rRc3gW77GBTJ9ktqMwX5BzBMFzzOT2bfEFFer+ZATdml4q/L8
-         yeUOXdIXzpuY6tZZqtw3VnhfsjSheZCS0/Gla/Xdu7BNRdS4IpGlq4doJ5Bkrzt4xX6A
-         szH+cb+WI7yNz8moAdV/Kr2o5h5MW7f9s8NyngUeHka78W+CdMlAM41W/l19UsOM96tl
-         XdWQ0NvsVIuflJlp87Lsp8b5jFxwqtmUOaizejZb+TkDnH1G1uVVvhWbqDycJoI1H35g
-         WyAdOfAKKVRFvXixsNa5QQkHdeIC085SjF1Ebd1YCifclqVFWwV3CSQkl/gYtzNQtvlJ
-         ll/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/xn6Inxb6zuojs0iU7vTmsWoRmbZmQqG7zN5KkIu1iw=;
-        b=JWvfddcaQLHYAr2T/7eEcRKQFfNW9AQbWoTRdXjYju5klUsa89tcATAvh6VLZW/wP0
-         k1w1qr53PfOORb7/0j4Qe22rGFK95l32i8txBtiHuFLt6WGHSyB/B7gdFqxEDyRdWQzY
-         bNuG3vO9oLgHNDABwWzLO/RYFWCEr8MiaKsxsJbNZUs6nmFluSqcVhihdTFC6+h82MPg
-         Eogrpj7XHmu4gvI6ssGocKVOntsZa0rAlMzr3yXtj8G8evMFE1XDS/oetos8sAPa9GTh
-         9e5MCP42DafGCCGSPfi+f5OhiB54IsjzRCaCu7bSBX0/iJiSzxajkkAuEgrLJuiJgxBm
-         y2UQ==
-X-Gm-Message-State: APjAAAVYD5xNnf+xUSYZyf0xSV6tttz890A4Azt8+x6A79KTv712NfuT
-        lHOjzqgJBylNe3sWjWQu/nkxhZJOh7d4xo5jT8wreA==
-X-Google-Smtp-Source: APXvYqxCSQrirUnN+FZ82T0KdKjdeTod7OErds5KLF8UmezscEdKL2MJ9VbnHcnHl/RVaw2STHVzvy/g3A5rXPztxxQ=
-X-Received: by 2002:a37:6794:: with SMTP id b142mr19240197qkc.216.1580164248519;
- Mon, 27 Jan 2020 14:30:48 -0800 (PST)
+        id S1726590AbgA0WbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 17:31:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34894 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726293AbgA0WbM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jan 2020 17:31:12 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C58F22527;
+        Mon, 27 Jan 2020 22:31:11 +0000 (UTC)
+Date:   Mon, 27 Jan 2020 17:31:09 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Tom Zanussi <zanussi@kernel.org>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] tracing: Fix histogram code when
+ expression has same var as" failed to apply to 4.19-stable tree
+Message-ID: <20200127173109.71dc6ab7@gandalf.local.home>
+In-Reply-To: <20200127143624.78121b64@gandalf.local.home>
+References: <15801394743854@kroah.com>
+        <1580150181.5072.5.camel@kernel.org>
+        <20200127135147.5c1ae6d1@gandalf.local.home>
+        <1580152768.2442.2.camel@kernel.org>
+        <20200127143624.78121b64@gandalf.local.home>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <20200127210014.5207-1-tkjos@google.com>
-In-Reply-To: <20200127210014.5207-1-tkjos@google.com>
-From:   Joel Fernandes <joelaf@google.com>
-Date:   Mon, 27 Jan 2020 14:30:36 -0800
-Message-ID: <CAJWu+orT-A5HVi97ccKwMvs9MvXWV0MZhsKcZDNS8r-gqRmcDA@mail.gmail.com>
-Subject: Re: [PATCH] staging: android: ashmem: Disallow ashmem memory from
- being remapped
-To:     Todd Kjos <tkjos@google.com>
-Cc:     Suren Baghdasaryan <surenb@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arve Hjonnevag <arve@android.com>,
-        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Martijn Coenen <maco@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        Jann Horn <jannh@google.com>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 27, 2020 at 1:00 PM 'Todd Kjos' via kernel-team
-<kernel-team@android.com> wrote:
->
-> From: Suren Baghdasaryan <surenb@google.com>
->
-> When ashmem file is being mmapped the resulting vma->vm_file points to the
-> backing shmem file with the generic fops that do not check ashmem
-> permissions like fops of ashmem do. Fix that by disallowing mapping
-> operation for backing shmem file.
+On Mon, 27 Jan 2020 14:36:24 -0500
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Looks good, but I think the commit message is confusing. I had to read
-the code a couple times to understand what's going on since there are
-no links to a PoC for the security issue, in the commit message. I
-think a better message could have been:
+> On Mon, 27 Jan 2020 13:19:28 -0600
+> Tom Zanussi <zanussi@kernel.org> wrote:
+> 
+> > It does fix the issue for me and passes the selftests.  Remember that
+> > 4.19 doesn't have the .trace() hist action - you need to use the event
+> > name e.g. .first()  
+> 
+> Yeah I did that, but it was still clearing out the start variable when
+> I tried. I'll test the full commits next, right after I fix my git repo
+> that got corrupted because it had an alternative based on a repo that
+> rebased :-(
+> 
 
- When ashmem file is mmapped, the resulting vma->vm_file points to the
- backing shmem file with the generic fops that do not check ashmem
- permissions like fops of ashmem do. If an mremap is done on the ashmem
- region, then the permission checks will be skipped. Fix that by disallowing
- mapping operation on the backing shmem file.
+Finally got my repo fixed. Yes, after applying the two commits, this
+failed patch applies fine, and it does fix the issue. The test I did:
 
-Or did I miss something?
+ # mount -t tracefs nodev /sys/kernel/tracing
+ # cd /sys/kernel/tracing
+ # echo 'first u64 start_time u64 end_time pid_t pid u64 delta' >> synthetic_events
+ # echo 'hist:keys=pid:start=common_timestamp' > events/sched/sched_waking/trigger 
+ # echo 'hist:keys=next_pid:delta=common_timestamp-$start,start2=$start:onmatch(sched.sched_waking).first($start2,common_timestamp,next_pid,$delta)' > events/sched/sched_switch/trigger
+ # cat events/sched/sched_switch/hist
 
-thanks!
+And make sure there were events:
 
-- Joel
+ # cat events/sched/sched_switch/hist 
+# event histogram
+#
+# trigger info: hist:keys=next_pid:vals=hitcount:delta=common_timestamp-$start,start2=$start:sort=hitcount:size=2048:clock=global:onmatch(sched.sched_waking).first($start2,common_timestamp,next_pid,$delta) [active]
+#
 
+{ next_pid:       1246 } hitcount:          1
+{ next_pid:        153 } hitcount:          1
+{ next_pid:         21 } hitcount:          1
+{ next_pid:         26 } hitcount:          1
+{ next_pid:       1245 } hitcount:          1
+{ next_pid:       1613 } hitcount:          1
+{ next_pid:       1303 } hitcount:          1
+{ next_pid:       1375 } hitcount:          1
+{ next_pid:         67 } hitcount:          1
+{ next_pid:         41 } hitcount:          1
+{ next_pid:         12 } hitcount:          1
+{ next_pid:         31 } hitcount:          1
+{ next_pid:         46 } hitcount:          1
+{ next_pid:         36 } hitcount:          1
+{ next_pid:         16 } hitcount:          1
+{ next_pid:        606 } hitcount:          3
+{ next_pid:        102 } hitcount:          3
+{ next_pid:        936 } hitcount:          3
+{ next_pid:         13 } hitcount:          6
+{ next_pid:         10 } hitcount:          7
+{ next_pid:       1584 } hitcount:         13
+{ next_pid:       1579 } hitcount:         27
+{ next_pid:        145 } hitcount:         30
+{ next_pid:       1417 } hitcount:         33
 
+Totals:
+    Hits: 140
+    Entries: 24
+    Dropped: 0
 
->
-> Reported-by: Jann Horn <jannh@google.com>
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> Cc: stable <stable@vger.kernel.org> # 4.4,4.9,4.14,4.18,5.4
-> Signed-off-by: Todd Kjos <tkjos@google.com>
-> ---
->  drivers/staging/android/ashmem.c | 28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
->
-> diff --git a/drivers/staging/android/ashmem.c b/drivers/staging/android/ashmem.c
-> index 74d497d39c5a..c6695354b123 100644
-> --- a/drivers/staging/android/ashmem.c
-> +++ b/drivers/staging/android/ashmem.c
-> @@ -351,8 +351,23 @@ static inline vm_flags_t calc_vm_may_flags(unsigned long prot)
->                _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
->  }
->
-> +static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
-> +{
-> +       /* do not allow to mmap ashmem backing shmem file directly */
-> +       return -EPERM;
-> +}
-> +
-> +static unsigned long
-> +ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
-> +                               unsigned long len, unsigned long pgoff,
-> +                               unsigned long flags)
-> +{
-> +       return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
-> +}
-> +
->  static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
->  {
-> +       static struct file_operations vmfile_fops;
->         struct ashmem_area *asma = file->private_data;
->         int ret = 0;
->
-> @@ -393,6 +408,19 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
->                 }
->                 vmfile->f_mode |= FMODE_LSEEK;
->                 asma->file = vmfile;
-> +               /*
-> +                * override mmap operation of the vmfile so that it can't be
-> +                * remapped which would lead to creation of a new vma with no
-> +                * asma permission checks. Have to override get_unmapped_area
-> +                * as well to prevent VM_BUG_ON check for f_ops modification.
-> +                */
-> +               if (!vmfile_fops.mmap) {
-> +                       vmfile_fops = *vmfile->f_op;
-> +                       vmfile_fops.mmap = ashmem_vmfile_mmap;
-> +                       vmfile_fops.get_unmapped_area =
-> +                                       ashmem_vmfile_get_unmapped_area;
-> +               }
-> +               vmfile->f_op = &vmfile_fops;
->         }
->         get_file(asma->file);
->
-> --
-> 2.25.0.341.g760bfbb309-goog
->
-> --
-> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
->
+Greg,
+
+This patch is dependent on commits
+656fe2ba85e81d00e4447bf77b8da2be3c47acb2 and
+de40f033d4e84e843d6a12266e3869015ea9097c
+
+Can you backport them as well to 4.19 and then apply this fix?
+
+Thanks!
+
+-- Steve
