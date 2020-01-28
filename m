@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AF314B99C
+	by mail.lfdr.de (Postfix) with ESMTP id 54CEC14B99B
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732824AbgA1OY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:24:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
+        id S1731369AbgA1OZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:25:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732431AbgA1OY6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:58 -0500
+        id S1732826AbgA1OZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:25:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33CCF2468A;
-        Tue, 28 Jan 2020 14:24:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1B742469B;
+        Tue, 28 Jan 2020 14:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221497;
-        bh=FIIZiQrPCFTJOTi6y0n20X+dQYu6x1A+iUeRhJ0vEQI=;
+        s=default; t=1580221500;
+        bh=yrkzuQLtBjcqycYZGfBIaMYVhUulDyg+nPbXXZm5KEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNQlTV/q8A0ccIYRy0VBHDHucPX7J+tiCH73Pu+d/r3f+rlsM7liZfs71OAYir2fd
-         UT/3cXh+0cgwv5an9KXYegi4xV4bb9hjSsSuMbpF8EQS6Chkgi2d5CXwnkBVUZuZGv
-         uagHB/e9XmdpNbCD2yiWkTl2/sEagTGz6YmHQ7D4=
+        b=O/MEhx2CFyjYg/KMTECiAD0Mc4XFfBN/XoP5jnUSBy0TX6hXZmBbVGBIbjfdm18uo
+         ueq0NyelkYr2aDWrmknGi+lSghZ6+kjrq4X+QSQBMFtPSIgtTzZCKXFZ6MBU8HOhn2
+         hQIb2L+uen257MmWWLvEeNf4tnwHWNKfctKyNEmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 248/271] Input: keyspan-remote - fix control-message timeouts
-Date:   Tue, 28 Jan 2020 15:06:37 +0100
-Message-Id: <20200128135911.000726358@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.9 249/271] ARM: 8950/1: ftrace/recordmcount: filter relocation types
+Date:   Tue, 28 Jan 2020 15:06:38 +0100
+Message-Id: <20200128135911.090815558@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -43,63 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-commit ba9a103f40fc4a3ec7558ec9b0b97d4f92034249 upstream.
+commit 927d780ee371d7e121cea4fc7812f6ef2cea461c upstream.
 
-The driver was issuing synchronous uninterruptible control requests
-without using a timeout. This could lead to the driver hanging on probe
-due to a malfunctioning (or malicious) device until the device is
-physically disconnected. While sleeping in probe the driver prevents
-other devices connected to the same hub from being added to (or removed
-from) the bus.
+Scenario 1, ARMv7
+=================
 
-The USB upper limit of five seconds per request should be more than
-enough.
+If code in arch/arm/kernel/ftrace.c would operate on mcount() pointer
+the following may be generated:
 
-Fixes: 99f83c9c9ac9 ("[PATCH] USB: add driver for Keyspan Digital Remote")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Link: https://lore.kernel.org/r/20200113171715.30621-1-johan@kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+00000230 <prealloc_fixed_plts>:
+ 230:   b5f8            push    {r3, r4, r5, r6, r7, lr}
+ 232:   b500            push    {lr}
+ 234:   f7ff fffe       bl      0 <__gnu_mcount_nc>
+                        234: R_ARM_THM_CALL     __gnu_mcount_nc
+ 238:   f240 0600       movw    r6, #0
+                        238: R_ARM_THM_MOVW_ABS_NC      __gnu_mcount_nc
+ 23c:   f8d0 1180       ldr.w   r1, [r0, #384]  ; 0x180
+
+FTRACE currently is not able to deal with it:
+
+WARNING: CPU: 0 PID: 0 at .../kernel/trace/ftrace.c:1979 ftrace_bug+0x1ad/0x230()
+...
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.4.116-... #1
+...
+[<c0314e3d>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
+[<c03115e9>] (show_stack) from [<c051a7f1>] (dump_stack+0x81/0xa8)
+[<c051a7f1>] (dump_stack) from [<c0321c5d>] (warn_slowpath_common+0x69/0x90)
+[<c0321c5d>] (warn_slowpath_common) from [<c0321cf3>] (warn_slowpath_null+0x17/0x1c)
+[<c0321cf3>] (warn_slowpath_null) from [<c038ee9d>] (ftrace_bug+0x1ad/0x230)
+[<c038ee9d>] (ftrace_bug) from [<c038f1f9>] (ftrace_process_locs+0x27d/0x444)
+[<c038f1f9>] (ftrace_process_locs) from [<c08915bd>] (ftrace_init+0x91/0xe8)
+[<c08915bd>] (ftrace_init) from [<c0885a67>] (start_kernel+0x34b/0x358)
+[<c0885a67>] (start_kernel) from [<00308095>] (0x308095)
+---[ end trace cb88537fdc8fa200 ]---
+ftrace failed to modify [<c031266c>] prealloc_fixed_plts+0x8/0x60
+ actual: 44:f2:e1:36
+ftrace record flags: 0
+ (0)   expected tramp: c03143e9
+
+Scenario 2, ARMv4T
+==================
+
+ftrace: allocating 14435 entries in 43 pages
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at kernel/trace/ftrace.c:2029 ftrace_bug+0x204/0x310
+CPU: 0 PID: 0 Comm: swapper Not tainted 4.19.5 #1
+Hardware name: Cirrus Logic EDB9302 Evaluation Board
+[<c0010a24>] (unwind_backtrace) from [<c000ecb0>] (show_stack+0x20/0x2c)
+[<c000ecb0>] (show_stack) from [<c03c72e8>] (dump_stack+0x20/0x30)
+[<c03c72e8>] (dump_stack) from [<c0021c18>] (__warn+0xdc/0x104)
+[<c0021c18>] (__warn) from [<c0021d7c>] (warn_slowpath_null+0x4c/0x5c)
+[<c0021d7c>] (warn_slowpath_null) from [<c0095360>] (ftrace_bug+0x204/0x310)
+[<c0095360>] (ftrace_bug) from [<c04dabac>] (ftrace_init+0x3b4/0x4d4)
+[<c04dabac>] (ftrace_init) from [<c04cef4c>] (start_kernel+0x20c/0x410)
+[<c04cef4c>] (start_kernel) from [<00000000>] (  (null))
+---[ end trace 0506a2f5dae6b341 ]---
+ftrace failed to modify
+[<c000c350>] perf_trace_sys_exit+0x5c/0xe8
+ actual:   1e:ff:2f:e1
+Initializing ftrace call sites
+ftrace record flags: 0
+ (0)
+ expected tramp: c000fb24
+
+The analysis for this problem has been already performed previously,
+refer to the link below.
+
+Fix the above problems by allowing only selected reloc types in
+__mcount_loc. The list itself comes from the legacy recordmcount.pl
+script.
+
+Link: https://lore.kernel.org/lkml/56961010.6000806@pengutronix.de/
+Cc: stable@vger.kernel.org
+Fixes: ed60453fa8f8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/misc/keyspan_remote.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ scripts/recordmcount.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/input/misc/keyspan_remote.c
-+++ b/drivers/input/misc/keyspan_remote.c
-@@ -344,7 +344,8 @@ static int keyspan_setup(struct usb_devi
- 	int retval = 0;
+--- a/scripts/recordmcount.c
++++ b/scripts/recordmcount.c
+@@ -53,6 +53,10 @@
+ #define R_AARCH64_ABS64	257
+ #endif
  
- 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--				 0x11, 0x40, 0x5601, 0x0, NULL, 0, 0);
-+				 0x11, 0x40, 0x5601, 0x0, NULL, 0,
-+				 USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		dev_dbg(&dev->dev, "%s - failed to set bit rate due to error: %d\n",
- 			__func__, retval);
-@@ -352,7 +353,8 @@ static int keyspan_setup(struct usb_devi
- 	}
++#define R_ARM_PC24		1
++#define R_ARM_THM_CALL		10
++#define R_ARM_CALL		28
++
+ static int fd_map;	/* File descriptor for file being modified. */
+ static int mmap_failed; /* Boolean flag. */
+ static char gpfx;	/* prefix for global symbol name (sometimes '_') */
+@@ -374,6 +378,18 @@ is_mcounted_section_name(char const *con
+ #define RECORD_MCOUNT_64
+ #include "recordmcount.h"
  
- 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--				 0x44, 0x40, 0x0, 0x0, NULL, 0, 0);
-+				 0x44, 0x40, 0x0, 0x0, NULL, 0,
-+				 USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		dev_dbg(&dev->dev, "%s - failed to set resume sensitivity due to error: %d\n",
- 			__func__, retval);
-@@ -360,7 +362,8 @@ static int keyspan_setup(struct usb_devi
- 	}
- 
- 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--				 0x22, 0x40, 0x0, 0x0, NULL, 0, 0);
-+				 0x22, 0x40, 0x0, 0x0, NULL, 0,
-+				 USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		dev_dbg(&dev->dev, "%s - failed to turn receive on due to error: %d\n",
- 			__func__, retval);
++static int arm_is_fake_mcount(Elf32_Rel const *rp)
++{
++	switch (ELF32_R_TYPE(w(rp->r_info))) {
++	case R_ARM_THM_CALL:
++	case R_ARM_CALL:
++	case R_ARM_PC24:
++		return 0;
++	}
++
++	return 1;
++}
++
+ /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
+  * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
+  * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
+@@ -463,6 +479,7 @@ do_file(char const *const fname)
+ 		break;
+ 	case EM_ARM:	 reltype = R_ARM_ABS32;
+ 			 altmcount = "__gnu_mcount_nc";
++			 is_fake_mcount32 = arm_is_fake_mcount;
+ 			 break;
+ 	case EM_AARCH64:
+ 			reltype = R_AARCH64_ABS64;
 
 
