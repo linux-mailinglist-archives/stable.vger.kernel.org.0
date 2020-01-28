@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A1214B81C
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 711FF14B81E
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731116AbgA1OUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:20:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
+        id S1731125AbgA1OUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:20:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730676AbgA1OUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:20:39 -0500
+        id S1731120AbgA1OUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:20:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79DF721739;
-        Tue, 28 Jan 2020 14:20:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E68DA2071E;
+        Tue, 28 Jan 2020 14:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221238;
-        bh=M+PUZmZsdhjRf7ZRL8gzs8BS3+3m8JGyHtXIXr7cI0I=;
+        s=default; t=1580221241;
+        bh=rcoi9ILvqlhRpjOQ7wka7HxDzfxpSnWuFo6BYQtY0bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9h9lfFuUrSO+aOs4ulIt18UL1ptMRkJq8Te2BVjS95sjc9bjNQ6zVWd0oowAQgsQ
-         ia6Kl/igdPAiYRqNDMoAp2KMXXWSrmrTogZygCBJvcXHTcJ7Vi/JwZL8eXPocBskvf
-         cWQDLNES4PukIiOy3+k5sKmQdyzgw4uI45ROxRtE=
+        b=IJuOyEdi/OWrV/+pnB56UjHn9aebock/tZVQZixgETYSR4/Z67snm8KfTqbAeWO+n
+         bKQRqjlfTy/3ClZ40mkKBKtERa7Jwk84ewZ1e2u/tc9KytDTJF2A5/HDZLPFvxE90E
+         EGlxleP4P90wcv0aF1cTsGxK/Dws82Igt7NJ2kY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Javi Merino <javi.merino@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 143/271] thermal: cpu_cooling: Actually trace CPU load in thermal_power_cpu_get_power
-Date:   Tue, 28 Jan 2020 15:04:52 +0100
-Message-Id: <20200128135903.208053628@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 144/271] dmaengine: tegra210-adma: Fix crash during probe
+Date:   Tue, 28 Jan 2020 15:04:53 +0100
+Message-Id: <20200128135903.279221441@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -47,56 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit bf45ac18b78038e43af3c1a273cae4ab5704d2ce ]
+[ Upstream commit b53611fb1ce9b1786bd18205473e0c1d6bfa8934 ]
 
-The CPU load values passed to the thermal_power_cpu_get_power
-tracepoint are zero for all CPUs, unless, unless the
-thermal_power_cpu_limit tracepoint is enabled too:
+Commit f33e7bb3eb92 ("dmaengine: tegra210-adma: restore channel status")
+added support to save and restore the DMA channel registers when runtime
+suspending the ADMA. This change is causing the kernel to crash when
+probing the ADMA, if the device is probed deferred when looking up the
+channel interrupts. The crash occurs because not all of the channel base
+addresses have been setup at this point and in the clean-up path of the
+probe, pm_runtime_suspend() is called invoking its callback which
+expects all the channel base addresses to be initialised.
 
-  irq/41-rockchip-98    [000] ....   290.972410: thermal_power_cpu_get_power:
-  cpus=0000000f freq=1800000 load={{0x0,0x0,0x0,0x0}} dynamic_power=4815
+Although this could be fixed by simply checking for a NULL address, on
+further review of the driver it seems more appropriate that we only call
+pm_runtime_get_sync() after all the channel interrupts and base
+addresses have been configured. Therefore, fix this crash by moving the
+calls to pm_runtime_enable(), pm_runtime_get_sync() and
+tegra_adma_init() after the DMA channels have been initialised.
 
-vs
+Fixes: f33e7bb3eb92 ("dmaengine: tegra210-adma: restore channel status")
 
-  irq/41-rockchip-96    [000] ....    95.773585: thermal_power_cpu_get_power:
-  cpus=0000000f freq=1800000 load={{0x56,0x64,0x64,0x5e}} dynamic_power=4959
-  irq/41-rockchip-96    [000] ....    95.773596: thermal_power_cpu_limit:
-  cpus=0000000f freq=408000 cdev_state=10 power=416
-
-There seems to be no good reason for omitting the CPU load information
-depending on another tracepoint. My guess is that the intention was to
-check whether thermal_power_cpu_get_power is (still) enabled, however
-'load_cpu != NULL' already indicates that it was at least enabled when
-cpufreq_get_requested_power() was entered, there seems little gain
-from omitting the assignment if the tracepoint was just disabled, so
-just remove the check.
-
-Fixes: 6828a4711f99 ("thermal: add trace events to the power allocator governor")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Acked-by: Javi Merino <javi.merino@kernel.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/cpu_cooling.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/tegra210-adma.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/thermal/cpu_cooling.c b/drivers/thermal/cpu_cooling.c
-index f49d2989d0005..984e5f5141403 100644
---- a/drivers/thermal/cpu_cooling.c
-+++ b/drivers/thermal/cpu_cooling.c
-@@ -607,7 +607,7 @@ static int cpufreq_get_requested_power(struct thermal_cooling_device *cdev,
- 			load = 0;
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index 8c3cab463354f..2d4aeba579f75 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -744,16 +744,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 		return PTR_ERR(tdma->ahub_clk);
+ 	}
  
- 		total_load += load;
--		if (trace_thermal_power_cpu_limit_enabled() && load_cpu)
-+		if (load_cpu)
- 			load_cpu[i] = load;
+-	pm_runtime_enable(&pdev->dev);
+-
+-	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0)
+-		goto rpm_disable;
+-
+-	ret = tegra_adma_init(tdma);
+-	if (ret)
+-		goto rpm_put;
+-
+ 	INIT_LIST_HEAD(&tdma->dma_dev.channels);
+ 	for (i = 0; i < tdma->nr_channels; i++) {
+ 		struct tegra_adma_chan *tdc = &tdma->channels[i];
+@@ -771,6 +761,16 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 		tdc->tdma = tdma;
+ 	}
  
- 		i++;
++	pm_runtime_enable(&pdev->dev);
++
++	ret = pm_runtime_get_sync(&pdev->dev);
++	if (ret < 0)
++		goto rpm_disable;
++
++	ret = tegra_adma_init(tdma);
++	if (ret)
++		goto rpm_put;
++
+ 	dma_cap_set(DMA_SLAVE, tdma->dma_dev.cap_mask);
+ 	dma_cap_set(DMA_PRIVATE, tdma->dma_dev.cap_mask);
+ 	dma_cap_set(DMA_CYCLIC, tdma->dma_dev.cap_mask);
+@@ -812,13 +812,13 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 
+ dma_remove:
+ 	dma_async_device_unregister(&tdma->dma_dev);
+-irq_dispose:
+-	while (--i >= 0)
+-		irq_dispose_mapping(tdma->channels[i].irq);
+ rpm_put:
+ 	pm_runtime_put_sync(&pdev->dev);
+ rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
++irq_dispose:
++	while (--i >= 0)
++		irq_dispose_mapping(tdma->channels[i].irq);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
