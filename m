@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCFFE14B60B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B25814B60E
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:02:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727168AbgA1OBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:01:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47890 "EHLO mail.kernel.org"
+        id S1727193AbgA1OBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:01:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727495AbgA1OBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:01:45 -0500
+        id S1727521AbgA1OBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:01:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EC2C24685;
-        Tue, 28 Jan 2020 14:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC1E2468F;
+        Tue, 28 Jan 2020 14:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220104;
-        bh=XKIqmR/yOlhzJCX0lIwbHQgrpdZT0G1ZKeUb032zTCw=;
+        s=default; t=1580220109;
+        bh=vMpxyAqnrEJuoN/d216fjcn0fgCF1ucexb1psryi8K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LItxagg8vnpwYfuV5hqjCBfAe4wEBQJrIil3SKpWZzjMOg1npS/QcWubQY/yx29r4
-         zvTsgtKhrSVXjOp690zq5BTrL8T4EkLvveGDV7IhYj8k8533jYWTkETJKiMZ3B6vqK
-         0rQPlWjl6lWxuBUBkS35J9P1XSWg77M0lxAo8Btk=
+        b=pM37EbhYasbRPA+moVDE3+If3sibSxsZ/l0tqTpaTWlv64FTvybH61ElLuiCCz9Ci
+         wcA7g8skL64TTVB1yoYk/2PXY64rmftfk03BRpH/Q2ZLPnsXHmybLTNrsHeqLgRQAm
+         TAlZaB2QAIqjGH0QfcSttTgeM8TiTRn6Y50XX6s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 019/104] airo: Fix possible info leak in AIROOLDIOCTL/SIOCDEVPRIVATE
-Date:   Tue, 28 Jan 2020 14:59:40 +0100
-Message-Id: <20200128135819.899539624@linuxfoundation.org>
+Subject: [PATCH 5.4 021/104] mlxsw: spectrum_acl: Fix use-after-free during reload
+Date:   Tue, 28 Jan 2020 14:59:42 +0100
+Message-Id: <20200128135820.188273004@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -45,65 +44,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit d6bce2137f5d6bb1093e96d2f801479099b28094 ]
+[ Upstream commit 971de2e572118c1128bff295341e37b6c8b8f108 ]
 
-The driver for Cisco Aironet 4500 and 4800 series cards (airo.c),
-implements AIROOLDIOCTL/SIOCDEVPRIVATE in airo_ioctl().
+During reload (or module unload), the router block is de-initialized.
+Among other things, this results in the removal of a default multicast
+route from each active virtual router (VRF). These default routes are
+configured during initialization to trap packets to the CPU. In
+Spectrum-2, unlike Spectrum-1, multicast routes are implemented using
+ACL rules.
 
-The ioctl handler copies an aironet_ioctl struct from userspace, which
-includes a command and a length. Some of the commands are handled in
-readrids(), which kmalloc()'s a buffer of RIDSIZE (2048) bytes.
+Since the router block is de-initialized before the ACL block, it is
+possible that the ACL rules corresponding to the default routes are
+deleted while being accessed by the ACL delayed work that queries rules'
+activity from the device. This can result in a rare use-after-free [1].
 
-That buffer is then passed to PC4500_readrid(), which has two cases.
-The else case does some setup and then reads up to RIDSIZE bytes from
-the hardware into the kmalloc()'ed buffer.
+Fix this by protecting the rules list accessed by the delayed work with
+a lock. We cannot use a spinlock as the activity read operation is
+blocking.
 
-Here len == RIDSIZE, pBuf is the kmalloc()'ed buffer:
+[1]
+[  123.331662] ==================================================================
+[  123.339920] BUG: KASAN: use-after-free in mlxsw_sp_acl_rule_activity_update_work+0x330/0x3b0
+[  123.349381] Read of size 8 at addr ffff8881f3bb4520 by task kworker/0:2/78
+[  123.357080]
+[  123.358773] CPU: 0 PID: 78 Comm: kworker/0:2 Not tainted 5.5.0-rc5-custom-33108-gf5df95d3ef41 #2209
+[  123.368898] Hardware name: Mellanox Technologies Ltd. MSN3700C/VMOD0008, BIOS 5.11 10/10/2018
+[  123.378456] Workqueue: mlxsw_core mlxsw_sp_acl_rule_activity_update_work
+[  123.385970] Call Trace:
+[  123.388734]  dump_stack+0xc6/0x11e
+[  123.392568]  print_address_description.constprop.4+0x21/0x340
+[  123.403236]  __kasan_report.cold.8+0x76/0xb1
+[  123.414884]  kasan_report+0xe/0x20
+[  123.418716]  mlxsw_sp_acl_rule_activity_update_work+0x330/0x3b0
+[  123.444034]  process_one_work+0xb06/0x19a0
+[  123.453731]  worker_thread+0x91/0xe90
+[  123.467348]  kthread+0x348/0x410
+[  123.476847]  ret_from_fork+0x24/0x30
+[  123.480863]
+[  123.482545] Allocated by task 73:
+[  123.486273]  save_stack+0x19/0x80
+[  123.490000]  __kasan_kmalloc.constprop.6+0xc1/0xd0
+[  123.495379]  mlxsw_sp_acl_rule_create+0xa7/0x230
+[  123.500566]  mlxsw_sp2_mr_tcam_route_create+0xf6/0x3e0
+[  123.506334]  mlxsw_sp_mr_tcam_route_create+0x5b4/0x820
+[  123.512102]  mlxsw_sp_mr_table_create+0x3b5/0x690
+[  123.517389]  mlxsw_sp_vr_get+0x289/0x4d0
+[  123.521797]  mlxsw_sp_fib_node_get+0xa2/0x990
+[  123.526692]  mlxsw_sp_router_fib4_event_work+0x54c/0x2d60
+[  123.532752]  process_one_work+0xb06/0x19a0
+[  123.537352]  worker_thread+0x91/0xe90
+[  123.541471]  kthread+0x348/0x410
+[  123.545103]  ret_from_fork+0x24/0x30
+[  123.549113]
+[  123.550795] Freed by task 518:
+[  123.554231]  save_stack+0x19/0x80
+[  123.557958]  __kasan_slab_free+0x125/0x170
+[  123.562556]  kfree+0xd7/0x3a0
+[  123.565895]  mlxsw_sp_acl_rule_destroy+0x63/0xd0
+[  123.571081]  mlxsw_sp2_mr_tcam_route_destroy+0xd5/0x130
+[  123.576946]  mlxsw_sp_mr_tcam_route_destroy+0xba/0x260
+[  123.582714]  mlxsw_sp_mr_table_destroy+0x1ab/0x290
+[  123.588091]  mlxsw_sp_vr_put+0x1db/0x350
+[  123.592496]  mlxsw_sp_fib_node_put+0x298/0x4c0
+[  123.597486]  mlxsw_sp_vr_fib_flush+0x15b/0x360
+[  123.602476]  mlxsw_sp_router_fib_flush+0xba/0x470
+[  123.607756]  mlxsw_sp_vrs_fini+0xaa/0x120
+[  123.612260]  mlxsw_sp_router_fini+0x137/0x384
+[  123.617152]  mlxsw_sp_fini+0x30a/0x4a0
+[  123.621374]  mlxsw_core_bus_device_unregister+0x159/0x600
+[  123.627435]  mlxsw_devlink_core_bus_device_reload_down+0x7e/0xb0
+[  123.634176]  devlink_reload+0xb4/0x380
+[  123.638391]  devlink_nl_cmd_reload+0x610/0x700
+[  123.643382]  genl_rcv_msg+0x6a8/0xdc0
+[  123.647497]  netlink_rcv_skb+0x134/0x3a0
+[  123.651904]  genl_rcv+0x29/0x40
+[  123.655436]  netlink_unicast+0x4d4/0x700
+[  123.659843]  netlink_sendmsg+0x7c0/0xc70
+[  123.664251]  __sys_sendto+0x265/0x3c0
+[  123.668367]  __x64_sys_sendto+0xe2/0x1b0
+[  123.672773]  do_syscall_64+0xa0/0x530
+[  123.676892]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  123.682552]
+[  123.684238] The buggy address belongs to the object at ffff8881f3bb4500
+[  123.684238]  which belongs to the cache kmalloc-128 of size 128
+[  123.698261] The buggy address is located 32 bytes inside of
+[  123.698261]  128-byte region [ffff8881f3bb4500, ffff8881f3bb4580)
+[  123.711303] The buggy address belongs to the page:
+[  123.716682] page:ffffea0007ceed00 refcount:1 mapcount:0 mapping:ffff888236403500 index:0x0
+[  123.725958] raw: 0200000000000200 dead000000000100 dead000000000122 ffff888236403500
+[  123.734646] raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+[  123.743315] page dumped because: kasan: bad access detected
+[  123.749562]
+[  123.751241] Memory state around the buggy address:
+[  123.756620]  ffff8881f3bb4400: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  123.764716]  ffff8881f3bb4480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  123.772812] >ffff8881f3bb4500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  123.780904]                                ^
+[  123.785697]  ffff8881f3bb4580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  123.793793]  ffff8881f3bb4600: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  123.801883] ==================================================================
 
-	// read the rid length field
-	bap_read(ai, pBuf, 2, BAP1);
-	// length for remaining part of rid
-	len = min(len, (int)le16_to_cpu(*(__le16*)pBuf)) - 2;
-	...
-	// read remainder of the rid
-	rc = bap_read(ai, ((__le16*)pBuf)+1, len, BAP1);
-
-PC4500_readrid() then returns to readrids() which does:
-
-	len = comp->len;
-	if (copy_to_user(comp->data, iobuf, min(len, (int)RIDSIZE))) {
-
-Where comp->len is the user controlled length field.
-
-So if the "rid length field" returned by the hardware is < 2048, and
-the user requests 2048 bytes in comp->len, we will leak the previous
-contents of the kmalloc()'ed buffer to userspace.
-
-Fix it by kzalloc()'ing the buffer.
-
-Found by Ilja by code inspection, not tested as I don't have the
-required hardware.
-
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: cf7221a4f5a5 ("mlxsw: spectrum_router: Add Multicast routing support for Spectrum-2")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/cisco/airo.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -7813,7 +7813,7 @@ static int readrids(struct net_device *d
- 		return -EINVAL;
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c
+@@ -8,6 +8,7 @@
+ #include <linux/string.h>
+ #include <linux/rhashtable.h>
+ #include <linux/netdevice.h>
++#include <linux/mutex.h>
+ #include <net/net_namespace.h>
+ #include <net/tc_act/tc_vlan.h>
+ 
+@@ -25,6 +26,7 @@ struct mlxsw_sp_acl {
+ 	struct mlxsw_sp_fid *dummy_fid;
+ 	struct rhashtable ruleset_ht;
+ 	struct list_head rules;
++	struct mutex rules_lock; /* Protects rules list */
+ 	struct {
+ 		struct delayed_work dw;
+ 		unsigned long interval;	/* ms */
+@@ -701,7 +703,9 @@ int mlxsw_sp_acl_rule_add(struct mlxsw_s
+ 			goto err_ruleset_block_bind;
  	}
  
--	if ((iobuf = kmalloc(RIDSIZE, GFP_KERNEL)) == NULL)
-+	if ((iobuf = kzalloc(RIDSIZE, GFP_KERNEL)) == NULL)
- 		return -ENOMEM;
++	mutex_lock(&mlxsw_sp->acl->rules_lock);
+ 	list_add_tail(&rule->list, &mlxsw_sp->acl->rules);
++	mutex_unlock(&mlxsw_sp->acl->rules_lock);
+ 	block->rule_count++;
+ 	block->egress_blocker_rule_count += rule->rulei->egress_bind_blocker;
+ 	return 0;
+@@ -723,7 +727,9 @@ void mlxsw_sp_acl_rule_del(struct mlxsw_
  
- 	PC4500_readrid(ai,ridcode,iobuf,RIDSIZE, 1);
+ 	block->egress_blocker_rule_count -= rule->rulei->egress_bind_blocker;
+ 	ruleset->ht_key.block->rule_count--;
++	mutex_lock(&mlxsw_sp->acl->rules_lock);
+ 	list_del(&rule->list);
++	mutex_unlock(&mlxsw_sp->acl->rules_lock);
+ 	if (!ruleset->ht_key.chain_index &&
+ 	    mlxsw_sp_acl_ruleset_is_singular(ruleset))
+ 		mlxsw_sp_acl_ruleset_block_unbind(mlxsw_sp, ruleset,
+@@ -783,19 +789,18 @@ static int mlxsw_sp_acl_rules_activity_u
+ 	struct mlxsw_sp_acl_rule *rule;
+ 	int err;
+ 
+-	/* Protect internal structures from changes */
+-	rtnl_lock();
++	mutex_lock(&acl->rules_lock);
+ 	list_for_each_entry(rule, &acl->rules, list) {
+ 		err = mlxsw_sp_acl_rule_activity_update(acl->mlxsw_sp,
+ 							rule);
+ 		if (err)
+ 			goto err_rule_update;
+ 	}
+-	rtnl_unlock();
++	mutex_unlock(&acl->rules_lock);
+ 	return 0;
+ 
+ err_rule_update:
+-	rtnl_unlock();
++	mutex_unlock(&acl->rules_lock);
+ 	return err;
+ }
+ 
+@@ -880,6 +885,7 @@ int mlxsw_sp_acl_init(struct mlxsw_sp *m
+ 	acl->dummy_fid = fid;
+ 
+ 	INIT_LIST_HEAD(&acl->rules);
++	mutex_init(&acl->rules_lock);
+ 	err = mlxsw_sp_acl_tcam_init(mlxsw_sp, &acl->tcam);
+ 	if (err)
+ 		goto err_acl_ops_init;
+@@ -892,6 +898,7 @@ int mlxsw_sp_acl_init(struct mlxsw_sp *m
+ 	return 0;
+ 
+ err_acl_ops_init:
++	mutex_destroy(&acl->rules_lock);
+ 	mlxsw_sp_fid_put(fid);
+ err_fid_get:
+ 	rhashtable_destroy(&acl->ruleset_ht);
+@@ -908,6 +915,7 @@ void mlxsw_sp_acl_fini(struct mlxsw_sp *
+ 
+ 	cancel_delayed_work_sync(&mlxsw_sp->acl->rule_activity_update.dw);
+ 	mlxsw_sp_acl_tcam_fini(mlxsw_sp, &acl->tcam);
++	mutex_destroy(&acl->rules_lock);
+ 	WARN_ON(!list_empty(&acl->rules));
+ 	mlxsw_sp_fid_put(acl->dummy_fid);
+ 	rhashtable_destroy(&acl->ruleset_ht);
 
 
