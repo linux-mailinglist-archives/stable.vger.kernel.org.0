@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9079C14B6E6
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:09:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B3E14B806
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728702AbgA1OJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:09:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
+        id S1730940AbgA1OTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:19:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728696AbgA1OJU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:09:20 -0500
+        id S1730525AbgA1OTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:19:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26D1324685;
-        Tue, 28 Jan 2020 14:09:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 113542071E;
+        Tue, 28 Jan 2020 14:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220559;
-        bh=HTlTTX6byxaENqBs/X3KWYtVPgzTy5YNeeF8bU7W29c=;
+        s=default; t=1580221188;
+        bh=+i9riZwgAlitsQK1UdlrrNHwVbuIjA51i/mTjN7k/Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xWylYKIA61MYRwk4jNf9j5d2qtDENANRRCu08khTsCp/ArJpVARGlJWDP99f9J356
-         2TqKJihIf2HyXa6qf6dOFWvkZQ6fa/1mb+fnD5AZBL3ys1PDc6k6vxn94lWw6+Wy4x
-         e+vPsszoUTZw6NOmGAK7IO/FwAZkJLoPje5FoFic=
+        b=HJRkTd98yUjv5f9cWl8N+Zy87omhsXw9N7FtUI2NTIIYEqZaOVFaw1ENXluMCpRLU
+         Y4wDUhmnyqS1Gjv905d7hpG24QJVnQyDG6fCol1RLYBkS+fNSu7/z8wLtq3beWNG8k
+         woIkmZlKaasT1PwV+HQ/dIFxIHe3SG/zjZUHN1lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolas Pitre <nico@linaro.org>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 055/183] ARM: 8847/1: pm: fix HYP/SVC mode mismatch when MCPM is used
+Subject: [PATCH 4.9 125/271] ASoC: fix valid stream condition
 Date:   Tue, 28 Jan 2020 15:04:34 +0100
-Message-Id: <20200128135835.381164230@linuxfoundation.org>
+Message-Id: <20200128135901.900320837@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,95 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit ca70ea43f80c98582f5ffbbd1e6f4da2742da0c4 ]
+[ Upstream commit 6a7c59c6d9f3b280e81d7a04bbe4e55e90152dce ]
 
-MCPM does a soft reset of the CPUs and uses common cpu_resume() routine to
-perform low-level platform initialization. This results in a try to install
-HYP stubs for the second time for each CPU and results in false HYP/SVC
-mode mismatch detection. The HYP stubs are already installed at the
-beginning of the kernel initialization on the boot CPU (head.S) or in the
-secondary_startup() for other CPUs. To fix this issue MCPM code should use
-a cpu_resume() routine without HYP stubs installation.
+A stream may specify a rate range using 'rate_min' and 'rate_max', so a
+stream may be valid and not specify any rates. However, as stream cannot
+be valid and not have any channel. Let's use this condition instead to
+determine if a stream is valid or not.
 
-This change fixes HYP/SVC mode mismatch on Samsung Exynos5422-based Odroid
-XU3/XU4/HC1 boards.
-
-Fixes: 3721924c8154 ("ARM: 8081/1: MCPM: provide infrastructure to allow for MCPM loopback")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Tested-by: Anand Moon <linux.amoon@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: cde79035c6cf ("ASoC: Handle multiple codecs with split playback / capture")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/common/mcpm_entry.c   |  2 +-
- arch/arm/include/asm/suspend.h |  1 +
- arch/arm/kernel/sleep.S        | 12 ++++++++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ sound/soc/soc-pcm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/common/mcpm_entry.c b/arch/arm/common/mcpm_entry.c
-index a923524d10407..8617323eb2735 100644
---- a/arch/arm/common/mcpm_entry.c
-+++ b/arch/arm/common/mcpm_entry.c
-@@ -379,7 +379,7 @@ static int __init nocache_trampoline(unsigned long _arg)
- 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
- 	phys_reset_t phys_reset;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index d69559e458725..635b22fa1101a 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -48,8 +48,8 @@ static bool snd_soc_dai_stream_valid(struct snd_soc_dai *dai, int stream)
+ 	else
+ 		codec_stream = &dai->driver->capture;
  
--	mcpm_set_entry_vector(cpu, cluster, cpu_resume);
-+	mcpm_set_entry_vector(cpu, cluster, cpu_resume_no_hyp);
- 	setup_mm_for_reboot();
+-	/* If the codec specifies any rate at all, it supports the stream. */
+-	return codec_stream->rates;
++	/* If the codec specifies any channels at all, it supports the stream */
++	return codec_stream->channels_min;
+ }
  
- 	__mcpm_cpu_going_down(cpu, cluster);
-diff --git a/arch/arm/include/asm/suspend.h b/arch/arm/include/asm/suspend.h
-index 6c7182f32cefe..e6c2f426f8c86 100644
---- a/arch/arm/include/asm/suspend.h
-+++ b/arch/arm/include/asm/suspend.h
-@@ -7,6 +7,7 @@ struct sleep_save_sp {
- };
- 
- extern void cpu_resume(void);
-+extern void cpu_resume_no_hyp(void);
- extern void cpu_resume_arm(void);
- extern int cpu_suspend(unsigned long, int (*)(unsigned long));
- 
-diff --git a/arch/arm/kernel/sleep.S b/arch/arm/kernel/sleep.S
-index 0f6c1000582c3..c8569390e7e7e 100644
---- a/arch/arm/kernel/sleep.S
-+++ b/arch/arm/kernel/sleep.S
-@@ -119,6 +119,14 @@ ENDPROC(cpu_resume_after_mmu)
- 	.text
- 	.align
- 
-+#ifdef CONFIG_MCPM
-+	.arm
-+THUMB(	.thumb			)
-+ENTRY(cpu_resume_no_hyp)
-+ARM_BE8(setend be)			@ ensure we are in BE mode
-+	b	no_hyp
-+#endif
-+
- #ifdef CONFIG_MMU
- 	.arm
- ENTRY(cpu_resume_arm)
-@@ -134,6 +142,7 @@ ARM_BE8(setend be)			@ ensure we are in BE mode
- 	bl	__hyp_stub_install_secondary
- #endif
- 	safe_svcmode_maskall r1
-+no_hyp:
- 	mov	r1, #0
- 	ALT_SMP(mrc p15, 0, r0, c0, c0, 5)
- 	ALT_UP_B(1f)
-@@ -162,6 +171,9 @@ ENDPROC(cpu_resume)
- 
- #ifdef CONFIG_MMU
- ENDPROC(cpu_resume_arm)
-+#endif
-+#ifdef CONFIG_MCPM
-+ENDPROC(cpu_resume_no_hyp)
- #endif
- 
- 	.align 2
+ /**
 -- 
 2.20.1
 
