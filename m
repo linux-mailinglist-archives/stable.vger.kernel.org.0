@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F73914B89E
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AFE314B8B0
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733019AbgA1OZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:25:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
+        id S1732836AbgA1O0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:26:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733041AbgA1OZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:40 -0500
+        id S1732452AbgA1O0Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:26:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF4DB21739;
-        Tue, 28 Jan 2020 14:25:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2D1E24686;
+        Tue, 28 Jan 2020 14:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221540;
-        bh=oy15risqczpxp08ZvCccyI4B4+/51RZGwN9W5BYJFnY=;
+        s=default; t=1580221575;
+        bh=y5naaX/jk2tPD3PXMjWnK2jYPzGwF+1sy9ZDxHDE3wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zdZL2gHKZ76p/OiAWqNB/hXC8DuKv6braQkTHsRsWJY+4uuxpHFGQPy2ZrxNGoRM
-         EnJlByKddXIJffk8WjNwWbzV4g9ldGt6QF2JYOx/QodB3D4d7zeZOWa01hbX9uUFYw
-         PwBJPHfK1OXOtbQsxzHreW7vmuJ0g6zT/Y2GYOl4=
+        b=zYIogUywl2TprQmEodTBIYfethGeF8OHlqLesn+D8Vpv795jTuvjgaXr2p9N0X3hb
+         mdCRrZhSDkqIucLkVTkkqZLjpkBH6bGMibUW6PSevhlOK0E1K+K3BLlbMB1VIyunDf
+         hKeIe5PTDYee30MgrPT9FK1dyVtXfcx5EgbKcAU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 4.9 264/271] coresight: tmc-etf: Do not call smp_processor_id from preemptible
-Date:   Tue, 28 Jan 2020 15:06:53 +0100
-Message-Id: <20200128135912.242546591@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Wen Huang <huangwenabc@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 265/271] libertas: Fix two buffer overflows at parsing bss descriptor
+Date:   Tue, 28 Jan 2020 15:06:54 +0100
+Message-Id: <20200128135912.316442577@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -44,63 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Wen Huang <huangwenabc@gmail.com>
 
-commit 024c1fd9dbcc1d8a847f1311f999d35783921b7f upstream.
+commit e5e884b42639c74b5b57dc277909915c0aefc8bb upstream.
 
-During a perf session we try to allocate buffers on the "node" associated
-with the CPU the event is bound to. If it is not bound to a CPU, we
-use the current CPU node, using smp_processor_id(). However this is unsafe
-in a pre-emptible context and could generate the splats as below :
+add_ie_rates() copys rates without checking the length
+in bss descriptor from remote AP.when victim connects to
+remote attacker, this may trigger buffer overflow.
+lbs_ibss_join_existing() copys rates without checking the length
+in bss descriptor from remote IBSS node.when victim connects to
+remote attacker, this may trigger buffer overflow.
+Fix them by putting the length check before performing copy.
 
- BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
- caller is tmc_alloc_etf_buffer+0x5c/0x60
- CPU: 2 PID: 2544 Comm: perf Not tainted 5.1.0-rc6-147786-g116841e #344
- Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Feb  1 2019
- Call trace:
-  dump_backtrace+0x0/0x150
-  show_stack+0x14/0x20
-  dump_stack+0x9c/0xc4
-  debug_smp_processor_id+0x10c/0x110
-  tmc_alloc_etf_buffer+0x5c/0x60
-  etm_setup_aux+0x1c4/0x230
-  rb_alloc_aux+0x1b8/0x2b8
-  perf_mmap+0x35c/0x478
-  mmap_region+0x34c/0x4f0
-  do_mmap+0x2d8/0x418
-  vm_mmap_pgoff+0xd0/0xf8
-  ksys_mmap_pgoff+0x88/0xf8
-  __arm64_sys_mmap+0x28/0x38
-  el0_svc_handler+0xd8/0x138
-  el0_svc+0x8/0xc
+This fix addresses CVE-2019-14896 and CVE-2019-14897.
+This also fix build warning of mixed declarations and code.
 
-Use NUMA_NO_NODE hint instead of using the current node for events
-not bound to CPUs.
-
-Fixes: 2e499bbc1a929ac ("coresight: tmc: implementing TMC-ETF AUX space API")
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: stable <stable@vger.kernel.org> # 4.7+
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20190620221237.3536-4-mathieu.poirier@linaro.org
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Wen Huang <huangwenabc@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/coresight/coresight-tmc-etf.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/wireless/marvell/libertas/cfg.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-@@ -292,9 +292,7 @@ static void *tmc_alloc_etf_buffer(struct
- 	int node;
- 	struct cs_buffers *buf;
+--- a/drivers/net/wireless/marvell/libertas/cfg.c
++++ b/drivers/net/wireless/marvell/libertas/cfg.c
+@@ -272,6 +272,10 @@ add_ie_rates(u8 *tlv, const u8 *ie, int
+ 	int hw, ap, ap_max = ie[1];
+ 	u8 hw_rate;
  
--	if (cpu == -1)
--		cpu = smp_processor_id();
--	node = cpu_to_node(cpu);
-+	node = (cpu == -1) ? NUMA_NO_NODE : cpu_to_node(cpu);
++	if (ap_max > MAX_RATES) {
++		lbs_deb_assoc("invalid rates\n");
++		return tlv;
++	}
+ 	/* Advance past IE header */
+ 	ie += 2;
  
- 	/* Allocate memory structure for interaction with Perf */
- 	buf = kzalloc_node(sizeof(struct cs_buffers), GFP_KERNEL, node);
+@@ -1789,6 +1793,9 @@ static int lbs_ibss_join_existing(struct
+ 	struct cmd_ds_802_11_ad_hoc_join cmd;
+ 	u8 preamble = RADIO_PREAMBLE_SHORT;
+ 	int ret = 0;
++	int hw, i;
++	u8 rates_max;
++	u8 *rates;
+ 
+ 	lbs_deb_enter(LBS_DEB_CFG80211);
+ 
+@@ -1849,9 +1856,12 @@ static int lbs_ibss_join_existing(struct
+ 	if (!rates_eid) {
+ 		lbs_add_rates(cmd.bss.rates);
+ 	} else {
+-		int hw, i;
+-		u8 rates_max = rates_eid[1];
+-		u8 *rates = cmd.bss.rates;
++		rates_max = rates_eid[1];
++		if (rates_max > MAX_RATES) {
++			lbs_deb_join("invalid rates");
++			goto out;
++		}
++		rates = cmd.bss.rates;
+ 		for (hw = 0; hw < ARRAY_SIZE(lbs_rates); hw++) {
+ 			u8 hw_rate = lbs_rates[hw].bitrate / 5;
+ 			for (i = 0; i < rates_max; i++) {
 
 
