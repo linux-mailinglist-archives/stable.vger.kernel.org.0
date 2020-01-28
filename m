@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C5514B963
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0F514B92A
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387483AbgA1ObM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:31:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56034 "EHLO mail.kernel.org"
+        id S2387471AbgA1O2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:28:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387465AbgA1O2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:28:09 -0500
+        id S1728706AbgA1O2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:28:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 765AB20716;
-        Tue, 28 Jan 2020 14:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00A51207FD;
+        Tue, 28 Jan 2020 14:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221687;
-        bh=HrpOpgxsXGmwuwvvJPLNqkj9fKnc7vA/t9D18pJkZXk=;
+        s=default; t=1580221690;
+        bh=oOMNFRsG/auc89cM5gXtsixkUIpHDkaDd6xkF0X7Jjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSGSUvIIBGYwUjLA65yD6QxKClknsskptNC0OAkwdLtwrC/H5mWN/B7jWy3ai68OP
-         I8NDi5ebmhcXaGYHif4PwKXkIpNTkBifseqO+MM2QMmqowAel1hdAH1CYn3SMlP/jb
-         c+oF6+Fn1B9ZtmlMZcGTlxOMNbzEnt5Pez13BKc0=
+        b=UhJhRHmIynzFO99ipYIBuq1i8ci1jgS7EwM6noFknsOyftzhY29/hEHjVb3wxnTdX
+         CbzddfRfZZ5tfW44NYjusvZhhDao3+siB8zvq3HPTujaAY18pdKfQ/7zDlzXvInp0k
+         bqPVRpqUu6NIUUdsoTWTvwGyX5f1l80qomK1KF7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
         Finn Thain <fthain@telegraphics.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 50/92] net/sonic: Improve receive descriptor status flag check
-Date:   Tue, 28 Jan 2020 15:08:18 +0100
-Message-Id: <20200128135815.540726314@linuxfoundation.org>
+Subject: [PATCH 4.19 51/92] net/sonic: Fix receive buffer replenishment
+Date:   Tue, 28 Jan 2020 15:08:19 +0100
+Message-Id: <20200128135815.675413417@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
@@ -46,77 +46,262 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Finn Thain <fthain@telegraphics.com.au>
 
-commit 94b166349503957079ef5e7d6f667f157aea014a upstream.
+commit 89ba879e95582d3bba55081e45b5409e883312ca upstream.
 
-After sonic_tx_timeout() calls sonic_init(), it can happen that
-sonic_rx() will subsequently encounter a receive descriptor with no
-flags set. Remove the comment that says that this can't happen.
+As soon as the driver is finished with a receive buffer it allocs a new
+one and overwrites the corresponding RRA entry with a new buffer pointer.
 
-When giving a receive descriptor to the SONIC, clear the descriptor
-status field. That way, any rx descriptor with flags set can only be
-a newly received packet.
+Problem is, the buffer pointer is split across two word-sized registers.
+It can't be updated in one atomic store. So this operation races with the
+chip while it stores received packets and advances its RRP register.
+This could result in memory corruption by a DMA write.
 
-Don't process a descriptor without the LPKT bit set. The buffer is
-still in use by the SONIC.
+Avoid this problem by adding buffers only at the location given by the
+RWP register, in accordance with the National Semiconductor datasheet.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Re-factor this code into separate functions to calculate a RRA pointer
+and to update the RWP.
+
+Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
 Tested-by: Stan Johnson <userm57@yahoo.com>
 Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/natsemi/sonic.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/natsemi/sonic.c |  150 ++++++++++++++++++++---------------
+ drivers/net/ethernet/natsemi/sonic.h |   18 +++-
+ 2 files changed, 105 insertions(+), 63 deletions(-)
 
 --- a/drivers/net/ethernet/natsemi/sonic.c
 +++ b/drivers/net/ethernet/natsemi/sonic.c
-@@ -433,7 +433,6 @@ static int index_from_addr(struct sonic_
- static void sonic_rx(struct net_device *dev)
- {
+@@ -427,6 +427,59 @@ static int index_from_addr(struct sonic_
+ 	return -ENOENT;
+ }
+ 
++/* Allocate and map a new skb to be used as a receive buffer. */
++static bool sonic_alloc_rb(struct net_device *dev, struct sonic_local *lp,
++			   struct sk_buff **new_skb, dma_addr_t *new_addr)
++{
++	*new_skb = netdev_alloc_skb(dev, SONIC_RBSIZE + 2);
++	if (!*new_skb)
++		return false;
++
++	if (SONIC_BUS_SCALE(lp->dma_bitmode) == 2)
++		skb_reserve(*new_skb, 2);
++
++	*new_addr = dma_map_single(lp->device, skb_put(*new_skb, SONIC_RBSIZE),
++				   SONIC_RBSIZE, DMA_FROM_DEVICE);
++	if (!*new_addr) {
++		dev_kfree_skb(*new_skb);
++		*new_skb = NULL;
++		return false;
++	}
++
++	return true;
++}
++
++/* Place a new receive resource in the Receive Resource Area and update RWP. */
++static void sonic_update_rra(struct net_device *dev, struct sonic_local *lp,
++			     dma_addr_t old_addr, dma_addr_t new_addr)
++{
++	unsigned int entry = sonic_rr_entry(dev, SONIC_READ(SONIC_RWP));
++	unsigned int end = sonic_rr_entry(dev, SONIC_READ(SONIC_RRP));
++	u32 buf;
++
++	/* The resources in the range [RRP, RWP) belong to the SONIC. This loop
++	 * scans the other resources in the RRA, those in the range [RWP, RRP).
++	 */
++	do {
++		buf = (sonic_rra_get(dev, entry, SONIC_RR_BUFADR_H) << 16) |
++		      sonic_rra_get(dev, entry, SONIC_RR_BUFADR_L);
++
++		if (buf == old_addr)
++			break;
++
++		entry = (entry + 1) & SONIC_RRS_MASK;
++	} while (entry != end);
++
++	WARN_ONCE(buf != old_addr, "failed to find resource!\n");
++
++	sonic_rra_put(dev, entry, SONIC_RR_BUFADR_H, new_addr >> 16);
++	sonic_rra_put(dev, entry, SONIC_RR_BUFADR_L, new_addr & 0xffff);
++
++	entry = (entry + 1) & SONIC_RRS_MASK;
++
++	SONIC_WRITE(SONIC_RWP, sonic_rr_addr(dev, entry));
++}
++
+ /*
+  * We have a good packet(s), pass it/them up the network stack.
+  */
+@@ -435,18 +488,15 @@ static void sonic_rx(struct net_device *
  	struct sonic_local *lp = netdev_priv(dev);
--	int status;
  	int entry = lp->cur_rx;
  	int prev_entry = lp->eol_rx;
++	bool rbe = false;
  
-@@ -444,9 +443,10 @@ static void sonic_rx(struct net_device *
- 		u16 bufadr_l;
- 		u16 bufadr_h;
- 		int pkt_len;
-+		u16 status = sonic_rda_get(dev, entry, SONIC_RD_STATUS);
+ 	while (sonic_rda_get(dev, entry, SONIC_RD_IN_USE) == 0) {
+-		struct sk_buff *used_skb;
+-		struct sk_buff *new_skb;
+-		dma_addr_t new_laddr;
+-		u16 bufadr_l;
+-		u16 bufadr_h;
+-		int pkt_len;
+ 		u16 status = sonic_rda_get(dev, entry, SONIC_RD_STATUS);
  
--		status = sonic_rda_get(dev, entry, SONIC_RD_STATUS);
--		if (status & SONIC_RCR_PRX) {
-+		/* If the RD has LPKT set, the chip has finished with the RB */
-+		if ((status & SONIC_RCR_PRX) && (status & SONIC_RCR_LPKT)) {
+ 		/* If the RD has LPKT set, the chip has finished with the RB */
+ 		if ((status & SONIC_RCR_PRX) && (status & SONIC_RCR_LPKT)) {
++			struct sk_buff *new_skb;
++			dma_addr_t new_laddr;
  			u32 addr = (sonic_rda_get(dev, entry,
  						  SONIC_RD_PKTPTR_H) << 16) |
  				   sonic_rda_get(dev, entry, SONIC_RD_PKTPTR_L);
-@@ -494,10 +494,6 @@ static void sonic_rx(struct net_device *
- 			bufadr_h = (unsigned long)new_laddr >> 16;
- 			sonic_rra_put(dev, i, SONIC_RR_BUFADR_L, bufadr_l);
- 			sonic_rra_put(dev, i, SONIC_RR_BUFADR_H, bufadr_h);
--		} else {
--			/* This should only happen, if we enable accepting broken packets. */
--		}
--		if (status & SONIC_RCR_LPKT) {
- 			/*
- 			 * this was the last packet out of the current receive buffer
- 			 * give the buffer back to the SONIC
-@@ -510,12 +506,11 @@ static void sonic_rx(struct net_device *
- 					  __func__);
- 				SONIC_WRITE(SONIC_ISR, SONIC_INT_RBE); /* clear the flag */
+@@ -457,55 +507,35 @@ static void sonic_rx(struct net_device *
+ 				break;
  			}
--		} else
--			printk(KERN_ERR "%s: rx desc without RCR_LPKT. Shouldn't happen !?\n",
--			     dev->name);
-+		}
+ 
+-			/* Malloc up new buffer. */
+-			new_skb = netdev_alloc_skb(dev, SONIC_RBSIZE + 2);
+-			if (new_skb == NULL) {
++			if (sonic_alloc_rb(dev, lp, &new_skb, &new_laddr)) {
++				struct sk_buff *used_skb = lp->rx_skb[i];
++				int pkt_len;
++
++				/* Pass the used buffer up the stack */
++				dma_unmap_single(lp->device, addr, SONIC_RBSIZE,
++						 DMA_FROM_DEVICE);
++
++				pkt_len = sonic_rda_get(dev, entry,
++							SONIC_RD_PKTLEN);
++				skb_trim(used_skb, pkt_len);
++				used_skb->protocol = eth_type_trans(used_skb,
++								    dev);
++				netif_rx(used_skb);
++				lp->stats.rx_packets++;
++				lp->stats.rx_bytes += pkt_len;
++
++				lp->rx_skb[i] = new_skb;
++				lp->rx_laddr[i] = new_laddr;
++			} else {
++				/* Failed to obtain a new buffer so re-use it */
++				new_laddr = addr;
+ 				lp->stats.rx_dropped++;
+-				break;
+ 			}
+-			/* provide 16 byte IP header alignment unless DMA requires otherwise */
+-			if(SONIC_BUS_SCALE(lp->dma_bitmode) == 2)
+-				skb_reserve(new_skb, 2);
+-
+-			new_laddr = dma_map_single(lp->device, skb_put(new_skb, SONIC_RBSIZE),
+-		                               SONIC_RBSIZE, DMA_FROM_DEVICE);
+-			if (!new_laddr) {
+-				dev_kfree_skb(new_skb);
+-				printk(KERN_ERR "%s: Failed to map rx buffer, dropping packet.\n", dev->name);
+-				lp->stats.rx_dropped++;
+-				break;
+-			}
+-
+-			/* now we have a new skb to replace it, pass the used one up the stack */
+-			dma_unmap_single(lp->device, lp->rx_laddr[entry], SONIC_RBSIZE, DMA_FROM_DEVICE);
+-			used_skb = lp->rx_skb[i];
+-			pkt_len = sonic_rda_get(dev, entry, SONIC_RD_PKTLEN);
+-			skb_trim(used_skb, pkt_len);
+-			used_skb->protocol = eth_type_trans(used_skb, dev);
+-			netif_rx(used_skb);
+-			lp->stats.rx_packets++;
+-			lp->stats.rx_bytes += pkt_len;
+-
+-			/* and insert the new skb */
+-			lp->rx_laddr[i] = new_laddr;
+-			lp->rx_skb[i] = new_skb;
+-
+-			bufadr_l = (unsigned long)new_laddr & 0xffff;
+-			bufadr_h = (unsigned long)new_laddr >> 16;
+-			sonic_rra_put(dev, i, SONIC_RR_BUFADR_L, bufadr_l);
+-			sonic_rra_put(dev, i, SONIC_RR_BUFADR_H, bufadr_h);
+-			/*
+-			 * this was the last packet out of the current receive buffer
+-			 * give the buffer back to the SONIC
++			/* If RBE is already asserted when RWP advances then
++			 * it's safe to clear RBE after processing this packet.
+ 			 */
+-			lp->cur_rwp += SIZEOF_SONIC_RR * SONIC_BUS_SCALE(lp->dma_bitmode);
+-			if (lp->cur_rwp >= lp->rra_end) lp->cur_rwp = lp->rra_laddr & 0xffff;
+-			SONIC_WRITE(SONIC_RWP, lp->cur_rwp);
+-			if (SONIC_READ(SONIC_ISR) & SONIC_INT_RBE) {
+-				netif_dbg(lp, rx_err, dev, "%s: rx buffer exhausted\n",
+-					  __func__);
+-				SONIC_WRITE(SONIC_ISR, SONIC_INT_RBE); /* clear the flag */
+-			}
++			rbe = rbe || SONIC_READ(SONIC_ISR) & SONIC_INT_RBE;
++			sonic_update_rra(dev, lp, addr, new_laddr);
+ 		}
  		/*
  		 * give back the descriptor
- 		 */
-+		sonic_rda_put(dev, entry, SONIC_RD_STATUS, 0);
- 		sonic_rda_put(dev, entry, SONIC_RD_IN_USE, 1);
+@@ -527,6 +557,9 @@ static void sonic_rx(struct net_device *
+ 			      sonic_rda_get(dev, lp->eol_rx, SONIC_RD_LINK));
+ 		lp->eol_rx = prev_entry;
+ 	}
++
++	if (rbe)
++		SONIC_WRITE(SONIC_ISR, SONIC_INT_RBE);
+ 	/*
+ 	 * If any worth-while packets have been received, netif_rx()
+ 	 * has done a mark_bh(NET_BH) for us and will work on them
+@@ -641,15 +674,10 @@ static int sonic_init(struct net_device
+ 	}
  
- 		prev_entry = entry;
+ 	/* initialize all RRA registers */
+-	lp->rra_end = (lp->rra_laddr + SONIC_NUM_RRS * SIZEOF_SONIC_RR *
+-					SONIC_BUS_SCALE(lp->dma_bitmode)) & 0xffff;
+-	lp->cur_rwp = (lp->rra_laddr + (SONIC_NUM_RRS - 1) * SIZEOF_SONIC_RR *
+-					SONIC_BUS_SCALE(lp->dma_bitmode)) & 0xffff;
+-
+-	SONIC_WRITE(SONIC_RSA, lp->rra_laddr & 0xffff);
+-	SONIC_WRITE(SONIC_REA, lp->rra_end);
+-	SONIC_WRITE(SONIC_RRP, lp->rra_laddr & 0xffff);
+-	SONIC_WRITE(SONIC_RWP, lp->cur_rwp);
++	SONIC_WRITE(SONIC_RSA, sonic_rr_addr(dev, 0));
++	SONIC_WRITE(SONIC_REA, sonic_rr_addr(dev, SONIC_NUM_RRS));
++	SONIC_WRITE(SONIC_RRP, sonic_rr_addr(dev, 0));
++	SONIC_WRITE(SONIC_RWP, sonic_rr_addr(dev, SONIC_NUM_RRS - 1));
+ 	SONIC_WRITE(SONIC_URRA, lp->rra_laddr >> 16);
+ 	SONIC_WRITE(SONIC_EOBC, (SONIC_RBSIZE >> 1) - (lp->dma_bitmode ? 2 : 1));
+ 
+--- a/drivers/net/ethernet/natsemi/sonic.h
++++ b/drivers/net/ethernet/natsemi/sonic.h
+@@ -314,8 +314,6 @@ struct sonic_local {
+ 	u32 rda_laddr;              /* logical DMA address of RDA */
+ 	dma_addr_t rx_laddr[SONIC_NUM_RRS]; /* logical DMA addresses of rx skbuffs */
+ 	dma_addr_t tx_laddr[SONIC_NUM_TDS]; /* logical DMA addresses of tx skbuffs */
+-	unsigned int rra_end;
+-	unsigned int cur_rwp;
+ 	unsigned int cur_rx;
+ 	unsigned int cur_tx;           /* first unacked transmit packet */
+ 	unsigned int eol_rx;
+@@ -450,6 +448,22 @@ static inline __u16 sonic_rra_get(struct
+ 			     (entry * SIZEOF_SONIC_RR) + offset);
+ }
+ 
++static inline u16 sonic_rr_addr(struct net_device *dev, int entry)
++{
++	struct sonic_local *lp = netdev_priv(dev);
++
++	return lp->rra_laddr +
++	       entry * SIZEOF_SONIC_RR * SONIC_BUS_SCALE(lp->dma_bitmode);
++}
++
++static inline u16 sonic_rr_entry(struct net_device *dev, u16 addr)
++{
++	struct sonic_local *lp = netdev_priv(dev);
++
++	return (addr - (u16)lp->rra_laddr) / (SIZEOF_SONIC_RR *
++					      SONIC_BUS_SCALE(lp->dma_bitmode));
++}
++
+ static const char version[] =
+     "sonic.c:v0.92 20.9.98 tsbogend@alpha.franken.de\n";
+ 
 
 
