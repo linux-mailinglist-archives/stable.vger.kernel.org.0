@@ -2,65 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65AC114B0AA
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 09:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 172D914B0AF
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 09:09:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725848AbgA1IIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 03:08:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
+        id S1725844AbgA1IJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 03:09:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725844AbgA1IIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 03:08:12 -0500
+        id S1725825AbgA1IJN (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 03:09:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8491B2467B;
-        Tue, 28 Jan 2020 08:08:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E773F2467B;
+        Tue, 28 Jan 2020 08:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580198892;
-        bh=IQrFgVNc1B4IPrCk+m5OMuVQaRx7YDEOKWXm/35raU8=;
+        s=default; t=1580198953;
+        bh=MRtTYerA9uUwvkKuboyA/lXdA3FrLyASNYXklNGTZfE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vYH7VZGGdsNcxxeXIwG/T0w6wSXO+zCOqd3sXgjHrITJtLPbzkvzU18Cgd5lUMCrB
-         2ywUksWgU8qOAQf4Fr3Yxb8m8i+6LNiwY8h0vw3xMFW+iFf1azI39YeaKrYI5eRtq3
-         EANie1McZ1qXHhIfInh60M9AkRMAENjUtnIJFTJ0=
-Date:   Tue, 28 Jan 2020 09:08:07 +0100
+        b=S1VeUoquA3Mfj6yj5GFiqPortabPbGNZ6pz+smLu6r0FIpPlKup/P9WHv1zcCjoSE
+         4X+RtorSt1JAdZNZ2hN0c5FOhTedCk1ZTsoFiYpqtc4bGp7u+7HqZYCJfyb4DOU4Se
+         18eNvGuogWz/9BWw4Od85eqlWF2I/VcmDVlV0OAg=
+Date:   Tue, 28 Jan 2020 09:09:09 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     linux-arm-kernel@lists.infradead.org, will@kernel.org,
-        stable@vger.kernel.org, sashal@kernel.org,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH stable 4.9] arm64: kpti: Whitelist Cortex-A CPUs that
- don't implement the CSV3 field
-Message-ID: <20200128080807.GJ2105706@kroah.com>
-References: <20200124200820.18272-1-f.fainelli@gmail.com>
+To:     Lars =?iso-8859-1?Q?M=F6llendorf?= <lars.moellendorf@plating.de>
+Cc:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        lars@metafoo.de
+Subject: Re: FAILED: patch "[PATCH] iio: buffer: align the size of scan bytes
+ to size of the" failed to apply to 4.4-stable tree
+Message-ID: <20200128080909.GK2105706@kroah.com>
+References: <157944091042104@kroah.com>
+ <0af6f6ac-174e-6738-d9f7-4bb77f5f63fa@plating.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20200124200820.18272-1-f.fainelli@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <0af6f6ac-174e-6738-d9f7-4bb77f5f63fa@plating.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 12:08:20PM -0800, Florian Fainelli wrote:
-> From: Will Deacon <will.deacon@arm.com>
+On Fri, Jan 24, 2020 at 11:16:06AM +0100, Lars Möllendorf wrote:
+> Hi Greg,
 > 
-> commit 2a355ec25729053bb9a1a89b6c1d1cdd6c3b3fb1 upstream.
+> as the author of the original patch I just mailed the backport to
+> Stable@vger.kernel.org (and a lot of others as a result of
+> `scripts/get_maintainer.pl` and `git send-email`).
 > 
-> While the CSV3 field of the ID_AA64_PFR0 CPU ID register can be checked
-> to see if a CPU is susceptible to Meltdown and therefore requires kpti
-> to be enabled, existing CPUs do not implement this field.
-> 
-> We therefore whitelist all unaffected Cortex-A CPUs that do not implement
-> the CSV3 field.
-> 
-> Signed-off-by: Will Deacon <will.deacon@arm.com>
-> [florian: adjust whilelist location and table to stable-4.9.y]
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> However, I don't know if Jonathan and the other maintainers want the
+> patch applied to the 4.4-stable tree or to any other stable or longterm
+> tree.
 
-Thanks for the backport, now applied.
+Looks like it is needed to me, thanks for the backport, now queued up.
 
 greg k-h
