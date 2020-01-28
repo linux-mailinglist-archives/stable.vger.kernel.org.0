@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A043314BAEB
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4592414B9EE
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728921AbgA1OMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:12:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33862 "EHLO mail.kernel.org"
+        id S1731136AbgA1OXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:23:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727345AbgA1OMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:12:31 -0500
+        id S1731893AbgA1OXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:23:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 540932468D;
-        Tue, 28 Jan 2020 14:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 374E024681;
+        Tue, 28 Jan 2020 14:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220750;
-        bh=BWXwgTC96yH7/4lNOVVuyOOwuCEhDNyxq4OtgQUKj9s=;
+        s=default; t=1580221380;
+        bh=jYUgY8SpWe77pPCfGwFT/2abOKo2SKlAk05poolCS2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+hhK53KsIwsDp1jeZrOjd1EMzdJ5r0yueraTVxw7pxwMFF8TZjwWKrvaippp/zr8
-         W+lr5l2HqTbQRdrRu6SRkHkMyNBAbcr+P2B9NKDKorV5l2kF+3ONlBx143hg5RXnx3
-         TdKEcSKiTxpp832S3VoEfijMl8cp0+nDbj0WRhBQ=
+        b=0MwtFERLrFmKOqlR4/L2C+98FzU41SsY7RYKFZL73zeLbI6OF8F/tRFhs04mF/xmd
+         5WhTTerfSSnzbw045ks3YwOXkUYG5clCjLr/1PpZW454El5Wnklf6XheIPcwhmyem8
+         CMGfMYsBG8RduS11x2XY6lsDGnmcek5yRjeMoByU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 132/183] iio: dac: ad5380: fix incorrect assignment to val
+        stable@vger.kernel.org, Filippo Sironi <sironi@amazon.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 202/271] iommu/amd: Wait for completion of IOTLB flush in attach_device
 Date:   Tue, 28 Jan 2020 15:05:51 +0100
-Message-Id: <20200128135843.006986780@linuxfoundation.org>
+Message-Id: <20200128135907.604031189@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Filippo Sironi <sironi@amazon.de>
 
-[ Upstream commit b1e18768ef1214c0a8048327918a182cabe09f9d ]
+[ Upstream commit 0b15e02f0cc4fb34a9160de7ba6db3a4013dc1b7 ]
 
-Currently the pointer val is being incorrectly incremented
-instead of the value pointed to by val. Fix this by adding
-in the missing * indirection operator.
+To make sure the domain tlb flush completes before the
+function returns, explicitly wait for its completion.
 
-Addresses-Coverity: ("Unused value")
-Fixes: c03f2c536818 ("staging:iio:dac: Add AD5380 driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Filippo Sironi <sironi@amazon.de>
+Fixes: 42a49f965a8d ("amd-iommu: flush domain tlb when attaching a new device")
+[joro: Added commit message and fixes tag]
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5380.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/dac/ad5380.c b/drivers/iio/dac/ad5380.c
-index 97d2c5111f438..8bf7fc626a9d4 100644
---- a/drivers/iio/dac/ad5380.c
-+++ b/drivers/iio/dac/ad5380.c
-@@ -221,7 +221,7 @@ static int ad5380_read_raw(struct iio_dev *indio_dev,
- 		if (ret)
- 			return ret;
- 		*val >>= chan->scan_type.shift;
--		val -= (1 << chan->scan_type.realbits) / 2;
-+		*val -= (1 << chan->scan_type.realbits) / 2;
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_SCALE:
- 		*val = 2 * st->vref;
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index c898c70472bb2..bb0448c91f672 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2113,6 +2113,8 @@ skip_ats_check:
+ 	 */
+ 	domain_flush_tlb_pde(domain);
+ 
++	domain_flush_complete(domain);
++
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
