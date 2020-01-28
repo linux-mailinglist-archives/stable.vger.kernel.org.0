@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2600414B8E8
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:28:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 585E514B8E0
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbgA1O2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:28:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56690 "EHLO mail.kernel.org"
+        id S2387482AbgA1O2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:28:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733300AbgA1O2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:28:38 -0500
+        id S2387480AbgA1O2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:28:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9412920716;
-        Tue, 28 Jan 2020 14:28:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08C7120716;
+        Tue, 28 Jan 2020 14:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221718;
-        bh=PnHa2WGSZC8bHIeiKA3V/Rz/XwU6jjMLe5BcD4Ce28o=;
+        s=default; t=1580221698;
+        bh=TWHetQeApuPwWwnFAnNwR4s/mLNZZaOaZdJP3JYknWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EFNIG9qUk0iI1YnB4Pk9mZgSdp7fHGRnwyx7l1aVKZwzoVCPpoxY49DdBu5/r9v8+
-         NjRfiq3e75hGDv2U/9QN9krJLcY22yyhjfu/6pPWBl88VSYSUAlGddA2EFE3Zfh7Py
-         sZV8hS/SzHfRaz2F/S+Ciea4bKwk3SsLwyMNIAJ4=
+        b=LWyKqdboi5OAe8vV8R1Pn+0D8N8DT60zdyMXdLlQmXrDuGA/0tXAIy/NUz+KnSIcw
+         OZxR+Jd2KRS+uXOd/szkwfnpND5tm1W0yeEdMVF9HFZg8Yk3neOJ61kGi8CBqi3MSO
+         9WjC3u6vpbMyJMU5erMf8H56r/d8B6zHIRCeG0+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Vladis Dronov <vdronov@redhat.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 36/92] Input: aiptek - fix endpoint sanity check
-Date:   Tue, 28 Jan 2020 15:08:04 +0100
-Message-Id: <20200128135813.723853753@linuxfoundation.org>
+Subject: [PATCH 4.19 38/92] Input: sun4i-ts - add a check for devm_thermal_zone_of_sensor_register
+Date:   Tue, 28 Jan 2020 15:08:06 +0100
+Message-Id: <20200128135813.965752394@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
@@ -44,47 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 3111491fca4f01764e0c158c5e0f7ced808eef51 upstream.
+commit 97e24b095348a15ec08c476423c3b3b939186ad7 upstream.
 
-The driver was checking the number of endpoints of the first alternate
-setting instead of the current one, something which could lead to the
-driver binding to an invalid interface.
+The driver misses a check for devm_thermal_zone_of_sensor_register().
+Add a check to fix it.
 
-This in turn could cause the driver to misbehave or trigger a WARN() in
-usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: 8e20cf2bce12 ("Input: aiptek - fix crash on detecting device without endpoints")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Vladis Dronov <vdronov@redhat.com>
-Link: https://lore.kernel.org/r/20191210113737.4016-3-johan@kernel.org
+Fixes: e28d0c9cd381 ("input: convert sun4i-ts to use devm_thermal_zone_of_sensor_register")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/tablet/aiptek.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/sun4i-ts.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -1815,14 +1815,14 @@ aiptek_probe(struct usb_interface *intf,
- 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
+--- a/drivers/input/touchscreen/sun4i-ts.c
++++ b/drivers/input/touchscreen/sun4i-ts.c
+@@ -246,6 +246,7 @@ static int sun4i_ts_probe(struct platfor
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np = dev->of_node;
+ 	struct device *hwmon;
++	struct thermal_zone_device *thermal;
+ 	int error;
+ 	u32 reg;
+ 	bool ts_attached;
+@@ -365,7 +366,10 @@ static int sun4i_ts_probe(struct platfor
+ 	if (IS_ERR(hwmon))
+ 		return PTR_ERR(hwmon);
  
- 	/* Verify that a device really has an endpoint */
--	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
- 		dev_err(&intf->dev,
- 			"interface has %d endpoints, but must have minimum 1\n",
--			intf->altsetting[0].desc.bNumEndpoints);
-+			intf->cur_altsetting->desc.bNumEndpoints);
- 		err = -EINVAL;
- 		goto fail3;
- 	}
--	endpoint = &intf->altsetting[0].endpoint[0].desc;
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+-	devm_thermal_zone_of_sensor_register(ts->dev, 0, ts, &sun4i_ts_tz_ops);
++	thermal = devm_thermal_zone_of_sensor_register(ts->dev, 0, ts,
++						       &sun4i_ts_tz_ops);
++	if (IS_ERR(thermal))
++		return PTR_ERR(thermal);
  
- 	/* Go set up our URB, which is called when the tablet receives
- 	 * input.
+ 	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+ 
 
 
