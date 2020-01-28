@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E8214BA2D
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F30614BA2B
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730302AbgA1OUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:20:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44948 "EHLO mail.kernel.org"
+        id S1731042AbgA1OUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:20:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730811AbgA1OUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:20:12 -0500
+        id S1731062AbgA1OUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:20:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D74DF2071E;
-        Tue, 28 Jan 2020 14:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE7F424681;
+        Tue, 28 Jan 2020 14:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221211;
-        bh=+8X1MENOY7tI9xG5PPzTrYYKY96vWn3iZaaJ4qyL2kM=;
+        s=default; t=1580221216;
+        bh=NHoTf5rvIIxQ+XdG5L5X27wxDUmDxpGxFArljZZqXAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7kKD7Q9z2AMB03Zp4+DYnWU1BldtH9I+3bKzvWTEwHuvqnZ/TipsJ+f/6QpSR5Nj
-         zCCOob/tNASEyCwnULcguHVLDX1cL9l7McLiNX88YS5wJCRsTfk+7gk9jbPj3mx/Rb
-         P5dBbpmuv1OLgR8QVB3oa9fKlrATof22bD5GG2tM=
+        b=pO58YtCshLGDg99Oxl5Gd1ISNMHirCJwPKICywwlRxKqrZBkNuUDBOCaXbfiaV4cF
+         MgIhJCdgnJjKo5pwKcBu4BKnxXqjHDNF/t8qHeAjj2vr5bSjMAFFc7PIa0Ifx3HSBB
+         /oK+D23hHRdzlxmwIceH/FSPWLZjvEAkhej7z4c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 133/271] dmaengine: tegra210-adma: restore channel status
-Date:   Tue, 28 Jan 2020 15:04:42 +0100
-Message-Id: <20200128135902.499662626@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 135/271] media: omap_vout: potential buffer overflow in vidioc_dqbuf()
+Date:   Tue, 28 Jan 2020 15:04:44 +0100
+Message-Id: <20200128135902.641259559@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -44,122 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f33e7bb3eb922618612a90f0a828c790e8880773 ]
+[ Upstream commit dd6e2a981bfe83aa4a493143fd8cf1edcda6c091 ]
 
-Status of ADMA channel registers is not saved and restored during system
-suspend. During active playback if system enters suspend, this results in
-wrong state of channel registers during system resume and playback fails
-to resume properly. Fix this by saving following channel registers in
-runtime suspend and restore during runtime resume.
- * ADMA_CH_LOWER_SRC_ADDR
- * ADMA_CH_LOWER_TRG_ADDR
- * ADMA_CH_FIFO_CTRL
- * ADMA_CH_CONFIG
- * ADMA_CH_CTRL
- * ADMA_CH_CMD
- * ADMA_CH_TC
-Runtime PM calls will be inovked during system resume path if a playback
-or capture needs to be resumed. Hence above changes work fine for system
-suspend case.
+The "b->index" is a u32 the comes from the user in the ioctl.  It hasn't
+been checked.  We aren't supposed to use it but we're instead supposed
+to use the value that gets written to it when we call videobuf_dqbuf().
 
-Fixes: f46b195799b5 ("dmaengine: tegra-adma: Add support for Tegra210 ADMA")
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+The videobuf_dqbuf() first memsets it to zero and then re-initializes it
+inside the videobuf_status() function.  It's this final value which we
+want.
+
+Hans Verkuil pointed out that we need to check the return from
+videobuf_dqbuf().  I ended up doing a little cleanup related to that as
+well.
+
+Fixes: 72915e851da9 ("[media] V4L2: OMAP: VOUT: dma map and unmap v4l2 buffers in qbuf and dqbuf")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c | 46 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
+ drivers/media/platform/omap/omap_vout.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
-index e9e46a5207452..8c3cab463354f 100644
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -98,6 +98,7 @@ struct tegra_adma_chan_regs {
- 	unsigned int src_addr;
- 	unsigned int trg_addr;
- 	unsigned int fifo_ctrl;
-+	unsigned int cmd;
- 	unsigned int tc;
- };
+diff --git a/drivers/media/platform/omap/omap_vout.c b/drivers/media/platform/omap/omap_vout.c
+index a31b95cb3b09c..77ec70f5fef66 100644
+--- a/drivers/media/platform/omap/omap_vout.c
++++ b/drivers/media/platform/omap/omap_vout.c
+@@ -1526,23 +1526,20 @@ static int vidioc_dqbuf(struct file *file, void *fh, struct v4l2_buffer *b)
+ 	unsigned long size;
+ 	struct videobuf_buffer *vb;
  
-@@ -127,6 +128,7 @@ struct tegra_adma_chan {
- 	enum dma_transfer_direction	sreq_dir;
- 	unsigned int			sreq_index;
- 	bool				sreq_reserved;
-+	struct tegra_adma_chan_regs	ch_regs;
+-	vb = q->bufs[b->index];
+-
+ 	if (!vout->streaming)
+ 		return -EINVAL;
  
- 	/* Transfer count and position info */
- 	unsigned int			tx_buf_count;
-@@ -635,8 +637,30 @@ static struct dma_chan *tegra_dma_of_xlate(struct of_phandle_args *dma_spec,
- static int tegra_adma_runtime_suspend(struct device *dev)
- {
- 	struct tegra_adma *tdma = dev_get_drvdata(dev);
-+	struct tegra_adma_chan_regs *ch_reg;
-+	struct tegra_adma_chan *tdc;
-+	int i;
- 
- 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
-+	if (!tdma->global_cmd)
-+		goto clk_disable;
+-	if (file->f_flags & O_NONBLOCK)
+-		/* Call videobuf_dqbuf for non blocking mode */
+-		ret = videobuf_dqbuf(q, (struct v4l2_buffer *)b, 1);
+-	else
+-		/* Call videobuf_dqbuf for  blocking mode */
+-		ret = videobuf_dqbuf(q, (struct v4l2_buffer *)b, 0);
++	ret = videobuf_dqbuf(q, b, !!(file->f_flags & O_NONBLOCK));
++	if (ret)
++		return ret;
 +
-+	for (i = 0; i < tdma->nr_channels; i++) {
-+		tdc = &tdma->channels[i];
-+		ch_reg = &tdc->ch_regs;
-+		ch_reg->cmd = tdma_ch_read(tdc, ADMA_CH_CMD);
-+		/* skip if channel is not active */
-+		if (!ch_reg->cmd)
-+			continue;
-+		ch_reg->tc = tdma_ch_read(tdc, ADMA_CH_TC);
-+		ch_reg->src_addr = tdma_ch_read(tdc, ADMA_CH_LOWER_SRC_ADDR);
-+		ch_reg->trg_addr = tdma_ch_read(tdc, ADMA_CH_LOWER_TRG_ADDR);
-+		ch_reg->ctrl = tdma_ch_read(tdc, ADMA_CH_CTRL);
-+		ch_reg->fifo_ctrl = tdma_ch_read(tdc, ADMA_CH_FIFO_CTRL);
-+		ch_reg->config = tdma_ch_read(tdc, ADMA_CH_CONFIG);
-+	}
-+
-+clk_disable:
- 	clk_disable_unprepare(tdma->ahub_clk);
++	vb = q->bufs[b->index];
  
- 	return 0;
-@@ -645,7 +669,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
- static int tegra_adma_runtime_resume(struct device *dev)
- {
- 	struct tegra_adma *tdma = dev_get_drvdata(dev);
--	int ret;
-+	struct tegra_adma_chan_regs *ch_reg;
-+	struct tegra_adma_chan *tdc;
-+	int ret, i;
- 
- 	ret = clk_prepare_enable(tdma->ahub_clk);
- 	if (ret) {
-@@ -654,6 +680,24 @@ static int tegra_adma_runtime_resume(struct device *dev)
- 	}
- 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
- 
-+	if (!tdma->global_cmd)
-+		return 0;
-+
-+	for (i = 0; i < tdma->nr_channels; i++) {
-+		tdc = &tdma->channels[i];
-+		ch_reg = &tdc->ch_regs;
-+		/* skip if channel was not active earlier */
-+		if (!ch_reg->cmd)
-+			continue;
-+		tdma_ch_write(tdc, ADMA_CH_TC, ch_reg->tc);
-+		tdma_ch_write(tdc, ADMA_CH_LOWER_SRC_ADDR, ch_reg->src_addr);
-+		tdma_ch_write(tdc, ADMA_CH_LOWER_TRG_ADDR, ch_reg->trg_addr);
-+		tdma_ch_write(tdc, ADMA_CH_CTRL, ch_reg->ctrl);
-+		tdma_ch_write(tdc, ADMA_CH_FIFO_CTRL, ch_reg->fifo_ctrl);
-+		tdma_ch_write(tdc, ADMA_CH_CONFIG, ch_reg->config);
-+		tdma_ch_write(tdc, ADMA_CH_CMD, ch_reg->cmd);
-+	}
-+
- 	return 0;
+ 	addr = (unsigned long) vout->buf_phy_addr[vb->i];
+ 	size = (unsigned long) vb->size;
+ 	dma_unmap_single(vout->vid_dev->v4l2_dev.dev,  addr,
+ 				size, DMA_TO_DEVICE);
+-	return ret;
++	return 0;
  }
  
+ static int vidioc_streamon(struct file *file, void *fh, enum v4l2_buf_type i)
 -- 
 2.20.1
 
