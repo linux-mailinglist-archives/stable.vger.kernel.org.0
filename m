@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D0414B7C0
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E02814B7C1
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730462AbgA1ORL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:17:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40826 "EHLO mail.kernel.org"
+        id S1730471AbgA1ORP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:17:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729986AbgA1ORK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:17:10 -0500
+        id S1730467AbgA1ORN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:17:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DFF62071E;
-        Tue, 28 Jan 2020 14:17:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E84E72071E;
+        Tue, 28 Jan 2020 14:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221030;
-        bh=yTxA6aDFcdfjGIzf+6Js8e99cEdZLEXqW9hUaiwDaNM=;
+        s=default; t=1580221032;
+        bh=jBuyLlNp3zAb6ohXoJPeAtctGAMrGd1G7QiBMnwbUIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWwX8EmXoPdR6CcjBciWRWI3lGHN1LZOyT3iWpldR7n+1rMwDO7yhNOfV0QNrLx41
-         0KZcbCm21xWz8dfb8t6meNrE/cPEAubjLXdTua2YURUzvIKuIdeVMRuiJtrI6K8vrl
-         KCgs2bld+PdyRY5X0W0ibq08aK6YOk+7NawwIVKM=
+        b=pck0V33lY9ppxh8xTsTdchLD/ObaAN77OdcRc0Y5itgecyxoz8ShMMnCQxawVR6zj
+         J38zghHMBOplxKTJi8qacg6qpl7WJBUho9dWahor5fvfKcG0YwEIFXpmV9Vg8akKX2
+         WfGwxEHJgW+zN4QolImOd8kJ6XEyMtVBYgSafV7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Michael Kao <michael.kao@mediatek.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 059/271] rtc: ds1672: fix unintended sign extension
-Date:   Tue, 28 Jan 2020 15:03:28 +0100
-Message-Id: <20200128135857.028216999@linuxfoundation.org>
+Subject: [PATCH 4.9 060/271] thermal: mediatek: fix register index error
+Date:   Tue, 28 Jan 2020 15:03:29 +0100
+Message-Id: <20200128135857.098304444@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -44,41 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Michael Kao <michael.kao@mediatek.com>
 
-[ Upstream commit f0c04c276739ed8acbb41b4868e942a55b128dca ]
+[ Upstream commit eb9aecd90d1a39601e91cd08b90d5fee51d321a6 ]
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+The index of msr and adcpnp should match the sensor
+which belongs to the selected bank in the for loop.
 
-Fix this by casting the u8 value to an unsigned long before the shift.
-
-Detected by CoverityScan, CID#138801 ("Unintended sign extension")
-
-Fixes: edf1aaa31fc5 ("[PATCH] RTC subsystem: DS1672 driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: b7cf0053738c ("thermal: Add Mediatek thermal driver for mt2701.")
+Signed-off-by: Michael Kao <michael.kao@mediatek.com>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1672.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/thermal/mtk_thermal.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
-index 5c18ac7394c42..c911f2db0af5e 100644
---- a/drivers/rtc/rtc-ds1672.c
-+++ b/drivers/rtc/rtc-ds1672.c
-@@ -58,7 +58,8 @@ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n",
- 		__func__, buf[0], buf[1], buf[2], buf[3]);
+diff --git a/drivers/thermal/mtk_thermal.c b/drivers/thermal/mtk_thermal.c
+index 34169c32d4956..ea9558679634b 100644
+--- a/drivers/thermal/mtk_thermal.c
++++ b/drivers/thermal/mtk_thermal.c
+@@ -348,7 +348,8 @@ static int mtk_thermal_bank_temperature(struct mtk_thermal_bank *bank)
+ 	u32 raw;
  
--	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	time = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+	       (buf[1] << 8) | buf[0];
+ 	for (i = 0; i < conf->bank_data[bank->id].num_sensors; i++) {
+-		raw = readl(mt->thermal_base + conf->msr[i]);
++		raw = readl(mt->thermal_base +
++			    conf->msr[conf->bank_data[bank->id].sensors[i]]);
  
- 	rtc_time_to_tm(time, tm);
+ 		temp = raw_to_mcelsius(mt,
+ 				       conf->bank_data[bank->id].sensors[i],
+@@ -485,7 +486,8 @@ static void mtk_thermal_init_bank(struct mtk_thermal *mt, int num,
  
+ 	for (i = 0; i < conf->bank_data[num].num_sensors; i++)
+ 		writel(conf->sensor_mux_values[conf->bank_data[num].sensors[i]],
+-		       mt->thermal_base + conf->adcpnp[i]);
++		       mt->thermal_base +
++		       conf->adcpnp[conf->bank_data[num].sensors[i]]);
+ 
+ 	writel((1 << conf->bank_data[num].num_sensors) - 1,
+ 	       mt->thermal_base + TEMP_MONCTL0);
 -- 
 2.20.1
 
