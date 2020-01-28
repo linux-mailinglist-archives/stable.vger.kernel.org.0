@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A490A14B860
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:24:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBAD514B73A
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731150AbgA1OWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:22:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S1727142AbgA1OM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:12:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731753AbgA1OWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:22:53 -0500
+        id S1728320AbgA1OMY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:12:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3CBA24686;
-        Tue, 28 Jan 2020 14:22:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2F0724691;
+        Tue, 28 Jan 2020 14:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221373;
-        bh=BAuGnV6ApDLBskZlToVXtsrcdU/YeZu3hnzsSO+iKSU=;
+        s=default; t=1580220743;
+        bh=Gv4tZlOeayhc+6OmddRpRf/EX5tLa9fCyHCzDcc3Xio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdiMJxu+9xgkJ22CLB8TG7ZfHGlVVynwq1sZmzZQDZw58JHaWQWDF1qL6Gs7VdJfc
-         hEulzUC1aKSJs7ktm+/U0zkbpRks1PuY+/sc2JrkH0DLsCSwhg5bsFWdBHYdkue7qH
-         pKgj8nmKzJaWBdyyBFawl6nZlOAmNSy6Q/NzaJw8=
+        b=dsScYS1RAD2EyQgLNx85rY1Z9rj/pMCsigQUW05Y4o3gtAgYHId98rmgjex8TjAVN
+         F64AsgImwjjAbzFOPzoUB23O4gugU9rAKeSrShpcdmsuIOuMMb+6QY/dPIt/mRu/Dt
+         m2TqkhMTr6PUkmPOps/lGrZjMemKu4YWR7/SNjic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Robertson <dan@dlrobertson.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 199/271] hwmon: (shtc1) fix shtc1 and shtw1 id mask
-Date:   Tue, 28 Jan 2020 15:05:48 +0100
-Message-Id: <20200128135907.392010581@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 130/183] x86, perf: Fix the dependency of the x86 insn decoder selftest
+Date:   Tue, 28 Jan 2020 15:05:49 +0100
+Message-Id: <20200128135842.841125475@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Robertson <dan@dlrobertson.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit fdc7d8e829ec755c5cfb2f5a8d8c0cdfb664f895 ]
+[ Upstream commit 7720804a2ae46c90265a32c81c45fb6f8d2f4e8b ]
 
-Fix an error in the bitmaskfor the shtc1 and shtw1 bitmask used to
-retrieve the chip ID from the ID register. See section 5.7 of the shtw1
-or shtc1 datasheet for details.
+Since x86 instruction decoder is not only for kprobes,
+it should be tested when the insn.c is compiled.
+(e.g. perf is enabled but kprobes is disabled)
 
-Fixes: 1a539d372edd9832444e7a3daa710c444c014dc9 ("hwmon: add support for Sensirion SHTC1 sensor")
-Signed-off-by: Dan Robertson <dan@dlrobertson.com>
-Link: https://lore.kernel.org/r/20190905014554.21658-3-dan@dlrobertson.com
-[groeck: Reordered to be first in series and adjusted accordingly]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: cbe5c34c8c1f ("x86: Compile insn.c and inat.c only for KPROBES")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/shtc1.c | 2 +-
+ arch/x86/Kconfig.debug | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/shtc1.c b/drivers/hwmon/shtc1.c
-index decd7df995abf..2a18539591eaf 100644
---- a/drivers/hwmon/shtc1.c
-+++ b/drivers/hwmon/shtc1.c
-@@ -38,7 +38,7 @@ static const unsigned char shtc1_cmd_read_id_reg[]	       = { 0xef, 0xc8 };
+diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
+index 2aa212fb0faf5..31c191a08bb19 100644
+--- a/arch/x86/Kconfig.debug
++++ b/arch/x86/Kconfig.debug
+@@ -221,7 +221,7 @@ config HAVE_MMIOTRACE_SUPPORT
  
- /* constants for reading the ID register */
- #define SHTC1_ID	  0x07
--#define SHTC1_ID_REG_MASK 0x1f
-+#define SHTC1_ID_REG_MASK 0x3f
- 
- /* delays for non-blocking i2c commands, both in us */
- #define SHTC1_NONBLOCKING_WAIT_TIME_HPM  14400
+ config X86_DECODER_SELFTEST
+ 	bool "x86 instruction decoder selftest"
+-	depends on DEBUG_KERNEL && KPROBES
++	depends on DEBUG_KERNEL && INSTRUCTION_DECODER
+ 	depends on !COMPILE_TEST
+ 	---help---
+ 	 Perform x86 instruction decoder selftests at build time.
 -- 
 2.20.1
 
