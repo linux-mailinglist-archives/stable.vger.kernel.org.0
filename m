@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBB714B216
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4275914B217
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726028AbgA1Jvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 04:51:55 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:40950 "EHLO
+        id S1725951AbgA1Jv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 04:51:58 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:55272 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725951AbgA1Jvz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:51:55 -0500
+        by vger.kernel.org with ESMTP id S1725901AbgA1Jv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:51:58 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580205113;
+        s=mimecast20190719; t=1580205116;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=OBDk1XgW0lkxRBSVePczRA0UBI9ESGrB1ATzpWziNOg=;
-        b=OmgJh73fABoBuVIp7uiV+qclYc70S6p77wjfkw/0cOoi2mmZMpMwgm+OV/WLnvn/8e05oJ
-        T4rjGYgUiQ4HuzE98qHOc+MC/NedFHgPumo26AIL9/fYNrIU+m4/qUVXxVhoX2BJh1+DVt
-        C9+Vgw0k1REZiEaVSftYSz3HCsifzSk=
+        bh=1S6QliRpSTPxwoG9oU08X7twvxrC/9c6HpCYp9lYE6w=;
+        b=E1WG6jRnLsFfXtx4H3UTUuKyvWWjF/nN/wlCi0XyE/tVDhslbMjRxsWz11xDuj74iEYCOu
+        lhhqqeJjmYkO5Xkt7dF6q6cmQDfMdwInTM6ThRZ4uBx8IdP7TEXNsdF15mvIfY7xOP4Rig
+        0SuWrQNz32+VM+3xykCTxgZbREXjDN0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-338-QTuVuxwLPY6XPmGTSs3FTw-1; Tue, 28 Jan 2020 04:51:49 -0500
-X-MC-Unique: QTuVuxwLPY6XPmGTSs3FTw-1
+ us-mta-236-tpbOx7kyPwSrc50b_dP3Bw-1; Tue, 28 Jan 2020 04:51:52 -0500
+X-MC-Unique: tpbOx7kyPwSrc50b_dP3Bw-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3970C8010D8;
-        Tue, 28 Jan 2020 09:51:48 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E049F1005F69;
+        Tue, 28 Jan 2020 09:51:50 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-116-207.ams2.redhat.com [10.36.116.207])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 949B560BE0;
-        Tue, 28 Jan 2020 09:51:43 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 84B8960BE0;
+        Tue, 28 Jan 2020 09:51:48 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
@@ -44,9 +44,9 @@ Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
         Oscar Salvador <osalvador@suse.de>,
         Wei Yang <richard.weiyang@gmail.com>,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH for 4.19-stable v3 23/24] mm/memory_hotplug: fix try_offline_node()
-Date:   Tue, 28 Jan 2020 10:50:20 +0100
-Message-Id: <20200128095021.8076-24-david@redhat.com>
+Subject: [PATCH for 4.19-stable v3 24/24] mm/memory_hotplug: shrink zones when offlining memory
+Date:   Tue, 28 Jan 2020 10:50:21 +0100
+Message-Id: <20200128095021.8076-25-david@redhat.com>
 In-Reply-To: <20200128095021.8076-1-david@redhat.com>
 References: <20200128095021.8076-1-david@redhat.com>
 MIME-Version: 1.0
@@ -57,245 +57,404 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 2c91f8fc6c999fe10185d8ad99fda1759f662f70 upstream.
+commit feee6b2989165631b17ac6d4ccdbf6759254e85a upstream.
 
 -- snip --
 
-Only contextual issues:
-- Unrelated check_and_unmap_cpu_on_node() changes are missing.
-- Unrelated walk_memory_blocks() has not been moved/refactored yet.
+- Missing arm64 hot(un)plug support
+- Missing some vmem_altmap_offset() cleanups
+- Missing sub-section hotadd support
+- Missing unification of mm/hmm.c and kernel/memremap.c
 
 -- snip --
 
-try_offline_node() is pretty much broken right now:
+We currently try to shrink a single zone when removing memory.  We use
+the zone of the first page of the memory we are removing.  If that
+memmap was never initialized (e.g., memory was never onlined), we will
+read garbage and can trigger kernel BUGs (due to a stale pointer):
 
- - The node span is updated when onlining memory, not when adding it. We
-   ignore memory that was mever onlined. Bad.
+    BUG: unable to handle page fault for address: 000000000000353d
+    #PF: supervisor write access in kernel mode
+    #PF: error_code(0x0002) - not-present page
+    PGD 0 P4D 0
+    Oops: 0002 [#1] SMP PTI
+    CPU: 1 PID: 7 Comm: kworker/u8:0 Not tainted 5.3.0-rc5-next-20190820+=
+ #317
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.=
+1-0-ga5cab58e9a3f-prebuilt.qemu.4
+    Workqueue: kacpi_hotplug acpi_hotplug_work_fn
+    RIP: 0010:clear_zone_contiguous+0x5/0x10
+    Code: 48 89 c6 48 89 c3 e8 2a fe ff ff 48 85 c0 75 cf 5b 5d c3 c6 85 =
+fd 05 00 00 01 5b 5d c3 0f 1f 840
+    RSP: 0018:ffffad2400043c98 EFLAGS: 00010246
+    RAX: 0000000000000000 RBX: 0000000200000000 RCX: 0000000000000000
+    RDX: 0000000000200000 RSI: 0000000000140000 RDI: 0000000000002f40
+    RBP: 0000000140000000 R08: 0000000000000000 R09: 0000000000000001
+    R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000140000
+    R13: 0000000000140000 R14: 0000000000002f40 R15: ffff9e3e7aff3680
+    FS:  0000000000000000(0000) GS:ffff9e3e7bb00000(0000) knlGS:000000000=
+0000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: 000000000000353d CR3: 0000000058610000 CR4: 00000000000006e0
+    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    Call Trace:
+     __remove_pages+0x4b/0x640
+     arch_remove_memory+0x63/0x8d
+     try_remove_memory+0xdb/0x130
+     __remove_memory+0xa/0x11
+     acpi_memory_device_remove+0x70/0x100
+     acpi_bus_trim+0x55/0x90
+     acpi_device_hotplug+0x227/0x3a0
+     acpi_hotplug_work_fn+0x1a/0x30
+     process_one_work+0x221/0x550
+     worker_thread+0x50/0x3b0
+     kthread+0x105/0x140
+     ret_from_fork+0x3a/0x50
+    Modules linked in:
+    CR2: 000000000000353d
 
- - We touch possible garbage memmaps. The pfn_to_nid(pfn) can easily
-   trigger a kernel panic. Bad for memory that is offline but also bad
-   for subsection hotadd with ZONE_DEVICE, whereby the memmap of the
-   first PFN of a section might contain garbage.
+Instead, shrink the zones when offlining memory or when onlining failed.
+Introduce and use remove_pfn_range_from_zone(() for that.  We now
+properly shrink the zones, even if we have DIMMs whereby
 
- - Sections belonging to mixed nodes are not properly considered.
+ - Some memory blocks fall into no zone (never onlined)
 
-As memory blocks might belong to multiple nodes, we would have to walk
-all pageblocks (or at least subsections) within present sections.
-However, we don't have a way to identify whether a memmap that is not
-online was initialized (relevant for ZONE_DEVICE).  This makes things
-more complicated.
+ - Some memory blocks fall into multiple zones (offlined+re-onlined)
 
-Luckily, we can piggy pack on the node span and the nid stored in memory
-blocks.  Currently, the node span is grown when calling
-move_pfn_range_to_zone() - e.g., when onlining memory, and shrunk when
-removing memory, before calling try_offline_node().  Sysfs links are
-created via link_mem_sections(), e.g., during boot or when adding
-memory.
+ - Multiple memory blocks that fall into different zones
 
-If the node still spans memory or if any memory block belongs to the
-nid, we don't set the node offline.  As memory blocks that span multiple
-nodes cannot get offlined, the nid stored in memory blocks is reliable
-enough (for such online memory blocks, the node still spans the memory).
+Drop the zone parameter (with a potential dubious value) from
+__remove_pages() and __remove_section().
 
-Introduce for_each_memory_block() to efficiently walk all memory blocks.
-
-Note: We will soon stop shrinking the ZONE_DEVICE zone and the node span
-when removing ZONE_DEVICE memory to fix similar issues (access of
-garbage memmaps) - until we have a reliable way to identify whether
-these memmaps were properly initialized.  This implies later, that once
-a node had ZONE_DEVICE memory, we won't be able to set a node offline -
-which should be acceptable.
-
-Since commit f1dd2cd13c4b ("mm, memory_hotplug: do not associate
-hotadded memory to zones until online") memory that is added is not
-assoziated with a zone/node (memmap not initialized).  The introducing
-commit 60a5a19e7419 ("memory-hotplug: remove sysfs file of node")
-already missed that we could have multiple nodes for a section and that
-the zone/node span is updated when onlining pages, not when adding them.
-
-I tested this by hotplugging two DIMMs to a memory-less and cpu-less
-NUMA node.  The node is properly onlined when adding the DIMMs.  When
-removing the DIMMs, the node is properly offlined.
-
-Masayoshi Mizuma reported:
-
-: Without this patch, memory hotplug fails as panic:
-:
-:  BUG: kernel NULL pointer dereference, address: 0000000000000000
-:  ...
-:  Call Trace:
-:   remove_memory_block_devices+0x81/0xc0
-:   try_remove_memory+0xb4/0x130
-:   __remove_memory+0xa/0x20
-:   acpi_memory_device_remove+0x84/0x100
-:   acpi_bus_trim+0x57/0x90
-:   acpi_bus_trim+0x2e/0x90
-:   acpi_device_hotplug+0x2b2/0x4d0
-:   acpi_hotplug_work_fn+0x1a/0x30
-:   process_one_work+0x171/0x380
-:   worker_thread+0x49/0x3f0
-:   kthread+0xf8/0x130
-:   ret_from_fork+0x35/0x40
-
-[david@redhat.com: v3]
-  Link: http://lkml.kernel.org/r/20191102120221.7553-1-david@redhat.com
-Link: http://lkml.kernel.org/r/20191028105458.28320-1-david@redhat.com
-Fixes: 60a5a19e7419 ("memory-hotplug: remove sysfs file of node")
+Link: http://lkml.kernel.org/r/20191006085646.5768-6-david@redhat.com
 Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memor=
-y to zones until online") # visiable after d0dc12e86b319
+y to zones until online")	[visible after d0dc12e86b319]
 Signed-off-by: David Hildenbrand <david@redhat.com>
-Tested-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Cc: Tang Chen <tangchen@cn.fujitsu.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Keith Busch <keith.busch@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Nayna Jain <nayna@linux.ibm.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: <stable@vger.kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: <stable@vger.kernel.org>	[5.0+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/base/memory.c  | 36 +++++++++++++++++++++++++++++++++++
- include/linux/memory.h |  2 ++
- mm/memory_hotplug.c    | 43 ++++++++++++++++++++++++++----------------
- 3 files changed, 65 insertions(+), 16 deletions(-)
+ arch/ia64/mm/init.c            |  4 +---
+ arch/powerpc/mm/mem.c          | 11 +----------
+ arch/s390/mm/init.c            |  4 +---
+ arch/sh/mm/init.c              |  4 +---
+ arch/x86/mm/init_32.c          |  4 +---
+ arch/x86/mm/init_64.c          |  8 +-------
+ include/linux/memory_hotplug.h |  7 +++++--
+ kernel/memremap.c              |  3 +--
+ mm/hmm.c                       |  4 +---
+ mm/memory_hotplug.c            | 29 ++++++++++++++---------------
+ 10 files changed, 27 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index fde8d34a1c16..e270abc86d46 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -862,3 +862,39 @@ int __init memory_dev_init(void)
- 		printk(KERN_ERR "%s() failed: %d\n", __func__, ret);
- 	return ret;
- }
-+
-+struct for_each_memory_block_cb_data {
-+	walk_memory_blocks_func_t func;
-+	void *arg;
-+};
-+
-+static int for_each_memory_block_cb(struct device *dev, void *data)
-+{
-+	struct memory_block *mem =3D to_memory_block(dev);
-+	struct for_each_memory_block_cb_data *cb_data =3D data;
-+
-+	return cb_data->func(mem, cb_data->arg);
-+}
-+
-+/**
-+ * for_each_memory_block - walk through all present memory blocks
-+ *
-+ * @arg: argument passed to func
-+ * @func: callback for each memory block walked
-+ *
-+ * This function walks through all present memory blocks, calling func o=
-n
-+ * each memory block.
-+ *
-+ * In case func() returns an error, walking is aborted and the error is
-+ * returned.
-+ */
-+int for_each_memory_block(void *arg, walk_memory_blocks_func_t func)
-+{
-+	struct for_each_memory_block_cb_data cb_data =3D {
-+		.func =3D func,
-+		.arg =3D arg,
-+	};
-+
-+	return bus_for_each_dev(&memory_subsys, NULL, &cb_data,
-+				for_each_memory_block_cb);
-+}
-diff --git a/include/linux/memory.h b/include/linux/memory.h
-index f26a5417ec5d..5c411365cdbe 100644
---- a/include/linux/memory.h
-+++ b/include/linux/memory.h
-@@ -119,6 +119,8 @@ extern int memory_isolate_notify(unsigned long val, v=
-oid *v);
- extern struct memory_block *find_memory_block_hinted(struct mem_section =
-*,
- 							struct memory_block *);
- extern struct memory_block *find_memory_block(struct mem_section *);
-+typedef int (*walk_memory_blocks_func_t)(struct memory_block *, void *);
-+extern int for_each_memory_block(void *arg, walk_memory_blocks_func_t fu=
-nc);
- #define CONFIG_MEM_BLOCK_SIZE	(PAGES_PER_SECTION<<PAGE_SHIFT)
- #endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index 778781e5f22e..79e5cc70f1fd 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -666,9 +666,7 @@ void arch_remove_memory(int nid, u64 start, u64 size,
+ {
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+-	struct zone *zone;
 =20
+-	zone =3D page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 84c6d37638a7..84a012e42a7e 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -144,18 +144,9 @@ void __ref arch_remove_memory(int nid, u64 start, u6=
+4 size,
+ {
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+-	struct page *page;
+ 	int ret;
+=20
+-	/*
+-	 * If we have an altmap then we need to skip over any reserved PFNs
+-	 * when querying the zone.
+-	 */
+-	page =3D pfn_to_page(start_pfn);
+-	if (altmap)
+-		page +=3D vmem_altmap_offset(altmap);
+-
+-	__remove_pages(page_zone(page), start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+=20
+ 	/* Remove htab bolted mappings for this section of memory */
+ 	start =3D (unsigned long)__va(start);
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index e0b0788cfecb..379a925d9e82 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -244,10 +244,8 @@ void arch_remove_memory(int nid, u64 start, u64 size=
+,
+ {
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+-	struct zone *zone;
+=20
+-	zone =3D page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ 	vmem_remove_mapping(start, size);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+index 0da784ac0e34..47882be91121 100644
+--- a/arch/sh/mm/init.c
++++ b/arch/sh/mm/init.c
+@@ -448,9 +448,7 @@ void arch_remove_memory(int nid, u64 start, u64 size,
+ {
+ 	unsigned long start_pfn =3D PFN_DOWN(start);
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+-	struct zone *zone;
+=20
+-	zone =3D page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
+index 64f54f77052b..79b95910fd9f 100644
+--- a/arch/x86/mm/init_32.c
++++ b/arch/x86/mm/init_32.c
+@@ -865,10 +865,8 @@ void arch_remove_memory(int nid, u64 start, u64 size=
+,
+ {
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+-	struct zone *zone;
+=20
+-	zone =3D page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif
+=20
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index 50df7ca142f9..81e85a8dd300 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1146,14 +1146,8 @@ void __ref arch_remove_memory(int nid, u64 start, =
+u64 size,
+ {
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+-	struct page *page =3D pfn_to_page(start_pfn);
+-	struct zone *zone;
+=20
+-	/* With altmap the first mapped page is offset from @start */
+-	if (altmap)
+-		page +=3D vmem_altmap_offset(altmap);
+-	zone =3D page_zone(page);
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ 	kernel_physical_mapping_remove(start, start + size);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplu=
+g.h
+index 26bda048f8a7..d17d45c41a0b 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -110,8 +110,8 @@ static inline bool movable_node_is_enabled(void)
+=20
+ extern void arch_remove_memory(int nid, u64 start, u64 size,
+ 			       struct vmem_altmap *altmap);
+-extern void __remove_pages(struct zone *zone, unsigned long start_pfn,
+-			   unsigned long nr_pages, struct vmem_altmap *altmap);
++extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pag=
+es,
++			   struct vmem_altmap *altmap);
+=20
+ /* reasonably generic interface to expand the physical pages */
+ extern int __add_pages(int nid, unsigned long start_pfn, unsigned long n=
+r_pages,
+@@ -331,6 +331,9 @@ extern int arch_add_memory(int nid, u64 start, u64 si=
+ze,
+ 		struct vmem_altmap *altmap, bool want_memblock);
+ extern void move_pfn_range_to_zone(struct zone *zone, unsigned long star=
+t_pfn,
+ 		unsigned long nr_pages, struct vmem_altmap *altmap);
++extern void remove_pfn_range_from_zone(struct zone *zone,
++				       unsigned long start_pfn,
++				       unsigned long nr_pages);
+ extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages=
+);
+ extern bool is_memblock_offlined(struct memory_block *mem);
+ extern int sparse_add_one_section(int nid, unsigned long start_pfn,
+diff --git a/kernel/memremap.c b/kernel/memremap.c
+index 1ec1f8fd97f5..331baad8efec 100644
+--- a/kernel/memremap.c
++++ b/kernel/memremap.c
+@@ -141,8 +141,7 @@ static void devm_memremap_pages_release(void *data)
+ 	mem_hotplug_begin();
+ 	if (pgmap->type =3D=3D MEMORY_DEVICE_PRIVATE) {
+ 		pfn =3D align_start >> PAGE_SHIFT;
+-		__remove_pages(page_zone(first_page), pfn,
+-			       align_size >> PAGE_SHIFT, NULL);
++		__remove_pages(pfn, align_size >> PAGE_SHIFT, NULL);
+ 	} else {
+ 		arch_remove_memory(nid, align_start, align_size,
+ 				pgmap->altmap_valid ? &pgmap->altmap : NULL);
+diff --git a/mm/hmm.c b/mm/hmm.c
+index ae1f6ad46d30..c482c07bbab7 100644
+--- a/mm/hmm.c
++++ b/mm/hmm.c
+@@ -997,7 +997,6 @@ static void hmm_devmem_release(void *data)
+ 	struct hmm_devmem *devmem =3D data;
+ 	struct resource *resource =3D devmem->resource;
+ 	unsigned long start_pfn, npages;
+-	struct zone *zone;
+ 	struct page *page;
+ 	int nid;
+=20
+@@ -1006,12 +1005,11 @@ static void hmm_devmem_release(void *data)
+ 	npages =3D ALIGN(resource_size(resource), PA_SECTION_SIZE) >> PAGE_SHIF=
+T;
+=20
+ 	page =3D pfn_to_page(start_pfn);
+-	zone =3D page_zone(page);
+ 	nid =3D page_to_nid(page);
+=20
+ 	mem_hotplug_begin();
+ 	if (resource->desc =3D=3D IORES_DESC_DEVICE_PRIVATE_MEMORY)
+-		__remove_pages(zone, start_pfn, npages, NULL);
++		__remove_pages(start_pfn, npages, NULL);
+ 	else
+ 		arch_remove_memory(nid, start_pfn << PAGE_SHIFT,
+ 				   npages << PAGE_SHIFT, NULL);
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 888fcbdf97cf..7ab34360920b 100644
+index 7ab34360920b..abc10dcbc9d5 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -1812,6 +1812,18 @@ static int check_and_unmap_cpu_on_node(pg_data_t *=
-pgdat)
- 	return 0;
+@@ -449,10 +449,11 @@ static void update_pgdat_span(struct pglist_data *p=
+gdat)
+ 	pgdat->node_spanned_pages =3D node_end_pfn - node_start_pfn;
  }
 =20
-+static int check_no_memblock_for_node_cb(struct memory_block *mem, void =
-*arg)
-+{
-+	int nid =3D *(int *)arg;
-+
-+	/*
-+	 * If a memory block belongs to multiple nodes, the stored nid is not
-+	 * reliable. However, such blocks are always online (e.g., cannot get
-+	 * offlined) and, therefore, are still spanned by the node.
-+	 */
-+	return mem->nid =3D=3D nid ? -EEXIST : 0;
-+}
-+
- /**
-  * try_offline_node
-  * @nid: the node ID
-@@ -1824,25 +1836,24 @@ static int check_and_unmap_cpu_on_node(pg_data_t =
-*pgdat)
- void try_offline_node(int nid)
+-static void __remove_zone(struct zone *zone, unsigned long start_pfn)
++void __ref remove_pfn_range_from_zone(struct zone *zone,
++				      unsigned long start_pfn,
++				      unsigned long nr_pages)
  {
- 	pg_data_t *pgdat =3D NODE_DATA(nid);
--	unsigned long start_pfn =3D pgdat->node_start_pfn;
--	unsigned long end_pfn =3D start_pfn + pgdat->node_spanned_pages;
--	unsigned long pfn;
--
--	for (pfn =3D start_pfn; pfn < end_pfn; pfn +=3D PAGES_PER_SECTION) {
--		unsigned long section_nr =3D pfn_to_section_nr(pfn);
--
--		if (!present_section_nr(section_nr))
--			continue;
-+	int rc;
+ 	struct pglist_data *pgdat =3D zone->zone_pgdat;
+-	int nr_pages =3D PAGES_PER_SECTION;
+ 	unsigned long flags;
 =20
--		if (pfn_to_nid(pfn) !=3D nid)
--			continue;
-+	/*
-+	 * If the node still spans pages (especially ZONE_DEVICE), don't
-+	 * offline it. A node spans memory after move_pfn_range_to_zone(),
-+	 * e.g., after the memory block was onlined.
-+	 */
-+	if (pgdat->node_spanned_pages)
-+		return;
-=20
--		/*
--		 * some memory sections of this node are not removed, and we
--		 * can't offline node now.
--		 */
-+	/*
-+	 * Especially offline memory blocks might not be spanned by the
-+	 * node. They will get spanned by the node once they get onlined.
-+	 * However, they link to the node in sysfs and can get onlined later.
-+	 */
-+	rc =3D for_each_memory_block(&nid, check_no_memblock_for_node_cb);
-+	if (rc)
+ #ifdef CONFIG_ZONE_DEVICE
+@@ -465,14 +466,17 @@ static void __remove_zone(struct zone *zone, unsign=
+ed long start_pfn)
  		return;
--	}
+ #endif
 =20
- 	if (check_and_unmap_cpu_on_node(pgdat))
- 		return;
++	clear_zone_contiguous(zone);
++
+ 	pgdat_resize_lock(zone->zone_pgdat, &flags);
+ 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
+ 	update_pgdat_span(pgdat);
+ 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
++
++	set_zone_contiguous(zone);
+ }
+=20
+-static void __remove_section(struct zone *zone, struct mem_section *ms,
+-			     unsigned long map_offset,
++static void __remove_section(struct mem_section *ms, unsigned long map_o=
+ffset,
+ 			     struct vmem_altmap *altmap)
+ {
+ 	unsigned long start_pfn;
+@@ -483,14 +487,12 @@ static void __remove_section(struct zone *zone, str=
+uct mem_section *ms,
+=20
+ 	scn_nr =3D __section_nr(ms);
+ 	start_pfn =3D section_nr_to_pfn((unsigned long)scn_nr);
+-	__remove_zone(zone, start_pfn);
+=20
+ 	sparse_remove_one_section(ms, map_offset, altmap);
+ }
+=20
+ /**
+- * __remove_pages() - remove sections of pages from a zone
+- * @zone: zone from which pages need to be removed
++ * __remove_pages() - remove sections of pages
+  * @phys_start_pfn: starting pageframe (must be aligned to start of a se=
+ction)
+  * @nr_pages: number of pages to remove (must be multiple of section siz=
+e)
+  * @altmap: alternative device page map or %NULL if default memmap is us=
+ed
+@@ -500,8 +502,8 @@ static void __remove_section(struct zone *zone, struc=
+t mem_section *ms,
+  * sure that pages are marked reserved and zones are adjust properly by
+  * calling offline_pages().
+  */
+-void __remove_pages(struct zone *zone, unsigned long phys_start_pfn,
+-		    unsigned long nr_pages, struct vmem_altmap *altmap)
++void __remove_pages(unsigned long phys_start_pfn, unsigned long nr_pages=
+,
++		    struct vmem_altmap *altmap)
+ {
+ 	unsigned long i;
+ 	unsigned long map_offset =3D 0;
+@@ -510,8 +512,6 @@ void __remove_pages(struct zone *zone, unsigned long =
+phys_start_pfn,
+ 	if (altmap)
+ 		map_offset =3D vmem_altmap_offset(altmap);
+=20
+-	clear_zone_contiguous(zone);
+-
+ 	/*
+ 	 * We can only remove entire sections
+ 	 */
+@@ -523,12 +523,9 @@ void __remove_pages(struct zone *zone, unsigned long=
+ phys_start_pfn,
+ 		unsigned long pfn =3D phys_start_pfn + i*PAGES_PER_SECTION;
+=20
+ 		cond_resched();
+-		__remove_section(zone, __pfn_to_section(pfn), map_offset,
+-				 altmap);
++		__remove_section(__pfn_to_section(pfn), map_offset, altmap);
+ 		map_offset =3D 0;
+ 	}
+-
+-	set_zone_contiguous(zone);
+ }
+=20
+ int set_online_page_callback(online_page_callback_t callback)
+@@ -898,6 +895,7 @@ int __ref online_pages(unsigned long pfn, unsigned lo=
+ng nr_pages, int online_typ
+ 		 (unsigned long long) pfn << PAGE_SHIFT,
+ 		 (((unsigned long long) pfn + nr_pages) << PAGE_SHIFT) - 1);
+ 	memory_notify(MEM_CANCEL_ONLINE, &arg);
++	remove_pfn_range_from_zone(zone, pfn, nr_pages);
+ 	mem_hotplug_done();
+ 	return ret;
+ }
+@@ -1682,6 +1680,7 @@ static int __ref __offline_pages(unsigned long star=
+t_pfn,
+ 	writeback_set_ratelimit();
+=20
+ 	memory_notify(MEM_OFFLINE, &arg);
++	remove_pfn_range_from_zone(zone, start_pfn, nr_pages);
+ 	mem_hotplug_done();
+ 	return 0;
+=20
 --=20
 2.24.1
 
