@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F9314BB3E
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2023414BA6C
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726863AbgA1OKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59058 "EHLO mail.kernel.org"
+        id S1730776AbgA1OS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:18:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726697AbgA1OKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:10:17 -0500
+        id S1730772AbgA1OS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:18:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A336324690;
-        Tue, 28 Jan 2020 14:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3D7C24698;
+        Tue, 28 Jan 2020 14:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220617;
-        bh=6Fz8xjv9nZBw1/1d96jNOMkJO+3yPvlTXHgJXrMglNI=;
+        s=default; t=1580221137;
+        bh=7QA7qgFZCNdK9gpFujJdT8gQYE0kxWucy0+YdY9HZzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DNl7zvI8ZrKscRkv0AA7seT/3QkIv0R/g3o7AFYWCijnL9DFkmlugUCb9mn9xp65d
-         es17euoYnKfJJwDYzDpsWfAZu1t/fkSciEkCzzP10fs21APju2Ivnza93IHVUISZyO
-         bL9LTn14kurWJT0lkgKuK11MYY4TmgXSBpb9Inhc=
+        b=g20n700f4d8PA7BhKpmarffjWIk5nNVSbZdtb38UTX/ejG7vjwI4yHIDY+d6FlC5F
+         lRwbN/UE/p6GTRibSQw3IyxeVFjFs0/H6I/D/egHHULTosJnRoLz3L/5DTjJTJ0HcJ
+         E4WqaenfbYnYqnGW7DrqjQ8r/rRuNNEJCMa7bNMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 031/183] clk: armada-xp: fix refcount leak in axp_clk_init()
-Date:   Tue, 28 Jan 2020 15:04:10 +0100
-Message-Id: <20200128135833.128964076@linuxfoundation.org>
+Subject: [PATCH 4.9 102/271] regulator: tps65086: Fix tps65086_ldoa1_ranges for selector 0xB
+Date:   Tue, 28 Jan 2020 15:04:11 +0100
+Message-Id: <20200128135900.185717220@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit db20a90a4b6745dad62753f8bd2f66afdd5abc84 ]
+[ Upstream commit e69b394703e032e56a140172440ec4f9890b536d ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+selector 0xB (1011) should be 2.6V rather than 2.7V, fit ix.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Fixes: 0a11a6ae9437 ("clk: mvebu: armada-xp: maintain clock init order")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Table 5-4. LDOA1 Output Voltage Options
+VID Bits VOUT VID Bits VOUT VID Bits VOUT VID Bits VOUT
+0000     1.35 0100     1.8  1000     2.3  1100     2.85
+0001     1.5  0101     1.9  1001     2.4  1101     3.0
+0010     1.6  0110     2.0  1010     2.5  1110     3.3
+0011     1.7  0111     2.1  1011     2.6  1111     Not Used
+
+Fixes: d2a2e729a666 ("regulator: tps65086: Add regulator driver for the TPS65086 PMIC")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/armada-xp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/regulator/tps65086-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/mvebu/armada-xp.c b/drivers/clk/mvebu/armada-xp.c
-index b3094315a3c0f..2fa15a2747190 100644
---- a/drivers/clk/mvebu/armada-xp.c
-+++ b/drivers/clk/mvebu/armada-xp.c
-@@ -202,7 +202,9 @@ static void __init axp_clk_init(struct device_node *np)
+diff --git a/drivers/regulator/tps65086-regulator.c b/drivers/regulator/tps65086-regulator.c
+index 6dbf3cf3951e2..12d26261394f1 100644
+--- a/drivers/regulator/tps65086-regulator.c
++++ b/drivers/regulator/tps65086-regulator.c
+@@ -89,8 +89,8 @@ static const struct regulator_linear_range tps65086_buck345_25mv_ranges[] = {
+ static const struct regulator_linear_range tps65086_ldoa1_ranges[] = {
+ 	REGULATOR_LINEAR_RANGE(1350000, 0x0, 0x0, 0),
+ 	REGULATOR_LINEAR_RANGE(1500000, 0x1, 0x7, 100000),
+-	REGULATOR_LINEAR_RANGE(2300000, 0x8, 0xA, 100000),
+-	REGULATOR_LINEAR_RANGE(2700000, 0xB, 0xD, 150000),
++	REGULATOR_LINEAR_RANGE(2300000, 0x8, 0xB, 100000),
++	REGULATOR_LINEAR_RANGE(2850000, 0xC, 0xD, 150000),
+ 	REGULATOR_LINEAR_RANGE(3300000, 0xE, 0xE, 0),
+ };
  
- 	mvebu_coreclk_setup(np, &axp_coreclks);
- 
--	if (cgnp)
-+	if (cgnp) {
- 		mvebu_clk_gating_setup(cgnp, axp_gating_desc);
-+		of_node_put(cgnp);
-+	}
- }
- CLK_OF_DECLARE(axp_clk, "marvell,armada-xp-core-clock", axp_clk_init);
 -- 
 2.20.1
 
