@@ -2,143 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4695414AD3C
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 01:34:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F1C14ADC0
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 02:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726080AbgA1Aeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 19:34:31 -0500
-Received: from mga11.intel.com ([192.55.52.93]:59246 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725955AbgA1Aeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Jan 2020 19:34:31 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Jan 2020 16:34:29 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,371,1574150400"; 
-   d="scan'208";a="261263777"
-Received: from richard.sh.intel.com (HELO localhost) ([10.239.159.54])
-  by fmsmga002.fm.intel.com with ESMTP; 27 Jan 2020 16:34:27 -0800
-Date:   Tue, 28 Jan 2020 08:34:40 +0800
-From:   Wei Yang <richardw.yang@linux.intel.com>
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-Cc:     mhocko@suse.com, richardw.yang@linux.intel.com,
-        willy@infradead.org, akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [v4 PATCH] mm: move_pages: report the number of non-attempted
- pages
-Message-ID: <20200128003440.GB20624@richard>
-Reply-To: Wei Yang <richardw.yang@linux.intel.com>
-References: <1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        id S1726173AbgA1ByW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 20:54:22 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:46666 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726164AbgA1ByW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 20:54:22 -0500
+Received: by mail-pl1-f193.google.com with SMTP id y8so4446832pll.13;
+        Mon, 27 Jan 2020 17:54:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=1ZMMwelLf0A5wvuZj2x68zePfxAq2fUXhD1Zlvefv7Y=;
+        b=IMCV0kwEhLFtqutPkJoXbViyl3w7xBFWsjPH9LRk1eSZEDxFU+qs04YB1NuSl1GJY4
+         OqExxvsOXGJO53LAWvbkaDdFYzUDDL8Q+X+/v+oSWVN8xHwG8Sr2amcUUIqLPxgte1uS
+         wqpEUn2XG7Hh2mzFMC5TUonmyjgSuROS8yaTYlkQ0PakyV5iMft6t6F984i9sg6l3UKB
+         n4FycKWpp1tCgK9Oh7cJMoAsJbvPQJDsDv4IZPtdLF6+3/8ceNI1MpkhSsI60El2Fipq
+         jIKaOevJAk1CL1fOgHV7Q5CyhOfoDtrp7oAc1qn3y/doQ6JYx5UO1G+AIIUET+FDPB7+
+         n+3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=1ZMMwelLf0A5wvuZj2x68zePfxAq2fUXhD1Zlvefv7Y=;
+        b=cxhxIkLroE+tQYAjIzQJWUh4rQT3fzfHgcw5k5dmkfdZwvAUC4eDCPioMEWYksno6w
+         E253efisCcBYOAoc1Hx9VkDPO2KVsJHC7x/f8WjduNWZyp2MACiUlpo7oWbDwirtH/Rv
+         GWbR5u6EjRJngLVb30uC7lS/kT59b38hkTo+iiwTtYeFhHRGGJv4CsjzoWYDxv1b7QH+
+         GmjZO4Y4fEH70KMhkFC7SA2nvrixrQGrpwp8kuk2ZO5QoWE/C8TAQ5HUqfIzK/X6f63L
+         yTPF14a3u8zaOXZyNavvMdTv6P7FSyUNdCjeJc2s6VK9KqiBjyTQL6Op/jpOt+BHRxRh
+         AdIw==
+X-Gm-Message-State: APjAAAX/PuuEPscJf/9tyUjHqXAZGUTGdJ8bdQsGSeEMI1/N4i2Llu2X
+        ocMcgOVIPTocz8KD1XKOncoc45rD
+X-Google-Smtp-Source: APXvYqzSCLsgdu+thMaqEiaZLIgj4vYPC2rYGh4W/mehpz0fI9OBBI2eSwUmj0peH72azDJW1dMcQQ==
+X-Received: by 2002:a17:902:d711:: with SMTP id w17mr20998616ply.303.1580176461737;
+        Mon, 27 Jan 2020 17:54:21 -0800 (PST)
+Received: from localhost.localdomain ([192.19.224.250])
+        by smtp.gmail.com with ESMTPSA id j17sm17393234pfa.28.2020.01.27.17.54.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jan 2020 17:54:21 -0800 (PST)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     linux-vger@kernel.org
+Cc:     stable@vger.kernel.org, jeremy.linton@arm.com,
+        gregkh@linuxfoundation.org, sashal@kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-doc@vger.kernel.org (open list:DOCUMENTATION),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH stable-4.9] Documentation: Document arm64 kpti control
+Date:   Mon, 27 Jan 2020 17:54:14 -0800
+Message-Id: <20200128015415.2276-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 05:28:47AM +0800, Yang Shi wrote:
->Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
->the semantic of move_pages() has changed to return the number of
->non-migrated pages if they were result of a non-fatal reasons (usually a
->busy page).  This was an unintentional change that hasn't been noticed
->except for LTP tests which checked for the documented behavior.
->
->There are two ways to go around this change.  We can even get back to the
->original behavior and return -EAGAIN whenever migrate_pages is not able
->to migrate pages due to non-fatal reasons.  Another option would be to
->simply continue with the changed semantic and extend move_pages
->documentation to clarify that -errno is returned on an invalid input or
->when migration simply cannot succeed (e.g. -ENOMEM, -EBUSY) or the
->number of pages that couldn't have been migrated due to ephemeral
->reasons (e.g. page is pinned or locked for other reasons).
->
->This patch implements the second option because this behavior is in
->place for some time without anybody complaining and possibly new users
->depending on it.  Also it allows to have a slightly easier error handling
->as the caller knows that it is worth to retry when err > 0.
->
->But since the new semantic would be aborted immediately if migration is
->failed due to ephemeral reasons, need include the number of non-attempted
->pages in the return value too.
->
->Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
->Suggested-by: Michal Hocko <mhocko@suse.com>
->Acked-by: Michal Hocko <mhocko@suse.com>
->Cc: Wei Yang <richardw.yang@linux.intel.com>
->Cc: <stable@vger.kernel.org>    [4.17+]
->Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-Reviewed-by: Wei Yang <richardw.yang@linux.intel.com>
+commit de19055564c8f8f9d366f8db3395836da0b2176c upstream
 
->---
->v4: Fixed some typo and grammar errors caught by Willy
->v3: Rephrased the commit log per Michal and added Michal's Acked-by
->v2: Rebased on top of the latest mainline kernel per Andrew
->
-> mm/migrate.c | 25 +++++++++++++++++++++++--
-> 1 file changed, 23 insertions(+), 2 deletions(-)
->
->diff --git a/mm/migrate.c b/mm/migrate.c
->index 86873b6..2530860 100644
->--- a/mm/migrate.c
->+++ b/mm/migrate.c
->@@ -1627,8 +1627,19 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
-> 			start = i;
-> 		} else if (node != current_node) {
-> 			err = do_move_pages_to_node(mm, &pagelist, current_node);
->-			if (err)
->+			if (err) {
->+				/*
->+				 * Positive err means the number of failed
->+				 * pages to migrate.  Since we are going to
->+				 * abort and return the number of non-migrated
->+				 * pages, so need to incude the rest of the
->+				 * nr_pages that have not been attempted as
->+				 * well.
->+				 */
->+				if (err > 0)
->+					err += nr_pages - i - 1;
-> 				goto out;
->+			}
-> 			err = store_status(status, start, current_node, i - start);
-> 			if (err)
-> 				goto out;
->@@ -1659,8 +1670,11 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
-> 			goto out_flush;
-> 
-> 		err = do_move_pages_to_node(mm, &pagelist, current_node);
->-		if (err)
->+		if (err) {
->+			if (err > 0)
->+				err += nr_pages - i - 1;
-> 			goto out;
->+		}
-> 		if (i > start) {
-> 			err = store_status(status, start, current_node, i - start);
-> 			if (err)
->@@ -1674,6 +1688,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
-> 
-> 	/* Make sure we do not overwrite the existing error */
-> 	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
->+	/*
->+	 * Don't have to report non-attempted pages here since:
->+	 *     - If the above loop is done gracefully all pages have been
->+	 *       attempted.
->+	 *     - If the above loop is aborted it means a fatal error
->+	 *       happened, should return ret.
->+	 */
-> 	if (!err1)
-> 		err1 = store_status(status, start, current_node, i - start);
-> 	if (!err)
->-- 
->1.8.3.1
+For a while Arm64 has been capable of force enabling
+or disabling the kpti mitigations. Lets make sure the
+documentation reflects that.
 
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+[florian: patch the correct file]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+ Documentation/kernel-parameters.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 1bc12619bedd..b2d2f4539a3f 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1965,6 +1965,12 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 			kmemcheck=2 (one-shot mode)
+ 			Default: 2 (one-shot mode)
+ 
++	kpti=		[ARM64] Control page table isolation of user
++			and kernel address spaces.
++			Default: enabled on cores which need mitigation.
++			0: force disabled
++			1: force enabled
++
+ 	kstack=N	[X86] Print N words from the kernel stack
+ 			in oops dumps.
+ 
 -- 
-Wei Yang
-Help you, Help me
+2.17.1
+
