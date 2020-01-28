@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B5C14B98D
+	by mail.lfdr.de (Postfix) with ESMTP id 4072C14B98C
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732917AbgA1OZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:25:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52432 "EHLO mail.kernel.org"
+        id S1731286AbgA1OZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:25:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730486AbgA1OZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:28 -0500
+        id S1727406AbgA1OZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:25:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DF7824681;
-        Tue, 28 Jan 2020 14:25:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4245B24688;
+        Tue, 28 Jan 2020 14:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221527;
-        bh=vRgmqPjzXZxTazayl2hBXX8S1fu0Gnzq5eN1LZUL/FU=;
+        s=default; t=1580221532;
+        bh=d6t38KmNhUDEuUvcJNktAouqmu9+LhdyI+BO0ertFG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flTe77NYgQduSPnAnKO3rOC7FGHk/oSnPnGpg+xGh9qGfNwuJkeIGjcI6U4JZMZXh
-         Ca/Af2uY/nD6mhvL6h+8Jv+QyNysqZRHb2ITUGwj3C4UglEysKDctk9OxUp5aybmw9
-         v5djNliJIauK8kooC66qrKkluobmRxm7BFYR2uUQ=
+        b=gPCqlqR/7J4Z2r7whlE2bzoaKkcylGtcwUDa3xYXzWEsB08IAspH4rLOMx50oxaIz
+         9HX9nvvmgcTnyzy46b8ub3KwfULpitrKefNiYGB7NzcpgiUUiW0mfx2PKVI7tIunBk
+         pthvBjZQ8mo4akP+4DVJsWmuoZRp2KR3+3nlEAgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 259/271] tracing: xen: Ordered comparison of function pointers
-Date:   Tue, 28 Jan 2020 15:06:48 +0100
-Message-Id: <20200128135911.874878599@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 261/271] Documentation: Document arm64 kpti control
+Date:   Tue, 28 Jan 2020 15:06:50 +0100
+Message-Id: <20200128135912.026352539@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -43,53 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-commit d0695e2351102affd8efae83989056bc4b275917 upstream.
+commit de19055564c8f8f9d366f8db3395836da0b2176c upstream.
 
-Just as commit 0566e40ce7 ("tracing: initcall: Ordered comparison of
-function pointers"), this patch fixes another remaining one in xen.h
-found by clang-9.
+For a while Arm64 has been capable of force enabling
+or disabling the kpti mitigations. Lets make sure the
+documentation reflects that.
 
-In file included from arch/x86/xen/trace.c:21:
-In file included from ./include/trace/events/xen.h:475:
-In file included from ./include/trace/define_trace.h:102:
-In file included from ./include/trace/trace_events.h:473:
-./include/trace/events/xen.h:69:7: warning: ordered comparison of function \
-pointers ('xen_mc_callback_fn_t' (aka 'void (*)(void *)') and 'xen_mc_callback_fn_t') [-Wordered-compare-function-pointers]
-                    __field(xen_mc_callback_fn_t, fn)
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/trace/trace_events.h:421:29: note: expanded from macro '__field'
-                                ^
-./include/trace/trace_events.h:407:6: note: expanded from macro '__field_ext'
-                                 is_signed_type(type), filter_type);    \
-                                 ^
-./include/linux/trace_events.h:554:44: note: expanded from macro 'is_signed_type'
-                                              ^
-
-Fixes: c796f213a6934 ("xen/trace: add multicall tracing")
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+[florian: patch the correct file]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/xen.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ Documentation/kernel-parameters.txt |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/trace/events/xen.h
-+++ b/include/trace/events/xen.h
-@@ -63,7 +63,11 @@ TRACE_EVENT(xen_mc_callback,
- 	    TP_PROTO(xen_mc_callback_fn_t fn, void *data),
- 	    TP_ARGS(fn, data),
- 	    TP_STRUCT__entry(
--		    __field(xen_mc_callback_fn_t, fn)
-+		    /*
-+		     * Use field_struct to avoid is_signed_type()
-+		     * comparison of a function pointer.
-+		     */
-+		    __field_struct(xen_mc_callback_fn_t, fn)
- 		    __field(void *, data)
- 		    ),
- 	    TP_fast_assign(
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1965,6 +1965,12 @@ bytes respectively. Such letter suffixes
+ 			kmemcheck=2 (one-shot mode)
+ 			Default: 2 (one-shot mode)
+ 
++	kpti=		[ARM64] Control page table isolation of user
++			and kernel address spaces.
++			Default: enabled on cores which need mitigation.
++			0: force disabled
++			1: force enabled
++
+ 	kstack=N	[X86] Print N words from the kernel stack
+ 			in oops dumps.
+ 
 
 
