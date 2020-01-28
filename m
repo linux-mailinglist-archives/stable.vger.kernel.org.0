@@ -2,68 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2E314BC9F
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 16:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8866214BCEE
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 16:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726234AbgA1PMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 10:12:09 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:49191 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726111AbgA1PMJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 10:12:09 -0500
-Received: from p5b06da22.dip0.t-ipconnect.de ([91.6.218.34] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1iwSWt-0000xt-UP; Tue, 28 Jan 2020 16:11:52 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 491F1101227; Tue, 28 Jan 2020 16:11:51 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     vipul kumar <vipulk0511@gmail.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        x86@kernel.org, Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Bay Trail SoC
-In-Reply-To: <CADdC98To8VKOUWnR+8zAJ04vgdc4vJoh2h96588+5XFer9YTJw@mail.gmail.com>
-References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com> <87eevs7lfd.fsf@nanos.tec.linutronix.de> <CADdC98RJpsvu_zWehNGDDN=W11rD11NSPaodg-zuaXsHuOJYTQ@mail.gmail.com> <878slzeeim.fsf@nanos.tec.linutronix.de> <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com> <20200123144108.GU32742@smile.fi.intel.com> <df04f43d-8c6d-7602-cb50-535b85cf2aaa@redhat.com> <87iml11ccf.fsf@nanos.tec.linutronix.de> <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com> <87ftg5131x.fsf@nanos.tec.linutronix.de> <37321319-e110-81f5-2488-cedf000da04d@redhat.com> <CADdC98To8VKOUWnR+8zAJ04vgdc4vJoh2h96588+5XFer9YTJw@mail.gmail.com>
-Date:   Tue, 28 Jan 2020 16:11:51 +0100
-Message-ID: <87ftfz62fc.fsf@nanos.tec.linutronix.de>
+        id S1725881AbgA1Phb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 10:37:31 -0500
+Received: from mail-wm1-f41.google.com ([209.85.128.41]:37752 "EHLO
+        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726141AbgA1Phb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 10:37:31 -0500
+Received: by mail-wm1-f41.google.com with SMTP id f129so3055148wmf.2
+        for <stable@vger.kernel.org>; Tue, 28 Jan 2020 07:37:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Dcq9KFeFsAXQWp2YIqHGYKyeXL7NHjUpf/RlYqFankk=;
+        b=cEzDN95/h3WOR6YPVwZiVT3qa79KdkXCQUXi786+AFGKVdbPFrjEWD0jN7hf3HFTJY
+         1TlUaibrKoA7j9w2djgUbFlqxb+/vmoBLI9+mUpZHQ5u0ERGDR42cHGiVBLmYyQG0fY3
+         okoS9aLnF3TkPtW9/2nAj6OkQFOxyNkzbbUBpEDneIgSpWKxv9AT3Xm2kX/HtDKkDsuU
+         yWNYayskCPr8pHxG1sfU6zRaeexSxruWvFQ6uEjIZhnBAyCLTl6yLrCTTDE0quSFL+mw
+         Nln+QmR+FQLiNWulf/dwrSKZELnlYFL1lA/ueUL1nFCN6pfzfMGKNM8ghpbO4xCICzms
+         CzXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Dcq9KFeFsAXQWp2YIqHGYKyeXL7NHjUpf/RlYqFankk=;
+        b=G8g/xrS/OksHcCBj4WwJjzWDCzZm23VuLj4bQp80oxXSgQQn+bfdaAS3uSz3+hBjd8
+         tOkcbt6ba3kpsyKgKSudf+wNJeUXYZ1aER0jxt9+AQfNL3dFRLGlFgJmz6OVpOG4a6qY
+         pG9nPyu0MDhu8MuTKc4ueiVlwUhoMUPk/4k4S0MDLeDBGV/Ze1Z75NBcvl1NOd+tBBNI
+         qru6GX3ZWZZJIcT0C5s1MTooz2P7+K0XNVDLaUv/apkD3IOn6FK7vUCjfgTWzzK1QNzc
+         wDGORR6AzeFPBFDi7p99RtQFhz8Dx3PGLqHR8z/blxbaItgU+2VrGXa/Yj22MiLlaDE5
+         Ha8g==
+X-Gm-Message-State: APjAAAVw3K/mWmsXcY0DgLzX+GlclJRcqAr0qUVv4ur2mc4RA0mX+V+K
+        ROgt4uUXDU7sDOo4/6LvK6K8czEgni4uLw==
+X-Google-Smtp-Source: APXvYqxAmqOQG+C/uU99ONgWoAByUP+yf9nnBIeWJDp9TZZHpyCsq7XExAjff1Mc6k40xzIjy6bWbQ==
+X-Received: by 2002:a1c:5441:: with SMTP id p1mr6034768wmi.161.1580225849265;
+        Tue, 28 Jan 2020 07:37:29 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f189sm3823068wmf.16.2020.01.28.07.37.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jan 2020 07:37:27 -0800 (PST)
+Message-ID: <5e305537.1c69fb81.63dd4.056f@mx.google.com>
+Date:   Tue, 28 Jan 2020 07:37:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.211-178-gd2c04d5b95f6
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 50 boots: 0 failed,
+ 50 passed (v4.4.211-178-gd2c04d5b95f6)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vipul,
+stable-rc/linux-4.4.y boot: 50 boots: 0 failed, 50 passed (v4.4.211-178-gd2=
+c04d5b95f6)
 
-vipul kumar <vipulk0511@gmail.com> writes:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.211-178-gd2c04d5b95f6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.211-178-gd2c04d5b95f6/
 
-Please see https://people.kernel.org/tglx/notes-about-netiquette
-and search for Top-posting.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.211-178-gd2c04d5b95f6
+Git Commit: d2c04d5b95f6089572603a609fa499f2ff330d06
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 26 unique boards, 11 SoC families, 8 builds out of 187
 
-> Please find attached logs with mainline kernel version 5.4.15 with
-> patch.
-
-Which patch? I'm not seing any of the debug prints from my patch in that
-dmesg.
-
-I assume it's your patch, right?
-
-> [    5.736689] tsc: Refined TSC clocksource calibration: 1833.333 MHz
-
-Otherwise this would not show up.
-
-Try again please with your patch removed an my debug patch applied.
-
-Thanks,
-
-        tglx
+---
+For more info write to <info@kernelci.org>
