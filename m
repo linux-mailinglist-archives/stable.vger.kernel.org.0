@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B22BE14BAA6
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9948314B991
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729974AbgA1OOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:14:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37250 "EHLO mail.kernel.org"
+        id S1727976AbgA1OZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:25:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729612AbgA1OOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:14:53 -0500
+        id S1732896AbgA1OZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:25:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E33A624693;
-        Tue, 28 Jan 2020 14:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4952A24688;
+        Tue, 28 Jan 2020 14:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220893;
+        s=default; t=1580221517;
         bh=t5GZ5N/LopTk45JDVCHyBPgByYjTUsskcBljJRjATUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9M5gnTK4rm2el7vtZXn5x2kJLynUGr0/Qfe1M/xkOSxzkYJusraAL9hFYXVh6e/Y
-         rgJyb6oaip3T4gO/0H3Lfg9J6F3DgadYOnK/lOw4tGYPJxDsYzLH0wMWEouowWeRki
-         zZ406TDgtCj0SZdCLlvuEDk+Ootg2s08+XDZowNA=
+        b=qMjIQBcAxOS1ifX4WLUIv9afxsYMuRxcCEJxL6I+lPl7ZGH6JSYoXM17mKHB9AXDX
+         QAEoUR/GwEr3WU7eAJxKpFRyip7cb/ZgMPlKy3PSzgF2stZZ+9KGFcjZdnm21gJjWi
+         5/nxZdAEOA55M9Nk1PebcGVxIHhAiIHD88F3k46c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Liviu Dudau <liviu.dudau@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 158/183] arm64: dts: juno: Fix UART frequency
-Date:   Tue, 28 Jan 2020 15:06:17 +0100
-Message-Id: <20200128135845.503087743@linuxfoundation.org>
+Subject: [PATCH 4.9 229/271] arm64: dts: juno: Fix UART frequency
+Date:   Tue, 28 Jan 2020 15:06:18 +0100
+Message-Id: <20200128135909.624406632@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
