@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F1E14B6D8
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:09:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 115CF14B824
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727737AbgA1OIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:08:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56852 "EHLO mail.kernel.org"
+        id S1730970AbgA1OVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:21:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728048AbgA1OIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:08:42 -0500
+        id S1731178AbgA1OU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:20:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DD7724685;
-        Tue, 28 Jan 2020 14:08:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3080A2468A;
+        Tue, 28 Jan 2020 14:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220521;
-        bh=W5xbOvPy61QSvllVg/8v17vPwCTo/i7Ypi54T3Hpp64=;
+        s=default; t=1580221258;
+        bh=BDmzMUOv+jwCWIgzcr7uhDx7cxYkavGXJYJFdjJ7oTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnZULr0+HsauuGTKDDxwJbCbCzupR9JVItnTVP4O8HqjbmZvsqMiaW+FQnOVpZhC4
-         T7/JJzlfHUy1y+D8zBhDGPK2PBpRC+i2Sl7bX3HviRZZQKe+4yd+lMyE5b7INWx9wr
-         10P6iDnkUFNzW13UKrzwhA8EuGfDt1YXAc7OQy3s=
+        b=gL60sfiX9gs5B8b0I8ug2B61HTS5a2CvWjk/btbtTr5P7ysq2Aq+vdjcT3uZH9wEr
+         90b+KCeCNUM8apN2hbqgHrEv/L4jTtZnOLUgH5zsSPWAvyrLpYucSiHTin48/Kf/rz
+         fbH95WiFqtPcHaX7iDIcDzcAlXW4cYS1k0NodK0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 041/183] rtc: 88pm80x: fix unintended sign extension
-Date:   Tue, 28 Jan 2020 15:04:20 +0100
-Message-Id: <20200128135834.098192162@linuxfoundation.org>
+Subject: [PATCH 4.9 116/271] hwmon: (w83627hf) Use request_muxed_region for Super-IO accesses
+Date:   Tue, 28 Jan 2020 15:04:25 +0100
+Message-Id: <20200128135901.212745091@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit fb0b322537a831b5b0cb948c56f8f958ce493d3a ]
+[ Upstream commit e95fd518d05bfc087da6fcdea4900a57cfb083bd ]
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-Fix this by casting the u8 value to an unsigned long before the shift.
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-Detected by CoverityScan, CID#714646-714649 ("Unintended sign extension")
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
-Fixes: 2985c29c1964 ("rtc: Add rtc support to 88PM80X PMIC")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: b72656dbc491 ("hwmon: (w83627hf) Stop using globals for I/O port numbers")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-88pm80x.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/hwmon/w83627hf.c | 42 +++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 37 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
-index 466bf7f9a285a..7da2a1fb50f89 100644
---- a/drivers/rtc/rtc-88pm80x.c
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -116,12 +116,14 @@ static int pm80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	unsigned char buf[4];
- 	unsigned long ticks, base, data;
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
+diff --git a/drivers/hwmon/w83627hf.c b/drivers/hwmon/w83627hf.c
+index 721295b9a0517..43c0f89cefdf0 100644
+--- a/drivers/hwmon/w83627hf.c
++++ b/drivers/hwmon/w83627hf.c
+@@ -130,17 +130,23 @@ superio_select(struct w83627hf_sio_data *sio, int ld)
+ 	outb(ld,  sio->sioaddr + 1);
+ }
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -144,7 +146,8 @@ static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-static inline void
++static inline int
+ superio_enter(struct w83627hf_sio_data *sio)
+ {
++	if (!request_muxed_region(sio->sioaddr, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x87, sio->sioaddr);
+ 	outb(0x87, sio->sioaddr);
++
++	return 0;
+ }
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	base = ticks - data;
- 	dev_dbg(info->dev, "set base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -165,11 +168,13 @@ static int pm80x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	int ret;
+ static inline void
+ superio_exit(struct w83627hf_sio_data *sio)
+ {
+ 	outb(0xAA, sio->sioaddr);
++	release_region(sio->sioaddr, 2);
+ }
  
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
+ #define W627_DEVID 0x52
+@@ -1275,7 +1281,7 @@ static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
+ static int __init w83627hf_find(int sioaddr, unsigned short *addr,
+ 				struct w83627hf_sio_data *sio_data)
+ {
+-	int err = -ENODEV;
++	int err;
+ 	u16 val;
  
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE1_1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
-@@ -192,12 +197,14 @@ static int pm80x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_ALARM1_EN, 0);
+ 	static __initconst char *const names[] = {
+@@ -1287,7 +1293,11 @@ static int __init w83627hf_find(int sioaddr, unsigned short *addr,
+ 	};
  
- 	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
--	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
+ 	sio_data->sioaddr = sioaddr;
+-	superio_enter(sio_data);
++	err = superio_enter(sio_data);
++	if (err)
++		return err;
++
++	err = -ENODEV;
+ 	val = force_id ? force_id : superio_inb(sio_data, DEVID);
+ 	switch (val) {
+ 	case W627_DEVID:
+@@ -1641,9 +1651,21 @@ static int w83627thf_read_gpio5(struct platform_device *pdev)
+ 	struct w83627hf_sio_data *sio_data = dev_get_platdata(&pdev->dev);
+ 	int res = 0xff, sel;
  
- 	/* load 32-bit read-only counter */
- 	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
--	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+		(buf[1] << 8) | buf[0];
- 	ticks = base + data;
- 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
- 		base, data, ticks);
+-	superio_enter(sio_data);
++	if (superio_enter(sio_data)) {
++		/*
++		 * Some other driver reserved the address space for itself.
++		 * We don't want to fail driver instantiation because of that,
++		 * so display a warning and keep going.
++		 */
++		dev_warn(&pdev->dev,
++			 "Can not read VID data: Failed to enable SuperIO access\n");
++		return res;
++	}
++
+ 	superio_select(sio_data, W83627HF_LD_GPIO5);
+ 
++	res = 0xff;
++
+ 	/* Make sure these GPIO pins are enabled */
+ 	if (!(superio_inb(sio_data, W83627THF_GPIO5_EN) & (1<<3))) {
+ 		dev_dbg(&pdev->dev, "GPIO5 disabled, no VID function\n");
+@@ -1674,7 +1696,17 @@ static int w83687thf_read_vid(struct platform_device *pdev)
+ 	struct w83627hf_sio_data *sio_data = dev_get_platdata(&pdev->dev);
+ 	int res = 0xff;
+ 
+-	superio_enter(sio_data);
++	if (superio_enter(sio_data)) {
++		/*
++		 * Some other driver reserved the address space for itself.
++		 * We don't want to fail driver instantiation because of that,
++		 * so display a warning and keep going.
++		 */
++		dev_warn(&pdev->dev,
++			 "Can not read VID data: Failed to enable SuperIO access\n");
++		return res;
++	}
++
+ 	superio_select(sio_data, W83627HF_LD_HWM);
+ 
+ 	/* Make sure these GPIO pins are enabled */
 -- 
 2.20.1
 
