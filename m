@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69DD814BA33
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C29F14BB50
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:46:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729624AbgA1Ohh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:37:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44720 "EHLO mail.kernel.org"
+        id S1728925AbgA1OJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:09:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730992AbgA1OUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:20:04 -0500
+        id S1728884AbgA1OJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:09:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71A2E2071E;
-        Tue, 28 Jan 2020 14:20:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6534F24690;
+        Tue, 28 Jan 2020 14:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221203;
-        bh=pfZmhNclWOdVpmT+NIxCBYUPY2XlVApOtvbptFEVmxY=;
+        s=default; t=1580220571;
+        bh=cdS438oyPWqFatWtdHTGGlYeR61YSDdTm3C57FtzmrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Jwmosmuj0NtmQQ/RVdwjRPlQ68caS6QYsxJfsyYz2KZUTts5nBoZntFmuwsFM3Dz
-         zUJTioM0R29zECZO+BfVEZ9n5LBZblOmME0VN5yjjA9TDlEv1a/al4zNbXFXKNLwir
-         8h4cSVuAx1rui7PPYF2Sp6j3/nnde3d7x/wscbi8=
+        b=ZsAJov1xJSIWtBf2ONRBREH5DDmrHGZgIA64fxt4Nl612fvSrBrpwXk9z74eu0xof
+         qox2JTHw0gnP3GoZExuFMGnMcmjYqCUN0GLWUyqlpgvoW1UcGyR3bBneVokevQut4D
+         G6Fx6dnB9pR5lg90LeFHLoZvQF+A28EW6aidyawU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arthur Kiyanovski <akiyano@amazon.com>,
-        Sameeh Jubran <sameehj@amazon.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 130/271] net: ena: fix: Free napi resources when ena_up() fails
+Subject: [PATCH 4.4 060/183] net: sh_eth: fix a missing check of of_get_phy_mode
 Date:   Tue, 28 Jan 2020 15:04:39 +0100
-Message-Id: <20200128135902.279642467@linuxfoundation.org>
+Message-Id: <20200128135835.939492536@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameeh Jubran <sameehj@amazon.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit b287cdbd1cedfc9606682c6e02b58d00ff3a33ae ]
+[ Upstream commit 035a14e71f27eefa50087963b94cbdb3580d08bf ]
 
-ena_up() calls ena_init_napi() but does not call ena_del_napi() in
-case of failure. This causes a segmentation fault upon rmmod when
-netif_napi_del() is called. Fix this bug by calling ena_del_napi()
-before returning error from ena_up().
+of_get_phy_mode may fail and return a negative error code;
+the fix checks the return value of of_get_phy_mode and
+returns NULL of it fails.
 
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Fixes: b356e978e92f ("sh_eth: add device tree support")
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/renesas/sh_eth.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 961f31c8356b7..da21886609e30 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -1702,6 +1702,7 @@ err_setup_rx:
- err_setup_tx:
- 	ena_free_io_irq(adapter);
- err_req_irq:
-+	ena_del_napi(adapter);
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 2d9f4ed9a65ed..8413f93f5cd94 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -3040,12 +3040,16 @@ static struct sh_eth_plat_data *sh_eth_parse_dt(struct device *dev)
+ 	struct device_node *np = dev->of_node;
+ 	struct sh_eth_plat_data *pdata;
+ 	const char *mac_addr;
++	int ret;
  
- 	return rc;
- }
+ 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return NULL;
+ 
+-	pdata->phy_interface = of_get_phy_mode(np);
++	ret = of_get_phy_mode(np);
++	if (ret < 0)
++		return NULL;
++	pdata->phy_interface = ret;
+ 
+ 	mac_addr = of_get_mac_address(np);
+ 	if (mac_addr)
 -- 
 2.20.1
 
