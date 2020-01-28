@@ -2,114 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7434114B4E3
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 560AE14B550
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:47:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726063AbgA1N3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 08:29:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60486 "EHLO mail.kernel.org"
+        id S1726182AbgA1NrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 08:47:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725852AbgA1N3v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:29:51 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1725852AbgA1NrY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:47:24 -0500
+Received: from localhost (unknown [193.47.165.251])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CDFF22522;
-        Tue, 28 Jan 2020 13:29:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BCDF24683;
+        Tue, 28 Jan 2020 13:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580218190;
-        bh=6ZWtuJeJGD/vSdabZ+Y8n3PzjfZ41WaLfTxUqO7NTS4=;
+        s=default; t=1580219244;
+        bh=Nd3bvd7+ISafKgxlCTfToaLEfldXF5HHdK8vm67svx4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LTtQjKO6EYlnnorbv7eYnezhDMhehRtItnN54RZ1s43CGNB4vbPgOIzeXdQ8tEvmr
-         XOzUXi1iLehhViF7oiXMNQSHuPwzbzqEIvSC7/f3H85S3WeLaqf0R2Cngz10NvL8gv
-         bHg154WREvL5LqrTjfXxWY4NAWI9GfFvbzZi9Mhs=
-Date:   Tue, 28 Jan 2020 14:29:41 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jouni =?iso-8859-1?Q?H=F6gander?= <jouni.hogander@unikie.com>
-Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>, syzkaller@googlegroups.com
-Subject: Re: [PATCH 4.19 000/306] 4.19.87-stable review
-Message-ID: <20200128132941.GA2956977@kroah.com>
-References: <20191127203114.766709977@linuxfoundation.org>
- <CA+G9fYuAY+14aPiRVUcXLbsr5zJ-GLjULX=s9jcGWcw_vb5Kzw@mail.gmail.com>
- <20191128073623.GE3317872@kroah.com>
- <CAKXUXMy_=gVVw656AL5Rih_DJrdrFLoURS-et0+dpJ2cKaw6SQ@mail.gmail.com>
- <20191129085800.GF3584430@kroah.com>
- <87sgk8szhc.fsf@unikie.com>
- <87zhe727uo.fsf@unikie.com>
+        b=t6alKUqQoSfgZQSRcJrTRCFffFrOofbz6JXhT5Mrh4U8vMd13C3/6Z0wT1wo5qYsz
+         YAenHH+058BDaGQOVIQbDREPm19NMMtl/sbdpBJUCTlB2mRtfU8N0avwwvCv9rdfTu
+         HfDW/xFsK4Q0Ta6nEPS4tSB/UC+H1cHjKsy0wZnY=
+Date:   Tue, 28 Jan 2020 15:47:21 +0200
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Gal Pressman <galpress@amazon.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
+        "Saleem, Shiraz" <shiraz.saleem@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        Alexander Matushevsky <matua@amazon.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Leybovich, Yossi" <sleybo@amazon.com>
+Subject: Re: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous
+ memory blocks aligned to device supported page size"
+Message-ID: <20200128134721.GA3326@unreal>
+References: <20200120141001.63544-1-galpress@amazon.com>
+ <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
+ <20200121162436.GL51881@unreal>
+ <47c20471-2251-b93b-053d-87880fa0edf5@amazon.com>
+ <20200123142443.GN7018@unreal>
+ <60d8c528-1088-df8d-76f0-4746acfcfc7a@amazon.com>
+ <9DD61F30A802C4429A01CA4200E302A7C57244BB@fmsmsx123.amr.corp.intel.com>
+ <20200124025221.GA16405@ziepe.ca>
+ <def88bd8-357f-54b4-90f7-ee0ab382aa95@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87zhe727uo.fsf@unikie.com>
+In-Reply-To: <def88bd8-357f-54b4-90f7-ee0ab382aa95@amazon.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 12:28:15PM +0200, Jouni Högander wrote:
-> Hello Greg,
-> 
-> jouni.hogander@unikie.com (Jouni Högander) writes:
-> 
-> > Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> >>> > Now queued up, I'll push out -rc2 versions with this fix.
-> >>> >
-> >>> > greg k-h
-> >>> 
-> >>> We have also been informed about another regression these two commits
-> >>> are causing:
-> >>> 
-> >>> https://lore.kernel.org/lkml/ace19af4-7cae-babd-bac5-cd3505dcd874@I-love.SAKURA.ne.jp/
-> >>> 
-> >>> I suggest to drop these two patches from this queue, and give us a
-> >>> week to shake out the regressions of the change, and once ready, we
-> >>> can include the complete set of fixes to stable (probably in a week or
-> >>> two).
-> >>
-> >> Ok, thanks for the information, I've now dropped them from all of the
-> >> queues that had them in them.
-> >>
-> >> greg k-h
+On Tue, Jan 28, 2020 at 02:32:19PM +0200, Gal Pressman wrote:
+> On 24/01/2020 4:52, Jason Gunthorpe wrote:
+> > On Fri, Jan 24, 2020 at 12:40:18AM +0000, Saleem, Shiraz wrote:
+> >> It would be good to get the debug data to back this or prove it wrong.
+> >> But if this is indeed what's happening, then ORing in the sgl->length for the
+> >> first sge to restrict the page size might cut it. So something like,
 > >
-> > I have now run more extensive Syzkaller testing on following patches:
-> >
-> > cb626bf566eb net-sysfs: Fix reference count leak
-> > ddd9b5e3e765 net-sysfs: Call dev_hold always in rx_queue_add_kobject
-> > e0b60903b434 net-sysfs: Call dev_hold always in netdev_queue_add_kobje
-> > 48a322b6f996 net-sysfs: fix netdev_queue_add_kobject() breakage
-> > b8eb718348b8 net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
-> >
-> > These patches are fixing couple of memory leaks including this one found
-> > by Syzbot: https://syzkaller.appspot.com/bug?extid=ad8ca40ecd77896d51e2
-> >
-> > I can reproduce these memory leaks in following stable branches: 4.14,
-> > 4.19, and 5.4.
-> >
-> > These are all now merged into net/master tree and based on my testing
-> > they are ready to be taken into stable branches as well.
-> >
-> > Best Regards,
-> >
-> > Jouni Högander
-> 
-> These four patches are still missing from 4.14 and 4.19 branches:
-> 
-> ddd9b5e3e765 net-sysfs: Call dev_hold always in rx_queue_add_kobject
-> e0b60903b434 net-sysfs: Call dev_hold always in netdev_queue_add_kobje
-> 48a322b6f996 net-sysfs: fix netdev_queue_add_kobject() breakage
-> b8eb718348b8 net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
-> 
-> Could you please consider taking them in or let me know if you want some
-> further activities from my side?
+> > or'ing in the sgl length is a nonsense thing to do, the length has
+> > nothing to do with the restriction, which is entirely based on IOVA
+> > bits which can't be passed through.
+>
+> The weekend runs passed with Leon's proposed patch.
+> Leon, can you please submit it so I can drop this revert?
 
-Thanks for the list, I have now queued these all up.
+I'll do it now, feel free to reply with your tags.
 
-greg k-h
+Thanks
+
+>
+> Thanks
