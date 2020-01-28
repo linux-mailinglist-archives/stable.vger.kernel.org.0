@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3887714B5BF
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E6414B5AB
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbgA1OAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:00:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46056 "EHLO mail.kernel.org"
+        id S1727067AbgA1N7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 08:59:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726692AbgA1OAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:00:20 -0500
+        id S1726340AbgA1N7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:59:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C00124694;
-        Tue, 28 Jan 2020 14:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D40A824688;
+        Tue, 28 Jan 2020 13:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220019;
-        bh=8JpFQ3NofESOkuHFqaDPypBoczwv8Ujt9h1/c4Jearc=;
+        s=default; t=1580219980;
+        bh=6H6cu1G/WQUmZ2MDjL0b/bXedbzOPN3nbxogY/FZ+3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5zvJCuil/3q0ZOHQk6q0Xxx4EMKwuJq2Ng0hNCR2rTuDdVBAZksHgZtm6xzV+j8w
-         r27z1T/EP7tcN9Z8l05ny4ghFMyBGA27ImasQJdyCxwpsUII+nH6XgrhNwweYoT4fg
-         E4FG1W7Z5dGdhTa70Zd5/mrBWYRChgZaOfbDejHk=
+        b=EQyL+1gObYwaOwQbNPlEJKXPB72qGV2l2hiJi7lbynZJttocXp5vaxViCRfqbX6bx
+         pFZIHpOxW6Rvh+bBGbUIY/HHXmi41/QEr8wcVctK/L5sV62CPqxrOqiKNhrBVPqUn4
+         z+0WE27Pc2yM55zjmZhUhgA1hmCBBoSO3wlGggVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.14 36/46] do_last(): fetch directory ->i_mode and ->i_uid before its too late
-Date:   Tue, 28 Jan 2020 14:58:10 +0100
-Message-Id: <20200128135754.563268564@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 4.14 38/46] coresight: etb10: Do not call smp_processor_id from preemptible
+Date:   Tue, 28 Jan 2020 14:58:12 +0100
+Message-Id: <20200128135754.798242502@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -42,74 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit d0cb50185ae942b03c4327be322055d622dc79f6 upstream.
+commit 730766bae3280a25d40ea76a53dc6342e84e6513 upstream.
 
-may_create_in_sticky() call is done when we already have dropped the
-reference to dir.
+During a perf session we try to allocate buffers on the "node" associated
+with the CPU the event is bound to. If it is not bound to a CPU, we
+use the current CPU node, using smp_processor_id(). However this is unsafe
+in a pre-emptible context and could generate the splats as below :
 
-Fixes: 30aba6656f61e (namei: allow restricted O_CREAT of FIFOs and regular files)
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+ BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
+
+Use NUMA_NO_NODE hint instead of using the current node for events
+not bound to CPUs.
+
+Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: stable <stable@vger.kernel.org> # 4.6+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- fs/namei.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -1023,7 +1023,8 @@ static int may_linkat(struct path *link)
-  * may_create_in_sticky - Check whether an O_CREAT open in a sticky directory
-  *			  should be allowed, or not, on files that already
-  *			  exist.
-- * @dir: the sticky parent directory
-+ * @dir_mode: mode bits of directory
-+ * @dir_uid: owner of directory
-  * @inode: the inode of the file to open
-  *
-  * Block an O_CREAT open of a FIFO (or a regular file) when:
-@@ -1039,18 +1040,18 @@ static int may_linkat(struct path *link)
-  *
-  * Returns 0 if the open is allowed, -ve on error.
-  */
--static int may_create_in_sticky(struct dentry * const dir,
-+static int may_create_in_sticky(umode_t dir_mode, kuid_t dir_uid,
- 				struct inode * const inode)
- {
- 	if ((!sysctl_protected_fifos && S_ISFIFO(inode->i_mode)) ||
- 	    (!sysctl_protected_regular && S_ISREG(inode->i_mode)) ||
--	    likely(!(dir->d_inode->i_mode & S_ISVTX)) ||
--	    uid_eq(inode->i_uid, dir->d_inode->i_uid) ||
-+	    likely(!(dir_mode & S_ISVTX)) ||
-+	    uid_eq(inode->i_uid, dir_uid) ||
- 	    uid_eq(current_fsuid(), inode->i_uid))
- 		return 0;
+---
+ drivers/hwtracing/coresight/coresight-etb10.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/drivers/hwtracing/coresight/coresight-etb10.c
++++ b/drivers/hwtracing/coresight/coresight-etb10.c
+@@ -287,9 +287,7 @@ static void *etb_alloc_buffer(struct cor
+ 	int node;
+ 	struct cs_buffers *buf;
  
--	if (likely(dir->d_inode->i_mode & 0002) ||
--	    (dir->d_inode->i_mode & 0020 &&
-+	if (likely(dir_mode & 0002) ||
-+	    (dir_mode & 0020 &&
- 	     ((sysctl_protected_fifos >= 2 && S_ISFIFO(inode->i_mode)) ||
- 	      (sysctl_protected_regular >= 2 && S_ISREG(inode->i_mode))))) {
- 		return -EACCES;
-@@ -3265,6 +3266,8 @@ static int do_last(struct nameidata *nd,
- 		   int *opened)
- {
- 	struct dentry *dir = nd->path.dentry;
-+	kuid_t dir_uid = dir->d_inode->i_uid;
-+	umode_t dir_mode = dir->d_inode->i_mode;
- 	int open_flag = op->open_flag;
- 	bool will_truncate = (open_flag & O_TRUNC) != 0;
- 	bool got_write = false;
-@@ -3400,7 +3403,7 @@ finish_open:
- 		error = -EISDIR;
- 		if (d_is_dir(nd->path.dentry))
- 			goto out;
--		error = may_create_in_sticky(dir,
-+		error = may_create_in_sticky(dir_mode, dir_uid,
- 					     d_backing_inode(nd->path.dentry));
- 		if (unlikely(error))
- 			goto out;
+-	if (cpu == -1)
+-		cpu = smp_processor_id();
+-	node = cpu_to_node(cpu);
++	node = (cpu == -1) ? NUMA_NO_NODE : cpu_to_node(cpu);
+ 
+ 	buf = kzalloc_node(sizeof(struct cs_buffers), GFP_KERNEL, node);
+ 	if (!buf)
 
 
