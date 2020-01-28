@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F52E14BAAB
+	by mail.lfdr.de (Postfix) with ESMTP id 9BDA614BAAC
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:41:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730026AbgA1OPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:15:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37660 "EHLO mail.kernel.org"
+        id S1730052AbgA1OPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:15:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730035AbgA1OPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:15:08 -0500
+        id S1730047AbgA1OPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:15:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFA6B24681;
-        Tue, 28 Jan 2020 14:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EFB224681;
+        Tue, 28 Jan 2020 14:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220908;
-        bh=mMVHWPhGVr12UQgiIwOVH1+KWsDTW8eU+eNqwVQThDk=;
+        s=default; t=1580220910;
+        bh=AZ+KTiH2AuAuxd2VCt7KSBWdxt9JsjHbNKgEjirdV1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoUeZNhXGO7pDLYgM0eBABOuOE/yvrkmRwR94tK/da4c5bEehU2Fdt7uWn3WC5qKT
-         o5WPzfJvlDvGD6hNEY5ZzqgNh8QigkG3joJyUu7pLC4qRwpr5tXit6Uhxu0QvS9/u3
-         KFIK18a7G+5q3Y5z3GdmCy3xfRwenD4i+tjJu5iQ=
+        b=jpxu+yk9kIUVSoax6Nc7TH/p82smhzClTluCJSzSeQxZboisKdAq3EVY77WzPvDvT
+         VWUS9ETSCmG6hn8sMdHtYv/D7JNvbNDqDdAWCgmAZMVrVZ57yFNCVLnaKQ0DJR2Atz
+         sBOJh9R9AoxeavGyIPicE6B/9Z9n27mJjHWdsSMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 012/271] pcrypt: use format specifier in kobject_add
-Date:   Tue, 28 Jan 2020 15:02:41 +0100
-Message-Id: <20200128135853.358753520@linuxfoundation.org>
+Subject: [PATCH 4.9 013/271] exportfs: fix passing zero to ERR_PTR() warning
+Date:   Tue, 28 Jan 2020 15:02:42 +0100
+Message-Id: <20200128135853.452724759@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -44,41 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit b1e3874c75ab15288f573b3532e507c37e8e7656 ]
+[ Upstream commit 909e22e05353a783c526829427e9a8de122fba9c ]
 
-Passing string 'name' as the format specifier is potentially hazardous
-because name could (although very unlikely to) have a format specifier
-embedded in it causing issues when parsing the non-existent arguments
-to these.  Follow best practice by using the "%s" format string for
-the string 'name'.
+Fix a static code checker warning:
+  fs/exportfs/expfs.c:171 reconnect_one() warn: passing zero to 'ERR_PTR'
 
-Cleans up clang warning:
-crypto/pcrypt.c:397:40: warning: format string is not a string literal
-(potentially insecure) [-Wformat-security]
+The error path for lookup_one_len_unlocked failure
+should set err to PTR_ERR.
 
-Fixes: a3fb1e330dd2 ("pcrypt: Added sysfs interface to pcrypt")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: bbf7a8a3562f ("exportfs: move most of reconnect_path to helper function")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/pcrypt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exportfs/expfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index f8ec3d4ba4a80..a5718c0a3dc4e 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -394,7 +394,7 @@ static int pcrypt_sysfs_add(struct padata_instance *pinst, const char *name)
- 	int ret;
- 
- 	pinst->kobj.kset = pcrypt_kset;
--	ret = kobject_add(&pinst->kobj, NULL, name);
-+	ret = kobject_add(&pinst->kobj, NULL, "%s", name);
- 	if (!ret)
- 		kobject_uevent(&pinst->kobj, KOBJ_ADD);
- 
+diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
+index 3706939e5dd5e..1730122b10e06 100644
+--- a/fs/exportfs/expfs.c
++++ b/fs/exportfs/expfs.c
+@@ -146,6 +146,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
+ 	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
+ 	if (IS_ERR(tmp)) {
+ 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
++		err = PTR_ERR(tmp);
+ 		goto out_err;
+ 	}
+ 	if (tmp != dentry) {
 -- 
 2.20.1
 
