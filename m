@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38BED14B727
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:11:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0E814B85A
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:24:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726725AbgA1OLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:11:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60932 "EHLO mail.kernel.org"
+        id S1731591AbgA1OWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:22:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727097AbgA1OLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:11:45 -0500
+        id S1731667AbgA1OWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:22:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 313D024688;
-        Tue, 28 Jan 2020 14:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82CA124686;
+        Tue, 28 Jan 2020 14:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220704;
-        bh=BDmzMUOv+jwCWIgzcr7uhDx7cxYkavGXJYJFdjJ7oTE=;
+        s=default; t=1580221361;
+        bh=W7xtTQ/Seu3GcN/vKIk0ij30T6WGNN3v6s4L10ALXG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2PF5aOUD984aZiF9AYeq84sJ1fcwFYqLRhOtiggoUJYchk+CjfiUSo6Ja0auKgEY
-         H1k9VYsrxzIxUPz75rP5dYth+gbunUqN5JoXZl9OLoYEpF4HfjWa3XuVFVK7a5hUpH
-         MZHg3vZst7ciNPnJiKd/fUP1fKA6YiseqhKc+ssA=
+        b=zaBjQ0TgjnS/DwB0gdZ+zKvJQunwsCZBsXlMCpA3tA87Z2l/6f6FgR88YLF1Yg6tr
+         6+DLHUjyGx4V+UQO7TL9gzvK+SfKcXJ07TMl+UYbpC0iISk2i9Z6VXpR+O9daoHQj9
+         9inJO09e8unmFeB87OQhKgU7NhJGRR7fzCyFofJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 076/183] hwmon: (w83627hf) Use request_muxed_region for Super-IO accesses
-Date:   Tue, 28 Jan 2020 15:04:55 +0100
-Message-Id: <20200128135837.549555723@linuxfoundation.org>
+Subject: [PATCH 4.9 147/271] serial: stm32: fix transmit_chars when tx is stopped
+Date:   Tue, 28 Jan 2020 15:04:56 +0100
+Message-Id: <20200128135903.499231268@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,119 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Erwan Le Ray <erwan.leray@st.com>
 
-[ Upstream commit e95fd518d05bfc087da6fcdea4900a57cfb083bd ]
+[ Upstream commit b83b957c91f68e53f0dc596e129e8305761f2a32 ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+Disables the tx irq  when the transmission is ended and updates stop_tx
+conditions for code cleanup.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
-
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
-
-Fixes: b72656dbc491 ("hwmon: (w83627hf) Stop using globals for I/O port numbers")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
+Signed-off-by: Erwan Le Ray <erwan.leray@st.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/w83627hf.c | 42 +++++++++++++++++++++++++++++++++++-----
- 1 file changed, 37 insertions(+), 5 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hwmon/w83627hf.c b/drivers/hwmon/w83627hf.c
-index 721295b9a0517..43c0f89cefdf0 100644
---- a/drivers/hwmon/w83627hf.c
-+++ b/drivers/hwmon/w83627hf.c
-@@ -130,17 +130,23 @@ superio_select(struct w83627hf_sio_data *sio, int ld)
- 	outb(ld,  sio->sioaddr + 1);
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 033856287ca21..ea8b591dd46f4 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -293,13 +293,8 @@ static void stm32_transmit_chars(struct uart_port *port)
+ 		return;
+ 	}
+ 
+-	if (uart_tx_stopped(port)) {
+-		stm32_stop_tx(port);
+-		return;
+-	}
+-
+-	if (uart_circ_empty(xmit)) {
+-		stm32_stop_tx(port);
++	if (uart_circ_empty(xmit) || uart_tx_stopped(port)) {
++		stm32_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
+ 		return;
+ 	}
+ 
+@@ -312,7 +307,7 @@ static void stm32_transmit_chars(struct uart_port *port)
+ 		uart_write_wakeup(port);
+ 
+ 	if (uart_circ_empty(xmit))
+-		stm32_stop_tx(port);
++		stm32_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
  }
  
--static inline void
-+static inline int
- superio_enter(struct w83627hf_sio_data *sio)
- {
-+	if (!request_muxed_region(sio->sioaddr, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x87, sio->sioaddr);
- 	outb(0x87, sio->sioaddr);
-+
-+	return 0;
- }
- 
- static inline void
- superio_exit(struct w83627hf_sio_data *sio)
- {
- 	outb(0xAA, sio->sioaddr);
-+	release_region(sio->sioaddr, 2);
- }
- 
- #define W627_DEVID 0x52
-@@ -1275,7 +1281,7 @@ static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
- static int __init w83627hf_find(int sioaddr, unsigned short *addr,
- 				struct w83627hf_sio_data *sio_data)
- {
--	int err = -ENODEV;
-+	int err;
- 	u16 val;
- 
- 	static __initconst char *const names[] = {
-@@ -1287,7 +1293,11 @@ static int __init w83627hf_find(int sioaddr, unsigned short *addr,
- 	};
- 
- 	sio_data->sioaddr = sioaddr;
--	superio_enter(sio_data);
-+	err = superio_enter(sio_data);
-+	if (err)
-+		return err;
-+
-+	err = -ENODEV;
- 	val = force_id ? force_id : superio_inb(sio_data, DEVID);
- 	switch (val) {
- 	case W627_DEVID:
-@@ -1641,9 +1651,21 @@ static int w83627thf_read_gpio5(struct platform_device *pdev)
- 	struct w83627hf_sio_data *sio_data = dev_get_platdata(&pdev->dev);
- 	int res = 0xff, sel;
- 
--	superio_enter(sio_data);
-+	if (superio_enter(sio_data)) {
-+		/*
-+		 * Some other driver reserved the address space for itself.
-+		 * We don't want to fail driver instantiation because of that,
-+		 * so display a warning and keep going.
-+		 */
-+		dev_warn(&pdev->dev,
-+			 "Can not read VID data: Failed to enable SuperIO access\n");
-+		return res;
-+	}
-+
- 	superio_select(sio_data, W83627HF_LD_GPIO5);
- 
-+	res = 0xff;
-+
- 	/* Make sure these GPIO pins are enabled */
- 	if (!(superio_inb(sio_data, W83627THF_GPIO5_EN) & (1<<3))) {
- 		dev_dbg(&pdev->dev, "GPIO5 disabled, no VID function\n");
-@@ -1674,7 +1696,17 @@ static int w83687thf_read_vid(struct platform_device *pdev)
- 	struct w83627hf_sio_data *sio_data = dev_get_platdata(&pdev->dev);
- 	int res = 0xff;
- 
--	superio_enter(sio_data);
-+	if (superio_enter(sio_data)) {
-+		/*
-+		 * Some other driver reserved the address space for itself.
-+		 * We don't want to fail driver instantiation because of that,
-+		 * so display a warning and keep going.
-+		 */
-+		dev_warn(&pdev->dev,
-+			 "Can not read VID data: Failed to enable SuperIO access\n");
-+		return res;
-+	}
-+
- 	superio_select(sio_data, W83627HF_LD_HWM);
- 
- 	/* Make sure these GPIO pins are enabled */
+ static irqreturn_t stm32_interrupt(int irq, void *ptr)
 -- 
 2.20.1
 
