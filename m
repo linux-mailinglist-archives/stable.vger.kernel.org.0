@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 492F914B883
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E85DB14B752
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:13:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731337AbgA1OYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:24:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51000 "EHLO mail.kernel.org"
+        id S1729158AbgA1ONW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:13:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731508AbgA1OYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:20 -0500
+        id S1729667AbgA1ONW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A7E2468A;
-        Tue, 28 Jan 2020 14:24:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB7FA24688;
+        Tue, 28 Jan 2020 14:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221460;
-        bh=yjiDfEnBImHmLBETyrn1Ft8yQxUTC7g8GV5oackgyF8=;
+        s=default; t=1580220801;
+        bh=P8WDGV55YcmU/Rr49K1XQfZE/h0Lqzq8HkWQheqOrJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgHoQcG0w/AYrGwqgwdPyg9Uub/6VGeV5rth7cLdiTLsnBEUrBVqbqlbpXHHBFwhE
-         e9UBIP9sSWRINJGazHFIfrx3NkukBh687alSrQYnPma8SLDA7H3WVc0AoYjv9A/Qgz
-         f2Z1JORgsR8QPJ4cDz2DU2Y7dsnrsH9WBl1Lax5k=
+        b=NJPkr9OmsDPuvN9eEgtKpa8qALJ04Qq/hlQA+rnkrWIjtICH7UmZBHlZyHM5e2o8+
+         9B294UHWn/4XyjVXLa7La4Kqig4/r/ybP2j1RMiz/ifpNoQ8FUu6XMf1jSYSk8NRqZ
+         iCzSj7T+Y9WHE8er3Ik4XW34nTEUygbZn6tmZf5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 186/271] mac80211: minstrel_ht: fix per-group max throughput rate initialization
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 116/183] ALSA: aoa: onyx: always initialize register read value
 Date:   Tue, 28 Jan 2020 15:05:35 +0100
-Message-Id: <20200128135906.414211395@linuxfoundation.org>
+Message-Id: <20200128135841.523083878@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Johannes Berg <johannes@sipsolutions.net>
 
-[ Upstream commit 56dd918ff06e3ee24d8067e93ed12b2a39e71394 ]
+[ Upstream commit f474808acb3c4b30552d9c59b181244e0300d218 ]
 
-The group number needs to be multiplied by the number of rates per group
-to get the full rate index
+A lot of places in the driver use onyx_read_register() without
+checking the return value, and it's been working OK for ~10 years
+or so, so probably never fails ... Rather than trying to check the
+return value everywhere, which would be relatively intrusive, at
+least make sure we don't use an uninitialized value.
 
-Fixes: 5935839ad735 ("mac80211: improve minstrel_ht rate sorting by throughput & probability")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20190820095449.45255-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rc80211_minstrel_ht.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/aoa/codecs/onyx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
-index 593184d14b3ef..e1b0e26c1f174 100644
---- a/net/mac80211/rc80211_minstrel_ht.c
-+++ b/net/mac80211/rc80211_minstrel_ht.c
-@@ -547,7 +547,7 @@ minstrel_ht_update_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi)
- 
- 		/* (re)Initialize group rate indexes */
- 		for(j = 0; j < MAX_THR_RATES; j++)
--			tmp_group_tp_rate[j] = group;
-+			tmp_group_tp_rate[j] = MCS_GROUP_RATES * group;
- 
- 		for (i = 0; i < MCS_GROUP_RATES; i++) {
- 			if (!(mg->supported & BIT(i)))
+diff --git a/sound/aoa/codecs/onyx.c b/sound/aoa/codecs/onyx.c
+index a04edff8b729e..ae50d59fb810f 100644
+--- a/sound/aoa/codecs/onyx.c
++++ b/sound/aoa/codecs/onyx.c
+@@ -74,8 +74,10 @@ static int onyx_read_register(struct onyx *onyx, u8 reg, u8 *value)
+ 		return 0;
+ 	}
+ 	v = i2c_smbus_read_byte_data(onyx->i2c, reg);
+-	if (v < 0)
++	if (v < 0) {
++		*value = 0;
+ 		return -1;
++	}
+ 	*value = (u8)v;
+ 	onyx->cache[ONYX_REG_CONTROL-FIRSTREGISTER] = *value;
+ 	return 0;
 -- 
 2.20.1
 
