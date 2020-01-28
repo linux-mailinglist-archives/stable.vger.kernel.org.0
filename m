@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8BD14B6FC
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:10:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F31B114B6FF
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:10:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbgA1OKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:10:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58872 "EHLO mail.kernel.org"
+        id S1727626AbgA1OKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:10:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729126AbgA1OKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:10:12 -0500
+        id S1729126AbgA1OKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:10:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C04324693;
-        Tue, 28 Jan 2020 14:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D267F24688;
+        Tue, 28 Jan 2020 14:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220611;
-        bh=jh53Q/Ozkk8U/82aeS6OkO2XtSpp62JCOjza6w+v6FY=;
+        s=default; t=1580220614;
+        bh=4tsbLvzpH6KACgrSusRTvQLdfeOm9HSCRWokT2heKuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9NPs1XWNcWAwXTMILLGGxZQMamJKYmEqsxvCiRBGPnQLDY1VtbpLjcTJP8ejgg8N
-         cpAB1SWUogKkee+aC858gsMXLStbYSlrhwfbQ5hbGBPHc7SI++b9lGAcFzSN/tcf0l
-         A9kbMbsrVzADb0vscOZx8oFlcmj341c9V9LVtQeQ=
+        b=bbK3X02aJ/YZPNhaR0e5gJViLd7cYTV6NW3Ojo0O1T33NBA7sfz2xyz1wl0iONBdL
+         esiyzCXEDgiJfmr5u67K16O7aldI9iTTNZaog1AuCKUE3g51ppn//Nhvnk91U1fo/6
+         nmogmQchJHr3HC/+ACqw+N8HcIMd1rawMBunkHP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 039/183] rtc: ds1672: fix unintended sign extension
-Date:   Tue, 28 Jan 2020 15:04:18 +0100
-Message-Id: <20200128135833.915100317@linuxfoundation.org>
+Subject: [PATCH 4.4 040/183] rtc: 88pm860x: fix unintended sign extension
+Date:   Tue, 28 Jan 2020 15:04:19 +0100
+Message-Id: <20200128135834.007102906@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
 References: <20200128135829.486060649@linuxfoundation.org>
@@ -46,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit f0c04c276739ed8acbb41b4868e942a55b128dca ]
+[ Upstream commit dc9e47160626cdb58d5c39a4f43dcfdb27a5c004 ]
 
 Shifting a u8 by 24 will cause the value to be promoted to an integer. If
 the top bit of the u8 is set then the following conversion to an unsigned
@@ -55,30 +55,77 @@ the result.
 
 Fix this by casting the u8 value to an unsigned long before the shift.
 
-Detected by CoverityScan, CID#138801 ("Unintended sign extension")
+Detected by CoverityScan, CID#144925-144928 ("Unintended sign extension")
 
-Fixes: edf1aaa31fc5 ("[PATCH] RTC subsystem: DS1672 driver")
+Fixes: 008b30408c40 ("mfd: Add rtc support to 88pm860x")
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1672.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-88pm860x.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
-index 92b1cbf2c4a76..2bea733b15893 100644
---- a/drivers/rtc/rtc-ds1672.c
-+++ b/drivers/rtc/rtc-ds1672.c
-@@ -60,7 +60,8 @@ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n",
- 		__func__, buf[0], buf[1], buf[2], buf[3]);
+diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
+index 166faae3a59cd..7d3e5168fcefc 100644
+--- a/drivers/rtc/rtc-88pm860x.c
++++ b/drivers/rtc/rtc-88pm860x.c
+@@ -115,11 +115,13 @@ static int pm860x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	pm860x_page_bulk_read(info->i2c, REG0_ADDR, 8, buf);
+ 	dev_dbg(info->dev, "%x-%x-%x-%x-%x-%x-%x-%x\n", buf[0], buf[1],
+ 		buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+-	base = (buf[1] << 24) | (buf[3] << 16) | (buf[5] << 8) | buf[7];
++	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
++		(buf[5] << 8) | buf[7];
  
--	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	time = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+	       (buf[1] << 8) | buf[0];
+ 	/* load 32-bit read-only counter */
+ 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
+-	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
++		(buf[1] << 8) | buf[0];
+ 	ticks = base + data;
+ 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
+ 		base, data, ticks);
+@@ -145,7 +147,8 @@ static int pm860x_rtc_set_time(struct device *dev, struct rtc_time *tm)
  
- 	rtc_time_to_tm(time, tm);
+ 	/* load 32-bit read-only counter */
+ 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
+-	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
++		(buf[1] << 8) | buf[0];
+ 	base = ticks - data;
+ 	dev_dbg(info->dev, "set base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
+ 		base, data, ticks);
+@@ -170,10 +173,12 @@ static int pm860x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	pm860x_page_bulk_read(info->i2c, REG0_ADDR, 8, buf);
+ 	dev_dbg(info->dev, "%x-%x-%x-%x-%x-%x-%x-%x\n", buf[0], buf[1],
+ 		buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+-	base = (buf[1] << 24) | (buf[3] << 16) | (buf[5] << 8) | buf[7];
++	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
++		(buf[5] << 8) | buf[7];
  
+ 	pm860x_bulk_read(info->i2c, PM8607_RTC_EXPIRE1, 4, buf);
+-	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
++		(buf[1] << 8) | buf[0];
+ 	ticks = base + data;
+ 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
+ 		base, data, ticks);
+@@ -198,11 +203,13 @@ static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	pm860x_page_bulk_read(info->i2c, REG0_ADDR, 8, buf);
+ 	dev_dbg(info->dev, "%x-%x-%x-%x-%x-%x-%x-%x\n", buf[0], buf[1],
+ 		buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+-	base = (buf[1] << 24) | (buf[3] << 16) | (buf[5] << 8) | buf[7];
++	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
++		(buf[5] << 8) | buf[7];
+ 
+ 	/* load 32-bit read-only counter */
+ 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
+-	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
++		(buf[1] << 8) | buf[0];
+ 	ticks = base + data;
+ 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
+ 		base, data, ticks);
 -- 
 2.20.1
 
