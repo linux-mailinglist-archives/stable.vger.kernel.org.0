@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 468C114B99D
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B5814BAC4
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732785AbgA1OY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:24:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
+        id S1729868AbgA1OOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:14:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732766AbgA1OY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:56 -0500
+        id S1729864AbgA1OOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:14:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6014624681;
-        Tue, 28 Jan 2020 14:24:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D07FF24694;
+        Tue, 28 Jan 2020 14:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221494;
-        bh=uu1kj5/fQ0g0xQB25ejUBqJrWhvlZPo6rGxHMrPqe78=;
+        s=default; t=1580220863;
+        bh=jV/dth03refcE4X+CD8qRfFQaEXuob2S/bnzO3uo3Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xg5yMQOvb3AZHn5ZK8kjTnyQdX3uccJ4XwJaOpNV+IlVaIgARRMUWmFGiR+hSwDPJ
-         JunOB3bFKdbTzr0ViiLRYSa9G+RUYm9Sf4eF48KBYCuGnAXH07d5vjDeQAwWy/zeP7
-         c5uMKnSVzSpVKbGq0BBk+qdzPplP3jZjwTJsfJmI=
+        b=IKbtprDHSUjl+teUz5iZyswqMAbB+SfEmR4W73inwAxiUrrphcfd2rDCPMoeKFyXd
+         9/4CvN36FrcOGy2ZDBwhxCnSMg5QDHTwPUdbs7x7K7g3Dlg7GdeCf+ZKcroiOiGXi0
+         7vK4YWECTNetIRFQqb/55lj2OD+Pg+iJpXqQZgg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 247/271] hwmon: (core) Do not use device managed functions for memory allocations
+        =?UTF-8?q?Lars=20M=C3=B6llendorf?= <lars.moellendorf@plating.de>,
+        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.4 177/183] iio: buffer: align the size of scan bytes to size of the largest element
 Date:   Tue, 28 Jan 2020 15:06:36 +0100
-Message-Id: <20200128135910.906897779@linuxfoundation.org>
+Message-Id: <20200128135847.434432262@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,235 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Lars Möllendorf <lars.moellendorf@plating.de>
 
-commit 3bf8bdcf3bada771eb12b57f2a30caee69e8ab8d upstream.
+commit 883f616530692d81cb70f8a32d85c0d2afc05f69 upstream.
 
-The hwmon core uses device managed functions, tied to the hwmon parent
-device, for various internal memory allocations. This is problematic
-since hwmon device lifetime does not necessarily match its parent's
-device lifetime. If there is a mismatch, memory leaks will accumulate
-until the parent device is released.
+Previous versions of `iio_compute_scan_bytes` only aligned each element
+to its own length (i.e. its own natural alignment). Because multiple
+consecutive sets of scan elements are buffered this does not work in
+case the computed scan bytes do not align with the natural alignment of
+the first scan element in the set.
 
-Fix the problem by managing all memory allocations internally. The only
-exception is memory allocation for thermal device registration, which
-can be tied to the hwmon device, along with thermal device registration
-itself.
+This commit fixes this by aligning the scan bytes to the natural
+alignment of the largest scan element in the set.
 
-Fixes: d560168b5d0f ("hwmon: (core) New hwmon registration API")
-Cc: stable@vger.kernel.org # v4.14.x: 47c332deb8e8: hwmon: Deal with errors from the thermal subsystem
-Cc: stable@vger.kernel.org # v4.14.x: 74e3512731bd: hwmon: (core) Fix double-free in __hwmon_device_register()
-Cc: stable@vger.kernel.org # v4.9.x: 3a412d5e4a1c: hwmon: (core) Simplify sysfs attribute name allocation
-Cc: stable@vger.kernel.org # v4.9.x: 47c332deb8e8: hwmon: Deal with errors from the thermal subsystem
-Cc: stable@vger.kernel.org # v4.9.x: 74e3512731bd: hwmon: (core) Fix double-free in __hwmon_device_register()
-Cc: stable@vger.kernel.org # v4.9+
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 959d2952d124 ("staging:iio: make iio_sw_buffer_preenable much more general.")
+Signed-off-by: Lars Möllendorf <lars.moellendorf@plating.de>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/hwmon/hwmon.c |   68 ++++++++++++++++++++++++++++++--------------------
- 1 file changed, 41 insertions(+), 27 deletions(-)
 
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -51,6 +51,7 @@ struct hwmon_device_attribute {
- 
- #define to_hwmon_attr(d) \
- 	container_of(d, struct hwmon_device_attribute, dev_attr)
-+#define to_dev_attr(a) container_of(a, struct device_attribute, attr)
- 
- /*
-  * Thermal zone information
-@@ -58,7 +59,7 @@ struct hwmon_device_attribute {
-  * also provides the sensor index.
-  */
- struct hwmon_thermal_data {
--	struct hwmon_device *hwdev;	/* Reference to hwmon device */
-+	struct device *dev;		/* Reference to hwmon device */
- 	int index;			/* sensor index */
- };
- 
-@@ -95,9 +96,27 @@ static const struct attribute_group *hwm
- 	NULL
- };
- 
-+static void hwmon_free_attrs(struct attribute **attrs)
-+{
-+	int i;
-+
-+	for (i = 0; attrs[i]; i++) {
-+		struct device_attribute *dattr = to_dev_attr(attrs[i]);
-+		struct hwmon_device_attribute *hattr = to_hwmon_attr(dattr);
-+
-+		kfree(hattr);
-+	}
-+	kfree(attrs);
-+}
-+
- static void hwmon_dev_release(struct device *dev)
+---
+ drivers/iio/industrialio-buffer.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -527,7 +527,7 @@ static int iio_compute_scan_bytes(struct
  {
--	kfree(to_hwmon_device(dev));
-+	struct hwmon_device *hwdev = to_hwmon_device(dev);
-+
-+	if (hwdev->group.attrs)
-+		hwmon_free_attrs(hwdev->group.attrs);
-+	kfree(hwdev->groups);
-+	kfree(hwdev);
- }
+ 	const struct iio_chan_spec *ch;
+ 	unsigned bytes = 0;
+-	int length, i;
++	int length, i, largest = 0;
  
- static struct class hwmon_class = {
-@@ -121,11 +140,11 @@ static DEFINE_IDA(hwmon_ida);
- static int hwmon_thermal_get_temp(void *data, int *temp)
- {
- 	struct hwmon_thermal_data *tdata = data;
--	struct hwmon_device *hwdev = tdata->hwdev;
-+	struct hwmon_device *hwdev = to_hwmon_device(tdata->dev);
- 	int ret;
- 	long t;
- 
--	ret = hwdev->chip->ops->read(&hwdev->dev, hwmon_temp, hwmon_temp_input,
-+	ret = hwdev->chip->ops->read(tdata->dev, hwmon_temp, hwmon_temp_input,
- 				     tdata->index, &t);
- 	if (ret < 0)
- 		return ret;
-@@ -139,8 +158,7 @@ static struct thermal_zone_of_device_ops
- 	.get_temp = hwmon_thermal_get_temp,
- };
- 
--static int hwmon_thermal_add_sensor(struct device *dev,
--				    struct hwmon_device *hwdev, int index)
-+static int hwmon_thermal_add_sensor(struct device *dev, int index)
- {
- 	struct hwmon_thermal_data *tdata;
- 	struct thermal_zone_device *tzd;
-@@ -149,10 +167,10 @@ static int hwmon_thermal_add_sensor(stru
- 	if (!tdata)
- 		return -ENOMEM;
- 
--	tdata->hwdev = hwdev;
-+	tdata->dev = dev;
- 	tdata->index = index;
- 
--	tzd = devm_thermal_zone_of_sensor_register(&hwdev->dev, index, tdata,
-+	tzd = devm_thermal_zone_of_sensor_register(dev, index, tdata,
- 						   &hwmon_thermal_ops);
- 	/*
- 	 * If CONFIG_THERMAL_OF is disabled, this returns -ENODEV,
-@@ -164,8 +182,7 @@ static int hwmon_thermal_add_sensor(stru
- 	return 0;
- }
- #else
--static int hwmon_thermal_add_sensor(struct device *dev,
--				    struct hwmon_device *hwdev, int index)
-+static int hwmon_thermal_add_sensor(struct device *dev, int index)
- {
- 	return 0;
- }
-@@ -215,8 +232,7 @@ static int hwmon_attr_base(enum hwmon_se
- 	return 1;
- }
- 
--static struct attribute *hwmon_genattr(struct device *dev,
--				       const void *drvdata,
-+static struct attribute *hwmon_genattr(const void *drvdata,
- 				       enum hwmon_sensor_types type,
- 				       u32 attr,
- 				       int index,
-@@ -242,7 +258,7 @@ static struct attribute *hwmon_genattr(s
- 	if ((mode & S_IWUGO) && !ops->write)
- 		return ERR_PTR(-EINVAL);
- 
--	hattr = devm_kzalloc(dev, sizeof(*hattr), GFP_KERNEL);
-+	hattr = kzalloc(sizeof(*hattr), GFP_KERNEL);
- 	if (!hattr)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -441,8 +457,7 @@ static int hwmon_num_channel_attrs(const
- 	return n;
- }
- 
--static int hwmon_genattrs(struct device *dev,
--			  const void *drvdata,
-+static int hwmon_genattrs(const void *drvdata,
- 			  struct attribute **attrs,
- 			  const struct hwmon_ops *ops,
- 			  const struct hwmon_channel_info *info)
-@@ -468,7 +483,7 @@ static int hwmon_genattrs(struct device
- 			attr_mask &= ~BIT(attr);
- 			if (attr >= template_size)
- 				return -EINVAL;
--			a = hwmon_genattr(dev, drvdata, info->type, attr, i,
-+			a = hwmon_genattr(drvdata, info->type, attr, i,
- 					  templates[attr], ops);
- 			if (IS_ERR(a)) {
- 				if (PTR_ERR(a) != -ENOENT)
-@@ -482,8 +497,7 @@ static int hwmon_genattrs(struct device
- }
- 
- static struct attribute **
--__hwmon_create_attrs(struct device *dev, const void *drvdata,
--		     const struct hwmon_chip_info *chip)
-+__hwmon_create_attrs(const void *drvdata, const struct hwmon_chip_info *chip)
- {
- 	int ret, i, aindex = 0, nattrs = 0;
- 	struct attribute **attrs;
-@@ -494,15 +508,17 @@ __hwmon_create_attrs(struct device *dev,
- 	if (nattrs == 0)
- 		return ERR_PTR(-EINVAL);
- 
--	attrs = devm_kcalloc(dev, nattrs + 1, sizeof(*attrs), GFP_KERNEL);
-+	attrs = kcalloc(nattrs + 1, sizeof(*attrs), GFP_KERNEL);
- 	if (!attrs)
- 		return ERR_PTR(-ENOMEM);
- 
- 	for (i = 0; chip->info[i]; i++) {
--		ret = hwmon_genattrs(dev, drvdata, &attrs[aindex], chip->ops,
-+		ret = hwmon_genattrs(drvdata, &attrs[aindex], chip->ops,
- 				     chip->info[i]);
--		if (ret < 0)
-+		if (ret < 0) {
-+			hwmon_free_attrs(attrs);
- 			return ERR_PTR(ret);
-+		}
- 		aindex += ret;
+ 	/* How much space will the demuxed element take? */
+ 	for_each_set_bit(i, mask,
+@@ -540,6 +540,7 @@ static int iio_compute_scan_bytes(struct
+ 			length = ch->scan_type.storagebits / 8;
+ 		bytes = ALIGN(bytes, length);
+ 		bytes += length;
++		largest = max(largest, length);
  	}
+ 	if (timestamp) {
+ 		ch = iio_find_channel_from_si(indio_dev,
+@@ -551,7 +552,10 @@ static int iio_compute_scan_bytes(struct
+ 			length = ch->scan_type.storagebits / 8;
+ 		bytes = ALIGN(bytes, length);
+ 		bytes += length;
++		largest = max(largest, length);
+ 	}
++
++	bytes = ALIGN(bytes, largest);
+ 	return bytes;
+ }
  
-@@ -542,14 +558,13 @@ __hwmon_device_register(struct device *d
- 			for (i = 0; groups[i]; i++)
- 				ngroups++;
- 
--		hwdev->groups = devm_kcalloc(dev, ngroups, sizeof(*groups),
--					     GFP_KERNEL);
-+		hwdev->groups = kcalloc(ngroups, sizeof(*groups), GFP_KERNEL);
- 		if (!hwdev->groups) {
- 			err = -ENOMEM;
- 			goto free_hwmon;
- 		}
- 
--		attrs = __hwmon_create_attrs(dev, drvdata, chip);
-+		attrs = __hwmon_create_attrs(drvdata, chip);
- 		if (IS_ERR(attrs)) {
- 			err = PTR_ERR(attrs);
- 			goto free_hwmon;
-@@ -594,8 +609,7 @@ __hwmon_device_register(struct device *d
- 							   hwmon_temp_input, j))
- 					continue;
- 				if (info[i]->config[j] & HWMON_T_INPUT) {
--					err = hwmon_thermal_add_sensor(dev,
--								hwdev, j);
-+					err = hwmon_thermal_add_sensor(hdev, j);
- 					if (err) {
- 						device_unregister(hdev);
- 						goto ida_remove;
-@@ -608,7 +622,7 @@ __hwmon_device_register(struct device *d
- 	return hdev;
- 
- free_hwmon:
--	kfree(hwdev);
-+	hwmon_dev_release(hdev);
- ida_remove:
- 	ida_simple_remove(&hwmon_ida, id);
- 	return ERR_PTR(err);
 
 
