@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D02AD14B656
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:04:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D7814B67E
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:05:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727319AbgA1OES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:04:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51330 "EHLO mail.kernel.org"
+        id S1728312AbgA1OFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:05:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728040AbgA1OEP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:04:15 -0500
+        id S1727773AbgA1OFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:05:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FA4A205F4;
-        Tue, 28 Jan 2020 14:04:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B294124688;
+        Tue, 28 Jan 2020 14:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220255;
-        bh=n8euAXScR1CSlqLFgVc19vSB9xLj+3ntt9IPjt/ZXH8=;
+        s=default; t=1580220340;
+        bh=u8FEAMoac37zAG9ZH+8up4ADy+KrvFAr7q8E0WT9JOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xIVkWPVNw8fJ2R1CwrQOx3GRVxWZjwnAcuDagxuhSPJQc+c6PopzaZgOw8uxhEmU
-         SWd7jd5AH6FXy7dC28kZDSU52K+W2Pqi3dSUTEcYTlRpHd84Mca+BXJAMJ9hqJZw9Q
-         3N73iuKeRmNGcRtnC2pm9hANZWG1zjhX1dG+0awg=
+        b=VyiHY6du+n6LfUCr+Inx5LGaU5ZlyN9qzhng4nexT/1f3uGz1dzOXOpScLQFmyWjy
+         QzPJUGvYkuq7FKB12NHL9JUNcB9K/jAeCtBdOuWvBjQaF4pVxP/6aDNx2j8uyJKk4C
+         bbVVKCY4f026kz31vBw+xkfG9XG7BWMyzeYJJKoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilles Buloz <gilles.buloz@kontron.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 077/104] hwmon: (nct7802) Fix non-working alarm on voltages
-Date:   Tue, 28 Jan 2020 15:00:38 +0100
-Message-Id: <20200128135827.867956742@linuxfoundation.org>
+        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 078/104] scsi: RDMA/isert: Fix a recently introduced regression related to logout
+Date:   Tue, 28 Jan 2020 15:00:39 +0100
+Message-Id: <20200128135827.989226960@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -43,154 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilles Buloz <gilles.buloz@kontron.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit e51a7dda299815e92f43960d620cdfc8dfc144f2 upstream.
+commit 04060db41178c7c244f2c7dcd913e7fd331de915 upstream.
 
-No alarm is reported by /sys/.../inX_alarm
+iscsit_close_connection() calls isert_wait_conn(). Due to commit
+e9d3009cb936 both functions call target_wait_for_sess_cmds() although that
+last function should be called only once. Fix this by removing the
+target_wait_for_sess_cmds() call from isert_wait_conn() and by only calling
+isert_wait_conn() after target_wait_for_sess_cmds().
 
-In detail:
-
-The SMI Voltage status register is the only register giving a status
-for voltages, but it does not work like the non-SMI status registers
-used for temperatures and fans.
-A bit is set for each input crossing a threshold, in both direction,
-but the "inside" or "outside" limits info is not available.
-Also this register is cleared on read.
-Note : this is not explicitly spelled out in the datasheet, but from
-experiment.
-As a result if an input is crossing a threshold (min or max in any
-direction), the alarm is reported only once even if the input is
-still outside limits. Also if the alarm for another input is read
-before the one of this input, no alarm is reported at all.
-
-Signed-off-by: Gilles Buloz <gilles.buloz@kontron.com>
-Link: https://lore.kernel.org/r/5de0f566.tBga5POKAgHlmd0p%gilles.buloz@kontron.com
-Fixes: 3434f3783580 ("hwmon: Driver for Nuvoton NCT7802Y")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: e9d3009cb936 ("scsi: target: iscsi: Wait for all commands to finish before freeing a session").
+Link: https://lore.kernel.org/r/20200116044737.19507-1-bvanassche@acm.org
+Reported-by: Rahul Kundu <rahul.kundu@chelsio.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Tested-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/nct7802.c |   71 +++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 67 insertions(+), 4 deletions(-)
+ drivers/infiniband/ulp/isert/ib_isert.c |   12 ------------
+ drivers/target/iscsi/iscsi_target.c     |    6 +++---
+ 2 files changed, 3 insertions(+), 15 deletions(-)
 
---- a/drivers/hwmon/nct7802.c
-+++ b/drivers/hwmon/nct7802.c
-@@ -58,6 +58,8 @@ static const u8 REG_VOLTAGE_LIMIT_MSB_SH
- struct nct7802_data {
- 	struct regmap *regmap;
- 	struct mutex access_lock; /* for multi-byte read and write operations */
-+	u8 in_status;
-+	struct mutex in_alarm_lock;
- };
- 
- static ssize_t temp_type_show(struct device *dev,
-@@ -368,6 +370,66 @@ static ssize_t in_store(struct device *d
- 	return err ? : count;
+--- a/drivers/infiniband/ulp/isert/ib_isert.c
++++ b/drivers/infiniband/ulp/isert/ib_isert.c
+@@ -2575,17 +2575,6 @@ isert_wait4logout(struct isert_conn *ise
+ 	}
  }
  
-+static ssize_t in_alarm_show(struct device *dev, struct device_attribute *attr,
-+			     char *buf)
-+{
-+	struct sensor_device_attribute_2 *sattr = to_sensor_dev_attr_2(attr);
-+	struct nct7802_data *data = dev_get_drvdata(dev);
-+	int volt, min, max, ret;
-+	unsigned int val;
-+
-+	mutex_lock(&data->in_alarm_lock);
-+
-+	/*
-+	 * The SMI Voltage status register is the only register giving a status
-+	 * for voltages. A bit is set for each input crossing a threshold, in
-+	 * both direction, but the "inside" or "outside" limits info is not
-+	 * available. Also this register is cleared on read.
-+	 * Note: this is not explicitly spelled out in the datasheet, but
-+	 * from experiment.
-+	 * To deal with this we use a status cache with one validity bit and
-+	 * one status bit for each input. Validity is cleared at startup and
-+	 * each time the register reports a change, and the status is processed
-+	 * by software based on current input value and limits.
-+	 */
-+	ret = regmap_read(data->regmap, 0x1e, &val); /* SMI Voltage status */
-+	if (ret < 0)
-+		goto abort;
-+
-+	/* invalidate cached status for all inputs crossing a threshold */
-+	data->in_status &= ~((val & 0x0f) << 4);
-+
-+	/* if cached status for requested input is invalid, update it */
-+	if (!(data->in_status & (0x10 << sattr->index))) {
-+		ret = nct7802_read_voltage(data, sattr->nr, 0);
-+		if (ret < 0)
-+			goto abort;
-+		volt = ret;
-+
-+		ret = nct7802_read_voltage(data, sattr->nr, 1);
-+		if (ret < 0)
-+			goto abort;
-+		min = ret;
-+
-+		ret = nct7802_read_voltage(data, sattr->nr, 2);
-+		if (ret < 0)
-+			goto abort;
-+		max = ret;
-+
-+		if (volt < min || volt > max)
-+			data->in_status |= (1 << sattr->index);
-+		else
-+			data->in_status &= ~(1 << sattr->index);
-+
-+		data->in_status |= 0x10 << sattr->index;
-+	}
-+
-+	ret = sprintf(buf, "%u\n", !!(data->in_status & (1 << sattr->index)));
-+abort:
-+	mutex_unlock(&data->in_alarm_lock);
-+	return ret;
-+}
-+
- static ssize_t temp_show(struct device *dev, struct device_attribute *attr,
- 			 char *buf)
- {
-@@ -660,7 +722,7 @@ static const struct attribute_group nct7
- static SENSOR_DEVICE_ATTR_2_RO(in0_input, in, 0, 0);
- static SENSOR_DEVICE_ATTR_2_RW(in0_min, in, 0, 1);
- static SENSOR_DEVICE_ATTR_2_RW(in0_max, in, 0, 2);
--static SENSOR_DEVICE_ATTR_2_RO(in0_alarm, alarm, 0x1e, 3);
-+static SENSOR_DEVICE_ATTR_2_RO(in0_alarm, in_alarm, 0, 3);
- static SENSOR_DEVICE_ATTR_2_RW(in0_beep, beep, 0x5a, 3);
+-static void
+-isert_wait4cmds(struct iscsi_conn *conn)
+-{
+-	isert_info("iscsi_conn %p\n", conn);
+-
+-	if (conn->sess) {
+-		target_sess_cmd_list_set_waiting(conn->sess->se_sess);
+-		target_wait_for_sess_cmds(conn->sess->se_sess);
+-	}
+-}
+-
+ /**
+  * isert_put_unsol_pending_cmds() - Drop commands waiting for
+  *     unsolicitate dataout
+@@ -2633,7 +2622,6 @@ static void isert_wait_conn(struct iscsi
  
- static SENSOR_DEVICE_ATTR_2_RO(in1_input, in, 1, 0);
-@@ -668,19 +730,19 @@ static SENSOR_DEVICE_ATTR_2_RO(in1_input
- static SENSOR_DEVICE_ATTR_2_RO(in2_input, in, 2, 0);
- static SENSOR_DEVICE_ATTR_2_RW(in2_min, in, 2, 1);
- static SENSOR_DEVICE_ATTR_2_RW(in2_max, in, 2, 2);
--static SENSOR_DEVICE_ATTR_2_RO(in2_alarm, alarm, 0x1e, 0);
-+static SENSOR_DEVICE_ATTR_2_RO(in2_alarm, in_alarm, 2, 0);
- static SENSOR_DEVICE_ATTR_2_RW(in2_beep, beep, 0x5a, 0);
+ 	ib_drain_qp(isert_conn->qp);
+ 	isert_put_unsol_pending_cmds(conn);
+-	isert_wait4cmds(conn);
+ 	isert_wait4logout(isert_conn);
  
- static SENSOR_DEVICE_ATTR_2_RO(in3_input, in, 3, 0);
- static SENSOR_DEVICE_ATTR_2_RW(in3_min, in, 3, 1);
- static SENSOR_DEVICE_ATTR_2_RW(in3_max, in, 3, 2);
--static SENSOR_DEVICE_ATTR_2_RO(in3_alarm, alarm, 0x1e, 1);
-+static SENSOR_DEVICE_ATTR_2_RO(in3_alarm, in_alarm, 3, 1);
- static SENSOR_DEVICE_ATTR_2_RW(in3_beep, beep, 0x5a, 1);
+ 	queue_work(isert_release_wq, &isert_conn->release_work);
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -4151,9 +4151,6 @@ int iscsit_close_connection(
+ 	iscsit_stop_nopin_response_timer(conn);
+ 	iscsit_stop_nopin_timer(conn);
  
- static SENSOR_DEVICE_ATTR_2_RO(in4_input, in, 4, 0);
- static SENSOR_DEVICE_ATTR_2_RW(in4_min, in, 4, 1);
- static SENSOR_DEVICE_ATTR_2_RW(in4_max, in, 4, 2);
--static SENSOR_DEVICE_ATTR_2_RO(in4_alarm, alarm, 0x1e, 2);
-+static SENSOR_DEVICE_ATTR_2_RO(in4_alarm, in_alarm, 4, 2);
- static SENSOR_DEVICE_ATTR_2_RW(in4_beep, beep, 0x5a, 2);
+-	if (conn->conn_transport->iscsit_wait_conn)
+-		conn->conn_transport->iscsit_wait_conn(conn);
+-
+ 	/*
+ 	 * During Connection recovery drop unacknowledged out of order
+ 	 * commands for this connection, and prepare the other commands
+@@ -4239,6 +4236,9 @@ int iscsit_close_connection(
+ 	target_sess_cmd_list_set_waiting(sess->se_sess);
+ 	target_wait_for_sess_cmds(sess->se_sess);
  
- static struct attribute *nct7802_in_attrs[] = {
-@@ -1011,6 +1073,7 @@ static int nct7802_probe(struct i2c_clie
- 		return PTR_ERR(data->regmap);
- 
- 	mutex_init(&data->access_lock);
-+	mutex_init(&data->in_alarm_lock);
- 
- 	ret = nct7802_init_chip(data);
- 	if (ret < 0)
++	if (conn->conn_transport->iscsit_wait_conn)
++		conn->conn_transport->iscsit_wait_conn(conn);
++
+ 	ahash_request_free(conn->conn_tx_hash);
+ 	if (conn->conn_rx_hash) {
+ 		struct crypto_ahash *tfm;
 
 
