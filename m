@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF55014B9AE
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB54E14BADB
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731428AbgA1OYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:24:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51170 "EHLO mail.kernel.org"
+        id S1729836AbgA1Ols (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:41:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730145AbgA1OY2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:28 -0500
+        id S1729558AbgA1ON4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B94724686;
-        Tue, 28 Jan 2020 14:24:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D38E24688;
+        Tue, 28 Jan 2020 14:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221467;
-        bh=U7KFAaLtlV+YU5BPWP95GtvN00quRSfQ7ja0XbUw8LA=;
+        s=default; t=1580220835;
+        bh=FIIZiQrPCFTJOTi6y0n20X+dQYu6x1A+iUeRhJ0vEQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08uIz6wFbmsYWecjIRQPFOUOns7Xrw5KOS0A0VoaTvvvAcCS4ua/ZDZ4GxH1S9LHW
-         p51GVBedYzkNmH9a5qDak2B6vUgj0Z4PgJRGekBU/k2lwIjykjSkF8DaJXDRPTBMEH
-         aGuse9UDepQX4FD5YLk0svfcHXziPH6q9aQlgwq4=
+        b=fHbYxnHxjOSGNl9Uj533DGDIXWUOMuCjykbym6S1J4eWBJzNyEXTPgIo54wRqSgqz
+         s+Z4K9fU5cJZ8f3ZP/ZrSqv3Oc8dRnYJCW3Z0Ye+tOmkKoJniFXzzWpINoddEsCEyx
+         Y8jvjc3zSQCI9D7IxblvCnHv6Ja89mhGCCP2P26g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 237/271] net, ip6_tunnel: fix namespaces move
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 167/183] Input: keyspan-remote - fix control-message timeouts
 Date:   Tue, 28 Jan 2020 15:06:26 +0100
-Message-Id: <20200128135910.191879594@linuxfoundation.org>
+Message-Id: <20200128135846.339032727@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dauchy <w.dauchy@criteo.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 5311a69aaca30fa849c3cc46fb25f75727fb72d0 ]
+commit ba9a103f40fc4a3ec7558ec9b0b97d4f92034249 upstream.
 
-in the same manner as commit d0f418516022 ("net, ip_tunnel: fix
-namespaces move"), fix namespace moving as it was broken since commit
-8d79266bc48c ("ip6_tunnel: add collect_md mode to IPv6 tunnel"), but for
-ipv6 this time; there is no reason to keep it for ip6_tunnel.
+The driver was issuing synchronous uninterruptible control requests
+without using a timeout. This could lead to the driver hanging on probe
+due to a malfunctioning (or malicious) device until the device is
+physically disconnected. While sleeping in probe the driver prevents
+other devices connected to the same hub from being added to (or removed
+from) the bus.
 
-Fixes: 8d79266bc48c ("ip6_tunnel: add collect_md mode to IPv6 tunnel")
-Signed-off-by: William Dauchy <w.dauchy@criteo.com>
-Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The USB upper limit of five seconds per request should be more than
+enough.
+
+Fixes: 99f83c9c9ac9 ("[PATCH] USB: add driver for Keyspan Digital Remote")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Link: https://lore.kernel.org/r/20200113171715.30621-1-johan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/ip6_tunnel.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1861,10 +1861,8 @@ static int ip6_tnl_dev_init(struct net_d
- 	if (err)
- 		return err;
- 	ip6_tnl_link_config(t);
--	if (t->parms.collect_md) {
--		dev->features |= NETIF_F_NETNS_LOCAL;
-+	if (t->parms.collect_md)
- 		netif_keep_dst(dev);
--	}
- 	return 0;
- }
+---
+ drivers/input/misc/keyspan_remote.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/drivers/input/misc/keyspan_remote.c
++++ b/drivers/input/misc/keyspan_remote.c
+@@ -344,7 +344,8 @@ static int keyspan_setup(struct usb_devi
+ 	int retval = 0;
  
+ 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-				 0x11, 0x40, 0x5601, 0x0, NULL, 0, 0);
++				 0x11, 0x40, 0x5601, 0x0, NULL, 0,
++				 USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		dev_dbg(&dev->dev, "%s - failed to set bit rate due to error: %d\n",
+ 			__func__, retval);
+@@ -352,7 +353,8 @@ static int keyspan_setup(struct usb_devi
+ 	}
+ 
+ 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-				 0x44, 0x40, 0x0, 0x0, NULL, 0, 0);
++				 0x44, 0x40, 0x0, 0x0, NULL, 0,
++				 USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		dev_dbg(&dev->dev, "%s - failed to set resume sensitivity due to error: %d\n",
+ 			__func__, retval);
+@@ -360,7 +362,8 @@ static int keyspan_setup(struct usb_devi
+ 	}
+ 
+ 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-				 0x22, 0x40, 0x0, 0x0, NULL, 0, 0);
++				 0x22, 0x40, 0x0, 0x0, NULL, 0,
++				 USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		dev_dbg(&dev->dev, "%s - failed to turn receive on due to error: %d\n",
+ 			__func__, retval);
 
 
