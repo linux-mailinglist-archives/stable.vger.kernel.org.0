@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7B914B636
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:03:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 705E914B638
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727874AbgA1OD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:03:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50208 "EHLO mail.kernel.org"
+        id S1727881AbgA1ODb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:03:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727869AbgA1OD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:03:27 -0500
+        id S1727877AbgA1OD3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:03:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58AEC24693;
-        Tue, 28 Jan 2020 14:03:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE5FF2468D;
+        Tue, 28 Jan 2020 14:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220206;
-        bh=AbVq1QrPmhqVImnU0a/nmaEX0iS6VnJbAfKWMzInLeg=;
+        s=default; t=1580220209;
+        bh=A24LsO0d3DuD+wDWWl1ud8hGDPwxevJPgWeuw9uy1A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRy2rgVWvAS3RLrcIoLbXjNuAqumvP4kEzXQTNaYhkZUfGB91JuJf+o0YqSaoZTK7
-         wlWQiMx/Gzk7OgAMDBdLiXdtVtKqursohh+/MdUiC4qxFjYLD8E/rdAn+NOzoLDW8F
-         6BiEw70rBu2s7M/oT82TwM0ddHHfGE5jlceLaftM=
+        b=R2mxzsOObio9PlkHRsDcOQfq+SkcQSjKawmyRD+C/EzeU2Qn4iGSK/9n29CtIbF8C
+         cfhYAo2yjnjX7tvgKM0lp4AsS+jKFvNW1dW5Rw4ZLBpxqtcvUEk91SCsseywSLEH/Z
+         1/6sAqQ8lS+GhvLatsde++E/QcRQINKXOgAF8PWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 059/104] mmc: sdhci: fix minimum clock rate for v3 controller
-Date:   Tue, 28 Jan 2020 15:00:20 +0100
-Message-Id: <20200128135825.755320560@linuxfoundation.org>
+Subject: [PATCH 5.4 060/104] mmc: sdhci_am654: Remove Inverted Write Protect flag
+Date:   Tue, 28 Jan 2020 15:00:21 +0100
+Message-Id: <20200128135825.883055904@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -45,52 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-commit 2a187d03352086e300daa2044051db00044cd171 upstream.
+commit 4d627c88546a697b07565dbb70d2f9f46a5ee76f upstream.
 
-For SDHCIv3+ with programmable clock mode, minimal clock frequency is
-still base clock / max(divider). Minimal programmable clock frequency is
-always greater than minimal divided clock frequency. Without this patch,
-SDHCI uses out-of-spec initial frequency when multiplier is big enough:
+The MMC/SD controllers on am65x and j721e don't in fact detect the write
+protect line as inverted. No issues were detected because of this
+because the sdwp line is not connected on any of the evms. Fix this by
+removing the flag.
 
-mmc1: mmc_rescan_try_freq: trying to init card at 468750 Hz
-[for 480 MHz source clock divided by 1024]
-
-The code in sdhci_calc_clk() already chooses a correct SDCLK clock mode.
-
-Fixes: c3ed3877625f ("mmc: sdhci: add support for programmable clock mode")
-Cc: <stable@vger.kernel.org> # 4f6aa3264af4: mmc: tegra: Only advertise UHS modes if IO regulator is present
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Fixes: 1accbced1c32 ("mmc: sdhci_am654: Add Support for 4 bit IP on J721E")
+Cc: stable@vger.kernel.org
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/ffb489519a446caffe7a0a05c4b9372bd52397bb.1579082031.git.mirq-linux@rere.qmqm.pl
+Link: https://lore.kernel.org/r/20200108143301.1929-2-faiz_abbas@ti.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci_am654.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -3902,11 +3902,13 @@ int sdhci_setup_host(struct sdhci_host *
- 	if (host->ops->get_min_clock)
- 		mmc->f_min = host->ops->get_min_clock(host);
- 	else if (host->version >= SDHCI_SPEC_300) {
--		if (host->clk_mul) {
--			mmc->f_min = (host->max_clk * host->clk_mul) / 1024;
-+		if (host->clk_mul)
- 			max_clk = host->max_clk * host->clk_mul;
--		} else
--			mmc->f_min = host->max_clk / SDHCI_MAX_DIV_SPEC_300;
-+		/*
-+		 * Divided Clock Mode minimum clock rate is always less than
-+		 * Programmable Clock Mode minimum clock rate.
-+		 */
-+		mmc->f_min = host->max_clk / SDHCI_MAX_DIV_SPEC_300;
- 	} else
- 		mmc->f_min = host->max_clk / SDHCI_MAX_DIV_SPEC_200;
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -249,8 +249,7 @@ static struct sdhci_ops sdhci_am654_ops
+ 
+ static const struct sdhci_pltfm_data sdhci_am654_pdata = {
+ 	.ops = &sdhci_am654_ops,
+-	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT |
+-		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
++	.quirks = SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
+ 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
+ 
+@@ -272,8 +271,7 @@ static struct sdhci_ops sdhci_j721e_8bit
+ 
+ static const struct sdhci_pltfm_data sdhci_j721e_8bit_pdata = {
+ 	.ops = &sdhci_j721e_8bit_ops,
+-	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT |
+-		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
++	.quirks = SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
+ 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
+ 
+@@ -295,8 +293,7 @@ static struct sdhci_ops sdhci_j721e_4bit
+ 
+ static const struct sdhci_pltfm_data sdhci_j721e_4bit_pdata = {
+ 	.ops = &sdhci_j721e_4bit_ops,
+-	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT |
+-		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
++	.quirks = SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
+ 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
  
 
 
