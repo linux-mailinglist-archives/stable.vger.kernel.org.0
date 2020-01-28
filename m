@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F94914BC01
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2457914BBEC
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:50:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726323AbgA1Ou3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:50:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44314 "EHLO mail.kernel.org"
+        id S1727027AbgA1N7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 08:59:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726749AbgA1N7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:59:06 -0500
+        id S1727024AbgA1N7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:59:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 433572468F;
-        Tue, 28 Jan 2020 13:59:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BBBB2173E;
+        Tue, 28 Jan 2020 13:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580219945;
-        bh=UDOslw//HU9T3CyQRE952D+mST3b7MPfW+u9hhNdxtw=;
+        s=default; t=1580219977;
+        bh=hEAUIpxUOVjreXovR7iHITQ4p9Qc0eBRwWEAJz+fPqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHiSwlv+EhWJYhriWGbYJxNHRqbdxE/BN478I8N71ZTAUtQaQfSLrwxT95eC2+7yu
-         WUGoLNZs99gkqExkyyU2wnNroxUexF7LdWeIgjLiJeQbuv1p0SsifkTuWGuq72Qju6
-         UQIhnweVt7Zj+iPcdjTQdrsxWTaUGDH7ILFMVfQ0=
+        b=s2b3l/azqfpLk0xf/QM8IxhCrAfGCHpPSatP5QBq8mS87iIeeU9p7QtVxHuSsLQIS
+         iBZJPZFXyqi6c7XMyR8W0mobb+Gg5QtR6nZfLgynngLn021Bto43+BABxcPGXpZS1Z
+         nG76H3zQWkVIQaRP4o7Fn2Wyv+zYSU/eth4WjSUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 24/46] mmc: tegra: fix SDR50 tuning override
-Date:   Tue, 28 Jan 2020 14:57:58 +0100
-Message-Id: <20200128135752.969149082@linuxfoundation.org>
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Masato Suzuki <masato.suzuki@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 37/46] sd: Fix REQ_OP_ZONE_REPORT completion handling
+Date:   Tue, 28 Jan 2020 14:58:11 +0100
+Message-Id: <20200128135754.683895075@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -45,37 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Masato Suzuki <masato.suzuki@wdc.com>
 
-commit f571389c0b015e76f91c697c4c1700aba860d34f upstream.
 
-Commit 7ad2ed1dfcbe inadvertently mixed up a quirk flag's name and
-broke SDR50 tuning override. Use correct NVQUIRK_ name.
+ZBC/ZAC report zones command may return less bytes than requested if the
+number of matching zones for the report request is small. However, unlike
+read or write commands, the remainder of incomplete report zones commands
+cannot be automatically requested by the block layer: the start sector of
+the next report cannot be known, and the report reply may not be 512B
+aligned for SAS drives (a report zone reply size is always a multiple of
+64B). The regular request completion code executing bio_advance() and
+restart of the command remainder part currently causes invalid zone
+descriptor data to be reported to the caller if the report zone size is
+smaller than 512B (a case that can happen easily for a report of the last
+zones of a SAS drive for example).
 
-Fixes: 7ad2ed1dfcbe ("mmc: tegra: enable UHS-I modes")
-Cc: <stable@vger.kernel.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Tested-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/9aff1d859935e59edd81e4939e40d6c55e0b55f6.1578390388.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Since blkdev_report_zones() handles report zone command processing in a
+loop until completion (no more zones are being reported), we can safely
+avoid that the block layer performs an incorrect bio_advance() call and
+restart of the remainder of incomplete report zone BIOs. To do so, always
+indicate a full completion of REQ_OP_ZONE_REPORT by setting good_bytes to
+the request buffer size and by setting the command resid to 0. This does
+not affect the post processing of the report zone reply done by
+sd_zbc_complete() since the reply header indicates the number of zones
+reported.
+
+Fixes: 89d947561077 ("sd: Implement support for ZBC devices")
+Cc: <stable@vger.kernel.org> # 4.19
+Cc: <stable@vger.kernel.org> # 4.14
+Signed-off-by: Masato Suzuki <masato.suzuki@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-tegra.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/sd.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -177,7 +177,7 @@ static void tegra_sdhci_reset(struct sdh
- 			misc_ctrl |= SDHCI_MISC_CTRL_ENABLE_DDR50;
- 		if (soc_data->nvquirks & NVQUIRK_ENABLE_SDR104)
- 			misc_ctrl |= SDHCI_MISC_CTRL_ENABLE_SDR104;
--		if (soc_data->nvquirks & SDHCI_MISC_CTRL_ENABLE_SDR50)
-+		if (soc_data->nvquirks & NVQUIRK_ENABLE_SDR50)
- 			clk_ctrl |= SDHCI_CLOCK_CTRL_SDR50_TUNING_OVERRIDE;
- 	}
- 
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1981,9 +1981,13 @@ static int sd_done(struct scsi_cmnd *SCp
+ 		}
+ 		break;
+ 	case REQ_OP_ZONE_REPORT:
++		/* To avoid that the block layer performs an incorrect
++		 * bio_advance() call and restart of the remainder of
++		 * incomplete report zone BIOs, always indicate a full
++		 * completion of REQ_OP_ZONE_REPORT.
++		 */
+ 		if (!result) {
+-			good_bytes = scsi_bufflen(SCpnt)
+-				- scsi_get_resid(SCpnt);
++			good_bytes = scsi_bufflen(SCpnt);
+ 			scsi_set_resid(SCpnt, 0);
+ 		} else {
+ 			good_bytes = 0;
 
 
