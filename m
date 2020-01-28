@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5959E14BB24
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9DA14B9D8
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727849AbgA1OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:11:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59920 "EHLO mail.kernel.org"
+        id S1731304AbgA1OV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:21:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729247AbgA1OK5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:10:57 -0500
+        id S1731301AbgA1OV3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:21:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F1FD2468E;
-        Tue, 28 Jan 2020 14:10:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC4B824686;
+        Tue, 28 Jan 2020 14:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220657;
-        bh=hfMSIEhrEdw1IN71cdDTkdMr00ySuylu7hx2F/qVbAo=;
+        s=default; t=1580221288;
+        bh=EdvVBJhwRTeRMjm+D0sLSZ6CA6OkV4G8o+N9TY6pga8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyLm4GRT0f0IEOYrzWe6u/kor5g6kS48DAvry7gnASpgthg3Re2vEktnkbQeggJHA
-         0t01PC8TTv4kHSJIYMIEufQurO6RLwMn3ariFmmgPgNAfSLk17uQ6J2GVV9yp8rNkK
-         VXKpJclgm424JrUqWXqSbc/pczyJ+1bzTGuVTlqs=
+        b=Cwma8GF8ydeI99zI3gXs7YojGOTtPuWsy2PeyX8YOmbVyviVvuE5GKw/lE62Owbpm
+         3R2MM3m/LboHv9l6HV5L3U1h228rTV26vy4bs8Nr6xZrnNBsWUWEXNEiySXK7SV7QY
+         gls7esCRWO+yA4F5Z3Xm5Xju0VPpFIGpwm7mvxyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Javi Merino <javi.merino@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 094/183] thermal: cpu_cooling: Actually trace CPU load in thermal_power_cpu_get_power
-Date:   Tue, 28 Jan 2020 15:05:13 +0100
-Message-Id: <20200128135839.487789507@linuxfoundation.org>
+Subject: [PATCH 4.9 165/271] rxrpc: Fix uninitialized error code in rxrpc_send_data_packet()
+Date:   Tue, 28 Jan 2020 15:05:14 +0100
+Message-Id: <20200128135904.866216477@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit bf45ac18b78038e43af3c1a273cae4ab5704d2ce ]
+[ Upstream commit 3427beb6375d04e9627c67343872e79341a684ea ]
 
-The CPU load values passed to the thermal_power_cpu_get_power
-tracepoint are zero for all CPUs, unless, unless the
-thermal_power_cpu_limit tracepoint is enabled too:
+With gcc 4.1:
 
-  irq/41-rockchip-98    [000] ....   290.972410: thermal_power_cpu_get_power:
-  cpus=0000000f freq=1800000 load={{0x0,0x0,0x0,0x0}} dynamic_power=4815
+    net/rxrpc/output.c: In function ‘rxrpc_send_data_packet’:
+    net/rxrpc/output.c:338: warning: ‘ret’ may be used uninitialized in this function
 
-vs
+Indeed, if the first jump to the send_fragmentable label is made, and
+the address family is not handled in the switch() statement, ret will be
+used uninitialized.
 
-  irq/41-rockchip-96    [000] ....    95.773585: thermal_power_cpu_get_power:
-  cpus=0000000f freq=1800000 load={{0x56,0x64,0x64,0x5e}} dynamic_power=4959
-  irq/41-rockchip-96    [000] ....    95.773596: thermal_power_cpu_limit:
-  cpus=0000000f freq=408000 cdev_state=10 power=416
+Fix this by BUG()'ing as is done in other places in rxrpc where internal
+support for future address families will need adding.  It should not be
+possible to reach this normally as the address families are checked
+up-front.
 
-There seems to be no good reason for omitting the CPU load information
-depending on another tracepoint. My guess is that the intention was to
-check whether thermal_power_cpu_get_power is (still) enabled, however
-'load_cpu != NULL' already indicates that it was at least enabled when
-cpufreq_get_requested_power() was entered, there seems little gain
-from omitting the assignment if the tracepoint was just disabled, so
-just remove the check.
-
-Fixes: 6828a4711f99 ("thermal: add trace events to the power allocator governor")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Acked-by: Javi Merino <javi.merino@kernel.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+Fixes: 5a924b8951f835b5 ("rxrpc: Don't store the rxrpc header in the Tx queue sk_buffs")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/cpu_cooling.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/output.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/thermal/cpu_cooling.c b/drivers/thermal/cpu_cooling.c
-index 87d87ac1c8a04..96567b4a4f201 100644
---- a/drivers/thermal/cpu_cooling.c
-+++ b/drivers/thermal/cpu_cooling.c
-@@ -607,7 +607,7 @@ static int cpufreq_get_requested_power(struct thermal_cooling_device *cdev,
- 			load = 0;
+diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
+index 59d3286033120..64389f493bb28 100644
+--- a/net/rxrpc/output.c
++++ b/net/rxrpc/output.c
+@@ -400,6 +400,9 @@ send_fragmentable:
+ 		}
+ 		break;
+ #endif
++
++	default:
++		BUG();
+ 	}
  
- 		total_load += load;
--		if (trace_thermal_power_cpu_limit_enabled() && load_cpu)
-+		if (load_cpu)
- 			load_cpu[i] = load;
- 
- 		i++;
+ 	up_write(&conn->params.local->defrag_sem);
 -- 
 2.20.1
 
