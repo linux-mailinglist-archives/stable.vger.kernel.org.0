@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A1114B6F4
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67FB614B816
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:21:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728289AbgA1OJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:09:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58404 "EHLO mail.kernel.org"
+        id S1730832AbgA1OU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:20:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727629AbgA1OJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:09:53 -0500
+        id S1730493AbgA1OU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:20:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E812824681;
-        Tue, 28 Jan 2020 14:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A54802071E;
+        Tue, 28 Jan 2020 14:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220592;
-        bh=7Bqw8ISoSFaT8Sy98uUeBIjYtgSaDadb9YZZCMD+ZbY=;
+        s=default; t=1580221226;
+        bh=px0afCn0JOfjUFEZYl6xoAn5bctMPsUjfQduTDVGCDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeM1twL22DmjQCRsH671xtYrmfefKmJFlA+64+jO1Aqwyp1qlo3rFPLjzxb0+ntUO
-         PBctt9l6N2wvageo3/GntZr9Q5zMJw1oQnEUo/wjBSO3oCxkC23RuPMbu/6nBHhJdC
-         pzMVeZPZRd841LDkCcKlD5v1RA1WtAO4WAcZLsNc=
+        b=WKc3gdHYu0AyoICVdoSC2HAcOeJdN76QpRln0DPzqCgVGEwMVuFFmFDB8nGc/flWg
+         Wr2JuuZAv1bhX7J+wIMErplJwYE6v26ZZ57ZUIIkfXTHEl6THQ2o4YG3NuCpkkKaH5
+         EuSzmTRktCLPvXQP9HnMZrYdH0Ng8/SYpntQEq7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Walmsley <paul@pwsan.com>,
-        Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 067/183] ARM: OMAP2+: Fix potentially uninitialized return value for _setup_reset()
-Date:   Tue, 28 Jan 2020 15:04:46 +0100
-Message-Id: <20200128135836.711843670@linuxfoundation.org>
+Subject: [PATCH 4.9 138/271] netfilter: ebtables: CONFIG_COMPAT: reject trailing data after last rule
+Date:   Tue, 28 Jan 2020 15:04:47 +0100
+Message-Id: <20200128135902.856425665@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 7f0d078667a494466991aa7133f49594f32ff6a2 ]
+[ Upstream commit 680f6af5337c98d116e4f127cea7845339dba8da ]
 
-Commit 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior") made
-the call to _enable() conditional based on no oh->rst_lines_cnt. This
-caused the return value to be potentially uninitialized. Curiously we see
-no compiler warnings for this, probably as this gets inlined.
+If userspace provides a rule blob with trailing data after last target,
+we trigger a splat, then convert ruleset to 64bit format (with trailing
+data), then pass that to do_replace_finish() which then returns -EINVAL.
 
-We call _setup_reset() from _setup() and only _setup_postsetup() if the
-return value is zero. Currently the return value can be uninitialized for
-cases where oh->rst_lines_cnt is set and HWMOD_INIT_NO_RESET is not set.
+Erroring out right away avoids the splat plus unneeded translation and
+error unwind.
 
-Fixes: 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior")
-Cc: Paul Walmsley <paul@pwsan.com>
-Cc: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
-index 36706d32d656d..1bc87c29467b3 100644
---- a/arch/arm/mach-omap2/omap_hwmod.c
-+++ b/arch/arm/mach-omap2/omap_hwmod.c
-@@ -2563,7 +2563,7 @@ static void _setup_iclk_autoidle(struct omap_hwmod *oh)
-  */
- static int _setup_reset(struct omap_hwmod *oh)
- {
--	int r;
-+	int r = 0;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 56b7197f03739..1d850edecd724 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -2182,7 +2182,9 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
+ 	if (ret < 0)
+ 		return ret;
  
- 	if (oh->_state != _HWMOD_STATE_INITIALIZED)
- 		return -EINVAL;
+-	WARN_ON(size_remaining);
++	if (size_remaining)
++		return -EINVAL;
++
+ 	return state->buf_kern_offset;
+ }
+ 
 -- 
 2.20.1
 
