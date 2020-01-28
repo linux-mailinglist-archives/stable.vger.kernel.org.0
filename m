@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F4514B980
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D397C14BACD
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:41:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731144AbgA1OZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:25:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53086 "EHLO mail.kernel.org"
+        id S1729758AbgA1ONy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:13:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733098AbgA1OZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:56 -0500
+        id S1729746AbgA1ONy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D18420716;
-        Tue, 28 Jan 2020 14:25:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E412D24681;
+        Tue, 28 Jan 2020 14:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221555;
-        bh=+87kAnNydczXb7BW97pURPntkWjZgoBlJtHDxJHMwDs=;
+        s=default; t=1580220833;
+        bh=rz9au/x2/LhW2l2P+rOP9AVynizyhC9avk5oBjR3xvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0U63r2YWqhsOv9jdm1g8d0I/jQEsCN7Z/Wlh7FXFa96/lOVgV94N/1kGBFjOMeHrr
-         gD68W8c61YEu5q7ZJuqqwQXNT8TTFb/1CMbgCVXYTNtmdobXfPv4QWMAS86OcoLiNv
-         ZC/CnufwU6RVRUMs/JCFsdr4D4DWZXPdDKVgbYuw=
+        b=YMxAZkAjLZyvMjeEbZ2qiUlh76KD1ke4ZNOmIq0vpMpRX6qqFjbWbl499oydjRcmH
+         WAMfGt/DsGt0DeqCn1iHfiGTJda2LLaZWo/CpkIrfLpalTZ5YiynA1djOdRKCnwWUU
+         SNx+vaSajKQkDedOKBkdT1ASxeSZNxI44dP3xAL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 235/271] firestream: fix memory leaks
-Date:   Tue, 28 Jan 2020 15:06:24 +0100
-Message-Id: <20200128135910.049750526@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luuk Paulussen <luuk.paulussen@alliedtelesis.co.nz>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 166/183] hwmon: (adt7475) Make volt2reg return same reg as reg2volt input
+Date:   Tue, 28 Jan 2020 15:06:25 +0100
+Message-Id: <20200128135846.251622556@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Luuk Paulussen <luuk.paulussen@alliedtelesis.co.nz>
 
-[ Upstream commit fa865ba183d61c1ec8cbcab8573159c3b72b89a4 ]
+commit cf3ca1877574a306c0207cbf7fdf25419d9229df upstream.
 
-In fs_open(), 'vcc' is allocated through kmalloc() and assigned to
-'atm_vcc->dev_data.' In the following execution, if an error occurs, e.g.,
-there is no more free channel, an error code EBUSY or ENOMEM will be
-returned. However, 'vcc' is not deallocated, leading to memory leaks. Note
-that, in normal cases where fs_open() returns 0, 'vcc' will be deallocated
-in fs_close(). But, if fs_open() fails, there is no guarantee that
-fs_close() will be invoked.
+reg2volt returns the voltage that matches a given register value.
+Converting this back the other way with volt2reg didn't return the same
+register value because it used truncation instead of rounding.
 
-To fix this issue, deallocate 'vcc' before the error code is returned.
+This meant that values read from sysfs could not be written back to sysfs
+to set back the same register value.
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With this change, volt2reg will return the same value for every voltage
+previously returned by reg2volt (for the set of possible input values)
+
+Signed-off-by: Luuk Paulussen <luuk.paulussen@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20191205231659.1301-1-luuk.paulussen@alliedtelesis.co.nz
+cc: stable@vger.kernel.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/atm/firestream.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/atm/firestream.c
-+++ b/drivers/atm/firestream.c
-@@ -927,6 +927,7 @@ static int fs_open(struct atm_vcc *atm_v
- 			}
- 			if (!to) {
- 				printk ("No more free channels for FS50..\n");
-+				kfree(vcc);
- 				return -EBUSY;
- 			}
- 			vcc->channo = dev->channo;
-@@ -937,6 +938,7 @@ static int fs_open(struct atm_vcc *atm_v
- 			if (((DO_DIRECTION(rxtp) && dev->atm_vccs[vcc->channo])) ||
- 			    ( DO_DIRECTION(txtp) && test_bit (vcc->channo, dev->tx_inuse))) {
- 				printk ("Channel is in use for FS155.\n");
-+				kfree(vcc);
- 				return -EBUSY;
- 			}
- 		}
-@@ -950,6 +952,7 @@ static int fs_open(struct atm_vcc *atm_v
- 			    tc, sizeof (struct fs_transmit_config));
- 		if (!tc) {
- 			fs_dprintk (FS_DEBUG_OPEN, "fs: can't alloc transmit_config.\n");
-+			kfree(vcc);
- 			return -ENOMEM;
- 		}
+---
+ drivers/hwmon/adt7475.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/drivers/hwmon/adt7475.c
++++ b/drivers/hwmon/adt7475.c
+@@ -268,9 +268,10 @@ static inline u16 volt2reg(int channel,
+ 	long reg;
+ 
+ 	if (bypass_attn & (1 << channel))
+-		reg = (volt * 1024) / 2250;
++		reg = DIV_ROUND_CLOSEST(volt * 1024, 2250);
+ 	else
+-		reg = (volt * r[1] * 1024) / ((r[0] + r[1]) * 2250);
++		reg = DIV_ROUND_CLOSEST(volt * r[1] * 1024,
++					(r[0] + r[1]) * 2250);
+ 	return clamp_val(reg, 0, 1023) & (0xff << 2);
+ }
  
 
 
