@@ -2,140 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5D014AD2E
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 01:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4695414AD3C
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 01:34:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726083AbgA1AZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 19:25:29 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:37922 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgA1AZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 19:25:28 -0500
-Received: by mail-pl1-f196.google.com with SMTP id t6so4387512plj.5
-        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 16:25:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=V+BSVtOjuS68/b2v0f7OT648Jg3O+3AV7imEPIWfZyw=;
-        b=EUj614/He5DI6FobTl5392ZqO7A6CzV7kdXT1PuB3EGx3J+GPDqLfqgd7QXlznNm4L
-         y68b4WVm1dxVr+tnmypR/Z01rMwkubTzy9Vx1vFZQafxAHSbcHtK7iIENoEBTbXwULWv
-         mkg8C12/yJRbY/G32Fwa4JEd4z8MXuoel0JtM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=V+BSVtOjuS68/b2v0f7OT648Jg3O+3AV7imEPIWfZyw=;
-        b=NedXFW+/vgTfJT0MhpfXvXmkihx8WcIVhVcEZ6WoFAzdc6nPIi6uLGjVLkh/ZRXgwj
-         whXNPA5A+E4C+P/8l8OwWagHunmmfs5Uk3JGPXLoOHjRWJuzupOVxj+fJ9hmEEH3vtrC
-         tadIcSSqaJ5ruAZMdQos4zD+3v70lIDCjuiUBXyhPQy1YMp8k4sWT7bdu47XB1wBf+3X
-         4hwrL0j/Vs1h2x/Sg2YyOje8otyTciLHTlXWy7mp4xDSnO0ST7cLHXfkazXhiUUVD0Xf
-         pNzE2vqLmR61lbSIMlL1rWvPvNOwUyeVFyS2uzjJmDNc7uIuZmd4p7Ig8CK6juZypD0h
-         ps3Q==
-X-Gm-Message-State: APjAAAUE0WifNvKJoQ1TyqOPpBZWTnpuZUnB+Q/zoOKxrjAukE3mXec8
-        n9uzrCgQDTG0H1EuF5N58MhPuw==
-X-Google-Smtp-Source: APXvYqxjSyhkagCwOGrSkkXQiY8CYWhpKHQ6EdsasKmr4x2185dIVpT5C1eC06D1ybeI/kMaN6i9Rw==
-X-Received: by 2002:a17:902:7d8c:: with SMTP id a12mr19193277plm.47.1580171128071;
-        Mon, 27 Jan 2020 16:25:28 -0800 (PST)
-Received: from localhost ([2620:15c:6:12:9c46:e0da:efbf:69cc])
-        by smtp.gmail.com with ESMTPSA id u20sm17009658pgf.29.2020.01.27.16.25.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2020 16:25:27 -0800 (PST)
-Date:   Mon, 27 Jan 2020 19:25:26 -0500
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     Todd Kjos <tkjos@google.com>
-Cc:     surenb@google.com, gregkh@linuxfoundation.org, arve@android.com,
-        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-        maco@google.com, kernel-team@android.com,
-        Jann Horn <jannh@google.com>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] staging: android: ashmem: Disallow ashmem memory from
- being remapped
-Message-ID: <20200128002526.GC175575@google.com>
-References: <20200127235616.48920-1-tkjos@google.com>
+        id S1726080AbgA1Aeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jan 2020 19:34:31 -0500
+Received: from mga11.intel.com ([192.55.52.93]:59246 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725955AbgA1Aeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Jan 2020 19:34:31 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Jan 2020 16:34:29 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,371,1574150400"; 
+   d="scan'208";a="261263777"
+Received: from richard.sh.intel.com (HELO localhost) ([10.239.159.54])
+  by fmsmga002.fm.intel.com with ESMTP; 27 Jan 2020 16:34:27 -0800
+Date:   Tue, 28 Jan 2020 08:34:40 +0800
+From:   Wei Yang <richardw.yang@linux.intel.com>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     mhocko@suse.com, richardw.yang@linux.intel.com,
+        willy@infradead.org, akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v4 PATCH] mm: move_pages: report the number of non-attempted
+ pages
+Message-ID: <20200128003440.GB20624@richard>
+Reply-To: Wei Yang <richardw.yang@linux.intel.com>
+References: <1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200127235616.48920-1-tkjos@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 27, 2020 at 03:56:16PM -0800, Todd Kjos wrote:
-> From: Suren Baghdasaryan <surenb@google.com>
-> 
-> When ashmem file is mmapped, the resulting vma->vm_file points to the
-> backing shmem file with the generic fops that do not check ashmem
-> permissions like fops of ashmem do. If an mremap is done on the ashmem
-> region, then the permission checks will be skipped. Fix that by disallowing
-> mapping operation on the backing shmem file.
+On Tue, Jan 28, 2020 at 05:28:47AM +0800, Yang Shi wrote:
+>Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
+>the semantic of move_pages() has changed to return the number of
+>non-migrated pages if they were result of a non-fatal reasons (usually a
+>busy page).  This was an unintentional change that hasn't been noticed
+>except for LTP tests which checked for the documented behavior.
+>
+>There are two ways to go around this change.  We can even get back to the
+>original behavior and return -EAGAIN whenever migrate_pages is not able
+>to migrate pages due to non-fatal reasons.  Another option would be to
+>simply continue with the changed semantic and extend move_pages
+>documentation to clarify that -errno is returned on an invalid input or
+>when migration simply cannot succeed (e.g. -ENOMEM, -EBUSY) or the
+>number of pages that couldn't have been migrated due to ephemeral
+>reasons (e.g. page is pinned or locked for other reasons).
+>
+>This patch implements the second option because this behavior is in
+>place for some time without anybody complaining and possibly new users
+>depending on it.  Also it allows to have a slightly easier error handling
+>as the caller knows that it is worth to retry when err > 0.
+>
+>But since the new semantic would be aborted immediately if migration is
+>failed due to ephemeral reasons, need include the number of non-attempted
+>pages in the return value too.
+>
+>Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+>Suggested-by: Michal Hocko <mhocko@suse.com>
+>Acked-by: Michal Hocko <mhocko@suse.com>
+>Cc: Wei Yang <richardw.yang@linux.intel.com>
+>Cc: <stable@vger.kernel.org>    [4.17+]
+>Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
 
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Reviewed-by: Wei Yang <richardw.yang@linux.intel.com>
 
-thanks!
+>---
+>v4: Fixed some typo and grammar errors caught by Willy
+>v3: Rephrased the commit log per Michal and added Michal's Acked-by
+>v2: Rebased on top of the latest mainline kernel per Andrew
+>
+> mm/migrate.c | 25 +++++++++++++++++++++++--
+> 1 file changed, 23 insertions(+), 2 deletions(-)
+>
+>diff --git a/mm/migrate.c b/mm/migrate.c
+>index 86873b6..2530860 100644
+>--- a/mm/migrate.c
+>+++ b/mm/migrate.c
+>@@ -1627,8 +1627,19 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+> 			start = i;
+> 		} else if (node != current_node) {
+> 			err = do_move_pages_to_node(mm, &pagelist, current_node);
+>-			if (err)
+>+			if (err) {
+>+				/*
+>+				 * Positive err means the number of failed
+>+				 * pages to migrate.  Since we are going to
+>+				 * abort and return the number of non-migrated
+>+				 * pages, so need to incude the rest of the
+>+				 * nr_pages that have not been attempted as
+>+				 * well.
+>+				 */
+>+				if (err > 0)
+>+					err += nr_pages - i - 1;
+> 				goto out;
+>+			}
+> 			err = store_status(status, start, current_node, i - start);
+> 			if (err)
+> 				goto out;
+>@@ -1659,8 +1670,11 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+> 			goto out_flush;
+> 
+> 		err = do_move_pages_to_node(mm, &pagelist, current_node);
+>-		if (err)
+>+		if (err) {
+>+			if (err > 0)
+>+				err += nr_pages - i - 1;
+> 			goto out;
+>+		}
+> 		if (i > start) {
+> 			err = store_status(status, start, current_node, i - start);
+> 			if (err)
+>@@ -1674,6 +1688,13 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+> 
+> 	/* Make sure we do not overwrite the existing error */
+> 	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
+>+	/*
+>+	 * Don't have to report non-attempted pages here since:
+>+	 *     - If the above loop is done gracefully all pages have been
+>+	 *       attempted.
+>+	 *     - If the above loop is aborted it means a fatal error
+>+	 *       happened, should return ret.
+>+	 */
+> 	if (!err1)
+> 		err1 = store_status(status, start, current_node, i - start);
+> 	if (!err)
+>-- 
+>1.8.3.1
 
- - Joel
-
-> 
-> Reported-by: Jann Horn <jannh@google.com>
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> Cc: stable <stable@vger.kernel.org> # 4.4,4.9,4.14,4.18,5.4
-> Signed-off-by: Todd Kjos <tkjos@google.com>
-> ---
->  drivers/staging/android/ashmem.c | 28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
-> 
-> v2: update commit message as suggested by joelaf@google.com.
-> 
-> diff --git a/drivers/staging/android/ashmem.c b/drivers/staging/android/ashmem.c
-> index 74d497d39c5a..c6695354b123 100644
-> --- a/drivers/staging/android/ashmem.c
-> +++ b/drivers/staging/android/ashmem.c
-> @@ -351,8 +351,23 @@ static inline vm_flags_t calc_vm_may_flags(unsigned long prot)
->  	       _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
->  }
->  
-> +static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
-> +{
-> +	/* do not allow to mmap ashmem backing shmem file directly */
-> +	return -EPERM;
-> +}
-> +
-> +static unsigned long
-> +ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
-> +				unsigned long len, unsigned long pgoff,
-> +				unsigned long flags)
-> +{
-> +	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
-> +}
-> +
->  static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
->  {
-> +	static struct file_operations vmfile_fops;
->  	struct ashmem_area *asma = file->private_data;
->  	int ret = 0;
->  
-> @@ -393,6 +408,19 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
->  		}
->  		vmfile->f_mode |= FMODE_LSEEK;
->  		asma->file = vmfile;
-> +		/*
-> +		 * override mmap operation of the vmfile so that it can't be
-> +		 * remapped which would lead to creation of a new vma with no
-> +		 * asma permission checks. Have to override get_unmapped_area
-> +		 * as well to prevent VM_BUG_ON check for f_ops modification.
-> +		 */
-> +		if (!vmfile_fops.mmap) {
-> +			vmfile_fops = *vmfile->f_op;
-> +			vmfile_fops.mmap = ashmem_vmfile_mmap;
-> +			vmfile_fops.get_unmapped_area =
-> +					ashmem_vmfile_get_unmapped_area;
-> +		}
-> +		vmfile->f_op = &vmfile_fops;
->  	}
->  	get_file(asma->file);
->  
-> -- 
-> 2.25.0.341.g760bfbb309-goog
-> 
+-- 
+Wei Yang
+Help you, Help me
