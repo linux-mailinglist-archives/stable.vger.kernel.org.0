@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6897C14BA1E
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484DE14BB14
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbgA1OgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:36:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
+        id S1727628AbgA1OLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:11:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgA1OWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:22:01 -0500
+        id S1726986AbgA1OLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:11:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46EAE24681;
-        Tue, 28 Jan 2020 14:22:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CE4120678;
+        Tue, 28 Jan 2020 14:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221320;
-        bh=j9S2qKhSSPN/dmy7/aYyfA0uPKzh15mX4b57tjNIpXc=;
+        s=default; t=1580220714;
+        bh=Xw9YztzTE2/FOpzeBm47CYzucRq34DUyKjvMFYOZgkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IYp9rjws9d8ml+AXkj6TfIekJoEVejsFuttX880/HnkgZG6yLWB83nDRjKPZT3tJ1
-         vFZOzXwAmGM1cMaAv7VUqumEbCsgGLbxkeW9UuOG8jYcWgrtnEsVvvg/R/sHFuNdMl
-         tyWFkTc3vigvppmZnqgt84Fyu99e5H+XImFYday8=
+        b=WUcxpjkiZKN73/ukEsR/9BoAmMyiBaxxsmdMLzIEp1gapqE67ExeXL8A+zBHm5PPx
+         0ZTxl7VR3vJcLZHWOsPkllM2iZQvKd4isTquIZzit5X/HQHQ8ffSRiDamaDiICmKam
+         v9VA7bmVkOVt0DG0A1FGp/9yDdzi6Or/pWmUW95U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        Steve French <smfrench@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
+        Alexander Aring <aring@mojatatu.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 150/271] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
+Subject: [PATCH 4.4 080/183] 6lowpan: Off by one handling ->nexthdr
 Date:   Tue, 28 Jan 2020 15:04:59 +0100
-Message-Id: <20200128135903.724858235@linuxfoundation.org>
+Message-Id: <20200128135837.913039714@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
+[ Upstream commit f57c4bbf34439531adccd7d3a4ecc14f409c1399 ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+NEXTHDR_MAX is 255.  What happens here is that we take a u8 value
+"hdr->nexthdr" from the network and then look it up in
+lowpan_nexthdr_nhcs[].  The problem is that if hdr->nexthdr is 0xff then
+we read one element beyond the end of the array so the array needs to
+be one element larger.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
-
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
-
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
-
-Cc: Namjae Jeon <namjae.jeon@samsung.com>
-Cc: Jeff Layton <jlayton@primarydata.com>
-Cc: Steve French <smfrench@gmail.com>
-Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
-Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 92aa7c65d295 ("6lowpan: add generic nhc layer interface")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
+Acked-by: Alexander Aring <aring@mojatatu.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 +-
+ net/6lowpan/nhc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index e43ba6db2bdd6..110febd697379 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2221,7 +2221,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+diff --git a/net/6lowpan/nhc.c b/net/6lowpan/nhc.c
+index 7008d53e455c5..e61679bf09085 100644
+--- a/net/6lowpan/nhc.c
++++ b/net/6lowpan/nhc.c
+@@ -18,7 +18,7 @@
+ #include "nhc.h"
  
- 	task = xchg(&server->tsk, NULL);
- 	if (task)
--		force_sig(SIGKILL, task);
-+		send_sig(SIGKILL, task, 1);
- }
+ static struct rb_root rb_root = RB_ROOT;
+-static struct lowpan_nhc *lowpan_nexthdr_nhcs[NEXTHDR_MAX];
++static struct lowpan_nhc *lowpan_nexthdr_nhcs[NEXTHDR_MAX + 1];
+ static DEFINE_SPINLOCK(lowpan_nhc_lock);
  
- static struct TCP_Server_Info *
+ static int lowpan_nhc_insert(struct lowpan_nhc *nhc)
 -- 
 2.20.1
 
