@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8044414BB7D
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49AE814BA66
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727190AbgA1OIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:08:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
+        id S1729606AbgA1OSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:18:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728178AbgA1OIH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:08:07 -0500
+        id S1730497AbgA1OSk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:18:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5268E24685;
-        Tue, 28 Jan 2020 14:08:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B6EF2468D;
+        Tue, 28 Jan 2020 14:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220486;
-        bh=QAAjMfGSoQErDk6/hKAZVcV4JaObA4y8dL4SImk7QOk=;
+        s=default; t=1580221119;
+        bh=ycQ23ixeaeOqETre0ofxhlGMc8IkGjaBNi7nKZ5gf5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziy9CMvrag6nbFHRvNvOvL669I4egdpdUk4qKrCUtORCaRTOi97HByvHlYiDIQ+Bt
-         Tp7v31hZL/1XwVlIi0DVZ1NXjDpvVq76htSQ4bm4XgNzxJMOtr9WnyMBeFErjAcdaQ
-         JhOi4LBeoNytsO0K/SDZrTA2nAKkdTUS3rKaRnWI=
+        b=fcV70F7xAT+z4hflFsG9tMHaFBkbXFLYy0PtproEiVH0/LWDyA3zYQS8k7IX5tO1K
+         ueBdo9c2oJLjDS1cjIFoSvHddKSyj8GEqbpa9M2ngNO06vkF/vaFDgDZOq1uXl4IDs
+         MaLvAfu9J8OnRxH7rxSnDY9iO02qFucwKIyAJXDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 026/183] clk: imx6sx: fix refcount leak in imx6sx_clocks_init()
+Subject: [PATCH 4.9 096/271] xen, cpu_hotplug: Prevent an out of bounds access
 Date:   Tue, 28 Jan 2020 15:04:05 +0100
-Message-Id: <20200128135832.629732622@linuxfoundation.org>
+Message-Id: <20200128135859.742312623@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1731e14fb30212dd8c1e9f8fc1af061e56498c55 ]
+[ Upstream commit 201676095dda7e5b31a5e1d116d10fc22985075e ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+The "cpu" variable comes from the sscanf() so Smatch marks it as
+untrusted data.  We can't pass a higher value than "nr_cpu_ids" to
+cpu_possible() or it results in an out of bounds access.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Fixes: d55135689019 ("ARM: imx: add clock driver for imx6sx")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: d68d82afd4c8 ("xen: implement CPU hotplugging")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx6sx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/xen/cpu_hotplug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imx/clk-imx6sx.c b/drivers/clk/imx/clk-imx6sx.c
-index fea125eb4330b..8f2958ac04e8e 100644
---- a/drivers/clk/imx/clk-imx6sx.c
-+++ b/drivers/clk/imx/clk-imx6sx.c
-@@ -162,6 +162,7 @@ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
- 	np = of_find_compatible_node(NULL, NULL, "fsl,imx6sx-anatop");
- 	base = of_iomap(np, 0);
- 	WARN_ON(!base);
-+	of_node_put(np);
+diff --git a/drivers/xen/cpu_hotplug.c b/drivers/xen/cpu_hotplug.c
+index f4e59c445964d..17054d6954117 100644
+--- a/drivers/xen/cpu_hotplug.c
++++ b/drivers/xen/cpu_hotplug.c
+@@ -53,7 +53,7 @@ static int vcpu_online(unsigned int cpu)
+ }
+ static void vcpu_hotplug(unsigned int cpu)
+ {
+-	if (!cpu_possible(cpu))
++	if (cpu >= nr_cpu_ids || !cpu_possible(cpu))
+ 		return;
  
- 	clks[IMX6SX_PLL1_BYPASS_SRC] = imx_clk_mux("pll1_bypass_src", base + 0x00, 14, 1, pll_bypass_src_sels, ARRAY_SIZE(pll_bypass_src_sels));
- 	clks[IMX6SX_PLL2_BYPASS_SRC] = imx_clk_mux("pll2_bypass_src", base + 0x30, 14, 1, pll_bypass_src_sels, ARRAY_SIZE(pll_bypass_src_sels));
+ 	switch (vcpu_online(cpu)) {
 -- 
 2.20.1
 
