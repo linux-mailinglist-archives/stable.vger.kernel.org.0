@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6216114B215
+	by mail.lfdr.de (Postfix) with ESMTP id CCBB714B216
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:52:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726002AbgA1Jvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 04:51:54 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:55927 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725901AbgA1Jvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:51:54 -0500
+        id S1726028AbgA1Jvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 04:51:55 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:40950 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725951AbgA1Jvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:51:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580205112;
+        s=mimecast20190719; t=1580205113;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=B7MB7oUPUx8XhDuAF7Akvb1jkOAALGY6qLQV69vnf48=;
-        b=BhWefdQCNktLHfv8sxBHTRWm9D4ShXZNiBxIwpWdRL6Pu7o4XTJZxC0XstUksNz6MWHJ2E
-        4QvFuLNwjA8Agze/+BqC1rLhJiGZSFOPhtQvgOU5w9iJSAq4cPmC8wT1mVBROBcuG+2GsZ
-        3iTVbKGznkBTHykj+6XeWz/fjiemjuo=
+        bh=OBDk1XgW0lkxRBSVePczRA0UBI9ESGrB1ATzpWziNOg=;
+        b=OmgJh73fABoBuVIp7uiV+qclYc70S6p77wjfkw/0cOoi2mmZMpMwgm+OV/WLnvn/8e05oJ
+        T4rjGYgUiQ4HuzE98qHOc+MC/NedFHgPumo26AIL9/fYNrIU+m4/qUVXxVhoX2BJh1+DVt
+        C9+Vgw0k1REZiEaVSftYSz3HCsifzSk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-22-Y6JgBZm6MNKFx3yGnqpUkA-1; Tue, 28 Jan 2020 04:51:44 -0500
-X-MC-Unique: Y6JgBZm6MNKFx3yGnqpUkA-1
+ us-mta-338-QTuVuxwLPY6XPmGTSs3FTw-1; Tue, 28 Jan 2020 04:51:49 -0500
+X-MC-Unique: QTuVuxwLPY6XPmGTSs3FTw-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 43EEA8010DA;
-        Tue, 28 Jan 2020 09:51:43 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3970C8010D8;
+        Tue, 28 Jan 2020 09:51:48 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-116-207.ams2.redhat.com [10.36.116.207])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1132160BE0;
-        Tue, 28 Jan 2020 09:51:40 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 949B560BE0;
+        Tue, 28 Jan 2020 09:51:43 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
@@ -44,9 +44,9 @@ Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
         Oscar Salvador <osalvador@suse.de>,
         Wei Yang <richard.weiyang@gmail.com>,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH for 4.19-stable v3 22/24] mm/memunmap: don't access uninitialized memmap in memunmap_pages()
-Date:   Tue, 28 Jan 2020 10:50:19 +0100
-Message-Id: <20200128095021.8076-23-david@redhat.com>
+Subject: [PATCH for 4.19-stable v3 23/24] mm/memory_hotplug: fix try_offline_node()
+Date:   Tue, 28 Jan 2020 10:50:20 +0100
+Message-Id: <20200128095021.8076-24-david@redhat.com>
 In-Reply-To: <20200128095021.8076-1-david@redhat.com>
 References: <20200128095021.8076-1-david@redhat.com>
 MIME-Version: 1.0
@@ -57,200 +57,245 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-
-commit 77e080e7680e1e615587352f70c87b9e98126d03 upstream.
+commit 2c91f8fc6c999fe10185d8ad99fda1759f662f70 upstream.
 
 -- snip --
 
-- Missing mm/hmm.c and kernel/memremap.c unification.
--- hmm code does not need fixes (no altmap)
-- Missing 7cc7867fb061 ("mm/devm_memremap_pages: enable sub-section remap=
-")
+Only contextual issues:
+- Unrelated check_and_unmap_cpu_on_node() changes are missing.
+- Unrelated walk_memory_blocks() has not been moved/refactored yet.
 
 -- snip --
 
-Patch series "mm/memory_hotplug: Shrink zones before removing memory",
-v6.
+try_offline_node() is pretty much broken right now:
 
-This series fixes the access of uninitialized memmaps when shrinking
-zones/nodes and when removing memory.  Also, it contains all fixes for
-crashes that can be triggered when removing certain namespace using
-memunmap_pages() - ZONE_DEVICE, reported by Aneesh.
+ - The node span is updated when onlining memory, not when adding it. We
+   ignore memory that was mever onlined. Bad.
 
-We stop trying to shrink ZONE_DEVICE, as it's buggy, fixing it would be
-more involved (we don't have SECTION_IS_ONLINE as an indicator), and
-shrinking is only of limited use (set_zone_contiguous() cannot detect
-the ZONE_DEVICE as contiguous).
+ - We touch possible garbage memmaps. The pfn_to_nid(pfn) can easily
+   trigger a kernel panic. Bad for memory that is offline but also bad
+   for subsection hotadd with ZONE_DEVICE, whereby the memmap of the
+   first PFN of a section might contain garbage.
 
-We continue shrinking !ZONE_DEVICE zones, however, I reduced the amount
-of code to a minimum.  Shrinking is especially necessary to keep
-zone->contiguous set where possible, especially, on memory unplug of
-DIMMs at zone boundaries.
+ - Sections belonging to mixed nodes are not properly considered.
 
--------------------------------------------------------------------------=
--
+As memory blocks might belong to multiple nodes, we would have to walk
+all pageblocks (or at least subsections) within present sections.
+However, we don't have a way to identify whether a memmap that is not
+online was initialized (relevant for ZONE_DEVICE).  This makes things
+more complicated.
 
-Zones are now properly shrunk when offlining memory blocks or when
-onlining failed.  This allows to properly shrink zones on memory unplug
-even if the separate memory blocks of a DIMM were onlined to different
-zones or re-onlined to a different zone after offlining.
+Luckily, we can piggy pack on the node span and the nid stored in memory
+blocks.  Currently, the node span is grown when calling
+move_pfn_range_to_zone() - e.g., when onlining memory, and shrunk when
+removing memory, before calling try_offline_node().  Sysfs links are
+created via link_mem_sections(), e.g., during boot or when adding
+memory.
 
-Example:
+If the node still spans memory or if any memory block belongs to the
+nid, we don't set the node offline.  As memory blocks that span multiple
+nodes cannot get offlined, the nid stored in memory blocks is reliable
+enough (for such online memory blocks, the node still spans the memory).
 
-  :/# cat /proc/zoneinfo
-  Node 1, zone  Movable
-          spanned  0
-          present  0
-          managed  0
-  :/# echo "online_movable" > /sys/devices/system/memory/memory41/state
-  :/# echo "online_movable" > /sys/devices/system/memory/memory43/state
-  :/# cat /proc/zoneinfo
-  Node 1, zone  Movable
-          spanned  98304
-          present  65536
-          managed  65536
-  :/# echo 0 > /sys/devices/system/memory/memory43/online
-  :/# cat /proc/zoneinfo
-  Node 1, zone  Movable
-          spanned  32768
-          present  32768
-          managed  32768
-  :/# echo 0 > /sys/devices/system/memory/memory41/online
-  :/# cat /proc/zoneinfo
-  Node 1, zone  Movable
-          spanned  0
-          present  0
-          managed  0
+Introduce for_each_memory_block() to efficiently walk all memory blocks.
 
-This patch (of 10):
+Note: We will soon stop shrinking the ZONE_DEVICE zone and the node span
+when removing ZONE_DEVICE memory to fix similar issues (access of
+garbage memmaps) - until we have a reliable way to identify whether
+these memmaps were properly initialized.  This implies later, that once
+a node had ZONE_DEVICE memory, we won't be able to set a node offline -
+which should be acceptable.
 
-With an altmap, the memmap falling into the reserved altmap space are not
-initialized and, therefore, contain a garbage NID and a garbage zone.
-Make sure to read the NID/zone from a memmap that was initialized.
+Since commit f1dd2cd13c4b ("mm, memory_hotplug: do not associate
+hotadded memory to zones until online") memory that is added is not
+assoziated with a zone/node (memmap not initialized).  The introducing
+commit 60a5a19e7419 ("memory-hotplug: remove sysfs file of node")
+already missed that we could have multiple nodes for a section and that
+the zone/node span is updated when onlining pages, not when adding them.
 
-This fixes a kernel crash that is observed when destroying a namespace:
+I tested this by hotplugging two DIMMs to a memory-less and cpu-less
+NUMA node.  The node is properly onlined when adding the DIMMs.  When
+removing the DIMMs, the node is properly offlined.
 
-  kernel BUG at include/linux/mm.h:1107!
-  cpu 0x1: Vector: 700 (Program Check) at [c000000274087890]
-      pc: c0000000004b9728: memunmap_pages+0x238/0x340
-      lr: c0000000004b9724: memunmap_pages+0x234/0x340
-  ...
-      pid   =3D 3669, comm =3D ndctl
-  kernel BUG at include/linux/mm.h:1107!
-    devm_action_release+0x30/0x50
-    release_nodes+0x268/0x2d0
-    device_release_driver_internal+0x174/0x240
-    unbind_store+0x13c/0x190
-    drv_attr_store+0x44/0x60
-    sysfs_kf_write+0x70/0xa0
-    kernfs_fop_write+0x1ac/0x290
-    __vfs_write+0x3c/0x70
-    vfs_write+0xe4/0x200
-    ksys_write+0x7c/0x140
-    system_call+0x5c/0x68
+Masayoshi Mizuma reported:
 
-The "page_zone(pfn_to_page(pfn)" was introduced by 69324b8f4833 ("mm,
-devm_memremap_pages: add MEMORY_DEVICE_PRIVATE support"), however, I
-think we will never have driver reserved memory with
-MEMORY_DEVICE_PRIVATE (no altmap AFAIKS).
+: Without this patch, memory hotplug fails as panic:
+:
+:  BUG: kernel NULL pointer dereference, address: 0000000000000000
+:  ...
+:  Call Trace:
+:   remove_memory_block_devices+0x81/0xc0
+:   try_remove_memory+0xb4/0x130
+:   __remove_memory+0xa/0x20
+:   acpi_memory_device_remove+0x84/0x100
+:   acpi_bus_trim+0x57/0x90
+:   acpi_bus_trim+0x2e/0x90
+:   acpi_device_hotplug+0x2b2/0x4d0
+:   acpi_hotplug_work_fn+0x1a/0x30
+:   process_one_work+0x171/0x380
+:   worker_thread+0x49/0x3f0
+:   kthread+0xf8/0x130
+:   ret_from_fork+0x35/0x40
 
-[david@redhat.com: minimze code changes, rephrase description]
-Link: http://lkml.kernel.org/r/20191006085646.5768-2-david@redhat.com
-Fixes: 2c2a5af6fed2 ("mm, memory_hotplug: add nid parameter to arch_remov=
-e_memory")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[david@redhat.com: v3]
+  Link: http://lkml.kernel.org/r/20191102120221.7553-1-david@redhat.com
+Link: http://lkml.kernel.org/r/20191028105458.28320-1-david@redhat.com
+Fixes: 60a5a19e7419 ("memory-hotplug: remove sysfs file of node")
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memor=
+y to zones until online") # visiable after d0dc12e86b319
 Signed-off-by: David Hildenbrand <david@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Damian Tometzki <damian.tometzki@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Tested-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Cc: Tang Chen <tangchen@cn.fujitsu.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Halil Pasic <pasic@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jun Yao <yaojun8558363@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Nayna Jain <nayna@linux.ibm.com>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
 Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Pankaj Gupta <pagupta@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: <stable@vger.kernel.org>	[5.0+]
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- kernel/memremap.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/base/memory.c  | 36 +++++++++++++++++++++++++++++++++++
+ include/linux/memory.h |  2 ++
+ mm/memory_hotplug.c    | 43 ++++++++++++++++++++++++++----------------
+ 3 files changed, 65 insertions(+), 16 deletions(-)
 
-diff --git a/kernel/memremap.c b/kernel/memremap.c
-index 2ee2e672d5fc..1ec1f8fd97f5 100644
---- a/kernel/memremap.c
-+++ b/kernel/memremap.c
-@@ -120,6 +120,7 @@ static void devm_memremap_pages_release(void *data)
- 	struct device *dev =3D pgmap->dev;
- 	struct resource *res =3D &pgmap->res;
- 	resource_size_t align_start, align_size;
-+	struct page *first_page;
- 	unsigned long pfn;
- 	int nid;
-=20
-@@ -132,13 +133,16 @@ static void devm_memremap_pages_release(void *data)
- 	align_size =3D ALIGN(res->start + resource_size(res), SECTION_SIZE)
- 		- align_start;
-=20
--	nid =3D page_to_nid(pfn_to_page(align_start >> PAGE_SHIFT));
-+	/* make sure to access a memmap that was actually initialized */
-+	first_page =3D pfn_to_page(pfn_first(pgmap));
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index fde8d34a1c16..e270abc86d46 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -862,3 +862,39 @@ int __init memory_dev_init(void)
+ 		printk(KERN_ERR "%s() failed: %d\n", __func__, ret);
+ 	return ret;
+ }
 +
-+	nid =3D page_to_nid(first_page);
++struct for_each_memory_block_cb_data {
++	walk_memory_blocks_func_t func;
++	void *arg;
++};
++
++static int for_each_memory_block_cb(struct device *dev, void *data)
++{
++	struct memory_block *mem =3D to_memory_block(dev);
++	struct for_each_memory_block_cb_data *cb_data =3D data;
++
++	return cb_data->func(mem, cb_data->arg);
++}
++
++/**
++ * for_each_memory_block - walk through all present memory blocks
++ *
++ * @arg: argument passed to func
++ * @func: callback for each memory block walked
++ *
++ * This function walks through all present memory blocks, calling func o=
+n
++ * each memory block.
++ *
++ * In case func() returns an error, walking is aborted and the error is
++ * returned.
++ */
++int for_each_memory_block(void *arg, walk_memory_blocks_func_t func)
++{
++	struct for_each_memory_block_cb_data cb_data =3D {
++		.func =3D func,
++		.arg =3D arg,
++	};
++
++	return bus_for_each_dev(&memory_subsys, NULL, &cb_data,
++				for_each_memory_block_cb);
++}
+diff --git a/include/linux/memory.h b/include/linux/memory.h
+index f26a5417ec5d..5c411365cdbe 100644
+--- a/include/linux/memory.h
++++ b/include/linux/memory.h
+@@ -119,6 +119,8 @@ extern int memory_isolate_notify(unsigned long val, v=
+oid *v);
+ extern struct memory_block *find_memory_block_hinted(struct mem_section =
+*,
+ 							struct memory_block *);
+ extern struct memory_block *find_memory_block(struct mem_section *);
++typedef int (*walk_memory_blocks_func_t)(struct memory_block *, void *);
++extern int for_each_memory_block(void *arg, walk_memory_blocks_func_t fu=
+nc);
+ #define CONFIG_MEM_BLOCK_SIZE	(PAGES_PER_SECTION<<PAGE_SHIFT)
+ #endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
 =20
- 	mem_hotplug_begin();
- 	if (pgmap->type =3D=3D MEMORY_DEVICE_PRIVATE) {
- 		pfn =3D align_start >> PAGE_SHIFT;
--		__remove_pages(page_zone(pfn_to_page(pfn)), pfn,
--				align_size >> PAGE_SHIFT, NULL);
-+		__remove_pages(page_zone(first_page), pfn,
-+			       align_size >> PAGE_SHIFT, NULL);
- 	} else {
- 		arch_remove_memory(nid, align_start, align_size,
- 				pgmap->altmap_valid ? &pgmap->altmap : NULL);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 888fcbdf97cf..7ab34360920b 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1812,6 +1812,18 @@ static int check_and_unmap_cpu_on_node(pg_data_t *=
+pgdat)
+ 	return 0;
+ }
+=20
++static int check_no_memblock_for_node_cb(struct memory_block *mem, void =
+*arg)
++{
++	int nid =3D *(int *)arg;
++
++	/*
++	 * If a memory block belongs to multiple nodes, the stored nid is not
++	 * reliable. However, such blocks are always online (e.g., cannot get
++	 * offlined) and, therefore, are still spanned by the node.
++	 */
++	return mem->nid =3D=3D nid ? -EEXIST : 0;
++}
++
+ /**
+  * try_offline_node
+  * @nid: the node ID
+@@ -1824,25 +1836,24 @@ static int check_and_unmap_cpu_on_node(pg_data_t =
+*pgdat)
+ void try_offline_node(int nid)
+ {
+ 	pg_data_t *pgdat =3D NODE_DATA(nid);
+-	unsigned long start_pfn =3D pgdat->node_start_pfn;
+-	unsigned long end_pfn =3D start_pfn + pgdat->node_spanned_pages;
+-	unsigned long pfn;
+-
+-	for (pfn =3D start_pfn; pfn < end_pfn; pfn +=3D PAGES_PER_SECTION) {
+-		unsigned long section_nr =3D pfn_to_section_nr(pfn);
+-
+-		if (!present_section_nr(section_nr))
+-			continue;
++	int rc;
+=20
+-		if (pfn_to_nid(pfn) !=3D nid)
+-			continue;
++	/*
++	 * If the node still spans pages (especially ZONE_DEVICE), don't
++	 * offline it. A node spans memory after move_pfn_range_to_zone(),
++	 * e.g., after the memory block was onlined.
++	 */
++	if (pgdat->node_spanned_pages)
++		return;
+=20
+-		/*
+-		 * some memory sections of this node are not removed, and we
+-		 * can't offline node now.
+-		 */
++	/*
++	 * Especially offline memory blocks might not be spanned by the
++	 * node. They will get spanned by the node once they get onlined.
++	 * However, they link to the node in sysfs and can get onlined later.
++	 */
++	rc =3D for_each_memory_block(&nid, check_no_memblock_for_node_cb);
++	if (rc)
+ 		return;
+-	}
+=20
+ 	if (check_and_unmap_cpu_on_node(pgdat))
+ 		return;
 --=20
 2.24.1
 
