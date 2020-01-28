@@ -2,418 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8783014B19B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BBA14B1FC
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:50:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725963AbgA1JLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 04:11:47 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:53327 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725848AbgA1JLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:11:47 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id BF1C0601;
-        Tue, 28 Jan 2020 04:11:45 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Tue, 28 Jan 2020 04:11:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=n3SfAa
-        e+Q3L9AmHFMjR4QLeNcxGqS/eeSE6rKoz0jIU=; b=m4UcTCkqCAHF51Mb9sLJTV
-        79iVEkYqojga2yKPWhawiPhz5EaLk5QP6hhHlrvQn5XGth2FPf5AcpF7Kdd4cHdi
-        ZyALtCYUvCI7Ig78VkzifORF+PWSrnQEtmj1Z/8RAfk0782FVagLIyAXUT2trx2O
-        enGotUHGO05q63huFAYRUHoAat4a2lgz169X2tBToU6YliRsOPMZV10yA2lBcA0j
-        jGV8vn3bBEqYuqVfrbZgH+zDN9zeWJJI8cN8G6fEgoeBCkbDw7TfXuF/Y7tzNYbn
-        wg8hWAEKjlystqt7cUuLrPDzV7TNekvFUlvlrC00871/d8bH1s8wa8qcAPzkdMRA
-        ==
-X-ME-Sender: <xms:0fovXgz8tkKVLp0PYDxcenw5kUfiNNyohsIRL26oTGYwTnVXXSlaJA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeegucetufdoteggodetrfdotffvucfrrh
-    hofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgenuceurghi
-    lhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttddtlfenuc
-    fhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhrgheqnecu
-    kfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
-    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:0fovXixDAR-xZReE5LpK4QKM-42guvWaWis_7ANYmEb-BU2O4bCY2w>
-    <xmx:0fovXtJI423p9ifI0IgY_3XwEGK5qq5_ON-tG3u890FV2cSgQkta4g>
-    <xmx:0fovXks5QSB_XCr_V1fBBP4WC2yH1-vM7t4xp1Ea_a6Yh3Cf2U9y_g>
-    <xmx:0fovXgTHiDhXRk-UbccR9eGPZ3ujtbbon10GKs-EAeDd5YIJk9PK7A>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B724C328005D;
-        Tue, 28 Jan 2020 04:11:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] netfilter: nf_tables: autoload modules from the abort path" failed to apply to 4.19-stable tree
-To:     pablo@netfilter.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Jan 2020 10:11:43 +0100
-Message-ID: <1580202703221189@kroah.com>
+        id S1725882AbgA1Jub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 04:50:31 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:43950 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725881AbgA1Jub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:50:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580205029;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=iagU/p69YthW2SuQr28eBCvGSIKrEwLapzEjwtBHEuQ=;
+        b=Y2KiID2B67ar89klFPQfw6lCItG40M7ku6MQKIDMITR0K+Y725dRyq2/wnJquu+VMuJr8Y
+        SqdcZJnVzvUWF7vfeKm3aAzWKwoWTDqiFLzOLJQ/LiZJGUyD5EerR/OF/a/bVRQpHVQlpM
+        2PRWJc0NOGwdxpja91TvqBUJjmuapyI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-225-3raHEMVWMCGHrff0Pcc1pw-1; Tue, 28 Jan 2020 04:50:25 -0500
+X-MC-Unique: 3raHEMVWMCGHrff0Pcc1pw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 12BD81005514;
+        Tue, 28 Jan 2020 09:50:24 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-116-207.ams2.redhat.com [10.36.116.207])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E2B5760C05;
+        Tue, 28 Jan 2020 09:50:21 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Wei Yang <richard.weiyang@gmail.com>
+Subject: [PATCH for 4.19-stable v3 00/24] mm/memory_hotplug: backport of pending stable fixes
+Date:   Tue, 28 Jan 2020 10:49:57 +0100
+Message-Id: <20200128095021.8076-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is the backport of the following fixes for 4.19-stable:
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+- d84f2f5a7552 ("drivers/base/node.c: simplify
+  unregister_memory_block_under_nodes()")
+-- Turned out to not only be a cleanup but also a fix
+- 2c91f8fc6c99 ("mm/memory_hotplug: fix try_offline_node()")
+-- Automatic stable backport failed due to missing dependencies.
+- feee6b298916 ("mm/memory_hotplug: shrink zones when offlining memory")
+-- Was marked as stable 5.0+ due to the backport complexity,, but it's al=
+so
+   relevant for 4.19/4.14. As I have to backport quite some cleanups
+   already ...
 
-thanks,
+All tackle memory unplug issues, especially when memory was never
+onlined (or onlining failed), paired with memory unplug. When trying to
+access garbage memmaps we crash the kernel (e.g., because the derviced
+pgdat pointer is broken)
 
-greg k-h
+To minimize manual code changes, I decided to pull in quite some cleanups=
+.
+Still some manual code changes are necessary (indicated in the individual
+patches). Especially missing arm64 hot(un)plug, missing sub-section hotad=
+d
+support, and missing unification of mm/hmm.c and kernel/memremap.c requir=
+es
+care.
 
------------------- original commit in Linus's tree ------------------
+Due to:
+- 4e0d2e7ef14d ("mm, sparse: pass nid instead of pgdat to
+  sparse_add_one_section()")
+I need:
+- afe9b36ca890 ("mm/memunmap: don't access uninitialized memmap in
+  memunmap_pages()")
 
-From eb014de4fd418de1a277913cba244e47274fe392 Mon Sep 17 00:00:00 2001
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Date: Tue, 21 Jan 2020 16:48:03 +0100
-Subject: [PATCH] netfilter: nf_tables: autoload modules from the abort path
+Please note that:
+- 4c4b7f9ba948 ("mm/memory_hotplug: remove memory block devices
+  before arch_remove_memory()")
+Makes big (e.g., 32TB) machines boot up slower (e.g., 2h vs 10m). There i=
+s
+a performance fix in linux-next, but it does not seem to classify as a
+fix for current RC / stable.
 
-This patch introduces a list of pending module requests. This new module
-list is composed of nft_module_request objects that contain the module
-name and one status field that tells if the module has been already
-loaded (the 'done' field).
+I did quite some testing with hot(un)plug, onlining/offlining of memory
+blocks and memory-less/CPU-less NUMA nodes under x86_64 - the same set of
+tests I run against upstream on a fairly regular basis. I compile-tested
+on PowerPC, arm64, s390x, i386 and sh. I did not test any ZONE_DEVICE/HMM
+thingies.
 
-In the first pass, from the preparation phase, the netlink command finds
-that a module is missing on this list. Then, a module request is
-allocated and added to this list and nft_request_module() returns
--EAGAIN. This triggers the abort path with the autoload parameter set on
-from nfnetlink, request_module() is called and the module request enters
-the 'done' state. Since the mutex is released when loading modules from
-the abort phase, the module list is zapped so this is iteration occurs
-over a local list. Therefore, the request_module() calls happen when
-object lists are in consistent state (after fulling aborting the
-transaction) and the commit list is empty.
+The 4.14 backport might take a bit - it would be quite a lot of patches
+to backport and it is not that severely broken, so I am thinking about
+simpler (less invasive) alternatives.
 
-On the second pass, the netlink command will find that it already tried
-to load the module, so it does not request it again and
-nft_request_module() returns 0. Then, there is a look up to find the
-object that the command was missing. If the module was successfully
-loaded, the command proceeds normally since it finds the missing object
-in place, otherwise -ENOENT is reported to userspace.
+v2 -> v3:
+- Fix inverted author information of two patches
 
-This patch also updates nfnetlink to include the reason to enter the
-abort phase, which is required for this new autoload module rationale.
+v1 -> v2:
+- Fix patch authors
+- Dropped "mm/memory_hotplug: make __remove_pages() and
+  arch_remove_memory() never fail"
+-- Only creates a minor conflict in another patch
+- "mm/memory_hotplug: make remove_memory() take the device_hotplug_lock"
+-- Fix wrong upstream commit id
+- "mm/memory_hotplug: shrink zones when offlining memory"
+- "mm/memunmap: don't access uninitialized memmap in memunmap_pages()"
+-- Fix usage of wrong pfn
 
-Fixes: ec7470b834fe ("netfilter: nf_tables: store transaction list locally while requesting module")
-Reported-by: syzbot+29125d208b3dae9a7019@syzkaller.appspotmail.com
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+CCing only some people to minimize noise.
 
-diff --git a/include/linux/netfilter/nfnetlink.h b/include/linux/netfilter/nfnetlink.h
-index cf09ab37b45b..851425c3178f 100644
---- a/include/linux/netfilter/nfnetlink.h
-+++ b/include/linux/netfilter/nfnetlink.h
-@@ -31,7 +31,7 @@ struct nfnetlink_subsystem {
- 	const struct nfnl_callback *cb;	/* callback for individual types */
- 	struct module *owner;
- 	int (*commit)(struct net *net, struct sk_buff *skb);
--	int (*abort)(struct net *net, struct sk_buff *skb);
-+	int (*abort)(struct net *net, struct sk_buff *skb, bool autoload);
- 	void (*cleanup)(struct net *net);
- 	bool (*valid_genid)(struct net *net, u32 genid);
- };
-diff --git a/include/net/netns/nftables.h b/include/net/netns/nftables.h
-index 286fd960896f..a1a8d45adb42 100644
---- a/include/net/netns/nftables.h
-+++ b/include/net/netns/nftables.h
-@@ -7,6 +7,7 @@
- struct netns_nftables {
- 	struct list_head	tables;
- 	struct list_head	commit_list;
-+	struct list_head	module_list;
- 	struct mutex		commit_mutex;
- 	unsigned int		base_seq;
- 	u8			gencursor;
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 4aa01c1253b1..7e63b481cc86 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -578,35 +578,45 @@ __nf_tables_chain_type_lookup(const struct nlattr *nla, u8 family)
- 	return NULL;
- }
- 
--/*
-- * Loading a module requires dropping mutex that guards the transaction.
-- * A different client might race to start a new transaction meanwhile. Zap the
-- * list of pending transaction and then restore it once the mutex is grabbed
-- * again. Users of this function return EAGAIN which implicitly triggers the
-- * transaction abort path to clean up the list of pending transactions.
-- */
-+struct nft_module_request {
-+	struct list_head	list;
-+	char			module[MODULE_NAME_LEN];
-+	bool			done;
-+};
-+
- #ifdef CONFIG_MODULES
--static void nft_request_module(struct net *net, const char *fmt, ...)
-+static int nft_request_module(struct net *net, const char *fmt, ...)
- {
- 	char module_name[MODULE_NAME_LEN];
--	LIST_HEAD(commit_list);
-+	struct nft_module_request *req;
- 	va_list args;
- 	int ret;
- 
--	list_splice_init(&net->nft.commit_list, &commit_list);
--
- 	va_start(args, fmt);
- 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
- 	va_end(args);
- 	if (ret >= MODULE_NAME_LEN)
--		return;
-+		return 0;
- 
--	mutex_unlock(&net->nft.commit_mutex);
--	request_module("%s", module_name);
--	mutex_lock(&net->nft.commit_mutex);
-+	list_for_each_entry(req, &net->nft.module_list, list) {
-+		if (!strcmp(req->module, module_name)) {
-+			if (req->done)
-+				return 0;
- 
--	WARN_ON_ONCE(!list_empty(&net->nft.commit_list));
--	list_splice(&commit_list, &net->nft.commit_list);
-+			/* A request to load this module already exists. */
-+			return -EAGAIN;
-+		}
-+	}
-+
-+	req = kmalloc(sizeof(*req), GFP_KERNEL);
-+	if (!req)
-+		return -ENOMEM;
-+
-+	req->done = false;
-+	strlcpy(req->module, module_name, MODULE_NAME_LEN);
-+	list_add_tail(&req->list, &net->nft.module_list);
-+
-+	return -EAGAIN;
- }
- #endif
- 
-@@ -630,10 +640,9 @@ nf_tables_chain_type_lookup(struct net *net, const struct nlattr *nla,
- 	lockdep_nfnl_nft_mutex_not_held();
- #ifdef CONFIG_MODULES
- 	if (autoload) {
--		nft_request_module(net, "nft-chain-%u-%.*s", family,
--				   nla_len(nla), (const char *)nla_data(nla));
--		type = __nf_tables_chain_type_lookup(nla, family);
--		if (type != NULL)
-+		if (nft_request_module(net, "nft-chain-%u-%.*s", family,
-+				       nla_len(nla),
-+				       (const char *)nla_data(nla)) == -EAGAIN)
- 			return ERR_PTR(-EAGAIN);
- 	}
- #endif
-@@ -2341,9 +2350,8 @@ static const struct nft_expr_type *__nft_expr_type_get(u8 family,
- static int nft_expr_type_request_module(struct net *net, u8 family,
- 					struct nlattr *nla)
- {
--	nft_request_module(net, "nft-expr-%u-%.*s", family,
--			   nla_len(nla), (char *)nla_data(nla));
--	if (__nft_expr_type_get(family, nla))
-+	if (nft_request_module(net, "nft-expr-%u-%.*s", family,
-+			       nla_len(nla), (char *)nla_data(nla)) == -EAGAIN)
- 		return -EAGAIN;
- 
- 	return 0;
-@@ -2369,9 +2377,9 @@ static const struct nft_expr_type *nft_expr_type_get(struct net *net,
- 		if (nft_expr_type_request_module(net, family, nla) == -EAGAIN)
- 			return ERR_PTR(-EAGAIN);
- 
--		nft_request_module(net, "nft-expr-%.*s",
--				   nla_len(nla), (char *)nla_data(nla));
--		if (__nft_expr_type_get(family, nla))
-+		if (nft_request_module(net, "nft-expr-%.*s",
-+				       nla_len(nla),
-+				       (char *)nla_data(nla)) == -EAGAIN)
- 			return ERR_PTR(-EAGAIN);
- 	}
- #endif
-@@ -2462,9 +2470,10 @@ static int nf_tables_expr_parse(const struct nft_ctx *ctx,
- 			err = PTR_ERR(ops);
- #ifdef CONFIG_MODULES
- 			if (err == -EAGAIN)
--				nft_expr_type_request_module(ctx->net,
--							     ctx->family,
--							     tb[NFTA_EXPR_NAME]);
-+				if (nft_expr_type_request_module(ctx->net,
-+								 ctx->family,
-+								 tb[NFTA_EXPR_NAME]) != -EAGAIN)
-+					err = -ENOENT;
- #endif
- 			goto err1;
- 		}
-@@ -3301,8 +3310,7 @@ nft_select_set_ops(const struct nft_ctx *ctx,
- 	lockdep_nfnl_nft_mutex_not_held();
- #ifdef CONFIG_MODULES
- 	if (list_empty(&nf_tables_set_types)) {
--		nft_request_module(ctx->net, "nft-set");
--		if (!list_empty(&nf_tables_set_types))
-+		if (nft_request_module(ctx->net, "nft-set") == -EAGAIN)
- 			return ERR_PTR(-EAGAIN);
- 	}
- #endif
-@@ -5428,8 +5436,7 @@ nft_obj_type_get(struct net *net, u32 objtype)
- 	lockdep_nfnl_nft_mutex_not_held();
- #ifdef CONFIG_MODULES
- 	if (type == NULL) {
--		nft_request_module(net, "nft-obj-%u", objtype);
--		if (__nft_obj_type_get(objtype))
-+		if (nft_request_module(net, "nft-obj-%u", objtype) == -EAGAIN)
- 			return ERR_PTR(-EAGAIN);
- 	}
- #endif
-@@ -6002,8 +6009,7 @@ nft_flowtable_type_get(struct net *net, u8 family)
- 	lockdep_nfnl_nft_mutex_not_held();
- #ifdef CONFIG_MODULES
- 	if (type == NULL) {
--		nft_request_module(net, "nf-flowtable-%u", family);
--		if (__nft_flowtable_type_get(family))
-+		if (nft_request_module(net, "nf-flowtable-%u", family) == -EAGAIN)
- 			return ERR_PTR(-EAGAIN);
- 	}
- #endif
-@@ -7005,6 +7011,18 @@ static void nft_chain_del(struct nft_chain *chain)
- 	list_del_rcu(&chain->list);
- }
- 
-+static void nf_tables_module_autoload_cleanup(struct net *net)
-+{
-+	struct nft_module_request *req, *next;
-+
-+	WARN_ON_ONCE(!list_empty(&net->nft.commit_list));
-+	list_for_each_entry_safe(req, next, &net->nft.module_list, list) {
-+		WARN_ON_ONCE(!req->done);
-+		list_del(&req->list);
-+		kfree(req);
-+	}
-+}
-+
- static void nf_tables_commit_release(struct net *net)
- {
- 	struct nft_trans *trans;
-@@ -7017,6 +7035,7 @@ static void nf_tables_commit_release(struct net *net)
- 	 * to prevent expensive synchronize_rcu() in commit phase.
- 	 */
- 	if (list_empty(&net->nft.commit_list)) {
-+		nf_tables_module_autoload_cleanup(net);
- 		mutex_unlock(&net->nft.commit_mutex);
- 		return;
- 	}
-@@ -7031,6 +7050,7 @@ static void nf_tables_commit_release(struct net *net)
- 	list_splice_tail_init(&net->nft.commit_list, &nf_tables_destroy_list);
- 	spin_unlock(&nf_tables_destroy_list_lock);
- 
-+	nf_tables_module_autoload_cleanup(net);
- 	mutex_unlock(&net->nft.commit_mutex);
- 
- 	schedule_work(&trans_destroy_work);
-@@ -7222,6 +7242,26 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 	return 0;
- }
- 
-+static void nf_tables_module_autoload(struct net *net)
-+{
-+	struct nft_module_request *req, *next;
-+	LIST_HEAD(module_list);
-+
-+	list_splice_init(&net->nft.module_list, &module_list);
-+	mutex_unlock(&net->nft.commit_mutex);
-+	list_for_each_entry_safe(req, next, &module_list, list) {
-+		if (req->done) {
-+			list_del(&req->list);
-+			kfree(req);
-+		} else {
-+			request_module("%s", req->module);
-+			req->done = true;
-+		}
-+	}
-+	mutex_lock(&net->nft.commit_mutex);
-+	list_splice(&module_list, &net->nft.module_list);
-+}
-+
- static void nf_tables_abort_release(struct nft_trans *trans)
- {
- 	switch (trans->msg_type) {
-@@ -7251,7 +7291,7 @@ static void nf_tables_abort_release(struct nft_trans *trans)
- 	kfree(trans);
- }
- 
--static int __nf_tables_abort(struct net *net)
-+static int __nf_tables_abort(struct net *net, bool autoload)
- {
- 	struct nft_trans *trans, *next;
- 	struct nft_trans_elem *te;
-@@ -7373,6 +7413,11 @@ static int __nf_tables_abort(struct net *net)
- 		nf_tables_abort_release(trans);
- 	}
- 
-+	if (autoload)
-+		nf_tables_module_autoload(net);
-+	else
-+		nf_tables_module_autoload_cleanup(net);
-+
- 	return 0;
- }
- 
-@@ -7381,9 +7426,9 @@ static void nf_tables_cleanup(struct net *net)
- 	nft_validate_state_update(net, NFT_VALIDATE_SKIP);
- }
- 
--static int nf_tables_abort(struct net *net, struct sk_buff *skb)
-+static int nf_tables_abort(struct net *net, struct sk_buff *skb, bool autoload)
- {
--	int ret = __nf_tables_abort(net);
-+	int ret = __nf_tables_abort(net, autoload);
- 
- 	mutex_unlock(&net->nft.commit_mutex);
- 
-@@ -7978,6 +8023,7 @@ static int __net_init nf_tables_init_net(struct net *net)
- {
- 	INIT_LIST_HEAD(&net->nft.tables);
- 	INIT_LIST_HEAD(&net->nft.commit_list);
-+	INIT_LIST_HEAD(&net->nft.module_list);
- 	mutex_init(&net->nft.commit_mutex);
- 	net->nft.base_seq = 1;
- 	net->nft.validate_state = NFT_VALIDATE_SKIP;
-@@ -7989,7 +8035,7 @@ static void __net_exit nf_tables_exit_net(struct net *net)
- {
- 	mutex_lock(&net->nft.commit_mutex);
- 	if (!list_empty(&net->nft.commit_list))
--		__nf_tables_abort(net);
-+		__nf_tables_abort(net, false);
- 	__nft_release_tables(net);
- 	mutex_unlock(&net->nft.commit_mutex);
- 	WARN_ON_ONCE(!list_empty(&net->nft.tables));
-diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
-index 4abbb452cf6c..99127e2d95a8 100644
---- a/net/netfilter/nfnetlink.c
-+++ b/net/netfilter/nfnetlink.c
-@@ -476,7 +476,7 @@ static void nfnetlink_rcv_batch(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	}
- done:
- 	if (status & NFNL_BATCH_REPLAY) {
--		ss->abort(net, oskb);
-+		ss->abort(net, oskb, true);
- 		nfnl_err_reset(&err_list);
- 		kfree_skb(skb);
- 		module_put(ss->owner);
-@@ -487,11 +487,11 @@ static void nfnetlink_rcv_batch(struct sk_buff *skb, struct nlmsghdr *nlh,
- 			status |= NFNL_BATCH_REPLAY;
- 			goto done;
- 		} else if (err) {
--			ss->abort(net, oskb);
-+			ss->abort(net, oskb, false);
- 			netlink_ack(oskb, nlmsg_hdr(oskb), err, NULL);
- 		}
- 	} else {
--		ss->abort(net, oskb);
-+		ss->abort(net, oskb, false);
- 	}
- 	if (ss->cleanup)
- 		ss->cleanup(net);
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+
+Aneesh Kumar K.V (2):
+  powerpc/mm: Fix section mismatch warning
+  mm/memunmap: don't access uninitialized memmap in memunmap_pages()
+
+Baoquan He (1):
+  drivers/base/memory.c: clean up relics in function parameters
+
+Dan Carpenter (1):
+  mm, memory_hotplug: update a comment in unregister_memory()
+
+Dan Williams (1):
+  mm/hotplug: kill is_dev_zone() usage in __remove_pages()
+
+David Hildenbrand (15):
+  mm/memory_hotplug: make remove_memory() take the device_hotplug_lock
+  mm/memory_hotplug: release memory resource after arch_remove_memory()
+  mm/memory_hotplug: make unregister_memory_section() never fail
+  mm/memory_hotplug: make __remove_section() never fail
+  mm/memory_hotplug: make __remove_pages() and arch_remove_memory()
+    never fail
+  s390x/mm: implement arch_remove_memory()
+  mm/memory_hotplug: allow arch_remove_memory() without
+    CONFIG_MEMORY_HOTREMOVE
+  drivers/base/memory: pass a block_id to init_memory_block()
+  mm/memory_hotplug: create memory block devices after arch_add_memory()
+  mm/memory_hotplug: remove memory block devices before
+    arch_remove_memory()
+  mm/memory_hotplug: make unregister_memory_block_under_nodes() never
+    fail
+  mm/memory_hotplug: remove "zone" parameter from
+    sparse_remove_one_section
+  drivers/base/node.c: simplify unregister_memory_block_under_nodes()
+  mm/memory_hotplug: fix try_offline_node()
+  mm/memory_hotplug: shrink zones when offlining memory
+
+Oscar Salvador (1):
+  mm, memory_hotplug: add nid parameter to arch_remove_memory
+
+Wei Yang (3):
+  mm, sparse: drop pgdat_resize_lock in sparse_add/remove_one_section()
+  mm, sparse: pass nid instead of pgdat to sparse_add_one_section()
+  drivers/base/memory.c: remove an unnecessary check on NR_MEM_SECTIONS
+
+ arch/ia64/mm/init.c                           |  15 +-
+ arch/powerpc/mm/mem.c                         |  25 +--
+ arch/powerpc/platforms/powernv/memtrace.c     |   2 +-
+ .../platforms/pseries/hotplug-memory.c        |   6 +-
+ arch/s390/mm/init.c                           |  16 +-
+ arch/sh/mm/init.c                             |  15 +-
+ arch/x86/mm/init_32.c                         |   9 +-
+ arch/x86/mm/init_64.c                         |  17 +-
+ drivers/acpi/acpi_memhotplug.c                |   2 +-
+ drivers/base/memory.c                         | 203 +++++++++++-------
+ drivers/base/node.c                           |  52 ++---
+ include/linux/memory.h                        |   8 +-
+ include/linux/memory_hotplug.h                |  22 +-
+ include/linux/mmzone.h                        |   3 +-
+ include/linux/node.h                          |   7 +-
+ kernel/memremap.c                             |  12 +-
+ mm/hmm.c                                      |   8 +-
+ mm/memory_hotplug.c                           | 166 +++++++-------
+ mm/sparse.c                                   |  27 +--
+ 19 files changed, 303 insertions(+), 312 deletions(-)
+
+--=20
+2.24.1
 
