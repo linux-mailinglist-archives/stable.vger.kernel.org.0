@@ -2,40 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2836214B8F0
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C824514B8FE
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733230AbgA1O3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:29:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57260 "EHLO mail.kernel.org"
+        id S1733283AbgA1O3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:29:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387593AbgA1O3B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:29:01 -0500
+        id S2387670AbgA1O3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:29:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AFBB2468D;
-        Tue, 28 Jan 2020 14:28:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311792468A;
+        Tue, 28 Jan 2020 14:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221740;
-        bh=pmH3pqwquri/97YKTJEYZAwFtUYiOj88w6HvPfcMfoE=;
+        s=default; t=1580221770;
+        bh=uhgJY9qOXpZGDqBFRQJKzHKDhgbDJdvvVVG9TANt700=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mj68Uz43xckdoOdHWxNKPV6ks2YXfT1Yqt83PjSqW9otV5B2im9fu1HCIkKjHcudp
-         7ZbLp3rtqIAc+pZJE7WMwCGi40ZAj6ddBweEkPiyMYh4A4h/PALZhBot8M9Q1IqL7r
-         LY+3/WS+PsPxBC7SuhIrkErnSVVWpuMmKtq68LL0=
+        b=HdYl+iLrxVLMDpa91Wl8kSjvx2TF7kqVOVbniVZx5I3IlNNu0nG8AFqTp5p6UMq8d
+         h+fty4yt9hxr3iQxspa9TO6FxY4ILpeB28u72ogFnbHe3GAgs7WcLJZha+jDpmbIou
+         z8q2EfW2SSBFhaqOG8ltPNKlMvk/CT7WPmH8KbNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Wei Yang <richard.weiyang@gmail.com>,
         David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dave Hansen <dave.hansen@intel.com>,
         Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Wei Yang <richard.weiyang@gmail.com>, Qian Cai <cai@lca.pw>,
+        Arun KS <arunks@codeaurora.org>,
+        Mathieu Malaterre <malat@debian.org>,
+        Andrew Banman <andrew.banman@hpe.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Mike Travis <mike.travis@hpe.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Oscar Salvador <osalvador@suse.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Rich Felker <dalias@libc.org>, Rob Herring <robh@kernel.org>,
+        Stefan Agner <stefan@agner.ch>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 71/92] mm, sparse: pass nid instead of pgdat to sparse_add_one_section()
-Date:   Tue, 28 Jan 2020 15:08:39 +0100
-Message-Id: <20200128135818.493866712@linuxfoundation.org>
+Subject: [PATCH 4.19 74/92] mm/memory_hotplug: release memory resource after arch_remove_memory()
+Date:   Tue, 28 Jan 2020 15:08:42 +0100
+Message-Id: <20200128135818.898399886@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
@@ -48,83 +79,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yang <richard.weiyang@gmail.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 4e0d2e7ef14d9e1c900dac909db45263822b824f upstream.
+commit d9eb1417c77df7ce19abd2e41619e9dceccbdf2a upstream.
 
-Since the information needed in sparse_add_one_section() is node id to
-allocate proper memory, it is not necessary to pass its pgdat.
+Patch series "mm/memory_hotplug: Better error handling when removing
+memory", v1.
 
-This patch changes the prototype of sparse_add_one_section() to pass node
-id directly.  This is intended to reduce misleading that
-sparse_add_one_section() would touch pgdat.
+Error handling when removing memory is somewhat messed up right now.  Some
+errors result in warnings, others are completely ignored.  Memory unplug
+code can essentially not deal with errors properly as of now.
+remove_memory() will never fail.
 
-Link: http://lkml.kernel.org/r/20181204085657.20472-2-richard.weiyang@gmail.com
-Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
+We have basically two choices:
+1. Allow arch_remov_memory() and friends to fail, propagating errors via
+   remove_memory(). Might be problematic (e.g. DIMMs consisting of multiple
+   pieces added/removed separately).
+2. Don't allow the functions to fail, handling errors in a nicer way.
+
+It seems like most errors that can theoretically happen are really corner
+cases and mostly theoretical (e.g.  "section not valid").  However e.g.
+aborting removal of sections while all callers simply continue in case of
+errors is not nice.
+
+If we can gurantee that removal of memory always works (and WARN/skip in
+case of theoretical errors so we can figure out what is going on), we can
+go ahead and implement better error handling when adding memory.
+
+E.g. via add_memory():
+
+arch_add_memory()
+ret = do_stuff()
+if (ret) {
+	arch_remove_memory();
+	goto error;
+}
+
+Handling here that arch_remove_memory() might fail is basically
+impossible.  So I suggest, let's avoid reporting errors while removing
+memory, warning on theoretical errors instead and continuing instead of
+aborting.
+
+This patch (of 4):
+
+__add_pages() doesn't add the memory resource, so __remove_pages()
+shouldn't remove it.  Let's factor it out.  Especially as it is a special
+case for memory used as system memory, added via add_memory() and friends.
+
+We now remove the resource after removing the sections instead of doing it
+the other way around.  I don't think this change is problematic.
+
+add_memory()
+	register memory resource
+	arch_add_memory()
+
+remove_memory
+	arch_remove_memory()
+	release memory resource
+
+While at it, explain why we ignore errors and that it only happeny if
+we remove memory in a different granularity as we added it.
+
+[david@redhat.com: fix printk warning]
+  Link: http://lkml.kernel.org/r/20190417120204.6997-1-david@redhat.com
+Link: http://lkml.kernel.org/r/20190409100148.24703-2-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Arun KS <arunks@codeaurora.org>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Andrew Banman <andrew.banman@hpe.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Mike Travis <mike.travis@hpe.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Oscar Salvador <osalvador@suse.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    2 +-
- mm/sparse.c                    |    8 ++++----
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ mm/memory_hotplug.c |   35 +++++++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 14 deletions(-)
 
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -335,8 +335,8 @@ extern void move_pfn_range_to_zone(struc
- 		unsigned long nr_pages, struct vmem_altmap *altmap);
- extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
- extern bool is_memblock_offlined(struct memory_block *mem);
--extern int sparse_add_one_section(struct pglist_data *pgdat,
--		unsigned long start_pfn, struct vmem_altmap *altmap);
-+extern int sparse_add_one_section(int nid, unsigned long start_pfn,
-+				  struct vmem_altmap *altmap);
- extern void sparse_remove_one_section(struct zone *zone, struct mem_section *ms,
- 		unsigned long map_offset, struct vmem_altmap *altmap);
- extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -255,7 +255,7 @@ static int __meminit __add_section(int n
- 	if (pfn_valid(phys_start_pfn))
- 		return -EEXIST;
+@@ -523,20 +523,6 @@ int __remove_pages(struct zone *zone, un
+ 	if (is_dev_zone(zone)) {
+ 		if (altmap)
+ 			map_offset = vmem_altmap_offset(altmap);
+-	} else {
+-		resource_size_t start, size;
+-
+-		start = phys_start_pfn << PAGE_SHIFT;
+-		size = nr_pages * PAGE_SIZE;
+-
+-		ret = release_mem_region_adjustable(&iomem_resource, start,
+-					size);
+-		if (ret) {
+-			resource_size_t endres = start + size - 1;
+-
+-			pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
+-					&start, &endres, ret);
+-		}
+ 	}
  
--	ret = sparse_add_one_section(NODE_DATA(nid), phys_start_pfn, altmap);
-+	ret = sparse_add_one_section(nid, phys_start_pfn, altmap);
- 	if (ret < 0)
- 		return ret;
+ 	clear_zone_contiguous(zone);
+@@ -1883,6 +1869,26 @@ void try_offline_node(int nid)
+ }
+ EXPORT_SYMBOL(try_offline_node);
  
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -661,8 +661,8 @@ static void free_map_bootmem(struct page
-  * set.  If this is <=0, then that means that the passed-in
-  * map was not consumed and must be freed.
-  */
--int __meminit sparse_add_one_section(struct pglist_data *pgdat,
--		unsigned long start_pfn, struct vmem_altmap *altmap)
-+int __meminit sparse_add_one_section(int nid, unsigned long start_pfn,
-+				     struct vmem_altmap *altmap)
- {
- 	unsigned long section_nr = pfn_to_section_nr(start_pfn);
- 	struct mem_section *ms;
-@@ -674,11 +674,11 @@ int __meminit sparse_add_one_section(str
- 	 * no locking for this, because it does its own
- 	 * plus, it does a kmalloc
- 	 */
--	ret = sparse_index_init(section_nr, pgdat->node_id);
-+	ret = sparse_index_init(section_nr, nid);
- 	if (ret < 0 && ret != -EEXIST)
- 		return ret;
- 	ret = 0;
--	memmap = kmalloc_section_memmap(section_nr, pgdat->node_id, altmap);
-+	memmap = kmalloc_section_memmap(section_nr, nid, altmap);
- 	if (!memmap)
- 		return -ENOMEM;
- 	usemap = __kmalloc_section_usemap();
++static void __release_memory_resource(resource_size_t start,
++				      resource_size_t size)
++{
++	int ret;
++
++	/*
++	 * When removing memory in the same granularity as it was added,
++	 * this function never fails. It might only fail if resources
++	 * have to be adjusted or split. We'll ignore the error, as
++	 * removing of memory cannot fail.
++	 */
++	ret = release_mem_region_adjustable(&iomem_resource, start, size);
++	if (ret) {
++		resource_size_t endres = start + size - 1;
++
++		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
++			&start, &endres, ret);
++	}
++}
++
+ /**
+  * remove_memory
+  * @nid: the node ID
+@@ -1917,6 +1923,7 @@ void __ref __remove_memory(int nid, u64
+ 	memblock_remove(start, size);
+ 
+ 	arch_remove_memory(nid, start, size, NULL);
++	__release_memory_resource(start, size);
+ 
+ 	try_offline_node(nid);
+ 
 
 
