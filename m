@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7318B14B7F4
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B78714B827
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730378AbgA1OTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:19:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
+        id S1730991AbgA1OVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:21:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730795AbgA1OTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:19:07 -0500
+        id S1728034AbgA1OVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:21:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B091421739;
-        Tue, 28 Jan 2020 14:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A7B52071E;
+        Tue, 28 Jan 2020 14:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221147;
-        bh=ew8TtFAbGh0YDWog97CRPrqFZI6pcvWQx7snqRfgzCA=;
+        s=default; t=1580221263;
+        bh=Dxw+0f89/DOVqp441cgRJbzq3Pg2nRwQeSh2x1Rm7CE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDZDVz19ulTXIiQjsw7HQ1nCjcXc0Osg6ahc9WLH03+ImbZW5UQLqGltxOBcASRaO
-         METQo1WyhmaHzFXYZ3RJB+b8OXgD0sBYq3JdKINzcNV36ozem/T9gd2rOXP2SA1le0
-         OT1UPqMBqEINgIqNVuEZgWI/JB77hvoYy/Ema5tg=
+        b=HoZE+r8AR4gryiHedbfq8Y9lk1Ef2om1HcXWS4KKXeZX8adP9ji3nqUbYJIBAKjGp
+         AakkT/JlO15H/o9gvsF4hZ1v15ADFFPt49N/Rxij6NxuHNmECNQVXzbpugvswBWA+A
+         ITuY0qBHJqxQ9Ne2u6UJ1K8hwG1R8Uaq3vAvsNlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Walmsley <paul@pwsan.com>,
-        Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 106/271] ARM: OMAP2+: Fix potentially uninitialized return value for _setup_reset()
-Date:   Tue, 28 Jan 2020 15:04:15 +0100
-Message-Id: <20200128135900.475700264@linuxfoundation.org>
+Subject: [PATCH 4.9 108/271] media: tw5864: Fix possible NULL pointer dereference in tw5864_handle_frame
+Date:   Tue, 28 Jan 2020 15:04:17 +0100
+Message-Id: <20200128135900.618848609@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -45,41 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 7f0d078667a494466991aa7133f49594f32ff6a2 ]
+[ Upstream commit 2e7682ebfc750177a4944eeb56e97a3f05734528 ]
 
-Commit 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior") made
-the call to _enable() conditional based on no oh->rst_lines_cnt. This
-caused the return value to be potentially uninitialized. Curiously we see
-no compiler warnings for this, probably as this gets inlined.
+'vb' null check should be done before dereferencing it in
+tw5864_handle_frame, otherwise a NULL pointer dereference
+may occur.
 
-We call _setup_reset() from _setup() and only _setup_postsetup() if the
-return value is zero. Currently the return value can be uninitialized for
-cases where oh->rst_lines_cnt is set and HWMOD_INIT_NO_RESET is not set.
+Fixes: 34d1324edd31 ("[media] pci: Add tw5864 driver")
 
-Fixes: 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior")
-Cc: Paul Walmsley <paul@pwsan.com>
-Cc: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/tw5864/tw5864-video.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
-index bfc74954540ce..9421b78f869d3 100644
---- a/arch/arm/mach-omap2/omap_hwmod.c
-+++ b/arch/arm/mach-omap2/omap_hwmod.c
-@@ -2588,7 +2588,7 @@ static void _setup_iclk_autoidle(struct omap_hwmod *oh)
-  */
- static int _setup_reset(struct omap_hwmod *oh)
- {
--	int r;
-+	int r = 0;
+diff --git a/drivers/media/pci/tw5864/tw5864-video.c b/drivers/media/pci/tw5864/tw5864-video.c
+index 1ddf80f85c248..27ff6e0d98453 100644
+--- a/drivers/media/pci/tw5864/tw5864-video.c
++++ b/drivers/media/pci/tw5864/tw5864-video.c
+@@ -1386,13 +1386,13 @@ static void tw5864_handle_frame(struct tw5864_h264_frame *frame)
+ 	input->vb = NULL;
+ 	spin_unlock_irqrestore(&input->slock, flags);
  
- 	if (oh->_state != _HWMOD_STATE_INITIALIZED)
- 		return -EINVAL;
+-	v4l2_buf = to_vb2_v4l2_buffer(&vb->vb.vb2_buf);
+-
+ 	if (!vb) { /* Gone because of disabling */
+ 		dev_dbg(&dev->pci->dev, "vb is empty, dropping frame\n");
+ 		return;
+ 	}
+ 
++	v4l2_buf = to_vb2_v4l2_buffer(&vb->vb.vb2_buf);
++
+ 	/*
+ 	 * Check for space.
+ 	 * Mind the overhead of startcode emulation prevention.
 -- 
 2.20.1
 
