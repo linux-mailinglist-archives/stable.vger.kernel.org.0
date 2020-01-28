@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACD3514B698
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C366414B667
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:04:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727168AbgA1OGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:06:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52090 "EHLO mail.kernel.org"
+        id S1728151AbgA1OEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:04:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727516AbgA1OEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:04:45 -0500
+        id S1728150AbgA1OEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:04:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DCB32468A;
-        Tue, 28 Jan 2020 14:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 112DB2468E;
+        Tue, 28 Jan 2020 14:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220285;
-        bh=PYphjFZGudtWXkMPyMsi6nCahUV4wWTlUwYQJN9QVGg=;
+        s=default; t=1580220287;
+        bh=ucy6aDnLkTe3c9JgK6Gvzan9sG52oKX0HFs/wQaWOqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQ/vTIoF4DVi9qnG5S+YERWAg7Ux3HxF83baE1mgRw0ne8TK6QNA7ApwOBp+qexJa
-         l4+QdeD+4RtbTNCSONiQO6HIAyLG9aIj1JlQTRRYBv4WlSOZTBUB/3OqjO/K2dpgN9
-         jl+VFxgiEYage/sVYxRM/i+RQSNG4W8RdSiBQAPQ=
+        b=NivYduP2uvETLQXv2FfcFioFefAZjLfJRTaSuPey77T4S6eHeL4W3+sN+wpMsL8X0
+         y80A5YXxb5PRNG0sy6qwzjjTn1XO9KEf7jtIqZrBCv9NbcDv1B3KZCGy5V0/B7U9Ve
+         Dc356/A59WSo/cUGpdr9bvaHUaxLLHy3xDJ5UlPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
         Finn Thain <fthain@telegraphics.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 091/104] net/sonic: Fix receive buffer handling
-Date:   Tue, 28 Jan 2020 15:00:52 +0100
-Message-Id: <20200128135829.642237685@linuxfoundation.org>
+Subject: [PATCH 5.4 092/104] net/sonic: Avoid needless receive descriptor EOL flag updates
+Date:   Tue, 28 Jan 2020 15:00:53 +0100
+Message-Id: <20200128135829.747224815@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -46,15 +46,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Finn Thain <fthain@telegraphics.com.au>
 
-commit 9e311820f67e740f4fb8dcb82b4c4b5b05bdd1a5 upstream.
+commit eaabfd19b2c787bbe88dc32424b9a43d67293422 upstream.
 
-The SONIC can sometimes advance its rx buffer pointer (RRP register)
-without advancing its rx descriptor pointer (CRDA register). As a result
-the index of the current rx descriptor may not equal that of the current
-rx buffer. The driver mistakenly assumes that they are always equal.
-This assumption leads to incorrect packet lengths and possible packet
-duplication. Avoid this by calling a new function to locate the buffer
-corresponding to a given descriptor.
+The while loop in sonic_rx() traverses the rx descriptor ring. It stops
+when it reaches a descriptor that the SONIC has not used. Each iteration
+advances the EOL flag so the SONIC can keep using more descriptors.
+Therefore, the while loop has no definite termination condition.
+
+The algorithm described in the National Semiconductor literature is quite
+different. It consumes descriptors up to the one with its EOL flag set
+(which will also have its "in use" flag set). All freed descriptors are
+then returned to the ring at once, by adjusting the EOL flags (and link
+pointers).
+
+Adopt the algorithm from datasheet as it's simpler, terminates quickly
+and avoids a lot of pointless descriptor EOL flag changes.
 
 Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
 Tested-by: Stan Johnson <userm57@yahoo.com>
@@ -63,91 +69,46 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/natsemi/sonic.c |   35 ++++++++++++++++++++++++++++++-----
- drivers/net/ethernet/natsemi/sonic.h |    5 +++--
- 2 files changed, 33 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/natsemi/sonic.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
 --- a/drivers/net/ethernet/natsemi/sonic.c
 +++ b/drivers/net/ethernet/natsemi/sonic.c
-@@ -413,6 +413,21 @@ static irqreturn_t sonic_interrupt(int i
- 	return IRQ_HANDLED;
- }
+@@ -436,6 +436,7 @@ static void sonic_rx(struct net_device *
+ 	struct sonic_local *lp = netdev_priv(dev);
+ 	int status;
+ 	int entry = lp->cur_rx;
++	int prev_entry = lp->eol_rx;
  
-+/* Return the array index corresponding to a given Receive Buffer pointer. */
-+static int index_from_addr(struct sonic_local *lp, dma_addr_t addr,
-+			   unsigned int last)
-+{
-+	unsigned int i = last;
+ 	while (sonic_rda_get(dev, entry, SONIC_RD_IN_USE) == 0) {
+ 		struct sk_buff *used_skb;
+@@ -516,13 +517,21 @@ static void sonic_rx(struct net_device *
+ 		/*
+ 		 * give back the descriptor
+ 		 */
+-		sonic_rda_put(dev, entry, SONIC_RD_LINK,
+-			sonic_rda_get(dev, entry, SONIC_RD_LINK) | SONIC_EOL);
+ 		sonic_rda_put(dev, entry, SONIC_RD_IN_USE, 1);
+-		sonic_rda_put(dev, lp->eol_rx, SONIC_RD_LINK,
+-			sonic_rda_get(dev, lp->eol_rx, SONIC_RD_LINK) & ~SONIC_EOL);
+-		lp->eol_rx = entry;
+-		lp->cur_rx = entry = (entry + 1) & SONIC_RDS_MASK;
 +
-+	do {
-+		i = (i + 1) & SONIC_RRS_MASK;
-+		if (addr == lp->rx_laddr[i])
-+			return i;
-+	} while (i != last);
++		prev_entry = entry;
++		entry = (entry + 1) & SONIC_RDS_MASK;
++	}
 +
-+	return -ENOENT;
-+}
++	lp->cur_rx = entry;
 +
- /*
-  * We have a good packet(s), pass it/them up the network stack.
-  */
-@@ -432,6 +447,16 @@ static void sonic_rx(struct net_device *
- 
- 		status = sonic_rda_get(dev, entry, SONIC_RD_STATUS);
- 		if (status & SONIC_RCR_PRX) {
-+			u32 addr = (sonic_rda_get(dev, entry,
-+						  SONIC_RD_PKTPTR_H) << 16) |
-+				   sonic_rda_get(dev, entry, SONIC_RD_PKTPTR_L);
-+			int i = index_from_addr(lp, addr, entry);
-+
-+			if (i < 0) {
-+				WARN_ONCE(1, "failed to find buffer!\n");
-+				break;
-+			}
-+
- 			/* Malloc up new buffer. */
- 			new_skb = netdev_alloc_skb(dev, SONIC_RBSIZE + 2);
- 			if (new_skb == NULL) {
-@@ -453,7 +478,7 @@ static void sonic_rx(struct net_device *
- 
- 			/* now we have a new skb to replace it, pass the used one up the stack */
- 			dma_unmap_single(lp->device, lp->rx_laddr[entry], SONIC_RBSIZE, DMA_FROM_DEVICE);
--			used_skb = lp->rx_skb[entry];
-+			used_skb = lp->rx_skb[i];
- 			pkt_len = sonic_rda_get(dev, entry, SONIC_RD_PKTLEN);
- 			skb_trim(used_skb, pkt_len);
- 			used_skb->protocol = eth_type_trans(used_skb, dev);
-@@ -462,13 +487,13 @@ static void sonic_rx(struct net_device *
- 			lp->stats.rx_bytes += pkt_len;
- 
- 			/* and insert the new skb */
--			lp->rx_laddr[entry] = new_laddr;
--			lp->rx_skb[entry] = new_skb;
-+			lp->rx_laddr[i] = new_laddr;
-+			lp->rx_skb[i] = new_skb;
- 
- 			bufadr_l = (unsigned long)new_laddr & 0xffff;
- 			bufadr_h = (unsigned long)new_laddr >> 16;
--			sonic_rra_put(dev, entry, SONIC_RR_BUFADR_L, bufadr_l);
--			sonic_rra_put(dev, entry, SONIC_RR_BUFADR_H, bufadr_h);
-+			sonic_rra_put(dev, i, SONIC_RR_BUFADR_L, bufadr_l);
-+			sonic_rra_put(dev, i, SONIC_RR_BUFADR_H, bufadr_h);
- 		} else {
- 			/* This should only happen, if we enable accepting broken packets. */
- 		}
---- a/drivers/net/ethernet/natsemi/sonic.h
-+++ b/drivers/net/ethernet/natsemi/sonic.h
-@@ -275,8 +275,9 @@
- #define SONIC_NUM_RDS   SONIC_NUM_RRS /* number of receive descriptors */
- #define SONIC_NUM_TDS   16            /* number of transmit descriptors */
- 
--#define SONIC_RDS_MASK  (SONIC_NUM_RDS-1)
--#define SONIC_TDS_MASK  (SONIC_NUM_TDS-1)
-+#define SONIC_RRS_MASK  (SONIC_NUM_RRS - 1)
-+#define SONIC_RDS_MASK  (SONIC_NUM_RDS - 1)
-+#define SONIC_TDS_MASK  (SONIC_NUM_TDS - 1)
- 
- #define SONIC_RBSIZE	1520          /* size of one resource buffer */
- 
++	if (prev_entry != lp->eol_rx) {
++		/* Advance the EOL flag to put descriptors back into service */
++		sonic_rda_put(dev, prev_entry, SONIC_RD_LINK, SONIC_EOL |
++			      sonic_rda_get(dev, prev_entry, SONIC_RD_LINK));
++		sonic_rda_put(dev, lp->eol_rx, SONIC_RD_LINK, ~SONIC_EOL &
++			      sonic_rda_get(dev, lp->eol_rx, SONIC_RD_LINK));
++		lp->eol_rx = prev_entry;
+ 	}
+ 	/*
+ 	 * If any worth-while packets have been received, netif_rx()
 
 
