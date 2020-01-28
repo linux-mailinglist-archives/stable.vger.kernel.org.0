@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9ED14BBB5
+	by mail.lfdr.de (Postfix) with ESMTP id CCC6A14BBB6
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:49:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726895AbgA1OCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:02:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48274 "EHLO mail.kernel.org"
+        id S1727563AbgA1OCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:02:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727550AbgA1OCF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:02:05 -0500
+        id S1727559AbgA1OCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:02:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5799205F4;
-        Tue, 28 Jan 2020 14:02:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E5DD24683;
+        Tue, 28 Jan 2020 14:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220124;
-        bh=4mTqcUWHS9yCc82Xc+8HHbgzuyY5H1RUR/J6Ui0wbis=;
+        s=default; t=1580220126;
+        bh=MLCgaxSnSTyJxaX6lEGhzhwJQNiLmovMr7i2oLaS3Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQWoWFWijj/UeosxLR44J09fesGE7Yf9WSRFWdvmzj9RIrQL0/EkM/USPcOgbsu4Q
-         d9FtbqXpRkEmjUjaWmu2q2XcrOiL5rQUYCnQwee5HXa4EAqIWjp/3vMpgmdIcK9uz8
-         +nL/Z3wIj8kqPXIlet2ehW7d+F3gMRqmlIWFUFSs=
+        b=ekZgyFYUco93uMK3QSDnw7KqNiXDCuPBVSivJ8kBP+TyrXvjRXFwXpvD4cVEksAgF
+         SCm8ler+HFMkQ7/PUnnsd//dnE62vEsh9rI4av7F2DU1yw4GyOpIqc2fIa/kNd35Xk
+         sCA+h6+Uc2oRBjQdcXSxOfrSEWLbkSHWTMRGmjo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hamdan Igbaria <hamdani@mellanox.com>,
-        Erez Shitrit <erezsh@mellanox.com>,
-        Alex Vesker <valex@mellanox.com>,
+        stable@vger.kernel.org, Eli Cohen <eli@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 026/104] net/mlx5: DR, Enable counter on non-fwd-dest objects
-Date:   Tue, 28 Jan 2020 14:59:47 +0100
-Message-Id: <20200128135820.878204926@linuxfoundation.org>
+Subject: [PATCH 5.4 027/104] net/mlx5: E-Switch, Prevent ingress rate configuration of uplink rep
+Date:   Tue, 28 Jan 2020 14:59:48 +0100
+Message-Id: <20200128135821.022792530@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -45,87 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erez Shitrit <erezsh@mellanox.com>
+From: Eli Cohen <eli@mellanox.com>
 
-commmit b850a82114df9b0ec1d191dc64eed1f20a772e0f upstream.
+commit e401a1848be87123a2b2049addbf21138cb47081 upstream.
 
-The current code handles only counters that attached to dest, we still
-have the cases where we have counter on non-dest, like over drop etc.
+Since the implementation relies on limiting the VF transmit rate to
+simulate ingress rate limiting, and since either uplink representor or
+ecpf are not associated with a VF, we limit the rate limit configuration
+for those ports.
 
-Fixes: 6a48faeeca10 ("net/mlx5: Add direct rule fs_cmd implementation")
-Signed-off-by: Hamdan Igbaria <hamdani@mellanox.com>
-Signed-off-by: Erez Shitrit <erezsh@mellanox.com>
-Reviewed-by: Alex Vesker <valex@mellanox.com>
+Fixes: fcb64c0f5640 ("net/mlx5: E-Switch, add ingress rate support")
+Signed-off-by: Eli Cohen <eli@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c |   42 ++++++++++-----
- 1 file changed, 29 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-@@ -352,26 +352,16 @@ static int mlx5_cmd_dr_create_fte(struct
- 	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_FWD_DEST) {
- 		list_for_each_entry(dst, &fte->node.children, node.list) {
- 			enum mlx5_flow_destination_type type = dst->dest_attr.type;
--			u32 id;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -3951,6 +3951,13 @@ static int apply_police_params(struct ml
+ 	u32 rate_mbps;
+ 	int err;
  
- 			if (num_actions == MLX5_FLOW_CONTEXT_ACTION_MAX) {
- 				err = -ENOSPC;
- 				goto free_actions;
- 			}
- 
--			switch (type) {
--			case MLX5_FLOW_DESTINATION_TYPE_COUNTER:
--				id = dst->dest_attr.counter_id;
-+			if (type == MLX5_FLOW_DESTINATION_TYPE_COUNTER)
-+				continue;
- 
--				tmp_action =
--					mlx5dr_action_create_flow_counter(id);
--				if (!tmp_action) {
--					err = -ENOMEM;
--					goto free_actions;
--				}
--				fs_dr_actions[fs_dr_num_actions++] = tmp_action;
--				actions[num_actions++] = tmp_action;
--				break;
-+			switch (type) {
- 			case MLX5_FLOW_DESTINATION_TYPE_FLOW_TABLE:
- 				tmp_action = create_ft_action(dev, dst);
- 				if (!tmp_action) {
-@@ -397,6 +387,32 @@ static int mlx5_cmd_dr_create_fte(struct
- 		}
- 	}
- 
-+	if (fte->action.action & MLX5_FLOW_CONTEXT_ACTION_COUNT) {
-+		list_for_each_entry(dst, &fte->node.children, node.list) {
-+			u32 id;
-+
-+			if (dst->dest_attr.type !=
-+			    MLX5_FLOW_DESTINATION_TYPE_COUNTER)
-+				continue;
-+
-+			if (num_actions == MLX5_FLOW_CONTEXT_ACTION_MAX) {
-+				err = -ENOSPC;
-+				goto free_actions;
-+			}
-+
-+			id = dst->dest_attr.counter_id;
-+			tmp_action =
-+				mlx5dr_action_create_flow_counter(id);
-+			if (!tmp_action) {
-+				err = -ENOMEM;
-+				goto free_actions;
-+			}
-+
-+			fs_dr_actions[fs_dr_num_actions++] = tmp_action;
-+			actions[num_actions++] = tmp_action;
-+		}
++	vport_num = rpriv->rep->vport;
++	if (vport_num >= MLX5_VPORT_ECPF) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Ingress rate limit is supported only for Eswitch ports connected to VFs");
++		return -EOPNOTSUPP;
 +	}
 +
- 	params.match_sz = match_sz;
- 	params.match_buf = (u64 *)fte->val;
- 
+ 	esw = priv->mdev->priv.eswitch;
+ 	/* rate is given in bytes/sec.
+ 	 * First convert to bits/sec and then round to the nearest mbit/secs.
+@@ -3959,8 +3966,6 @@ static int apply_police_params(struct ml
+ 	 * 1 mbit/sec.
+ 	 */
+ 	rate_mbps = rate ? max_t(u32, (rate * 8 + 500000) / 1000000, 1) : 0;
+-	vport_num = rpriv->rep->vport;
+-
+ 	err = mlx5_esw_modify_vport_rate(esw, vport_num, rate_mbps);
+ 	if (err)
+ 		NL_SET_ERR_MSG_MOD(extack, "failed applying action to hardware");
 
 
