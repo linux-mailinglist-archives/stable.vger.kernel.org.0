@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD42514BBBA
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF8314BBBF
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbgA1OCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:02:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48546 "EHLO mail.kernel.org"
+        id S1726650AbgA1Osf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:48:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727609AbgA1OCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:02:17 -0500
+        id S1726715AbgA1OCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:02:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E02B24685;
-        Tue, 28 Jan 2020 14:02:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75097205F4;
+        Tue, 28 Jan 2020 14:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220136;
-        bh=TM1lYX9ZBR0sv2CsQm5I0T9nmMCc2TsB4mRuu+HeEvg=;
+        s=default; t=1580220138;
+        bh=3hKvNmT8nmLVI3xCpYfux5YxrqvOxqQ22wVDWQSZauo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JY5A0bx+Tqm4I0LxMW+jiFB/sTOe5pU6rA0gYq4Lzryl7nBxEiUi+kmr7zYGfXaQf
-         JR3tHnyDUg9zaANetBqOVkRwKe+rcOkWw414t4vDU5QQvn8bbQQzTAy3Ufv4ltM9ti
-         MEc0t6x5Q2c2Vv7mOs7qxaZ25DuLQYP3Brk+fJ7M=
+        b=MhVaQu6qarECxABreXgoWGBF7mxYQlBk7fJiGjThhNsrVEcDB1Kn/fEBSn5+Hwgr1
+         hDAY5KtzGdJte9tOQ9g+2mSC2LNZEYqccTtKmX1bIUseUhrHwd+TwZgey4kfuwu9cj
+         Pthd7iNjW3Lkqtm4u5A0c7uEvnVpb2dfljkmc+8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 031/104] net/mlx5e: kTLS, Do not send decrypted-marked SKBs via non-accel path
-Date:   Tue, 28 Jan 2020 14:59:52 +0100
-Message-Id: <20200128135821.569664814@linuxfoundation.org>
+        stable@vger.kernel.org, Sven-Haegar Koch <haegar@sdinet.de>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 032/104] ipv4: Detect rollover in specific fib table dump
+Date:   Tue, 28 Jan 2020 14:59:53 +0100
+Message-Id: <20200128135821.698374819@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -44,55 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: David Ahern <dsahern@gmail.com>
 
-commit 342508c1c7540e281fd36151c175ba5ff954a99f upstream.
+[ Upstream commit 9827c0634e461703abf81e8cc8b7adf5da5886d0 ]
 
-When TCP out-of-order is identified (unexpected tcp seq mismatch), driver
-analyzes the packet and decides what handling should it get:
-1. go to accelerated path (to be encrypted in HW),
-2. go to regular xmit path (send w/o encryption),
-3. drop.
+Sven-Haegar reported looping on fib dumps when 255.255.255.255 route has
+been added to a table. The looping is caused by the key rolling over from
+FFFFFFFF to 0. When dumping a specific table only, we need a means to detect
+when the table dump is done. The key and count saved to cb args are both 0
+only at the start of the table dump. If key is 0 and count > 0, then we are
+in the rollover case. Detect and return to avoid looping.
 
-Packets marked with skb->decrypted by the TLS stack in the TX flow skips
-SW encryption, and rely on the HW offload.
-Verify that such packets are never sent un-encrypted on the wire.
-Add a WARN to catch such bugs, and prefer dropping the packet in these cases.
+This only affects dumps of a specific table; for dumps of all tables
+(the case prior to the change in the Fixes tag) inet_dump_fib moved
+the entry counter to the next table and reset the cb args used by
+fib_table_dump and fn_trie_dump_leaf, so the rollover ffffffff back
+to 0 did not cause looping with the dumps.
 
-Fixes: 46a3ea98074e ("net/mlx5e: kTLS, Enhance TX resync flow")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Boris Pismenny <borisp@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: effe67926624 ("net: Enable kernel side filtering of route dumps")
+Reported-by: Sven-Haegar Koch <haegar@sdinet.de>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c |   14 +++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/ipv4/fib_trie.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c
-@@ -458,12 +458,18 @@ struct sk_buff *mlx5e_ktls_handle_tx_skb
- 		enum mlx5e_ktls_sync_retval ret =
- 			mlx5e_ktls_tx_handle_ooo(priv_tx, sq, datalen, seq);
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -2175,6 +2175,12 @@ int fib_table_dump(struct fib_table *tb,
+ 	int count = cb->args[2];
+ 	t_key key = cb->args[3];
  
--		if (likely(ret == MLX5E_KTLS_SYNC_DONE))
-+		switch (ret) {
-+		case MLX5E_KTLS_SYNC_DONE:
- 			*wqe = mlx5e_sq_fetch_wqe(sq, sizeof(**wqe), pi);
--		else if (ret == MLX5E_KTLS_SYNC_FAIL)
-+			break;
-+		case MLX5E_KTLS_SYNC_SKIP_NO_DATA:
-+			if (likely(!skb->decrypted))
-+				goto out;
-+			WARN_ON_ONCE(1);
-+			/* fall-through */
-+		default: /* MLX5E_KTLS_SYNC_FAIL */
- 			goto err_out;
--		else /* ret == MLX5E_KTLS_SYNC_SKIP_NO_DATA */
--			goto out;
-+		}
- 	}
++	/* First time here, count and key are both always 0. Count > 0
++	 * and key == 0 means the dump has wrapped around and we are done.
++	 */
++	if (count && !key)
++		return skb->len;
++
+ 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
+ 		int err;
  
- 	priv_tx->expected_seq = seq + datalen;
 
 
