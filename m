@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B97E114B99E
+	by mail.lfdr.de (Postfix) with ESMTP id 468C114B99D
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731535AbgA1OYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:24:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51770 "EHLO mail.kernel.org"
+        id S1732785AbgA1OY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:24:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730246AbgA1OYx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:53 -0500
+        id S1732766AbgA1OY4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:24:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF81924699;
-        Tue, 28 Jan 2020 14:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6014624681;
+        Tue, 28 Jan 2020 14:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221492;
-        bh=DVCDE0C3uPlaTr0kFjim1TFu6hOp8YaOTgtX+v4fjKY=;
+        s=default; t=1580221494;
+        bh=uu1kj5/fQ0g0xQB25ejUBqJrWhvlZPo6rGxHMrPqe78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtImCgTzgIvJ0IIGguYCKAwd/ifBiUvWa6QmFwRUX+L1PBBnMxd/KrVqndxvqu5r3
-         631wGclaey84DEO3toDtSCtGv/1ZvN1dVlRKKlTvEeoEht8IeV5FJkhk/gCTjPPwLP
-         QVrLpcwRso7/ysQkL/uyXjZGf26ohCLjCLD4Iut0=
+        b=Xg5yMQOvb3AZHn5ZK8kjTnyQdX3uccJ4XwJaOpNV+IlVaIgARRMUWmFGiR+hSwDPJ
+         JunOB3bFKdbTzr0ViiLRYSa9G+RUYm9Sf4eF48KBYCuGnAXH07d5vjDeQAwWy/zeP7
+         c5uMKnSVzSpVKbGq0BBk+qdzPplP3jZjwTJsfJmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 246/271] hwmon: (core) Fix double-free in __hwmon_device_register()
-Date:   Tue, 28 Jan 2020 15:06:35 +0100
-Message-Id: <20200128135910.831096550@linuxfoundation.org>
+Subject: [PATCH 4.9 247/271] hwmon: (core) Do not use device managed functions for memory allocations
+Date:   Tue, 28 Jan 2020 15:06:36 +0100
+Message-Id: <20200128135910.906897779@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -43,132 +44,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 74e3512731bd5c9673176425a76a7cc5efa8ddb6 upstream.
+commit 3bf8bdcf3bada771eb12b57f2a30caee69e8ab8d upstream.
 
-Fix double-free that happens when thermal zone setup fails, see KASAN log
-below.
+The hwmon core uses device managed functions, tied to the hwmon parent
+device, for various internal memory allocations. This is problematic
+since hwmon device lifetime does not necessarily match its parent's
+device lifetime. If there is a mismatch, memory leaks will accumulate
+until the parent device is released.
 
-==================================================================
-BUG: KASAN: double-free or invalid-free in __hwmon_device_register+0x5dc/0xa7c
+Fix the problem by managing all memory allocations internally. The only
+exception is memory allocation for thermal device registration, which
+can be tied to the hwmon device, along with thermal device registration
+itself.
 
-CPU: 0 PID: 132 Comm: kworker/0:2 Tainted: G    B             4.19.0-rc8-next-20181016-00042-gb52cd80401e9-dirty #41
-Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
-Workqueue: events deferred_probe_work_func
-Backtrace:
-[<c0110540>] (dump_backtrace) from [<c0110944>] (show_stack+0x20/0x24)
-[<c0110924>] (show_stack) from [<c105cb08>] (dump_stack+0x9c/0xb0)
-[<c105ca6c>] (dump_stack) from [<c02fdaec>] (print_address_description+0x68/0x250)
-[<c02fda84>] (print_address_description) from [<c02fd4ac>] (kasan_report_invalid_free+0x68/0x88)
-[<c02fd444>] (kasan_report_invalid_free) from [<c02fc85c>] (__kasan_slab_free+0x1f4/0x200)
-[<c02fc668>] (__kasan_slab_free) from [<c02fd0c0>] (kasan_slab_free+0x14/0x18)
-[<c02fd0ac>] (kasan_slab_free) from [<c02f9c6c>] (kfree+0x90/0x294)
-[<c02f9bdc>] (kfree) from [<c0b41bbc>] (__hwmon_device_register+0x5dc/0xa7c)
-[<c0b415e0>] (__hwmon_device_register) from [<c0b421e8>] (hwmon_device_register_with_info+0xa0/0xa8)
-[<c0b42148>] (hwmon_device_register_with_info) from [<c0b42324>] (devm_hwmon_device_register_with_info+0x74/0xb4)
-[<c0b422b0>] (devm_hwmon_device_register_with_info) from [<c0b4481c>] (lm90_probe+0x414/0x578)
-[<c0b44408>] (lm90_probe) from [<c0aeeff4>] (i2c_device_probe+0x35c/0x384)
-[<c0aeec98>] (i2c_device_probe) from [<c08776cc>] (really_probe+0x290/0x3e4)
-[<c087743c>] (really_probe) from [<c0877a2c>] (driver_probe_device+0x80/0x1c4)
-[<c08779ac>] (driver_probe_device) from [<c0877da8>] (__device_attach_driver+0x104/0x11c)
-[<c0877ca4>] (__device_attach_driver) from [<c0874dd8>] (bus_for_each_drv+0xa4/0xc8)
-[<c0874d34>] (bus_for_each_drv) from [<c08773b0>] (__device_attach+0xf0/0x15c)
-[<c08772c0>] (__device_attach) from [<c0877e24>] (device_initial_probe+0x1c/0x20)
-[<c0877e08>] (device_initial_probe) from [<c08762f4>] (bus_probe_device+0xdc/0xec)
-[<c0876218>] (bus_probe_device) from [<c0876a08>] (deferred_probe_work_func+0xa8/0xd4)
-[<c0876960>] (deferred_probe_work_func) from [<c01527c4>] (process_one_work+0x3dc/0x96c)
-[<c01523e8>] (process_one_work) from [<c01541e0>] (worker_thread+0x4ec/0x8bc)
-[<c0153cf4>] (worker_thread) from [<c015b238>] (kthread+0x230/0x240)
-[<c015b008>] (kthread) from [<c01010bc>] (ret_from_fork+0x14/0x38)
-Exception stack(0xcf743fb0 to 0xcf743ff8)
-3fa0:                                     00000000 00000000 00000000 00000000
-3fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-3fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-
-Allocated by task 132:
- kasan_kmalloc.part.1+0x58/0xf4
- kasan_kmalloc+0x90/0xa4
- kmem_cache_alloc_trace+0x90/0x2a0
- __hwmon_device_register+0xbc/0xa7c
- hwmon_device_register_with_info+0xa0/0xa8
- devm_hwmon_device_register_with_info+0x74/0xb4
- lm90_probe+0x414/0x578
- i2c_device_probe+0x35c/0x384
- really_probe+0x290/0x3e4
- driver_probe_device+0x80/0x1c4
- __device_attach_driver+0x104/0x11c
- bus_for_each_drv+0xa4/0xc8
- __device_attach+0xf0/0x15c
- device_initial_probe+0x1c/0x20
- bus_probe_device+0xdc/0xec
- deferred_probe_work_func+0xa8/0xd4
- process_one_work+0x3dc/0x96c
- worker_thread+0x4ec/0x8bc
- kthread+0x230/0x240
- ret_from_fork+0x14/0x38
-   (null)
-
-Freed by task 132:
- __kasan_slab_free+0x12c/0x200
- kasan_slab_free+0x14/0x18
- kfree+0x90/0x294
- hwmon_dev_release+0x1c/0x20
- device_release+0x4c/0xe8
- kobject_put+0xac/0x11c
- device_unregister+0x2c/0x30
- __hwmon_device_register+0xa58/0xa7c
- hwmon_device_register_with_info+0xa0/0xa8
- devm_hwmon_device_register_with_info+0x74/0xb4
- lm90_probe+0x414/0x578
- i2c_device_probe+0x35c/0x384
- really_probe+0x290/0x3e4
- driver_probe_device+0x80/0x1c4
- __device_attach_driver+0x104/0x11c
- bus_for_each_drv+0xa4/0xc8
- __device_attach+0xf0/0x15c
- device_initial_probe+0x1c/0x20
- bus_probe_device+0xdc/0xec
- deferred_probe_work_func+0xa8/0xd4
- process_one_work+0x3dc/0x96c
- worker_thread+0x4ec/0x8bc
- kthread+0x230/0x240
- ret_from_fork+0x14/0x38
-   (null)
-
-Cc: <stable@vger.kernel.org> # v4.15+
-Fixes: 47c332deb8e8 ("hwmon: Deal with errors from the thermal subsystem")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Fixes: d560168b5d0f ("hwmon: (core) New hwmon registration API")
+Cc: stable@vger.kernel.org # v4.14.x: 47c332deb8e8: hwmon: Deal with errors from the thermal subsystem
+Cc: stable@vger.kernel.org # v4.14.x: 74e3512731bd: hwmon: (core) Fix double-free in __hwmon_device_register()
+Cc: stable@vger.kernel.org # v4.9.x: 3a412d5e4a1c: hwmon: (core) Simplify sysfs attribute name allocation
+Cc: stable@vger.kernel.org # v4.9.x: 47c332deb8e8: hwmon: Deal with errors from the thermal subsystem
+Cc: stable@vger.kernel.org # v4.9.x: 74e3512731bd: hwmon: (core) Fix double-free in __hwmon_device_register()
+Cc: stable@vger.kernel.org # v4.9+
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/hwmon.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hwmon/hwmon.c |   68 ++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 41 insertions(+), 27 deletions(-)
 
 --- a/drivers/hwmon/hwmon.c
 +++ b/drivers/hwmon/hwmon.c
-@@ -596,8 +596,10 @@ __hwmon_device_register(struct device *d
- 				if (info[i]->config[j] & HWMON_T_INPUT) {
- 					err = hwmon_thermal_add_sensor(dev,
- 								hwdev, j);
--					if (err)
--						goto free_device;
-+					if (err) {
-+						device_unregister(hdev);
-+						goto ida_remove;
-+					}
- 				}
- 			}
- 		}
-@@ -605,8 +607,6 @@ __hwmon_device_register(struct device *d
+@@ -51,6 +51,7 @@ struct hwmon_device_attribute {
  
+ #define to_hwmon_attr(d) \
+ 	container_of(d, struct hwmon_device_attribute, dev_attr)
++#define to_dev_attr(a) container_of(a, struct device_attribute, attr)
+ 
+ /*
+  * Thermal zone information
+@@ -58,7 +59,7 @@ struct hwmon_device_attribute {
+  * also provides the sensor index.
+  */
+ struct hwmon_thermal_data {
+-	struct hwmon_device *hwdev;	/* Reference to hwmon device */
++	struct device *dev;		/* Reference to hwmon device */
+ 	int index;			/* sensor index */
+ };
+ 
+@@ -95,9 +96,27 @@ static const struct attribute_group *hwm
+ 	NULL
+ };
+ 
++static void hwmon_free_attrs(struct attribute **attrs)
++{
++	int i;
++
++	for (i = 0; attrs[i]; i++) {
++		struct device_attribute *dattr = to_dev_attr(attrs[i]);
++		struct hwmon_device_attribute *hattr = to_hwmon_attr(dattr);
++
++		kfree(hattr);
++	}
++	kfree(attrs);
++}
++
+ static void hwmon_dev_release(struct device *dev)
+ {
+-	kfree(to_hwmon_device(dev));
++	struct hwmon_device *hwdev = to_hwmon_device(dev);
++
++	if (hwdev->group.attrs)
++		hwmon_free_attrs(hwdev->group.attrs);
++	kfree(hwdev->groups);
++	kfree(hwdev);
+ }
+ 
+ static struct class hwmon_class = {
+@@ -121,11 +140,11 @@ static DEFINE_IDA(hwmon_ida);
+ static int hwmon_thermal_get_temp(void *data, int *temp)
+ {
+ 	struct hwmon_thermal_data *tdata = data;
+-	struct hwmon_device *hwdev = tdata->hwdev;
++	struct hwmon_device *hwdev = to_hwmon_device(tdata->dev);
+ 	int ret;
+ 	long t;
+ 
+-	ret = hwdev->chip->ops->read(&hwdev->dev, hwmon_temp, hwmon_temp_input,
++	ret = hwdev->chip->ops->read(tdata->dev, hwmon_temp, hwmon_temp_input,
+ 				     tdata->index, &t);
+ 	if (ret < 0)
+ 		return ret;
+@@ -139,8 +158,7 @@ static struct thermal_zone_of_device_ops
+ 	.get_temp = hwmon_thermal_get_temp,
+ };
+ 
+-static int hwmon_thermal_add_sensor(struct device *dev,
+-				    struct hwmon_device *hwdev, int index)
++static int hwmon_thermal_add_sensor(struct device *dev, int index)
+ {
+ 	struct hwmon_thermal_data *tdata;
+ 	struct thermal_zone_device *tzd;
+@@ -149,10 +167,10 @@ static int hwmon_thermal_add_sensor(stru
+ 	if (!tdata)
+ 		return -ENOMEM;
+ 
+-	tdata->hwdev = hwdev;
++	tdata->dev = dev;
+ 	tdata->index = index;
+ 
+-	tzd = devm_thermal_zone_of_sensor_register(&hwdev->dev, index, tdata,
++	tzd = devm_thermal_zone_of_sensor_register(dev, index, tdata,
+ 						   &hwmon_thermal_ops);
+ 	/*
+ 	 * If CONFIG_THERMAL_OF is disabled, this returns -ENODEV,
+@@ -164,8 +182,7 @@ static int hwmon_thermal_add_sensor(stru
+ 	return 0;
+ }
+ #else
+-static int hwmon_thermal_add_sensor(struct device *dev,
+-				    struct hwmon_device *hwdev, int index)
++static int hwmon_thermal_add_sensor(struct device *dev, int index)
+ {
+ 	return 0;
+ }
+@@ -215,8 +232,7 @@ static int hwmon_attr_base(enum hwmon_se
+ 	return 1;
+ }
+ 
+-static struct attribute *hwmon_genattr(struct device *dev,
+-				       const void *drvdata,
++static struct attribute *hwmon_genattr(const void *drvdata,
+ 				       enum hwmon_sensor_types type,
+ 				       u32 attr,
+ 				       int index,
+@@ -242,7 +258,7 @@ static struct attribute *hwmon_genattr(s
+ 	if ((mode & S_IWUGO) && !ops->write)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	hattr = devm_kzalloc(dev, sizeof(*hattr), GFP_KERNEL);
++	hattr = kzalloc(sizeof(*hattr), GFP_KERNEL);
+ 	if (!hattr)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -441,8 +457,7 @@ static int hwmon_num_channel_attrs(const
+ 	return n;
+ }
+ 
+-static int hwmon_genattrs(struct device *dev,
+-			  const void *drvdata,
++static int hwmon_genattrs(const void *drvdata,
+ 			  struct attribute **attrs,
+ 			  const struct hwmon_ops *ops,
+ 			  const struct hwmon_channel_info *info)
+@@ -468,7 +483,7 @@ static int hwmon_genattrs(struct device
+ 			attr_mask &= ~BIT(attr);
+ 			if (attr >= template_size)
+ 				return -EINVAL;
+-			a = hwmon_genattr(dev, drvdata, info->type, attr, i,
++			a = hwmon_genattr(drvdata, info->type, attr, i,
+ 					  templates[attr], ops);
+ 			if (IS_ERR(a)) {
+ 				if (PTR_ERR(a) != -ENOENT)
+@@ -482,8 +497,7 @@ static int hwmon_genattrs(struct device
+ }
+ 
+ static struct attribute **
+-__hwmon_create_attrs(struct device *dev, const void *drvdata,
+-		     const struct hwmon_chip_info *chip)
++__hwmon_create_attrs(const void *drvdata, const struct hwmon_chip_info *chip)
+ {
+ 	int ret, i, aindex = 0, nattrs = 0;
+ 	struct attribute **attrs;
+@@ -494,15 +508,17 @@ __hwmon_create_attrs(struct device *dev,
+ 	if (nattrs == 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	attrs = devm_kcalloc(dev, nattrs + 1, sizeof(*attrs), GFP_KERNEL);
++	attrs = kcalloc(nattrs + 1, sizeof(*attrs), GFP_KERNEL);
+ 	if (!attrs)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	for (i = 0; chip->info[i]; i++) {
+-		ret = hwmon_genattrs(dev, drvdata, &attrs[aindex], chip->ops,
++		ret = hwmon_genattrs(drvdata, &attrs[aindex], chip->ops,
+ 				     chip->info[i]);
+-		if (ret < 0)
++		if (ret < 0) {
++			hwmon_free_attrs(attrs);
+ 			return ERR_PTR(ret);
++		}
+ 		aindex += ret;
+ 	}
+ 
+@@ -542,14 +558,13 @@ __hwmon_device_register(struct device *d
+ 			for (i = 0; groups[i]; i++)
+ 				ngroups++;
+ 
+-		hwdev->groups = devm_kcalloc(dev, ngroups, sizeof(*groups),
+-					     GFP_KERNEL);
++		hwdev->groups = kcalloc(ngroups, sizeof(*groups), GFP_KERNEL);
+ 		if (!hwdev->groups) {
+ 			err = -ENOMEM;
+ 			goto free_hwmon;
+ 		}
+ 
+-		attrs = __hwmon_create_attrs(dev, drvdata, chip);
++		attrs = __hwmon_create_attrs(drvdata, chip);
+ 		if (IS_ERR(attrs)) {
+ 			err = PTR_ERR(attrs);
+ 			goto free_hwmon;
+@@ -594,8 +609,7 @@ __hwmon_device_register(struct device *d
+ 							   hwmon_temp_input, j))
+ 					continue;
+ 				if (info[i]->config[j] & HWMON_T_INPUT) {
+-					err = hwmon_thermal_add_sensor(dev,
+-								hwdev, j);
++					err = hwmon_thermal_add_sensor(hdev, j);
+ 					if (err) {
+ 						device_unregister(hdev);
+ 						goto ida_remove;
+@@ -608,7 +622,7 @@ __hwmon_device_register(struct device *d
  	return hdev;
  
--free_device:
--	device_unregister(hdev);
  free_hwmon:
- 	kfree(hwdev);
+-	kfree(hwdev);
++	hwmon_dev_release(hdev);
  ida_remove:
+ 	ida_simple_remove(&hwmon_ida, id);
+ 	return ERR_PTR(err);
 
 
