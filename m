@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9655814B926
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2014E14B960
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387439AbgA1O17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:27:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
+        id S1730360AbgA1ObG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:31:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733236AbgA1O14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:27:56 -0500
+        id S2387481AbgA1O2V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:28:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D639424685;
-        Tue, 28 Jan 2020 14:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7073620716;
+        Tue, 28 Jan 2020 14:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221675;
-        bh=RifsvQtA9FoMPY+jgmaQnvPLNzI5SpXD8HYCfneCFnE=;
+        s=default; t=1580221700;
+        bh=B2fvCv8i+LxBDIg8WI21HrzwIXyf7tintpgAoAddjm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHE2IVDSr4mh7VBD1XySsuhPgCPBZ/twlyg8ktLmCzGseebJydajY4vf/IBzJwdqS
-         704XAhOIgrNDtmSTi6vWdR2Y78CjtZ2tVFD6EYkWRs3Yq+Qt9HW2OLUxSruZNcMTzl
-         6kiqLp0+OwBMXE8A+PaVa48jImlqcMkYxHZBYD2Y=
+        b=SN3xr2w81LToGiUjQUsEaiRG8NL3f/QecyYeYRwZhLsbdDXz9XmwzHULZc+qhGjon
+         j1XM0v9tvibi+asmthzQXAWmXbYQpMguyitsKf6N7V2EH4ZaNXPF9MijmBvwEMjgVj
+         PtfA1rV+W+p4jiY51k6dXU5Trz9zRy5a1xelkWNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Martin Kepplinger <martink@posteo.de>,
-        Vladis Dronov <vdronov@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 37/92] Input: pegasus_notetaker - fix endpoint sanity check
-Date:   Tue, 28 Jan 2020 15:08:05 +0100
-Message-Id: <20200128135813.850484379@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+cf23983d697c26c34f60@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 39/92] netfilter: nft_osf: add missing check for DREG attribute
+Date:   Tue, 28 Jan 2020 15:08:07 +0100
+Message-Id: <20200128135814.094432237@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
@@ -45,37 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-commit bcfcb7f9b480dd0be8f0df2df17340ca92a03b98 upstream.
+commit 7eaecf7963c1c8f62d62c6a8e7c439b0e7f2d365 upstream.
 
-The driver was checking the number of endpoints of the first alternate
-setting instead of the current one, something which could be used by a
-malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
-dereference.
+syzbot reports just another NULL deref crash because of missing test
+for presence of the attribute.
 
-Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Martin Kepplinger <martink@posteo.de>
-Acked-by: Vladis Dronov <vdronov@redhat.com>
-Link: https://lore.kernel.org/r/20191210113737.4016-2-johan@kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: syzbot+cf23983d697c26c34f60@syzkaller.appspotmail.com
+Fixes:  b96af92d6eaf9fadd ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/tablet/pegasus_notetaker.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_osf.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -274,7 +274,7 @@ static int pegasus_probe(struct usb_inte
- 		return -ENODEV;
+--- a/net/netfilter/nft_osf.c
++++ b/net/netfilter/nft_osf.c
+@@ -47,6 +47,9 @@ static int nft_osf_init(const struct nft
+ 	struct nft_osf *priv = nft_expr_priv(expr);
+ 	int err;
  
- 	/* Sanity check that the device has an endpoint */
--	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
- 		dev_err(&intf->dev, "Invalid number of endpoints\n");
- 		return -EINVAL;
- 	}
++	if (!tb[NFTA_OSF_DREG])
++		return -EINVAL;
++
+ 	priv->dreg = nft_parse_register(tb[NFTA_OSF_DREG]);
+ 	err = nft_validate_register_store(ctx, priv->dreg, NULL,
+ 					  NFT_DATA_VALUE, NFT_OSF_MAXGENRELEN);
 
 
