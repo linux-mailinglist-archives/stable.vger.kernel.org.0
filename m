@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9D814B6EB
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E6414B7F1
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgA1OJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:09:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S1728080AbgA1OTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:19:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728962AbgA1OJe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:09:34 -0500
+        id S1727119AbgA1OTC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:19:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D85F224685;
-        Tue, 28 Jan 2020 14:09:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5F4321739;
+        Tue, 28 Jan 2020 14:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220574;
-        bh=rlYwmC/Any2rfFQWoXj69Ke1st0Pwj5WetSEPFAZnvM=;
+        s=default; t=1580221142;
+        bh=FVBRIvNLzZ2uud5CytgTjCtHQb2wDALFalCx3cUkgmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvb1XfaGXdosRV8hH1br76UyHtCpXAKF2zN9FcSWO1qSt5U0TTNrrO9MOXWbD7ReJ
-         upxpZM9a99nvAUqL2HM2tYUjxn+P/UCvrOkCEmLunS/NRO1CDD/8lWfxlbPyt6h00d
-         LNQprTXKlVhmt8ZJ2boj8z1ionlsZY9RwZaSGQqY=
+        b=DvUEcIX+YFlwzK0mnrppRzpRZ4ODkK975xwQ0z7wlHhXwVHYpXapgCCDw4YShi26G
+         kVu4ahqCeptM9NmzDwJGlF/IREDAuP8NtG163GvOWzxBIZ+IvmLIGq9/eaOUyYgJRH
+         iow8mtrDdKczCtUuhWx0MYkzK2zW3TcjPTc32lBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 034/183] media: s5p-jpeg: Correct step and max values for V4L2_CID_JPEG_RESTART_INTERVAL
+Subject: [PATCH 4.9 104/271] tipc: tipc clang warning
 Date:   Tue, 28 Jan 2020 15:04:13 +0100
-Message-Id: <20200128135833.425652334@linuxfoundation.org>
+Message-Id: <20200128135900.332205111@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Jon Maloy <jon.maloy@ericsson.com>
 
-[ Upstream commit 19c624c6b29e244c418f8b44a711cbf5e82e3cd4 ]
+[ Upstream commit 737889efe9713a0f20a75fd0de952841d9275e6b ]
 
-This commit corrects max and step values for v4l2 control for
-V4L2_CID_JPEG_RESTART_INTERVAL. Max should be 0xffff and step should be 1.
-It was found by using v4l2-compliance tool and checking result of
-VIDIOC_QUERY_EXT_CTRL/QUERYMENU test.
-Previously it was complaining that step was bigger than difference
-between max and min.
+When checking the code with clang -Wsometimes-uninitialized we get the
+following warning:
 
-Fixes: 15f4bc3b1f42 ("[media] s5p-jpeg: Add JPEG controls support")
+if (!tipc_link_is_establishing(l)) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net/tipc/node.c:847:46: note: uninitialized use occurs here
+      tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
 
-Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+net/tipc/node.c:831:2: note: remove the 'if' if its condition is always
+true
+if (!tipc_link_is_establishing(l)) {
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net/tipc/node.c:821:31: note: initialize the variable 'maddr' to silence
+this warning
+struct tipc_media_addr *maddr;
+
+We fix this by initializing 'maddr' to NULL. For the matter of clarity,
+we also test if 'xmitq' is non-empty before we use it and 'maddr'
+further down in the  function. It will never happen that 'xmitq' is non-
+empty at the same time as 'maddr' is NULL, so this is a sufficient test.
+
+Fixes: 598411d70f85 ("tipc: make resetting of links non-atomic")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-jpeg/jpeg-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/node.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-jpeg/jpeg-core.c b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-index 0d981bbf38bcd..255f70999ee8a 100644
---- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
-+++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-@@ -1952,7 +1952,7 @@ static int s5p_jpeg_controls_create(struct s5p_jpeg_ctx *ctx)
+diff --git a/net/tipc/node.c b/net/tipc/node.c
+index db8fbc076e1a5..fe7b0ad1d6f32 100644
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -688,10 +688,10 @@ static void __tipc_node_link_down(struct tipc_node *n, int *bearer_id,
+ static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
+ {
+ 	struct tipc_link_entry *le = &n->links[bearer_id];
++	struct tipc_media_addr *maddr = NULL;
+ 	struct tipc_link *l = le->link;
+-	struct tipc_media_addr *maddr;
+-	struct sk_buff_head xmitq;
+ 	int old_bearer_id = bearer_id;
++	struct sk_buff_head xmitq;
  
- 		v4l2_ctrl_new_std(&ctx->ctrl_handler, &s5p_jpeg_ctrl_ops,
- 				  V4L2_CID_JPEG_RESTART_INTERVAL,
--				  0, 3, 0xffff, 0);
-+				  0, 0xffff, 1, 0);
- 		if (ctx->jpeg->variant->version == SJPEG_S5P)
- 			mask = ~0x06; /* 422, 420 */
- 	}
+ 	if (!l)
+ 		return;
+@@ -713,7 +713,8 @@ static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
+ 	tipc_node_write_unlock(n);
+ 	if (delete)
+ 		tipc_mon_remove_peer(n->net, n->addr, old_bearer_id);
+-	tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
++	if (!skb_queue_empty(&xmitq))
++		tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
+ 	tipc_sk_rcv(n->net, &le->inputq);
+ }
+ 
 -- 
 2.20.1
 
