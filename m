@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D18C414BBFC
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D4414BC05
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726856AbgA1N7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 08:59:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44886 "EHLO mail.kernel.org"
+        id S1727198AbgA1Oum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:50:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726945AbgA1N7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:59:30 -0500
+        id S1726497AbgA1N6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:58:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB48F2468A;
-        Tue, 28 Jan 2020 13:59:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A61AD2173E;
+        Tue, 28 Jan 2020 13:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580219970;
-        bh=3oQ2Qo92ZWOGJqWbGbtddum9+cQwwvpfjjjxCHq8GVo=;
+        s=default; t=1580219931;
+        bh=SFR2d31pGBWYC5sDAQbVOFXbyWhqJ2hBoTVTx7MidMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PbRRTW8XMWNPTdg47QPaTEjfDP7MAoyB6kEM2s3wmTQEhPe5KR5a9XFhYm27cnu7g
-         W5vALO/u3LT6a2LemWoTWP9KIfWUwz1+DKBn1A4n1rsUWLsvqEGpXpP2MPmeKSmDTp
-         Jq4vl/0K630F7LIqT37JHYzNHcNQpxuKLFnS0Ylo=
+        b=J3eXcurjfp7sYcj0xwaUDV5P4Ey4Zk4cHVTjwYEB5/q/4rsmiNNlw5/T20bet2FWw
+         mRMnNZ8t9p1fb25dUXz/BxKulI0sqOlzjfkwLnB6KGilJSG3rv9SKrY/zPEy0AC7TO
+         wBDLjVe8UzPUH9v1u2YT5ZCbhgC2MV0ZFzbfGXy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luuk Paulussen <luuk.paulussen@alliedtelesis.co.nz>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 17/46] hwmon: (adt7475) Make volt2reg return same reg as reg2volt input
-Date:   Tue, 28 Jan 2020 14:57:51 +0100
-Message-Id: <20200128135752.177887746@linuxfoundation.org>
+Subject: [PATCH 4.14 18/46] hwmon: Deal with errors from the thermal subsystem
+Date:   Tue, 28 Jan 2020 14:57:52 +0100
+Message-Id: <20200128135752.300771628@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -44,44 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luuk Paulussen <luuk.paulussen@alliedtelesis.co.nz>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit cf3ca1877574a306c0207cbf7fdf25419d9229df upstream.
+commit 47c332deb8e89f6c59b0bb2615945c6e7fad1a60 upstream.
 
-reg2volt returns the voltage that matches a given register value.
-Converting this back the other way with volt2reg didn't return the same
-register value because it used truncation instead of rounding.
+If the thermal subsystem returne -EPROBE_DEFER or any other error
+when hwmon calls devm_thermal_zone_of_sensor_register(), this is
+silently ignored.
 
-This meant that values read from sysfs could not be written back to sysfs
-to set back the same register value.
+I ran into this with an incorrectly defined thermal zone, making
+it non-existing and thus this call failed with -EPROBE_DEFER
+assuming it would appear later. The sensor was still added
+which is incorrect: sensors must strictly be added after the
+thermal zones, so deferred probe must be respected.
 
-With this change, volt2reg will return the same value for every voltage
-previously returned by reg2volt (for the set of possible input values)
-
-Signed-off-by: Luuk Paulussen <luuk.paulussen@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20191205231659.1301-1-luuk.paulussen@alliedtelesis.co.nz
-cc: stable@vger.kernel.org
+Fixes: d560168b5d0f ("hwmon: (core) New hwmon registration API")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/adt7475.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hwmon/hwmon.c |   21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
---- a/drivers/hwmon/adt7475.c
-+++ b/drivers/hwmon/adt7475.c
-@@ -297,9 +297,10 @@ static inline u16 volt2reg(int channel,
- 	long reg;
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -143,6 +143,7 @@ static int hwmon_thermal_add_sensor(stru
+ 				    struct hwmon_device *hwdev, int index)
+ {
+ 	struct hwmon_thermal_data *tdata;
++	struct thermal_zone_device *tzd;
  
- 	if (bypass_attn & (1 << channel))
--		reg = (volt * 1024) / 2250;
-+		reg = DIV_ROUND_CLOSEST(volt * 1024, 2250);
- 	else
--		reg = (volt * r[1] * 1024) / ((r[0] + r[1]) * 2250);
-+		reg = DIV_ROUND_CLOSEST(volt * r[1] * 1024,
-+					(r[0] + r[1]) * 2250);
- 	return clamp_val(reg, 0, 1023) & (0xff << 2);
+ 	tdata = devm_kzalloc(dev, sizeof(*tdata), GFP_KERNEL);
+ 	if (!tdata)
+@@ -151,8 +152,14 @@ static int hwmon_thermal_add_sensor(stru
+ 	tdata->hwdev = hwdev;
+ 	tdata->index = index;
+ 
+-	devm_thermal_zone_of_sensor_register(&hwdev->dev, index, tdata,
+-					     &hwmon_thermal_ops);
++	tzd = devm_thermal_zone_of_sensor_register(&hwdev->dev, index, tdata,
++						   &hwmon_thermal_ops);
++	/*
++	 * If CONFIG_THERMAL_OF is disabled, this returns -ENODEV,
++	 * so ignore that error but forward any other error.
++	 */
++	if (IS_ERR(tzd) && (PTR_ERR(tzd) != -ENODEV))
++		return PTR_ERR(tzd);
+ 
+ 	return 0;
  }
+@@ -621,14 +628,20 @@ __hwmon_device_register(struct device *d
+ 				if (!chip->ops->is_visible(drvdata, hwmon_temp,
+ 							   hwmon_temp_input, j))
+ 					continue;
+-				if (info[i]->config[j] & HWMON_T_INPUT)
+-					hwmon_thermal_add_sensor(dev, hwdev, j);
++				if (info[i]->config[j] & HWMON_T_INPUT) {
++					err = hwmon_thermal_add_sensor(dev,
++								hwdev, j);
++					if (err)
++						goto free_device;
++				}
+ 			}
+ 		}
+ 	}
  
+ 	return hdev;
+ 
++free_device:
++	device_unregister(hdev);
+ free_hwmon:
+ 	kfree(hwdev);
+ ida_remove:
 
 
