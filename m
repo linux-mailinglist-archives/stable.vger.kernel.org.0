@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDABA14B6CA
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A9214B7ED
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728465AbgA1OIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:08:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56326 "EHLO mail.kernel.org"
+        id S1730740AbgA1OS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:18:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbgA1OIT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:08:19 -0500
+        id S1730763AbgA1OSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:18:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8B4422522;
-        Tue, 28 Jan 2020 14:08:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48C7624688;
+        Tue, 28 Jan 2020 14:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220499;
-        bh=45d2iO0H2cOy137iGO3K3lbg8WV9KCUgEqKusADk4l0=;
+        s=default; t=1580221134;
+        bh=aJEwdqdhPSojGIsNQ/FGdIcn0dhU6T4he8Qc+xhD9U0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqWFJK02qAlA9sKWy9Enw6Dbk0oFw/suGHoDyvcG/S1OXO7wEGc5SDFrwvrsRI1Gk
-         z3INl8XWurCgpV4J/i8tUWj1+09WsjukaEPk4L2/fVzcLO172+unnDboTlOLYsr2bK
-         0/4TBCYVONEiXeBvZ+HGVEtKkB5MmUSUGBvGTBm4=
+        b=ek4klT6PVyYAoRRaTmGeVhaK1gN+NFjYtQhUnnE5S2URnU6YQgvV9zRiEhKszG2gS
+         9b6pZEyk7VQzOyaV77db0Xgx8qjF3iqnJk5OWsKNiYxfQNNYS9RBwnzs0l8baFplle
+         yDQHh9iRFeKMYAA9jgs41O2cQkLyp4l9VXTDDDfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 030/183] clk: kirkwood: fix refcount leak in kirkwood_clk_init()
-Date:   Tue, 28 Jan 2020 15:04:09 +0100
-Message-Id: <20200128135833.037000115@linuxfoundation.org>
+Subject: [PATCH 4.9 101/271] media: cx23885: check allocation return
+Date:   Tue, 28 Jan 2020 15:04:10 +0100
+Message-Id: <20200128135900.112916928@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Nicholas Mc Guire <hofrat@osadl.org>
 
-[ Upstream commit e7beeab9c61591cd0e690d8733d534c3f4278ff8 ]
+[ Upstream commit a3d7f22ef34ec4206b50ee121384d5c8bebd5591 ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+Checking of kmalloc() seems to have been committed - as
+cx23885_dvb_register() is checking for != 0 return, returning
+-ENOMEM should be fine here.  While at it address the coccicheck
+suggestion to move to kmemdup rather than using kmalloc+memcpy.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Fixes: 58d516ae95cb ("clk: mvebu: kirkwood: maintain clock init order")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 46b21bbaa8a8 ("[media] Add support for DViCO FusionHDTV DVB-T Dual Express2")
+
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/kirkwood.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/pci/cx23885/cx23885-dvb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/mvebu/kirkwood.c b/drivers/clk/mvebu/kirkwood.c
-index 99550f25975ea..1d2b9a1a96094 100644
---- a/drivers/clk/mvebu/kirkwood.c
-+++ b/drivers/clk/mvebu/kirkwood.c
-@@ -335,6 +335,8 @@ static void __init kirkwood_clk_init(struct device_node *np)
- 	if (cgnp) {
- 		mvebu_clk_gating_setup(cgnp, kirkwood_gating_desc);
- 		kirkwood_clk_muxing_setup(cgnp, kirkwood_mux_desc);
-+
-+		of_node_put(cgnp);
- 	}
- }
- CLK_OF_DECLARE(kirkwood_clk, "marvell,kirkwood-core-clock",
+diff --git a/drivers/media/pci/cx23885/cx23885-dvb.c b/drivers/media/pci/cx23885/cx23885-dvb.c
+index 818f3c2fc98d8..1d86e57f4d9fd 100644
+--- a/drivers/media/pci/cx23885/cx23885-dvb.c
++++ b/drivers/media/pci/cx23885/cx23885-dvb.c
+@@ -1471,8 +1471,9 @@ static int dvb_register(struct cx23885_tsport *port)
+ 		if (fe0->dvb.frontend != NULL) {
+ 			struct i2c_adapter *tun_i2c;
+ 
+-			fe0->dvb.frontend->sec_priv = kmalloc(sizeof(dib7000p_ops), GFP_KERNEL);
+-			memcpy(fe0->dvb.frontend->sec_priv, &dib7000p_ops, sizeof(dib7000p_ops));
++			fe0->dvb.frontend->sec_priv = kmemdup(&dib7000p_ops, sizeof(dib7000p_ops), GFP_KERNEL);
++			if (!fe0->dvb.frontend->sec_priv)
++				return -ENOMEM;
+ 			tun_i2c = dib7000p_ops.get_i2c_master(fe0->dvb.frontend, DIBX000_I2C_INTERFACE_TUNER, 1);
+ 			if (!dvb_attach(dib0070_attach, fe0->dvb.frontend, tun_i2c, &dib7070p_dib0070_config))
+ 				return -ENODEV;
 -- 
 2.20.1
 
