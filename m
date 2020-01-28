@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6861314B9D7
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5959E14BB24
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731276AbgA1OVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:21:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46714 "EHLO mail.kernel.org"
+        id S1727849AbgA1OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:11:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731272AbgA1OVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:21:24 -0500
+        id S1729247AbgA1OK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:10:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3EC024691;
-        Tue, 28 Jan 2020 14:21:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F1FD2468E;
+        Tue, 28 Jan 2020 14:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221283;
-        bh=7m3fKvPOw1TUuYme9LEnc0AE6Udzj0eu0sWT5cbzFnI=;
+        s=default; t=1580220657;
+        bh=hfMSIEhrEdw1IN71cdDTkdMr00ySuylu7hx2F/qVbAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bxw55WSTY/ero4tn2D2hhlw0TDFljBuSXwzpWTnePOYuAflbZNazmfOOGXK8w5ORO
-         wIxxQESp8k2aws0NpPrQjUYAT+oYAwstgAQ3G3uQK9eNVOCA7ZyVaIbCEzXHmeoY6/
-         oLi+fb6wWkQv435vF5Eyx9Baz+08V2REJ7MRFYP0=
+        b=uyLm4GRT0f0IEOYrzWe6u/kor5g6kS48DAvry7gnASpgthg3Re2vEktnkbQeggJHA
+         0t01PC8TTv4kHSJIYMIEufQurO6RLwMn3ariFmmgPgNAfSLk17uQ6J2GVV9yp8rNkK
+         VXKpJclgm424JrUqWXqSbc/pczyJ+1bzTGuVTlqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Mitchell <kevmitch@arista.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 163/271] iommu/amd: Make iommu_disable safer
-Date:   Tue, 28 Jan 2020 15:05:12 +0100
-Message-Id: <20200128135904.718482747@linuxfoundation.org>
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Javi Merino <javi.merino@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 094/183] thermal: cpu_cooling: Actually trace CPU load in thermal_power_cpu_get_power
+Date:   Tue, 28 Jan 2020 15:05:13 +0100
+Message-Id: <20200128135839.487789507@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Mitchell <kevmitch@arista.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 3ddbe913e55516d3e2165d43d4d5570761769878 ]
+[ Upstream commit bf45ac18b78038e43af3c1a273cae4ab5704d2ce ]
 
-Make it safe to call iommu_disable during early init error conditions
-before mmio_base is set, but after the struct amd_iommu has been added
-to the amd_iommu_list. For example, this happens if firmware fails to
-fill in mmio_phys in the ACPI table leading to a NULL pointer
-dereference in iommu_feature_disable.
+The CPU load values passed to the thermal_power_cpu_get_power
+tracepoint are zero for all CPUs, unless, unless the
+thermal_power_cpu_limit tracepoint is enabled too:
 
-Fixes: 2c0ae1720c09c ('iommu/amd: Convert iommu initialization to state machine')
-Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+  irq/41-rockchip-98    [000] ....   290.972410: thermal_power_cpu_get_power:
+  cpus=0000000f freq=1800000 load={{0x0,0x0,0x0,0x0}} dynamic_power=4815
+
+vs
+
+  irq/41-rockchip-96    [000] ....    95.773585: thermal_power_cpu_get_power:
+  cpus=0000000f freq=1800000 load={{0x56,0x64,0x64,0x5e}} dynamic_power=4959
+  irq/41-rockchip-96    [000] ....    95.773596: thermal_power_cpu_limit:
+  cpus=0000000f freq=408000 cdev_state=10 power=416
+
+There seems to be no good reason for omitting the CPU load information
+depending on another tracepoint. My guess is that the intention was to
+check whether thermal_power_cpu_get_power is (still) enabled, however
+'load_cpu != NULL' already indicates that it was at least enabled when
+cpufreq_get_requested_power() was entered, there seems little gain
+from omitting the assignment if the tracepoint was just disabled, so
+just remove the check.
+
+Fixes: 6828a4711f99 ("thermal: add trace events to the power allocator governor")
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Acked-by: Javi Merino <javi.merino@kernel.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_init.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/thermal/cpu_cooling.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 9bb8d64b6f947..c113e46fdc3ab 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -383,6 +383,9 @@ static void iommu_enable(struct amd_iommu *iommu)
+diff --git a/drivers/thermal/cpu_cooling.c b/drivers/thermal/cpu_cooling.c
+index 87d87ac1c8a04..96567b4a4f201 100644
+--- a/drivers/thermal/cpu_cooling.c
++++ b/drivers/thermal/cpu_cooling.c
+@@ -607,7 +607,7 @@ static int cpufreq_get_requested_power(struct thermal_cooling_device *cdev,
+ 			load = 0;
  
- static void iommu_disable(struct amd_iommu *iommu)
- {
-+	if (!iommu->mmio_base)
-+		return;
-+
- 	/* Disable command buffer */
- 	iommu_feature_disable(iommu, CONTROL_CMDBUF_EN);
+ 		total_load += load;
+-		if (trace_thermal_power_cpu_limit_enabled() && load_cpu)
++		if (load_cpu)
+ 			load_cpu[i] = load;
  
+ 		i++;
 -- 
 2.20.1
 
