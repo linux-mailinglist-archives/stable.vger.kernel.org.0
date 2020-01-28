@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D783514BB82
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB6814BB87
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727783AbgA1OIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:08:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
+        id S1726947AbgA1Oqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:46:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727226AbgA1OIp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:08:45 -0500
+        id S1727992AbgA1OIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:08:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11DDD2468D;
-        Tue, 28 Jan 2020 14:08:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D62424681;
+        Tue, 28 Jan 2020 14:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220524;
-        bh=Ref7vl4SynHuwdwUhhrESDdEq+bEriMY5xQ/KL/wwxo=;
+        s=default; t=1580220527;
+        bh=cPEmQ8PSkG3gHp0isK5MwvQ+vtEACJ8Ijg0XjouAvIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZwgFBwF5rQtrh8NV0WDnbvJWzijqjOjmhtjg4kvLiQdYjvhhUbloHpyrxLfMjwI7
-         k08DW7asfiKn6sbbGx1xB77B91HlGoNC2qbdLZ3NgPxA/1OkY4EUpAfkxhXOJ/8uam
-         hHi4D3o5Php9UlxJ3pDwWvEqN6MpTKOmTGal2QOM=
+        b=UZC4f9MdGrlkDW4pnHJzR04huTo93DK9GJ37fgtM+TNm1ZPK7HnPKJ8UkDVAUGbit
+         a1zqI+szVBUvSVJfCZKicWdMPuptnviD7HahVohnmyPkWAIuBgctTDAHLUKADUev1Z
+         88MfFpq7Do+g44fc2uDjTEscamLN7cQL3XlGknvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 042/183] rtc: pm8xxx: fix unintended sign extension
-Date:   Tue, 28 Jan 2020 15:04:21 +0100
-Message-Id: <20200128135834.194956017@linuxfoundation.org>
+Subject: [PATCH 4.4 043/183] fbdev: chipsfb: remove set but not used variable size
+Date:   Tue, 28 Jan 2020 15:04:22 +0100
+Message-Id: <20200128135834.285580347@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
 References: <20200128135829.486060649@linuxfoundation.org>
@@ -44,50 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit e42280886018c6f77f0a90190f7cba344b0df3e0 ]
+[ Upstream commit 8e71fa5e4d86bedfd26df85381d65d6b4c860020 ]
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Fix this by casting the u8 value to an unsigned long before the shift.
+drivers/video/fbdev/chipsfb.c: In function 'chipsfb_pci_init':
+drivers/video/fbdev/chipsfb.c:352:22: warning:
+ variable 'size' set but not used [-Wunused-but-set-variable]
 
-Detected by CoverityScan, CID#1309693 ("Unintended sign extension")
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 8c8709334cec ("[PATCH] ppc32: Remove CONFIG_PMAC_PBOOK").
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+[b.zolnierkie: minor commit summary and description fixups]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/chipsfb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 795fcbd02ea39..a0dae6271ff64 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -186,7 +186,8 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		}
- 	}
+diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
+index 59abdc6a97f66..314b7eceb81c5 100644
+--- a/drivers/video/fbdev/chipsfb.c
++++ b/drivers/video/fbdev/chipsfb.c
+@@ -350,7 +350,7 @@ static void init_chips(struct fb_info *p, unsigned long addr)
+ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
+ {
+ 	struct fb_info *p;
+-	unsigned long addr, size;
++	unsigned long addr;
+ 	unsigned short cmd;
+ 	int rc = -ENODEV;
  
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-+	       ((unsigned long)value[3] << 24);
- 
- 	rtc_time_to_tm(secs, tm);
- 
-@@ -267,7 +268,8 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		return rc;
- 	}
- 
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-+	       ((unsigned long)value[3] << 24);
- 
- 	rtc_time_to_tm(secs, &alarm->time);
+@@ -362,7 +362,6 @@ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
+ 	if ((dp->resource[0].flags & IORESOURCE_MEM) == 0)
+ 		goto err_disable;
+ 	addr = pci_resource_start(dp, 0);
+-	size = pci_resource_len(dp, 0);
+ 	if (addr == 0)
+ 		goto err_disable;
  
 -- 
 2.20.1
