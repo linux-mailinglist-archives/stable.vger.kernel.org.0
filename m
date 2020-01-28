@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AAAE14B9E4
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE04C14BB17
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731502AbgA1OWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:22:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47820 "EHLO mail.kernel.org"
+        id S1729670AbgA1OnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:43:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730349AbgA1OWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:22:08 -0500
+        id S1728350AbgA1OLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:11:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAAC824693;
-        Tue, 28 Jan 2020 14:22:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D34CB20678;
+        Tue, 28 Jan 2020 14:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221328;
-        bh=CXO6h2xAGZyx4FtgKjFFYu1WcNncHM/wuNBucRm0MOk=;
+        s=default; t=1580220697;
+        bh=tPSxCTXcktM2lbrk4Lrl5eUcbYzTi+LQsSkYBIuEiqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZ7nq1+VLknF0YxZRiPy4ICbqbPPHP5uqZ854YRCSIzudeA3FmkE8Yv5ZUaAfiz2V
-         5E4pPXTRDz0T/99Im+rfEbKRIPsi1yjQ71z66A2+VTnmGUfr/6YK9Qy1Zsf00zSE6W
-         ia30Aq0+xlbJVQAfACQ9QoTnAx3Jahw0PcPnY3uM=
+        b=ZL4BkSbSrDZ+u0W6fGZmjBpt3txvIAkLCfeJebbWZLTuiOl6MYUqXqBZ/kHtlhiFJ
+         +tUDKRQIfPOSZGCfA3E/gdEbOMRxTEwlwesV2hO/KnfdsXYjmlq9pVoIaQBn3kqC4A
+         My4Xb4y3KGmudTa5IC2YthYIb/mE/Lcu7OFj8JiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 179/271] ext4: set error return correctly when ext4_htree_store_dirent fails
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Enrico Weigelt <info@metux.net>
+Subject: [PATCH 4.4 109/183] devres: allow const resource arguments
 Date:   Tue, 28 Jan 2020 15:05:28 +0100
-Message-Id: <20200128135905.866524195@linuxfoundation.org>
+Message-Id: <20200128135840.804264930@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 7a14826ede1d714f0bb56de8167c0e519041eeda ]
+[ Upstream commit 9dea44c91469512d346e638694c22c30a5273992 ]
 
-Currently when the call to ext4_htree_store_dirent fails the error return
-variable 'ret' is is not being set to the error code and variable count is
-instead, hence the error code is not being returned.  Fix this by assigning
-ret to the error return code.
+devm_ioremap_resource() does not currently take 'const' arguments,
+which results in a warning from the first driver trying to do it
+anyway:
 
-Addresses-Coverity: ("Unused value")
-Fixes: 8af0f0822797 ("ext4: fix readdir error in the case of inline_data+dir_index")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+drivers/gpio/gpio-amd-fch.c: In function 'amd_fch_gpio_probe':
+drivers/gpio/gpio-amd-fch.c:171:49: error: passing argument 2 of 'devm_ioremap_resource' discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
+  priv->base = devm_ioremap_resource(&pdev->dev, &amd_fch_gpio_iores);
+                                                 ^~~~~~~~~~~~~~~~~~~
+
+Change the prototype to allow it, as there is no real reason not to.
+
+Fixes: 9bb2e0452508 ("gpio: amd: Make resource struct const")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20190628150049.1108048-1-arnd@arndb.de
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviwed-By: Enrico Weigelt <info@metux.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/device.h | 3 ++-
+ lib/devres.c           | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
-index 9a13f86fed626..4df4d31057b36 100644
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -1417,7 +1417,7 @@ int htree_inlinedir_to_tree(struct file *dir_file,
- 		err = ext4_htree_store_dirent(dir_file, hinfo->hash,
- 					      hinfo->minor_hash, de, &tmp_str);
- 		if (err) {
--			count = err;
-+			ret = err;
- 			goto out;
- 		}
- 		count++;
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 834000903525d..eb891c9c4b620 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -677,7 +677,8 @@ extern unsigned long devm_get_free_pages(struct device *dev,
+ 					 gfp_t gfp_mask, unsigned int order);
+ extern void devm_free_pages(struct device *dev, unsigned long addr);
+ 
+-void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res);
++void __iomem *devm_ioremap_resource(struct device *dev,
++				    const struct resource *res);
+ 
+ /* allows to add/remove a custom action to devres stack */
+ int devm_add_action(struct device *dev, void (*action)(void *), void *data);
+diff --git a/lib/devres.c b/lib/devres.c
+index 8c85672639d3e..9d18ccd00df52 100644
+--- a/lib/devres.c
++++ b/lib/devres.c
+@@ -131,7 +131,8 @@ EXPORT_SYMBOL(devm_iounmap);
+  *	if (IS_ERR(base))
+  *		return PTR_ERR(base);
+  */
+-void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res)
++void __iomem *devm_ioremap_resource(struct device *dev,
++				    const struct resource *res)
+ {
+ 	resource_size_t size;
+ 	const char *name;
 -- 
 2.20.1
 
