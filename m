@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6975D14B205
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFD714B204
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:50:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbgA1Ju4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726107AbgA1Ju4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Jan 2020 04:50:56 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:44027 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726114AbgA1Juz (ORCPT
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:20496 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726139AbgA1Juz (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:50:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580205053;
+        s=mimecast20190719; t=1580205054;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=WfLiWsQcA4JkQS1gdzJHEfdlgygWSRbtgs+Yw5M+ulU=;
-        b=S+eG8bB5/TZlY0z6I1E59YkYpAoTqXS9yIeJqjYsrK5tOPT+oMTF9XyQqshU/akcx4tBhr
-        hX/jsAyMNoFrsKq/PnfsG6NBxEbnBQUQorYbv90xl4MTBmcOYNdE68mo/jdAi6RcyfWOl+
-        aTfQsuB16MD/WGKaFbqZCJrk5OuBowA=
+        bh=INvVzhvRHbCGPZfOpT7NTXDjD6ax88XI5CXkCizD/uE=;
+        b=Lu3RpUiTSVbFhDxlvlbBBE/7HnPhIuMW6PpMbNP73jmKVs1VyxDbhv9P03Ot5ZKOoDswxS
+        7ArbXSjgedwuqlsDVf8Rgy2Dy84D5yyZuF1/8a/EvK/7jK2RIaO68F1Ujq+s+/MJBLXm6V
+        PkDA0XmYVeGk23bYDupiJGK11bAhYkk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-79-a59YhwH5NHi4NOTQL2HnEw-1; Tue, 28 Jan 2020 04:50:42 -0500
-X-MC-Unique: a59YhwH5NHi4NOTQL2HnEw-1
+ us-mta-303-hstgQGQNPba7beNVr7XYXQ-1; Tue, 28 Jan 2020 04:50:44 -0500
+X-MC-Unique: hstgQGQNPba7beNVr7XYXQ-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5EB6E18FF662;
-        Tue, 28 Jan 2020 09:50:40 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF66618FF663;
+        Tue, 28 Jan 2020 09:50:42 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-116-207.ams2.redhat.com [10.36.116.207])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3559B60C05;
-        Tue, 28 Jan 2020 09:50:38 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A9FDA60C05;
+        Tue, 28 Jan 2020 09:50:40 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
@@ -44,9 +44,9 @@ Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
         Oscar Salvador <osalvador@suse.de>,
         Wei Yang <richard.weiyang@gmail.com>,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH for 4.19-stable v3 05/24] mm, memory_hotplug: add nid parameter to arch_remove_memory
-Date:   Tue, 28 Jan 2020 10:50:02 +0100
-Message-Id: <20200128095021.8076-6-david@redhat.com>
+Subject: [PATCH for 4.19-stable v3 06/24] mm/memory_hotplug: release memory resource after arch_remove_memory()
+Date:   Tue, 28 Jan 2020 10:50:03 +0100
+Message-Id: <20200128095021.8076-7-david@redhat.com>
 In-Reply-To: <20200128095021.8076-1-david@redhat.com>
 References: <20200128095021.8076-1-david@redhat.com>
 MIME-Version: 1.0
@@ -57,237 +57,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oscar Salvador <osalvador@suse.com>
+commit d9eb1417c77df7ce19abd2e41619e9dceccbdf2a upstream.
 
-commit 2c2a5af6fed20cf74401c9d64319c76c5ff81309 upstream.
+Patch series "mm/memory_hotplug: Better error handling when removing
+memory", v1.
 
--- snip --
+Error handling when removing memory is somewhat messed up right now.  Som=
+e
+errors result in warnings, others are completely ignored.  Memory unplug
+code can essentially not deal with errors properly as of now.
+remove_memory() will never fail.
 
-Missing unification of mm/hmm.c and kernel/memremap.c
+We have basically two choices:
+1. Allow arch_remov_memory() and friends to fail, propagating errors via
+   remove_memory(). Might be problematic (e.g. DIMMs consisting of multip=
+le
+   pieces added/removed separately).
+2. Don't allow the functions to fail, handling errors in a nicer way.
 
--- snip --
+It seems like most errors that can theoretically happen are really corner
+cases and mostly theoretical (e.g.  "section not valid").  However e.g.
+aborting removal of sections while all callers simply continue in case of
+errors is not nice.
 
-Patch series "Do not touch pages in hot-remove path", v2.
+If we can gurantee that removal of memory always works (and WARN/skip in
+case of theoretical errors so we can figure out what is going on), we can
+go ahead and implement better error handling when adding memory.
 
-This patchset aims for two things:
+E.g. via add_memory():
 
- 1) A better definition about offline and hot-remove stage
- 2) Solving bugs where we can access non-initialized pages
-    during hot-remove operations [2] [3].
+arch_add_memory()
+ret =3D do_stuff()
+if (ret) {
+	arch_remove_memory();
+	goto error;
+}
 
-This is achieved by moving all page/zone handling to the offline
-stage, so we do not need to access pages when hot-removing memory.
+Handling here that arch_remove_memory() might fail is basically
+impossible.  So I suggest, let's avoid reporting errors while removing
+memory, warning on theoretical errors instead and continuing instead of
+aborting.
 
-[1] https://patchwork.kernel.org/cover/10691415/
-[2] https://patchwork.kernel.org/patch/10547445/
-[3] https://www.spinics.net/lists/linux-mm/msg161316.html
+This patch (of 4):
 
-This patch (of 5):
+__add_pages() doesn't add the memory resource, so __remove_pages()
+shouldn't remove it.  Let's factor it out.  Especially as it is a special
+case for memory used as system memory, added via add_memory() and friends=
+.
 
-This is a preparation for the following-up patches.  The idea of passing
-the nid is that it will allow us to get rid of the zone parameter
-afterwards.
+We now remove the resource after removing the sections instead of doing i=
+t
+the other way around.  I don't think this change is problematic.
 
-Link: http://lkml.kernel.org/r/20181127162005.15833-2-osalvador@suse.de
-Signed-off-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+add_memory()
+	register memory resource
+	arch_add_memory()
+
+remove_memory
+	arch_remove_memory()
+	release memory resource
+
+While at it, explain why we ignore errors and that it only happeny if
+we remove memory in a different granularity as we added it.
+
+[david@redhat.com: fix printk warning]
+  Link: http://lkml.kernel.org/r/20190417120204.6997-1-david@redhat.com
+Link: http://lkml.kernel.org/r/20190409100148.24703-2-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Arun KS <arunks@codeaurora.org>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Andrew Banman <andrew.banman@hpe.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Mike Travis <mike.travis@hpe.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Oscar Salvador <osalvador@suse.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-
+Cc: Rich Felker <dalias@libc.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/ia64/mm/init.c            | 2 +-
- arch/powerpc/mm/mem.c          | 3 ++-
- arch/s390/mm/init.c            | 2 +-
- arch/sh/mm/init.c              | 2 +-
- arch/x86/mm/init_32.c          | 2 +-
- arch/x86/mm/init_64.c          | 3 ++-
- include/linux/memory_hotplug.h | 4 ++--
- kernel/memremap.c              | 5 ++++-
- mm/hmm.c                       | 4 +++-
- mm/memory_hotplug.c            | 2 +-
- 10 files changed, 18 insertions(+), 11 deletions(-)
+ mm/memory_hotplug.c | 35 +++++++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 14 deletions(-)
 
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 3b85c3ecac38..b54d0ee74b53 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -662,7 +662,7 @@ int arch_add_memory(int nid, u64 start, u64 size, str=
-uct vmem_altmap *altmap,
- }
-=20
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
-+int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap =
-*altmap)
- {
- 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
- 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 9a6afd9f3f9b..1b6e0ef5d14d 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -140,7 +140,8 @@ int __meminit arch_add_memory(int nid, u64 start, u64=
- size, struct vmem_altmap *
- }
-=20
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int __meminit arch_remove_memory(u64 start, u64 size, struct vmem_altmap=
- *altmap)
-+int __meminit arch_remove_memory(int nid, u64 start, u64 size,
-+					struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
- 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 3fa3e5323612..bc49b560625e 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -240,7 +240,7 @@ int arch_add_memory(int nid, u64 start, u64 size, str=
-uct vmem_altmap *altmap,
- }
-=20
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
-+int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap =
-*altmap)
- {
- 	/*
- 	 * There is no hardware or firmware interface which could trigger a
-diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index 7713c084d040..5c91bb6abc35 100644
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -444,7 +444,7 @@ EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
- #endif
-=20
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
-+int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap =
-*altmap)
- {
- 	unsigned long start_pfn =3D PFN_DOWN(start);
- 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 979e0a02cbe1..9fa503f2f56c 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -861,7 +861,7 @@ int arch_add_memory(int nid, u64 start, u64 size, str=
-uct vmem_altmap *altmap,
- }
-=20
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
-+int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap =
-*altmap)
- {
- 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
- 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index a3e9c6ee3cf2..32066d5dc9af 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1142,7 +1142,8 @@ kernel_physical_mapping_remove(unsigned long start,=
- unsigned long end)
- 	remove_pagetable(start, end, true, NULL);
- }
-=20
--int __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *al=
-tmap)
-+int __ref arch_remove_memory(int nid, u64 start, u64 size,
-+				struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
- 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplu=
-g.h
-index 008e5281e7d7..df77a7597aba 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -109,8 +109,8 @@ static inline bool movable_node_is_enabled(void)
- }
-=20
- #ifdef CONFIG_MEMORY_HOTREMOVE
--extern int arch_remove_memory(u64 start, u64 size,
--		struct vmem_altmap *altmap);
-+extern int arch_remove_memory(int nid, u64 start, u64 size,
-+				struct vmem_altmap *altmap);
- extern int __remove_pages(struct zone *zone, unsigned long start_pfn,
- 	unsigned long nr_pages, struct vmem_altmap *altmap);
- #endif /* CONFIG_MEMORY_HOTREMOVE */
-diff --git a/kernel/memremap.c b/kernel/memremap.c
-index 7c5fb8a208ac..2ee2e672d5fc 100644
---- a/kernel/memremap.c
-+++ b/kernel/memremap.c
-@@ -121,6 +121,7 @@ static void devm_memremap_pages_release(void *data)
- 	struct resource *res =3D &pgmap->res;
- 	resource_size_t align_start, align_size;
- 	unsigned long pfn;
-+	int nid;
-=20
- 	pgmap->kill(pgmap->ref);
- 	for_each_device_pfn(pfn, pgmap)
-@@ -131,13 +132,15 @@ static void devm_memremap_pages_release(void *data)
- 	align_size =3D ALIGN(res->start + resource_size(res), SECTION_SIZE)
- 		- align_start;
-=20
-+	nid =3D page_to_nid(pfn_to_page(align_start >> PAGE_SHIFT));
-+
- 	mem_hotplug_begin();
- 	if (pgmap->type =3D=3D MEMORY_DEVICE_PRIVATE) {
- 		pfn =3D align_start >> PAGE_SHIFT;
- 		__remove_pages(page_zone(pfn_to_page(pfn)), pfn,
- 				align_size >> PAGE_SHIFT, NULL);
- 	} else {
--		arch_remove_memory(align_start, align_size,
-+		arch_remove_memory(nid, align_start, align_size,
- 				pgmap->altmap_valid ? &pgmap->altmap : NULL);
- 		kasan_remove_zero_shadow(__va(align_start), align_size);
- 	}
-diff --git a/mm/hmm.c b/mm/hmm.c
-index 57f0d2a4ff34..ae1f6ad46d30 100644
---- a/mm/hmm.c
-+++ b/mm/hmm.c
-@@ -999,6 +999,7 @@ static void hmm_devmem_release(void *data)
- 	unsigned long start_pfn, npages;
- 	struct zone *zone;
- 	struct page *page;
-+	int nid;
-=20
- 	/* pages are dead and unused, undo the arch mapping */
- 	start_pfn =3D (resource->start & ~(PA_SECTION_SIZE - 1)) >> PAGE_SHIFT;
-@@ -1006,12 +1007,13 @@ static void hmm_devmem_release(void *data)
-=20
- 	page =3D pfn_to_page(start_pfn);
- 	zone =3D page_zone(page);
-+	nid =3D page_to_nid(page);
-=20
- 	mem_hotplug_begin();
- 	if (resource->desc =3D=3D IORES_DESC_DEVICE_PRIVATE_MEMORY)
- 		__remove_pages(zone, start_pfn, npages, NULL);
- 	else
--		arch_remove_memory(start_pfn << PAGE_SHIFT,
-+		arch_remove_memory(nid, start_pfn << PAGE_SHIFT,
- 				   npages << PAGE_SHIFT, NULL);
- 	mem_hotplug_done();
-=20
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index c109e3f0bc16..a51e5ffdaa04 100644
+index a51e5ffdaa04..418d589552b3 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -1916,7 +1916,7 @@ void __ref __remove_memory(int nid, u64 start, u64 =
+@@ -523,20 +523,6 @@ int __remove_pages(struct zone *zone, unsigned long =
+phys_start_pfn,
+ 	if (is_dev_zone(zone)) {
+ 		if (altmap)
+ 			map_offset =3D vmem_altmap_offset(altmap);
+-	} else {
+-		resource_size_t start, size;
+-
+-		start =3D phys_start_pfn << PAGE_SHIFT;
+-		size =3D nr_pages * PAGE_SIZE;
+-
+-		ret =3D release_mem_region_adjustable(&iomem_resource, start,
+-					size);
+-		if (ret) {
+-			resource_size_t endres =3D start + size - 1;
+-
+-			pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
+-					&start, &endres, ret);
+-		}
+ 	}
+=20
+ 	clear_zone_contiguous(zone);
+@@ -1883,6 +1869,26 @@ void try_offline_node(int nid)
+ }
+ EXPORT_SYMBOL(try_offline_node);
+=20
++static void __release_memory_resource(resource_size_t start,
++				      resource_size_t size)
++{
++	int ret;
++
++	/*
++	 * When removing memory in the same granularity as it was added,
++	 * this function never fails. It might only fail if resources
++	 * have to be adjusted or split. We'll ignore the error, as
++	 * removing of memory cannot fail.
++	 */
++	ret =3D release_mem_region_adjustable(&iomem_resource, start, size);
++	if (ret) {
++		resource_size_t endres =3D start + size - 1;
++
++		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
++			&start, &endres, ret);
++	}
++}
++
+ /**
+  * remove_memory
+  * @nid: the node ID
+@@ -1917,6 +1923,7 @@ void __ref __remove_memory(int nid, u64 start, u64 =
 size)
- 	memblock_free(start, size);
  	memblock_remove(start, size);
 =20
--	arch_remove_memory(start, size, NULL);
-+	arch_remove_memory(nid, start, size, NULL);
+ 	arch_remove_memory(nid, start, size, NULL);
++	__release_memory_resource(start, size);
 =20
  	try_offline_node(nid);
 =20
