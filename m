@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4884114BB28
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D10914B9DB
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbgA1Onw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:43:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60110 "EHLO mail.kernel.org"
+        id S1731350AbgA1OVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:21:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728021AbgA1OLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:11:04 -0500
+        id S1731342AbgA1OVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:21:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF51220678;
-        Tue, 28 Jan 2020 14:11:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D7B124698;
+        Tue, 28 Jan 2020 14:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220664;
-        bh=JCX2n3gscyc16de9sD7q/L6xPdnl4sxAI6Nb/SzPk7A=;
+        s=default; t=1580221298;
+        bh=Sfmb2ZdL6ft6NwPcDPR+ZaOaJpdV1GTSVQsBMSNrpCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhvz2mmCZWKI2sUgVao4PkDj3mL9TAFXdTUJGPHIukDKOI8OPFFNh7sW7l6BjpFWQ
-         ek5/6Ze8a/zxFBIZH4DbhPqwn/Z+zM3bGS0aygSc1bbfqBMg8s89/IbnFHcZ8o8via
-         6Mo7afdYcjWlv0DjGh0EoOh6Pue3dBtnbiJ6EOVY=
+        b=ZM/RK3bQBvzhps2avMxtnbLv+TrCZB/ufuLLYSlqboJo8ItFqw5EW0LuQhl4l/cjn
+         LeaFTfmgeT4VQGGyAscOKpLQPRm1vUjcwoNA6ES3/qWiluDyVdh5tDYLxI5sMEiKNC
+         dhWZ/8webtVTZ/PDWfJoZIPR+9RPFzTmJARcRB9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 097/183] iommu: Use right function to get group for device
-Date:   Tue, 28 Jan 2020 15:05:16 +0100
-Message-Id: <20200128135839.764329679@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>, netdev@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 168/271] net: pasemi: fix an use-after-free in pasemi_mac_phy_init()
+Date:   Tue, 28 Jan 2020 15:05:17 +0100
+Message-Id: <20200128135905.085190126@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 57274ea25736496ee019a5c40479855b21888839 ]
+[ Upstream commit faf5577f2498cea23011b5c785ef853ded22700b ]
 
-The iommu_group_get_for_dev() will allocate a group for a
-device if it isn't in any group. This isn't the use case
-in iommu_request_dm_for_dev(). Let's use iommu_group_get()
-instead.
+The phy_dn variable is still being used in of_phy_connect() after the
+of_node_put() call, which may result in use-after-free.
 
-Fixes: d290f1e70d85a ("iommu: Introduce iommu_request_dm_for_dev()")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 1dd2d06c0459 ("net: Rework pasemi_mac driver to use of_mdio infrastructure")
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/pasemi/pasemi_mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 5d5066cf3bbd7..589207176ffa1 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1594,9 +1594,9 @@ int iommu_request_dm_for_dev(struct device *dev)
- 	int ret;
+diff --git a/drivers/net/ethernet/pasemi/pasemi_mac.c b/drivers/net/ethernet/pasemi/pasemi_mac.c
+index 2f4a837f0d6ad..dcd56ac687482 100644
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1053,7 +1053,6 @@ static int pasemi_mac_phy_init(struct net_device *dev)
  
- 	/* Device must already be in a group before calling this function */
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
-+	group = iommu_group_get(dev);
-+	if (!group)
-+		return -EINVAL;
+ 	dn = pci_device_to_OF_node(mac->pdev);
+ 	phy_dn = of_parse_phandle(dn, "phy-handle", 0);
+-	of_node_put(phy_dn);
  
- 	mutex_lock(&group->mutex);
+ 	mac->link = 0;
+ 	mac->speed = 0;
+@@ -1062,6 +1061,7 @@ static int pasemi_mac_phy_init(struct net_device *dev)
+ 	phydev = of_phy_connect(dev, phy_dn, &pasemi_adjust_link, 0,
+ 				PHY_INTERFACE_MODE_SGMII);
  
++	of_node_put(phy_dn);
+ 	if (!phydev) {
+ 		printk(KERN_ERR "%s: Could not attach to phy\n", dev->name);
+ 		return -ENODEV;
 -- 
 2.20.1
 
