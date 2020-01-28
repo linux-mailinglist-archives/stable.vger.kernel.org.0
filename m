@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8C614B804
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9079C14B6E6
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729861AbgA1OTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:19:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44242 "EHLO mail.kernel.org"
+        id S1728702AbgA1OJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:09:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730929AbgA1OTo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:19:44 -0500
+        id S1728696AbgA1OJU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:09:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 370E32071E;
-        Tue, 28 Jan 2020 14:19:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26D1324685;
+        Tue, 28 Jan 2020 14:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221183;
-        bh=bDKKJwqaY1HS0eLa+nR0eXOmJiILJrJmQGOdxTWxIOk=;
+        s=default; t=1580220559;
+        bh=HTlTTX6byxaENqBs/X3KWYtVPgzTy5YNeeF8bU7W29c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMiEvL3yTovpwfNc8+kgvjtsJC/GyWyLdD8zGdWoo3LRhfI2t7Z3HlpBQxElZam3P
-         BlXTb3MVGQjHAn28nwU2l95zGgoA0Mmta8VGgEYFuBhuyf1kH1d2ou0UXGzD0L30Q9
-         Ojn4xKZXk5c2YhezFVyTRVXUaIC2F/+1w07UXQb0=
+        b=xWylYKIA61MYRwk4jNf9j5d2qtDENANRRCu08khTsCp/ArJpVARGlJWDP99f9J356
+         2TqKJihIf2HyXa6qf6dOFWvkZQ6fa/1mb+fnD5AZBL3ys1PDc6k6vxn94lWw6+Wy4x
+         e+vPsszoUTZw6NOmGAK7IO/FwAZkJLoPje5FoFic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolas Pitre <nico@linaro.org>,
+        Anand Moon <linux.amoon@gmail.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 123/271] ALSA: usb-audio: Handle the error from snd_usb_mixer_apply_create_quirk()
-Date:   Tue, 28 Jan 2020 15:04:32 +0100
-Message-Id: <20200128135901.746566204@linuxfoundation.org>
+Subject: [PATCH 4.4 055/183] ARM: 8847/1: pm: fix HYP/SVC mode mismatch when MCPM is used
+Date:   Tue, 28 Jan 2020 15:04:34 +0100
+Message-Id: <20200128135835.381164230@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +47,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 328e9f6973be2ee67862cb17bf6c0c5c5918cd72 ]
+[ Upstream commit ca70ea43f80c98582f5ffbbd1e6f4da2742da0c4 ]
 
-The error from snd_usb_mixer_apply_create_quirk() is ignored in the
-current usb-audio driver code, which will continue the probing even
-after the error.  Let's take it more serious.
+MCPM does a soft reset of the CPUs and uses common cpu_resume() routine to
+perform low-level platform initialization. This results in a try to install
+HYP stubs for the second time for each CPU and results in false HYP/SVC
+mode mismatch detection. The HYP stubs are already installed at the
+beginning of the kernel initialization on the boot CPU (head.S) or in the
+secondary_startup() for other CPUs. To fix this issue MCPM code should use
+a cpu_resume() routine without HYP stubs installation.
 
-Fixes: 7b1eda223deb ("ALSA: usb-mixer: factor out quirks")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This change fixes HYP/SVC mode mismatch on Samsung Exynos5422-based Odroid
+XU3/XU4/HC1 boards.
+
+Fixes: 3721924c8154 ("ARM: 8081/1: MCPM: provide infrastructure to allow for MCPM loopback")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Nicolas Pitre <nico@linaro.org>
+Tested-by: Anand Moon <linux.amoon@gmail.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/common/mcpm_entry.c   |  2 +-
+ arch/arm/include/asm/suspend.h |  1 +
+ arch/arm/kernel/sleep.S        | 12 ++++++++++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 64fa1bbf0acb3..54011f8543a72 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -2626,7 +2626,9 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
- 	    (err = snd_usb_mixer_status_create(mixer)) < 0)
- 		goto _error;
+diff --git a/arch/arm/common/mcpm_entry.c b/arch/arm/common/mcpm_entry.c
+index a923524d10407..8617323eb2735 100644
+--- a/arch/arm/common/mcpm_entry.c
++++ b/arch/arm/common/mcpm_entry.c
+@@ -379,7 +379,7 @@ static int __init nocache_trampoline(unsigned long _arg)
+ 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+ 	phys_reset_t phys_reset;
  
--	snd_usb_mixer_apply_create_quirk(mixer);
-+	err = snd_usb_mixer_apply_create_quirk(mixer);
-+	if (err < 0)
-+		goto _error;
+-	mcpm_set_entry_vector(cpu, cluster, cpu_resume);
++	mcpm_set_entry_vector(cpu, cluster, cpu_resume_no_hyp);
+ 	setup_mm_for_reboot();
  
- 	err = snd_device_new(chip->card, SNDRV_DEV_CODEC, mixer, &dev_ops);
- 	if (err < 0)
+ 	__mcpm_cpu_going_down(cpu, cluster);
+diff --git a/arch/arm/include/asm/suspend.h b/arch/arm/include/asm/suspend.h
+index 6c7182f32cefe..e6c2f426f8c86 100644
+--- a/arch/arm/include/asm/suspend.h
++++ b/arch/arm/include/asm/suspend.h
+@@ -7,6 +7,7 @@ struct sleep_save_sp {
+ };
+ 
+ extern void cpu_resume(void);
++extern void cpu_resume_no_hyp(void);
+ extern void cpu_resume_arm(void);
+ extern int cpu_suspend(unsigned long, int (*)(unsigned long));
+ 
+diff --git a/arch/arm/kernel/sleep.S b/arch/arm/kernel/sleep.S
+index 0f6c1000582c3..c8569390e7e7e 100644
+--- a/arch/arm/kernel/sleep.S
++++ b/arch/arm/kernel/sleep.S
+@@ -119,6 +119,14 @@ ENDPROC(cpu_resume_after_mmu)
+ 	.text
+ 	.align
+ 
++#ifdef CONFIG_MCPM
++	.arm
++THUMB(	.thumb			)
++ENTRY(cpu_resume_no_hyp)
++ARM_BE8(setend be)			@ ensure we are in BE mode
++	b	no_hyp
++#endif
++
+ #ifdef CONFIG_MMU
+ 	.arm
+ ENTRY(cpu_resume_arm)
+@@ -134,6 +142,7 @@ ARM_BE8(setend be)			@ ensure we are in BE mode
+ 	bl	__hyp_stub_install_secondary
+ #endif
+ 	safe_svcmode_maskall r1
++no_hyp:
+ 	mov	r1, #0
+ 	ALT_SMP(mrc p15, 0, r0, c0, c0, 5)
+ 	ALT_UP_B(1f)
+@@ -162,6 +171,9 @@ ENDPROC(cpu_resume)
+ 
+ #ifdef CONFIG_MMU
+ ENDPROC(cpu_resume_arm)
++#endif
++#ifdef CONFIG_MCPM
++ENDPROC(cpu_resume_no_hyp)
+ #endif
+ 
+ 	.align 2
 -- 
 2.20.1
 
