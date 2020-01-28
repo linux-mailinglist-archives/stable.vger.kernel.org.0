@@ -2,183 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 880E814BF90
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 19:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 817A014C073
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 19:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726717AbgA1SYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 13:24:03 -0500
-Received: from us03-smtprelay2.synopsys.com ([149.117.87.133]:56550 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726276AbgA1SYD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 13:24:03 -0500
-Received: from mailhost.synopsys.com (badc-mailhost2.synopsys.com [10.192.0.18])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 29E91C0664;
-        Tue, 28 Jan 2020 18:24:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1580235842; bh=6eeTy7ey1G8nCI7yBVqNlt6ut370YBbQZLpRB4CRIF0=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=NQsUUpf9/IaZkiTBUpy51YK4Ij6YfKjVk38H4rike7LPqsVwQmFR6YnDoc4d/mweu
-         tXPOB6GmOGyGtqm2lfa+ZypVCp4p9t7TUBGt+wuvTd4CTgrOPouvU6kvv6LPOwsIl2
-         NMUjEL/VtRB7QAZGtj0E9RDY+SzQfSehsRhl2ZNrBwFZIg2598NNiTf9YuZ2KcIpnY
-         JPRyKIFy5wvolf6Ftn7GtQvJ5DzJXRyRwR0Atv0i4/yQsjGgdh2Ldf8W2+d8Pw5FXx
-         pkd00eHUGik7aLHQoF8saOSWUByA69oc3Rtu/LgBQ1aGra2L0hzuj7D4mhfvysXofL
-         BfAaKXJrDkZZQ==
-Received: from US01WEHTC3.internal.synopsys.com (us01wehtc3.internal.synopsys.com [10.15.84.232])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id DA1EDA00A3;
-        Tue, 28 Jan 2020 18:23:59 +0000 (UTC)
-Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
- US01WEHTC3.internal.synopsys.com (10.15.84.232) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Tue, 28 Jan 2020 10:23:55 -0800
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (10.202.3.67) by
- mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
- 14.3.408.0; Tue, 28 Jan 2020 10:23:55 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RB/6HVgXMbuKohodVLESiaFVvfkNyQcYvvBZJ4uMgJl7rt4o42ZBG3M9EfuDzq+wQrAJ4BQtpkcWlXahiinuLYXIEZbfHp/Q7TBY1rJuzsW3T/Hci55rC8KrvSG3rXpWXwvHORGs7jJ516A34R17thXLvRsDhRZ2q+l5oe0exYSAZSl7lkkZyOEJhBDKeq5bE1XmYUHINl5og0NkvXRtEZOqlhsuKN+sI9eAZzaCywKIu3Ti2Po0Fzd0ZQis5jg3NY0hG3NAHYrfzEbGYxU2SVL8nTyIOJHml+Fhr5s6sx21WlnW+BAH5Y/k1u9PJ7RLWHyNUe6npxgqK8ZDGhqx7A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6eeTy7ey1G8nCI7yBVqNlt6ut370YBbQZLpRB4CRIF0=;
- b=UoPsNkh6W/1bAzz9SMcBO/mgycMPt//GEGHu4/EU7uiki5OZTF5QSG3PRRPhSK6DtJ0E10TGR6EuNkhvbdj1sfcfAL6TW37v58ecDXu4CBvDc1WCLz64hmPszRjZjm/uAbhIEz5w6EemRKp/qkTJxeNcT+vGtMy7mYV0bw+wBTJkS7uK3Fs/QA29ySjB1OSCpjhtFWXow9Za+ow+M9nTtPMGn6ja/S10sdTEvpLMtfZ6iP7CLUWl4PefaySHk2eiZo0JEncAA+/zfcUtw8iRAtEBf3gmk9qY3h6v3BHd7rfZh/tZlIcc5+hSVsfQbOod5wkH+nADCtP7XL4vkr/EfA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
- dkim=pass header.d=synopsys.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=synopsys.onmicrosoft.com; s=selector2-synopsys-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6eeTy7ey1G8nCI7yBVqNlt6ut370YBbQZLpRB4CRIF0=;
- b=c80fPbgANm9fkUzy82SHHi51VZsUErFfDVJv4gqmBYIruNd1qWRE77Pem0YWY9qD27g8+ojDvlg5QZwel7ytL7Geh4mMyQR6Hq3upd2wW1hz7rN4btLTMBOtfqh51AydpLQ3j5242v0fCoiy/BrAGKVxxXcc+rDFU+G2bETaskA=
-Received: from BYAPR12MB2710.namprd12.prod.outlook.com (20.177.124.11) by
- BYAPR12MB3336.namprd12.prod.outlook.com (20.178.53.90) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2665.22; Tue, 28 Jan 2020 18:23:53 +0000
-Received: from BYAPR12MB2710.namprd12.prod.outlook.com
- ([fe80::6cae:8d93:540f:1593]) by BYAPR12MB2710.namprd12.prod.outlook.com
- ([fe80::6cae:8d93:540f:1593%3]) with mapi id 15.20.2665.026; Tue, 28 Jan 2020
- 18:23:53 +0000
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     Felipe Balbi <balbi@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        lkml <linux-kernel@vger.kernel.org>
-CC:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        Yang Fei <fei.yang@intel.com>,
-        Tejas Joglekar <Tejas.Joglekar@synopsys.com>,
-        "Andrzej Pietrasiewicz" <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "Linux USB List" <linux-usb@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl
- fields
-Thread-Topic: [PATCH v2] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl
- fields
-Thread-Index: AQHV1UhfPBULg1xTS0etamGDA83JAqgAEYcAgABUFwA=
-Date:   Tue, 28 Jan 2020 18:23:53 +0000
-Message-ID: <dfb83e3d-7e78-9568-6bed-f4ee67f90c69@synopsys.com>
-References: <20200127193046.110258-1-john.stultz@linaro.org>
- <87sgjz90lt.fsf@kernel.org>
-In-Reply-To: <87sgjz90lt.fsf@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=thinhn@synopsys.com; 
-x-originating-ip: [149.117.75.13]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e10110ca-ab1a-4746-b11e-08d7a41f3af1
-x-ms-traffictypediagnostic: BYAPR12MB3336:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BYAPR12MB3336819A5859DB43484A8003AA0A0@BYAPR12MB3336.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:4303;
-x-forefront-prvs: 029651C7A1
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(136003)(39860400002)(346002)(376002)(366004)(199004)(189003)(64756008)(26005)(186003)(86362001)(36756003)(478600001)(316002)(66556008)(66476007)(81156014)(4326008)(8676002)(76116006)(2906002)(66446008)(66946007)(8936002)(81166006)(7416002)(54906003)(110136005)(2616005)(71200400001)(6512007)(31696002)(31686004)(6506007)(6486002)(5660300002);DIR:OUT;SFP:1102;SCL:1;SRVR:BYAPR12MB3336;H:BYAPR12MB2710.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: synopsys.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: iONewOQExHl9UO2m4yY/Qwy6ADNMETDMCteH/nVYeFaMCtUy+Id89O2m77603MxE8jzx+OesFB+fRqmpc7/2FfbgvdGhic337YgMd9SJZlap56rIazcJYOCR4I+s2V+tK1oxNif8NxL/HfQZQraHXHddS/KnzJeG7FmMpTrIJq0omGH+uiCHBZFEo+T594xqS9G+xjNEI824/DrSRMLQIqzm3HyCAvCxtciHpOZwGK63jhiCTccIlvP0NQ5j/4rvvApxauXhL97SeFSEHLeraBRrQGQjd0+4jGRV+2uKNXpYt2HVdrpchMHBE1Nq/t1NGAjKFWksCl6M5Am3xAhYUAdiQkXOlFK2BJK+OmZ++MqJK7cnt0O5nvL6nOH8UGzZMF9hRvO/+x2uoPz4JGpEJSyVR30JXxrPUOSwkYpgAFqgSpwt47B2DWwdT8+spBqz
-x-ms-exchange-antispam-messagedata: F/PBpLJaGzMbSFfmhYrjQYq0oLkCVN7TBwpUQBaMviIWtcCtwAjaYvsejS88w5sucm68b/3Lj0+FCg1FZ6yhNFCPMJKXlk30kOvqSdRAAzM+oNmQ8YBBLNF5tkdhB2ZlA837nzT3aCzkd+Qsqe5r7A==
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <7E5DC99CEA22DD47926297ED9DA66484@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1726291AbgA1S56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 13:57:58 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36804 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726162AbgA1S56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 13:57:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580237876;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=eba3cPslaWVIGys6JOSUIkWNz+RT18HC/DD3SgBIw5A=;
+        b=RSM3uDhechJV29vaT8Ft5obM5PKuqb87pc3CZ0lnCWxKy0HbikRlxs8zZiJ04TsQpgHOtk
+        aAerx3b2PlyBbpZ7Mw0YsUB1Zzg6DIkpiGbCFvzozMSUZkizLxGPc7jXlBZ11kJbiL1JoG
+        ZPEtFghk27lJZxoqttRmoH/CiY200WU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-292-yTjP4H6GO6abmZkjRn0PcA-1; Tue, 28 Jan 2020 13:57:55 -0500
+X-MC-Unique: yTjP4H6GO6abmZkjRn0PcA-1
+Received: by mail-wr1-f70.google.com with SMTP id u18so8494477wrn.11
+        for <stable@vger.kernel.org>; Tue, 28 Jan 2020 10:57:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=eba3cPslaWVIGys6JOSUIkWNz+RT18HC/DD3SgBIw5A=;
+        b=BDx2bqBZgETQ9LdH5Q6QtnH4yL4cLVi+8Q/qMcArjpLDxWaxGkZl+zHIrB07zk1Kk3
+         LHXVoOS91qeeOcj74BgOKJr0WWGTk+495NwLVbPoFYfXvKGGSus74q2y01dH9DUGkUDT
+         gEqRssKj51FCPWwBVJShRF1z6fqwaLTABlQ8O+kXUA6hbadn6x0+iPzoCJSvbwqFLuC0
+         QNw47fXOQ/82DBV8mDFbXuLgz/LE0RvSwaqeraUQ5vicCCDoxp6l5ypEVq7RwpOK4uwY
+         0e4w1yjGkmcxVyjEJbD/u/3iBX92GAenF9ibgkZsT/iM5ksQtNr8MDnm7Zxt14N+uVQE
+         OpBw==
+X-Gm-Message-State: APjAAAVoR9Ekrk/GPqxbayykFz3A4XU5VtARF6do0HeDWVCU6zbUoB6P
+        1MKOBwXxN54ycpJgy1rX9sA/3as5z6AUfCRI7wynaVCk1gdWw8KlvcKt7bo9ZW+GDfDQWP6B+wY
+        mPbetyEosbxhG0lv6
+X-Received: by 2002:a05:600c:21ce:: with SMTP id x14mr6507705wmj.120.1580237873425;
+        Tue, 28 Jan 2020 10:57:53 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyBCCBqrkyam360kWK23MeH1yz+JHFhF5X8j6WFZZcVebBDCP3AheFH7S+MrChctaqyQ3hNzw==
+X-Received: by 2002:a05:600c:21ce:: with SMTP id x14mr6507682wmj.120.1580237873170;
+        Tue, 28 Jan 2020 10:57:53 -0800 (PST)
+Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
+        by smtp.gmail.com with ESMTPSA id w13sm27623387wru.38.2020.01.28.10.57.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Jan 2020 10:57:52 -0800 (PST)
+From:   Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+ Intel Bay Trail SoC
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        vipul kumar <vipulk0511@gmail.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        x86@kernel.org, Len Brown <len.brown@intel.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>
+References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
+ <87eevs7lfd.fsf@nanos.tec.linutronix.de>
+ <CADdC98RJpsvu_zWehNGDDN=W11rD11NSPaodg-zuaXsHuOJYTQ@mail.gmail.com>
+ <878slzeeim.fsf@nanos.tec.linutronix.de>
+ <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com>
+ <20200123144108.GU32742@smile.fi.intel.com>
+ <df04f43d-8c6d-7602-cb50-535b85cf2aaa@redhat.com>
+ <87iml11ccf.fsf@nanos.tec.linutronix.de>
+ <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com>
+ <87ftg5131x.fsf@nanos.tec.linutronix.de>
+Message-ID: <30d49be8-67ad-6f32-37a8-0cdd26f0852e@redhat.com>
+Date:   Tue, 28 Jan 2020 19:57:51 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: e10110ca-ab1a-4746-b11e-08d7a41f3af1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Jan 2020 18:23:53.4864
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: tcWprI1p5TWZUDnW+NUXKvCGtiQEAAPnbyQkeFccYmoQeACH7/IlAIs4ijiXEFssahd7QvK4Sfxb6/gtn8Nhiw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3336
-X-OriginatorOrg: synopsys.com
+In-Reply-To: <87ftg5131x.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGksDQoNCkZlbGlwZSBCYWxiaSB3cm90ZToNCj4gSGksDQo+DQo+IEpvaG4gU3R1bHR6IDxqb2hu
-LnN0dWx0ekBsaW5hcm8ub3JnPiB3cml0ZXM6DQo+DQo+PiBGcm9tOiBBbnVyYWcgS3VtYXIgVnVs
-aXNoYSA8YW51cmFnLmt1bWFyLnZ1bGlzaGFAeGlsaW54LmNvbT4NCj4+DQo+PiBUaGUgY3VycmVu
-dCBjb2RlIGluIGR3YzNfZ2FkZ2V0X2VwX3JlY2xhaW1fY29tcGxldGVkX3RyYigpIHdpbGwNCj4+
-IGNoZWNrIGZvciBJT0MvTFNUIGJpdCBpbiB0aGUgZXZlbnQtPnN0YXR1cyBhbmQgcmV0dXJucyBp
-Zg0KPj4gSU9DL0xTVCBiaXQgaXMgc2V0LiBUaGlzIGxvZ2ljIGRvZXNuJ3Qgd29yayBpZiBtdWx0
-aXBsZSBUUkJzDQo+PiBhcmUgcXVldWVkIHBlciByZXF1ZXN0IGFuZCB0aGUgSU9DL0xTVCBiaXQg
-aXMgc2V0IG9uIHRoZSBsYXN0DQo+PiBUUkIgb2YgdGhhdCByZXF1ZXN0Lg0KPj4NCj4+IENvbnNp
-ZGVyIGFuIGV4YW1wbGUgd2hlcmUgYSBxdWV1ZWQgcmVxdWVzdCBoYXMgbXVsdGlwbGUgcXVldWVk
-DQo+PiBUUkJzIGFuZCBJT0MvTFNUIGJpdCBpcyBzZXQgb25seSBmb3IgdGhlIGxhc3QgVFJCLiBJ
-biB0aGlzIGNhc2UsDQo+PiB0aGUgY29yZSBnZW5lcmF0ZXMgWGZlckNvbXBsZXRlL1hmZXJJblBy
-b2dyZXNzIGV2ZW50cyBvbmx5IGZvcg0KPj4gdGhlIGxhc3QgVFJCIChzaW5jZSBJT0MvTFNUIGFy
-ZSBzZXQgb25seSBmb3IgdGhlIGxhc3QgVFJCKS4gQXMNCj4+IHBlciB0aGUgbG9naWMgaW4gZHdj
-M19nYWRnZXRfZXBfcmVjbGFpbV9jb21wbGV0ZWRfdHJiKCkNCj4+IGV2ZW50LT5zdGF0dXMgaXMg
-Y2hlY2tlZCBmb3IgSU9DL0xTVCBiaXQgYW5kIHJldHVybnMgb24gdGhlDQo+PiBmaXJzdCBUUkIu
-IFRoaXMgbGVhdmVzIHRoZSByZW1haW5pbmcgVFJCcyBsZWZ0IHVuaGFuZGxlZC4NCj4+DQo+PiBT
-aW1pbGFybHksIGlmIHRoZSBnYWRnZXQgZnVuY3Rpb24gZW5xdWV1ZXMgYW4gdW5hbGlnbmVkIHJl
-cXVlc3QNCj4+IHdpdGggc2dsaXN0IGFscmVhZHkgaW4gaXQsIGl0IHNob3VsZCBmYWlsIHRoZSBz
-YW1lIHdheSwgc2luY2Ugd2UNCj4+IHdpbGwgYXBwZW5kIGFub3RoZXIgVFJCIHRvIHNvbWV0aGlu
-ZyB0aGF0IGFscmVhZHkgdXNlcyBtb3JlIHRoYW4NCj4+IG9uZSBUUkIuDQo+Pg0KPj4gVG8gYXZp
-b2QgdGhpcywgdGhpcyBwYXRjaCBjaGFuZ2VzIHRoZSBjb2RlIHRvIGNoZWNrIGZvciBJT0MvTFNU
-DQo+PiBiaXRzIGluIFRSQi0+Y3RybCBpbnN0ZWFkLg0KPj4NCj4+IEF0IGEgcHJhY3RpY2FsIGxl
-dmVsLCB0aGlzIHBhdGNoIHJlc29sdmVzIFVTQiB0cmFuc2ZlciBzdGFsbHMgc2Vlbg0KPj4gd2l0
-aCBhZGIgb24gZHdjMyBiYXNlZCBIaUtleTk2MCBhZnRlciBmdW5jdGlvbmZzIGdhZGdldCBhZGRl
-ZA0KPj4gc2NhdHRlci1nYXRoZXIgc3VwcG9ydCBhcm91bmQgdjQuMjAuDQo+Pg0KPj4gQ2M6IEZl
-bGlwZSBCYWxiaSA8YmFsYmlAa2VybmVsLm9yZz4NCj4+IENjOiBZYW5nIEZlaSA8ZmVpLnlhbmdA
-aW50ZWwuY29tPg0KPj4gQ2M6IFRoaW5oIE5ndXllbiA8dGhpbmhuQHN5bm9wc3lzLmNvbT4NCj4+
-IENjOiBUZWphcyBKb2dsZWthciA8dGVqYXMuam9nbGVrYXJAc3lub3BzeXMuY29tPg0KPj4gQ2M6
-IEFuZHJ6ZWogUGlldHJhc2lld2ljeiA8YW5kcnplai5wQGNvbGxhYm9yYS5jb20+DQo+PiBDYzog
-SmFjayBQaGFtIDxqYWNrcEBjb2RlYXVyb3JhLm9yZz4NCj4+IENjOiBUb2RkIEtqb3MgPHRram9z
-QGdvb2dsZS5jb20+DQo+PiBDYzogR3JlZyBLSCA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+
-DQo+PiBDYzogTGludXggVVNCIExpc3QgPGxpbnV4LXVzYkB2Z2VyLmtlcm5lbC5vcmc+DQo+PiBD
-Yzogc3RhYmxlIDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPj4gVGVzdGVkLWJ5OiBUZWphcyBK
-b2dsZWthciA8dGVqYXMuam9nbGVrYXJAc3lub3BzeXMuY29tPg0KPj4gUmV2aWV3ZWQtYnk6IFRo
-aW5oIE5ndXllbiA8dGhpbmhuQHN5bm9wc3lzLmNvbT4NCj4+IFNpZ25lZC1vZmYtYnk6IEFudXJh
-ZyBLdW1hciBWdWxpc2hhIDxhbnVyYWcua3VtYXIudnVsaXNoYUB4aWxpbnguY29tPg0KPj4gW2pz
-dHVsdHo6IGZvcndhcmQgcG9ydGVkIHRvIG1haW5saW5lLCByZXdvcmRlZCBjb21taXQgbG9nLCBy
-ZXdvcmtlZA0KPj4gICB0byBvbmx5IGNoZWNrIHRyYi0+Y3RybCBhcyBzdWdnZXN0ZWQgYnkgRmVs
-aXBlXQ0KPj4gU2lnbmVkLW9mZi1ieTogSm9obiBTdHVsdHogPGpvaG4uc3R1bHR6QGxpbmFyby5v
-cmc+DQo+PiAtLS0NCj4+IHYyOg0KPj4gKiBSZXdvcmsgdG8gb25seSBjaGVjayB0cmItPmN0cmwg
-YXMgc3VnZ2VzdGVkIGJ5IEZlbGlwZQ0KPj4gKiBSZXdvcmQgdGhlIGNvbW1pdCBtZXNzYWdlIHRv
-IGluY2x1ZGUgbW9yZSBvZiBGZWxpcGUncyBhc3Nlc3NtZW50DQo+PiAtLS0NCj4+ICAgZHJpdmVy
-cy91c2IvZHdjMy9nYWRnZXQuYyB8IDMgKystDQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2Vy
-dGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4+DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy91c2Iv
-ZHdjMy9nYWRnZXQuYyBiL2RyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMNCj4+IGluZGV4IDE1NGYz
-ZjNlOGNmZi4uOWEwODVlZWUxYWUzIDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy91c2IvZHdjMy9n
-YWRnZXQuYw0KPj4gKysrIGIvZHJpdmVycy91c2IvZHdjMy9nYWRnZXQuYw0KPj4gQEAgLTI0MjAs
-NyArMjQyMCw4IEBAIHN0YXRpYyBpbnQgZHdjM19nYWRnZXRfZXBfcmVjbGFpbV9jb21wbGV0ZWRf
-dHJiKHN0cnVjdCBkd2MzX2VwICpkZXAsDQo+PiAgIAlpZiAoZXZlbnQtPnN0YXR1cyAmIERFUEVW
-VF9TVEFUVVNfU0hPUlQgJiYgIWNoYWluKQ0KPj4gICAJCXJldHVybiAxOw0KPj4gICANCj4+IC0J
-aWYgKGV2ZW50LT5zdGF0dXMgJiBERVBFVlRfU1RBVFVTX0lPQykNCj4+ICsJaWYgKCh0cmItPmN0
-cmwgJiBEV0MzX1RSQl9DVFJMX0lPQykgfHwNCj4+ICsJICAgICh0cmItPmN0cmwgJiBEV0MzX1RS
-Ql9DVFJMX0xTVCkpDQo+IHdoeSB0aGUgTFNUIGJpdCBoZXJlPyBJdCB3YXNuJ3QgdGhlcmUgYmVm
-b3JlLiBJbiBmYWN0LCB3ZSBuZXZlciBzZXQgTFNUDQo+IGluIGR3YzMgYW55bW9yZSA6LSkNCj4N
-Cg0KSnVzdCBhIG5vdGU6IHJpZ2h0IG5vdywgaXQgbWF5IGJlIGZpbmUgZm9yIG5vbi1zdHJlYW0g
-ZW5kcG9pbnRzIHRvIG5vdCANCnNldCB0aGUgTFNUIGJpdCBpbiB0aGUgVFJCcy4gRm9yIHN0cmVh
-bXMsIHdlIG5lZWQgdG8gc2V0IHRoaXMgYml0IHNvIHRoZSANCmNvbnRyb2xsZXIga25vdyB0byBh
-bGxvY2F0ZSByZXNvdXJjZSBmb3IgZGlmZmVyZW50IHRyYW5zZmVycyBvZiANCmRpZmZlcmVudCBz
-dHJlYW1zLiBJdCBtYXkgYmUgZmluZSBub3cgaWYgeW91IHRoaW5rIHRoYXQgaXQgc2hvdWxkIGJl
-IA0KYWRkZWQgbGF0ZXIgd2hlbiBtb3JlIGZpeGVzIGZvciBzdHJlYW1zIGFyZSBhZGRlZCwgYnV0
-IEkgdGhpbmsgaXQgDQpkb2Vzbid0IGh1cnQgY2hlY2tpbmcgaXQgbm93IGVpdGhlci4NCg0KQlIs
-DQpUaGluaA0K
+Hi,
+
+On 1/24/20 12:55 PM, Thomas Gleixner wrote:
+> Hans,
+> 
+> Hans de Goede <hdegoede@redhat.com> writes:
+>> On 1/24/20 9:35 AM, Thomas Gleixner wrote:
+>>> Where does that number come from? Just math?
+>>
+>> Yes just math, but perhaps the Intel folks can see if they can find some
+>> datasheet to back this up ?
+> 
+> Can you observe the issue on one of the machines in your zoo as well?
+
+Ok, I have been testing this on various devices and I'm pretty sure now
+that my initial hunch is correct. The problem is that the accuracy of
+the FSB frequency as listed in the Intel docs is not so great:
+
+The "Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 4:
+Model-Specific Registers" has the following table for the values from
+freq_desc_byt:
+
+    000B: 083.3 MHz
+    001B: 100.0 MHz
+    010B: 133.3 MHz
+    011B: 116.7 MHz
+    100B: 080.0 MHz
+
+Notice how for e.g the 83.3 MHz value there are 3 significant digits,
+which translates to an accuracy of a 1000 ppm, where as your typical
+crystal oscillator is 20 - 100 ppm, so the accuracy of the frequency
+format used in the Software Developer’s Manual is not really helpful.
+
+So the 00 part of 83300 which I'm suggesting to replace with 33 in
+essence is not specified and when the tsc_msr.c code was written /
+Bay Trail support was added the value from the datasheet was simply
+padded with zeros.
+
+There is already a hint that that likely is not correct in the values
+from the Software Developer’s Manual, we have values ending at 3.3,
+but also at 6.7, which to me feels like it is 6.66666666666667 rounded
+up and thus the 3.3 likely is 3.33333333333333.
+
+Test 1: Intel(R) Celeron(R) CPU  N2840  @ 2.16GHz"
+--------------------------------------------------
+
+As said I've also ran some tests. The first device I have tested is
+a HP stream 11 x360 with an "Intel(R) Celeron(R) CPU  N2840  @ 2.16GHz"
+(from /proc/cpuinfo) this is the "laptop' version of Bay Trail rather
+then the tablet version, so like Vipul's case I can comment out the 2
+lines setting the TSC_KNOWN_FREQ and TSC_RELIABLE flags and get
+"Refined TSC clocksource calibration". I've also added the changes with
+the extra pr_info calls which you requested. Here is the relevant output
+from a kernel with the 2 flags commented out + your pr_info changes,
+note I changed the REF_CLOCK format from %x to %d as that seems easier
+to interpret to me.
+
+[    0.000000] MSR_PINFO: 0000060000001a00 -> 26
+[    0.000000] MSR_FSBF: 0000000000000000
+[    0.000000] REF_CLOCK: 83000
+[    0.000000] tsc: Detected 2165.800 MHz processor
+[    3.586805] tsc: Refined TSC clocksource calibration: 2166.666 MHz
+
+And with my suggested change:
+
+[    0.000000] MSR_PINFO: 0000060000001a00 -> 26
+[    0.000000] MSR_FSBF: 0000000000000000
+[    0.000000] REF_CLOCK: 83333
+[    0.000000] tsc: Detected 2166.658 MHz processor
+[    3.587326] tsc: Refined TSC clocksource calibration: 2166.667 MHz
+
+Note we are still 0.009 MHz of from the refined calibration, so my
+suggestion to really fix this would be to change the freqs part
+of struct freq_desc to be in Hz rather then KHz and then calculate
+res as:
+
+res = DIV_ROUND_CLOSEST(freq * ratio, 1000); /* res is in KHz */
+
+Which would give us:
+
+[    0.000000] tsc: Detected 2166.667 MHz processor
+
+
+Test 2: "Intel(R) Atom(TM) CPU  Z3736F @ 1.33GHz"
+-------------------------------------------------
+
+Second device tested: HP Pavilion x2 Detachable 10" version
+with Bay Trail SoC: "Intel(R) Atom(TM) CPU  Z3736F @ 1.33GHz".
+
+Relevant log messages, unpatched:
+[    0.000000] MSR_PINFO: 0000060000001000 -> 16
+[    0.000000] MSR_FSBF: 0000000000000000
+[    0.000000] REF_CLOCK: 83000
+[    0.000000] tsc: Detected 1332.800 MHz processor
+
+Patched:
+[    0.000000] MSR_PINFO: 0000060000001000 -> 16
+[    0.000000] MSR_FSBF: 0000000000000000
+[    0.000000] REF_CLOCK: 83333
+[    0.000000] tsc: Detected 1333.328 MHz processor
+
+Now since we do not have another clock source, we do not
+know for sure that the 1333.328 MHz is better then the
+original 1332.800, but it does seem to be a more logical
+value; and from the N2840 @ 2.16GHz string, which runs
+at 2166.667 MHz we have learned that the number in the
+string is rounded down (at least for Bay Trail devices),
+so if the 1332.800 MHz where correct then we would
+expect the string to contain 1.32GHz, but it says 1.33GHz
+
+
+Test 3: "Intel(R) Atom(TM) CPU  Z3775  @ 1.46GHz"
+-------------------------------------------------
+
+Third device tested: Asus T200TA" with:
+"Intel(R) Atom(TM) CPU  Z3775  @ 1.46GHz"
+again this is the tablet version, so only one clocksource
+and thus no "Refined TSC clocksource calibration"
+
+[    0.000000] MSR_PINFO: 0000040000000b00 -> 11
+[    0.000000] MSR_FSBF: 0000000000000002
+[    0.000000] REF_CLOCK: 133300
+[    0.000000] tsc: Detected 1466.300 MHz processor
+
+Since we have no other clocksource, we cannot be
+sure that this is wrong, unless we compare to say
+the RTC using using the commands Vipul used to
+test. So I'm leaving this device running for say
+12 hours and then I'll check.
+
+I have a hunch that in this case too we need to replace the
+00 with 33, so use 133333 as ref-clock, but we will see.
+
+Regards,
+
+Hans
+
