@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BBC714BB3F
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B2B814BA10
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbgA1Ood (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:44:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58698 "EHLO mail.kernel.org"
+        id S2387444AbgA1OfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:35:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728193AbgA1OKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:10:04 -0500
+        id S1733226AbgA1OfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:35:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C632B24681;
-        Tue, 28 Jan 2020 14:10:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 618A221739;
+        Tue, 28 Jan 2020 14:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220604;
-        bh=5q3qoVVuTy8YvTWJS56/FshoR2Qy/XfFf6H6ywclMsE=;
+        s=default; t=1580222120;
+        bh=uU60ciiTrDJ9OmBJPBS8Wl7CIQw1suWbyJQyUdYfXqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmdlQMibek3tvW+vTmaZkm6XYMMvuP7C1UeMcinIeKYVJCxcvl040zoVL2fIrjaYF
-         PCvkgotQpIoKO+HXdfcpPG5sWmz59YHVddtIqFSJy+lfnC4pkDZcQUysNVhOQDTFZx
-         ItzXO8s8Dt3KgLQ+9G0/Ol+I3py1iwrLxgdL1fFY=
+        b=rtEiGJNAwssHukqnFMM2EjX0sgdjS900txpkDYKEEHtOcE5HXyk6TlgiYOC0/rx5L
+         DMvZ/enIJoGYHHYIVKiEoOHUuzBX4/rR31Go4mRMGndvnxs1QBT2ICXkhKBWEyOxGC
+         Zdfj7XJWnIwu8/RY1DYiYVU38yBGRtuPwFSOTBo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 036/183] ASoC: imx-sgtl5000: put of nodes if finding codec fails
-Date:   Tue, 28 Jan 2020 15:04:15 +0100
-Message-Id: <20200128135833.615853745@linuxfoundation.org>
+Subject: [PATCH 4.9 107/271] media: davinci-isif: avoid uninitialized variable use
+Date:   Tue, 28 Jan 2020 15:04:16 +0100
+Message-Id: <20200128135900.546687585@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d9866572486802bc598a3e8576a5231378d190de ]
+[ Upstream commit 0e633f97162c1c74c68e2eb20bbd9259dce87cd9 ]
 
-Make sure to properly put the of node in case finding the codec
-fails.
+clang warns about a possible variable use that gcc never
+complained about:
 
-Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+drivers/media/platform/davinci/isif.c:982:32: error: variable 'frame_size' is uninitialized when used here
+      [-Werror,-Wuninitialized]
+                dm365_vpss_set_pg_frame_size(frame_size);
+                                             ^~~~~~~~~~
+drivers/media/platform/davinci/isif.c:887:2: note: variable 'frame_size' is declared here
+        struct vpss_pg_frame_size frame_size;
+        ^
+1 error generated.
+
+There is no initialization for this variable at all, and there
+has never been one in the mainline kernel, so we really should
+not put that stack data into an mmio register.
+
+On the other hand, I suspect that gcc checks the condition
+more closely and notices that the global
+isif_cfg.bayer.config_params.test_pat_gen flag is initialized
+to zero and never written to from any code path, so anything
+depending on it can be eliminated.
+
+To shut up the clang warning, just remove the dead code manually,
+it has probably never been used because any attempt to do so
+would have resulted in undefined behavior.
+
+Fixes: 63e3ab142fa3 ("V4L/DVB: V4L - vpfe capture - source for ISIF driver on DM365")
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-sgtl5000.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/davinci/isif.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-index 8e525f7ac08d1..3d99a8579c99f 100644
---- a/sound/soc/fsl/imx-sgtl5000.c
-+++ b/sound/soc/fsl/imx-sgtl5000.c
-@@ -119,7 +119,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	codec_dev = of_find_i2c_device_by_node(codec_np);
- 	if (!codec_dev) {
- 		dev_err(&pdev->dev, "failed to find codec platform device\n");
--		return -EPROBE_DEFER;
-+		ret = -EPROBE_DEFER;
-+		goto fail;
- 	}
+diff --git a/drivers/media/platform/davinci/isif.c b/drivers/media/platform/davinci/isif.c
+index 78e37cf3470f2..b51b875c5a612 100644
+--- a/drivers/media/platform/davinci/isif.c
++++ b/drivers/media/platform/davinci/isif.c
+@@ -890,9 +890,7 @@ static int isif_set_hw_if_params(struct vpfe_hw_if_param *params)
+ static int isif_config_ycbcr(void)
+ {
+ 	struct isif_ycbcr_config *params = &isif_cfg.ycbcr;
+-	struct vpss_pg_frame_size frame_size;
+ 	u32 modeset = 0, ccdcfg = 0;
+-	struct vpss_sync_pol sync;
  
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	dev_dbg(isif_cfg.dev, "\nStarting isif_config_ycbcr...");
+ 
+@@ -980,13 +978,6 @@ static int isif_config_ycbcr(void)
+ 		/* two fields are interleaved in memory */
+ 		regw(0x00000249, SDOFST);
+ 
+-	/* Setup test pattern if enabled */
+-	if (isif_cfg.bayer.config_params.test_pat_gen) {
+-		sync.ccdpg_hdpol = params->hd_pol;
+-		sync.ccdpg_vdpol = params->vd_pol;
+-		dm365_vpss_set_sync_pol(sync);
+-		dm365_vpss_set_pg_frame_size(frame_size);
+-	}
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
