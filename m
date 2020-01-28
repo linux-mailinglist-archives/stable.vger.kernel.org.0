@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B5814BAC4
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7AF314B99C
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729868AbgA1OOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:14:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36506 "EHLO mail.kernel.org"
+        id S1732824AbgA1OY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:24:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729864AbgA1OOX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:14:23 -0500
+        id S1732431AbgA1OY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:24:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D07FF24694;
-        Tue, 28 Jan 2020 14:14:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33CCF2468A;
+        Tue, 28 Jan 2020 14:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220863;
-        bh=jV/dth03refcE4X+CD8qRfFQaEXuob2S/bnzO3uo3Fc=;
+        s=default; t=1580221497;
+        bh=FIIZiQrPCFTJOTi6y0n20X+dQYu6x1A+iUeRhJ0vEQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKbtprDHSUjl+teUz5iZyswqMAbB+SfEmR4W73inwAxiUrrphcfd2rDCPMoeKFyXd
-         9/4CvN36FrcOGy2ZDBwhxCnSMg5QDHTwPUdbs7x7K7g3Dlg7GdeCf+ZKcroiOiGXi0
-         7vK4YWECTNetIRFQqb/55lj2OD+Pg+iJpXqQZgg0=
+        b=WNQlTV/q8A0ccIYRy0VBHDHucPX7J+tiCH73Pu+d/r3f+rlsM7liZfs71OAYir2fd
+         UT/3cXh+0cgwv5an9KXYegi4xV4bb9hjSsSuMbpF8EQS6Chkgi2d5CXwnkBVUZuZGv
+         uagHB/e9XmdpNbCD2yiWkTl2/sEagTGz6YmHQ7D4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Lars=20M=C3=B6llendorf?= <lars.moellendorf@plating.de>,
-        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 177/183] iio: buffer: align the size of scan bytes to size of the largest element
-Date:   Tue, 28 Jan 2020 15:06:36 +0100
-Message-Id: <20200128135847.434432262@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 248/271] Input: keyspan-remote - fix control-message timeouts
+Date:   Tue, 28 Jan 2020 15:06:37 +0100
+Message-Id: <20200128135911.000726358@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Möllendorf <lars.moellendorf@plating.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit 883f616530692d81cb70f8a32d85c0d2afc05f69 upstream.
+commit ba9a103f40fc4a3ec7558ec9b0b97d4f92034249 upstream.
 
-Previous versions of `iio_compute_scan_bytes` only aligned each element
-to its own length (i.e. its own natural alignment). Because multiple
-consecutive sets of scan elements are buffered this does not work in
-case the computed scan bytes do not align with the natural alignment of
-the first scan element in the set.
+The driver was issuing synchronous uninterruptible control requests
+without using a timeout. This could lead to the driver hanging on probe
+due to a malfunctioning (or malicious) device until the device is
+physically disconnected. While sleeping in probe the driver prevents
+other devices connected to the same hub from being added to (or removed
+from) the bus.
 
-This commit fixes this by aligning the scan bytes to the natural
-alignment of the largest scan element in the set.
+The USB upper limit of five seconds per request should be more than
+enough.
 
-Fixes: 959d2952d124 ("staging:iio: make iio_sw_buffer_preenable much more general.")
-Signed-off-by: Lars Möllendorf <lars.moellendorf@plating.de>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 99f83c9c9ac9 ("[PATCH] USB: add driver for Keyspan Digital Remote")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Link: https://lore.kernel.org/r/20200113171715.30621-1-johan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/iio/industrialio-buffer.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/input/misc/keyspan_remote.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -527,7 +527,7 @@ static int iio_compute_scan_bytes(struct
- {
- 	const struct iio_chan_spec *ch;
- 	unsigned bytes = 0;
--	int length, i;
-+	int length, i, largest = 0;
+--- a/drivers/input/misc/keyspan_remote.c
++++ b/drivers/input/misc/keyspan_remote.c
+@@ -344,7 +344,8 @@ static int keyspan_setup(struct usb_devi
+ 	int retval = 0;
  
- 	/* How much space will the demuxed element take? */
- 	for_each_set_bit(i, mask,
-@@ -540,6 +540,7 @@ static int iio_compute_scan_bytes(struct
- 			length = ch->scan_type.storagebits / 8;
- 		bytes = ALIGN(bytes, length);
- 		bytes += length;
-+		largest = max(largest, length);
+ 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-				 0x11, 0x40, 0x5601, 0x0, NULL, 0, 0);
++				 0x11, 0x40, 0x5601, 0x0, NULL, 0,
++				 USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		dev_dbg(&dev->dev, "%s - failed to set bit rate due to error: %d\n",
+ 			__func__, retval);
+@@ -352,7 +353,8 @@ static int keyspan_setup(struct usb_devi
  	}
- 	if (timestamp) {
- 		ch = iio_find_channel_from_si(indio_dev,
-@@ -551,7 +552,10 @@ static int iio_compute_scan_bytes(struct
- 			length = ch->scan_type.storagebits / 8;
- 		bytes = ALIGN(bytes, length);
- 		bytes += length;
-+		largest = max(largest, length);
- 	}
-+
-+	bytes = ALIGN(bytes, largest);
- 	return bytes;
- }
  
+ 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-				 0x44, 0x40, 0x0, 0x0, NULL, 0, 0);
++				 0x44, 0x40, 0x0, 0x0, NULL, 0,
++				 USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		dev_dbg(&dev->dev, "%s - failed to set resume sensitivity due to error: %d\n",
+ 			__func__, retval);
+@@ -360,7 +362,8 @@ static int keyspan_setup(struct usb_devi
+ 	}
+ 
+ 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-				 0x22, 0x40, 0x0, 0x0, NULL, 0, 0);
++				 0x22, 0x40, 0x0, 0x0, NULL, 0,
++				 USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		dev_dbg(&dev->dev, "%s - failed to turn receive on due to error: %d\n",
+ 			__func__, retval);
 
 
