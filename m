@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 670F914BAB4
+	by mail.lfdr.de (Postfix) with ESMTP id D9A7614BAB5
 	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:41:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729331AbgA1OPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:15:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38408 "EHLO mail.kernel.org"
+        id S1729240AbgA1OPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:15:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730129AbgA1OPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:15:38 -0500
+        id S1730158AbgA1OPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:15:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6316724681;
-        Tue, 28 Jan 2020 14:15:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90E5C20678;
+        Tue, 28 Jan 2020 14:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220937;
-        bh=xmqf4R/yqaxyn6B/aXLkj6ePZROjIT/6cr9njFDMExI=;
+        s=default; t=1580220943;
+        bh=SJ5RdmOGfQs5mLEPAX0sUe3M8Uc/nvXTm72BCGqymo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+w7/v1GXBQ9qJJZtEYOe9tTgSOmD0kRuZCSKJS67LYXqH6C6P1/eGkTshlB6Yxdd
-         LeBt3k/9suEXU4JOdCTundE3sMBcgKNEjrVid7HY3pmDdN5phIKijywmumvPzzwCQ+
-         CiOUQPujp8BCxUGFNmWfKhb7hgfb5a+n+qnoVUNQ=
+        b=BgC+sctN4NBONc0rcZuYv5R3tUY6Ywq8ZzPLtCHLku8TOAem29yRlxhVB5KPysbwD
+         5Xn1PhPt9LD7P92taVQGwg8A9hto/Y1GwewtSr2TCixYbVHAQl7AjZjKOx0kbZdRpc
+         R3fV0UJFpo3VCyS2T44CB5DFJzLyTP4ilARov97I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 023/271] pinctrl: sh-pfc: sh7269: Add missing PCIOR0 field
-Date:   Tue, 28 Jan 2020 15:02:52 +0100
-Message-Id: <20200128135854.395440598@linuxfoundation.org>
+Subject: [PATCH 4.9 025/271] Input: nomadik-ske-keypad - fix a loop timeout test
+Date:   Tue, 28 Jan 2020 15:02:54 +0100
+Message-Id: <20200128135854.542869074@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -45,37 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 9540cbdfcd861caf67a6f0e4bb7f46d41c4aad86 ]
+[ Upstream commit 4d8f727b83bcd6702c2d210330872c9122d2d360 ]
 
-The Port C I/O Register 0 contains 7 reserved bits, but the descriptor
-contains only dummy configuration values for 6 reserved bits, thus
-breaking the configuration of all subsequent fields in the register.
+The loop exits with "timeout" set to -1 not to 0.
 
-Fix this by adding the two missing configuration values.
-
-Fixes: f5e811f2a43117b2 ("sh-pfc: Add sh7269 pinmux support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Fixes: 1158f0f16224 ("Input: add support for Nomadik SKE keypad controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-sh7269.c | 2 +-
+ drivers/input/keyboard/nomadik-ske-keypad.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7269.c b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
-index a50d22bef1f44..cfdb4fc177c3e 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh7269.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
-@@ -2119,7 +2119,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
- 	},
+diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+index 8567ee47761e1..ae3b045570740 100644
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -100,7 +100,7 @@ static int __init ske_keypad_chip_init(struct ske_keypad *keypad)
+ 	while ((readl(keypad->reg_base + SKE_RIS) != 0x00000000) && timeout--)
+ 		cpu_relax();
  
- 	{ PINMUX_CFG_REG("PCIOR0", 0xfffe3852, 16, 1) {
--		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 		PC8_IN, PC8_OUT,
- 		PC7_IN, PC7_OUT,
- 		PC6_IN, PC6_OUT,
+-	if (!timeout)
++	if (timeout == -1)
+ 		return -EINVAL;
+ 
+ 	/*
 -- 
 2.20.1
 
