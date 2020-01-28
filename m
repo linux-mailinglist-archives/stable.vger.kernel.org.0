@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6978114B9AB
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7697B14B9A9
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728288AbgA1OYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:24:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51286 "EHLO mail.kernel.org"
+        id S1732613AbgA1OYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:24:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732572AbgA1OYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:33 -0500
+        id S1732572AbgA1OYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:24:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42AE12468A;
-        Tue, 28 Jan 2020 14:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEA112071E;
+        Tue, 28 Jan 2020 14:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221472;
-        bh=g98h9zgHGfmJG7qp7shi05vz6GMzSl3GulPJVilvKv0=;
+        s=default; t=1580221475;
+        bh=BDZEEsBK6AX+caJfyrsZPuxiKlFI9f3B0vVgXc6IL9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OTe1qjwLxst8c287OfMfma93MvBqYw6+V30ii/hvrWuxeI/9MMP1LNILq/rbngc0
-         fu1+02X3uQOn47xQIHOAvLNvb6orrl8FxZsF21iSg0U3nWLDlGRrJnH0DnWwY+C/xT
-         pxx5mLW9uz2+tjb92w7+b2jQ4Z97mpnlOn+drRTc=
+        b=Smh+A9SJPuEjbWKEXever5gBTmQObmvfu9X1luRMrz8v/okNnKUAJfsG+isgKUXlz
+         iH9s+i1/K4vKqw8kQwa/kieTxe3EYxoKSzQxSrkHo3LbybdPUY3lwGoC5kVcHfTC12
+         RGlIhaj8j91Jr6bkGOmIj591XL94filWx2ONahyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2f07903a5b05e7f36410@syzkaller.appspotmail.com,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
         Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
-        syzbot+5af9a90dad568aa9f611@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 239/271] net_sched: fix datalen for ematch
-Date:   Tue, 28 Jan 2020 15:06:28 +0100
-Message-Id: <20200128135910.335176711@linuxfoundation.org>
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        netdev@vger.kernel.org
+Subject: [PATCH 4.9 240/271] tcp_bbr: improve arithmetic division in bbr_update_bw()
+Date:   Tue, 28 Jan 2020 15:06:29 +0100
+Message-Id: <20200128135910.406657627@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -48,47 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 61678d28d4a45ef376f5d02a839cc37509ae9281 ]
+[ Upstream commit 5b2f1f3070b6447b76174ea8bfb7390dc6253ebd ]
 
-syzbot reported an out-of-bound access in em_nbyte. As initially
-analyzed by Eric, this is because em_nbyte sets its own em->datalen
-in em_nbyte_change() other than the one specified by user, but this
-value gets overwritten later by its caller tcf_em_validate().
-We should leave em->datalen untouched to respect their choices.
+do_div() does a 64-by-32 division. Use div64_long() instead of it
+if the divisor is long, to avoid truncation to 32-bit.
+And as a nice side effect also cleans up the function a bit.
 
-I audit all the in-tree ematch users, all of those implement
-->change() set em->datalen, so we can just avoid setting it twice
-in this case.
-
-Reported-and-tested-by: syzbot+5af9a90dad568aa9f611@syzkaller.appspotmail.com
-Reported-by: syzbot+2f07903a5b05e7f36410@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/ematch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_bbr.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/sched/ematch.c
-+++ b/net/sched/ematch.c
-@@ -267,12 +267,12 @@ static int tcf_em_validate(struct tcf_pr
- 				}
- 				em->data = (unsigned long) v;
- 			}
-+			em->datalen = data_len;
- 		}
- 	}
+--- a/net/ipv4/tcp_bbr.c
++++ b/net/ipv4/tcp_bbr.c
+@@ -649,8 +649,7 @@ static void bbr_update_bw(struct sock *s
+ 	 * bandwidth sample. Delivered is in packets and interval_us in uS and
+ 	 * ratio will be <<1 for most connections. So delivered is first scaled.
+ 	 */
+-	bw = (u64)rs->delivered * BW_UNIT;
+-	do_div(bw, rs->interval_us);
++	bw = div64_long((u64)rs->delivered * BW_UNIT, rs->interval_us);
  
- 	em->matchid = em_hdr->matchid;
- 	em->flags = em_hdr->flags;
--	em->datalen = data_len;
- 	em->net = net;
- 
- 	err = 0;
+ 	/* If this sample is application-limited, it is likely to have a very
+ 	 * low delivered count that represents application behavior rather than
 
 
