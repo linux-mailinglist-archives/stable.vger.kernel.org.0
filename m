@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8ECE14B84B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:24:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F3F14B757
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726063AbgA1OWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:22:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47958 "EHLO mail.kernel.org"
+        id S1729702AbgA1ONf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:13:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731190AbgA1OWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:22:13 -0500
+        id S1729187AbgA1ONe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB62524693;
-        Tue, 28 Jan 2020 14:22:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A7972468F;
+        Tue, 28 Jan 2020 14:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221333;
-        bh=2rjCoQ6/I7YPt/RGPbGMpMOxxajYnKF5yuaiOGbmEpM=;
+        s=default; t=1580220813;
+        bh=QpXlaaWH6ZWk0u4zthffb44DZkzkZisi06gwOjkBMXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K643VxjYniNpfRFrBrlK87F8Oe3/tc2BXE4krZOuQfiUbHvGWRSijSeMXemLmu926
-         OuPYrpy3GgnZFgIhznfZ6BMlfjThGDyuKHaDdVGC79ws9Ii2DvwE6UAskIxqJozKR3
-         CJBtrchK/G558EHFiByegvPZ2lo+Kipiz8zQlqoc=
+        b=WyMiTfXyuDfQU8k7nwvaSNnJ7sORjObPNhCTJLrnKa4/0Tq6T+adzhJRqS5kq70av
+         6hZ58jUbjlDb+zICR9aOCQwi/szNWGfjOp2twO5lAF6CxFVFJItl7y0N3ltPh9ngBh
+         bdpT21No3FqU/PyFGeWrBIe+QZiaiYH4738LG2xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 181/271] ASoC: cs4349: Use PM ops cs4349_runtime_pm
+Subject: [PATCH 4.4 111/183] scsi: libfc: fix null pointer dereference on a null lport
 Date:   Tue, 28 Jan 2020 15:05:30 +0100
-Message-Id: <20200128135906.011118753@linuxfoundation.org>
+Message-Id: <20200128135840.999965281@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 9b4275c415acca6264a3d7f1182589959c93d530 ]
+[ Upstream commit 41a6bf6529edd10a6def42e3b2c34a7474bcc2f5 ]
 
-sound/soc/codecs/cs4349.c:358:32: warning:
- cs4349_runtime_pm defined but not used [-Wunused-const-variable=]
+Currently if lport is null then the null lport pointer is dereference when
+printing out debug via the FC_LPORT_DB macro. Fix this by using the more
+generic FC_LIBFC_DBG debug macro instead that does not use lport.
 
-cs4349_runtime_pm ops already defined, it seems
-we should enable it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: e40da86 ("ASoC: cs4349: Add support for Cirrus Logic CS4349")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20190815090157.70036-1-yuehaibing@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Addresses-Coverity: ("Dereference after null check")
+Fixes: 7414705ea4ae ("libfc: Add runtime debugging with debug_logging module parameter")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs4349.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/libfc/fc_exch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs4349.c b/sound/soc/codecs/cs4349.c
-index 231ca935cdf3b..c232c42ccead0 100644
---- a/sound/soc/codecs/cs4349.c
-+++ b/sound/soc/codecs/cs4349.c
-@@ -380,6 +380,7 @@ static struct i2c_driver cs4349_i2c_driver = {
- 	.driver = {
- 		.name		= "cs4349",
- 		.of_match_table	= cs4349_of_match,
-+		.pm = &cs4349_runtime_pm,
- 	},
- 	.id_table	= cs4349_i2c_id,
- 	.probe		= cs4349_i2c_probe,
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 30f9ef0c0d4f8..b20c575564e43 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -2499,7 +2499,7 @@ void fc_exch_recv(struct fc_lport *lport, struct fc_frame *fp)
+ 
+ 	/* lport lock ? */
+ 	if (!lport || lport->state == LPORT_ST_DISABLED) {
+-		FC_LPORT_DBG(lport, "Receiving frames for an lport that "
++		FC_LIBFC_DBG("Receiving frames for an lport that "
+ 			     "has not been initialized correctly\n");
+ 		fc_frame_free(fp);
+ 		return;
 -- 
 2.20.1
 
