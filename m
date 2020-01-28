@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E234214BA8F
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9794414BA87
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:40:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730323AbgA1OQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:16:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40042 "EHLO mail.kernel.org"
+        id S1729880AbgA1OQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:16:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730329AbgA1OQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:16:35 -0500
+        id S1730361AbgA1OQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:16:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 866F024688;
-        Tue, 28 Jan 2020 14:16:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4383721739;
+        Tue, 28 Jan 2020 14:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220995;
-        bh=RsZ49+HuVXrU/JY3Ejeo3KXvJigAnXjCknahaYv5sjA=;
+        s=default; t=1580221002;
+        bh=Bz2SxhI9AvOcXcwpMJHZtAiOnFwkbSoPB1FXw8dmQtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUFvqiX4+824isnkeXGsvg0T+ks1DZMmOUr5+SN5hRqyYIBMHF44+vMrKz1xescOh
-         9Irv8WIbu1CpzUalPlUy04OjH/n21+0lUTOvdvXx8jT+ZKYUtXkrAEmb47WCN+NaiG
-         5niMs7VJURxxyaDzhBSNQWGhOUd+7uFFgWKPqauc=
+        b=SOWFNrBYY4p8mbYhVSZSdwjGQgPk/iVQ+nACbPMdkQkuHEenECCWry6CWm152FySe
+         76+pV9AFWU3ApnZ29ChmY8JF0DAuka32psktWAJjMtKimGEz06wcE59z5LdweAgoIg
+         AZbUbBzmzJgZion++XrnYaV9B6BW15ghfVVPFsNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Sylvain Chouleur <sylvain.chouleur@intel.com>,
-        Patrick McDermott <patrick.mcdermott@libiquity.com>,
-        linux-rtc@vger.kernel.org, Eric Wong <e@80x24.org>,
+        Danny Alexander <danny.alexander@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 047/271] rtc: cmos: ignore bogus century byte
-Date:   Tue, 28 Jan 2020 15:03:16 +0100
-Message-Id: <20200128135856.145846743@linuxfoundation.org>
+Subject: [PATCH 4.9 049/271] iwlwifi: mvm: fix A-MPDU reference assignment
+Date:   Tue, 28 Jan 2020 15:03:18 +0100
+Message-Id: <20200128135856.288817924@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -48,43 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Wong <e@80x24.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 2a4daadd4d3e507138f8937926e6a4df49c6bfdc ]
+[ Upstream commit 1f7698abedeeb3fef3cbcf78e16f925df675a179 ]
 
-Older versions of Libreboot and Coreboot had an invalid value
-(`3' in my case) in the century byte affecting the GM45 in
-the Thinkpad X200.  Not everybody's updated their firmwares,
-and Linux <= 4.2 was able to read the RTC without problems,
-so workaround this by ignoring invalid values.
+The current code assigns the reference, and then goes to increment
+it if the toggle bit has changed. That way, we get
 
-Fixes: 3c217e51d8a272b9 ("rtc: cmos: century support")
+Toggle  0  0  0  0  1  1  1  1
+ID      1  1  1  1  1  2  2  2
 
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Sylvain Chouleur <sylvain.chouleur@intel.com>
-Cc: Patrick McDermott <patrick.mcdermott@libiquity.com>
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Eric Wong <e@80x24.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fix that by assigning the post-toggle ID to get
+
+Toggle  0  0  0  0  1  1  1  1
+ID      1  1  1  1  2  2  2  2
+
+Reported-by: Danny Alexander <danny.alexander@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: fbe4112791b8 ("iwlwifi: mvm: update mpdu metadata API")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c | 2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 2f1772a358ca5..18a6f15e313d8 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -82,7 +82,7 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- 	time->tm_year += real_year - 72;
- #endif
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+index c2bbc8c17beb9..bc06d87a0106c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+@@ -810,12 +810,12 @@ void iwl_mvm_rx_mpdu_mq(struct iwl_mvm *mvm, struct napi_struct *napi,
+ 		bool toggle_bit = phy_info & IWL_RX_MPDU_PHY_AMPDU_TOGGLE;
  
--	if (century)
-+	if (century > 20)
- 		time->tm_year += (century - 19) * 100;
+ 		rx_status->flag |= RX_FLAG_AMPDU_DETAILS;
+-		rx_status->ampdu_reference = mvm->ampdu_ref;
+ 		/* toggle is switched whenever new aggregation starts */
+ 		if (toggle_bit != mvm->ampdu_toggle) {
+ 			mvm->ampdu_ref++;
+ 			mvm->ampdu_toggle = toggle_bit;
+ 		}
++		rx_status->ampdu_reference = mvm->ampdu_ref;
+ 	}
  
- 	/*
+ 	rcu_read_lock();
 -- 
 2.20.1
 
