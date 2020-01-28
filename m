@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 782C914BA71
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C0A14BB77
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731076AbgA1Oid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:38:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42396 "EHLO mail.kernel.org"
+        id S1726702AbgA1OHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:07:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730660AbgA1OSZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:18:25 -0500
+        id S1728338AbgA1OHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:07:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D471821739;
-        Tue, 28 Jan 2020 14:18:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 147E724681;
+        Tue, 28 Jan 2020 14:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221104;
-        bh=HTlTTX6byxaENqBs/X3KWYtVPgzTy5YNeeF8bU7W29c=;
+        s=default; t=1580220474;
+        bh=SFSwj7ofrhv7b1VMq8Ya7BJAa4I1uHTpBaO86EKB4FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGu8Ohw8MG8HEw2kvA8e8Z1GrboV85MpkyQip5s8qZ3KBDrpwJm12+f23bvlf78sZ
-         iXO02LbEeTf7TrTbpPPjo8QnQSI97MDh+JIhMV839CXjyuB3dr3c/d9hQI/ZpnDbRH
-         VumEcyRH8ncGt/8BPzsnkyc33CXzPmpvRGPbYHy4=
+        b=Sq4rFqHp1Y3MZFaRxAu7gmmzu7olfiNssodW7HI7x1CPlq0VrRqlFqLdiSkd4EOAu
+         xAhdij8GnY3w7jvGyDUZh5b3SicL4sP8wcR+BwxHAS02jL0z0WmSSUbj0qof+BoMUG
+         l43W12nE/9yRli3Nskc/Y0GaICMBr4FLS9jCmXKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolas Pitre <nico@linaro.org>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 090/271] ARM: 8847/1: pm: fix HYP/SVC mode mismatch when MCPM is used
-Date:   Tue, 28 Jan 2020 15:03:59 +0100
-Message-Id: <20200128135859.284646622@linuxfoundation.org>
+Subject: [PATCH 4.4 021/183] clk: highbank: fix refcount leak in hb_clk_init()
+Date:   Tue, 28 Jan 2020 15:04:00 +0100
+Message-Id: <20200128135832.047986798@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,95 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Yangtao Li <tiny.windzz@gmail.com>
 
-[ Upstream commit ca70ea43f80c98582f5ffbbd1e6f4da2742da0c4 ]
+[ Upstream commit 5eb8ba90958de1285120dae5d3a5d2b1a360b3b4 ]
 
-MCPM does a soft reset of the CPUs and uses common cpu_resume() routine to
-perform low-level platform initialization. This results in a try to install
-HYP stubs for the second time for each CPU and results in false HYP/SVC
-mode mismatch detection. The HYP stubs are already installed at the
-beginning of the kernel initialization on the boot CPU (head.S) or in the
-secondary_startup() for other CPUs. To fix this issue MCPM code should use
-a cpu_resume() routine without HYP stubs installation.
+The of_find_compatible_node() returns a node pointer with refcount
+incremented, but there is the lack of use of the of_node_put() when
+done. Add the missing of_node_put() to release the refcount.
 
-This change fixes HYP/SVC mode mismatch on Samsung Exynos5422-based Odroid
-XU3/XU4/HC1 boards.
-
-Fixes: 3721924c8154 ("ARM: 8081/1: MCPM: provide infrastructure to allow for MCPM loopback")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Tested-by: Anand Moon <linux.amoon@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+Fixes: 26cae166cff9 ("ARM: highbank: remove custom .init_time hook")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/common/mcpm_entry.c   |  2 +-
- arch/arm/include/asm/suspend.h |  1 +
- arch/arm/kernel/sleep.S        | 12 ++++++++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/clk/clk-highbank.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/common/mcpm_entry.c b/arch/arm/common/mcpm_entry.c
-index a923524d10407..8617323eb2735 100644
---- a/arch/arm/common/mcpm_entry.c
-+++ b/arch/arm/common/mcpm_entry.c
-@@ -379,7 +379,7 @@ static int __init nocache_trampoline(unsigned long _arg)
- 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
- 	phys_reset_t phys_reset;
+diff --git a/drivers/clk/clk-highbank.c b/drivers/clk/clk-highbank.c
+index be3a21abb185a..4105066b428ca 100644
+--- a/drivers/clk/clk-highbank.c
++++ b/drivers/clk/clk-highbank.c
+@@ -294,6 +294,7 @@ static __init struct clk *hb_clk_init(struct device_node *node, const struct clk
+ 	/* Map system registers */
+ 	srnp = of_find_compatible_node(NULL, NULL, "calxeda,hb-sregs");
+ 	hb_clk->reg = of_iomap(srnp, 0);
++	of_node_put(srnp);
+ 	BUG_ON(!hb_clk->reg);
+ 	hb_clk->reg += reg;
  
--	mcpm_set_entry_vector(cpu, cluster, cpu_resume);
-+	mcpm_set_entry_vector(cpu, cluster, cpu_resume_no_hyp);
- 	setup_mm_for_reboot();
- 
- 	__mcpm_cpu_going_down(cpu, cluster);
-diff --git a/arch/arm/include/asm/suspend.h b/arch/arm/include/asm/suspend.h
-index 6c7182f32cefe..e6c2f426f8c86 100644
---- a/arch/arm/include/asm/suspend.h
-+++ b/arch/arm/include/asm/suspend.h
-@@ -7,6 +7,7 @@ struct sleep_save_sp {
- };
- 
- extern void cpu_resume(void);
-+extern void cpu_resume_no_hyp(void);
- extern void cpu_resume_arm(void);
- extern int cpu_suspend(unsigned long, int (*)(unsigned long));
- 
-diff --git a/arch/arm/kernel/sleep.S b/arch/arm/kernel/sleep.S
-index 0f6c1000582c3..c8569390e7e7e 100644
---- a/arch/arm/kernel/sleep.S
-+++ b/arch/arm/kernel/sleep.S
-@@ -119,6 +119,14 @@ ENDPROC(cpu_resume_after_mmu)
- 	.text
- 	.align
- 
-+#ifdef CONFIG_MCPM
-+	.arm
-+THUMB(	.thumb			)
-+ENTRY(cpu_resume_no_hyp)
-+ARM_BE8(setend be)			@ ensure we are in BE mode
-+	b	no_hyp
-+#endif
-+
- #ifdef CONFIG_MMU
- 	.arm
- ENTRY(cpu_resume_arm)
-@@ -134,6 +142,7 @@ ARM_BE8(setend be)			@ ensure we are in BE mode
- 	bl	__hyp_stub_install_secondary
- #endif
- 	safe_svcmode_maskall r1
-+no_hyp:
- 	mov	r1, #0
- 	ALT_SMP(mrc p15, 0, r0, c0, c0, 5)
- 	ALT_UP_B(1f)
-@@ -162,6 +171,9 @@ ENDPROC(cpu_resume)
- 
- #ifdef CONFIG_MMU
- ENDPROC(cpu_resume_arm)
-+#endif
-+#ifdef CONFIG_MCPM
-+ENDPROC(cpu_resume_no_hyp)
- #endif
- 
- 	.align 2
 -- 
 2.20.1
 
