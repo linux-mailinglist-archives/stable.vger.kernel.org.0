@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B24A814B9DE
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A580314BB20
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731377AbgA1OVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:21:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
+        id S1727221AbgA1OLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:11:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730920AbgA1OVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:21:44 -0500
+        id S1727659AbgA1OLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:11:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 228C624699;
-        Tue, 28 Jan 2020 14:21:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 887012468E;
+        Tue, 28 Jan 2020 14:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221303;
-        bh=PpV52MBBkqaaQBnB7A/QBShT+Hi+PB9fQkUgRK78POo=;
+        s=default; t=1580220677;
+        bh=a3b8GTGMrmfY7nhd+ivfJZYIfMPdm75bJRxBWlYuFWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0ZZrm+WiBRzpoY6Dt0VhCF/glzSJmEE1vBH4JD3w4LP7e5HKso5znm5xxz5fmhQP
-         PYp+VI1bi8LQd/jFTaLyKlmIrIq7xNwhJI6mTCj9S0E2hhPon3atQS0T0gj0osoDHX
-         tAnaH2WQd1W33UWZ4+FshvpnGQzhWv+LTNxVF4P0=
+        b=YTYPRN2LMi7IiWYHnfjpbNo+CgR/kMl//NKShmX5g9pKzrVRlBn0o/5wuvyGw3BP7
+         PX+qQ/jAm8ruUNal9lfEC/y+4nx4v4wDMwQf2r6Bw8BgxFFoIlR6aNW+843Yjj1KWG
+         TsKtSo2WgFHYztGplg8vFjca8rAj0CLEatSW0baA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 170/271] libertas_tf: Use correct channel range in lbtf_geo_init
-Date:   Tue, 28 Jan 2020 15:05:19 +0100
-Message-Id: <20200128135905.228000498@linuxfoundation.org>
+Subject: [PATCH 4.4 101/183] powerpc/cacheinfo: add cacheinfo_teardown, cacheinfo_rebuild
+Date:   Tue, 28 Jan 2020 15:05:20 +0100
+Message-Id: <20200128135840.116104290@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 2ec4ad49b98e4a14147d04f914717135eca7c8b1 ]
+[ Upstream commit d4aa219a074a5abaf95a756b9f0d190b5c03a945 ]
 
-It seems we should use 'range' instead of 'priv->range'
-in lbtf_geo_init(), because 'range' is the corret one
-related to current regioncode.
+Allow external callers to force the cacheinfo code to release all its
+references to cache nodes, e.g. before processing device tree updates
+post-migration, and to rebuild the hierarchy afterward.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 691cdb49388b ("libertas_tf: command helper functions for libertas_tf")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+CPU online/offline must be blocked by callers; enforce this.
+
+Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas_tf/cmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/cacheinfo.c | 21 +++++++++++++++++++++
+ arch/powerpc/kernel/cacheinfo.h |  4 ++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/libertas_tf/cmd.c b/drivers/net/wireless/marvell/libertas_tf/cmd.c
-index 909ac3685010f..2b193f1257a5a 100644
---- a/drivers/net/wireless/marvell/libertas_tf/cmd.c
-+++ b/drivers/net/wireless/marvell/libertas_tf/cmd.c
-@@ -69,7 +69,7 @@ static void lbtf_geo_init(struct lbtf_private *priv)
- 			break;
- 		}
- 
--	for (ch = priv->range.start; ch < priv->range.end; ch++)
-+	for (ch = range->start; ch < range->end; ch++)
- 		priv->channels[CHAN_TO_IDX(ch)].flags = 0;
+diff --git a/arch/powerpc/kernel/cacheinfo.c b/arch/powerpc/kernel/cacheinfo.c
+index c641983bbdd68..0122d5ce0637d 100644
+--- a/arch/powerpc/kernel/cacheinfo.c
++++ b/arch/powerpc/kernel/cacheinfo.c
+@@ -867,4 +867,25 @@ void cacheinfo_cpu_offline(unsigned int cpu_id)
+ 	if (cache)
+ 		cache_cpu_clear(cache, cpu_id);
  }
++
++void cacheinfo_teardown(void)
++{
++	unsigned int cpu;
++
++	lockdep_assert_cpus_held();
++
++	for_each_online_cpu(cpu)
++		cacheinfo_cpu_offline(cpu);
++}
++
++void cacheinfo_rebuild(void)
++{
++	unsigned int cpu;
++
++	lockdep_assert_cpus_held();
++
++	for_each_online_cpu(cpu)
++		cacheinfo_cpu_online(cpu);
++}
++
+ #endif /* (CONFIG_PPC_PSERIES && CONFIG_SUSPEND) || CONFIG_HOTPLUG_CPU */
+diff --git a/arch/powerpc/kernel/cacheinfo.h b/arch/powerpc/kernel/cacheinfo.h
+index a7b74d36acd71..2cdee87a482c5 100644
+--- a/arch/powerpc/kernel/cacheinfo.h
++++ b/arch/powerpc/kernel/cacheinfo.h
+@@ -5,4 +5,8 @@
+ extern void cacheinfo_cpu_online(unsigned int cpu_id);
+ extern void cacheinfo_cpu_offline(unsigned int cpu_id);
  
++/* Allow migration/suspend to tear down and rebuild the hierarchy. */
++extern void cacheinfo_teardown(void);
++extern void cacheinfo_rebuild(void);
++
+ #endif /* _PPC_CACHEINFO_H */
 -- 
 2.20.1
 
