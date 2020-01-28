@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 982C214BBF3
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F77A14BBFF
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbgA1N6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 08:58:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43878 "EHLO mail.kernel.org"
+        id S1726299AbgA1OuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:50:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726192AbgA1N6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:58:49 -0500
+        id S1726802AbgA1N7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:59:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B2092469C;
-        Tue, 28 Jan 2020 13:58:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20AE424685;
+        Tue, 28 Jan 2020 13:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580219928;
-        bh=5sVxnb408V3TlrbZLrj+UKz2T8LnaptQoJmh3OJCdHg=;
+        s=default; t=1580219955;
+        bh=sWoF9hko6XibnWvONH+6UswkDcJ+wiVAoNYyJHi8Cyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHML3wz1sem+pTQ+sICE7uupTsnIZq+HxUp5tI10iDGJCUULWoUTsl0SJIk7FBmWW
-         hhZFT7WM0mIvIdlwbrMk+lp0zV6MmV18JBa/xdPRENo/K9sFP2Escft9YXjhqLRoq8
-         UUDRrrsKLOuSBMB9YAaQAqa3TKm086jJ4fKo5+60=
+        b=UpzZh9dkqR3H+OW07YpUQ5lmUFMuVqMhn7cNzxX4LzRInHJs1fACjZf61N7otK4ZK
+         1HGQy5CZ7NVGUU28ScsiuqVBTw7VfNzlZqRYK7zL6DQ4Y7TNUB8rU0j/2a2LSmp6RH
+         yijbVGqm9ztGk5VpEXfvDGfLMLStCIv8Xu2+1ru0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Miller <davem@davemloft.net>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Jouni Hogander <jouni.hogander@unikie.com>
-Subject: [PATCH 4.14 09/46] net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
-Date:   Tue, 28 Jan 2020 14:57:43 +0100
-Message-Id: <20200128135751.353517865@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: [PATCH 4.14 11/46] net-sysfs: Call dev_hold always in netdev_queue_add_kobject
+Date:   Tue, 28 Jan 2020 14:57:45 +0100
+Message-Id: <20200128135751.545271071@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -46,104 +47,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jouni Hogander <jouni.hogander@unikie.com>
 
-commit b8eb718348b8fb30b5a7d0a8fce26fb3f4ac741b upstream.
+commit e0b60903b434a7ee21ba8d8659f207ed84101e89 upstream.
 
-kobject_init_and_add takes reference even when it fails. This has
-to be given up by the caller in error handling. Otherwise memory
-allocated by kobject_init_and_add is never freed. Originally found
-by Syzkaller:
+Dev_hold has to be called always in netdev_queue_add_kobject.
+Otherwise usage count drops below 0 in case of failure in
+kobject_init_and_add.
 
-BUG: memory leak
-unreferenced object 0xffff8880679f8b08 (size 8):
-  comm "netdev_register", pid 269, jiffies 4294693094 (age 12.132s)
-  hex dump (first 8 bytes):
-    72 78 2d 30 00 36 20 d4                          rx-0.6 .
-  backtrace:
-    [<000000008c93818e>] __kmalloc_track_caller+0x16e/0x290
-    [<000000001f2e4e49>] kvasprintf+0xb1/0x140
-    [<000000007f313394>] kvasprintf_const+0x56/0x160
-    [<00000000aeca11c8>] kobject_set_name_vargs+0x5b/0x140
-    [<0000000073a0367c>] kobject_init_and_add+0xd8/0x170
-    [<0000000088838e4b>] net_rx_queue_update_kobjects+0x152/0x560
-    [<000000006be5f104>] netdev_register_kobject+0x210/0x380
-    [<00000000e31dab9d>] register_netdevice+0xa1b/0xf00
-    [<00000000f68b2465>] __tun_chr_ioctl+0x20d5/0x3dd0
-    [<000000004c50599f>] tun_chr_ioctl+0x2f/0x40
-    [<00000000bbd4c317>] do_vfs_ioctl+0x1c7/0x1510
-    [<00000000d4c59e8f>] ksys_ioctl+0x99/0xb0
-    [<00000000946aea81>] __x64_sys_ioctl+0x78/0xb0
-    [<0000000038d946e5>] do_syscall_64+0x16f/0x580
-    [<00000000e0aa5d8f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    [<00000000285b3d1a>] 0xffffffffffffffff
-
+Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Cc: David Miller <davem@davemloft.net>
 Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/net-sysfs.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ net/core/net-sysfs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 --- a/net/core/net-sysfs.c
 +++ b/net/core/net-sysfs.c
-@@ -915,21 +915,23 @@ static int rx_queue_add_kobject(struct n
- 	error = kobject_init_and_add(kobj, &rx_queue_ktype, NULL,
- 				     "rx-%u", index);
- 	if (error)
--		return error;
-+		goto err;
+@@ -1324,14 +1324,17 @@ static int netdev_queue_add_kobject(stru
+ 	struct kobject *kobj = &queue->kobj;
+ 	int error = 0;
  
- 	dev_hold(queue->dev);
- 
- 	if (dev->sysfs_rx_queue_group) {
- 		error = sysfs_create_group(kobj, dev->sysfs_rx_queue_group);
--		if (error) {
--			kobject_put(kobj);
--			return error;
--		}
-+		if (error)
-+			goto err;
- 	}
- 
- 	kobject_uevent(kobj, KOBJ_ADD);
- 
- 	return error;
++	/* Kobject_put later will trigger netdev_queue_release call
++	 * which decreases dev refcount: Take that reference here
++	 */
++	dev_hold(queue->dev);
 +
-+err:
-+	kobject_put(kobj);
-+	return error;
- }
- #endif /* CONFIG_SYSFS */
- 
-@@ -1326,21 +1328,21 @@ static int netdev_queue_add_kobject(stru
+ 	kobj->kset = dev->queues_kset;
  	error = kobject_init_and_add(kobj, &netdev_queue_ktype, NULL,
  				     "tx-%u", index);
  	if (error)
--		return error;
-+		goto err;
+ 		goto err;
  
- 	dev_hold(queue->dev);
- 
+-	dev_hold(queue->dev);
+-
  #ifdef CONFIG_BQL
  	error = sysfs_create_group(kobj, &dql_group);
--	if (error) {
--		kobject_put(kobj);
--		return error;
--	}
-+	if (error)
-+		goto err;
- #endif
- 
- 	kobject_uevent(kobj, KOBJ_ADD);
- 
--	return 0;
-+err:
-+	kobject_put(kobj);
-+	return error;
- }
- #endif /* CONFIG_SYSFS */
- 
+ 	if (error)
 
 
