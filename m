@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA77A14BA0D
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6897C14BA1E
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733077AbgA1OfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:35:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36344 "EHLO mail.kernel.org"
+        id S1726034AbgA1OgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:36:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731511AbgA1OfS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:35:18 -0500
+        id S1730974AbgA1OWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:22:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE9EF24685;
-        Tue, 28 Jan 2020 14:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46EAE24681;
+        Tue, 28 Jan 2020 14:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580222118;
-        bh=HPDqMcXPKjRzu9+g2djNrlXaKW583imNTpPwyAM/U1Y=;
+        s=default; t=1580221320;
+        bh=j9S2qKhSSPN/dmy7/aYyfA0uPKzh15mX4b57tjNIpXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLtQrLiy4CjkpXxIEu5zNTZBpvqmR+eW+KUIxeFBcZRzJM1wLVn7nCfDyKtznSPsf
-         siZQqrxK9gh5LCvOBOEdarHdiDcGXt2NoKUSzw6L9xvHOZiiBZYHATRgnrOfnLcr1L
-         6WIikavU/+3qv14Q3RZgbjpB+zpbvvKAMuiFJtYQ=
+        b=IYp9rjws9d8ml+AXkj6TfIekJoEVejsFuttX880/HnkgZG6yLWB83nDRjKPZT3tJ1
+         vFZOzXwAmGM1cMaAv7VUqumEbCsgGLbxkeW9UuOG8jYcWgrtnEsVvvg/R/sHFuNdMl
+         tyWFkTc3vigvppmZnqgt84Fyu99e5H+XImFYday8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
-        Akinobu Mita <akinobu.mita@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>,
+        Jeff Layton <jlayton@primarydata.com>,
+        Steve French <smfrench@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 079/183] media: ov2659: fix unbalanced mutex_lock/unlock
-Date:   Tue, 28 Jan 2020 15:04:58 +0100
-Message-Id: <20200128135837.813568256@linuxfoundation.org>
+Subject: [PATCH 4.9 150/271] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
+Date:   Tue, 28 Jan 2020 15:04:59 +0100
+Message-Id: <20200128135903.724858235@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 384538bda10913e5c94ec5b5d34bd3075931bcf4 ]
+[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
 
-Avoid returning with mutex locked.
+The locking in force_sig_info is not prepared to deal with a task that
+exits or execs (as sighand may change).  The is not a locking problem
+in force_sig as force_sig is only built to handle synchronous
+exceptions.
 
-Fixes: fa8cb6444c32 ("[media] ov2659: Don't depend on subdev API")
+Further the function force_sig_info changes the signal state if the
+signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
+delivery of the signal.  The signal SIGKILL can not be ignored and can
+not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
+delivered.
 
-Cc: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+So using force_sig rather than send_sig for SIGKILL is confusing
+and pointless.
+
+Because it won't impact the sending of the signal and and because
+using force_sig is wrong, replace force_sig with send_sig.
+
+Cc: Namjae Jeon <namjae.jeon@samsung.com>
+Cc: Jeff Layton <jlayton@primarydata.com>
+Cc: Steve French <smfrench@gmail.com>
+Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
+Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov2659.c | 2 +-
+ fs/cifs/connect.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index 6eefb8bbb5b54..20e3c56991cf6 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -1137,7 +1137,7 @@ static int ov2659_set_fmt(struct v4l2_subdev *sd,
- 		mf = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
- 		*mf = fmt->format;
- #else
--		return -ENOTTY;
-+		ret = -ENOTTY;
- #endif
- 	} else {
- 		s64 val;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index e43ba6db2bdd6..110febd697379 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2221,7 +2221,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+ 
+ 	task = xchg(&server->tsk, NULL);
+ 	if (task)
+-		force_sig(SIGKILL, task);
++		send_sig(SIGKILL, task, 1);
+ }
+ 
+ static struct TCP_Server_Info *
 -- 
 2.20.1
 
