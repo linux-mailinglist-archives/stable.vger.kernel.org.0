@@ -2,95 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BC014AE8E
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 05:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE05614B08B
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 08:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726296AbgA1EB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jan 2020 23:01:58 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:60474 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbgA1EB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jan 2020 23:01:58 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 00S3wP94021844;
-        Tue, 28 Jan 2020 04:01:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2019-08-05;
- bh=wz1uyWVuaoGCiEtAAcmsHnf7wTGKERqkCKMvoQYeZUE=;
- b=fde3CnQ9Xw95GXGAAvdMuZ0eATYkxgLVitIJ3h4Hsnq1ht3Uz3MvdF47NaQ6lYmnI3Ia
- ZkGTMFcXp+q759vjP1Wgcy6pS8k0QjzLQunTRo6RZYKxbrYQj8wp8y9qBMviYfprGD4k
- G2mCjEBDUcYkf09uELUJirx5vKpp+xZlfplVRRnYTLjgITJ0YAOld31/cX4+2r0YaLpe
- LpY7TWyUN2rCToRui7ciT0NBY65tJ0heeQ8KpkWZtHzm+oWZIE6Y1wEnBxIVSQ30f5MH
- p2FQoI6NH0bn/ArT9Y22GLeq98L6/J/WzVyhtpnKRFA4gqG/k9YUfLTVVfdc9EVPZWNN lA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by userp2130.oracle.com with ESMTP id 2xrd3u3fn2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jan 2020 04:01:55 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 00S3wTge076042;
-        Tue, 28 Jan 2020 04:01:55 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3030.oracle.com with ESMTP id 2xryuasdmm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jan 2020 04:01:54 +0000
-Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 00S41rNu023356;
-        Tue, 28 Jan 2020 04:01:53 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 27 Jan 2020 20:01:52 -0800
-To:     Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc:     Masato Suzuki <masato.suzuki@wdc.com>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-scsi\@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH] sd: Fix REQ_OP_ZONE_REPORT completion handling
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <20200127050746.136440-1-masato.suzuki@wdc.com>
-        <BYAPR04MB5816781F4588054DF9C31380E70B0@BYAPR04MB5816.namprd04.prod.outlook.com>
-Date:   Mon, 27 Jan 2020 23:01:50 -0500
-In-Reply-To: <BYAPR04MB5816781F4588054DF9C31380E70B0@BYAPR04MB5816.namprd04.prod.outlook.com>
-        (Damien Le Moal's message of "Mon, 27 Jan 2020 05:58:05 +0000")
-Message-ID: <yq1k15c9qkx.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
+        id S1725937AbgA1Hs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 02:48:59 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:35293 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725927AbgA1Hs6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 02:48:58 -0500
+Received: by mail-wr1-f67.google.com with SMTP id g17so14800252wro.2
+        for <stable@vger.kernel.org>; Mon, 27 Jan 2020 23:48:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=P51eYV6xfMKHJtmz3fBCU++fn1Qf38M/P+AHapHYGAU=;
+        b=y9eXMqMuTmUqLyuYz6tA7xfsMub5NWGA9gukC82/6CbTvuwE5tyIHg0y4gSJIdT9XO
+         QaMQikKhT4RJhDCpMWqj7S1CskChzl/Abjej/Aeoi/ZuXrXcxdjH1e09CrobnqBadfBv
+         +sUBJfEzKcuHq5Vsbe3S193T9efhcA0A2mfLv5mjYiSO0b+t/9eD8OHwxSad/NWHOubD
+         uXQYuIovSy/ZWIaZIM/inGClwcU3o6UIj2BGPBONnrZhSPI35rGK9YDHrX2+HquFLd4D
+         Xn3+Q8C++k9Dm0HybvEG1kmDHrXOz+IoJRxBMh12RdfJvndjqr9Ph0vTluJQacFPqCz8
+         mtWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=P51eYV6xfMKHJtmz3fBCU++fn1Qf38M/P+AHapHYGAU=;
+        b=oheu1nfIxLdbgat8ZGhivE0ODoMFHvsabEEQEO3aCl2otFfzJf0VC/LeMwbiJPt5rJ
+         9raN0lDGGV6xpfLtIeQi9X/lEVaKtPDkDz9VMOiWxXyQSVLaIvAuyFvMlvvZOK30tmCs
+         YEtfY/bcRTkcxrPbdT9gqT+lHG7uRozEABJ3/k6xr3atuUvHOC9D24W/so++QRu66nfA
+         KrKITC9B3/5Uh4MxinCMmjS1rFsV2PVw3HrSPCD2yxKBUj2cUy2x30+pfmJYrM7pGQ2P
+         hCksO2RCD1C7UQEVS/61EQM4ythjknMdF8FfYW5ymrJ03w0gyfg3LT93BSxxoXlp35Pt
+         QYQw==
+X-Gm-Message-State: APjAAAUSQsyHluVB3cGb0cQm4saa6FTQPbEB7ynWYOXv9UmB3yskFOs/
+        0RhQcimgyl+2aEEN5F4y2JL1LudWp9/ONNEDraa1Xg==
+X-Google-Smtp-Source: APXvYqwlI/CMxioVRnXmP31TfUGLSeLIaF8jir48ryqliWY11yiEVhBEyoOG1Ia71WmOc1XYPfWTI2y8ZR4f9BG5uk8=
+X-Received: by 2002:a5d:65cf:: with SMTP id e15mr26360242wrw.126.1580197737006;
+ Mon, 27 Jan 2020 23:48:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9513 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-2001280030
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9513 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-2001280030
+References: <20200126150231.6021-1-hdegoede@redhat.com>
+In-Reply-To: <20200126150231.6021-1-hdegoede@redhat.com>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Tue, 28 Jan 2020 08:48:46 +0100
+Message-ID: <CAKv+Gu_dE+pi7CSANOXEP2xenRirWQg5H71t5f4eah8-XZpbxQ@mail.gmail.com>
+Subject: Re: [PATCH] efi/bgrt: Accept BGRT tables with a version of 0 on
+ Lenovo laptops
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-Damien,
-
->> Fixes: 89d947561077 ("sd: Implement support for ZBC devices")
->> Cc: <stable@vger.kernel.org> # 4.19
->> Cc: <stable@vger.kernel.org> # 4.14
->> Signed-off-by: Masato Suzuki <masato.suzuki@wdc.com>
+On Sun, 26 Jan 2020 at 16:02, Hans de Goede <hdegoede@redhat.com> wrote:
 >
-> This bug exists since the beginning of SMR support in 4.10, until report
-> zones was changed to a device file method in kernel 4.20. It fell through
-> the cracks the entire time and was caught only recently with improvements
-> to our test suite.
+> Some (somewhat older) Lenovo laptops have a correct BGRT table, except
+> that the version field is 0 instead of 1.
+>
+> Quickly after finding this out, even before submitting a first version of
+> this patch upstream, the list of DMI matches for affected models grew to
+> 3 models (all Ivy Bridge based).
+>
+> So rather then maintaining an ever growing list with DMI matches for
+> affected Lenovo models, this commit simply checks if the vendor is Lenovo
+> when the version is 0 and in that case accepts the out of spec version
+> working around the Lenovo firmware bug.
+>
+> Cc: stable@vger.kernel.org
+> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1791273
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/firmware/efi/efi-bgrt.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/firmware/efi/efi-bgrt.c b/drivers/firmware/efi/efi-bgrt.c
+> index b07c17643210..3a2d6d3a590b 100644
+> --- a/drivers/firmware/efi/efi-bgrt.c
+> +++ b/drivers/firmware/efi/efi-bgrt.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/acpi.h>
+>  #include <linux/efi.h>
+>  #include <linux/efi-bgrt.h>
+> +#include <linux/dmi.h>
+>
+>  struct acpi_table_bgrt bgrt_tab;
+>  size_t bgrt_image_size;
+> @@ -42,7 +43,12 @@ void __init efi_bgrt_init(struct acpi_table_header *table)
+>                 return;
+>         }
+>         *bgrt = *(struct acpi_table_bgrt *)table;
+> -       if (bgrt->version != 1) {
+> +       /*
+> +        * Some older Lenovo laptops have a correct BGRT table, except that
+> +        * the version field is 0 instead of 1.
+> +        */
+> +       if (bgrt->version != 1 &&
+> +           !(bgrt->version == 0 && dmi_name_in_vendors("LENOVO"))) {
+>                 pr_notice("Ignoring BGRT: invalid version %u (expected 1)\n",
+>                        bgrt->version);
+>                 goto out;
 
-Looks good to me. Obviously only applies to stable since, as you point
-out, this code has been substantially reworked.
+Hi Hans,
 
-Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+Given that the ACPI spec only defines a single version for this table,
+which is version #1, wouldn't it be simpler to just assume that
+version #0 means version #1 in all cases, rather than using DMI
+matches for that? There is no risk of misidentifying another table
+version, since none exist ...
