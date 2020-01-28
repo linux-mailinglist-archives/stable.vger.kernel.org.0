@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD20614BB33
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7F114BA1C
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728345AbgA1OKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:10:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59274 "EHLO mail.kernel.org"
+        id S1728252AbgA1OgD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:36:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726697AbgA1OKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:10:24 -0500
+        id S1731584AbgA1OW2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:22:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE43824685;
-        Tue, 28 Jan 2020 14:10:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0C092468F;
+        Tue, 28 Jan 2020 14:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220624;
-        bh=SxGtbT3Mgaz87pgcrFF12+gJMlFhmqiX1e0apsW2To0=;
+        s=default; t=1580221348;
+        bh=Obif+UBlBSM9oYuWYrkmAST6OuNiL8o9oR3skCw6FHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiC+wWv2XfEbUzDDmoJPRGM3eLuy9FqzONLdHezHgI3KDSwRVDIOLvGOOwpcz8h7I
-         aMUV7AInvn3e/6NhXkaDT2QDrKIcKkUro/rdFYzTIeC4MT8nawbX/tLHQx8mA7GKrB
-         unPa//xfXRq+4hvBZ+gbrSZvhtwyPdJm4MQvvxek=
+        b=qcdi88+KaZeY2yfJp9/rz73t1rJE7G8kXNZFis400oEw7Ca0H3w4HzRE0A09C94T0
+         wcPcQB97xNadBz/H9LLgwaTLvkNdmQ16Qo+XXAGIduwE+jWj4SXr5ULKuJHuxmFckm
+         pRB3o4LxQoXmHGncx9Ru8DDlmt+cuggb8YLW0hxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 082/183] ALSA: usb-audio: Handle the error from snd_usb_mixer_apply_create_quirk()
+Subject: [PATCH 4.9 152/271] media: vivid: fix incorrect assignment operation when setting video mode
 Date:   Tue, 28 Jan 2020 15:05:01 +0100
-Message-Id: <20200128135838.117920239@linuxfoundation.org>
+Message-Id: <20200128135903.877457786@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 328e9f6973be2ee67862cb17bf6c0c5c5918cd72 ]
+[ Upstream commit d4ec9550e4b2d2e357a46fdc65d8ef3d4d15984c ]
 
-The error from snd_usb_mixer_apply_create_quirk() is ignored in the
-current usb-audio driver code, which will continue the probing even
-after the error.  Let's take it more serious.
+The assigment of FB_VMODE_NONINTERLACE to var->vmode should be a
+bit-wise or of FB_VMODE_NONINTERLACE instead of an assignment,
+otherwise the previous clearing of the FB_VMODE_MASK bits of
+var->vmode makes no sense and is redundant.
 
-Fixes: 7b1eda223deb ("ALSA: usb-mixer: factor out quirks")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Addresses-Coverity: ("Unused value")
+Fixes: ad4e02d5081d ("[media] vivid: add a simple framebuffer device for overlay testing")
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/vivid/vivid-osd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 1b81f18010d25..73149b9be29c9 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -2552,7 +2552,9 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
- 	    (err = snd_usb_mixer_status_create(mixer)) < 0)
- 		goto _error;
+diff --git a/drivers/media/platform/vivid/vivid-osd.c b/drivers/media/platform/vivid/vivid-osd.c
+index bdc380b14e0c4..a95b7c56569e3 100644
+--- a/drivers/media/platform/vivid/vivid-osd.c
++++ b/drivers/media/platform/vivid/vivid-osd.c
+@@ -167,7 +167,7 @@ static int _vivid_fb_check_var(struct fb_var_screeninfo *var, struct vivid_dev *
+ 	var->nonstd = 0;
  
--	snd_usb_mixer_apply_create_quirk(mixer);
-+	err = snd_usb_mixer_apply_create_quirk(mixer);
-+	if (err < 0)
-+		goto _error;
+ 	var->vmode &= ~FB_VMODE_MASK;
+-	var->vmode = FB_VMODE_NONINTERLACED;
++	var->vmode |= FB_VMODE_NONINTERLACED;
  
- 	err = snd_device_new(chip->card, SNDRV_DEV_CODEC, mixer, &dev_ops);
- 	if (err < 0)
+ 	/* Dummy values */
+ 	var->hsync_len = 24;
 -- 
 2.20.1
 
