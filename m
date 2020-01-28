@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C03EC14BB19
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B6514B9E2
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729083AbgA1OL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:11:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60600 "EHLO mail.kernel.org"
+        id S1731474AbgA1OWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:22:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727187AbgA1OL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:11:27 -0500
+        id S1730979AbgA1OWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:22:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C55520678;
-        Tue, 28 Jan 2020 14:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F12952468F;
+        Tue, 28 Jan 2020 14:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220687;
-        bh=E2V+C8zIRFAMXdmYAylFrU6KBTlqSKmy3/QxbVXgaME=;
+        s=default; t=1580221323;
+        bh=lcRUZWbJu9u59DXMqemJIcKCLLEgYSEVTasMfOb9pAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWs1RDXZ01mPm4HAX14KPuQ0dM7974LkPRcw1w1dfZ192xZdw7m9meHlBWbsFRaED
-         pJHGlkTOYo5li8eSBRJVmxIX9q6hktpfNOQz6RhHh0xBeTfkNNGjh4huvvyr9gZ9ci
-         iz1KGKGWcsqiuwvFTjf9aJ8sY4zSuKTNIfviHMtk=
+        b=CBDuIS/LK22LX6fo5toBjYIsl6TovjO/fe77zHdBETjbmnMshCIDxR8cWS/HeOZHl
+         KXBmEPPlv+47pI9NoyXj0EEikagPX+kY+5VEEqGwNIRE9dp1oVnGQ/VMdjPvNZZ1xO
+         nXQ/3Uoc6sFpKBVVcEOXR71v17bavGwoOuIn9YrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 105/183] rtc: pcf8563: Clear event flags and disable interrupts before requesting irq
-Date:   Tue, 28 Jan 2020 15:05:24 +0100
-Message-Id: <20200128135840.459076942@linuxfoundation.org>
+Subject: [PATCH 4.9 177/271] cifs: fix rmmod regression in cifs.ko caused by force_sig changes
+Date:   Tue, 28 Jan 2020 15:05:26 +0100
+Message-Id: <20200128135905.723702963@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 3572e8aea3bf925dac1dbf86127657c39fe5c254 ]
+[ Upstream commit 247bc9470b1eeefc7b58cdf2c39f2866ba651509 ]
 
-Besides the alarm, the PCF8563 also has a timer triggered interrupt.
-In cases where the previous system left the timer and interrupts on,
-or somehow the bits got enabled, the interrupt would keep triggering
-as the kernel doesn't know about it.
+Fixes: 72abe3bcf091 ("signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig")
 
-Clear both the alarm and timer event flags, and disable the interrupts,
-before requesting the interrupt line.
+The global change from force_sig caused module unloading of cifs.ko
+to fail (since the cifsd process could not be killed, "rmmod cifs"
+now would always fail)
 
-Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
-Fixes: a45d528aab8b ("rtc: pcf8563: clear expired alarm at boot time")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+CC: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8563.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ fs/cifs/connect.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 45b5a3d47ccf0..1982eec0a3eac 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -568,7 +568,6 @@ static int pcf8563_probe(struct i2c_client *client,
- 	struct pcf8563 *pcf8563;
- 	int err;
- 	unsigned char buf;
--	unsigned char alm_pending;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 110febd697379..7d46025d5e899 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -885,6 +885,7 @@ cifs_demultiplex_thread(void *p)
+ 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
  
- 	dev_dbg(&client->dev, "%s\n", __func__);
- 
-@@ -594,13 +593,13 @@ static int pcf8563_probe(struct i2c_client *client,
- 		return err;
- 	}
- 
--	err = pcf8563_get_alarm_mode(client, NULL, &alm_pending);
--	if (err) {
--		dev_err(&client->dev, "%s: read error\n", __func__);
-+	/* Clear flags and disable interrupts */
-+	buf = 0;
-+	err = pcf8563_write_block_data(client, PCF8563_REG_ST2, 1, &buf);
-+	if (err < 0) {
-+		dev_err(&client->dev, "%s: write error\n", __func__);
- 		return err;
- 	}
--	if (alm_pending)
--		pcf8563_set_alarm_mode(client, 0);
- 
- 	pcf8563->rtc = devm_rtc_device_register(&client->dev,
- 				pcf8563_driver.driver.name,
+ 	set_freezable();
++	allow_signal(SIGKILL);
+ 	while (server->tcpStatus != CifsExiting) {
+ 		if (try_to_freeze())
+ 			continue;
 -- 
 2.20.1
 
