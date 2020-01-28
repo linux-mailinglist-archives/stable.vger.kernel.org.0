@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E59D14B91B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D47B14B974
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbgA1O04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:26:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54538 "EHLO mail.kernel.org"
+        id S1727230AbgA1OcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:32:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733239AbgA1O0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:26:55 -0500
+        id S1733246AbgA1O1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:27:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D81C024688;
-        Tue, 28 Jan 2020 14:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA78520716;
+        Tue, 28 Jan 2020 14:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221615;
-        bh=vFwKv6+IOjYUGHyaQxM/vTaosCbWrV9HShRB2gnc7yg=;
+        s=default; t=1580221620;
+        bh=sGzDFehRaZPVPmMg/ROjvVFMzFRiJsQGevwuvya4CHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcz730kajifunjxn5Q/JNlfgj3kaZ+peqP08rDd+x3grV3NLu4wnRUCe210Mez0vW
-         ChtwOx3FQtEhdVN3leNwJwI9k6wpOPGe8HGUx2RnpEtyKgn/jRWC6h4TgPZA9/NsUo
-         +Kd+8dZHmkUHJKEMmqwV1Yyb8KErbduBhwK9jBc0=
+        b=q9V8L/kmIXkTZM4TD6eTonDLFJ+d477PzVzi+YEtL92O8WdUGl5JzkPCt5Y95hQ6s
+         lA8MIc1886QU1xbZbp4YEx2761CyOTWHnSE3sCN/c8MJuXS6+uP8jpohlIqPWejU4n
+         jpg+CSBPTlZw6VraQD/vnGkwjxo2d5T7QaDYWrig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Doug Berger <opendmb@gmail.com>,
+        stable@vger.kernel.org, Niko Kortstrom <niko.kortstrom@nokia.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        William Tu <u9012063@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 05/92] net: bcmgenet: Use netif_tx_napi_add() for TX NAPI
-Date:   Tue, 28 Jan 2020 15:07:33 +0100
-Message-Id: <20200128135809.992532654@linuxfoundation.org>
+Subject: [PATCH 4.19 07/92] net: ip6_gre: fix moving ip6gre between namespaces
+Date:   Tue, 28 Jan 2020 15:07:35 +0100
+Message-Id: <20200128135810.196283555@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
@@ -44,36 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Niko Kortstrom <niko.kortstrom@nokia.com>
 
-[ Upstream commit 148965df1a990af98b2c84092c2a2274c7489284 ]
+[ Upstream commit 690afc165bb314354667f67157c1a1aea7dc797a ]
 
-Before commit 7587935cfa11 ("net: bcmgenet: move NAPI initialization to
-ring initialization") moved the code, this used to be
-netif_tx_napi_add(), but we lost that small semantic change in the
-process, restore that.
+Support for moving IPv4 GRE tunnels between namespaces was added in
+commit b57708add314 ("gre: add x-netns support"). The respective change
+for IPv6 tunnels, commit 22f08069e8b4 ("ip6gre: add x-netns support")
+did not drop NETIF_F_NETNS_LOCAL flag so moving them from one netns to
+another is still denied in IPv6 case. Drop NETIF_F_NETNS_LOCAL flag from
+ip6gre tunnels to allow moving ip6gre tunnel endpoints between network
+namespaces.
 
-Fixes: 7587935cfa11 ("net: bcmgenet: move NAPI initialization to ring initialization")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Niko Kortstrom <niko.kortstrom@nokia.com>
+Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: William Tu <u9012063@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_gre.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2166,8 +2166,8 @@ static void bcmgenet_init_tx_ring(struct
- 				  DMA_END_ADDR);
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1486,7 +1486,6 @@ static int ip6gre_tunnel_init_common(str
+ 		dev->mtu -= 8;
  
- 	/* Initialize Tx NAPI */
--	netif_napi_add(priv->dev, &ring->napi, bcmgenet_tx_poll,
--		       NAPI_POLL_WEIGHT);
-+	netif_tx_napi_add(priv->dev, &ring->napi, bcmgenet_tx_poll,
-+			  NAPI_POLL_WEIGHT);
- }
+ 	if (tunnel->parms.collect_md) {
+-		dev->features |= NETIF_F_NETNS_LOCAL;
+ 		netif_keep_dst(dev);
+ 	}
+ 	ip6gre_tnl_init_features(dev);
+@@ -1914,7 +1913,6 @@ static void ip6gre_tap_setup(struct net_
+ 	dev->needs_free_netdev = true;
+ 	dev->priv_destructor = ip6gre_dev_free;
  
- /* Initialize a RDMA ring */
+-	dev->features |= NETIF_F_NETNS_LOCAL;
+ 	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
+ 	netif_keep_dst(dev);
+@@ -2223,7 +2221,6 @@ static void ip6erspan_tap_setup(struct n
+ 	dev->needs_free_netdev = true;
+ 	dev->priv_destructor = ip6gre_dev_free;
+ 
+-	dev->features |= NETIF_F_NETNS_LOCAL;
+ 	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
+ 	netif_keep_dst(dev);
 
 
