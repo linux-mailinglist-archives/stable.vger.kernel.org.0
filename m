@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2627714B990
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1855714B992
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729937AbgA1OZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:25:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52110 "EHLO mail.kernel.org"
+        id S1728176AbgA1Od2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:33:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732471AbgA1OZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:13 -0500
+        id S1731809AbgA1OZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:25:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BA572071E;
-        Tue, 28 Jan 2020 14:25:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 318242071E;
+        Tue, 28 Jan 2020 14:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221512;
-        bh=6Zf7WpmE37b/Hbx0ZBYx+MP+UHtZ5PHCF50LJoYk9ZQ=;
+        s=default; t=1580221522;
+        bh=jxyCRKHd0fDIu343tBn5ZNUxn+VXjYVhvW/u9UIssOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJRCAClgeh+HR9u/Xx9kng1cxVMCU9U+BHzDZmWDGOFOHc7aOJXGaaaFzfYZWGySr
-         AjWcznaT0j1eTTuHmzjSQUdQIwpQqqGxNzkeyS03rfRVIOrbXJAA/dmzH7eOs6p3+u
-         cTTI2xyhvVxwhWU5wdwLbcOYUsM1sG30oAObYieo=
+        b=f5gunr2solUcwoXkzMItHYM1m7D8SD2IB4ZF2wHJ4csYuGKMPc5SzJpgJYn6780M2
+         li/ugcrDZG5t0Cmw3XY1HXn0vBB2KX50dItCYYyLAI2tfI1MacwJHnHUztzVBgiH8Q
+         5etZRyTtkQb/zdNM7wxCgEJlMWOqbO0oidekNw1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Vladis Dronov <vdronov@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 254/271] Input: aiptek - fix endpoint sanity check
-Date:   Tue, 28 Jan 2020 15:06:43 +0100
-Message-Id: <20200128135911.487974997@linuxfoundation.org>
+        stable@vger.kernel.org, Gilles Buloz <gilles.buloz@kontron.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 257/271] hwmon: (nct7802) Fix voltage limits to wrong registers
+Date:   Tue, 28 Jan 2020 15:06:46 +0100
+Message-Id: <20200128135911.727902491@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -44,47 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Gilles Buloz <gilles.buloz@kontron.com>
 
-commit 3111491fca4f01764e0c158c5e0f7ced808eef51 upstream.
+commit 7713e62c8623c54dac88d1fa724aa487a38c3efb upstream.
 
-The driver was checking the number of endpoints of the first alternate
-setting instead of the current one, something which could lead to the
-driver binding to an invalid interface.
+in0 thresholds are written to the in2 thresholds registers
+in2 thresholds to in3 thresholds
+in3 thresholds to in4 thresholds
+in4 thresholds to in0 thresholds
 
-This in turn could cause the driver to misbehave or trigger a WARN() in
-usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: 8e20cf2bce12 ("Input: aiptek - fix crash on detecting device without endpoints")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Vladis Dronov <vdronov@redhat.com>
-Link: https://lore.kernel.org/r/20191210113737.4016-3-johan@kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Gilles Buloz <gilles.buloz@kontron.com>
+Link: https://lore.kernel.org/r/5de0f509.rc0oEvPOMjbfPW1w%gilles.buloz@kontron.com
+Fixes: 3434f3783580 ("hwmon: Driver for Nuvoton NCT7802Y")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/tablet/aiptek.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hwmon/nct7802.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -1822,14 +1822,14 @@ aiptek_probe(struct usb_interface *intf,
- 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
+--- a/drivers/hwmon/nct7802.c
++++ b/drivers/hwmon/nct7802.c
+@@ -32,8 +32,8 @@
+ static const u8 REG_VOLTAGE[5] = { 0x09, 0x0a, 0x0c, 0x0d, 0x0e };
  
- 	/* Verify that a device really has an endpoint */
--	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
- 		dev_err(&intf->dev,
- 			"interface has %d endpoints, but must have minimum 1\n",
--			intf->altsetting[0].desc.bNumEndpoints);
-+			intf->cur_altsetting->desc.bNumEndpoints);
- 		err = -EINVAL;
- 		goto fail3;
- 	}
--	endpoint = &intf->altsetting[0].endpoint[0].desc;
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ static const u8 REG_VOLTAGE_LIMIT_LSB[2][5] = {
+-	{ 0x40, 0x00, 0x42, 0x44, 0x46 },
+-	{ 0x3f, 0x00, 0x41, 0x43, 0x45 },
++	{ 0x46, 0x00, 0x40, 0x42, 0x44 },
++	{ 0x45, 0x00, 0x3f, 0x41, 0x43 },
+ };
  
- 	/* Go set up our URB, which is called when the tablet receives
- 	 * input.
+ static const u8 REG_VOLTAGE_LIMIT_MSB[5] = { 0x48, 0x00, 0x47, 0x47, 0x48 };
 
 
