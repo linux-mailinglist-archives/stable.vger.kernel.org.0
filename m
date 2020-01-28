@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 123E914B962
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 159F214B93C
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387573AbgA1ObM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:31:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56158 "EHLO mail.kernel.org"
+        id S1733304AbgA1O3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:29:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387459AbgA1O2O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:28:14 -0500
+        id S2387474AbgA1O3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:29:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C035B20716;
-        Tue, 28 Jan 2020 14:28:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAB4824688;
+        Tue, 28 Jan 2020 14:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221693;
-        bh=EhEWfSDQNUaSQ8Oa938cJt2aXPh7TJsM7rdbWnQ5AGE=;
+        s=default; t=1580221763;
+        bh=bQ/AA0JQydPMYBGepLSJ5xP31TfC9NHGuv1NYNG3yfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUeMnchXx6ikCwlJ3XRXr9e9H9wXPa1PwpdqRB1dvrvQACxw3Jsing/LyadCM69gK
-         p/asJ1HuHmoqtIODNkjIeBZLIFET/0jbgcX6JTtrAYaSPpx8R9fq0sfGG/jAgNl0Sc
-         cm+xtxdIPmP/qg2fURklT1uFm0PjCyNOVHYyRBZc=
+        b=ka4iYbJjpMasn3xzwmmZgkDHu+BytNMtKyoD9+/2sjDIUWAm0yzb4S9R30+QnDawn
+         MX1KpTat8xs2uTG+LKFBThKkHMPI0kdolzPSWXgPlErJf8XO2xnpgQhYV67X+93Wpy
+         0T5aRG/v+kqGsxKuhw5lB6fqgYiwo+VFldpm78Fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
         Finn Thain <fthain@telegraphics.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 52/92] net/sonic: Quiesce SONIC before re-initializing descriptor memory
-Date:   Tue, 28 Jan 2020 15:08:20 +0100
-Message-Id: <20200128135815.818407182@linuxfoundation.org>
+Subject: [PATCH 4.19 54/92] net/sonic: Fix CAM initialization
+Date:   Tue, 28 Jan 2020 15:08:22 +0100
+Message-Id: <20200128135816.119647041@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
@@ -46,11 +46,24 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Finn Thain <fthain@telegraphics.com.au>
 
-commit 3f4b7e6a2be982fd8820a2b54d46dd9c351db899 upstream.
+commit 772f66421d5aa0b9f256056f513bbc38ac132271 upstream.
 
-Make sure the SONIC's DMA engine is idle before altering the transmit
-and receive descriptors. Add a helper for this as it will be needed
-again.
+Section 4.3.1 of the datasheet says,
+
+    This bit [TXP] must not be set if a Load CAM operation is in
+    progress (LCAM is set). The SONIC will lock up if both bits are
+    set simultaneously.
+
+Testing has shown that the driver sometimes attempts to set LCAM
+while TXP is set. Avoid this by waiting for command completion
+before and after giving the LCAM command.
+
+After issuing the Load CAM command, poll for !SONIC_CR_LCAM rather than
+SONIC_INT_LCD, because the SONIC_CR_TXP bit can't be used until
+!SONIC_CR_LCAM.
+
+When in reset mode, take the opportunity to reset the CAM Enable
+register.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Tested-by: Stan Johnson <userm57@yahoo.com>
@@ -59,76 +72,61 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/natsemi/sonic.c |   25 +++++++++++++++++++++++++
- drivers/net/ethernet/natsemi/sonic.h |    3 +++
- 2 files changed, 28 insertions(+)
+ drivers/net/ethernet/natsemi/sonic.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
 --- a/drivers/net/ethernet/natsemi/sonic.c
 +++ b/drivers/net/ethernet/natsemi/sonic.c
-@@ -115,6 +115,24 @@ static int sonic_open(struct net_device
- 	return 0;
- }
- 
-+/* Wait for the SONIC to become idle. */
-+static void sonic_quiesce(struct net_device *dev, u16 mask)
-+{
-+	struct sonic_local * __maybe_unused lp = netdev_priv(dev);
-+	int i;
-+	u16 bits;
+@@ -633,6 +633,8 @@ static void sonic_multicast_list(struct
+ 		    (netdev_mc_count(dev) > 15)) {
+ 			rcr |= SONIC_RCR_AMC;
+ 		} else {
++			unsigned long flags;
 +
-+	for (i = 0; i < 1000; ++i) {
-+		bits = SONIC_READ(SONIC_CMD) & mask;
-+		if (!bits)
-+			return;
-+		if (irqs_disabled() || in_interrupt())
-+			udelay(20);
-+		else
-+			usleep_range(100, 200);
-+	}
-+	WARN_ONCE(1, "command deadline expired! 0x%04x\n", bits);
-+}
- 
- /*
-  * Close the SONIC device
-@@ -131,6 +149,9 @@ static int sonic_close(struct net_device
- 	/*
- 	 * stop the SONIC, disable interrupts
- 	 */
-+	SONIC_WRITE(SONIC_CMD, SONIC_CR_RXDIS);
-+	sonic_quiesce(dev, SONIC_CR_ALL);
+ 			netif_dbg(lp, ifup, dev, "%s: mc_count %d\n", __func__,
+ 				  netdev_mc_count(dev));
+ 			sonic_set_cam_enable(dev, 1);  /* always enable our own address */
+@@ -646,9 +648,14 @@ static void sonic_multicast_list(struct
+ 				i++;
+ 			}
+ 			SONIC_WRITE(SONIC_CDC, 16);
+-			/* issue Load CAM command */
+ 			SONIC_WRITE(SONIC_CDP, lp->cda_laddr & 0xffff);
 +
- 	SONIC_WRITE(SONIC_IMR, 0);
++			/* LCAM and TXP commands can't be used simultaneously */
++			spin_lock_irqsave(&lp->lock, flags);
++			sonic_quiesce(dev, SONIC_CR_TXP);
+ 			SONIC_WRITE(SONIC_CMD, SONIC_CR_LCAM);
++			sonic_quiesce(dev, SONIC_CR_LCAM);
++			spin_unlock_irqrestore(&lp->lock, flags);
+ 		}
+ 	}
+ 
+@@ -674,6 +681,9 @@ static int sonic_init(struct net_device
  	SONIC_WRITE(SONIC_ISR, 0x7fff);
  	SONIC_WRITE(SONIC_CMD, SONIC_CR_RST);
-@@ -170,6 +191,9 @@ static void sonic_tx_timeout(struct net_
- 	 * put the Sonic into software-reset mode and
- 	 * disable all interrupts before releasing DMA buffers
- 	 */
-+	SONIC_WRITE(SONIC_CMD, SONIC_CR_RXDIS);
-+	sonic_quiesce(dev, SONIC_CR_ALL);
+ 
++	/* While in reset mode, clear CAM Enable register */
++	SONIC_WRITE(SONIC_CE, 0);
 +
- 	SONIC_WRITE(SONIC_IMR, 0);
- 	SONIC_WRITE(SONIC_ISR, 0x7fff);
- 	SONIC_WRITE(SONIC_CMD, SONIC_CR_RST);
-@@ -657,6 +681,7 @@ static int sonic_init(struct net_device
+ 	/*
+ 	 * clear software reset flag, disable receiver, clear and
+ 	 * enable interrupts, then completely initialize the SONIC
+@@ -784,14 +794,7 @@ static int sonic_init(struct net_device
+ 	 * load the CAM
  	 */
- 	SONIC_WRITE(SONIC_CMD, 0);
- 	SONIC_WRITE(SONIC_CMD, SONIC_CR_RXDIS);
-+	sonic_quiesce(dev, SONIC_CR_ALL);
+ 	SONIC_WRITE(SONIC_CMD, SONIC_CR_LCAM);
+-
+-	i = 0;
+-	while (i++ < 100) {
+-		if (SONIC_READ(SONIC_ISR) & SONIC_INT_LCD)
+-			break;
+-	}
+-	netif_dbg(lp, ifup, dev, "%s: CMD=%x, ISR=%x, i=%d\n", __func__,
+-		  SONIC_READ(SONIC_CMD), SONIC_READ(SONIC_ISR), i);
++	sonic_quiesce(dev, SONIC_CR_LCAM);
  
  	/*
- 	 * initialize the receive resource area
---- a/drivers/net/ethernet/natsemi/sonic.h
-+++ b/drivers/net/ethernet/natsemi/sonic.h
-@@ -110,6 +110,9 @@
- #define SONIC_CR_TXP            0x0002
- #define SONIC_CR_HTX            0x0001
- 
-+#define SONIC_CR_ALL (SONIC_CR_LCAM | SONIC_CR_RRRA | \
-+		      SONIC_CR_RXEN | SONIC_CR_TXP)
-+
- /*
-  * SONIC data configuration bits
-  */
+ 	 * enable receiver, disable loopback
 
 
