@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1855714B992
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3364314B98E
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728176AbgA1Od2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:33:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52312 "EHLO mail.kernel.org"
+        id S1730366AbgA1OZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:25:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731809AbgA1OZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:23 -0500
+        id S1732911AbgA1OZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:25:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 318242071E;
-        Tue, 28 Jan 2020 14:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D30721739;
+        Tue, 28 Jan 2020 14:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221522;
-        bh=jxyCRKHd0fDIu343tBn5ZNUxn+VXjYVhvW/u9UIssOc=;
+        s=default; t=1580221525;
+        bh=wzmxU6XSNiwiCvZ4DwHQXoiLqa3hzsgNHtV79108Fkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f5gunr2solUcwoXkzMItHYM1m7D8SD2IB4ZF2wHJ4csYuGKMPc5SzJpgJYn6780M2
-         li/ugcrDZG5t0Cmw3XY1HXn0vBB2KX50dItCYYyLAI2tfI1MacwJHnHUztzVBgiH8Q
-         5etZRyTtkQb/zdNM7wxCgEJlMWOqbO0oidekNw1E=
+        b=h+vNJ4ImwYWXJpn2SP44etYC4IvLnM1zTNZrH+lqLUqn7XDxS9ZNprCOCaz/dVxfm
+         JtUXjHQvx1rCiS51HGEqStjuN6e5UdxaxqHzEaZ4iWDYSNz7TMJmGKpu+/Hdvr2ltn
+         Mk2p0fIrX9nSxMe6wgOF6WZernlHdAoGu676ZQhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilles Buloz <gilles.buloz@kontron.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 257/271] hwmon: (nct7802) Fix voltage limits to wrong registers
-Date:   Tue, 28 Jan 2020 15:06:46 +0100
-Message-Id: <20200128135911.727902491@linuxfoundation.org>
+        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 258/271] scsi: RDMA/isert: Fix a recently introduced regression related to logout
+Date:   Tue, 28 Jan 2020 15:06:47 +0100
+Message-Id: <20200128135911.801046625@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -43,37 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilles Buloz <gilles.buloz@kontron.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 7713e62c8623c54dac88d1fa724aa487a38c3efb upstream.
+commit 04060db41178c7c244f2c7dcd913e7fd331de915 upstream.
 
-in0 thresholds are written to the in2 thresholds registers
-in2 thresholds to in3 thresholds
-in3 thresholds to in4 thresholds
-in4 thresholds to in0 thresholds
+iscsit_close_connection() calls isert_wait_conn(). Due to commit
+e9d3009cb936 both functions call target_wait_for_sess_cmds() although that
+last function should be called only once. Fix this by removing the
+target_wait_for_sess_cmds() call from isert_wait_conn() and by only calling
+isert_wait_conn() after target_wait_for_sess_cmds().
 
-Signed-off-by: Gilles Buloz <gilles.buloz@kontron.com>
-Link: https://lore.kernel.org/r/5de0f509.rc0oEvPOMjbfPW1w%gilles.buloz@kontron.com
-Fixes: 3434f3783580 ("hwmon: Driver for Nuvoton NCT7802Y")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: e9d3009cb936 ("scsi: target: iscsi: Wait for all commands to finish before freeing a session").
+Link: https://lore.kernel.org/r/20200116044737.19507-1-bvanassche@acm.org
+Reported-by: Rahul Kundu <rahul.kundu@chelsio.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Tested-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/nct7802.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/isert/ib_isert.c |   12 ------------
+ drivers/target/iscsi/iscsi_target.c     |    6 +++---
+ 2 files changed, 3 insertions(+), 15 deletions(-)
 
---- a/drivers/hwmon/nct7802.c
-+++ b/drivers/hwmon/nct7802.c
-@@ -32,8 +32,8 @@
- static const u8 REG_VOLTAGE[5] = { 0x09, 0x0a, 0x0c, 0x0d, 0x0e };
+--- a/drivers/infiniband/ulp/isert/ib_isert.c
++++ b/drivers/infiniband/ulp/isert/ib_isert.c
+@@ -2555,17 +2555,6 @@ isert_wait4logout(struct isert_conn *ise
+ 	}
+ }
  
- static const u8 REG_VOLTAGE_LIMIT_LSB[2][5] = {
--	{ 0x40, 0x00, 0x42, 0x44, 0x46 },
--	{ 0x3f, 0x00, 0x41, 0x43, 0x45 },
-+	{ 0x46, 0x00, 0x40, 0x42, 0x44 },
-+	{ 0x45, 0x00, 0x3f, 0x41, 0x43 },
- };
+-static void
+-isert_wait4cmds(struct iscsi_conn *conn)
+-{
+-	isert_info("iscsi_conn %p\n", conn);
+-
+-	if (conn->sess) {
+-		target_sess_cmd_list_set_waiting(conn->sess->se_sess);
+-		target_wait_for_sess_cmds(conn->sess->se_sess);
+-	}
+-}
+-
+ /**
+  * isert_put_unsol_pending_cmds() - Drop commands waiting for
+  *     unsolicitate dataout
+@@ -2613,7 +2602,6 @@ static void isert_wait_conn(struct iscsi
  
- static const u8 REG_VOLTAGE_LIMIT_MSB[5] = { 0x48, 0x00, 0x47, 0x47, 0x48 };
+ 	ib_drain_qp(isert_conn->qp);
+ 	isert_put_unsol_pending_cmds(conn);
+-	isert_wait4cmds(conn);
+ 	isert_wait4logout(isert_conn);
+ 
+ 	queue_work(isert_release_wq, &isert_conn->release_work);
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -4162,9 +4162,6 @@ int iscsit_close_connection(
+ 	iscsit_stop_nopin_response_timer(conn);
+ 	iscsit_stop_nopin_timer(conn);
+ 
+-	if (conn->conn_transport->iscsit_wait_conn)
+-		conn->conn_transport->iscsit_wait_conn(conn);
+-
+ 	/*
+ 	 * During Connection recovery drop unacknowledged out of order
+ 	 * commands for this connection, and prepare the other commands
+@@ -4250,6 +4247,9 @@ int iscsit_close_connection(
+ 	target_sess_cmd_list_set_waiting(sess->se_sess);
+ 	target_wait_for_sess_cmds(sess->se_sess);
+ 
++	if (conn->conn_transport->iscsit_wait_conn)
++		conn->conn_transport->iscsit_wait_conn(conn);
++
+ 	ahash_request_free(conn->conn_tx_hash);
+ 	if (conn->conn_rx_hash) {
+ 		struct crypto_ahash *tfm;
 
 
