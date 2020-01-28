@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C431714B7D2
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F5F14B7AA
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:17:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730553AbgA1ORn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:17:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41512 "EHLO mail.kernel.org"
+        id S1730073AbgA1OQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:16:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730314AbgA1ORm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:17:42 -0500
+        id S1729915AbgA1OQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:16:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B85E62071E;
-        Tue, 28 Jan 2020 14:17:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB94D21739;
+        Tue, 28 Jan 2020 14:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221062;
-        bh=6Fz8xjv9nZBw1/1d96jNOMkJO+3yPvlTXHgJXrMglNI=;
+        s=default; t=1580220985;
+        bh=9x8XvY9h/o1zfRSpFKrBJJBJh19ZlO0NhZjtFOmPxg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGGKhPHsA0/Z1nQaj7gELFyj1P62phJOVdfkVyIlwQCds6NY8ZfVl//t9jWSzouoa
-         f4+3+p7h7YbYRWWeyJR9tAsY24DvZhQUpUXNH0w4pCTC4JPsTHTo9oH+SFEs0csCLz
-         Jcv+bWW7MLcJy6tqAWmc45ZKG+FEi1n7Uz3+q9wc=
+        b=Gt4qAC3MFC4DcpEAVhjjVS9ragpB/3EcavrUAPF6XdIJfk2NDWyIRmm4mfYYqhL17
+         R0XA2V8lKVwwrLc15nVLo3C/CFmk7N51UmmnFvdOklJ2j5Lm/fnesFcmcq8rDDSAkL
+         SvtX2gFDj4Co/E32rDPqG5oUgoBGvh7m1qc195GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 036/271] clk: armada-xp: fix refcount leak in axp_clk_init()
-Date:   Tue, 28 Jan 2020 15:03:05 +0100
-Message-Id: <20200128135855.365455374@linuxfoundation.org>
+Subject: [PATCH 4.9 043/271] media: s5p-jpeg: Correct step and max values for V4L2_CID_JPEG_RESTART_INTERVAL
+Date:   Tue, 28 Jan 2020 15:03:12 +0100
+Message-Id: <20200128135855.860416870@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -45,38 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-[ Upstream commit db20a90a4b6745dad62753f8bd2f66afdd5abc84 ]
+[ Upstream commit 19c624c6b29e244c418f8b44a711cbf5e82e3cd4 ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+This commit corrects max and step values for v4l2 control for
+V4L2_CID_JPEG_RESTART_INTERVAL. Max should be 0xffff and step should be 1.
+It was found by using v4l2-compliance tool and checking result of
+VIDIOC_QUERY_EXT_CTRL/QUERYMENU test.
+Previously it was complaining that step was bigger than difference
+between max and min.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Fixes: 0a11a6ae9437 ("clk: mvebu: armada-xp: maintain clock init order")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 15f4bc3b1f42 ("[media] s5p-jpeg: Add JPEG controls support")
+
+Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/armada-xp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/s5p-jpeg/jpeg-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/mvebu/armada-xp.c b/drivers/clk/mvebu/armada-xp.c
-index b3094315a3c0f..2fa15a2747190 100644
---- a/drivers/clk/mvebu/armada-xp.c
-+++ b/drivers/clk/mvebu/armada-xp.c
-@@ -202,7 +202,9 @@ static void __init axp_clk_init(struct device_node *np)
+diff --git a/drivers/media/platform/s5p-jpeg/jpeg-core.c b/drivers/media/platform/s5p-jpeg/jpeg-core.c
+index c89922fb42cef..a63f4eec366eb 100644
+--- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
++++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
+@@ -1963,7 +1963,7 @@ static int s5p_jpeg_controls_create(struct s5p_jpeg_ctx *ctx)
  
- 	mvebu_coreclk_setup(np, &axp_coreclks);
- 
--	if (cgnp)
-+	if (cgnp) {
- 		mvebu_clk_gating_setup(cgnp, axp_gating_desc);
-+		of_node_put(cgnp);
-+	}
- }
- CLK_OF_DECLARE(axp_clk, "marvell,armada-xp-core-clock", axp_clk_init);
+ 		v4l2_ctrl_new_std(&ctx->ctrl_handler, &s5p_jpeg_ctrl_ops,
+ 				  V4L2_CID_JPEG_RESTART_INTERVAL,
+-				  0, 3, 0xffff, 0);
++				  0, 0xffff, 1, 0);
+ 		if (ctx->jpeg->variant->version == SJPEG_S5P)
+ 			mask = ~0x06; /* 422, 420 */
+ 	}
 -- 
 2.20.1
 
