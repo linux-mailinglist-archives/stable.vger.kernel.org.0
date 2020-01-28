@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C62A114B6B5
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:07:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF8014B7F7
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726721AbgA1OHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:07:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54988 "EHLO mail.kernel.org"
+        id S1730836AbgA1OTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:19:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726402AbgA1OHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:07:22 -0500
+        id S1730368AbgA1OTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:19:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C97E824688;
-        Tue, 28 Jan 2020 14:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77FA521739;
+        Tue, 28 Jan 2020 14:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220442;
-        bh=N4bj3wWm2MzQ/QSbYY4EoGmJ+L24lq7RFP9c2ISdy7c=;
+        s=default; t=1580221152;
+        bh=Aby7x+mCBw7j5lzoe2MiqhlI2mkx6GH5atF2p99QOHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5aMBG1UpS0dOHXGA65Qy48F7RPvezORRJJtoJd1wJ17YC5TEUJ5yFaieBt4RG+YC
-         ekw7YfTBwT2GgizojrnXpsjqTRpHcPxp/rICOmutwo9oPhGZdzlNd0OsSMTNDr4NJt
-         fxePPRXI5zzuMehvHycP8k8Q2LIVQsHR6FD+X/7E=
+        b=nbMQbVufyiLImGEn+jk5JGYGKzqUwVtRHxt3hYq703vcvX0DJKNR+pbjKs9A7lZ3l
+         Djkp/ZwxvjKy6RSoaCncpCWb7yPkQsET/pqujPnYI7HcAEdZA8fd9chnaMozwrYbcy
+         cUiOJ1DXZoaqztKs8oBMBCC0jnPMoLFCj/j4ccnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Jan Kara <jack@suse.cz>, Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: [PATCH 4.4 001/183] xfs: Sanity check flags of Q_XQUOTARM call
-Date:   Tue, 28 Jan 2020 15:03:40 +0100
-Message-Id: <20200128135829.661704638@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Bin Liu <b-liu@ti.com>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 072/271] usb: phy: twl6030-usb: fix possible use-after-free on remove
+Date:   Tue, 28 Jan 2020 15:03:41 +0100
+Message-Id: <20200128135857.942817171@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,36 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-commit 3dd4d40b420846dd35869ccc8f8627feef2cff32 upstream.
+[ Upstream commit 5895d311d28f2605e2f71c1a3e043ed38f3ac9d2 ]
 
-Flags passed to Q_XQUOTARM were not sanity checked for invalid values.
-Fix that.
+In remove(), use cancel_delayed_work_sync() to cancel the
+delayed work. Otherwise there's a chance that this work
+will continue to run until after the device has been removed.
 
-Fixes: 9da93f9b7cdf ("xfs: fix Q_XQUOTARM ioctl")
-Reported-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This issue was detected with the help of Coccinelle.
 
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Bin Liu <b-liu@ti.com>
+Fixes: b6a619a883c3 ("usb: phy: Check initial state for twl6030")
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_quotaops.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/phy/phy-twl6030-usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_quotaops.c
-+++ b/fs/xfs/xfs_quotaops.c
-@@ -214,6 +214,9 @@ xfs_fs_rm_xquota(
- 	if (XFS_IS_QUOTA_ON(mp))
- 		return -EINVAL;
+diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+index a72e8d670adc8..cf0b67433ac95 100644
+--- a/drivers/usb/phy/phy-twl6030-usb.c
++++ b/drivers/usb/phy/phy-twl6030-usb.c
+@@ -422,7 +422,7 @@ static int twl6030_usb_remove(struct platform_device *pdev)
+ {
+ 	struct twl6030_usb *twl = platform_get_drvdata(pdev);
  
-+	if (uflags & ~(FS_USER_QUOTA | FS_GROUP_QUOTA | FS_PROJ_QUOTA))
-+		return -EINVAL;
-+
- 	if (uflags & FS_USER_QUOTA)
- 		flags |= XFS_DQ_USER;
- 	if (uflags & FS_GROUP_QUOTA)
+-	cancel_delayed_work(&twl->get_status_work);
++	cancel_delayed_work_sync(&twl->get_status_work);
+ 	twl6030_interrupt_mask(TWL6030_USBOTG_INT_MASK,
+ 		REG_INT_MSK_LINE_C);
+ 	twl6030_interrupt_mask(TWL6030_USBOTG_INT_MASK,
+-- 
+2.20.1
+
 
 
