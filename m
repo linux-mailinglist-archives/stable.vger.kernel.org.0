@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A3D14BA37
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B8914BA36
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730715AbgA1OTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:19:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44406 "EHLO mail.kernel.org"
+        id S1730969AbgA1OT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:19:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730951AbgA1OTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:19:51 -0500
+        id S1730963AbgA1OTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:19:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83F8024681;
-        Tue, 28 Jan 2020 14:19:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E93A92071E;
+        Tue, 28 Jan 2020 14:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221191;
-        bh=Oib6y4GU4rzaCn9AhuQjfgeSuoiUMJQL0ZwShrBJF4k=;
+        s=default; t=1580221193;
+        bh=D8fBwoZBDMUsrKEpYFRmpjicuXupUwfS+5KO69103g0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDYVAu07rPZ44RQXPCodmZ9Os8DAmtj7aVNDgXkPNYbjIj09EJwhafHxfP09sg7j+
-         7cLIiRVM1XYVAoz1dHjG8KHqj9on1/Ap4m0IR8TvsLTv/PM19ih1nKRZ2RturKFY3n
-         61Du96lnrIxGpjJCi5Nc3DubZbvA47WVlkmjId54=
+        b=dhJChARiIQGnQC+fHifg1TdszMILFnvdNvSRiuEtGrXET/GLGuJin5qYgK2dfi5hL
+         s2iLiWKWNc24P+U9SleQ+qxM1uReWhZBQ53FCFplVB9PZiibFk4I4ATOcNhJadVs9v
+         G9V+aVbZO3NuHhb0I70HwDNAnzvsisL0jMJWd/YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 126/271] usb: gadget: fsl: fix link error against usb-gadget module
-Date:   Tue, 28 Jan 2020 15:04:35 +0100
-Message-Id: <20200128135901.975479865@linuxfoundation.org>
+Subject: [PATCH 4.9 127/271] IB/mlx5: Add missing XRC options to QP optional params mask
+Date:   Tue, 28 Jan 2020 15:04:36 +0100
+Message-Id: <20200128135902.050977654@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -44,39 +46,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-[ Upstream commit 2100e3ca3676e894fa48b8f6f01d01733387fe81 ]
+[ Upstream commit 8f4426aa19fcdb9326ac44154a117b1a3a5ae126 ]
 
-The dependency to ensure this driver links correctly fails since
-it can not be a loadable module:
+The QP transition optional parameters for the various transition for XRC
+QPs are identical to those for RC QPs.
 
-drivers/usb/phy/phy-fsl-usb.o: In function `fsl_otg_set_peripheral':
-phy-fsl-usb.c:(.text+0x2224): undefined reference to `usb_gadget_vbus_disconnect'
+Many of the XRC QP transition optional parameter bits are missing from the
+QP optional mask table.  These omissions caused failures when doing XRC QP
+state transitions.
 
-Make the option 'tristate' so it can work correctly.
+For example, when trying to change the response timer of an XRC receive QP
+via the RTS2RTS transition, the new timer value was ignored because
+MLX5_QP_OPTPAR_RNR_TIMEOUT bit was missing from the optional params mask
+for XRC qps for the RTS2RTS transition.
 
-Fixes: 5a8d651a2bde ("usb: gadget: move gadget API functions to udc-core")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fix this by adding the missing XRC optional parameters for all QP
+transitions to the opt_mask table.
+
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Fixes: a4774e9095de ("IB/mlx5: Fix opt param mask according to firmware spec")
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/qp.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/usb/phy/Kconfig b/drivers/usb/phy/Kconfig
-index 19ce615455c1b..de70e70d02bed 100644
---- a/drivers/usb/phy/Kconfig
-+++ b/drivers/usb/phy/Kconfig
-@@ -19,7 +19,7 @@ config AB8500_USB
- 	  in host mode, low speed.
- 
- config FSL_USB2_OTG
--	bool "Freescale USB OTG Transceiver Driver"
-+	tristate "Freescale USB OTG Transceiver Driver"
- 	depends on USB_EHCI_FSL && USB_FSL_USB2 && USB_OTG_FSM=y && PM
- 	depends on USB_GADGET || !USB_GADGET # if USB_GADGET=m, this can't be 'y'
- 	select USB_PHY
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index a7bc89f5dae7e..4d906a7904818 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -2324,6 +2324,11 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
+ 			[MLX5_QP_ST_UD] = MLX5_QP_OPTPAR_PKEY_INDEX	|
+ 					  MLX5_QP_OPTPAR_Q_KEY		|
+ 					  MLX5_QP_OPTPAR_PRI_PORT,
++			[MLX5_QP_ST_XRC] = MLX5_QP_OPTPAR_RRE		|
++					  MLX5_QP_OPTPAR_RAE		|
++					  MLX5_QP_OPTPAR_RWE		|
++					  MLX5_QP_OPTPAR_PKEY_INDEX	|
++					  MLX5_QP_OPTPAR_PRI_PORT,
+ 		},
+ 		[MLX5_QP_STATE_RTR] = {
+ 			[MLX5_QP_ST_RC] = MLX5_QP_OPTPAR_ALT_ADDR_PATH  |
+@@ -2357,6 +2362,12 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
+ 					  MLX5_QP_OPTPAR_RWE		|
+ 					  MLX5_QP_OPTPAR_PM_STATE,
+ 			[MLX5_QP_ST_UD] = MLX5_QP_OPTPAR_Q_KEY,
++			[MLX5_QP_ST_XRC] = MLX5_QP_OPTPAR_ALT_ADDR_PATH	|
++					  MLX5_QP_OPTPAR_RRE		|
++					  MLX5_QP_OPTPAR_RAE		|
++					  MLX5_QP_OPTPAR_RWE		|
++					  MLX5_QP_OPTPAR_PM_STATE	|
++					  MLX5_QP_OPTPAR_RNR_TIMEOUT,
+ 		},
+ 	},
+ 	[MLX5_QP_STATE_RTS] = {
+@@ -2373,6 +2384,12 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
+ 			[MLX5_QP_ST_UD] = MLX5_QP_OPTPAR_Q_KEY		|
+ 					  MLX5_QP_OPTPAR_SRQN		|
+ 					  MLX5_QP_OPTPAR_CQN_RCV,
++			[MLX5_QP_ST_XRC] = MLX5_QP_OPTPAR_RRE		|
++					  MLX5_QP_OPTPAR_RAE		|
++					  MLX5_QP_OPTPAR_RWE		|
++					  MLX5_QP_OPTPAR_RNR_TIMEOUT	|
++					  MLX5_QP_OPTPAR_PM_STATE	|
++					  MLX5_QP_OPTPAR_ALT_ADDR_PATH,
+ 		},
+ 	},
+ 	[MLX5_QP_STATE_SQER] = {
+@@ -2384,6 +2401,10 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
+ 					   MLX5_QP_OPTPAR_RWE		|
+ 					   MLX5_QP_OPTPAR_RAE		|
+ 					   MLX5_QP_OPTPAR_RRE,
++			[MLX5_QP_ST_XRC]  = MLX5_QP_OPTPAR_RNR_TIMEOUT	|
++					   MLX5_QP_OPTPAR_RWE		|
++					   MLX5_QP_OPTPAR_RAE		|
++					   MLX5_QP_OPTPAR_RRE,
+ 		},
+ 	},
+ };
 -- 
 2.20.1
 
