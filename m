@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA6B14BBFD
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 982C214BBF3
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:51:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726340AbgA1OuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:50:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
+        id S1726663AbgA1N6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 08:58:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726477AbgA1N7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:59:33 -0500
+        id S1726192AbgA1N6t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:58:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B3132173E;
-        Tue, 28 Jan 2020 13:59:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B2092469C;
+        Tue, 28 Jan 2020 13:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580219972;
-        bh=g98h9zgHGfmJG7qp7shi05vz6GMzSl3GulPJVilvKv0=;
+        s=default; t=1580219928;
+        bh=5sVxnb408V3TlrbZLrj+UKz2T8LnaptQoJmh3OJCdHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U69OnotkKaUaRp8rjRvDEU4Mk8MpQrxZXKcdfrD3hb0poUoGjXVrpbhcPL1TtvHKG
-         I9O60+LhanuSDh1NVgbvAs6p8812Xez5naKrzbyI1WZxQffp8i+C7nqyJl/dvu0Pat
-         MrX0IoYfV/8rTL5+JSQnkttMhIwiivnsGF7spOLU=
+        b=WHML3wz1sem+pTQ+sICE7uupTsnIZq+HxUp5tI10iDGJCUULWoUTsl0SJIk7FBmWW
+         hhZFT7WM0mIvIdlwbrMk+lp0zV6MmV18JBa/xdPRENo/K9sFP2Escft9YXjhqLRoq8
+         UUDRrrsKLOuSBMB9YAaQAqa3TKm086jJ4fKo5+60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2f07903a5b05e7f36410@syzkaller.appspotmail.com,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+5af9a90dad568aa9f611@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 08/46] net_sched: fix datalen for ematch
-Date:   Tue, 28 Jan 2020 14:57:42 +0100
-Message-Id: <20200128135751.237908634@linuxfoundation.org>
+        stable@vger.kernel.org, David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 4.14 09/46] net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
+Date:   Tue, 28 Jan 2020 14:57:43 +0100
+Message-Id: <20200128135751.353517865@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -48,47 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit 61678d28d4a45ef376f5d02a839cc37509ae9281 ]
+commit b8eb718348b8fb30b5a7d0a8fce26fb3f4ac741b upstream.
 
-syzbot reported an out-of-bound access in em_nbyte. As initially
-analyzed by Eric, this is because em_nbyte sets its own em->datalen
-in em_nbyte_change() other than the one specified by user, but this
-value gets overwritten later by its caller tcf_em_validate().
-We should leave em->datalen untouched to respect their choices.
+kobject_init_and_add takes reference even when it fails. This has
+to be given up by the caller in error handling. Otherwise memory
+allocated by kobject_init_and_add is never freed. Originally found
+by Syzkaller:
 
-I audit all the in-tree ematch users, all of those implement
-->change() set em->datalen, so we can just avoid setting it twice
-in this case.
+BUG: memory leak
+unreferenced object 0xffff8880679f8b08 (size 8):
+  comm "netdev_register", pid 269, jiffies 4294693094 (age 12.132s)
+  hex dump (first 8 bytes):
+    72 78 2d 30 00 36 20 d4                          rx-0.6 .
+  backtrace:
+    [<000000008c93818e>] __kmalloc_track_caller+0x16e/0x290
+    [<000000001f2e4e49>] kvasprintf+0xb1/0x140
+    [<000000007f313394>] kvasprintf_const+0x56/0x160
+    [<00000000aeca11c8>] kobject_set_name_vargs+0x5b/0x140
+    [<0000000073a0367c>] kobject_init_and_add+0xd8/0x170
+    [<0000000088838e4b>] net_rx_queue_update_kobjects+0x152/0x560
+    [<000000006be5f104>] netdev_register_kobject+0x210/0x380
+    [<00000000e31dab9d>] register_netdevice+0xa1b/0xf00
+    [<00000000f68b2465>] __tun_chr_ioctl+0x20d5/0x3dd0
+    [<000000004c50599f>] tun_chr_ioctl+0x2f/0x40
+    [<00000000bbd4c317>] do_vfs_ioctl+0x1c7/0x1510
+    [<00000000d4c59e8f>] ksys_ioctl+0x99/0xb0
+    [<00000000946aea81>] __x64_sys_ioctl+0x78/0xb0
+    [<0000000038d946e5>] do_syscall_64+0x16f/0x580
+    [<00000000e0aa5d8f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    [<00000000285b3d1a>] 0xffffffffffffffff
 
-Reported-and-tested-by: syzbot+5af9a90dad568aa9f611@syzkaller.appspotmail.com
-Reported-by: syzbot+2f07903a5b05e7f36410@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Cc: David Miller <davem@davemloft.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/ematch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/ematch.c
-+++ b/net/sched/ematch.c
-@@ -267,12 +267,12 @@ static int tcf_em_validate(struct tcf_pr
- 				}
- 				em->data = (unsigned long) v;
- 			}
-+			em->datalen = data_len;
- 		}
+---
+ net/core/net-sysfs.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -915,21 +915,23 @@ static int rx_queue_add_kobject(struct n
+ 	error = kobject_init_and_add(kobj, &rx_queue_ktype, NULL,
+ 				     "rx-%u", index);
+ 	if (error)
+-		return error;
++		goto err;
+ 
+ 	dev_hold(queue->dev);
+ 
+ 	if (dev->sysfs_rx_queue_group) {
+ 		error = sysfs_create_group(kobj, dev->sysfs_rx_queue_group);
+-		if (error) {
+-			kobject_put(kobj);
+-			return error;
+-		}
++		if (error)
++			goto err;
  	}
  
- 	em->matchid = em_hdr->matchid;
- 	em->flags = em_hdr->flags;
--	em->datalen = data_len;
- 	em->net = net;
+ 	kobject_uevent(kobj, KOBJ_ADD);
  
- 	err = 0;
+ 	return error;
++
++err:
++	kobject_put(kobj);
++	return error;
+ }
+ #endif /* CONFIG_SYSFS */
+ 
+@@ -1326,21 +1328,21 @@ static int netdev_queue_add_kobject(stru
+ 	error = kobject_init_and_add(kobj, &netdev_queue_ktype, NULL,
+ 				     "tx-%u", index);
+ 	if (error)
+-		return error;
++		goto err;
+ 
+ 	dev_hold(queue->dev);
+ 
+ #ifdef CONFIG_BQL
+ 	error = sysfs_create_group(kobj, &dql_group);
+-	if (error) {
+-		kobject_put(kobj);
+-		return error;
+-	}
++	if (error)
++		goto err;
+ #endif
+ 
+ 	kobject_uevent(kobj, KOBJ_ADD);
+ 
+-	return 0;
++err:
++	kobject_put(kobj);
++	return error;
+ }
+ #endif /* CONFIG_SYSFS */
+ 
 
 
