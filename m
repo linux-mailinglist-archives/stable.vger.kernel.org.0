@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BBA14B1FC
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3999A14B1FD
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 10:50:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725882AbgA1Jub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 04:50:31 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:43950 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725881AbgA1Jub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:50:31 -0500
+        id S1725903AbgA1Jug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 04:50:36 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:43972 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725881AbgA1Jug (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 04:50:36 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580205029;
+        s=mimecast20190719; t=1580205034;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=iagU/p69YthW2SuQr28eBCvGSIKrEwLapzEjwtBHEuQ=;
-        b=Y2KiID2B67ar89klFPQfw6lCItG40M7ku6MQKIDMITR0K+Y725dRyq2/wnJquu+VMuJr8Y
-        SqdcZJnVzvUWF7vfeKm3aAzWKwoWTDqiFLzOLJQ/LiZJGUyD5EerR/OF/a/bVRQpHVQlpM
-        2PRWJc0NOGwdxpja91TvqBUJjmuapyI=
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uoiHHeUIEfbcdwNvi4DAnQk4D+sJ+U+HwJ73oXNEYN4=;
+        b=dCfGr6a0xD15kgErMUYEAhane5i6nfoQ9nUajLk/8ralk80HxByXZXjhkHEP4p9yLSJMLK
+        Ste2TxR+ieFzlcaAqDMXVu87ad+Slt73ACZ1pqYOtEEYGwyXNy1apBFq6sv3xb3DE3jX9R
+        cAhjE7Yr0QGc5pfoph+E5hW1hZ3AY+g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-225-3raHEMVWMCGHrff0Pcc1pw-1; Tue, 28 Jan 2020 04:50:25 -0500
-X-MC-Unique: 3raHEMVWMCGHrff0Pcc1pw-1
+ us-mta-239-rryUkx73NbWhZBfyqdTKpw-1; Tue, 28 Jan 2020 04:50:30 -0500
+X-MC-Unique: rryUkx73NbWhZBfyqdTKpw-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 12BD81005514;
-        Tue, 28 Jan 2020 09:50:24 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 342D1107ACC4;
+        Tue, 28 Jan 2020 09:50:29 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-116-207.ams2.redhat.com [10.36.116.207])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E2B5760C05;
-        Tue, 28 Jan 2020 09:50:21 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5FCA160C05;
+        Tue, 28 Jan 2020 09:50:24 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
@@ -41,12 +42,14 @@ Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
         Baoquan He <bhe@redhat.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Oscar Salvador <osalvador@suse.de>,
-        Wei Yang <richard.weiyang@gmail.com>
-Subject: [PATCH for 4.19-stable v3 00/24] mm/memory_hotplug: backport of pending stable fixes
-Date:   Tue, 28 Jan 2020 10:49:57 +0100
-Message-Id: <20200128095021.8076-1-david@redhat.com>
+        Wei Yang <richard.weiyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH for 4.19-stable v3 01/24] mm/memory_hotplug: make remove_memory() take the device_hotplug_lock
+Date:   Tue, 28 Jan 2020 10:49:58 +0100
+Message-Id: <20200128095021.8076-2-david@redhat.com>
+In-Reply-To: <20200128095021.8076-1-david@redhat.com>
+References: <20200128095021.8076-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -54,147 +57,236 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the backport of the following fixes for 4.19-stable:
+commit d15e59260f62bd5e0f625cf5f5240f6ffac78ab6 upstream.
 
-- d84f2f5a7552 ("drivers/base/node.c: simplify
-  unregister_memory_block_under_nodes()")
--- Turned out to not only be a cleanup but also a fix
-- 2c91f8fc6c99 ("mm/memory_hotplug: fix try_offline_node()")
--- Automatic stable backport failed due to missing dependencies.
-- feee6b298916 ("mm/memory_hotplug: shrink zones when offlining memory")
--- Was marked as stable 5.0+ due to the backport complexity,, but it's al=
-so
-   relevant for 4.19/4.14. As I have to backport quite some cleanups
-   already ...
+Patch series "mm: online/offline_pages called w.o. mem_hotplug_lock", v3.
 
-All tackle memory unplug issues, especially when memory was never
-onlined (or onlining failed), paired with memory unplug. When trying to
-access garbage memmaps we crash the kernel (e.g., because the derviced
-pgdat pointer is broken)
+Reading through the code and studying how mem_hotplug_lock is to be used,
+I noticed that there are two places where we can end up calling
+device_online()/device_offline() - online_pages()/offline_pages() without
+the mem_hotplug_lock.  And there are other places where we call
+device_online()/device_offline() without the device_hotplug_lock.
 
-To minimize manual code changes, I decided to pull in quite some cleanups=
-.
-Still some manual code changes are necessary (indicated in the individual
-patches). Especially missing arm64 hot(un)plug, missing sub-section hotad=
-d
-support, and missing unification of mm/hmm.c and kernel/memremap.c requir=
-es
-care.
+While e.g.
+	echo "online" > /sys/devices/system/memory/memory9/state
+is fine, e.g.
+	echo 1 > /sys/devices/system/memory/memory9/online
+Will not take the mem_hotplug_lock. However the device_lock() and
+device_hotplug_lock.
 
-Due to:
-- 4e0d2e7ef14d ("mm, sparse: pass nid instead of pgdat to
-  sparse_add_one_section()")
-I need:
-- afe9b36ca890 ("mm/memunmap: don't access uninitialized memmap in
-  memunmap_pages()")
+E.g.  via memory_probe_store(), we can end up calling
+add_memory()->online_pages() without the device_hotplug_lock.  So we can
+have concurrent callers in online_pages().  We e.g.  touch in
+online_pages() basically unprotected zone->present_pages then.
 
-Please note that:
-- 4c4b7f9ba948 ("mm/memory_hotplug: remove memory block devices
-  before arch_remove_memory()")
-Makes big (e.g., 32TB) machines boot up slower (e.g., 2h vs 10m). There i=
-s
-a performance fix in linux-next, but it does not seem to classify as a
-fix for current RC / stable.
+Looks like there is a longer history to that (see Patch #2 for details),
+and fixing it to work the way it was intended is not really possible.  We
+would e.g.  have to take the mem_hotplug_lock in device/base/core.c, whic=
+h
+sounds wrong.
 
-I did quite some testing with hot(un)plug, onlining/offlining of memory
-blocks and memory-less/CPU-less NUMA nodes under x86_64 - the same set of
-tests I run against upstream on a fairly regular basis. I compile-tested
-on PowerPC, arm64, s390x, i386 and sh. I did not test any ZONE_DEVICE/HMM
-thingies.
+Summary: We had a lock inversion on mem_hotplug_lock and device_lock().
+More details can be found in patch 3 and patch 6.
 
-The 4.14 backport might take a bit - it would be quite a lot of patches
-to backport and it is not that severely broken, so I am thinking about
-simpler (less invasive) alternatives.
+I propose the general rules (documentation added in patch 6):
 
-v2 -> v3:
-- Fix inverted author information of two patches
+1. add_memory/add_memory_resource() must only be called with
+   device_hotplug_lock.
+2. remove_memory() must only be called with device_hotplug_lock. This is
+   already documented and holds for all callers.
+3. device_online()/device_offline() must only be called with
+   device_hotplug_lock. This is already documented and true for now in co=
+re
+   code. Other callers (related to memory hotplug) have to be fixed up.
+4. mem_hotplug_lock is taken inside of add_memory/remove_memory/
+   online_pages/offline_pages.
 
-v1 -> v2:
-- Fix patch authors
-- Dropped "mm/memory_hotplug: make __remove_pages() and
-  arch_remove_memory() never fail"
--- Only creates a minor conflict in another patch
-- "mm/memory_hotplug: make remove_memory() take the device_hotplug_lock"
--- Fix wrong upstream commit id
-- "mm/memory_hotplug: shrink zones when offlining memory"
-- "mm/memunmap: don't access uninitialized memmap in memunmap_pages()"
--- Fix usage of wrong pfn
+To me, this looks way cleaner than what we have right now (and easier to
+verify).  And looking at the documentation of remove_memory, using
+lock_device_hotplug also for add_memory() feels natural.
 
-CCing only some people to minimize noise.
+This patch (of 6):
 
+remove_memory() is exported right now but requires the
+device_hotplug_lock, which is not exported.  So let's provide a variant
+that takes the lock and only export that one.
+
+The lock is already held in
+	arch/powerpc/platforms/pseries/hotplug-memory.c
+	drivers/acpi/acpi_memhotplug.c
+	arch/powerpc/platforms/powernv/memtrace.c
+
+Apart from that, there are not other users in the tree.
+
+Link: http://lkml.kernel.org/r/20180925091457.28651-2-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Rashmica Gupta <rashmica.g@gmail.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Rashmica Gupta <rashmica.g@gmail.com>
+Cc: Michael Neuling <mikey@neuling.org>
+Cc: Balbir Singh <bsingharora@gmail.com>
+Cc: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Cc: John Allen <jallen@linux.vnet.ibm.com>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Baoquan He <bhe@redhat.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ arch/powerpc/platforms/powernv/memtrace.c       | 2 +-
+ arch/powerpc/platforms/pseries/hotplug-memory.c | 6 +++---
+ drivers/acpi/acpi_memhotplug.c                  | 2 +-
+ include/linux/memory_hotplug.h                  | 3 ++-
+ mm/memory_hotplug.c                             | 9 ++++++++-
+ 5 files changed, 15 insertions(+), 7 deletions(-)
 
-Aneesh Kumar K.V (2):
-  powerpc/mm: Fix section mismatch warning
-  mm/memunmap: don't access uninitialized memmap in memunmap_pages()
-
-Baoquan He (1):
-  drivers/base/memory.c: clean up relics in function parameters
-
-Dan Carpenter (1):
-  mm, memory_hotplug: update a comment in unregister_memory()
-
-Dan Williams (1):
-  mm/hotplug: kill is_dev_zone() usage in __remove_pages()
-
-David Hildenbrand (15):
-  mm/memory_hotplug: make remove_memory() take the device_hotplug_lock
-  mm/memory_hotplug: release memory resource after arch_remove_memory()
-  mm/memory_hotplug: make unregister_memory_section() never fail
-  mm/memory_hotplug: make __remove_section() never fail
-  mm/memory_hotplug: make __remove_pages() and arch_remove_memory()
-    never fail
-  s390x/mm: implement arch_remove_memory()
-  mm/memory_hotplug: allow arch_remove_memory() without
-    CONFIG_MEMORY_HOTREMOVE
-  drivers/base/memory: pass a block_id to init_memory_block()
-  mm/memory_hotplug: create memory block devices after arch_add_memory()
-  mm/memory_hotplug: remove memory block devices before
-    arch_remove_memory()
-  mm/memory_hotplug: make unregister_memory_block_under_nodes() never
-    fail
-  mm/memory_hotplug: remove "zone" parameter from
-    sparse_remove_one_section
-  drivers/base/node.c: simplify unregister_memory_block_under_nodes()
-  mm/memory_hotplug: fix try_offline_node()
-  mm/memory_hotplug: shrink zones when offlining memory
-
-Oscar Salvador (1):
-  mm, memory_hotplug: add nid parameter to arch_remove_memory
-
-Wei Yang (3):
-  mm, sparse: drop pgdat_resize_lock in sparse_add/remove_one_section()
-  mm, sparse: pass nid instead of pgdat to sparse_add_one_section()
-  drivers/base/memory.c: remove an unnecessary check on NR_MEM_SECTIONS
-
- arch/ia64/mm/init.c                           |  15 +-
- arch/powerpc/mm/mem.c                         |  25 +--
- arch/powerpc/platforms/powernv/memtrace.c     |   2 +-
- .../platforms/pseries/hotplug-memory.c        |   6 +-
- arch/s390/mm/init.c                           |  16 +-
- arch/sh/mm/init.c                             |  15 +-
- arch/x86/mm/init_32.c                         |   9 +-
- arch/x86/mm/init_64.c                         |  17 +-
- drivers/acpi/acpi_memhotplug.c                |   2 +-
- drivers/base/memory.c                         | 203 +++++++++++-------
- drivers/base/node.c                           |  52 ++---
- include/linux/memory.h                        |   8 +-
- include/linux/memory_hotplug.h                |  22 +-
- include/linux/mmzone.h                        |   3 +-
- include/linux/node.h                          |   7 +-
- kernel/memremap.c                             |  12 +-
- mm/hmm.c                                      |   8 +-
- mm/memory_hotplug.c                           | 166 +++++++-------
- mm/sparse.c                                   |  27 +--
- 19 files changed, 303 insertions(+), 312 deletions(-)
-
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/pla=
+tforms/powernv/memtrace.c
+index dd3cc4632b9a..84d038ed3882 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -122,7 +122,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 			 */
+ 			end_pfn =3D base_pfn + nr_pages;
+ 			for (pfn =3D base_pfn; pfn < end_pfn; pfn +=3D bytes>> PAGE_SHIFT) {
+-				remove_memory(nid, pfn << PAGE_SHIFT, bytes);
++				__remove_memory(nid, pfn << PAGE_SHIFT, bytes);
+ 			}
+ 			unlock_device_hotplug();
+ 			return base_pfn << PAGE_SHIFT;
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/power=
+pc/platforms/pseries/hotplug-memory.c
+index 62d3c72cd931..c2c6f32848e1 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -301,7 +301,7 @@ static int pseries_remove_memblock(unsigned long base=
+, unsigned int memblock_siz
+ 	nid =3D memory_add_physaddr_to_nid(base);
+=20
+ 	for (i =3D 0; i < sections_per_block; i++) {
+-		remove_memory(nid, base, MIN_MEMORY_BLOCK_SIZE);
++		__remove_memory(nid, base, MIN_MEMORY_BLOCK_SIZE);
+ 		base +=3D MIN_MEMORY_BLOCK_SIZE;
+ 	}
+=20
+@@ -393,7 +393,7 @@ static int dlpar_remove_lmb(struct drmem_lmb *lmb)
+ 	block_sz =3D pseries_memory_block_size();
+ 	nid =3D memory_add_physaddr_to_nid(lmb->base_addr);
+=20
+-	remove_memory(nid, lmb->base_addr, block_sz);
++	__remove_memory(nid, lmb->base_addr, block_sz);
+=20
+ 	/* Update memory regions for memory remove */
+ 	memblock_remove(lmb->base_addr, block_sz);
+@@ -680,7 +680,7 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+=20
+ 	rc =3D dlpar_online_lmb(lmb);
+ 	if (rc) {
+-		remove_memory(nid, lmb->base_addr, block_sz);
++		__remove_memory(nid, lmb->base_addr, block_sz);
+ 		invalidate_lmb_associativity_index(lmb);
+ 	} else {
+ 		lmb->flags |=3D DRCONF_MEM_ASSIGNED;
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplu=
+g.c
+index 2ccfbb61ca89..8fe0960ea572 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -282,7 +282,7 @@ static void acpi_memory_remove_memory(struct acpi_mem=
+ory_device *mem_device)
+ 			nid =3D memory_add_physaddr_to_nid(info->start_addr);
+=20
+ 		acpi_unbind_memory_blocks(info);
+-		remove_memory(nid, info->start_addr, info->length);
++		__remove_memory(nid, info->start_addr, info->length);
+ 		list_del(&info->list);
+ 		kfree(info);
+ 	}
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplu=
+g.h
+index 4915e6cd7fd5..6f13a5a33b51 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -303,6 +303,7 @@ extern bool is_mem_section_removable(unsigned long pf=
+n, unsigned long nr_pages);
+ extern void try_offline_node(int nid);
+ extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages=
+);
+ extern void remove_memory(int nid, u64 start, u64 size);
++extern void __remove_memory(int nid, u64 start, u64 size);
+=20
+ #else
+ static inline bool is_mem_section_removable(unsigned long pfn,
+@@ -319,6 +320,7 @@ static inline int offline_pages(unsigned long start_p=
+fn, unsigned long nr_pages)
+ }
+=20
+ static inline void remove_memory(int nid, u64 start, u64 size) {}
++static inline void __remove_memory(int nid, u64 start, u64 size) {}
+ #endif /* CONFIG_MEMORY_HOTREMOVE */
+=20
+ extern void __ref free_area_init_core_hotplug(int nid);
+@@ -333,7 +335,6 @@ extern void move_pfn_range_to_zone(struct zone *zone,=
+ unsigned long start_pfn,
+ 		unsigned long nr_pages, struct vmem_altmap *altmap);
+ extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages=
+);
+ extern bool is_memblock_offlined(struct memory_block *mem);
+-extern void remove_memory(int nid, u64 start, u64 size);
+ extern int sparse_add_one_section(struct pglist_data *pgdat,
+ 		unsigned long start_pfn, struct vmem_altmap *altmap);
+ extern void sparse_remove_one_section(struct zone *zone, struct mem_sect=
+ion *ms,
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 413f6709039a..e2e2cf7014ee 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1893,7 +1893,7 @@ EXPORT_SYMBOL(try_offline_node);
+  * and online/offline operations before this call, as required by
+  * try_offline_node().
+  */
+-void __ref remove_memory(int nid, u64 start, u64 size)
++void __ref __remove_memory(int nid, u64 start, u64 size)
+ {
+ 	int ret;
+=20
+@@ -1922,5 +1922,12 @@ void __ref remove_memory(int nid, u64 start, u64 s=
+ize)
+=20
+ 	mem_hotplug_done();
+ }
++
++void remove_memory(int nid, u64 start, u64 size)
++{
++	lock_device_hotplug();
++	__remove_memory(nid, start, size);
++	unlock_device_hotplug();
++}
+ EXPORT_SYMBOL_GPL(remove_memory);
+ #endif /* CONFIG_MEMORY_HOTREMOVE */
 --=20
 2.24.1
 
