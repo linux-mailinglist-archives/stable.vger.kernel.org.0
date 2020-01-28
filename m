@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5452014B63C
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:03:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B9014B6AD
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:07:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727903AbgA1ODh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:03:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
+        id S1727913AbgA1ODl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:03:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727899AbgA1ODh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:03:37 -0500
+        id S1727909AbgA1ODk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:03:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F2DD24691;
-        Tue, 28 Jan 2020 14:03:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CDE52468E;
+        Tue, 28 Jan 2020 14:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220217;
-        bh=YMLFAG4IzFk7w7pAcWRjtZubbB+Sd1vhE6LDzldamo8=;
+        s=default; t=1580220219;
+        bh=9kR/3OCN6jMu5Onj2cKpowi5ii9LW+C2hiYmA5NJb28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYoJMNPJRaMFwfOoftNj/8/w8qSHT0ypW1L/pFWVx8HFn3QQko+Ic56oU8RTdsKo9
-         E7TCiiE0xIScIghRjb6hk4DyulPL6ZpzISnlUp1ueWuZJy0EXuPrINKgEWi7pxH9Tm
-         RjqdxlogHt0AiL3c72E4nM93Wvcb4taa572dQ/q8=
+        b=GGVi9awgukjkXRZPcGXQ38k+cxMm8wb/b0lDWX3yO7HmTe3DuhEc1C+1ddUewpw+m
+         XGYWY5lDk79/7RsOoW7bCRIruss5CkQ22U+m77RTP8n+sUTvB+xfs0UbyEksB287uB
+         //XgVrc5zKcnDJ/BEprzSYxb8vRwLbBnQhtx6hgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mallesham Jatharakonda 
-        <mallesham.jatharakonda@oneconvergence.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 063/104] net/tls: fix async operation
-Date:   Tue, 28 Jan 2020 15:00:24 +0100
-Message-Id: <20200128135826.241608399@linuxfoundation.org>
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 064/104] Input: pm8xxx-vib - fix handling of separate enable register
+Date:   Tue, 28 Jan 2020 15:00:25 +0100
+Message-Id: <20200128135826.358779254@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -47,48 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit db885e66d268884dc72967279b7e84f522556abc upstream.
+commit 996d5d5f89a558a3608a46e73ccd1b99f1b1d058 upstream.
 
-Mallesham reports the TLS with async accelerator was broken by
-commit d10523d0b3d7 ("net/tls: free the record on encryption error")
-because encryption can return -EINPROGRESS in such setups, which
-should not be treated as an error.
+Setting the vibrator enable_mask is not implemented correctly:
 
-The error is also present in the BPF path (likely copied from there).
+For regmap_update_bits(map, reg, mask, val) we give in either
+regs->enable_mask or 0 (= no-op) as mask and "val" as value.
+But "val" actually refers to the vibrator voltage control register,
+which has nothing to do with the enable_mask.
 
-Reported-by: Mallesham Jatharakonda <mallesham.jatharakonda@oneconvergence.com>
-Fixes: d3b18ad31f93 ("tls: add bpf support to sk_msg handling")
-Fixes: d10523d0b3d7 ("net/tls: free the record on encryption error")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So we usually end up doing nothing when we really wanted
+to enable the vibrator.
+
+We want to set or clear the enable_mask (to enable/disable the vibrator).
+Therefore, change the call to always modify the enable_mask
+and set the bits only if we want to enable the vibrator.
+
+Fixes: d4c7c5c96c92 ("Input: pm8xxx-vib - handle separate enable register")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200114183442.45720-1-stephan@gerhold.net
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tls/tls_sw.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/misc/pm8xxx-vibrator.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -793,7 +793,7 @@ static int bpf_exec_tx_verdict(struct sk
- 	psock = sk_psock_get(sk);
- 	if (!psock || !policy) {
- 		err = tls_push_record(sk, flags, record_type);
--		if (err) {
-+		if (err && err != -EINPROGRESS) {
- 			*copied -= sk_msg_free(sk, msg);
- 			tls_free_open_rec(sk);
- 		}
-@@ -819,7 +819,7 @@ more_data:
- 	switch (psock->eval) {
- 	case __SK_PASS:
- 		err = tls_push_record(sk, flags, record_type);
--		if (err < 0) {
-+		if (err && err != -EINPROGRESS) {
- 			*copied -= sk_msg_free(sk, msg);
- 			tls_free_open_rec(sk);
- 			goto out_err;
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -90,7 +90,7 @@ static int pm8xxx_vib_set(struct pm8xxx_
+ 
+ 	if (regs->enable_mask)
+ 		rc = regmap_update_bits(vib->regmap, regs->enable_addr,
+-					on ? regs->enable_mask : 0, val);
++					regs->enable_mask, on ? ~0 : 0);
+ 
+ 	return rc;
+ }
 
 
