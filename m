@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F5514B685
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:05:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B5F14B684
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727716AbgA1OF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:05:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53102 "EHLO mail.kernel.org"
+        id S1728294AbgA1OFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:05:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728274AbgA1OF2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:05:28 -0500
+        id S1727675AbgA1OFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:05:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6762E2468A;
-        Tue, 28 Jan 2020 14:05:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAC602468E;
+        Tue, 28 Jan 2020 14:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220327;
-        bh=p99L67TBU8jVHLId7ZCRFvMml//FY6jErV0aGLQrcvs=;
+        s=default; t=1580220330;
+        bh=tGDZBRoshrw5xaOaC8h89pZSKcEEwCnkWWYwTwUhhgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvXGz8++l0i1lQXJ38AfJ7T3j54u5+wV/ele6oFsV8RQrKtjK6618ZC92hmYTaKRa
-         jErw6J1hHEYjcsxTbEjcwbCaJIy0rnUZfz9DFdgb0sCHthMbkMg1ptEUxaAqx2oL4l
-         8I3BEoksA/eIrWnwpMAN453jqv+l/sMqJLTWw2WI=
+        b=JIhFCeRAiT9PbeUHTHHTp3Mlcr1qfU7hGqmdi3RSXi/Psu4VjwfB2nLmOaQdILQ8G
+         tXEQxVXtDoMVTBeDwrWO/z5ibe/GlCWHibgiK7T+iowyqFs6fqPqTXlJ8FzZ2259+P
+         +/ifHnrxUkNOPHGrrpm4Z0gg/kzsm7W/rBWSYjiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulrich Weber <ulrich.weber@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.4 083/104] xfrm: support output_mark for offload ESP packets
-Date:   Tue, 28 Jan 2020 15:00:44 +0100
-Message-Id: <20200128135828.650597485@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d73682fcf7fee6982fe3@syzkaller.appspotmail.com,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 084/104] net, sk_msg: Dont check if sock is locked when tearing down psock
+Date:   Tue, 28 Jan 2020 15:00:45 +0100
+Message-Id: <20200128135828.791836526@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -43,48 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulrich Weber <ulrich.weber@gmail.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-commit 4e4362d2bf2a49ff44dbbc9585207977ca3d71d0 upstream.
+commit 58c8db929db1c1d785a6f5d8f8692e5dbcc35e84 upstream.
 
-Commit 9b42c1f179a6 ("xfrm: Extend the output_mark") added output_mark
-support but missed ESP offload support.
+As John Fastabend reports [0], psock state tear-down can happen on receive
+path *after* unlocking the socket, if the only other psock user, that is
+sockmap or sockhash, releases its psock reference before tcp_bpf_recvmsg
+does so:
 
-xfrm_smark_get() is not called within xfrm_input() for packets coming
-from esp4_gro_receive() or esp6_gro_receive(). Therefore call
-xfrm_smark_get() directly within these functions.
+ tcp_bpf_recvmsg()
+  psock = sk_psock_get(sk)                         <- refcnt 2
+  lock_sock(sk);
+  ...
+                                  sock_map_free()  <- refcnt 1
+  release_sock(sk)
+  sk_psock_put()                                   <- refcnt 0
 
-Fixes: 9b42c1f179a6 ("xfrm: Extend the output_mark to support input direction and masking.")
-Signed-off-by: Ulrich Weber <ulrich.weber@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Remove the lockdep check for socket lock in psock tear-down that got
+introduced in 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during
+tear down").
+
+[0] https://lore.kernel.org/netdev/5e25dc995d7d_74082aaee6e465b441@john-XPS-13-9370.notmuch/
+
+Fixes: 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during tear down")
+Reported-by: syzbot+d73682fcf7fee6982fe3@syzkaller.appspotmail.com
+Suggested-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/esp4_offload.c |    2 ++
- net/ipv6/esp6_offload.c |    2 ++
- 2 files changed, 4 insertions(+)
+ net/core/skmsg.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/ipv4/esp4_offload.c
-+++ b/net/ipv4/esp4_offload.c
-@@ -57,6 +57,8 @@ static struct sk_buff *esp4_gro_receive(
- 		if (!x)
- 			goto out_reset;
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -594,8 +594,6 @@ EXPORT_SYMBOL_GPL(sk_psock_destroy);
  
-+		skb->mark = xfrm_smark_get(skb->mark, x);
-+
- 		sp->xvec[sp->len++] = x;
- 		sp->olen++;
- 
---- a/net/ipv6/esp6_offload.c
-+++ b/net/ipv6/esp6_offload.c
-@@ -79,6 +79,8 @@ static struct sk_buff *esp6_gro_receive(
- 		if (!x)
- 			goto out_reset;
- 
-+		skb->mark = xfrm_smark_get(skb->mark, x);
-+
- 		sp->xvec[sp->len++] = x;
- 		sp->olen++;
+ void sk_psock_drop(struct sock *sk, struct sk_psock *psock)
+ {
+-	sock_owned_by_me(sk);
+-
+ 	sk_psock_cork_free(psock);
+ 	sk_psock_zap_ingress(psock);
  
 
 
