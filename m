@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE5114BB01
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F210714BA05
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729673AbgA1OmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:42:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
+        id S1729225AbgA1Oer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:34:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729207AbgA1ONO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:13:14 -0500
+        id S1726710AbgA1OXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:23:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 388C920678;
-        Tue, 28 Jan 2020 14:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B7A524690;
+        Tue, 28 Jan 2020 14:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220793;
-        bh=/VLrlyOP3aW7VmKKpylXx4uG78qDbxT43JAHOyjHMBg=;
+        s=default; t=1580221428;
+        bh=JlBcrsMyqtkte5MzpILC6IwTloc/Cakizcl6i2FH4jI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGV3xDDnklH8gVCjpL531IohZ1eAFzKkXMJwLMSR27bf87gItKhm2TnP6BaQ5Hv2w
-         snaTkb7LexpGI9wkz3LN/65LvjAZVvOrATkolsfNamnGoMV/5cGO5ajc2x2zEEfT7W
-         2PjHWZpntbYDgfUW9eTwnsTQV7Jl0iQlMwiseytM=
+        b=MH+SsTdzOJ4RfjELI+fgTVDWmYWJHXBW/TYNLQX5kP+vTUzZE9zf8geBfPLjveTcy
+         L1e0SwNxVE+si0LJw8LC72OS2NqD+hX8AKk4al6S0Z3XnOTNDVL9rV8+WpGrJU78NS
+         to0NJ2sqbDx3bbZchaRRxlnTD1lm8oFWzwt57NEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@vger.kernel,
-        Robin Gong <yibin.gong@nxp.com>,
-        Jurgen Lambrecht <J.Lambrecht@TELEVIC.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 148/183] dmaengine: imx-sdma: fix size check for sdma script_number
-Date:   Tue, 28 Jan 2020 15:06:07 +0100
-Message-Id: <20200128135844.521185059@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@in-tech.com>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 219/271] net: qca_spi: Move reset_count to struct qcaspi
+Date:   Tue, 28 Jan 2020 15:06:08 +0100
+Message-Id: <20200128135908.848301624@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Stefan Wahren <stefan.wahren@in-tech.com>
 
-[ Upstream commit bd73dfabdda280fc5f05bdec79b6721b4b2f035f ]
+[ Upstream commit bc19c32904e36548335b35fdce6ce734e20afc0a ]
 
-Illegal memory will be touch if SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3
-(41) exceed the size of structure sdma_script_start_addrs(40),
-thus cause memory corrupt such as slob block header so that kernel
-trap into while() loop forever in slob_free(). Please refer to below
-code piece in imx-sdma.c:
-for (i = 0; i < sdma->script_number; i++)
-	if (addr_arr[i] > 0)
-		saddr_arr[i] = addr_arr[i]; /* memory corrupt here */
-That issue was brought by commit a572460be9cf ("dmaengine: imx-sdma: Add
-support for version 3 firmware") because SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3
-(38->41 3 scripts added) not align with script number added in
-sdma_script_start_addrs(2 scripts).
+The reset counter is specific for every QCA700x chip. So move this
+into the private driver struct. Otherwise we get unpredictable reset
+behavior in setups with multiple QCA700x chips.
 
-Fixes: a572460be9cf ("dmaengine: imx-sdma: Add support for version 3 firmware")
-Cc: stable@vger.kernel
-Link: https://www.spinics.net/lists/arm-kernel/msg754895.html
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Reported-by: Jurgen Lambrecht <J.Lambrecht@TELEVIC.com>
-Link: https://lore.kernel.org/r/1569347584-3478-1-git-send-email-yibin.gong@nxp.com
-[vkoul: update the patch title]
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 291ab06ecf67 (net: qualcomm: new Ethernet over SPI driver for QCA7000)
+Signed-off-by: Stefan Wahren <stefan.wahren@in-tech.com>
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c                     | 8 ++++++++
- include/linux/platform_data/dma-imx-sdma.h | 3 +++
- 2 files changed, 11 insertions(+)
+ drivers/net/ethernet/qualcomm/qca_spi.c | 9 ++++-----
+ drivers/net/ethernet/qualcomm/qca_spi.h | 1 +
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index dd97dbf6618cd..1dc06e0e890f4 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1411,6 +1411,14 @@ static void sdma_add_scripts(struct sdma_engine *sdma,
- 	if (!sdma->script_number)
- 		sdma->script_number = SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V1;
+diff --git a/drivers/net/ethernet/qualcomm/qca_spi.c b/drivers/net/ethernet/qualcomm/qca_spi.c
+index 21f546587e3d5..31583d6f044f4 100644
+--- a/drivers/net/ethernet/qualcomm/qca_spi.c
++++ b/drivers/net/ethernet/qualcomm/qca_spi.c
+@@ -438,7 +438,6 @@ qcaspi_qca7k_sync(struct qcaspi *qca, int event)
+ 	u16 signature = 0;
+ 	u16 spi_config;
+ 	u16 wrbuf_space = 0;
+-	static u16 reset_count;
  
-+	if (sdma->script_number > sizeof(struct sdma_script_start_addrs)
-+				  / sizeof(s32)) {
-+		dev_err(sdma->dev,
-+			"SDMA script number %d not match with firmware.\n",
-+			sdma->script_number);
-+		return;
-+	}
-+
- 	for (i = 0; i < sdma->script_number; i++)
- 		if (addr_arr[i] > 0)
- 			saddr_arr[i] = addr_arr[i];
-diff --git a/include/linux/platform_data/dma-imx-sdma.h b/include/linux/platform_data/dma-imx-sdma.h
-index 2d08816720f6d..5bb0a119f39a3 100644
---- a/include/linux/platform_data/dma-imx-sdma.h
-+++ b/include/linux/platform_data/dma-imx-sdma.h
-@@ -50,7 +50,10 @@ struct sdma_script_start_addrs {
- 	/* End of v2 array */
- 	s32 zcanfd_2_mcu_addr;
- 	s32 zqspi_2_mcu_addr;
-+	s32 mcu_2_ecspi_addr;
- 	/* End of v3 array */
-+	s32 mcu_2_zqspi_addr;
-+	/* End of v4 array */
- };
+ 	if (event == QCASPI_EVENT_CPUON) {
+ 		/* Read signature twice, if not valid
+@@ -491,13 +490,13 @@ qcaspi_qca7k_sync(struct qcaspi *qca, int event)
  
- /**
+ 		qca->sync = QCASPI_SYNC_RESET;
+ 		qca->stats.trig_reset++;
+-		reset_count = 0;
++		qca->reset_count = 0;
+ 		break;
+ 	case QCASPI_SYNC_RESET:
+-		reset_count++;
++		qca->reset_count++;
+ 		netdev_dbg(qca->net_dev, "sync: waiting for CPU on, count %u.\n",
+-			   reset_count);
+-		if (reset_count >= QCASPI_RESET_TIMEOUT) {
++			   qca->reset_count);
++		if (qca->reset_count >= QCASPI_RESET_TIMEOUT) {
+ 			/* reset did not seem to take place, try again */
+ 			qca->sync = QCASPI_SYNC_UNKNOWN;
+ 			qca->stats.reset_timeout++;
+diff --git a/drivers/net/ethernet/qualcomm/qca_spi.h b/drivers/net/ethernet/qualcomm/qca_spi.h
+index 6e31a0e744a45..c48c314ca4dfa 100644
+--- a/drivers/net/ethernet/qualcomm/qca_spi.h
++++ b/drivers/net/ethernet/qualcomm/qca_spi.h
+@@ -97,6 +97,7 @@ struct qcaspi {
+ 
+ 	unsigned int intr_req;
+ 	unsigned int intr_svc;
++	u16 reset_count;
+ 
+ #ifdef CONFIG_DEBUG_FS
+ 	struct dentry *device_root;
 -- 
 2.20.1
 
