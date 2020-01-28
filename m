@@ -2,75 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 560AE14B550
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:47:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D3D14B55C
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726182AbgA1NrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 08:47:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38306 "EHLO mail.kernel.org"
+        id S1726097AbgA1Nuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 08:50:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725852AbgA1NrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:47:24 -0500
-Received: from localhost (unknown [193.47.165.251])
+        id S1725852AbgA1Nuv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:50:51 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BCDF24683;
-        Tue, 28 Jan 2020 13:47:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6199206F0;
+        Tue, 28 Jan 2020 13:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580219244;
-        bh=Nd3bvd7+ISafKgxlCTfToaLEfldXF5HHdK8vm67svx4=;
+        s=default; t=1580219449;
+        bh=Frko1RCalVTB2g080Ymc1x24C8gCpYyWDWdZoImvHU4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t6alKUqQoSfgZQSRcJrTRCFffFrOofbz6JXhT5Mrh4U8vMd13C3/6Z0wT1wo5qYsz
-         YAenHH+058BDaGQOVIQbDREPm19NMMtl/sbdpBJUCTlB2mRtfU8N0avwwvCv9rdfTu
-         HfDW/xFsK4Q0Ta6nEPS4tSB/UC+H1cHjKsy0wZnY=
-Date:   Tue, 28 Jan 2020 15:47:21 +0200
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Gal Pressman <galpress@amazon.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        "Saleem, Shiraz" <shiraz.saleem@intel.com>,
-        Doug Ledford <dledford@redhat.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        Alexander Matushevsky <matua@amazon.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Leybovich, Yossi" <sleybo@amazon.com>
-Subject: Re: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous
- memory blocks aligned to device supported page size"
-Message-ID: <20200128134721.GA3326@unreal>
-References: <20200120141001.63544-1-galpress@amazon.com>
- <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
- <20200121162436.GL51881@unreal>
- <47c20471-2251-b93b-053d-87880fa0edf5@amazon.com>
- <20200123142443.GN7018@unreal>
- <60d8c528-1088-df8d-76f0-4746acfcfc7a@amazon.com>
- <9DD61F30A802C4429A01CA4200E302A7C57244BB@fmsmsx123.amr.corp.intel.com>
- <20200124025221.GA16405@ziepe.ca>
- <def88bd8-357f-54b4-90f7-ee0ab382aa95@amazon.com>
+        b=KHw9XH7v+cqHh93/sxnabRex4hUQCHQjU3zDOqy0muVjc7N0dpmnU/lCYMAt55hsd
+         WXrdsFvUw5Tvsn0NPlDvypCQrvkvQgUloyEA9g5xJn9j9pD/ChHi5ASToXDv8nL22d
+         7rij58owF8omAK7u0Q2papns9kSjOa2FLn/T/OTo=
+Date:   Tue, 28 Jan 2020 14:50:47 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Wei Yang <richard.weiyang@gmail.com>
+Subject: Re: [PATCH for 4.19-stable v3 00/24] mm/memory_hotplug: backport of
+ pending stable fixes
+Message-ID: <20200128135047.GA3065469@kroah.com>
+References: <20200128095021.8076-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <def88bd8-357f-54b4-90f7-ee0ab382aa95@amazon.com>
+In-Reply-To: <20200128095021.8076-1-david@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 02:32:19PM +0200, Gal Pressman wrote:
-> On 24/01/2020 4:52, Jason Gunthorpe wrote:
-> > On Fri, Jan 24, 2020 at 12:40:18AM +0000, Saleem, Shiraz wrote:
-> >> It would be good to get the debug data to back this or prove it wrong.
-> >> But if this is indeed what's happening, then ORing in the sgl->length for the
-> >> first sge to restrict the page size might cut it. So something like,
-> >
-> > or'ing in the sgl length is a nonsense thing to do, the length has
-> > nothing to do with the restriction, which is entirely based on IOVA
-> > bits which can't be passed through.
->
-> The weekend runs passed with Leon's proposed patch.
-> Leon, can you please submit it so I can drop this revert?
+On Tue, Jan 28, 2020 at 10:49:57AM +0100, David Hildenbrand wrote:
+> This is the backport of the following fixes for 4.19-stable:
+> 
+> - d84f2f5a7552 ("drivers/base/node.c: simplify
+>   unregister_memory_block_under_nodes()")
+> -- Turned out to not only be a cleanup but also a fix
+> - 2c91f8fc6c99 ("mm/memory_hotplug: fix try_offline_node()")
+> -- Automatic stable backport failed due to missing dependencies.
+> - feee6b298916 ("mm/memory_hotplug: shrink zones when offlining memory")
+> -- Was marked as stable 5.0+ due to the backport complexity,, but it's also
+>    relevant for 4.19/4.14. As I have to backport quite some cleanups
+>    already ...
+> 
+> All tackle memory unplug issues, especially when memory was never
+> onlined (or onlining failed), paired with memory unplug. When trying to
+> access garbage memmaps we crash the kernel (e.g., because the derviced
+> pgdat pointer is broken)
+> 
+> To minimize manual code changes, I decided to pull in quite some cleanups.
+> Still some manual code changes are necessary (indicated in the individual
+> patches). Especially missing arm64 hot(un)plug, missing sub-section hotadd
+> support, and missing unification of mm/hmm.c and kernel/memremap.c requires
+> care.
+> 
+> Due to:
+> - 4e0d2e7ef14d ("mm, sparse: pass nid instead of pgdat to
+>   sparse_add_one_section()")
+> I need:
+> - afe9b36ca890 ("mm/memunmap: don't access uninitialized memmap in
+>   memunmap_pages()")
+> 
+> Please note that:
+> - 4c4b7f9ba948 ("mm/memory_hotplug: remove memory block devices
+>   before arch_remove_memory()")
+> Makes big (e.g., 32TB) machines boot up slower (e.g., 2h vs 10m). There is
+> a performance fix in linux-next, but it does not seem to classify as a
+> fix for current RC / stable.
 
-I'll do it now, feel free to reply with your tags.
+If this is that big of a regression, yes, it does classify as a fix and
+is ok for the stable trees.  Please let me know what that git id is when
+it hits Linus's tree.
 
-Thanks
+> I did quite some testing with hot(un)plug, onlining/offlining of memory
+> blocks and memory-less/CPU-less NUMA nodes under x86_64 - the same set of
+> tests I run against upstream on a fairly regular basis. I compile-tested
+> on PowerPC, arm64, s390x, i386 and sh. I did not test any ZONE_DEVICE/HMM
+> thingies.
+> 
+> The 4.14 backport might take a bit - it would be quite a lot of patches
+> to backport and it is not that severely broken, so I am thinking about
+> simpler (less invasive) alternatives.
 
->
-> Thanks
+All now queued up, thanks.
+
+greg k-h
