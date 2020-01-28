@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E6414B7F1
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7318B14B7F4
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:20:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728080AbgA1OTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:19:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
+        id S1730378AbgA1OTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:19:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727119AbgA1OTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:19:02 -0500
+        id S1730795AbgA1OTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:19:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5F4321739;
-        Tue, 28 Jan 2020 14:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B091421739;
+        Tue, 28 Jan 2020 14:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221142;
-        bh=FVBRIvNLzZ2uud5CytgTjCtHQb2wDALFalCx3cUkgmQ=;
+        s=default; t=1580221147;
+        bh=ew8TtFAbGh0YDWog97CRPrqFZI6pcvWQx7snqRfgzCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvUEcIX+YFlwzK0mnrppRzpRZ4ODkK975xwQ0z7wlHhXwVHYpXapgCCDw4YShi26G
-         kVu4ahqCeptM9NmzDwJGlF/IREDAuP8NtG163GvOWzxBIZ+IvmLIGq9/eaOUyYgJRH
-         iow8mtrDdKczCtUuhWx0MYkzK2zW3TcjPTc32lBA=
+        b=qDZDVz19ulTXIiQjsw7HQ1nCjcXc0Osg6ahc9WLH03+ImbZW5UQLqGltxOBcASRaO
+         METQo1WyhmaHzFXYZ3RJB+b8OXgD0sBYq3JdKINzcNV36ozem/T9gd2rOXP2SA1le0
+         OT1UPqMBqEINgIqNVuEZgWI/JB77hvoYy/Ema5tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paul Walmsley <paul@pwsan.com>,
+        Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 104/271] tipc: tipc clang warning
-Date:   Tue, 28 Jan 2020 15:04:13 +0100
-Message-Id: <20200128135900.332205111@linuxfoundation.org>
+Subject: [PATCH 4.9 106/271] ARM: OMAP2+: Fix potentially uninitialized return value for _setup_reset()
+Date:   Tue, 28 Jan 2020 15:04:15 +0100
+Message-Id: <20200128135900.475700264@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -46,67 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Maloy <jon.maloy@ericsson.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 737889efe9713a0f20a75fd0de952841d9275e6b ]
+[ Upstream commit 7f0d078667a494466991aa7133f49594f32ff6a2 ]
 
-When checking the code with clang -Wsometimes-uninitialized we get the
-following warning:
+Commit 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior") made
+the call to _enable() conditional based on no oh->rst_lines_cnt. This
+caused the return value to be potentially uninitialized. Curiously we see
+no compiler warnings for this, probably as this gets inlined.
 
-if (!tipc_link_is_establishing(l)) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/tipc/node.c:847:46: note: uninitialized use occurs here
-      tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
+We call _setup_reset() from _setup() and only _setup_postsetup() if the
+return value is zero. Currently the return value can be uninitialized for
+cases where oh->rst_lines_cnt is set and HWMOD_INIT_NO_RESET is not set.
 
-net/tipc/node.c:831:2: note: remove the 'if' if its condition is always
-true
-if (!tipc_link_is_establishing(l)) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/tipc/node.c:821:31: note: initialize the variable 'maddr' to silence
-this warning
-struct tipc_media_addr *maddr;
-
-We fix this by initializing 'maddr' to NULL. For the matter of clarity,
-we also test if 'xmitq' is non-empty before we use it and 'maddr'
-further down in the  function. It will never happen that 'xmitq' is non-
-empty at the same time as 'maddr' is NULL, so this is a sufficient test.
-
-Fixes: 598411d70f85 ("tipc: make resetting of links non-atomic")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior")
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/node.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tipc/node.c b/net/tipc/node.c
-index db8fbc076e1a5..fe7b0ad1d6f32 100644
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -688,10 +688,10 @@ static void __tipc_node_link_down(struct tipc_node *n, int *bearer_id,
- static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index bfc74954540ce..9421b78f869d3 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -2588,7 +2588,7 @@ static void _setup_iclk_autoidle(struct omap_hwmod *oh)
+  */
+ static int _setup_reset(struct omap_hwmod *oh)
  {
- 	struct tipc_link_entry *le = &n->links[bearer_id];
-+	struct tipc_media_addr *maddr = NULL;
- 	struct tipc_link *l = le->link;
--	struct tipc_media_addr *maddr;
--	struct sk_buff_head xmitq;
- 	int old_bearer_id = bearer_id;
-+	struct sk_buff_head xmitq;
+-	int r;
++	int r = 0;
  
- 	if (!l)
- 		return;
-@@ -713,7 +713,8 @@ static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
- 	tipc_node_write_unlock(n);
- 	if (delete)
- 		tipc_mon_remove_peer(n->net, n->addr, old_bearer_id);
--	tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
-+	if (!skb_queue_empty(&xmitq))
-+		tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
- 	tipc_sk_rcv(n->net, &le->inputq);
- }
- 
+ 	if (oh->_state != _HWMOD_STATE_INITIALIZED)
+ 		return -EINVAL;
 -- 
 2.20.1
 
