@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7FB14B77B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:17:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B89114B8A6
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:26:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbgA1OOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:14:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37032 "EHLO mail.kernel.org"
+        id S1730968AbgA1O0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:26:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729160AbgA1OOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:14:47 -0500
+        id S1729663AbgA1OZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:25:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61E7624681;
-        Tue, 28 Jan 2020 14:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8355824685;
+        Tue, 28 Jan 2020 14:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220885;
-        bh=aeuewA1yTyPj1xKgHxhkDxZjZ0/fg6c89qjmyuiqDxk=;
+        s=default; t=1580221558;
+        bh=1EACH4F58ZD1tdnCTIw6HDtVwy8XumsZjIIU30TsouU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ONubhtpD9nfRFfTVQ2/EFxjZIJJCQ3c5ScdQRxkbItfnc7ph8V4+zANuuOk/M6CKS
-         tYi4PCE1s3j2WZhbKEqhu5jXOMzPoP3DT/jJscC5pM5E4ddgFDE6enn9Ov5D3YxdQx
-         VYdpMcm/v7Y3hskQpBVjiMKRcDhunT4cM4Wb7Cbw=
+        b=NNnvQd5ta9WIS6mp9yhO9ac9fyfGpOObt8XY51EgQr4TNufYQmm4wNf/FbZnEdNMB
+         5xvmKuNzmYXH9KkRAyJ3INpe8Jl6HrbBbHv0MV5cvYt4s6CSLFKYRet/UtJzzNyf3q
+         4P+7Ie1wBoh5TDivnPjTe8URwstUf5CNzvDIjs/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 155/183] packet: fix data-race in fanout_flow_is_huge()
-Date:   Tue, 28 Jan 2020 15:06:14 +0100
-Message-Id: <20200128135845.247979156@linuxfoundation.org>
+Subject: [PATCH 4.9 226/271] packet: fix data-race in fanout_flow_is_huge()
+Date:   Tue, 28 Jan 2020 15:06:15 +0100
+Message-Id: <20200128135909.384939014@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -143,7 +143,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 9de7e3e6edd30..eac6f7eea7b51 100644
+index 47a862cc7b349..fb643945e4244 100644
 --- a/net/packet/af_packet.c
 +++ b/net/packet/af_packet.c
 @@ -1332,15 +1332,21 @@ static void packet_sock_destruct(struct sock *sk)
