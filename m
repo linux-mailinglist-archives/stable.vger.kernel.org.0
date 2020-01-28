@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4660D14B5BD
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3887714B5BF
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727252AbgA1OAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:00:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45982 "EHLO mail.kernel.org"
+        id S1726697AbgA1OAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:00:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726697AbgA1OAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:00:17 -0500
+        id S1726692AbgA1OAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:00:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 949DD2468F;
-        Tue, 28 Jan 2020 14:00:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C00124694;
+        Tue, 28 Jan 2020 14:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220017;
-        bh=QcOGFUpY3hWY8zDwR2VWP52YZ7ia1a6l2UUSsYDmnYo=;
+        s=default; t=1580220019;
+        bh=8JpFQ3NofESOkuHFqaDPypBoczwv8Ujt9h1/c4Jearc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=db/yuKAN6cNYyifS3GNu/etnTr0S4ScrBcOh/tS7DaXQpTyW3FHCRfU6908TGolLt
-         STGSJSnXWajQ69XJ9JZnOXjtauotn52491gcy6orRgqpvE/OqvJBrLMnlbPBeDjVLE
-         xzeB4ggbP+z+b7b2zwoa1UeyTX9IdQtPWI2Y9++Q=
+        b=p5zvJCuil/3q0ZOHQk6q0Xxx4EMKwuJq2Ng0hNCR2rTuDdVBAZksHgZtm6xzV+j8w
+         r27z1T/EP7tcN9Z8l05ny4ghFMyBGA27ImasQJdyCxwpsUII+nH6XgrhNwweYoT4fg
+         E4FG1W7Z5dGdhTa70Zd5/mrBWYRChgZaOfbDejHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 35/46] tracing: xen: Ordered comparison of function pointers
-Date:   Tue, 28 Jan 2020 14:58:09 +0100
-Message-Id: <20200128135754.463825479@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.14 36/46] do_last(): fetch directory ->i_mode and ->i_uid before its too late
+Date:   Tue, 28 Jan 2020 14:58:10 +0100
+Message-Id: <20200128135754.563268564@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -43,53 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit d0695e2351102affd8efae83989056bc4b275917 upstream.
+commit d0cb50185ae942b03c4327be322055d622dc79f6 upstream.
 
-Just as commit 0566e40ce7 ("tracing: initcall: Ordered comparison of
-function pointers"), this patch fixes another remaining one in xen.h
-found by clang-9.
+may_create_in_sticky() call is done when we already have dropped the
+reference to dir.
 
-In file included from arch/x86/xen/trace.c:21:
-In file included from ./include/trace/events/xen.h:475:
-In file included from ./include/trace/define_trace.h:102:
-In file included from ./include/trace/trace_events.h:473:
-./include/trace/events/xen.h:69:7: warning: ordered comparison of function \
-pointers ('xen_mc_callback_fn_t' (aka 'void (*)(void *)') and 'xen_mc_callback_fn_t') [-Wordered-compare-function-pointers]
-                    __field(xen_mc_callback_fn_t, fn)
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/trace/trace_events.h:421:29: note: expanded from macro '__field'
-                                ^
-./include/trace/trace_events.h:407:6: note: expanded from macro '__field_ext'
-                                 is_signed_type(type), filter_type);    \
-                                 ^
-./include/linux/trace_events.h:554:44: note: expanded from macro 'is_signed_type'
-                                              ^
-
-Fixes: c796f213a6934 ("xen/trace: add multicall tracing")
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 30aba6656f61e (namei: allow restricted O_CREAT of FIFOs and regular files)
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/xen.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/namei.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/include/trace/events/xen.h
-+++ b/include/trace/events/xen.h
-@@ -66,7 +66,11 @@ TRACE_EVENT(xen_mc_callback,
- 	    TP_PROTO(xen_mc_callback_fn_t fn, void *data),
- 	    TP_ARGS(fn, data),
- 	    TP_STRUCT__entry(
--		    __field(xen_mc_callback_fn_t, fn)
-+		    /*
-+		     * Use field_struct to avoid is_signed_type()
-+		     * comparison of a function pointer.
-+		     */
-+		    __field_struct(xen_mc_callback_fn_t, fn)
- 		    __field(void *, data)
- 		    ),
- 	    TP_fast_assign(
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1023,7 +1023,8 @@ static int may_linkat(struct path *link)
+  * may_create_in_sticky - Check whether an O_CREAT open in a sticky directory
+  *			  should be allowed, or not, on files that already
+  *			  exist.
+- * @dir: the sticky parent directory
++ * @dir_mode: mode bits of directory
++ * @dir_uid: owner of directory
+  * @inode: the inode of the file to open
+  *
+  * Block an O_CREAT open of a FIFO (or a regular file) when:
+@@ -1039,18 +1040,18 @@ static int may_linkat(struct path *link)
+  *
+  * Returns 0 if the open is allowed, -ve on error.
+  */
+-static int may_create_in_sticky(struct dentry * const dir,
++static int may_create_in_sticky(umode_t dir_mode, kuid_t dir_uid,
+ 				struct inode * const inode)
+ {
+ 	if ((!sysctl_protected_fifos && S_ISFIFO(inode->i_mode)) ||
+ 	    (!sysctl_protected_regular && S_ISREG(inode->i_mode)) ||
+-	    likely(!(dir->d_inode->i_mode & S_ISVTX)) ||
+-	    uid_eq(inode->i_uid, dir->d_inode->i_uid) ||
++	    likely(!(dir_mode & S_ISVTX)) ||
++	    uid_eq(inode->i_uid, dir_uid) ||
+ 	    uid_eq(current_fsuid(), inode->i_uid))
+ 		return 0;
+ 
+-	if (likely(dir->d_inode->i_mode & 0002) ||
+-	    (dir->d_inode->i_mode & 0020 &&
++	if (likely(dir_mode & 0002) ||
++	    (dir_mode & 0020 &&
+ 	     ((sysctl_protected_fifos >= 2 && S_ISFIFO(inode->i_mode)) ||
+ 	      (sysctl_protected_regular >= 2 && S_ISREG(inode->i_mode))))) {
+ 		return -EACCES;
+@@ -3265,6 +3266,8 @@ static int do_last(struct nameidata *nd,
+ 		   int *opened)
+ {
+ 	struct dentry *dir = nd->path.dentry;
++	kuid_t dir_uid = dir->d_inode->i_uid;
++	umode_t dir_mode = dir->d_inode->i_mode;
+ 	int open_flag = op->open_flag;
+ 	bool will_truncate = (open_flag & O_TRUNC) != 0;
+ 	bool got_write = false;
+@@ -3400,7 +3403,7 @@ finish_open:
+ 		error = -EISDIR;
+ 		if (d_is_dir(nd->path.dentry))
+ 			goto out;
+-		error = may_create_in_sticky(dir,
++		error = may_create_in_sticky(dir_mode, dir_uid,
+ 					     d_backing_inode(nd->path.dentry));
+ 		if (unlikely(error))
+ 			goto out;
 
 
