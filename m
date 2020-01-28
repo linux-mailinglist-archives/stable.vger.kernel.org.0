@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3793014B9F0
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C53B14BAED
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731452AbgA1OXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:23:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
+        id S1727922AbgA1OMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:12:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731946AbgA1OXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:23:09 -0500
+        id S1727345AbgA1OMj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:12:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9B6221739;
-        Tue, 28 Jan 2020 14:23:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08E7524693;
+        Tue, 28 Jan 2020 14:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221388;
-        bh=ZKlPAfO3zRjg3UAkTcvMoEsUrSwlOG/1XdwucKB2Sb4=;
+        s=default; t=1580220758;
+        bh=Rra1HkeYZZAUy6HVOskcmRZCJVCSWBkK8qI8nsO/Jh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X44YEhg5MV5GKdRBSWK+3XrC7yqGP1/j6D3PUX7EkR1OWamA7Co006GMmvHmwthsb
-         hn/YSx421zPN5Zd7N3QSEp3X9ofZIOHPuDP3eQ8rW0boNb/JcFSRKjAmbvogjXkpaT
-         PBjHuCM05lpSy0it88m/pqHsHOwcQQEyzb/3LR+M=
+        b=z/MNc2lJ7wHUyCOUJuRHA6fr2Y1CmwM6JrbB7QjQj/Z8qluhc8CnyKYl+meh0HBOB
+         gX5ZDaA7vHbkLaQRayxIcVL9eWbI0uVwMBoFNe/Aq4MtHHb5HWtNqlliRc6/jshLFJ
+         f+W2HrM5bp5di90jI5DZ7+H6t2e1XR/XF7FQG3sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 205/271] net: stmmac: dwmac-meson8b: Fix signedness bug in probe
+Subject: [PATCH 4.4 135/183] Btrfs: fix hang when loading existing inode cache off disk
 Date:   Tue, 28 Jan 2020 15:05:54 +0100
-Message-Id: <20200128135907.815677243@linuxfoundation.org>
+Message-Id: <20200128135843.264736933@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit f10210517a2f37feea2edf85eb34c98977265c16 ]
+[ Upstream commit 7764d56baa844d7f6206394f21a0e8c1f303c476 ]
 
-The "dwmac->phy_mode" is an enum and in this context GCC treats it as
-an unsigned int so the error handling is never triggered.
+If we are able to load an existing inode cache off disk, we set the state
+of the cache to BTRFS_CACHE_FINISHED, but we don't wake up any one waiting
+for the cache to be available. This means that anyone waiting for the
+cache to be available, waiting on the condition that either its state is
+BTRFS_CACHE_FINISHED or its available free space is greather than zero,
+can hang forever.
 
-Fixes: 566e82516253 ("net: stmmac: add a glue driver for the Amlogic Meson 8b / GXBB DWMAC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This could be observed running fstests with MOUNT_OPTIONS="-o inode_cache",
+in particular test case generic/161 triggered it very frequently for me,
+producing a trace like the following:
+
+  [63795.739712] BTRFS info (device sdc): enabling inode map caching
+  [63795.739714] BTRFS info (device sdc): disk space caching is enabled
+  [63795.739716] BTRFS info (device sdc): has skinny extents
+  [64036.653886] INFO: task btrfs-transacti:3917 blocked for more than 120 seconds.
+  [64036.654079]       Not tainted 5.2.0-rc4-btrfs-next-50 #1
+  [64036.654143] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [64036.654232] btrfs-transacti D    0  3917      2 0x80004000
+  [64036.654239] Call Trace:
+  [64036.654258]  ? __schedule+0x3ae/0x7b0
+  [64036.654271]  schedule+0x3a/0xb0
+  [64036.654325]  btrfs_commit_transaction+0x978/0xae0 [btrfs]
+  [64036.654339]  ? remove_wait_queue+0x60/0x60
+  [64036.654395]  transaction_kthread+0x146/0x180 [btrfs]
+  [64036.654450]  ? btrfs_cleanup_transaction+0x620/0x620 [btrfs]
+  [64036.654456]  kthread+0x103/0x140
+  [64036.654464]  ? kthread_create_worker_on_cpu+0x70/0x70
+  [64036.654476]  ret_from_fork+0x3a/0x50
+  [64036.654504] INFO: task xfs_io:3919 blocked for more than 120 seconds.
+  [64036.654568]       Not tainted 5.2.0-rc4-btrfs-next-50 #1
+  [64036.654617] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [64036.654685] xfs_io          D    0  3919   3633 0x00000000
+  [64036.654691] Call Trace:
+  [64036.654703]  ? __schedule+0x3ae/0x7b0
+  [64036.654716]  schedule+0x3a/0xb0
+  [64036.654756]  btrfs_find_free_ino+0xa9/0x120 [btrfs]
+  [64036.654764]  ? remove_wait_queue+0x60/0x60
+  [64036.654809]  btrfs_create+0x72/0x1f0 [btrfs]
+  [64036.654822]  lookup_open+0x6bc/0x790
+  [64036.654849]  path_openat+0x3bc/0xc00
+  [64036.654854]  ? __lock_acquire+0x331/0x1cb0
+  [64036.654869]  do_filp_open+0x99/0x110
+  [64036.654884]  ? __alloc_fd+0xee/0x200
+  [64036.654895]  ? do_raw_spin_unlock+0x49/0xc0
+  [64036.654909]  ? do_sys_open+0x132/0x220
+  [64036.654913]  do_sys_open+0x132/0x220
+  [64036.654926]  do_syscall_64+0x60/0x1d0
+  [64036.654933]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fix this by adding a wake_up() call right after setting the cache state to
+BTRFS_CACHE_FINISHED, at start_caching(), when we are able to load the
+cache from disk.
+
+Fixes: 82d5902d9c681b ("Btrfs: Support reading/writing on disk free ino cache")
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode-map.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-index f356a44bcb811..6704d3e0392dc 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-@@ -280,7 +280,7 @@ static int meson8b_dwmac_probe(struct platform_device *pdev)
+diff --git a/fs/btrfs/inode-map.c b/fs/btrfs/inode-map.c
+index 07573dc1614ab..3469c7ce7cb6d 100644
+--- a/fs/btrfs/inode-map.c
++++ b/fs/btrfs/inode-map.c
+@@ -158,6 +158,7 @@ static void start_caching(struct btrfs_root *root)
+ 		spin_lock(&root->ino_cache_lock);
+ 		root->ino_cache_state = BTRFS_CACHE_FINISHED;
+ 		spin_unlock(&root->ino_cache_lock);
++		wake_up(&root->ino_cache_wait);
+ 		return;
+ 	}
  
- 	dwmac->pdev = pdev;
- 	dwmac->phy_mode = of_get_phy_mode(pdev->dev.of_node);
--	if (dwmac->phy_mode < 0) {
-+	if ((int)dwmac->phy_mode < 0) {
- 		dev_err(&pdev->dev, "missing phy-mode property\n");
- 		ret = -EINVAL;
- 		goto err_remove_config_dt;
 -- 
 2.20.1
 
