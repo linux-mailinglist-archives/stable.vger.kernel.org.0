@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC8514BA9B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:40:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDE114BA9A
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgA1OQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:16:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39530 "EHLO mail.kernel.org"
+        id S1729793AbgA1OQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:16:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729729AbgA1OQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:16:16 -0500
+        id S1729550AbgA1OQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:16:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A70B2468E;
-        Tue, 28 Jan 2020 14:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80AC124694;
+        Tue, 28 Jan 2020 14:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220975;
-        bh=ylsa5bZAYxBolvsZP5TgVEiu9DpTh5ZbjvhYTu1St6U=;
+        s=default; t=1580220978;
+        bh=cCRQP4ZGQutVXdIRbfZqYD0v7C8VIcC0uXbm8c6TcI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OES/TBK/lpG7F4KozlJwV76VBKuU3Yd81F2d3rwX9GkmBJ0VsgX0WwZIiHUNSH2RF
-         g0iJOggSl5W0OFm1RyFktFYB3R9p2KGOvhM30po+44AZVA0GGLP4tryuyj0unWReIu
-         1i9iHPlS+GXOscGwTg0QQCKvlUdfV1GUyLFmyDEQ=
+        b=gDgdBXLWo9IKcfgV0S/zHAIvV41/MKwI5unK7xHSwPBxvWUoKKsntv3NAodo3a8Qj
+         sjdREXjWkMXjB+OQOE2ZEc7QaHMWdxgh6cHeKkEmtnwbYdxN5yo5q3T1q3NEyp66gG
+         +KCKsNtUJ9GhugIB8dyGz6q6SuOoUBz4VynzULG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 039/271] RDMA/ocrdma: Fix out of bounds index check in query pkey
-Date:   Tue, 28 Jan 2020 15:03:08 +0100
-Message-Id: <20200128135855.577795756@linuxfoundation.org>
+Subject: [PATCH 4.9 040/271] RDMA/qedr: Fix out of bounds index check in query pkey
+Date:   Tue, 28 Jan 2020 15:03:09 +0100
+Message-Id: <20200128135855.648442525@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
 References: <20200128135852.449088278@linuxfoundation.org>
@@ -46,32 +47,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit b188940796c7be31c1b8c25a9a0e0842c2e7a49e ]
+[ Upstream commit dbe30dae487e1a232158c24b432d45281c2805b7 ]
 
-The pkey table size is one element, index should be tested for > 0 instead
-of > 1.
+The pkey table size is QEDR_ROCE_PKEY_TABLE_LEN, index should be tested
+for >= QEDR_ROCE_PKEY_TABLE_LEN instead of > QEDR_ROCE_PKEY_TABLE_LEN.
 
-Fixes: fe2caefcdf58 ("RDMA/ocrdma: Add driver for Emulex OneConnect IBoE RDMA adapter")
+Fixes: a7efd7773e31 ("qedr: Add support for PD,PKEY and CQ verbs")
 Signed-off-by: Gal Pressman <galpress@amazon.com>
+Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/ocrdma/ocrdma_verbs.c | 2 +-
+ drivers/infiniband/hw/qedr/verbs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c b/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
-index 6af44f8db3d54..4d28bd8eff01c 100644
---- a/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
-+++ b/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
-@@ -55,7 +55,7 @@
+diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
+index cd0408c2b376f..7603a1641c7d8 100644
+--- a/drivers/infiniband/hw/qedr/verbs.c
++++ b/drivers/infiniband/hw/qedr/verbs.c
+@@ -54,7 +54,7 @@
  
- int ocrdma_query_pkey(struct ib_device *ibdev, u8 port, u16 index, u16 *pkey)
+ int qedr_query_pkey(struct ib_device *ibdev, u8 port, u16 index, u16 *pkey)
  {
--	if (index > 1)
-+	if (index > 0)
+-	if (index > QEDR_ROCE_PKEY_TABLE_LEN)
++	if (index >= QEDR_ROCE_PKEY_TABLE_LEN)
  		return -EINVAL;
  
- 	*pkey = 0xffff;
+ 	*pkey = QEDR_ROCE_PKEY_DEFAULT;
 -- 
 2.20.1
 
