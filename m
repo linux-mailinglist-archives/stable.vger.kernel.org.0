@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C21514BB91
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A11314BB8F
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726716AbgA1OsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49446 "EHLO mail.kernel.org"
+        id S1727752AbgA1ODB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:03:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727762AbgA1OC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:02:57 -0500
+        id S1727771AbgA1OC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:02:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E33E24685;
-        Tue, 28 Jan 2020 14:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0DE6205F4;
+        Tue, 28 Jan 2020 14:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220176;
-        bh=HAplMGVFy+W3R6NQP5ZdvVfho2qbadRcoi09lYnwgsU=;
+        s=default; t=1580220179;
+        bh=UI4qpDBPZWL60iebMjsOsFxDjVRgMXoR9HmhwXFonz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0sge5TdKPK+5spg+5TwAY430IkEYw4fsTWa2prx45m205+m5GYCHJnQNzM9gdXd/
-         tZoGhsNSl5p44rjbvUTcXQR9kzUQQzxArRKlCsMtmnOCwcc0EGseeGrvESW+7o6mFN
-         NYaLc1y3s/YxsDcsLXL7PuhRWGugi/wJWcKNDNCg=
+        b=GXICbPpTXkwd1TEWBrEhP4iJE3g5X3y0aD9n5Mi8LKTdoTA/XepYaZ8gvhdfseX33
+         Tsf6a6VetfIa0XdwCBmWfSDCXcjcVFKQu5aAlICcbxC/1QBdM9SmdvnK5Xp3IGXrly
+         yoSc8bkGdC5tYMqcav+QqSZebGm633bbMoK1jAqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mehmet Akif Tasova <makiftasova@gmail.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.4 048/104] Revert "iwlwifi: mvm: fix scan config command size"
-Date:   Tue, 28 Jan 2020 15:00:09 +0100
-Message-Id: <20200128135824.326907454@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 049/104] iwlwifi: mvm: dont send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
+Date:   Tue, 28 Jan 2020 15:00:10 +0100
+Message-Id: <20200128135824.452356310@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135817.238524998@linuxfoundation.org>
 References: <20200128135817.238524998@linuxfoundation.org>
@@ -43,49 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mehmet Akif Tasova <makiftasova@gmail.com>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit 205608749e1ef394f513888091e613c5bfccbcca upstream.
+commit d829229e35f302fd49c052b5c5906c90ecf9911d upstream.
 
-Since v5.4-rc1 was released, iwlwifi started throwing errors when scan
-commands were sent to the firmware with certain devices (depending on
-the OTP burned in the device, which contains the list of available
-channels).  For instance:
+The purpose of this was to keep all the queues updated with
+the Rx sequence numbers because unlikely yet possible
+situations where queues can't understand if a specific
+packet needs to be dropped or not.
 
-iwlwifi 0000:00:14.3: FW error in SYNC CMD SCAN_CFG_CMD
+Unfortunately, it was reported that this caused issues in
+our DMA engine. We don't fully understand how this is related,
+but this is being currently debugged. For now, just don't send
+this notification to the Rx queues. This de-facto reverts my
+commit 3c514bf831ac12356b695ff054bef641b9e99593:
 
-This bug was reported in the ArchLinux bug tracker:
-https://bugs.archlinux.org/task/64703
+iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
 
-And also in a specific case in bugzilla, when the lar_disabled option
-was set: https://bugzilla.kernel.org/show_bug.cgi?id=205193
+This issue was reported here:
+https://bugzilla.kernel.org/show_bug.cgi?id=204873
+https://bugzilla.kernel.org/show_bug.cgi?id=205001
+and others maybe.
 
-Revert the commit that introduced this error, by using the number of
-channels from the OTP instead of the number of channels that is
-specified in the FW TLV that tells us how many channels it supports.
-
-This reverts commit 06eb547c4ae4382e70d556ba213d13c95ca1801b.
-
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Mehmet Akif Tasova <makiftasova@gmail.com>
-[ Luca: reworded the commit message a bit. ]
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
+CC: <stable@vger.kernel.org> # 5.3+
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/scan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/constants.h |    1 +
+ drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c      |   17 ++++++++++-------
+ 2 files changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-@@ -1220,7 +1220,7 @@ static int iwl_mvm_legacy_config_scan(st
- 		cmd_size = sizeof(struct iwl_scan_config_v2);
- 	else
- 		cmd_size = sizeof(struct iwl_scan_config_v1);
--	cmd_size += num_channels;
-+	cmd_size += mvm->fw->ucode_capa.n_scan_channels;
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
+@@ -154,5 +154,6 @@
+ #define IWL_MVM_D3_DEBUG			false
+ #define IWL_MVM_USE_TWT				false
+ #define IWL_MVM_AMPDU_CONSEC_DROPS_DELBA	10
++#define IWL_MVM_USE_NSSN_SYNC			0
  
- 	cfg = kzalloc(cmd_size, GFP_KERNEL);
- 	if (!cfg)
+ #endif /* __MVM_CONSTANTS_H */
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+@@ -514,14 +514,17 @@ static bool iwl_mvm_is_sn_less(u16 sn1,
+ 
+ static void iwl_mvm_sync_nssn(struct iwl_mvm *mvm, u8 baid, u16 nssn)
+ {
+-	struct iwl_mvm_rss_sync_notif notif = {
+-		.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
+-		.metadata.sync = 0,
+-		.nssn_sync.baid = baid,
+-		.nssn_sync.nssn = nssn,
+-	};
++	if (IWL_MVM_USE_NSSN_SYNC) {
++		struct iwl_mvm_rss_sync_notif notif = {
++			.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
++			.metadata.sync = 0,
++			.nssn_sync.baid = baid,
++			.nssn_sync.nssn = nssn,
++		};
+ 
+-	iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
++		iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif,
++						sizeof(notif));
++	}
+ }
+ 
+ #define RX_REORDER_BUF_TIMEOUT_MQ (HZ / 10)
 
 
