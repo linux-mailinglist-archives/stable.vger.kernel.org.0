@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BED9E14B910
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E59D14B91B
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727078AbgA1O01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53836 "EHLO mail.kernel.org"
+        id S1729697AbgA1O04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:26:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726989AbgA1O00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:26:26 -0500
+        id S1733239AbgA1O0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:26:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D273C207FD;
-        Tue, 28 Jan 2020 14:26:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D81C024688;
+        Tue, 28 Jan 2020 14:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221585;
-        bh=4YVSFGvrEhTYt7QF1aKqFLgF6yffFb0U7rnqeQu6t7U=;
+        s=default; t=1580221615;
+        bh=vFwKv6+IOjYUGHyaQxM/vTaosCbWrV9HShRB2gnc7yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7VUTOVSjsm5Yo3s8k4sA0L6XMOOeBhw7SyDgNUKYxAJOya8mL1ohRwIXq1plYKIY
-         KDIaaxE/CmfL6qmonqy3FcufdxNtA7zVLjuitk9/abILv6R7woeax1ucX1j8Iz4awr
-         qfG5xZ5IBw+R0NSMW/ko8kGicaoF2bB8Fx5fMIfc=
+        b=bcz730kajifunjxn5Q/JNlfgj3kaZ+peqP08rDd+x3grV3NLu4wnRUCe210Mez0vW
+         ChtwOx3FQtEhdVN3leNwJwI9k6wpOPGe8HGUx2RnpEtyKgn/jRWC6h4TgPZA9/NsUo
+         +Kd+8dZHmkUHJKEMmqwV1Yyb8KErbduBhwK9jBc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+017e491ae13c0068598a@syzkaller.appspotmail.com,
-        Richard Palethorpe <rpalethorpe@suse.com>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Tyler Hall <tylerwhall@gmail.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, syzkaller@googlegroups.com
-Subject: [PATCH 4.19 01/92] can, slip: Protect tty->disc_data in write_wakeup and close with RCU
-Date:   Tue, 28 Jan 2020 15:07:29 +0100
-Message-Id: <20200128135809.516072484@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Doug Berger <opendmb@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 05/92] net: bcmgenet: Use netif_tx_napi_add() for TX NAPI
+Date:   Tue, 28 Jan 2020 15:07:33 +0100
+Message-Id: <20200128135809.992532654@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135809.344954797@linuxfoundation.org>
 References: <20200128135809.344954797@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,109 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Palethorpe <rpalethorpe@suse.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 0ace17d56824165c7f4c68785d6b58971db954dd ]
+[ Upstream commit 148965df1a990af98b2c84092c2a2274c7489284 ]
 
-write_wakeup can happen in parallel with close/hangup where tty->disc_data
-is set to NULL and the netdevice is freed thus also freeing
-disc_data. write_wakeup accesses disc_data so we must prevent close from
-freeing the netdev while write_wakeup has a non-NULL view of
-tty->disc_data.
+Before commit 7587935cfa11 ("net: bcmgenet: move NAPI initialization to
+ring initialization") moved the code, this used to be
+netif_tx_napi_add(), but we lost that small semantic change in the
+process, restore that.
 
-We also need to make sure that accesses to disc_data are atomic. Which can
-all be done with RCU.
-
-This problem was found by Syzkaller on SLCAN, but the same issue is
-reproducible with the SLIP line discipline using an LTP test based on the
-Syzkaller reproducer.
-
-A fix which didn't use RCU was posted by Hillf Danton.
-
-Fixes: 661f7fda21b1 ("slip: Fix deadlock in write_wakeup")
-Fixes: a8e83b17536a ("slcan: Port write_wakeup deadlock fix from slip")
-Reported-by: syzbot+017e491ae13c0068598a@syzkaller.appspotmail.com
-Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Tyler Hall <tylerwhall@gmail.com>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: syzkaller@googlegroups.com
+Fixes: 7587935cfa11 ("net: bcmgenet: move NAPI initialization to ring initialization")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Doug Berger <opendmb@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/slcan.c |   12 ++++++++++--
- drivers/net/slip/slip.c |   12 ++++++++++--
- 2 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/slcan.c
-+++ b/drivers/net/can/slcan.c
-@@ -343,9 +343,16 @@ static void slcan_transmit(struct work_s
-  */
- static void slcan_write_wakeup(struct tty_struct *tty)
- {
--	struct slcan *sl = tty->disc_data;
-+	struct slcan *sl;
-+
-+	rcu_read_lock();
-+	sl = rcu_dereference(tty->disc_data);
-+	if (!sl)
-+		goto out;
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -2166,8 +2166,8 @@ static void bcmgenet_init_tx_ring(struct
+ 				  DMA_END_ADDR);
  
- 	schedule_work(&sl->tx_work);
-+out:
-+	rcu_read_unlock();
+ 	/* Initialize Tx NAPI */
+-	netif_napi_add(priv->dev, &ring->napi, bcmgenet_tx_poll,
+-		       NAPI_POLL_WEIGHT);
++	netif_tx_napi_add(priv->dev, &ring->napi, bcmgenet_tx_poll,
++			  NAPI_POLL_WEIGHT);
  }
  
- /* Send a can_frame to a TTY queue. */
-@@ -640,10 +647,11 @@ static void slcan_close(struct tty_struc
- 		return;
- 
- 	spin_lock_bh(&sl->lock);
--	tty->disc_data = NULL;
-+	rcu_assign_pointer(tty->disc_data, NULL);
- 	sl->tty = NULL;
- 	spin_unlock_bh(&sl->lock);
- 
-+	synchronize_rcu();
- 	flush_work(&sl->tx_work);
- 
- 	/* Flush network side */
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -452,9 +452,16 @@ static void slip_transmit(struct work_st
-  */
- static void slip_write_wakeup(struct tty_struct *tty)
- {
--	struct slip *sl = tty->disc_data;
-+	struct slip *sl;
-+
-+	rcu_read_lock();
-+	sl = rcu_dereference(tty->disc_data);
-+	if (!sl)
-+		goto out;
- 
- 	schedule_work(&sl->tx_work);
-+out:
-+	rcu_read_unlock();
- }
- 
- static void sl_tx_timeout(struct net_device *dev)
-@@ -882,10 +889,11 @@ static void slip_close(struct tty_struct
- 		return;
- 
- 	spin_lock_bh(&sl->lock);
--	tty->disc_data = NULL;
-+	rcu_assign_pointer(tty->disc_data, NULL);
- 	sl->tty = NULL;
- 	spin_unlock_bh(&sl->lock);
- 
-+	synchronize_rcu();
- 	flush_work(&sl->tx_work);
- 
- 	/* VSV = very important to remove timers */
+ /* Initialize a RDMA ring */
 
 
