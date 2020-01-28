@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C6D14BB23
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75DB914B9D5
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727770AbgA1OKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:10:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59762 "EHLO mail.kernel.org"
+        id S1730853AbgA1OVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:21:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726797AbgA1OKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:10:50 -0500
+        id S1731074AbgA1OVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:21:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C02A2468F;
-        Tue, 28 Jan 2020 14:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BC1924688;
+        Tue, 28 Jan 2020 14:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220649;
-        bh=5Z6EN6VJq3DfDOLKKD91wpew8hlqtMfujy9PSyL+YbI=;
+        s=default; t=1580221278;
+        bh=CkSWa3+tm2tcfSWRmOI5hOneByH/GcjVShb/+UDPSb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpGAUMlTnpMYV9/tdBCh+nytvQY2OtZeJLbMs8Hjz3pehQOCRPzma8bqeVOeG6t2H
-         Q02uSrqeBIe/Aaa1BSNHQlOa4+HeFrIqw+2rayp271Oo7xGnG8PW66iiIK790XBYz8
-         oyHy3PptaouQN3aq48lbX0ubBZ6iGRpKb65tk5Ag=
+        b=T84+7HuPgnb0t+ti29VsS3hrZXmI8nJrIXyYUfz96P7DqBH1cPMRDK6V6ZEzwjqpH
+         7u9EPLR45uygckEhOpW4Hj5gFd4ToVIeXBuxO1Q71Nw+hWLDyQkGnqCudjBuGNHOLD
+         Vf+Zcta9K2kV1tT7wJbsbMYeL8xzolXp8znzYWZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 091/183] ARM: riscpc: fix lack of keyboard interrupts after irq conversion
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 161/271] dmaengine: hsu: Revert "set HSU_CH_MTSR to memory width"
 Date:   Tue, 28 Jan 2020 15:05:10 +0100
-Message-Id: <20200128135839.199485314@linuxfoundation.org>
+Message-Id: <20200128135904.561198424@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 63a0666bca9311f35017be454587f3ba903644b8 ]
+[ Upstream commit c24a5c735f87d0549060de31367c095e8810b895 ]
 
-Fix lack of keyboard interrupts for RiscPC due to incorrect conversion.
+The commit
 
-Fixes: e8d36d5dbb6a ("ARM: kill off set_irq_flags usage")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+  080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
+
+has been mistakenly submitted. The further investigations show that
+the original code does better job since the memory side transfer size
+has never been configured by DMA users.
+
+As per latest revision of documentation: "Channel minimum transfer size
+(CHnMTSR)... For IOSF UART, maximum value that can be programmed is 64 and
+minimum value that can be programmed is 1."
+
+This reverts commit 080edf75d337d35faa6fc3df99342b10d2848d16.
+
+Fixes: 080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-rpc/irq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/hsu/hsu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-rpc/irq.c b/arch/arm/mach-rpc/irq.c
-index 66502e6207fea..fce7fecbd8fa4 100644
---- a/arch/arm/mach-rpc/irq.c
-+++ b/arch/arm/mach-rpc/irq.c
-@@ -117,7 +117,7 @@ extern unsigned char rpc_default_fiq_start, rpc_default_fiq_end;
+diff --git a/drivers/dma/hsu/hsu.c b/drivers/dma/hsu/hsu.c
+index 29d04ca71d52e..15525a2b8ebd7 100644
+--- a/drivers/dma/hsu/hsu.c
++++ b/drivers/dma/hsu/hsu.c
+@@ -64,10 +64,10 @@ static void hsu_dma_chan_start(struct hsu_dma_chan *hsuc)
  
- void __init rpc_init_irq(void)
- {
--	unsigned int irq, clr, set = 0;
-+	unsigned int irq, clr, set;
+ 	if (hsuc->direction == DMA_MEM_TO_DEV) {
+ 		bsr = config->dst_maxburst;
+-		mtsr = config->src_addr_width;
++		mtsr = config->dst_addr_width;
+ 	} else if (hsuc->direction == DMA_DEV_TO_MEM) {
+ 		bsr = config->src_maxburst;
+-		mtsr = config->dst_addr_width;
++		mtsr = config->src_addr_width;
+ 	}
  
- 	iomd_writeb(0, IOMD_IRQMASKA);
- 	iomd_writeb(0, IOMD_IRQMASKB);
-@@ -129,6 +129,7 @@ void __init rpc_init_irq(void)
- 
- 	for (irq = 0; irq < NR_IRQS; irq++) {
- 		clr = IRQ_NOREQUEST;
-+		set = 0;
- 
- 		if (irq <= 6 || (irq >= 9 && irq <= 15))
- 			clr |= IRQ_NOPROBE;
+ 	hsu_chan_disable(hsuc);
 -- 
 2.20.1
 
