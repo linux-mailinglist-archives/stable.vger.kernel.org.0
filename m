@@ -2,87 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B3014B435
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 13:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0AB14B46F
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 13:47:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbgA1Mco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 07:32:44 -0500
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:61333 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725948AbgA1Mco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jan 2020 07:32:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1580214764; x=1611750764;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=LPk/bOSMWr04QW8BaeqVKDaUQ2yJKgv1LGPcAD4D1g0=;
-  b=Hg4h9xj/mwI8ptXxgqll8O6IwnINauGIHv/RbP9Vz0MbohxI2KtkjcNe
-   6QCB9ZlLztTbSbFnkzYjAgZcL+VJOIjCs4+rxyanTNmncXHAAzoO5GNYx
-   7RIdhxPxdP1YQP/Fni46T0Ra73r3WCil5PR9zBP0Mjy5tjbcq+5Ne5hxW
-   Y=;
-IronPort-SDR: HJoYPAszfAkdoy33i8CKWpo+cuVbHkt9NPFRgmMQQOANlYHJhiYffA9IP/sdejzCzNUaLB2rRl
- u1cgCoAHtArA==
-X-IronPort-AV: E=Sophos;i="5.70,373,1574121600"; 
-   d="scan'208";a="22906732"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1a-807d4a99.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 28 Jan 2020 12:32:32 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
-        by email-inbound-relay-1a-807d4a99.us-east-1.amazon.com (Postfix) with ESMTPS id 56407A2FF4;
-        Tue, 28 Jan 2020 12:32:30 +0000 (UTC)
-Received: from EX13D19EUB003.ant.amazon.com (10.43.166.69) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1236.3; Tue, 28 Jan 2020 12:32:29 +0000
-Received: from 8c85908914bf.ant.amazon.com (10.43.162.224) by
- EX13D19EUB003.ant.amazon.com (10.43.166.69) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 28 Jan 2020 12:32:25 +0000
-Subject: Re: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous memory
- blocks aligned to device supported page size"
-To:     Jason Gunthorpe <jgg@ziepe.ca>,
-        "Saleem, Shiraz" <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>
-CC:     Doug Ledford <dledford@redhat.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        Alexander Matushevsky <matua@amazon.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Leybovich, Yossi" <sleybo@amazon.com>
-References: <20200120141001.63544-1-galpress@amazon.com>
- <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
- <20200121162436.GL51881@unreal>
- <47c20471-2251-b93b-053d-87880fa0edf5@amazon.com>
- <20200123142443.GN7018@unreal>
- <60d8c528-1088-df8d-76f0-4746acfcfc7a@amazon.com>
- <9DD61F30A802C4429A01CA4200E302A7C57244BB@fmsmsx123.amr.corp.intel.com>
- <20200124025221.GA16405@ziepe.ca>
-From:   Gal Pressman <galpress@amazon.com>
-Message-ID: <def88bd8-357f-54b4-90f7-ee0ab382aa95@amazon.com>
-Date:   Tue, 28 Jan 2020 14:32:19 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
- Gecko/20100101 Thunderbird/68.3.1
+        id S1725852AbgA1Mrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 07:47:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52092 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725881AbgA1Mrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 07:47:52 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88DE1206A2;
+        Tue, 28 Jan 2020 12:47:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580215672;
+        bh=w0VRe/xYBSr1hGpMn26OZH83XuybpSHfFvesTfMzCrE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YqPIB0WDNTwbu3SR4b1viyjhELBx7fsXaet9ucIEFZWQSBQKHLTd08ppcdsCKKmpk
+         UIxzkq6iciGU7U24yS0VO3iDWXSSEjaUiXwS79LnfhtuZy3iJQeO3mo8QV6/2PiBKE
+         r8mSKRQn+dboJC+ZdYfjCAIbMu3CXKoFb9QAiuZM=
+Date:   Tue, 28 Jan 2020 13:47:49 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: stable-rc 4.9.212-rc1/2e383da55e49: regressions detected in
+ project stable v4.9.y on OE
+Message-ID: <20200128124749.GA2813069@kroah.com>
+References: <CA+G9fYs0hK+WaRwdD+64_15Un6fOdEb-RQH0=jZLwJ49nnKK6A@mail.gmail.com>
+ <20200128115446.GA2680602@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200124025221.GA16405@ziepe.ca>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.162.224]
-X-ClientProxiedBy: EX13D24UWB004.ant.amazon.com (10.43.161.4) To
- EX13D19EUB003.ant.amazon.com (10.43.166.69)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200128115446.GA2680602@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24/01/2020 4:52, Jason Gunthorpe wrote:
-> On Fri, Jan 24, 2020 at 12:40:18AM +0000, Saleem, Shiraz wrote:
->> It would be good to get the debug data to back this or prove it wrong.
->> But if this is indeed what's happening, then ORing in the sgl->length for the
->> first sge to restrict the page size might cut it. So something like,
+On Tue, Jan 28, 2020 at 12:54:46PM +0100, Greg Kroah-Hartman wrote:
+> On Tue, Jan 28, 2020 at 05:14:33PM +0530, Naresh Kamboju wrote:
+> > stable-rc 4.9 build failed due to these build error,
+> > 
+> > drivers/md/bitmap.c:1702:13: error: conflicting types for 'bitmap_free'
+> >  static void bitmap_free(struct bitmap *bitmap)
+> >              ^~~~~~~~~~~
+> > include/linux/bitmap.h:94:13: note: previous declaration of
+> > 'bitmap_free' was here
+> >  extern void bitmap_free(const unsigned long *bitmap);
+> >              ^~~~~~~~~~~
+> > scripts/Makefile.build:304: recipe for target 'drivers/md/bitmap.o' failed
+> > 
+> > suspecting this patch causing this build failure on stable-rc 4.9
+> > 
+> > bitmap: Add bitmap_alloc(), bitmap_zalloc() and bitmap_free()
+> > commit c42b65e363ce97a828f81b59033c3558f8fa7f70 upstream.
+> > 
+> > A lot of code become ugly because of open coding allocations for bitmaps.
+> > 
+> > Introduce three helpers to allow users be more clear of intention
+> > and keep their code neat.
+> > 
+> > Note, due to multiple circular dependencies we may not provide
+> > the helpers as inliners. For now we keep them exported and, perhaps,
+> > at some point in the future we will sort out header inclusion and
+> > inheritance.
+> > 
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> or'ing in the sgl length is a nonsense thing to do, the length has
-> nothing to do with the restriction, which is entirely based on IOVA
-> bits which can't be passed through.
+> Sorry, my fault, am fixing this up for 4.9 and 4.4 and 4.14 right now...
+> Will push out new -rcs when working again.
 
-The weekend runs passed with Leon's proposed patch.
-Leon, can you please submit it so I can drop this revert?
+Ok, should be now resolved, sorry for the mess.
 
-Thanks
+greg k-h
