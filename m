@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6388514BA7B
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6469A14BB81
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729864AbgA1OjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:39:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41728 "EHLO mail.kernel.org"
+        id S1727798AbgA1OIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:08:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730576AbgA1ORw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:17:52 -0500
+        id S1728539AbgA1OIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:08:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81F02071E;
-        Tue, 28 Jan 2020 14:17:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CA242468D;
+        Tue, 28 Jan 2020 14:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221072;
-        bh=os7H21hXs8WMcYHpup+mf+HpJ4YSlaMOYYiP6Ir8qHc=;
+        s=default; t=1580220511;
+        bh=mMVHWPhGVr12UQgiIwOVH1+KWsDTW8eU+eNqwVQThDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMX3cYfrHEY/lWBNsGJ+NMTDNEbmXybG2z+ZjuWzF0Fz9OONjcISI1YgwGaGiQSt5
-         TJmBWrNd3DtNIf6tiwEssOpf+NFh0x+KBERJLoIkqT43TTnlwzU1lLG4XVYBBYrTnh
-         wbtl4Zou6b3NjcudzAkBuBE2mshbfqYSXsQ1SsQY=
+        b=JGXfdCGNTN9nqIIAqGA9jM/y1yOibEtIQJt0HQAi0o/M1BLGl2G+8DoK1PYVHmYcB
+         Vg63mFg1I6LibAhYIJOMph0f65EXAUcoffsaRm3M/ntoSF4PJ6q3aSzZ0iBWTvWpWB
+         C0dwh82AU47U8uNDQUWyux3hx+Gc7SwVc12KocKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 078/271] regulator: pv88060: Fix array out-of-bounds access
+Subject: [PATCH 4.4 008/183] pcrypt: use format specifier in kobject_add
 Date:   Tue, 28 Jan 2020 15:03:47 +0100
-Message-Id: <20200128135858.363147358@linuxfoundation.org>
+Message-Id: <20200128135830.459415522@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 7cd415f875591bc66c5ecb49bf84ef97e80d7b0e ]
+[ Upstream commit b1e3874c75ab15288f573b3532e507c37e8e7656 ]
 
-Fix off-by-one while iterating current_limits array.
-The valid index should be 0 ~ n_current_limits -1.
+Passing string 'name' as the format specifier is potentially hazardous
+because name could (although very unlikely to) have a format specifier
+embedded in it causing issues when parsing the non-existent arguments
+to these.  Follow best practice by using the "%s" format string for
+the string 'name'.
 
-Fixes: f307a7e9b7af ("regulator: pv88060: new regulator driver")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cleans up clang warning:
+crypto/pcrypt.c:397:40: warning: format string is not a string literal
+(potentially insecure) [-Wformat-security]
+
+Fixes: a3fb1e330dd2 ("pcrypt: Added sysfs interface to pcrypt")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pv88060-regulator.c | 2 +-
+ crypto/pcrypt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pv88060-regulator.c b/drivers/regulator/pv88060-regulator.c
-index 6c4afc73ecac3..d229245d2b5e8 100644
---- a/drivers/regulator/pv88060-regulator.c
-+++ b/drivers/regulator/pv88060-regulator.c
-@@ -135,7 +135,7 @@ static int pv88060_set_current_limit(struct regulator_dev *rdev, int min,
- 	int i;
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index f8ec3d4ba4a80..a5718c0a3dc4e 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -394,7 +394,7 @@ static int pcrypt_sysfs_add(struct padata_instance *pinst, const char *name)
+ 	int ret;
  
- 	/* search for closest to maximum */
--	for (i = info->n_current_limits; i >= 0; i--) {
-+	for (i = info->n_current_limits - 1; i >= 0; i--) {
- 		if (min <= info->current_limits[i]
- 			&& max >= info->current_limits[i]) {
- 			return regmap_update_bits(rdev->regmap,
+ 	pinst->kobj.kset = pcrypt_kset;
+-	ret = kobject_add(&pinst->kobj, NULL, name);
++	ret = kobject_add(&pinst->kobj, NULL, "%s", name);
+ 	if (!ret)
+ 		kobject_uevent(&pinst->kobj, KOBJ_ADD);
+ 
 -- 
 2.20.1
 
