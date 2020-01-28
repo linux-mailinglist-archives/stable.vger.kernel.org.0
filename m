@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC1614B715
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:11:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F327F14B717
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:11:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbgA1OLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:11:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60190 "EHLO mail.kernel.org"
+        id S1727267AbgA1OLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:11:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727209AbgA1OLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:11:07 -0500
+        id S1729314AbgA1OLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:11:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71F5224685;
-        Tue, 28 Jan 2020 14:11:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6507D2468E;
+        Tue, 28 Jan 2020 14:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220666;
-        bh=PnT+a4d/aKzbMVQyBqlysgV2ccLUscDE6NdCsVM8Paw=;
+        s=default; t=1580220671;
+        bh=t5ny8PEuCs5am1D3TXfcmm8yHKeBcbZDpHXebyKuT78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4CIeOYL2jI+e0dMvpFDbDaZpE4cl7v9skLokaUxjtMZqA8H7KqwFiueOYRggdwHY
-         fVc813mcAEooyNRncHb4VCwnBTdMBi0bWO4yltWWYMrszoWBqlzPCx4/hadSdbsKxP
-         4ypD7+PYk9Fukqp6ObFXXMrNJdhz2bpeu+IOnnlY=
+        b=JTYd1MDqNls3CkI89gU7307CVpYJU9d2yvseFmJ49T3tUHUdTIR3kaBqh2cEc9fA9
+         f4523sBQJ65DPUomfLbryWcTr0MHwv8FTJP69KZJJ5ZIuR92L6KZzPfJ14eVF95B+H
+         KCG+TlwKgqwRKft1HwFeQoQKatjmhZdYFjbdFuVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        Steve French <smfrench@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 098/183] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
-Date:   Tue, 28 Jan 2020 15:05:17 +0100
-Message-Id: <20200128135839.851494074@linuxfoundation.org>
+Subject: [PATCH 4.4 100/183] media: vivid: fix incorrect assignment operation when setting video mode
+Date:   Tue, 28 Jan 2020 15:05:19 +0100
+Message-Id: <20200128135840.024081004@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
 References: <20200128135829.486060649@linuxfoundation.org>
@@ -46,51 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
+[ Upstream commit d4ec9550e4b2d2e357a46fdc65d8ef3d4d15984c ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+The assigment of FB_VMODE_NONINTERLACE to var->vmode should be a
+bit-wise or of FB_VMODE_NONINTERLACE instead of an assignment,
+otherwise the previous clearing of the FB_VMODE_MASK bits of
+var->vmode makes no sense and is redundant.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
+Addresses-Coverity: ("Unused value")
+Fixes: ad4e02d5081d ("[media] vivid: add a simple framebuffer device for overlay testing")
 
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
-
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
-
-Cc: Namjae Jeon <namjae.jeon@samsung.com>
-Cc: Jeff Layton <jlayton@primarydata.com>
-Cc: Steve French <smfrench@gmail.com>
-Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
-Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 +-
+ drivers/media/platform/vivid/vivid-osd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 63108343124af..b608ce741444f 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2246,7 +2246,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+diff --git a/drivers/media/platform/vivid/vivid-osd.c b/drivers/media/platform/vivid/vivid-osd.c
+index e15eef6a94e55..f3afc74f98eda 100644
+--- a/drivers/media/platform/vivid/vivid-osd.c
++++ b/drivers/media/platform/vivid/vivid-osd.c
+@@ -167,7 +167,7 @@ static int _vivid_fb_check_var(struct fb_var_screeninfo *var, struct vivid_dev *
+ 	var->nonstd = 0;
  
- 	task = xchg(&server->tsk, NULL);
- 	if (task)
--		force_sig(SIGKILL, task);
-+		send_sig(SIGKILL, task, 1);
- }
+ 	var->vmode &= ~FB_VMODE_MASK;
+-	var->vmode = FB_VMODE_NONINTERLACED;
++	var->vmode |= FB_VMODE_NONINTERLACED;
  
- static struct TCP_Server_Info *
+ 	/* Dummy values */
+ 	var->hsync_len = 24;
 -- 
 2.20.1
 
