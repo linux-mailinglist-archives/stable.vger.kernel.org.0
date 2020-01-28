@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F3614BA3D
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFFD714BB5F
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:46:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730885AbgA1OTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:19:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43940 "EHLO mail.kernel.org"
+        id S1727576AbgA1OJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:09:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730900AbgA1OTc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:19:32 -0500
+        id S1727129AbgA1OJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:09:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 211AA24695;
-        Tue, 28 Jan 2020 14:19:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 468552468A;
+        Tue, 28 Jan 2020 14:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221171;
-        bh=07CHsY02F5oVnFJd4YI45/MEKIfIKYkc+rgYTBg0unA=;
+        s=default; t=1580220541;
+        bh=jI+YicMQN6RgKFZTPOi1pQ0Rp9DsZyiNeEI2BC3Qvrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7iJVGmnhBGJR/Rw/YRum9uDgeMQYt5F3CDPQiZy84nEWVgiETg3JWKmmYzN0PPQs
-         7Xocq7gtXcFdQRt9gMPw72KD7AGxEExI43SHv6l8NA+j4SsGfbC1BSv45moEtpMu7o
-         FLNE4D4e6/2Kx55vX3uHLlsE264I4O8oTG9f8v+k=
+        b=PoZ0NRlyYvt+vppN2szctH6fKTv/ZU71zBmSdmMx1G7UMdv8qFX3A+8YDavzCUVcV
+         Uf9rRB1fNxChe28T5hoUj28t9lDXHioqQUqg1kk+Z75u9HnD817DlqMJoHCjzjlOYj
+         qYFKEkXJxHms9/pXoFaZ5OVfzHdh+JJGC1d/+cCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 118/271] powerpc: vdso: Make vdso32 installation conditional in vdso_install
-Date:   Tue, 28 Jan 2020 15:04:27 +0100
-Message-Id: <20200128135901.374763027@linuxfoundation.org>
+Subject: [PATCH 4.4 049/183] cdc-wdm: pass return value of recover_from_urb_loss
+Date:   Tue, 28 Jan 2020 15:04:28 +0100
+Message-Id: <20200128135834.853941225@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ff6d27823f619892ab96f7461764840e0d786b15 ]
+[ Upstream commit 0742a338f5b3446a26de551ad8273fb41b2787f2 ]
 
-The 32-bit vDSO is not needed and not normally built for 64-bit
-little-endian configurations.  However, the vdso_install target still
-builds and installs it.  Add the same config condition as is normally
-used for the build.
+'rv' is the correct return value, pass it upstream instead of 0
 
-Fixes: e0d005916994 ("powerpc/vdso: Disable building the 32-bit VDSO ...")
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 17d80d562fd7 ("USB: autosuspend for cdc-wdm")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/class/cdc-wdm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index a60c9c6e5cc17..de29b88c0e700 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -373,7 +373,9 @@ vdso_install:
- ifeq ($(CONFIG_PPC64),y)
- 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso64 $@
- endif
-+ifdef CONFIG_VDSO32
- 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso32 $@
-+endif
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 71ad04d542128..1a1d1cfc3704c 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -1098,7 +1098,7 @@ static int wdm_post_reset(struct usb_interface *intf)
+ 	rv = recover_from_urb_loss(desc);
+ 	mutex_unlock(&desc->wlock);
+ 	mutex_unlock(&desc->rlock);
+-	return 0;
++	return rv;
+ }
  
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
+ static struct usb_driver wdm_driver = {
 -- 
 2.20.1
 
