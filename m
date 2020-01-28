@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE2114BA03
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B750114BAA4
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732872AbgA1Oeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:34:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50556 "EHLO mail.kernel.org"
+        id S1729944AbgA1OOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:14:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732459AbgA1OYD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:24:03 -0500
+        id S1729521AbgA1OOs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:14:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CEDD2468A;
-        Tue, 28 Jan 2020 14:24:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B72324694;
+        Tue, 28 Jan 2020 14:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221443;
-        bh=4db/nx/Z2/7s+zbDP2Dx7JKPtmOIeHK33hDUB5t1qtE=;
+        s=default; t=1580220888;
+        bh=HS5aaRqHS85+lsmZPbsV4tTRQcEw2dLfnXhENDDMITY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaW3WWWW+f+eae0vF4VsnjS9gDMwqmBnzcqAXALJR5Gzq5quZBvXdzWLiLGw/dZP4
-         DVfOksvLLbANtSM7ra/m//Odp5SSN5GajAoaNZLb1dEyApISFIOOGXzmtKcxPPvbAH
-         WUczB8809uME/QGFO09b6hECdUDAqS5UcNng1S6I=
+        b=HFA4CO6+hfO5CWssxazYK5ZjV/vJPQwMqgryLYS5ZIJlm6Pb/LWzW+qPRgruMuw5q
+         RF2MgK42KMuYqKPCJMJbLD+pJLKxc3h+MbtEpR22t1vjdqMVB5S3vtyEPxSz9EgRX7
+         oSuTJbQSLSBZiZ30j8IxvenawtAuh6OKLzPkYuHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 225/271] net: neigh: use long type to store jiffies delta
-Date:   Tue, 28 Jan 2020 15:06:14 +0100
-Message-Id: <20200128135909.308445604@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 156/183] dmaengine: ti: edma: fix missed failure handling
+Date:   Tue, 28 Jan 2020 15:06:15 +0100
+Message-Id: <20200128135845.329249763@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 9d027e3a83f39b819e908e4e09084277a2e45e95 ]
+[ Upstream commit 340049d453682a9fe8d91fe794dd091730f4bb25 ]
 
-A difference of two unsigned long needs long storage.
+When devm_kcalloc fails, it forgets to call edma_free_slot.
+Replace direct return with failure handler to fix it.
 
-Fixes: c7fb64db001f ("[NETLINK]: Neighbour table configuration and statistics via rtnetlink")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1be5336bc7ba ("dmaengine: edma: New device tree binding")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Link: https://lore.kernel.org/r/20191118073802.28424-1-hslester96@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/edma.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index cd85cee14bd03..6578d1f8e6c4a 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1834,8 +1834,8 @@ static int neightbl_fill_info(struct sk_buff *skb, struct neigh_table *tbl,
- 		goto nla_put_failure;
- 	{
- 		unsigned long now = jiffies;
--		unsigned int flush_delta = now - tbl->last_flush;
--		unsigned int rand_delta = now - tbl->last_rand;
-+		long flush_delta = now - tbl->last_flush;
-+		long rand_delta = now - tbl->last_rand;
- 		struct neigh_hash_table *nht;
- 		struct ndt_config ndc = {
- 			.ndtc_key_len		= tbl->key_len,
+diff --git a/drivers/dma/edma.c b/drivers/dma/edma.c
+index e508c8c5f3fde..17521fcf226f2 100644
+--- a/drivers/dma/edma.c
++++ b/drivers/dma/edma.c
+@@ -2288,8 +2288,10 @@ static int edma_probe(struct platform_device *pdev)
+ 
+ 		ecc->tc_list = devm_kcalloc(dev, ecc->num_tc,
+ 					    sizeof(*ecc->tc_list), GFP_KERNEL);
+-		if (!ecc->tc_list)
+-			return -ENOMEM;
++		if (!ecc->tc_list) {
++			ret = -ENOMEM;
++			goto err_reg1;
++		}
+ 
+ 		for (i = 0;; i++) {
+ 			ret = of_parse_phandle_with_fixed_args(node, "ti,tptcs",
 -- 
 2.20.1
 
