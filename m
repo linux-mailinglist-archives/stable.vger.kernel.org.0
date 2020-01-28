@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C72A014B983
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE2CC14BADD
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730287AbgA1OZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:25:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52986 "EHLO mail.kernel.org"
+        id S1729732AbgA1ONw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:13:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbgA1OZu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:50 -0500
+        id S1728705AbgA1ONq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B835424686;
-        Tue, 28 Jan 2020 14:25:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8332E24681;
+        Tue, 28 Jan 2020 14:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221550;
-        bh=/0hs1BMJug76hD76DDn1hUvFOfwgJOJkSsrfJoSqd8k=;
+        s=default; t=1580220826;
+        bh=bI+YX3F4RpGHqTM/qhSCvQe0qssAc/6yfpKq0uNSWqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGfCOSVWTJRs1YSwjQLvv2QVUdCsTIZ52y4kn+hbBojhYb19k5sb/whR/X1fUrr+K
-         myJ8guGLhp7HssYyqsj0kYSxBU0+K96UnzR7WdZR44KyU6sxZc+dljL2l0JqsJR6r1
-         8PEE6iKk7qbrcSc3NiA66OsX/JAjUf8tI18o0yEA=
+        b=hiG01dcct5bvS9xDxjffVt2h6kin3UZbxRnggsUTMr2G1vTGJ2NMRjQ47hOBhzdUj
+         /TD97RAdjAr5VoOn4OSI+0/qtdDVNY4unUN96d0fBF2h2d1SorSkRjBdvtSVWSq8ik
+         +zWvE1HFjxC6rX+KV+PuYUJ2KhXYCdAUu4H48sKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 233/271] net: phy: Keep reporting transceiver type
+Subject: [PATCH 4.4 163/183] net, ip_tunnel: fix namespaces move
 Date:   Tue, 28 Jan 2020 15:06:22 +0100
-Message-Id: <20200128135909.908143382@linuxfoundation.org>
+Message-Id: <20200128135845.981001729@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: William Dauchy <w.dauchy@criteo.com>
 
-commit ceb628134a75564d7bfa8e4ef902e6e588339e11 upstream.
+[ Upstream commit d0f418516022c32ecceaf4275423e5bd3f8743a9 ]
 
-With commit 2d55173e71b0 ("phy: add generic function to support
-ksetting support"), we lost the ability to report the transceiver type
-like we used to. Now that we have added back the transceiver type to
-ethtool_link_settings, we can report it back like we used to and have no
-loss of information.
+in the same manner as commit 690afc165bb3 ("net: ip6_gre: fix moving
+ip6gre between namespaces"), fix namespace moving as it was broken since
+commit 2e15ea390e6f ("ip_gre: Add support to collect tunnel metadata.").
+Indeed, the ip6_gre commit removed the local flag for collect_md
+condition, so there is no reason to keep it for ip_gre/ip_tunnel.
 
-Fixes: 3f1ac7a700d0 ("net: ethtool: add new ETHTOOL_xLINKSETTINGS API")
-Fixes: 2d55173e71b0 ("phy: add generic function to support ksetting support")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+this patch will fix both ip_tunnel and ip_gre modules.
+
+Fixes: 2e15ea390e6f ("ip_gre: Add support to collect tunnel metadata.")
+Signed-off-by: William Dauchy <w.dauchy@criteo.com>
+Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/phy/phy.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/ip_tunnel.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -463,7 +463,8 @@ int phy_ethtool_ksettings_get(struct phy
- 		cmd->base.port = PORT_BNC;
- 	else
- 		cmd->base.port = PORT_MII;
--
-+	cmd->base.transceiver = phy_is_internal(phydev) ?
-+				XCVR_INTERNAL : XCVR_EXTERNAL;
- 	cmd->base.phy_address = phydev->mdio.addr;
- 	cmd->base.autoneg = phydev->autoneg;
- 	cmd->base.eth_tp_mdix_ctrl = phydev->mdix;
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -1151,10 +1151,8 @@ int ip_tunnel_init(struct net_device *de
+ 	iph->version		= 4;
+ 	iph->ihl		= 5;
+ 
+-	if (tunnel->collect_md) {
+-		dev->features |= NETIF_F_NETNS_LOCAL;
++	if (tunnel->collect_md)
+ 		netif_keep_dst(dev);
+-	}
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(ip_tunnel_init);
 
 
