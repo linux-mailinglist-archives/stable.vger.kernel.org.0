@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2CC14BADD
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D23B14BADE
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729732AbgA1ONw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:13:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
+        id S1729559AbgA1ONv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:13:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbgA1ONq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:13:46 -0500
+        id S1729546AbgA1ONs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8332E24681;
-        Tue, 28 Jan 2020 14:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F26C724688;
+        Tue, 28 Jan 2020 14:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220826;
-        bh=bI+YX3F4RpGHqTM/qhSCvQe0qssAc/6yfpKq0uNSWqk=;
+        s=default; t=1580220828;
+        bh=g98h9zgHGfmJG7qp7shi05vz6GMzSl3GulPJVilvKv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiG01dcct5bvS9xDxjffVt2h6kin3UZbxRnggsUTMr2G1vTGJ2NMRjQ47hOBhzdUj
-         /TD97RAdjAr5VoOn4OSI+0/qtdDVNY4unUN96d0fBF2h2d1SorSkRjBdvtSVWSq8ik
-         +zWvE1HFjxC6rX+KV+PuYUJ2KhXYCdAUu4H48sKM=
+        b=D++hEZaq6UtD/ZDvw+fxE/Ylp3H07nCrmZMT3s+ayM4eK5IU7WfLTm05mNOoqVCZa
+         aeoMuoYFcBrUJIGjGkIk2hglgNketZ2QMSe2rE4GMbSisc50ExqEbX1pk4sz/fI1q9
+         8ZRAfVDOn0gUVbruxq5ZBSLdF+KDzGi+vWpHdcc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 163/183] net, ip_tunnel: fix namespaces move
-Date:   Tue, 28 Jan 2020 15:06:22 +0100
-Message-Id: <20200128135845.981001729@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2f07903a5b05e7f36410@syzkaller.appspotmail.com,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+5af9a90dad568aa9f611@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 164/183] net_sched: fix datalen for ematch
+Date:   Tue, 28 Jan 2020 15:06:23 +0100
+Message-Id: <20200128135846.069120311@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
 References: <20200128135829.486060649@linuxfoundation.org>
@@ -44,40 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dauchy <w.dauchy@criteo.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit d0f418516022c32ecceaf4275423e5bd3f8743a9 ]
+[ Upstream commit 61678d28d4a45ef376f5d02a839cc37509ae9281 ]
 
-in the same manner as commit 690afc165bb3 ("net: ip6_gre: fix moving
-ip6gre between namespaces"), fix namespace moving as it was broken since
-commit 2e15ea390e6f ("ip_gre: Add support to collect tunnel metadata.").
-Indeed, the ip6_gre commit removed the local flag for collect_md
-condition, so there is no reason to keep it for ip_gre/ip_tunnel.
+syzbot reported an out-of-bound access in em_nbyte. As initially
+analyzed by Eric, this is because em_nbyte sets its own em->datalen
+in em_nbyte_change() other than the one specified by user, but this
+value gets overwritten later by its caller tcf_em_validate().
+We should leave em->datalen untouched to respect their choices.
 
-this patch will fix both ip_tunnel and ip_gre modules.
+I audit all the in-tree ematch users, all of those implement
+->change() set em->datalen, so we can just avoid setting it twice
+in this case.
 
-Fixes: 2e15ea390e6f ("ip_gre: Add support to collect tunnel metadata.")
-Signed-off-by: William Dauchy <w.dauchy@criteo.com>
-Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reported-and-tested-by: syzbot+5af9a90dad568aa9f611@syzkaller.appspotmail.com
+Reported-by: syzbot+2f07903a5b05e7f36410@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_tunnel.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/sched/ematch.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -1151,10 +1151,8 @@ int ip_tunnel_init(struct net_device *de
- 	iph->version		= 4;
- 	iph->ihl		= 5;
+--- a/net/sched/ematch.c
++++ b/net/sched/ematch.c
+@@ -267,12 +267,12 @@ static int tcf_em_validate(struct tcf_pr
+ 				}
+ 				em->data = (unsigned long) v;
+ 			}
++			em->datalen = data_len;
+ 		}
+ 	}
  
--	if (tunnel->collect_md) {
--		dev->features |= NETIF_F_NETNS_LOCAL;
-+	if (tunnel->collect_md)
- 		netif_keep_dst(dev);
--	}
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(ip_tunnel_init);
+ 	em->matchid = em_hdr->matchid;
+ 	em->flags = em_hdr->flags;
+-	em->datalen = data_len;
+ 	em->net = net;
+ 
+ 	err = 0;
 
 
