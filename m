@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A9E14BAC7
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3225D14B9FD
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:37:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728151AbgA1OlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:41:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
+        id S1732442AbgA1OYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:24:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbgA1OOb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:14:31 -0500
+        id S1731386AbgA1OYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:24:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A39D2468A;
-        Tue, 28 Jan 2020 14:14:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D990E24686;
+        Tue, 28 Jan 2020 14:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580220870;
-        bh=ovyg9rOdRhnWjAyCJAiP7l4cs3HUvteGl44V31baW5Y=;
+        s=default; t=1580221440;
+        bh=Ie4jcGFAb0xxjgmm9qal0iuc6BSGnHMiGldwTz30QUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dc9ulyBrkIHCuMgkqpAtbP7Gjp+sJVBw3I/MBYYQGYBfOSqzDaO5Lx9tMquAy293m
-         NGzV4Ja+3ufK/loKyivESR3XxxCJoHk2kb5kbBHfG1aou6AvuDoKx+bDi+hEkdosrQ
-         gzhqbkQH19sbSGbWb4JRe6Gn67a+IHAt6ge/n0cg=
+        b=JYvEfdUXfcE88uiC8X4L12bIf/frKimzF2WnrpGR5nUEASEW9fmFT08I6i7is3qRe
+         4UlbymjVxJfkwQWspjDVc4waWN7rkbcBfpf1wcn9HRYL1CINVV5CoVX3xlFxcHFea8
+         KPLA6HEk8J9Y8FGt7wEmVZm2mqZY+DQy0itPcL2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,12 +33,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Huacai Chen <chenhc@lemote.com>,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 153/183] MIPS: Loongson: Fix return value of loongson_hwmon_init
-Date:   Tue, 28 Jan 2020 15:06:12 +0100
-Message-Id: <20200128135845.061700335@linuxfoundation.org>
+Subject: [PATCH 4.9 224/271] MIPS: Loongson: Fix return value of loongson_hwmon_init
+Date:   Tue, 28 Jan 2020 15:06:13 +0100
+Message-Id: <20200128135909.231827436@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
-References: <20200128135829.486060649@linuxfoundation.org>
+In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
+References: <20200128135852.449088278@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/platform/mips/cpu_hwmon.c b/drivers/platform/mips/cpu_hwmon.c
-index 0f6c63e17049e..9a201c3caaf41 100644
+index 4300a558d0f39..d02214a3f8e3f 100644
 --- a/drivers/platform/mips/cpu_hwmon.c
 +++ b/drivers/platform/mips/cpu_hwmon.c
 @@ -155,7 +155,7 @@ static int __init loongson_hwmon_init(void)
