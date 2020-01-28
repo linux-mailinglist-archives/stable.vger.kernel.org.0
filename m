@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF9C014B985
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0B8214BADF
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 15:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733078AbgA1OZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 09:25:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52912 "EHLO mail.kernel.org"
+        id S1729558AbgA1Ol4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 09:41:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732685AbgA1OZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 09:25:48 -0500
+        id S1729465AbgA1ONo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:13:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47F692071E;
-        Tue, 28 Jan 2020 14:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 145EA2469F;
+        Tue, 28 Jan 2020 14:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580221547;
-        bh=WOzg1VHjGzAsOAm8nzNjjHEfGl3A5OKtibNtSXTdt2E=;
+        s=default; t=1580220823;
+        bh=s/BuiSSY5Ix20OsSRVrpCV/xwK8+GzGwp4/WdzVuPcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBv57GNPBDP3i22SWn1pAf1+RJyYuW8vX9S+hH0Smewik03zpcNyAks91YKQ/IqTq
-         kbpJI5B1rvobdmsZhkBC1fePA37FgCMXOimdJ/NFFXgCtw4vAquRY1nelNpjJzDU5m
-         Q8dAs7y9mRTfdYCaAUUzGfJU7+WPMa43AumVeFg8=
+        b=A900aITCtaSlKiuvejQdJeg6Za9Ulo0ovu8yFL7TkjB/kadjee7lJKQayP5HjodMO
+         aQP6fnd/41ec9FlGmoHzkyOqauynMZE24CXmzlsNV3zPvkTt95SnIfO35yowJrl3MG
+         QfYb2TXARCSxJPHhXYmEtNdKBJ2gl+Y3T+oQAlgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 232/271] net: ethtool: Add back transceiver type
+Subject: [PATCH 4.4 162/183] net: cxgb3_main: Add CAP_NET_ADMIN check to CHELSIO_GET_MEM
 Date:   Tue, 28 Jan 2020 15:06:21 +0100
-Message-Id: <20200128135909.838035237@linuxfoundation.org>
+Message-Id: <20200128135845.878970643@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200128135852.449088278@linuxfoundation.org>
-References: <20200128135852.449088278@linuxfoundation.org>
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+References: <20200128135829.486060649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 19cab8872692960535aa6d12e3a295ac51d1a648 upstream.
+[ Upstream commit 3546d8f1bbe992488ed91592cf6bf76e7114791a =
 
-Commit 3f1ac7a700d0 ("net: ethtool: add new ETHTOOL_xLINKSETTINGS API")
-deprecated the ethtool_cmd::transceiver field, which was fine in
-premise, except that the PHY library was actually using it to report the
-type of transceiver: internal or external.
+The cxgb3 driver for "Chelsio T3-based gigabit and 10Gb Ethernet
+adapters" implements a custom ioctl as SIOCCHIOCTL/SIOCDEVPRIVATE in
+cxgb_extension_ioctl().
 
-Use the first word of the reserved field to put this __u8 transceiver
-field back in. It is made read-only, and we don't expect the
-ETHTOOL_xLINKSETTINGS API to be doing anything with this anyway, so this
-is mostly for the legacy path where we do:
+One of the subcommands of the ioctl is CHELSIO_GET_MEM, which appears
+to read memory directly out of the adapter and return it to userspace.
+It's not entirely clear what the contents of the adapter memory
+contains, but the assumption is that it shouldn't be accessible to all
+users.
 
-ethtool_get_settings()
--> dev->ethtool_ops->get_link_ksettings()
-   -> convert_link_ksettings_to_legacy_settings()
+So add a CAP_NET_ADMIN check to the CHELSIO_GET_MEM case. Put it after
+the is_offload() check, which matches two of the other subcommands in
+the same function which also check for is_offload() and CAP_NET_ADMIN.
 
-to have no information loss compared to the legacy get_settings API.
+Found by Ilja by code inspection, not tested as I don't have the
+required hardware.
 
-Fixes: 3f1ac7a700d0 ("net: ethtool: add new ETHTOOL_xLINKSETTINGS API")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/uapi/linux/ethtool.h |    6 +++++-
- net/core/ethtool.c           |    2 ++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/uapi/linux/ethtool.h
-+++ b/include/uapi/linux/ethtool.h
-@@ -1687,6 +1687,8 @@ enum ethtool_reset_flags {
-  *	%ethtool_link_mode_bit_indices for the link modes, and other
-  *	link features that the link partner advertised through
-  *	autonegotiation; 0 if unknown or not applicable.  Read-only.
-+ * @transceiver: Used to distinguish different possible PHY types,
-+ *	reported consistently by PHYLIB.  Read-only.
-  *
-  * If autonegotiation is disabled, the speed and @duplex represent the
-  * fixed link mode and are writable if the driver supports multiple
-@@ -1738,7 +1740,9 @@ struct ethtool_link_settings {
- 	__u8	eth_tp_mdix;
- 	__u8	eth_tp_mdix_ctrl;
- 	__s8	link_mode_masks_nwords;
--	__u32	reserved[8];
-+	__u8	transceiver;
-+	__u8	reserved1[3];
-+	__u32	reserved[7];
- 	__u32	link_mode_masks[0];
- 	/* layout of link_mode_masks fields:
- 	 * __u32 map_supported[link_mode_masks_nwords];
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -514,6 +514,8 @@ convert_link_ksettings_to_legacy_setting
- 		= link_ksettings->base.eth_tp_mdix;
- 	legacy_settings->eth_tp_mdix_ctrl
- 		= link_ksettings->base.eth_tp_mdix_ctrl;
-+	legacy_settings->transceiver
-+		= link_ksettings->base.transceiver;
- 	return retval;
- }
+--- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
+@@ -2437,6 +2437,8 @@ static int cxgb_extension_ioctl(struct n
  
+ 		if (!is_offload(adapter))
+ 			return -EOPNOTSUPP;
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
+ 		if (!(adapter->flags & FULL_INIT_DONE))
+ 			return -EIO;	/* need the memory controllers */
+ 		if (copy_from_user(&t, useraddr, sizeof(t)))
 
 
