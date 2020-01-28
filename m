@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1429614B5A0
-	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9625C14B5A3
+	for <lists+stable@lfdr.de>; Tue, 28 Jan 2020 14:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726799AbgA1N7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jan 2020 08:59:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44520 "EHLO mail.kernel.org"
+        id S1726794AbgA1N7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jan 2020 08:59:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726794AbgA1N7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Jan 2020 08:59:13 -0500
+        id S1726823AbgA1N7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Jan 2020 08:59:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9DAE24694;
-        Tue, 28 Jan 2020 13:59:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DCB32468A;
+        Tue, 28 Jan 2020 13:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580219953;
-        bh=OEsGfAD1Z+hIdPREY+MSLf1P6cwvF10/s8/wQSWnvaQ=;
+        s=default; t=1580219958;
+        bh=dCPWa8MIs/gY7UhmdP6wQjc+AxHDwauBWDjka8VCMsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfpSWcE2GL08L3iKLD58/fdNkfzQvDHYIzhF0lcmE5QysajWq04KuEx42m86x8R0I
-         TUH85O7pirTM2r0eFKxMepU02R/0TI+4j0VVp1NG4ekUewAmpxIi1fj0LguFLhlW/E
-         N1eo3OUrnIwaw/moDvocGtUyFFXU4LaK3BZHew6M=
+        b=jzMnriDZdea88RZmeOg6Yqo0R/ZkcAg9Fg2vXE2iKUy0NVJutT+6wEcakrpMDhnD9
+         iodjBgp4UaBQpwyQ0OgF81kqqy+2H/vbeNTYDZa7qXb7dFds/0hw8djJScL/BG1EI/
+         N4V0A1wDV8W/1BSpY8ExbQ0bOiok1rKvhc+PL1e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jouni Hogander <jouni.hogander@unikie.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 10/46] net-sysfs: fix netdev_queue_add_kobject() breakage
-Date:   Tue, 28 Jan 2020 14:57:44 +0100
-Message-Id: <20200128135751.442708030@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+30209ea299c09d8785c9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 4.14 12/46] net-sysfs: Call dev_hold always in rx_queue_add_kobject
+Date:   Tue, 28 Jan 2020 14:57:46 +0100
+Message-Id: <20200128135751.652489138@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200128135749.822297911@linuxfoundation.org>
 References: <20200128135749.822297911@linuxfoundation.org>
@@ -44,31 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-commit 48a322b6f9965b2f1e4ce81af972f0e287b07ed0 upstream.
+commit ddd9b5e3e765d8ed5a35786a6cb00111713fe161 upstream.
 
-kobject_put() should only be called in error path.
+Dev_hold has to be called always in rx_queue_add_kobject.
+Otherwise usage count drops below 0 in case of failure in
+kobject_init_and_add.
 
 Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jouni Hogander <jouni.hogander@unikie.com>
+Reported-by: syzbot <syzbot+30209ea299c09d8785c9@syzkaller.appspotmail.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: David Miller <davem@davemloft.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/net-sysfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/net-sysfs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 --- a/net/core/net-sysfs.c
 +++ b/net/core/net-sysfs.c
-@@ -1339,6 +1339,7 @@ static int netdev_queue_add_kobject(stru
- #endif
+@@ -911,14 +911,17 @@ static int rx_queue_add_kobject(struct n
+ 	struct kobject *kobj = &queue->kobj;
+ 	int error = 0;
  
- 	kobject_uevent(kobj, KOBJ_ADD);
-+	return 0;
++	/* Kobject_put later will trigger rx_queue_release call which
++	 * decreases dev refcount: Take that reference here
++	 */
++	dev_hold(queue->dev);
++
+ 	kobj->kset = dev->queues_kset;
+ 	error = kobject_init_and_add(kobj, &rx_queue_ktype, NULL,
+ 				     "rx-%u", index);
+ 	if (error)
+ 		goto err;
  
- err:
- 	kobject_put(kobj);
+-	dev_hold(queue->dev);
+-
+ 	if (dev->sysfs_rx_queue_group) {
+ 		error = sysfs_create_group(kobj, dev->sysfs_rx_queue_group);
+ 		if (error)
 
 
