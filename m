@@ -2,93 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EFEC14C903
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 11:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A59E314C972
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 12:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726380AbgA2Kw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 05:52:59 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:41405 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726339AbgA2Kw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 05:52:59 -0500
-X-UUID: 1ae9ea4e460e488bb68a93205392e4df-20200129
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=On3ymt2nIzso/VupG3uq3vXt9HiMtRzJKLdz08bIXPs=;
-        b=d4uPOyytD6ZfR4ey2Yg5Mrq5s05ZrIkpNH3wuXaPINdSpi+V4p36y8OdS1SNVSi6/l/xssfbcK4nRpBIz6prwYGCxzWZ0rFhz8AUtXUOSmNpuMfv1/XFWHG7cqjIru2rJ6qVcYokP85DEifotSInvw9nnE526mWH6xNdt+exzOA=;
-X-UUID: 1ae9ea4e460e488bb68a93205392e4df-20200129
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
-        (envelope-from <stanley.chu@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 2016043192; Wed, 29 Jan 2020 18:52:54 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs08n1.mediatek.inc (172.21.101.55) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Wed, 29 Jan 2020 18:53:16 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Wed, 29 Jan 2020 18:52:59 +0800
-From:   Stanley Chu <stanley.chu@mediatek.com>
-To:     <linux-scsi@vger.kernel.org>, <martin.petersen@oracle.com>,
-        <avri.altman@wdc.com>, <alim.akhtar@samsung.com>,
-        <jejb@linux.ibm.com>, <beanhuo@micron.com>
-CC:     <asutoshd@codeaurora.org>, <cang@codeaurora.org>,
-        <matthias.bgg@gmail.com>, <bvanassche@acm.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <kuohong.wang@mediatek.com>,
-        <peter.wang@mediatek.com>, <chun-hung.wu@mediatek.com>,
-        <andy.teng@mediatek.com>, Stanley Chu <stanley.chu@mediatek.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH RESEND v3 3/4] scsi: ufs: fix Auto-Hibern8 error detection
-Date:   Wed, 29 Jan 2020 18:52:50 +0800
-Message-ID: <20200129105251.12466-4-stanley.chu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20200129105251.12466-1-stanley.chu@mediatek.com>
-References: <20200129105251.12466-1-stanley.chu@mediatek.com>
+        id S1726487AbgA2LSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 06:18:53 -0500
+Received: from er-systems.de ([148.251.68.21]:36454 "EHLO er-systems.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726068AbgA2LSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jan 2020 06:18:53 -0500
+X-Greylist: delayed 481 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Jan 2020 06:18:51 EST
+Received: from localhost.localdomain (localhost [127.0.0.1])
+        by er-systems.de (Postfix) with ESMTP id 195F0D60074;
+        Wed, 29 Jan 2020 12:10:48 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on er-systems.de
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.2
+Received: from localhost (localhost [127.0.0.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by er-systems.de (Postfix) with ESMTPS id ECFBAD60071;
+        Wed, 29 Jan 2020 12:10:47 +0100 (CET)
+Date:   Wed, 29 Jan 2020 12:10:47 +0100 (CET)
+From:   Thomas Voegtle <tv@lio96.de>
+X-X-Sender: thomas@er-systems.de
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        ronnie sahlberg <ronniesahlberg@gmail.com>,
+        =?ISO-8859-15?Q?Christoph_B=F6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>,
+        Steve French <smfrench@gmail.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.9 183/271] signal: Allow cifs and drbd to receive their
+ terminating signals
+In-Reply-To: <20200128135906.176803329@linuxfoundation.org>
+Message-ID: <alpine.LSU.2.21.2001291201030.14408@er-systems.de>
+References: <20200128135852.449088278@linuxfoundation.org> <20200128135906.176803329@linuxfoundation.org>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="-74181308-696423667-1580296247=:14408"
+X-Virus-Status: No
+X-Virus-Checker-Version: clamassassin 1.2.4 with clamdscan / ClamAV 0.102.1/25709/Tue Jan 28 12:49:39 2020 signatures .
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-QXV0by1IaWJlcm44IG1heSBiZSBkaXNhYmxlZCBieSBzb21lIHZlbmRvcnMgb3Igc3lzZnMNCmlu
-IHJ1bnRpbWUgZXZlbiBpZiBBdXRvLUhpYmVybjggY2FwYWJpbGl0eSBpcyBzdXBwb3J0ZWQNCmJ5
-IGhvc3QuIElmIEF1dG8tSGliZXJuOCBjYXBhYmlsaXR5IGlzIHN1cHBvcnRlZCBieSBob3N0DQpi
-dXQgbm90IGFjdHVhbGx5IGVuYWJsZWQsIEF1dG8tSGliZXJuOCBlcnJvciBzaGFsbCBub3QgaGFw
-cGVuLg0KDQpUbyBmaXggdGhpcywgcHJvdmlkZSBhIHdheSB0byBkZXRlY3QgaWYgQXV0by1IaWJl
-cm44IGlzDQphY3R1YWxseSBlbmFibGVkIGZpcnN0LCBhbmQgYnlwYXNzIEF1dG8tSGliZXJuOCBk
-aXNhYmxpbmcNCmNhc2UgaW4gdWZzaGNkX2lzX2F1dG9faGliZXJuOF9lcnJvcigpLg0KDQpGaXhl
-czogODIxNzQ0NDAzOTEzICgic2NzaTogdWZzOiBBZGQgZXJyb3ItaGFuZGxpbmcgb2YgQXV0by1I
-aWJlcm5hdGUiKQ0KQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNClNpZ25lZC1vZmYtYnk6IFN0
-YW5sZXkgQ2h1IDxzdGFubGV5LmNodUBtZWRpYXRlay5jb20+DQpSZXZpZXdlZC1ieTogQmVhbiBI
-dW8gPGJlYW5odW9AbWljcm9uLmNvbT4NCi0tLQ0KIGRyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmMg
-fCAzICsrLQ0KIGRyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmggfCA2ICsrKysrKw0KIDIgZmlsZXMg
-Y2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQoNCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL3Njc2kvdWZzL3Vmc2hjZC5jIGIvZHJpdmVycy9zY3NpL3Vmcy91ZnNoY2QuYw0KaW5k
-ZXggYWJkMGU2YjA1Zjc5Li4yMTRhM2YzNzNkZDggMTAwNjQ0DQotLS0gYS9kcml2ZXJzL3Njc2kv
-dWZzL3Vmc2hjZC5jDQorKysgYi9kcml2ZXJzL3Njc2kvdWZzL3Vmc2hjZC5jDQpAQCAtNTQ3OSw3
-ICs1NDc5LDggQEAgc3RhdGljIGlycXJldHVybl90IHVmc2hjZF91cGRhdGVfdWljX2Vycm9yKHN0
-cnVjdCB1ZnNfaGJhICpoYmEpDQogc3RhdGljIGJvb2wgdWZzaGNkX2lzX2F1dG9faGliZXJuOF9l
-cnJvcihzdHJ1Y3QgdWZzX2hiYSAqaGJhLA0KIAkJCQkJIHUzMiBpbnRyX21hc2spDQogew0KLQlp
-ZiAoIXVmc2hjZF9pc19hdXRvX2hpYmVybjhfc3VwcG9ydGVkKGhiYSkpDQorCWlmICghdWZzaGNk
-X2lzX2F1dG9faGliZXJuOF9zdXBwb3J0ZWQoaGJhKSB8fA0KKwkgICAgIXVmc2hjZF9pc19hdXRv
-X2hpYmVybjhfZW5hYmxlZChoYmEpKQ0KIAkJcmV0dXJuIGZhbHNlOw0KIA0KIAlpZiAoIShpbnRy
-X21hc2sgJiBVRlNIQ0RfVUlDX0hJQkVSTjhfTUFTSykpDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9z
-Y3NpL3Vmcy91ZnNoY2QuaCBiL2RyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmgNCmluZGV4IDJhZTZj
-N2M4NTI4Yy4uODFjNzFhM2UzNDc0IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9zY3NpL3Vmcy91ZnNo
-Y2QuaA0KKysrIGIvZHJpdmVycy9zY3NpL3Vmcy91ZnNoY2QuaA0KQEAgLTU1LDYgKzU1LDcgQEAN
-CiAjaW5jbHVkZSA8bGludXgvY2xrLmg+DQogI2luY2x1ZGUgPGxpbnV4L2NvbXBsZXRpb24uaD4N
-CiAjaW5jbHVkZSA8bGludXgvcmVndWxhdG9yL2NvbnN1bWVyLmg+DQorI2luY2x1ZGUgPGxpbnV4
-L2JpdGZpZWxkLmg+DQogI2luY2x1ZGUgInVuaXByby5oIg0KIA0KICNpbmNsdWRlIDxhc20vaXJx
-Lmg+DQpAQCAtNzczLDYgKzc3NCwxMSBAQCBzdGF0aWMgaW5saW5lIGJvb2wgdWZzaGNkX2lzX2F1
-dG9faGliZXJuOF9zdXBwb3J0ZWQoc3RydWN0IHVmc19oYmEgKmhiYSkNCiAJcmV0dXJuIChoYmEt
-PmNhcGFiaWxpdGllcyAmIE1BU0tfQVVUT19ISUJFUk44X1NVUFBPUlQpOw0KIH0NCiANCitzdGF0
-aWMgaW5saW5lIGJvb2wgdWZzaGNkX2lzX2F1dG9faGliZXJuOF9lbmFibGVkKHN0cnVjdCB1ZnNf
-aGJhICpoYmEpDQorew0KKwlyZXR1cm4gRklFTERfR0VUKFVGU0hDSV9BSElCRVJOOF9USU1FUl9N
-QVNLLCBoYmEtPmFoaXQpID8gdHJ1ZSA6IGZhbHNlOw0KK30NCisNCiAjZGVmaW5lIHVmc2hjZF93
-cml0ZWwoaGJhLCB2YWwsIHJlZykJXA0KIAl3cml0ZWwoKHZhbCksIChoYmEpLT5tbWlvX2Jhc2Ug
-KyAocmVnKSkNCiAjZGVmaW5lIHVmc2hjZF9yZWFkbChoYmEsIHJlZykJXA0KLS0gDQoyLjE4LjAN
-Cg==
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+---74181308-696423667-1580296247=:14408
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8BIT
+
+On Tue, 28 Jan 2020, Greg Kroah-Hartman wrote:
+
+> From: Eric W. Biederman <ebiederm@xmission.com>
+>
+> [ Upstream commit 33da8e7c814f77310250bb54a9db36a44c5de784 ]
+>
+> My recent to change to only use force_sig for a synchronous events
+> wound up breaking signal reception cifs and drbd.  I had overlooked
+> the fact that by default kthreads start out with all signals set to
+> SIG_IGN.  So a change I thought was safe turned out to have made it
+> impossible for those kernel thread to catch their signals.
+>
+> Reverting the work on force_sig is a bad idea because what the code
+> was doing was very much a misuse of force_sig.  As the way force_sig
+> ultimately allowed the signal to happen was to change the signal
+> handler to SIG_DFL.  Which after the first signal will allow userspace
+> to send signals to these kernel threads.  At least for
+> wake_ack_receiver in drbd that does not appear actively wrong.
+>
+> So correct this problem by adding allow_kernel_signal that will allow
+> signals whose siginfo reports they were sent by the kernel through,
+> but will not allow userspace generated signals, and update cifs and
+> drbd to call allow_kernel_signal in an appropriate place so that their
+> thread can receive this signal.
+>
+> Fixing things this way ensures that userspace won't be able to send
+> signals and cause problems, that it is clear which signals the
+> threads are expecting to receive, and it guarantees that nothing
+> else in the system will be affected.
+>
+> This change was partly inspired by similar cifs and drbd patches that
+> added allow_signal.
+>
+> Reported-by: ronnie sahlberg <ronniesahlberg@gmail.com>
+> Reported-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+> Tested-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+> Cc: Steve French <smfrench@gmail.com>
+> Cc: Philipp Reisner <philipp.reisner@linbit.com>
+> Cc: David Laight <David.Laight@ACULAB.COM>
+> Fixes: 247bc9470b1e ("cifs: fix rmmod regression in cifs.ko caused by force_sig changes")
+> Fixes: 72abe3bcf091 ("signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig")
+
+These two commits come with that release, but...
+
+> Fixes: fee109901f39 ("signal/drbd: Use send_sig not force_sig")
+> Fixes: 3cf5d076fb4d ("signal: Remove task parameter from force_sig")
+
+...these two commits not and were never added to 4.9.y.
+
+Are these both really not needed?
+
+
+     Thomas
+
+
+
+> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+> drivers/block/drbd/drbd_main.c |  2 ++
+> fs/cifs/connect.c              |  2 +-
+> include/linux/signal.h         | 15 ++++++++++++++-
+> kernel/signal.c                |  5 +++++
+> 4 files changed, 22 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+> index f5c24459fc5c1..daa9cef96ec66 100644
+> --- a/drivers/block/drbd/drbd_main.c
+> +++ b/drivers/block/drbd/drbd_main.c
+> @@ -332,6 +332,8 @@ static int drbd_thread_setup(void *arg)
+> 		 thi->name[0],
+> 		 resource->name);
+>
+> +	allow_kernel_signal(DRBD_SIGKILL);
+> +	allow_kernel_signal(SIGXCPU);
+> restart:
+> 	retval = thi->function(thi);
+>
+> diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+> index 7d46025d5e899..751bdde6515d5 100644
+> --- a/fs/cifs/connect.c
+> +++ b/fs/cifs/connect.c
+> @@ -885,7 +885,7 @@ cifs_demultiplex_thread(void *p)
+> 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
+>
+> 	set_freezable();
+> -	allow_signal(SIGKILL);
+> +	allow_kernel_signal(SIGKILL);
+> 	while (server->tcpStatus != CifsExiting) {
+> 		if (try_to_freeze())
+> 			continue;
+> diff --git a/include/linux/signal.h b/include/linux/signal.h
+> index 5308304993bea..ffa58ff53e225 100644
+> --- a/include/linux/signal.h
+> +++ b/include/linux/signal.h
+> @@ -313,6 +313,9 @@ extern void signal_setup_done(int failed, struct ksignal *ksig, int stepping);
+> extern void exit_signals(struct task_struct *tsk);
+> extern void kernel_sigaction(int, __sighandler_t);
+>
+> +#define SIG_KTHREAD ((__force __sighandler_t)2)
+> +#define SIG_KTHREAD_KERNEL ((__force __sighandler_t)3)
+> +
+> static inline void allow_signal(int sig)
+> {
+> 	/*
+> @@ -320,7 +323,17 @@ static inline void allow_signal(int sig)
+> 	 * know it'll be handled, so that they don't get converted to
+> 	 * SIGKILL or just silently dropped.
+> 	 */
+> -	kernel_sigaction(sig, (__force __sighandler_t)2);
+> +	kernel_sigaction(sig, SIG_KTHREAD);
+> +}
+> +
+> +static inline void allow_kernel_signal(int sig)
+> +{
+> +	/*
+> +	 * Kernel threads handle their own signals. Let the signal code
+> +	 * know signals sent by the kernel will be handled, so that they
+> +	 * don't get silently dropped.
+> +	 */
+> +	kernel_sigaction(sig, SIG_KTHREAD_KERNEL);
+> }
+>
+> static inline void disallow_signal(int sig)
+> diff --git a/kernel/signal.c b/kernel/signal.c
+> index 30914b3c76b21..57fadbe69c2e6 100644
+> --- a/kernel/signal.c
+> +++ b/kernel/signal.c
+> @@ -79,6 +79,11 @@ static int sig_task_ignored(struct task_struct *t, int sig, bool force)
+> 	    handler == SIG_DFL && !(force && sig_kernel_only(sig)))
+> 		return 1;
+>
+> +	/* Only allow kernel generated signals to this kthread */
+> +	if (unlikely((t->flags & PF_KTHREAD) &&
+> +		     (handler == SIG_KTHREAD_KERNEL) && !force))
+> +		return true;
+> +
+> 	return sig_handler_ignored(handler, sig);
+> }
+>
+>
+---74181308-696423667-1580296247=:14408--
 
