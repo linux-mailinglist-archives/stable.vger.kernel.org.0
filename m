@@ -2,78 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFE814D11D
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 20:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C577414D1D2
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 21:20:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727500AbgA2TQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 14:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726171AbgA2TQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Jan 2020 14:16:32 -0500
-Received: from localhost (unknown [155.52.187.28])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 597C9205F4;
-        Wed, 29 Jan 2020 19:16:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580325391;
-        bh=Ekd69VFmcvzzOaQfJ4W2iTm/PHo/WIelF4vBgCoenhY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZqNsHe6IV2v+dHIO2tPi3OWU1HHdep3RIn5JOXAtfMHf7cROBCtYeh194e4qoRCe+
-         ganRLXo8YwbV9PZeRjBUx4//sHNFNG5g33GZH5zdfao247N1j4v+bVjj27NVOEKoC2
-         RBNd/23hvjyH0twMFMy8/TDd0siuyeYKr35qdYz0=
-Date:   Wed, 29 Jan 2020 14:16:30 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Jeremy Linton <jeremy.linton@arm.com>, stable@vger.kernel.org,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>
-Subject: Re: Request to backport "Documentation: Document arm64 kpti control"
-Message-ID: <20200129191630.GB2896@sasha-vm>
-References: <520fee3a-4d14-9a78-e542-cce98acae9f6@gmail.com>
- <20200126135233.GB11467@sasha-vm>
- <20200127155106.GA668073@kroah.com>
+        id S1726618AbgA2UUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 15:20:00 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:37600 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726259AbgA2UT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 15:19:59 -0500
+Received: by mail-lj1-f195.google.com with SMTP id v17so804373ljg.4;
+        Wed, 29 Jan 2020 12:19:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=cBAvgEILNC/DpIEeIO9O9bZop1LPit11TI5TK6r2sd0=;
+        b=f6HglhEYBtGlI+1MJLA1H4Vfw050nUY3c/mP1sFKr8Wb9XRxK7dw1/gnSfQDg06rRT
+         0t8ti8HFq9tZ3Jx3f/U1S+AUYfBV98K2Vf5Tjm9hW+c23UxJNS76DfzgOyoNHuvGx+zN
+         sXZWQY857pdIbKJ3bDqFr7UmhBFUETm66k9viw7YDkQ7/BuPNp+720SCEP1STs2CDdko
+         Ubjko+gAGEcIcIKdQdA3I6wNiIpQPIq/tdqPgKS03xo+OvvCVKoEETeJEHbByswy7sid
+         mK/nuxs14s0PqRbndIF4OxzPgDBL8JMwoqSQpFOLGhlaz/k0PLpe9/UAWs48Rq3olRho
+         dzPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=cBAvgEILNC/DpIEeIO9O9bZop1LPit11TI5TK6r2sd0=;
+        b=bHhIm1111hndF0w9rruS6EnEivohnUZvTeCSxsD8zwZwSNgLhW6BQto0MaiQ8byycr
+         iHSUkSDGIBogOz8ZHCsa2+Jyf2bMD/y6oih/lsiXG+yxg4BOxaGqPlkq1zAWuPqWItEQ
+         kY/TrNPVvGV6/DUciY0iHmGaqrDU/6ez+HgaaKsCrWjlC3Q9efcJKKuLAol/iybaLX0+
+         Rql1ObyB1LbTNIej7aLRAK0f0mcCYB/iO+q1pff9+L2BbRzK71vAzZxSSrLfvXFeN57K
+         wKYpLGNGm/vjWv2NbwdIg5Ny8hjY5/vz0mj6komZCB/rRr+UmA/uh6ERV7D5vIiDpcIx
+         5Pcw==
+X-Gm-Message-State: APjAAAXUWBg2U7dvXmC06qGW9bCKCW4NCydF7ya+RhUtfCZ8zkO4ML6i
+        g8ixfSPGUsytqJK6JLcnKnifNiQwYXSXm+zoJ1U=
+X-Google-Smtp-Source: APXvYqzuA9WbX+X2q0ILY1NfmpmvLlSyBrUHhpaWuevXJtsv/YP7zNE3FxI6k3UU76WiAjiLa4NEUjWGR9uylY0tU6c=
+X-Received: by 2002:a2e:5056:: with SMTP id v22mr557613ljd.164.1580329196994;
+ Wed, 29 Jan 2020 12:19:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200127155106.GA668073@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <1580305274-27274-1-git-send-email-martin.fuzzey@flowbird.group>
+In-Reply-To: <1580305274-27274-1-git-send-email-martin.fuzzey@flowbird.group>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Wed, 29 Jan 2020 17:19:45 -0300
+Message-ID: <CAOMZO5AFJvEdWNSsnsRW70_M6rzyvO4ip3zJHET2Gc2Wzj5RPQ@mail.gmail.com>
+Subject: Re: [PATCH] dmaengine: imx-sdma: fix context cache
+To:     Martin Fuzzey <martin.fuzzey@flowbird.group>
+Cc:     dmaengine@vger.kernel.org, stable <stable@vger.kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Robin Gong <yibin.gong@nxp.com>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 27, 2020 at 04:51:06PM +0100, Greg Kroah-Hartman wrote:
->On Sun, Jan 26, 2020 at 08:52:33AM -0500, Sasha Levin wrote:
->> On Sat, Jan 25, 2020 at 08:03:25PM -0800, Florian Fainelli wrote:
->> > Hi Greg, Sasha,
->> >
->> > Could you backport upstream commit
->> > de19055564c8f8f9d366f8db3395836da0b2176c ("Documentation: Document arm64
->> > kpti control") to the stable 4.9, 4.14 and 4.19 kernels since they all
->> > support the command line parameter.
->>
->> Hey Florian,
->>
->> We don't normally take documentation patches into stable trees.
+Hi Martin,
+
+Thanks for the fix.
+
+On Wed, Jan 29, 2020 at 10:41 AM Martin Fuzzey
+<martin.fuzzey@flowbird.group> wrote:
 >
->Normally we do not, but this is simple enough I've queued it up for 4.19
->and 4.14.  Are you sure it is ok for 4.9?  If so, Florian, can you
->provide a backported version of it?
+> There is a DMA problem with the serial ports on i.MX6.
+>
+> When the following sequence is performed:
+>
+> 1) Open a port
+> 2) Write some data
+> 3) Close the port
+> 4) Open a *different* port
+> 5) Write some data
+> 6) Close the port
+>
+> The second write sends nothing and the second close hangs.
+> If the first close() is omitted it works.
+>
+> Adding logs to the the UART driver shows that the DMA is being setup but
+> the callback is never invoked for the second write.
+>
+> This used to work in 4.19.
+>
+> Git bisect leads to:
+>         ad0d92d: "dmaengine: imx-sdma: refine to load context only once"
+>
+> This commit adds a "context_loaded" flag used to avoid unnecessary context
+> setups.
+> However the flag is only reset in sdma_channel_terminate_work(),
+> which is only invoked in a worker triggered by sdma_terminate_all() IF
+> there is an active descriptor.
+>
+> So, if no active descriptor remains when the channel is terminated, the
+> flag is not reset and, when the channel is later reused the old context
+> is used.
+>
+> Fix the problem by always resetting the flag in sdma_free_chan_resources().
+>
+> Fixes: ad0d92d: "dmaengine: imx-sdma: refine to load context only once"
 
-My objection to taking documentation patches is either that we take all
-of them, or we take none. If we take only select documentation fixes it
-makes a frankenstein Documentation/ directory that might cause more harm
-than benefit.
+Nit: in the Fixes tag we use 12 digits for the commit ID and the
+Subject is enclosed by parenthesis.
 
-Let's say I'm looking for netfilter documentation on 4.19, can I trust
-linux-4.19.y or do I look upstream? Right now I know I have to look
-upstream, but if we tell people it's okay to trust the linux-4.19.y docs
-then we might be causing harm to our users when some fixes were
-backported but corresponding documentation fixes weren't.
+The preferred format would be:
 
--- 
-Thanks,
-Sasha
+Fixes: ad0d92d7ba6a ("dmaengine: imx-sdma: refine to load context only once")
+
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+
+Thanks
