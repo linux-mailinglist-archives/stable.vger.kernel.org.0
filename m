@@ -2,91 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C122F14CDAA
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 16:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F2814CDD1
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 16:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726401AbgA2Pjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 10:39:39 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33915 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726240AbgA2Pjj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 10:39:39 -0500
-Received: by mail-wr1-f66.google.com with SMTP id t2so20717718wrr.1
-        for <stable@vger.kernel.org>; Wed, 29 Jan 2020 07:39:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QZax47iI8k6ChHm9BEXYEDFmWMZm5/4TkaQDuglHGf4=;
-        b=W7PQ3zZ3U7T/ncBE63gL/o0WacEUuIGMgV55tIjUvc5wvzZM10tY7A2WkkuicV9k2H
-         gFyO0R5+tCjIRCFd1ZYGQrG61M40chGPz9MKOtFEdQYeLavndrswT7gosTfqIQ7+aCsh
-         rat138KXIXgTEVXuAREFLh1tffJDln+B9xE4Y2hcOkTSpqxmd1HgaVqt8an5NxmUMmuq
-         7uFmYjUqxprX51fL/ZqWkBRN5WuroxeovnihCf36WKjgg2YqRrNAzQ3US2gz5dOUTH4B
-         NeWby0zAsp8R+6XvykOJ/QBxICQDVXDkUY9j2ARDXJfQ0Cr3Pe7KxO7XeZSmbL0uO3dz
-         wNlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QZax47iI8k6ChHm9BEXYEDFmWMZm5/4TkaQDuglHGf4=;
-        b=Hiz1zl027dQG8dVrYpk1szgZcyeYWZVmoen1rnpIbRPWOV0NfT1CpRvYo0UKO9hqs0
-         o6PaWM0ScxDaMwlaPBrrSQ8nJ/jz2bDN8GqCobaU/RV5C+AxmYwF0ceiYeLhp3lwGUIz
-         mZFDMwbemQtildsTXIJ8xPK59orxGzDrJGIkIrZyDJk7tHpA6oQ8YDj4JutN1SpzM77A
-         0/OXyoqC0EqPTwfkYINWBja1LKCDvgZXi6na+7qKB62VwcOXUv1sd15EVSEjFIHqfXwi
-         OHReyeO3tHsSE45deq6gpcvsSrU3UYuTBi8X7KTXMinZSOQBA6z0UzREAT4+7WyJZ/HW
-         orfg==
-X-Gm-Message-State: APjAAAXZmGq/7qbK1Ggr0egqMj7ucPJL5B7Ap9i/ml26c0bDE9KTQ8dl
-        KVACkdlsEseO6qRVHdlXXbTzzbMHNc7tBg==
-X-Google-Smtp-Source: APXvYqwAoatVmS+0Odnx7zkM5Le0r0S7qi8mjO3giNuk11XyS59tzr7F7PRZuVCnZujfguQ+BqqdKg==
-X-Received: by 2002:adf:f54d:: with SMTP id j13mr36089159wrp.19.1580312377344;
-        Wed, 29 Jan 2020 07:39:37 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f127sm2720143wma.4.2020.01.29.07.39.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jan 2020 07:39:36 -0800 (PST)
-Message-ID: <5e31a738.1c69fb81.89256.c9b3@mx.google.com>
-Date:   Wed, 29 Jan 2020 07:39:36 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726498AbgA2Pxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 10:53:55 -0500
+Received: from mga18.intel.com ([134.134.136.126]:37101 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726271AbgA2Pxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jan 2020 10:53:55 -0500
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Jan 2020 07:53:54 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,378,1574150400"; 
+   d="scan'208";a="402025181"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga005.jf.intel.com with ESMTP; 29 Jan 2020 07:53:52 -0800
+Received: from andy by smile with local (Exim 4.93)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1iwpf7-0004G2-6l; Wed, 29 Jan 2020 17:53:53 +0200
+Date:   Wed, 29 Jan 2020 17:53:53 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        vipul kumar <vipulk0511@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        x86@kernel.org, Len Brown <len.brown@intel.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>
+Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+ Intel Bay Trail SoC
+Message-ID: <20200129155353.GI32742@smile.fi.intel.com>
+References: <87iml11ccf.fsf@nanos.tec.linutronix.de>
+ <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com>
+ <87ftg5131x.fsf@nanos.tec.linutronix.de>
+ <30d49be8-67ad-6f32-37a8-0cdd26f0852e@redhat.com>
+ <87sgjz434v.fsf@nanos.tec.linutronix.de>
+ <20200129130350.GD32742@smile.fi.intel.com>
+ <0d361322-87aa-af48-492c-e8c4983bb35b@redhat.com>
+ <20200129141444.GE32742@smile.fi.intel.com>
+ <91cdda7a-4194-ebe7-225d-854447b0436e@redhat.com>
+ <87imku2t3w.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.99
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.19.y boot: 63 boots: 0 failed,
- 62 passed with 1 untried/unknown (v4.19.99)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87imku2t3w.fsf@nanos.tec.linutronix.de>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 63 boots: 0 failed, 62 passed with 1 untried/unkn=
-own (v4.19.99)
+On Wed, Jan 29, 2020 at 04:13:39PM +0100, Thomas Gleixner wrote:
+> Hans de Goede <hdegoede@redhat.com> writes:
+> > On 29-01-2020 15:14, Andy Shevchenko wrote:
+> >>> The only one which is possibly suspicious here is this line:
+> >>>
+> >>>   * 0111:   25 * 32 /  9  =  88.8889 MHz
+> >>>
+> >>> The SDM says 88.9 MHz for this one.
+> 
+> I trust math more than the SDM :)
+> 
+> >> Anyway it seems need to be fixed as well.
+> >> 
+> >> Btw, why we are mentioning 20 / 6 and 28 / 6 when arithmetically
+> >> it's the same as 10 / 3 and 14 / 3?
+> >
+> > I copied the BYT values from Thomas' email and I guess he did not
+> > get around to simplifying them, I'll use the simplified versions
+> > for my patch.
+> 
+> Too tired, too lazy :)
+> 
+> Andy, can you please make sure that people inside Intel who can look
+> into the secrit documentation confirm what we are aiming for?
+> 
+> Ideally they should provide the X-tal frequency and the mult/div pair
+> themself :)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.99/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.99/
+So, I don't have access to the CPU core documentation (and may be will not be
+given), nevertheless I dug a bit to what I have for Cherrytrail. So, the XTAL
+is 19.2MHz, which becomes 100MHz and 1600MHz by some root PLL, then, the latter
+two frequencies are being used by another PLL to provide a reference clock (*)
+to PLL which derives CPU clock.
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.99
-Git Commit: 88d6de67e390b6093f2c11189ad022988a9e2961
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 46 unique boards, 14 SoC families, 12 builds out of 192
+*) According to colleagues of mine it's a fixed rate source.
 
-Boot Regressions Detected:
+That's all what I have.
 
-arm:
+-- 
+With Best Regards,
+Andy Shevchenko
 
-    multi_v7_defconfig:
-        gcc-8:
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v4.19.98)
 
----
-For more info write to <info@kernelci.org>
