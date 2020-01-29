@@ -2,75 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BCBC14C665
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 07:16:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7225F14C667
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 07:17:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726037AbgA2GQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 01:16:37 -0500
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:38418 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726020AbgA2GQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 01:16:37 -0500
-Received: by mail-ed1-f68.google.com with SMTP id p23so8657396edr.5
-        for <stable@vger.kernel.org>; Tue, 28 Jan 2020 22:16:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=lViM4etGs/pVF9jczQMDENMAQhRZxDQ8AmI8/T8PuXQ=;
-        b=RFQiiFROYV2tE5mB9Cr5YBD0W3hztxdE3Z+gLYt38qiIEvCUum1rm+lc2lbzSAo3Wl
-         8DYd/b3k76c3Czwpw+1eqvGtw1jJfO3mXaY9HClZFO0Mr3NZHeVIYEKngYfnULsWvy8T
-         hqQPdQRWnVbblKHDgN1gkLNaIinoPrrKGYgojgeDEqePlPjEoX36RY/k1exzjGZdzbRN
-         7rSqoh204sGOH6namoDd/DlcHnVMwXS1dYZeOK6cSLh0oi37k8lS1DxjcCt9CfJxZ+uW
-         72LDCVKC81CIhJggLYHK+j4MmqT0TefapYgfBXRdqb2P08IvNH9jP35Nr3PjY0uafY45
-         +lPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=lViM4etGs/pVF9jczQMDENMAQhRZxDQ8AmI8/T8PuXQ=;
-        b=FIHJmUzafp/MA8lLAA2FtJomxZlnkQmxnXRJJbfQhdsqNn0DljS5oX77O6rIlHgchO
-         66Ab44DBL6qG2yXU1N3sb2XCuUeEzOsd9qHW13A2TIzNJASoVETWsdzM3sc0bGAZjqzP
-         oXceyRfjHNKl+9Zy1Y/j2GIPpGYuq9vclwiq89w/TBOvYZuwn28oJFcR7jHYSonEg+Zv
-         0f0Ipe29hJA8zhqEwf2qpztXbVbGZeP8oNxNqD70eZ56taNImKiVb08molqqhIIEDLpL
-         xRxhunEGcxdISv0qm36kciNR+j5KLndJUJ7xqW/gdnxeY9+7QuWn5XKbc5NSAO7xUNOS
-         NpQw==
-X-Gm-Message-State: APjAAAUE4bSN2/um/zJxPPyPMy1xZ3qjp2QviRKtUSAbwvHge9PzJ9jT
-        xoM43ylNOop2QOlSJ4PkJFwk7HU81qNcDBWpcvM=
-X-Google-Smtp-Source: APXvYqz2umjzuVQI3RX9hEYmwWIZkC8taNYQqCTT/EjPcICNHiv4EVX4T5VZbY8r9QgzONZQ240o9Kbcc1Uk16NlUaQ=
-X-Received: by 2002:aa7:c616:: with SMTP id h22mr6008497edq.352.1580278595655;
- Tue, 28 Jan 2020 22:16:35 -0800 (PST)
+        id S1726047AbgA2GRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 01:17:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41128 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726020AbgA2GRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jan 2020 01:17:31 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CF21206A2;
+        Wed, 29 Jan 2020 06:17:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580278651;
+        bh=yWzTGoVZiwZ0LjtV7+6Rwyv3oTv1Ts0ntr+VJTvUIjc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AwCM2mmPcx7NBaU55spqHjtnUoyusb+e2IfMIFtfXfz7YsHgNuFCY4JLg85WsVUAw
+         OuVIMjf+CNgnBAF1+6aovMmWGTieOZ3VAr75Kv5JxiuquercbPX+8/odzgHrJzSIPP
+         wNZyQI5nxhKBSStnllomy4SRUU4Ti527BgBS7FmM=
+Date:   Wed, 29 Jan 2020 07:17:28 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 000/104] 5.4.16-stable review
+Message-ID: <20200129061728.GA3768602@kroah.com>
+References: <20200128135817.238524998@linuxfoundation.org>
+ <13867bdc-88b4-5c0c-aa63-de003c44a44f@kernel.org>
 MIME-Version: 1.0
-Reply-To: kzakari04@gmail.com
-Received: by 2002:a05:6402:1a36:0:0:0:0 with HTTP; Tue, 28 Jan 2020 22:16:35
- -0800 (PST)
-From:   Karim Zakari <kariim1960z@gmail.com>
-Date:   Wed, 29 Jan 2020 07:16:35 +0100
-X-Google-Sender-Auth: 95qAWKLmTHSxSLTNSMvgXS6U5BY
-Message-ID: <CAA+qVkwc3qU9FLgjdTsPhdsa1XNzWt3Q+7A3fOCJAur5QAJkmw@mail.gmail.com>
-Subject: Urgent Reply.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <13867bdc-88b4-5c0c-aa63-de003c44a44f@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Dear  Friend,
+On Tue, Jan 28, 2020 at 04:00:50PM -0700, shuah wrote:
+> On 1/28/20 6:59 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.16 release.
+> > There are 104 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 30 Jan 2020 13:57:09 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.16-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Compiled and booted on my test system. No dmesg regressions.
 
-  I know that this letter will come to you as surprise, I got your
-contact address while I am searching for foreign partner to assist me
-in  this business transaction that is present in our favor, My name is
-Mr. KARIM  ZAKARI, I am the Bill and Exchange (assistant)  Manager
-(BOA) BANK OF AFRICA. I'm proposing to lift in your name (US$16.5
-Million Dollars) that belong to our later customer, MR.  GORPUN
-VLADIMIR From Saratov Oblast Russia who died in Siber airline that
-crashed into sea  at Isreal on 4th October 2001.
+Great, thanks for testing all of these and letting me know.
 
-I want to present you to my bank here as the beneficiary to this fund
-and I Am waiting for your response for more details, As you are
-willing to execute this business appointunity with me.
-
-Thanks,
-Yours Sincerely,
-Mr. Karim Zakari.
+greg k-h
