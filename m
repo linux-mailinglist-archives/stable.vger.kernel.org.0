@@ -2,121 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C1514C6E7
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 08:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B33F14C6F7
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 08:39:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726076AbgA2HgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 02:36:09 -0500
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:38462 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726068AbgA2HgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 02:36:08 -0500
-Received: by mail-oi1-f196.google.com with SMTP id l9so13063311oii.5
-        for <stable@vger.kernel.org>; Tue, 28 Jan 2020 23:36:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FgvO10IJ4wBnszEHmPtvEGnuEA/o8QmjSQTp/J33OpI=;
-        b=z3IfDOISdaN3RYKwrU29jiKORUsOWPToKO4Jx1+UApeDifFCMXtiIPEHKl3UZCrZci
-         /XotVFBJkz/56iooATh6MvasehD0ohtNa8Q330q4mqH2sirBIq26a7soIpi08H9tTwqT
-         lyUPtqrbqURAly09xmWwLXJwlKnzNZOsJ1+uilDXinguq6lmcBmOUOSu+/A4qzLpEG8q
-         2Y4JUdrK9btUO3ZpH4IsQ77xdl9OYrJp+QCkReAEtQG60+nYeF7YKXpZk5R4sk8vygmW
-         Cej/8mWxpHIpMSJH331tNirh7osCFMY3/oISXByImEyJHh5o8V/EMweSFzb2FpwSzEv0
-         GgRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FgvO10IJ4wBnszEHmPtvEGnuEA/o8QmjSQTp/J33OpI=;
-        b=qjAhDSMqkeiTOs4q5pzGXyXyPbTLL2duR2y4Yy/JrhNti22jjSmx8yPXaOU17PGze0
-         5VrdBgrfF9PG5FA1eFRiohX0SzBzlVqBhhct6BlOngPi4OEO5E8CzMe88NbVUP0jpsIV
-         LUco2b0qYUZOG9BamgppsWBNXox/iWhbELco/EZim0MVNdlZqvtehlvqhCg0BTWY50F+
-         v5Mf6ZRpTg2UNzsBXYDNbcaEytUVm0WsckU8d1KfRWEdOlziYIeygneG2XNtk5PV9PJx
-         ra0zYGfuu93IA0dKfzllRm78R3AjW3K4IgO7hNhE+RiZfX7IjH1ixC/QOvjB6hS5idfR
-         h8qQ==
-X-Gm-Message-State: APjAAAXN2oqt1d8IIsuc9Lah2ch2IfcqOzfyEnhU0eqzoeX/hx2afwnd
-        J6OJiYT7zmAz0pPC6noWM/ZUwxvG3ed7BbLojt2Y7Q==
-X-Google-Smtp-Source: APXvYqzTJvlxF581XdJ3qT23ZjsRBDTeHvvEXr3D2QI8bFm7TdHeUYS8y9GqAiiKD6S8Pxc+ZizDQMZqFaqtxucP8ig=
-X-Received: by 2002:a54:4396:: with SMTP id u22mr5698037oiv.128.1580283367480;
- Tue, 28 Jan 2020 23:36:07 -0800 (PST)
+        id S1726401AbgA2HjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 02:39:24 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:15399 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726076AbgA2HjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 02:39:13 -0500
+X-UUID: 550fdfe733e94e9a88c29a40adb14693-20200129
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=RNlRrAtsmyEK+6KafSQgfCKsq/mGqkOCE3TvsRLFgBo=;
+        b=ZZvV9eMeMrNcjFbw6eg2s3+DPozptVyXWsm136eS41dmRVlHMmmfwq9izyblMjfidwkOXxiitVQmwfor7CjRstsHak+B/jvdZJWeaGdPPHHGCBXRz3E0CkZDQkQrYvCNZJLOhHdLQCxbuAk8G3yoB7WDE0D9yRYMrSrA55DydKc=;
+X-UUID: 550fdfe733e94e9a88c29a40adb14693-20200129
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        (envelope-from <stanley.chu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 116438089; Wed, 29 Jan 2020 15:39:06 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Wed, 29 Jan 2020 15:37:44 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Wed, 29 Jan 2020 15:39:12 +0800
+From:   Stanley Chu <stanley.chu@mediatek.com>
+To:     <linux-scsi@vger.kernel.org>, <martin.petersen@oracle.com>,
+        <avri.altman@wdc.com>, <alim.akhtar@samsung.com>,
+        <jejb@linux.ibm.com>, <beanhuo@micron.com>
+CC:     <asutoshd@codeaurora.org>, <cang@codeaurora.org>,
+        <matthias.bgg@gmail.com>, <bvanassche@acm.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <kuohong.wang@mediatek.com>,
+        <peter.wang@mediatek.com>, <chun-hung.wu@mediatek.com>,
+        <andy.teng@mediatek.com>, Stanley Chu <stanley.chu@mediatek.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v3 3/4] scsi: ufs: fix Auto-Hibern8 error detection
+Date:   Wed, 29 Jan 2020 15:39:01 +0800
+Message-ID: <20200129073902.5786-4-stanley.chu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20200129073902.5786-1-stanley.chu@mediatek.com>
+References: <20200129073902.5786-1-stanley.chu@mediatek.com>
 MIME-Version: 1.0
-References: <20200127193046.110258-1-john.stultz@linaro.org> <87lfpq915x.fsf@kernel.org>
-In-Reply-To: <87lfpq915x.fsf@kernel.org>
-From:   John Stultz <john.stultz@linaro.org>
-Date:   Tue, 28 Jan 2020 23:35:56 -0800
-Message-ID: <CALAqxLUNg_Oww17U=BW9XTzZAdkCoCWCg=92Js17SexhT8gy6g@mail.gmail.com>
-Subject: Re: [PATCH v2] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
-To:     Felipe Balbi <balbi@kernel.org>
-Cc:     lkml <linux-kernel@vger.kernel.org>,
-        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 11:23 PM Felipe Balbi <balbi@kernel.org> wrote:
-> John Stultz <john.stultz@linaro.org> writes:
-> > From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-> >
-> > The current code in dwc3_gadget_ep_reclaim_completed_trb() will
-> > check for IOC/LST bit in the event->status and returns if
-> > IOC/LST bit is set. This logic doesn't work if multiple TRBs
-> > are queued per request and the IOC/LST bit is set on the last
-> > TRB of that request.
-> >
-> > Consider an example where a queued request has multiple queued
-> > TRBs and IOC/LST bit is set only for the last TRB. In this case,
-> > the core generates XferComplete/XferInProgress events only for
-> > the last TRB (since IOC/LST are set only for the last TRB). As
-> > per the logic in dwc3_gadget_ep_reclaim_completed_trb()
-> > event->status is checked for IOC/LST bit and returns on the
-> > first TRB. This leaves the remaining TRBs left unhandled.
-> >
-> > Similarly, if the gadget function enqueues an unaligned request
-> > with sglist already in it, it should fail the same way, since we
-> > will append another TRB to something that already uses more than
-> > one TRB.
-> >
-> > To aviod this, this patch changes the code to check for IOC/LST
-> > bits in TRB->ctrl instead.
-> >
-> > At a practical level, this patch resolves USB transfer stalls seen
-> > with adb on dwc3 based HiKey960 after functionfs gadget added
-> > scatter-gather support around v4.20.
-> >
-> > Cc: Felipe Balbi <balbi@kernel.org>
-> > Cc: Yang Fei <fei.yang@intel.com>
-> > Cc: Thinh Nguyen <thinhn@synopsys.com>
-> > Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-> > Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-> > Cc: Jack Pham <jackp@codeaurora.org>
-> > Cc: Todd Kjos <tkjos@google.com>
-> > Cc: Greg KH <gregkh@linuxfoundation.org>
-> > Cc: Linux USB List <linux-usb@vger.kernel.org>
-> > Cc: stable <stable@vger.kernel.org>
-> > Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
-> > Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
-> > Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-> > [jstultz: forward ported to mainline, reworded commit log, reworked
-> >  to only check trb->ctrl as suggested by Felipe]
-> > Signed-off-by: John Stultz <john.stultz@linaro.org>
->
-> since v5.5 is already merged, I'll send this to Greg once -rc1 is
-> tagged. It's already in my testing/fixes branch waiting for a pull
-> request.
+QXV0by1IaWJlcm44IG1heSBiZSBkaXNhYmxlZCBieSBzb21lIHZlbmRvcnMgb3Igc3lzZnMNCmlu
+IHJ1bnRpbWUgZXZlbiBpZiBBdXRvLUhpYmVybjggY2FwYWJpbGl0eSBpcyBzdXBwb3J0ZWQNCmJ5
+IGhvc3QuIElmIEF1dG8tSGliZXJuOCBjYXBhYmlsaXR5IGlzIHN1cHBvcnRlZCBieSBob3N0DQpi
+dXQgbm90IGFjdHVhbGx5IGVuYWJsZWQsIEF1dG8tSGliZXJuOCBlcnJvciBzaGFsbCBub3QgaGFw
+cGVuLg0KDQpUbyBmaXggdGhpcywgcHJvdmlkZSBhIHdheSB0byBkZXRlY3QgaWYgQXV0by1IaWJl
+cm44IGlzDQphY3R1YWxseSBlbmFibGVkIGZpcnN0LCBhbmQgYnlwYXNzIEF1dG8tSGliZXJuOCBk
+aXNhYmxpbmcNCmNhc2UgaW4gdWZzaGNkX2lzX2F1dG9faGliZXJuOF9lcnJvcigpLg0KDQpGaXhl
+czogODIxNzQ0NCAoInNjc2k6IHVmczogQWRkIGVycm9yLWhhbmRsaW5nIG9mIEF1dG8tSGliZXJu
+YXRlIikNCkNjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQpTaWduZWQtb2ZmLWJ5OiBTdGFubGV5
+IENodSA8c3RhbmxleS5jaHVAbWVkaWF0ZWsuY29tPg0KUmV2aWV3ZWQtYnk6IEJlYW4gSHVvIDxi
+ZWFuaHVvQG1pY3Jvbi5jb20+DQotLS0NCiBkcml2ZXJzL3Njc2kvdWZzL3Vmc2hjZC5jIHwgMyAr
+Ky0NCiBkcml2ZXJzL3Njc2kvdWZzL3Vmc2hjZC5oIHwgNiArKysrKysNCiAyIGZpbGVzIGNoYW5n
+ZWQsIDggaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9zY3NpL3Vmcy91ZnNoY2QuYyBiL2RyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmMNCmluZGV4IGFi
+ZDBlNmIwNWY3OS4uMjE0YTNmMzczZGQ4IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9zY3NpL3Vmcy91
+ZnNoY2QuYw0KKysrIGIvZHJpdmVycy9zY3NpL3Vmcy91ZnNoY2QuYw0KQEAgLTU0NzksNyArNTQ3
+OSw4IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCB1ZnNoY2RfdXBkYXRlX3VpY19lcnJvcihzdHJ1Y3Qg
+dWZzX2hiYSAqaGJhKQ0KIHN0YXRpYyBib29sIHVmc2hjZF9pc19hdXRvX2hpYmVybjhfZXJyb3Io
+c3RydWN0IHVmc19oYmEgKmhiYSwNCiAJCQkJCSB1MzIgaW50cl9tYXNrKQ0KIHsNCi0JaWYgKCF1
+ZnNoY2RfaXNfYXV0b19oaWJlcm44X3N1cHBvcnRlZChoYmEpKQ0KKwlpZiAoIXVmc2hjZF9pc19h
+dXRvX2hpYmVybjhfc3VwcG9ydGVkKGhiYSkgfHwNCisJICAgICF1ZnNoY2RfaXNfYXV0b19oaWJl
+cm44X2VuYWJsZWQoaGJhKSkNCiAJCXJldHVybiBmYWxzZTsNCiANCiAJaWYgKCEoaW50cl9tYXNr
+ICYgVUZTSENEX1VJQ19ISUJFUk44X01BU0spKQ0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvc2NzaS91
+ZnMvdWZzaGNkLmggYi9kcml2ZXJzL3Njc2kvdWZzL3Vmc2hjZC5oDQppbmRleCAyYWU2YzdjODUy
+OGMuLjgxYzcxYTNlMzQ3NCAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmgN
+CisrKyBiL2RyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmgNCkBAIC01NSw2ICs1NSw3IEBADQogI2lu
+Y2x1ZGUgPGxpbnV4L2Nsay5oPg0KICNpbmNsdWRlIDxsaW51eC9jb21wbGV0aW9uLmg+DQogI2lu
+Y2x1ZGUgPGxpbnV4L3JlZ3VsYXRvci9jb25zdW1lci5oPg0KKyNpbmNsdWRlIDxsaW51eC9iaXRm
+aWVsZC5oPg0KICNpbmNsdWRlICJ1bmlwcm8uaCINCiANCiAjaW5jbHVkZSA8YXNtL2lycS5oPg0K
+QEAgLTc3Myw2ICs3NzQsMTEgQEAgc3RhdGljIGlubGluZSBib29sIHVmc2hjZF9pc19hdXRvX2hp
+YmVybjhfc3VwcG9ydGVkKHN0cnVjdCB1ZnNfaGJhICpoYmEpDQogCXJldHVybiAoaGJhLT5jYXBh
+YmlsaXRpZXMgJiBNQVNLX0FVVE9fSElCRVJOOF9TVVBQT1JUKTsNCiB9DQogDQorc3RhdGljIGlu
+bGluZSBib29sIHVmc2hjZF9pc19hdXRvX2hpYmVybjhfZW5hYmxlZChzdHJ1Y3QgdWZzX2hiYSAq
+aGJhKQ0KK3sNCisJcmV0dXJuIEZJRUxEX0dFVChVRlNIQ0lfQUhJQkVSTjhfVElNRVJfTUFTSywg
+aGJhLT5haGl0KSA/IHRydWUgOiBmYWxzZTsNCit9DQorDQogI2RlZmluZSB1ZnNoY2Rfd3JpdGVs
+KGhiYSwgdmFsLCByZWcpCVwNCiAJd3JpdGVsKCh2YWwpLCAoaGJhKS0+bW1pb19iYXNlICsgKHJl
+ZykpDQogI2RlZmluZSB1ZnNoY2RfcmVhZGwoaGJhLCByZWcpCVwNCi0tIA0KMi4xOC4wDQo=
 
-Great, thanks so much for queueing this! I'll be digging on the db845c
-side wrt the dma-api issue to hopefully get that one sorted as well.
-
-Thanks again for the help and analysis!
--john
