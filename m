@@ -2,82 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7E914CAF9
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 13:50:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A073914CB02
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 13:57:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726140AbgA2Mt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 07:49:59 -0500
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:50931 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726068AbgA2Mt7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 07:49:59 -0500
-Received: by mail-wm1-f54.google.com with SMTP id a5so6067435wmb.0
-        for <stable@vger.kernel.org>; Wed, 29 Jan 2020 04:49:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=a9ASkoN7C7lCS0iQ4ejLF0UD/yEFjh7CngDexqfoj1U=;
-        b=X2u1nsWrNttqCy0L0iIA0/0BTQzDVTtrEKkIsHUXBjyjvFoOrFZL+lUVdB3Y02OfEd
-         i8juO+FCeLT0oriDlcUR08BjffBvQxUOGSr6iHNgLIxPh8NXtJjlKGIevW0AfkkREmai
-         EaXO+mr0yWSFE3saTW1DMkN69rpM3141T6vZElkntomy1a0FguPX7Hou+iZN8KPeGfGn
-         EaHtBVw6c58i3rjBLlTjpbc6hdbUo7g0hsRqIjM1SoaeBwt2chlQhm+RUkDu53ywJRWb
-         8ExCMKAsBCgO24ps5jCJskFVRXeVbfKZawXc09Os9Mcm+esqNPwFL3pO4YgOIzLiTQpQ
-         ouXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=a9ASkoN7C7lCS0iQ4ejLF0UD/yEFjh7CngDexqfoj1U=;
-        b=tatQ38Uqsn64f4vBbOhlqdtNMORK0UGrumMa84yOQP70RBW3otcwLsYtJXspRPJzNp
-         H9rTxzVUtNTz0mmsX/6eNOleFZvteu03CkwCrg/TzS01GsNvP7Mqe0XtlXs/QUmHK8ca
-         fMiGxxYTjlT5/meEk0kpT8W+6qSPh9gcvvoQPxfHLdZqURSBtdnxwlGaxBVAcE14Lz4K
-         IGFtz+9EuLapbA9iACzbEIzj5AuU+rhNRTJbt0L5j1xShytroP2pIgk5u2hASGb/5edS
-         TKDTv7FvD84RzEAqqzHIj0Pcza0hfJZ0Id87+8UXfgePlanC6KfHdVX/m+NHrJpWssf4
-         pATQ==
-X-Gm-Message-State: APjAAAWCZ9W0QF65CXblV8ffNcFICson5DygVex+K9YivMqwQK0BcYGW
-        g4sRAMgu6Hp21RL7DE+18y4vYi9wVZhJsg==
-X-Google-Smtp-Source: APXvYqzQr4+0a6ZonNMn4EflpUIG31VZSe/T0f31IsqqU5QeNuYHKnKT9ViuEN6TNt+W+5bISWPZ/w==
-X-Received: by 2002:a7b:c74c:: with SMTP id w12mr11037760wmk.1.1580302196777;
-        Wed, 29 Jan 2020 04:49:56 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c195sm2318471wmd.45.2020.01.29.04.49.56
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jan 2020 04:49:56 -0800 (PST)
-Message-ID: <5e317f74.1c69fb81.e3d00.ad6f@mx.google.com>
-Date:   Wed, 29 Jan 2020 04:49:56 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726140AbgA2M5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 07:57:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726068AbgA2M5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Jan 2020 07:57:52 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9933620716;
+        Wed, 29 Jan 2020 12:57:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580302672;
+        bh=5t9UhEXD3qw3kJC/YZY2e/10WCd7xRYsojeM9CyBOD4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tv1kiJCXtNSwcu5EH3FWVId6hs482wRFXnypbYVo4zlWbJB9KHuutLnADHgJ/I0V+
+         HOMWCz2wIVivdj22CnwoiSJro4CkQoWtPyU4q514yKIBFPo4gXlXDlKXaf1IJsfzjL
+         V9EIChToSqBVZ1wru8xB8UEZ/rAq/WGEz5LV3XAM=
+Date:   Wed, 29 Jan 2020 13:57:49 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/92] 4.19.100-stable review
+Message-ID: <20200129125749.GA15245@kroah.com>
+References: <20200128135809.344954797@linuxfoundation.org>
+ <20200129113106.GA28178@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Kernel: v4.4.211-184-gfc5b03776f2d
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 18 boots: 0 failed,
- 18 passed (v4.4.211-184-gfc5b03776f2d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200129113106.GA28178@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 18 boots: 0 failed, 18 passed (v4.4.211-184-gfc=
-5b03776f2d)
+On Wed, Jan 29, 2020 at 12:31:06PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > This is the start of the stable review cycle for the 4.19.100 release.
+> > There are 92 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 30 Jan 2020 13:57:09 +0000.
+> > Anything received after that time might be too late.
+> 
+> It builds and basic tests work in our configurations.
+> 
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/112957173
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.211-184-gfc5b03776f2d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.211-184-gfc5b03776f2d/
+That's nice to see, thanks for testing and letting me know.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.211-184-gfc5b03776f2d
-Git Commit: fc5b03776f2d3b13543520d5a61a0c56ee4d1a5f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 17 unique boards, 6 SoC families, 8 builds out of 163
-
----
-For more info write to <info@kernelci.org>
+greg k-h
