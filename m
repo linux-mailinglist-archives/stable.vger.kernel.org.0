@@ -2,182 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 919E414CB11
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 14:04:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29BC714CB3A
+	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 14:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726380AbgA2NDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 08:03:53 -0500
-Received: from mga01.intel.com ([192.55.52.88]:56434 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726145AbgA2NDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Jan 2020 08:03:53 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Jan 2020 05:03:53 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,377,1574150400"; 
-   d="scan'208";a="217941078"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga007.jf.intel.com with ESMTP; 29 Jan 2020 05:03:49 -0800
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1iwn0Z-0002G6-0R; Wed, 29 Jan 2020 15:03:51 +0200
-Date:   Wed, 29 Jan 2020 15:03:50 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        vipul kumar <vipulk0511@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        x86@kernel.org, Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
- Intel Bay Trail SoC
-Message-ID: <20200129130350.GD32742@smile.fi.intel.com>
-References: <CADdC98RJpsvu_zWehNGDDN=W11rD11NSPaodg-zuaXsHuOJYTQ@mail.gmail.com>
- <878slzeeim.fsf@nanos.tec.linutronix.de>
- <CADdC98TE4oNWZyEsqXzr+zJtfdTTOyeeuHqu1u04X_ktLHo-Hg@mail.gmail.com>
- <20200123144108.GU32742@smile.fi.intel.com>
- <df04f43d-8c6d-7602-cb50-535b85cf2aaa@redhat.com>
- <87iml11ccf.fsf@nanos.tec.linutronix.de>
- <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com>
- <87ftg5131x.fsf@nanos.tec.linutronix.de>
- <30d49be8-67ad-6f32-37a8-0cdd26f0852e@redhat.com>
- <87sgjz434v.fsf@nanos.tec.linutronix.de>
+        id S1726177AbgA2NMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 08:12:14 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:3034 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726145AbgA2NMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 08:12:14 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e31849a0000>; Wed, 29 Jan 2020 05:11:54 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 29 Jan 2020 05:12:13 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 29 Jan 2020 05:12:13 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 29 Jan
+ 2020 13:12:11 +0000
+Subject: Re: [PATCH 4.4 000/183] 4.4.212-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200128135829.486060649@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <062d1c63-3c68-fbd4-14d9-5d1198ae565b@nvidia.com>
+Date:   Wed, 29 Jan 2020 13:12:09 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87sgjz434v.fsf@nanos.tec.linutronix.de>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200128135829.486060649@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1580303514; bh=0piV9Lgz8AFvzH2FLbpSr7DKVx71UR1mKXzkXgu5hxQ=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=UE2ntlRa5ws8oNBQdczRTLXxmIFI6KTbeOcH1y9bLJSYKcOTXP6dTpW04gVVGqleh
+         wMdVV2SDIgToPMQ26YKDyDu0PBvNUAznXp85az8hs96BMVYTo1kyyw63oEfQw/mFbC
+         ReEdq3358fv65IAbeXVWOikNnW+Y0K0R4wISI02bCE6hXjMYGGcxY4NcQwZ9yAAQnj
+         cuw2zRckovct6+b6XtLRKFvECESdTmIKxfiaDNQ6w0ZhSeBpCQhFj4oGkVQoHKW3Xj
+         WeqnHufbJjE0KPj43kbl3sCkwJ2AGoRb9xd+dz7XCTWBtpH9UvhF0t8XtHfXfaiEz6
+         2Y9WGc8T8nTCQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 11:39:28PM +0100, Thomas Gleixner wrote:
-> Hans de Goede <hdegoede@redhat.com> writes:
-> > Ok, I have been testing this on various devices and I'm pretty sure now
-> > that my initial hunch is correct. The problem is that the accuracy of
-> > the FSB frequency as listed in the Intel docs is not so great:
+
+On 28/01/2020 14:03, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.212 release.
+> There are 183 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Thanks for doing that.
-
-+1!
-
-> > The "Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 4:
-> > Model-Specific Registers" has the following table for the values from
-> > freq_desc_byt:
-> >
-> >     000B: 083.3 MHz
-> >     001B: 100.0 MHz
-> >     010B: 133.3 MHz
-> >     011B: 116.7 MHz
-> >     100B: 080.0 MHz
-> >
-> > Notice how for e.g the 83.3 MHz value there are 3 significant digits,
-> > which translates to an accuracy of a 1000 ppm, where as your typical
-> > crystal oscillator is 20 - 100 ppm, so the accuracy of the frequency
-> > format used in the Software Developer’s Manual is not really helpful.
+> Responses should be made by Thu, 30 Jan 2020 13:57:09 +0000.
+> Anything received after that time might be too late.
 > 
-> The SDM is not always helpful :)
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.212-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
 > 
-> > So the 00 part of 83300 which I'm suggesting to replace with 33 in
-> > essence is not specified and when the tsc_msr.c code was written /
-> > Bay Trail support was added the value from the datasheet was simply
-> > padded with zeros.
-> >
-> > There is already a hint that that likely is not correct in the values
-> > from the Software Developer’s Manual, we have values ending at 3.3,
-> > but also at 6.7, which to me feels like it is 6.66666666666667 rounded
-> > up and thus the 3.3 likely is 3.33333333333333.
-> >
-> > Test 1: Intel(R) Celeron(R) CPU  N2840  @ 2.16GHz"
-> > --------------------------------------------------
-> >
-> > As said I've also ran some tests. The first device I have tested is
-> > a HP stream 11 x360 with an "Intel(R) Celeron(R) CPU  N2840  @ 2.16GHz"
-> > (from /proc/cpuinfo) this is the "laptop' version of Bay Trail rather
-> > then the tablet version, so like Vipul's case I can comment out the 2
-> > lines setting the TSC_KNOWN_FREQ and TSC_RELIABLE flags and get
-> > "Refined TSC clocksource calibration". I've also added the changes with
-> > the extra pr_info calls which you requested. Here is the relevant output
-> > from a kernel with the 2 flags commented out + your pr_info changes,
-> > note I changed the REF_CLOCK format from %x to %d as that seems easier
-> > to interpret to me.
-> >
-> > [    0.000000] MSR_PINFO: 0000060000001a00 -> 26
-> > [    0.000000] MSR_FSBF: 0000000000000000
-> > [    0.000000] REF_CLOCK: 83000
-> > [    0.000000] tsc: Detected 2165.800 MHz processor
-> > [    3.586805] tsc: Refined TSC clocksource calibration: 2166.666 MHz
-> >
-> > And with my suggested change:
-> >
-> > [    0.000000] MSR_PINFO: 0000060000001a00 -> 26
-> > [    0.000000] MSR_FSBF: 0000000000000000
-> > [    0.000000] REF_CLOCK: 83333
-> > [    0.000000] tsc: Detected 2166.658 MHz processor
-> > [    3.587326] tsc: Refined TSC clocksource calibration: 2166.667 MHz
-> >
-> > Note we are still 0.009 MHz of from the refined calibration, so my
-> > suggestion to really fix this would be to change the freqs part
-> > of struct freq_desc to be in Hz rather then KHz and then calculate
-> > res as:
-> >
-> > res = DIV_ROUND_CLOSEST(freq * ratio, 1000); /* res is in KHz */
+> thanks,
 > 
-> That makes a log of sense.
+> greg k-h
 
-...
 
-> Looking at the table again:
-> 
-> >     000B: 083.3 MHz
-> >     001B: 100.0 MHz
-> >     010B: 133.3 MHz
-> >     011B: 116.7 MHz
-> >     100B: 080.0 MHz
-> 
-> I don't know what the crystal frequency of this CPU is, but usually the
-> frequencies are the same accross a SoC family. The E3800 baytrail
-> definitely runs with a 25Mhz crystal.
-> 
-> So using 25MHz as crystal frequency;
-> 
-> 000:   25 * 20 / 6  =  83.3333
-> 001:   25 *  4 / 1  = 100.0000
-> 010:   25 * 16 / 3  = 133.3333
-> 011:   25 * 28 / 6  = 116.6666
-> 100:   25 * 16 / 5  =  80.0000
-> 
-> So the tables for the various SoCs should have the crystal frequency and
-> the multiplier / divider pairs for each step. That makes the math simple
-> and accurate.
+All tests are passing for Tegra ...
 
-Completely agree here. I used to fix magic tables [1] when product engineers
-considers data in the documentation like carved in stone. So, I'm not surprised
-we have one here.
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
 
-> Typical crystal frequencies are 19.2, 24 and 25Mhz.
+Linux version:	4.4.212-rc1-gc4e686398655
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-Hans, I think Cherrytrail may be affected by this as the others.
-CHT AFAIK uses 19.2MHz xtal.
-
-> And if you look at CPUID 15H, it provides the crystal frequency and the
-> crystal to TSC ratio with a nominator / denominator pair. IOW a proper
-> description of the PLL.
-
-[1]: 9df461eca18f ("spi: pxa2xx: replace ugly table by approximation")
-
+Cheers
+Jon
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+nvpublic
