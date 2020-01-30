@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D5A14E233
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC4B14E1E1
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:48:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731185AbgA3SqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:46:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56312 "EHLO mail.kernel.org"
+        id S1731547AbgA3SsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:48:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730878AbgA3SqV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:21 -0500
+        id S1731545AbgA3SsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:48:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7029A217BA;
-        Thu, 30 Jan 2020 18:46:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0718214AF;
+        Thu, 30 Jan 2020 18:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409980;
-        bh=VqDmHkwwQXUzjmkuYi1yVAWOTe1K9YymAZQllXMZIEg=;
+        s=default; t=1580410102;
+        bh=h3Dozgxivx3v/d8eOB2GQGgOpiynf7UVr6c+2jL5SgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k//I/OdIoJjeTpZLvhovMTJxoQGiARLGDUKsfpn3f6tBNGP/0dAegjF/R/JmTLke5
-         svG5J3puTU38j1AINhGCJxHOjVxamM2rwlnar4+lNH07l3OtTT91IilcNXreTg6hRV
-         I69n1jq2bIDGAGsluBMwI1JO52gZ9602LsBNdw30=
+        b=OK37YtpMDZQZuU4HcLNiHB7Fg1+j4nArYDa3vUm2A0hiehzbt2D2pjMndYREkFV9A
+         cl4ORv3wTOcJf/cKK7sOyW2SIOMKmDvZaiGYLm1fmWdBe7m3AsAHxk3czEOQEu8ucK
+         9ltA51DlhovqpmvhpHW7BxndMoIKWAd1OPT7wHgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.4 110/110] power/supply: ingenic-battery: Dont change scale if theres only one
-Date:   Thu, 30 Jan 2020 19:39:26 +0100
-Message-Id: <20200130183626.282928977@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Galbraith <efault@gmx.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Janne Huttunen <janne.huttunen@nokia.com>
+Subject: [PATCH 4.19 46/55] sched/fair: Add tmp_alone_branch assertion
+Date:   Thu, 30 Jan 2020 19:39:27 +0100
+Message-Id: <20200130183616.925160986@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +48,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 86b9182df8bb12610d4d6feac45a69f3ed57bfd2 upstream.
+commit 5d299eabea5a251fbf66e8277704b874bbba92dc upstream.
 
-The ADC in the JZ4740 can work either in high-precision mode with a 2.5V
-range, or in low-precision mode with a 7.5V range. The code in place in
-this driver will select the proper scale according to the maximum
-voltage of the battery.
+The magic in list_add_leaf_cfs_rq() requires that at the end of
+enqueue_task_fair():
 
-The JZ4770 however only has one mode, with a 6.6V range. If only one
-scale is available, there's no need to change it (and nothing to change
-it to), and trying to do so will fail with -EINVAL.
+  rq->tmp_alone_branch == &rq->lead_cfs_rq_list
 
-Fixes: fb24ccfbe1e0 ("power: supply: add Ingenic JZ47xx battery driver.")
+If this is violated, list integrity is compromised for list entries
+and the tmp_alone_branch pointer might dangle.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Artur Rojek <contact@artur-rojek.eu>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Also, reflow list_add_leaf_cfs_rq() while there. This looses one
+indentation level and generates a form that's convenient for the next
+patch.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Galbraith <efault@gmx.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Janne Huttunen <janne.huttunen@nokia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/ingenic-battery.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ kernel/sched/fair.c |  126 +++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 71 insertions(+), 55 deletions(-)
 
---- a/drivers/power/supply/ingenic-battery.c
-+++ b/drivers/power/supply/ingenic-battery.c
-@@ -100,10 +100,17 @@ static int ingenic_battery_set_scale(str
- 		return -EINVAL;
- 	}
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -284,64 +284,69 @@ static inline struct cfs_rq *group_cfs_r
  
--	return iio_write_channel_attribute(bat->channel,
--					   scale_raw[best_idx],
--					   scale_raw[best_idx + 1],
--					   IIO_CHAN_INFO_SCALE);
-+	/* Only set scale if there is more than one (fractional) entry */
-+	if (scale_len > 2) {
-+		ret = iio_write_channel_attribute(bat->channel,
-+						  scale_raw[best_idx],
-+						  scale_raw[best_idx + 1],
-+						  IIO_CHAN_INFO_SCALE);
-+		if (ret)
-+			return ret;
-+	}
+ static inline void list_add_leaf_cfs_rq(struct cfs_rq *cfs_rq)
+ {
+-	if (!cfs_rq->on_list) {
+-		struct rq *rq = rq_of(cfs_rq);
+-		int cpu = cpu_of(rq);
++	struct rq *rq = rq_of(cfs_rq);
++	int cpu = cpu_of(rq);
 +
-+	return 0;
++	if (cfs_rq->on_list)
++		return;
++
++	cfs_rq->on_list = 1;
++
++	/*
++	 * Ensure we either appear before our parent (if already
++	 * enqueued) or force our parent to appear after us when it is
++	 * enqueued. The fact that we always enqueue bottom-up
++	 * reduces this to two cases and a special case for the root
++	 * cfs_rq. Furthermore, it also means that we will always reset
++	 * tmp_alone_branch either when the branch is connected
++	 * to a tree or when we reach the top of the tree
++	 */
++	if (cfs_rq->tg->parent &&
++	    cfs_rq->tg->parent->cfs_rq[cpu]->on_list) {
+ 		/*
+-		 * Ensure we either appear before our parent (if already
+-		 * enqueued) or force our parent to appear after us when it is
+-		 * enqueued. The fact that we always enqueue bottom-up
+-		 * reduces this to two cases and a special case for the root
+-		 * cfs_rq. Furthermore, it also means that we will always reset
+-		 * tmp_alone_branch either when the branch is connected
+-		 * to a tree or when we reach the beg of the tree
++		 * If parent is already on the list, we add the child
++		 * just before. Thanks to circular linked property of
++		 * the list, this means to put the child at the tail
++		 * of the list that starts by parent.
+ 		 */
+-		if (cfs_rq->tg->parent &&
+-		    cfs_rq->tg->parent->cfs_rq[cpu]->on_list) {
+-			/*
+-			 * If parent is already on the list, we add the child
+-			 * just before. Thanks to circular linked property of
+-			 * the list, this means to put the child at the tail
+-			 * of the list that starts by parent.
+-			 */
+-			list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
+-				&(cfs_rq->tg->parent->cfs_rq[cpu]->leaf_cfs_rq_list));
+-			/*
+-			 * The branch is now connected to its tree so we can
+-			 * reset tmp_alone_branch to the beginning of the
+-			 * list.
+-			 */
+-			rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
+-		} else if (!cfs_rq->tg->parent) {
+-			/*
+-			 * cfs rq without parent should be put
+-			 * at the tail of the list.
+-			 */
+-			list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
+-				&rq->leaf_cfs_rq_list);
+-			/*
+-			 * We have reach the beg of a tree so we can reset
+-			 * tmp_alone_branch to the beginning of the list.
+-			 */
+-			rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
+-		} else {
+-			/*
+-			 * The parent has not already been added so we want to
+-			 * make sure that it will be put after us.
+-			 * tmp_alone_branch points to the beg of the branch
+-			 * where we will add parent.
+-			 */
+-			list_add_rcu(&cfs_rq->leaf_cfs_rq_list,
+-				rq->tmp_alone_branch);
+-			/*
+-			 * update tmp_alone_branch to points to the new beg
+-			 * of the branch
+-			 */
+-			rq->tmp_alone_branch = &cfs_rq->leaf_cfs_rq_list;
+-		}
++		list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
++			&(cfs_rq->tg->parent->cfs_rq[cpu]->leaf_cfs_rq_list));
++		/*
++		 * The branch is now connected to its tree so we can
++		 * reset tmp_alone_branch to the beginning of the
++		 * list.
++		 */
++		rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
++		return;
++	}
+ 
+-		cfs_rq->on_list = 1;
++	if (!cfs_rq->tg->parent) {
++		/*
++		 * cfs rq without parent should be put
++		 * at the tail of the list.
++		 */
++		list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
++			&rq->leaf_cfs_rq_list);
++		/*
++		 * We have reach the top of a tree so we can reset
++		 * tmp_alone_branch to the beginning of the list.
++		 */
++		rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
++		return;
+ 	}
++
++	/*
++	 * The parent has not already been added so we want to
++	 * make sure that it will be put after us.
++	 * tmp_alone_branch points to the begin of the branch
++	 * where we will add parent.
++	 */
++	list_add_rcu(&cfs_rq->leaf_cfs_rq_list, rq->tmp_alone_branch);
++	/*
++	 * update tmp_alone_branch to points to the new begin
++	 * of the branch
++	 */
++	rq->tmp_alone_branch = &cfs_rq->leaf_cfs_rq_list;
  }
  
- static enum power_supply_property ingenic_battery_properties[] = {
+ static inline void list_del_leaf_cfs_rq(struct cfs_rq *cfs_rq)
+@@ -352,7 +357,12 @@ static inline void list_del_leaf_cfs_rq(
+ 	}
+ }
+ 
+-/* Iterate through all leaf cfs_rq's on a runqueue: */
++static inline void assert_list_leaf_cfs_rq(struct rq *rq)
++{
++	SCHED_WARN_ON(rq->tmp_alone_branch != &rq->leaf_cfs_rq_list);
++}
++
++/* Iterate through all cfs_rq's on a runqueue in bottom-up order */
+ #define for_each_leaf_cfs_rq(rq, cfs_rq) \
+ 	list_for_each_entry_rcu(cfs_rq, &rq->leaf_cfs_rq_list, leaf_cfs_rq_list)
+ 
+@@ -446,6 +456,10 @@ static inline void list_del_leaf_cfs_rq(
+ {
+ }
+ 
++static inline void assert_list_leaf_cfs_rq(struct rq *rq)
++{
++}
++
+ #define for_each_leaf_cfs_rq(rq, cfs_rq)	\
+ 		for (cfs_rq = &rq->cfs; cfs_rq; cfs_rq = NULL)
+ 
+@@ -5160,6 +5174,8 @@ enqueue_task_fair(struct rq *rq, struct
+ 	if (!se)
+ 		add_nr_running(rq, 1);
+ 
++	assert_list_leaf_cfs_rq(rq);
++
+ 	hrtick_update(rq);
+ }
+ 
 
 
