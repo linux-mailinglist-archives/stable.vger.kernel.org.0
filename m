@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B89014E2C5
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F275014E192
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:46:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727940AbgA3Sjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:39:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47318 "EHLO mail.kernel.org"
+        id S1731059AbgA3Spg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:45:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727938AbgA3Sjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:39:54 -0500
+        id S1728079AbgA3Spg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:45:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08F47214DB;
-        Thu, 30 Jan 2020 18:39:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB42221734;
+        Thu, 30 Jan 2020 18:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409594;
-        bh=G4eHylNNoWcu/YjzldYF8NNdD8vwCF+1PoFgw3DSM/8=;
+        s=default; t=1580409936;
+        bh=krs1E6STY5LR20e9JwyiHDEkwvcPO5sWYrmHL6wEJZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8RoO2CLOFlscaAaMVAzQUx7HKZCb4l0EljwdrwFDG2y1rv8oh8GU31ihT3LvInh8
-         +Id68ggbwE1Hn6Vv3LI2Xth5wra03337W/7Sx0JNbp/BBnPOwK6fgRXOWnPDUEwvSz
-         r6+a57zhSF0lXykSceLPMIks+bfJ+wNdl8s7KL+Y=
+        b=NVMPnzAbsY61LLEJvPjSp80a7V637fkktNV7KUSsHpBKQQHoJB6Ml3RWG6VaPcrLO
+         bskDLU+fROofHgH2unyoJv9RHrIBpqc6xpyvAn2VEOMt6TKp1/Sow8zAJXVrrTx1Z4
+         v+oXXohVceMiGFzwRRIclAJDf+zXd/5wqg3nS4B0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 5.5 13/56] staging: wlan-ng: ensure error return is actually returned
+        stable@vger.kernel.org, Pan Zhang <zhangpan26@huawei.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 054/110] drivers/hid/hid-multitouch.c: fix a possible null pointer access.
 Date:   Thu, 30 Jan 2020 19:38:30 +0100
-Message-Id: <20200130183611.694057023@linuxfoundation.org>
+Message-Id: <20200130183621.535866519@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pan Zhang <zhangpan26@huawei.com>
 
-commit 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 upstream.
+[ Upstream commit 306d5acbfc66e7cccb4d8f91fc857206b8df80d1 ]
 
-Currently when the call to prism2sta_ifst fails a netdev_err error
-is reported, error return variable result is set to -1 but the
-function always returns 0 for success.  Fix this by returning
-the error value in variable result rather than 0.
+1002     if ((quirks & MT_QUIRK_IGNORE_DUPLICATES) && mt) {
+1003         struct input_mt_slot *i_slot = &mt->slots[slotnum];
+1004
+1005         if (input_mt_is_active(i_slot) &&
+1006             input_mt_is_used(mt, i_slot))
+1007             return -EAGAIN;
+1008     }
 
-Addresses-Coverity: ("Unused value")
-Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We previously assumed 'mt' could be null (see line 1002).
 
+The following situation is similar, so add a judgement.
+
+Signed-off-by: Pan Zhang <zhangpan26@huawei.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wlan-ng/prism2mgmt.c |    2 +-
+ drivers/hid/hid-multitouch.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/wlan-ng/prism2mgmt.c
-+++ b/drivers/staging/wlan-ng/prism2mgmt.c
-@@ -959,7 +959,7 @@ int prism2mgmt_flashdl_state(struct wlan
- 		}
- 	}
- 
--	return 0;
-+	return result;
- }
- 
- /*----------------------------------------------------------------
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f0d4172d51319..362805ddf3777 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1019,7 +1019,7 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 		tool = MT_TOOL_DIAL;
+ 	else if (unlikely(!confidence_state)) {
+ 		tool = MT_TOOL_PALM;
+-		if (!active &&
++		if (!active && mt &&
+ 		    input_mt_is_active(&mt->slots[slotnum])) {
+ 			/*
+ 			 * The non-confidence was reported for
+-- 
+2.20.1
+
 
 
