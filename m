@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2CB214E0EC
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 025A414E0F1
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727975AbgA3Sj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:39:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47366 "EHLO mail.kernel.org"
+        id S1727954AbgA3SkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:40:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727954AbgA3Sj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:39:58 -0500
+        id S1727986AbgA3SkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:40:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBBBE214D8;
-        Thu, 30 Jan 2020 18:39:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 379032083E;
+        Thu, 30 Jan 2020 18:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409597;
-        bh=PcYjAsbCfzF+5dESTDBeoAdBwesnGNr/0H4djHcVYs4=;
+        s=default; t=1580409599;
+        bh=KfBzupkFxBd+ifbwc5W3OUYtV+2mG+5kcjHNzbruZGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDUvCcCkLkRbdPluGqYI/q1EJZ6muIZhvZlQFIqWxUEI99UybSPxgb+8JO8ij9WQq
-         vjJtOIQpdyOA4p0fE1dg9tpqiFvyvcL/vNVC8EvYO0gmUO/3m+FttMdpL1JZG+AwiO
-         5XWjDowSQndlwZUUm6QHf0Fh7+3CqP5Rgv1nfUrk=
+        b=iYvWC68OvcgPo6MT5JLL3KHvZoaPPYpfPrHqgJC+p52mGneurAz/cQ0pSj2fjN6sV
+         QWP4tDDOsDGPIZbe0zxNkNYmVR5gNBP1FuEqSnm/EDPv3WBbURMmdHZOffXQvEIMPN
+         7fJixz3rFk6WRDFKX5yF2epn2hpp4abMUdF4utnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 5.5 14/56] staging: vt6656: correct packet types for CTS protect, mode.
-Date:   Thu, 30 Jan 2020 19:38:31 +0100
-Message-Id: <20200130183611.888987584@linuxfoundation.org>
+Subject: [PATCH 5.5 15/56] staging: vt6656: use NULLFUCTION stack on mac80211
+Date:   Thu, 30 Jan 2020 19:38:32 +0100
+Message-Id: <20200130183612.078415490@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
 References: <20200130183608.849023566@linuxfoundation.org>
@@ -44,58 +44,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit d971fdd3412f8342747778fb59b8803720ed82b1 upstream.
+commit d579c43c82f093e63639151625b2139166c730fd upstream.
 
-It appears that the driver still transmits in CTS protect mode even
-though it is not enabled in mac80211.
+It appears that the drivers does not go into power save correctly the
+NULL data packets are not being transmitted because it not enabled
+in mac80211.
 
-That is both packet types PK_TYPE_11GA and PK_TYPE_11GB both use CTS protect.
-The only difference between them GA does not use B rates.
-
-Find if only B rate in GB or GA in protect mode otherwise transmit packets
-as PK_TYPE_11A.
+The driver needs to capture ieee80211_is_nullfunc headers and
+copy the duration_id to it's own duration data header.
 
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/9c1323ff-dbb3-0eaa-43e1-9453f7390dc0@gmail.com
+Link: https://lore.kernel.org/r/610971ae-555b-a6c3-61b3-444a0c1e35b4@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/device.h |    2 ++
- drivers/staging/vt6656/rxtx.c   |   12 ++++++++----
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/staging/vt6656/main_usb.c |    1 +
+ drivers/staging/vt6656/rxtx.c     |   14 +++++---------
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
---- a/drivers/staging/vt6656/device.h
-+++ b/drivers/staging/vt6656/device.h
-@@ -52,6 +52,8 @@
- #define RATE_AUTO	12
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -1015,6 +1015,7 @@ vt6656_probe(struct usb_interface *intf,
+ 	ieee80211_hw_set(priv->hw, RX_INCLUDES_FCS);
+ 	ieee80211_hw_set(priv->hw, REPORTS_TX_ACK_STATUS);
+ 	ieee80211_hw_set(priv->hw, SUPPORTS_PS);
++	ieee80211_hw_set(priv->hw, PS_NULLFUNC_STACK);
  
- #define MAX_RATE			12
-+#define VNT_B_RATES	(BIT(RATE_1M) | BIT(RATE_2M) |\
-+			BIT(RATE_5M) | BIT(RATE_11M))
+ 	priv->hw->max_signal = 100;
  
- /*
-  * device specific
 --- a/drivers/staging/vt6656/rxtx.c
 +++ b/drivers/staging/vt6656/rxtx.c
-@@ -815,10 +815,14 @@ int vnt_tx_packet(struct vnt_private *pr
- 		if (info->band == NL80211_BAND_5GHZ) {
- 			pkt_type = PK_TYPE_11A;
- 		} else {
--			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT)
--				pkt_type = PK_TYPE_11GB;
--			else
--				pkt_type = PK_TYPE_11GA;
-+			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
-+				if (priv->basic_rates & VNT_B_RATES)
-+					pkt_type = PK_TYPE_11GB;
-+				else
-+					pkt_type = PK_TYPE_11GA;
-+			} else {
-+				pkt_type = PK_TYPE_11A;
-+			}
- 		}
+@@ -278,11 +278,9 @@ static u16 vnt_rxtx_datahead_g(struct vn
+ 			  PK_TYPE_11B, &buf->b);
+ 
+ 	/* Get Duration and TimeStamp */
+-	if (ieee80211_is_pspoll(hdr->frame_control)) {
+-		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
+-
+-		buf->duration_a = dur;
+-		buf->duration_b = dur;
++	if (ieee80211_is_nullfunc(hdr->frame_control)) {
++		buf->duration_a = hdr->duration_id;
++		buf->duration_b = hdr->duration_id;
  	} else {
- 		pkt_type = PK_TYPE_11B;
+ 		buf->duration_a = vnt_get_duration_le(priv,
+ 						tx_context->pkt_type, need_ack);
+@@ -371,10 +369,8 @@ static u16 vnt_rxtx_datahead_ab(struct v
+ 			  tx_context->pkt_type, &buf->ab);
+ 
+ 	/* Get Duration and TimeStampOff */
+-	if (ieee80211_is_pspoll(hdr->frame_control)) {
+-		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
+-
+-		buf->duration = dur;
++	if (ieee80211_is_nullfunc(hdr->frame_control)) {
++		buf->duration = hdr->duration_id;
+ 	} else {
+ 		buf->duration = vnt_get_duration_le(priv, tx_context->pkt_type,
+ 						    need_ack);
 
 
