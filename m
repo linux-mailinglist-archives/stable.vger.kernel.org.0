@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76AC814E227
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D10314E25F
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731280AbgA3Sqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:46:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
+        id S1730861AbgA3Som (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:44:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731277AbgA3Sqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:53 -0500
+        id S1730596AbgA3Soh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:44:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96A21214AF;
-        Thu, 30 Jan 2020 18:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CB0321734;
+        Thu, 30 Jan 2020 18:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410013;
-        bh=vLl1+z6hqSi6GBnz1nn3dYlO3YxHBtltxog8ULeao+4=;
+        s=default; t=1580409876;
+        bh=8/lSlbMRAlSUMReWNthaK1vAVR0sim4ZvTR2usmWdtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfL2VU9lLmHEhTIgb7YLSNh0jLwmgbPCQFwXOdqiYsj4KLzDH14ODFbfrDFZwG5fn
-         FsPMJMUlU5G6odiXbeioN4ff2tnPKHPafzKPcxec3W+IQfgBGZulDm6HZHUJR1gVqB
-         jB1SEQGIhQSJEIHsm2UNQ02N9DFH2i0ndpS7Zyoo=
+        b=aT5vshDCV20e3AmyTG/KA8/RY7T5hj8Jlv630+ods/CKL2yjXdGbxN2XID0fxjmO4
+         2IJtZoasy61HkUFTX05hUF6bo7yASS4fux62ziR6j3DNeZTuDZxV/2PCY3hPvSEtCN
+         n9wgkgTOGDHQkkMVuycLv/NWrJfLIeBXepGRKs5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 04/55] USB: serial: ir-usb: add missing endpoint sanity check
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 069/110] gpio: max77620: Add missing dependency on GPIOLIB_IRQCHIP
 Date:   Thu, 30 Jan 2020 19:38:45 +0100
-Message-Id: <20200130183609.443071407@linuxfoundation.org>
+Message-Id: <20200130183622.734353587@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 2988a8ae7476fe9535ab620320790d1714bdad1d upstream.
+[ Upstream commit c5706c7defc79de68a115b5536376298a8fef111 ]
 
-Add missing endpoint sanity check to avoid dereferencing a NULL-pointer
-on open() in case a device lacks a bulk-out endpoint.
+Driver fails to compile in a minimized kernel's configuration because of
+the missing dependency on GPIOLIB_IRQCHIP.
 
-Note that prior to commit f4a4cbb2047e ("USB: ir-usb: reimplement using
-generic framework") the oops would instead happen on open() if the
-device lacked a bulk-in endpoint and on write() if it lacked a bulk-out
-endpoint.
+ error: ‘struct gpio_chip’ has no member named ‘irq’
+   44 |   virq = irq_find_mapping(gpio->gpio_chip.irq.domain, offset);
 
-Fixes: f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20200106015154.12040-1-digetx@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ir-usb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/ir-usb.c
-+++ b/drivers/usb/serial/ir-usb.c
-@@ -195,6 +195,9 @@ static int ir_startup(struct usb_serial
- 	struct usb_irda_cs_descriptor *irda_desc;
- 	int rates;
- 
-+	if (serial->num_bulk_in < 1 || serial->num_bulk_out < 1)
-+		return -ENODEV;
-+
- 	irda_desc = irda_usb_find_class_desc(serial, 0);
- 	if (!irda_desc) {
- 		dev_err(&serial->dev->dev,
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index ceb908f7dbe51..f9263426af030 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -1120,6 +1120,7 @@ config GPIO_MADERA
+ config GPIO_MAX77620
+ 	tristate "GPIO support for PMIC MAX77620 and MAX20024"
+ 	depends on MFD_MAX77620
++	select GPIOLIB_IRQCHIP
+ 	help
+ 	  GPIO driver for MAX77620 and MAX20024 PMIC from Maxim Semiconductor.
+ 	  MAX77620 PMIC has 8 pins that can be configured as GPIOs. The
+-- 
+2.20.1
+
 
 
