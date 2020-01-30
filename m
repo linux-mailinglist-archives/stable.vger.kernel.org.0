@@ -2,81 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E79914DC65
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 445DB14DCC5
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727332AbgA3ODp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 09:03:45 -0500
-Received: from mo4-p02-ob.smtp.rzone.de ([81.169.146.168]:23833 "EHLO
-        mo4-p02-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726948AbgA3ODp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:03:45 -0500
-X-Greylist: delayed 341 seconds by postgrey-1.27 at vger.kernel.org; Thu, 30 Jan 2020 09:03:44 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1580393023;
-        s=strato-dkim-0002; d=hartkopp.net;
-        h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=tSjRLyJSwO0LOFRNIn6cb+lE7cyyTpV9YEf39aN6M74=;
-        b=jB7aem0lINvwrxqTEkKRABW9DsWrDxn9H+9NsDzNJH1axympWN9iYiVZXmq0W0LPdI
-        Ge2yA4xU5WGWGfXhd3d7RIaezzMjKmFhB3qxqDqEbaIRI9kQ+soN4/lcGY8KF4h5oWqC
-        ypm0OxqUJ7uzhmgjbDCGORnwq5qAldh0mYOAQb+gNgd8y6nXP1w2MdjXndIEx25ncroG
-        oHLi8ds8RH9Mv8Ar+4/ei6QcXdoU/3ZivjEBc5/uKTdeOaVhyLVr215YfMpiegcl3oXk
-        xga0mtGi1IznF82UQ4OFVkJ6BQLJNGk4v+H6pImUYJhgUfcN4lNQVb0iRumKvWccZTlr
-        Uuzg==
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1q3nXdVqK9TL132juijk="
-X-RZG-CLASS-ID: mo00
-Received: from [10.103.235.140]
-        by smtp.strato.de (RZmta 46.1.12 AUTH)
-        with ESMTPSA id g084e8w0UDvh0DM
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Thu, 30 Jan 2020 14:57:43 +0100 (CET)
-Subject: Re: [PATCH] bonding: do not enslave CAN devices
-To:     Sabrina Dubroca <sd@queasysnail.net>
-Cc:     linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
-        dvyukov@google.com, mkl@pengutronix.de, j.vosburgh@gmail.com,
-        vfalico@gmail.com, andy@greyhouse.net, davem@davemloft.net,
-        linux-stable <stable@vger.kernel.org>
-References: <20200130133046.2047-1-socketcan@hartkopp.net>
- <20200130134141.GA804563@bistromath.localdomain>
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-Message-ID: <81d1f033-038e-3b1a-9e14-257fad5d1983@hartkopp.net>
-Date:   Thu, 30 Jan 2020 14:57:39 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727238AbgA3O1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 09:27:39 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:45415 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727139AbgA3O1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:27:39 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.west.internal (Postfix) with ESMTP id 1AF4F46B;
+        Thu, 30 Jan 2020 09:27:38 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Thu, 30 Jan 2020 09:27:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=TUlawlgTzSpWq0b/d5uMRU4UHNv
+        MoXG4k8rumQ7y4nQ=; b=ANWYYMcTm9CdmwokO6s+mB5Uqb4qTkCYGNxO6uUZOtF
+        Dw0yuuPmINUkwOtwT4VB2nnyeJ4dDw1no2mz119yKckhaihRlApcmQx6H6Rt7tzc
+        hecjkheWs7NzXSzcTbYqldMQODgCQVixQrgFRaDwVoHKcLh648yBDlvp/RIQ62Xn
+        8cmz9sVIyw8PzFVrLiINSeMwrS+cpRFIWNWgssbN3GYukxl50fdm2jYX0KiyWrGc
+        WwP6KE5yr2rP/2A5wnFEpiacaueXkrOTNsTY49bVhhBFG6pHSg3Hvyx9L5lZtFSg
+        h8IyiVxLhxBwgxgRsa5wFrYn7KF2sbqOcoZe+kIA4/A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TUlawl
+        gTzSpWq0b/d5uMRU4UHNvMoXG4k8rumQ7y4nQ=; b=x1NEv0k8GlSFzWy+U9f76Y
+        suyasDkyfUiTHgx1+YS7WG5gs7jVjYsUHLKeAD/bNWNc/KAKdCQUFz8q8yCav6/V
+        oKi+hSwEu7AlAujIX+ZfrXsbNR5KuFPnGzrp3OT9m8O2ZMLoxYBL3l7WjFZYAlTE
+        qSo9C9clj2CFGqb1jAqDh6n3bHD1LbUfXHzF3ayyuAsIP4kfhE2WcPTpN+PsgMoU
+        73rxmYtzHN9h2HhLQPVFbi7VMRDRDfCmv3RR96vIszSL2PJsy+SKYafx1dul/t57
+        Z4l0ye0IZoFI86CoPHhhnpv+1W7FHBEmE6ay34++UaptgWM7daFm5DdyYPlJdvgw
+        ==
+X-ME-Sender: <xms:2ecyXoI6wgxNj_Lt2kov8jhv1v65TgbtUDua11Zyu1ROhacGUGJ5BA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeekgdeigecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekgedrvdeguddrudelkedrud
+    ekudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:2ecyXkQa9LSrpopBdXtKJugqfbbbTZrenzFIHf6760-9izGKBU34ZQ>
+    <xmx:2ecyXk267fdL7ZJAaQdVqC_ni3QWV5o38CcZU1ynom1NtaQSFE4Fpw>
+    <xmx:2ecyXqB0Q_TWaJrvh1QkPuOFJLG2d209yd8DRkivcvp8KjxtjyrYQA>
+    <xmx:2ecyXuHesRBVYCcfTWtN7_iuYha7lJi9SeHM3v5taE6NbezrDPtJwQ>
+Received: from localhost (unknown [84.241.198.181])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D5FED3060A08;
+        Thu, 30 Jan 2020 09:27:36 -0500 (EST)
+Date:   Thu, 30 Jan 2020 15:27:35 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc:     Stable <stable@vger.kernel.org>,
+        linux-block <linux-block@vger.kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Subject: Re: [4.19.y] 32-bit overflow in __blkdev_issue_discard()
+Message-ID: <20200130142735.GA963927@kroah.com>
+References: <ad8d7c2d-9bbe-6d2e-db20-d208b5563c09@yandex-team.ru>
 MIME-Version: 1.0
-In-Reply-To: <20200130134141.GA804563@bistromath.localdomain>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ad8d7c2d-9bbe-6d2e-db20-d208b5563c09@yandex-team.ru>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30/01/2020 14.41, Sabrina Dubroca wrote:
-
-> 2020-01-30, 14:30:46 +0100, Oliver Hartkopp wrote:
->> Since commit 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
->> device struct can_dev_rcv_lists") the device specific CAN receive filter lists
->> are stored in netdev_priv() and dev->ml_priv points to these filters.
->>
->> In the bug report Syzkaller enslaved a vxcan1 CAN device and accessed the
->> bonding device with a PF_CAN socket which lead to a crash due to an access of
->> an unhandled bond_dev->ml_priv pointer.
->>
->> Deny to enslave CAN devices by the bonding driver as the resulting bond_dev
->> pretends to be a CAN device by copying dev->type without really being one.
+On Thu, Jan 30, 2020 at 03:10:42PM +0300, Konstantin Khlebnikov wrote:
+> Please consider including into 4.19 upstream commits
 > 
-> Does the team driver have the same problem?
+> ba5d73851e71847ba7f7f4c27a1a6e1f5ab91c79
+> ("block: cleanup __blkdev_issue_discard()")
+> 
+> and
+> 
+> 4800bf7bc8c725e955fcbc6191cc872f43f506d3
+> ("block: fix 32 bit overflow in __blkdev_issue_discard()")
 
-Good point!
+THis patch does not apply to the 4.19 tree :(
 
- From a first look into team_setup_by_port() in team.c I would say YES :-)
+> Overflow of unsigned long "req_sects" (fixed in second patch)
+> actually exist here much longer.
+> 
+> And 4.19 commit 744889b7cbb56a64f957e65ade7cb65fe3f35714
+> ("block: don't deal with discard limit in blkdev_issue_discard()")
+> make it worse by replacing
+> 
+> req_sects = min_t(sector_t, nr_sects, q->limits.max_discard_sectors);
+> 
+> with
+> 
+> unsigned int req_sects = nr_sects;
+> 
+> 
+> because now discard length isn't cut by max_discard_sectors it easily overflows.
+> As a result BLKDISCARD fails unexpectedly:
+> 
+> ioctl(3, BLKDISCARD, [0, 0x20000000000])  = -1 EOPNOTSUPP (Operation not supported)
 
-Thanks for watching out! I would suggest to wait for some more feedback 
-and upstream of this fix.
+I don't understand.  Can you provide backported and working patches for
+the 4.19.y series so that I can apply them that way to show exactly what
+you have changed here?
 
-Best regards,
-Oliver
+thanks,
+
+greg k-h
