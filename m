@@ -2,123 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4EB14DE53
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 17:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DCF414DEA0
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 17:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727224AbgA3QEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 11:04:21 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:59642 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727158AbgA3QEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 11:04:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580400261;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=yqe+NoPMzT7qAg85et2NM6krGWv/koxPfAUCYSpHnTo=;
-        b=aLoii9kJsSFXg7n5QfboD4aEIDFeMVUROrMpS+zuRloR54o3iLt1lOTuJ6U94xIvfpiRpG
-        5N1uGsGbT6/WgyENzxzBLVU7NMOdqW+t8DBK86kOSMBKpEMCESkd4DwyN0tGsQNwrQaQAt
-        UKe6KdmSz4IOCGHcx6p1tVlsA4871oc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-165-KkUlaBXSOzW2d0F-vfVDFA-1; Thu, 30 Jan 2020 11:04:19 -0500
-X-MC-Unique: KkUlaBXSOzW2d0F-vfVDFA-1
-Received: by mail-wm1-f72.google.com with SMTP id a10so1175768wme.9
-        for <stable@vger.kernel.org>; Thu, 30 Jan 2020 08:04:18 -0800 (PST)
+        id S1727405AbgA3QNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 11:13:13 -0500
+Received: from mail-wm1-f41.google.com ([209.85.128.41]:34778 "EHLO
+        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727158AbgA3QNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 11:13:12 -0500
+Received: by mail-wm1-f41.google.com with SMTP id s144so6771530wme.1
+        for <stable@vger.kernel.org>; Thu, 30 Jan 2020 08:13:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FKOxgBA6VPlEmbdQGiKyOLrbZx48PHawIhzomuBmKpA=;
+        b=CvwOALxCQ1bFBKIsA/v9bgU2S7xM53+QV6FMkGliX4S/60Y1JdN3O0apNGjkMALD9z
+         XCQbKgaF8v9kHSqDWYIlSWutXkcntP143Pnagpch/UFYnA70dYm3+AMF7uOXcPx4zDT6
+         TQPlEGXv964u16fWmZPdiwJvRIonxpCsLhvzHuyMb9kMJcotnCltiajmPDo/jaJtRUaQ
+         5L7FdV66vYTiBUEfNvn5fe3iauQEAGgfc8N5esHaC44AZApcHReJlb5V2QqyuQLlzBgW
+         +qgxSAWB+IJd7PCRIN2ndCrObpEZSfSRQe6mNIZTGNvpMp6eGOl50t7pJU8wvuZ9C38k
+         kIUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=yqe+NoPMzT7qAg85et2NM6krGWv/koxPfAUCYSpHnTo=;
-        b=CG9mE5u6f4XUnci410eeMOllO1mAo9XQJgtlqkSupWiyZHmx8ZR9sBWgicDtT2pHpE
-         L2hBwv+0ZSmUvXGjxyXNZtloSWF/V1ojhKzk56enN4026qPqD/eWPVsnV7qJBtukUXxZ
-         FJ6YtZhiwKyeKxnLKk+etPG+6x0Aj0eeQ5e8ngX1RHEPYbINO/DDQQ9rTUKT/VAOMby1
-         +GndqF7P/aOqkk7Kp9apLNcSXN5mfsJ7d0HSszz3qfpXq8JrcNuklamHPmDy1yJ6S6tP
-         0Mnx5p+1AE14uHg7Nr1jTbU3OmP6UNVaPS+eob2yLTKGbL2QjZt+EfU5DW7P05cz77lw
-         S7Jw==
-X-Gm-Message-State: APjAAAWws8zE9S9SpAvTS7SyUE3TuFGNhTn76kUPpTBDIBS5R9GltHoc
-        XGmtcnC9I41xQAXtUuS/fG8zNI+tKSaZF4tdtMS+WBi3gE9zvtM+AZ0P5bB8W66y0lFRxj8C4T2
-        zx5QFkf0qlhiBtIZI
-X-Received: by 2002:adf:ed8c:: with SMTP id c12mr537029wro.231.1580400257625;
-        Thu, 30 Jan 2020 08:04:17 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxw6lgTdMyEhaJP7h4XlCILbKz4N9dAWcpCAl11gNAAd2FRnXy0wgPcZS9AuKOM8Uqa4Lbj6g==
-X-Received: by 2002:adf:ed8c:: with SMTP id c12mr536994wro.231.1580400257365;
-        Thu, 30 Jan 2020 08:04:17 -0800 (PST)
-Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
-        by smtp.gmail.com with ESMTPSA id 2sm7773100wrq.31.2020.01.30.08.04.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jan 2020 08:04:16 -0800 (PST)
-Subject: Re: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
- accurate
-To:     David Laight <David.Laight@ACULAB.COM>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     Andy Shevchenko <andy@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Vipul Kumar <vipulk0511@gmail.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        Len Brown <len.brown@intel.com>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20200130115255.20840-1-hdegoede@redhat.com>
- <20200130115255.20840-3-hdegoede@redhat.com>
- <20200130134310.GX14914@hirez.programming.kicks-ass.net>
- <b77be8c0-7107-bece-5947-a625e556e129@redhat.com>
- <01feee20ee5d4b83ab218c14fc35accb@AcuMS.aculab.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <8a8fd7a1-945e-4541-f0bc-387fae7c6822@redhat.com>
-Date:   Thu, 30 Jan 2020 17:04:15 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FKOxgBA6VPlEmbdQGiKyOLrbZx48PHawIhzomuBmKpA=;
+        b=oPjNAenGUXBlcH0pV1fp4CjIEKoDb2e7nTx3+pdTTpLCrU/ZHA0D9Hz9/plG+SoZAi
+         e8ZFo1MJZu/zapWWOwOrRQFYcqSR5IW3gUDGaraFTBG+burxMKr8nVe1IYqld18wrm4f
+         sxDLLP3x1KhVILSphwCfr8VKFvdrsTjy+CSJErgJa0h2lXokKC9cXUrvvVpvJyMv5/GO
+         QW2834t5nXnkAH6OXyoiIhz0w0zSXrKewxyH0lHcXxsKGutcDEKfG14yl/UWJhIk94zy
+         aG57fD8SdOzifgmx1EHbcElBrEcBS0/CeAP733PxYxhRn9zgElGnLHVXmbeLHqf8ER7e
+         a6jA==
+X-Gm-Message-State: APjAAAVTD77r3NnoX7U55ErBeuygpwBMtbhJ4FOAxUNUObhCgrFMzGPJ
+        oPQm7NrbWTvZzBBsuf8D/eV99XyPcWcgFg==
+X-Google-Smtp-Source: APXvYqy/YjGEnE1KiBRkM/pQfvCns3ne2hz4LMZZLsfCsUNkrmOZ/IZPGqKqs6PlkjZeM117oom5/A==
+X-Received: by 2002:a7b:cae2:: with SMTP id t2mr6493154wml.180.1580400790517;
+        Thu, 30 Jan 2020 08:13:10 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e17sm6601225wma.12.2020.01.30.08.13.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jan 2020 08:13:10 -0800 (PST)
+Message-ID: <5e330096.1c69fb81.2b3fb.e38a@mx.google.com>
+Date:   Thu, 30 Jan 2020 08:13:10 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <01feee20ee5d4b83ab218c14fc35accb@AcuMS.aculab.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.100
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.19.y boot: 53 boots: 0 failed, 53 passed (v4.19.100)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.19.y boot: 53 boots: 0 failed, 53 passed (v4.19.100)
 
-On 30-01-2020 17:02, David Laight wrote:
-> From: Hans de Goede
->> Sent: 30 January 2020 15:55
-> ...
->>>> + * Moorefield (CHT MID) SDM MSR_FSB_FREQ frequencies simplified PLL model:
->>>> + * 0000:   100 *  5 /  6  =  83.3333 MHz
->>>> + * 0001:   100 *  1 /  1  = 100.0000 MHz
->>>> + * 0010:   100 *  4 /  3  = 133.3333 MHz
->>>> + * 0011:   100 *  1 /  1  = 100.0000 MHz
->>>
->>> Unless I'm going cross-eyed, that's 4 times the exact same table.
->>
->> Correct, except that the not listed values on the none Cherry Trail
->> table are undefined in the SDM, so we should probably deny them
->> (or as the old code was doing simply return 0).
->>
->> And at least the Moorefield (CHT MID) table is different for 0011, that
->> is again 100 MHz like 0001 instead of 116.6667 as it is for BYT and CHT.
->>
->> Note that the Merriefield (BYT MID) and Moorefield (CHT MID) values are
->> based on the old code I've not seen those values in the current latest
->> version of the SDM.
-> 
-> I wonder if Moorefield:11 is an old typo?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.100/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.100/
 
-I have no idea. Andy if you can find any docs on the MSR_FSB_FREQ values
-for Merriefield (BYT MID) and Moorefield (CHT MID) that would be great,
-if not I suggest we stick with what we have.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.100
+Git Commit: 7cdefde351b6911ec5ef39322980296c091f6c52
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 36 unique boards, 10 SoC families, 9 builds out of 192
 
-Regards,
-
-Hans
-
+---
+For more info write to <info@kernelci.org>
