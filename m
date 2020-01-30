@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 005C914E1FA
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E70114E23C
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731500AbgA3SsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:48:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59010 "EHLO mail.kernel.org"
+        id S1731637AbgA3Su6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:50:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731498AbgA3SsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:48:09 -0500
+        id S1731151AbgA3SqL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:46:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11C64205F4;
-        Thu, 30 Jan 2020 18:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A932B20CC7;
+        Thu, 30 Jan 2020 18:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410089;
-        bh=HAP1qeT1fMGgx/Oo/Gp+yGVNtUk2NbKLKvDDB7a2iFY=;
+        s=default; t=1580409971;
+        bh=iKjqdQ3xF9xmP29Ev2BGUdYr1kdrt+juC44ZexWRT4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wn/I+pUqO0m/JO4d01FdvxIgxhPzu4Z5CUkhOTbyUak3huLArmsHY+GKQrO7QzCCu
-         cfxXicCLkS/2nJ4YXX/ghK282BP4meD8CHQbdDD7L3WirD9s2nNOfyNgNBTkc4EHrt
-         sbbquptgkMv+T/HnjaPvCcbBsjSzVC307P+iD7H0=
+        b=k21A9rmnCrpXn4YilQ7XVhgscnhLNgid5jCRCZoT7LTxjRzkryXceCswfdu6rz9Os
+         EjfeghR37YnKZQtwGa2YGAjzNbwmbd1WiGMe1ScBvYCXiQAx/dlrBvdJS2z2EUMa32
+         KwT+bzunG+9lzVtMlbAPKo2CxAEFh0genIf7DEe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pacien TRAN-GIRARD <pacien.trangirard@pacien.net>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/55] platform/x86: dell-laptop: disable kbd backlight on Inspiron 10xx
+        stable@vger.kernel.org, Iuliana Prodan <iuliana.prodan@nxp.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Alison Wang <alison.wang@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 106/110] crypto: caam - do not reset pointer size from MCFGR register
 Date:   Thu, 30 Jan 2020 19:39:22 +0100
-Message-Id: <20200130183615.973501269@linuxfoundation.org>
+Message-Id: <20200130183626.004894950@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,88 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pacien TRAN-GIRARD <pacien.trangirard@pacien.net>
+From: Iuliana Prodan <iuliana.prodan@nxp.com>
 
-[ Upstream commit 10b65e2915b2fcc606d173e98a972850101fb4c4 ]
+commit 7278fa25aa0ebcc0e62c39b12071069df13f7e77 upstream.
 
-This patch adds a quirk disabling keyboard backlight support for the
-Dell Inspiron 1012 and 1018.
+In commit 'a1cf573ee95 ("crypto: caam - select DMA address size at runtime")'
+CAAM pointer size (caam_ptr_size) is changed from
+sizeof(dma_addr_t) to runtime value computed from MCFGR register.
+Therefore, do not reset MCFGR[PS].
 
-Those models wrongly report supporting keyboard backlight control
-features (through SMBIOS tokens) even though they're not equipped with
-a backlit keyboard. This led to broken controls being exposed
-through sysfs by this driver which froze the system when used.
+Fixes: a1cf573ee95 ("crypto: caam - select DMA address size at runtime")
+Signed-off-by: Iuliana Prodan <iuliana.prodan@nxp.com>
+Cc: <stable@vger.kernel.org>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Alison Wang <alison.wang@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=107651
-Signed-off-by: Pacien TRAN-GIRARD <pacien.trangirard@pacien.net>
-Reviewed-by: Mario Limonciello <mario.limonciello@dell.com>
-Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-laptop.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/crypto/caam/ctrl.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index 3433986d52200..949dbc8aab413 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -37,6 +37,7 @@
+--- a/drivers/crypto/caam/ctrl.c
++++ b/drivers/crypto/caam/ctrl.c
+@@ -685,11 +685,9 @@ static int caam_probe(struct platform_de
+ 	of_node_put(np);
  
- struct quirk_entry {
- 	bool touchpad_led;
-+	bool kbd_led_not_present;
- 	bool kbd_led_levels_off_1;
- 	bool kbd_missing_ac_tag;
+ 	if (!ctrlpriv->mc_en)
+-		clrsetbits_32(&ctrl->mcr, MCFGR_AWCACHE_MASK | MCFGR_LONG_PTR,
++		clrsetbits_32(&ctrl->mcr, MCFGR_AWCACHE_MASK,
+ 			      MCFGR_AWCACHE_CACH | MCFGR_AWCACHE_BUFF |
+-			      MCFGR_WDENABLE | MCFGR_LARGE_BURST |
+-			      (sizeof(dma_addr_t) == sizeof(u64) ?
+-			       MCFGR_LONG_PTR : 0));
++			      MCFGR_WDENABLE | MCFGR_LARGE_BURST);
  
-@@ -77,6 +78,10 @@ static struct quirk_entry quirk_dell_latitude_e6410 = {
- 	.kbd_led_levels_off_1 = true,
- };
+ 	handle_imx6_err005766(&ctrl->mcr);
  
-+static struct quirk_entry quirk_dell_inspiron_1012 = {
-+	.kbd_led_not_present = true,
-+};
-+
- static struct platform_driver platform_driver = {
- 	.driver = {
- 		.name = "dell-laptop",
-@@ -314,6 +319,24 @@ static const struct dmi_system_id dell_quirks[] __initconst = {
- 		},
- 		.driver_data = &quirk_dell_latitude_e6410,
- 	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "Dell Inspiron 1012",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1012"),
-+		},
-+		.driver_data = &quirk_dell_inspiron_1012,
-+	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "Dell Inspiron 1018",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1018"),
-+		},
-+		.driver_data = &quirk_dell_inspiron_1012,
-+	},
- 	{ }
- };
- 
-@@ -1497,6 +1520,9 @@ static void kbd_init(void)
- {
- 	int ret;
- 
-+	if (quirks && quirks->kbd_led_not_present)
-+		return;
-+
- 	ret = kbd_init_info();
- 	kbd_init_tokens();
- 
--- 
-2.20.1
-
 
 
