@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE0614DD4E
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:51:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67ADE14DD4B
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727291AbgA3OvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 09:51:17 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:41525 "EHLO
+        id S1727285AbgA3OvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 09:51:16 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:47899 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727260AbgA3OvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:51:17 -0500
+        by vger.kernel.org with ESMTP id S1727277AbgA3OvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:51:16 -0500
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id 84B21313;
-        Thu, 30 Jan 2020 09:43:39 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Thu, 30 Jan 2020 09:43:40 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 6327C476;
+        Thu, 30 Jan 2020 09:43:41 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Thu, 30 Jan 2020 09:43:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=aIetWP
-        zn9nFLRU2hS5thTQuaihFLDyq2IYC+pqN+rkU=; b=JhRsnG+SXA86WF3PDF+0ea
-        4L4srEd/Gj9Ysw/TiddJ4gMqzw8pnb2pWeOnBPbK0Z+sVgqCw2AyKDCSQ8pFyfAJ
-        7xG8Z3q1/zKPlUTdKaxpwRMEcwQ2VtyHO1eyOXtijkw9MzIeVjzOi18D4BoYecRd
-        yI9r9qUsXd3RJ6rreMsJ6EudSi/nPp2IMk3upOJd0MRpqqNJJnZR+M3gbhGE+eMR
-        RgUtsdMJUmXPu2CODMIW7Du07FCA++WmAhOA+jboEONpJy838DUSNyA4Ayfh+sXz
-        3jY0+KDKvkpF0CQ15AYJbAlzeENt7ma7g/fRfi7ESWZaNLue0aHU68lCu5mcUx4w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZD4HZu
+        ScYmUn9kQQtKNq0JHC/uPqI7WBqG0vNFr4NYw=; b=KZHryEt28/azZinmNGTQcx
+        YpPI56zrJzMzFJQ+R2Q9/s+5rb3Tem8Sv4tEmRZcmuphQj9qQb9D6lOerDdB+Uzg
+        9mOuK0gFXQjy6cUATw0G+U0ZlJt+JcVV5z9zUapjLD6QdsuwyxZ8Xb48jmgpkGlT
+        5kiflD0T7WCgmXyW3UvGJ8gS3m910lZm0lEd1oz+/87AXd5Rs2pTLGlqGR418WE9
+        EiVC3MpW6n7hCE4/5RecI+ipJwznTG5KazcybQuqH7pjRVHtEBhKxkQYE4Rr9hhv
+        p/v0inbjgmCL5vWb8ErGbjokcZ/NirFwiqYb/ZSSN8v7ES+2EZyh0CLVnltqtUDg
         ==
-X-ME-Sender: <xms:musyXgYPEp5SFM1VA0jRYZRDV-Htp8ErpgctIU1Yk-nbloNWORQ8fw>
+X-ME-Sender: <xms:nesyXtCpx_Zrrrtmvz3PvdFOlTT38rkzr441e8DbfB9s1eEJcDcUnA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeekgdeijecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeegrddvgedurdduleekrddukedunecuvehluhhsthgvrhfuihiivgeptd
     enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:musyXmC8SfVZklCcgV860hW-zZ9W-dYzVr9AUz08wxGcpAeASOrThA>
-    <xmx:musyXm8Bdn_hi8S1FfRpaFJRfkQR6h65peNzwtG27dNy5U7CzOxT0Q>
-    <xmx:musyXq4jl7GcI-gWaURHn8qzf5G34DDyGVo-dlnyze79S9NiUZZL3g>
-    <xmx:m-syXjR0bb8Zlw6v6lb8jYaj3wKU440hlMF03ZK15xLw2onTNZ6nNA>
+X-ME-Proxy: <xmx:nesyXhEbktURzcXjEZxcMiCjI3D6KPFPe6hWeVck6Ezs5OTbC0xZaQ>
+    <xmx:nesyXqmj2TBX5Njsfcrse7Gzg89CFJsG0k-pPUJ3V6w3_kH0V9UMxQ>
+    <xmx:nesyXmQpdguQIAZ__Vt59gdC4OpzrvdUqvi9Wab0qSJampDhxD56tQ>
+    <xmx:nesyXr9hwxMRsoSaYkMQAe76tu__6xg5cS3OX5W3mSAZJ664gIKZuA>
 Received: from localhost (unknown [84.241.198.181])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 580DA328005D;
-        Thu, 30 Jan 2020 09:43:38 -0500 (EST)
-Subject: FAILED: patch "[PATCH] rsi: fix use-after-free on failed probe and unbind" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 91C803060A88;
+        Thu, 30 Jan 2020 09:43:40 -0500 (EST)
+Subject: FAILED: patch "[PATCH] rsi: fix use-after-free on failed probe and unbind" failed to apply to 4.14-stable tree
 To:     johan@kernel.org, amit.karwar@redpinesignals.com,
         fariyaf@gmail.com, kvalo@codeaurora.org, prameela.j04cs@gmail.com,
         siva.rebbagondla@redpinesignals.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 30 Jan 2020 15:37:32 +0100
-Message-ID: <1580395052165153@kroah.com>
+Date:   Thu, 30 Jan 2020 15:37:33 +0100
+Message-ID: <1580395053117151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
