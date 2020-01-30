@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E94914DCF3
+	by mail.lfdr.de (Postfix) with ESMTP id 5047014DCF4
 	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727186AbgA3Onx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 09:43:53 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:36879 "EHLO
+        id S1727190AbgA3Ony (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 09:43:54 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:36793 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727158AbgA3Onw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:43:52 -0500
+        by vger.kernel.org with ESMTP id S1727158AbgA3Ony (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:43:54 -0500
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id 72D85391;
-        Thu, 30 Jan 2020 09:43:51 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Thu, 30 Jan 2020 09:43:51 -0500
+        by mailout.west.internal (Postfix) with ESMTP id D955148D;
+        Thu, 30 Jan 2020 09:43:53 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Thu, 30 Jan 2020 09:43:54 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=K0OOl1
-        FZVTGKtPNR3oOLvSJF5t9fDc7xAFCgZeRgzzI=; b=dHdMv3V0+Xszj4ZKMIRWpd
-        cU535ZYQwFYaJkrrq8gegS0VFrH/naTr9vYgsVUoST2FNIVL2mL6C/cv87WpzGop
-        RtZ8eLP6KlRijYMKNYTKQ2JbuL89zSIm1/fSZzAw9cKjYp6Tx3dxUTPZeG86mr9/
-        AUldiij7xdMsoGajk7VzY0ajLak/AFbjXhSkH5u7tBaHOPbEzd1SvuCnTAqrujF4
-        3UwDtFg05SBQxuWDGwmJEHnWGzvibQ4Dkc0WDSrRzpeaOCXFFUsSabz4VLbddS5B
-        K6mHaidDtsKFYTbynaL1R9raP8TG42Z/pQMHjtD/n8JWpRPNXoh5WNuqmxUwxZaQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rKgx6U
+        yfJlQXVDAcccosMPmi3gX2YQBeORCr95GYIEA=; b=qfL4SOmmKg+XaoXxWNm1g/
+        5DtsPUV7zqxlmjrWgWWi5VHPp0PxCZY4oDVNC4tBv8KQj1Qg0qsNdkI5zp+PImUu
+        b4CmXJvRI/zoB4+YkOrfWiLlJ/Xg7mrtv08qhfv5RtIbNJP1AWEC2pGA777GWL55
+        LsAU5ILSM7KZ+n3zl7VFDnR1kwTvK2Xb6RMUsRU7c+SoEf7XjipCnGBaebq27NDL
+        m39mNuM1Q2XMcIkvQli2RgOPCUUNY7OdsSHOwp8UpCw+WZliPv3l+I7BeMnLTcW6
+        Mjkcw6x8IPmifl23kVkV0T1hgd0s41UF1uua9cUldxml9c7ZwONZ2iLe0d/ZDwbw
         ==
-X-ME-Sender: <xms:pusyXtSGqX7235NjVYWLgJsVx1ehX-xkU0d_ebz6pMLh3KsUYhBPHw>
+X-ME-Sender: <xms:qesyXoeYNimuBBCk03UqynXBFKWQtZSK7Q17xz30WL2X6D-wYMkeXw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeekgdeijecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeegrddvgedurdduleekrddukedunecuvehluhhsthgvrhfuihiivgephe
     enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:p-syXjHNayKc-Ljmm4X1_tvYBIXYhiLTbSHjKl8X5b4I4aVfZjNgtA>
-    <xmx:p-syXlltazjHUGi3Kp-7pToD1vrTWudHbAXg9MA9At1Fu3wqK6__jA>
-    <xmx:p-syXm0km17LfqeKcehr2bOlweDFJGO1FOIA5MyY2GV0WSIVEUTaig>
-    <xmx:p-syXgFOoEBr07CtThrE6Ibp5AIGmE_enB5yuyqSkNvd6z6JrlDtDQ>
+X-ME-Proxy: <xmx:qesyXucw4egYtPZKkq4O3dUngLBQahsyMUNs6QEHmX_hVdUmVb7yDA>
+    <xmx:qesyXkhJcKINwh2XJK7gneE-LeyZowcuWOUMJ0Y7wJL1Ch9FHccyVQ>
+    <xmx:qesyXiTtBBkUNMYJ-rqUzs29_1QjVFjvU7UcBEHx91RUtmsYRn3nJw>
+    <xmx:qesyXjqg7f5F_Nf8nzRbGpZOvpT8WN0t0fLqpEUTHjRdDEOJHFPr7g>
 Received: from localhost (unknown [84.241.198.181])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 900A03060986;
-        Thu, 30 Jan 2020 09:43:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] crypto: pcrypt - Fix user-after-free on module unload" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E284D3280065;
+        Thu, 30 Jan 2020 09:43:52 -0500 (EST)
+Subject: FAILED: patch "[PATCH] crypto: pcrypt - Fix user-after-free on module unload" failed to apply to 4.4-stable tree
 To:     herbert@gondor.apana.org.au, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 30 Jan 2020 15:40:08 +0100
-Message-ID: <158039520825514@kroah.com>
+Date:   Thu, 30 Jan 2020 15:40:09 +0100
+Message-ID: <15803952099186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
