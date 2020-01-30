@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E003814E19D
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:46:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC1E14E2C1
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731110AbgA3Sp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:45:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55678 "EHLO mail.kernel.org"
+        id S1727662AbgA3Sya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:54:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731103AbgA3Spy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:45:54 -0500
+        id S1728481AbgA3SkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:40:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B83F2083E;
-        Thu, 30 Jan 2020 18:45:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FDEA22522;
+        Thu, 30 Jan 2020 18:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409953;
-        bh=43kTr0NPBcUNY5/WCSeWOm0xRl5ynf2UYA22QRGlEVg=;
+        s=default; t=1580409606;
+        bh=DspzJDUHTXPx0jz/6oKJEFjHGQ/zjLf7xzoZQN8szFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcOj1Zs8eP8T8s8aWz/7vDlVPwCDB0zom3QUo0JqKi9Q5DEvdr78oVxwJzqoXU42U
-         egALbaYJj5pjEpGJ4QvTcMDFYZtdOI2Ak8qpOA6NvT3/OUCJuZnV0HcJkgVsKnfHAH
-         Dx7Bfn66UU6cG2qtR3+zVQ8X+qrlE6Ion86UiWpE=
+        b=JQw5w91cD41etikzG8rYJyLKH8n/jT+Lz4QRjPWG6VYbfl+yhRgA/8QzaXWg9Wn6Q
+         N8hNPoqQGGiC1YM7H36+w+swuwgTKtsAMgObLug8haVXIfvsDgy5SEpT1VRkjN8xdL
+         y982vXLV0iS+1a9qGl6zEAIWzymCrs80Y1CdYRYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/110] phy: cpcap-usb: Prevent USB line glitches from waking up modem
-Date:   Thu, 30 Jan 2020 19:38:34 +0100
-Message-Id: <20200130183621.938204099@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andre Renaud <arenaud@designa-electronics.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.5 18/56] serial: imx: fix a race condition in receive path
+Date:   Thu, 30 Jan 2020 19:38:35 +0100
+Message-Id: <20200130183612.561249887@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,94 +45,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 63078b6ba09e842f09df052c5728857389fddcd2 ]
+commit 101aa46bd221b768dfff8ef3745173fc8dbb85ee upstream.
 
-The micro-USB connector on Motorola Mapphone devices can be muxed between
-the SoC and the mdm6600 modem. But even when used for the SoC, configuring
-the PHY with ID pin grounded will wake up the modem from idle state. Looks
-like the issue is probably caused by line glitches.
+The main irq handler function starts by first masking disabled
+interrupts in the status register values to ensure to only handle
+enabled interrupts. This is important as when the RX path in the
+hardware is disabled reading the RX fifo results in an external abort.
 
-We can prevent the glitches by using a previously unknown mode of the
-GPIO mux to prevent the USB lines from being connected to the moden while
-configuring the USB PHY, and enable the USB lines after configuring the
-PHY.
+This checking must be done under the port lock, otherwise the following
+can happen:
 
-Note that this only prevents waking up mdm6600 as regular USB A-host mode,
-and does not help when connected to a lapdock. The lapdock specific issue
-still needs to be debugged separately.
+     CPU1                            | CPU2
+                                     |
+     irq triggers as there are chars |
+     in the RX fifo                  |
+				     | grab port lock
+     imx_uart_int finds RRDY enabled |
+     and calls imx_uart_rxint which  |
+     has to wait for port lock       |
+                                     | disable RX (e.g. because we're
+                                     | using RS485 with !RX_DURING_TX)
+                                     |
+                                     | release port lock
+     read from RX fifo with RX       |
+     disabled => exception           |
 
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So take the port lock only once in imx_uart_int() instead of in the
+functions called from there.
+
+Reported-by: Andre Renaud <arenaud@designa-electronics.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20200121071702.20150-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/phy/motorola/phy-cpcap-usb.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/tty/serial/imx.c |   51 +++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 38 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/phy/motorola/phy-cpcap-usb.c b/drivers/phy/motorola/phy-cpcap-usb.c
-index 9a38741d3546d..5baf64dfb24de 100644
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -115,7 +115,7 @@ struct cpcap_usb_ints_state {
- enum cpcap_gpio_mode {
- 	CPCAP_DM_DP,
- 	CPCAP_MDM_RX_TX,
--	CPCAP_UNKNOWN,
-+	CPCAP_UNKNOWN_DISABLED,	/* Seems to disable USB lines */
- 	CPCAP_OTG_DM_DP,
- };
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -700,22 +700,33 @@ static void imx_uart_start_tx(struct uar
+ 	}
+ }
  
-@@ -381,7 +381,8 @@ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata)
+-static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
++static irqreturn_t __imx_uart_rtsint(int irq, void *dev_id)
  {
- 	int error;
+ 	struct imx_port *sport = dev_id;
+ 	u32 usr1;
  
--	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_DM_DP);
-+	/* Disable lines to prevent glitches from waking up mdm6600 */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_UNKNOWN_DISABLED);
- 	if (error)
- 		goto out_err;
+-	spin_lock(&sport->port.lock);
+-
+ 	imx_uart_writel(sport, USR1_RTSD, USR1);
+ 	usr1 = imx_uart_readl(sport, USR1) & USR1_RTSS;
+ 	uart_handle_cts_change(&sport->port, !!usr1);
+ 	wake_up_interruptible(&sport->port.state->port.delta_msr_wait);
  
-@@ -408,6 +409,11 @@ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata)
- 	if (error)
- 		goto out_err;
+-	spin_unlock(&sport->port.lock);
+ 	return IRQ_HANDLED;
+ }
  
-+	/* Enable UART mode */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_DM_DP);
-+	if (error)
-+		goto out_err;
++static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
++{
++	struct imx_port *sport = dev_id;
++	irqreturn_t ret;
 +
- 	return 0;
- 
- out_err:
-@@ -420,7 +426,8 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
++	spin_lock(&sport->port.lock);
++
++	ret = __imx_uart_rtsint(irq, dev_id);
++
++	spin_unlock(&sport->port.lock);
++
++	return ret;
++}
++
+ static irqreturn_t imx_uart_txint(int irq, void *dev_id)
  {
- 	int error;
+ 	struct imx_port *sport = dev_id;
+@@ -726,14 +737,12 @@ static irqreturn_t imx_uart_txint(int ir
+ 	return IRQ_HANDLED;
+ }
  
--	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_OTG_DM_DP);
-+	/* Disable lines to prevent glitches from waking up mdm6600 */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_UNKNOWN_DISABLED);
- 	if (error)
- 		return error;
+-static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
++static irqreturn_t __imx_uart_rxint(int irq, void *dev_id)
+ {
+ 	struct imx_port *sport = dev_id;
+ 	unsigned int rx, flg, ignored = 0;
+ 	struct tty_port *port = &sport->port.state->port;
  
-@@ -460,6 +467,11 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
- 	if (error)
- 		goto out_err;
+-	spin_lock(&sport->port.lock);
+-
+ 	while (imx_uart_readl(sport, USR2) & USR2_RDR) {
+ 		u32 usr2;
  
-+	/* Enable USB mode */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_OTG_DM_DP);
-+	if (error)
-+		goto out_err;
+@@ -792,11 +801,25 @@ static irqreturn_t imx_uart_rxint(int ir
+ 	}
+ 
+ out:
+-	spin_unlock(&sport->port.lock);
+ 	tty_flip_buffer_push(port);
 +
- 	return 0;
+ 	return IRQ_HANDLED;
+ }
  
- out_err:
--- 
-2.20.1
-
++static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
++{
++	struct imx_port *sport = dev_id;
++	irqreturn_t ret;
++
++	spin_lock(&sport->port.lock);
++
++	ret = __imx_uart_rxint(irq, dev_id);
++
++	spin_unlock(&sport->port.lock);
++
++	return ret;
++}
++
+ static void imx_uart_clear_rx_errors(struct imx_port *sport);
+ 
+ /*
+@@ -855,6 +878,8 @@ static irqreturn_t imx_uart_int(int irq,
+ 	unsigned int usr1, usr2, ucr1, ucr2, ucr3, ucr4;
+ 	irqreturn_t ret = IRQ_NONE;
+ 
++	spin_lock(&sport->port.lock);
++
+ 	usr1 = imx_uart_readl(sport, USR1);
+ 	usr2 = imx_uart_readl(sport, USR2);
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+@@ -888,27 +913,25 @@ static irqreturn_t imx_uart_int(int irq,
+ 		usr2 &= ~USR2_ORE;
+ 
+ 	if (usr1 & (USR1_RRDY | USR1_AGTIM)) {
+-		imx_uart_rxint(irq, dev_id);
++		__imx_uart_rxint(irq, dev_id);
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	if ((usr1 & USR1_TRDY) || (usr2 & USR2_TXDC)) {
+-		imx_uart_txint(irq, dev_id);
++		imx_uart_transmit_buffer(sport);
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	if (usr1 & USR1_DTRD) {
+ 		imx_uart_writel(sport, USR1_DTRD, USR1);
+ 
+-		spin_lock(&sport->port.lock);
+ 		imx_uart_mctrl_check(sport);
+-		spin_unlock(&sport->port.lock);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	if (usr1 & USR1_RTSD) {
+-		imx_uart_rtsint(irq, dev_id);
++		__imx_uart_rtsint(irq, dev_id);
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+@@ -923,6 +946,8 @@ static irqreturn_t imx_uart_int(int irq,
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
++	spin_unlock(&sport->port.lock);
++
+ 	return ret;
+ }
+ 
 
 
