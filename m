@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C786814E1A6
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 783C314E29F
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731200AbgA3Sq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:46:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56350 "EHLO mail.kernel.org"
+        id S1730619AbgA3Sxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:53:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731190AbgA3SqX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:23 -0500
+        id S1730217AbgA3Sll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:41:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDE9320674;
-        Thu, 30 Jan 2020 18:46:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F6A02082E;
+        Thu, 30 Jan 2020 18:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409983;
-        bh=xjiIuT2evy8epx2GISn700fzYHTLGE7gpt2NB0cwO60=;
+        s=default; t=1580409700;
+        bh=xHo0HUXMaKuIR8GNazyiMondTjXHwMlEX5W8bC5zkK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2unGKum/abviiiSlkrMBEzMuTd/rh6j95jo5JLTqMzN3qDW0Ss7WO/LcH5DWCsTK0
-         tRtvdGn9uO0Nhe8Mdy1FH1SakHMGzCDxTlldGr75jYJkZ86GCKk+agfHwY00EzE2uX
-         4YwWgjC7vK0sY9QjZGKk8jtDlT1uEGHtIarNL+eQ=
+        b=KcdcZYspE3UTHOdkkyC5BPAiQikVLUyN5yyMY/vLGyRrJyUQV/gHRaNqyvTxAxuDi
+         RpMvDeXT8ylhELuWH6OhT0IYjhq8uyAZlRZlP7bAA9PyIdxLcQrWjO8GPaih4gWN6A
+         E5p/u4VIjDf/vFwphGzeiBMphcLVulESGjrDICXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Ellis <sellis@redhat.com>,
-        Pacho Ramos <pachoramos@gmail.com>,
-        Laura Abbott <labbott@fedoraproject.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/110] usb-storage: Disable UAS on JMicron SATA enclosure
-Date:   Thu, 30 Jan 2020 19:39:11 +0100
-Message-Id: <20200130183625.212740705@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.5 55/56] Revert "um: Enable CONFIG_CONSTRUCTORS"
+Date:   Thu, 30 Jan 2020 19:39:12 +0100
+Message-Id: <20200130183618.800456221@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@fedoraproject.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit bc3bdb12bbb3492067c8719011576370e959a2e6 ]
+commit 87c9366e17259040a9118e06b6dc8de986e5d3d1 upstream.
 
-Steve Ellis reported incorrect block sizes and alignement
-offsets with a SATA enclosure. Adding a quirk to disable
-UAS fixes the problems.
+This reverts commit 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS").
 
-Reported-by: Steven Ellis <sellis@redhat.com>
-Cc: Pacho Ramos <pachoramos@gmail.com>
-Signed-off-by: Laura Abbott <labbott@fedoraproject.org>
+There are two issues with this commit, uncovered by Anton in tests
+on some (Debian) systems:
+
+1) I completely forgot to call any constructors if CONFIG_CONSTRUCTORS
+   isn't set. Don't recall now if it just wasn't needed on my system, or
+   if I never tested this case.
+
+2) With that fixed, it works - with CONFIG_CONSTRUCTORS *unset*. If I
+   set CONFIG_CONSTRUCTORS, it fails again, which isn't totally
+   unexpected since whatever wanted to run is likely to have to run
+   before the kernel init etc. that calls the constructors in this case.
+
+Basically, some constructors that gcc emits (libc has?) need to run
+very early during init; the failure mode otherwise was that the ptrace
+fork test already failed:
+
+----------------------
+$ ./linux mem=512M
+Core dump limits :
+	soft - 0
+	hard - NONE
+Checking that ptrace can change system call numbers...check_ptrace : child exited with exitcode 6, while expecting 0; status 0x67f
+Aborted
+----------------------
+
+Thinking more about this, it's clear that we simply cannot support
+CONFIG_CONSTRUCTORS in UML. All the cases we need now (gcov, kasan)
+involve not use of the __attribute__((constructor)), but instead
+some constructor code/entry generated by gcc. Therefore, we cannot
+distinguish between kernel constructors and system constructors.
+
+Thus, revert this commit.
+
+Cc: stable@vger.kernel.org [5.4+]
+Fixes: 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS")
+Reported-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-by: Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+Signed-off-by: Richard Weinberger <richard@nod.at>
+
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/um/include/asm/common.lds.S |    2 +-
+ arch/um/kernel/dyn.lds.S         |    1 +
+ init/Kconfig                     |    1 +
+ kernel/gcov/Kconfig              |    2 +-
+ 4 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index d0bdebd87ce3a..1b23741036ee8 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -87,12 +87,15 @@ UNUSUAL_DEV(0x2537, 0x1068, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
+--- a/arch/um/include/asm/common.lds.S
++++ b/arch/um/include/asm/common.lds.S
+@@ -82,8 +82,8 @@
+ 	__preinit_array_end = .;
+   }
+   .init_array : {
+-        /* dummy - we call this ourselves */
+ 	__init_array_start = .;
++	*(.init_array)
+ 	__init_array_end = .;
+   }
+   .fini_array : {
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -103,6 +103,7 @@ SECTIONS
+      be empty, which isn't pretty.  */
+   . = ALIGN(32 / 8);
+   .preinit_array     : { *(.preinit_array) }
++  .init_array     : { *(.init_array) }
+   .fini_array     : { *(.fini_array) }
+   .data           : {
+     INIT_TASK_DATA(KERNEL_STACK_SIZE)
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -54,6 +54,7 @@ config CC_DISABLE_WARN_MAYBE_UNINITIALIZ
  
--/* Reported-by: Takeo Nakayama <javhera@gmx.com> */
-+/*
-+ * Initially Reported-by: Takeo Nakayama <javhera@gmx.com>
-+ * UAS Ignore Reported by Steven Ellis <sellis@redhat.com>
-+ */
- UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
- 		"JMicron",
- 		"JMS566",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_NO_REPORT_OPCODES),
-+		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
+ config CONSTRUCTORS
+ 	bool
++	depends on !UML
  
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
--- 
-2.20.1
-
+ config IRQ_WORK
+ 	bool
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
+ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
+-	select CONSTRUCTORS
++	select CONSTRUCTORS if !UML
+ 	default n
+ 	---help---
+ 	This option enables gcov-based code profiling (e.g. for code coverage
 
 
