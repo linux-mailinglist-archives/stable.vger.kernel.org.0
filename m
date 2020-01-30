@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0FD814E228
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1BA514E2AE
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731264AbgA3Sqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:46:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57036 "EHLO mail.kernel.org"
+        id S1729943AbgA3Skb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:40:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731259AbgA3Sqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:48 -0500
+        id S1727639AbgA3Sk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:40:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F363205F4;
-        Thu, 30 Jan 2020 18:46:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ACE120702;
+        Thu, 30 Jan 2020 18:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410008;
-        bh=rkr4v3w3gcxDIUGXLSQY/xRcj719qPpxS+Rw5Z/tExw=;
+        s=default; t=1580409628;
+        bh=bxk9yNk/N4n0H8vazRDqQh0DVJDhvAsAxShkNseNHhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eg9FHUCZQOc5LLhgXs7J2SLPNlIGvuOMiAqInwNC0x0nPaYfWNZhanBts7cHzniW0
-         njHcGe6yG0JI5/Qu6VpUuiabX9u7u93t08og2L97mfKcdvIlzw4cuNyFIAqGK8Ci+K
-         B4NReR2s5EaJvCzGimvXY0eKy5vkCKKFvapAtDbc=
+        b=teCmqWlK/ad6UxZ0hqtWI03BsNrSiUyFMkZ7rIXxRz6/5ypgXehd6Z80HsPZIuxpf
+         eiPqEMLVmWbdIAlvsyLVmu9/HG3deUFxVoC0wpNFf9DM3TZf7W6pRfS8vc1mdfIgZR
+         4lyMKqUGga+t4eS369VllfsEr/bcBbgFxkqd8zvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fariya Fatima <fariyaf@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 02/55] rsi_91x_usb: fix interface sanity check
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
+        Stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.5 26/56] iio: st_gyro: Correct data for LSM9DS0 gyro
 Date:   Thu, 30 Jan 2020 19:38:43 +0100
-Message-Id: <20200130183609.015879669@linuxfoundation.org>
+Message-Id: <20200130183613.900108281@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 3139b180906af43bc09bd3373fc2338a8271d9d9 upstream.
+commit e825070f697abddf3b9b0a675ed0ff1884114818 upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+The commit 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
+assumes that gyro in LSM9DS0 is the same as others with 0xd4 WAI ID,
+but datasheet tells slight different story, i.e. the first scale factor
+for the chip is 245 dps, and not 250 dps.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+Correct this by introducing a separate settings for LSM9DS0.
 
-Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
-Cc: stable <stable@vger.kernel.org>     # 3.15
-Cc: Fariya Fatima <fariyaf@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
+Depends-on: 45a4e4220bf4 ("iio: gyro: st_gyro: fix L3GD20H support")
+Cc: Leonard Crestez <leonard.crestez@nxp.com>
+Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/gyro/st_gyro_core.c |   75 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 74 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -117,7 +117,7 @@ static int rsi_find_bulk_in_and_out_endp
- 	__le16 buffer_size;
- 	int ii, bin_found = 0, bout_found = 0;
- 
--	iface_desc = &(interface->altsetting[0]);
-+	iface_desc = interface->cur_altsetting;
- 
- 	for (ii = 0; ii < iface_desc->desc.bNumEndpoints; ++ii) {
- 		endpoint = &(iface_desc->endpoint[ii].desc);
+--- a/drivers/iio/gyro/st_gyro_core.c
++++ b/drivers/iio/gyro/st_gyro_core.c
+@@ -138,7 +138,6 @@ static const struct st_sensor_settings s
+ 			[2] = LSM330DLC_GYRO_DEV_NAME,
+ 			[3] = L3G4IS_GYRO_DEV_NAME,
+ 			[4] = LSM330_GYRO_DEV_NAME,
+-			[5] = LSM9DS0_GYRO_DEV_NAME,
+ 		},
+ 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
+ 		.odr = {
+@@ -202,6 +201,80 @@ static const struct st_sensor_settings s
+ 			},
+ 		},
+ 		.sim = {
++			.addr = 0x23,
++			.value = BIT(0),
++		},
++		.multi_read_bit = true,
++		.bootime = 2,
++	},
++	{
++		.wai = 0xd4,
++		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
++		.sensors_supported = {
++			[0] = LSM9DS0_GYRO_DEV_NAME,
++		},
++		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
++		.odr = {
++			.addr = 0x20,
++			.mask = GENMASK(7, 6),
++			.odr_avl = {
++				{ .hz = 95, .value = 0x00, },
++				{ .hz = 190, .value = 0x01, },
++				{ .hz = 380, .value = 0x02, },
++				{ .hz = 760, .value = 0x03, },
++			},
++		},
++		.pw = {
++			.addr = 0x20,
++			.mask = BIT(3),
++			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
++			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
++		},
++		.enable_axis = {
++			.addr = ST_SENSORS_DEFAULT_AXIS_ADDR,
++			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
++		},
++		.fs = {
++			.addr = 0x23,
++			.mask = GENMASK(5, 4),
++			.fs_avl = {
++				[0] = {
++					.num = ST_GYRO_FS_AVL_245DPS,
++					.value = 0x00,
++					.gain = IIO_DEGREE_TO_RAD(8750),
++				},
++				[1] = {
++					.num = ST_GYRO_FS_AVL_500DPS,
++					.value = 0x01,
++					.gain = IIO_DEGREE_TO_RAD(17500),
++				},
++				[2] = {
++					.num = ST_GYRO_FS_AVL_2000DPS,
++					.value = 0x02,
++					.gain = IIO_DEGREE_TO_RAD(70000),
++				},
++			},
++		},
++		.bdu = {
++			.addr = 0x23,
++			.mask = BIT(7),
++		},
++		.drdy_irq = {
++			.int2 = {
++				.addr = 0x22,
++				.mask = BIT(3),
++			},
++			/*
++			 * The sensor has IHL (active low) and open
++			 * drain settings, but only for INT1 and not
++			 * for the DRDY line on INT2.
++			 */
++			.stat_drdy = {
++				.addr = ST_SENSORS_DEFAULT_STAT_ADDR,
++				.mask = GENMASK(2, 0),
++			},
++		},
++		.sim = {
+ 			.addr = 0x23,
+ 			.value = BIT(0),
+ 		},
 
 
