@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C1414E20E
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E92414E12A
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731424AbgA3StN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:49:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59960 "EHLO mail.kernel.org"
+        id S1730270AbgA3Sl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:41:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731611AbgA3Sss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:48:48 -0500
+        id S1730286AbgA3Sl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:41:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9655020CC7;
-        Thu, 30 Jan 2020 18:48:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41C61205F4;
+        Thu, 30 Jan 2020 18:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410127;
-        bh=shx1sGlh9za0Mqaiys2YgLTeo6T/lPQsbfWBk6k3YUE=;
+        s=default; t=1580409717;
+        bh=N3f/o6OEfEATW92CUQoPs/h5ohxXzCma9kMlBT4/vuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LaP4hLOaHYR410ZAmbVFsbtCOEu87a9iVy68fsgzA1XAAbjJAwh60H+6YLxNCksdX
-         DFfsPEUL5azTLpj/EAPdpqtWu7jNEvaApT76GnSgpvwt0TupgbPAnnwrVZFbs+DaA0
-         QqRe9B94ga+4JjVRBsRlkhcd76CwQWSFyEi7Sf/U=
+        b=khkk7Y0vtS2YfqCzQ//QG7BiQ4wrd42qXO8KAjIDJ7aAXweR75ghdFWbZSS6rJKYC
+         jKQTZlVyUiuh1sbHpMWTg9tRKRcwRQ3kL7gTd0T8tRoNdizPzeb1oYf2BmYy6jJMTn
+         QRCUiM0v07yINWOxWJ4+qOWP/CsrAmxJzun+x65E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gupta <atul.gupta@chelsio.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 17/55] crypto: chelsio - fix writing tfm flags to wrong place
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 41/56] net: socionext: fix xdp_result initialization in netsec_process_rx
 Date:   Thu, 30 Jan 2020 19:38:58 +0100
-Message-Id: <20200130183611.997731512@linuxfoundation.org>
+Message-Id: <20200130183616.528818741@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit bd56cea012fc2d6381e8cd3209510ce09f9de8c9 upstream.
+[ Upstream commit 02758cb6dac31a2b4bd9e535cffbe718acd46404 ]
 
-The chelsio crypto driver is casting 'struct crypto_aead' directly to
-'struct crypto_tfm', which is incorrect because the crypto_tfm isn't the
-first field of 'struct crypto_aead'.  Consequently, the calls to
-crypto_tfm_set_flags() are modifying some other field in the struct.
+Fix xdp_result initialization in netsec_process_rx in order to not
+increase rx counters if there is no bpf program attached to the xdp hook
+and napi_gro_receive returns GRO_DROP
 
-Also, the driver is setting CRYPTO_TFM_RES_BAD_KEY_LEN in
-->setauthsize(), not just in ->setkey().  This is incorrect since this
-flag is for bad key lengths, not for bad authentication tag lengths.
-
-Fix these bugs by removing the broken crypto_tfm_set_flags() calls from
-->setauthsize() and by fixing them in ->setkey().
-
-Fixes: 324429d74127 ("chcr: Support for Chelsio's Crypto Hardware")
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Atul Gupta <atul.gupta@chelsio.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: ba2b232108d3c ("net: netsec: add XDP support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/crypto/chelsio/chcr_algo.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -3135,9 +3135,6 @@ static int chcr_gcm_setauthsize(struct c
- 		aeadctx->mayverify = VERIFY_SW;
- 		break;
- 	default:
--
--		  crypto_tfm_set_flags((struct crypto_tfm *) tfm,
--			CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -3162,8 +3159,6 @@ static int chcr_4106_4309_setauthsize(st
- 		aeadctx->mayverify = VERIFY_HW;
- 		break;
- 	default:
--		crypto_tfm_set_flags((struct crypto_tfm *)tfm,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -3204,8 +3199,6 @@ static int chcr_ccm_setauthsize(struct c
- 		aeadctx->mayverify = VERIFY_HW;
- 		break;
- 	default:
--		crypto_tfm_set_flags((struct crypto_tfm *)tfm,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -3230,8 +3223,7 @@ static int chcr_ccm_common_setkey(struct
- 		ck_size = CHCR_KEYCTX_CIPHER_KEY_SIZE_256;
- 		mk_size = CHCR_KEYCTX_MAC_KEY_SIZE_256;
- 	} else {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		aeadctx->enckey_len = 0;
- 		return	-EINVAL;
- 	}
-@@ -3269,8 +3261,7 @@ static int chcr_aead_rfc4309_setkey(stru
- 	int error;
- 
- 	if (keylen < 3) {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		aeadctx->enckey_len = 0;
- 		return	-EINVAL;
- 	}
-@@ -3320,8 +3311,7 @@ static int chcr_gcm_setkey(struct crypto
- 	} else if (keylen == AES_KEYSIZE_256) {
- 		ck_size = CHCR_KEYCTX_CIPHER_KEY_SIZE_256;
- 	} else {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		pr_err("GCM: Invalid key length %d\n", keylen);
- 		ret = -EINVAL;
- 		goto out;
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -942,8 +942,8 @@ static int netsec_process_rx(struct nets
+ 		struct netsec_de *de = dring->vaddr + (DESC_SZ * idx);
+ 		struct netsec_desc *desc = &dring->desc[idx];
+ 		struct page *page = virt_to_page(desc->addr);
++		u32 xdp_result = NETSEC_XDP_PASS;
+ 		struct sk_buff *skb = NULL;
+-		u32 xdp_result = XDP_PASS;
+ 		u16 pkt_len, desc_len;
+ 		dma_addr_t dma_handle;
+ 		struct xdp_buff xdp;
 
 
