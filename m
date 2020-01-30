@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0E414E24B
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78BD014E128
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730973AbgA3SpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54714 "EHLO mail.kernel.org"
+        id S1730262AbgA3Sly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:41:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730967AbgA3SpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:45:11 -0500
+        id S1730256AbgA3Slx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:41:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 115BA205F4;
-        Thu, 30 Jan 2020 18:45:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E7F4205F4;
+        Thu, 30 Jan 2020 18:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409910;
-        bh=we9Q9vZM3fRN0P7XpVa4W3a77BMdSXDk9LtUjGvXW74=;
+        s=default; t=1580409712;
+        bh=4r41XwWnQLvKXg6Y4MxWnONC3/blYPnIxwt0j11V8nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pF/V70vV7Z8xfL5jGCMGsXRJhzlyzAWLlAwZCRwZp47nXiCvE1RSg/02iq25YiPAH
-         ZMBiUHT+3HwTxHaxKI5uNKePESpY72Sc/woJGiKTYz8f/9UbQy96PJpGnxaoTIB6xV
-         WqTHRNfJoCk9bcCvFHWTp3ML/eh73qmh/QHTlVyM=
+        b=cOieot0HK/WhKxQ2ujirlVSwQd0NzEzSvjaFLR18lVUcsAWfwfBfcUKZUEudhpBIs
+         1Y7YeCzENR0HywEEI9/tng2iK7fFwO/Y9b5ZQUJzI7jeXXWsFK159JuUAK/29ASGGI
+         EUX+W7nT/lvC+ndo8EW3eFxQKjPhWGAs5p1TqiyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pacien TRAN-GIRARD <pacien.trangirard@pacien.net>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 080/110] platform/x86: dell-laptop: disable kbd backlight on Inspiron 10xx
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 39/56] net_sched: walk through all child classes in tc_bind_tclass()
 Date:   Thu, 30 Jan 2020 19:38:56 +0100
-Message-Id: <20200130183623.712199808@linuxfoundation.org>
+Message-Id: <20200130183616.136744409@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,88 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pacien TRAN-GIRARD <pacien.trangirard@pacien.net>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 10b65e2915b2fcc606d173e98a972850101fb4c4 ]
+[ Upstream commit 760d228e322e99cdf6d81b4b60a268b8f13cf67a ]
 
-This patch adds a quirk disabling keyboard backlight support for the
-Dell Inspiron 1012 and 1018.
+In a complex TC class hierarchy like this:
 
-Those models wrongly report supporting keyboard backlight control
-features (through SMBIOS tokens) even though they're not equipped with
-a backlit keyboard. This led to broken controls being exposed
-through sysfs by this driver which froze the system when used.
+tc qdisc add dev eth0 root handle 1:0 cbq bandwidth 100Mbit         \
+  avpkt 1000 cell 8
+tc class add dev eth0 parent 1:0 classid 1:1 cbq bandwidth 100Mbit  \
+  rate 6Mbit weight 0.6Mbit prio 8 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000 bounded
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=107651
-Signed-off-by: Pacien TRAN-GIRARD <pacien.trangirard@pacien.net>
-Reviewed-by: Mario Limonciello <mario.limonciello@dell.com>
-Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
+  sport 80 0xffff flowid 1:3
+tc filter add dev eth0 parent 1:0 protocol ip prio 1 u32 match ip \
+  sport 25 0xffff flowid 1:4
+
+tc class add dev eth0 parent 1:1 classid 1:3 cbq bandwidth 100Mbit  \
+  rate 5Mbit weight 0.5Mbit prio 5 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000
+tc class add dev eth0 parent 1:1 classid 1:4 cbq bandwidth 100Mbit  \
+  rate 3Mbit weight 0.3Mbit prio 5 allot 1514 cell 8 maxburst 20      \
+  avpkt 1000
+
+where filters are installed on qdisc 1:0, so we can't merely
+search from class 1:1 when creating class 1:3 and class 1:4. We have
+to walk through all the child classes of the direct parent qdisc.
+Otherwise we would miss filters those need reverse binding.
+
+Fixes: 07d79fc7d94e ("net_sched: add reverse binding for tc class")
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/dell-laptop.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ net/sched/sch_api.c |   41 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index d27be2836bc21..74e988f839e85 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -33,6 +33,7 @@
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1910,22 +1910,24 @@ static int tcf_node_bind(struct tcf_prot
+ 	return 0;
+ }
  
- struct quirk_entry {
- 	bool touchpad_led;
-+	bool kbd_led_not_present;
- 	bool kbd_led_levels_off_1;
- 	bool kbd_missing_ac_tag;
- 
-@@ -73,6 +74,10 @@ static struct quirk_entry quirk_dell_latitude_e6410 = {
- 	.kbd_led_levels_off_1 = true,
- };
- 
-+static struct quirk_entry quirk_dell_inspiron_1012 = {
-+	.kbd_led_not_present = true,
+-static void tc_bind_tclass(struct Qdisc *q, u32 portid, u32 clid,
+-			   unsigned long new_cl)
++struct tc_bind_class_args {
++	struct qdisc_walker w;
++	unsigned long new_cl;
++	u32 portid;
++	u32 clid;
 +};
 +
- static struct platform_driver platform_driver = {
- 	.driver = {
- 		.name = "dell-laptop",
-@@ -310,6 +315,24 @@ static const struct dmi_system_id dell_quirks[] __initconst = {
- 		},
- 		.driver_data = &quirk_dell_latitude_e6410,
- 	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "Dell Inspiron 1012",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1012"),
-+		},
-+		.driver_data = &quirk_dell_inspiron_1012,
-+	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "Dell Inspiron 1018",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1018"),
-+		},
-+		.driver_data = &quirk_dell_inspiron_1012,
-+	},
- 	{ }
- };
- 
-@@ -1493,6 +1516,9 @@ static void kbd_init(void)
++static int tc_bind_class_walker(struct Qdisc *q, unsigned long cl,
++				struct qdisc_walker *w)
  {
- 	int ret;
++	struct tc_bind_class_args *a = (struct tc_bind_class_args *)w;
+ 	const struct Qdisc_class_ops *cops = q->ops->cl_ops;
+ 	struct tcf_block *block;
+ 	struct tcf_chain *chain;
+-	unsigned long cl;
  
-+	if (quirks && quirks->kbd_led_not_present)
-+		return;
+-	cl = cops->find(q, portid);
+-	if (!cl)
+-		return;
+-	if (!cops->tcf_block)
+-		return;
+ 	block = cops->tcf_block(q, cl, NULL);
+ 	if (!block)
+-		return;
++		return 0;
+ 	for (chain = tcf_get_next_chain(block, NULL);
+ 	     chain;
+ 	     chain = tcf_get_next_chain(block, chain)) {
+@@ -1936,12 +1938,29 @@ static void tc_bind_tclass(struct Qdisc
+ 			struct tcf_bind_args arg = {};
+ 
+ 			arg.w.fn = tcf_node_bind;
+-			arg.classid = clid;
++			arg.classid = a->clid;
+ 			arg.base = cl;
+-			arg.cl = new_cl;
++			arg.cl = a->new_cl;
+ 			tp->ops->walk(tp, &arg.w, true);
+ 		}
+ 	}
 +
- 	ret = kbd_init_info();
- 	kbd_init_tokens();
++	return 0;
++}
++
++static void tc_bind_tclass(struct Qdisc *q, u32 portid, u32 clid,
++			   unsigned long new_cl)
++{
++	const struct Qdisc_class_ops *cops = q->ops->cl_ops;
++	struct tc_bind_class_args args = {};
++
++	if (!cops->tcf_block)
++		return;
++	args.portid = portid;
++	args.clid = clid;
++	args.new_cl = new_cl;
++	args.w.fn = tc_bind_class_walker;
++	q->ops->cl_ops->walk(q, &args.w);
+ }
  
--- 
-2.20.1
-
+ #else
 
 
