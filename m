@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C39ED14E11B
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D86DE14E196
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:46:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730165AbgA3Sl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:41:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49352 "EHLO mail.kernel.org"
+        id S1730813AbgA3Spm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:45:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730162AbgA3Sl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:41:26 -0500
+        id S1728079AbgA3Spm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:45:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02AA520702;
-        Thu, 30 Jan 2020 18:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB933205F4;
+        Thu, 30 Jan 2020 18:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409685;
-        bh=rTnGPWhJtUxx8YM07eUp4YSPeRUUXMPbXzznbDOrHcM=;
+        s=default; t=1580409941;
+        bh=g5WpGPKoyfEqCm6F7JEqL0fGq3xpDnVGuTwzVQXbujM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9M6JzOKkbCG6nYWkuges/BAvtwakxyjUB5MsmmYYtpZ4h1Kaec820wqn49EJ7M9y
-         lzZX0jwudJqLaz0VKqNo+1kvQgQahbbHBt2fzm3HQO+OcceC1PTE1gGkPrY+uBkAGE
-         gdiyy1yZ+awL600gF5vCE5PKFbbiiQy5daFuG7hU=
+        b=rbKtaDbXJAcmQDkkr+t3Lq2V+uupaMNSBDNleTFmq8w3oVLmu1+Gdjk3VEk6mreFr
+         jzghaZAd01V3okxw81AJLfN0XdYenCTiH9zcCty8cTxNiM8Er+LvQ1LpgnkA1BLbIN
+         eR4N3xRwOVqSuH+wFfZ4IyTnS393FH/4pOjEtgc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c2f1558d49e25cc36e5e@syzkaller.appspotmail.com,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.5 50/56] crypto: af_alg - Use bh_lock_sock in sk_destruct
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 091/110] ARM: OMAP2+: SmartReflex: add omap_sr_pdata definition
 Date:   Thu, 30 Jan 2020 19:39:07 +0100
-Message-Id: <20200130183617.938243880@linuxfoundation.org>
+Message-Id: <20200130183624.887010789@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-commit 37f96694cf73ba116993a9d2d99ad6a75fa7fdb0 upstream.
+[ Upstream commit 2079fe6ea8cbd2fb2fbadba911f1eca6c362eb9b ]
 
-As af_alg_release_parent may be called from BH context (most notably
-due to an async request that only completes after socket closure,
-or as reported here because of an RCU-delayed sk_destruct call), we
-must use bh_lock_sock instead of lock_sock.
+The omap_sr_pdata is not declared but is exported, so add a
+define for it to fix the following warning:
 
-Reported-by: syzbot+c2f1558d49e25cc36e5e@syzkaller.appspotmail.com
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: c840ac6af3f8 ("crypto: af_alg - Disallow bind/setkey/...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/arm/mach-omap2/pdata-quirks.c:609:36: warning: symbol 'omap_sr_pdata' was not declared. Should it be static?
 
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/linux/power/smartreflex.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -134,11 +134,13 @@ void af_alg_release_parent(struct sock *
- 	sk = ask->parent;
- 	ask = alg_sk(sk);
+diff --git a/include/linux/power/smartreflex.h b/include/linux/power/smartreflex.h
+index d0b37e9370372..971c9264179ee 100644
+--- a/include/linux/power/smartreflex.h
++++ b/include/linux/power/smartreflex.h
+@@ -293,6 +293,9 @@ struct omap_sr_data {
+ 	struct voltagedomain		*voltdm;
+ };
  
--	lock_sock(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
- 	ask->nokey_refcnt -= nokey;
- 	if (!last)
- 		last = !--ask->refcnt;
--	release_sock(sk);
-+	bh_unlock_sock(sk);
-+	local_bh_enable();
++
++extern struct omap_sr_data omap_sr_pdata[OMAP_SR_NR];
++
+ #ifdef CONFIG_POWER_AVS_OMAP
  
- 	if (last)
- 		sock_put(sk);
+ /* Smartreflex module enable/disable interface */
+-- 
+2.20.1
+
 
 
