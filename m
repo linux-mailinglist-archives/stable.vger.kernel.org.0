@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B5214E117
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A99EB14E1F1
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730136AbgA3SlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:41:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49228 "EHLO mail.kernel.org"
+        id S1731372AbgA3Sr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:47:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730133AbgA3SlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:41:18 -0500
+        id S1731363AbgA3SrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:47:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B2B9214DB;
-        Thu, 30 Jan 2020 18:41:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8632D20674;
+        Thu, 30 Jan 2020 18:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409678;
-        bh=LQYGm44o3kuZaSKrPBpL9FgbVJTuNAROgwlpse27PMA=;
+        s=default; t=1580410040;
+        bh=b6IVOamTvGku5jkgEhCb3/Ctk25jZQJJxSPkmWFjWbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vY7mCGWNuLHfbw46cXmbi2WPYQfunDVJ9mrLgwCY3NQw3O+sFS8GgWgVU77I1TZUK
-         i+o3BjfcQmUEhoi3MfiN8SYCI69N/1CbO84oMLg/RaKCT155QuW2Xk3uMv7rO2xl7+
-         leBsJp5mzs2IkHfwP0ioKTBTyGd64hGi7w93/agQ=
+        b=R4vNi7r26jawigwItVs+fOilpTb6ZnlHytw1cKDQpcNO6pTMkKp23pa5+o6yK/hy5
+         1SaN+vbwN4xLfoM9iYGQ+R8uueWIsfe5UKQZvUt13p1Qu1cS0LrRu6qBZ+/vY2+qNa
+         0pFcFjVqovfjFtqf9MKoDod7vziktYdEqV/Y6Swc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1d1597a5aa3679c65b9f@syzkaller.appspotmail.com,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.5 47/56] rsi: fix use-after-free on probe errors
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+03c4738ed29d5d366ddf@syzkaller.appspotmail.com,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 23/55] net_sched: ematch: reject invalid TCF_EM_SIMPLE
 Date:   Thu, 30 Jan 2020 19:39:04 +0100
-Message-Id: <20200130183617.490446841@linuxfoundation.org>
+Message-Id: <20200130183613.017934048@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 92aafe77123ab478e5f5095878856ab0424910da upstream.
+[ Upstream commit 55cd9f67f1e45de8517cdaab985fb8e56c0bc1d8 ]
 
-The driver would fail to stop the command timer in most error paths,
-something which specifically could lead to the timer being freed while
-still active on I/O errors during probe.
+It is possible for malicious userspace to set TCF_EM_SIMPLE bit
+even for matches that should not have this bit set.
 
-Fix this by making sure that each function starting the timer also stops
-it in all relevant error paths.
+This can fool two places using tcf_em_is_simple()
 
-Reported-by: syzbot+1d1597a5aa3679c65b9f@syzkaller.appspotmail.com
-Fixes: b78e91bcfb33 ("rsi: Add new firmware loading method")
-Cc: stable <stable@vger.kernel.org>     # 4.12
-Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+1) tcf_em_tree_destroy() -> memory leak of em->data
+   if ops->destroy() is NULL
+
+2) tcf_em_tree_dump() wrongly report/leak 4 low-order bytes
+   of a kernel pointer.
+
+BUG: memory leak
+unreferenced object 0xffff888121850a40 (size 32):
+  comm "syz-executor927", pid 7193, jiffies 4294941655 (age 19.840s)
+  hex dump (first 32 bytes):
+    00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000f67036ea>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
+    [<00000000f67036ea>] slab_post_alloc_hook mm/slab.h:586 [inline]
+    [<00000000f67036ea>] slab_alloc mm/slab.c:3320 [inline]
+    [<00000000f67036ea>] __do_kmalloc mm/slab.c:3654 [inline]
+    [<00000000f67036ea>] __kmalloc_track_caller+0x165/0x300 mm/slab.c:3671
+    [<00000000fab0cc8e>] kmemdup+0x27/0x60 mm/util.c:127
+    [<00000000d9992e0a>] kmemdup include/linux/string.h:453 [inline]
+    [<00000000d9992e0a>] em_nbyte_change+0x5b/0x90 net/sched/em_nbyte.c:32
+    [<000000007e04f711>] tcf_em_validate net/sched/ematch.c:241 [inline]
+    [<000000007e04f711>] tcf_em_tree_validate net/sched/ematch.c:359 [inline]
+    [<000000007e04f711>] tcf_em_tree_validate+0x332/0x46f net/sched/ematch.c:300
+    [<000000007a769204>] basic_set_parms net/sched/cls_basic.c:157 [inline]
+    [<000000007a769204>] basic_change+0x1d7/0x5f0 net/sched/cls_basic.c:219
+    [<00000000e57a5997>] tc_new_tfilter+0x566/0xf70 net/sched/cls_api.c:2104
+    [<0000000074b68559>] rtnetlink_rcv_msg+0x3b2/0x4b0 net/core/rtnetlink.c:5415
+    [<00000000b7fe53fb>] netlink_rcv_skb+0x61/0x170 net/netlink/af_netlink.c:2477
+    [<00000000e83a40d0>] rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
+    [<00000000d62ba933>] netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+    [<00000000d62ba933>] netlink_unicast+0x223/0x310 net/netlink/af_netlink.c:1328
+    [<0000000088070f72>] netlink_sendmsg+0x2c0/0x570 net/netlink/af_netlink.c:1917
+    [<00000000f70b15ea>] sock_sendmsg_nosec net/socket.c:639 [inline]
+    [<00000000f70b15ea>] sock_sendmsg+0x54/0x70 net/socket.c:659
+    [<00000000ef95a9be>] ____sys_sendmsg+0x2d0/0x300 net/socket.c:2330
+    [<00000000b650f1ab>] ___sys_sendmsg+0x8a/0xd0 net/socket.c:2384
+    [<0000000055bfa74a>] __sys_sendmsg+0x80/0xf0 net/socket.c:2417
+    [<000000002abac183>] __do_sys_sendmsg net/socket.c:2426 [inline]
+    [<000000002abac183>] __se_sys_sendmsg net/socket.c:2424 [inline]
+    [<000000002abac183>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2424
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+03c4738ed29d5d366ddf@syzkaller.appspotmail.com
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/rsi/rsi_91x_hal.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/sched/ematch.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -622,6 +622,7 @@ static int bl_cmd(struct rsi_hw *adapter
- 	bl_start_cmd_timer(adapter, timeout);
- 	status = bl_write_cmd(adapter, cmd, exp_resp, &regout_val);
- 	if (status < 0) {
-+		bl_stop_cmd_timer(adapter);
- 		rsi_dbg(ERR_ZONE,
- 			"%s: Command %s (%0x) writing failed..\n",
- 			__func__, str, cmd);
-@@ -737,10 +738,9 @@ static int ping_pong_write(struct rsi_hw
- 	}
+--- a/net/sched/ematch.c
++++ b/net/sched/ematch.c
+@@ -242,6 +242,9 @@ static int tcf_em_validate(struct tcf_pr
+ 			goto errout;
  
- 	status = bl_cmd(adapter, cmd_req, cmd_resp, str);
--	if (status) {
--		bl_stop_cmd_timer(adapter);
-+	if (status)
- 		return status;
--	}
-+
- 	return 0;
- }
- 
-@@ -828,10 +828,9 @@ static int auto_fw_upgrade(struct rsi_hw
- 
- 	status = bl_cmd(adapter, EOF_REACHED, FW_LOADING_SUCCESSFUL,
- 			"EOF_REACHED");
--	if (status) {
--		bl_stop_cmd_timer(adapter);
-+	if (status)
- 		return status;
--	}
-+
- 	rsi_dbg(INFO_ZONE, "FW loading is done and FW is running..\n");
- 	return 0;
- }
-@@ -849,6 +848,7 @@ static int rsi_hal_prepare_fwload(struct
- 						  &regout_val,
- 						  RSI_COMMON_REG_SIZE);
- 		if (status < 0) {
-+			bl_stop_cmd_timer(adapter);
- 			rsi_dbg(ERR_ZONE,
- 				"%s: REGOUT read failed\n", __func__);
- 			return status;
+ 		if (em->ops->change) {
++			err = -EINVAL;
++			if (em_hdr->flags & TCF_EM_SIMPLE)
++				goto errout;
+ 			err = em->ops->change(net, data, data_len, em);
+ 			if (err < 0)
+ 				goto errout;
 
 
