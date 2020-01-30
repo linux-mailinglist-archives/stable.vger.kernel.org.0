@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2121714E23A
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C3714E1FC
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731611AbgA3Suu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:50:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56244 "EHLO mail.kernel.org"
+        id S1731538AbgA3SsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:48:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731177AbgA3SqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:19 -0500
+        id S1731529AbgA3SsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:48:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D31A20CC7;
-        Thu, 30 Jan 2020 18:46:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8FDE20674;
+        Thu, 30 Jan 2020 18:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409978;
-        bh=2BhG2UfRcRv4KkAOEGoXmpxxPK5f9ImHCleRROl0MyA=;
+        s=default; t=1580410097;
+        bh=8I4N5SI5pfjtzoqByMlS3MkZ2k66b7rxqF1BnrKZr/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tY4T7k1vAEHIX4qG7rDbuuTYetdKpbIkSPx5h32PnF7iojjpV9fNu86uKkqoeEO5w
-         zeK3+Y1IB34nWr181pqekqMBFdQEcJ7dmSNUlgtLhyziDwqERgAkdfBJVTtXBP2ZUQ
-         AsuZ5CNGN+f5buN+jFRf3tl/q+2dYaE62ob2uNDY=
+        b=oQQhBF86433b1vBTlu5kwIv7pzOxv3RHhHCDuQAPiiBxAimMTgCahIJ/KWXFpr3i4
+         bNOhlmiyT9iq0saBoegZN7mRY2bOiy8AxEzqSECNX6g3kil6JxW6jCwXCNo9nzS/G+
+         0xYh/2aLsR7xlE3gmz6Uaae2AS4d6pnqCkcTNJPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 109/110] Revert "um: Enable CONFIG_CONSTRUCTORS"
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 44/55] ARM: OMAP2+: SmartReflex: add omap_sr_pdata definition
 Date:   Thu, 30 Jan 2020 19:39:25 +0100
-Message-Id: <20200130183626.212910444@linuxfoundation.org>
+Message-Id: <20200130183616.560082057@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-commit 87c9366e17259040a9118e06b6dc8de986e5d3d1 upstream.
+[ Upstream commit 2079fe6ea8cbd2fb2fbadba911f1eca6c362eb9b ]
 
-This reverts commit 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS").
+The omap_sr_pdata is not declared but is exported, so add a
+define for it to fix the following warning:
 
-There are two issues with this commit, uncovered by Anton in tests
-on some (Debian) systems:
+arch/arm/mach-omap2/pdata-quirks.c:609:36: warning: symbol 'omap_sr_pdata' was not declared. Should it be static?
 
-1) I completely forgot to call any constructors if CONFIG_CONSTRUCTORS
-   isn't set. Don't recall now if it just wasn't needed on my system, or
-   if I never tested this case.
-
-2) With that fixed, it works - with CONFIG_CONSTRUCTORS *unset*. If I
-   set CONFIG_CONSTRUCTORS, it fails again, which isn't totally
-   unexpected since whatever wanted to run is likely to have to run
-   before the kernel init etc. that calls the constructors in this case.
-
-Basically, some constructors that gcc emits (libc has?) need to run
-very early during init; the failure mode otherwise was that the ptrace
-fork test already failed:
-
-----------------------
-$ ./linux mem=512M
-Core dump limits :
-	soft - 0
-	hard - NONE
-Checking that ptrace can change system call numbers...check_ptrace : child exited with exitcode 6, while expecting 0; status 0x67f
-Aborted
-----------------------
-
-Thinking more about this, it's clear that we simply cannot support
-CONFIG_CONSTRUCTORS in UML. All the cases we need now (gcov, kasan)
-involve not use of the __attribute__((constructor)), but instead
-some constructor code/entry generated by gcc. Therefore, we cannot
-distinguish between kernel constructors and system constructors.
-
-Thus, revert this commit.
-
-Cc: stable@vger.kernel.org [5.4+]
-Fixes: 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS")
-Reported-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Signed-off-by: Richard Weinberger <richard@nod.at>
-
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/include/asm/common.lds.S |    2 +-
- arch/um/kernel/dyn.lds.S         |    1 +
- init/Kconfig                     |    1 +
- kernel/gcov/Kconfig              |    2 +-
- 4 files changed, 4 insertions(+), 2 deletions(-)
+ include/linux/power/smartreflex.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/um/include/asm/common.lds.S
-+++ b/arch/um/include/asm/common.lds.S
-@@ -83,8 +83,8 @@
- 	__preinit_array_end = .;
-   }
-   .init_array : {
--        /* dummy - we call this ourselves */
- 	__init_array_start = .;
-+	*(.init_array)
- 	__init_array_end = .;
-   }
-   .fini_array : {
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -103,6 +103,7 @@ SECTIONS
-      be empty, which isn't pretty.  */
-   . = ALIGN(32 / 8);
-   .preinit_array     : { *(.preinit_array) }
-+  .init_array     : { *(.init_array) }
-   .fini_array     : { *(.fini_array) }
-   .data           : {
-     INIT_TASK_DATA(KERNEL_STACK_SIZE)
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -54,6 +54,7 @@ config CC_DISABLE_WARN_MAYBE_UNINITIALIZ
+diff --git a/include/linux/power/smartreflex.h b/include/linux/power/smartreflex.h
+index 7b81dad712de8..37d9b70ed8f0a 100644
+--- a/include/linux/power/smartreflex.h
++++ b/include/linux/power/smartreflex.h
+@@ -296,6 +296,9 @@ struct omap_sr_data {
+ 	struct voltagedomain		*voltdm;
+ };
  
- config CONSTRUCTORS
- 	bool
-+	depends on !UML
++
++extern struct omap_sr_data omap_sr_pdata[OMAP_SR_NR];
++
+ #ifdef CONFIG_POWER_AVS_OMAP
  
- config IRQ_WORK
- 	bool
---- a/kernel/gcov/Kconfig
-+++ b/kernel/gcov/Kconfig
-@@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
- config GCOV_KERNEL
- 	bool "Enable gcov-based kernel profiling"
- 	depends on DEBUG_FS
--	select CONSTRUCTORS
-+	select CONSTRUCTORS if !UML
- 	default n
- 	---help---
- 	This option enables gcov-based code profiling (e.g. for code coverage
+ /* Smartreflex module enable/disable interface */
+-- 
+2.20.1
+
 
 
