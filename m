@@ -2,28 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C353F14DE4F
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 17:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4EB14DE53
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 17:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbgA3QCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 11:02:36 -0500
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:46600 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727186AbgA3QCg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 11:02:36 -0500
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-107-IaITlwqSNMiNq9NHtqF3bw-1; Thu, 30 Jan 2020 16:02:31 +0000
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Thu, 30 Jan 2020 16:02:30 +0000
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Thu, 30 Jan 2020 16:02:30 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Hans de Goede' <hdegoede@redhat.com>,
+        id S1727224AbgA3QEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 11:04:21 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:59642 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727158AbgA3QEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 11:04:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580400261;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yqe+NoPMzT7qAg85et2NM6krGWv/koxPfAUCYSpHnTo=;
+        b=aLoii9kJsSFXg7n5QfboD4aEIDFeMVUROrMpS+zuRloR54o3iLt1lOTuJ6U94xIvfpiRpG
+        5N1uGsGbT6/WgyENzxzBLVU7NMOdqW+t8DBK86kOSMBKpEMCESkd4DwyN0tGsQNwrQaQAt
+        UKe6KdmSz4IOCGHcx6p1tVlsA4871oc=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-165-KkUlaBXSOzW2d0F-vfVDFA-1; Thu, 30 Jan 2020 11:04:19 -0500
+X-MC-Unique: KkUlaBXSOzW2d0F-vfVDFA-1
+Received: by mail-wm1-f72.google.com with SMTP id a10so1175768wme.9
+        for <stable@vger.kernel.org>; Thu, 30 Jan 2020 08:04:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=yqe+NoPMzT7qAg85et2NM6krGWv/koxPfAUCYSpHnTo=;
+        b=CG9mE5u6f4XUnci410eeMOllO1mAo9XQJgtlqkSupWiyZHmx8ZR9sBWgicDtT2pHpE
+         L2hBwv+0ZSmUvXGjxyXNZtloSWF/V1ojhKzk56enN4026qPqD/eWPVsnV7qJBtukUXxZ
+         FJ6YtZhiwKyeKxnLKk+etPG+6x0Aj0eeQ5e8ngX1RHEPYbINO/DDQQ9rTUKT/VAOMby1
+         +GndqF7P/aOqkk7Kp9apLNcSXN5mfsJ7d0HSszz3qfpXq8JrcNuklamHPmDy1yJ6S6tP
+         0Mnx5p+1AE14uHg7Nr1jTbU3OmP6UNVaPS+eob2yLTKGbL2QjZt+EfU5DW7P05cz77lw
+         S7Jw==
+X-Gm-Message-State: APjAAAWws8zE9S9SpAvTS7SyUE3TuFGNhTn76kUPpTBDIBS5R9GltHoc
+        XGmtcnC9I41xQAXtUuS/fG8zNI+tKSaZF4tdtMS+WBi3gE9zvtM+AZ0P5bB8W66y0lFRxj8C4T2
+        zx5QFkf0qlhiBtIZI
+X-Received: by 2002:adf:ed8c:: with SMTP id c12mr537029wro.231.1580400257625;
+        Thu, 30 Jan 2020 08:04:17 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxw6lgTdMyEhaJP7h4XlCILbKz4N9dAWcpCAl11gNAAd2FRnXy0wgPcZS9AuKOM8Uqa4Lbj6g==
+X-Received: by 2002:adf:ed8c:: with SMTP id c12mr536994wro.231.1580400257365;
+        Thu, 30 Jan 2020 08:04:17 -0800 (PST)
+Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
+        by smtp.gmail.com with ESMTPSA id 2sm7773100wrq.31.2020.01.30.08.04.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jan 2020 08:04:16 -0800 (PST)
+Subject: Re: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
+ accurate
+To:     David Laight <David.Laight@ACULAB.COM>,
         Peter Zijlstra <peterz@infradead.org>
-CC:     Andy Shevchenko <andy@infradead.org>,
+Cc:     Andy Shevchenko <andy@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>,
         Vipul Kumar <vipulk0511@gmail.com>,
@@ -35,53 +67,58 @@ CC:     Andy Shevchenko <andy@infradead.org>,
         "x86@kernel.org" <x86@kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
- accurate
-Thread-Topic: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
- accurate
-Thread-Index: AQHV14WrJf366MsxW0K0cA6JkRCOwKgDXckw
-Date:   Thu, 30 Jan 2020 16:02:30 +0000
-Message-ID: <01feee20ee5d4b83ab218c14fc35accb@AcuMS.aculab.com>
 References: <20200130115255.20840-1-hdegoede@redhat.com>
  <20200130115255.20840-3-hdegoede@redhat.com>
  <20200130134310.GX14914@hirez.programming.kicks-ass.net>
  <b77be8c0-7107-bece-5947-a625e556e129@redhat.com>
-In-Reply-To: <b77be8c0-7107-bece-5947-a625e556e129@redhat.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+ <01feee20ee5d4b83ab218c14fc35accb@AcuMS.aculab.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <8a8fd7a1-945e-4541-f0bc-387fae7c6822@redhat.com>
+Date:   Thu, 30 Jan 2020 17:04:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-MC-Unique: IaITlwqSNMiNq9NHtqF3bw-1
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+In-Reply-To: <01feee20ee5d4b83ab218c14fc35accb@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogSGFucyBkZSBHb2VkZQ0KPiBTZW50OiAzMCBKYW51YXJ5IDIwMjAgMTU6NTUNCi4uLg0K
-PiA+PiArICogTW9vcmVmaWVsZCAoQ0hUIE1JRCkgU0RNIE1TUl9GU0JfRlJFUSBmcmVxdWVuY2ll
-cyBzaW1wbGlmaWVkIFBMTCBtb2RlbDoNCj4gPj4gKyAqIDAwMDA6ICAgMTAwICogIDUgLyAgNiAg
-PSAgODMuMzMzMyBNSHoNCj4gPj4gKyAqIDAwMDE6ICAgMTAwICogIDEgLyAgMSAgPSAxMDAuMDAw
-MCBNSHoNCj4gPj4gKyAqIDAwMTA6ICAgMTAwICogIDQgLyAgMyAgPSAxMzMuMzMzMyBNSHoNCj4g
-Pj4gKyAqIDAwMTE6ICAgMTAwICogIDEgLyAgMSAgPSAxMDAuMDAwMCBNSHoNCj4gPg0KPiA+IFVu
-bGVzcyBJJ20gZ29pbmcgY3Jvc3MtZXllZCwgdGhhdCdzIDQgdGltZXMgdGhlIGV4YWN0IHNhbWUg
-dGFibGUuDQo+IA0KPiBDb3JyZWN0LCBleGNlcHQgdGhhdCB0aGUgbm90IGxpc3RlZCB2YWx1ZXMg
-b24gdGhlIG5vbmUgQ2hlcnJ5IFRyYWlsDQo+IHRhYmxlIGFyZSB1bmRlZmluZWQgaW4gdGhlIFNE
-TSwgc28gd2Ugc2hvdWxkIHByb2JhYmx5IGRlbnkgdGhlbQ0KPiAob3IgYXMgdGhlIG9sZCBjb2Rl
-IHdhcyBkb2luZyBzaW1wbHkgcmV0dXJuIDApLg0KPiANCj4gQW5kIGF0IGxlYXN0IHRoZSBNb29y
-ZWZpZWxkIChDSFQgTUlEKSB0YWJsZSBpcyBkaWZmZXJlbnQgZm9yIDAwMTEsIHRoYXQNCj4gaXMg
-YWdhaW4gMTAwIE1IeiBsaWtlIDAwMDEgaW5zdGVhZCBvZiAxMTYuNjY2NyBhcyBpdCBpcyBmb3Ig
-QllUIGFuZCBDSFQuDQo+IA0KPiBOb3RlIHRoYXQgdGhlIE1lcnJpZWZpZWxkIChCWVQgTUlEKSBh
-bmQgTW9vcmVmaWVsZCAoQ0hUIE1JRCkgdmFsdWVzIGFyZQ0KPiBiYXNlZCBvbiB0aGUgb2xkIGNv
-ZGUgSSd2ZSBub3Qgc2VlbiB0aG9zZSB2YWx1ZXMgaW4gdGhlIGN1cnJlbnQgbGF0ZXN0DQo+IHZl
-cnNpb24gb2YgdGhlIFNETS4NCg0KSSB3b25kZXIgaWYgTW9vcmVmaWVsZDoxMSBpcyBhbiBvbGQg
-dHlwbz8NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxl
-eSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0
-aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+Hi,
+
+On 30-01-2020 17:02, David Laight wrote:
+> From: Hans de Goede
+>> Sent: 30 January 2020 15:55
+> ...
+>>>> + * Moorefield (CHT MID) SDM MSR_FSB_FREQ frequencies simplified PLL model:
+>>>> + * 0000:   100 *  5 /  6  =  83.3333 MHz
+>>>> + * 0001:   100 *  1 /  1  = 100.0000 MHz
+>>>> + * 0010:   100 *  4 /  3  = 133.3333 MHz
+>>>> + * 0011:   100 *  1 /  1  = 100.0000 MHz
+>>>
+>>> Unless I'm going cross-eyed, that's 4 times the exact same table.
+>>
+>> Correct, except that the not listed values on the none Cherry Trail
+>> table are undefined in the SDM, so we should probably deny them
+>> (or as the old code was doing simply return 0).
+>>
+>> And at least the Moorefield (CHT MID) table is different for 0011, that
+>> is again 100 MHz like 0001 instead of 116.6667 as it is for BYT and CHT.
+>>
+>> Note that the Merriefield (BYT MID) and Moorefield (CHT MID) values are
+>> based on the old code I've not seen those values in the current latest
+>> version of the SDM.
+> 
+> I wonder if Moorefield:11 is an old typo?
+
+I have no idea. Andy if you can find any docs on the MSR_FSB_FREQ values
+for Merriefield (BYT MID) and Moorefield (CHT MID) that would be great,
+if not I suggest we stick with what we have.
+
+Regards,
+
+Hans
 
