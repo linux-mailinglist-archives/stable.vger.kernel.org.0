@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF3314E181
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:45:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE9E14E1E9
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730945AbgA3SpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:45:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S1731591AbgA3Ssi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:48:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730680AbgA3SpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:45:03 -0500
+        id S1731586AbgA3Ssh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:48:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A82552082E;
-        Thu, 30 Jan 2020 18:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40C8C2082E;
+        Thu, 30 Jan 2020 18:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409903;
-        bh=AUJ7Mi/W3UD5YTk3TevtD9PxZSR5axwLwf8CCIlNtWM=;
+        s=default; t=1580410116;
+        bh=lAGv5hVPt2gjbhYB93LgEM7B3OdgpEeGiDSS3ampSWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNOrFn9g/dH7nAKhnb8SoC7HmHv0wwYA1WV2e+dSf9XeXRO/l3vjMsOzwUbYveIgR
-         vFOVMWnhNdpSlYEa85HlRhs2ztylQm3GcScXcFNqxTE1ELkbKPPMbmxSJkLrYqxkiG
-         LUI2S87TSbqMJv1T2uXRxVdLYrF7aIxkSr3lz8Vo=
+        b=usDQSiTItMrbt0GiQjPhkp4RsRRiUVXAv31DKyrY7R2cLmuDOKPRtq9O+goT1ho0c
+         RDCS2TzZZICGKqpP3t90w7p1BzF4NIeWFRd/aBF8d5JHKG8xW/gWeL9tE9QL2draqQ
+         uofBzjdesBb1pf2xnYEFE2uPYb4bgcH2mWPYlY8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 078/110] libbpf: Fix BTF-defined maps __type macro handling of arrays
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH 4.19 13/55] serial: 8250_bcm2835aux: Fix line mismatch on driver unbind
 Date:   Thu, 30 Jan 2020 19:38:54 +0100
-Message-Id: <20200130183623.512525712@linuxfoundation.org>
+Message-Id: <20200130183611.283439048@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit a53ba15d81995868651dd28a85d8045aef3d4e20 ]
+commit dc76697d7e933d5e299116f219c890568785ea15 upstream.
 
-Due to a quirky C syntax of declaring pointers to array or function
-prototype, existing __type() macro doesn't work with map key/value types
-that are array or function prototype. One has to create a typedef first
-and use it to specify key/value type for a BPF map.  By using typeof(),
-pointer to type is now handled uniformly for all kinds of types. Convert
-one of self-tests as a demonstration.
+Unbinding the bcm2835aux UART driver raises the following error if the
+maximum number of 8250 UARTs is set to 1 (via the 8250.nr_uarts module
+parameter or CONFIG_SERIAL_8250_RUNTIME_UARTS):
 
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20191004040211.2434033-1-andriin@fb.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+(NULL device *): Removing wrong port: a6f80333 != fa20408b
+
+That's because bcm2835aux_serial_probe() retrieves UART line number 1
+from the devicetree and stores it in data->uart.port.line, while
+serial8250_register_8250_port() instead uses UART line number 0,
+which is stored in data->line.
+
+On driver unbind, bcm2835aux_serial_remove() uses data->uart.port.line,
+which contains the wrong number.  Fix it.
+
+The issue does not occur if the maximum number of 8250 UARTs is >= 2.
+
+Fixes: bdc5f3009580 ("serial: bcm2835: add driver for bcm2835-aux-uart")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.6+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/912ccf553c5258135c6d7e8f404a101ef320f0f4.1579175223.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/testing/selftests/bpf/bpf_helpers.h                | 2 +-
- tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_bcm2835aux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/bpf_helpers.h b/tools/testing/selftests/bpf/bpf_helpers.h
-index 54a50699bbfda..9f77cbaac01c1 100644
---- a/tools/testing/selftests/bpf/bpf_helpers.h
-+++ b/tools/testing/selftests/bpf/bpf_helpers.h
-@@ -3,7 +3,7 @@
- #define __BPF_HELPERS__
+--- a/drivers/tty/serial/8250/8250_bcm2835aux.c
++++ b/drivers/tty/serial/8250/8250_bcm2835aux.c
+@@ -115,7 +115,7 @@ static int bcm2835aux_serial_remove(stru
+ {
+ 	struct bcm2835aux_data *data = platform_get_drvdata(pdev);
  
- #define __uint(name, val) int (*name)[val]
--#define __type(name, val) val *name
-+#define __type(name, val) typeof(val) *name
+-	serial8250_unregister_port(data->uart.port.line);
++	serial8250_unregister_port(data->line);
+ 	clk_disable_unprepare(data->clk);
  
- /* helper macro to print out debug messages */
- #define bpf_printk(fmt, ...)				\
-diff --git a/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c b/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c
-index f8ffa3f3d44bb..6cc4479ac9df6 100644
---- a/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c
-+++ b/tools/testing/selftests/bpf/progs/test_get_stack_rawtp.c
-@@ -47,12 +47,11 @@ struct {
-  * issue and avoid complicated C programming massaging.
-  * This is an acceptable workaround since there is one entry here.
-  */
--typedef __u64 raw_stack_trace_t[2 * MAX_STACK_RAWTP];
- struct {
- 	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
- 	__uint(max_entries, 1);
- 	__type(key, __u32);
--	__type(value, raw_stack_trace_t);
-+	__type(value, __u64[2 * MAX_STACK_RAWTP]);
- } rawdata_map SEC(".maps");
- 
- SEC("raw_tracepoint/sys_enter")
--- 
-2.20.1
-
+ 	return 0;
 
 
