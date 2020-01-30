@@ -2,128 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA0514DD59
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:53:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67D3914DDAF
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 16:21:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727303AbgA3Ox1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 09:53:27 -0500
-Received: from forwardcorp1j.mail.yandex.net ([5.45.199.163]:41450 "EHLO
-        forwardcorp1j.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727107AbgA3Ox1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:53:27 -0500
-Received: from mxbackcorp1g.mail.yandex.net (mxbackcorp1g.mail.yandex.net [IPv6:2a02:6b8:0:1402::301])
-        by forwardcorp1j.mail.yandex.net (Yandex) with ESMTP id B5F762E0EEA;
-        Thu, 30 Jan 2020 17:53:24 +0300 (MSK)
-Received: from vla1-5a8b76e65344.qloud-c.yandex.net (vla1-5a8b76e65344.qloud-c.yandex.net [2a02:6b8:c0d:3183:0:640:5a8b:76e6])
-        by mxbackcorp1g.mail.yandex.net (mxbackcorp/Yandex) with ESMTP id YrXfyxhXbH-rM38Ftrw;
-        Thu, 30 Jan 2020 17:53:24 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
-        t=1580396004; bh=ErDg9q5tx1jcUv0mv/fq4rEz0B+nbir38rGTLqNzQHU=;
-        h=In-Reply-To:Message-ID:References:Date:To:From:Subject:Cc;
-        b=nRScms4FEf59pkk52nddESylWWRvq24uIb/8glHohJrXIiEbT29Ujc9gAq8URTiFS
-         ydvT1FSv6jkzXWJ7zysxctzkaXTeDilB8nKo7iw+ZoYhrGZqVWAxMhnb9OTtpZSJtu
-         wsFnc5HGpzoSaJdQ3uLpiONNQdVRtspYM12dzme8=
-Authentication-Results: mxbackcorp1g.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
-Received: from dynamic-red.dhcp.yndx.net (dynamic-red.dhcp.yndx.net [2a02:6b8:0:40c:8448:fbcc:1dac:c863])
-        by vla1-5a8b76e65344.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id StvIjeNO68-rMVmSb4u;
-        Thu, 30 Jan 2020 17:53:22 +0300
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client certificate not present)
-Subject: [PATCH v4.19 2/2] block: fix 32 bit overflow in
- __blkdev_issue_discard()
-From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-To:     Greg KH <greg@kroah.com>, Stable <stable@vger.kernel.org>
-Cc:     linux-block <linux-block@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Dave Chinner <dchinner@redhat.com>,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Ming Lei <ming.lei@redhat.com>
-Date:   Thu, 30 Jan 2020 17:53:22 +0300
-Message-ID: <158039600260.4465.8760113992408208442.stgit@buzz>
-In-Reply-To: <158039599680.4465.7011319825891038466.stgit@buzz>
-References: <158039599680.4465.7011319825891038466.stgit@buzz>
-User-Agent: StGit/0.17.1-dirty
+        id S1727223AbgA3PVO convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 30 Jan 2020 10:21:14 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:25486 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727224AbgA3PVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 10:21:14 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-41-bGG4hDvvOfmWYjQy5O4gVw-1; Thu, 30 Jan 2020 15:21:09 +0000
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Thu, 30 Jan 2020 15:21:09 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 30 Jan 2020 15:21:09 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Peter Zijlstra' <peterz@infradead.org>,
+        Hans de Goede <hdegoede@redhat.com>
+CC:     Andy Shevchenko <andy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Vipul Kumar <vipulk0511@gmail.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        Len Brown <len.brown@intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
+ accurate
+Thread-Topic: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
+ accurate
+Thread-Index: AQHV13M/Jf366MsxW0K0cA6JkRCOwKgDUdtg
+Date:   Thu, 30 Jan 2020 15:21:08 +0000
+Message-ID: <e0926d9a7bc3461a9157d24210c679df@AcuMS.aculab.com>
+References: <20200130115255.20840-1-hdegoede@redhat.com>
+ <20200130115255.20840-3-hdegoede@redhat.com>
+ <20200130134310.GX14914@hirez.programming.kicks-ass.net>
+In-Reply-To: <20200130134310.GX14914@hirez.programming.kicks-ass.net>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+X-MC-Unique: bGG4hDvvOfmWYjQy5O4gVw-1
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Peter Zijlstra
+> Sent: 30 January 2020 13:43
+...
+> > + * Bay Trail SDM MSR_FSB_FREQ frequencies simplified PLL model:
+> > + *  000:   100 *  5 /  6  =  83.3333 MHz
+> > + *  001:   100 *  1 /  1  = 100.0000 MHz
+> > + *  010:   100 *  4 /  3  = 133.3333 MHz
+> > + *  011:   100 *  7 /  6  = 116.6667 MHz
+> > + *  100:   100 *  4 /  5  =  80.0000 MHz
+> 
+> > + * Cherry Trail SDM MSR_FSB_FREQ frequencies simplified PLL model:
+> > + * 0000:   100 *  5 /  6  =  83.3333 MHz
+> > + * 0001:   100 *  1 /  1  = 100.0000 MHz
+> > + * 0010:   100 *  4 /  3  = 133.3333 MHz
+> > + * 0011:   100 *  7 /  6  = 116.6667 MHz
+> > + * 0100:   100 *  4 /  5  =  80.0000 MHz
+> > + * 0101:   100 * 14 / 15  =  93.3333 MHz
+> > + * 0110:   100 *  9 / 10  =  90.0000 MHz
+> > + * 0111:   100 *  8 /  9  =  88.8889 MHz
+> > + * 1000:   100 *  7 /  8  =  87.5000 MHz
+> 
+> > + * Merriefield (BYT MID) SDM MSR_FSB_FREQ frequencies simplified PLL model:
+> > + * 0001:   100 *  1 /  1  = 100.0000 MHz
+> > + * 0010:   100 *  4 /  3  = 133.3333 MHz
+> 
+> > + * Moorefield (CHT MID) SDM MSR_FSB_FREQ frequencies simplified PLL model:
+> > + * 0000:   100 *  5 /  6  =  83.3333 MHz
+> > + * 0001:   100 *  1 /  1  = 100.0000 MHz
+> > + * 0010:   100 *  4 /  3  = 133.3333 MHz
+> > + * 0011:   100 *  1 /  1  = 100.0000 MHz
+> 
+> Unless I'm going cross-eyed, that's 4 times the exact same table.
 
-Commit 4800bf7bc8c725e955fcbc6191cc872f43f506d3 upstream.
+Apart from the very last line which duplicates 100MHz.
+And the fact that some entries are missing (presumed invalid?)
+for certain cpu.
 
--- snip --
+If the tables are ever used for setting the frequency
+then the valid range (and values?) would need to be known.
 
-Overflow in __blkdev_issue_discard() actually exists since 4.18
-commit af097f5d199e2aa3ab3ef777f0716e487b8f7b08 ("block: break discard
-submissions into the user defined size"):
+I did wonder if the 'mask' was necessary?
+Are the unused bits reserved and zero?
 
-- req_sects = min_t(sector_t, nr_sects, UINT_MAX >> 9);
-+ req_sects = min_t(sector_t, nr_sects, q->limits.max_discard_sectors)
+	David
 
-Default max_discard_sectors could be bigger than UINT_MAX.
-
-And finally 4.19 commit 744889b7cbb56a64f957e65ade7cb65fe3f35714
-("block: don't deal with discard limit in blkdev_issue_discard()")
-made problem worse:
-
-- req_sects = min_t(sector_t, nr_sects, q->limits.max_discard_sectors);
-+ req_sects = nr_sects;
-
-Now BLKDISCARD ioctl fails unexpectedly if lower word of length is zero:
-ioctl(3, BLKDISCARD, [0, 0x20000000000])  = -1 EOPNOTSUPP (Operation not supported)
-
--- snip --
-
-A discard cleanup merged into 4.20-rc2 causes fstests xfs/259 to
-fall into an endless loop in the discard code. The test is creating
-a device that is exactly 2^32 sectors in size to test mkfs boundary
-conditions around the 32 bit sector overflow region.
-
-mkfs issues a discard for the entire device size by default, and
-hence this throws a sector count of 2^32 into
-blkdev_issue_discard(). It takes the number of sectors to discard as
-a sector_t - a 64 bit value.
-
-The commit ba5d73851e71 ("block: cleanup __blkdev_issue_discard")
-takes this sector count and casts it to a 32 bit value before
-comapring it against the maximum allowed discard size the device
-has. This truncates away the upper 32 bits, and so if the lower 32
-bits of the sector count is zero, it starts issuing discards of
-length 0. This causes the code to fall into an endless loop, issuing
-a zero length discards over and over again on the same sector.
-
-Fixes: ba5d73851e71 ("block: cleanup __blkdev_issue_discard")
-Tested-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-
-Killed pointless WARN_ON().
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
----
- block/blk-lib.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/block/blk-lib.c b/block/blk-lib.c
-index 41088d5466c1..0dbc9e2ab9a3 100644
---- a/block/blk-lib.c
-+++ b/block/blk-lib.c
-@@ -56,9 +56,11 @@ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
- 		return -EINVAL;
- 
- 	while (nr_sects) {
--		unsigned int req_sects = min_t(unsigned int, nr_sects,
-+		sector_t req_sects = min_t(sector_t, nr_sects,
- 				bio_allowed_max_sectors(q));
- 
-+		WARN_ON_ONCE((req_sects << 9) > UINT_MAX);
-+
- 		bio = next_bio(bio, 0, gfp_mask);
- 		bio->bi_iter.bi_sector = sector;
- 		bio_set_dev(bio, bdev);
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
