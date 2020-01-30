@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 926EB14E16E
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1179A14E16F
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730473AbgA3SoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:44:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
+        id S1730820AbgA3SoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:44:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730532AbgA3SoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:44:22 -0500
+        id S1730811AbgA3SoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:44:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D7D2214DB;
-        Thu, 30 Jan 2020 18:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEE552465B;
+        Thu, 30 Jan 2020 18:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409861;
-        bh=bzJX7PYVkASWHqjAYN30b4sZoLH8MdDr3I91jheyyO4=;
+        s=default; t=1580409864;
+        bh=xwn2pakitxhWYFtw+8wAFTZXzu/ntQeMjykG2ynSlZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D54IlUGM+2uF0EGWFzJwJpaj5D57LmlBAZTNy4bDQ7n3GAo7rsoq234DqdMFktb9l
-         GWuKodKM6ci7DXLpX06tFHp/vc+SIoLH2tXb+H2c/u9n2EvzgqaoKtNPCRjpPifcNi
-         zufIoDb8UfM6ZGGCwF4Z/bmZv8hdE2URHI+C4BO0=
+        b=rpzY7zRH8QD3ge6cenk6nfMIE3QKbUkW1WhmsOixsm31eYQfaAQCefm8SgctWM0JE
+         ooTnJtCJwBztlMl7DamjBrE4nj09Ich0+I9YsVxYTjmkDDJVaTZbdxBnss8qKd5BFN
+         UWKgk87k4kdLgsm7oH/JVGGDIeeibXYEkObbyFUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Bin Liu <b-liu@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/110] usb: musb: jz4740: Silence error if code is -EPROBE_DEFER
-Date:   Thu, 30 Jan 2020 19:38:39 +0100
-Message-Id: <20200130183622.317918205@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 064/110] can: tcan4x5x: tcan4x5x_parse_config(): reset device before register access
+Date:   Thu, 30 Jan 2020 19:38:40 +0100
+Message-Id: <20200130183622.387523067@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
 References: <20200130183613.810054545@linuxfoundation.org>
@@ -43,45 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Sean Nyekjaer <sean@geanix.com>
 
-[ Upstream commit ce03cbcb4b4fd2a3817f32366001f1ca45d213b8 ]
+[ Upstream commit c3083124e6a1c0d6cd4fe3b3f627b488bd3b10c4 ]
 
-Avoid printing any error message if the error code is -EPROBE_DEFER.
+It's a good idea to reset a ip-block/spi device before using it, this
+patch will reset the device.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20191216162432.1256-1-b-liu@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+And a generic reset function if needed elsewhere.
+
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/jz4740.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/can/m_can/tcan4x5x.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/jz4740.c b/drivers/usb/musb/jz4740.c
-index 5261f8dfedecd..e3b8c84ccdb80 100644
---- a/drivers/usb/musb/jz4740.c
-+++ b/drivers/usb/musb/jz4740.c
-@@ -75,14 +75,17 @@ static struct musb_hdrc_platform_data jz4740_musb_platform_data = {
- static int jz4740_musb_init(struct musb *musb)
- {
- 	struct device *dev = musb->controller->parent;
-+	int err;
- 
- 	if (dev->of_node)
- 		musb->xceiv = devm_usb_get_phy_by_phandle(dev, "phys", 0);
- 	else
- 		musb->xceiv = devm_usb_get_phy(dev, USB_PHY_TYPE_USB2);
- 	if (IS_ERR(musb->xceiv)) {
--		dev_err(dev, "No transceiver configured\n");
--		return PTR_ERR(musb->xceiv);
-+		err = PTR_ERR(musb->xceiv);
-+		if (err != -EPROBE_DEFER)
-+			dev_err(dev, "No transceiver configured: %d", err);
-+		return err;
+diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
+index d797912e665a5..b233756345f83 100644
+--- a/drivers/net/can/m_can/tcan4x5x.c
++++ b/drivers/net/can/m_can/tcan4x5x.c
+@@ -164,6 +164,28 @@ static void tcan4x5x_check_wake(struct tcan4x5x_priv *priv)
  	}
+ }
  
- 	/* Silicon does not implement ConfigData register.
++static int tcan4x5x_reset(struct tcan4x5x_priv *priv)
++{
++	int ret = 0;
++
++	if (priv->reset_gpio) {
++		gpiod_set_value(priv->reset_gpio, 1);
++
++		/* tpulse_width minimum 30us */
++		usleep_range(30, 100);
++		gpiod_set_value(priv->reset_gpio, 0);
++	} else {
++		ret = regmap_write(priv->regmap, TCAN4X5X_CONFIG,
++				   TCAN4X5X_SW_RESET);
++		if (ret)
++			return ret;
++	}
++
++	usleep_range(700, 1000);
++
++	return ret;
++}
++
+ static int regmap_spi_gather_write(void *context, const void *reg,
+ 				   size_t reg_len, const void *val,
+ 				   size_t val_len)
+@@ -341,6 +363,7 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
+ static int tcan4x5x_parse_config(struct m_can_classdev *cdev)
+ {
+ 	struct tcan4x5x_priv *tcan4x5x = cdev->device_data;
++	int ret;
+ 
+ 	tcan4x5x->device_wake_gpio = devm_gpiod_get(cdev->dev, "device-wake",
+ 						    GPIOD_OUT_HIGH);
+@@ -354,7 +377,9 @@ static int tcan4x5x_parse_config(struct m_can_classdev *cdev)
+ 	if (IS_ERR(tcan4x5x->reset_gpio))
+ 		tcan4x5x->reset_gpio = NULL;
+ 
+-	usleep_range(700, 1000);
++	ret = tcan4x5x_reset(tcan4x5x);
++	if (ret)
++		return ret;
+ 
+ 	tcan4x5x->device_state_gpio = devm_gpiod_get_optional(cdev->dev,
+ 							      "device-state",
 -- 
 2.20.1
 
