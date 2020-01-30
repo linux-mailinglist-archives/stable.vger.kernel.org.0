@@ -2,199 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 671CD14D7FB
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 09:54:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A004614D83C
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 10:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbgA3Iyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 03:54:55 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:43012 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726882AbgA3Iyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 03:54:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580374493;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=McUOstczDURx7+qr2WYD4xlhpvzGM+i25AylL9C8fxU=;
-        b=LilIbMPmmEdb8zTC2e4sdQsEgMJQWx5RXrLiXBKa9LxyuyqKl2yWM+n2j9vCKqm6J9iBWH
-        P9JBRZxyxB8xKfJEHKWKjhWldiL3gIffqXZCNTk4FGP0F4qm+ByKQudXeCyTf/IWck37qk
-        Fz9zOAi9gm0aveFygj5kKrrqf04WyPs=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-170-TWlo19sNM0-9c7VVH_QhOw-1; Thu, 30 Jan 2020 03:54:52 -0500
-X-MC-Unique: TWlo19sNM0-9c7VVH_QhOw-1
-Received: by mail-wr1-f70.google.com with SMTP id 50so525940wrc.2
-        for <stable@vger.kernel.org>; Thu, 30 Jan 2020 00:54:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=McUOstczDURx7+qr2WYD4xlhpvzGM+i25AylL9C8fxU=;
-        b=cJikIjEaZBukliY3Yskz116Z1QtpOYmSiJnHEmDiuTcWypBrAPlJK6dy7w481FHESq
-         Z6wDnLmqQLvHPYVCccqu4+FhNMJrD+EIFw0K9GNIbgcyv5QBfRyLYKLOGdvEKhaSM6dT
-         gcY6oA0BQUDPS1NxNAWLUvE5IKx1EFeJo67+i0MSSaFZBrMbCEvitv5Sm56ZVnhT0pnX
-         AFwN7pvVha9/ZHnxzUwtKuSjeBaRVxrTFbVLD4ftv3MY+dTpkEqZcTLbTwRVbv71Q+MO
-         XBJfK5ScbICsKLSLYCL+zw1ijFHtnJqVpR0mDkJe6wgrmnyJs95ntfDf5wHK3M6taSue
-         sexQ==
-X-Gm-Message-State: APjAAAVNRSekgtZrTFawiCWqV1rFROhBxrXs2jY3CevbsZ0tlP1c4wqc
-        yeK8WiGLaXXdCyqGUo7XGeuNlVm/dU+JMv8AxCv3w/HX/NAZv2IDcaS57VHv3w6Wx1GaewpC5ZL
-        OfSDq3cA81N0fLbIh
-X-Received: by 2002:a5d:6a10:: with SMTP id m16mr4055618wru.411.1580374490784;
-        Thu, 30 Jan 2020 00:54:50 -0800 (PST)
-X-Google-Smtp-Source: APXvYqz7l4/qetA7mM3/W77rIZPXQCj4tC20wiML4nw+/k8ozF7BR/mBC5OAwbYAUqSbPMVN8FAFNw==
-X-Received: by 2002:a5d:6a10:: with SMTP id m16mr4055581wru.411.1580374490551;
-        Thu, 30 Jan 2020 00:54:50 -0800 (PST)
-Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
-        by smtp.gmail.com with ESMTPSA id y8sm5334392wma.10.2020.01.30.00.54.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jan 2020 00:54:49 -0800 (PST)
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
- Intel Bay Trail SoC
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     vipul kumar <vipulk0511@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        x86@kernel.org, Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <87iml11ccf.fsf@nanos.tec.linutronix.de>
- <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com>
- <87ftg5131x.fsf@nanos.tec.linutronix.de>
- <30d49be8-67ad-6f32-37a8-0cdd26f0852e@redhat.com>
- <87sgjz434v.fsf@nanos.tec.linutronix.de>
- <20200129130350.GD32742@smile.fi.intel.com>
- <0d361322-87aa-af48-492c-e8c4983bb35b@redhat.com>
- <20200129141444.GE32742@smile.fi.intel.com>
- <91cdda7a-4194-ebe7-225d-854447b0436e@redhat.com>
- <87imku2t3w.fsf@nanos.tec.linutronix.de>
- <20200129155353.GI32742@smile.fi.intel.com>
- <87a7662d7l.fsf@nanos.tec.linutronix.de>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <990e69fc-c4d4-a40b-34bc-4ee4aab06970@redhat.com>
-Date:   Thu, 30 Jan 2020 09:54:48 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726893AbgA3JaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 04:30:07 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54539 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726873AbgA3JaG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 04:30:06 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.nyi.internal (Postfix) with ESMTP id E6E9B21EF0;
+        Thu, 30 Jan 2020 04:30:05 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Thu, 30 Jan 2020 04:30:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/yART2
+        mYKMMGa4CpfiO6xYwWSy5U16APMpj/df7/+eQ=; b=Kk883wsl/5A3CpQ+kJnbDt
+        O1y6Rn4uW41unIW1laaAuMvYK6XrnJlD4gPBUjbNaQDAr+LHzczeJJzU3xEOkeNi
+        f0K6G2xAaRKQwHQ6elfyJa5/4Sr0GhBQt/owEeZT3KAYo5UBxqv/F3aowijTrp/l
+        MkwS+FuB9unO90n/1MpDOUUbbLNVvu/kmf/ZC8aoQmQtujIyf5xn7/2Y01vcAKnU
+        ldMDfE/m9pQpUo/+C+LOP24iRbmKeksKOHkCtyc6KCH3ipgWwxb9iJngb+2Ums9J
+        nY43srfYmi+ZwavnfYPXKv7xjIre9jKVAkHM5YYlQn7ejkVQzenAaj/Aet943kWA
+        ==
+X-ME-Sender: <xms:HKIyXoxYjr3qde4wTWJarJcN_wV4ufNY_skU4xktPUBC5DfppwnBwQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeekgddthecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:HKIyXmHDpBV3TPvEm0SGhhM5793OvHqidKJQ_TtfVu5kx2iYaRC3hQ>
+    <xmx:HKIyXpJBxX-apeBdGxS4WIOMmK9jWm-px1Ist2TBTjp_pD8S3jf-6A>
+    <xmx:HKIyXh5B40xeGuQZ2UMsF2XyA8JyMJ-p1c6hODmmNqSiYBfN8hjSIA>
+    <xmx:HaIyXoKfkWZt9r_aop_YFhRxGfJYR9dJtVdDNv2Qr1q9L2oxuQ5Sqw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 709B73060B27;
+        Thu, 30 Jan 2020 04:30:04 -0500 (EST)
+Subject: FAILED: patch "[PATCH] CIFS: Fix task struct use-after-free on reconnect" failed to apply to 4.19-stable tree
+To:     vincent.whitchurch@axis.com, pc@cjr.nz, pshilov@microsoft.com,
+        stable@vger.kernel.org, stfrench@microsoft.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 30 Jan 2020 10:30:00 +0100
+Message-ID: <1580376600189186@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <87a7662d7l.fsf@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On 29-01-2020 21:57, Thomas Gleixner wrote:
-> Andy,
-> 
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> writes:
->> On Wed, Jan 29, 2020 at 04:13:39PM +0100, Thomas Gleixner wrote:
->>> Andy, can you please make sure that people inside Intel who can look
->>> into the secrit documentation confirm what we are aiming for?
->>>
->>> Ideally they should provide the X-tal frequency and the mult/div pair
->>> themself :)
->>
->> So, I don't have access to the CPU core documentation (and may be will not be
->> given), nevertheless I dug a bit to what I have for Cherrytrail. So, the XTAL
->> is 19.2MHz, which becomes 100MHz and 1600MHz by some root PLL, then, the latter
->> two frequencies are being used by another PLL to provide a reference clock (*)
->> to PLL which derives CPU clock.
->>
->> *) According to colleagues of mine it's a fixed rate source.
->>
->> That's all what I have.
-> 
-> I'm surely not blaming you for this, you're just the messenger.
-> 
-> Just to make it entirely clear. We are wasting days already due to the
-> fact that Intel, who designs, specifies and most importantly sells these
-> CPUs is either unable or unwilling to provide accurate information about
-> the trivial and essential information to support these CPUs:
-> 
->      1) The crystal frequency
-> 
->      2) The nominator/denominator pair to calculate the TSC frequency
->         from #1
-> 
-> The numbers which are in the kernel have been provided by Intel, but
-> they are inaccurate as we have proven.
-> 
-> Sure, we can reverse engineer the exact numbers assumed that we have
-> access to all variants of affected devices and enough spare time to
-> waste.
-> 
-> But why should we do that?
-> 
-> Intel has the exact numbers at their fingertip and is just not providing
-> them for whatever reasons (I really don't want to know).
-> 
-> So instead of wasting our precious time further, I'm going to apply the
-> patch below unless Intel comes forth with the information they should
-> have provided many years ago.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Thomas, although I fully agree with your sentiment here, especially since
-I've been spending pretty much the entirety of my day on this for the last
-2 days, I do not think such a patch would be of great service to our end-users...
+thanks,
 
-Between your initial "model the PLL" idea and Andy's provided info I've
-come up with a patch which although not pretty I believe addresses this.
+greg k-h
 
-I'm running some final tests now and then I will post the patch series
-for this upstream.
+------------------ original commit in Linus's tree ------------------
 
-Regards,
+From f1f27ad74557e39f67a8331a808b860f89254f2d Mon Sep 17 00:00:00 2001
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Date: Thu, 23 Jan 2020 17:09:06 +0100
+Subject: [PATCH] CIFS: Fix task struct use-after-free on reconnect
 
-Hans
+The task which created the MID may be gone by the time cifsd attempts to
+call the callbacks on MIDs from cifs_reconnect().
 
+This leads to a use-after-free of the task struct in cifs_wake_up_task:
 
+ ==================================================================
+ BUG: KASAN: use-after-free in __lock_acquire+0x31a0/0x3270
+ Read of size 8 at addr ffff8880103e3a68 by task cifsd/630
 
+ CPU: 0 PID: 630 Comm: cifsd Not tainted 5.5.0-rc6+ #119
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+ Call Trace:
+  dump_stack+0x8e/0xcb
+  print_address_description.constprop.5+0x1d3/0x3c0
+  ? __lock_acquire+0x31a0/0x3270
+  __kasan_report+0x152/0x1aa
+  ? __lock_acquire+0x31a0/0x3270
+  ? __lock_acquire+0x31a0/0x3270
+  kasan_report+0xe/0x20
+  __lock_acquire+0x31a0/0x3270
+  ? __wake_up_common+0x1dc/0x630
+  ? _raw_spin_unlock_irqrestore+0x4c/0x60
+  ? mark_held_locks+0xf0/0xf0
+  ? _raw_spin_unlock_irqrestore+0x39/0x60
+  ? __wake_up_common_lock+0xd5/0x130
+  ? __wake_up_common+0x630/0x630
+  lock_acquire+0x13f/0x330
+  ? try_to_wake_up+0xa3/0x19e0
+  _raw_spin_lock_irqsave+0x38/0x50
+  ? try_to_wake_up+0xa3/0x19e0
+  try_to_wake_up+0xa3/0x19e0
+  ? cifs_compound_callback+0x178/0x210
+  ? set_cpus_allowed_ptr+0x10/0x10
+  cifs_reconnect+0xa1c/0x15d0
+  ? generic_ip_connect+0x1860/0x1860
+  ? rwlock_bug.part.0+0x90/0x90
+  cifs_readv_from_socket+0x479/0x690
+  cifs_read_from_socket+0x9d/0xe0
+  ? cifs_readv_from_socket+0x690/0x690
+  ? mempool_resize+0x690/0x690
+  ? rwlock_bug.part.0+0x90/0x90
+  ? memset+0x1f/0x40
+  ? allocate_buffers+0xff/0x340
+  cifs_demultiplex_thread+0x388/0x2a50
+  ? cifs_handle_standard+0x610/0x610
+  ? rcu_read_lock_held_common+0x120/0x120
+  ? mark_lock+0x11b/0xc00
+  ? __lock_acquire+0x14ed/0x3270
+  ? __kthread_parkme+0x78/0x100
+  ? lockdep_hardirqs_on+0x3e8/0x560
+  ? lock_downgrade+0x6a0/0x6a0
+  ? lockdep_hardirqs_on+0x3e8/0x560
+  ? _raw_spin_unlock_irqrestore+0x39/0x60
+  ? cifs_handle_standard+0x610/0x610
+  kthread+0x2bb/0x3a0
+  ? kthread_create_worker_on_cpu+0xc0/0xc0
+  ret_from_fork+0x3a/0x50
 
+ Allocated by task 649:
+  save_stack+0x19/0x70
+  __kasan_kmalloc.constprop.5+0xa6/0xf0
+  kmem_cache_alloc+0x107/0x320
+  copy_process+0x17bc/0x5370
+  _do_fork+0x103/0xbf0
+  __x64_sys_clone+0x168/0x1e0
+  do_syscall_64+0x9b/0xec0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
+ Freed by task 0:
+  save_stack+0x19/0x70
+  __kasan_slab_free+0x11d/0x160
+  kmem_cache_free+0xb5/0x3d0
+  rcu_core+0x52f/0x1230
+  __do_softirq+0x24d/0x962
 
-> 
-> Thanks,
-> 
->          tglx
-> 
-> 8<--------------
->   arch/x86/kernel/tsc_msr.c |    9 +++++++++
->   1 file changed, 9 insertions(+)
-> 
-> --- a/arch/x86/kernel/tsc_msr.c
-> +++ b/arch/x86/kernel/tsc_msr.c
-> @@ -73,6 +73,13 @@ static const struct x86_cpu_id tsc_msr_c
->   	{}
->   };
->   
-> +static char msr_warning[] = \
-> +	"The TSC/APIC timer frequency for your CPU is guesswork.\n\n"	\
-> +	"It is derived from frequency tables provided by Intel.\n"	\
-> +	"These tables are demonstrably inaccurate, but Intel is\n"	\
-> +	"either unable or unwilling to provide the correct data.\n"	\
-> +	"Please report this to Intel and not on LKML.\n";
-> +
->   /*
->    * MSR-based CPU/TSC frequency discovery for certain CPUs.
->    *
-> @@ -90,6 +97,8 @@ unsigned long cpu_khz_from_msr(void)
->   	if (!id)
->   		return 0;
->   
-> +	WARN_ONCE(1, "%s\n", msr_warning);
-> +
->   	freq_desc = (struct freq_desc *)id->driver_data;
->   	if (freq_desc->msr_plat) {
->   		rdmsr(MSR_PLATFORM_INFO, lo, hi);
-> 
+ The buggy address belongs to the object at ffff8880103e32c0
+  which belongs to the cache task_struct of size 6016
+ The buggy address is located 1960 bytes inside of
+  6016-byte region [ffff8880103e32c0, ffff8880103e4a40)
+ The buggy address belongs to the page:
+ page:ffffea000040f800 refcount:1 mapcount:0 mapping:ffff8880108da5c0
+ index:0xffff8880103e4c00 compound_mapcount: 0
+ raw: 4000000000010200 ffffea00001f2208 ffffea00001e3408 ffff8880108da5c0
+ raw: ffff8880103e4c00 0000000000050003 00000001ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff8880103e3900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8880103e3980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ >ffff8880103e3a00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                                           ^
+  ffff8880103e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8880103e3b00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ==================================================================
+
+This can be reliably reproduced by adding the below delay to
+cifs_reconnect(), running find(1) on the mount, restarting the samba
+server while find is running, and killing find during the delay:
+
+  	spin_unlock(&GlobalMid_Lock);
+  	mutex_unlock(&server->srv_mutex);
+
+ +	msleep(10000);
+ +
+  	cifs_dbg(FYI, "%s: issuing mid callbacks\n", __func__);
+  	list_for_each_safe(tmp, tmp2, &retry_list) {
+  		mid_entry = list_entry(tmp, struct mid_q_entry, qhead);
+
+Fix this by holding a reference to the task struct until the MID is
+freed.
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index 40705e862451..239338d57086 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1588,6 +1588,7 @@ struct mid_q_entry {
+ 	mid_callback_t *callback; /* call completion callback */
+ 	mid_handle_t *handle; /* call handle mid callback */
+ 	void *callback_data;	  /* general purpose pointer for callback */
++	struct task_struct *creator;
+ 	void *resp_buf;		/* pointer to received SMB header */
+ 	unsigned int resp_buf_size;
+ 	int mid_state;	/* wish this were enum but can not pass to wait_event */
+diff --git a/fs/cifs/smb2transport.c b/fs/cifs/smb2transport.c
+index 387c88704c52..fe6acfce3390 100644
+--- a/fs/cifs/smb2transport.c
++++ b/fs/cifs/smb2transport.c
+@@ -685,6 +685,8 @@ smb2_mid_entry_alloc(const struct smb2_sync_hdr *shdr,
+ 	 * The default is for the mid to be synchronous, so the
+ 	 * default callback just wakes up the current task.
+ 	 */
++	get_task_struct(current);
++	temp->creator = current;
+ 	temp->callback = cifs_wake_up_task;
+ 	temp->callback_data = current;
+ 
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index 3d2e11f85cba..cb3ee916f527 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -76,6 +76,8 @@ AllocMidQEntry(const struct smb_hdr *smb_buffer, struct TCP_Server_Info *server)
+ 	 * The default is for the mid to be synchronous, so the
+ 	 * default callback just wakes up the current task.
+ 	 */
++	get_task_struct(current);
++	temp->creator = current;
+ 	temp->callback = cifs_wake_up_task;
+ 	temp->callback_data = current;
+ 
+@@ -158,6 +160,7 @@ static void _cifs_mid_q_entry_release(struct kref *refcount)
+ 		}
+ 	}
+ #endif
++	put_task_struct(midEntry->creator);
+ 
+ 	mempool_free(midEntry, cifs_mid_poolp);
+ }
 
