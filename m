@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6831B14E164
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A8514E269
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730751AbgA3SoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:44:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52974 "EHLO mail.kernel.org"
+        id S1730791AbgA3SwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:52:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730747AbgA3SoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:44:02 -0500
+        id S1730757AbgA3SoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:44:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39C362082E;
-        Thu, 30 Jan 2020 18:44:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A621E20CC7;
+        Thu, 30 Jan 2020 18:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409841;
-        bh=G4eHylNNoWcu/YjzldYF8NNdD8vwCF+1PoFgw3DSM/8=;
+        s=default; t=1580409844;
+        bh=PcYjAsbCfzF+5dESTDBeoAdBwesnGNr/0H4djHcVYs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpNW0dbNamr2nmgO2eaBuFpr5ANuEXa6xVcTLAhkkidn5yldPx6OL41jhwxpT36y0
-         Snss2mZPUQeFjfFaC3ubp5Cm0wfetcU6JZJq/T59KCfTiSuBcZCQ6KRpCD+8MONv05
-         eCwaJYlzWyP5qCID9ZyvM4iDQC61lgB52DsIeIN4=
+        b=WCiHHEAuueWkszZRy5Ip1E/Q93nrj0WiE3D46PETwhaCy6nCzuC8io1w4DrKXXzFM
+         UVV61j/KaGttopBRBl9AmglWsgww/JPksazmlBgfEoPP2fVdO9c8ILlNZ+rkJUApL9
+         CidwiaWs5/+L943HTzcq3616oprFOg7QhyO8B3dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 5.4 013/110] staging: wlan-ng: ensure error return is actually returned
-Date:   Thu, 30 Jan 2020 19:37:49 +0100
-Message-Id: <20200130183616.003124505@linuxfoundation.org>
+        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH 5.4 014/110] staging: vt6656: correct packet types for CTS protect, mode.
+Date:   Thu, 30 Jan 2020 19:37:50 +0100
+Message-Id: <20200130183616.221145548@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
 References: <20200130183613.810054545@linuxfoundation.org>
@@ -42,37 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 upstream.
+commit d971fdd3412f8342747778fb59b8803720ed82b1 upstream.
 
-Currently when the call to prism2sta_ifst fails a netdev_err error
-is reported, error return variable result is set to -1 but the
-function always returns 0 for success.  Fix this by returning
-the error value in variable result rather than 0.
+It appears that the driver still transmits in CTS protect mode even
+though it is not enabled in mac80211.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+That is both packet types PK_TYPE_11GA and PK_TYPE_11GB both use CTS protect.
+The only difference between them GA does not use B rates.
+
+Find if only B rate in GB or GA in protect mode otherwise transmit packets
+as PK_TYPE_11A.
+
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/9c1323ff-dbb3-0eaa-43e1-9453f7390dc0@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/wlan-ng/prism2mgmt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/vt6656/device.h |    2 ++
+ drivers/staging/vt6656/rxtx.c   |   12 ++++++++----
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/wlan-ng/prism2mgmt.c
-+++ b/drivers/staging/wlan-ng/prism2mgmt.c
-@@ -959,7 +959,7 @@ int prism2mgmt_flashdl_state(struct wlan
+--- a/drivers/staging/vt6656/device.h
++++ b/drivers/staging/vt6656/device.h
+@@ -52,6 +52,8 @@
+ #define RATE_AUTO	12
+ 
+ #define MAX_RATE			12
++#define VNT_B_RATES	(BIT(RATE_1M) | BIT(RATE_2M) |\
++			BIT(RATE_5M) | BIT(RATE_11M))
+ 
+ /*
+  * device specific
+--- a/drivers/staging/vt6656/rxtx.c
++++ b/drivers/staging/vt6656/rxtx.c
+@@ -815,10 +815,14 @@ int vnt_tx_packet(struct vnt_private *pr
+ 		if (info->band == NL80211_BAND_5GHZ) {
+ 			pkt_type = PK_TYPE_11A;
+ 		} else {
+-			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT)
+-				pkt_type = PK_TYPE_11GB;
+-			else
+-				pkt_type = PK_TYPE_11GA;
++			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
++				if (priv->basic_rates & VNT_B_RATES)
++					pkt_type = PK_TYPE_11GB;
++				else
++					pkt_type = PK_TYPE_11GA;
++			} else {
++				pkt_type = PK_TYPE_11A;
++			}
  		}
- 	}
- 
--	return 0;
-+	return result;
- }
- 
- /*----------------------------------------------------------------
+ 	} else {
+ 		pkt_type = PK_TYPE_11B;
 
 
