@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C1214E2B3
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B104814E26C
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730049AbgA3Sk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:40:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48746 "EHLO mail.kernel.org"
+        id S1730720AbgA3Snz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:43:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730069AbgA3Sk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:40:59 -0500
+        id S1730718AbgA3Sny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:43:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3E792082E;
-        Thu, 30 Jan 2020 18:40:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB4B2082E;
+        Thu, 30 Jan 2020 18:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409658;
-        bh=3kM9e9MQWAmuC3Po1OJvzxbXTCdlRt6TUpNoO8DV8DA=;
+        s=default; t=1580409834;
+        bh=i+RdHtL84J3HaSt93jwmuWMUHa7Qj4PRLkFeyniDzSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxkTzTH/YxMbXlz2nRvS4PJz8p4NtkN0+Ca6R/ryLLF/3GmjZdw5ygIBfpNK+IC7c
-         /9z5ptxqe3TyC/0Jg5Xc/c1S/pfydNxGoddnNO/ZMsbz82V9m7BDCBzP1blUJXNOxC
-         s5yFhWKboIESWVVvxJ9VnjeGEQqnKgCOCJCzoXoA=
+        b=L3Ua14NKkMxKFtz1hCa8PEA9mIB+0lgWjXvRVbGJi734bQbp+xiaN0GmyeY/SnkYu
+         gXNw9lI1e6MSrEGxWc/MavLwaEYQQS2Vc6kOJYOqts5SlPIHpfdkPhTY5VYolYrxRW
+         5bdRdP4Un8UdlLTU6bps3aqnjQFqBy/ASYMqlgs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.5 08/56] USB: serial: ir-usb: fix IrLAP framing
+        stable@vger.kernel.org, Pavel Balan <admin@kryma.net>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 049/110] HID: Add quirk for incorrect input length on Lenovo Y720
 Date:   Thu, 30 Jan 2020 19:38:25 +0100
-Message-Id: <20200130183610.632211986@linuxfoundation.org>
+Message-Id: <20200130183620.976033235@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,173 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pavel Balan <admin@kryma.net>
 
-commit 38c0d5bdf4973f9f5a888166e9d3e9ed0d32057a upstream.
+[ Upstream commit fd0913768701612fc2b8ab9c8a5c019133e8d978 ]
 
-Commit f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
-switched to using the generic write implementation which may combine
-multiple write requests into larger transfers. This can break the IrLAP
-protocol where end-of-frame is determined using the USB short packet
-mechanism, for example, if multiple frames are sent in rapid succession.
+Apply it to the Lenovo Y720 gaming laptop I2C peripheral then.
 
-Fixes: f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
-Cc: stable <stable@vger.kernel.org>     # 2.6.35
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fixes dmesg being flooded with errors visible on un-suspend
+in Linux Mint 19 Cinnamon.
 
+Example of error log:
+
+<...>
+[    4.326588] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.326845] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.327095] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.327341] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.327609] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+<...>
+
+Example of fixed log (debug on)
+
+<...>
+[ 3731.333183] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.333581] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.333842] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.334107] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.334367] i2c_hid i2c-ITE33D1:00: input: 02 00
+<...>
+
+[jkosina@suse.cz: rebase onto more recent codebase]
+Signed-off-by: Pavel Balan <admin@kryma.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ir-usb.c |  113 +++++++++++++++++++++++++++++++++++---------
- 1 file changed, 91 insertions(+), 22 deletions(-)
+ drivers/hid/hid-ids.h              |  1 +
+ drivers/hid/i2c-hid/i2c-hid-core.c | 16 +++++++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/ir-usb.c
-+++ b/drivers/usb/serial/ir-usb.c
-@@ -45,9 +45,10 @@ static int buffer_size;
- static int xbof = -1;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 27795eac93e35..5fc82029a03b7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -631,6 +631,7 @@
+ #define USB_VENDOR_ID_ITE               0x048d
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
++#define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
+ #define USB_DEVICE_ID_ITE8595		0x8595
  
- static int  ir_startup (struct usb_serial *serial);
--static int  ir_open(struct tty_struct *tty, struct usb_serial_port *port);
--static int ir_prepare_write_buffer(struct usb_serial_port *port,
--						void *dest, size_t size);
-+static int ir_write(struct tty_struct *tty, struct usb_serial_port *port,
-+		const unsigned char *buf, int count);
-+static int ir_write_room(struct tty_struct *tty);
-+static void ir_write_bulk_callback(struct urb *urb);
- static void ir_process_read_urb(struct urb *urb);
- static void ir_set_termios(struct tty_struct *tty,
- 		struct usb_serial_port *port, struct ktermios *old_termios);
-@@ -77,8 +78,9 @@ static struct usb_serial_driver ir_devic
- 	.num_ports		= 1,
- 	.set_termios		= ir_set_termios,
- 	.attach			= ir_startup,
--	.open			= ir_open,
--	.prepare_write_buffer	= ir_prepare_write_buffer,
-+	.write			= ir_write,
-+	.write_room		= ir_write_room,
-+	.write_bulk_callback	= ir_write_bulk_callback,
- 	.process_read_urb	= ir_process_read_urb,
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index ac44bf752ff1f..479934f7d2411 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -49,6 +49,8 @@
+ #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+ #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
+ #define I2C_HID_QUIRK_RESET_ON_RESUME		BIT(5)
++#define I2C_HID_QUIRK_BAD_INPUT_SIZE		BIT(6)
++
+ 
+ /* flags */
+ #define I2C_HID_STARTED		0
+@@ -177,6 +179,8 @@ static const struct i2c_hid_quirks {
+ 		 I2C_HID_QUIRK_BOGUS_IRQ },
+ 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
+ 		 I2C_HID_QUIRK_RESET_ON_RESUME },
++	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
++		I2C_HID_QUIRK_BAD_INPUT_SIZE },
+ 	{ 0, 0 }
  };
  
-@@ -254,35 +256,102 @@ static int ir_startup(struct usb_serial
- 	return 0;
- }
+@@ -498,9 +502,15 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+ 	}
  
--static int ir_open(struct tty_struct *tty, struct usb_serial_port *port)
-+static int ir_write(struct tty_struct *tty, struct usb_serial_port *port,
-+		const unsigned char *buf, int count)
- {
--	int i;
-+	struct urb *urb = NULL;
-+	unsigned long flags;
-+	int ret;
+ 	if ((ret_size > size) || (ret_size < 2)) {
+-		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+-			__func__, size, ret_size);
+-		return;
++		if (ihid->quirks & I2C_HID_QUIRK_BAD_INPUT_SIZE) {
++			ihid->inbuf[0] = size & 0xff;
++			ihid->inbuf[1] = size >> 8;
++			ret_size = size;
++		} else {
++			dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
++				__func__, size, ret_size);
++			return;
++		}
+ 	}
  
--	for (i = 0; i < ARRAY_SIZE(port->write_urbs); ++i)
--		port->write_urbs[i]->transfer_flags = URB_ZERO_PACKET;
-+	if (port->bulk_out_size == 0)
-+		return -EINVAL;
- 
--	/* Start reading from the device */
--	return usb_serial_generic_open(tty, port);
--}
-+	if (count == 0)
-+		return 0;
- 
--static int ir_prepare_write_buffer(struct usb_serial_port *port,
--						void *dest, size_t size)
--{
--	unsigned char *buf = dest;
--	int count;
-+	count = min(count, port->bulk_out_size - 1);
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	if (__test_and_clear_bit(0, &port->write_urbs_free)) {
-+		urb = port->write_urbs[0];
-+		port->tx_bytes += count;
-+	}
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
-+	if (!urb)
-+		return 0;
- 
- 	/*
- 	 * The first byte of the packet we send to the device contains an
--	 * inbound header which indicates an additional number of BOFs and
-+	 * outbound header which indicates an additional number of BOFs and
- 	 * a baud rate change.
- 	 *
- 	 * See section 5.4.2.2 of the USB IrDA spec.
- 	 */
--	*buf = ir_xbof | ir_baud;
-+	*(u8 *)urb->transfer_buffer = ir_xbof | ir_baud;
-+
-+	memcpy(urb->transfer_buffer + 1, buf, count);
-+
-+	urb->transfer_buffer_length = count + 1;
-+	urb->transfer_flags = URB_ZERO_PACKET;
-+
-+	ret = usb_submit_urb(urb, GFP_ATOMIC);
-+	if (ret) {
-+		dev_err(&port->dev, "failed to submit write urb: %d\n", ret);
-+
-+		spin_lock_irqsave(&port->lock, flags);
-+		__set_bit(0, &port->write_urbs_free);
-+		port->tx_bytes -= count;
-+		spin_unlock_irqrestore(&port->lock, flags);
-+
-+		return ret;
-+	}
-+
-+	return count;
-+}
-+
-+static void ir_write_bulk_callback(struct urb *urb)
-+{
-+	struct usb_serial_port *port = urb->context;
-+	int status = urb->status;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	__set_bit(0, &port->write_urbs_free);
-+	port->tx_bytes -= urb->transfer_buffer_length - 1;
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
-+	switch (status) {
-+	case 0:
-+		break;
-+	case -ENOENT:
-+	case -ECONNRESET:
-+	case -ESHUTDOWN:
-+		dev_dbg(&port->dev, "write urb stopped: %d\n", status);
-+		return;
-+	case -EPIPE:
-+		dev_err(&port->dev, "write urb stopped: %d\n", status);
-+		return;
-+	default:
-+		dev_err(&port->dev, "nonzero write-urb status: %d\n", status);
-+		break;
-+	}
-+
-+	usb_serial_port_softint(port);
-+}
-+
-+static int ir_write_room(struct tty_struct *tty)
-+{
-+	struct usb_serial_port *port = tty->driver_data;
-+	int count = 0;
-+
-+	if (port->bulk_out_size == 0)
-+		return 0;
-+
-+	if (test_bit(0, &port->write_urbs_free))
-+		count = port->bulk_out_size - 1;
- 
--	count = kfifo_out_locked(&port->write_fifo, buf + 1, size - 1,
--								&port->lock);
--	return count + 1;
-+	return count;
- }
- 
- static void ir_process_read_urb(struct urb *urb)
+ 	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
+-- 
+2.20.1
+
 
 
