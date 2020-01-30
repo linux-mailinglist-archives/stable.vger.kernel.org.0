@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 915A314E153
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:43:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ADF114E157
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730617AbgA3Sn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:43:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52130 "EHLO mail.kernel.org"
+        id S1730639AbgA3Sng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730613AbgA3Sn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:43:27 -0500
+        id S1730625AbgA3Snb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:43:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB9AF20702;
-        Thu, 30 Jan 2020 18:43:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FC7A2083E;
+        Thu, 30 Jan 2020 18:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409807;
-        bh=HbLFfeGQCXCLi8mrUB2mh0jjKcgAoECwm3vUCTiKN2c=;
+        s=default; t=1580409809;
+        bh=N5y1muu8N21M0FsvptEApXfStVYRWbQEbqqaQyDIb50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yd/pzMyoovoKCSEpcgOUsiaY7W4XMOlEixeJbI4P0wWL0odz9amw+eFkTVW+GK6et
-         QaUu+AYY5G6zr/Yj9EA3kTggOYVkwjZoSl5FlQ8MVSODVuSjHnc802Fakld18zFPCe
-         IY0HNNRxPkTojtmarxIgJYCflF0xaTmP9lMQ46wE=
+        b=FgzycVbpg3OEnAxp2CfCiaVvizI6/hNldp+MtPLYnKYUf1Zqe7nTE32t8nhcdXTdX
+         FJZLfJOkNU1MRKPBmLClbaP2Sq2hDaMOCap0ujnEzTny5Xun9diTGvJBiPoZPeHw4x
+         3S11ODs/nayaOsfiGx6wbm2g/GuKvPLry2TKcDtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 039/110] net: socionext: fix xdp_result initialization in netsec_process_rx
-Date:   Thu, 30 Jan 2020 19:38:15 +0100
-Message-Id: <20200130183619.986884058@linuxfoundation.org>
+Subject: [PATCH 5.4 040/110] udp: segment looped gso packets correctly
+Date:   Thu, 30 Jan 2020 19:38:16 +0100
+Message-Id: <20200130183620.104536345@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
 References: <20200130183613.810054545@linuxfoundation.org>
@@ -45,35 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 02758cb6dac31a2b4bd9e535cffbe718acd46404 ]
+[ Upstream commit 6cd021a58c18a1731f7e47f83e172c0c302d65e5 ]
 
-Fix xdp_result initialization in netsec_process_rx in order to not
-increase rx counters if there is no bpf program attached to the xdp hook
-and napi_gro_receive returns GRO_DROP
+Multicast and broadcast packets can be looped from egress to ingress
+pre segmentation with dev_loopback_xmit. That function unconditionally
+sets ip_summed to CHECKSUM_UNNECESSARY.
 
-Fixes: ba2b232108d3c ("net: netsec: add XDP support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+udp_rcv_segment segments gso packets in the udp rx path. Segmentation
+usually executes on egress, and does not expect packets of this type.
+__udp_gso_segment interprets !CHECKSUM_PARTIAL as CHECKSUM_NONE. But
+the offsets are not correct for gso_make_checksum.
+
+UDP GSO packets are of type CHECKSUM_PARTIAL, with their uh->check set
+to the correct pseudo header checksum. Reset ip_summed to this type.
+(CHECKSUM_PARTIAL is allowed on ingress, see comments in skbuff.h)
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: cf329aa42b66 ("udp: cope with UDP GRO packet misdirection")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/socionext/netsec.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/udp.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/socionext/netsec.c
-+++ b/drivers/net/ethernet/socionext/netsec.c
-@@ -941,8 +941,8 @@ static int netsec_process_rx(struct nets
- 		struct netsec_de *de = dring->vaddr + (DESC_SZ * idx);
- 		struct netsec_desc *desc = &dring->desc[idx];
- 		struct page *page = virt_to_page(desc->addr);
-+		u32 xdp_result = NETSEC_XDP_PASS;
- 		struct sk_buff *skb = NULL;
--		u32 xdp_result = XDP_PASS;
- 		u16 pkt_len, desc_len;
- 		dma_addr_t dma_handle;
- 		struct xdp_buff xdp;
+--- a/include/net/udp.h
++++ b/include/net/udp.h
+@@ -476,6 +476,9 @@ static inline struct sk_buff *udp_rcv_se
+ 	if (!inet_get_convert_csum(sk))
+ 		features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+ 
++	if (skb->pkt_type == PACKET_LOOPBACK)
++		skb->ip_summed = CHECKSUM_PARTIAL;
++
+ 	/* the GSO CB lays after the UDP one, no need to save and restore any
+ 	 * CB fragment
+ 	 */
 
 
