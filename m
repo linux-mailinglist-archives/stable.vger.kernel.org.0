@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 118F614E1BE
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE8C114E188
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731005AbgA3SrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:47:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
+        id S1730745AbgA3SpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:45:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731318AbgA3SrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:47:08 -0500
+        id S1731000AbgA3SpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:45:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5205220674;
-        Thu, 30 Jan 2020 18:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61C892082E;
+        Thu, 30 Jan 2020 18:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410027;
-        bh=6GzoNV0zyINcGNLAPy2ZdbfQ+iqqU24+bbg51LWIlX4=;
+        s=default; t=1580409917;
+        bh=tgiIWyaWgYWNqXLGQPohVSA04eXZ04wHRLN/JX73TAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mr+5iNRQfOuSxFqNbNAZPs0hznMMoVWcjXvvnoWXzt7jK2PrjeZCETWjHKO4F6waF
-         sKbj3W7+qOUQjXh92LLrwHNreWuppMb2ENEB3UMj0dYBsr7im0/uC7vppgJJZCqmTf
-         qzU/YrUaJxzS7qEqquixoTPANPuUvOMwgTBYR7i4=
+        b=qYpMWZ5SLDhwZilVj6iluF4pXPqtNoXnwwB4v/M/age03v35UzaP6mjXfksbu0yaK
+         CEnl+zNVjdtg26yc/pa0XvhAYdCCxV5awb7Qt2J6hOvmY+WqfTvpel8/7fH+ftQgd9
+         smSW9Dpz7TVopdBsK7M/V8Yao3EHV9sPeal3Wysw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>
-Subject: [PATCH 4.19 18/55] cifs: Fix memory allocation in __smb2_handle_cancelled_cmd()
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 083/110] bus: ti-sysc: Handle mstandby quirk and use it for musb
 Date:   Thu, 30 Jan 2020 19:38:59 +0100
-Message-Id: <20200130183612.174750191@linuxfoundation.org>
+Message-Id: <20200130183623.991569511@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara (SUSE) <pc@cjr.nz>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 0a5a98863c9debc02387b3d23c46d187756f5e2b upstream.
+[ Upstream commit 03856e928b0e1a1c274eece1dfe4330a362c37f3 ]
 
-__smb2_handle_cancelled_cmd() is called under a spin lock held in
-cifs_mid_q_entry_release(), so make its memory allocation GFP_ATOMIC.
+We need swsup quirks for sidle and mstandby for musb to work
+properly.
 
-This issue was observed when running xfstests generic/028:
-
-[ 1722.589204] CIFS VFS: \\192.168.30.26 Cancelling wait for mid 72064 cmd: 5
-[ 1722.590687] CIFS VFS: \\192.168.30.26 Cancelling wait for mid 72065 cmd: 17
-[ 1722.593529] CIFS VFS: \\192.168.30.26 Cancelling wait for mid 72066 cmd: 6
-[ 1723.039014] BUG: sleeping function called from invalid context at mm/slab.h:565
-[ 1723.040710] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 30877, name: cifsd
-[ 1723.045098] CPU: 3 PID: 30877 Comm: cifsd Not tainted 5.5.0-rc4+ #313
-[ 1723.046256] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
-[ 1723.048221] Call Trace:
-[ 1723.048689]  dump_stack+0x97/0xe0
-[ 1723.049268]  ___might_sleep.cold+0xd1/0xe1
-[ 1723.050069]  kmem_cache_alloc_trace+0x204/0x2b0
-[ 1723.051051]  __smb2_handle_cancelled_cmd+0x40/0x140 [cifs]
-[ 1723.052137]  smb2_handle_cancelled_mid+0xf6/0x120 [cifs]
-[ 1723.053247]  cifs_mid_q_entry_release+0x44d/0x630 [cifs]
-[ 1723.054351]  ? cifs_reconnect+0x26a/0x1620 [cifs]
-[ 1723.055325]  cifs_demultiplex_thread+0xad4/0x14a0 [cifs]
-[ 1723.056458]  ? cifs_handle_standard+0x2c0/0x2c0 [cifs]
-[ 1723.057365]  ? kvm_sched_clock_read+0x14/0x30
-[ 1723.058197]  ? sched_clock+0x5/0x10
-[ 1723.058838]  ? sched_clock_cpu+0x18/0x110
-[ 1723.059629]  ? lockdep_hardirqs_on+0x17d/0x250
-[ 1723.060456]  kthread+0x1ab/0x200
-[ 1723.061149]  ? cifs_handle_standard+0x2c0/0x2c0 [cifs]
-[ 1723.062078]  ? kthread_create_on_node+0xd0/0xd0
-[ 1723.062897]  ret_from_fork+0x3a/0x50
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Fixes: 9150c3adbf24 ("CIFS: Close open handle after interrupted close")
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2misc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/ti-sysc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -750,7 +750,7 @@ __smb2_handle_cancelled_close(struct cif
- {
- 	struct close_cancelled_open *cancelled;
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index abbf281ee337b..44d4f4864ac2a 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -923,6 +923,9 @@ set_midle:
+ 		return -EINVAL;
+ 	}
  
--	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
-+	cancelled = kzalloc(sizeof(*cancelled), GFP_ATOMIC);
- 	if (!cancelled)
- 		return -ENOMEM;
++	if (ddata->cfg.quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
++		best_mode = SYSC_IDLE_NO;
++
+ 	reg &= ~(SYSC_IDLE_MASK << regbits->midle_shift);
+ 	reg |= best_mode << regbits->midle_shift;
+ 	sysc_write(ddata, ddata->offsets[SYSC_SYSCONFIG], reg);
+@@ -984,6 +987,9 @@ static int sysc_disable_module(struct device *dev)
+ 		return ret;
+ 	}
  
++	if (ddata->cfg.quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
++		best_mode = SYSC_IDLE_FORCE;
++
+ 	reg &= ~(SYSC_IDLE_MASK << regbits->midle_shift);
+ 	reg |= best_mode << regbits->midle_shift;
+ 	sysc_write(ddata, ddata->offsets[SYSC_SYSCONFIG], reg);
+@@ -1257,6 +1263,8 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	SYSC_QUIRK("gpu", 0x50000000, 0x14, -1, -1, 0x00010201, 0xffffffff, 0),
+ 	SYSC_QUIRK("gpu", 0x50000000, 0xfe00, 0xfe10, -1, 0x40000000 , 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_SGX),
++	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
++		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
+ 	SYSC_QUIRK("wdt", 0, 0, 0x10, 0x14, 0x502a0500, 0xfffff0f0,
+ 		   SYSC_MODULE_QUIRK_WDT),
+ 	/* Watchdog on am3 and am4 */
+@@ -1315,8 +1323,6 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	SYSC_QUIRK("usbhstll", 0, 0, 0x10, 0x14, 0x00000008, 0xffffffff, 0),
+ 	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, 0x14, 0x50700100, 0xffffffff, 0),
+ 	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, -1, 0x50700101, 0xffffffff, 0),
+-	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
+-		   0xffffffff, 0),
+ 	SYSC_QUIRK("vfpe", 0, 0, 0x104, -1, 0x4d001200, 0xffffffff, 0),
+ #endif
+ };
+-- 
+2.20.1
+
 
 
