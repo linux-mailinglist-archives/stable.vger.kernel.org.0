@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDA814E133
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C2714E167
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728032AbgA3SmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:42:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50496 "EHLO mail.kernel.org"
+        id S1730782AbgA3SoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:44:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728033AbgA3SmQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:42:16 -0500
+        id S1730747AbgA3SoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:44:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C685205F4;
-        Thu, 30 Jan 2020 18:42:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CA69205F4;
+        Thu, 30 Jan 2020 18:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409735;
-        bh=Blafg/gOnUuqwxNep4MqHn1CQ70cWPcCRAZMCdfVyro=;
+        s=default; t=1580409849;
+        bh=vLl1+z6hqSi6GBnz1nn3dYlO3YxHBtltxog8ULeao+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydlUfnKVEKcx4iQYiRfAGOqkSLMp7IbK8ptQVeMc0HmNuBXi4ShE7qZoMS8b/MJIl
-         J/x3gx9lsp5xDQOHymE8FQMdGy7/bQXcLrpyl3EQz2ONVH0m8dShEhSHSsMrmHHvOO
-         6RAKYbw6MbB1BkTIMpWenzo1quJ2YJS3XXSN9hFM=
+        b=GF/SgxRUfudmheeUDcPxkDEird7+8cVuX9UP8IENeFRTXp/c7XgE2K/8RvQB8iUIs
+         VMKWEQab3pnemUGSRvRQw3ChzGgiaWOto9HzOmiK1JytNmjWpbGd6hk0ZxvpKgZzcA
+         64qRtprSeyUD/b1t/6Ux2Bh+axQ0u+MXTTgniKHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 005/110] usb: host: xhci-tegra: set MODULE_FIRMWARE for tegra186
-Date:   Thu, 30 Jan 2020 19:37:41 +0100
-Message-Id: <20200130183614.693315849@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 006/110] USB: serial: ir-usb: add missing endpoint sanity check
+Date:   Thu, 30 Jan 2020 19:37:42 +0100
+Message-Id: <20200130183614.848488156@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
 References: <20200130183613.810054545@linuxfoundation.org>
@@ -43,40 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Robinson <pbrobinson@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit e1f236efd9c579a29d7df75aa052127d0d975267 upstream.
+commit 2988a8ae7476fe9535ab620320790d1714bdad1d upstream.
 
-Set the MODULE_FIRMWARE for tegra186, it's registered for 124/210 and
-ensures the firmware is available at the appropriate time such as in
-the initrd, else if the firmware is unavailable the driver fails with
-the following errors:
+Add missing endpoint sanity check to avoid dereferencing a NULL-pointer
+on open() in case a device lacks a bulk-out endpoint.
 
-tegra-xusb 3530000.usb: Direct firmware load for nvidia/tegra186/xusb.bin failed with error -2
-tegra-xusb 3530000.usb: failed to request firmware: -2
-tegra-xusb 3530000.usb: failed to load firmware: -2
-tegra-xusb: probe of 3530000.usb failed with error -2
+Note that prior to commit f4a4cbb2047e ("USB: ir-usb: reimplement using
+generic framework") the oops would instead happen on open() if the
+device lacked a bulk-in endpoint and on write() if it lacked a bulk-out
+endpoint.
 
-Fixes: 5f9be5f3f899 ("usb: host: xhci-tegra: Add Tegra186 XUSB support")
-Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
+Fixes: f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200120141910.116097-1-pbrobinson@gmail.com
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-tegra.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/ir-usb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1413,6 +1413,7 @@ MODULE_FIRMWARE("nvidia/tegra210/xusb.bi
+--- a/drivers/usb/serial/ir-usb.c
++++ b/drivers/usb/serial/ir-usb.c
+@@ -195,6 +195,9 @@ static int ir_startup(struct usb_serial
+ 	struct usb_irda_cs_descriptor *irda_desc;
+ 	int rates;
  
- static const char * const tegra186_supply_names[] = {
- };
-+MODULE_FIRMWARE("nvidia/tegra186/xusb.bin");
- 
- static const struct tegra_xusb_phy_type tegra186_phy_types[] = {
- 	{ .name = "usb3", .num = 3, },
++	if (serial->num_bulk_in < 1 || serial->num_bulk_out < 1)
++		return -ENODEV;
++
+ 	irda_desc = irda_usb_find_class_desc(serial, 0);
+ 	if (!irda_desc) {
+ 		dev_err(&serial->dev->dev,
 
 
