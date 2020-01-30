@@ -2,101 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A189614DCF5
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:43:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8624D14DD35
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 15:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727191AbgA3On5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 09:43:57 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:36083 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727158AbgA3On4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 09:43:56 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id 3C23830C;
-        Thu, 30 Jan 2020 09:43:56 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Thu, 30 Jan 2020 09:43:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zhf7t+
-        WMMiMELHks6uXJz3qvUbg4G7xYDuz9623dr24=; b=ECYq3M9tERRwAt6wm6MQD+
-        S21FgWkAktT5RrPsOpxfJ0bEJRMFsxoVFjZMiRZ6SWMmrWktaTIjRl/+UogbVtaG
-        gXDJ7+p/rWHRgvrFRIIhN2C3Q6qSbb8wsA43+uYsSJrXEAexF9OgzKDD4Wfona7p
-        /eF8FKp/FhNgh7+tzZAFOvs4d5zjT+yrmuim+/teQit/gHBlyDc4qM1WSkmK1YOX
-        cHuRyKlZGzk5XQhiHu2K32hAF7FEf3hQf250z8jjYyvVJqdX48jMPJH1kPcIiWYV
-        B57L4BuE/BcqzxFzz9F1xyfxXqVKKCBOArpRTd4QSq3uzEZrl+j6VXVKUMglypVw
-        ==
-X-ME-Sender: <xms:q-syXjEMGoK33fueDaUfu-vHmaPXCTdcBWX8YLZGw2OQikUJGKNcRQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeekgdeijecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeegrddvgedurdduleekrddukedunecuvehluhhsthgvrhfuihiivgepje
-    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:q-syXoXWqmjP2ypwf9roMTVHpUOQTj2k9-_THeFs-WsgNBje9I20UA>
-    <xmx:q-syXlyq0VfmzA17mgk_dwOFLa_CjYdd2OGFaIT8HP7r0lJtUWEcXw>
-    <xmx:q-syXgpkETW23r0mt39eBocmBy7goA4xVOPOxffWue6Kb1xyoDDwjg>
-    <xmx:q-syXi-RSM-xt9pVnTDRRlm_xtXNOvqbICE8sI2lh_7Y3mFRLjxN6g>
-Received: from localhost (unknown [84.241.198.181])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6C1E03060986;
-        Thu, 30 Jan 2020 09:43:55 -0500 (EST)
-Subject: FAILED: patch "[PATCH] crypto: pcrypt - Fix user-after-free on module unload" failed to apply to 4.9-stable tree
-To:     herbert@gondor.apana.org.au, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 30 Jan 2020 15:40:10 +0100
-Message-ID: <158039521025123@kroah.com>
+        id S1727364AbgA3OsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 09:48:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727247AbgA3OsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 09:48:12 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D926824681;
+        Thu, 30 Jan 2020 14:48:11 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.93)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1ixB74-001CL9-Pb; Thu, 30 Jan 2020 09:48:10 -0500
+Message-Id: <20200130144810.669688514@goodmis.org>
+User-Agent: quilt/0.65
+Date:   Thu, 30 Jan 2020 09:47:46 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        syzbot+774fddf07b7ab29a1e55@syzkaller.appspotmail.com,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: [for-next][PATCH 03/21] tracing: Fix sched switch start/stop refcount racy updates
+References: <20200130144743.527378179@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Reading the sched_cmdline_ref and sched_tgid_ref initial state within
+tracing_start_sched_switch without holding the sched_register_mutex is
+racy against concurrent updates, which can lead to tracepoint probes
+being registered more than once (and thus trigger warnings within
+tracepoint.c).
 
-thanks,
+[ May be the fix for this bug ]
+Link: https://lore.kernel.org/r/000000000000ab6f84056c786b93@google.com
 
-greg k-h
+Link: http://lkml.kernel.org/r/20190817141208.15226-1-mathieu.desnoyers@efficios.com
 
------------------- original commit in Linus's tree ------------------
+Cc: stable@vger.kernel.org
+CC: Steven Rostedt (VMware) <rostedt@goodmis.org>
+CC: Joel Fernandes (Google) <joel@joelfernandes.org>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: Thomas Gleixner <tglx@linutronix.de>
+CC: Paul E. McKenney <paulmck@linux.ibm.com>
+Reported-by: syzbot+774fddf07b7ab29a1e55@syzkaller.appspotmail.com
+Fixes: d914ba37d7145 ("tracing: Add support for recording tgid of tasks")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/trace_sched_switch.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-From 07bfd9bdf568a38d9440c607b72342036011f727 Mon Sep 17 00:00:00 2001
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Tue, 19 Nov 2019 17:41:31 +0800
-Subject: [PATCH] crypto: pcrypt - Fix user-after-free on module unload
-
-On module unload of pcrypt we must unregister the crypto algorithms
-first and then tear down the padata structure.  As otherwise the
-crypto algorithms are still alive and can be used while the padata
-structure is being freed.
-
-Fixes: 5068c7a883d1 ("crypto: pcrypt - Add pcrypt crypto...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index 543792e0ebf0..81bbea7f2ba6 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -362,11 +362,12 @@ static int __init pcrypt_init(void)
+diff --git a/kernel/trace/trace_sched_switch.c b/kernel/trace/trace_sched_switch.c
+index e288168661e1..e304196d7c28 100644
+--- a/kernel/trace/trace_sched_switch.c
++++ b/kernel/trace/trace_sched_switch.c
+@@ -89,8 +89,10 @@ static void tracing_sched_unregister(void)
  
- static void __exit pcrypt_exit(void)
+ static void tracing_start_sched_switch(int ops)
  {
-+	crypto_unregister_template(&pcrypt_tmpl);
+-	bool sched_register = (!sched_cmdline_ref && !sched_tgid_ref);
++	bool sched_register;
 +
- 	pcrypt_fini_padata(pencrypt);
- 	pcrypt_fini_padata(pdecrypt);
+ 	mutex_lock(&sched_register_mutex);
++	sched_register = (!sched_cmdline_ref && !sched_tgid_ref);
  
- 	kset_unregister(pcrypt_kset);
--	crypto_unregister_template(&pcrypt_tmpl);
- }
- 
- subsys_initcall(pcrypt_init);
+ 	switch (ops) {
+ 	case RECORD_CMDLINE:
+-- 
+2.24.1
+
 
