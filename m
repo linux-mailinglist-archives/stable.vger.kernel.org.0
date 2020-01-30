@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 783C314E29F
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:53:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CBC14E1F3
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730619AbgA3Sxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:53:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49708 "EHLO mail.kernel.org"
+        id S1731413AbgA3Srn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:47:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730217AbgA3Sll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:41:41 -0500
+        id S1730566AbgA3Srm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:47:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F6A02082E;
-        Thu, 30 Jan 2020 18:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BF28205F4;
+        Thu, 30 Jan 2020 18:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409700;
-        bh=xHo0HUXMaKuIR8GNazyiMondTjXHwMlEX5W8bC5zkK8=;
+        s=default; t=1580410062;
+        bh=E5MHSmI3yutRirhYzzRsacg3dm4AkkPV77sttgFsImA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KcdcZYspE3UTHOdkkyC5BPAiQikVLUyN5yyMY/vLGyRrJyUQV/gHRaNqyvTxAxuDi
-         RpMvDeXT8ylhELuWH6OhT0IYjhq8uyAZlRZlP7bAA9PyIdxLcQrWjO8GPaih4gWN6A
-         E5p/u4VIjDf/vFwphGzeiBMphcLVulESGjrDICXk=
+        b=lJcYZdeUsi5jQ5cbOrZDfVbiyYiNCT9A/iO8FDZL3+QsUhk11ha0MjxC+f4ebtFVQ
+         ol5sU2RPhnlVv6JKX8De63wQcso5Eq2QctPfPp7xGreelTTdNq5L0lDyfjIdPQSajS
+         YtLxPjwKttcuiX1q4/wJcioKzbz0t3KB3hpCMNZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.5 55/56] Revert "um: Enable CONFIG_CONSTRUCTORS"
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Evan Green <evgreen@chromium.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/55] phy: qcom-qmp: Increase PHY ready timeout
 Date:   Thu, 30 Jan 2020 19:39:12 +0100
-Message-Id: <20200130183618.800456221@linuxfoundation.org>
+Message-Id: <20200130183614.289558622@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit 87c9366e17259040a9118e06b6dc8de986e5d3d1 upstream.
+[ Upstream commit cd217ee6867d285ceecd610fa1006975d5c683fa ]
 
-This reverts commit 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS").
+It's typical for the QHP PHY to take slightly above 1ms to initialize,
+so increase the timeout of the PHY ready check to 10ms - as already done
+in the downstream PCIe driver.
 
-There are two issues with this commit, uncovered by Anton in tests
-on some (Debian) systems:
-
-1) I completely forgot to call any constructors if CONFIG_CONSTRUCTORS
-   isn't set. Don't recall now if it just wasn't needed on my system, or
-   if I never tested this case.
-
-2) With that fixed, it works - with CONFIG_CONSTRUCTORS *unset*. If I
-   set CONFIG_CONSTRUCTORS, it fails again, which isn't totally
-   unexpected since whatever wanted to run is likely to have to run
-   before the kernel init etc. that calls the constructors in this case.
-
-Basically, some constructors that gcc emits (libc has?) need to run
-very early during init; the failure mode otherwise was that the ptrace
-fork test already failed:
-
-----------------------
-$ ./linux mem=512M
-Core dump limits :
-	soft - 0
-	hard - NONE
-Checking that ptrace can change system call numbers...check_ptrace : child exited with exitcode 6, while expecting 0; status 0x67f
-Aborted
-----------------------
-
-Thinking more about this, it's clear that we simply cannot support
-CONFIG_CONSTRUCTORS in UML. All the cases we need now (gcov, kasan)
-involve not use of the __attribute__((constructor)), but instead
-some constructor code/entry generated by gcc. Therefore, we cannot
-distinguish between kernel constructors and system constructors.
-
-Thus, revert this commit.
-
-Cc: stable@vger.kernel.org [5.4+]
-Fixes: 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS")
-Reported-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Signed-off-by: Richard Weinberger <richard@nod.at>
-
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Tested-by: Evan Green <evgreen@chromium.org>
+Tested-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/include/asm/common.lds.S |    2 +-
- arch/um/kernel/dyn.lds.S         |    1 +
- init/Kconfig                     |    1 +
- kernel/gcov/Kconfig              |    2 +-
- 4 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/um/include/asm/common.lds.S
-+++ b/arch/um/include/asm/common.lds.S
-@@ -82,8 +82,8 @@
- 	__preinit_array_end = .;
-   }
-   .init_array : {
--        /* dummy - we call this ourselves */
- 	__init_array_start = .;
-+	*(.init_array)
- 	__init_array_end = .;
-   }
-   .fini_array : {
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -103,6 +103,7 @@ SECTIONS
-      be empty, which isn't pretty.  */
-   . = ALIGN(32 / 8);
-   .preinit_array     : { *(.preinit_array) }
-+  .init_array     : { *(.init_array) }
-   .fini_array     : { *(.fini_array) }
-   .data           : {
-     INIT_TASK_DATA(KERNEL_STACK_SIZE)
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -54,6 +54,7 @@ config CC_DISABLE_WARN_MAYBE_UNINITIALIZ
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+index 4c470104a0d61..cf515928fed09 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -66,7 +66,7 @@
+ /* QPHY_V3_PCS_MISC_CLAMP_ENABLE register bits */
+ #define CLAMP_EN				BIT(0) /* enables i/o clamp_n */
  
- config CONSTRUCTORS
- 	bool
-+	depends on !UML
+-#define PHY_INIT_COMPLETE_TIMEOUT		1000
++#define PHY_INIT_COMPLETE_TIMEOUT		10000
+ #define POWER_DOWN_DELAY_US_MIN			10
+ #define POWER_DOWN_DELAY_US_MAX			11
  
- config IRQ_WORK
- 	bool
---- a/kernel/gcov/Kconfig
-+++ b/kernel/gcov/Kconfig
-@@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
- config GCOV_KERNEL
- 	bool "Enable gcov-based kernel profiling"
- 	depends on DEBUG_FS
--	select CONSTRUCTORS
-+	select CONSTRUCTORS if !UML
- 	default n
- 	---help---
- 	This option enables gcov-based code profiling (e.g. for code coverage
+-- 
+2.20.1
+
 
 
