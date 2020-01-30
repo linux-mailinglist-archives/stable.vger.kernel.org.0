@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4642F14E236
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A61FB14E1D5
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727538AbgA3Sug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:50:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
+        id S1731431AbgA3Sr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:47:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730795AbgA3Sqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:39 -0500
+        id S1731451AbgA3Srz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:47:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02CB220CC7;
-        Thu, 30 Jan 2020 18:46:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71A86217BA;
+        Thu, 30 Jan 2020 18:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409998;
-        bh=LQYGm44o3kuZaSKrPBpL9FgbVJTuNAROgwlpse27PMA=;
+        s=default; t=1580410074;
+        bh=KGVdJI4QeammafVVxIwwiX4/OvI88n2ymAv/vzMJ+04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=105BQyWwLAolPlqfyYqlQFPgOufq77LoScN1SZcl6/Ox8Nijq6xwFfZvQ54dtMJLC
-         a2f8RfoW+HsV0TBTo/G30gFsx0EouTWkHJGxU6qA2Bnbj67BfHuQs36Emi7aqoKopD
-         IiOSngWJF8zsT3M0xqrXMfgf1UO4my70XdM2Inqw=
+        b=LopmQZ9SnYjPcWN/QgYavm6eTeTvfzRT+zddfejDfpGN25AKzWsP+U30OSXvWfM9s
+         Q0DNXl8vUM5g2aFz6euSry8rWtVWIRE/E7ydj+OeUOdoD+Zboc6ElNVXBRS7GntQzr
+         ZUPkxFYmNQ7fj/ODJYOu1ZoO2gQQhVAfDSrtXZKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1d1597a5aa3679c65b9f@syzkaller.appspotmail.com,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 101/110] rsi: fix use-after-free on probe errors
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 36/55] drivers/net/b44: Change to non-atomic bit operations on pwol_mask
 Date:   Thu, 30 Jan 2020 19:39:17 +0100
-Message-Id: <20200130183625.643309472@linuxfoundation.org>
+Message-Id: <20200130183615.120752961@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-commit 92aafe77123ab478e5f5095878856ab0424910da upstream.
+[ Upstream commit f11421ba4af706cb4f5703de34fa77fba8472776 ]
 
-The driver would fail to stop the command timer in most error paths,
-something which specifically could lead to the timer being freed while
-still active on I/O errors during probe.
+Atomic operations that span cache lines are super-expensive on x86
+(not just to the current processor, but also to other processes as all
+memory operations are blocked until the operation completes). Upcoming
+x86 processors have a switch to cause such operations to generate a #AC
+trap. It is expected that some real time systems will enable this mode
+in BIOS.
 
-Fix this by making sure that each function starting the timer also stops
-it in all relevant error paths.
+In preparation for this, it is necessary to fix code that may execute
+atomic instructions with operands that cross cachelines because the #AC
+trap will crash the kernel.
 
-Reported-by: syzbot+1d1597a5aa3679c65b9f@syzkaller.appspotmail.com
-Fixes: b78e91bcfb33 ("rsi: Add new firmware loading method")
-Cc: stable <stable@vger.kernel.org>     # 4.12
-Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since "pwol_mask" is local and never exposed to concurrency, there is
+no need to set bits in pwol_mask using atomic operations.
 
+Directly operate on the byte which contains the bit instead of using
+__set_bit() to avoid any big endian concern due to type cast to
+unsigned long in __set_bit().
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_hal.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/broadcom/b44.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -622,6 +622,7 @@ static int bl_cmd(struct rsi_hw *adapter
- 	bl_start_cmd_timer(adapter, timeout);
- 	status = bl_write_cmd(adapter, cmd, exp_resp, &regout_val);
- 	if (status < 0) {
-+		bl_stop_cmd_timer(adapter);
- 		rsi_dbg(ERR_ZONE,
- 			"%s: Command %s (%0x) writing failed..\n",
- 			__func__, str, cmd);
-@@ -737,10 +738,9 @@ static int ping_pong_write(struct rsi_hw
+diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/broadcom/b44.c
+index e445ab724827f..88f8d31e4c833 100644
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -1519,8 +1519,10 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 	int ethaddr_bytes = ETH_ALEN;
+ 
+ 	memset(ppattern + offset, 0xff, magicsync);
+-	for (j = 0; j < magicsync; j++)
+-		set_bit(len++, (unsigned long *) pmask);
++	for (j = 0; j < magicsync; j++) {
++		pmask[len >> 3] |= BIT(len & 7);
++		len++;
++	}
+ 
+ 	for (j = 0; j < B44_MAX_PATTERNS; j++) {
+ 		if ((B44_PATTERN_SIZE - len) >= ETH_ALEN)
+@@ -1532,7 +1534,8 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 		for (k = 0; k< ethaddr_bytes; k++) {
+ 			ppattern[offset + magicsync +
+ 				(j * ETH_ALEN) + k] = macaddr[k];
+-			set_bit(len++, (unsigned long *) pmask);
++			pmask[len >> 3] |= BIT(len & 7);
++			len++;
+ 		}
  	}
- 
- 	status = bl_cmd(adapter, cmd_req, cmd_resp, str);
--	if (status) {
--		bl_stop_cmd_timer(adapter);
-+	if (status)
- 		return status;
--	}
-+
- 	return 0;
- }
- 
-@@ -828,10 +828,9 @@ static int auto_fw_upgrade(struct rsi_hw
- 
- 	status = bl_cmd(adapter, EOF_REACHED, FW_LOADING_SUCCESSFUL,
- 			"EOF_REACHED");
--	if (status) {
--		bl_stop_cmd_timer(adapter);
-+	if (status)
- 		return status;
--	}
-+
- 	rsi_dbg(INFO_ZONE, "FW loading is done and FW is running..\n");
- 	return 0;
- }
-@@ -849,6 +848,7 @@ static int rsi_hal_prepare_fwload(struct
- 						  &regout_val,
- 						  RSI_COMMON_REG_SIZE);
- 		if (status < 0) {
-+			bl_stop_cmd_timer(adapter);
- 			rsi_dbg(ERR_ZONE,
- 				"%s: REGOUT read failed\n", __func__);
- 			return status;
+ 	return len - 1;
+-- 
+2.20.1
+
 
 
