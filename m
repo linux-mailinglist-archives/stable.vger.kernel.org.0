@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF21014E19F
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:46:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B9314E266
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:52:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731114AbgA3Sp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:45:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
+        id S1728043AbgA3Sv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:51:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731108AbgA3Sp4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:45:56 -0500
+        id S1730791AbgA3SoO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:44:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 948E320674;
-        Thu, 30 Jan 2020 18:45:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEB80214AF;
+        Thu, 30 Jan 2020 18:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409956;
-        bh=lBIt9/xFGHH/1uosdk4MNrvUPEogcK/uMsAxinzRsXc=;
+        s=default; t=1580409854;
+        bh=VowLuk2K+luDJz7dwmIIDAHycgX1yz4Y/RRQAU+DonU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOFFeiW46vPTIzupGhC5+Ljzhqer/4tyPWbFKgUSPd3ZKfjS7avroc20p3QI9QJUu
-         /dYcNZ4ffwPLWwraETgnlDZk9hbYm0nXQ2QkFgXZAaLKpByY3Y6Vy+wuB7FkhjaLOn
-         1PcoY8waxUUGRIZYQiX50Zx0MuGOaj9dT7usajpA=
+        b=EdrpgIhj5JthqxStEUT+AIYTNb54YUc5hyqTF7I0UOeqwb8OzrDCG414nGEWd2aA7
+         hqUBnbM21IWIduWNtVIjF+N/8qg9p2lndtmfFugp+8sh4fL7ds2sL04TEs5o4I4DzV
+         +dH0gS2bBHvqXerVHcDtHJ8fSu10QNfYbgl5wM4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/110] HID: intel-ish-hid: ipc: Add Tiger Lake PCI device ID
-Date:   Thu, 30 Jan 2020 19:38:35 +0100
-Message-Id: <20200130183622.018771768@linuxfoundation.org>
+        stable@vger.kernel.org, David Engraf <david.engraf@sysgo.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 060/110] watchdog: max77620_wdt: fix potential build errors
+Date:   Thu, 30 Jan 2020 19:38:36 +0100
+Message-Id: <20200130183622.096206213@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
 References: <20200130183613.810054545@linuxfoundation.org>
@@ -44,44 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: David Engraf <david.engraf@sysgo.com>
 
-[ Upstream commit 1479a82d82df68dfac29c72c774cb8bdc17d4eb1 ]
+[ Upstream commit da9e3f4e30a53cd420cf1e6961c3b4110f0f21f0 ]
 
-Added Tiger Lake PCI device ID to the supported device list.
+max77620_wdt uses watchdog core functions. Enable CONFIG_WATCHDOG_CORE
+to fix potential build errors.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: David Engraf <david.engraf@sysgo.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20191127084617.16937-1-david.engraf@sysgo.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-index 905e1bc3f91db..1fb294ca463e5 100644
---- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-+++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-@@ -26,6 +26,7 @@
- #define CML_LP_DEVICE_ID	0x02FC
- #define CMP_H_DEVICE_ID		0x06FC
- #define EHL_Ax_DEVICE_ID	0x4BB3
-+#define TGL_LP_DEVICE_ID	0xA0FC
- 
- #define	REVISION_ID_CHT_A0	0x6
- #define	REVISION_ID_CHT_Ax_SI	0x0
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 9c8cefe16af3e..f491d8b4e24c7 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -36,6 +36,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CML_LP_DEVICE_ID)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CMP_H_DEVICE_ID)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, EHL_Ax_DEVICE_ID)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, TGL_LP_DEVICE_ID)},
- 	{0, }
- };
- MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4c761abc56883..e2745f6861960 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -687,6 +687,7 @@ config MAX63XX_WATCHDOG
+ config MAX77620_WATCHDOG
+ 	tristate "Maxim Max77620 Watchdog Timer"
+ 	depends on MFD_MAX77620 || COMPILE_TEST
++	select WATCHDOG_CORE
+ 	help
+ 	 This is the driver for the Max77620 watchdog timer.
+ 	 Say 'Y' here to enable the watchdog timer support for
 -- 
 2.20.1
 
