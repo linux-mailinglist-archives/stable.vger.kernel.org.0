@@ -2,102 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2D014D337
-	for <lists+stable@lfdr.de>; Wed, 29 Jan 2020 23:47:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15AF614D489
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 01:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726528AbgA2WrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 17:47:21 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51124 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726222AbgA2WrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 17:47:21 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2802B1C25FC; Wed, 29 Jan 2020 23:47:20 +0100 (CET)
-Date:   Wed, 29 Jan 2020 23:47:19 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        kbuild test robot <lkp@intel.com>,
-        Wen Huang <huangwenabc@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: Re: [PATCH 4.19 63/92] libertas: Fix two buffer overflows at parsing
- bss descriptor
-Message-ID: <20200129224719.GA4342@amd>
-References: <20200128135809.344954797@linuxfoundation.org>
- <20200128135817.338824312@linuxfoundation.org>
+        id S1726750AbgA3AQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 19:16:16 -0500
+Received: from mail-wm1-f44.google.com ([209.85.128.44]:55197 "EHLO
+        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726671AbgA3AQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 19:16:15 -0500
+Received: by mail-wm1-f44.google.com with SMTP id g1so1766938wmh.4
+        for <stable@vger.kernel.org>; Wed, 29 Jan 2020 16:16:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zC4QaQ1QGbkT8Q404GO7YY1uRRWEzhbKWq4Dk7m349I=;
+        b=1ZtEk01q4Wb6qQgV6/N3tKOyR8ueqPU6Perk2a201O66ML/p3PUoyg6NU/xkyh8OJf
+         1uxsHUBvsOzInFPbW8aQwGL7GhmaLk70CU/FhEWL6zxsxkncyKAIeGqrvkNHCLoc6vOH
+         dXUBkPpUuMsms2PVaJ9u56DnRP+bvawmXYDczsIv5uuVlaVnkPXDQyCwIcXdH6oe4KAk
+         LFGE6LFNgy4mdEuvW1pCHTaLFhqJXtfFA5K72Yrcr/4zfVV3kcsoOIV4jgLGdBtD57va
+         Vf3AuuNcwW1cLQQprgJxjM0RExbKy+sJk++ACvAIxlSX2uPstrrs5GMzACi4VcTQA/Pe
+         f3nA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zC4QaQ1QGbkT8Q404GO7YY1uRRWEzhbKWq4Dk7m349I=;
+        b=XLSDwejmMdjKr3YV/NGgmQyYklFgwESMmhQ13rtxCQ+bja7Q7iEk1OA1XgmQvcs1KC
+         S8BjrfzIuw7YnmkJqA6QJIyV9HfABTy5JZ1t8ELgH9prAAxBDhhittZYxtMjgnDZXI/s
+         lkoeYdqAazzmxIbxcUvL3VGsYAslMHr8cWeXvIIXrkmddk1qWLYCtxJkvSbN4Yd/swsA
+         vnw+JR/KG2KadpOA0+S4lnNDsAlnC0zQU3qJIVrCh/jpxgx/i1VnE8esrp/vtDbAbPhp
+         EteGwcq9MIJwSecngqdzZkJ+m3yVgnxzTlpNiJV8J2mBkl2G4pMP9ybpgBdJuswmjli5
+         q5dQ==
+X-Gm-Message-State: APjAAAVFwRu1M3QTZOKKy3KGBp1MR0G7mKyv5LNvpeJILDJlPyCuuEnX
+        WSjUx2dqvZGuh2hqR9IoOBD/kqORTXaeag==
+X-Google-Smtp-Source: APXvYqwbAxqTc/kDFUDcp53/IVjHnQdIbyjWGyrADHQGZimGUhM2JAgua4CyZR03LTpAjj1mTYH5Pg==
+X-Received: by 2002:a7b:cf0d:: with SMTP id l13mr1847997wmg.13.1580343373474;
+        Wed, 29 Jan 2020 16:16:13 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w1sm2217699wro.72.2020.01.29.16.16.12
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jan 2020 16:16:13 -0800 (PST)
+Message-ID: <5e32204d.1c69fb81.ca48a.aa82@mx.google.com>
+Date:   Wed, 29 Jan 2020 16:16:13 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
-In-Reply-To: <20200128135817.338824312@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.169
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.14.y boot: 28 boots: 1 failed, 27 passed (v4.14.169)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.14.y boot: 28 boots: 1 failed, 27 passed (v4.14.169)
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.169/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.169/
 
-Hi!
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.169
+Git Commit: 9fa690a2a016e1b55356835f047b952e67d3d73a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 24 unique boards, 9 SoC families, 6 builds out of 174
 
-> From: Wen Huang <huangwenabc@gmail.com>
->=20
-> commit e5e884b42639c74b5b57dc277909915c0aefc8bb upstream.
+Boot Failure Detected:
 
-> --- a/drivers/net/wireless/marvell/libertas/cfg.c
-> +++ b/drivers/net/wireless/marvell/libertas/cfg.c
-> @@ -1717,6 +1721,9 @@ static int lbs_ibss_join_existing(struct
->  	struct cmd_ds_802_11_ad_hoc_join cmd;
->  	u8 preamble =3D RADIO_PREAMBLE_SHORT;
->  	int ret =3D 0;
-> +	int hw, i;
-> +	u8 rates_max;
-> +	u8 *rates;
-> =20
->  	/* TODO: set preamble based on scan result */
->  	ret =3D lbs_set_radio(priv, preamble, 1);
-> @@ -1775,9 +1782,12 @@ static int lbs_ibss_join_existing(struct
->  	if (!rates_eid) {
->  		lbs_add_rates(cmd.bss.rates);
->  	} else {
-> -		int hw, i;
-> -		u8 rates_max =3D rates_eid[1];
-> -		u8 *rates =3D cmd.bss.rates;
-> +		rates_max =3D rates_eid[1];
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
 
-I believe original version (with variables being local to the else)
-was better.
-
-> +		if (rates_max > MAX_RATES) {
-> +			lbs_deb_join("invalid rates");
-> +			goto out;
-> +		}
-> +		rates =3D cmd.bss.rates;
-
-"goto out" goes to "return ret". ret will be 0 at this point, so this
-will return success. I don't think that's right.
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl4yC3cACgkQMOfwapXb+vLVyACghs8u7hPnfijLNpwrwjW0IPzt
-lnwAoLHj4z9g4PWXiUk2z9YnHxQi4DUV
-=9E6d
------END PGP SIGNATURE-----
-
---bg08WKrSYDhXBjb5--
+---
+For more info write to <info@kernelci.org>
