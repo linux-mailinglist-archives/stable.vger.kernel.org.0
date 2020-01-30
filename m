@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5F014E172
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D66BF14E22A
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbgA3Soa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:44:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53656 "EHLO mail.kernel.org"
+        id S1727402AbgA3Sqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:46:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730835AbgA3So3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:44:29 -0500
+        id S1731254AbgA3Sqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:46:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A043C2173E;
-        Thu, 30 Jan 2020 18:44:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39786205F4;
+        Thu, 30 Jan 2020 18:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409869;
-        bh=m6bc5YESLPX3tHV+DdMc2TMiL3pkOqdd2l98jsO9fXw=;
+        s=default; t=1580410005;
+        bh=1FHNz7UM0S3FTIUYPJbpp5waiJZwd8VCYj0nRhfSWHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBzlMkxoxBC8pAejmHCjkHUdzR6miySMfAzyiiCO28sKTKrYP0ToxVQek63yc4/d0
-         TqAcO0xPtA7UBiCQNtwezVsI7bvjvAqSZg6aEY6Af4jtiaP7Skeq5hgAPF+ALwfVKL
-         1fDvOO75sPN/jt4eRHjbVJL3Y6zPcoxhWcdkHUw8=
+        b=biNvOdc+0TRCBXXOoczes+6addi0SplQ5pOCBMHFVeP1gc7sV9rwKo1spR4n0E6yk
+         idOH8BFvJUqa7yC1Z7pGj56mRE7zgamLho0hA0TD22j5fadiLmFKXmPzZAouaB7v/W
+         UjKT+eORbG3BgQZq2bjqcw9LvuPER0WX71axijww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
-        Liran Alon <liran.alon@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/110] net: Google gve: Remove dma_wmb() before ringing doorbell
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 01/55] orinoco_usb: fix interface sanity check
 Date:   Thu, 30 Jan 2020 19:38:42 +0100
-Message-Id: <20200130183622.527019051@linuxfoundation.org>
+Message-Id: <20200130183608.835138395@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,71 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liran Alon <liran.alon@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit b54ef37b1ce892fdf6b632d566246d2f2f539910 ]
+commit b73e05aa543cf8db4f4927e36952360d71291d41 upstream.
 
-Current code use dma_wmb() to ensure Rx/Tx descriptors are visible
-to device before writing to doorbell.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-However, these dma_wmb() are wrong and unnecessary. Therefore,
-they should be removed.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-iowrite32be() called from gve_rx_write_doorbell()/gve_tx_put_doorbell()
-should guaratee that all previous writes to WB/UC memory is visible to
-device before the write done by iowrite32be().
+Fixes: 9afac70a7305 ("orinoco: add orinoco_usb driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.35
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-E.g. On ARM64, iowrite32be() calls __iowmb() which expands to dma_wmb()
-and only then calls __raw_writel().
-
-Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
-Signed-off-by: Liran Alon <liran.alon@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_rx.c | 2 --
- drivers/net/ethernet/google/gve/gve_tx.c | 6 ------
- 2 files changed, 8 deletions(-)
+ drivers/net/wireless/intersil/orinoco/orinoco_usb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_rx.c b/drivers/net/ethernet/google/gve/gve_rx.c
-index edec61dfc8687..9f52e72ff641d 100644
---- a/drivers/net/ethernet/google/gve/gve_rx.c
-+++ b/drivers/net/ethernet/google/gve/gve_rx.c
-@@ -418,8 +418,6 @@ bool gve_clean_rx_done(struct gve_rx_ring *rx, int budget,
- 	rx->cnt = cnt;
- 	rx->fill_cnt += work_done;
+--- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
++++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
+@@ -1611,9 +1611,9 @@ static int ezusb_probe(struct usb_interf
+ 	/* set up the endpoint information */
+ 	/* check out the endpoints */
  
--	/* restock desc ring slots */
--	dma_wmb();	/* Ensure descs are visible before ringing doorbell */
- 	gve_rx_write_doorbell(priv, rx);
- 	return gve_rx_work_pending(rx);
- }
-diff --git a/drivers/net/ethernet/google/gve/gve_tx.c b/drivers/net/ethernet/google/gve/gve_tx.c
-index f4889431f9b70..d0244feb03011 100644
---- a/drivers/net/ethernet/google/gve/gve_tx.c
-+++ b/drivers/net/ethernet/google/gve/gve_tx.c
-@@ -487,10 +487,6 @@ netdev_tx_t gve_tx(struct sk_buff *skb, struct net_device *dev)
- 		 * may have added descriptors without ringing the doorbell.
- 		 */
+-	iface_desc = &interface->altsetting[0].desc;
++	iface_desc = &interface->cur_altsetting->desc;
+ 	for (i = 0; i < iface_desc->bNumEndpoints; ++i) {
+-		ep = &interface->altsetting[0].endpoint[i].desc;
++		ep = &interface->cur_altsetting->endpoint[i].desc;
  
--		/* Ensure tx descs from a prior gve_tx are visible before
--		 * ringing doorbell.
--		 */
--		dma_wmb();
- 		gve_tx_put_doorbell(priv, tx->q_resources, tx->req);
- 		return NETDEV_TX_BUSY;
- 	}
-@@ -505,8 +501,6 @@ netdev_tx_t gve_tx(struct sk_buff *skb, struct net_device *dev)
- 	if (!netif_xmit_stopped(tx->netdev_txq) && netdev_xmit_more())
- 		return NETDEV_TX_OK;
- 
--	/* Ensure tx descs are visible before ringing doorbell */
--	dma_wmb();
- 	gve_tx_put_doorbell(priv, tx->q_resources, tx->req);
- 	return NETDEV_TX_OK;
- }
--- 
-2.20.1
-
+ 		if (usb_endpoint_is_bulk_in(ep)) {
+ 			/* we found a bulk in endpoint */
 
 
