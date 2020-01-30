@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ECAF14E0E3
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EFB14E278
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbgA3Sjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
+        id S1730637AbgA3Sng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727285AbgA3Sjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:39:45 -0500
+        id S1728062AbgA3Snf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:43:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E4A520702;
-        Thu, 30 Jan 2020 18:39:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19EFD20CC7;
+        Thu, 30 Jan 2020 18:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409584;
-        bh=1Lk7hPEkOLOEcPqJfFAlWYzJ+zQGDXWu3g8dnRXH9yM=;
+        s=default; t=1580409814;
+        bh=W24dS0pfWAmHHYBQWMMyxi9u/NC671FoXCiRWllbgOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpveTHkIYfK5N+LOUue45QZv1KHo1dW29N4w5ZrvQv0ROxkw8rM3hFYXnDldOSWci
-         US16yV75qI9rCBeUsECLOhLOZHyVFBEDeS1MBoffR5dwT65SiQVxvFlGHgGjN9cFyu
-         mVZ2wyYCR+1oV8iMefVnr2mFdKNhlTnK+RCfAbco=
+        b=eFo8evlljVrWW4nTnM74r6NlBO1zQtWGReRhQD3npvAPoPL3m0vUa+R/fYz6gcp5p
+         i/CEvY5GJ8iFHQMtFmfcviK9OG6pmrk7yaKLuGX+/oqFvkJ8T0eealZWRuUejCk2oJ
+         tygpSMxPGC+zVEkUgjYrfaWQBXjPY79xf/UdlcsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Johan Hovold <johan@kernel.org>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.5 01/56] Bluetooth: btusb: fix non-atomic allocation in completion handler
+        stable@vger.kernel.org,
+        Stephen Worley <sworley@cumulusnetworks.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 042/110] net: include struct nhmsg size in nh nlmsg size
 Date:   Thu, 30 Jan 2020 19:38:18 +0100
-Message-Id: <20200130183609.173830396@linuxfoundation.org>
+Message-Id: <20200130183620.308307146@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,34 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Stephen Worley <sworley@cumulusnetworks.com>
 
-commit 22cc6b7a1dbb58da4afc539d9b7d470b23a25eea upstream.
+[ Upstream commit f9e95555757915fc194288862d2978e370fe316b ]
 
-USB completion handlers are called in atomic context and must
-specifically not allocate memory using GFP_KERNEL.
+Include the size of struct nhmsg size when calculating
+how much of a payload to allocate in a new netlink nexthop
+notification message.
 
-Fixes: a1c49c434e15 ("Bluetooth: btusb: Add protocol support for MediaTek MT7668U USB devices")
-Cc: stable <stable@vger.kernel.org>     # 5.3
-Cc: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Without this, we will fail to fill the skbuff at certain nexthop
+group sizes.
+
+You can reproduce the failure with the following iproute2 commands:
+
+ip link add dummy1 type dummy
+ip link add dummy2 type dummy
+ip link add dummy3 type dummy
+ip link add dummy4 type dummy
+ip link add dummy5 type dummy
+ip link add dummy6 type dummy
+ip link add dummy7 type dummy
+ip link add dummy8 type dummy
+ip link add dummy9 type dummy
+ip link add dummy10 type dummy
+ip link add dummy11 type dummy
+ip link add dummy12 type dummy
+ip link add dummy13 type dummy
+ip link add dummy14 type dummy
+ip link add dummy15 type dummy
+ip link add dummy16 type dummy
+ip link add dummy17 type dummy
+ip link add dummy18 type dummy
+ip link add dummy19 type dummy
+
+ip ro add 1.1.1.1/32 dev dummy1
+ip ro add 1.1.1.2/32 dev dummy2
+ip ro add 1.1.1.3/32 dev dummy3
+ip ro add 1.1.1.4/32 dev dummy4
+ip ro add 1.1.1.5/32 dev dummy5
+ip ro add 1.1.1.6/32 dev dummy6
+ip ro add 1.1.1.7/32 dev dummy7
+ip ro add 1.1.1.8/32 dev dummy8
+ip ro add 1.1.1.9/32 dev dummy9
+ip ro add 1.1.1.10/32 dev dummy10
+ip ro add 1.1.1.11/32 dev dummy11
+ip ro add 1.1.1.12/32 dev dummy12
+ip ro add 1.1.1.13/32 dev dummy13
+ip ro add 1.1.1.14/32 dev dummy14
+ip ro add 1.1.1.15/32 dev dummy15
+ip ro add 1.1.1.16/32 dev dummy16
+ip ro add 1.1.1.17/32 dev dummy17
+ip ro add 1.1.1.18/32 dev dummy18
+ip ro add 1.1.1.19/32 dev dummy19
+
+ip next add id 1 via 1.1.1.1 dev dummy1
+ip next add id 2 via 1.1.1.2 dev dummy2
+ip next add id 3 via 1.1.1.3 dev dummy3
+ip next add id 4 via 1.1.1.4 dev dummy4
+ip next add id 5 via 1.1.1.5 dev dummy5
+ip next add id 6 via 1.1.1.6 dev dummy6
+ip next add id 7 via 1.1.1.7 dev dummy7
+ip next add id 8 via 1.1.1.8 dev dummy8
+ip next add id 9 via 1.1.1.9 dev dummy9
+ip next add id 10 via 1.1.1.10 dev dummy10
+ip next add id 11 via 1.1.1.11 dev dummy11
+ip next add id 12 via 1.1.1.12 dev dummy12
+ip next add id 13 via 1.1.1.13 dev dummy13
+ip next add id 14 via 1.1.1.14 dev dummy14
+ip next add id 15 via 1.1.1.15 dev dummy15
+ip next add id 16 via 1.1.1.16 dev dummy16
+ip next add id 17 via 1.1.1.17 dev dummy17
+ip next add id 18 via 1.1.1.18 dev dummy18
+ip next add id 19 via 1.1.1.19 dev dummy19
+
+ip next add id 1111 group 1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19
+ip next del id 1111
+
+Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
+Signed-off-by: Stephen Worley <sworley@cumulusnetworks.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/bluetooth/btusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/nexthop.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2602,7 +2602,7 @@ static void btusb_mtk_wmt_recv(struct ur
- 		 * and being processed the events from there then.
- 		 */
- 		if (test_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags)) {
--			data->evt_skb = skb_clone(skb, GFP_KERNEL);
-+			data->evt_skb = skb_clone(skb, GFP_ATOMIC);
- 			if (!data->evt_skb)
- 				goto err_out;
- 		}
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -322,7 +322,9 @@ static size_t nh_nlmsg_size_single(struc
+ 
+ static size_t nh_nlmsg_size(struct nexthop *nh)
+ {
+-	size_t sz = nla_total_size(4);    /* NHA_ID */
++	size_t sz = NLMSG_ALIGN(sizeof(struct nhmsg));
++
++	sz += nla_total_size(4); /* NHA_ID */
+ 
+ 	if (nh->is_group)
+ 		sz += nh_nlmsg_size_grp(nh);
 
 
