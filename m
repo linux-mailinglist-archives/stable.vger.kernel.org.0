@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D72F114E070
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A81614E06D
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727769AbgA3SCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:02:18 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51340 "EHLO
+        id S1727539AbgA3SCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:02:08 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:36807 "EHLO
         mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727722AbgA3SCH (ORCPT
+        with ESMTP id S1727728AbgA3SCH (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 13:02:07 -0500
-Received: by mail-wm1-f66.google.com with SMTP id t23so4815179wmi.1;
-        Thu, 30 Jan 2020 10:02:05 -0800 (PST)
+Received: by mail-wm1-f66.google.com with SMTP id p17so5410468wma.1;
+        Thu, 30 Jan 2020 10:02:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=DhUW9seRv5U8Ur+TZJeJyck3fzD5Hy4XW/Hd42LBGS8=;
-        b=u/7u2yN6SPuA0R5p73qwMh+sEHAKhUZytQ3tjDPxRMeRuwcbM+rGuZ58Qtb9785QWs
-         RAIkggzMelXn/x/k+vmfelAsnpiq/tDd3o4movQGyr9HP7x+/nvN3/Z7cKj0U9TqXMp5
-         CYomC8xRD930BOGr8jPToaGoyU7xSWnMUR837VkBKShdyWwwcSz8ZwTAWfxj98uYUFZ7
-         xdkeylMXjTFGxEIjH2Zl1NVCxWAYZPZJ6ReWM1zm9auOa3BArCVtEtltmDozLRKjkJy3
-         ETFQXxFrIoBPa/axKbOhoW/ixgxe4Ln157G9PuMjHGnRGvJ5FEenF6SJVrNMEe6G2vPD
-         XHtQ==
+        bh=Kj0vyrXH7QR7unCChoOZszZJi2rlsZtvdnmK5XaO1uo=;
+        b=eWM7AMTNMqhErTPIy9xpuR5NXPXz9OsQrL3YwHB+DudINSvFdE2QMWMCfbEY7H73A9
+         x2xntrvzwkyoFqnpvSPAscjxb47flhcS5GYhORnD4yeOXSV1VjNzLZGITsH90eAqnKE5
+         NIcXuZzb+a2Ax1liUUjUGs9FydjQ1FMJXbqW7QC9NS7X+rnqjDvct8S2a+ma2aC/xxa+
+         LzquKB/Z/vexxC5CAlliTbP5we9gFKF+mQLu/DVwCqKvyvIgp3kQ+XwC3qOoIFTRlyxf
+         cbetoVw7xRn8/y6Np2hLljYc1wMOfRSlW0VZh1/8Zc5Z2IZ7Yks1qM94lFa2WREGpd1J
+         35UA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=DhUW9seRv5U8Ur+TZJeJyck3fzD5Hy4XW/Hd42LBGS8=;
-        b=h7zSUCapDqFLaixN1XqBPnX8SPefNnMC+S2VkEziHuK9TzkyGy/BlW7VFWSHd7cIZg
-         qvN/nJ64kqqS3T/kPmoCsVLYev1i4h/AUrYgl/s2AKZf5vqskUgyZDbc6J/E5NjISfCA
-         Y5XLT8S0Voe1sT/vLdMLphZKmfsljYd//mfOLPTHhLzZvDwsGkNYwO/LkZZWhX4USzm1
-         CqqNh7IrPXhBZdTISWOt298YPB0Eupisgo3rDDTa8k2UjnCvywVDNkRVV1dPYUe+XVH9
-         X8bpNk/JtlIJ6qcX71AIKtqJPfU2bw0nC/OH2emGPW998e6cCqyHhldpGQ45A5u6p8ky
-         HOBg==
-X-Gm-Message-State: APjAAAVbtFlrQBMlAByjT1BMmnqMZ7plj/+be+jpG9N+YgkU82Q8VVpq
-        pbLNBEKe6YsJPufhh97z8AXD3K+K+jA=
-X-Google-Smtp-Source: APXvYqwyANNPQvDEEq66fJpve9tUMGVDh8EU/kUbSQJeaOxQ8eaB/ncL0Gxi9/PxCzb2Rxo5V6/mdQ==
-X-Received: by 2002:a05:600c:211:: with SMTP id 17mr6800817wmi.60.1580407324358;
-        Thu, 30 Jan 2020 10:02:04 -0800 (PST)
+        bh=Kj0vyrXH7QR7unCChoOZszZJi2rlsZtvdnmK5XaO1uo=;
+        b=VOvzQDw9WomOaiWEoV/FI1hdCAnyJSeBPkOt2CH11Qeh7qMGpcVZeKL//gm6qmkJ/O
+         TuOOxtP4uBbfgEMyApGIVB7WzdoB07xefrAfqtPjHO5uZtox21WeLs/RCoGiw4IjRzVR
+         RGVXw5Fo49HMFRK9J/zHUYnNlI3uqXH5asQbhdttQYJJdGI9HJiieeVuV6EMBoCrlN/1
+         eAxW8LKNI5g3FtrefugaJ53n8W9bxpjnYTQ4+ZpeqR4iLuYKDvRTOk1i370z+i8TEHOe
+         fPGO+kaAMdHfUYSOwdQlbEfdnwJh1jW480F590qBHqQq34ZyTAVQxb6qYn/MoPWGJ0bN
+         Xzzg==
+X-Gm-Message-State: APjAAAWHTcpxlEU7B590tyEkPdCB476cL4kX/Wi7xEkqWZZY+r4vwVx6
+        yOaCw7BcKoBGl7hNpUh7RtFR4/5iC6Q=
+X-Google-Smtp-Source: APXvYqwB2jmuxzyKr2zpDGIIjLZzOU+UOq7DdE8OxcYPU6Vw+/KqPaKy9LUMuEqhjbfpyAxBW/KVHQ==
+X-Received: by 2002:a7b:c258:: with SMTP id b24mr7155543wmj.140.1580407325310;
+        Thu, 30 Jan 2020 10:02:05 -0800 (PST)
 Received: from 640k.localdomain.com ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id w19sm6956878wmc.22.2020.01.30.10.02.03
+        by smtp.gmail.com with ESMTPSA id w19sm6956878wmc.22.2020.01.30.10.02.04
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 Jan 2020 10:02:03 -0800 (PST)
+        Thu, 30 Jan 2020 10:02:04 -0800 (PST)
 From:   Paolo Bonzini <pbonzini@redhat.com>
 To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         stable@vger.kernel.org
-Subject: [FYI PATCH 4/5] x86/KVM: Make sure KVM_VCPU_FLUSH_TLB flag is not missed
-Date:   Thu, 30 Jan 2020 19:01:55 +0100
-Message-Id: <1580407316-11391-5-git-send-email-pbonzini@redhat.com>
+Subject: [FYI PATCH 5/5] x86/KVM: Clean up host's steal time structure
+Date:   Thu, 30 Jan 2020 19:01:56 +0100
+Message-Id: <1580407316-11391-6-git-send-email-pbonzini@redhat.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1580407316-11391-1-git-send-email-pbonzini@redhat.com>
 References: <1580407316-11391-1-git-send-email-pbonzini@redhat.com>
@@ -60,16 +60,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
-There is a potential race in record_steal_time() between setting
-host-local vcpu->arch.st.steal.preempted to zero (i.e. clearing
-KVM_VCPU_PREEMPTED) and propagating this value to the guest with
-kvm_write_guest_cached(). Between those two events the guest may
-still see KVM_VCPU_PREEMPTED in its copy of kvm_steal_time, set
-KVM_VCPU_FLUSH_TLB and assume that hypervisor will do the right
-thing. Which it won't.
-
-Instad of copying, we should map kvm_steal_time and that will
-guarantee atomicity of accesses to @preempted.
+Now that we are mapping kvm_steal_time from the guest directly we
+don't need keep a copy of it in kvm_vcpu_arch.st. The same is true
+for the stime field.
 
 This is part of CVE-2019-3016.
 
@@ -78,108 +71,69 @@ Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/kvm/x86.c | 51 ++++++++++++++++++++++++++++++---------------------
- 1 file changed, 30 insertions(+), 21 deletions(-)
+ arch/x86/include/asm/kvm_host.h |  3 +--
+ arch/x86/kvm/x86.c              | 11 +++--------
+ 2 files changed, 4 insertions(+), 10 deletions(-)
 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index f48a306e..4925bdb 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -685,10 +685,9 @@ struct kvm_vcpu_arch {
+ 	bool pvclock_set_guest_stopped_request;
+ 
+ 	struct {
++		u8 preempted;
+ 		u64 msr_val;
+ 		u64 last_steal;
+-		struct gfn_to_hva_cache stime;
+-		struct kvm_steal_time steal;
+ 		struct gfn_to_pfn_cache cache;
+ 	} st;
+ 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 0795bc8..f1845df 100644
+index f1845df..a0381ec 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -2581,45 +2581,47 @@ static void kvm_vcpu_flush_tlb(struct kvm_vcpu *vcpu, bool invalidate_gpa)
- 
- static void record_steal_time(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_host_map map;
-+	struct kvm_steal_time *st;
-+
- 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
- 		return;
- 
--	if (unlikely(kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
-+	/* -EAGAIN is returned in atomic context so we can just return. */
-+	if (kvm_map_gfn(vcpu, vcpu->arch.st.msr_val >> PAGE_SHIFT,
-+			&map, &vcpu->arch.st.cache, false))
- 		return;
- 
-+	st = map.hva +
-+		offset_in_page(vcpu->arch.st.msr_val & KVM_STEAL_VALID_BITS);
-+
- 	/*
- 	 * Doing a TLB flush here, on the guest's behalf, can avoid
- 	 * expensive IPIs.
- 	 */
- 	trace_kvm_pv_tlb_flush(vcpu->vcpu_id,
--		vcpu->arch.st.steal.preempted & KVM_VCPU_FLUSH_TLB);
--	if (xchg(&vcpu->arch.st.steal.preempted, 0) & KVM_VCPU_FLUSH_TLB)
-+		st->preempted & KVM_VCPU_FLUSH_TLB);
-+	if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
+@@ -2604,7 +2604,7 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+ 	if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
  		kvm_vcpu_flush_tlb(vcpu, false);
  
--	if (vcpu->arch.st.steal.version & 1)
--		vcpu->arch.st.steal.version += 1;  /* first time write, random junk */
-+	vcpu->arch.st.steal.preempted = 0;
+-	vcpu->arch.st.steal.preempted = 0;
++	vcpu->arch.st.preempted = 0;
  
--	vcpu->arch.st.steal.version += 1;
-+	if (st->version & 1)
-+		st->version += 1;  /* first time write, random junk */
+ 	if (st->version & 1)
+ 		st->version += 1;  /* first time write, random junk */
+@@ -2788,11 +2788,6 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		if (data & KVM_STEAL_RESERVED_MASK)
+ 			return 1;
  
--	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
-+	st->version += 1;
- 
- 	smp_wmb();
- 
--	vcpu->arch.st.steal.steal += current->sched_info.run_delay -
-+	st->steal += current->sched_info.run_delay -
- 		vcpu->arch.st.last_steal;
- 	vcpu->arch.st.last_steal = current->sched_info.run_delay;
- 
--	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
+-		if (kvm_gfn_to_hva_cache_init(vcpu->kvm, &vcpu->arch.st.stime,
+-						data & KVM_STEAL_VALID_BITS,
+-						sizeof(struct kvm_steal_time)))
+-			return 1;
 -
- 	smp_wmb();
+ 		vcpu->arch.st.msr_val = data;
  
--	vcpu->arch.st.steal.version += 1;
-+	st->version += 1;
- 
--	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
-+	kvm_unmap_gfn(vcpu, &map, &vcpu->arch.st.cache, true, false);
- }
- 
- int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
-@@ -3501,18 +3503,25 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 
- static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_host_map map;
-+	struct kvm_steal_time *st;
-+
+ 		if (!(data & KVM_MSR_ENABLED))
+@@ -3509,7 +3504,7 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
  	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
  		return;
  
- 	if (vcpu->arch.st.steal.preempted)
+-	if (vcpu->arch.st.steal.preempted)
++	if (vcpu->arch.st.preempted)
  		return;
  
--	vcpu->arch.st.steal.preempted = KVM_VCPU_PREEMPTED;
-+	if (kvm_map_gfn(vcpu, vcpu->arch.st.msr_val >> PAGE_SHIFT, &map,
-+			&vcpu->arch.st.cache, true))
-+		return;
-+
-+	st = map.hva +
-+		offset_in_page(vcpu->arch.st.msr_val & KVM_STEAL_VALID_BITS);
-+
-+	st->preempted = vcpu->arch.st.steal.preempted = KVM_VCPU_PREEMPTED;
+ 	if (kvm_map_gfn(vcpu, vcpu->arch.st.msr_val >> PAGE_SHIFT, &map,
+@@ -3519,7 +3514,7 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
+ 	st = map.hva +
+ 		offset_in_page(vcpu->arch.st.msr_val & KVM_STEAL_VALID_BITS);
  
--	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
--			&vcpu->arch.st.steal.preempted,
--			offsetof(struct kvm_steal_time, preempted),
--			sizeof(vcpu->arch.st.steal.preempted));
-+	kvm_unmap_gfn(vcpu, &map, &vcpu->arch.st.cache, true, true);
+-	st->preempted = vcpu->arch.st.steal.preempted = KVM_VCPU_PREEMPTED;
++	st->preempted = vcpu->arch.st.preempted = KVM_VCPU_PREEMPTED;
+ 
+ 	kvm_unmap_gfn(vcpu, &map, &vcpu->arch.st.cache, true, true);
  }
- 
- void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
 -- 
 1.8.3.1
 
