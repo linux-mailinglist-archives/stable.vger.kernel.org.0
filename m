@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B2E14E1A8
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:46:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E88DD14E124
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731208AbgA3Sqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:46:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56490 "EHLO mail.kernel.org"
+        id S1728029AbgA3Slo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:41:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731205AbgA3Sq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:29 -0500
+        id S1729435AbgA3Sln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:41:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3E3520674;
-        Thu, 30 Jan 2020 18:46:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EA00205F4;
+        Thu, 30 Jan 2020 18:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409988;
-        bh=vVzGl/1LrNLQUWSDodjDFOxHqfKPOheroeyONEUOIAo=;
+        s=default; t=1580409703;
+        bh=VqDmHkwwQXUzjmkuYi1yVAWOTe1K9YymAZQllXMZIEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbOjZYsAreMswFh4xQflWn+MXQDsqOpSA6zneMCV5npIGikW9gcfcn/oWH1HMv1O0
-         ISzJRuJ591bo8QVYgxah0r+cKt2t6rSaci6Jsji2Xl+XeS7AxCHTeXqD0+nr1RuHfw
-         BYYXGQCELOHcij3AxvLo5r6ADxdmUGNTOZgdQcOM=
+        b=zuLpxkRCBTfLL1UxoJT2CfA//Z8FvFGOH1uwFCTJVJCep+wt7JgCE7SeMIy/56vNN
+         fgmnQCjmWJF+lftcEj/Bna1G/01+Wnhi3qgGEVPeb/7Yh+Z3AF4gFm62EUFKf+uKLf
+         Wa2Ku6Kbhb0tGjyBpZOsk8twuGIMJjLk/2TsU2/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Andre Heider <a.heider@gmail.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/110] Bluetooth: Allow combination of BDADDR_PROPERTY and INVALID_BDADDR quirks
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Artur Rojek <contact@artur-rojek.eu>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 5.5 56/56] power/supply: ingenic-battery: Dont change scale if theres only one
 Date:   Thu, 30 Jan 2020 19:39:13 +0100
-Message-Id: <20200130183625.357467844@linuxfoundation.org>
+Message-Id: <20200130183619.041405246@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 7fdf6c6a0d0e032aac2aa4537a23af1e04a397ce ]
+commit 86b9182df8bb12610d4d6feac45a69f3ed57bfd2 upstream.
 
-When utilizing BDADDR_PROPERTY and INVALID_BDADDR quirks together it
-results in an unconfigured controller even if the bootloader provides
-a valid address. Fix this by allowing a bootloader provided address
-to mark the controller as configured.
+The ADC in the JZ4740 can work either in high-precision mode with a 2.5V
+range, or in low-precision mode with a 7.5V range. The code in place in
+this driver will select the proper scale according to the maximum
+voltage of the battery.
 
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Tested-by: Andre Heider <a.heider@gmail.com>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The JZ4770 however only has one mode, with a 6.6V range. If only one
+scale is available, there's no need to change it (and nothing to change
+it to), and trying to do so will fail with -EINVAL.
+
+Fixes: fb24ccfbe1e0 ("power: supply: add Ingenic JZ47xx battery driver.")
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Artur Rojek <contact@artur-rojek.eu>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/bluetooth/hci_core.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ drivers/power/supply/ingenic-battery.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 0cc9ce9172229..9e19d5a3aac87 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1444,11 +1444,20 @@ static int hci_dev_do_open(struct hci_dev *hdev)
+--- a/drivers/power/supply/ingenic-battery.c
++++ b/drivers/power/supply/ingenic-battery.c
+@@ -100,10 +100,17 @@ static int ingenic_battery_set_scale(str
+ 		return -EINVAL;
+ 	}
  
- 	if (hci_dev_test_flag(hdev, HCI_SETUP) ||
- 	    test_bit(HCI_QUIRK_NON_PERSISTENT_SETUP, &hdev->quirks)) {
-+		bool invalid_bdaddr;
+-	return iio_write_channel_attribute(bat->channel,
+-					   scale_raw[best_idx],
+-					   scale_raw[best_idx + 1],
+-					   IIO_CHAN_INFO_SCALE);
++	/* Only set scale if there is more than one (fractional) entry */
++	if (scale_len > 2) {
++		ret = iio_write_channel_attribute(bat->channel,
++						  scale_raw[best_idx],
++						  scale_raw[best_idx + 1],
++						  IIO_CHAN_INFO_SCALE);
++		if (ret)
++			return ret;
++	}
 +
- 		hci_sock_dev_event(hdev, HCI_DEV_SETUP);
++	return 0;
+ }
  
- 		if (hdev->setup)
- 			ret = hdev->setup(hdev);
- 
-+		/* The transport driver can set the quirk to mark the
-+		 * BD_ADDR invalid before creating the HCI device or in
-+		 * its setup callback.
-+		 */
-+		invalid_bdaddr = test_bit(HCI_QUIRK_INVALID_BDADDR,
-+					  &hdev->quirks);
-+
- 		if (ret)
- 			goto setup_failed;
- 
-@@ -1457,20 +1466,33 @@ static int hci_dev_do_open(struct hci_dev *hdev)
- 				hci_dev_get_bd_addr_from_property(hdev);
- 
- 			if (bacmp(&hdev->public_addr, BDADDR_ANY) &&
--			    hdev->set_bdaddr)
-+			    hdev->set_bdaddr) {
- 				ret = hdev->set_bdaddr(hdev,
- 						       &hdev->public_addr);
-+
-+				/* If setting of the BD_ADDR from the device
-+				 * property succeeds, then treat the address
-+				 * as valid even if the invalid BD_ADDR
-+				 * quirk indicates otherwise.
-+				 */
-+				if (!ret)
-+					invalid_bdaddr = false;
-+			}
- 		}
- 
- setup_failed:
- 		/* The transport driver can set these quirks before
- 		 * creating the HCI device or in its setup callback.
- 		 *
-+		 * For the invalid BD_ADDR quirk it is possible that
-+		 * it becomes a valid address if the bootloader does
-+		 * provide it (see above).
-+		 *
- 		 * In case any of them is set, the controller has to
- 		 * start up as unconfigured.
- 		 */
- 		if (test_bit(HCI_QUIRK_EXTERNAL_CONFIG, &hdev->quirks) ||
--		    test_bit(HCI_QUIRK_INVALID_BDADDR, &hdev->quirks))
-+		    invalid_bdaddr)
- 			hci_dev_set_flag(hdev, HCI_UNCONFIGURED);
- 
- 		/* For an unconfigured controller it is required to
--- 
-2.20.1
-
+ static enum power_supply_property ingenic_battery_properties[] = {
 
 
