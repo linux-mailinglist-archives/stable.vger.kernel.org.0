@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1179A14E16F
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B7FB14E2A9
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730820AbgA3SoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:44:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
+        id S1729925AbgA3SkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:40:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730811AbgA3SoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:44:24 -0500
+        id S1729922AbgA3SkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:40:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEE552465B;
-        Thu, 30 Jan 2020 18:44:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ABE320702;
+        Thu, 30 Jan 2020 18:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409864;
-        bh=xwn2pakitxhWYFtw+8wAFTZXzu/ntQeMjykG2ynSlZ0=;
+        s=default; t=1580409621;
+        bh=JprzsrsDkvh6ThURAg96n44ZwWxlCeOkPmVcxob7ag8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpzY7zRH8QD3ge6cenk6nfMIE3QKbUkW1WhmsOixsm31eYQfaAQCefm8SgctWM0JE
-         ooTnJtCJwBztlMl7DamjBrE4nj09Ich0+I9YsVxYTjmkDDJVaTZbdxBnss8qKd5BFN
-         UWKgk87k4kdLgsm7oH/JVGGDIeeibXYEkObbyFUQ=
+        b=THS7BXvFgREbUqJGfgNxs7t/u9dPvp5JaAhan6djLtl9SGuyG5wEeNnuxnfqrDpUf
+         I6SetjSPipIbLt0Wix9jtjjuJOHbjCCf/oOOt2b73kUbP80cbC8umU76ZQxDdkjFfi
+         MLbReCFm72sMY+e0na44YkYI7S9jmYGA5F21xl4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/110] can: tcan4x5x: tcan4x5x_parse_config(): reset device before register access
+        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.5 23/56] mei: me: add comet point (lake) H device ids
 Date:   Thu, 30 Jan 2020 19:38:40 +0100
-Message-Id: <20200130183622.387523067@linuxfoundation.org>
+Message-Id: <20200130183613.454352144@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Tomas Winkler <tomas.winkler@intel.com>
 
-[ Upstream commit c3083124e6a1c0d6cd4fe3b3f627b488bd3b10c4 ]
+commit 559e575a8946a6561dfe8880de341d4ef78d5994 upstream.
 
-It's a good idea to reset a ip-block/spi device before using it, this
-patch will reset the device.
+Add Comet Point device IDs for Comet Lake H platforms.
 
-And a generic reset function if needed elsewhere.
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200119094229.20116-1-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/misc/mei/hw-me-regs.h |    4 ++++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
-index d797912e665a5..b233756345f83 100644
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -164,6 +164,28 @@ static void tcan4x5x_check_wake(struct tcan4x5x_priv *priv)
- 	}
- }
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -81,8 +81,12 @@
  
-+static int tcan4x5x_reset(struct tcan4x5x_priv *priv)
-+{
-+	int ret = 0;
+ #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
+ #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
 +
-+	if (priv->reset_gpio) {
-+		gpiod_set_value(priv->reset_gpio, 1);
-+
-+		/* tpulse_width minimum 30us */
-+		usleep_range(30, 100);
-+		gpiod_set_value(priv->reset_gpio, 0);
-+	} else {
-+		ret = regmap_write(priv->regmap, TCAN4X5X_CONFIG,
-+				   TCAN4X5X_SW_RESET);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	usleep_range(700, 1000);
-+
-+	return ret;
-+}
-+
- static int regmap_spi_gather_write(void *context, const void *reg,
- 				   size_t reg_len, const void *val,
- 				   size_t val_len)
-@@ -341,6 +363,7 @@ static int tcan4x5x_init(struct m_can_classdev *cdev)
- static int tcan4x5x_parse_config(struct m_can_classdev *cdev)
- {
- 	struct tcan4x5x_priv *tcan4x5x = cdev->device_data;
-+	int ret;
+ #define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
  
- 	tcan4x5x->device_wake_gpio = devm_gpiod_get(cdev->dev, "device-wake",
- 						    GPIOD_OUT_HIGH);
-@@ -354,7 +377,9 @@ static int tcan4x5x_parse_config(struct m_can_classdev *cdev)
- 	if (IS_ERR(tcan4x5x->reset_gpio))
- 		tcan4x5x->reset_gpio = NULL;
++#define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
++#define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
++
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
  
--	usleep_range(700, 1000);
-+	ret = tcan4x5x_reset(tcan4x5x);
-+	if (ret)
-+		return ret;
+ #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -99,6 +99,8 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_CFG)},
  
- 	tcan4x5x->device_state_gpio = devm_gpiod_get_optional(cdev->dev,
- 							      "device-state",
--- 
-2.20.1
-
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+ 
 
 
