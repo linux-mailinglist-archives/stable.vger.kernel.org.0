@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D206D14E2B0
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF43C14E273
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730002AbgA3Skk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48288 "EHLO mail.kernel.org"
+        id S1728148AbgA3SwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:52:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729998AbgA3Skj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:40:39 -0500
+        id S1728062AbgA3Snk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:43:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A056214AF;
-        Thu, 30 Jan 2020 18:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E153B20CC7;
+        Thu, 30 Jan 2020 18:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409638;
-        bh=rkr4v3w3gcxDIUGXLSQY/xRcj719qPpxS+Rw5Z/tExw=;
+        s=default; t=1580409819;
+        bh=zuEUBKlZdyeN4POlgMWZuq1e8qLu6fLRLaFLDyY2sQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfURQWrCKR6Htx+ErE1vnOjewcuENDSoOYgDCKT4SpatI6Cp3gKDfKLZLdXp+F1HI
-         ccabYkVbTHggmSYRP6PYVTa8oYSqikHUnRHqU/P2PPHpVbJw6YG0Sht8b+0RhCTUg+
-         XOmgQEAIkSmYJtW1FhDS9CEYcIH8I2bgO/XFKTxg=
+        b=zQro36d0HUNnN/x5tXLrbjEVCZgFsS1aT2ko3fDgRLwjqICJ/4UzKtE8REDAiOlCw
+         QNbNc8aKKSX7gGNgBX2Km0awrd8S8GJeubEgC9OkFcFNzKQKLXlAiiArJa91ecPvIx
+         WEJiXH3r9MJ4wQX5t6eYU3PWkG35hi90sooViItg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fariya Fatima <fariyaf@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.5 03/56] rsi_91x_usb: fix interface sanity check
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 044/110] HID: multitouch: Add LG MELF0410 I2C touchscreen support
 Date:   Thu, 30 Jan 2020 19:38:20 +0100
-Message-Id: <20200130183609.620360187@linuxfoundation.org>
+Message-Id: <20200130183620.526273375@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-commit 3139b180906af43bc09bd3373fc2338a8271d9d9 upstream.
+[ Upstream commit 348b80b273fbf4ce2a307f9e38eadecf37828cad ]
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+Add multitouch support for LG MELF I2C touchscreen.
+Apply the same workaround as LG USB touchscreen.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
-Cc: stable <stable@vger.kernel.org>     # 3.15
-Cc: Fariya Fatima <fariyaf@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -117,7 +117,7 @@ static int rsi_find_bulk_in_and_out_endp
- 	__le16 buffer_size;
- 	int ii, bin_found = 0, bout_found = 0;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6273e7178e785..2888817261999 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -730,6 +730,7 @@
+ #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+ #define USB_DEVICE_ID_LG_MELFAS_MT	0x6007
+ #define I2C_DEVICE_ID_LG_8001		0x8001
++#define I2C_DEVICE_ID_LG_7010		0x7010
  
--	iface_desc = &(interface->altsetting[0]);
-+	iface_desc = interface->cur_altsetting;
+ #define USB_VENDOR_ID_LOGITECH		0x046d
+ #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 3cfeb1629f79f..f0d4172d51319 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1985,6 +1985,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_LG,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_LG,
+ 			USB_DEVICE_ID_LG_MELFAS_MT) },
++	{ .driver_data = MT_CLS_LG,
++		HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
++			USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_7010) },
  
- 	for (ii = 0; ii < iface_desc->desc.bNumEndpoints; ++ii) {
- 		endpoint = &(iface_desc->endpoint[ii].desc);
+ 	/* MosArt panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+-- 
+2.20.1
+
 
 
