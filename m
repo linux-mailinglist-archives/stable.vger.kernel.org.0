@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE2C14E2A7
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD6014E0F8
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729914AbgA3SkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:40:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47794 "EHLO mail.kernel.org"
+        id S1729917AbgA3SkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:40:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728000AbgA3SkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:40:17 -0500
+        id S1729912AbgA3SkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:40:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1700420702;
-        Thu, 30 Jan 2020 18:40:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C395F214DB;
+        Thu, 30 Jan 2020 18:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409616;
-        bh=IzDMZNQl3J1nGNsNXmPv0XusuU1RExicvphwbiLdAOQ=;
+        s=default; t=1580409619;
+        bh=N/VGsv4nbUCgQlYnuvBIaa7hCq3CZsorA+Vhoh+tDc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaSQtA8TDuKGt3r66yE+cQoFB9kRR14geqKhGlHaEORnv6+p8Zsg6u2QWW0xPqiXx
-         VKiBEZ3EvBLNip0vpPWacdAXStMFFdUh7RRryNUgwxd9mWWb1pCuWC83QsGDC14bMv
-         GSlI/U7SAgbAegnet32WNmy1i0uUkbUbqWfnvL50=
+        b=iUxTGvdC+6nhz1VEENg8LEh5kU7YpcFY7Zn258H7dVYbb19+77FhFzSj1YYc++YaR
+         +YyQEHhdin/lCSgeftTzJ8QNJMdjWYR9LNiftRZMD6H6xb7+YHQb9oRL5m9oI5gO2G
+         exer4ADN8hopKrJnYyp7hDsxPGALpbUsZdkVIuAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.5 21/56] binder: fix log spam for existing debugfs file creation.
-Date:   Thu, 30 Jan 2020 19:38:38 +0100
-Message-Id: <20200130183613.111465806@linuxfoundation.org>
+        stable@vger.kernel.org, Ramalingam C <ramalingam.c@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Alexander Usyskin <alexander.usyskin@intel.com>
+Subject: [PATCH 5.5 22/56] mei: hdcp: bind only with i915 on the same PCH
+Date:   Thu, 30 Jan 2020 19:38:39 +0100
+Message-Id: <20200130183613.282806892@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
 References: <20200130183608.849023566@linuxfoundation.org>
@@ -44,116 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Tomas Winkler <tomas.winkler@intel.com>
 
-commit eb143f8756e77c8fcfc4d574922ae9efd3a43ca9 upstream.
+commit 1e8d19d9b0dfcf11b61bac627203a290577e807a upstream.
 
-Since commit 43e23b6c0b01 ("debugfs: log errors when something goes wrong")
-debugfs logs attempts to create existing files.
+The mei device and i915 must reside on the same
+PCH in order for HDCP to work. Make the component
+matching function enforce this requirement.
 
-However binder attempts to create multiple debugfs files with
-the same name when a single PID has multiple contexts, this leads
-to log spamming during an Android boot (17 such messages during
-boot on my system).
+                   hdcp
+                    |
+   i915            mei
+    |               |
+    +----= PCH =----+
 
-Fix this by checking if we already know the PID and only create
-the debugfs entry for the first context per PID.
-
-Do the same thing for binderfs for symmetry.
-
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Acked-by: Todd Kjos <tkjos@google.com>
-Fixes: 43e23b6c0b01 ("debugfs: log errors when something goes wrong")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1578671054-5982-1-git-send-email-martin.fuzzey@flowbird.group
+Cc: <stable@vger.kernel.org> v5.0+
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Reviewed-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Link: https://lore.kernel.org/r/20191212084103.2893-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder.c |   37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ drivers/misc/mei/hdcp/mei_hdcp.c |   33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -5199,10 +5199,11 @@ err_bad_arg:
+--- a/drivers/misc/mei/hdcp/mei_hdcp.c
++++ b/drivers/misc/mei/hdcp/mei_hdcp.c
+@@ -757,11 +757,38 @@ static const struct component_master_ops
+ 	.unbind = mei_component_master_unbind,
+ };
  
- static int binder_open(struct inode *nodp, struct file *filp)
++/**
++ * mei_hdcp_component_match - compare function for matching mei hdcp.
++ *
++ *    The function checks if the driver is i915, the subcomponent is HDCP
++ *    and the grand parent of hdcp and the parent of i915 are the same
++ *    PCH device.
++ *
++ * @dev: master device
++ * @subcomponent: subcomponent to match (I915_COMPONENT_HDCP)
++ * @data: compare data (mei hdcp device)
++ *
++ * Return:
++ * * 1 - if components match
++ * * 0 - otherwise
++ */
+ static int mei_hdcp_component_match(struct device *dev, int subcomponent,
+ 				    void *data)
  {
--	struct binder_proc *proc;
-+	struct binder_proc *proc, *itr;
- 	struct binder_device *binder_dev;
- 	struct binderfs_info *info;
- 	struct dentry *binder_binderfs_dir_entry_proc = NULL;
-+	bool existing_pid = false;
+-	return !strcmp(dev->driver->name, "i915") &&
+-	       subcomponent == I915_COMPONENT_HDCP;
++	struct device *base = data;
++
++	if (strcmp(dev->driver->name, "i915") ||
++	    subcomponent != I915_COMPONENT_HDCP)
++		return 0;
++
++	base = base->parent;
++	if (!base)
++		return 0;
++
++	base = base->parent;
++	dev = dev->parent;
++
++	return (base && dev && dev == base);
+ }
  
- 	binder_debug(BINDER_DEBUG_OPEN_CLOSE, "%s: %d:%d\n", __func__,
- 		     current->group_leader->pid, current->pid);
-@@ -5235,19 +5236,24 @@ static int binder_open(struct inode *nod
- 	filp->private_data = proc;
+ static int mei_hdcp_probe(struct mei_cl_device *cldev,
+@@ -785,7 +812,7 @@ static int mei_hdcp_probe(struct mei_cl_
  
- 	mutex_lock(&binder_procs_lock);
-+	hlist_for_each_entry(itr, &binder_procs, proc_node) {
-+		if (itr->pid == proc->pid) {
-+			existing_pid = true;
-+			break;
-+		}
-+	}
- 	hlist_add_head(&proc->proc_node, &binder_procs);
- 	mutex_unlock(&binder_procs_lock);
- 
--	if (binder_debugfs_dir_entry_proc) {
-+	if (binder_debugfs_dir_entry_proc && !existing_pid) {
- 		char strbuf[11];
- 
- 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
- 		/*
--		 * proc debug entries are shared between contexts, so
--		 * this will fail if the process tries to open the driver
--		 * again with a different context. The priting code will
--		 * anyway print all contexts that a given PID has, so this
--		 * is not a problem.
-+		 * proc debug entries are shared between contexts.
-+		 * Only create for the first PID to avoid debugfs log spamming
-+		 * The printing code will anyway print all contexts for a given
-+		 * PID so this is not a problem.
- 		 */
- 		proc->debugfs_entry = debugfs_create_file(strbuf, 0444,
- 			binder_debugfs_dir_entry_proc,
-@@ -5255,19 +5261,16 @@ static int binder_open(struct inode *nod
- 			&proc_fops);
- 	}
- 
--	if (binder_binderfs_dir_entry_proc) {
-+	if (binder_binderfs_dir_entry_proc && !existing_pid) {
- 		char strbuf[11];
- 		struct dentry *binderfs_entry;
- 
- 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
- 		/*
- 		 * Similar to debugfs, the process specific log file is shared
--		 * between contexts. If the file has already been created for a
--		 * process, the following binderfs_create_file() call will
--		 * fail with error code EEXIST if another context of the same
--		 * process invoked binder_open(). This is ok since same as
--		 * debugfs, the log file will contain information on all
--		 * contexts of a given PID.
-+		 * between contexts. Only create for the first PID.
-+		 * This is ok since same as debugfs, the log file will contain
-+		 * information on all contexts of a given PID.
- 		 */
- 		binderfs_entry = binderfs_create_file(binder_binderfs_dir_entry_proc,
- 			strbuf, &proc_fops, (void *)(unsigned long)proc->pid);
-@@ -5277,10 +5280,8 @@ static int binder_open(struct inode *nod
- 			int error;
- 
- 			error = PTR_ERR(binderfs_entry);
--			if (error != -EEXIST) {
--				pr_warn("Unable to create file %s in binderfs (error %d)\n",
--					strbuf, error);
--			}
-+			pr_warn("Unable to create file %s in binderfs (error %d)\n",
-+				strbuf, error);
- 		}
- 	}
- 
+ 	master_match = NULL;
+ 	component_match_add_typed(&cldev->dev, &master_match,
+-				  mei_hdcp_component_match, comp_master);
++				  mei_hdcp_component_match, &cldev->dev);
+ 	if (IS_ERR_OR_NULL(master_match)) {
+ 		ret = -ENOMEM;
+ 		goto err_exit;
 
 
