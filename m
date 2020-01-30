@@ -2,100 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 589CE14E208
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5436714E35F
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 20:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731645AbgA3StA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:49:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60270 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731649AbgA3Ss7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:48:59 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACB7F2082E;
-        Thu, 30 Jan 2020 18:48:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410139;
-        bh=s2rmcFHlg0bundURMOPl/pYu5ppo6GpvVpIgo6Gqktk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uz044B4Av4Sv8nvgZDoJ6ucaMPBqGC6j519l3rVKjkkQ5gg7TyOBWT1mZg0JSZPyW
-         WZUmV4HKxRUuo4H9i3RXDzUxOOEH6X0QAuaaJ6eZzm1D6Vq5Gjbo3Wh5ZzR8daZ7DD
-         0c1J66fRp0fYph4B0lKbA2Zp9Pd7AP6CRGsYIAtE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.19 55/55] KVM: arm64: Write arch.mdcr_el2 changes since last vcpu_load on VHE
-Date:   Thu, 30 Jan 2020 19:39:36 +0100
-Message-Id: <20200130183618.321089628@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1726514AbgA3TvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 14:51:13 -0500
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:37797 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726267AbgA3TvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 14:51:13 -0500
+Received: by mail-ed1-f67.google.com with SMTP id cy15so5170514edb.4;
+        Thu, 30 Jan 2020 11:51:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ny5vawm1ZMouKeDxshhMVR293h8qWKnN6FtNQJsILb4=;
+        b=kZh+JLzy/+gBQVYNkpm2FjZqnjXx8dRvdTABtg1SncnapFb8xPn27HutUBSRbExDOh
+         vbcunYNEji9Jcd3znLmWlGYEuk2Cx98pfj5tzdWFqLh7V8xxU+eCI5uhtngUEVzGfYGb
+         xluHhSTpUsZ5omVTOYEwVUs0n+Qn8PBs0u7yo6Von2nDpgwcQYI6LKtxM9usAdZjz6c6
+         f6K4+LW7bmDTJzFb8trXFkng10UInb03Yrkc6+9qDTFiX1ef6+Y7SGnB4tqVgGorxNha
+         A/RdL0Rf4MXVaBlYvyOtFQe6YLih+7n8jCURRYWZIkZGapHJ7kgyZhdyPNEi6qNPNKvP
+         6j5g==
+X-Gm-Message-State: APjAAAWWbHzgeDqerDk+pShM3GQs3iHXJSs/NDgqNap300BUMvcaumtn
+        6Wrlk20RIUjWGGBzgBwJiUQj8BGcOvKzKYceWvg=
+X-Google-Smtp-Source: APXvYqwmdihuWIfIpMtcEl+yOF+MTPbo1EVHcr/7fsjX37sNt7zRBu4Tctxr45lo3mz6klL27jRiosvKJ76XPOF2Vgs=
+X-Received: by 2002:aa7:d505:: with SMTP id y5mr5551266edq.370.1580413869586;
+ Thu, 30 Jan 2020 11:51:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20191227174055.4923-1-sashal@kernel.org> <20191227174055.4923-16-sashal@kernel.org>
+In-Reply-To: <20191227174055.4923-16-sashal@kernel.org>
+From:   Len Brown <lenb@kernel.org>
+Date:   Thu, 30 Jan 2020 14:50:58 -0500
+Message-ID: <CAJvTdKkV4GgnE80PKuUFogR=Q+77-z5YHLhCaCSW=rjaV1owzQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.4 016/187] x86/intel: Disable HPET on Intel Ice
+ Lake platforms
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, feng.tang@intel.com,
+        harry.pan@intel.com, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@kernel.org>, linux-pci@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Murray <andrew.murray@arm.com>
+Can somebody point to an ICL system that is running production-level
+firmware that exhibits this issue?
 
-commit 4942dc6638b07b5326b6d2faa142635c559e7cd5 upstream.
+The hardware people are telling me that zero such systems should exist.
 
-On VHE systems arch.mdcr_el2 is written to mdcr_el2 at vcpu_load time to
-set options for self-hosted debug and the performance monitors
-extension.
+(The reported symptom that I've seen is that the TSC vs HPET
+comparison fails, and Linux keeps the (bad) HPET and disables the
+(good) TSC)
 
-Unfortunately the value of arch.mdcr_el2 is not calculated until
-kvm_arm_setup_debug() in the run loop after the vcpu has been loaded.
-This means that the initial brief iterations of the run loop use a zero
-value of mdcr_el2 - until the vcpu is preempted. This also results in a
-delay between changes to vcpu->guest_debug taking effect.
+thanks,
+-Len
 
-Fix this by writing to mdcr_el2 in kvm_arm_setup_debug() on VHE systems
-when a change to arch.mdcr_el2 has been detected.
+On Fri, Dec 27, 2019 at 12:41 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>
+> [ Upstream commit e0748539e3d594dd26f0d27a270f14720b22a406 ]
+>
+> Like CFL and CFL-H, ICL SoC has skewed HPET timer once it hits PC10.
+> So let's disable HPET on ICL.
+>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: bp@alien8.de
+> Cc: feng.tang@intel.com
+> Cc: harry.pan@intel.com
+> Cc: hpa@zytor.com
+> Link: https://lkml.kernel.org/r/20191129062303.18982-2-kai.heng.feng@canonical.com
+> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/x86/kernel/early-quirks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+> index 606711f5ebf8..2f9ec14be3b1 100644
+> --- a/arch/x86/kernel/early-quirks.c
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -714,6 +714,8 @@ static struct chipset early_qrk[] __initdata = {
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_INTEL, 0x3ec4,
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> +       { PCI_VENDOR_ID_INTEL, 0x8a12,
+> +               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_BROADCOM, 0x4331,
+>           PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+>         {}
+> --
+> 2.20.1
+>
 
-Fixes: d5a21bcc2995 ("KVM: arm64: Move common VHE/non-VHE trap config in separate functions")
-Cc: <stable@vger.kernel.org> # 4.17.x-
-Suggested-by: James Morse <james.morse@arm.com>
-Acked-by: Will Deacon <will@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/arm64/kvm/debug.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
---- a/arch/arm64/kvm/debug.c
-+++ b/arch/arm64/kvm/debug.c
-@@ -112,7 +112,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_
- void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
- {
- 	bool trap_debug = !(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY);
--	unsigned long mdscr;
-+	unsigned long mdscr, orig_mdcr_el2 = vcpu->arch.mdcr_el2;
- 
- 	trace_kvm_arm_setup_debug(vcpu, vcpu->guest_debug);
- 
-@@ -208,6 +208,10 @@ void kvm_arm_setup_debug(struct kvm_vcpu
- 	if (vcpu_read_sys_reg(vcpu, MDSCR_EL1) & (DBG_MDSCR_KDE | DBG_MDSCR_MDE))
- 		vcpu->arch.flags |= KVM_ARM64_DEBUG_DIRTY;
- 
-+	/* Write mdcr_el2 changes since vcpu_load on VHE systems */
-+	if (has_vhe() && orig_mdcr_el2 != vcpu->arch.mdcr_el2)
-+		write_sysreg(vcpu->arch.mdcr_el2, mdcr_el2);
-+
- 	trace_kvm_arm_set_dreg32("MDCR_EL2", vcpu->arch.mdcr_el2);
- 	trace_kvm_arm_set_dreg32("MDSCR_EL1", vcpu_read_sys_reg(vcpu, MDSCR_EL1));
- }
-
-
+-- 
+Len Brown, Intel Open Source Technology Center
