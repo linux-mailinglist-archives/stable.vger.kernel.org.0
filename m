@@ -2,97 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52CB314DEDC
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 17:18:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9FF714DF74
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 17:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727193AbgA3QSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 11:18:07 -0500
-Received: from mail-wm1-f45.google.com ([209.85.128.45]:51243 "EHLO
-        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726948AbgA3QSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 11:18:06 -0500
-Received: by mail-wm1-f45.google.com with SMTP id t23so4425875wmi.1
-        for <stable@vger.kernel.org>; Thu, 30 Jan 2020 08:18:06 -0800 (PST)
+        id S1727224AbgA3Qwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 11:52:49 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:38477 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727191AbgA3Qwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 11:52:49 -0500
+Received: by mail-pf1-f195.google.com with SMTP id x185so1786776pfc.5;
+        Thu, 30 Jan 2020 08:52:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=P6rlnalIdj++Si3XX4MvDVABpRiIJ8tgIKQfMm3wPr0=;
-        b=SHjZzqIFehleaMD7dleGBTPFnOcgfFJ9hBmvYPUYTt8/iJLTWfu1VgB3Ya+7lfWInT
-         rcdI4+XMwudFCKGG71IAeaKUtgE4BXDwGOuC6A3wGmM4A3S9e2K7OoFDaaVlAAjX4mXn
-         Vw2J87NSfuxlMxf3OeMYroDP5S8f5cgg/Hl6LKuvlfLGSyqF8Mo7jN9SmDcflBIA2X3P
-         g+EyCRXUUz+uPgEO4KFN0g4ifYOcM2BCstNohRCcy0w4zSe6dqNf79MAYWJ06n+BUWEc
-         hFC9r3hjAOJgDbMc8PcRa/7ie2+Nmj9B+KSBZm1Mh1ipm+EGPrM2LluvmbKEuuEWzFLO
-         uXfA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=BvfCsRSZW1p/nohOgM8F2lAATYVhdALP/v8/1rJaWIw=;
+        b=HIi64FJTLjxHew/88/vrJXKhLDqR8R6QvnJtquI3iltIEjCjSU1nAGjAshfg/9V9k+
+         3sZ8U+mmzEqNjIIkiWs8lLFeknSwKyfIuhqNcMYZcVZM5jKTgARs/qGz6lUSx0ccoNbC
+         ZpV02kmTCZFjFZBtt1jcUYnNRYr1fWLDECu3ZFQGmMsj8QcBmhc86WtTyjscXB/AgZRq
+         iXUANo6paHHqqmuCLPB9UHL9n1MvZzdWGm3lrrtQsD7amMO22ZWf9jx/mXkeAsiLQRGc
+         vN+fCNiweFpIQautL2z4APqMNgDe8Q0DJ2weSJdZ4gjtqTGFfkI3S1Ed88Ud7CFgJJiD
+         x3BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=P6rlnalIdj++Si3XX4MvDVABpRiIJ8tgIKQfMm3wPr0=;
-        b=MzAsta+RGrDRHHrbwJe60sEkoBr/wjpZAmHQS44zg7dHODUmCaItgpwWu4Kv8EBkjZ
-         iMPCp6VKbXIrkM05Ing+wKFegx2kZxRnUkKgWI/WuhIfN/LrVQO3onI92bnSSozYgt1U
-         EK5n7L2Dz46b8OpXKsNj8Sk/AMA/ioSTE5kF+/mOtrYLbRvyZeQcW8lfbqBeZR/w0ZEC
-         FItxA0icauqgFiUd/kOS27CPDetQGQC79I0Ew+KoIhIEzK9XbY0L5bboTrRUTbhQM/If
-         RtP251324iXPVDR1IdZOGdu5jW1F1RjQTOrvvHHojGWR+MTgqAMRA8LJeIIcNguzD8RD
-         ogow==
-X-Gm-Message-State: APjAAAUHy5yXnjosyheehL6DQdYgOXIqB9ZiVU7QyPvH2Mk8AzHHsmWZ
-        rm458+eZx2/l3DjE61A6qhxlcUadkS2Vmw==
-X-Google-Smtp-Source: APXvYqwzLlj+VZb+ECoAUF4ItVkA/hAgBLlH0/UUIDcPVcOy3uFpBwsr6+Ssw4LQqF83UdR6pmmqdQ==
-X-Received: by 2002:a1c:62c1:: with SMTP id w184mr6514275wmb.150.1580401085253;
-        Thu, 30 Jan 2020 08:18:05 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j12sm8541314wrw.54.2020.01.30.08.18.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jan 2020 08:18:04 -0800 (PST)
-Message-ID: <5e3301bc.1c69fb81.883f3.7020@mx.google.com>
-Date:   Thu, 30 Jan 2020 08:18:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BvfCsRSZW1p/nohOgM8F2lAATYVhdALP/v8/1rJaWIw=;
+        b=cDomHDO4NcACGybuJsFcTj8FC0EfJIooowQpFbGQNAc8KoseWt9wo28ryri5+udAAC
+         5d0BroVRLi/yHrfCr1IjYVABoE1ROb/24XZ5DlDXGc7hPMZ8JKWotyfrK66MBlertZqU
+         aZCNm86YSlVJifcWnhU0kZyxvfm/V+uVybos8tKyqzSnl1s5Zb7L2yPP5a3BVo4tpSUX
+         0P3s8lLpF6L8+iJbCsplCzw4EftTuK3RKGeWqHKCsYLDnoEtv43FyLF//Zr0w+VCq9eI
+         7zxJGRHQwKkLrB2vjJIpTF1ejJLsf3zCcq4shxiSIaKe9wQqAD7v31HWiqkEaHd9vDsp
+         Khzg==
+X-Gm-Message-State: APjAAAVklXs8U+A3lDZuX0Mr0YTCyqOorXb0cQg282MnLzjFpETQw9IT
+        xd/27wAyQsTqQ9oSEKFJpYkk+ExbUg8dr/Ywr+o=
+X-Google-Smtp-Source: APXvYqwEWnwqoePrgk5yXHpSjK3/YcAPZ1WeBxbdIORS5G9gXGM6VV7cscOzUakL5hFPRk8ijdgGnN27LxoUDdzE3YI=
+X-Received: by 2002:a62:1944:: with SMTP id 65mr6090835pfz.151.1580403168985;
+ Thu, 30 Jan 2020 08:52:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.212
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.9.y boot: 29 boots: 1 failed, 28 passed (v4.9.212)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200130115255.20840-1-hdegoede@redhat.com> <20200130115255.20840-3-hdegoede@redhat.com>
+ <20200130134310.GX14914@hirez.programming.kicks-ass.net> <b77be8c0-7107-bece-5947-a625e556e129@redhat.com>
+ <01feee20ee5d4b83ab218c14fc35accb@AcuMS.aculab.com> <8a8fd7a1-945e-4541-f0bc-387fae7c6822@redhat.com>
+In-Reply-To: <8a8fd7a1-945e-4541-f0bc-387fae7c6822@redhat.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Thu, 30 Jan 2020 18:52:41 +0200
+Message-ID: <CAHp75VftbK+7uzBCQ6F5FFgJ4qq0f9pB1Qo7m0LwbBROYsrrYw@mail.gmail.com>
+Subject: Re: [PATCH 3/3] x86/tsc_msr: Make MSR derived TSC frequency more accurate
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Vipul Kumar <vipulk0511@gmail.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        Len Brown <len.brown@intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 29 boots: 1 failed, 28 passed (v4.9.212)
+On Thu, Jan 30, 2020 at 6:04 PM Hans de Goede <hdegoede@redhat.com> wrote:
+> On 30-01-2020 17:02, David Laight wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.212/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.212/
+> I have no idea. Andy if you can find any docs on the MSR_FSB_FREQ values
+> for Merriefield (BYT MID) and Moorefield (CHT MID) that would be great,
+> if not I suggest we stick with what we have.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.212
-Git Commit: 6f8dc95670980e30a1de22c75999d61fd143b693
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 20 unique boards, 6 SoC families, 8 builds out of 178
+First of all, Merrifield (Silvermont based Atom for phones, FYI: Intel
+Edison uses it) and Moorefield (Airmont) have nothing to do with code
+names Baytrail and Cherrytrail respectively.
+So, please don't confuse people.
 
-Boot Regressions Detected:
+I'll try to find some information.
 
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: new failure (last pass: v4.9.211-272-g91ff8226a=
-074)
-
-Boot Failure Detected:
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+With Best Regards,
+Andy Shevchenko
