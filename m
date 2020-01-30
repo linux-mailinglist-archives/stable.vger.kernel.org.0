@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A004614D83C
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 10:30:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3981D14D83D
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 10:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726893AbgA3JaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 04:30:07 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54539 "EHLO
+        id S1726895AbgA3JaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 04:30:08 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:46771 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726873AbgA3JaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 04:30:06 -0500
+        by vger.kernel.org with ESMTP id S1726873AbgA3JaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jan 2020 04:30:08 -0500
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.nyi.internal (Postfix) with ESMTP id E6E9B21EF0;
-        Thu, 30 Jan 2020 04:30:05 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 0278922139;
+        Thu, 30 Jan 2020 04:30:07 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Thu, 30 Jan 2020 04:30:05 -0500
+  by compute2.internal (MEProxy); Thu, 30 Jan 2020 04:30:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/yART2
-        mYKMMGa4CpfiO6xYwWSy5U16APMpj/df7/+eQ=; b=Kk883wsl/5A3CpQ+kJnbDt
-        O1y6Rn4uW41unIW1laaAuMvYK6XrnJlD4gPBUjbNaQDAr+LHzczeJJzU3xEOkeNi
-        f0K6G2xAaRKQwHQ6elfyJa5/4Sr0GhBQt/owEeZT3KAYo5UBxqv/F3aowijTrp/l
-        MkwS+FuB9unO90n/1MpDOUUbbLNVvu/kmf/ZC8aoQmQtujIyf5xn7/2Y01vcAKnU
-        ldMDfE/m9pQpUo/+C+LOP24iRbmKeksKOHkCtyc6KCH3ipgWwxb9iJngb+2Ums9J
-        nY43srfYmi+ZwavnfYPXKv7xjIre9jKVAkHM5YYlQn7ejkVQzenAaj/Aet943kWA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ER6BBb
+        9Dh/MV3EcS/URzSX7WeGlOYp1yVekB2i9wYGc=; b=PcKmJIt8M2lB+AqdxzqcVU
+        zllfvTk0v+fZNs/l9D5ARln3o/xsAh4zl2VtKLuIVtkmKe7LfM/PaxPpzk8IAFWH
+        FpRqZ1BlcIFScdY2DauU2kHa64w7/xgrnxFXshOZyuoryHA5VOo+quVBJ/Pk3Cmk
+        ng47S4bz7R7c8i6v0eBM3/Y0NyZ+GcYp4of6wUAJ2/4Mfyq7Q0EM7aL6zO21Kd05
+        ChzxJd28LBE3HOPvMvbUYAtIKR0OVdJ7QmlqKjOFA9U/wB4si5AMS489rBPsCNy8
+        3bYnS48GYqSNMopDkriv/6PuH2gAbQAiWCecqpoO2sGlr5ULDoimwW5zuhNChhIw
         ==
-X-ME-Sender: <xms:HKIyXoxYjr3qde4wTWJarJcN_wV4ufNY_skU4xktPUBC5DfppwnBwQ>
+X-ME-Sender: <xms:HqIyXlbGeryly_hA-GL_FqAj-Rr68qQJOYfYJt1aUA1YUOUFipA4-w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrfeekgddthecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:HKIyXmHDpBV3TPvEm0SGhhM5793OvHqidKJQ_TtfVu5kx2iYaRC3hQ>
-    <xmx:HKIyXpJBxX-apeBdGxS4WIOMmK9jWm-px1Ist2TBTjp_pD8S3jf-6A>
-    <xmx:HKIyXh5B40xeGuQZ2UMsF2XyA8JyMJ-p1c6hODmmNqSiYBfN8hjSIA>
-    <xmx:HaIyXoKfkWZt9r_aop_YFhRxGfJYR9dJtVdDNv2Qr1q9L2oxuQ5Sqw>
+X-ME-Proxy: <xmx:HqIyXgqs5JrhXE6z8XlA9KqiwU-rARhtrPlk30uKFNRNmuG_zfLtfA>
+    <xmx:HqIyXi8p0WwFlNuL-40JPGDYfS8sOH9M5QLoJwo1WSxALrSTA-0YEw>
+    <xmx:HqIyXn_MYQhuGz31ahL3w84iCYjEknJS7jhCzHHvxtx2QmBGmNMFuA>
+    <xmx:HqIyXl43dp8urXn-GFERClnvDUNZYC_YyXSY_hXVon3KrcwrCco6zw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 709B73060B27;
-        Thu, 30 Jan 2020 04:30:04 -0500 (EST)
-Subject: FAILED: patch "[PATCH] CIFS: Fix task struct use-after-free on reconnect" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9305530608E0;
+        Thu, 30 Jan 2020 04:30:06 -0500 (EST)
+Subject: FAILED: patch "[PATCH] CIFS: Fix task struct use-after-free on reconnect" failed to apply to 4.14-stable tree
 To:     vincent.whitchurch@axis.com, pc@cjr.nz, pshilov@microsoft.com,
         stable@vger.kernel.org, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 30 Jan 2020 10:30:00 +0100
-Message-ID: <1580376600189186@kroah.com>
+Date:   Thu, 30 Jan 2020 10:30:02 +0100
+Message-ID: <158037660215079@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
