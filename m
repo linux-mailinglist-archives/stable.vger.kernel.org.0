@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 751B114E17C
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B4E14E29A
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730912AbgA3Sox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:44:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
+        id S1730307AbgA3SmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:42:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730898AbgA3Sox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:44:53 -0500
+        id S1730303AbgA3SmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:42:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ECA0205F4;
-        Thu, 30 Jan 2020 18:44:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A25120CC7;
+        Thu, 30 Jan 2020 18:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409892;
-        bh=BG0m2GrDH4m2acE7FgUelvrKxWuUu7u18RQMU/Mm3Ro=;
+        s=default; t=1580409722;
+        bh=1M0YF0+4pADEq3v0NcUXt1p5XFbnlgw9zdlVcdV/OZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4UE24kkrDs/Ck30O+gQzR9xdYm90/+6FhwwHhT3Be3gdbLUHu07C401llW1/J4js
-         i7sOSsszr+P7D7vwrS/YJFZ3yF9KP6d4pDl6GKiwNWr4q/GDxo/YEI+UOibjdk24fQ
-         T1luQzwCE+DLdrJsDVKx1LX5Sn/1feymUZsD7m9Q=
+        b=E0k2XNu2wki/cbh6MsSs4vBD91AOW+1hxySFrgtY1eAU3o+lf9e1e2AScnXfWRkas
+         7JisrN1B3qJlvTBSF+SomH/iSQ3AOffqDx36Cta9PLjUQ/rZCKt1shrYP/30wkahNB
+         xRJjs19GDB0IfiFtKYNYOL0fJntzQJa++fPsEgJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/110] HID: steam: Fix input device disappearing
+        stable@vger.kernel.org, Arend van Spriel <arend@broadcom.com>,
+        Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.5 33/56] brcmfmac: fix interface sanity check
 Date:   Thu, 30 Jan 2020 19:38:50 +0100
-Message-Id: <20200130183623.158334552@linuxfoundation.org>
+Message-Id: <20200130183615.067958605@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 20eee6e5af35d9586774e80b6e0b1850e7cc9899 ]
+commit 3428fbcd6e6c0850b1a8b2a12082b7b2aabb3da3 upstream.
 
-The `connected` value for wired devices was not properly initialized,
-it must be set to `true` upon creation, because wired devices do not
-generate connection events.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-When a raw client (the Steam Client) uses the device, the input device
-is destroyed. Then, when the raw client finishes, it must be recreated.
-But since the `connected` variable was false this never happended.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 71bb244ba2fd ("brcm80211: fmac: add USB support for bcm43235/6/8 chipsets")
+Cc: stable <stable@vger.kernel.org>     # 3.4
+Cc: Arend van Spriel <arend@broadcom.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hid-steam.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 8dae0f9b819e0..6286204d4c560 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -768,8 +768,12 @@ static int steam_probe(struct hid_device *hdev,
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -1348,7 +1348,7 @@ brcmf_usb_probe(struct usb_interface *in
+ 		goto fail;
+ 	}
  
- 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
- 		hid_info(hdev, "Steam wireless receiver connected");
-+		/* If using a wireless adaptor ask for connection status */
-+		steam->connected = false;
- 		steam_request_conn_status(steam);
- 	} else {
-+		/* A wired connection is always present */
-+		steam->connected = true;
- 		ret = steam_register(steam);
- 		if (ret) {
- 			hid_err(hdev,
--- 
-2.20.1
-
+-	desc = &intf->altsetting[0].desc;
++	desc = &intf->cur_altsetting->desc;
+ 	if ((desc->bInterfaceClass != USB_CLASS_VENDOR_SPEC) ||
+ 	    (desc->bInterfaceSubClass != 2) ||
+ 	    (desc->bInterfaceProtocol != 0xff)) {
+@@ -1361,7 +1361,7 @@ brcmf_usb_probe(struct usb_interface *in
+ 
+ 	num_of_eps = desc->bNumEndpoints;
+ 	for (ep = 0; ep < num_of_eps; ep++) {
+-		endpoint = &intf->altsetting[0].endpoint[ep].desc;
++		endpoint = &intf->cur_altsetting->endpoint[ep].desc;
+ 		endpoint_num = usb_endpoint_num(endpoint);
+ 		if (!usb_endpoint_xfer_bulk(endpoint))
+ 			continue;
 
 
