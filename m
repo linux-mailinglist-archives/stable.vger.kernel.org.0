@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1BA514E2AE
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D80714E174
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:44:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729943AbgA3Skb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:40:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48042 "EHLO mail.kernel.org"
+        id S1730844AbgA3Soc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:44:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727639AbgA3Sk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:40:29 -0500
+        id S1730840AbgA3Soc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:44:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ACE120702;
-        Thu, 30 Jan 2020 18:40:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 187DB21734;
+        Thu, 30 Jan 2020 18:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409628;
-        bh=bxk9yNk/N4n0H8vazRDqQh0DVJDhvAsAxShkNseNHhI=;
+        s=default; t=1580409871;
+        bh=8OuebgqwLV2pZs9r42PHayOw/w5zaMYEWWmMvxUg8HA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teCmqWlK/ad6UxZ0hqtWI03BsNrSiUyFMkZ7rIXxRz6/5ypgXehd6Z80HsPZIuxpf
-         eiPqEMLVmWbdIAlvsyLVmu9/HG3deUFxVoC0wpNFf9DM3TZf7W6pRfS8vc1mdfIgZR
-         4lyMKqUGga+t4eS369VllfsEr/bcBbgFxkqd8zvg=
+        b=N+Plv1Ekx4CPQy3dWcwe7eJVnUx9/ywa0AB8e1uEAOpvoc2Ht1k9HB+Em3GtlmldE
+         qI1sktvZLtxyQgW/NiwFMC73wR65UAu6Bao7KfYfYJ2Q2c4Mf/7b7zhIR8wJqH2E3A
+         PnAnrqKzPRhHewiiRNct5TzeONgGq+8j7vCscMCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
-        Stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.5 26/56] iio: st_gyro: Correct data for LSM9DS0 gyro
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/110] drivers/net/b44: Change to non-atomic bit operations on pwol_mask
 Date:   Thu, 30 Jan 2020 19:38:43 +0100
-Message-Id: <20200130183613.900108281@linuxfoundation.org>
+Message-Id: <20200130183622.595145543@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
-References: <20200130183608.849023566@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,120 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-commit e825070f697abddf3b9b0a675ed0ff1884114818 upstream.
+[ Upstream commit f11421ba4af706cb4f5703de34fa77fba8472776 ]
 
-The commit 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
-assumes that gyro in LSM9DS0 is the same as others with 0xd4 WAI ID,
-but datasheet tells slight different story, i.e. the first scale factor
-for the chip is 245 dps, and not 250 dps.
+Atomic operations that span cache lines are super-expensive on x86
+(not just to the current processor, but also to other processes as all
+memory operations are blocked until the operation completes). Upcoming
+x86 processors have a switch to cause such operations to generate a #AC
+trap. It is expected that some real time systems will enable this mode
+in BIOS.
 
-Correct this by introducing a separate settings for LSM9DS0.
+In preparation for this, it is necessary to fix code that may execute
+atomic instructions with operands that cross cachelines because the #AC
+trap will crash the kernel.
 
-Fixes: 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
-Depends-on: 45a4e4220bf4 ("iio: gyro: st_gyro: fix L3GD20H support")
-Cc: Leonard Crestez <leonard.crestez@nxp.com>
-Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since "pwol_mask" is local and never exposed to concurrency, there is
+no need to set bits in pwol_mask using atomic operations.
 
+Directly operate on the byte which contains the bit instead of using
+__set_bit() to avoid any big endian concern due to type cast to
+unsigned long in __set_bit().
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/gyro/st_gyro_core.c |   75 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 74 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/b44.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/gyro/st_gyro_core.c
-+++ b/drivers/iio/gyro/st_gyro_core.c
-@@ -138,7 +138,6 @@ static const struct st_sensor_settings s
- 			[2] = LSM330DLC_GYRO_DEV_NAME,
- 			[3] = L3G4IS_GYRO_DEV_NAME,
- 			[4] = LSM330_GYRO_DEV_NAME,
--			[5] = LSM9DS0_GYRO_DEV_NAME,
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
-@@ -202,6 +201,80 @@ static const struct st_sensor_settings s
- 			},
- 		},
- 		.sim = {
-+			.addr = 0x23,
-+			.value = BIT(0),
-+		},
-+		.multi_read_bit = true,
-+		.bootime = 2,
-+	},
-+	{
-+		.wai = 0xd4,
-+		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
-+		.sensors_supported = {
-+			[0] = LSM9DS0_GYRO_DEV_NAME,
-+		},
-+		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
-+		.odr = {
-+			.addr = 0x20,
-+			.mask = GENMASK(7, 6),
-+			.odr_avl = {
-+				{ .hz = 95, .value = 0x00, },
-+				{ .hz = 190, .value = 0x01, },
-+				{ .hz = 380, .value = 0x02, },
-+				{ .hz = 760, .value = 0x03, },
-+			},
-+		},
-+		.pw = {
-+			.addr = 0x20,
-+			.mask = BIT(3),
-+			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
-+			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
-+		},
-+		.enable_axis = {
-+			.addr = ST_SENSORS_DEFAULT_AXIS_ADDR,
-+			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
-+		},
-+		.fs = {
-+			.addr = 0x23,
-+			.mask = GENMASK(5, 4),
-+			.fs_avl = {
-+				[0] = {
-+					.num = ST_GYRO_FS_AVL_245DPS,
-+					.value = 0x00,
-+					.gain = IIO_DEGREE_TO_RAD(8750),
-+				},
-+				[1] = {
-+					.num = ST_GYRO_FS_AVL_500DPS,
-+					.value = 0x01,
-+					.gain = IIO_DEGREE_TO_RAD(17500),
-+				},
-+				[2] = {
-+					.num = ST_GYRO_FS_AVL_2000DPS,
-+					.value = 0x02,
-+					.gain = IIO_DEGREE_TO_RAD(70000),
-+				},
-+			},
-+		},
-+		.bdu = {
-+			.addr = 0x23,
-+			.mask = BIT(7),
-+		},
-+		.drdy_irq = {
-+			.int2 = {
-+				.addr = 0x22,
-+				.mask = BIT(3),
-+			},
-+			/*
-+			 * The sensor has IHL (active low) and open
-+			 * drain settings, but only for INT1 and not
-+			 * for the DRDY line on INT2.
-+			 */
-+			.stat_drdy = {
-+				.addr = ST_SENSORS_DEFAULT_STAT_ADDR,
-+				.mask = GENMASK(2, 0),
-+			},
-+		},
-+		.sim = {
- 			.addr = 0x23,
- 			.value = BIT(0),
- 		},
+diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/broadcom/b44.c
+index 97ab0dd255522..1a7710c399d74 100644
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -1519,8 +1519,10 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 	int ethaddr_bytes = ETH_ALEN;
+ 
+ 	memset(ppattern + offset, 0xff, magicsync);
+-	for (j = 0; j < magicsync; j++)
+-		set_bit(len++, (unsigned long *) pmask);
++	for (j = 0; j < magicsync; j++) {
++		pmask[len >> 3] |= BIT(len & 7);
++		len++;
++	}
+ 
+ 	for (j = 0; j < B44_MAX_PATTERNS; j++) {
+ 		if ((B44_PATTERN_SIZE - len) >= ETH_ALEN)
+@@ -1532,7 +1534,8 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 		for (k = 0; k< ethaddr_bytes; k++) {
+ 			ppattern[offset + magicsync +
+ 				(j * ETH_ALEN) + k] = macaddr[k];
+-			set_bit(len++, (unsigned long *) pmask);
++			pmask[len >> 3] |= BIT(len & 7);
++			len++;
+ 		}
+ 	}
+ 	return len - 1;
+-- 
+2.20.1
+
 
 
