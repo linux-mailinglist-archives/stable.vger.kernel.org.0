@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FC614E205
+	by mail.lfdr.de (Postfix) with ESMTP id 72F1714E206
 	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731635AbgA3Ss5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731620AbgA3Ss5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 30 Jan 2020 13:48:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60070 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731603AbgA3Ssw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:48:52 -0500
+        id S1731628AbgA3Ssy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:48:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C2F6205F4;
-        Thu, 30 Jan 2020 18:48:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D01372082E;
+        Thu, 30 Jan 2020 18:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410131;
-        bh=GxV6/wY7RDwG93sqU4ChZ6H7RM0RrA9IBv0IyeHT6/M=;
+        s=default; t=1580410134;
+        bh=sTk4HzVHw0/UkgxkEPe5mIgaFekq7MtnMu76lCkb6po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oN8USJhT8bds5aXcgzsaG+0NylYfWDInLy0sNnU7Hr+K7SyH0hf2673zW6T2c8GDb
-         Iw+mGuM+bzh0wlvkF3NKMKfl0FqciYaiZyImAGKwzUijVoVA8kWQE+koPlN3Dh4WzG
-         E9jG5Ki/CsFglKquB9UM389IG6ivOhThBK4raY5M=
+        b=O9794AP+QiXYRa7csQ5ZbTdp6QqdA2DOOEsYqljdi21Y6/eSUc9cfu0s5BAIDdv1b
+         FLRJ6OlL+KD3sCTque3g9uZJ27XHktKPG6PKfrNzxQGqDvj3nk12AoVAoBaGnw8Ra2
+         QBR0TLFVyEdUkKm2HLQ0nClASsuHMab+VfSDnt1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmed Darwish <darwish.07@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Theodore Tso <tytso@mit.edu>,
-        Nicholas Mc Guire <hofrat@opentech.at>,
-        Andy Lutomirski <luto@kernel.org>,
-        Kees Cook <keescook@chromium.org>, Willy Tarreau <w@1wt.eu>,
-        "Alexander E. Patrakov" <patrakov@gmail.com>,
-        Lennart Poettering <mzxreary@0pointer.de>,
-        Noah Meyerhans <noahm@debian.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 52/55] random: try to actively add entropy rather than passively wait for it
-Date:   Thu, 30 Jan 2020 19:39:33 +0100
-Message-Id: <20200130183617.871941331@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Xiao Ni <xni@redhat.com>,
+        Mariusz Dabrowski <mariusz.dabrowski@intel.com>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Subject: [PATCH 4.19 53/55] block: cleanup __blkdev_issue_discard()
+Date:   Thu, 30 Jan 2020 19:39:34 +0100
+Message-Id: <20200130183618.023559040@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
 References: <20200130183608.563083888@linuxfoundation.org>
@@ -51,146 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 50ee7529ec4500c88f8664560770a7a1b65db72b upstream.
+commit ba5d73851e71847ba7f7f4c27a1a6e1f5ab91c79 upstream.
 
-For 5.3 we had to revert a nice ext4 IO pattern improvement, because it
-caused a bootup regression due to lack of entropy at bootup together
-with arguably broken user space that was asking for secure random
-numbers when it really didn't need to.
+Cleanup __blkdev_issue_discard() a bit:
 
-See commit 72dbcf721566 (Revert "ext4: make __ext4_get_inode_loc plug").
+- remove local variable of 'end_sect'
+- remove code block of 'fail'
 
-This aims to solve the issue by actively generating entropy noise using
-the CPU cycle counter when waiting for the random number generator to
-initialize.  This only works when you have a high-frequency time stamp
-counter available, but that's the case on all modern x86 CPU's, and on
-most other modern CPU's too.
-
-What we do is to generate jitter entropy from the CPU cycle counter
-under a somewhat complex load: calling the scheduler while also
-guaranteeing a certain amount of timing noise by also triggering a
-timer.
-
-I'm sure we can tweak this, and that people will want to look at other
-alternatives, but there's been a number of papers written on jitter
-entropy, and this should really be fairly conservative by crediting one
-bit of entropy for every timer-induced jump in the cycle counter.  Not
-because the timer itself would be all that unpredictable, but because
-the interaction between the timer and the loop is going to be.
-
-Even if (and perhaps particularly if) the timer actually happens on
-another CPU, the cacheline interaction between the loop that reads the
-cycle counter and the timer itself firing is going to add perturbations
-to the cycle counter values that get mixed into the entropy pool.
-
-As Thomas pointed out, with a modern out-of-order CPU, even quite simple
-loops show a fair amount of hard-to-predict timing variability even in
-the absense of external interrupts.  But this tries to take that further
-by actually having a fairly complex interaction.
-
-This is not going to solve the entropy issue for architectures that have
-no CPU cycle counter, but it's not clear how (and if) that is solvable,
-and the hardware in question is largely starting to be irrelevant.  And
-by doing this we can at least avoid some of the even more contentious
-approaches (like making the entropy waiting time out in order to avoid
-the possibly unbounded waiting).
-
-Cc: Ahmed Darwish <darwish.07@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Nicholas Mc Guire <hofrat@opentech.at>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Alexander E. Patrakov <patrakov@gmail.com>
-Cc: Lennart Poettering <mzxreary@0pointer.de>
-Cc: Noah Meyerhans <noahm@debian.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Snitzer <snitzer@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Xiao Ni <xni@redhat.com>
+Cc: Mariusz Dabrowski <mariusz.dabrowski@intel.com>
+Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/char/random.c |   62 +++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 61 insertions(+), 1 deletion(-)
+ block/blk-lib.c |   23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1653,6 +1653,56 @@ void get_random_bytes(void *buf, int nby
- }
- EXPORT_SYMBOL(get_random_bytes);
+--- a/block/blk-lib.c
++++ b/block/blk-lib.c
+@@ -52,15 +52,12 @@ int __blkdev_issue_discard(struct block_
+ 	if ((sector | nr_sects) & bs_mask)
+ 		return -EINVAL;
  
-+
-+/*
-+ * Each time the timer fires, we expect that we got an unpredictable
-+ * jump in the cycle counter. Even if the timer is running on another
-+ * CPU, the timer activity will be touching the stack of the CPU that is
-+ * generating entropy..
-+ *
-+ * Note that we don't re-arm the timer in the timer itself - we are
-+ * happy to be scheduled away, since that just makes the load more
-+ * complex, but we do not want the timer to keep ticking unless the
-+ * entropy loop is running.
-+ *
-+ * So the re-arming always happens in the entropy loop itself.
-+ */
-+static void entropy_timer(struct timer_list *t)
-+{
-+	credit_entropy_bits(&input_pool, 1);
-+}
-+
-+/*
-+ * If we have an actual cycle counter, see if we can
-+ * generate enough entropy with timing noise
-+ */
-+static void try_to_generate_entropy(void)
-+{
-+	struct {
-+		unsigned long now;
-+		struct timer_list timer;
-+	} stack;
-+
-+	stack.now = random_get_entropy();
-+
-+	/* Slow counter - or none. Don't even bother */
-+	if (stack.now == random_get_entropy())
-+		return;
-+
-+	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
-+	while (!crng_ready()) {
-+		if (!timer_pending(&stack.timer))
-+			mod_timer(&stack.timer, jiffies+1);
-+		mix_pool_bytes(&input_pool, &stack.now, sizeof(stack.now));
-+		schedule();
-+		stack.now = random_get_entropy();
-+	}
-+
-+	del_timer_sync(&stack.timer);
-+	destroy_timer_on_stack(&stack.timer);
-+	mix_pool_bytes(&input_pool, &stack.now, sizeof(stack.now));
-+}
-+
- /*
-  * Wait for the urandom pool to be seeded and thus guaranteed to supply
-  * cryptographically secure random numbers. This applies to: the /dev/urandom
-@@ -1667,7 +1717,17 @@ int wait_for_random_bytes(void)
- {
- 	if (likely(crng_ready()))
- 		return 0;
--	return wait_event_interruptible(crng_init_wait, crng_ready());
-+
-+	do {
-+		int ret;
-+		ret = wait_event_interruptible_timeout(crng_init_wait, crng_ready(), HZ);
-+		if (ret)
-+			return ret > 0 ? 0 : ret;
-+
-+		try_to_generate_entropy();
-+	} while (!crng_ready());
-+
-+	return 0;
+-	while (nr_sects) {
+-		unsigned int req_sects = nr_sects;
+-		sector_t end_sect;
+-
+-		if (!req_sects)
+-			goto fail;
+-		req_sects = min(req_sects, bio_allowed_max_sectors(q));
++	if (!nr_sects)
++		return -EINVAL;
+ 
+-		end_sect = sector + req_sects;
++	while (nr_sects) {
++		unsigned int req_sects = min_t(unsigned int, nr_sects,
++				bio_allowed_max_sectors(q));
+ 
+ 		bio = next_bio(bio, 0, gfp_mask);
+ 		bio->bi_iter.bi_sector = sector;
+@@ -68,8 +65,8 @@ int __blkdev_issue_discard(struct block_
+ 		bio_set_op_attrs(bio, op, 0);
+ 
+ 		bio->bi_iter.bi_size = req_sects << 9;
++		sector += req_sects;
+ 		nr_sects -= req_sects;
+-		sector = end_sect;
+ 
+ 		/*
+ 		 * We can loop for a long time in here, if someone does
+@@ -82,14 +79,6 @@ int __blkdev_issue_discard(struct block_
+ 
+ 	*biop = bio;
+ 	return 0;
+-
+-fail:
+-	if (bio) {
+-		submit_bio_wait(bio);
+-		bio_put(bio);
+-	}
+-	*biop = NULL;
+-	return -EOPNOTSUPP;
  }
- EXPORT_SYMBOL(wait_for_random_bytes);
+ EXPORT_SYMBOL(__blkdev_issue_discard);
  
 
 
