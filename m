@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 616A114E1D9
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B26014E248
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731475AbgA3SsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:48:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58836 "EHLO mail.kernel.org"
+        id S1730933AbgA3SpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:45:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728108AbgA3SsA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:48:00 -0500
+        id S1730930AbgA3SpB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:45:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 523E422522;
-        Thu, 30 Jan 2020 18:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1AA1205F4;
+        Thu, 30 Jan 2020 18:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580410079;
-        bh=VCEHbHeOb25vItQmcOqdlf5+SeUhC0e+lxaC6DddWZQ=;
+        s=default; t=1580409900;
+        bh=1CJUUDFCemZcrasaD10onhLEDNjLB5/mzrNSPYQzFng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6qVhIKJTeoc8P0Qqv0ChnKjco38B86Tv1FItej6ZW8yFW6wMvpitoNahcTm1FxGc
-         B5grDqEtLMLRoYBI44fj1TjA5ZvHxoucuUstgACOk7tjin5aJnohyvkfoBmaho8xpt
-         CHnO3sMuKFxTlhfeKWJ554eCUvWeMdBoXCMLFz6Q=
+        b=lauwEwn1EQfcHg1x79eCe1jK3/hh1iDqyunv33LRYLTJckl9oBga8cpqNWbbQQLWm
+         89Wa4HCeL2vf1+jiUKVjO+yNrR8DDggqa79ingrzrOdLVLPD4QGajQTis16uB7/tmP
+         HRjhQ4JlYeavgBpKp+cRl1tMuJmDfL6689EstOVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.19 11/55] staging: vt6656: use NULLFUCTION stack on mac80211
-Date:   Thu, 30 Jan 2020 19:38:52 +0100
-Message-Id: <20200130183610.869343596@linuxfoundation.org>
+        stable@vger.kernel.org, Jiange Zhao <Jiange.Zhao@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 077/110] drm/amdgpu/SRIOV: add navi12 pci id for SRIOV (v2)
+Date:   Thu, 30 Jan 2020 19:38:53 +0100
+Message-Id: <20200130183623.425577059@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
-References: <20200130183608.563083888@linuxfoundation.org>
+In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
+References: <20200130183613.810054545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Jiange Zhao <Jiange.Zhao@amd.com>
 
-commit d579c43c82f093e63639151625b2139166c730fd upstream.
+[ Upstream commit 57d4f3b7fd65b56f98b62817f27c461142c0bc2a ]
 
-It appears that the drivers does not go into power save correctly the
-NULL data packets are not being transmitted because it not enabled
-in mac80211.
+Add Navi12 PCI id support.
 
-The driver needs to capture ieee80211_is_nullfunc headers and
-copy the duration_id to it's own duration data header.
+v2: flag as experimental for now (Alex)
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/610971ae-555b-a6c3-61b3-444a0c1e35b4@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jiange Zhao <Jiange.Zhao@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vt6656/main_usb.c |    1 +
- drivers/staging/vt6656/rxtx.c     |   14 +++++---------
- 2 files changed, 6 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -978,6 +978,7 @@ vt6656_probe(struct usb_interface *intf,
- 	ieee80211_hw_set(priv->hw, RX_INCLUDES_FCS);
- 	ieee80211_hw_set(priv->hw, REPORTS_TX_ACK_STATUS);
- 	ieee80211_hw_set(priv->hw, SUPPORTS_PS);
-+	ieee80211_hw_set(priv->hw, PS_NULLFUNC_STACK);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 33a1099e2f33e..bb9a2771a0f9e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1023,6 +1023,7 @@ static const struct pci_device_id pciidlist[] = {
  
- 	priv->hw->max_signal = 100;
+ 	/* Navi12 */
+ 	{0x1002, 0x7360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI12|AMD_EXP_HW_SUPPORT},
++	{0x1002, 0x7362, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI12|AMD_EXP_HW_SUPPORT},
  
---- a/drivers/staging/vt6656/rxtx.c
-+++ b/drivers/staging/vt6656/rxtx.c
-@@ -278,11 +278,9 @@ static u16 vnt_rxtx_datahead_g(struct vn
- 			  PK_TYPE_11B, &buf->b);
- 
- 	/* Get Duration and TimeStamp */
--	if (ieee80211_is_pspoll(hdr->frame_control)) {
--		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
--
--		buf->duration_a = dur;
--		buf->duration_b = dur;
-+	if (ieee80211_is_nullfunc(hdr->frame_control)) {
-+		buf->duration_a = hdr->duration_id;
-+		buf->duration_b = hdr->duration_id;
- 	} else {
- 		buf->duration_a = vnt_get_duration_le(priv,
- 						tx_context->pkt_type, need_ack);
-@@ -371,10 +369,8 @@ static u16 vnt_rxtx_datahead_ab(struct v
- 			  tx_context->pkt_type, &buf->ab);
- 
- 	/* Get Duration and TimeStampOff */
--	if (ieee80211_is_pspoll(hdr->frame_control)) {
--		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
--
--		buf->duration = dur;
-+	if (ieee80211_is_nullfunc(hdr->frame_control)) {
-+		buf->duration = hdr->duration_id;
- 	} else {
- 		buf->duration = vnt_get_duration_le(priv, tx_context->pkt_type,
- 						    need_ack);
+ 	{0, 0, 0}
+ };
+-- 
+2.20.1
+
 
 
