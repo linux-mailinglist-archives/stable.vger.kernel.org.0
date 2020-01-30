@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EAE14E24E
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:51:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 118F614E1BE
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:48:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730993AbgA3SpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:45:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
+        id S1731005AbgA3SrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:47:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730986AbgA3SpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:45:16 -0500
+        id S1731318AbgA3SrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:47:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D62B320CC7;
-        Thu, 30 Jan 2020 18:45:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5205220674;
+        Thu, 30 Jan 2020 18:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409915;
-        bh=dpSH7wm6P98BNVbE4Ngg343Teh85IXSxwMZFTo00bpY=;
+        s=default; t=1580410027;
+        bh=6GzoNV0zyINcGNLAPy2ZdbfQ+iqqU24+bbg51LWIlX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXhf2mPwHX3+ecBZqT6Y8kq3M7/aTUn+846r5O/R5C0yP1wDa6h6stDaQ9oLwO/zJ
-         xgc113ntYiM5qgBYAYHcgjfA3eNNdjc+JGoW5reaQjfFYuqaqfSXmSHIpqNB0sWRfQ
-         SYPeZJ/ePgZiN1ZbVz9dRtXhHsa55qBHrU+XEMjk=
+        b=mr+5iNRQfOuSxFqNbNAZPs0hznMMoVWcjXvvnoWXzt7jK2PrjeZCETWjHKO4F6waF
+         sKbj3W7+qOUQjXh92LLrwHNreWuppMb2ENEB3UMj0dYBsr7im0/uC7vppgJJZCqmTf
+         qzU/YrUaJxzS7qEqquixoTPANPuUvOMwgTBYR7i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Voegtle <tv@lio96.de>,
-        Jan Pieter van Woerkom <jp@jpvw.nl>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/110] media: dvbsky: add support for eyeTV Geniatech T2 lite
-Date:   Thu, 30 Jan 2020 19:38:58 +0100
-Message-Id: <20200130183623.902015896@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>
+Subject: [PATCH 4.19 18/55] cifs: Fix memory allocation in __smb2_handle_cancelled_cmd()
+Date:   Thu, 30 Jan 2020 19:38:59 +0100
+Message-Id: <20200130183612.174750191@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Voegtle <tv@lio96.de>
+From: Paulo Alcantara (SUSE) <pc@cjr.nz>
 
-[ Upstream commit 14494583336880640654300c76d0f5df3360d85f ]
+commit 0a5a98863c9debc02387b3d23c46d187756f5e2b upstream.
 
-Adds USB ID for the eyeTV Geniatech T2 lite to the dvbsky driver.
-This is a Geniatech T230C based stick without IR and a different USB ID.
+__smb2_handle_cancelled_cmd() is called under a spin lock held in
+cifs_mid_q_entry_release(), so make its memory allocation GFP_ATOMIC.
 
-Signed-off-by: Thomas Voegtle <tv@lio96.de>
-Tested-by: Jan Pieter van Woerkom <jp@jpvw.nl>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This issue was observed when running xfstests generic/028:
+
+[ 1722.589204] CIFS VFS: \\192.168.30.26 Cancelling wait for mid 72064 cmd: 5
+[ 1722.590687] CIFS VFS: \\192.168.30.26 Cancelling wait for mid 72065 cmd: 17
+[ 1722.593529] CIFS VFS: \\192.168.30.26 Cancelling wait for mid 72066 cmd: 6
+[ 1723.039014] BUG: sleeping function called from invalid context at mm/slab.h:565
+[ 1723.040710] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 30877, name: cifsd
+[ 1723.045098] CPU: 3 PID: 30877 Comm: cifsd Not tainted 5.5.0-rc4+ #313
+[ 1723.046256] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+[ 1723.048221] Call Trace:
+[ 1723.048689]  dump_stack+0x97/0xe0
+[ 1723.049268]  ___might_sleep.cold+0xd1/0xe1
+[ 1723.050069]  kmem_cache_alloc_trace+0x204/0x2b0
+[ 1723.051051]  __smb2_handle_cancelled_cmd+0x40/0x140 [cifs]
+[ 1723.052137]  smb2_handle_cancelled_mid+0xf6/0x120 [cifs]
+[ 1723.053247]  cifs_mid_q_entry_release+0x44d/0x630 [cifs]
+[ 1723.054351]  ? cifs_reconnect+0x26a/0x1620 [cifs]
+[ 1723.055325]  cifs_demultiplex_thread+0xad4/0x14a0 [cifs]
+[ 1723.056458]  ? cifs_handle_standard+0x2c0/0x2c0 [cifs]
+[ 1723.057365]  ? kvm_sched_clock_read+0x14/0x30
+[ 1723.058197]  ? sched_clock+0x5/0x10
+[ 1723.058838]  ? sched_clock_cpu+0x18/0x110
+[ 1723.059629]  ? lockdep_hardirqs_on+0x17d/0x250
+[ 1723.060456]  kthread+0x1ab/0x200
+[ 1723.061149]  ? cifs_handle_standard+0x2c0/0x2c0 [cifs]
+[ 1723.062078]  ? kthread_create_on_node+0xd0/0xd0
+[ 1723.062897]  ret_from_fork+0x3a/0x50
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Fixes: 9150c3adbf24 ("CIFS: Close open handle after interrupted close")
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/usb/dvb-usb-v2/dvbsky.c | 3 +++
- include/media/dvb-usb-ids.h           | 1 +
- 2 files changed, 4 insertions(+)
+ fs/cifs/smb2misc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/dvbsky.c b/drivers/media/usb/dvb-usb-v2/dvbsky.c
-index 617a306f6815d..dc380c0c95369 100644
---- a/drivers/media/usb/dvb-usb-v2/dvbsky.c
-+++ b/drivers/media/usb/dvb-usb-v2/dvbsky.c
-@@ -792,6 +792,9 @@ static const struct usb_device_id dvbsky_id_table[] = {
- 	{ DVB_USB_DEVICE(USB_VID_CONEXANT, USB_PID_MYGICA_T230C,
- 		&mygica_t230c_props, "MyGica Mini DVB-T2 USB Stick T230C",
- 		RC_MAP_TOTAL_MEDIA_IN_HAND_02) },
-+	{ DVB_USB_DEVICE(USB_VID_CONEXANT, USB_PID_MYGICA_T230C_LITE,
-+		&mygica_t230c_props, "MyGica Mini DVB-T2 USB Stick T230C Lite",
-+		NULL) },
- 	{ DVB_USB_DEVICE(USB_VID_CONEXANT, USB_PID_MYGICA_T230C2,
- 		&mygica_t230c_props, "MyGica Mini DVB-T2 USB Stick T230C v2",
- 		RC_MAP_TOTAL_MEDIA_IN_HAND_02) },
-diff --git a/include/media/dvb-usb-ids.h b/include/media/dvb-usb-ids.h
-index 7ce4e83324219..1409230ad3a4c 100644
---- a/include/media/dvb-usb-ids.h
-+++ b/include/media/dvb-usb-ids.h
-@@ -389,6 +389,7 @@
- #define USB_PID_MYGICA_T230				0xc688
- #define USB_PID_MYGICA_T230C				0xc689
- #define USB_PID_MYGICA_T230C2				0xc68a
-+#define USB_PID_MYGICA_T230C_LITE			0xc699
- #define USB_PID_ELGATO_EYETV_DIVERSITY			0x0011
- #define USB_PID_ELGATO_EYETV_DTT			0x0021
- #define USB_PID_ELGATO_EYETV_DTT_2			0x003f
--- 
-2.20.1
-
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -750,7 +750,7 @@ __smb2_handle_cancelled_close(struct cif
+ {
+ 	struct close_cancelled_open *cancelled;
+ 
+-	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
++	cancelled = kzalloc(sizeof(*cancelled), GFP_ATOMIC);
+ 	if (!cancelled)
+ 		return -ENOMEM;
+ 
 
 
