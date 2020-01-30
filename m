@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C227714E289
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:53:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1E014E280
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730438AbgA3Smm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:42:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51080 "EHLO mail.kernel.org"
+        id S1730444AbgA3Smo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:42:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730399AbgA3Sml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:42:41 -0500
+        id S1730441AbgA3Smn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:42:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CF9C205F4;
-        Thu, 30 Jan 2020 18:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E751220702;
+        Thu, 30 Jan 2020 18:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409761;
-        bh=JprzsrsDkvh6ThURAg96n44ZwWxlCeOkPmVcxob7ag8=;
+        s=default; t=1580409763;
+        bh=IEY2DK0mVd3QRoS/LYnosAPqfWr7Mx1laUopAzlAE6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w69zV1wyKvY9bFN+x8fcyrOuHEnVnHPdqCqZFY29KRB35+uUY2ztGbmuNVp7ggfpd
-         T8IQ0KxQ6evzHbQWIPN/EAfsGwDLJ3jcQ8hjxVtoXr15i3PYk4bvq6m874l95ypRO0
-         HXVfFh9hQvtzW0O4+mhmNLpVnTR52rjp1WtaCycM=
+        b=STNT+7EHqubwYVZ7H6H/yrizqJaAbL+HLkSil1RFGyfiX5uwHW7hLZtw4hhFCfPKn
+         kf0zTO0tCaRcUoo06b35RkDhNKTTDBjW4q+gjgwUagoT90uU3RIXXh1tsAJJOX+geS
+         rEoF80omZN2IYTStA299jdD6rVfhgpMxmDQ7r538=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.4 023/110] mei: me: add comet point (lake) H device ids
-Date:   Thu, 30 Jan 2020 19:37:59 +0100
-Message-Id: <20200130183617.779714027@linuxfoundation.org>
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 024/110] iio: adc: stm32-dfsdm: fix single conversion
+Date:   Thu, 30 Jan 2020 19:38:00 +0100
+Message-Id: <20200130183617.936420980@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
 References: <20200130183613.810054545@linuxfoundation.org>
@@ -42,47 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Winkler <tomas.winkler@intel.com>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-commit 559e575a8946a6561dfe8880de341d4ef78d5994 upstream.
+commit dc26935fb60e8da8d59655dd2ec0de47b20d7d8f upstream.
 
-Add Comet Point device IDs for Comet Lake H platforms.
+Apply data formatting to single conversion,
+as this is already done in continuous and trigger modes.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200119094229.20116-1-tomas.winkler@intel.com
+Fixes: 102afde62937 ("iio: adc: stm32-dfsdm: manage data resolution in trigger mode")
+
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Cc: <Stable@vger.kernel.org>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/hw-me-regs.h |    4 ++++
- drivers/misc/mei/pci-me.c     |    2 ++
- 2 files changed, 6 insertions(+)
+ drivers/iio/adc/stm32-dfsdm-adc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -81,8 +81,12 @@
+--- a/drivers/iio/adc/stm32-dfsdm-adc.c
++++ b/drivers/iio/adc/stm32-dfsdm-adc.c
+@@ -1204,6 +1204,8 @@ static int stm32_dfsdm_single_conv(struc
  
- #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
- #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
+ 	stm32_dfsdm_stop_conv(adc);
+ 
++	stm32_dfsdm_process_data(adc, res);
 +
- #define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
- 
-+#define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
-+#define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
-+
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
- #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -99,6 +99,8 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+ stop_dfsdm:
+ 	stm32_dfsdm_stop_dfsdm(adc->dfsdm);
  
 
 
