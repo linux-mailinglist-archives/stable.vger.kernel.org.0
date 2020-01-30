@@ -2,89 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2C514D4BB
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 01:39:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C939014D4DC
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 01:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726768AbgA3Aju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jan 2020 19:39:50 -0500
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:45075 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726671AbgA3Ajt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 19:39:49 -0500
-Received: from callcc.thunk.org (guestnat-104-133-9-100.corp.google.com [104.133.9.100] (may be forged))
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 00U0dUWM002779
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 29 Jan 2020 19:39:31 -0500
-Received: by callcc.thunk.org (Postfix, from userid 15806)
-        id E45AD420324; Wed, 29 Jan 2020 19:39:39 -0500 (EST)
-Date:   Wed, 29 Jan 2020 19:39:39 -0500
-From:   "Theodore Y. Ts'o" <tytso@mit.edu>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Noah Meyerhans <noahm@debian.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: Please apply 50ee7529ec45 ("random: try to actively add entropy
- rather than passively wait for it") to 4.19.y
-Message-ID: <20200130003939.GC303030@mit.edu>
-References: <20200127230214.GC25530@morgul.net>
- <20200128075223.GD2105706@kroah.com>
- <20200128193437.GA18426@morgul.net>
- <CAHk-=wiqQcpwh6iC0RpAQHOksSVQiq0SOU30DMecOJn_wrXzPg@mail.gmail.com>
+        id S1726528AbgA3Avs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jan 2020 19:51:48 -0500
+Received: from mail-wm1-f52.google.com ([209.85.128.52]:53467 "EHLO
+        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726760AbgA3Avs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jan 2020 19:51:48 -0500
+Received: by mail-wm1-f52.google.com with SMTP id s10so1838670wmh.3
+        for <stable@vger.kernel.org>; Wed, 29 Jan 2020 16:51:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nwJdmx/7Of+aQb5xDcw30FzGPrVczLGD4vcPn1L7aik=;
+        b=RSZ/elAw6cIqgANVi9gwwZ46p4xQ+BoRsGvVhSxLOPZtQy+3SgBG996OpuB6JhySah
+         TZNchqtGVxnEhfhIQpqst8MAUFFdletjh3z1SCaInGfSxwFvb8e/b7Ujds7v1onE33tX
+         U1HVHrdz5MXUzsakCBTHPB0JI+Ue/hZ0j+QZniq0iJ4ydP7OsASTjJG4jjA0ycCLx+j5
+         byicujyKw5qPu0rKs2SFi3agxxayOK4CDBwjVedYk4zhPFiO9oYTZuEJM1TXFrFVcc8l
+         bO1iSMYltmLo8ARknY6IcBsxc54Xzs+zVJCNw57g/QrjMm10My5mtTx5R7aIg4T+11yF
+         IZBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nwJdmx/7Of+aQb5xDcw30FzGPrVczLGD4vcPn1L7aik=;
+        b=M1tMWqDP9IMVTvwa5s4N0ngiFnhqMAbX6jjEFUpVnWXjs+GAjjfq/84/idoaz2cg8G
+         RiAHJLrz7AfCVNsUHC7yQOMVzStJWtiFAF9cWkkyEM6pkDfN9LskKS/doTef56CVaHqb
+         FQ7vZPTNMV/avUgfwrwpjQDh0Yv2m/NkKK1n/HIR71fIJfNc36KjGUkAx/v1UzpHQFS7
+         dY1z75nCgIAfStXrZ2jTCHy1nvIV1ZBjM5zwiiiIVfeGKHVmH0JAWEhblDGqi3YLxhMT
+         xslj19uwzzCGTHSJzhoeg7w7M/VqKuybmw+l6zjLa892hmv7jTY+UCEn5NX2cH/FRT6Z
+         TYdA==
+X-Gm-Message-State: APjAAAXhCebqfloE/3imYNvoAgeK8DzqzsDKnqAlri4nlkKRvVH/kiMX
+        cw6mofq6xZ0VIo5oeegPMoid3W2yEtbBxw==
+X-Google-Smtp-Source: APXvYqyHv0dBp6WGNlu3NEY6yUmOlQ+0XVQpZfDC1YLe1kP0Auycn9CcoACqUWUQU0c7LbJNNqEn7w==
+X-Received: by 2002:a1c:a382:: with SMTP id m124mr1899327wme.90.1580345505659;
+        Wed, 29 Jan 2020 16:51:45 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b16sm4116404wmj.39.2020.01.29.16.51.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jan 2020 16:51:45 -0800 (PST)
+Message-ID: <5e3228a1.1c69fb81.6093e.4232@mx.google.com>
+Date:   Wed, 29 Jan 2020 16:51:45 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wiqQcpwh6iC0RpAQHOksSVQiq0SOU30DMecOJn_wrXzPg@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.212
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.4.y boot: 16 boots: 0 failed, 16 passed (v4.4.212)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 11:59:28AM -0800, Linus Torvalds wrote:
-> On Tue, Jan 28, 2020 at 11:34 AM Noah Meyerhans <noahm@debian.org> wrote:
-> >
-> > Added torvalds and tytso to the CC list.  Linus and Ted, what do you
-> > think of the idea of applying 50ee7529ec45 ("random: try to actively add
-> > entropy rather than passively wait for it") to the 4.19.y and 4.14.y
-> > kernels?
-> 
-> By now I suspect it's the right thing to do. Nobody has complained
-> about it, and it fixed real issues during boot.
-> 
-> Some of those real issues may have ended up being just unnecessary
-> delays rather than complete lockups, but still..
+stable/linux-4.4.y boot: 16 boots: 0 failed, 16 passed (v4.4.212)
 
-FWIW, at $WORK we backported the patch, but we also added an out of
-tree patch to disable it on non-x86 systems.  That's mainly because
-I'm still hesitant about the safety of relying on this on non-x86
-architectures that may have a much simpler micro-archtecture, and
-which don't have RDRAND.  But we also have a much more stringent
-(paranoid?) philosophy where if there is a risk that our kernels might
-be penetrated by a nation-state (viz. Operation Aurora), booting
-lockups so we know that we might have a problem that should be
-examined by a human being is actually *preferable*.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+4.y/kernel/v4.4.212/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
+rnel/v4.4.212/
 
-But note that we work in a world where if there is a risk of exposure
-to attacks that can be carried out by a nation state, we'd much rather
-solve the problem in hardware (viz., a Titan Chip).
+Tree: stable
+Branch: linux-4.4.y
+Git Describe: v4.4.212
+Git Commit: 475d90ca735ce524de49d9fbe3f1a3fd5655caeb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 14 unique boards, 6 SoC families, 5 builds out of 163
 
-This is ultimately a security philosophy problem about what is more
-important.  I'm not terribly worried about doing this for x86,
-especially the more modern CPU's that have RDRAND.  I'm more worried
-about doing this for say, ARM and RISC-V.  The RISC-V folks haven't
-returned my queries; I haven't had the time to try to find some ARM
-experts, although the real problem is there are so many different
-implementations of the ARM architecture, that what might be applicable
-for one architecture might not be for another.
-
-So I'm not super-enthusiastic about backporting the commit to the
-stable kernels, but I'm not going to object, either.
-
-Cheers,
-						- Ted
-
-P.S.  And for VM's, the real right answer is virtio-rng (since if you
-don't trust the hypervisor or the entity running the host OS, you have
-no business using a VM in the first place), but I've had this
-discussion with Noah on another forum.  :-)
+---
+For more info write to <info@kernelci.org>
