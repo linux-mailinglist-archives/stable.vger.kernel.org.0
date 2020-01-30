@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ECE314DB7D
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 14:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D6014DB8C
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 14:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727262AbgA3N0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 08:26:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
+        id S1727397AbgA3N0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 08:26:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727132AbgA3N0L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 08:26:11 -0500
+        id S1727395AbgA3N0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 08:26:18 -0500
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16E0D2083E;
-        Thu, 30 Jan 2020 13:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 895F520CC7;
+        Thu, 30 Jan 2020 13:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580390770;
-        bh=OhoS0JanLTIxVzTGAKDyNXY3oCD/f0UsDdcPTiRDT8s=;
+        s=default; t=1580390777;
+        bh=QwOyi5B5tZ4auJ6rvhxpX1UiF4PD1aL6Yey8eGbUT9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdU75f+3ELw66IIp8E7L6aUqnGFFtL1DLdNBC+YFFOG0RzLCAeAotvkuD3NSF+8XR
-         J7tIRQKjKc9KOQxY4ifUpi3w+hYHHzLgqQjmYoMsNL5/BD0nstFKpg6KK9OkOcsuOi
-         1zCh62cyu52RBFNc/OgDzQpRim4ENzrK262oM2Bg=
+        b=wVTFc0I8+3A3Q37XBMt6VuAebGAgPezVZMVLtFFmbV9wJ5yR2tDU+xTAweyk3j2fY
+         1uFnD2Dhi63tSSXZ6Gpnk5yKQUUyfFNr12ucqB6BMzwW/i82f8fXrVdwPVlf9N3Xz3
+         F2gKjx0i66xj9fJKSaxJQsyRvPcAYWaZHheCbezs=
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
         by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <maz@kernel.org>)
-        id 1ix9pg-002BmW-Br; Thu, 30 Jan 2020 13:26:08 +0000
+        id 1ix9pn-002BmW-Rb; Thu, 30 Jan 2020 13:26:15 +0000
 From:   Marc Zyngier <maz@kernel.org>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
@@ -51,9 +51,9 @@ Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
         kvm@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 01/23] KVM: arm64: Only sign-extend MMIO up to register width
-Date:   Thu, 30 Jan 2020 13:25:36 +0000
-Message-Id: <20200130132558.10201-2-maz@kernel.org>
+Subject: [PATCH 08/23] KVM: arm64: Correct PSTATE on exception entry
+Date:   Thu, 30 Jan 2020 13:25:43 +0000
+Message-Id: <20200130132558.10201-9-maz@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200130132558.10201-1-maz@kernel.org>
 References: <20200130132558.10201-1-maz@kernel.org>
@@ -68,132 +68,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoffer Dall <christoffer.dall@arm.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-On AArch64 you can do a sign-extended load to either a 32-bit or 64-bit
-register, and we should only sign extend the register up to the width of
-the register as specified in the operation (by using the 32-bit Wn or
-64-bit Xn register specifier).
+When KVM injects an exception into a guest, it generates the PSTATE
+value from scratch, configuring PSTATE.{M[4:0],DAIF}, and setting all
+other bits to zero.
 
-As it turns out, the architecture provides this decoding information in
-the SF ("Sixty-Four" -- how cute...) bit.
+This isn't correct, as the architecture specifies that some PSTATE bits
+are (conditionally) cleared or set upon an exception, and others are
+unchanged from the original context.
 
-Let's take advantage of this with the usual 32-bit/64-bit header file
-dance and do the right thing on AArch64 hosts.
+This patch adds logic to match the architectural behaviour. To make this
+simple to follow/audit/extend, documentation references are provided,
+and bits are configured in order of their layout in SPSR_EL2. This
+layout can be seen in the diagram on ARM DDI 0487E.a page C5-429.
 
-Signed-off-by: Christoffer Dall <christoffer.dall@arm.com>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191212195055.5541-1-christoffer.dall@arm.com
+Link: https://lore.kernel.org/r/20200108134324.46500-2-mark.rutland@arm.com
 ---
- arch/arm/include/asm/kvm_emulate.h   | 5 +++++
- arch/arm/include/asm/kvm_mmio.h      | 2 ++
- arch/arm64/include/asm/kvm_emulate.h | 5 +++++
- arch/arm64/include/asm/kvm_mmio.h    | 6 ++----
- virt/kvm/arm/mmio.c                  | 6 ++++++
- 5 files changed, 20 insertions(+), 4 deletions(-)
+ arch/arm64/include/uapi/asm/ptrace.h |  1 +
+ arch/arm64/kvm/inject_fault.c        | 70 ++++++++++++++++++++++++++--
+ 2 files changed, 66 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/include/asm/kvm_emulate.h b/arch/arm/include/asm/kvm_emulate.h
-index 9b118516d2db..fe55d8737a11 100644
---- a/arch/arm/include/asm/kvm_emulate.h
-+++ b/arch/arm/include/asm/kvm_emulate.h
-@@ -182,6 +182,11 @@ static inline bool kvm_vcpu_dabt_issext(struct kvm_vcpu *vcpu)
- 	return kvm_vcpu_get_hsr(vcpu) & HSR_SSE;
+diff --git a/arch/arm64/include/uapi/asm/ptrace.h b/arch/arm64/include/uapi/asm/ptrace.h
+index 7ed9294e2004..d1bb5b69f1ce 100644
+--- a/arch/arm64/include/uapi/asm/ptrace.h
++++ b/arch/arm64/include/uapi/asm/ptrace.h
+@@ -49,6 +49,7 @@
+ #define PSR_SSBS_BIT	0x00001000
+ #define PSR_PAN_BIT	0x00400000
+ #define PSR_UAO_BIT	0x00800000
++#define PSR_DIT_BIT	0x01000000
+ #define PSR_V_BIT	0x10000000
+ #define PSR_C_BIT	0x20000000
+ #define PSR_Z_BIT	0x40000000
+diff --git a/arch/arm64/kvm/inject_fault.c b/arch/arm64/kvm/inject_fault.c
+index ccdb6a051ab2..6aafc2825c1c 100644
+--- a/arch/arm64/kvm/inject_fault.c
++++ b/arch/arm64/kvm/inject_fault.c
+@@ -14,9 +14,6 @@
+ #include <asm/kvm_emulate.h>
+ #include <asm/esr.h>
+ 
+-#define PSTATE_FAULT_BITS_64 	(PSR_MODE_EL1h | PSR_A_BIT | PSR_F_BIT | \
+-				 PSR_I_BIT | PSR_D_BIT)
+-
+ #define CURRENT_EL_SP_EL0_VECTOR	0x0
+ #define CURRENT_EL_SP_ELx_VECTOR	0x200
+ #define LOWER_EL_AArch64_VECTOR		0x400
+@@ -50,6 +47,69 @@ static u64 get_except_vector(struct kvm_vcpu *vcpu, enum exception_type type)
+ 	return vcpu_read_sys_reg(vcpu, VBAR_EL1) + exc_offset + type;
  }
  
-+static inline bool kvm_vcpu_dabt_issf(const struct kvm_vcpu *vcpu)
++/*
++ * When an exception is taken, most PSTATE fields are left unchanged in the
++ * handler. However, some are explicitly overridden (e.g. M[4:0]). Luckily all
++ * of the inherited bits have the same position in the AArch64/AArch32 SPSR_ELx
++ * layouts, so we don't need to shuffle these for exceptions from AArch32 EL0.
++ *
++ * For the SPSR_ELx layout for AArch64, see ARM DDI 0487E.a page C5-429.
++ * For the SPSR_ELx layout for AArch32, see ARM DDI 0487E.a page C5-426.
++ *
++ * Here we manipulate the fields in order of the AArch64 SPSR_ELx layout, from
++ * MSB to LSB.
++ */
++static unsigned long get_except64_pstate(struct kvm_vcpu *vcpu)
 +{
-+	return false;
++	unsigned long sctlr = vcpu_read_sys_reg(vcpu, SCTLR_EL1);
++	unsigned long old, new;
++
++	old = *vcpu_cpsr(vcpu);
++	new = 0;
++
++	new |= (old & PSR_N_BIT);
++	new |= (old & PSR_Z_BIT);
++	new |= (old & PSR_C_BIT);
++	new |= (old & PSR_V_BIT);
++
++	// TODO: TCO (if/when ARMv8.5-MemTag is exposed to guests)
++
++	new |= (old & PSR_DIT_BIT);
++
++	// PSTATE.UAO is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D5-2579.
++
++	// PSTATE.PAN is unchanged unless SCTLR_ELx.SPAN == 0b0
++	// SCTLR_ELx.SPAN is RES1 when ARMv8.1-PAN is not implemented
++	// See ARM DDI 0487E.a, page D5-2578.
++	new |= (old & PSR_PAN_BIT);
++	if (!(sctlr & SCTLR_EL1_SPAN))
++		new |= PSR_PAN_BIT;
++
++	// PSTATE.SS is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D2-2452.
++
++	// PSTATE.IL is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D1-2306.
++
++	// PSTATE.SSBS is set to SCTLR_ELx.DSSBS upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D13-3258
++	if (sctlr & SCTLR_ELx_DSSBS)
++		new |= PSR_SSBS_BIT;
++
++	// PSTATE.BTYPE is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, pages D1-2293 to D1-2294.
++
++	new |= PSR_D_BIT;
++	new |= PSR_A_BIT;
++	new |= PSR_I_BIT;
++	new |= PSR_F_BIT;
++
++	new |= PSR_MODE_EL1h;
++
++	return new;
 +}
 +
- static inline int kvm_vcpu_dabt_get_rd(struct kvm_vcpu *vcpu)
+ static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr)
  {
- 	return (kvm_vcpu_get_hsr(vcpu) & HSR_SRT_MASK) >> HSR_SRT_SHIFT;
-diff --git a/arch/arm/include/asm/kvm_mmio.h b/arch/arm/include/asm/kvm_mmio.h
-index 7c0eddb0adb2..32fbf82e3ebc 100644
---- a/arch/arm/include/asm/kvm_mmio.h
-+++ b/arch/arm/include/asm/kvm_mmio.h
-@@ -14,6 +14,8 @@
- struct kvm_decode {
- 	unsigned long rt;
- 	bool sign_extend;
-+	/* Not used on 32-bit arm */
-+	bool sixty_four;
- };
+ 	unsigned long cpsr = *vcpu_cpsr(vcpu);
+@@ -59,7 +119,7 @@ static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr
+ 	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
+ 	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
  
- void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
-diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-index 5efe5ca8fecf..f407b6bdad2e 100644
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -283,6 +283,11 @@ static inline bool kvm_vcpu_dabt_issext(const struct kvm_vcpu *vcpu)
- 	return !!(kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SSE);
- }
+-	*vcpu_cpsr(vcpu) = PSTATE_FAULT_BITS_64;
++	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
+ 	vcpu_write_spsr(vcpu, cpsr);
  
-+static inline bool kvm_vcpu_dabt_issf(const struct kvm_vcpu *vcpu)
-+{
-+	return !!(kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SF);
-+}
-+
- static inline int kvm_vcpu_dabt_get_rd(const struct kvm_vcpu *vcpu)
- {
- 	return (kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SRT_MASK) >> ESR_ELx_SRT_SHIFT;
-diff --git a/arch/arm64/include/asm/kvm_mmio.h b/arch/arm64/include/asm/kvm_mmio.h
-index 02b5c48fd467..b204501a0c39 100644
---- a/arch/arm64/include/asm/kvm_mmio.h
-+++ b/arch/arm64/include/asm/kvm_mmio.h
-@@ -10,13 +10,11 @@
- #include <linux/kvm_host.h>
- #include <asm/kvm_arm.h>
+ 	vcpu_write_sys_reg(vcpu, addr, FAR_EL1);
+@@ -94,7 +154,7 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
+ 	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
+ 	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
  
--/*
-- * This is annoying. The mmio code requires this, even if we don't
-- * need any decoding. To be fixed.
-- */
- struct kvm_decode {
- 	unsigned long rt;
- 	bool sign_extend;
-+	/* Witdth of the register accessed by the faulting instruction is 64-bits */
-+	bool sixty_four;
- };
+-	*vcpu_cpsr(vcpu) = PSTATE_FAULT_BITS_64;
++	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
+ 	vcpu_write_spsr(vcpu, cpsr);
  
- void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
-diff --git a/virt/kvm/arm/mmio.c b/virt/kvm/arm/mmio.c
-index 70d3b449692c..1bb71acd53f2 100644
---- a/virt/kvm/arm/mmio.c
-+++ b/virt/kvm/arm/mmio.c
-@@ -105,6 +105,9 @@ int kvm_handle_mmio_return(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 			data = (data ^ mask) - mask;
- 		}
- 
-+		if (!vcpu->arch.mmio_decode.sixty_four)
-+			data = data & 0xffffffff;
-+
- 		trace_kvm_mmio(KVM_TRACE_MMIO_READ, len, run->mmio.phys_addr,
- 			       &data);
- 		data = vcpu_data_host_to_guest(vcpu, data, len);
-@@ -125,6 +128,7 @@ static int decode_hsr(struct kvm_vcpu *vcpu, bool *is_write, int *len)
- 	unsigned long rt;
- 	int access_size;
- 	bool sign_extend;
-+	bool sixty_four;
- 
- 	if (kvm_vcpu_dabt_iss1tw(vcpu)) {
- 		/* page table accesses IO mem: tell guest to fix its TTBR */
-@@ -138,11 +142,13 @@ static int decode_hsr(struct kvm_vcpu *vcpu, bool *is_write, int *len)
- 
- 	*is_write = kvm_vcpu_dabt_iswrite(vcpu);
- 	sign_extend = kvm_vcpu_dabt_issext(vcpu);
-+	sixty_four = kvm_vcpu_dabt_issf(vcpu);
- 	rt = kvm_vcpu_dabt_get_rd(vcpu);
- 
- 	*len = access_size;
- 	vcpu->arch.mmio_decode.sign_extend = sign_extend;
- 	vcpu->arch.mmio_decode.rt = rt;
-+	vcpu->arch.mmio_decode.sixty_four = sixty_four;
- 
- 	return 0;
- }
+ 	/*
 -- 
 2.20.1
 
