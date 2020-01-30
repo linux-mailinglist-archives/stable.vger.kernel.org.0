@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8A014E22C
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D3114E217
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:50:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730691AbgA3Sqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:46:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56716 "EHLO mail.kernel.org"
+        id S1731368AbgA3Sts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:49:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731205AbgA3Sqg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:46:36 -0500
+        id S1731442AbgA3Srx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:47:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9011C20674;
-        Thu, 30 Jan 2020 18:46:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01355205F4;
+        Thu, 30 Jan 2020 18:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409996;
-        bh=yNI5ogw+07m/kN6nHUW3rK8XJmN2BvbV3VxJy40X4EQ=;
+        s=default; t=1580410072;
+        bh=8eSTXQzbNLEND/FwSWrHgTCgpCk3Ge/9IIfbWOlgP9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUuBl+yCR0kB4VIFKLIBgztmevTO8yEhg89biglq8Tdmp1//pe1n4tqPiv0ojJY0I
-         7w6PBa0JpUakjMJOysuLutdkBXxQgeyJ/8luLziFdmKSJPJKgeB+ZLLLlVodTJWvYS
-         VJKQIKvCnTId5HFEIQqLhiNj6PQ3Ni2a/KX4laWY=
+        b=bxNbcUhKx5H49+1OPQMths2Dpjw8YGFUzbR9tVgM9eoNI0FyoQO/O0bz5On5KvIny
+         IDP4Z0Y2P/dswVbdZ1I+ylkUfWm08kLuuybjzskD5TCkka+0v+WKLBV08DQeZEhn5a
+         yQJiB3WdoiYri5wWdM4BeRcqro4a5+UPATHhkfCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b563b7f8dbe8223a51e8@syzkaller.appspotmail.com,
-        Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Fariya Fatima <fariyaf@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 100/110] rsi: fix use-after-free on failed probe and unbind
+        stable@vger.kernel.org, "wuxu.wu" <wuxu.wu@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 35/55] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
 Date:   Thu, 30 Jan 2020 19:39:16 +0100
-Message-Id: <20200130183625.571091732@linuxfoundation.org>
+Message-Id: <20200130183614.962218432@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+References: <20200130183608.563083888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,72 +44,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: wuxu.wu <wuxu.wu@huawei.com>
 
-commit e93cd35101b61e4c79149be2cfc927c4b28dc60c upstream.
+[ Upstream commit 19b61392c5a852b4e8a0bf35aecb969983c5932d ]
 
-Make sure to stop both URBs before returning after failed probe as well
-as on disconnect to avoid use-after-free in the completion handler.
+dw_spi_irq() and dw_spi_transfer_one concurrent calls.
 
-Reported-by: syzbot+b563b7f8dbe8223a51e8@syzkaller.appspotmail.com
-Fixes: a4302bff28e2 ("rsi: add bluetooth rx endpoint")
-Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
-Cc: stable <stable@vger.kernel.org>     # 3.15
-Cc: Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>
-Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Cc: Fariya Fatima <fariyaf@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
+dw->len==4, and dw->tx_end==1.
 
+When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
+may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
+
+Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
+store dw rx/tx instructions and other cores handle irq load dw rx/tx
+instructions may out of order.
+
+	[ 1025.321302] Call trace:
+	...
+	[ 1025.321319]  __crash_kexec+0x98/0x148
+	[ 1025.321323]  panic+0x17c/0x314
+	[ 1025.321329]  die+0x29c/0x2e8
+	[ 1025.321334]  die_kernel_fault+0x68/0x78
+	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
+	[ 1025.321346]  do_page_fault+0x88/0x500
+	[ 1025.321347]  do_translation_fault+0xa8/0xb8
+	[ 1025.321349]  do_mem_abort+0x68/0x118
+	[ 1025.321351]  el1_da+0x20/0x8c
+	[ 1025.321362]  dw_writer+0xc8/0xd0
+	[ 1025.321364]  interrupt_transfer+0x60/0x110
+	[ 1025.321365]  dw_spi_irq+0x48/0x70
+	...
+
+Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
+Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c |   18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/spi/spi-dw.c | 15 ++++++++++++---
+ drivers/spi/spi-dw.h |  1 +
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -292,6 +292,15 @@ out:
- 		dev_kfree_skb(rx_cb->rx_skb);
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index ac2eb89ef7a5a..5a47e28e38c16 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -179,9 +179,11 @@ static inline u32 rx_max(struct dw_spi *dws)
+ 
+ static void dw_writer(struct dw_spi *dws)
+ {
+-	u32 max = tx_max(dws);
++	u32 max;
+ 	u16 txw = 0;
+ 
++	spin_lock(&dws->buf_lock);
++	max = tx_max(dws);
+ 	while (max--) {
+ 		/* Set the tx word if the transfer's original "tx" is not null */
+ 		if (dws->tx_end - dws->len) {
+@@ -193,13 +195,16 @@ static void dw_writer(struct dw_spi *dws)
+ 		dw_write_io_reg(dws, DW_SPI_DR, txw);
+ 		dws->tx += dws->n_bytes;
+ 	}
++	spin_unlock(&dws->buf_lock);
  }
  
-+static void rsi_rx_urb_kill(struct rsi_hw *adapter, u8 ep_num)
-+{
-+	struct rsi_91x_usbdev *dev = (struct rsi_91x_usbdev *)adapter->rsi_dev;
-+	struct rx_usb_ctrl_block *rx_cb = &dev->rx_cb[ep_num - 1];
-+	struct urb *urb = rx_cb->rx_urb;
-+
-+	usb_kill_urb(urb);
-+}
-+
- /**
-  * rsi_rx_urb_submit() - This function submits the given URB to the USB stack.
-  * @adapter: Pointer to the adapter structure.
-@@ -823,10 +832,13 @@ static int rsi_probe(struct usb_interfac
- 	if (adapter->priv->coex_mode > 1) {
- 		status = rsi_rx_urb_submit(adapter, BT_EP);
- 		if (status)
--			goto err1;
-+			goto err_kill_wlan_urb;
- 	}
+ static void dw_reader(struct dw_spi *dws)
+ {
+-	u32 max = rx_max(dws);
++	u32 max;
+ 	u16 rxw;
  
- 	return 0;
-+
-+err_kill_wlan_urb:
-+	rsi_rx_urb_kill(adapter, WLAN_EP);
- err1:
- 	rsi_deinit_usb_interface(adapter);
- err:
-@@ -857,6 +869,10 @@ static void rsi_disconnect(struct usb_in
- 		adapter->priv->bt_adapter = NULL;
++	spin_lock(&dws->buf_lock);
++	max = rx_max(dws);
+ 	while (max--) {
+ 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
+ 		/* Care rx only if the transfer's original "rx" is not null */
+@@ -211,6 +216,7 @@ static void dw_reader(struct dw_spi *dws)
+ 		}
+ 		dws->rx += dws->n_bytes;
  	}
++	spin_unlock(&dws->buf_lock);
+ }
  
-+	if (adapter->priv->coex_mode > 1)
-+		rsi_rx_urb_kill(adapter, BT_EP);
-+	rsi_rx_urb_kill(adapter, WLAN_EP);
-+
- 	rsi_reset_card(adapter);
- 	rsi_deinit_usb_interface(adapter);
- 	rsi_91x_deinit(adapter);
+ static void int_error_stop(struct dw_spi *dws, const char *msg)
+@@ -283,18 +289,20 @@ static int dw_spi_transfer_one(struct spi_controller *master,
+ {
+ 	struct dw_spi *dws = spi_controller_get_devdata(master);
+ 	struct chip_data *chip = spi_get_ctldata(spi);
++	unsigned long flags;
+ 	u8 imask = 0;
+ 	u16 txlevel = 0;
+ 	u32 cr0;
+ 	int ret;
+ 
+ 	dws->dma_mapped = 0;
+-
++	spin_lock_irqsave(&dws->buf_lock, flags);
+ 	dws->tx = (void *)transfer->tx_buf;
+ 	dws->tx_end = dws->tx + transfer->len;
+ 	dws->rx = transfer->rx_buf;
+ 	dws->rx_end = dws->rx + transfer->len;
+ 	dws->len = transfer->len;
++	spin_unlock_irqrestore(&dws->buf_lock, flags);
+ 
+ 	spi_enable_chip(dws, 0);
+ 
+@@ -485,6 +493,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 	dws->type = SSI_MOTO_SPI;
+ 	dws->dma_inited = 0;
+ 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
++	spin_lock_init(&dws->buf_lock);
+ 
+ 	spi_controller_set_devdata(master, dws);
+ 
+diff --git a/drivers/spi/spi-dw.h b/drivers/spi/spi-dw.h
+index 0168b08364d5d..20a09fe79ae7d 100644
+--- a/drivers/spi/spi-dw.h
++++ b/drivers/spi/spi-dw.h
+@@ -118,6 +118,7 @@ struct dw_spi {
+ 	size_t			len;
+ 	void			*tx;
+ 	void			*tx_end;
++	spinlock_t		buf_lock;
+ 	void			*rx;
+ 	void			*rx_end;
+ 	int			dma_mapped;
+-- 
+2.20.1
+
 
 
