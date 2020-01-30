@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8C114E188
-	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:45:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3D0E14E12B
+	for <lists+stable@lfdr.de>; Thu, 30 Jan 2020 19:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730745AbgA3SpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jan 2020 13:45:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54876 "EHLO mail.kernel.org"
+        id S1730294AbgA3SmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jan 2020 13:42:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731000AbgA3SpT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Jan 2020 13:45:19 -0500
+        id S1728028AbgA3SmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Jan 2020 13:42:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61C892082E;
-        Thu, 30 Jan 2020 18:45:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8EDC2083E;
+        Thu, 30 Jan 2020 18:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580409917;
-        bh=tgiIWyaWgYWNqXLGQPohVSA04eXZ04wHRLN/JX73TAA=;
+        s=default; t=1580409720;
+        bh=N5y1muu8N21M0FsvptEApXfStVYRWbQEbqqaQyDIb50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYpMWZ5SLDhwZilVj6iluF4pXPqtNoXnwwB4v/M/age03v35UzaP6mjXfksbu0yaK
-         CEnl+zNVjdtg26yc/pa0XvhAYdCCxV5awb7Qt2J6hOvmY+WqfTvpel8/7fH+ftQgd9
-         smSW9Dpz7TVopdBsK7M/V8Yao3EHV9sPeal3Wysw=
+        b=QxvQjUfnd+w2PvYH++mtQ4gwZ37RCbPF8wrQDqQCFu4zZOkELWCMniEUrhlJnLyz+
+         sB8hISz1j31hAF5JuNJYDuArF3er/ap7bJzKUsl21MAQT8Hsmgs2tDoCbd+XrZbW3+
+         g+t9SGnwAGOLtM8jQU8nGp59pniacGIgeh/s2Wf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/110] bus: ti-sysc: Handle mstandby quirk and use it for musb
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 42/56] udp: segment looped gso packets correctly
 Date:   Thu, 30 Jan 2020 19:38:59 +0100
-Message-Id: <20200130183623.991569511@linuxfoundation.org>
+Message-Id: <20200130183616.721326806@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200130183613.810054545@linuxfoundation.org>
-References: <20200130183613.810054545@linuxfoundation.org>
+In-Reply-To: <20200130183608.849023566@linuxfoundation.org>
+References: <20200130183608.849023566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 03856e928b0e1a1c274eece1dfe4330a362c37f3 ]
+[ Upstream commit 6cd021a58c18a1731f7e47f83e172c0c302d65e5 ]
 
-We need swsup quirks for sidle and mstandby for musb to work
-properly.
+Multicast and broadcast packets can be looped from egress to ingress
+pre segmentation with dev_loopback_xmit. That function unconditionally
+sets ip_summed to CHECKSUM_UNNECESSARY.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+udp_rcv_segment segments gso packets in the udp rx path. Segmentation
+usually executes on egress, and does not expect packets of this type.
+__udp_gso_segment interprets !CHECKSUM_PARTIAL as CHECKSUM_NONE. But
+the offsets are not correct for gso_make_checksum.
+
+UDP GSO packets are of type CHECKSUM_PARTIAL, with their uh->check set
+to the correct pseudo header checksum. Reset ip_summed to this type.
+(CHECKSUM_PARTIAL is allowed on ingress, see comments in skbuff.h)
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: cf329aa42b66 ("udp: cope with UDP GRO packet misdirection")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/ti-sysc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ include/net/udp.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index abbf281ee337b..44d4f4864ac2a 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -923,6 +923,9 @@ set_midle:
- 		return -EINVAL;
- 	}
+--- a/include/net/udp.h
++++ b/include/net/udp.h
+@@ -476,6 +476,9 @@ static inline struct sk_buff *udp_rcv_se
+ 	if (!inet_get_convert_csum(sk))
+ 		features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
  
-+	if (ddata->cfg.quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
-+		best_mode = SYSC_IDLE_NO;
++	if (skb->pkt_type == PACKET_LOOPBACK)
++		skb->ip_summed = CHECKSUM_PARTIAL;
 +
- 	reg &= ~(SYSC_IDLE_MASK << regbits->midle_shift);
- 	reg |= best_mode << regbits->midle_shift;
- 	sysc_write(ddata, ddata->offsets[SYSC_SYSCONFIG], reg);
-@@ -984,6 +987,9 @@ static int sysc_disable_module(struct device *dev)
- 		return ret;
- 	}
- 
-+	if (ddata->cfg.quirks & SYSC_QUIRK_SWSUP_MSTANDBY)
-+		best_mode = SYSC_IDLE_FORCE;
-+
- 	reg &= ~(SYSC_IDLE_MASK << regbits->midle_shift);
- 	reg |= best_mode << regbits->midle_shift;
- 	sysc_write(ddata, ddata->offsets[SYSC_SYSCONFIG], reg);
-@@ -1257,6 +1263,8 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
- 	SYSC_QUIRK("gpu", 0x50000000, 0x14, -1, -1, 0x00010201, 0xffffffff, 0),
- 	SYSC_QUIRK("gpu", 0x50000000, 0xfe00, 0xfe10, -1, 0x40000000 , 0xffffffff,
- 		   SYSC_MODULE_QUIRK_SGX),
-+	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
-+		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
- 	SYSC_QUIRK("wdt", 0, 0, 0x10, 0x14, 0x502a0500, 0xfffff0f0,
- 		   SYSC_MODULE_QUIRK_WDT),
- 	/* Watchdog on am3 and am4 */
-@@ -1315,8 +1323,6 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
- 	SYSC_QUIRK("usbhstll", 0, 0, 0x10, 0x14, 0x00000008, 0xffffffff, 0),
- 	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, 0x14, 0x50700100, 0xffffffff, 0),
- 	SYSC_QUIRK("usb_host_hs", 0, 0, 0x10, -1, 0x50700101, 0xffffffff, 0),
--	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
--		   0xffffffff, 0),
- 	SYSC_QUIRK("vfpe", 0, 0, 0x104, -1, 0x4d001200, 0xffffffff, 0),
- #endif
- };
--- 
-2.20.1
-
+ 	/* the GSO CB lays after the UDP one, no need to save and restore any
+ 	 * CB fragment
+ 	 */
 
 
