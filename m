@@ -2,193 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF3214EA76
-	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 11:08:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D752E14EB5A
+	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 12:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbgAaKIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jan 2020 05:08:43 -0500
-Received: from mail-am6eur05on2121.outbound.protection.outlook.com ([40.107.22.121]:52608
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728308AbgAaKIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jan 2020 05:08:42 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cEx6TsBfXlcuOfI5XUAp11+nThRV5EY2MkloPJqg7LVZ1j+oDSEKGe3MzqCA2bhKAwnUF5QulcVXSYqFm0rzDgQZnAGHaEQ9vkyXpMBfNgaQ7H/5/BmQA8IDMaoEen+itvRmFf/CKG2yi/6KJetywiUsYnqGI3x1kkAbnb5S+BcyZlxY+ALj17mxth08IcMHe0r0xCTgInjfyt6dLTqigZ1g/yxJns6/O6Zf6uksxjaKJShyo4kRpzdWtrSnY7iRR7/BF62KB0tjT1uEPq6huAL3h4hKUlplKn2gJF6PkAxjCVPsnCpUa3ItYWAC7h8kmaoREVkSrk5Lf439NzrIrQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZDoU6+W+WKV9Devr1nzXzfsN3bwU1PnG2KuikbeNOGI=;
- b=l1gHcjorXcA8WPVgaCA/7iSSijFs80Y2v/tq3RxR7K0jGnprk6QCj2ENF0rm7Nvv7wbMrWn2qesxfOHSy5u04URKKMQewLbzTPkgYEMxMkeU6naToBL1z8B+oDArtsdZIE+nWp3cK4mzaQLNBPUR1kpLwhbWs786akdyO4wkTHW28ynMHxhh17bv24XRvHsv5G1oyk+GQ/9n6L9REsWZiKpmlwS2bBb+MSIip+CxDzxJHW24hPa98QhQ1TiCpvalqv15dDNUI0grgiCk0Nf0/bXqr2TuGpjXiRhIQ1j9hoYo+6rivVIrscauNE2v+osBQNAYYsRmrjTmkH9Eqkn43A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
- dkim=pass header.d=nokia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZDoU6+W+WKV9Devr1nzXzfsN3bwU1PnG2KuikbeNOGI=;
- b=bQTILA4DEUZvLw25oWgSTWZZjRjDGa54S/HlEVkLOOqkBXKUQIG73gvfNPdY+/DRErspIHhOVI7ITYz1jYPwA4mtR3AM40XGivmmyiSqKzzi5M++T1OEHcHdX84xKM/x6TK0mGq63RVehaqgk2xXAhaTiuvOb5Dp/gi2KdLSioo=
-Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com (10.167.127.12) by
- HE1PR0702MB3833.eurprd07.prod.outlook.com (10.167.126.26) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2707.12; Fri, 31 Jan 2020 10:08:38 +0000
-Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com
- ([fe80::d524:dc56:dd0e:c1a1]) by HE1PR0702MB3675.eurprd07.prod.outlook.com
- ([fe80::d524:dc56:dd0e:c1a1%3]) with mapi id 15.20.2686.025; Fri, 31 Jan 2020
- 10:08:38 +0000
-From:   "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 4.19 43/92] do_last(): fetch directory ->i_mode and
- ->i_uid before its too late
-Thread-Topic: [PATCH 4.19 43/92] do_last(): fetch directory ->i_mode and
- ->i_uid before its too late
-Thread-Index: AQHV1ec90l8XtXVIjUGbfw+3P3vanKgEkPoA
-Date:   Fri, 31 Jan 2020 10:08:37 +0000
-Message-ID: <5cbe397b7f7bb0f8bd579080c8a4c41d7b359632.camel@nokia.com>
-References: <20200128135809.344954797@linuxfoundation.org>
-         <20200128135814.584735840@linuxfoundation.org>
-In-Reply-To: <20200128135814.584735840@linuxfoundation.org>
-Accept-Language: fi-FI, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=tommi.t.rantala@nokia.com; 
-x-originating-ip: [131.228.2.19]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: b7a58f96-f3c9-4243-09c0-08d7a6358a54
-x-ms-traffictypediagnostic: HE1PR0702MB3833:
-x-microsoft-antispam-prvs: <HE1PR0702MB38336D5BC68DBFA42CE92075B4070@HE1PR0702MB3833.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:873;
-x-forefront-prvs: 029976C540
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(136003)(39860400002)(376002)(366004)(346002)(396003)(189003)(199004)(5660300002)(66476007)(66556008)(26005)(76116006)(66946007)(2616005)(186003)(66446008)(64756008)(6506007)(36756003)(478600001)(86362001)(45080400002)(71200400001)(4326008)(2906002)(6486002)(54906003)(6512007)(8936002)(316002)(8676002)(110136005)(81166006)(81156014)(33073002);DIR:OUT;SFP:1102;SCL:1;SRVR:HE1PR0702MB3833;H:HE1PR0702MB3675.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: nokia.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: aUOiaMtJ09uaqgsVfe4EFOP0dSxiF3vC1ISP94aqEqwr96v9HrNYAEx4G4/6zg3C9OaP85FFKYea75hCCIcwchYJGvd3ClBDXjUnQS+dRbdsg2CH+RhSGObxL+XGfvOwb22tUaH+wwJGyyLXGgQ+c0qJM2w7w8aEgaU3DRfhwknkwcEGgrnXDiKqg3UPYz1evwQbJW1f5obQSsxfWZVosWkxH3hByUoy1rU9sqf9fYE1CIH5LQ8DQraU4RKBKSJqvUHriZi2g6T630UsKTn4Ii7SiUzMKmSyrmfP93ifdscpqg3c/iLsErKUOvrJXi3BdoUTJZVpaOiY9zBsoI5BcwLO0dUnX+DLHZUvfQ4wfNe1Eo9RdPl50xJZh9svqUqFBbxlF2fhmcXtLxGdNwE/jtwHzwY2s8Xe3i+z5nEWw0Aae3wNJS3kNY5z2XQwaPU0I867lJzJw8FS8fEPu2pBgaeS6VWTK2dje9PJJggQVqxRJnC4O10B5VDX+T+0LNI8
-x-ms-exchange-antispam-messagedata: DDPVg0g18aFHk7/40sxzt33iU4bfUQCCSQ0gfYoF/NgIi/xnDT4eNclU2BcCXwq4o2tFgtQY8mLkpY2y8AqjY3D+3icoQNec/O7z5YXF+udsQQWK9yJ2Nt9lgVWBc+kIdc9dDJ/g8m/fuc/x+Lipkw==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <442462CE9D71C945AEA4D5CC48643A22@eurprd07.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1728342AbgAaLDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jan 2020 06:03:19 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:9529 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728268AbgAaLDT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 06:03:19 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e3409610002>; Fri, 31 Jan 2020 03:02:58 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 31 Jan 2020 03:03:18 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 31 Jan 2020 03:03:18 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 31 Jan
+ 2020 11:03:16 +0000
+Subject: Re: [PATCH 4.19 00/55] 4.19.101-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200130183608.563083888@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <5612c97f-61eb-4e2c-a618-f138f4d8bf28@nvidia.com>
+Date:   Fri, 31 Jan 2020 11:03:14 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b7a58f96-f3c9-4243-09c0-08d7a6358a54
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jan 2020 10:08:37.3539
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: bJJTSlObqIuW31qEze/1QgU6+oi/tlojDO4IEBkarDFguCLgKe2CPaMU/OJBv3gAAuTw3KFlhnZd44d3SoevbxKVEK6VXK8u7UBhwwsQDrU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1PR0702MB3833
+In-Reply-To: <20200130183608.563083888@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1580468578; bh=ZE8OPY76mL6H1B5jhHlX0DuIYHVEV+J5XhGSWkZmOMg=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=CmZImB1ImZST8TFWEx4k5e6Qmlfv/pyHS7mU1wAnlDLRwPL9Il/+SGJFeLugVfR93
+         BQCxFqhuw+bxV3e4CL8kyODPIGbRUgRmYuxSs6qN6nZ0p/Bx78OuXYi/AjvONUnlOw
+         bkU61gMDvdU3BqS89x+u87Vi1/YIetAE9Dh6aDJ9awxJQ8eYqd86yeU9mz0dcs9RvX
+         IDgBeMnd0Dg6ndRhh1xVvg+zzfHtd0ZIlPKyFZPXeuc4WRVGkZ6AnftOyGofQr3DpB
+         ljv0RTeeB6VIp6UVaUoWcdDhmSaF2wrxSHxpUdam+mxk74kW41Z5b/T15jnbsf2a5F
+         BQ2jcwyJSi6LA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTAxLTI4IGF0IDE1OjA4ICswMTAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
-dGU6DQo+IEZyb206IEFsIFZpcm8gPHZpcm9AemVuaXYubGludXgub3JnLnVrPg0KPiANCj4gY29t
-bWl0IGQwY2I1MDE4NWFlOTQyYjAzYzQzMjdiZTMyMjA1NWQ2MjJkYzc5ZjYgdXBzdHJlYW0uDQo+
-IA0KPiBtYXlfY3JlYXRlX2luX3N0aWNreSgpIGNhbGwgaXMgZG9uZSB3aGVuIHdlIGFscmVhZHkg
-aGF2ZSBkcm9wcGVkIHRoZQ0KPiByZWZlcmVuY2UgdG8gZGlyLg0KPiANCj4gRml4ZXM6IDMwYWJh
-NjY1NmY2MWUgKG5hbWVpOiBhbGxvdyByZXN0cmljdGVkIE9fQ1JFQVQgb2YgRklGT3MgYW5kDQo+
-IHJlZ3VsYXIgZmlsZXMpDQo+IFNpZ25lZC1vZmYtYnk6IEFsIFZpcm8gPHZpcm9AemVuaXYubGlu
-dXgub3JnLnVrPg0KPiBTaWduZWQtb2ZmLWJ5OiBHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBs
-aW51eGZvdW5kYXRpb24ub3JnPg0KPiANCj4gLS0tDQo+ICBmcy9uYW1laS5jIHwgICAxNyArKysr
-KysrKysrLS0tLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDcgZGVs
-ZXRpb25zKC0pDQo+IA0KPiAtLS0gYS9mcy9uYW1laS5jDQo+ICsrKyBiL2ZzL25hbWVpLmMNCj4g
-Wy4uLl0NCj4gQEAgLTMyNTgsNiArMzI1OSw4IEBAIHN0YXRpYyBpbnQgZG9fbGFzdChzdHJ1Y3Qg
-bmFtZWlkYXRhICpuZCwNCj4gIAkJICAgc3RydWN0IGZpbGUgKmZpbGUsIGNvbnN0IHN0cnVjdCBv
-cGVuX2ZsYWdzICpvcCkNCj4gIHsNCj4gIAlzdHJ1Y3QgZGVudHJ5ICpkaXIgPSBuZC0+cGF0aC5k
-ZW50cnk7DQo+ICsJa3VpZF90IGRpcl91aWQgPSBkaXItPmRfaW5vZGUtPmlfdWlkOw0KDQpJIGhp
-dCB0aGUgZm9sbG93aW5nIG9vcHMgaW4gNC4xOS4xMDAgd2hpbGUgcnVubmluZyBrc2VsZnRlc3Rz
-Lg0KDQpmcy9uYW1laS5jOjMyNjIgbWF0Y2hlcyB0aGUgbGluZSBhYm92ZS4NCg0KQW55IGlkZWFz
-Pw0KLVRvbW1pDQoNCg0KWyAgMjI0LjY4MjQ4OV0gdGVzdF9maXJtd2FyZTogYmF0Y2hlZCBsb2Fk
-aW5nICd0bXAuWWxwUlNpbVJtYycgY3VzdG9tDQpmYWxsYmFjayBtZWNoYW5pc20gNCB0aW1lcw0K
-WyAgMjI0LjY4NjY1Nl0gbWlzYyB0ZXN0X2Zpcm13YXJlOiBEaXJlY3QgZmlybXdhcmUgbG9hZCBm
-b3IgdG1wLllscFJTaW1SbWMNCmZhaWxlZCB3aXRoIGVycm9yIC0yDQpbICAyMjQuNjkxMDkxXSBt
-aXNjIHRlc3RfZmlybXdhcmU6IERpcmVjdCBmaXJtd2FyZSBsb2FkIGZvciB0bXAuWWxwUlNpbVJt
-Yw0KZmFpbGVkIHdpdGggZXJyb3IgLTINClsgIDIyOC41OTM3NTddIFNjaGVkdWxlciB0cmFjZXBv
-aW50cyBzdGF0X3NsZWVwLCBzdGF0X2lvd2FpdCwgc3RhdF9ibG9ja2VkDQphbmQgc3RhdF9ydW50
-aW1lIHJlcXVpcmUgdGhlIGtlcm5lbCBwYXJhbWV0ZXIgc2NoZWRzdGF0cz1lbmFibGUgb3INCmtl
-cm5lbC5zY2hlZF9zY2hlZHN0YXRzPTENClsgIDIzOS40NTE4MzZdIEJVRzogdW5hYmxlIHRvIGhh
-bmRsZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0DQowMDAwMDAwMDAwMDAwMDA0
-DQpbICAyMzkuNDYwNDU0XSBQR0QgMCBQNEQgMA0KWyAgMjM5LjQ2MTg3NV0gT29wczogMDAwMCBb
-IzFdIFNNUCBQVEkNClsgIDIzOS40NjM2OTZdIENQVTogMCBQSUQ6IDEzNDUwIENvbW06IGZ0cmFj
-ZXRlc3QgTm90IHRhaW50ZWQgNC4xOS4xMDAtDQoxLng4Nl82NCAjMQ0KWyAgMjM5LjQ2NzYwNF0g
-SGFyZHdhcmUgbmFtZTogUmVkIEhhdCBPcGVuU3RhY2sgQ29tcHV0ZSwgQklPUyAxLjExLjAtMi5l
-bDcgDQowNC8wMS8yMDE0DQpbICAyMzkuNDcxMjU0XSBSSVA6IDAwMTA6cGF0aF9vcGVuYXQgKGZz
-L25hbWVpLmM6MzI2MiBmcy9uYW1laS5jOjM1MzcpIA0KWyAgMjM5LjQ4MjEzNV0gUlNQOiAwMDE4
-OmZmZmZiMzAxYzEwZTdjZjggRUZMQUdTOiAwMDAxMDI0Ng0KWyAgMjM5LjQ4NDc1N10gUkFYOiAw
-MDAwMDAwMDAwMDAwMDAwIFJCWDogZmZmZjk5YThmNTdlMWRjMCBSQ1g6DQowMDAwMDAwMDAwMDAw
-MDA0DQpbICAyMzkuNDg4MjI5XSBSRFg6IDAwMDAwMDAwMDAwMDAwMDAgUlNJOiAwMDAwMDAwYzAw
-MDAwMDAwIFJESToNCmZmZmY5OWE4ODFkNDk5MDANClsgIDIzOS41MDc3MjRdIFJCUDogZmZmZmIz
-MDFjMTBlN2RlMCBSMDg6IGZmZmZiMzAxYzEwZTdjNDQgUjA5Og0KNjFjODg2NDY4MGI1ODNlYg0K
-WyAgMjM5LjUxMTIyMl0gUjEwOiA4MDgwODA3ZmZmZmZmZmZmIFIxMTogZDBmZmZmZmY5NzljOGI5
-NiBSMTI6DQowMDAwMDAwMDAwMDA4MjQxDQpbICAyMzkuNTE0NzA5XSBSMTM6IDAwMDAwMDAwMDAw
-MDAwMDAgUjE0OiBmZmZmOTlhODgxZDQ5OTAwIFIxNToNCmZmZmZiMzAxYzEwZTdlZWMNClsgIDIz
-OS41MTgyODddIEZTOiAgMDAwMDdmMWJkYTc3MTc0MCgwMDAwKSBHUzpmZmZmOTlhOGY3YTAwMDAw
-KDAwMDApDQprbmxHUzowMDAwMDAwMDAwMDAwMDAwDQpbICAyMzkuNTIyMjMzXSBDUzogIDAwMTAg
-RFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzDQpbICAyMzkuNTI0OTY0XSBD
-UjI6IDAwMDAwMDAwMDAwMDAwMDQgQ1IzOiAwMDAwMDAwMWMyMTk2MDA1IENSNDoNCjAwMDAwMDAw
-MDAxNjA2ZjANClsgIDIzOS41MjgzMDldIERSMDogMDAwMDAwMDAwMDQwNTExOCBEUjE6IDAwMDAw
-MDAwMDAwMDAwMDAgRFIyOg0KMDAwMDAwMDAwMDAwMDAwMA0KWyAgMjM5LjUzMTU5OV0gRFIzOiAw
-MDAwMDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZmMGZmMCBEUjc6DQowMDAwMDAwMDAwMDAw
-NjAwDQpbICAyMzkuNTM0OTQ2XSBDYWxsIFRyYWNlOg0KWyAgMjM5LjUzNjI2NV0gPyBfX3N3aXRj
-aF90b19hc20gKGFyY2gveDg2L2VudHJ5L2VudHJ5XzY0LlM6Mzc0KSANClsgIDIzOS41MzgxNjRd
-IGRvX2ZpbHBfb3BlbiAoZnMvbmFtZWkuYzozNTY4KSANClsgIDIzOS41Mzk4ODVdID8gX19zd2l0
-Y2hfdG9fYXNtIChhcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TOjM3NCkgDQpbICAyMzkuNTQxNzQ3
-XSA/IF9fc3dpdGNoX3RvX2FzbSAoYXJjaC94ODYvZW50cnkvZW50cnlfNjQuUzozNzQpIA0KWyAg
-MjM5LjU0MzYzM10gZG9fc3lzX29wZW4gKGZzL29wZW4uYzoxMDg5KSANClsgIDIzOS41NDUzOTJd
-IGRvX3N5c2NhbGxfNjQgKGFyY2gveDg2L2VudHJ5L2NvbW1vbi5jOjI5MykgDQpbICAyMzkuNTQ3
-MjA0XSA/IHByZXBhcmVfZXhpdF90b191c2VybW9kZSAoYXJjaC94ODYvZW50cnkvY29tbW9uLmM6
-MTk4KSANClsgIDIzOS41NDk0MjRdIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZQ0KKGFy
-Y2gveDg2L2VudHJ5L2VudHJ5XzY0LlM6MjQ3KSANClsgIDIzOS41NTE4MTVdIFJJUDogMDAzMzow
-eDdmMWJkYTg2NjE3Yg0KWyAgMjM5LjU2MTgzM10gUlNQOiAwMDJiOjAwMDA3ZmZmYmQ2MmZmMTAg
-RUZMQUdTOiAwMDAwMDI0NiBPUklHX1JBWDoNCjAwMDAwMDAwMDAwMDAxMDENClsgIDIzOS41NjUz
-MzVdIFJBWDogZmZmZmZmZmZmZmZmZmZkYSBSQlg6IDAwMDA1NTljZGU4ZTk0ODAgUkNYOg0KMDAw
-MDdmMWJkYTg2NjE3Yg0KWyAgMjM5LjU2ODU3Nl0gUkRYOiAwMDAwMDAwMDAwMDAwMjQxIFJTSTog
-MDAwMDU1OWNkZTkwOGQ5MCBSREk6DQowMDAwMDAwMGZmZmZmZjljDQpbICAyMzkuNTcxODEwXSBS
-QlA6IDAwMDA1NTljZGU5MDhkOTAgUjA4OiAwMDAwMDAwMDAwMDAwMDAwIFIwOToNCjAwMDAwMDAw
-MDAwMDAwMjANClsgIDIzOS41NzUwNTRdIFIxMDogMDAwMDAwMDAwMDAwMDFiNiBSMTE6IDAwMDAw
-MDAwMDAwMDAyNDYgUjEyOg0KMDAwMDAwMDAwMDAwMDI0MQ0KWyAgMjM5LjU3ODI3N10gUjEzOiAw
-MDAwMDAwMDAwMDAwMDAwIFIxNDogMDAwMDAwMDAwMDAwMDAwMSBSMTU6DQowMDAwNTU5Y2RlOTA4
-ZDkwDQpbICAyMzkuNTgxNTEyXSBNb2R1bGVzIGxpbmtlZCBpbjogdGVzdF9maXJtd2FyZSBrdm1f
-aW50ZWwga3ZtIGlycWJ5cGFzcw0Kc2NoX2ZxX2NvZGVsIHBjYmMgYWVzbmlfaW50ZWwgYWVzX3g4
-Nl82NCBjcnlwdG9fc2ltZCBjcnlwdGQgZ2x1ZV9oZWxwZXINCmF0YV9waWl4IGRtX21pcnJvciBk
-bV9yZWdpb25faGFzaCBkbV9sb2cgZG1fbW9kIGF1dG9mczQNClsgIDIzOS41ODkyNzVdIENSMjog
-MDAwMDAwMDAwMDAwMDAwNA0KWyAgMjM5LjU5MDk3Ml0gLS0tWyBlbmQgdHJhY2UgNGI4NGJmMmNj
-ZDQ1YTQyMSBdLS0tDQpbICAyMzkuNTkzMjA1XSBSSVA6IDAwMTA6cGF0aF9vcGVuYXQgKGZzL25h
-bWVpLmM6MzI2MiBmcy9uYW1laS5jOjM1MzcpDQpbICAyMzkuNjAzOTE5XSBSU1A6IDAwMTg6ZmZm
-ZmIzMDFjMTBlN2NmOCBFRkxBR1M6IDAwMDEwMjQ2DQpbICAyMzkuNjA2NDczXSBSQVg6IDAwMDAw
-MDAwMDAwMDAwMDAgUkJYOiBmZmZmOTlhOGY1N2UxZGMwIFJDWDoNCjAwMDAwMDAwMDAwMDAwMDQN
-ClsgIDIzOS42MDk3NzVdIFJEWDogMDAwMDAwMDAwMDAwMDAwMCBSU0k6IDAwMDAwMDBjMDAwMDAw
-MDAgUkRJOg0KZmZmZjk5YTg4MWQ0OTkwMA0KWyAgMjM5LjYxMzAxNF0gUkJQOiBmZmZmYjMwMWMx
-MGU3ZGUwIFIwODogZmZmZmIzMDFjMTBlN2M0NCBSMDk6DQo2MWM4ODY0NjgwYjU4M2ViDQpbICAy
-MzkuNjE2MjQ0XSBSMTA6IDgwODA4MDdmZmZmZmZmZmYgUjExOiBkMGZmZmZmZjk3OWM4Yjk2IFIx
-MjoNCjAwMDAwMDAwMDAwMDgyNDENClsgIDIzOS42MTk0NTddIFIxMzogMDAwMDAwMDAwMDAwMDAw
-MCBSMTQ6IGZmZmY5OWE4ODFkNDk5MDAgUjE1Og0KZmZmZmIzMDFjMTBlN2VlYw0KWyAgMjM5LjYy
-MjkxMV0gRlM6ICAwMDAwN2YxYmRhNzcxNzQwKDAwMDApIEdTOmZmZmY5OWE4ZjdhMDAwMDAoMDAw
-MCkNCmtubEdTOjAwMDAwMDAwMDAwMDAwMDANClsgIDIzOS42MjY2MTFdIENTOiAgMDAxMCBEUzog
-MDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAwMzMNClsgIDIzOS42MjkyNTRdIENSMjog
-MDAwMDAwMDAwMDAwMDAwNCBDUjM6IDAwMDAwMDAxYzIxOTYwMDUgQ1I0Og0KMDAwMDAwMDAwMDE2
-MDZmMA0KWyAgMjM5LjYzMjUxMl0gRFIwOiAwMDAwMDAwMDAwNDA1MTE4IERSMTogMDAwMDAwMDAw
-MDAwMDAwMCBEUjI6DQowMDAwMDAwMDAwMDAwMDAwDQpbICAyMzkuNjM1NzQ1XSBEUjM6IDAwMDAw
-MDAwMDAwMDAwMDAgRFI2OiAwMDAwMDAwMGZmZmYwZmYwIERSNzoNCjAwMDAwMDAwMDAwMDA2MDAN
-ClsgIDI0My44MDU5NThdIHRyYWNlX2twcm9iZTogUGFyc2UgZXJyb3IgYXQgYXJndW1lbnRbMF0u
-ICgtMjIpDQpbICAyNDMuODc5OTgzXSB0cmFjZV9wcm9iZTogeDY0IHR5cGUgaGFzIG5vIGNvcnJl
-c3BvbmRpbmcgZmV0Y2ggbWV0aG9kLg0KWyAgMjQzLjg4MjkyMl0gdHJhY2Vfa3Byb2JlOiBQYXJz
-ZSBlcnJvciBhdCBhcmd1bWVudFswXS4gKC0yMikNCg0KDQoNCg0KPiArCXVtb2RlX3QgZGlyX21v
-ZGUgPSBkaXItPmRfaW5vZGUtPmlfbW9kZTsNCj4gIAlpbnQgb3Blbl9mbGFnID0gb3AtPm9wZW5f
-ZmxhZzsNCj4gIAlib29sIHdpbGxfdHJ1bmNhdGUgPSAob3Blbl9mbGFnICYgT19UUlVOQykgIT0g
-MDsNCj4gIAlib29sIGdvdF93cml0ZSA9IGZhbHNlOw0KPiBAQCAtMzM5Myw3ICszMzk2LDcgQEAg
-ZmluaXNoX29wZW46DQo+ICAJCWVycm9yID0gLUVJU0RJUjsNCj4gIAkJaWYgKGRfaXNfZGlyKG5k
-LT5wYXRoLmRlbnRyeSkpDQo+ICAJCQlnb3RvIG91dDsNCj4gLQkJZXJyb3IgPSBtYXlfY3JlYXRl
-X2luX3N0aWNreShkaXIsDQo+ICsJCWVycm9yID0gbWF5X2NyZWF0ZV9pbl9zdGlja3koZGlyX21v
-ZGUsIGRpcl91aWQsDQo+ICAJCQkJCSAgICAgZF9iYWNraW5nX2lub2RlKG5kLQ0KPiA+cGF0aC5k
-ZW50cnkpKTsNCj4gIAkJaWYgKHVubGlrZWx5KGVycm9yKSkNCj4gIAkJCWdvdG8gb3V0Ow0KPiAN
-Cj4gDQoNCg==
+
+On 30/01/2020 18:38, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.101 release.
+> There are 55 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 01 Feb 2020 18:35:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.101-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+
+All tests are passing for Tegra ...
+
+Test results for stable-v4.19:
+    11 builds:	11 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    32 tests:	32 pass, 0 fail
+
+Linux version:	4.19.101-rc1-g985d20b62b7c
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
