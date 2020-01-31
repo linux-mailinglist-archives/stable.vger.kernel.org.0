@@ -2,145 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB9B14ECCA
-	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 13:57:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AED8E14ECEC
+	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 14:06:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728556AbgAaM5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jan 2020 07:57:48 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:48040 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728514AbgAaM5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 07:57:47 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 930C61C228F; Fri, 31 Jan 2020 13:57:46 +0100 (CET)
-Date:   Fri, 31 Jan 2020 13:57:31 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 36/55] drivers/net/b44: Change to non-atomic bit
- operations on pwol_mask
-Message-ID: <20200131125730.GA20888@duo.ucw.cz>
-References: <20200130183608.563083888@linuxfoundation.org>
- <20200130183615.120752961@linuxfoundation.org>
+        id S1728610AbgAaNGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jan 2020 08:06:33 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:55525 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728544AbgAaNGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 08:06:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580475992;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=oyWbxDiWwx0o1DWN8s0a2KTquRs9xNqQuo7yNFc8UJk=;
+        b=UmzODbmpLECJcgFBnOLEppVNbHXf/g93EHezHt+GBUkjLLL1C20h30M/7u5k2Z94jJF1B/
+        lpkJIIbQ6OYTURNt/BT2IERbIW+7x0J3utXg8OvKixLSCKDSw+rVR1sE5a3a4pG0tAFSd8
+        1eT9DDZjFsXpfwC/8xW7m3d3R23AAwU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-13-Rz5p1LzWNRWrYMuIpaZ-nA-1; Fri, 31 Jan 2020 08:06:30 -0500
+X-MC-Unique: Rz5p1LzWNRWrYMuIpaZ-nA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A30BB8010E9;
+        Fri, 31 Jan 2020 13:06:28 +0000 (UTC)
+Received: from localhost.localdomain.com (ovpn-112-36.ams2.redhat.com [10.36.112.36])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 422C063147;
+        Fri, 31 Jan 2020 13:06:26 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-efi@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] efi/bgrt: Accept BGRT tables with a version of 0
+Date:   Fri, 31 Jan 2020 14:06:23 +0100
+Message-Id: <20200131130623.33875-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-In-Reply-To: <20200130183615.120752961@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Some (somewhat older) laptops have a correct BGRT table, except that the
+version field is 0 instead of 1.
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This has been seen on several Ivy Bridge based Lenovo models.
 
-On Thu 2020-01-30 19:39:17, Greg Kroah-Hartman wrote:
-> From: Fenghua Yu <fenghua.yu@intel.com>
->=20
-> [ Upstream commit f11421ba4af706cb4f5703de34fa77fba8472776 ]
+For now the spec. only defines version 1, so it is reasonably safe to
+assume that tables with a version of 0 really are version 1 too,
+which is what this commit does so that the BGRT table will be accepted
+by the kernel on laptop models with this issue.
 
-This is not suitable for stable. It does not fix anything. It prepares
-for theoretical bug that author claims might be introduced to BIOS in
-future... I doubt it, even BIOS authors boot their machines from time
-to time.
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1791273
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- Simply always accept version 0 everywhere as suggested by Ard
+---
+ drivers/firmware/efi/efi-bgrt.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> Atomic operations that span cache lines are super-expensive on x86
-> (not just to the current processor, but also to other processes as all
-> memory operations are blocked until the operation completes). Upcoming
-> x86 processors have a switch to cause such operations to generate a #AC
-> trap. It is expected that some real time systems will enable this mode
-> in BIOS.
-
-And I wonder if this is even good idea for mainline. x86 architecture
-is here for long time, and I doubt Intel is going to break it like
-this. Do you have documentation pointer?=20
-
-> In preparation for this, it is necessary to fix code that may execute
-> atomic instructions with operands that cross cachelines because the #AC
-> trap will crash the kernel.
-
-How does single bit operation "cross cacheline"? How is this going to
-impact non-x86 architectures?
-
-> Since "pwol_mask" is local and never exposed to concurrency, there is
-> no need to set bits in pwol_mask using atomic operations.
->=20
-> Directly operate on the byte which contains the bit instead of using
-> __set_bit() to avoid any big endian concern due to type cast to
-> unsigned long in __set_bit().
-
-What concerns? Is __set_bit() now useless and are we going to open-code
-it everywhere? Is set_bit() now unusable on x86?
-							=09
-								Pavel
-							=09
-> Suggested-by: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-> Signed-off-by: Tony Luck <tony.luck@intel.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/net/ethernet/broadcom/b44.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/b=
-roadcom/b44.c
-> index e445ab724827f..88f8d31e4c833 100644
-> --- a/drivers/net/ethernet/broadcom/b44.c
-> +++ b/drivers/net/ethernet/broadcom/b44.c
-> @@ -1519,8 +1519,10 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppat=
-tern, u8 *pmask, int offset)
->  	int ethaddr_bytes =3D ETH_ALEN;
-> =20
->  	memset(ppattern + offset, 0xff, magicsync);
-> -	for (j =3D 0; j < magicsync; j++)
-> -		set_bit(len++, (unsigned long *) pmask);
-> +	for (j =3D 0; j < magicsync; j++) {
-> +		pmask[len >> 3] |=3D BIT(len & 7);
-> +		len++;
-> +	}
-> =20
->  	for (j =3D 0; j < B44_MAX_PATTERNS; j++) {
->  		if ((B44_PATTERN_SIZE - len) >=3D ETH_ALEN)
-> @@ -1532,7 +1534,8 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppatt=
-ern, u8 *pmask, int offset)
->  		for (k =3D 0; k< ethaddr_bytes; k++) {
->  			ppattern[offset + magicsync +
->  				(j * ETH_ALEN) + k] =3D macaddr[k];
-> -			set_bit(len++, (unsigned long *) pmask);
-> +			pmask[len >> 3] |=3D BIT(len & 7);
-> +			len++;
->  		}
->  	}
->  	return len - 1;
-> --=20
-> 2.20.1
->=20
->=20
-
+diff --git a/drivers/firmware/efi/efi-bgrt.c b/drivers/firmware/efi/efi-b=
+grt.c
+index b07c17643210..6aafdb67dbca 100644
+--- a/drivers/firmware/efi/efi-bgrt.c
++++ b/drivers/firmware/efi/efi-bgrt.c
+@@ -42,7 +42,12 @@ void __init efi_bgrt_init(struct acpi_table_header *ta=
+ble)
+ 		return;
+ 	}
+ 	*bgrt =3D *(struct acpi_table_bgrt *)table;
+-	if (bgrt->version !=3D 1) {
++	/*
++	 * Only version 1 is defined but some older laptops (seen on Lenovo
++	 * Ivy Bridge models) have a correct version 1 BGRT table with the
++	 * version set to 0, so we accept version 0 and 1.
++	 */
++	if (bgrt->version > 1) {
+ 		pr_notice("Ignoring BGRT: invalid version %u (expected 1)\n",
+ 		       bgrt->version);
+ 		goto out;
 --=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+2.23.0
 
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXjQkOgAKCRAw5/Bqldv6
-8sEXAKDEBaLFMfGhZMoUFbXvMi75isxPaQCePgdIxpXSVK7wV2W2gywre2XfJso=
-=7k6g
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
