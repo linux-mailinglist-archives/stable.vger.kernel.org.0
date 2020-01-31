@@ -2,90 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6D914E923
-	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 08:34:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 016A914E96B
+	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 09:08:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbgAaHeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jan 2020 02:34:22 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46797 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728035AbgAaHeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 02:34:22 -0500
-Received: by mail-wr1-f65.google.com with SMTP id z7so7330715wrl.13
-        for <stable@vger.kernel.org>; Thu, 30 Jan 2020 23:34:19 -0800 (PST)
+        id S1728077AbgAaIIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jan 2020 03:08:15 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:36725 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728027AbgAaIIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 03:08:14 -0500
+Received: by mail-lf1-f66.google.com with SMTP id f24so4231125lfh.3;
+        Fri, 31 Jan 2020 00:08:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fooishbar-org.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=owDgY2hN74svhwO6V6vESJaP7KSYIDvwh0UpgYJP8tc=;
-        b=W5QRTWPq5V1gfy2LTbkoaVWqpWIoew8i2DeZXV+kuXCdSPClSdS8DrQsRlQaLiqrn7
-         SabGhJ0iUS/0C9J+n+RaDAKKMwWFY6K5vb6OVMjFSFlUUU9UYeC80j6CVbXtvdWem14s
-         IsH/Hjq9Oa5D0p7TSXPBQTztEm1Mcdgik97M1ALqmknH/s18LhzHAHlhoyE14iXhsW3W
-         GiTb0w9nkasDAUls/iGZp+RyZP+T8wiYazTdY1DAVB4e7F6+Zeit+HobTIrVOuZbNaNp
-         tbtcHlWhTEqviWnCbABW5hHpVC3tN9c40PnMngS1eOjUo5SqMFNmth405QeznNdb925G
-         VSgQ==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version;
+        bh=DdiQpoauwZ0XveZynAvz0EuxVeGMQJtzs/ooDkpKNvU=;
+        b=DzQ76bHrpu8+pQblpwwBPuNLdHXFIm0kNFIZiTjA+MjKRr8U4gAibdFiOqR9mL3S4V
+         GkR+7CddV/m6XOVuuV9JIgz1+Q/INEnqKTGRM0a+nqPxzEZYXDL/gsL9EVaMsiNmMWnR
+         ObfsKZOSb5uaI1euhJnHWAGbXBQ0SopAYbeP4X9UMSOjpgHA5KaGLDowN+9vD4I3GT1i
+         KvsB2bznZbBDB8UfqEKkNFtGrog7frbs3mO0YEVHGwm0dXNugW3jJ5hnHUwAOdO6yLxQ
+         MmRh9+BIFOMMxavFHLfzHlaK8EouEM0E3+RlDfl7BDRaYKr1lw3qZXJz2c5jP9gTH6wa
+         anRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=owDgY2hN74svhwO6V6vESJaP7KSYIDvwh0UpgYJP8tc=;
-        b=AjgNTlEu83neftFbVWYdwP+NeCEFygPh0mjVBUKuh24N4Gjl3Cbz6jwSwdyUhyPlu1
-         8zkz+WJpOkg05zsERazRH52riAsac7IGGOUwN9lPVCUYhOVXH0iCWUGbODpZDCQkeA5o
-         Mh+nY1LjjN/F0BZReUa1UKVyweIOuu+7vNnhKYZFowWzrYgQYdnBd3h4Oo/Ce0QXG6FC
-         R+8kgOVopF1tNDa7sr5Hxjdp36xgvLIIGb5L+sbLXzbue3Eb8ShuGtSzcvKOYM1AjrGu
-         BwYy8y7ufUk+WhpBnfRENeNlmgAywz0Fm3Dze7pyAg8owcVwsgIStIUD3E7iYGqVVEHx
-         XW3A==
-X-Gm-Message-State: APjAAAXLQN0k3xTmQNXjb96X+IPLU45UmX36jgZ2VRgYkpA0hWHe0Aig
-        Nb9oiwNDbucg0aOl63+YhD9lPwVg7PtQoUlTSFHkqJ6B
-X-Google-Smtp-Source: APXvYqxE2D1GUZqbFQ7juYd6KtGB0wWZIYc2Q/xIq23fGh/WL0GBK5zKH9bzu3lOwV9+kWP54Y3iKcuDHp21ot8TOJQ=
-X-Received: by 2002:a5d:6445:: with SMTP id d5mr8923297wrw.244.1580456059067;
- Thu, 30 Jan 2020 23:34:19 -0800 (PST)
+        h=x-gm-message-state:sender:from:to:cc:subject:in-reply-to:references
+         :date:message-id:mime-version;
+        bh=DdiQpoauwZ0XveZynAvz0EuxVeGMQJtzs/ooDkpKNvU=;
+        b=f/a1BvCo+Hn0DYRePYBx9nP2UeyO4/+ECcU36T56/BrbJh3sb+u/xBudb16/7md03h
+         3MYd88wFudshOY3SxTI6GjmQ1amu4wK/YkAHZNYz3YLmEdcUL4MG49cylmCzNzInUn9N
+         F2pstCqTkYSB0xRaOFwIRCz9ATiSE+tZzvVvhhPVRa9U1BWoNSUjgEt6Eq4HSzx8lK6n
+         0ICDBNqSzdhgekWEOsDmUU2UIxdH78mPMVU4VWka3cJoNbXZ0giT7T+rxugkNhvOYSsO
+         OHkEEt8T725RntiUZKGCRi+J7oAUdqTMuxBUAvVpozI4EbL7Al7TckKKKjWlbYh60mbE
+         2gTA==
+X-Gm-Message-State: APjAAAWQAKBuQoOMDcred2oXUjg8l3s7V9dLxqunpSCq9oWGRi5wffJ7
+        7Rc5ta81hhx8TxbIWtZdCk1ASSg2Dqa/Ow==
+X-Google-Smtp-Source: APXvYqxshHjWAsmzOJGT3Cf0C4+PzkGUFCvYcshZZNADr4m7aryuqd8CyXyTGv4kUPWu++OT8wAtsQ==
+X-Received: by 2002:a05:6512:78:: with SMTP id i24mr4844576lfo.10.1580458092287;
+        Fri, 31 Jan 2020 00:08:12 -0800 (PST)
+Received: from saruman (88-113-215-33.elisa-laajakaista.fi. [88.113.215.33])
+        by smtp.gmail.com with ESMTPSA id d24sm4103880lfl.58.2020.01.31.00.08.10
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 31 Jan 2020 00:08:11 -0800 (PST)
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Jack Pham <jackp@codeaurora.org>,
+        Tejas Joglekar <Tejas.Joglekar@synopsys.com>
+Cc:     linux-usb@vger.kernel.org, John Youn <John.Youn@synopsys.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] usb: dwc3: gadget: Fix logical condition
+In-Reply-To: <20200131032501.GA10078@jackp-linux.qualcomm.com>
+References: <cedf287bd185a5cbe31095d74e75b392f6c5263d.1573624581.git.joglekar@synopsys.com> <20200131032501.GA10078@jackp-linux.qualcomm.com>
+Date:   Fri, 31 Jan 2020 10:07:57 +0200
+Message-ID: <87a76482w2.fsf@kernel.org>
 MIME-Version: 1.0
-References: <20180705101043.4883-1-daniel.vetter@ffwll.ch> <20180705102121.5091-1-daniel.vetter@ffwll.ch>
-In-Reply-To: <20180705102121.5091-1-daniel.vetter@ffwll.ch>
-From:   Daniel Stone <daniel@fooishbar.org>
-Date:   Fri, 31 Jan 2020 07:34:00 +0000
-Message-ID: <CAPj87rN48S8+pLd0ksOX4pdCTqtO=bDgjhkPxpWr_AnpVvgaSQ@mail.gmail.com>
-Subject: Re: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 5 Jul 2018 at 11:21, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
-> pull in arbitrary other resources, including CRTCs (e.g. when
-> reconfiguring global resources).
->
-> But in nonblocking mode userspace has then no idea this happened,
-> which can lead to spurious EBUSY calls, both:
-> - when that other CRTC is currently busy doing a page_flip the
->   ALLOW_MODESET commit can fail with an EBUSY
-> - on the other CRTC a normal atomic flip can fail with EBUSY because
->   of the additional commit inserted by the kernel without userspace's
->   knowledge
->
-> For blocking commits this isn't a problem, because everyone else will
-> just block until all the CRTC are reconfigured. Only thing userspace
-> can notice is the dropped frames without any reason for why frames got
-> dropped.
->
-> Consensus is that we need new uapi to handle this properly, but no one
-> has any idea what exactly the new uapi should look like. As a stop-gap
-> plug this problem by demoting nonblocking commits which might cause
-> issues by including CRTCs not in the original request to blocking
-> commits.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for writing this up Daniel, and for reminding me about it some
-time later as well ...
 
-Reviewed-by: Daniel Stone <daniels@collabora.com>
+Hi,
 
-Cheers,
-Daniel
+Jack Pham <jackp@codeaurora.org> writes:
+> Hi Tejas & Felipe,
+>
+> On Wed, Nov 13, 2019 at 11:45:16AM +0530, Tejas Joglekar wrote:
+>> This patch corrects the condition to kick the transfer without
+>> giving back the requests when either request has remaining data
+>> or when there are pending SGs. The && check was introduced during
+>> spliting up the dwc3_gadget_ep_cleanup_completed_requests() function.
+>>=20
+>> Fixes: f38e35dd84e2 ("usb: dwc3: gadget: split dwc3_gadget_ep_cleanup_co=
+mpleted_requests()")
+>>=20
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Tejas Joglekar <joglekar@synopsys.com>
+>> ---
+>>  drivers/usb/dwc3/gadget.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>=20
+>> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+>> index 86dc1db788a9..e07159e06f9a 100644
+>> --- a/drivers/usb/dwc3/gadget.c
+>> +++ b/drivers/usb/dwc3/gadget.c
+>> @@ -2485,7 +2485,7 @@ static int dwc3_gadget_ep_cleanup_completed_reques=
+t(struct dwc3_ep *dep,
+>>=20=20
+>>  	req->request.actual =3D req->request.length - req->remaining;
+>>=20=20
+>> -	if (!dwc3_gadget_ep_request_completed(req) &&
+>> +	if (!dwc3_gadget_ep_request_completed(req) ||
+>>  			req->num_pending_sgs) {
+>>  		__dwc3_gadget_kick_transfer(dep);
+>>  		goto out;
+>
+> Been staring at this for a while--I think I see a potential issue but
+> not sure if it is or not.
+>
+> If this condition is true and causes an early return, the 'ret' value
+> could be 0 which could allow the caller in cleanup_completed_requests()
+> to continue looping over the started_list and calling
+> cleanup_completed_request() again on the next req. But we just issued
+> another START or UPDATE transfer command on the previous incomplete req
+> and now the loop continued to try to reclaim the next TRB (and increment
+> the dequeue pointer and whatnot) when it might actually be in progress.
+>
+> According to the code before f38e35dd84e2,
+>
+> 	list_for_each_entry_safe(req, tmp, &dep->started_list, list) {
+>
+> 	...
+> 		if (!dwc3_gadget_ep_request_completed(req) ||
+> 				req->num_pending_sgs) {
+> 			__dwc3_gadget_kick_transfer(dep);
+> 			break;
+> 		}
+>
+> The 'goto out' used to be a 'break', which terminates the list loop. But
+> with the refactored code, the loop can only terminate if 'ret' is
+> non-zero.
+
+ret is initialized properly by dwc3_gadget_ep_reclaim*(). That goto is
+correct.
+
+> I haven't seen any real issue with the code as-is yet, but was just
+> wondering if the 'goto out' should be replaced with a return 1?
+
+let us know if you find any problems
+
+=2D-=20
+balbi
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIyBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl4z4F8ACgkQzL64meEa
+mQak0A/3d500IX3EHlRzhhzlXOaCvqvu9pr9CGFFf6EHRB9C/wHbStuLRL+SSriE
+OzmCL1vDRUowej9I10ymCs9b57SyMRbrmBmAjCSUixAGlzAJjvIJZu+WC/ZuADAN
+eQJ1foBlrvc1i2FtLj5jFDOaDLle+9z26AICwTXgIC+40sCYReKXh2wdXGhcB1jb
+ZsL2v6th/h1mNokUKgpQvn5R78ZdyTtLmCepZUk1w9HMT65MwT4aFihO25QMbvwD
+pr1p8p0P4Njf/+yzaSxDYaDkxTzW52/gpyKk46joAuwyGhyi+T4MaBYOf+lxPlrW
+KoclWmcB4pRdQ6OisAQsv87XwQLvLV92C2s1PLebxcCzljpvO4rvFv7hJ/4GxLmp
+nnLKYm/LApLjYGl1NnBIxAV2njjZa5WX90G4J0kfBGqyl435tFoZ04qAaVzrASqZ
+6cdHamO5nU+UPSwig1Bgt5D/3//aUmpvJzhMFObWs5JSvSd23E5smEHUSK0pS8Lg
+jcDSsypNV/4RRgv2hUb1wpNwV70vkuTMDLhGTsh50LoleHIP9lxYByEblYQIWY8j
+pABCyLwla1/Tf2Bqe3ttwGfsvVvVv9ZvDbKUwRmcLXH+hDuurMMa39ZYOjRUWSug
+5dmN0Re2cbQ+3ETBxIRmD73XPW393XTVvNF9aJlTTGhj8wH8ug==
+=F62y
+-----END PGP SIGNATURE-----
+--=-=-=--
