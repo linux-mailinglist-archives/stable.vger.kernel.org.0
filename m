@@ -2,162 +2,341 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7703814ED3A
-	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 14:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E9014ED93
+	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 14:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728566AbgAaN3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jan 2020 08:29:05 -0500
-Received: from mx2.suse.de ([195.135.220.15]:49858 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728514AbgAaN3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jan 2020 08:29:05 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 107B7AC9D;
-        Fri, 31 Jan 2020 13:29:02 +0000 (UTC)
-From:   Michal Suchanek <msuchanek@suse.de>
-To:     linuxppc-dev@lists.ozlabs.org,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Libor Pechacek <lpechacek@suse.cz>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Suchanek <msuchanek@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Allison Randal <allison@lohutok.net>,
-        Leonardo Bras <leonardo@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michal Suchanek <msuchanek@suse.de>
-Subject: [PATCH v2] powerpc: drmem: avoid NULL pointer dereference when drmem is unavailable
-Date:   Fri, 31 Jan 2020 14:28:29 +0100
-Message-Id: <20200131132829.10281-1-msuchanek@suse.de>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20200128101945.GA20336@fm.suse.cz>
-References: 
+        id S1728659AbgAaNlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jan 2020 08:41:19 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:53170 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728752AbgAaNlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 08:41:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580478077;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zObha477OThnMhlBvN5sgMKGw4x6R4iZ2lukLTkZBB8=;
+        b=H7JC5WRZe1YYl72KvA2LrXRPXVBs9MT262ondd2MtkBUD2Cm/sOaNScvujJhcMzDJsT/Yu
+        NODSvdtdgLVGWE4eyhwWl1jyQRpfIfLmz4mtIsqgpIjb8smqv59fco6FL7jI87CJHF1PEJ
+        TWutM2jHt5kLhL7L46eTGqILNY5CJ2U=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-72-dt8CLmL2OSi25x66nkakmg-1; Fri, 31 Jan 2020 08:41:12 -0500
+X-MC-Unique: dt8CLmL2OSi25x66nkakmg-1
+Received: by mail-wr1-f69.google.com with SMTP id s13so3349038wru.7
+        for <stable@vger.kernel.org>; Fri, 31 Jan 2020 05:41:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language;
+        bh=zObha477OThnMhlBvN5sgMKGw4x6R4iZ2lukLTkZBB8=;
+        b=udLnLA8CLOFMid5NSg7ZJGl5G8pE4ratBWW1Si2+pA/RJpFumDuljRBgDvf/1E6BHQ
+         ZmpuNQ7cFC3gh5XqEJ2Ky83u9q2kFf7yb9+5/zHeCH0SBrM49QbNWWSkbB1IdsOpX0y2
+         NMOX1Us9jLz56/6MiGTOkshrLVzlPw49R795ElLsQtwVPjPkbR7lpUHVXkDC4XqdGGcS
+         Dly4Pdr9XQv4DX8u/YX/NqRe/Rn0TqYz8zaLPkpsa5da4hkubp2oOtezyrMr0wsJWxJq
+         F52wpakLgm9SVmIPWuI3MmXl0Ck3yscAn8FzAptvLSTl2/j0nprQnQQA53slnBrp5hXz
+         mJSA==
+X-Gm-Message-State: APjAAAWdJvhMjNbk6vAHPcjm2mn6s0jzy1f5MBchjL/H4LhrA7Rbp3hs
+        tiVVe0EDYkc/j9gvDaa8/okITWZ7puTOKJvULz2Hd3VyoIvSLsVQczDIbYXje+0vd3bj6DD3mrB
+        jTLosE+mS9W+Blusw
+X-Received: by 2002:adf:f3cd:: with SMTP id g13mr12570934wrp.54.1580478071113;
+        Fri, 31 Jan 2020 05:41:11 -0800 (PST)
+X-Google-Smtp-Source: APXvYqx91AS6ya0VGdH1ZsMbyn7JxP6qoZUCmW7KLx2P6bTF0eGN9YXzsn07lLewEodBnX3thHvCnA==
+X-Received: by 2002:adf:f3cd:: with SMTP id g13mr12570900wrp.54.1580478070755;
+        Fri, 31 Jan 2020 05:41:10 -0800 (PST)
+Received: from localhost.localdomain ([62.72.193.75])
+        by smtp.gmail.com with ESMTPSA id q10sm10509322wme.16.2020.01.31.05.41.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Jan 2020 05:41:10 -0800 (PST)
+Subject: Re: [PATCH] HID: ite: Only bind to keyboard USB interface on Acer
+ SW5-012 keyboard dock
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>,
+        =?UTF-8?Q?Zden=c4=9bk_Rampas?= <zdenda.rampas@gmail.com>
+References: <20200131124553.27796-1-hdegoede@redhat.com>
+ <CAO-hwJK-wwZ8UJRaBgjVc0ZXakU9C3eDbh+i6Q5vm8xh1P76LQ@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <ea896405-6784-7cfd-b27c-28e8ebc3cd7e@redhat.com>
+Date:   Fri, 31 Jan 2020 14:41:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAO-hwJK-wwZ8UJRaBgjVc0ZXakU9C3eDbh+i6Q5vm8xh1P76LQ@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------EB9378C377BF609CE80CE404"
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------EB9378C377BF609CE80CE404
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-From: Libor Pechacek <lpechacek@suse.cz>
+Hi,
 
-In guests without hotplugagble memory drmem structure is only zero
-initialized. Trying to manipulate DLPAR parameters results in a crash.
+On 1/31/20 2:10 PM, Benjamin Tissoires wrote:
+> Hi Hans,
+> 
+> On Fri, Jan 31, 2020 at 1:46 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>>
+>> Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard
+>> dock") added the USB id for the Acer SW5-012's keyboard dock to the
+>> hid-ite driver to fix the rfkill driver not working.
+>>
+>> Most keyboard docks with an ITE 8595 keyboard/touchpad controller have the
+>> "Wireless Radio Control" bits which need the special hid-ite driver on the
+>> second USB interface (the mouse interface) and their touchpad only supports
+>> mouse emulation, so using generic hid-input handling for anything but
+>> the "Wireless Radio Control" bits is fine. On these devices we simply bind
+>> to all USB interfaces.
+>>
+>> But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
+>> (SW5-012)'s touchpad not only does mouse emulation it also supports
+>> HID-multitouch and all the keys including the "Wireless Radio Control"
+>> bits have been moved to the first USB interface (the keyboard intf).
+>>
+>> So we need hid-ite to handle the first (keyboard) USB interface and have
+>> it NOT bind to the second (mouse) USB interface so that that can be
+>> handled by hid-multitouch.c and we get proper multi-touch support.
+>>
+>> This commit adds a match callback to hid-ite which makes it only
+>> match the first USB interface when running on the Acer SW5-012,
+>> fixing the regression to mouse-emulation mode introduced by adding the
+>> keyboard dock USB id.
+>>
+>> Note the match function only does the special only bind to the first
+>> USB interface on the Acer SW5-012, on other devices the hid-ite driver
+>> actually must bind to the second interface as that is where the
+>> "Wireless Radio Control" bits are.
+> 
+> This is not a full review, but a couple of things that popped out
+> while scrolling through the patch.
+> 
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard dock")
+>> Reported-by: Zdeněk Rampas <zdenda.rampas@gmail.com>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/hid/hid-ite.c | 34 ++++++++++++++++++++++++++++++++++
+>>   1 file changed, 34 insertions(+)
+>>
+>> diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+>> index c436e12feb23..69a4ddfd033d 100644
+>> --- a/drivers/hid/hid-ite.c
+>> +++ b/drivers/hid/hid-ite.c
+>> @@ -8,9 +8,12 @@
+>>   #include <linux/input.h>
+>>   #include <linux/hid.h>
+>>   #include <linux/module.h>
+>> +#include <linux/usb.h>
+>>
+>>   #include "hid-ids.h"
+>>
+>> +#define ITE8595_KBD_USB_INTF           0
+>> +
+>>   static int ite_event(struct hid_device *hdev, struct hid_field *field,
+>>                       struct hid_usage *usage, __s32 value)
+>>   {
+>> @@ -37,6 +40,36 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+>>          return 0;
+>>   }
+>>
+>> +static bool ite_match(struct hid_device *hdev, bool ignore_special_driver)
+>> +{
+>> +       struct usb_interface *intf;
+>> +
+>> +       if (ignore_special_driver)
+>> +               return false;
+>> +
+>> +       /*
+>> +        * Most keyboard docks with an ITE 8595 keyboard/touchpad controller
+>> +        * have the "Wireless Radio Control" bits which need this special
+>> +        * driver on the second USB interface (the mouse interface). On
+>> +        * these devices we simply bind to all USB interfaces.
+>> +        *
+>> +        * The Acer Aspire Switch 10 (SW5-012) is special, its touchpad
+>> +        * not only does mouse emulation it also supports HID-multitouch
+>> +        * and all the keys including the "Wireless Radio Control" bits
+>> +        * have been moved to the first USB interface (the keyboard intf).
+>> +        *
+>> +        * We want the hid-multitouch driver to bind to the touchpad, so on
+>> +        * the Acer SW5-012 we should only bind to the keyboard USB intf.
+>> +        */
+>> +       if (hdev->bus != BUS_USB || hdev->vendor != USB_VENDOR_ID_SYNAPTICS ||
+>> +                    hdev->product != USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012)
+> 
+> Isn't there an existing matching function we can use here, instead of
+> checking each individual field?
 
-$ echo "memory add count 1" > /sys/kernel/dlpar
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: af_packet(E) rfkill(E) nvram(E) vmx_crypto(E)
-gf128mul(E) e1000(E) virtio_balloon(E) rtc_generic(E) crct10dif_vpmsum(E)
-btrfs(E) blake2b_generic(E) libcrc32c(E) xor(E) raid6_pq(E) virtio_rng(E)
-virtio_blk(E) ohci_pci(E) ehci_pci(E) ohci_hcd(E) ehci_hcd(E)
-crc32c_vpmsum(E) usbcore(E) virtio_pci(E) virtio_ring(E) virtio(E) sg(E)
-dm_multipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E)
-scsi_mod(E)
-CPU: 1 PID: 4114 Comm: bash Kdump: loaded Tainted: G            E     5.5.0-rc6-2-default #1
-NIP:  c0000000000ff294 LR: c0000000000ff248 CTR: 0000000000000000
-REGS: c0000000fb9d3880 TRAP: 0300   Tainted: G            E      (5.5.0-rc6-2-default)
-MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28242428  XER: 20000000
-CFAR: c0000000009a6c10 DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
-GPR00: c0000000000ff248 c0000000fb9d3b10 c000000001682e00 0000000000000033
-GPR04: c0000000ff30bf90 c0000000ff394800 0000000000005110 ffffffffffffffe8
-GPR08: 0000000000000000 0000000000000000 00000000fe1c0000 0000000000000000
-GPR12: 0000000000002200 c00000003fffee00 0000000000000000 000000011cbc37c0
-GPR16: 000000011cb27ed0 0000000000000000 000000011cb6dd10 0000000000000000
-GPR20: 000000011cb7db28 000001003ce035f0 000000011cbc7828 000000011cbc6c70
-GPR24: 000001003cf01210 0000000000000000 c0000000ffade4e0 c000000002d7216b
-GPR28: 0000000000000001 c000000002d78560 0000000000000000 c0000000015458d0
-NIP [c0000000000ff294] dlpar_memory+0x6e4/0xd00
-LR [c0000000000ff248] dlpar_memory+0x698/0xd00
-Call Trace:
-[c0000000fb9d3b10] [c0000000000ff248] dlpar_memory+0x698/0xd00 (unreliable)
-[c0000000fb9d3ba0] [c0000000000f5990] handle_dlpar_errorlog+0xc0/0x190
-[c0000000fb9d3c10] [c0000000000f5c58] dlpar_store+0x198/0x4a0
-[c0000000fb9d3cd0] [c000000000c4cb00] kobj_attr_store+0x30/0x50
-[c0000000fb9d3cf0] [c0000000005a37b4] sysfs_kf_write+0x64/0x90
-[c0000000fb9d3d10] [c0000000005a2c90] kernfs_fop_write+0x1b0/0x290
-[c0000000fb9d3d60] [c0000000004a2bec] __vfs_write+0x3c/0x70
-[c0000000fb9d3d80] [c0000000004a6560] vfs_write+0xd0/0x260
-[c0000000fb9d3dd0] [c0000000004a69ac] ksys_write+0xdc/0x130
-[c0000000fb9d3e20] [c00000000000b478] system_call+0x5c/0x68
-Instruction dump:
-ebc90000 1ce70018 38e7ffe8 7cfe3a14 7fbe3840 419dff14 fb610068 7fc9f378
-39000000 4800000c 60000000 4195fef4 <81490010> 39290018 38c80001 7ea93840
----[ end trace cc2dd8152608c295 ]---
+There is hid_match_one_id() but that is not exported (can be fixed) and it
+requires a struct hid_device_id, which either requires declaring an extra
+standalone struct hid_device_id for the SW5-012 kbd-dock, or hardcoding an
+index into the existing hid_device_id array for the driver (with the hardcoding
+being error prone, so not a good idea).
 
-Taking closer look at the code, I can see that for_each_drmem_lmb is a
-macro expanding into `for (lmb = &drmem_info->lmbs[0]; lmb <=
-&drmem_info->lmbs[drmem_info->n_lmbs - 1]; lmb++)`. When drmem_info->lmbs
-is NULL, the loop would iterate through the whole address range if it
-weren't stopped by the NULL pointer dereference on the next line.
+Given the problems with using hid_match_one_id() I decided to just go with
+the above.
 
-This patch aligns for_each_drmem_lmb and for_each_drmem_lmb_in_range macro
-behavior with the common C semantics, where the end marker does not belong
-to the scanned range, and alters get_lmb_range() semantics. As a side
-effect, the wraparound observed in the crash is prevented.
+But see below.
 
-Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
-Cc: Michal Suchanek <msuchanek@suse.cz>
+> 
+>> +               return true;
+>> +
+>> +       intf = to_usb_interface(hdev->dev.parent);
+> 
+> And this is oops-prone. You need:
+> - ensure hid_is_using_ll_driver(hdev, &usb_hid_driver) returns true.
+> - add a dependency on USBHID in the KConfig now that you are checking
+> on the USB transport layer.
+> 
+> That being said, I would love instead:
+> - to have a non USB version of this match, where you decide which
+> component needs to be handled based on the report descriptor
+
+Actually your idea to use the desciptors is not bad, but since what
+we really want is to not bind to the interface which is marked for the
+hid-multitouch driver I just realized we can just check that.
+
+So how about:
+
+static bool ite_match(struct hid_device *hdev, bool ignore_special_driver)
+{
+         if (ignore_special_driver)
+                 return false;
+
+         /*
+          * Some keyboard docks with an ITE 8595 keyboard/touchpad controller
+          * support the HID multitouch protocol for the touchpad, in that
+          * case the "Wireless Radio Control" bits which we care about are
+          * on the other interface; and we should not bind to the multitouch
+          * capable interface as that breaks multitouch support.
+          */
+         return hdev->group != HID_GROUP_MULTITOUCH_WIN_8;
+}
+
+? (note untested)
+
+Zdeněk  I have attached a new version of the patch which uses this
+improved version of the match function, if you have a chance to test it
+this weekend that would be great, otherwise I will test it on my own
+sw5-012 on Monday.
+
+> - have a regression test in
+> https://gitlab.freedesktop.org/libevdev/hid-tools for this particular
+> device, because I never intended the .match callback to be used by
+> anybody else than hid-generic, and opening this can of worms is prone
+> to introduce regressions in the future.
+
+Ugh, I can understand your desire for a test for this, but writing
+tests is not really my thing. Anyways do you have an example test I
+could use as a start ?
+
+Regards,
+
+Hans
+
+--------------EB9378C377BF609CE80CE404
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-HID-ite-Only-bind-to-keyboard-USB-interface-on-Acer-.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment;
+ filename*0="0001-HID-ite-Only-bind-to-keyboard-USB-interface-on-Acer-.pa";
+ filename*1="tch"
+
+From f26ab52abab63d819c49db0460d2392cce1da733 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 31 Jan 2020 12:06:13 +0100
+Subject: [PATCH v2] HID: ite: Only bind to keyboard USB interface on Acer
+ SW5-012 keyboard dock
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard
+dock") added the USB id for the Acer SW5-012's keyboard dock to the
+hid-ite driver to fix the rfkill driver not working.
+
+Most keyboard docks with an ITE 8595 keyboard/touchpad controller have the
+"Wireless Radio Control" bits which need the special hid-ite driver on the
+second USB interface (the mouse interface) and their touchpad only supports
+mouse emulation, so using generic hid-input handling for anything but
+the "Wireless Radio Control" bits is fine. On these devices we simply bind
+to all USB interfaces.
+
+But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
+(SW5-012)'s touchpad not only does mouse emulation it also supports
+HID-multitouch and all the keys including the "Wireless Radio Control"
+bits have been moved to the first USB interface (the keyboard intf).
+
+So we need hid-ite to handle the first (keyboard) USB interface and have
+it NOT bind to the second (mouse) USB interface so that that can be
+handled by hid-multitouch.c and we get proper multi-touch support.
+
+This commit adds a match callback to hid-ite which makes it not bind
+to hid-devices which are marked as being win8 multi-touch devices, this
+fixing the regression to mouse-emulation mode introduced by adding the
+keyboard dock USB id.
+
+Note the match function only does the special only bind to the first
+USB interface on the Acer SW5-012, on other devices the hid-ite driver
+actually must bind to the second interface as that is where the
+"Wireless Radio Control" bits are.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Libor Pechacek <lpechacek@suse.cz>
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard dock")
+Reported-by: Zdeněk Rampas <zdenda.rampas@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-v2: rename last_lmb -> limit, clarify error condition.
+Changes in v2:
+- Check hdev->group instead of peeking at the USB descriptors (intf number)
 ---
- arch/powerpc/include/asm/drmem.h                | 4 ++--
- arch/powerpc/platforms/pseries/hotplug-memory.c | 8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/hid-ite.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
-index 3d76e1c388c2..28c3d936fdf3 100644
---- a/arch/powerpc/include/asm/drmem.h
-+++ b/arch/powerpc/include/asm/drmem.h
-@@ -27,12 +27,12 @@ struct drmem_lmb_info {
- extern struct drmem_lmb_info *drmem_info;
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index c436e12feb23..db0f35be5a8b 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -37,6 +37,21 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 	return 0;
+ }
  
- #define for_each_drmem_lmb_in_range(lmb, start, end)		\
--	for ((lmb) = (start); (lmb) <= (end); (lmb)++)
-+	for ((lmb) = (start); (lmb) < (end); (lmb)++)
- 
- #define for_each_drmem_lmb(lmb)					\
- 	for_each_drmem_lmb_in_range((lmb),			\
- 		&drmem_info->lmbs[0],				\
--		&drmem_info->lmbs[drmem_info->n_lmbs - 1])
-+		&drmem_info->lmbs[drmem_info->n_lmbs])
- 
- /*
-  * The of_drconf_cell_v1 struct defines the layout of the LMB data
-diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
-index c126b94d1943..a6b207dd1d7d 100644
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -223,7 +223,7 @@ static int get_lmb_range(u32 drc_index, int n_lmbs,
- 			 struct drmem_lmb **end_lmb)
- {
- 	struct drmem_lmb *lmb, *start, *end;
--	struct drmem_lmb *last_lmb;
-+	struct drmem_lmb *limit;
- 
- 	start = NULL;
- 	for_each_drmem_lmb(lmb) {
-@@ -236,10 +236,10 @@ static int get_lmb_range(u32 drc_index, int n_lmbs,
- 	if (!start)
- 		return -EINVAL;
- 
--	end = &start[n_lmbs - 1];
-+	end = &start[n_lmbs];
- 
--	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs - 1];
--	if (end > last_lmb)
-+	limit = &drmem_info->lmbs[drmem_info->n_lmbs];
-+	if (end > limit)
- 		return -EINVAL;
- 
- 	*start_lmb = start;
++static bool ite_match(struct hid_device *hdev, bool ignore_special_driver)
++{
++	if (ignore_special_driver)
++		return false;
++
++	/*
++	 * Some keyboard docks with an ITE 8595 keyboard/touchpad controller
++	 * support the HID multitouch protocol for the touchpad, in that
++	 * case the "Wireless Radio Control" bits which we care about are
++	 * on the other interface; and we should not bind to the multitouch
++	 * capable interface as that breaks multitouch support.
++	 */
++	return hdev->group != HID_GROUP_MULTITOUCH_WIN_8;
++}
++
+ static const struct hid_device_id ite_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+@@ -50,6 +65,7 @@ MODULE_DEVICE_TABLE(hid, ite_devices);
+ static struct hid_driver ite_driver = {
+ 	.name = "itetech",
+ 	.id_table = ite_devices,
++	.match = ite_match,
+ 	.event = ite_event,
+ };
+ module_hid_driver(ite_driver);
 -- 
 2.23.0
+
+
+--------------EB9378C377BF609CE80CE404--
 
