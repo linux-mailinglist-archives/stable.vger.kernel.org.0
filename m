@@ -2,131 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D1614E8A4
-	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 07:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F2E14E8A8
+	for <lists+stable@lfdr.de>; Fri, 31 Jan 2020 07:12:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727335AbgAaGL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jan 2020 01:11:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58330 "EHLO mail.kernel.org"
+        id S1726488AbgAaGMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jan 2020 01:12:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725907AbgAaGL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jan 2020 01:11:26 -0500
+        id S1726399AbgAaGMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 31 Jan 2020 01:12:53 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89C682082E;
-        Fri, 31 Jan 2020 06:11:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FD33214D8;
+        Fri, 31 Jan 2020 06:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580451084;
-        bh=K2HB4XZTkFnGCUznGul35s+Yl5PLbdcj2acit+YK7MU=;
+        s=default; t=1580451172;
+        bh=WIY7V7L5gqqMK/BeKpCdFsRN/WRQshodkTF3WA6WadE=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=BJX6OqbFYAF60F2DDgoz7Jcc021Ionlw4TfE5+GduxJTNfeusvKWH8WEUO37DL7uP
-         JYZveDdVuqpIrPyLrIIIPn/7J4KStePrFFdy8f+Caa6kEZ7wrmxj+UILWLJMPFIrRx
-         If6dgKm+tsXdMKTFUitFvn3aMF4Ao/Iq1dm4EuEU=
-Date:   Thu, 30 Jan 2020 22:11:24 -0800
+        b=kBMXjjn1Qw56Xoy48uQ+iOMKV0ldHyfHyII0sQcMGKYIKwff+js5kktlN0KpcvTxI
+         OJaQvtZb+QLUT0CzULXq+abghsBD7OR1yc/u4BgmFr/ndDUlshIBp3kp7t8yc5f+Ml
+         TCtq8Js+h8jjBuHKjcwZf+wn5Nyxm9N/Tk8ymMO8=
+Date:   Thu, 30 Jan 2020 22:12:50 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, linux-mm@kvack.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, richardw.yang@linux.intel.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        yang.shi@linux.alibaba.com
-Subject:  [patch 008/118] mm: move_pages: report the number of
- non-attempted pages
-Message-ID: <20200131061124.1TTlbZrSK%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, alex.williamson@redhat.com,
+        aneesh.kumar@linux.ibm.com, axboe@kernel.dk, bjorn.topel@intel.com,
+        corbet@lwn.net, dan.j.williams@intel.com, daniel.vetter@ffwll.ch,
+        hch@lst.de, hverkuil-cisco@xs4all.nl, ira.weiny@intel.com,
+        jack@suse.cz, jgg@mellanox.com, jgg@ziepe.ca, jglisse@redhat.com,
+        jhubbard@nvidia.com, kirill@shutemov.name, leonro@mellanox.com,
+        linux-mm@kvack.org, mchehab@kernel.org, mm-commits@vger.kernel.org,
+        rppt@linux.ibm.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 033/118] media/v4l2-core: set pages dirty upon
+ releasing DMA buffers
+Message-ID: <20200131061250.z37jD6vNq%akpm@linux-foundation.org>
 In-Reply-To: <20200130221021.5f0211c56346d5485af07923@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
-Subject: mm: move_pages: report the number of non-attempted pages
+=46rom: John Hubbard <jhubbard@nvidia.com>
+Subject: media/v4l2-core: set pages dirty upon releasing DMA buffers
 
-Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"), the semantic
-of move_pages() has changed to return the number of non-migrated pages if
-they were result of a non-fatal reasons (usually a busy page).  This was
-an unintentional change that hasn't been noticed except for LTP tests
-which checked for the documented behavior.
+After DMA is complete, and the device and CPU caches are synchronized,
+it's still required to mark the CPU pages as dirty, if the data was coming
+from the device.  However, this driver was just issuing a bare put_page()
+call, without any set_page_dirty*() call.
 
-There are two ways to go around this change.  We can even get back to the
-original behavior and return -EAGAIN whenever migrate_pages is not able to
-migrate pages due to non-fatal reasons.  Another option would be to simply
-continue with the changed semantic and extend move_pages documentation to
-clarify that -errno is returned on an invalid input or when migration
-simply cannot succeed (e.g.  -ENOMEM, -EBUSY) or the number of pages that
-couldn't have been migrated due to ephemeral reasons (e.g.  page is pinned
-or locked for other reasons).
+Fix the problem, by calling set_page_dirty_lock() if the CPU pages were
+potentially receiving data from the device.
 
-This patch implements the second option because this behavior is in place
-for some time without anybody complaining and possibly new users depending
-on it.  Also it allows to have a slightly easier error handling as the
-caller knows that it is worth to retry when err > 0.
-
-But since the new semantic would be aborted immediately if migration is
-failed due to ephemeral reasons, need include the number of non-attempted
-pages in the return value too.
-
-Link: http://lkml.kernel.org/r/1580160527-109104-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Wei Yang <richardw.yang@linux.intel.com>
-Cc: <stable@vger.kernel.org>    [4.17+]
+Link: http://lkml.kernel.org/r/20200107224558.2362728-11-jhubbard@nvidia.com
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Bj=C3=B6rn T=C3=B6pel <bjorn.topel@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Leon Romanovsky <leonro@mellanox.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/migrate.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/media/v4l2-core/videobuf-dma-sg.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/mm/migrate.c~mm-move_pages-report-the-number-of-non-attempted-pages
-+++ a/mm/migrate.c
-@@ -1627,8 +1627,19 @@ static int do_pages_move(struct mm_struc
- 			start = i;
- 		} else if (node != current_node) {
- 			err = do_move_pages_to_node(mm, &pagelist, current_node);
--			if (err)
-+			if (err) {
-+				/*
-+				 * Positive err means the number of failed
-+				 * pages to migrate.  Since we are going to
-+				 * abort and return the number of non-migrated
-+				 * pages, so need to incude the rest of the
-+				 * nr_pages that have not been attempted as
-+				 * well.
-+				 */
-+				if (err > 0)
-+					err += nr_pages - i - 1;
- 				goto out;
-+			}
- 			err = store_status(status, start, current_node, i - start);
- 			if (err)
- 				goto out;
-@@ -1659,8 +1670,11 @@ static int do_pages_move(struct mm_struc
- 			goto out_flush;
- 
- 		err = do_move_pages_to_node(mm, &pagelist, current_node);
--		if (err)
-+		if (err) {
-+			if (err > 0)
-+				err += nr_pages - i - 1;
- 			goto out;
+--- a/drivers/media/v4l2-core/videobuf-dma-sg.c~media-v4l2-core-set-pages-d=
+irty-upon-releasing-dma-buffers
++++ a/drivers/media/v4l2-core/videobuf-dma-sg.c
+@@ -349,8 +349,11 @@ int videobuf_dma_free(struct videobuf_dm
+ 	BUG_ON(dma->sglen);
+=20
+ 	if (dma->pages) {
+-		for (i =3D 0; i < dma->nr_pages; i++)
++		for (i =3D 0; i < dma->nr_pages; i++) {
++			if (dma->direction =3D=3D DMA_FROM_DEVICE)
++				set_page_dirty_lock(dma->pages[i]);
+ 			put_page(dma->pages[i]);
 +		}
- 		if (i > start) {
- 			err = store_status(status, start, current_node, i - start);
- 			if (err)
-@@ -1674,6 +1688,13 @@ out_flush:
- 
- 	/* Make sure we do not overwrite the existing error */
- 	err1 = do_move_pages_to_node(mm, &pagelist, current_node);
-+	/*
-+	 * Don't have to report non-attempted pages here since:
-+	 *     - If the above loop is done gracefully all pages have been
-+	 *       attempted.
-+	 *     - If the above loop is aborted it means a fatal error
-+	 *       happened, should return ret.
-+	 */
- 	if (!err1)
- 		err1 = store_status(status, start, current_node, i - start);
- 	if (err >= 0)
+ 		kfree(dma->pages);
+ 		dma->pages =3D NULL;
+ 	}
 _
