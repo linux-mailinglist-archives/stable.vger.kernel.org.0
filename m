@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E190414F685
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 06:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4756714F686
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 06:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725854AbgBAFGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 00:06:09 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:33326 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725842AbgBAFGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 00:06:08 -0500
-Received: by mail-pg1-f193.google.com with SMTP id 6so4717053pgk.0
-        for <stable@vger.kernel.org>; Fri, 31 Jan 2020 21:06:08 -0800 (PST)
+        id S1725904AbgBAFHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Feb 2020 00:07:16 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:41181 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725842AbgBAFHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 00:07:16 -0500
+Received: by mail-pg1-f194.google.com with SMTP id l3so599403pgi.8
+        for <stable@vger.kernel.org>; Fri, 31 Jan 2020 21:07:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=mOGl0G2/Wnvc6F5Lh8EETth4NH2n2G5Q1Up/XyhGx+I=;
-        b=bk8H7qKDQcKu7GabwVHJN3yb1L0MzVPX2o0/sjux5oyCuWl75/BGYNKvZ2AV9oyCJM
-         oNpiiXYc8M76FPP/GZUJcjc9UJCZTUWZbgujTgUuJFbY4xHNiVS9zqZznpOJ/bzgbAUc
-         L3kprlTU269nP8xZ8ZuS8TmejzxbK8Y+h54EY=
+        bh=icrw+2/LnAMhusOkqwrV4IvPZhWPo+FSElww6CsUp8o=;
+        b=ehKaTfqTPRq2MHI7atazDlZPBO4WMc1uCeBUAa8eIBup717uJcLkowcsPmDOtFHDXG
+         8PEFG8JVTELXF3+5aqItFG/8rvt1kxjIf6woHOm+Me+JD0JDnwctpKsyfFXRP3jyv1+i
+         0qc/dK8kiL/J+kNwWLUXeZHivuq0ISDyfaJBA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=mOGl0G2/Wnvc6F5Lh8EETth4NH2n2G5Q1Up/XyhGx+I=;
-        b=lX/Q2958Vk8J2PuiJnkGeDzyOeH3XQZxYGlPjbpnGULDjg0/GVkAI7vC68tcf89uD2
-         t0kNsTS/6mL+x+MSr3z3oyWx3riEwCWY9g2Yo1N1P9AM7IKmwRXvAA7l5QFKnpZSzjNh
-         IdoAC4Ch3NXoURPqC8wyqfE5Bjk5v1MjyvbQeMOt625i+B1vMolFF58s+XyUNbQQZ3n0
-         VcGNMyCpHtUskK5qVwtUwqjX0x1bJMrHci8R/+IwdP6BI/+FDryJ2iolOlyCN8sJ26cb
-         AMuMy7EpHkeJRztpoyXNjUyz3AKfPJdUtwfVIRRvVsru6eypXsEO3uCmYUfe8CVsMaWr
-         1UWA==
-X-Gm-Message-State: APjAAAUaWRYgeZJmRnB35USxZyGDQak9VstYbJccFr0r5s1UcAGaVUxd
-        BK1uS9V+KKOapbRMlsrPLZNVgcQdk10=
-X-Google-Smtp-Source: APXvYqwvXedVF2WfsabcdrzzWAqvOjREtgyjytdw+4N1iqITS/fHCi6MyLQu3eFSxVi8yyShbUKkgA==
-X-Received: by 2002:a63:de47:: with SMTP id y7mr13486092pgi.270.1580533567117;
-        Fri, 31 Jan 2020 21:06:07 -0800 (PST)
+        bh=icrw+2/LnAMhusOkqwrV4IvPZhWPo+FSElww6CsUp8o=;
+        b=j1tc6laNn42guRYYO8Vyyj25VgUUDUFLfs3FtkXtKCcHrX9xlcwR5U6FCGNzPj77ti
+         ECuB6wgeRTiMMVtHyhDitVk99Jx4eR/a8ovjQyyHfNs195pCM4lgfZ7lBpm29wsb8xEV
+         RYEho+41n5Eg2AgGPLo5CKas5RyvdnM1fxgDKiRMDwmlUMuGfDKt755nJW7CUNYL1L4b
+         a0VMsQorqbu24Dx7VspN/p6/Nljv78ddrd3vO/tsxBR3bpuvJdlODfxELIl/L6E6enwA
+         SKIfpGvEwNYPAHzd6by63MOlllr0C1P0mubef8QGDTLP+Bp/Qqwu/NBPxarRNf2coebb
+         HoTg==
+X-Gm-Message-State: APjAAAXEwd/Fl/Qaufu5LS+UroXsWkoI5/cM14br1UxXj/Sy3CDKm8Ka
+        3rFh+g9mAvY08Ug3JWoR4AxbqzjtGgaqGg==
+X-Google-Smtp-Source: APXvYqyq2FPn/aDMaKP772wVuniSV5/PRmPKH3vhLrcV8me09xgaFhcRiVbR4BVKsDKK49EULXJ+Aw==
+X-Received: by 2002:a62:cec5:: with SMTP id y188mr14070337pfg.52.1580533635344;
+        Fri, 31 Jan 2020 21:07:15 -0800 (PST)
 Received: from zsm-linux.mtv.corp.google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
-        by smtp.googlemail.com with ESMTPSA id k12sm11600510pgm.65.2020.01.31.21.06.06
+        by smtp.googlemail.com with ESMTPSA id b65sm12147626pgc.18.2020.01.31.21.07.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jan 2020 21:06:06 -0800 (PST)
+        Fri, 31 Jan 2020 21:07:14 -0800 (PST)
 From:   Zubin Mithra <zsm@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, groeck@chromium.org, tytso@mit.edu,
         adilger.kernel@dilger.ca
-Subject: [PATCH v4.19.y] ext4: validate the debug_want_extra_isize mount option at parse time
-Date:   Fri, 31 Jan 2020 21:06:01 -0800
-Message-Id: <20200201050601.148009-1-zsm@chromium.org>
+Subject: [PATCH v4.14.y] ext4: validate the debug_want_extra_isize mount option at parse time
+Date:   Fri, 31 Jan 2020 21:07:10 -0800
+Message-Id: <20200201050710.148431-1-zsm@chromium.org>
 X-Mailer: git-send-email 2.25.0.341.g760bfbb309-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -71,34 +71,34 @@ Reported-and-tested-by: syzbot+4a39a025912b265cacef@syzkaller.appspotmail.com
 Signed-off-by: Zubin Mithra <zsm@chromium.org>
 ---
 Notes:
-* Syzkaller triggered a UAF on 4.19 kernels with the following
+* Syzkaller triggered a UAF on 4.14 kernels with the following
 stacktrace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xc8/0x129 lib/dump_stack.c:113
- print_address_description+0x67/0x22a mm/kasan/report.c:256
- kasan_report_error mm/kasan/report.c:354 [inline]
- kasan_report mm/kasan/report.c:412 [inline]
- kasan_report+0x251/0x28f mm/kasan/report.c:396
- ext4_xattr_set_entry+0x45e/0x2222 fs/ext4/xattr.c:1604
- ext4_xattr_ibody_set+0x7d/0x226 fs/ext4/xattr.c:2240
- ext4_xattr_set_handle+0x553/0xa92 fs/ext4/xattr.c:2396
- ext4_xattr_set+0x16a/0x200 fs/ext4/xattr.c:2508
- __vfs_setxattr+0xfc/0x13d fs/xattr.c:149
- __vfs_setxattr_noperm+0xf5/0x19c fs/xattr.c:180
- vfs_setxattr+0x9c/0xca fs/xattr.c:223
- setxattr+0x20e/0x275 fs/xattr.c:450
- path_setxattr+0xca/0x144 fs/xattr.c:469
- __do_sys_lsetxattr fs/xattr.c:491 [inline]
- __se_sys_lsetxattr fs/xattr.c:487 [inline]
- __x64_sys_lsetxattr+0xd7/0xe1 fs/xattr.c:487
- do_syscall_64+0xfe/0x137 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ __dump_stack lib/dump_stack.c:17 [inline]
+ dump_stack+0xc1/0x111 lib/dump_stack.c:58
+ print_address_description+0x67/0x22d mm/kasan/report.c:256
+ kasan_report_error mm/kasan/report.c:355 [inline]
+ kasan_report mm/kasan/report.c:413 [inline]
+ kasan_report+0x250/0x28e mm/kasan/report.c:397
+ ext4_xattr_set_entry+0x45e/0x21d9 fs/ext4/xattr.c:1603
+ ext4_xattr_ibody_set+0x7d/0x226 fs/ext4/xattr.c:2239
+ ext4_xattr_set_handle+0x553/0xa8a fs/ext4/xattr.c:2395
+ ext4_xattr_set+0x16a/0x200 fs/ext4/xattr.c:2507
+ __vfs_setxattr+0xfc/0x13d fs/xattr.c:150
+ __vfs_setxattr_noperm+0xf5/0x19c fs/xattr.c:181
+ vfs_setxattr+0x9c/0xca fs/xattr.c:224
+ setxattr+0x20e/0x275 fs/xattr.c:453
+ path_setxattr+0xca/0x144 fs/xattr.c:472
+ SYSC_lsetxattr fs/xattr.c:494 [inline]
+ SyS_lsetxattr+0x3e/0x46 fs/xattr.c:490
+ do_syscall_64+0x201/0x23f arch/x86/entry/common.c:293
+ entry_SYSCALL_64_after_hwframe+0x42/0xb7
 
-* This commit is present in linux-5.4.y. A backport for 4.14.y has been
+
+* This commit is present in linux-5.4.y. A backport for 4.19.y has been
 sent separately.
 
 * This patch resolves conflicts related to the following commits not
-being present in linux-4.19.y:
+being present in linux-4.14.y:
 	188d20bcd1eb ("vfs: Add file timestamp range support")
 	4881c4971df0 ("ext4: Initialize timestamps limits")
 
@@ -108,10 +108,10 @@ being present in linux-4.19.y:
  1 file changed, 66 insertions(+), 61 deletions(-)
 
 diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 1a8d57fe0b1a8..32d8bdf683bbf 100644
+index 1a0a566479746..93d8aa6ef6611 100644
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -1842,6 +1842,13 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
+@@ -1782,6 +1782,13 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
  			arg = JBD2_DEFAULT_MAX_COMMIT_AGE;
  		sbi->s_commit_interval = HZ * arg;
  	} else if (token == Opt_debug_want_extra_isize) {
@@ -125,7 +125,7 @@ index 1a8d57fe0b1a8..32d8bdf683bbf 100644
  		sbi->s_want_extra_isize = arg;
  	} else if (token == Opt_max_batch_time) {
  		sbi->s_max_batch_time = arg;
-@@ -3513,40 +3520,6 @@ int ext4_calculate_overhead(struct super_block *sb)
+@@ -3454,40 +3461,6 @@ int ext4_calculate_overhead(struct super_block *sb)
  	return 0;
  }
  
@@ -166,7 +166,7 @@ index 1a8d57fe0b1a8..32d8bdf683bbf 100644
  static void ext4_set_resv_clusters(struct super_block *sb)
  {
  	ext4_fsblk_t resv_clusters;
-@@ -3754,6 +3727,65 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+@@ -3695,6 +3668,65 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
  	 */
  	sbi->s_li_wait_mult = EXT4_DEF_LI_WAIT_MULT;
  
@@ -232,7 +232,7 @@ index 1a8d57fe0b1a8..32d8bdf683bbf 100644
  	if (sbi->s_es->s_mount_opts[0]) {
  		char *s_mount_opts = kstrndup(sbi->s_es->s_mount_opts,
  					      sizeof(sbi->s_es->s_mount_opts),
-@@ -3955,29 +3987,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+@@ -3893,29 +3925,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
  						      has_huge_files);
  	sb->s_maxbytes = ext4_max_size(sb->s_blocksize_bits, has_huge_files);
  
@@ -262,16 +262,16 @@ index 1a8d57fe0b1a8..32d8bdf683bbf 100644
  	sbi->s_desc_size = le16_to_cpu(es->s_desc_size);
  	if (ext4_has_feature_64bit(sb)) {
  		if (sbi->s_desc_size < EXT4_MIN_DESC_SIZE_64BIT ||
-@@ -4421,8 +4430,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 	} else if (ret)
- 		goto failed_mount4a;
+@@ -4354,8 +4363,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 	if (ext4_setup_super(sb, es, sb_rdonly(sb)))
+ 		sb->s_flags |= MS_RDONLY;
  
 -	ext4_clamp_want_extra_isize(sb);
 -
  	ext4_set_resv_clusters(sb);
  
  	err = ext4_setup_system_zone(sb);
-@@ -5207,8 +5214,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+@@ -5139,8 +5146,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
  		goto restore_opts;
  	}
  
