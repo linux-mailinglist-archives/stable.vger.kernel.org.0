@@ -2,87 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E6314F97E
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 19:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C0914FA13
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 20:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726443AbgBASkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 13:40:43 -0500
-Received: from mail-il1-f172.google.com ([209.85.166.172]:39435 "EHLO
-        mail-il1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726335AbgBASkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 13:40:42 -0500
-Received: by mail-il1-f172.google.com with SMTP id f70so9143377ill.6;
-        Sat, 01 Feb 2020 10:40:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=Z11+/yeQUB6zTwEssk9IOz1CExq34IGy3Oa8TOXh/Dw=;
-        b=LJk2X4cA1MrCsi7mlcIeHVA+FtISyoUCmOSZ9maIXGIt7xpBTTfNjoMb+7Zfz4bnrA
-         EZ1rWKDrG8M6+RnNPzPmsHDRYDFKVLaHJ7k9GBgoeIcvfe0DTIcP5YuppQIKDtX0HXeU
-         nwajDVdfmYJlRWA8N9cMvMFo/CHKaQIzUohK1cnprQ0yswJlIde47ZlTxGjK2PGY4lYT
-         MnR2+lwL95F3jTWPxCKF+y6ydIb4cd1IZWhy+FjENLsKtz8pBBACNOp11SESbRRRC1Ed
-         sEaCEFcWIzKyn57dqrXsCeEisvcnPhJ+fglLKkrQX+m2FL5/PYemVrrffeMeYpLto3YM
-         RARw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=Z11+/yeQUB6zTwEssk9IOz1CExq34IGy3Oa8TOXh/Dw=;
-        b=bt2UUjXMwzmvilLod3qbu96zmEJDQZNV73fj+XS5iQJ4pLzaMmogs4mWB2wtVv3hV5
-         fPO7od+m9hyWL6J/lg3azx+Fcux+JGz09ukZA4rqydx22R1Do2VZBARtLWOJwHddo2I5
-         MiaNGINSib6d2UQ7HvrhPwvu7zufMeR6HKouvx1Mjyt8nYwjqWvq7/jYR13aTlypJdUa
-         HLjKQ/j74n493hRXPmN6e6unRJQQ7TGmmHewxYsjisz8NZCcK2BMDHoXg0yNi2tB+MyD
-         tGcZmczxAXvsvpEzIhV/S/in0DlUcLOQ0tx1t8VvnMOPivb7af/LUMhA80e51zpgo5iZ
-         AiQQ==
-X-Gm-Message-State: APjAAAVT43hHEouRweENJD7VUry9Fzt9o6xf8f30hUQi/gpksRKAcVJt
-        JCZJm82YsykUToWodwvrAK4iOTRf+HeNeAXQr+g=
-X-Google-Smtp-Source: APXvYqxHdowNbvOAZgwablQ3gQQL55H32fErt8bUECbN0wCs1Pws7yWJjkaghzNxBt/2ALxYrUhQMOOMAxp3Wh5+Irs=
-X-Received: by 2002:a05:6e02:c71:: with SMTP id f17mr14485694ilj.272.1580582441983;
- Sat, 01 Feb 2020 10:40:41 -0800 (PST)
+        id S1726335AbgBATBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Feb 2020 14:01:46 -0500
+Received: from sonic316-53.consmr.mail.ne1.yahoo.com ([66.163.187.179]:39189
+        "EHLO sonic316-53.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726270AbgBATBp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 14:01:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1580583704; bh=3gwbdpD6fpTnU3AIhQs1dw9/oeXqxu71NA+1nQpVq+I=; h=Date:From:Reply-To:Subject:References:From:Subject; b=n0kiaYRib828FF+QxlLALkHV0GFsW9rlH6UkZhgzhz3eT594lb5lwu51mh5jTKXzYGkGGKXkluybVYqpMby59haRWDFygvjQA/IQtLKyNAKThpz+mAjUVxQttZKKKP5NvXFLVSkQMYCLd4CcEvjE0FC3YILWTzQi/xToYithDtMu97e+hTY+ZHQnJpL4Ue7fGFRf9AOXiShn3+UfMxV9ak+uQjFzHo5utKawo6917ArF2m587R2B28oPX8zlwIKxt9METXtU+T6DGD5dIQFGt3QIgS90b2eFqcDXEzHt0Dmof4AdjBEFM9zU9ZbrzxjUd3oyJbaadX9HuIhEcpRE/w==
+X-YMail-OSG: FcqDiqwVM1n0HUFHjYGnRxTER22gHWDWC5oNTCokj9TEVBYuElCGmwP15LQAcIa
+ Dt1QHkjoiVxaNpd9FTqVkLj.h9oPbdj1k34ag4i8jaTyvn0.myyxoFgfr4xNVmYO24kfYwsIy2WO
+ CvzbCmNFPPBdyIVdN3CryoqsdyYzwk5fZUth2InN9D39WsgbqAIP_HgFnw1rqHuvzMmxUkYae25v
+ CWLDeIoJnqMiFVYL.nl0KHd1Xoi.fUE1pRN6HW.2hV93wTa.EDAJMIDbMQDYj4XulkD5bIXnnknA
+ 9z80TZmOtWV3SShDqFRRbxsnjonQUwjQAW5EJe9lhyEMs6B_je9vRTCvq9a_grtLFWI3TJWE_HMN
+ MCaloVSmZ2p3nec5u4LYkBRSMzxGGIP_Kayf6JVMJtBeGDFHxUd7V3vsiBznj25FIMX.D8Nz_6z7
+ Yf66mw0WuA6JAr8HcsjqgzLmVRFj7l_eWdAIYyJ9fiQdj3uBLt8EuSMC76g929SJFRnS3HOxbbID
+ itcqsqCAviuHKbNyS0TXUdbjRmPiIZWHG1Eku8TkZUHOfboqKvvqozQq4q1anbU0fqU0D8UNp9JP
+ a9WNRkHXmbIJENAAVd.8JHfCnNMAcZEXAta8FyLtJXCwK8CLzQZ5SFKGiVTgJlx.STqzyO7WWOcw
+ dH34mGzJN6EuavQF3BFEfOE7Z5g3.XQdvoGYFDrFPxscIP.mqhdk2uQRE_ezpxn36hCT1XPf0WGz
+ 1X.u8qTh7wpIYdUTh4hgW7OlPS0_owB91rPNlv5rWX_V1unDlTov2ro8oNn4IwFIQhrSjTdcPNOT
+ wIVrvDmXQqfPtcv8XIBzAYV4rjOBTZNBK9DU2pm0N4YjgWqkHeaDiY58oCVid3TuQLvEGvdtYWyP
+ WaEmB_fL9ZJpCqQytEtY43r9o_tvOjotS8T50EkcLBy.0JjuZfhJ7YmFr.agPCNQRu5u7AuY1eIf
+ uvq0hZcFwVc9RAA8SXEOT55Q2vwt_dKBBKAFneJ7kCx98sbWAlzmLntbLKP6rtBgFx_C0Y0WIQ.p
+ xNsWexA0BeBAFU_tboT6niWIwAKV3aEP8VFUEnWXnByPODQ44LrZXc045T0FuIH4xjPR0CjSAvJk
+ odo9v02G_4dfZDI98vup1l__n7.2p3_fLHgAOe12LYS8Arg8UGpeDaf2YcUu6dBfLuspKnf0pFxr
+ XgDCkNzLfsluXBCMPgPjCyTqqy4kUQRHRCGZpL_vdUPJOQxbSLssxeJxOeSlU46r4kRFvDcH8Aby
+ 2gJT0iSoXC91RduZPJ6sBTfSw3oVogWEGtpCs5_pLbYPTybfvLxEuUgG4ObxvAhtWfCq8ewZsWF2
+ isgu.MB3_rVAhlSSqqG7MwfQKj_4uyPVeRiH_
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Sat, 1 Feb 2020 19:01:44 +0000
+Date:   Sat, 1 Feb 2020 18:59:43 +0000 (UTC)
+From:   "Mrs. Maureen Hinckley" <zz54@gczao.com>
+Reply-To: maurhinck7@gmail.com
+Message-ID: <780390527.305603.1580583583841@mail.yahoo.com>
+Subject: 
 MIME-Version: 1.0
-From:   Steve French <smfrench@gmail.com>
-Date:   Sat, 1 Feb 2020 12:40:31 -0600
-Message-ID: <CAH2r5mt-Q1_ZBJmC+8jr5gJhr-NmUGG933y0gc+_1DVWTJUVZQ@mail.gmail.com>
-Subject: [GIT PULL] small SMB3 fix for stable
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Stable <stable@vger.kernel.org>, CIFS <linux-cifs@vger.kernel.org>,
-        ronnie sahlberg <ronniesahlberg@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <780390527.305603.1580583583841.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.15149 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.44
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please pull the following change since commit
-68353984d63d8d7ea728819dbdb7aecc5f32d360:
-
-  Merge tag '5.6-smb3-fixes-and-dfs-and-readdir-improvements' of
-git://git.samba.org/sfrench/cifs-2.6 (2020-01-28 15:34:03 -0800)
-
-are available in the Git repository at:
-
-  git://git.samba.org/sfrench/cifs-2.6.git tags/5.6-rc-small-smb3-fix-for-stable
-
-for you to fetch changes up to b581098482e6f177a4f64ea021fd5a9327ea08d5:
-
-  cifs: update internal module version number (2020-01-31 15:13:22 -0600)
-
-----------------------------------------------------------------
-Small SMB3 fix for stable (fixes problem with reconnect for soft mounts)
-
-----------------------------------------------------------------
-Ronnie Sahlberg (1):
-      cifs: fix soft mounts hanging in the reconnect code
-
-Steve French (1):
-      cifs: update internal module version number
-
- fs/cifs/cifsfs.h  | 2 +-
- fs/cifs/smb2pdu.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
 
--- 
-Thanks,
+I am Maureen Hinckley and my foundation is donating (Five hundred and fifty=
+ thousand USD) to you. Contact us via my email at (maurhinck7@gmail.com) fo=
+r further details.
 
-Steve
+Best Regards,
+Mrs. Maureen Hinckley,
+Copyright =C2=A92020 The Maureen Hinckley Foundation All Rights Reserved.
