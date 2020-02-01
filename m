@@ -2,72 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 227B414F942
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 18:58:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E6314F97E
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 19:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726387AbgBAR6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 12:58:48 -0500
-Received: from sonic307-9.consmr.mail.ne1.yahoo.com ([66.163.190.32]:45085
-        "EHLO sonic307-9.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726195AbgBAR6s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 12:58:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1580579926; bh=ntCsvVlsVYNXsouoo59ZH21v1wHZ5nZJzCG4NsnkusM=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Se18+Hh5otUWKlq5oTKqUaJ2CdAbQNjPdpbIOvvJ4rBSiIvcBqV5CZDPPzYxL9tdqBgqQEDlxbWvuC7pjbSpyiLGSAONHqDZBYGNfcHqfueZ/qRMnDE4qGVSk3uatebwfTV33cKf2IRVgucoLbpNY5jkN3SLhqiRwwO25DC516HIvdwaNKZ6moiU1wRP3VE3jYcOby/HKbO4v0y4HJRG9UBUSRuHJhsWNyjlQcFjw9Zfp4n5XQ8X4DqyrwnvGg2JiXafAmmkt5doRBMbEGjiENlHfwop8K+QOLll/zlwdj3kX1h4RqupaXMsoHwCWEpdLw+FsDBrOSIlnZJGvE9Vpg==
-X-YMail-OSG: X9mwWOIVM1ny0iyoILfp.6fPr4m4jZjf7Oh3MRcDcNLyIicMmgXMObYnoQS7p4w
- nxQzm7SCDUiPuhQ9jMKMtVfclL2g_8p45OVXvWyen89OlWV_E2fLLwhGmgZ.Pjg5A7AXi6VladN7
- i3oHxODuouyO7CWFEWUSl_I1RX2SDjI8X6aANGcJmH.r3jQJOGCNdl2DIexYJaaJn7D8Gr_YKsZR
- w2dInGEo1wQeI15ZrXfUdFroXKQnVB1pq_szhWfvlh7sNtGf8eC4HVOlsP0y5N6j4FDTj2UO4Tuj
- ocYq5ZhSAfVewFxSnes3p6VYp8A1T.9HW3OIm.JQh2jBxNyB72byWa_1d7iAt1L2YT17Z9UaafSY
- ZtFK8kgx5LIVjffDLunZOmOesDvKT38fMA2lfhQ50aQXclOBUDsAVk4t066qRAigp9.t61.6tX.L
- CgWkHiIp2YapJn94YypJQnc7cm2rYQpLPI6vAG8PWrP7cYe52nAb.QlWV1HICrVRWwhQUn5F2j.C
- jBV1_wONrzDcIVaEevdoAfauZ4t8eyR_KtORGNKZ17NMTJpfgH10kwBx4iaqHGTDTYO3M4rw3xG1
- PwV6Zsu6uCudvgZOAlfakD2DSX_oQL1.EfwMZxFpo.RbRJ0Kp97SGLb1OwC0dBFRibbraOezQTGN
- Czc6UCFOk1_ygKDeY.cMgsuBBo9687ft1vIt6MyntuySKqkkZDkTT1._TlTmnfjskD5zjW4ub1mW
- 5yXEeZ_5dhS51KHaWNbVJqt9_QmYiI0tGygmt5v83tLyhYaHDBcysc2B_ZKahQ7CfZXnCCEXLbwG
- XyMcH70jQOKnki0rlFhGng6CxZfp5bD4ZFq7TWd7t6moj9zeWLUuQR8ecYEg0cII3x8s6.QtLvYf
- gI_nAD6Fb234orPXbSG0jgKOOPWqJ7sofQZ2DhnYUH0_OJb6BHaZglfl4Yz9H1SwbHU0xD_qSGRA
- bTv874awo7H673yyZARn185ODqY.xsdudZYIxypVGxdxalGhb659U8WHhjClRrweeDjG_N1g7M_N
- sa6EmpjE8LFBuHJ1s4wQHAOTRaDQEqKBQsd_2kxTi0keKc3QSlPHVClBq6pBPIJz7Z8PIDg0aFNw
- a4Wv9UMaJm9AwKk11rAf9nB7B5zt2Qt8BcT2pUGJsS6X9nEwKRf45nZm3hE54QgnIkr_n.8ZkKOh
- n.SsS2xL2C__m7tjTX51UDuS_s79zQSfiXSFkyX1vEXAYXn8NOZ_n6zedTaISzD5sxQ61cQfygLc
- lWp8ht1e0tQ1bx9WBokIlHF8aj1RtUO2vY5oI0kBOzbj2avznqkslyN4gDcw6KelzPGSJirn981s
- iBA_6v_Y-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Sat, 1 Feb 2020 17:58:46 +0000
-Date:   Sat, 1 Feb 2020 17:58:42 +0000 (UTC)
-From:   "Mrs. Aminatou Zainab" <lampia.jacki@gmail.com>
-Reply-To: miss.aminatouzainab@gmail.com
-Message-ID: <1692496508.264974.1580579922278@mail.yahoo.com>
-Subject: WITH DUE RESPECT YOUR ATTENTION IS VERY VERY NEEDED URGENT.
+        id S1726443AbgBASkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Feb 2020 13:40:43 -0500
+Received: from mail-il1-f172.google.com ([209.85.166.172]:39435 "EHLO
+        mail-il1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726335AbgBASkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 13:40:42 -0500
+Received: by mail-il1-f172.google.com with SMTP id f70so9143377ill.6;
+        Sat, 01 Feb 2020 10:40:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=Z11+/yeQUB6zTwEssk9IOz1CExq34IGy3Oa8TOXh/Dw=;
+        b=LJk2X4cA1MrCsi7mlcIeHVA+FtISyoUCmOSZ9maIXGIt7xpBTTfNjoMb+7Zfz4bnrA
+         EZ1rWKDrG8M6+RnNPzPmsHDRYDFKVLaHJ7k9GBgoeIcvfe0DTIcP5YuppQIKDtX0HXeU
+         nwajDVdfmYJlRWA8N9cMvMFo/CHKaQIzUohK1cnprQ0yswJlIde47ZlTxGjK2PGY4lYT
+         MnR2+lwL95F3jTWPxCKF+y6ydIb4cd1IZWhy+FjENLsKtz8pBBACNOp11SESbRRRC1Ed
+         sEaCEFcWIzKyn57dqrXsCeEisvcnPhJ+fglLKkrQX+m2FL5/PYemVrrffeMeYpLto3YM
+         RARw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=Z11+/yeQUB6zTwEssk9IOz1CExq34IGy3Oa8TOXh/Dw=;
+        b=bt2UUjXMwzmvilLod3qbu96zmEJDQZNV73fj+XS5iQJ4pLzaMmogs4mWB2wtVv3hV5
+         fPO7od+m9hyWL6J/lg3azx+Fcux+JGz09ukZA4rqydx22R1Do2VZBARtLWOJwHddo2I5
+         MiaNGINSib6d2UQ7HvrhPwvu7zufMeR6HKouvx1Mjyt8nYwjqWvq7/jYR13aTlypJdUa
+         HLjKQ/j74n493hRXPmN6e6unRJQQ7TGmmHewxYsjisz8NZCcK2BMDHoXg0yNi2tB+MyD
+         tGcZmczxAXvsvpEzIhV/S/in0DlUcLOQ0tx1t8VvnMOPivb7af/LUMhA80e51zpgo5iZ
+         AiQQ==
+X-Gm-Message-State: APjAAAVT43hHEouRweENJD7VUry9Fzt9o6xf8f30hUQi/gpksRKAcVJt
+        JCZJm82YsykUToWodwvrAK4iOTRf+HeNeAXQr+g=
+X-Google-Smtp-Source: APXvYqxHdowNbvOAZgwablQ3gQQL55H32fErt8bUECbN0wCs1Pws7yWJjkaghzNxBt/2ALxYrUhQMOOMAxp3Wh5+Irs=
+X-Received: by 2002:a05:6e02:c71:: with SMTP id f17mr14485694ilj.272.1580582441983;
+ Sat, 01 Feb 2020 10:40:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1692496508.264974.1580579922278.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15149 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:72.0) Gecko/20100101 Firefox/72.0
-To:     unlisted-recipients:; (no To-header on input)
+From:   Steve French <smfrench@gmail.com>
+Date:   Sat, 1 Feb 2020 12:40:31 -0600
+Message-ID: <CAH2r5mt-Q1_ZBJmC+8jr5gJhr-NmUGG933y0gc+_1DVWTJUVZQ@mail.gmail.com>
+Subject: [GIT PULL] small SMB3 fix for stable
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Stable <stable@vger.kernel.org>, CIFS <linux-cifs@vger.kernel.org>,
+        ronnie sahlberg <ronniesahlberg@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Please pull the following change since commit
+68353984d63d8d7ea728819dbdb7aecc5f32d360:
+
+  Merge tag '5.6-smb3-fixes-and-dfs-and-readdir-improvements' of
+git://git.samba.org/sfrench/cifs-2.6 (2020-01-28 15:34:03 -0800)
+
+are available in the Git repository at:
+
+  git://git.samba.org/sfrench/cifs-2.6.git tags/5.6-rc-small-smb3-fix-for-stable
+
+for you to fetch changes up to b581098482e6f177a4f64ea021fd5a9327ea08d5:
+
+  cifs: update internal module version number (2020-01-31 15:13:22 -0600)
+
+----------------------------------------------------------------
+Small SMB3 fix for stable (fixes problem with reconnect for soft mounts)
+
+----------------------------------------------------------------
+Ronnie Sahlberg (1):
+      cifs: fix soft mounts hanging in the reconnect code
+
+Steve French (1):
+      cifs: update internal module version number
+
+ fs/cifs/cifsfs.h  | 2 +-
+ fs/cifs/smb2pdu.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 
+-- 
+Thanks,
 
-
-ATTENTION: DEAR BENEFICIARY CONGRATULATIONS TO YOU,
-
-I RECEIVE YOUR CONTENT OF YOUR EMAIL FROM FEDEX ATM CARD OFFICES YOUR FUNDS SUM OF $10.500,000, 000. MILLION DOLLARS, HAS DISCOVER HERE AFTER THE BOARD OF DIRECTORS MEETINGS, THE UNITED NATIONS GOVERNMENT HAVE DECIDED TO ISSUE YOU YOUR (ATM CARD) VALUED @ TEN MILLION FIVE HUNDRED THOUSAND DOLLARS ($) COMPENSATION FUND THROUGH THIS (ATM) CARD.
-
-THIS IS TO BRING TO YOUR NOTICE THAT YOUR VALUED SUM OF 10.5 MILLION DOLLARS HAS BEING CREDITED IN YOUR NAME AS BENEFICIARY TO THIS (ATM CARD), AND HAS BEEN HANDLE TO THE FOREIGN REMITTANCE DEPARTMENT TO SEND IT TO YOU IN YOUR FAVOR IMMEDIATELY WITHOUT ANY DELAY,
-
-YOU HAVE ACCESS TO MAKE DAILY WITHDRAWALS OF ($5,500) UNITED STATE DOLLARS DAILY.
-
-WE RECEIVE YOUR INFORMATIONS AND YOUR HOME ADDRESS OF YOUR COUNTRY AND WE WILL SEND TO YOU YOUR (ATM CARD), WE HAVE ALSO RECEIVED A SIGNAL FROM THE SWISS WORLD BANK TO TRANSFER YOUR BELONGING (ATM) TO YOU WITHIN ONE WEEK, WITHOUT ANY DELAY AS WE RECORD.
-
-WE HAVE JUST FINISHED OUR ANNUAL GENERAL MEETING WITH BANK OF AMERICA (BOA).
-
-FOR MORE INFORMATION PLEASE GET BACK TO ME AS SOON AS POSSIBLE.
-
-YOURS
-SINCERELY.
-
-DIRECTOR FEDEX SERVICE (USA).
-MRS. AMINATOU. Z. MAKEL.
+Steve
