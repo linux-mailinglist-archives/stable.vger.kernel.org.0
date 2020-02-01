@@ -2,107 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F6F14F82E
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 16:05:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 227B414F942
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 18:58:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726536AbgBAPFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 10:05:18 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:40049 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726505AbgBAPFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 10:05:17 -0500
-Received: by mail-wm1-f65.google.com with SMTP id t14so12014693wmi.5
-        for <stable@vger.kernel.org>; Sat, 01 Feb 2020 07:05:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dKyCb/slcxPhPpKUiFZfbmJhH+50E6FZog2Y05E1mP4=;
-        b=SVLUy/762yipEV5sogiNgo8eGGFsCM641ChgdQWz3kdW9+MU8TZWL3bgnxfpCxkUyM
-         g3gmdXfy8OXiRFj5JmY7x/icsjBrs7jyyQ5X5SURGDqn1LwmoCK5xLhXPgCwF52/xzjZ
-         ut9ebXPpiDTz5gBYAOJvkw+KddEVVCkT2YsKjhH6pg5XcoryjxEGLJXuyxKRyt4hHiYm
-         aBXzkAfSjZNGPh+C4CzCvSnsL1X8K4SqkFkPI4YhiYIQerfpQaVDSaxJ3Mu+ZncWx5QA
-         ErMfWJThgyrZCfygbU/k8K0vuoIv4UhNPnhDOMpe7dXcu48t8tE1kpEhAXInSuix7EYS
-         +TnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dKyCb/slcxPhPpKUiFZfbmJhH+50E6FZog2Y05E1mP4=;
-        b=cdjPRCMhLUAqPblbv0A9ME6W/nL5ICSBRFh/v0wuX3v5kk0xtd6e4ecsuBNLQNIJfH
-         dlWV14tSD6eKePbDCilb2qcOtXgCB3DhvES0z5qEnZ1VMHKzpeXknovuecUMJcde3+I4
-         l4ekkCUAeUTZnYtr2K+3AUslJ+4XhxGAjui8ob25tFHY14R2quCx95hMpdB7KM2LUPZt
-         ZKsFIexk4PIF0WAmJ2CBBU8i4j8pM1PVoTIJNoTjqOhYCX3WV/pjUczoHv5hmvU3UliN
-         lo1JwcbaA1Z+g/W1j8/rUtylcgQeCkvIULYg9Wt+WdX9mJ7OtGYS7k3bHjAdrPH3xtSg
-         xQ7Q==
-X-Gm-Message-State: APjAAAXwynAVwkw7j6lk9jBSVFyj5TK438laDaHDValsMdz6BI1f4Kxc
-        vjOm8gaYLZc0qGvrOCOaqq9kbvlBzE5Dxg==
-X-Google-Smtp-Source: APXvYqyb2NW8aMHW6tK9T6rTswwkiyRg1++iYyQcOI+MTYFXDkNkfriklTdd4blqb1VJBhDjlkvjEA==
-X-Received: by 2002:a7b:c109:: with SMTP id w9mr18120483wmi.14.1580569515679;
-        Sat, 01 Feb 2020 07:05:15 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id p5sm16454906wrt.79.2020.02.01.07.05.14
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Feb 2020 07:05:14 -0800 (PST)
-Message-ID: <5e3593aa.1c69fb81.0cfc.8c36@mx.google.com>
-Date:   Sat, 01 Feb 2020 07:05:14 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726387AbgBAR6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Feb 2020 12:58:48 -0500
+Received: from sonic307-9.consmr.mail.ne1.yahoo.com ([66.163.190.32]:45085
+        "EHLO sonic307-9.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726195AbgBAR6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 12:58:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1580579926; bh=ntCsvVlsVYNXsouoo59ZH21v1wHZ5nZJzCG4NsnkusM=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Se18+Hh5otUWKlq5oTKqUaJ2CdAbQNjPdpbIOvvJ4rBSiIvcBqV5CZDPPzYxL9tdqBgqQEDlxbWvuC7pjbSpyiLGSAONHqDZBYGNfcHqfueZ/qRMnDE4qGVSk3uatebwfTV33cKf2IRVgucoLbpNY5jkN3SLhqiRwwO25DC516HIvdwaNKZ6moiU1wRP3VE3jYcOby/HKbO4v0y4HJRG9UBUSRuHJhsWNyjlQcFjw9Zfp4n5XQ8X4DqyrwnvGg2JiXafAmmkt5doRBMbEGjiENlHfwop8K+QOLll/zlwdj3kX1h4RqupaXMsoHwCWEpdLw+FsDBrOSIlnZJGvE9Vpg==
+X-YMail-OSG: X9mwWOIVM1ny0iyoILfp.6fPr4m4jZjf7Oh3MRcDcNLyIicMmgXMObYnoQS7p4w
+ nxQzm7SCDUiPuhQ9jMKMtVfclL2g_8p45OVXvWyen89OlWV_E2fLLwhGmgZ.Pjg5A7AXi6VladN7
+ i3oHxODuouyO7CWFEWUSl_I1RX2SDjI8X6aANGcJmH.r3jQJOGCNdl2DIexYJaaJn7D8Gr_YKsZR
+ w2dInGEo1wQeI15ZrXfUdFroXKQnVB1pq_szhWfvlh7sNtGf8eC4HVOlsP0y5N6j4FDTj2UO4Tuj
+ ocYq5ZhSAfVewFxSnes3p6VYp8A1T.9HW3OIm.JQh2jBxNyB72byWa_1d7iAt1L2YT17Z9UaafSY
+ ZtFK8kgx5LIVjffDLunZOmOesDvKT38fMA2lfhQ50aQXclOBUDsAVk4t066qRAigp9.t61.6tX.L
+ CgWkHiIp2YapJn94YypJQnc7cm2rYQpLPI6vAG8PWrP7cYe52nAb.QlWV1HICrVRWwhQUn5F2j.C
+ jBV1_wONrzDcIVaEevdoAfauZ4t8eyR_KtORGNKZ17NMTJpfgH10kwBx4iaqHGTDTYO3M4rw3xG1
+ PwV6Zsu6uCudvgZOAlfakD2DSX_oQL1.EfwMZxFpo.RbRJ0Kp97SGLb1OwC0dBFRibbraOezQTGN
+ Czc6UCFOk1_ygKDeY.cMgsuBBo9687ft1vIt6MyntuySKqkkZDkTT1._TlTmnfjskD5zjW4ub1mW
+ 5yXEeZ_5dhS51KHaWNbVJqt9_QmYiI0tGygmt5v83tLyhYaHDBcysc2B_ZKahQ7CfZXnCCEXLbwG
+ XyMcH70jQOKnki0rlFhGng6CxZfp5bD4ZFq7TWd7t6moj9zeWLUuQR8ecYEg0cII3x8s6.QtLvYf
+ gI_nAD6Fb234orPXbSG0jgKOOPWqJ7sofQZ2DhnYUH0_OJb6BHaZglfl4Yz9H1SwbHU0xD_qSGRA
+ bTv874awo7H673yyZARn185ODqY.xsdudZYIxypVGxdxalGhb659U8WHhjClRrweeDjG_N1g7M_N
+ sa6EmpjE8LFBuHJ1s4wQHAOTRaDQEqKBQsd_2kxTi0keKc3QSlPHVClBq6pBPIJz7Z8PIDg0aFNw
+ a4Wv9UMaJm9AwKk11rAf9nB7B5zt2Qt8BcT2pUGJsS6X9nEwKRf45nZm3hE54QgnIkr_n.8ZkKOh
+ n.SsS2xL2C__m7tjTX51UDuS_s79zQSfiXSFkyX1vEXAYXn8NOZ_n6zedTaISzD5sxQ61cQfygLc
+ lWp8ht1e0tQ1bx9WBokIlHF8aj1RtUO2vY5oI0kBOzbj2avznqkslyN4gDcw6KelzPGSJirn981s
+ iBA_6v_Y-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Sat, 1 Feb 2020 17:58:46 +0000
+Date:   Sat, 1 Feb 2020 17:58:42 +0000 (UTC)
+From:   "Mrs. Aminatou Zainab" <lampia.jacki@gmail.com>
+Reply-To: miss.aminatouzainab@gmail.com
+Message-ID: <1692496508.264974.1580579922278@mail.yahoo.com>
+Subject: WITH DUE RESPECT YOUR ATTENTION IS VERY VERY NEEDED URGENT.
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.17
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-5.4.y boot: 68 boots: 4 failed,
- 63 passed with 1 untried/unknown (v5.4.17)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1692496508.264974.1580579922278.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.15149 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:72.0) Gecko/20100101 Firefox/72.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y boot: 68 boots: 4 failed, 63 passed with 1 untried/unkno=
-wn (v5.4.17)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-4.y/kernel/v5.4.17/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
-rnel/v5.4.17/
 
-Tree: stable
-Branch: linux-5.4.y
-Git Describe: v5.4.17
-Git Commit: 313c8460cf0290fb1b9f71a20573fc32ac6c9cee
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 56 unique boards, 15 SoC families, 12 builds out of 186
 
-Boot Regressions Detected:
 
-arm64:
+ATTENTION: DEAR BENEFICIARY CONGRATULATIONS TO YOU,
 
-    defconfig:
-        gcc-8:
-          meson-gxl-s805x-libretech-ac:
-              lab-baylibre: new failure (last pass: v5.4.16)
-          meson-gxm-q200:
-              lab-baylibre: new failure (last pass: v5.4.16)
+I RECEIVE YOUR CONTENT OF YOUR EMAIL FROM FEDEX ATM CARD OFFICES YOUR FUNDS SUM OF $10.500,000, 000. MILLION DOLLARS, HAS DISCOVER HERE AFTER THE BOARD OF DIRECTORS MEETINGS, THE UNITED NATIONS GOVERNMENT HAVE DECIDED TO ISSUE YOU YOUR (ATM CARD) VALUED @ TEN MILLION FIVE HUNDRED THOUSAND DOLLARS ($) COMPENSATION FUND THROUGH THIS (ATM) CARD.
 
-Boot Failures Detected:
+THIS IS TO BRING TO YOUR NOTICE THAT YOUR VALUED SUM OF 10.5 MILLION DOLLARS HAS BEING CREDITED IN YOUR NAME AS BENEFICIARY TO THIS (ATM CARD), AND HAS BEEN HANDLE TO THE FOREIGN REMITTANCE DEPARTMENT TO SEND IT TO YOU IN YOUR FAVOR IMMEDIATELY WITHOUT ANY DELAY,
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+YOU HAVE ACCESS TO MAKE DAILY WITHDRAWALS OF ($5,500) UNITED STATE DOLLARS DAILY.
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxl-s805x-libretech-ac: 1 failed lab
-            meson-gxm-q200: 1 failed lab
-            msm8998-mtp: 1 failed lab
+WE RECEIVE YOUR INFORMATIONS AND YOUR HOME ADDRESS OF YOUR COUNTRY AND WE WILL SEND TO YOU YOUR (ATM CARD), WE HAVE ALSO RECEIVED A SIGNAL FROM THE SWISS WORLD BANK TO TRANSFER YOUR BELONGING (ATM) TO YOU WITHIN ONE WEEK, WITHOUT ANY DELAY AS WE RECORD.
 
----
-For more info write to <info@kernelci.org>
+WE HAVE JUST FINISHED OUR ANNUAL GENERAL MEETING WITH BANK OF AMERICA (BOA).
+
+FOR MORE INFORMATION PLEASE GET BACK TO ME AS SOON AS POSSIBLE.
+
+YOURS
+SINCERELY.
+
+DIRECTOR FEDEX SERVICE (USA).
+MRS. AMINATOU. Z. MAKEL.
