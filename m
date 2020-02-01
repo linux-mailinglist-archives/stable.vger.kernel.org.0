@@ -2,130 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4EC414F7A5
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 12:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA5A14F7AE
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 12:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbgBALpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 06:45:00 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37683 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726297AbgBALpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 06:45:00 -0500
+        id S1726450AbgBAL5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Feb 2020 06:57:01 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:35410 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726385AbgBAL5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 06:57:01 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580557499;
+        s=mimecast20190719; t=1580558219;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Yk+kTfcsf8R33615ncEr7TEpkv1k66QDIp747QRwuq4=;
-        b=MVBY2dewto+u8B4Aa+jeVhYoWLpeLelfbK/YqPgryI7TfNqHx2Z+jIB/19nYdovIK/KE4m
-        Q354bq8GTPZsPtC8qiWtDGIlKcZP299FgeC/DvcweuTmo8meHttK6bNHqfkMjHuam7cV4J
-        qFRzzfy+TCqCixXMMUQLWJQn2/y8Bvw=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-119-t_4HMFtGMmqoZ6xfh03HlQ-1; Sat, 01 Feb 2020 06:44:57 -0500
-X-MC-Unique: t_4HMFtGMmqoZ6xfh03HlQ-1
-Received: by mail-wr1-f69.google.com with SMTP id s13so4885979wrb.21
-        for <stable@vger.kernel.org>; Sat, 01 Feb 2020 03:44:57 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Yk+kTfcsf8R33615ncEr7TEpkv1k66QDIp747QRwuq4=;
-        b=Qhvgkwoo7AlrVDVqBkaxhUV+6CfQEulkWjClYUdGfCzyCDa8G8l/OixAG0J9MaT65q
-         KMwDvcb25fint+FA5cBOYa1ezaPvvB3phKG5UGqhWnAMxqMh3OXN4azg++gZWNtOOx1g
-         MW2K2MJQuKmm+51qrigaT6PVx9/+sySdAm2vW9ff8C4QHQ1iPJ2w6E9NJzx6bLrXox0d
-         bfvXYyZAr/UzJmZeXzikSt/0cGdgq8dq8v/X+Xx04I49P+suMQx4Ft6dgmXFr8VFiCnN
-         PCzjf+vK8djY1h0RajqN6fJYFCtWwpKbLCLIHegZLewmzuTW5WyT8HimGlL2eNQzxYov
-         9wyg==
-X-Gm-Message-State: APjAAAVymPXN/XL9acPP0P9Yc52hluZ0z03pVAxl6328KgUaay2nlbWM
-        5QCiI9SBJM0LgUIuWy2wF9T92ZBCflPa4G3rzA13NNtIO6q/FC0k9o2jvFWUBFw09JUffs5rImL
-        JvFUuyi0T+xyRz3Rw
-X-Received: by 2002:adf:f491:: with SMTP id l17mr4677530wro.149.1580557496343;
-        Sat, 01 Feb 2020 03:44:56 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxTAT9FzEovuslbYDdF+Xd1DrQKjFRwIfDmXu/oWF6AVQyHD3ZW42b7/gpuAFi0OfcFn2tSoQ==
-X-Received: by 2002:adf:f491:: with SMTP id l17mr4677516wro.149.1580557496148;
-        Sat, 01 Feb 2020 03:44:56 -0800 (PST)
-Received: from localhost.localdomain ([2001:67c:1810:f055:3fec:c198:3e12:89c7])
-        by smtp.gmail.com with ESMTPSA id 5sm12298168wrc.75.2020.02.01.03.44.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 01 Feb 2020 03:44:55 -0800 (PST)
-Subject: Re: [PATCH] HID: ite: Only bind to keyboard USB interface on Acer
- SW5-012 keyboard dock
-To:     Z R <zdenda.rampas@gmail.com>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>
-References: <20200131124553.27796-1-hdegoede@redhat.com>
- <CAO-hwJK-wwZ8UJRaBgjVc0ZXakU9C3eDbh+i6Q5vm8xh1P76LQ@mail.gmail.com>
- <ea896405-6784-7cfd-b27c-28e8ebc3cd7e@redhat.com>
- <CAO-hwJJ1v30NT5quobYawV9yv87buyrQXOG9u-nY3zXXSrCGvg@mail.gmail.com>
- <6d94cf74-c28f-08b0-a136-044c231b8bc5@redhat.com>
- <CAO-hwJ+o5CvU3Pv+dQV2gSTeF+n0AGkjwYJvWfX_ZYtM=OtH6g@mail.gmail.com>
- <CABHH5-LmC3JOWyDoxC5hizZe6RZ6RuO=-gk8WDXvU9Z2usihXg@mail.gmail.com>
- <fa288cc2-0560-1fa5-a629-20a7a33afeb2@redhat.com>
- <CABHH5-KNv7TU6=fiMk3JDxEX2mx7y9qr0Qx9sjOL9-=Rd5jsMw@mail.gmail.com>
- <CAO-hwJ+QnjLu1-Q_KneyOnpc-QaedYUdJUJHH-0E=Txv3kqy5Q@mail.gmail.com>
- <CABHH5-+MQZgj+Wz-BdHLJbK7X2dyyAES6KJspR=gK0TO0Dk73A@mail.gmail.com>
- <ae52762f-b743-de74-f978-7607a4f02eaf@redhat.com>
- <CABHH5-L0Ywc7nirnChy4YnGNeqhKa=_rXq9O5QUWtzWs1C6-_w@mail.gmail.com>
+         content-transfer-encoding:content-transfer-encoding;
+        bh=CgaEchis4MwdYCLh9FRqTFKGc6gMYpj98xz1QQaPf20=;
+        b=HKypyKwl/DnhUNNtLV1wL8KcAKBPO/DcCSeBQtNzON3IfgK/Hiaqt+aKGoR4Boid1yIAsr
+        VqAvneEz2u0TDEjQItbWVekFOFPxwcgzaUUZfY/0AmN4TltRr7SWvmhuSik/cMo8lak38l
+        7o9IIrRf3vlk0AUKJw/6lf2MsCe6rKY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-7-xuEGNn6JMue8kJcAMFZHQQ-1; Sat, 01 Feb 2020 06:56:57 -0500
+X-MC-Unique: xuEGNn6JMue8kJcAMFZHQQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B5B74800D41;
+        Sat,  1 Feb 2020 11:56:55 +0000 (UTC)
+Received: from localhost.localdomain.com (ovpn-112-16.ams2.redhat.com [10.36.112.16])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 73D5B7C3D9;
+        Sat,  1 Feb 2020 11:56:51 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <ac936152-26f7-2f43-5628-07691d9eda90@redhat.com>
-Date:   Sat, 1 Feb 2020 12:44:54 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zden=C4=9Bk=20Rampas?= <zdenda.rampas@gmail.com>
+Subject: [PATCH v2] HID: ite: Only bind to keyboard USB interface on Acer SW5-012 keyboard dock
+Date:   Sat,  1 Feb 2020 12:56:48 +0100
+Message-Id: <20200201115648.3934-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CABHH5-L0Ywc7nirnChy4YnGNeqhKa=_rXq9O5QUWtzWs1C6-_w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboar=
+d
+dock") added the USB id for the Acer SW5-012's keyboard dock to the
+hid-ite driver to fix the rfkill driver not working.
 
-On 2/1/20 11:58 AM, Z R wrote:
-> Good morning guys,
-> ls -l /sys/bus/hid/devices/0003*/driver
-> lrwxrwxrwx 1 root root 0 Feb  1 11:44 /sys/bus/hid/devices/0003:06CB:2968.0002/driver -> ../../../../../../../../bus/hid/drivers/itetech
-> lrwxrwxrwx 1 root root 0 Feb  1 11:44 /sys/bus/hid/devices/0003:06CB:2968.0003/driver -> ../../../../../../../../bus/hid/drivers/hid-multitouch
-> 
-> ################################
-> #      Waiting for events      #
-> ################################
-> E: 0.000001 0004 0004 458792    # EV_MSC / MSC_SCAN             458792
-> E: 0.000001 0001 001c 0000      # EV_KEY / KEY_ENTER            0
-> E: 0.000001 0000 0000 0000      # ------------ SYN_REPORT (0) ---------- +0ms
-> E: 4.068903 0001 00f7 0001      # EV_KEY / KEY_RFKILL           1
-> E: 4.068903 0000 0000 0000      # ------------ SYN_REPORT (0) ---------- +4068ms
-> E: 4.068997 0001 00f7 0000      # EV_KEY / KEY_RFKILL           0
-> E: 4.068997 0000 0000 0000      # ------------ SYN_REPORT (0) ---------- +0ms
-> E: 17.695302 0001 00f7 0001     # EV_KEY / KEY_RFKILL           1
-> E: 17.695302 0000 0000 0000     # ------------ SYN_REPORT (0) ---------- +13627ms
-> E: 17.695395 0001 00f7 0000     # EV_KEY / KEY_RFKILL           0
-> E: 17.695395 0000 0000 0000     # ------------ SYN_REPORT (0) ---------- +0ms
-> E: 24.508532 0004 0004 458976   # EV_MSC / MSC_SCAN             458976
-> E: 24.508532 0001 001d 0001     # EV_KEY / KEY_LEFTCTRL         1
-> E: 24.508532 0000 0000 0000     # ------------ SYN_REPORT (0) ---------- +6813ms
-> E: 24.744600 0004 0004 458758   # EV_MSC / MSC_SCAN             458758
-> E: 24.744600 0001 002e 0001     # EV_KEY / KEY_C                1
-> E: 24.744600 0000 0000 0000     # ------------ SYN_REPORT (0) ---------- +236ms
-> 
-> I pressed fn-f3 2x ... Wifi disabled, wifi enabled, on kernel patched with:
-> -       { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
-> -                        USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
-> +        { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-> +                     USB_VENDOR_ID_SYNAPTICS,
-> +                     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
+Most keyboard docks with an ITE 8595 keyboard/touchpad controller have th=
+e
+"Wireless Radio Control" bits which need the special hid-ite driver on th=
+e
+second USB interface (the mouse interface) and their touchpad only suppor=
+ts
+mouse emulation, so using generic hid-input handling for anything but
+the "Wireless Radio Control" bits is fine. On these devices we simply bin=
+d
+to all USB interfaces.
 
-Great, so everything is working as it should with the simplified patch, I will go and
-submit that to Benjamin then so that we can get this regression fixed.
+But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
+(SW5-012)'s touchpad not only does mouse emulation it also supports
+HID-multitouch and all the keys including the "Wireless Radio Control"
+bits have been moved to the first USB interface (the keyboard intf).
 
-Regards,
+So we need hid-ite to handle the first (keyboard) USB interface and have
+it NOT bind to the second (mouse) USB interface so that that can be
+handled by hid-multitouch.c and we get proper multi-touch support.
 
-Hans
+This commit changes the hid_device_id for the SW5-012 keyboard dock to
+only match on hid devices from the HID_GROUP_GENERIC group, this way
+hid-ite will not bind the the mouse/multi-touch interface which has
+HID_GROUP_MULTITOUCH_WIN_8 as group.
+This fixes the regression to mouse-emulation mode introduced by adding
+the keyboard dock USB id.
+
+Cc: stable@vger.kernel.org
+Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboar=
+d dock")
+Reported-by: Zden=C4=9Bk Rampas <zdenda.rampas@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- Extend hid_device_id to also match on the HID_GROUP_GENERIC group,
+  instead of adding a match callback which peeks at the USB descriptors
+---
+ drivers/hid/hid-ite.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index c436e12feb23..6c55682c5974 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -41,8 +41,9 @@ static const struct hid_device_id ite_devices[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+ 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
+-			 USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_SYNAPTICS,
++		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
+--=20
+2.23.0
 
