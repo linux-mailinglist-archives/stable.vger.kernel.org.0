@@ -2,2248 +2,403 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07EE114F778
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 10:57:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B8F14F783
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 11:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726335AbgBAJ5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 04:57:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39164 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726213AbgBAJ5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Feb 2020 04:57:47 -0500
-Received: from localhost (unknown [83.216.75.91])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3932206D3;
-        Sat,  1 Feb 2020 09:57:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580551063;
-        bh=lfXsTr5nR437YdDbQLKLO5J3nn+tKTkvbm7kie6Cjt8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KBaWM0cChFP+mUMbcp3b6mSt+TshcbHDitIuWwAlyo0TbtjNkwccGZKnnw7SnNQIc
-         8witzCQXZ1K3D+ZwA/x2GaVB8KkugYfimctKzfVz38epb2+l3VTCxhWcYK/scnrrlR
-         pDrZB3SkChTVxKuK7TRyZYOvABzcoJHLXIIiilb0=
-Date:   Sat, 1 Feb 2020 09:57:25 +0000
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 4.19.101
-Message-ID: <20200201095725.GB2305395@kroah.com>
-References: <20200201095718.GA2305395@kroah.com>
+        id S1726335AbgBAKXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Feb 2020 05:23:07 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:57335 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726297AbgBAKXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Feb 2020 05:23:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580552585;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ygk86g7XE5FJ86PQtQyq0klsIpzsmrdoJbkOKAtXeks=;
+        b=NedCLvCOF+aUZlu5xW+HJ7D10+US7/rDFYY8gzcqSW3rWXf0tMaMZgIyfcrXNd5f7f03Op
+        Q2Q8zNl/zVzmdTajyjNBsU4RLjhbaAlbtPnA+/OqxJK2uZyYbwIceNtre2Zq8yi2GhxOoM
+        nb2N7vHYYA4c3Enj+kkI1rX4PQ50ynM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-179-HXSGH-KBN3KxXLhrxCy0Jw-1; Sat, 01 Feb 2020 05:23:00 -0500
+X-MC-Unique: HXSGH-KBN3KxXLhrxCy0Jw-1
+Received: by mail-wr1-f71.google.com with SMTP id h30so4801745wrh.5
+        for <stable@vger.kernel.org>; Sat, 01 Feb 2020 02:23:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Ygk86g7XE5FJ86PQtQyq0klsIpzsmrdoJbkOKAtXeks=;
+        b=EkQpPi8YmZv7miPex3PtKVcnwrEADGs8w/WmFqaov5roUYFUCbIbIuUpgff8bWKN+y
+         AO1S+9YWtvyVVg24w1TqgBuXx1LGwJodq8Gal7rxoEezehICxZoKXtcM7A3zG8wC4yFc
+         Io2Q5NuoFbnD/Y/Gh6FbmnSdt/n3BQWic+jfl5zEPNgO6xsBQYA1EVrwxHvKFA0bvf3Y
+         7/10P7t1MBZB4B2XjG0DhnwvtBJCTRcN9GrN21DDua1vZeCQLDE2keZ73RZbFWpYSgJz
+         UBnbWtzlTB95C/3YVJUVvOCkl1XGhyCEVQjQsmMIDDjq5w9OnfxhFOkPjWYedggoZThs
+         0AvA==
+X-Gm-Message-State: APjAAAWxJLP8ixtOU0FY3347IB5casfGn7ThcEFL3gyQPWbdHRXMk2xw
+        wv1/54ZC25z13VEhlh2iKGMy1hrSaoMoPnFT8TP4toSYono45cy5GDwQ22/bld8/XZnrnwWI/Id
+        KD71RpQiomXdpFv/i
+X-Received: by 2002:a5d:448c:: with SMTP id j12mr3925181wrq.125.1580552579349;
+        Sat, 01 Feb 2020 02:22:59 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzZ/2tWm7o3QKYHJw6/ahvbsxG3Lk3p49HsaeYAdNRiSbSIQGMUviKWmZobt6xdXD51vZCZPg==
+X-Received: by 2002:a5d:448c:: with SMTP id j12mr3925154wrq.125.1580552578994;
+        Sat, 01 Feb 2020 02:22:58 -0800 (PST)
+Received: from localhost.localdomain ([2001:67c:1810:f055:3fec:c198:3e12:89c7])
+        by smtp.gmail.com with ESMTPSA id b17sm16284811wrp.49.2020.02.01.02.22.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 01 Feb 2020 02:22:58 -0800 (PST)
+Subject: Re: [PATCH] HID: ite: Only bind to keyboard USB interface on Acer
+ SW5-012 keyboard dock
+To:     Z R <zdenda.rampas@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>
+References: <20200131124553.27796-1-hdegoede@redhat.com>
+ <CAO-hwJK-wwZ8UJRaBgjVc0ZXakU9C3eDbh+i6Q5vm8xh1P76LQ@mail.gmail.com>
+ <ea896405-6784-7cfd-b27c-28e8ebc3cd7e@redhat.com>
+ <CAO-hwJJ1v30NT5quobYawV9yv87buyrQXOG9u-nY3zXXSrCGvg@mail.gmail.com>
+ <6d94cf74-c28f-08b0-a136-044c231b8bc5@redhat.com>
+ <CAO-hwJ+o5CvU3Pv+dQV2gSTeF+n0AGkjwYJvWfX_ZYtM=OtH6g@mail.gmail.com>
+ <CABHH5-LmC3JOWyDoxC5hizZe6RZ6RuO=-gk8WDXvU9Z2usihXg@mail.gmail.com>
+ <fa288cc2-0560-1fa5-a629-20a7a33afeb2@redhat.com>
+ <CABHH5-KNv7TU6=fiMk3JDxEX2mx7y9qr0Qx9sjOL9-=Rd5jsMw@mail.gmail.com>
+ <CAO-hwJ+QnjLu1-Q_KneyOnpc-QaedYUdJUJHH-0E=Txv3kqy5Q@mail.gmail.com>
+ <CABHH5-+MQZgj+Wz-BdHLJbK7X2dyyAES6KJspR=gK0TO0Dk73A@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <ae52762f-b743-de74-f978-7607a4f02eaf@redhat.com>
+Date:   Sat, 1 Feb 2020 11:22:56 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200201095718.GA2305395@kroah.com>
+In-Reply-To: <CABHH5-+MQZgj+Wz-BdHLJbK7X2dyyAES6KJspR=gK0TO0Dk73A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index f1e428271abf..ca186bcc02ba 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 100
-+SUBLEVEL = 101
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/arc/plat-eznps/Kconfig b/arch/arc/plat-eznps/Kconfig
-index 8eff057efcae..ce908e2c5282 100644
---- a/arch/arc/plat-eznps/Kconfig
-+++ b/arch/arc/plat-eznps/Kconfig
-@@ -7,7 +7,7 @@
- menuconfig ARC_PLAT_EZNPS
- 	bool "\"EZchip\" ARC dev platform"
- 	select CPU_BIG_ENDIAN
--	select CLKSRC_NPS
-+	select CLKSRC_NPS if !PHYS_ADDR_T_64BIT
- 	select EZNPS_GIC
- 	select EZCHIP_NPS_MANAGEMENT_ENET if ETHERNET
- 	help
-diff --git a/arch/arm64/kvm/debug.c b/arch/arm64/kvm/debug.c
-index 00d422336a45..4e722d73a3c3 100644
---- a/arch/arm64/kvm/debug.c
-+++ b/arch/arm64/kvm/debug.c
-@@ -112,7 +112,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
- void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
- {
- 	bool trap_debug = !(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY);
--	unsigned long mdscr;
-+	unsigned long mdscr, orig_mdcr_el2 = vcpu->arch.mdcr_el2;
- 
- 	trace_kvm_arm_setup_debug(vcpu, vcpu->guest_debug);
- 
-@@ -208,6 +208,10 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
- 	if (vcpu_read_sys_reg(vcpu, MDSCR_EL1) & (DBG_MDSCR_KDE | DBG_MDSCR_MDE))
- 		vcpu->arch.flags |= KVM_ARM64_DEBUG_DIRTY;
- 
-+	/* Write mdcr_el2 changes since vcpu_load on VHE systems */
-+	if (has_vhe() && orig_mdcr_el2 != vcpu->arch.mdcr_el2)
-+		write_sysreg(vcpu->arch.mdcr_el2, mdcr_el2);
-+
- 	trace_kvm_arm_set_dreg32("MDCR_EL2", vcpu->arch.mdcr_el2);
- 	trace_kvm_arm_set_dreg32("MDSCR_EL1", vcpu_read_sys_reg(vcpu, MDSCR_EL1));
- }
-diff --git a/block/blk-lib.c b/block/blk-lib.c
-index 1f196cf0aa5d..0dbc9e2ab9a3 100644
---- a/block/blk-lib.c
-+++ b/block/blk-lib.c
-@@ -52,15 +52,14 @@ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
- 	if ((sector | nr_sects) & bs_mask)
- 		return -EINVAL;
- 
--	while (nr_sects) {
--		unsigned int req_sects = nr_sects;
--		sector_t end_sect;
-+	if (!nr_sects)
-+		return -EINVAL;
- 
--		if (!req_sects)
--			goto fail;
--		req_sects = min(req_sects, bio_allowed_max_sectors(q));
-+	while (nr_sects) {
-+		sector_t req_sects = min_t(sector_t, nr_sects,
-+				bio_allowed_max_sectors(q));
- 
--		end_sect = sector + req_sects;
-+		WARN_ON_ONCE((req_sects << 9) > UINT_MAX);
- 
- 		bio = next_bio(bio, 0, gfp_mask);
- 		bio->bi_iter.bi_sector = sector;
-@@ -68,8 +67,8 @@ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
- 		bio_set_op_attrs(bio, op, 0);
- 
- 		bio->bi_iter.bi_size = req_sects << 9;
-+		sector += req_sects;
- 		nr_sects -= req_sects;
--		sector = end_sect;
- 
- 		/*
- 		 * We can loop for a long time in here, if someone does
-@@ -82,14 +81,6 @@ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
- 
- 	*biop = bio;
- 	return 0;
--
--fail:
--	if (bio) {
--		submit_bio_wait(bio);
--		bio_put(bio);
--	}
--	*biop = NULL;
--	return -EOPNOTSUPP;
- }
- EXPORT_SYMBOL(__blkdev_issue_discard);
- 
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index ed643ce12278..4fc8e6a7abb2 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -139,11 +139,13 @@ void af_alg_release_parent(struct sock *sk)
- 	sk = ask->parent;
- 	ask = alg_sk(sk);
- 
--	lock_sock(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
- 	ask->nokey_refcnt -= nokey;
- 	if (!last)
- 		last = !--ask->refcnt;
--	release_sock(sk);
-+	bh_unlock_sock(sk);
-+	local_bh_enable();
- 
- 	if (last)
- 		sock_put(sk);
-diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
-index 6470e3c4c990..7323e9210f4b 100644
---- a/drivers/atm/eni.c
-+++ b/drivers/atm/eni.c
-@@ -372,7 +372,7 @@ static int do_rx_dma(struct atm_vcc *vcc,struct sk_buff *skb,
- 		here = (eni_vcc->descr+skip) & (eni_vcc->words-1);
- 		dma[j++] = (here << MID_DMA_COUNT_SHIFT) | (vcc->vci
- 		    << MID_DMA_VCI_SHIFT) | MID_DT_JK;
--		j++;
-+		dma[j++] = 0;
- 	}
- 	here = (eni_vcc->descr+size+skip) & (eni_vcc->words-1);
- 	if (!eff) size += skip;
-@@ -445,7 +445,7 @@ static int do_rx_dma(struct atm_vcc *vcc,struct sk_buff *skb,
- 	if (size != eff) {
- 		dma[j++] = (here << MID_DMA_COUNT_SHIFT) |
- 		    (vcc->vci << MID_DMA_VCI_SHIFT) | MID_DT_JK;
--		j++;
-+		dma[j++] = 0;
- 	}
- 	if (!j || j > 2*RX_DMA_BUF) {
- 		printk(KERN_CRIT DEV_LABEL "!j or j too big!!!\n");
-diff --git a/drivers/base/component.c b/drivers/base/component.c
-index e8d676fad0c9..7f7c4233cd31 100644
---- a/drivers/base/component.c
-+++ b/drivers/base/component.c
-@@ -74,11 +74,11 @@ static int component_devices_show(struct seq_file *s, void *data)
- 	seq_printf(s, "%-40s %20s\n", "device name", "status");
- 	seq_puts(s, "-------------------------------------------------------------\n");
- 	for (i = 0; i < match->num; i++) {
--		struct device *d = (struct device *)match->compare[i].data;
-+		struct component *component = match->compare[i].component;
- 
--		seq_printf(s, "%-40s %20s\n", dev_name(d),
--			   match->compare[i].component ?
--			   "registered" : "not registered");
-+		seq_printf(s, "%-40s %20s\n",
-+			   component ? dev_name(component->dev) : "(unknown)",
-+			   component ? (component->bound ? "bound" : "not bound") : "not registered");
- 	}
- 	mutex_unlock(&component_mutex);
- 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 86fe1df90239..53e822793d46 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1653,6 +1653,56 @@ void get_random_bytes(void *buf, int nbytes)
- }
- EXPORT_SYMBOL(get_random_bytes);
- 
-+
-+/*
-+ * Each time the timer fires, we expect that we got an unpredictable
-+ * jump in the cycle counter. Even if the timer is running on another
-+ * CPU, the timer activity will be touching the stack of the CPU that is
-+ * generating entropy..
-+ *
-+ * Note that we don't re-arm the timer in the timer itself - we are
-+ * happy to be scheduled away, since that just makes the load more
-+ * complex, but we do not want the timer to keep ticking unless the
-+ * entropy loop is running.
-+ *
-+ * So the re-arming always happens in the entropy loop itself.
-+ */
-+static void entropy_timer(struct timer_list *t)
-+{
-+	credit_entropy_bits(&input_pool, 1);
-+}
-+
-+/*
-+ * If we have an actual cycle counter, see if we can
-+ * generate enough entropy with timing noise
-+ */
-+static void try_to_generate_entropy(void)
-+{
-+	struct {
-+		unsigned long now;
-+		struct timer_list timer;
-+	} stack;
-+
-+	stack.now = random_get_entropy();
-+
-+	/* Slow counter - or none. Don't even bother */
-+	if (stack.now == random_get_entropy())
-+		return;
-+
-+	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
-+	while (!crng_ready()) {
-+		if (!timer_pending(&stack.timer))
-+			mod_timer(&stack.timer, jiffies+1);
-+		mix_pool_bytes(&input_pool, &stack.now, sizeof(stack.now));
-+		schedule();
-+		stack.now = random_get_entropy();
-+	}
-+
-+	del_timer_sync(&stack.timer);
-+	destroy_timer_on_stack(&stack.timer);
-+	mix_pool_bytes(&input_pool, &stack.now, sizeof(stack.now));
-+}
-+
- /*
-  * Wait for the urandom pool to be seeded and thus guaranteed to supply
-  * cryptographically secure random numbers. This applies to: the /dev/urandom
-@@ -1667,7 +1717,17 @@ int wait_for_random_bytes(void)
- {
- 	if (likely(crng_ready()))
- 		return 0;
--	return wait_event_interruptible(crng_init_wait, crng_ready());
-+
-+	do {
-+		int ret;
-+		ret = wait_event_interruptible_timeout(crng_init_wait, crng_ready(), HZ);
-+		if (ret)
-+			return ret > 0 ? 0 : ret;
-+
-+		try_to_generate_entropy();
-+	} while (!crng_ready());
-+
-+	return 0;
- }
- EXPORT_SYMBOL(wait_for_random_bytes);
- 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index 010bbf607797..c435f89f34e3 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -3135,9 +3135,6 @@ static int chcr_gcm_setauthsize(struct crypto_aead *tfm, unsigned int authsize)
- 		aeadctx->mayverify = VERIFY_SW;
- 		break;
- 	default:
--
--		  crypto_tfm_set_flags((struct crypto_tfm *) tfm,
--			CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -3162,8 +3159,6 @@ static int chcr_4106_4309_setauthsize(struct crypto_aead *tfm,
- 		aeadctx->mayverify = VERIFY_HW;
- 		break;
- 	default:
--		crypto_tfm_set_flags((struct crypto_tfm *)tfm,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -3204,8 +3199,6 @@ static int chcr_ccm_setauthsize(struct crypto_aead *tfm,
- 		aeadctx->mayverify = VERIFY_HW;
- 		break;
- 	default:
--		crypto_tfm_set_flags((struct crypto_tfm *)tfm,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -3230,8 +3223,7 @@ static int chcr_ccm_common_setkey(struct crypto_aead *aead,
- 		ck_size = CHCR_KEYCTX_CIPHER_KEY_SIZE_256;
- 		mk_size = CHCR_KEYCTX_MAC_KEY_SIZE_256;
- 	} else {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		aeadctx->enckey_len = 0;
- 		return	-EINVAL;
- 	}
-@@ -3269,8 +3261,7 @@ static int chcr_aead_rfc4309_setkey(struct crypto_aead *aead, const u8 *key,
- 	int error;
- 
- 	if (keylen < 3) {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		aeadctx->enckey_len = 0;
- 		return	-EINVAL;
- 	}
-@@ -3320,8 +3311,7 @@ static int chcr_gcm_setkey(struct crypto_aead *aead, const u8 *key,
- 	} else if (keylen == AES_KEYSIZE_256) {
- 		ck_size = CHCR_KEYCTX_CIPHER_KEY_SIZE_256;
- 	} else {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		pr_err("GCM: Invalid key length %d\n", keylen);
- 		ret = -EINVAL;
- 		goto out;
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index ed51221621a5..2c34e9537f9e 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1059,6 +1059,7 @@ config GPIO_MADERA
- config GPIO_MAX77620
- 	tristate "GPIO support for PMIC MAX77620 and MAX20024"
- 	depends on MFD_MAX77620
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  GPIO driver for MAX77620 and MAX20024 PMIC from Maxim Semiconductor.
- 	  MAX77620 PMIC has 8 pins that can be configured as GPIOs. The
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1949d6fca53e..f491092f36ff 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -620,6 +620,7 @@
- #define USB_VENDOR_ID_ITE               0x048d
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
-+#define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
- #define USB_DEVICE_ID_ITE8595		0x8595
- 
-@@ -717,6 +718,7 @@
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
- #define USB_DEVICE_ID_LG_MELFAS_MT	0x6007
- #define I2C_DEVICE_ID_LG_8001		0x8001
-+#define I2C_DEVICE_ID_LG_7010		0x7010
- 
- #define USB_VENDOR_ID_LOGITECH		0x046d
- #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
-@@ -1074,6 +1076,7 @@
- #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
- #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
- #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
-+#define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
- #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
- 
- #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
-diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-index 98b059d79bc8..2ce1eb0c9212 100644
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -43,6 +43,9 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
- static const struct hid_device_id ite_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
-+	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
-+			 USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ite_devices);
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f9167d0e095c..19dfd8acd0da 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1007,7 +1007,7 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 		tool = MT_TOOL_DIAL;
- 	else if (unlikely(!confidence_state)) {
- 		tool = MT_TOOL_PALM;
--		if (!active &&
-+		if (!active && mt &&
- 		    input_mt_is_active(&mt->slots[slotnum])) {
- 			/*
- 			 * The non-confidence was reported for
-@@ -1972,6 +1972,9 @@ static const struct hid_device_id mt_devices[] = {
- 	{ .driver_data = MT_CLS_LG,
- 		HID_USB_DEVICE(USB_VENDOR_ID_LG,
- 			USB_DEVICE_ID_LG_MELFAS_MT) },
-+	{ .driver_data = MT_CLS_LG,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
-+			USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_7010) },
- 
- 	/* MosArt panels */
- 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 57d6fe9ed416..b9529bed4d76 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -175,6 +175,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
- 
- 	{ 0 }
- };
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 8dae0f9b819e..6286204d4c56 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -768,8 +768,12 @@ static int steam_probe(struct hid_device *hdev,
- 
- 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
- 		hid_info(hdev, "Steam wireless receiver connected");
-+		/* If using a wireless adaptor ask for connection status */
-+		steam->connected = false;
- 		steam_request_conn_status(steam);
- 	} else {
-+		/* A wired connection is always present */
-+		steam->connected = true;
- 		ret = steam_register(steam);
- 		if (ret) {
- 			hid_err(hdev,
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 0a39e444e308..f2c8c59fc582 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -52,6 +52,8 @@
- #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP		BIT(3)
- #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
- #define I2C_HID_QUIRK_RESET_ON_RESUME		BIT(5)
-+#define I2C_HID_QUIRK_BAD_INPUT_SIZE		BIT(6)
-+
- 
- /* flags */
- #define I2C_HID_STARTED		0
-@@ -185,6 +187,8 @@ static const struct i2c_hid_quirks {
- 		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
-+	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
-+		I2C_HID_QUIRK_BAD_INPUT_SIZE },
- 	{ 0, 0 }
- };
- 
-@@ -516,9 +520,15 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
- 	}
- 
- 	if ((ret_size > size) || (ret_size < 2)) {
--		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
--			__func__, size, ret_size);
--		return;
-+		if (ihid->quirks & I2C_HID_QUIRK_BAD_INPUT_SIZE) {
-+			ihid->inbuf[0] = size & 0xff;
-+			ihid->inbuf[1] = size >> 8;
-+			ret_size = size;
-+		} else {
-+			dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
-+				__func__, size, ret_size);
-+			return;
-+		}
- 	}
- 
- 	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
-diff --git a/drivers/iio/gyro/st_gyro_core.c b/drivers/iio/gyro/st_gyro_core.c
-index b31064ba37b9..02f6f263e338 100644
---- a/drivers/iio/gyro/st_gyro_core.c
-+++ b/drivers/iio/gyro/st_gyro_core.c
-@@ -141,7 +141,6 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			[2] = LSM330DLC_GYRO_DEV_NAME,
- 			[3] = L3G4IS_GYRO_DEV_NAME,
- 			[4] = LSM330_GYRO_DEV_NAME,
--			[5] = LSM9DS0_GYRO_DEV_NAME,
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
-@@ -211,6 +210,80 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 		.multi_read_bit = true,
- 		.bootime = 2,
- 	},
-+	{
-+		.wai = 0xd4,
-+		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
-+		.sensors_supported = {
-+			[0] = LSM9DS0_GYRO_DEV_NAME,
-+		},
-+		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
-+		.odr = {
-+			.addr = 0x20,
-+			.mask = GENMASK(7, 6),
-+			.odr_avl = {
-+				{ .hz = 95, .value = 0x00, },
-+				{ .hz = 190, .value = 0x01, },
-+				{ .hz = 380, .value = 0x02, },
-+				{ .hz = 760, .value = 0x03, },
-+			},
-+		},
-+		.pw = {
-+			.addr = 0x20,
-+			.mask = BIT(3),
-+			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
-+			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
-+		},
-+		.enable_axis = {
-+			.addr = ST_SENSORS_DEFAULT_AXIS_ADDR,
-+			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
-+		},
-+		.fs = {
-+			.addr = 0x23,
-+			.mask = GENMASK(5, 4),
-+			.fs_avl = {
-+				[0] = {
-+					.num = ST_GYRO_FS_AVL_245DPS,
-+					.value = 0x00,
-+					.gain = IIO_DEGREE_TO_RAD(8750),
-+				},
-+				[1] = {
-+					.num = ST_GYRO_FS_AVL_500DPS,
-+					.value = 0x01,
-+					.gain = IIO_DEGREE_TO_RAD(17500),
-+				},
-+				[2] = {
-+					.num = ST_GYRO_FS_AVL_2000DPS,
-+					.value = 0x02,
-+					.gain = IIO_DEGREE_TO_RAD(70000),
-+				},
-+			},
-+		},
-+		.bdu = {
-+			.addr = 0x23,
-+			.mask = BIT(7),
-+		},
-+		.drdy_irq = {
-+			.int2 = {
-+				.addr = 0x22,
-+				.mask = BIT(3),
-+			},
-+			/*
-+			 * The sensor has IHL (active low) and open
-+			 * drain settings, but only for INT1 and not
-+			 * for the DRDY line on INT2.
-+			 */
-+			.stat_drdy = {
-+				.addr = ST_SENSORS_DEFAULT_STAT_ADDR,
-+				.mask = GENMASK(2, 0),
-+			},
-+		},
-+		.sim = {
-+			.addr = 0x23,
-+			.value = BIT(0),
-+		},
-+		.multi_read_bit = true,
-+		.bootime = 2,
-+	},
- 	{
- 		.wai = 0xd7,
- 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index bea19aa33758..0783f44e9afe 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -3709,7 +3709,20 @@ static void set_remap_table_entry(struct amd_iommu *iommu, u16 devid,
- 	iommu_flush_dte(iommu, devid);
- }
- 
--static struct irq_remap_table *alloc_irq_table(u16 devid)
-+static int set_remap_table_entry_alias(struct pci_dev *pdev, u16 alias,
-+				       void *data)
-+{
-+	struct irq_remap_table *table = data;
-+
-+	irq_lookup_table[alias] = table;
-+	set_dte_irq_entry(alias, table);
-+
-+	iommu_flush_dte(amd_iommu_rlookup_table[alias], alias);
-+
-+	return 0;
-+}
-+
-+static struct irq_remap_table *alloc_irq_table(u16 devid, struct pci_dev *pdev)
- {
- 	struct irq_remap_table *table = NULL;
- 	struct irq_remap_table *new_table = NULL;
-@@ -3755,7 +3768,12 @@ static struct irq_remap_table *alloc_irq_table(u16 devid)
- 	table = new_table;
- 	new_table = NULL;
- 
--	set_remap_table_entry(iommu, devid, table);
-+	if (pdev)
-+		pci_for_each_dma_alias(pdev, set_remap_table_entry_alias,
-+				       table);
-+	else
-+		set_remap_table_entry(iommu, devid, table);
-+
- 	if (devid != alias)
- 		set_remap_table_entry(iommu, alias, table);
- 
-@@ -3772,7 +3790,8 @@ static struct irq_remap_table *alloc_irq_table(u16 devid)
- 	return table;
- }
- 
--static int alloc_irq_index(u16 devid, int count, bool align)
-+static int alloc_irq_index(u16 devid, int count, bool align,
-+			   struct pci_dev *pdev)
- {
- 	struct irq_remap_table *table;
- 	int index, c, alignment = 1;
-@@ -3782,7 +3801,7 @@ static int alloc_irq_index(u16 devid, int count, bool align)
- 	if (!iommu)
- 		return -ENODEV;
- 
--	table = alloc_irq_table(devid);
-+	table = alloc_irq_table(devid, pdev);
- 	if (!table)
- 		return -ENODEV;
- 
-@@ -4215,7 +4234,7 @@ static int irq_remapping_alloc(struct irq_domain *domain, unsigned int virq,
- 		struct irq_remap_table *table;
- 		struct amd_iommu *iommu;
- 
--		table = alloc_irq_table(devid);
-+		table = alloc_irq_table(devid, NULL);
- 		if (table) {
- 			if (!table->min_index) {
- 				/*
-@@ -4232,11 +4251,15 @@ static int irq_remapping_alloc(struct irq_domain *domain, unsigned int virq,
- 		} else {
- 			index = -ENOMEM;
- 		}
--	} else {
-+	} else if (info->type == X86_IRQ_ALLOC_TYPE_MSI ||
-+		   info->type == X86_IRQ_ALLOC_TYPE_MSIX) {
- 		bool align = (info->type == X86_IRQ_ALLOC_TYPE_MSI);
- 
--		index = alloc_irq_index(devid, nr_irqs, align);
-+		index = alloc_irq_index(devid, nr_irqs, align, info->msi_dev);
-+	} else {
-+		index = alloc_irq_index(devid, nr_irqs, false, NULL);
- 	}
-+
- 	if (index < 0) {
- 		pr_warn("Failed to allocate IRTE\n");
- 		ret = index;
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 9c4042420022..d80372d21c14 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -141,8 +141,12 @@
- 
- #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
- #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
-+
- #define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
- 
-+#define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
-+#define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
-+
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
- #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index 41a10e392839..3498c10b8263 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -108,6 +108,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
-diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/broadcom/b44.c
-index e445ab724827..88f8d31e4c83 100644
---- a/drivers/net/ethernet/broadcom/b44.c
-+++ b/drivers/net/ethernet/broadcom/b44.c
-@@ -1519,8 +1519,10 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
- 	int ethaddr_bytes = ETH_ALEN;
- 
- 	memset(ppattern + offset, 0xff, magicsync);
--	for (j = 0; j < magicsync; j++)
--		set_bit(len++, (unsigned long *) pmask);
-+	for (j = 0; j < magicsync; j++) {
-+		pmask[len >> 3] |= BIT(len & 7);
-+		len++;
-+	}
- 
- 	for (j = 0; j < B44_MAX_PATTERNS; j++) {
- 		if ((B44_PATTERN_SIZE - len) >= ETH_ALEN)
-@@ -1532,7 +1534,8 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
- 		for (k = 0; k< ethaddr_bytes; k++) {
- 			ppattern[offset + magicsync +
- 				(j * ETH_ALEN) + k] = macaddr[k];
--			set_bit(len++, (unsigned long *) pmask);
-+			pmask[len >> 3] |= BIT(len & 7);
-+			len++;
- 		}
- 	}
- 	return len - 1;
-diff --git a/drivers/net/wan/sdla.c b/drivers/net/wan/sdla.c
-index 57ed259c8208..09fde60a5f9d 100644
---- a/drivers/net/wan/sdla.c
-+++ b/drivers/net/wan/sdla.c
-@@ -711,7 +711,7 @@ static netdev_tx_t sdla_transmit(struct sk_buff *skb,
- 
- 					spin_lock_irqsave(&sdla_lock, flags);
- 					SDLA_WINDOW(dev, addr);
--					pbuf = (void *)(((int) dev->mem_start) + (addr & SDLA_ADDR_MASK));
-+					pbuf = (void *)(dev->mem_start + (addr & SDLA_ADDR_MASK));
- 					__sdla_write(dev, pbuf->buf_addr, skb->data, skb->len);
- 					SDLA_WINDOW(dev, addr);
- 					pbuf->opp_flag = 1;
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index fb649d85b8fc..dd0c32379375 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -1216,7 +1216,7 @@ static void ath9k_hif_usb_firmware_cb(const struct firmware *fw, void *context)
- static int send_eject_command(struct usb_interface *interface)
- {
- 	struct usb_device *udev = interface_to_usbdev(interface);
--	struct usb_host_interface *iface_desc = &interface->altsetting[0];
-+	struct usb_host_interface *iface_desc = interface->cur_altsetting;
- 	struct usb_endpoint_descriptor *endpoint;
- 	unsigned char *cmd;
- 	u8 bulk_out_ep;
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-index 44ead0fea7c6..6a213fe760ff 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-@@ -1357,7 +1357,7 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 		goto fail;
- 	}
- 
--	desc = &intf->altsetting[0].desc;
-+	desc = &intf->cur_altsetting->desc;
- 	if ((desc->bInterfaceClass != USB_CLASS_VENDOR_SPEC) ||
- 	    (desc->bInterfaceSubClass != 2) ||
- 	    (desc->bInterfaceProtocol != 0xff)) {
-@@ -1370,7 +1370,7 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 
- 	num_of_eps = desc->bNumEndpoints;
- 	for (ep = 0; ep < num_of_eps; ep++) {
--		endpoint = &intf->altsetting[0].endpoint[ep].desc;
-+		endpoint = &intf->cur_altsetting->endpoint[ep].desc;
- 		endpoint_num = usb_endpoint_num(endpoint);
- 		if (!usb_endpoint_xfer_bulk(endpoint))
- 			continue;
-diff --git a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-index 94ad6fe29e69..2c7dd2a7350c 100644
---- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-+++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-@@ -1611,9 +1611,9 @@ static int ezusb_probe(struct usb_interface *interface,
- 	/* set up the endpoint information */
- 	/* check out the endpoints */
- 
--	iface_desc = &interface->altsetting[0].desc;
-+	iface_desc = &interface->cur_altsetting->desc;
- 	for (i = 0; i < iface_desc->bNumEndpoints; ++i) {
--		ep = &interface->altsetting[0].endpoint[i].desc;
-+		ep = &interface->cur_altsetting->endpoint[i].desc;
- 
- 		if (usb_endpoint_is_bulk_in(ep)) {
- 			/* we found a bulk in endpoint */
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index b2e1523b4dc1..070ea0f456ab 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5921,7 +5921,7 @@ static int rtl8xxxu_parse_usb(struct rtl8xxxu_priv *priv,
- 	u8 dir, xtype, num;
- 	int ret = 0;
- 
--	host_interface = &interface->altsetting[0];
-+	host_interface = interface->cur_altsetting;
- 	interface_desc = &host_interface->desc;
- 	endpoints = interface_desc->bNumEndpoints;
- 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
-index 01edf960ff3c..a7b341e95e76 100644
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -616,6 +616,7 @@ static int bl_cmd(struct rsi_hw *adapter, u8 cmd, u8 exp_resp, char *str)
- 	bl_start_cmd_timer(adapter, timeout);
- 	status = bl_write_cmd(adapter, cmd, exp_resp, &regout_val);
- 	if (status < 0) {
-+		bl_stop_cmd_timer(adapter);
- 		rsi_dbg(ERR_ZONE,
- 			"%s: Command %s (%0x) writing failed..\n",
- 			__func__, str, cmd);
-@@ -731,10 +732,9 @@ static int ping_pong_write(struct rsi_hw *adapter, u8 cmd, u8 *addr, u32 size)
- 	}
- 
- 	status = bl_cmd(adapter, cmd_req, cmd_resp, str);
--	if (status) {
--		bl_stop_cmd_timer(adapter);
-+	if (status)
- 		return status;
--	}
-+
- 	return 0;
- }
- 
-@@ -822,10 +822,9 @@ static int auto_fw_upgrade(struct rsi_hw *adapter, u8 *flash_content,
- 
- 	status = bl_cmd(adapter, EOF_REACHED, FW_LOADING_SUCCESSFUL,
- 			"EOF_REACHED");
--	if (status) {
--		bl_stop_cmd_timer(adapter);
-+	if (status)
- 		return status;
--	}
-+
- 	rsi_dbg(INFO_ZONE, "FW loading is done and FW is running..\n");
- 	return 0;
- }
-@@ -846,6 +845,7 @@ static int rsi_load_firmware(struct rsi_hw *adapter)
- 		status = hif_ops->master_reg_read(adapter, SWBL_REGOUT,
- 					      &regout_val, 2);
- 		if (status < 0) {
-+			bl_stop_cmd_timer(adapter);
- 			rsi_dbg(ERR_ZONE,
- 				"%s: REGOUT read failed\n", __func__);
- 			return status;
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index 14e56bee0548..90eb749e2b61 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -16,6 +16,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/types.h>
- #include <net/rsi_91x.h>
- #include "rsi_usb.h"
- #include "rsi_hal.h"
-@@ -29,7 +30,7 @@ MODULE_PARM_DESC(dev_oper_mode,
- 		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
- 		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
- 
--static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num);
-+static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num, gfp_t flags);
- 
- /**
-  * rsi_usb_card_write() - This function writes to the USB Card.
-@@ -117,7 +118,7 @@ static int rsi_find_bulk_in_and_out_endpoints(struct usb_interface *interface,
- 	__le16 buffer_size;
- 	int ii, bin_found = 0, bout_found = 0;
- 
--	iface_desc = &(interface->altsetting[0]);
-+	iface_desc = interface->cur_altsetting;
- 
- 	for (ii = 0; ii < iface_desc->desc.bNumEndpoints; ++ii) {
- 		endpoint = &(iface_desc->endpoint[ii].desc);
-@@ -283,7 +284,7 @@ static void rsi_rx_done_handler(struct urb *urb)
- 	status = 0;
- 
- out:
--	if (rsi_rx_urb_submit(dev->priv, rx_cb->ep_num))
-+	if (rsi_rx_urb_submit(dev->priv, rx_cb->ep_num, GFP_ATOMIC))
- 		rsi_dbg(ERR_ZONE, "%s: Failed in urb submission", __func__);
- 
- 	if (status)
-@@ -296,7 +297,7 @@ static void rsi_rx_done_handler(struct urb *urb)
-  *
-  * Return: 0 on success, a negative error code on failure.
-  */
--static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num)
-+static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num, gfp_t mem_flags)
- {
- 	struct rsi_91x_usbdev *dev = (struct rsi_91x_usbdev *)adapter->rsi_dev;
- 	struct rx_usb_ctrl_block *rx_cb = &dev->rx_cb[ep_num - 1];
-@@ -326,9 +327,11 @@ static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num)
- 			  rsi_rx_done_handler,
- 			  rx_cb);
- 
--	status = usb_submit_urb(urb, GFP_KERNEL);
--	if (status)
-+	status = usb_submit_urb(urb, mem_flags);
-+	if (status) {
- 		rsi_dbg(ERR_ZONE, "%s: Failed in urb submission\n", __func__);
-+		dev_kfree_skb(skb);
-+	}
- 
- 	return status;
- }
-@@ -781,12 +784,12 @@ static int rsi_probe(struct usb_interface *pfunction,
- 		rsi_dbg(INIT_ZONE, "%s: Device Init Done\n", __func__);
- 	}
- 
--	status = rsi_rx_urb_submit(adapter, WLAN_EP);
-+	status = rsi_rx_urb_submit(adapter, WLAN_EP, GFP_KERNEL);
- 	if (status)
- 		goto err1;
- 
- 	if (adapter->priv->coex_mode > 1) {
--		status = rsi_rx_urb_submit(adapter, BT_EP);
-+		status = rsi_rx_urb_submit(adapter, BT_EP, GFP_KERNEL);
- 		if (status)
- 			goto err1;
- 	}
-diff --git a/drivers/net/wireless/zydas/zd1211rw/zd_usb.c b/drivers/net/wireless/zydas/zd1211rw/zd_usb.c
-index c2cda3acd4af..0fddfb464e9c 100644
---- a/drivers/net/wireless/zydas/zd1211rw/zd_usb.c
-+++ b/drivers/net/wireless/zydas/zd1211rw/zd_usb.c
-@@ -1275,7 +1275,7 @@ static void print_id(struct usb_device *udev)
- static int eject_installer(struct usb_interface *intf)
- {
- 	struct usb_device *udev = interface_to_usbdev(intf);
--	struct usb_host_interface *iface_desc = &intf->altsetting[0];
-+	struct usb_host_interface *iface_desc = intf->cur_altsetting;
- 	struct usb_endpoint_descriptor *endpoint;
- 	unsigned char *cmd;
- 	u8 bulk_out_ep;
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 36f8eb9f24a7..5b4c36ab1596 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3986,6 +3986,40 @@ static void quirk_mic_x200_dma_alias(struct pci_dev *pdev)
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2260, quirk_mic_x200_dma_alias);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2264, quirk_mic_x200_dma_alias);
- 
-+/*
-+ * Intel Visual Compute Accelerator (VCA) is a family of PCIe add-in devices
-+ * exposing computational units via Non Transparent Bridges (NTB, PEX 87xx).
-+ *
-+ * Similarly to MIC x200, we need to add DMA aliases to allow buffer access
-+ * when IOMMU is enabled.  These aliases allow computational unit access to
-+ * host memory.  These aliases mark the whole VCA device as one IOMMU
-+ * group.
-+ *
-+ * All possible slot numbers (0x20) are used, since we are unable to tell
-+ * what slot is used on other side.  This quirk is intended for both host
-+ * and computational unit sides.  The VCA devices have up to five functions
-+ * (four for DMA channels and one additional).
-+ */
-+static void quirk_pex_vca_alias(struct pci_dev *pdev)
-+{
-+	const unsigned int num_pci_slots = 0x20;
-+	unsigned int slot;
-+
-+	for (slot = 0; slot < num_pci_slots; slot++) {
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x0));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x1));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x2));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x3));
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x4));
-+	}
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2954, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2955, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2956, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2958, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2959, quirk_pex_vca_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x295A, quirk_pex_vca_alias);
-+
- /*
-  * The IOMMU and interrupt controller on Broadcom Vulcan/Cavium ThunderX2 are
-  * associated not at the root bus, but at a bridge below. This quirk avoids
-diff --git a/drivers/phy/motorola/phy-cpcap-usb.c b/drivers/phy/motorola/phy-cpcap-usb.c
-index 4ba3634009af..593c77dbde2e 100644
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -115,7 +115,7 @@ struct cpcap_usb_ints_state {
- enum cpcap_gpio_mode {
- 	CPCAP_DM_DP,
- 	CPCAP_MDM_RX_TX,
--	CPCAP_UNKNOWN,
-+	CPCAP_UNKNOWN_DISABLED,	/* Seems to disable USB lines */
- 	CPCAP_OTG_DM_DP,
- };
- 
-@@ -379,7 +379,8 @@ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata)
- {
- 	int error;
- 
--	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_DM_DP);
-+	/* Disable lines to prevent glitches from waking up mdm6600 */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_UNKNOWN_DISABLED);
- 	if (error)
- 		goto out_err;
- 
-@@ -406,6 +407,11 @@ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata)
- 	if (error)
- 		goto out_err;
- 
-+	/* Enable UART mode */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_DM_DP);
-+	if (error)
-+		goto out_err;
-+
- 	return 0;
- 
- out_err:
-@@ -418,7 +424,8 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
- {
- 	int error;
- 
--	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_OTG_DM_DP);
-+	/* Disable lines to prevent glitches from waking up mdm6600 */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_UNKNOWN_DISABLED);
- 	if (error)
- 		return error;
- 
-@@ -458,6 +465,11 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
- 	if (error)
- 		goto out_err;
- 
-+	/* Enable USB mode */
-+	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_OTG_DM_DP);
-+	if (error)
-+		goto out_err;
-+
- 	return 0;
- 
- out_err:
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
-index 4c470104a0d6..cf515928fed0 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -66,7 +66,7 @@
- /* QPHY_V3_PCS_MISC_CLAMP_ENABLE register bits */
- #define CLAMP_EN				BIT(0) /* enables i/o clamp_n */
- 
--#define PHY_INIT_COMPLETE_TIMEOUT		1000
-+#define PHY_INIT_COMPLETE_TIMEOUT		10000
- #define POWER_DOWN_DELAY_US_MIN			10
- #define POWER_DOWN_DELAY_US_MAX			11
- 
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index 3433986d5220..949dbc8aab41 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -37,6 +37,7 @@
- 
- struct quirk_entry {
- 	bool touchpad_led;
-+	bool kbd_led_not_present;
- 	bool kbd_led_levels_off_1;
- 	bool kbd_missing_ac_tag;
- 
-@@ -77,6 +78,10 @@ static struct quirk_entry quirk_dell_latitude_e6410 = {
- 	.kbd_led_levels_off_1 = true,
- };
- 
-+static struct quirk_entry quirk_dell_inspiron_1012 = {
-+	.kbd_led_not_present = true,
-+};
-+
- static struct platform_driver platform_driver = {
- 	.driver = {
- 		.name = "dell-laptop",
-@@ -314,6 +319,24 @@ static const struct dmi_system_id dell_quirks[] __initconst = {
- 		},
- 		.driver_data = &quirk_dell_latitude_e6410,
- 	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "Dell Inspiron 1012",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1012"),
-+		},
-+		.driver_data = &quirk_dell_inspiron_1012,
-+	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "Dell Inspiron 1018",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1018"),
-+		},
-+		.driver_data = &quirk_dell_inspiron_1012,
-+	},
- 	{ }
- };
- 
-@@ -1497,6 +1520,9 @@ static void kbd_init(void)
- {
- 	int ret;
- 
-+	if (quirks && quirks->kbd_led_not_present)
-+		return;
-+
- 	ret = kbd_init_info();
- 	kbd_init_tokens();
- 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index ac2eb89ef7a5..5a47e28e38c1 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -179,9 +179,11 @@ static inline u32 rx_max(struct dw_spi *dws)
- 
- static void dw_writer(struct dw_spi *dws)
- {
--	u32 max = tx_max(dws);
-+	u32 max;
- 	u16 txw = 0;
- 
-+	spin_lock(&dws->buf_lock);
-+	max = tx_max(dws);
- 	while (max--) {
- 		/* Set the tx word if the transfer's original "tx" is not null */
- 		if (dws->tx_end - dws->len) {
-@@ -193,13 +195,16 @@ static void dw_writer(struct dw_spi *dws)
- 		dw_write_io_reg(dws, DW_SPI_DR, txw);
- 		dws->tx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
- 
- static void dw_reader(struct dw_spi *dws)
- {
--	u32 max = rx_max(dws);
-+	u32 max;
- 	u16 rxw;
- 
-+	spin_lock(&dws->buf_lock);
-+	max = rx_max(dws);
- 	while (max--) {
- 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
- 		/* Care rx only if the transfer's original "rx" is not null */
-@@ -211,6 +216,7 @@ static void dw_reader(struct dw_spi *dws)
- 		}
- 		dws->rx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
- 
- static void int_error_stop(struct dw_spi *dws, const char *msg)
-@@ -283,18 +289,20 @@ static int dw_spi_transfer_one(struct spi_controller *master,
- {
- 	struct dw_spi *dws = spi_controller_get_devdata(master);
- 	struct chip_data *chip = spi_get_ctldata(spi);
-+	unsigned long flags;
- 	u8 imask = 0;
- 	u16 txlevel = 0;
- 	u32 cr0;
- 	int ret;
- 
- 	dws->dma_mapped = 0;
--
-+	spin_lock_irqsave(&dws->buf_lock, flags);
- 	dws->tx = (void *)transfer->tx_buf;
- 	dws->tx_end = dws->tx + transfer->len;
- 	dws->rx = transfer->rx_buf;
- 	dws->rx_end = dws->rx + transfer->len;
- 	dws->len = transfer->len;
-+	spin_unlock_irqrestore(&dws->buf_lock, flags);
- 
- 	spi_enable_chip(dws, 0);
- 
-@@ -485,6 +493,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 	dws->type = SSI_MOTO_SPI;
- 	dws->dma_inited = 0;
- 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
-+	spin_lock_init(&dws->buf_lock);
- 
- 	spi_controller_set_devdata(master, dws);
- 
-diff --git a/drivers/spi/spi-dw.h b/drivers/spi/spi-dw.h
-index 0168b08364d5..20a09fe79ae7 100644
---- a/drivers/spi/spi-dw.h
-+++ b/drivers/spi/spi-dw.h
-@@ -118,6 +118,7 @@ struct dw_spi {
- 	size_t			len;
- 	void			*tx;
- 	void			*tx_end;
-+	spinlock_t		buf_lock;
- 	void			*rx;
- 	void			*rx_end;
- 	int			dma_mapped;
-diff --git a/drivers/staging/most/net/net.c b/drivers/staging/most/net/net.c
-index 30d816b7e165..ff80834ef04a 100644
---- a/drivers/staging/most/net/net.c
-+++ b/drivers/staging/most/net/net.c
-@@ -81,6 +81,11 @@ static int skb_to_mamac(const struct sk_buff *skb, struct mbo *mbo)
- 	unsigned int payload_len = skb->len - ETH_HLEN;
- 	unsigned int mdp_len = payload_len + MDP_HDR_LEN;
- 
-+	if (mdp_len < skb->len) {
-+		pr_err("drop: too large packet! (%u)\n", skb->len);
-+		return -EINVAL;
-+	}
-+
- 	if (mbo->buffer_length < mdp_len) {
- 		pr_err("drop: too small buffer! (%d for %d)\n",
- 		       mbo->buffer_length, mdp_len);
-@@ -128,6 +133,11 @@ static int skb_to_mep(const struct sk_buff *skb, struct mbo *mbo)
- 	u8 *buff = mbo->virt_address;
- 	unsigned int mep_len = skb->len + MEP_HDR_LEN;
- 
-+	if (mep_len < skb->len) {
-+		pr_err("drop: too large packet! (%u)\n", skb->len);
-+		return -EINVAL;
-+	}
-+
- 	if (mbo->buffer_length < mep_len) {
- 		pr_err("drop: too small buffer! (%d for %d)\n",
- 		       mbo->buffer_length, mep_len);
-diff --git a/drivers/staging/vt6656/device.h b/drivers/staging/vt6656/device.h
-index cabdda259de2..77e59a92e80b 100644
---- a/drivers/staging/vt6656/device.h
-+++ b/drivers/staging/vt6656/device.h
-@@ -52,6 +52,8 @@
- #define RATE_AUTO	12
- 
- #define MAX_RATE			12
-+#define VNT_B_RATES	(BIT(RATE_1M) | BIT(RATE_2M) |\
-+			BIT(RATE_5M) | BIT(RATE_11M))
- 
- /*
-  * device specific
-diff --git a/drivers/staging/vt6656/int.c b/drivers/staging/vt6656/int.c
-index 504424b19fcf..af0060c74530 100644
---- a/drivers/staging/vt6656/int.c
-+++ b/drivers/staging/vt6656/int.c
-@@ -97,9 +97,11 @@ static int vnt_int_report_rate(struct vnt_private *priv, u8 pkt_no, u8 tsr)
- 
- 	info->status.rates[0].count = tx_retry;
- 
--	if (!(tsr & (TSR_TMO | TSR_RETRYTMO))) {
-+	if (!(tsr & TSR_TMO)) {
- 		info->status.rates[0].idx = idx;
--		info->flags |= IEEE80211_TX_STAT_ACK;
-+
-+		if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
-+			info->flags |= IEEE80211_TX_STAT_ACK;
- 	}
- 
- 	ieee80211_tx_status_irqsafe(priv->hw, context->skb);
-diff --git a/drivers/staging/vt6656/main_usb.c b/drivers/staging/vt6656/main_usb.c
-index ff9cf0f9e7de..36562ac94c1f 100644
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -978,6 +978,7 @@ vt6656_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	ieee80211_hw_set(priv->hw, RX_INCLUDES_FCS);
- 	ieee80211_hw_set(priv->hw, REPORTS_TX_ACK_STATUS);
- 	ieee80211_hw_set(priv->hw, SUPPORTS_PS);
-+	ieee80211_hw_set(priv->hw, PS_NULLFUNC_STACK);
- 
- 	priv->hw->max_signal = 100;
- 
-diff --git a/drivers/staging/vt6656/rxtx.c b/drivers/staging/vt6656/rxtx.c
-index 9def0748ffee..4b4f07fbb9bf 100644
---- a/drivers/staging/vt6656/rxtx.c
-+++ b/drivers/staging/vt6656/rxtx.c
-@@ -278,11 +278,9 @@ static u16 vnt_rxtx_datahead_g(struct vnt_usb_send_context *tx_context,
- 			  PK_TYPE_11B, &buf->b);
- 
- 	/* Get Duration and TimeStamp */
--	if (ieee80211_is_pspoll(hdr->frame_control)) {
--		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
--
--		buf->duration_a = dur;
--		buf->duration_b = dur;
-+	if (ieee80211_is_nullfunc(hdr->frame_control)) {
-+		buf->duration_a = hdr->duration_id;
-+		buf->duration_b = hdr->duration_id;
- 	} else {
- 		buf->duration_a = vnt_get_duration_le(priv,
- 						tx_context->pkt_type, need_ack);
-@@ -371,10 +369,8 @@ static u16 vnt_rxtx_datahead_ab(struct vnt_usb_send_context *tx_context,
- 			  tx_context->pkt_type, &buf->ab);
- 
- 	/* Get Duration and TimeStampOff */
--	if (ieee80211_is_pspoll(hdr->frame_control)) {
--		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
--
--		buf->duration = dur;
-+	if (ieee80211_is_nullfunc(hdr->frame_control)) {
-+		buf->duration = hdr->duration_id;
- 	} else {
- 		buf->duration = vnt_get_duration_le(priv, tx_context->pkt_type,
- 						    need_ack);
-@@ -815,10 +811,14 @@ int vnt_tx_packet(struct vnt_private *priv, struct sk_buff *skb)
- 		if (info->band == NL80211_BAND_5GHZ) {
- 			pkt_type = PK_TYPE_11A;
- 		} else {
--			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT)
--				pkt_type = PK_TYPE_11GB;
--			else
--				pkt_type = PK_TYPE_11GA;
-+			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
-+				if (priv->basic_rates & VNT_B_RATES)
-+					pkt_type = PK_TYPE_11GB;
-+				else
-+					pkt_type = PK_TYPE_11GA;
-+			} else {
-+				pkt_type = PK_TYPE_11A;
-+			}
- 		}
- 	} else {
- 		pkt_type = PK_TYPE_11B;
-diff --git a/drivers/staging/wlan-ng/prism2mgmt.c b/drivers/staging/wlan-ng/prism2mgmt.c
-index 7350fe5d96a3..a8860d2aee68 100644
---- a/drivers/staging/wlan-ng/prism2mgmt.c
-+++ b/drivers/staging/wlan-ng/prism2mgmt.c
-@@ -959,7 +959,7 @@ int prism2mgmt_flashdl_state(struct wlandevice *wlandev, void *msgp)
- 		}
- 	}
- 
--	return 0;
-+	return result;
- }
- 
- /*----------------------------------------------------------------
-diff --git a/drivers/tty/serial/8250/8250_bcm2835aux.c b/drivers/tty/serial/8250/8250_bcm2835aux.c
-index bd53661103eb..3173d98cb42d 100644
---- a/drivers/tty/serial/8250/8250_bcm2835aux.c
-+++ b/drivers/tty/serial/8250/8250_bcm2835aux.c
-@@ -115,7 +115,7 @@ static int bcm2835aux_serial_remove(struct platform_device *pdev)
- {
- 	struct bcm2835aux_data *data = platform_get_drvdata(pdev);
- 
--	serial8250_unregister_port(data->uart.port.line);
-+	serial8250_unregister_port(data->line);
- 	clk_disable_unprepare(data->clk);
- 
- 	return 0;
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index f52fcbc5c971..6666d2a52bf5 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1199,6 +1199,9 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
- 		/* do nothing */
- 		break;
- 	}
-+
-+	/* de-assert DRVVBUS for HOST and OTG mode */
-+	dwc3_set_prtcap(dwc, DWC3_GCTL_PRTCAP_DEVICE);
- }
- 
- static void dwc3_get_properties(struct dwc3 *dwc)
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 8fa39e664940..edf7984707b7 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -34,6 +34,7 @@
- #define PCI_DEVICE_ID_INTEL_GLK			0x31aa
- #define PCI_DEVICE_ID_INTEL_CNPLP		0x9dee
- #define PCI_DEVICE_ID_INTEL_CNPH		0xa36e
-+#define PCI_DEVICE_ID_INTEL_CNPV		0xa3b0
- #define PCI_DEVICE_ID_INTEL_ICLLP		0x34ee
- 
- #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
-@@ -340,6 +341,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_CNPH),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_CNPV),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
-+
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_ICLLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
-diff --git a/drivers/usb/serial/ir-usb.c b/drivers/usb/serial/ir-usb.c
-index 7643716b5299..badd38586b54 100644
---- a/drivers/usb/serial/ir-usb.c
-+++ b/drivers/usb/serial/ir-usb.c
-@@ -45,9 +45,10 @@ static int buffer_size;
- static int xbof = -1;
- 
- static int  ir_startup (struct usb_serial *serial);
--static int  ir_open(struct tty_struct *tty, struct usb_serial_port *port);
--static int ir_prepare_write_buffer(struct usb_serial_port *port,
--						void *dest, size_t size);
-+static int ir_write(struct tty_struct *tty, struct usb_serial_port *port,
-+		const unsigned char *buf, int count);
-+static int ir_write_room(struct tty_struct *tty);
-+static void ir_write_bulk_callback(struct urb *urb);
- static void ir_process_read_urb(struct urb *urb);
- static void ir_set_termios(struct tty_struct *tty,
- 		struct usb_serial_port *port, struct ktermios *old_termios);
-@@ -77,8 +78,9 @@ static struct usb_serial_driver ir_device = {
- 	.num_ports		= 1,
- 	.set_termios		= ir_set_termios,
- 	.attach			= ir_startup,
--	.open			= ir_open,
--	.prepare_write_buffer	= ir_prepare_write_buffer,
-+	.write			= ir_write,
-+	.write_room		= ir_write_room,
-+	.write_bulk_callback	= ir_write_bulk_callback,
- 	.process_read_urb	= ir_process_read_urb,
- };
- 
-@@ -195,6 +197,9 @@ static int ir_startup(struct usb_serial *serial)
- 	struct usb_irda_cs_descriptor *irda_desc;
- 	int rates;
- 
-+	if (serial->num_bulk_in < 1 || serial->num_bulk_out < 1)
-+		return -ENODEV;
-+
- 	irda_desc = irda_usb_find_class_desc(serial, 0);
- 	if (!irda_desc) {
- 		dev_err(&serial->dev->dev,
-@@ -251,35 +256,102 @@ static int ir_startup(struct usb_serial *serial)
- 	return 0;
- }
- 
--static int ir_open(struct tty_struct *tty, struct usb_serial_port *port)
-+static int ir_write(struct tty_struct *tty, struct usb_serial_port *port,
-+		const unsigned char *buf, int count)
- {
--	int i;
-+	struct urb *urb = NULL;
-+	unsigned long flags;
-+	int ret;
- 
--	for (i = 0; i < ARRAY_SIZE(port->write_urbs); ++i)
--		port->write_urbs[i]->transfer_flags = URB_ZERO_PACKET;
-+	if (port->bulk_out_size == 0)
-+		return -EINVAL;
- 
--	/* Start reading from the device */
--	return usb_serial_generic_open(tty, port);
--}
-+	if (count == 0)
-+		return 0;
- 
--static int ir_prepare_write_buffer(struct usb_serial_port *port,
--						void *dest, size_t size)
--{
--	unsigned char *buf = dest;
--	int count;
-+	count = min(count, port->bulk_out_size - 1);
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	if (__test_and_clear_bit(0, &port->write_urbs_free)) {
-+		urb = port->write_urbs[0];
-+		port->tx_bytes += count;
-+	}
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
-+	if (!urb)
-+		return 0;
- 
- 	/*
- 	 * The first byte of the packet we send to the device contains an
--	 * inbound header which indicates an additional number of BOFs and
-+	 * outbound header which indicates an additional number of BOFs and
- 	 * a baud rate change.
- 	 *
- 	 * See section 5.4.2.2 of the USB IrDA spec.
- 	 */
--	*buf = ir_xbof | ir_baud;
-+	*(u8 *)urb->transfer_buffer = ir_xbof | ir_baud;
-+
-+	memcpy(urb->transfer_buffer + 1, buf, count);
-+
-+	urb->transfer_buffer_length = count + 1;
-+	urb->transfer_flags = URB_ZERO_PACKET;
-+
-+	ret = usb_submit_urb(urb, GFP_ATOMIC);
-+	if (ret) {
-+		dev_err(&port->dev, "failed to submit write urb: %d\n", ret);
-+
-+		spin_lock_irqsave(&port->lock, flags);
-+		__set_bit(0, &port->write_urbs_free);
-+		port->tx_bytes -= count;
-+		spin_unlock_irqrestore(&port->lock, flags);
-+
-+		return ret;
-+	}
-+
-+	return count;
-+}
-+
-+static void ir_write_bulk_callback(struct urb *urb)
-+{
-+	struct usb_serial_port *port = urb->context;
-+	int status = urb->status;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	__set_bit(0, &port->write_urbs_free);
-+	port->tx_bytes -= urb->transfer_buffer_length - 1;
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
-+	switch (status) {
-+	case 0:
-+		break;
-+	case -ENOENT:
-+	case -ECONNRESET:
-+	case -ESHUTDOWN:
-+		dev_dbg(&port->dev, "write urb stopped: %d\n", status);
-+		return;
-+	case -EPIPE:
-+		dev_err(&port->dev, "write urb stopped: %d\n", status);
-+		return;
-+	default:
-+		dev_err(&port->dev, "nonzero write-urb status: %d\n", status);
-+		break;
-+	}
-+
-+	usb_serial_port_softint(port);
-+}
-+
-+static int ir_write_room(struct tty_struct *tty)
-+{
-+	struct usb_serial_port *port = tty->driver_data;
-+	int count = 0;
-+
-+	if (port->bulk_out_size == 0)
-+		return 0;
-+
-+	if (test_bit(0, &port->write_urbs_free))
-+		count = port->bulk_out_size - 1;
- 
--	count = kfifo_out_locked(&port->write_fifo, buf + 1, size - 1,
--								&port->lock);
--	return count + 1;
-+	return count;
- }
- 
- static void ir_process_read_urb(struct urb *urb)
-@@ -332,34 +404,34 @@ static void ir_set_termios(struct tty_struct *tty,
- 
- 	switch (baud) {
- 	case 2400:
--		ir_baud = USB_IRDA_BR_2400;
-+		ir_baud = USB_IRDA_LS_2400;
- 		break;
- 	case 9600:
--		ir_baud = USB_IRDA_BR_9600;
-+		ir_baud = USB_IRDA_LS_9600;
- 		break;
- 	case 19200:
--		ir_baud = USB_IRDA_BR_19200;
-+		ir_baud = USB_IRDA_LS_19200;
- 		break;
- 	case 38400:
--		ir_baud = USB_IRDA_BR_38400;
-+		ir_baud = USB_IRDA_LS_38400;
- 		break;
- 	case 57600:
--		ir_baud = USB_IRDA_BR_57600;
-+		ir_baud = USB_IRDA_LS_57600;
- 		break;
- 	case 115200:
--		ir_baud = USB_IRDA_BR_115200;
-+		ir_baud = USB_IRDA_LS_115200;
- 		break;
- 	case 576000:
--		ir_baud = USB_IRDA_BR_576000;
-+		ir_baud = USB_IRDA_LS_576000;
- 		break;
- 	case 1152000:
--		ir_baud = USB_IRDA_BR_1152000;
-+		ir_baud = USB_IRDA_LS_1152000;
- 		break;
- 	case 4000000:
--		ir_baud = USB_IRDA_BR_4000000;
-+		ir_baud = USB_IRDA_LS_4000000;
- 		break;
- 	default:
--		ir_baud = USB_IRDA_BR_9600;
-+		ir_baud = USB_IRDA_LS_9600;
- 		baud = 9600;
- 	}
- 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index d0bdebd87ce3..1b23741036ee 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -87,12 +87,15 @@ UNUSUAL_DEV(0x2537, 0x1068, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
- 
--/* Reported-by: Takeo Nakayama <javhera@gmx.com> */
-+/*
-+ * Initially Reported-by: Takeo Nakayama <javhera@gmx.com>
-+ * UAS Ignore Reported by Steven Ellis <sellis@redhat.com>
-+ */
- UNUSUAL_DEV(0x357d, 0x7788, 0x0000, 0x9999,
- 		"JMicron",
- 		"JMS566",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_NO_REPORT_OPCODES),
-+		US_FL_NO_REPORT_OPCODES | US_FL_IGNORE_UAS),
- 
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x4971, 0x1012, 0x0000, 0x9999,
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index b165c46aca74..709d4de11f40 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -594,6 +594,7 @@ config MAX63XX_WATCHDOG
- config MAX77620_WATCHDOG
- 	tristate "Maxim Max77620 Watchdog Timer"
- 	depends on MFD_MAX77620 || COMPILE_TEST
-+	select WATCHDOG_CORE
- 	help
- 	 This is the driver for the Max77620 watchdog timer.
- 	 Say 'Y' here to enable the watchdog timer support for
-diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-index e60f55702ab7..d2e79cf70e77 100644
---- a/drivers/watchdog/rn5t618_wdt.c
-+++ b/drivers/watchdog/rn5t618_wdt.c
-@@ -193,6 +193,7 @@ static struct platform_driver rn5t618_wdt_driver = {
- 
- module_platform_driver(rn5t618_wdt_driver);
- 
-+MODULE_ALIAS("platform:rn5t618-wdt");
- MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
- MODULE_DESCRIPTION("RN5T618 watchdog driver");
- MODULE_LICENSE("GPL v2");
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index 766974fe637a..14265b4bbcc0 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -750,7 +750,7 @@ __smb2_handle_cancelled_close(struct cifs_tcon *tcon, __u64 persistent_fid,
- {
- 	struct close_cancelled_open *cancelled;
- 
--	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
-+	cancelled = kzalloc(sizeof(*cancelled), GFP_ATOMIC);
- 	if (!cancelled)
- 		return -ENOMEM;
- 
-diff --git a/include/linux/power/smartreflex.h b/include/linux/power/smartreflex.h
-index 7b81dad712de..37d9b70ed8f0 100644
---- a/include/linux/power/smartreflex.h
-+++ b/include/linux/power/smartreflex.h
-@@ -296,6 +296,9 @@ struct omap_sr_data {
- 	struct voltagedomain		*voltdm;
- };
- 
-+
-+extern struct omap_sr_data omap_sr_pdata[OMAP_SR_NR];
-+
- #ifdef CONFIG_POWER_AVS_OMAP
- 
- /* Smartreflex module enable/disable interface */
-diff --git a/include/linux/usb/irda.h b/include/linux/usb/irda.h
-index 396d2b043e64..556a801efce3 100644
---- a/include/linux/usb/irda.h
-+++ b/include/linux/usb/irda.h
-@@ -119,11 +119,22 @@ struct usb_irda_cs_descriptor {
-  * 6 - 115200 bps
-  * 7 - 576000 bps
-  * 8 - 1.152 Mbps
-- * 9 - 5 mbps
-+ * 9 - 4 Mbps
-  * 10..15 - Reserved
-  */
- #define USB_IRDA_STATUS_LINK_SPEED	0x0f
- 
-+#define USB_IRDA_LS_NO_CHANGE		0
-+#define USB_IRDA_LS_2400		1
-+#define USB_IRDA_LS_9600		2
-+#define USB_IRDA_LS_19200		3
-+#define USB_IRDA_LS_38400		4
-+#define USB_IRDA_LS_57600		5
-+#define USB_IRDA_LS_115200		6
-+#define USB_IRDA_LS_576000		7
-+#define USB_IRDA_LS_1152000		8
-+#define USB_IRDA_LS_4000000		9
-+
- /* The following is a 4-bit value used only for
-  * outbound header:
-  *
-diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
-index 75a3f3fdb359..c1162f2fde78 100644
---- a/include/net/pkt_cls.h
-+++ b/include/net/pkt_cls.h
-@@ -206,31 +206,38 @@ __cls_set_class(unsigned long *clp, unsigned long cl)
- 	return xchg(clp, cl);
- }
- 
--static inline unsigned long
--cls_set_class(struct Qdisc *q, unsigned long *clp, unsigned long cl)
-+static inline void
-+__tcf_bind_filter(struct Qdisc *q, struct tcf_result *r, unsigned long base)
- {
--	unsigned long old_cl;
-+	unsigned long cl;
- 
--	sch_tree_lock(q);
--	old_cl = __cls_set_class(clp, cl);
--	sch_tree_unlock(q);
--	return old_cl;
-+	cl = q->ops->cl_ops->bind_tcf(q, base, r->classid);
-+	cl = __cls_set_class(&r->class, cl);
-+	if (cl)
-+		q->ops->cl_ops->unbind_tcf(q, cl);
- }
- 
- static inline void
- tcf_bind_filter(struct tcf_proto *tp, struct tcf_result *r, unsigned long base)
- {
- 	struct Qdisc *q = tp->chain->block->q;
--	unsigned long cl;
- 
- 	/* Check q as it is not set for shared blocks. In that case,
- 	 * setting class is not supported.
- 	 */
- 	if (!q)
- 		return;
--	cl = q->ops->cl_ops->bind_tcf(q, base, r->classid);
--	cl = cls_set_class(q, &r->class, cl);
--	if (cl)
-+	sch_tree_lock(q);
-+	__tcf_bind_filter(q, r, base);
-+	sch_tree_unlock(q);
-+}
-+
-+static inline void
-+__tcf_unbind_filter(struct Qdisc *q, struct tcf_result *r)
-+{
-+	unsigned long cl;
-+
-+	if ((cl = __cls_set_class(&r->class, 0)) != 0)
- 		q->ops->cl_ops->unbind_tcf(q, cl);
- }
- 
-@@ -238,12 +245,10 @@ static inline void
- tcf_unbind_filter(struct tcf_proto *tp, struct tcf_result *r)
- {
- 	struct Qdisc *q = tp->chain->block->q;
--	unsigned long cl;
- 
- 	if (!q)
- 		return;
--	if ((cl = __cls_set_class(&r->class, 0)) != 0)
--		q->ops->cl_ops->unbind_tcf(q, cl);
-+	__tcf_unbind_filter(q, r);
- }
- 
- struct tcf_exts {
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index c9cd5086bd54..d737a6a2600b 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -273,7 +273,8 @@ struct tcf_proto_ops {
- 	int			(*reoffload)(struct tcf_proto *tp, bool add,
- 					     tc_setup_cb_t *cb, void *cb_priv,
- 					     struct netlink_ext_ack *extack);
--	void			(*bind_class)(void *, u32, unsigned long);
-+	void			(*bind_class)(void *, u32, unsigned long,
-+					      void *, unsigned long);
- 	void *			(*tmplt_create)(struct net *net,
- 						struct tcf_chain *chain,
- 						struct nlattr **tca,
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index f0abb8fe0ae9..7f4f4ab5bfef 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -282,66 +282,72 @@ static inline struct cfs_rq *group_cfs_rq(struct sched_entity *grp)
- 	return grp->my_q;
- }
- 
--static inline void list_add_leaf_cfs_rq(struct cfs_rq *cfs_rq)
-+static inline bool list_add_leaf_cfs_rq(struct cfs_rq *cfs_rq)
- {
--	if (!cfs_rq->on_list) {
--		struct rq *rq = rq_of(cfs_rq);
--		int cpu = cpu_of(rq);
-+	struct rq *rq = rq_of(cfs_rq);
-+	int cpu = cpu_of(rq);
-+
-+	if (cfs_rq->on_list)
-+		return rq->tmp_alone_branch == &rq->leaf_cfs_rq_list;
-+
-+	cfs_rq->on_list = 1;
-+
-+	/*
-+	 * Ensure we either appear before our parent (if already
-+	 * enqueued) or force our parent to appear after us when it is
-+	 * enqueued. The fact that we always enqueue bottom-up
-+	 * reduces this to two cases and a special case for the root
-+	 * cfs_rq. Furthermore, it also means that we will always reset
-+	 * tmp_alone_branch either when the branch is connected
-+	 * to a tree or when we reach the top of the tree
-+	 */
-+	if (cfs_rq->tg->parent &&
-+	    cfs_rq->tg->parent->cfs_rq[cpu]->on_list) {
- 		/*
--		 * Ensure we either appear before our parent (if already
--		 * enqueued) or force our parent to appear after us when it is
--		 * enqueued. The fact that we always enqueue bottom-up
--		 * reduces this to two cases and a special case for the root
--		 * cfs_rq. Furthermore, it also means that we will always reset
--		 * tmp_alone_branch either when the branch is connected
--		 * to a tree or when we reach the beg of the tree
-+		 * If parent is already on the list, we add the child
-+		 * just before. Thanks to circular linked property of
-+		 * the list, this means to put the child at the tail
-+		 * of the list that starts by parent.
- 		 */
--		if (cfs_rq->tg->parent &&
--		    cfs_rq->tg->parent->cfs_rq[cpu]->on_list) {
--			/*
--			 * If parent is already on the list, we add the child
--			 * just before. Thanks to circular linked property of
--			 * the list, this means to put the child at the tail
--			 * of the list that starts by parent.
--			 */
--			list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
--				&(cfs_rq->tg->parent->cfs_rq[cpu]->leaf_cfs_rq_list));
--			/*
--			 * The branch is now connected to its tree so we can
--			 * reset tmp_alone_branch to the beginning of the
--			 * list.
--			 */
--			rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
--		} else if (!cfs_rq->tg->parent) {
--			/*
--			 * cfs rq without parent should be put
--			 * at the tail of the list.
--			 */
--			list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
--				&rq->leaf_cfs_rq_list);
--			/*
--			 * We have reach the beg of a tree so we can reset
--			 * tmp_alone_branch to the beginning of the list.
--			 */
--			rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
--		} else {
--			/*
--			 * The parent has not already been added so we want to
--			 * make sure that it will be put after us.
--			 * tmp_alone_branch points to the beg of the branch
--			 * where we will add parent.
--			 */
--			list_add_rcu(&cfs_rq->leaf_cfs_rq_list,
--				rq->tmp_alone_branch);
--			/*
--			 * update tmp_alone_branch to points to the new beg
--			 * of the branch
--			 */
--			rq->tmp_alone_branch = &cfs_rq->leaf_cfs_rq_list;
--		}
-+		list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
-+			&(cfs_rq->tg->parent->cfs_rq[cpu]->leaf_cfs_rq_list));
-+		/*
-+		 * The branch is now connected to its tree so we can
-+		 * reset tmp_alone_branch to the beginning of the
-+		 * list.
-+		 */
-+		rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
-+		return true;
-+	}
- 
--		cfs_rq->on_list = 1;
-+	if (!cfs_rq->tg->parent) {
-+		/*
-+		 * cfs rq without parent should be put
-+		 * at the tail of the list.
-+		 */
-+		list_add_tail_rcu(&cfs_rq->leaf_cfs_rq_list,
-+			&rq->leaf_cfs_rq_list);
-+		/*
-+		 * We have reach the top of a tree so we can reset
-+		 * tmp_alone_branch to the beginning of the list.
-+		 */
-+		rq->tmp_alone_branch = &rq->leaf_cfs_rq_list;
-+		return true;
- 	}
-+
-+	/*
-+	 * The parent has not already been added so we want to
-+	 * make sure that it will be put after us.
-+	 * tmp_alone_branch points to the begin of the branch
-+	 * where we will add parent.
-+	 */
-+	list_add_rcu(&cfs_rq->leaf_cfs_rq_list, rq->tmp_alone_branch);
-+	/*
-+	 * update tmp_alone_branch to points to the new begin
-+	 * of the branch
-+	 */
-+	rq->tmp_alone_branch = &cfs_rq->leaf_cfs_rq_list;
-+	return false;
- }
- 
- static inline void list_del_leaf_cfs_rq(struct cfs_rq *cfs_rq)
-@@ -352,7 +358,12 @@ static inline void list_del_leaf_cfs_rq(struct cfs_rq *cfs_rq)
- 	}
- }
- 
--/* Iterate through all leaf cfs_rq's on a runqueue: */
-+static inline void assert_list_leaf_cfs_rq(struct rq *rq)
-+{
-+	SCHED_WARN_ON(rq->tmp_alone_branch != &rq->leaf_cfs_rq_list);
-+}
-+
-+/* Iterate through all cfs_rq's on a runqueue in bottom-up order */
- #define for_each_leaf_cfs_rq(rq, cfs_rq) \
- 	list_for_each_entry_rcu(cfs_rq, &rq->leaf_cfs_rq_list, leaf_cfs_rq_list)
- 
-@@ -438,14 +449,19 @@ static inline struct cfs_rq *group_cfs_rq(struct sched_entity *grp)
- 	return NULL;
- }
- 
--static inline void list_add_leaf_cfs_rq(struct cfs_rq *cfs_rq)
-+static inline bool list_add_leaf_cfs_rq(struct cfs_rq *cfs_rq)
- {
-+	return true;
- }
- 
- static inline void list_del_leaf_cfs_rq(struct cfs_rq *cfs_rq)
- {
- }
- 
-+static inline void assert_list_leaf_cfs_rq(struct rq *rq)
-+{
-+}
-+
- #define for_each_leaf_cfs_rq(rq, cfs_rq)	\
- 		for (cfs_rq = &rq->cfs; cfs_rq; cfs_rq = NULL)
- 
-@@ -5005,6 +5021,12 @@ static void __maybe_unused unthrottle_offline_cfs_rqs(struct rq *rq)
- }
- 
- #else /* CONFIG_CFS_BANDWIDTH */
-+
-+static inline bool cfs_bandwidth_used(void)
-+{
-+	return false;
-+}
-+
- static inline u64 cfs_rq_clock_task(struct cfs_rq *cfs_rq)
- {
- 	return rq_clock_task(rq_of(cfs_rq));
-@@ -5160,6 +5182,23 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 	if (!se)
- 		add_nr_running(rq, 1);
- 
-+	if (cfs_bandwidth_used()) {
-+		/*
-+		 * When bandwidth control is enabled; the cfs_rq_throttled()
-+		 * breaks in the above iteration can result in incomplete
-+		 * leaf list maintenance, resulting in triggering the assertion
-+		 * below.
-+		 */
-+		for_each_sched_entity(se) {
-+			cfs_rq = cfs_rq_of(se);
-+
-+			if (list_add_leaf_cfs_rq(cfs_rq))
-+				break;
-+		}
-+	}
-+
-+	assert_list_leaf_cfs_rq(rq);
-+
- 	hrtick_update(rq);
- }
- 
-diff --git a/net/sched/cls_basic.c b/net/sched/cls_basic.c
-index 6a5dce8baf19..14098da696f2 100644
---- a/net/sched/cls_basic.c
-+++ b/net/sched/cls_basic.c
-@@ -254,12 +254,17 @@ static void basic_walk(struct tcf_proto *tp, struct tcf_walker *arg)
- 	}
- }
- 
--static void basic_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void basic_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			     unsigned long base)
- {
- 	struct basic_filter *f = fh;
- 
--	if (f && f->res.classid == classid)
--		f->res.class = cl;
-+	if (f && f->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &f->res, base);
-+		else
-+			__tcf_unbind_filter(q, &f->res);
-+	}
- }
- 
- static int basic_dump(struct net *net, struct tcf_proto *tp, void *fh,
-diff --git a/net/sched/cls_bpf.c b/net/sched/cls_bpf.c
-index fa6fe2fe0f32..5d100126cbf3 100644
---- a/net/sched/cls_bpf.c
-+++ b/net/sched/cls_bpf.c
-@@ -627,12 +627,17 @@ static int cls_bpf_dump(struct net *net, struct tcf_proto *tp, void *fh,
- 	return -1;
- }
- 
--static void cls_bpf_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void cls_bpf_bind_class(void *fh, u32 classid, unsigned long cl,
-+			       void *q, unsigned long base)
- {
- 	struct cls_bpf_prog *prog = fh;
- 
--	if (prog && prog->res.classid == classid)
--		prog->res.class = cl;
-+	if (prog && prog->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &prog->res, base);
-+		else
-+			__tcf_unbind_filter(q, &prog->res);
-+	}
- }
- 
- static void cls_bpf_walk(struct tcf_proto *tp, struct tcf_walker *arg)
-diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
-index 09b359784629..22415311f324 100644
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -1942,12 +1942,17 @@ static int fl_tmplt_dump(struct sk_buff *skb, struct net *net, void *tmplt_priv)
- 	return -EMSGSIZE;
- }
- 
--static void fl_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void fl_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			  unsigned long base)
- {
- 	struct cls_fl_filter *f = fh;
- 
--	if (f && f->res.classid == classid)
--		f->res.class = cl;
-+	if (f && f->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &f->res, base);
-+		else
-+			__tcf_unbind_filter(q, &f->res);
-+	}
- }
- 
- static struct tcf_proto_ops cls_fl_ops __read_mostly = {
-diff --git a/net/sched/cls_fw.c b/net/sched/cls_fw.c
-index 29eeeaf3ea44..cb2c62605fc7 100644
---- a/net/sched/cls_fw.c
-+++ b/net/sched/cls_fw.c
-@@ -432,12 +432,17 @@ static int fw_dump(struct net *net, struct tcf_proto *tp, void *fh,
- 	return -1;
- }
- 
--static void fw_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void fw_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			  unsigned long base)
- {
- 	struct fw_filter *f = fh;
- 
--	if (f && f->res.classid == classid)
--		f->res.class = cl;
-+	if (f && f->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &f->res, base);
-+		else
-+			__tcf_unbind_filter(q, &f->res);
-+	}
- }
- 
- static struct tcf_proto_ops cls_fw_ops __read_mostly = {
-diff --git a/net/sched/cls_matchall.c b/net/sched/cls_matchall.c
-index 621bc1d5b057..40be745db357 100644
---- a/net/sched/cls_matchall.c
-+++ b/net/sched/cls_matchall.c
-@@ -310,12 +310,17 @@ static int mall_dump(struct net *net, struct tcf_proto *tp, void *fh,
- 	return -1;
- }
- 
--static void mall_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void mall_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			    unsigned long base)
- {
- 	struct cls_mall_head *head = fh;
- 
--	if (head && head->res.classid == classid)
--		head->res.class = cl;
-+	if (head && head->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &head->res, base);
-+		else
-+			__tcf_unbind_filter(q, &head->res);
-+	}
- }
- 
- static struct tcf_proto_ops cls_mall_ops __read_mostly = {
-diff --git a/net/sched/cls_route.c b/net/sched/cls_route.c
-index 0404aa5fa7cb..37ae23db4a44 100644
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -645,12 +645,17 @@ static int route4_dump(struct net *net, struct tcf_proto *tp, void *fh,
- 	return -1;
- }
- 
--static void route4_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void route4_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			      unsigned long base)
- {
- 	struct route4_filter *f = fh;
- 
--	if (f && f->res.classid == classid)
--		f->res.class = cl;
-+	if (f && f->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &f->res, base);
-+		else
-+			__tcf_unbind_filter(q, &f->res);
-+	}
- }
- 
- static struct tcf_proto_ops cls_route4_ops __read_mostly = {
-diff --git a/net/sched/cls_rsvp.h b/net/sched/cls_rsvp.h
-index e9ccf7daea7d..6d30a291bcd2 100644
---- a/net/sched/cls_rsvp.h
-+++ b/net/sched/cls_rsvp.h
-@@ -736,12 +736,17 @@ static int rsvp_dump(struct net *net, struct tcf_proto *tp, void *fh,
- 	return -1;
- }
- 
--static void rsvp_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void rsvp_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			    unsigned long base)
- {
- 	struct rsvp_filter *f = fh;
- 
--	if (f && f->res.classid == classid)
--		f->res.class = cl;
-+	if (f && f->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &f->res, base);
-+		else
-+			__tcf_unbind_filter(q, &f->res);
-+	}
- }
- 
- static struct tcf_proto_ops RSVP_OPS __read_mostly = {
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 38bb882bb958..edf27365f91c 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -652,12 +652,17 @@ static int tcindex_dump(struct net *net, struct tcf_proto *tp, void *fh,
- 	return -1;
- }
- 
--static void tcindex_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void tcindex_bind_class(void *fh, u32 classid, unsigned long cl,
-+			       void *q, unsigned long base)
- {
- 	struct tcindex_filter_result *r = fh;
- 
--	if (r && r->res.classid == classid)
--		r->res.class = cl;
-+	if (r && r->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &r->res, base);
-+		else
-+			__tcf_unbind_filter(q, &r->res);
-+	}
- }
- 
- static struct tcf_proto_ops cls_tcindex_ops __read_mostly = {
-diff --git a/net/sched/cls_u32.c b/net/sched/cls_u32.c
-index b2c3406a2cf2..fe246e03fcd9 100644
---- a/net/sched/cls_u32.c
-+++ b/net/sched/cls_u32.c
-@@ -1315,12 +1315,17 @@ static int u32_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
- 	return 0;
- }
- 
--static void u32_bind_class(void *fh, u32 classid, unsigned long cl)
-+static void u32_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
-+			   unsigned long base)
- {
- 	struct tc_u_knode *n = fh;
- 
--	if (n && n->res.classid == classid)
--		n->res.class = cl;
-+	if (n && n->res.classid == classid) {
-+		if (cl)
-+			__tcf_bind_filter(q, &n->res, base);
-+		else
-+			__tcf_unbind_filter(q, &n->res);
-+	}
- }
- 
- static int u32_dump(struct net *net, struct tcf_proto *tp, void *fh,
-diff --git a/net/sched/ematch.c b/net/sched/ematch.c
-index 750d88d0cfd9..113a133ee544 100644
---- a/net/sched/ematch.c
-+++ b/net/sched/ematch.c
-@@ -242,6 +242,9 @@ static int tcf_em_validate(struct tcf_proto *tp,
- 			goto errout;
- 
- 		if (em->ops->change) {
-+			err = -EINVAL;
-+			if (em_hdr->flags & TCF_EM_SIMPLE)
-+				goto errout;
- 			err = em->ops->change(net, data, data_len, em);
- 			if (err < 0)
- 				goto errout;
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 84fdc4857771..39e319d04bb8 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1803,8 +1803,9 @@ static int tclass_del_notify(struct net *net,
- 
- struct tcf_bind_args {
- 	struct tcf_walker w;
--	u32 classid;
-+	unsigned long base;
- 	unsigned long cl;
-+	u32 classid;
- };
- 
- static int tcf_node_bind(struct tcf_proto *tp, void *n, struct tcf_walker *arg)
-@@ -1815,7 +1816,7 @@ static int tcf_node_bind(struct tcf_proto *tp, void *n, struct tcf_walker *arg)
- 		struct Qdisc *q = tcf_block_q(tp->chain->block);
- 
- 		sch_tree_lock(q);
--		tp->ops->bind_class(n, a->classid, a->cl);
-+		tp->ops->bind_class(n, a->classid, a->cl, q, a->base);
- 		sch_tree_unlock(q);
- 	}
- 	return 0;
-@@ -1846,6 +1847,7 @@ static void tc_bind_tclass(struct Qdisc *q, u32 portid, u32 clid,
- 
- 			arg.w.fn = tcf_node_bind;
- 			arg.classid = clid;
-+			arg.base = cl;
- 			arg.cl = new_cl;
- 			tp->ops->walk(tp, &arg.w);
- 		}
+Hi,
+
+On 1/31/20 6:17 PM, Z R wrote:
+> Hi Benjamin,
+> in last log touchpad.log (omg, should be keyboard.log), I pressed fn-f3 multiple times. I got one two liner:
+> 
+> # ReportID: 3 / Wireless Radio Button: 0 | #
+> E: 000007.606583 2 03 00
+> 
+> every time i release f3. Does not matter what is happening with fn-key. (could be released already or still pushed down). This log was collected with last patch from Hans applied.
+> 
+> Sorry for the mess I caused :-) I still don't get how you guys manage to have your emails so well polished and readable.
+
+I don't think you've, caused a mess. Thank you both for the bug report and for your
+help in testing this.
+
+One last test request, can you run evemu-record on a kernel with my latest simplified patch,
+select the keyboard device and then press (and release) the "rfkill" key and see it generates
+a RF_KILL key press + release evdev event?
+
+What would also be helpful is the output of:
+
+ls -l /sys/bus/hid/devices/0003*/driver
+
+Regards,
+
+Hans
+
+
+
+
+
+> pá 31. 1. 2020 v 18:00 odesílatel Benjamin Tissoires <benjamin.tissoires@redhat.com <mailto:benjamin.tissoires@redhat.com>> napsal:
+> 
+>     On Fri, Jan 31, 2020 at 5:09 PM Z R <zdenda.rampas@gmail.com <mailto:zdenda.rampas@gmail.com>> wrote:
+>      >
+>      > I believe I pressed wifi button on both replays for keyboard.
+> 
+>     Yep, I can see that. Just to double check, on the last log, you
+>     pressed the wifi button twice?
+> 
+>     Anyway, thanks for all the logs, I should have enough to implement the
+>     regression tests.
+> 
+>     Cheers,
+>     Benjamin
+> 
+>      >
+>      > With latest patch from Hans on top of v5.5.0 touchpads "two finger scrolling" is working again. Attaching current hid-record for keyboard with Wifi button pressed. Events in log appeared after f3 button was "released".
+>      >
+>      > Thanks
+>      >
+>      > Zdeněk
+>      >
+>      > pá 31. 1. 2020 v 16:45 odesílatel Hans de Goede <hdegoede@redhat.com <mailto:hdegoede@redhat.com>> napsal:
+>      >>
+>      >> Hi,
+>      >>
+>      >> On 1/31/20 4:38 PM, Z R wrote:
+>      >> > Hi Benjamin,
+>      >> > hid-record for keyboard and touchpad. With Commit 8f18eca9ebc5 reverted and from unmodified kernel.
+>      >> >
+>      >> > I hope it is what you asked for :-)
+>      >> >
+>      >> > Currently waiting for reworked patch from Hans.
+>      >>
+>      >> I just send you the reworked patch.
+>      >>
+>      >> Does the recordning include pressing of the wlan on/off key (Fn + F3 I believe) ?
+>      >> That is the whole reason why the special hid-ite driver is necessary.
+>      >>
+>      >> Benjamin about the wlan on/off key. AFAICR on a press + release of the key a
+>      >> single hid input report for the generic-desktop  Wireless Radio Controls group
+>      >> is send. This input-report only has the one button with usage code HID_GD_RFKILL_BTN
+>      >> in there and it is always 0. It is as if the input-report is only send on release
+>      >> and not on press. So the hid-ite code emulates a press + release whenever the
+>      >> input-report is send.
+>      >>
+>      >> IOW the receiving of the input report is (ab)used as indication of the button
+>      >> having been pressed.
+>      >>
+>      >> Regards,
+>      >>
+>      >> Hans
+>      >>
+>      >>
+>      >> >
+>      >> > Bye for now
+>      >> > Zdeněk
+>      >> >
+>      >> > pá 31. 1. 2020 v 15:12 odesílatel Benjamin Tissoires <benjamin.tissoires@redhat.com <mailto:benjamin.tissoires@redhat.com> <mailto:benjamin.tissoires@redhat.com <mailto:benjamin.tissoires@redhat.com>>> napsal:
+>      >> >
+>      >> >     On Fri, Jan 31, 2020 at 3:04 PM Hans de Goede <hdegoede@redhat.com <mailto:hdegoede@redhat.com> <mailto:hdegoede@redhat.com <mailto:hdegoede@redhat.com>>> wrote:
+>      >> >      >
+>      >> >      > Hi,
+>      >> >      >
+>      >> >      > On 1/31/20 2:54 PM, Benjamin Tissoires wrote:
+>      >> >      > > On Fri, Jan 31, 2020 at 2:41 PM Hans de Goede <hdegoede@redhat.com <mailto:hdegoede@redhat.com> <mailto:hdegoede@redhat.com <mailto:hdegoede@redhat.com>>> wrote:
+>      >> >      > >>
+>      >> >      > >> Hi,
+>      >> >      > >>
+>      >> >      > >> On 1/31/20 2:10 PM, Benjamin Tissoires wrote:
+>      >> >      > >>> Hi Hans,
+>      >> >      > >>>
+>      >> >      > >>> On Fri, Jan 31, 2020 at 1:46 PM Hans de Goede <hdegoede@redhat.com <mailto:hdegoede@redhat.com> <mailto:hdegoede@redhat.com <mailto:hdegoede@redhat.com>>> wrote:
+>      >> >      > >>>>
+>      >> >      > >>>> Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard
+>      >> >      > >>>> dock") added the USB id for the Acer SW5-012's keyboard dock to the
+>      >> >      > >>>> hid-ite driver to fix the rfkill driver not working.
+>      >> >      > >>>>
+>      >> >      > >>>> Most keyboard docks with an ITE 8595 keyboard/touchpad controller have the
+>      >> >      > >>>> "Wireless Radio Control" bits which need the special hid-ite driver on the
+>      >> >      > >>>> second USB interface (the mouse interface) and their touchpad only supports
+>      >> >      > >>>> mouse emulation, so using generic hid-input handling for anything but
+>      >> >      > >>>> the "Wireless Radio Control" bits is fine. On these devices we simply bind
+>      >> >      > >>>> to all USB interfaces.
+>      >> >      > >>>>
+>      >> >      > >>>> But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
+>      >> >      > >>>> (SW5-012)'s touchpad not only does mouse emulation it also supports
+>      >> >      > >>>> HID-multitouch and all the keys including the "Wireless Radio Control"
+>      >> >      > >>>> bits have been moved to the first USB interface (the keyboard intf).
+>      >> >      > >>>>
+>      >> >      > >>>> So we need hid-ite to handle the first (keyboard) USB interface and have
+>      >> >      > >>>> it NOT bind to the second (mouse) USB interface so that that can be
+>      >> >      > >>>> handled by hid-multitouch.c and we get proper multi-touch support.
+>      >> >      > >>>>
+>      >> >      > >>>> This commit adds a match callback to hid-ite which makes it only
+>      >> >      > >>>> match the first USB interface when running on the Acer SW5-012,
+>      >> >      > >>>> fixing the regression to mouse-emulation mode introduced by adding the
+>      >> >      > >>>> keyboard dock USB id.
+>      >> >      > >>>>
+>      >> >      > >>>> Note the match function only does the special only bind to the first
+>      >> >      > >>>> USB interface on the Acer SW5-012, on other devices the hid-ite driver
+>      >> >      > >>>> actually must bind to the second interface as that is where the
+>      >> >      > >>>> "Wireless Radio Control" bits are.
+>      >> >      > >>>
+>      >> >      > >>> This is not a full review, but a couple of things that popped out
+>      >> >      > >>> while scrolling through the patch.
+>      >> >      > >>>
+>      >> >      > >>>>
+>      >> >      > >>>> Cc: stable@vger.kernel.org <mailto:stable@vger.kernel.org> <mailto:stable@vger.kernel.org <mailto:stable@vger.kernel.org>>
+>      >> >      > >>>> Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard dock")
+>      >> >      > >>>> Reported-by: Zdeněk Rampas <zdenda.rampas@gmail.com <mailto:zdenda.rampas@gmail.com> <mailto:zdenda.rampas@gmail.com <mailto:zdenda.rampas@gmail.com>>>
+>      >> >      > >>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com <mailto:hdegoede@redhat.com> <mailto:hdegoede@redhat.com <mailto:hdegoede@redhat.com>>>
+>      >> >      > >>>> ---
+>      >> >      > >>>>    drivers/hid/hid-ite.c | 34 ++++++++++++++++++++++++++++++++++
+>      >> >      > >>>>    1 file changed, 34 insertions(+)
+>      >> >      > >>>>
+>      >> >      > >>>> diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+>      >> >      > >>>> index c436e12feb23..69a4ddfd033d 100644
+>      >> >      > >>>> --- a/drivers/hid/hid-ite.c
+>      >> >      > >>>> +++ b/drivers/hid/hid-ite.c
+>      >> >      > >>>> @@ -8,9 +8,12 @@
+>      >> >      > >>>>    #include <linux/input.h>
+>      >> >      > >>>>    #include <linux/hid.h>
+>      >> >      > >>>>    #include <linux/module.h>
+>      >> >      > >>>> +#include <linux/usb.h>
+>      >> >      > >>>>
+>      >> >      > >>>>    #include "hid-ids.h"
+>      >> >      > >>>>
+>      >> >      > >>>> +#define ITE8595_KBD_USB_INTF           0
+>      >> >      > >>>> +
+>      >> >      > >>>>    static int ite_event(struct hid_device *hdev, struct hid_field *field,
+>      >> >      > >>>>                        struct hid_usage *usage, __s32 value)
+>      >> >      > >>>>    {
+>      >> >      > >>>> @@ -37,6 +40,36 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+>      >> >      > >>>>           return 0;
+>      >> >      > >>>>    }
+>      >> >      > >>>>
+>      >> >      > >>>> +static bool ite_match(struct hid_device *hdev, bool ignore_special_driver)
+>      >> >      > >>>> +{
+>      >> >      > >>>> +       struct usb_interface *intf;
+>      >> >      > >>>> +
+>      >> >      > >>>> +       if (ignore_special_driver)
+>      >> >      > >>>> +               return false;
+>      >> >      > >>>> +
+>      >> >      > >>>> +       /*
+>      >> >      > >>>> +        * Most keyboard docks with an ITE 8595 keyboard/touchpad controller
+>      >> >      > >>>> +        * have the "Wireless Radio Control" bits which need this special
+>      >> >      > >>>> +        * driver on the second USB interface (the mouse interface). On
+>      >> >      > >>>> +        * these devices we simply bind to all USB interfaces.
+>      >> >      > >>>> +        *
+>      >> >      > >>>> +        * The Acer Aspire Switch 10 (SW5-012) is special, its touchpad
+>      >> >      > >>>> +        * not only does mouse emulation it also supports HID-multitouch
+>      >> >      > >>>> +        * and all the keys including the "Wireless Radio Control" bits
+>      >> >      > >>>> +        * have been moved to the first USB interface (the keyboard intf).
+>      >> >      > >>>> +        *
+>      >> >      > >>>> +        * We want the hid-multitouch driver to bind to the touchpad, so on
+>      >> >      > >>>> +        * the Acer SW5-012 we should only bind to the keyboard USB intf.
+>      >> >      > >>>> +        */
+>      >> >      > >>>> +       if (hdev->bus != BUS_USB || hdev->vendor != USB_VENDOR_ID_SYNAPTICS ||
+>      >> >      > >>>> +                    hdev->product != USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012)
+>      >> >      > >>>
+>      >> >      > >>> Isn't there an existing matching function we can use here, instead of
+>      >> >      > >>> checking each individual field?
+>      >> >      > >>
+>      >> >      > >> There is hid_match_one_id() but that is not exported (can be fixed) and it
+>      >> >      > >> requires a struct hid_device_id, which either requires declaring an extra
+>      >> >      > >> standalone struct hid_device_id for the SW5-012 kbd-dock, or hardcoding an
+>      >> >      > >> index into the existing hid_device_id array for the driver (with the hardcoding
+>      >> >      > >> being error prone, so not a good idea).
+>      >> >      > >>
+>      >> >      > >> Given the problems with using hid_match_one_id() I decided to just go with
+>      >> >      > >> the above.
+>      >> >      > >
+>      >> >      > > right. An other solution would be to have a local macro/function that
+>      >> >      > > does that. Because as soon as you start adding a quirk, an other comes
+>      >> >      > > right after.
+>      >> >      > >
+>      >> >      > >>
+>      >> >      > >> But see below.
+>      >> >      > >>
+>      >> >      > >>>
+>      >> >      > >>>> +               return true;
+>      >> >      > >>>> +
+>      >> >      > >>>> +       intf = to_usb_interface(hdev->dev.parent);
+>      >> >      > >>>
+>      >> >      > >>> And this is oops-prone. You need:
+>      >> >      > >>> - ensure hid_is_using_ll_driver(hdev, &usb_hid_driver) returns true.
+>      >> >      > >>> - add a dependency on USBHID in the KConfig now that you are checking
+>      >> >      > >>> on the USB transport layer.
+>      >> >      > >>>
+>      >> >      > >>> That being said, I would love instead:
+>      >> >      > >>> - to have a non USB version of this match, where you decide which
+>      >> >      > >>> component needs to be handled based on the report descriptor
+>      >> >      > >>
+>      >> >      > >> Actually your idea to use the desciptors is not bad, but since what
+>      >> >      > >> we really want is to not bind to the interface which is marked for the
+>      >> >      > >> hid-multitouch driver I just realized we can just check that.
+>      >> >      > >>
+>      >> >      > >> So how about:
+>      >> >      > >>
+>      >> >      > >> static bool ite_match(struct hid_device *hdev, bool ignore_special_driver)
+>      >> >      > >> {
+>      >> >      > >>           if (ignore_special_driver)
+>      >> >      > >>                   return false;
+>      >> >      > >>
+>      >> >      > >>           /*
+>      >> >      > >>            * Some keyboard docks with an ITE 8595 keyboard/touchpad controller
+>      >> >      > >>            * support the HID multitouch protocol for the touchpad, in that
+>      >> >      > >>            * case the "Wireless Radio Control" bits which we care about are
+>      >> >      > >>            * on the other interface; and we should not bind to the multitouch
+>      >> >      > >>            * capable interface as that breaks multitouch support.
+>      >> >      > >>            */
+>      >> >      > >>           return hdev->group != HID_GROUP_MULTITOUCH_WIN_8;
+>      >> >      > >> }
+>      >> >      > >
+>      >> >      > > Yep, I like that very much :)
+>      >> >      >
+>      >> >      > Actually if we want to check the group and there are only 2 interfaces we do
+>      >> >      > not need to use the match callback at all, w e can simply match on the
+>      >> >      > group of the interface which we do want:
+>      >> >      >
+>      >> >      > diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+>      >> >      > index db0f35be5a8b..21bd48f16033 100644
+>      >> >      > --- a/drivers/hid/hid-ite.c
+>      >> >      > +++ b/drivers/hid/hid-ite.c
+>      >> >      > @@ -56,8 +56,9 @@ static const struct hid_device_id ite_devices[] = {
+>      >> >      >         { HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+>      >> >      >         { HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+>      >> >      >         /* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
+>      >> >      > -       { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
+>      >> >      > -                        USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
+>      >> >      > +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+>      >> >      > +                    USB_VENDOR_ID_SYNAPTICS,
+>      >> >      > +                    USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
+>      >> >      >         { }
+>      >> >      >   };
+>      >> >      >   MODULE_DEVICE_TABLE(hid, ite_devices);
+>      >> >      >
+>      >> >      > Much cleaner
+>      >> >
+>      >> >     yep
+>      >> >
+>      >> >      > (and now I don't need to write a test, which is always
+>      >> >      > a good motivation to come up with a cleaner solution :)
+>      >> >
+>      >> >     Hehe, too bad, you already picked up my curiosity on this one, and I
+>      >> >     really would like to see the report descriptors and some events of the
+>      >> >     keys that are fixed by hid-ite.c.
+>      >> >     <with a low voice>This will be a hard requirement to accept this patch </joke>.
+>      >> >
+>      >> >     More seriously, Zdeněk, can you run hid-recorder from
+>      >> > https://gitlab.freedesktop.org/libevdev/hid-tools/ and provide me the
+>      >> >     report descriptor for all of your ITE HID devices? I'll add the
+>      >> >     matching tests in hid-tools and be sure we do not regress in the
+>      >> >     future.
+>      >> >
+>      >> >      >
+>      >> >      > Let me turn this into a proper patch and then I will send that to
+>      >> >      > Zdeněk (off-list) for him to test (note don't worry if you do
+>      >> >      > not have time to test this weekend, then I'll do it on Monday).
+>      >> >      >
+>      >> >      > Regards,
+>      >> >      >
+>      >> >      > Hans
+>      >> >      >
+>      >> >      > p.s.
+>      >> >      >
+>      >> >      > 1. My train is approaching Brussels (Fosdem) so my email response
+>      >> >      > time will soon become irregular.
+>      >> >
+>      >> >     How dare you? :)
+>      >> >
+>      >> >      >
+>      >> >      > 2. Benjamin will you be at Fosdem too ?
+>      >> >      >
+>      >> >
+>      >> >     Unfortunately no. Already got my quota of meeting people for this year
+>      >> >     between Kernel Recipes in September, XDC in October and LCA last week.
+>      >> >     So I need to keep in a quiet environment for a little bit :)
+>      >> >
+>      >> >     Cheers,
+>      >> >     Benjamin
+>      >> >
+>      >>
+> 
+
