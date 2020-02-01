@@ -2,83 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC82714F52D
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 00:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3118B14F5F1
+	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 03:45:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727154AbgAaXSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Jan 2020 18:18:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50502 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726347AbgAaXSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 Jan 2020 18:18:24 -0500
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B59924688;
-        Fri, 31 Jan 2020 23:18:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580512703;
-        bh=vGmd8A3xTHIq9oNFNfQUAolAWQcz8eNiZgGnCQNal90=;
-        h=Date:From:To:Subject:From;
-        b=sWthhF8Cbuzs/ZriDZlm2CEeCDF2K43Nk3fs7+a7zhMt8Px4Z3J5mkSKIIpVEFEkv
-         WtSHIP4uXYoPIoHgOjEQ1+ji3hD7fn3cT3PTopG+8avdaAn2tsrZstnQSH+/+BYpvi
-         +kV0AwHoF3Pq52gcf+2RiPwg9qzviZIO7Wqq0sEE=
-Date:   Fri, 31 Jan 2020 15:18:23 -0800
-From:   akpm@linux-foundation.org
-To:     dvyukov@google.com, gustavo@embeddedor.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [merged]
- lib-test_kasanc-fix-memory-leak-in-kmalloc_oob_krealloc_more.patch removed
- from -mm tree
-Message-ID: <20200131231823.oEAlTU_hV%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726548AbgBACpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Jan 2020 21:45:21 -0500
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:39269 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726475AbgBACpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Jan 2020 21:45:21 -0500
+Received: by mail-wr1-f42.google.com with SMTP id y11so10850707wrt.6
+        for <stable@vger.kernel.org>; Fri, 31 Jan 2020 18:45:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=bn4yGpgz7YqpoDI1eoymmYWnk9FdjoqETeln/oElVHk=;
+        b=cS/Od4PCPg+jmsuaJiqjroMY36UOvNpvmzeiWsDaWg5JaQg4M6tcgAyXVgccCJA79f
+         hbRDKTgZqgN2oxJC9pSlYzNNjFwDrWDDh9n5skMnYGKjOlg6qDWfO6aBJeS/vfFnoDB3
+         6NR0BIf3lxJWg1TRh/XAbmIRkCaHiSFWExmWdNgxi4mN49psbBJIvmXy1+BiHIlKWz+a
+         MDqy1EiYmoA4uZKpfH+Os9QLjxuBRr4zIN4yaNs9w31F1EsY/zcoRR5nnk291shlSatg
+         zCNB92PZIv4JWSlBFTSMxG5qUP2KPU36d89FnyNIEC8v4Gu1OcflYutyTtA9L/wG2kYG
+         fN7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=bn4yGpgz7YqpoDI1eoymmYWnk9FdjoqETeln/oElVHk=;
+        b=dvsU4x0QtfiFtstiouRJYeJozv7OzFPLucs9axD1Qbv1cykwllhp65Y8KlWqv1le0E
+         bCQu1vh9ZVzNXpmjpOlKKiIfJBsmRg+IycbPBcEIcPW7ata8r5KMtOn/7fhhq93VJ5G3
+         bezNmEt2Dr7TEmfpACFhbGcZHti/KlaykxbwLSaDUfh+Tdzte0SQ2QAN7piM3JY4zZDm
+         A5pZr4E0s3rduGZfU0zw79AN0qLIg0/1PEdLnUsqDQykf1sUG2d2RENCpUx95rSNYpho
+         kuT3nCY34ZtGq1ZjkLRKyKNyovR8HP/O7BjO65ChOV85L4FIdkIo138Hc+d8v0MVVeCh
+         QLwg==
+X-Gm-Message-State: APjAAAXyKjpHo0w4r0b5dhYT06u/dkz41Gj0xNvHcR4+XGJDLUbqR1Oj
+        zB0Xk6fq0dUA0TOXmE+TP0GZqmGt7wlrEg/p2iDdvniq
+X-Google-Smtp-Source: APXvYqzwsGfBKRuHePO2sS6YG3/bbWZZWEEStta+DGTpivJZeiFo571DpYx2UhAAGFaO4tCa8j39UJXIwol2RQA6Nqk=
+X-Received: by 2002:adf:a50b:: with SMTP id i11mr787283wrb.362.1580525119793;
+ Fri, 31 Jan 2020 18:45:19 -0800 (PST)
+MIME-Version: 1.0
+From:   David Michael <fedora.dm0@gmail.com>
+Date:   Fri, 31 Jan 2020 21:45:08 -0500
+Message-ID: <CAEvUa7=e9RKmb71NTU-uvyEVYC2CzdagUgwj4k=Tg97F5jWMfA@mail.gmail.com>
+Subject: Patch fd24a86 ("KVM: PPC: Book3S PR: Fix -Werror=return-type build
+ failure") for 5.5
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch titled
-     Subject: lib/test_kasan.c: fix memory leak in kmalloc_oob_krealloc_more()
-has been removed from the -mm tree.  Its filename was
-     lib-test_kasanc-fix-memory-leak-in-kmalloc_oob_krealloc_more.patch
+Can you please apply the following trivial patch to the next 5.5
+stable release?  It corrects a build failure for a PowerPC KVM
+configuration.
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+https://github.com/torvalds/linux/commit/fd24a8624eb29d3b6b7df68096ce0321b19b03c6
 
-------------------------------------------------------
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: lib/test_kasan.c: fix memory leak in kmalloc_oob_krealloc_more()
+Thanks.
 
-In case memory resources for _ptr2_ were allocated, release them before
-return.
-
-Notice that in case _ptr1_ happens to be NULL, krealloc() behaves exactly
-like kmalloc().
-
-Addresses-Coverity-ID: 1490594 ("Resource leak")
-Link: http://lkml.kernel.org/r/20200123160115.GA4202@embeddedor
-Fixes: 3f15801cdc23 ("lib: add kasan test module")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- lib/test_kasan.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/lib/test_kasan.c~lib-test_kasanc-fix-memory-leak-in-kmalloc_oob_krealloc_more
-+++ a/lib/test_kasan.c
-@@ -158,6 +158,7 @@ static noinline void __init kmalloc_oob_
- 	if (!ptr1 || !ptr2) {
- 		pr_err("Allocation failed\n");
- 		kfree(ptr1);
-+		kfree(ptr2);
- 		return;
- 	}
- 
-_
-
-Patches currently in -mm which might be from gustavo@embeddedor.com are
-
-
+David
