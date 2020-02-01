@@ -2,108 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C8E14FCEF
-	for <lists+stable@lfdr.de>; Sun,  2 Feb 2020 12:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 660F414FCF9
+	for <lists+stable@lfdr.de>; Sun,  2 Feb 2020 13:00:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726150AbgBBLsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Feb 2020 06:48:32 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:39286 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726149AbgBBLsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Feb 2020 06:48:31 -0500
-Received: by mail-wm1-f65.google.com with SMTP id c84so13781489wme.4
-        for <stable@vger.kernel.org>; Sun, 02 Feb 2020 03:48:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=atishpatra.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Op0zfe58XdVsuLFDv+kV1nCs9niSTB0gzCPSk7DxSPs=;
-        b=UGxus0UvDEEJ26RDo6DrWOA2vo37glkXXFSFf+GTlBeShN0snPnY61EzyFpFflbcP6
-         1AgXPK07wWXJXS9BGhu9nzE6uaoHggg4jwSLJczzAxLPO33lbgqV07O3Z0jvovl7o3aG
-         wfZukZU1s67yckW3jLJ8T1HiFu9IWrptgcPvcztYI2DIypbNNs7/Khp19P0WrNiaFJ+i
-         NaK3kdgK6HEBrD0SPfcD98NTFP75FyC/Y2O6ctpqZmqsJZQmYs+BA4mBDxns/msWKpmy
-         CqIsb3Ge7I9O09tHPaJpE6Xy7g4dD7HbrfcfSP+nT7X6J9aOXVcCcyVxatvywF3/UN6N
-         vpHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Op0zfe58XdVsuLFDv+kV1nCs9niSTB0gzCPSk7DxSPs=;
-        b=M6ciGZjh5KrHAo1bXIj4/WMt7YMIgTeUeCf4KVRyTKzZTbty0V60UWb5E7EHRXDy8K
-         S1YP72zFcYBrhMOmVSb1LItvTuE/c5w8FN+pizk4+mHCQO/bhjgUxP3TkdRRcyqdrMTn
-         /U+65B8sslZoXViAfC1LRmckbiHUUY7WhLnidcQl0g2lp+9eFKofrj/RGi/+mP/MkRNC
-         tzRvHdF/3uQ5IpSmIZCN8/IT9WbN0Fp/Ffn8ugbmwBcNPACX4XPGGzCs8NyAVnyOE8co
-         8z6tqopWyLjB4rwmBnaRkIiRYLPwiIKbjNsAmo9QtmYt71baa86A2vtlEu+aHAP6sqrO
-         tpfg==
-X-Gm-Message-State: APjAAAXnFQ9HxGtgG6Z3Ax7yLxilx6+9du5tzZvwVrjoD0gO827rVGEP
-        SQrUI7fqMfdKCw3b94S674LurpVAeLUirO4CRQ3u
-X-Google-Smtp-Source: APXvYqxq7L4O+L8Zw+nM1sKEx/N3GRXkz3TOVixpfJQrX2G1q0+48Y2iIlYhn2cIHDmMG2e+GnhI1z0A0QWYcaZav2w=
-X-Received: by 2002:a05:600c:2113:: with SMTP id u19mr22862304wml.78.1580644110192;
- Sun, 02 Feb 2020 03:48:30 -0800 (PST)
+        id S1726825AbgBBMAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Feb 2020 07:00:42 -0500
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:57004 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726044AbgBBMAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Feb 2020 07:00:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=/8I4PJVyzRO2zKgNQXcEsMEOQYRmKEwmQb/+v3+hXck=; b=cO/wD8KUbcDx253Djn0XRFYqV
+        8iCdytlEdwJ3NUWSoQWdd3Gt3nbkUEWl16iWqag5vIkEg/XoPHuEz/Lo7Zk84ICR3goILfGSOhlLu
+        CsRrpJQZCNsSGNa5CAcJLS54EI8zau9xQK6Gt9RgdKw4prliZAKBar4IdVoLdgSY0I8+8=;
+Received: from [151.216.144.116] (helo=fitzroy.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1iyDvT-0006pm-EH; Sun, 02 Feb 2020 12:00:31 +0000
+Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
+        id BF079D00E4A; Sat,  1 Feb 2020 11:27:37 +0000 (GMT)
+Date:   Sat, 1 Feb 2020 11:27:37 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     Liam Girdwood <lgirdwood@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Dmitry Osipenko <digetx@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "ASoC: tegra: Allow 24bit and 32bit samples"
+Message-ID: <20200201112737.GS3897@sirena.org.uk>
+References: <20200131091901.13014-1-jonathanh@nvidia.com>
 MIME-Version: 1.0
-References: <20200202110202.124048-1-anup.patel@wdc.com>
-In-Reply-To: <20200202110202.124048-1-anup.patel@wdc.com>
-From:   Atish Patra <atishp@atishpatra.org>
-Date:   Sun, 2 Feb 2020 03:48:18 -0800
-Message-ID: <CAOnJCU+_CnH6XcXbVrf4LCg3s830n6x6OyWckzoBC-kG2yFpwQ@mail.gmail.com>
-Subject: Re: [PATCH] RISC-V: Don't enable all interrupts in trap_init()
-To:     Anup Patel <anup.patel@wdc.com>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Anup Patel <anup@brainfault.org>,
-        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
-        Alistair Francis <Alistair.Francis@wdc.com>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Christoph Hellwig <hch@lst.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Wty5iWagpjJlozQq"
+Content-Disposition: inline
+In-Reply-To: <20200131091901.13014-1-jonathanh@nvidia.com>
+X-Cookie: Programming is an unnatural act.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 2, 2020 at 3:06 AM Anup Patel <anup.patel@wdc.com> wrote:
->
-> Historically, we have been enabling all interrupts for each
-> HART in trap_init(). Ideally, we should only enable M-mode
-> interrupts for M-mode kernel and S-mode interrupts for S-mode
-> kernel in trap_init().
->
-> Currently, we get suprious S-mode interrupts on Kendryte K210
-> board running M-mode NO-MMU kernel because we are enabling all
-> interrupts in trap_init(). To fix this, we only enable software
-> and external interrupt in trap_init(). In future, trap_init()
-> will only enable software interrupt and PLIC driver will enable
-> external interrupt using CPU notifiers.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 76d2a0493a17 ("RISC-V: Init and Halt Code)
-> Signed-off-by: Anup Patel <anup.patel@wdc.com>
-> ---
->  arch/riscv/kernel/traps.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-> index f4cad5163bf2..ffb3d94bf0cc 100644
-> --- a/arch/riscv/kernel/traps.c
-> +++ b/arch/riscv/kernel/traps.c
-> @@ -156,6 +156,6 @@ void __init trap_init(void)
->         csr_write(CSR_SCRATCH, 0);
->         /* Set the exception vector address */
->         csr_write(CSR_TVEC, &handle_exception);
-> -       /* Enable all interrupts */
-> -       csr_write(CSR_IE, -1);
-> +       /* Enable interrupts */
-> +       csr_write(CSR_IE, IE_SIE | IE_EIE);
->  }
-> --
-> 2.17.1
->
->
 
-Looks good.
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
--- 
-Regards,
-Atish
+--Wty5iWagpjJlozQq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Jan 31, 2020 at 09:19:01AM +0000, Jon Hunter wrote:
+> Commit f3ee99087c8ca0ecfdd549ef5a94f557c42d5428 ("ASoC: tegra: Allow
+> 24bit and 32bit samples") added 24-bit and 32-bit support for to the
+> Tegra30 I2S driver. However, there are two additional commits that are
+
+Please submit patches using subject lines reflecting the style for the
+subsystem, this makes it easier for people to identify relevant patches.
+Look at what existing commits in the area you're changing are doing and
+make sure your subject lines visually resemble what they're doing.
+There's no need to resubmit to fix this alone.
+
+--Wty5iWagpjJlozQq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl41YKgACgkQJNaLcl1U
+h9C48wf/XDYc+rP2dIu/vZ21qwktMH3XJC7y6d0I2npbH96AkZTpWmJd1Xni6LMO
+X9XDm6w29xXEQvMvkQ+p6n7q74ZdCwfwNgHdPujzyQNEY33uSWkQ+gFzFyDKrec7
+EGgzNKoCogdGHBTu6SED3em04EGbLIulAi2qwOd5jJ8ZCXErpBqUvwvFBRx9qQmK
+Fy2RivEzWysEXqYe/Icsn4wVgZ4Nm5vyNQDEDkiigGKISdDMYqS5Y3W2Yg43Mpx/
+KfLeQqxI7JZ3rodqfkpksVuzzhdvT/nyWuU46TOXyri4WhQMI75HewY/ZFKzQ9R0
+38NCD8W5/kRbbfv8Y8+x8j423SX3dA==
+=yaIF
+-----END PGP SIGNATURE-----
+
+--Wty5iWagpjJlozQq--
