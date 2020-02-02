@@ -2,262 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1964E14FABC
-	for <lists+stable@lfdr.de>; Sat,  1 Feb 2020 22:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC36914FCC8
+	for <lists+stable@lfdr.de>; Sun,  2 Feb 2020 12:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbgBAVhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Feb 2020 16:37:07 -0500
-Received: from mga11.intel.com ([192.55.52.93]:22599 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726469AbgBAVhH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Feb 2020 16:37:07 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 01 Feb 2020 13:37:06 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,391,1574150400"; 
-   d="scan'208";a="248098188"
-Received: from xshen14-linux.bj.intel.com ([10.238.155.105])
-  by orsmga002.jf.intel.com with ESMTP; 01 Feb 2020 13:37:01 -0800
-From:   Xiaochen Shen <xiaochen.shen@intel.com>
-To:     stable@vger.kernel.org, sashal@kernel.org,
-        gregkh@linuxfoundation.org
-Cc:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com,
-        tony.luck@intel.com, fenghua.yu@intel.com,
-        reinette.chatre@intel.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org, pei.p.jia@intel.com,
-        xiaochen.shen@intel.com, Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.19 3/3] x86/resctrl: Fix a deadlock due to inaccurate reference
-Date:   Sun,  2 Feb 2020 06:04:22 +0800
-Message-Id: <1580594662-3068-1-git-send-email-xiaochen.shen@intel.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1578500886-21771-1-git-send-email-xiaochen.shen@intel.com>
-References: <1578500886-21771-1-git-send-email-xiaochen.shen@intel.com>
+        id S1726880AbgBBLGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Feb 2020 06:06:15 -0500
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:31004 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725988AbgBBLGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Feb 2020 06:06:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1580641574; x=1612177574;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=XES2koAMzAn+jrNRN9pU7/oRTwoU1BNvGUcOReuP/RQ=;
+  b=oQptLglo5IODDYAOI3XhbvnV9NVkJ099F5q7Pq+cGQZabxzF8zYDcjpa
+   dLqe9v0zAy1RWw3q23NW7DAG6kQIsPFRc2nWXcoWPusoEHpWzPiNatMn2
+   yM+mff8F+248cKpQjtEYe8++8hSfOFyB2SKX6CI5SIm9UpvWtY18zDPcl
+   JUmPHza6MRUN85nIbpASVBplb5lQXEZDv0OrNCZTLM2p8qeMKTNcc+Wq6
+   /PwHEW8OawJOInOPIGiv84w3oOFiOXDPUtnTwSkWjEX7wzmvBdVd8425s
+   xA6t2bNDX8yhuzGWBn2kGoC4EJ0rBUL5i/zPkQIRYntVtYWdaaFkUNcve
+   A==;
+IronPort-SDR: nTaWWAEioI2uFmMN0+/5M1zKl6mugcztt5AwiBxqObfcHoMetYfV/3iBaio/XLKK3MkabgxRJf
+ Pd6kql/LXOKpa+p3k7ZJE2qyG29mMr5KMG8Y5emsS5uR/v6kXwhYOOEo8fgPPfDIDKPxpsZyXW
+ oSqHrR4GzGQi0/LCZvdv4t94mLy6IV+eSf9zGfhr9QsBXEISP5yzrcxjjsC69q/Vcwq/7INLgy
+ skYgve6PLePfa/dvJoMsJcFGQDjd+gLeeOAL5l+Vqbx20dIRTmM5rsIfcK0mHvbINNRx74dIWU
+ ulE=
+X-IronPort-AV: E=Sophos;i="5.70,393,1574092800"; 
+   d="scan'208";a="236870672"
+Received: from mail-co1nam11lp2171.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.171])
+  by ob1.hgst.iphmx.com with ESMTP; 02 Feb 2020 19:06:13 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ECVVHzXIaWeGkic2BekVjXfNTte3mogTccsISYkGqFCCh/odK/eDEdMdcEbrBsbQE29OMRF85uXT8M/ImBYNLqV8h6Y9lQM649W3VT5clTliXfe41XWTgcW3xu+28CPgKwNxw6rQNtRJrdzptr8+O4S0SNhq+IYCLvJuRyD7GA2y7110hoWCfJMTusTQs8uW6Y93DaAZ1EpKAE8htKv1njFBhz8VDs8N+hGGTMboJK4C1NUU6zryB/rZQjNJ34mtGkE0LnFEKMqztiQFIW0oQFv99L5fX3Woe+Yw4ImTbVITFkUftkG+MBGxec3zNGNXK3mkSZfN9AdsY2064inNag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bsq9FT9moFZoKzWfdtb5BpXHbdCsbs3tT1XCbncxR8o=;
+ b=AYyoP8guh95kxaUDhUBYaxV7NM1xpOPV1UVProy8YwNjNyXdQ+BnaspVcLACX8uZBg6XdyyitHbOgnw6y35JrYYo1GUrhFYcOfD9V2KihP0YH5DDEAg7yAAQMgkuzDEXt0ddKVjzv/kot6x2lf4THqnACvkPTjsMm+xJLKqRg2Q/s7RwMq5/qy3PUcB41rlIeaQud37eUmAM61jzqqVPPuQWqWgeSQXQKfvCDi7/Ou28MghZDX9JFrx5+IjTCNC0o92Yds5sxNyo0y9ZICy6zRHaP/NiA2/3VeVKRnoAlKDvoBuVimn/ujrSTajc2yuZWSbIKSU4l//1fGs+YpJNUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bsq9FT9moFZoKzWfdtb5BpXHbdCsbs3tT1XCbncxR8o=;
+ b=DAmbkNAwxMYC0DAPJD3aRYctHN1rkZTP5ZDUzC9+UihBTzv798OZHFHH1Rcz4DoDbtBjVWrhT6bBQSxyB/uX67r95/DzjRuQt2lZeQwMqa2jrg2vMwVEBLsxCNyetjYrf98gXRzH71RSPmbSAajjfSQgG172SvpbVXRGy0FtAKM=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=Anup.Patel@wdc.com; 
+Received: from MN2PR04MB6061.namprd04.prod.outlook.com (20.178.246.15) by
+ MN2PR04MB6333.namprd04.prod.outlook.com (52.132.169.21) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2686.26; Sun, 2 Feb 2020 11:06:11 +0000
+Received: from MN2PR04MB6061.namprd04.prod.outlook.com
+ ([fe80::a9a0:3ffa:371f:ad89]) by MN2PR04MB6061.namprd04.prod.outlook.com
+ ([fe80::a9a0:3ffa:371f:ad89%7]) with mapi id 15.20.2686.031; Sun, 2 Feb 2020
+ 11:06:11 +0000
+From:   Anup Patel <anup.patel@wdc.com>
+To:     Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>
+Cc:     Atish Patra <atish.patra@wdc.com>,
+        Alistair Francis <Alistair.Francis@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Anup Patel <anup@brainfault.org>,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Anup Patel <anup.patel@wdc.com>, stable@vger.kernel.org
+Subject: [PATCH] RISC-V: Don't enable all interrupts in trap_init()
+Date:   Sun,  2 Feb 2020 16:32:02 +0530
+Message-Id: <20200202110202.124048-1-anup.patel@wdc.com>
+X-Mailer: git-send-email 2.17.1
+Content-Type: text/plain
+X-ClientProxiedBy: AM4PR0902CA0015.eurprd09.prod.outlook.com
+ (2603:10a6:200:9b::25) To MN2PR04MB6061.namprd04.prod.outlook.com
+ (2603:10b6:208:d8::15)
+MIME-Version: 1.0
+Received: from wdc.com (151.216.142.133) by AM4PR0902CA0015.eurprd09.prod.outlook.com (2603:10a6:200:9b::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2686.29 via Frontend Transport; Sun, 2 Feb 2020 11:06:08 +0000
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [151.216.142.133]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: b47ccb09-222c-4ca0-3f6a-08d7a7cfe925
+X-MS-TrafficTypeDiagnostic: MN2PR04MB6333:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <MN2PR04MB633331918D2C4D61E815AB768D010@MN2PR04MB6333.namprd04.prod.outlook.com>
+WDCIPOUTBOUND: EOP-TRUE
+X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
+X-Forefront-PRVS: 0301360BF5
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10019020)(4636009)(346002)(366004)(376002)(136003)(39850400004)(396003)(189003)(199004)(8676002)(81166006)(81156014)(8936002)(66946007)(16526019)(186003)(7696005)(4326008)(66476007)(66556008)(26005)(478600001)(956004)(8886007)(52116002)(55016002)(6666004)(2616005)(1076003)(86362001)(36756003)(5660300002)(2906002)(110136005)(54906003)(316002)(44832011);DIR:OUT;SFP:1102;SCL:1;SRVR:MN2PR04MB6333;H:MN2PR04MB6061.namprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Gw/8sQw5JnQ5RklLftya4FIy+3v94f+Spx31+hRNpnAUTWpPU9xTPQ5y/PkXyIUEigXJ//cUCm6OZuTMlF+kIKpX63EqzW4W6f1ERWlOW1J8RSmbGhNp1BHf/8m8VEIKanfBau4G/BjzXI6whVT6wGKjOSY5SgzDgCVxjlGCeyHJxHNzk84bJCiWBOIHDKO0dQ2X4DL2AIRuEz8dfsLho5OkBfkVF1ZPchjZ+D+vjos/Jz3/MSyChZKPuHqvgXs/iZnmTkajTbpm5x10p4rLg3mgNxDtcmj0TZ9TnLidsOdZlPTbIJ5Z2y3jBgaKMFQTpxunN2blcJkw8lI08XbtZnJtXPoD+JTKbU3gH3+kZQh8bcyDAfWQ8VNsJNq2QpWV+fphHMeEjWv1xWAfz0uAz6N7YqMTHF82ME+aIL6KE9WaB/J+rM0ulO1JuEj0FrNl
+X-MS-Exchange-AntiSpam-MessageData: B1Q6WkUWIGAhYYBzPlJslz/T9erwgvDSof4CTVmJ/Z9M0+bdMnTVoiDrqfoDpGR9lndwNwk2Ak0PRKEfb43uXh2EttphSybke3oajA9x7Ilvipr+qnTYfyJZlSMEDdxWN4d78z5gJqyqbVye1hSVUw==
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b47ccb09-222c-4ca0-3f6a-08d7a7cfe925
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2020 11:06:11.2103
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: g45Bk6FYNJnm3TEc3PRzLiLFEUekIFV5k18HftKvBKq4MHo0zgoCvKFr0tf6JwJ6/TfMZdO9bwj8CEpc5OMOLw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR04MB6333
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 334b0f4e9b1b4a1d475f803419d202f6c5e4d18e upstream.
+Historically, we have been enabling all interrupts for each
+HART in trap_init(). Ideally, we should only enable M-mode
+interrupts for M-mode kernel and S-mode interrupts for S-mode
+kernel in trap_init().
 
-There is a race condition which results in a deadlock when rmdir and
-mkdir execute concurrently:
+Currently, we get suprious S-mode interrupts on Kendryte K210
+board running M-mode NO-MMU kernel because we are enabling all
+interrupts in trap_init(). To fix this, we only enable software
+and external interrupt in trap_init(). In future, trap_init()
+will only enable software interrupt and PLIC driver will enable
+external interrupt using CPU notifiers.
 
-$ ls /sys/fs/resctrl/c1/mon_groups/m1/
-cpus  cpus_list  mon_data  tasks
-
-Thread 1: rmdir /sys/fs/resctrl/c1
-Thread 2: mkdir /sys/fs/resctrl/c1/mon_groups/m1
-
-3 locks held by mkdir/48649:
- #0:  (sb_writers#17){.+.+}, at: [<ffffffffb4ca2aa0>] mnt_want_write+0x20/0x50
- #1:  (&type->i_mutex_dir_key#8/1){+.+.}, at: [<ffffffffb4c8c13b>] filename_create+0x7b/0x170
- #2:  (rdtgroup_mutex){+.+.}, at: [<ffffffffb4a4389d>] rdtgroup_kn_lock_live+0x3d/0x70
-
-4 locks held by rmdir/48652:
- #0:  (sb_writers#17){.+.+}, at: [<ffffffffb4ca2aa0>] mnt_want_write+0x20/0x50
- #1:  (&type->i_mutex_dir_key#8/1){+.+.}, at: [<ffffffffb4c8c3cf>] do_rmdir+0x13f/0x1e0
- #2:  (&type->i_mutex_dir_key#8){++++}, at: [<ffffffffb4c86d5d>] vfs_rmdir+0x4d/0x120
- #3:  (rdtgroup_mutex){+.+.}, at: [<ffffffffb4a4389d>] rdtgroup_kn_lock_live+0x3d/0x70
-
-Thread 1 is deleting control group "c1". Holding rdtgroup_mutex,
-kernfs_remove() removes all kernfs nodes under directory "c1"
-recursively, then waits for sub kernfs node "mon_groups" to drop active
-reference.
-
-Thread 2 is trying to create a subdirectory "m1" in the "mon_groups"
-directory. The wrapper kernfs_iop_mkdir() takes an active reference to
-the "mon_groups" directory but the code drops the active reference to
-the parent directory "c1" instead.
-
-As a result, Thread 1 is blocked on waiting for active reference to drop
-and never release rdtgroup_mutex, while Thread 2 is also blocked on
-trying to get rdtgroup_mutex.
-
-Thread 1 (rdtgroup_rmdir)   Thread 2 (rdtgroup_mkdir)
-(rmdir /sys/fs/resctrl/c1)  (mkdir /sys/fs/resctrl/c1/mon_groups/m1)
--------------------------   -------------------------
-                            kernfs_iop_mkdir
-                              /*
-                               * kn: "m1", parent_kn: "mon_groups",
-                               * prgrp_kn: parent_kn->parent: "c1",
-                               *
-                               * "mon_groups", parent_kn->active++: 1
-                               */
-                              kernfs_get_active(parent_kn)
-kernfs_iop_rmdir
-  /* "c1", kn->active++ */
-  kernfs_get_active(kn)
-
-  rdtgroup_kn_lock_live
-    atomic_inc(&rdtgrp->waitcount)
-    /* "c1", kn->active-- */
-    kernfs_break_active_protection(kn)
-    mutex_lock
-
-  rdtgroup_rmdir_ctrl
-    free_all_child_rdtgrp
-      sentry->flags = RDT_DELETED
-
-    rdtgroup_ctrl_remove
-      rdtgrp->flags = RDT_DELETED
-      kernfs_get(kn)
-      kernfs_remove(rdtgrp->kn)
-        __kernfs_remove
-          /* "mon_groups", sub_kn */
-          atomic_add(KN_DEACTIVATED_BIAS, &sub_kn->active)
-          kernfs_drain(sub_kn)
-            /*
-             * sub_kn->active == KN_DEACTIVATED_BIAS + 1,
-             * waiting on sub_kn->active to drop, but it
-             * never drops in Thread 2 which is blocked
-             * on getting rdtgroup_mutex.
-             */
-Thread 1 hangs here ---->
-            wait_event(sub_kn->active == KN_DEACTIVATED_BIAS)
-            ...
-                              rdtgroup_mkdir
-                                rdtgroup_mkdir_mon(parent_kn, prgrp_kn)
-                                  mkdir_rdt_prepare(parent_kn, prgrp_kn)
-                                    rdtgroup_kn_lock_live(prgrp_kn)
-                                      atomic_inc(&rdtgrp->waitcount)
-                                      /*
-                                       * "c1", prgrp_kn->active--
-                                       *
-                                       * The active reference on "c1" is
-                                       * dropped, but not matching the
-                                       * actual active reference taken
-                                       * on "mon_groups", thus causing
-                                       * Thread 1 to wait forever while
-                                       * holding rdtgroup_mutex.
-                                       */
-                                      kernfs_break_active_protection(
-                                                               prgrp_kn)
-                                      /*
-                                       * Trying to get rdtgroup_mutex
-                                       * which is held by Thread 1.
-                                       */
-Thread 2 hangs here ---->             mutex_lock
-                                      ...
-
-The problem is that the creation of a subdirectory in the "mon_groups"
-directory incorrectly releases the active protection of its parent
-directory instead of itself before it starts waiting for rdtgroup_mutex.
-This is triggered by the rdtgroup_mkdir() flow calling
-rdtgroup_kn_lock_live()/rdtgroup_kn_unlock() with kernfs node of the
-parent control group ("c1") as argument. It should be called with kernfs
-node "mon_groups" instead. What is currently missing is that the
-kn->priv of "mon_groups" is NULL instead of pointing to the rdtgrp.
-
-Fix it by pointing kn->priv to rdtgrp when "mon_groups" is created. Then
-it could be passed to rdtgroup_kn_lock_live()/rdtgroup_kn_unlock()
-instead. And then it operates on the same rdtgroup structure but handles
-the active reference of kernfs node "mon_groups" to prevent deadlock.
-The same changes are also made to the "mon_data" directories.
-
-This results in some unused function parameters that will be cleaned up
-in follow-up patch as the focus here is on the fix only in support of
-backporting efforts.
-
-Backporting notes:
-
-Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
-files to a separate directory"), the file
-arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
-arch/x86/kernel/cpu/resctrl/rdtgroup.c.
-Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-for older stable trees.
-
-Fixes: c7d9aac61311 ("x86/intel_rdt/cqm: Add mkdir support for RDT monitoring")
-Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1578500886-21771-4-git-send-email-xiaochen.shen@intel.com
+Fixes: 76d2a0493a17 ("RISC-V: Init and Halt Code)
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/riscv/kernel/traps.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index 77770ca..11c5acc 100644
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -2005,7 +2005,7 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 
- 	if (rdt_mon_capable) {
- 		ret = mongroup_create_dir(rdtgroup_default.kn,
--					  NULL, "mon_groups",
-+					  &rdtgroup_default, "mon_groups",
- 					  &kn_mongrp);
- 		if (ret) {
- 			dentry = ERR_PTR(ret);
-@@ -2415,7 +2415,7 @@ static int mkdir_mondata_all(struct kernfs_node *parent_kn,
- 	/*
- 	 * Create the mon_data directory first.
- 	 */
--	ret = mongroup_create_dir(parent_kn, NULL, "mon_data", &kn);
-+	ret = mongroup_create_dir(parent_kn, prgrp, "mon_data", &kn);
- 	if (ret)
- 		return ret;
- 
-@@ -2568,7 +2568,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- 	uint files = 0;
- 	int ret;
- 
--	prdtgrp = rdtgroup_kn_lock_live(prgrp_kn);
-+	prdtgrp = rdtgroup_kn_lock_live(parent_kn);
- 	rdt_last_cmd_clear();
- 	if (!prdtgrp) {
- 		ret = -ENODEV;
-@@ -2643,7 +2643,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- 	kernfs_activate(kn);
- 
- 	/*
--	 * The caller unlocks the prgrp_kn upon success.
-+	 * The caller unlocks the parent_kn upon success.
- 	 */
- 	return 0;
- 
-@@ -2654,7 +2654,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- out_free_rgrp:
- 	kfree(rdtgrp);
- out_unlock:
--	rdtgroup_kn_unlock(prgrp_kn);
-+	rdtgroup_kn_unlock(parent_kn);
- 	return ret;
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index f4cad5163bf2..ffb3d94bf0cc 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -156,6 +156,6 @@ void __init trap_init(void)
+ 	csr_write(CSR_SCRATCH, 0);
+ 	/* Set the exception vector address */
+ 	csr_write(CSR_TVEC, &handle_exception);
+-	/* Enable all interrupts */
+-	csr_write(CSR_IE, -1);
++	/* Enable interrupts */
++	csr_write(CSR_IE, IE_SIE | IE_EIE);
  }
- 
-@@ -2692,7 +2692,7 @@ static int rdtgroup_mkdir_mon(struct kernfs_node *parent_kn,
- 	 */
- 	list_add_tail(&rdtgrp->mon.crdtgrp_list, &prgrp->mon.crdtgrp_list);
- 
--	rdtgroup_kn_unlock(prgrp_kn);
-+	rdtgroup_kn_unlock(parent_kn);
- 	return ret;
- }
- 
-@@ -2735,7 +2735,7 @@ static int rdtgroup_mkdir_ctrl_mon(struct kernfs_node *parent_kn,
- 		 * Create an empty mon_groups directory to hold the subset
- 		 * of tasks and cpus to monitor.
- 		 */
--		ret = mongroup_create_dir(kn, NULL, "mon_groups", NULL);
-+		ret = mongroup_create_dir(kn, rdtgrp, "mon_groups", NULL);
- 		if (ret) {
- 			rdt_last_cmd_puts("kernfs subdir error\n");
- 			goto out_del_list;
-@@ -2751,7 +2751,7 @@ static int rdtgroup_mkdir_ctrl_mon(struct kernfs_node *parent_kn,
- out_common_fail:
- 	mkdir_rdt_prepare_clean(rdtgrp);
- out_unlock:
--	rdtgroup_kn_unlock(prgrp_kn);
-+	rdtgroup_kn_unlock(parent_kn);
- 	return ret;
- }
- 
 -- 
-1.8.3.1
+2.17.1
 
