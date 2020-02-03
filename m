@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35E08150B9F
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:29:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF7D150B23
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:25:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729542AbgBCQ3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41216 "EHLO mail.kernel.org"
+        id S1727934AbgBCQZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:25:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729761AbgBCQ3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:19 -0500
+        id S1727382AbgBCQZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:25:00 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0604A21582;
-        Mon,  3 Feb 2020 16:29:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0E072080C;
+        Mon,  3 Feb 2020 16:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747358;
-        bh=1sOos8r9C1K2YEJ5KoaoS8yGp3/Qs2/Xad32iYY6mFY=;
+        s=default; t=1580747100;
+        bh=p2WfEJ8ZKgV4J+cESH1NT9VjmZZwXfOgTWMsFY15Pwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SaqQ1DV/Qn8D5Tpy/CxjOp7kU7Tmj/Dt8J3NyNpWDcdTGFEVKDiy4DEBqVNr1iSrz
-         5KwJBbmFyyVU8HI00lpWIIPuw8dFO9k+cz6fO8Uqh3dzQNIx36oBWgJo7oamJ2Rkcm
-         3iroRwbprhCDGEbe9lSjyQYUlSjkw3fag8C7u3KE=
+        b=yuFftj6/DW5PhQ4EYHw4DpJfB45Z2FGnNY9ZLVnaoYcCO+rfCUYm1qQQOyiJSS3j+
+         8UKjIib+/xGkjZ2JYxpMID27dK63EqHzx+rH+vcnzASfuhzLJIAIeRuUCJ/Oijy/Pp
+         +NXDXk58Fad/p1KMZ+PftH6cTLbcL1CkBgtdvmAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "wuxu.wu" <wuxu.wu@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/89] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH 4.9 12/68] serial: 8250_bcm2835aux: Fix line mismatch on driver unbind
 Date:   Mon,  3 Feb 2020 16:19:08 +0000
-Message-Id: <20200203161919.998455271@linuxfoundation.org>
+Message-Id: <20200203161906.890593314@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,134 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wuxu.wu <wuxu.wu@huawei.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 19b61392c5a852b4e8a0bf35aecb969983c5932d ]
+commit dc76697d7e933d5e299116f219c890568785ea15 upstream.
 
-dw_spi_irq() and dw_spi_transfer_one concurrent calls.
+Unbinding the bcm2835aux UART driver raises the following error if the
+maximum number of 8250 UARTs is set to 1 (via the 8250.nr_uarts module
+parameter or CONFIG_SERIAL_8250_RUNTIME_UARTS):
 
-I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
-dw->len==4, and dw->tx_end==1.
+(NULL device *): Removing wrong port: a6f80333 != fa20408b
 
-When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
-may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
+That's because bcm2835aux_serial_probe() retrieves UART line number 1
+from the devicetree and stores it in data->uart.port.line, while
+serial8250_register_8250_port() instead uses UART line number 0,
+which is stored in data->line.
 
-Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
-store dw rx/tx instructions and other cores handle irq load dw rx/tx
-instructions may out of order.
+On driver unbind, bcm2835aux_serial_remove() uses data->uart.port.line,
+which contains the wrong number.  Fix it.
 
-	[ 1025.321302] Call trace:
-	...
-	[ 1025.321319]  __crash_kexec+0x98/0x148
-	[ 1025.321323]  panic+0x17c/0x314
-	[ 1025.321329]  die+0x29c/0x2e8
-	[ 1025.321334]  die_kernel_fault+0x68/0x78
-	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
-	[ 1025.321346]  do_page_fault+0x88/0x500
-	[ 1025.321347]  do_translation_fault+0xa8/0xb8
-	[ 1025.321349]  do_mem_abort+0x68/0x118
-	[ 1025.321351]  el1_da+0x20/0x8c
-	[ 1025.321362]  dw_writer+0xc8/0xd0
-	[ 1025.321364]  interrupt_transfer+0x60/0x110
-	[ 1025.321365]  dw_spi_irq+0x48/0x70
-	...
+The issue does not occur if the maximum number of 8250 UARTs is >= 2.
 
-Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
-Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bdc5f3009580 ("serial: bcm2835: add driver for bcm2835-aux-uart")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.6+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/912ccf553c5258135c6d7e8f404a101ef320f0f4.1579175223.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-dw.c | 15 ++++++++++++---
- drivers/spi/spi-dw.h |  1 +
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_bcm2835aux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index b217c22ff72fe..b461200871f89 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -180,9 +180,11 @@ static inline u32 rx_max(struct dw_spi *dws)
- 
- static void dw_writer(struct dw_spi *dws)
+--- a/drivers/tty/serial/8250/8250_bcm2835aux.c
++++ b/drivers/tty/serial/8250/8250_bcm2835aux.c
+@@ -119,7 +119,7 @@ static int bcm2835aux_serial_remove(stru
  {
--	u32 max = tx_max(dws);
-+	u32 max;
- 	u16 txw = 0;
+ 	struct bcm2835aux_data *data = platform_get_drvdata(pdev);
  
-+	spin_lock(&dws->buf_lock);
-+	max = tx_max(dws);
- 	while (max--) {
- 		/* Set the tx word if the transfer's original "tx" is not null */
- 		if (dws->tx_end - dws->len) {
-@@ -194,13 +196,16 @@ static void dw_writer(struct dw_spi *dws)
- 		dw_write_io_reg(dws, DW_SPI_DR, txw);
- 		dws->tx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
+-	serial8250_unregister_port(data->uart.port.line);
++	serial8250_unregister_port(data->line);
+ 	clk_disable_unprepare(data->clk);
  
- static void dw_reader(struct dw_spi *dws)
- {
--	u32 max = rx_max(dws);
-+	u32 max;
- 	u16 rxw;
- 
-+	spin_lock(&dws->buf_lock);
-+	max = rx_max(dws);
- 	while (max--) {
- 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
- 		/* Care rx only if the transfer's original "rx" is not null */
-@@ -212,6 +217,7 @@ static void dw_reader(struct dw_spi *dws)
- 		}
- 		dws->rx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
- 
- static void int_error_stop(struct dw_spi *dws, const char *msg)
-@@ -284,18 +290,20 @@ static int dw_spi_transfer_one(struct spi_master *master,
- {
- 	struct dw_spi *dws = spi_master_get_devdata(master);
- 	struct chip_data *chip = spi_get_ctldata(spi);
-+	unsigned long flags;
- 	u8 imask = 0;
- 	u16 txlevel = 0;
- 	u32 cr0;
- 	int ret;
- 
- 	dws->dma_mapped = 0;
--
-+	spin_lock_irqsave(&dws->buf_lock, flags);
- 	dws->tx = (void *)transfer->tx_buf;
- 	dws->tx_end = dws->tx + transfer->len;
- 	dws->rx = transfer->rx_buf;
- 	dws->rx_end = dws->rx + transfer->len;
- 	dws->len = transfer->len;
-+	spin_unlock_irqrestore(&dws->buf_lock, flags);
- 
- 	spi_enable_chip(dws, 0);
- 
-@@ -486,6 +494,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 	dws->type = SSI_MOTO_SPI;
- 	dws->dma_inited = 0;
- 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
-+	spin_lock_init(&dws->buf_lock);
- 
- 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dev_name(dev),
- 			  master);
-diff --git a/drivers/spi/spi-dw.h b/drivers/spi/spi-dw.h
-index 5c07cf8f19e00..45fbf3ad591cc 100644
---- a/drivers/spi/spi-dw.h
-+++ b/drivers/spi/spi-dw.h
-@@ -117,6 +117,7 @@ struct dw_spi {
- 	size_t			len;
- 	void			*tx;
- 	void			*tx_end;
-+	spinlock_t		buf_lock;
- 	void			*rx;
- 	void			*rx_end;
- 	int			dma_mapped;
--- 
-2.20.1
-
+ 	return 0;
 
 
