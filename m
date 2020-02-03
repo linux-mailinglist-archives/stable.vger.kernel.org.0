@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90254150C0E
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:33:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8F6150CFA
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730491AbgBCQdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:33:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
+        id S1731132AbgBCQgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:36:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730499AbgBCQc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:32:56 -0500
+        id S1731128AbgBCQgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:36:07 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3344A2082E;
-        Mon,  3 Feb 2020 16:32:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27CE62051A;
+        Mon,  3 Feb 2020 16:36:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747575;
-        bh=TRgddOces3KCcjZiCU9InaohUeoG1Yx/UpbqoCBwJ7o=;
+        s=default; t=1580747766;
+        bh=r1lGX2Mng4ClaeSrt7x81WB+42Hz2OebGAffvnIC3Oc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAy7Kzd5Pbn2zPl8xFi+8XEt0zu6RnJGJRA298jRdonFzMS4RjkEDum2NsHCUz7+I
-         0cHE6qO5fSJe+PFsGtBQigVC4rRluexmcF7wbKHhwea8Q4q80VhHHYdEQpShrQqD4o
-         rYl7or1GxkpNnaVwRAjBaVznoMYlnKDNAKUxg18g=
+        b=NFvtGOw/ZV9zyrTYg3JEFEZ8c/1LXfl+thBN/gQEtgZHGXQaRkPo5hGIjwHfhk1pm
+         0YtMhreXBlEhJQF4Vo0Pe2vx6Dy3UUz/llMpZxE7Tq3D9o/6lQiIeN1UqbVBSOdF9t
+         b8C9uKHownRihrUX+9MbmPSdArFwBf7hYp2ts2SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 11/70] arm64: kbuild: remove compressed images on make ARCH=arm64 (dist)clean
-Date:   Mon,  3 Feb 2020 16:19:23 +0000
-Message-Id: <20200203161914.149896901@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com,
+        Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 21/90] ttyprintk: fix a potential deadlock in interrupt context issue
+Date:   Mon,  3 Feb 2020 16:19:24 +0000
+Message-Id: <20200203161920.467142960@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-commit d7bbd6c1b01cb5dd13c245d4586a83145c1d5f52 upstream.
+commit 9a655c77ff8fc65699a3f98e237db563b37c439b upstream.
 
-Since v4.3-rc1 commit 0723c05fb75e44 ("arm64: enable more compressed
-Image formats"), it is possible to build Image.{bz2,lz4,lzma,lzo}
-AArch64 images. However, the commit missed adding support for removing
-those images on 'make ARCH=arm64 (dist)clean'.
+tpk_write()/tpk_close() could be interrupted when holding a mutex, then
+in timer handler tpk_write() may be called again trying to acquire same
+mutex, lead to deadlock.
 
-Fix this by adding them to the target list.
-Make sure to match the order of the recipes in the makefile.
+Google syzbot reported this issue with CONFIG_DEBUG_ATOMIC_SLEEP
+enabled:
 
-Cc: stable@vger.kernel.org # v4.3+
-Fixes: 0723c05fb75e44 ("arm64: enable more compressed Image formats")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+BUG: sleeping function called from invalid context at
+kernel/locking/mutex.c:938
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/1
+1 lock held by swapper/1/0:
+...
+Call Trace:
+  <IRQ>
+  dump_stack+0x197/0x210
+  ___might_sleep.cold+0x1fb/0x23e
+  __might_sleep+0x95/0x190
+  __mutex_lock+0xc5/0x13c0
+  mutex_lock_nested+0x16/0x20
+  tpk_write+0x5d/0x340
+  resync_tnc+0x1b6/0x320
+  call_timer_fn+0x1ac/0x780
+  run_timer_softirq+0x6c3/0x1790
+  __do_softirq+0x262/0x98c
+  irq_exit+0x19b/0x1e0
+  smp_apic_timer_interrupt+0x1a3/0x610
+  apic_timer_interrupt+0xf/0x20
+  </IRQ>
+
+See link https://syzkaller.appspot.com/bug?extid=2eeef62ee31f9460ad65 for
+more details.
+
+Fix it by using spinlock in process context instead of mutex and having
+interrupt disabled in critical section.
+
+Reported-by: syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200113034842.435-1-zhenzhong.duan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ttyprintk.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/boot/Makefile
-+++ b/arch/arm64/boot/Makefile
-@@ -16,7 +16,7 @@
+--- a/drivers/char/ttyprintk.c
++++ b/drivers/char/ttyprintk.c
+@@ -15,10 +15,11 @@
+ #include <linux/serial.h>
+ #include <linux/tty.h>
+ #include <linux/module.h>
++#include <linux/spinlock.h>
  
- OBJCOPYFLAGS_Image :=-O binary -R .note -R .note.gnu.build-id -R .comment -S
+ struct ttyprintk_port {
+ 	struct tty_port port;
+-	struct mutex port_write_mutex;
++	spinlock_t spinlock;
+ };
  
--targets := Image Image.gz
-+targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
+ static struct ttyprintk_port tpk_port;
+@@ -99,11 +100,12 @@ static int tpk_open(struct tty_struct *t
+ static void tpk_close(struct tty_struct *tty, struct file *filp)
+ {
+ 	struct ttyprintk_port *tpkp = tty->driver_data;
++	unsigned long flags;
  
- $(obj)/Image: vmlinux FORCE
- 	$(call if_changed,objcopy)
+-	mutex_lock(&tpkp->port_write_mutex);
++	spin_lock_irqsave(&tpkp->spinlock, flags);
+ 	/* flush tpk_printk buffer */
+ 	tpk_printk(NULL, 0);
+-	mutex_unlock(&tpkp->port_write_mutex);
++	spin_unlock_irqrestore(&tpkp->spinlock, flags);
+ 
+ 	tty_port_close(&tpkp->port, tty, filp);
+ }
+@@ -115,13 +117,14 @@ static int tpk_write(struct tty_struct *
+ 		const unsigned char *buf, int count)
+ {
+ 	struct ttyprintk_port *tpkp = tty->driver_data;
++	unsigned long flags;
+ 	int ret;
+ 
+ 
+ 	/* exclusive use of tpk_printk within this tty */
+-	mutex_lock(&tpkp->port_write_mutex);
++	spin_lock_irqsave(&tpkp->spinlock, flags);
+ 	ret = tpk_printk(buf, count);
+-	mutex_unlock(&tpkp->port_write_mutex);
++	spin_unlock_irqrestore(&tpkp->spinlock, flags);
+ 
+ 	return ret;
+ }
+@@ -171,7 +174,7 @@ static int __init ttyprintk_init(void)
+ {
+ 	int ret = -ENOMEM;
+ 
+-	mutex_init(&tpk_port.port_write_mutex);
++	spin_lock_init(&tpk_port.spinlock);
+ 
+ 	ttyprintk_driver = tty_alloc_driver(1,
+ 			TTY_DRIVER_RESET_TERMIOS |
 
 
