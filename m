@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF53150CF4
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14458150DE3
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730709AbgBCQfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:35:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50706 "EHLO mail.kernel.org"
+        id S1729252AbgBCQ0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:26:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730515AbgBCQfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:44 -0500
+        id S1729292AbgBCQ0u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:26:50 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 269AC20CC7;
-        Mon,  3 Feb 2020 16:35:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D1052051A;
+        Mon,  3 Feb 2020 16:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747743;
-        bh=CwDH/HNXqT9/UsCdUOLdCqHjqNXYqggcWW09wtaEFS8=;
+        s=default; t=1580747210;
+        bh=w/V+7udM5IAnQfSftwDRwG0pQYmXYZVEWGB5lGKibik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0p7djl5J4hkbZ8fJOq0bML9mV2npHvK+oZEJS3NPgtRQ8/YH9oQUmXhJ6JCmxjJXZ
-         DKREW8ZmEsqS1hR7OuLpr7oYrDxq2fmXXUUuRWhH3yF2Kqit66SPWSz7iBOC+eRa7T
-         B+CMU9IGM/9RRCFoTfv+AsrkPyTrB1XkxPkqRGBU=
+        b=vTZHXJcJP+50/c3ZKjDjCbdS0PpYGO+8dLLhI1mI+yT+/Rja95n/IGDXjQM/Os9l5
+         ikvs3JJy78x0YSgYGkb6ENmxHHaYWKsW9ydzUM6jb1EPjd0RTuq35GWTCT0zN1EeC2
+         Tnaa79muwPJUNJhf+D2ggK3+j3nVyn8I+3gFhoWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Shahed Shaikh <shshaikh@marvell.com>,
+        Yonggen Xu <Yonggen.Xu@dell.com>,
+        Manish Chopra <manishc@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/90] lkdtm/bugs: fix build error in lkdtm_UNSET_SMEP
-Date:   Mon,  3 Feb 2020 16:19:53 +0000
-Message-Id: <20200203161924.011424134@linuxfoundation.org>
+Subject: [PATCH 4.9 58/68] qlcnic: Fix CPU soft lockup while collecting firmware dump
+Date:   Mon,  3 Feb 2020 16:19:54 +0000
+Message-Id: <20200203161914.482173732@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Higgins <brendanhiggins@google.com>
+From: Manish Chopra <manishc@marvell.com>
 
-[ Upstream commit 0e31e3573f0cd94d7b821117db854187ffc85765 ]
+[ Upstream commit 22e984493a41bf8081f13d9ed84def3ca8cfd427 ]
 
-When building ARCH=um with CONFIG_UML_X86=y and CONFIG_64BIT=y we get
-the build errors:
+Driver while collecting firmware dump takes longer time to
+collect/process some of the firmware dump entries/memories.
+Bigger capture masks makes it worse as it results in larger
+amount of data being collected and results in CPU soft lockup.
+Place cond_resched() in some of the driver flows that are
+expectedly time consuming to relinquish the CPU to avoid CPU
+soft lockup panic.
 
-drivers/misc/lkdtm/bugs.c: In function ‘lkdtm_UNSET_SMEP’:
-drivers/misc/lkdtm/bugs.c:288:8: error: implicit declaration of function ‘native_read_cr4’ [-Werror=implicit-function-declaration]
-  cr4 = native_read_cr4();
-        ^~~~~~~~~~~~~~~
-drivers/misc/lkdtm/bugs.c:290:13: error: ‘X86_CR4_SMEP’ undeclared (first use in this function); did you mean ‘X86_FEATURE_SMEP’?
-  if ((cr4 & X86_CR4_SMEP) != X86_CR4_SMEP) {
-             ^~~~~~~~~~~~
-             X86_FEATURE_SMEP
-drivers/misc/lkdtm/bugs.c:290:13: note: each undeclared identifier is reported only once for each function it appears in
-drivers/misc/lkdtm/bugs.c:297:2: error: implicit declaration of function ‘native_write_cr4’; did you mean ‘direct_write_cr4’? [-Werror=implicit-function-declaration]
-  native_write_cr4(cr4);
-  ^~~~~~~~~~~~~~~~
-  direct_write_cr4
-
-So specify that this block of code should only build when
-CONFIG_X86_64=y *AND* CONFIG_UML is unset.
-
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20191213003522.66450-1-brendanhiggins@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shahed Shaikh <shshaikh@marvell.com>
+Tested-by: Yonggen Xu <Yonggen.Xu@dell.com>
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/bugs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c | 1 +
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c  | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/misc/lkdtm/bugs.c b/drivers/misc/lkdtm/bugs.c
-index 7284a22b1a09e..4d5a512769e99 100644
---- a/drivers/misc/lkdtm/bugs.c
-+++ b/drivers/misc/lkdtm/bugs.c
-@@ -274,7 +274,7 @@ void lkdtm_STACK_GUARD_PAGE_TRAILING(void)
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+index a496390b8632f..07f9067affc65 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+@@ -2043,6 +2043,7 @@ static void qlcnic_83xx_exec_template_cmd(struct qlcnic_adapter *p_dev,
+ 			break;
+ 		}
+ 		entry += p_hdr->size;
++		cond_resched();
+ 	}
+ 	p_dev->ahw->reset.seq_index = index;
+ }
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
+index 0844b7c757670..5174e0bd75d1e 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
+@@ -703,6 +703,7 @@ static u32 qlcnic_read_memory_test_agent(struct qlcnic_adapter *adapter,
+ 		addr += 16;
+ 		reg_read -= 16;
+ 		ret += 16;
++		cond_resched();
+ 	}
+ out:
+ 	mutex_unlock(&adapter->ahw->mem_lock);
+@@ -1383,6 +1384,7 @@ int qlcnic_dump_fw(struct qlcnic_adapter *adapter)
+ 		buf_offset += entry->hdr.cap_size;
+ 		entry_offset += entry->hdr.offset;
+ 		buffer = fw_dump->data + buf_offset;
++		cond_resched();
+ 	}
  
- void lkdtm_UNSET_SMEP(void)
- {
--#ifdef CONFIG_X86_64
-+#if IS_ENABLED(CONFIG_X86_64) && !IS_ENABLED(CONFIG_UML)
- #define MOV_CR4_DEPTH	64
- 	void (*direct_write_cr4)(unsigned long val);
- 	unsigned char *insn;
+ 	fw_dump->clr = 1;
 -- 
 2.20.1
 
