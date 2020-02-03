@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E7D150D5E
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF53150CF4
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730129AbgBCQnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:43:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
+        id S1730709AbgBCQfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:35:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730114AbgBCQce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:32:34 -0500
+        id S1730515AbgBCQfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:35:44 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD0DC2051A;
-        Mon,  3 Feb 2020 16:32:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 269AC20CC7;
+        Mon,  3 Feb 2020 16:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747554;
-        bh=0ef1BWJcFDjFGtlT09zlYGPAEVc9MTH5OEySSi1l4b4=;
+        s=default; t=1580747743;
+        bh=CwDH/HNXqT9/UsCdUOLdCqHjqNXYqggcWW09wtaEFS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEEiMfgQEjycfW/4i0ppC53zpbLSQQAKOkMAUtTj8I4z5st91DT2bgAT+7NBZFZar
-         ingpqRqH3TnQcj/Df6c7b/+efLM7teM62TSniuNoLpnt5+FUwcMfAJnLqUbGyIJ4Cm
-         vLa03ptqVu4nXmgnHYn/V/YcDehNaQ1bUzhy2BXM=
+        b=0p7djl5J4hkbZ8fJOq0bML9mV2npHvK+oZEJS3NPgtRQ8/YH9oQUmXhJ6JCmxjJXZ
+         DKREW8ZmEsqS1hR7OuLpr7oYrDxq2fmXXUUuRWhH3yF2Kqit66SPWSz7iBOC+eRa7T
+         B+CMU9IGM/9RRCFoTfv+AsrkPyTrB1XkxPkqRGBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/70] parisc: Use proper printk format for resource_size_t
+        stable@vger.kernel.org,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 50/90] lkdtm/bugs: fix build error in lkdtm_UNSET_SMEP
 Date:   Mon,  3 Feb 2020 16:19:53 +0000
-Message-Id: <20200203161918.317663938@linuxfoundation.org>
+Message-Id: <20200203161924.011424134@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit 4f80b70e1953cb846dbdd1ce72cb17333d4c8d11 ]
+[ Upstream commit 0e31e3573f0cd94d7b821117db854187ffc85765 ]
 
-resource_size_t should be printed with its own size-independent format
-to fix warnings when compiling on 64-bit platform (e.g. with
-COMPILE_TEST):
+When building ARCH=um with CONFIG_UML_X86=y and CONFIG_64BIT=y we get
+the build errors:
 
-    arch/parisc/kernel/drivers.c: In function 'print_parisc_device':
-    arch/parisc/kernel/drivers.c:892:9: warning:
-        format '%p' expects argument of type 'void *',
-        but argument 4 has type 'resource_size_t {aka unsigned int}' [-Wformat=]
+drivers/misc/lkdtm/bugs.c: In function ‘lkdtm_UNSET_SMEP’:
+drivers/misc/lkdtm/bugs.c:288:8: error: implicit declaration of function ‘native_read_cr4’ [-Werror=implicit-function-declaration]
+  cr4 = native_read_cr4();
+        ^~~~~~~~~~~~~~~
+drivers/misc/lkdtm/bugs.c:290:13: error: ‘X86_CR4_SMEP’ undeclared (first use in this function); did you mean ‘X86_FEATURE_SMEP’?
+  if ((cr4 & X86_CR4_SMEP) != X86_CR4_SMEP) {
+             ^~~~~~~~~~~~
+             X86_FEATURE_SMEP
+drivers/misc/lkdtm/bugs.c:290:13: note: each undeclared identifier is reported only once for each function it appears in
+drivers/misc/lkdtm/bugs.c:297:2: error: implicit declaration of function ‘native_write_cr4’; did you mean ‘direct_write_cr4’? [-Werror=implicit-function-declaration]
+  native_write_cr4(cr4);
+  ^~~~~~~~~~~~~~~~
+  direct_write_cr4
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+So specify that this block of code should only build when
+CONFIG_X86_64=y *AND* CONFIG_UML is unset.
+
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20191213003522.66450-1-brendanhiggins@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/drivers.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/lkdtm/bugs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/kernel/drivers.c b/arch/parisc/kernel/drivers.c
-index a1a5e4c59e6b2..4d5ad9cb0f692 100644
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -868,8 +868,8 @@ static void print_parisc_device(struct parisc_device *dev)
- 	static int count;
+diff --git a/drivers/misc/lkdtm/bugs.c b/drivers/misc/lkdtm/bugs.c
+index 7284a22b1a09e..4d5a512769e99 100644
+--- a/drivers/misc/lkdtm/bugs.c
++++ b/drivers/misc/lkdtm/bugs.c
+@@ -274,7 +274,7 @@ void lkdtm_STACK_GUARD_PAGE_TRAILING(void)
  
- 	print_pa_hwpath(dev, hw_path);
--	pr_info("%d. %s at 0x%px [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
--		++count, dev->name, (void*) dev->hpa.start, hw_path, dev->id.hw_type,
-+	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
-+		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
- 		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
- 
- 	if (dev->num_addrs) {
+ void lkdtm_UNSET_SMEP(void)
+ {
+-#ifdef CONFIG_X86_64
++#if IS_ENABLED(CONFIG_X86_64) && !IS_ENABLED(CONFIG_UML)
+ #define MOV_CR4_DEPTH	64
+ 	void (*direct_write_cr4)(unsigned long val);
+ 	unsigned char *insn;
 -- 
 2.20.1
 
