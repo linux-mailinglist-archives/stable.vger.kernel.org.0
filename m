@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FA07150DEC
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0D5150D6A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728930AbgBCQ0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:26:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37160 "EHLO mail.kernel.org"
+        id S1730312AbgBCQbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:31:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727308AbgBCQ0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:12 -0500
+        id S1730305AbgBCQbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:31:52 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A8EC2080C;
-        Mon,  3 Feb 2020 16:26:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 018A62051A;
+        Mon,  3 Feb 2020 16:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747171;
-        bh=DeCJmBu8rm1CIGpWKHCxQhQsPKt5JAnOYnxc4hK8Eqg=;
+        s=default; t=1580747511;
+        bh=T/jzZ2ogRvUw89rxkC5bNFbY9f/guSXh75QqfLjQDUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMEPG538qkpTZBOpBGvxGJ0nqcBCfGAT1AciBtoSSJIs+ZLKU3HW5JH2rfoLE/Hi6
-         MwrjoaeYgZ0mm95dm+M5T3sKmAKDKRryUJewT72/a/501gEmfkZ6mmbgBQtWbeeYoS
-         bbDgacG5x45CsEXhCLhQyqbjgYByr6k9CTQHWe6Y=
+        b=rXcEewh6i+ES/qCY1sEyMxFcTFOjzABp0/iIMPqNPGPQJAFS2IFUqtnccqc34jeHi
+         Q2LzvWh1VgbZww8ngJQAfyKdLYLex6VkKQJOsk1hdzotRzMwPtZ60WZX4aO0E+eozb
+         t3U47Xb75TjmLlc/00fyWlBYzfkYXnNoNqu+Oq3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bin Liu <b-liu@ti.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 40/68] usb: dwc3: turn off VBUS when leaving host mode
-Date:   Mon,  3 Feb 2020 16:19:36 +0000
-Message-Id: <20200203161911.590194611@linuxfoundation.org>
+Subject: [PATCH 4.19 25/70] ARM: dts: sun8i: a83t: Correct USB3503 GPIOs polarity
+Date:   Mon,  3 Feb 2020 16:19:37 +0000
+Message-Id: <20200203161916.211831274@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bin Liu <b-liu@ti.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 09ed259fac621634d51cd986aa8d65f035662658 ]
+[ Upstream commit 1c226017d3ec93547b58082bdf778d9db7401c95 ]
 
-VBUS should be turned off when leaving the host mode.
-Set GCTL_PRTCAP to device mode in teardown to de-assert DRVVBUS pin to
-turn off VBUS power.
+Current USB3503 driver ignores GPIO polarity and always operates as if the
+GPIO lines were flagged as ACTIVE_HIGH. Fix the polarity for the existing
+USB3503 chip applications to match the chip specification and common
+convention for naming the pins. The only pin, which has to be ACTIVE_LOW
+is the reset pin. The remaining are ACTIVE_HIGH. This change allows later
+to fix the USB3503 driver to properly use generic GPIO bindings and read
+polarity from DT.
 
-Fixes: 5f94adfeed97 ("usb: dwc3: core: refactor mode initialization to its own function")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 30bc5996a2f23..a89072f3bd3fb 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -936,6 +936,9 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
- 		/* do nothing */
- 		break;
- 	}
-+
-+	/* de-assert DRVVBUS for HOST and OTG mode */
-+	dwc3_set_mode(dwc, DWC3_GCTL_PRTCAP_DEVICE);
- }
- 
- #define DWC3_ALIGN_MASK		(16 - 1)
+diff --git a/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts b/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
+index e5f0645e53a7b..7e74ba83f8095 100644
+--- a/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
++++ b/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
+@@ -90,7 +90,7 @@
+ 		initial-mode = <1>; /* initialize in HUB mode */
+ 		disabled-ports = <1>;
+ 		intn-gpios = <&pio 7 5 GPIO_ACTIVE_HIGH>; /* PH5 */
+-		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>; /* PE16 */
++		reset-gpios = <&pio 4 16 GPIO_ACTIVE_LOW>; /* PE16 */
+ 		connect-gpios = <&pio 4 17 GPIO_ACTIVE_HIGH>; /* PE17 */
+ 		refclk-frequency = <19200000>;
+ 	};
 -- 
 2.20.1
 
