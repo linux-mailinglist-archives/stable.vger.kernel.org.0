@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF157150D66
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 868C1150DB7
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730324AbgBCQbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:31:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
+        id S1729639AbgBCQ2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:28:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730318AbgBCQby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:54 -0500
+        id S1727257AbgBCQ2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:28:41 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A8D92082E;
-        Mon,  3 Feb 2020 16:31:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37D2421744;
+        Mon,  3 Feb 2020 16:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747513;
-        bh=Eks/9HFVArPyWzQM0TOyCpnfOGYzDbio/Tb3ivsQxGY=;
+        s=default; t=1580747320;
+        bh=/iqsiNq1ufmoQNtCN5R0k0FfUZr3NDO+99uNskwHkS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WNqvFPfZGSicvc8fjAsIh48nT5a5SBUdvQAx33yvPVTf4SJdPkiztnj8jqSNnFOY
-         rrsyFrIAbfeD6PGv4MdXxTqFwvWIyvntz478DMXpyJ+RpdUexZHwkNC5GJ8RmDBfS1
-         fawg4Q0QynqtgQmkkpKgExS+OZCEPMSAQe3bZtxw=
+        b=qwiBlk9Z4QcnEq3xNdYVkuLdRj7Iuk300wIb9bbe4TGqGWL1m6IV00mRc1kBtP8fj
+         /qnpgkf/tz4yIwsr25fmih4aTRAvqe1sT9UQMZEgZTb+OurdKvQXi9cgSbWuO8lv8V
+         E73062Iu/WcU6JffXoUBosMdtyuOl0dUT1yRVzS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 08/70] perf c2c: Fix return type for histogram sorting comparision functions
+        stable@vger.kernel.org,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Xiaochen Shen <xiaochen.shen@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 35/89] x86/resctrl: Fix use-after-free due to inaccurate refcount of rdtgroup
 Date:   Mon,  3 Feb 2020 16:19:20 +0000
-Message-Id: <20200203161913.708583322@linuxfoundation.org>
+Message-Id: <20200203161921.742470591@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,86 +47,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andres Freund <andres@anarazel.de>
+From: Xiaochen Shen <xiaochen.shen@intel.com>
 
-commit c1c8013ec34d7163431d18367808ea40b2e305f8 upstream.
+commit 074fadee59ee7a9d2b216e9854bd4efb5dad679f upstream.
 
-Commit 722ddfde366f ("perf tools: Fix time sorting") changed - correctly
-so - hist_entry__sort to return int64. Unfortunately several of the
-builtin-c2c.c comparison routines only happened to work due the cast
-caused by the wrong return type.
+There is a race condition in the following scenario which results in an
+use-after-free issue when reading a monitoring file and deleting the
+parent ctrl_mon group concurrently:
 
-This causes meaningless ordering of both the cacheline list, and the
-cacheline details page. E.g a simple:
+Thread 1 calls atomic_inc() to take refcount of rdtgrp and then calls
+kernfs_break_active_protection() to drop the active reference of kernfs
+node in rdtgroup_kn_lock_live().
 
-  perf c2c record -a sleep 3
-  perf c2c report
+In Thread 2, kernfs_remove() is a blocking routine. It waits on all sub
+kernfs nodes to drop the active reference when removing all subtree
+kernfs nodes recursively. Thread 2 could block on kernfs_remove() until
+Thread 1 calls kernfs_break_active_protection(). Only after
+kernfs_remove() completes the refcount of rdtgrp could be trusted.
 
-will result in cacheline table like
-  =================================================
-             Shared Data Cache Line Table
-  =================================================
-  #
-  #        ------- Cacheline ----------    Total     Tot  - LLC Load Hitm -  - Store Reference -  - Load Dram -     LLC  Total  - Core Load Hit -  - LLC Load Hit -
-  # Index         Address  Node  PA cnt  records    Hitm  Total  Lcl    Rmt  Total  L1Hit  L1Miss     Lcl   Rmt  Ld Miss  Loads    FB    L1   L2     Llc      Rmt
-  # .....  ..............  ....  ......  .......  ......  .....  .....  ...  ....   .....  ......  ......  ....  ......   .....  .....  ..... ...  ....     .......
+Before Thread 1 calls atomic_inc() and kernfs_break_active_protection(),
+Thread 2 could call kfree() when the refcount of rdtgrp (sentry) is 0
+instead of 1 due to the race.
 
-        0  0x7f0d27ffba00   N/A       0       52   0.12%     13      6    7    12      12       0       0     7      14      40      4     16    0    0           0
-        1  0x7f0d27ff61c0   N/A       0     6353  14.04%   1475    801  674   779     779       0       0   718    1392    5574   1299   1967    0  115           0
-        2  0x7f0d26d3ec80   N/A       0       71   0.15%     16      4   12    13      13       0       0    12      24      58      1     20    0    9           0
-        3  0x7f0d26d3ec00   N/A       0       98   0.22%     23     17    6    19      19       0       0     6      12      79      0     40    0   10           0
+In Thread 1, in rdtgroup_kn_unlock(), referring to earlier rdtgrp memory
+(rdtgrp->waitcount) which was already freed in Thread 2 results in
+use-after-free issue.
 
-i.e. with the list not being ordered by Total Hitm.
+Thread 1 (rdtgroup_mondata_show)  Thread 2 (rdtgroup_rmdir)
+--------------------------------  -------------------------
+rdtgroup_kn_lock_live
+  /*
+   * kn active protection until
+   * kernfs_break_active_protection(kn)
+   */
+  rdtgrp = kernfs_to_rdtgroup(kn)
+                                  rdtgroup_kn_lock_live
+                                    atomic_inc(&rdtgrp->waitcount)
+                                    mutex_lock
+                                  rdtgroup_rmdir_ctrl
+                                    free_all_child_rdtgrp
+                                      /*
+                                       * sentry->waitcount should be 1
+                                       * but is 0 now due to the race.
+                                       */
+                                      kfree(sentry)*[1]
+  /*
+   * Only after kernfs_remove()
+   * completes, the refcount of
+   * rdtgrp could be trusted.
+   */
+  atomic_inc(&rdtgrp->waitcount)
+  /* kn->active-- */
+  kernfs_break_active_protection(kn)
+                                    rdtgroup_ctrl_remove
+                                      rdtgrp->flags = RDT_DELETED
+                                      /*
+                                       * Blocking routine, wait for
+                                       * all sub kernfs nodes to drop
+                                       * active reference in
+                                       * kernfs_break_active_protection.
+                                       */
+                                      kernfs_remove(rdtgrp->kn)
+                                  rdtgroup_kn_unlock
+                                    mutex_unlock
+                                    atomic_dec_and_test(
+                                                &rdtgrp->waitcount)
+                                    && (flags & RDT_DELETED)
+                                      kernfs_unbreak_active_protection(kn)
+                                      kfree(rdtgrp)
+  mutex_lock
+mon_event_read
+rdtgroup_kn_unlock
+  mutex_unlock
+  /*
+   * Use-after-free: refer to earlier rdtgrp
+   * memory which was freed in [1].
+   */
+  atomic_dec_and_test(&rdtgrp->waitcount)
+  && (flags & RDT_DELETED)
+    /* kn->active++ */
+    kernfs_unbreak_active_protection(kn)
+    kfree(rdtgrp)
 
-Fixes: 722ddfde366f ("perf tools: Fix time sorting")
-Signed-off-by: Andres Freund <andres@anarazel.de>
-Tested-by: Michael Petlan <mpetlan@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org # v3.16+
-Link: http://lore.kernel.org/lkml/20200109043030.233746-1-andres@anarazel.de
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by moving free_all_child_rdtgrp() to after kernfs_remove() in
+rdtgroup_rmdir_ctrl() to ensure it has the accurate refcount of rdtgrp.
 
+Backporting notes:
+
+Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
+files to a separate directory"), the file
+arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
+arch/x86/kernel/cpu/resctrl/rdtgroup.c.
+Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+for older stable trees.
+
+Upstream commit 17eafd076291 ("x86/intel_rdt: Split resource group
+removal in two") moved part of resource group removal code from
+rdtgroup_rmdir_mon() into a separate function rdtgroup_ctrl_remove().
+Apply the change against original code base of rdtgroup_rmdir_mon() for
+older stable trees.
+
+Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
+Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1578500886-21771-3-git-send-email-xiaochen.shen@intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -586,8 +586,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __
- {
- 	struct c2c_hist_entry *c2c_left;
- 	struct c2c_hist_entry *c2c_right;
--	unsigned int tot_hitm_left;
--	unsigned int tot_hitm_right;
-+	uint64_t tot_hitm_left;
-+	uint64_t tot_hitm_right;
+diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+index 734996904dc3b..01574966d91fd 100644
+--- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
++++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+@@ -1800,11 +1800,6 @@ static int rdtgroup_rmdir_ctrl(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
+ 	closid_free(rdtgrp->closid);
+ 	free_rmid(rdtgrp->mon.rmid);
  
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);
-@@ -620,7 +620,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __m
- 									\
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
--	return c2c_left->stats.__f - c2c_right->stats.__f;		\
-+	return (uint64_t) c2c_left->stats.__f -				\
-+	       (uint64_t) c2c_right->stats.__f;				\
+-	/*
+-	 * Free all the child monitor group rmids.
+-	 */
+-	free_all_child_rdtgrp(rdtgrp);
+-
+ 	list_del(&rdtgrp->rdtgroup_list);
+ 
+ 	/*
+@@ -1814,6 +1809,11 @@ static int rdtgroup_rmdir_ctrl(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
+ 	kernfs_get(kn);
+ 	kernfs_remove(rdtgrp->kn);
+ 
++	/*
++	 * Free all the child monitor group rmids.
++	 */
++	free_all_child_rdtgrp(rdtgrp);
++
+ 	return 0;
  }
  
- #define STAT_FN(__f)		\
-@@ -673,7 +674,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);
- 
--	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
-+	return (uint64_t) llc_miss(&c2c_left->stats) -
-+	       (uint64_t) llc_miss(&c2c_right->stats);
- }
- 
- static uint64_t total_records(struct c2c_stats *stats)
+-- 
+2.20.1
+
 
 
