@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A5E150D0C
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 523F9150BAE
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730814AbgBCQlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:41:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49916 "EHLO mail.kernel.org"
+        id S1729790AbgBCQ3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:29:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730930AbgBCQfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:13 -0500
+        id S1729816AbgBCQ3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:29:36 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7610E21582;
-        Mon,  3 Feb 2020 16:35:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE36720838;
+        Mon,  3 Feb 2020 16:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747712;
-        bh=gITOntd6JjepyRqHUzvVgH4Fg1uLC6E0WP0cBUWuEUc=;
+        s=default; t=1580747375;
+        bh=9xxOYi/YEdFwBEYSfI0Cp6t4PmZf83zOIdobzxHARN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ge7Vr+z4dtjgLikgtphmnKQkFkgILyD6hMq29WTy8AvcZOMTGOVbrc3GaqTGYBblL
-         D8eGBQgfj1u5uGAVmqrzGZGrw/dhzYCJ75/eSthBuaZ3RO1dyGk3Fiya8xADm1UPY9
-         fZmSpCVWuAvW0jL7Yrv/JA8wif4x+r1u6beL4vB8=
+        b=i47bGTgheEJv641P62J603WrTHe+vden7vfzO7Sy85vCWPu806q5f+ammjWWY44wU
+         8ka79OmHoHOWvi4ghp5rMfVAypr30TzFQYGN+L3O+g9xcimaHqNp3/FZLNyVBRaqvK
+         GXuuMymkudxfp5+FNKO7iYXPtASdoOK3ym8/s9n8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arkady Gilinksky <arkady.gilinsky@harmonicinc.com>,
-        Brett Creeley <brett.creeley@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/90] i40e: Fix virtchnl_queue_select bitmap validation
+Subject: [PATCH 4.14 56/89] mac80211: mesh: restrict airtime metric to peered established plinks
 Date:   Mon,  3 Feb 2020 16:19:41 +0000
-Message-Id: <20200203161922.708588217@linuxfoundation.org>
+Message-Id: <20200203161924.166007733@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-[ Upstream commit d9d6a9aed3f66f8ce5fa3ca6ca26007d75032296 ]
+[ Upstream commit 02a614499600af836137c3fbc4404cd96365fff2 ]
 
-Currently in i40e_vc_disable_queues_msg() we are incorrectly
-validating the virtchnl queue select bitmaps. The
-virtchnl_queue_select rx_queues and tx_queue bitmap is being
-compared against ICE_MAX_VF_QUEUES, but the problem is that
-these bitmaps can have a value greater than I40E_MAX_VF_QUEUES.
-Fix this by comparing the bitmaps against BIT(I40E_MAX_VF_QUEUES).
+The following warning is triggered every time an unestablished mesh peer
+gets dumped. Checks if a peer link is established before retrieving the
+airtime link metric.
 
-Also, add the function i40e_vc_validate_vqs_bitmaps() that checks to see
-if both virtchnl_queue_select bitmaps are empty along with checking that
-the bitmaps only have valid bits set. This function can then be used in
-both the queue enable and disable flows.
+[ 9563.022567] WARNING: CPU: 0 PID: 6287 at net/mac80211/mesh_hwmp.c:345
+               airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022697] Hardware name: PC Engines apu2/apu2, BIOS v4.10.0.3
+[ 9563.022756] RIP: 0010:airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022838] Call Trace:
+[ 9563.022897]  sta_set_sinfo+0x936/0xa10 [mac80211]
+[ 9563.022964]  ieee80211_dump_station+0x6d/0x90 [mac80211]
+[ 9563.023062]  nl80211_dump_station+0x154/0x2a0 [cfg80211]
+[ 9563.023120]  netlink_dump+0x17b/0x370
+[ 9563.023130]  netlink_recvmsg+0x2a4/0x480
+[ 9563.023140]  ____sys_recvmsg+0xa6/0x160
+[ 9563.023154]  ___sys_recvmsg+0x93/0xe0
+[ 9563.023169]  __sys_recvmsg+0x7e/0xd0
+[ 9563.023210]  do_syscall_64+0x4e/0x140
+[ 9563.023217]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Suggested-by: Arkady Gilinksky <arkady.gilinsky@harmonicinc.com>
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191203180644.70653-1-markus.theil@tu-ilmenau.de
+[rewrite commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 22 +++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ net/mac80211/mesh_hwmp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 3d24408388226..3515ace0f0201 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2322,6 +2322,22 @@ static int i40e_ctrl_vf_rx_rings(struct i40e_vsi *vsi, unsigned long q_map,
- 	return ret;
- }
+diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
+index fab0764c315fe..994dde6e5f9d9 100644
+--- a/net/mac80211/mesh_hwmp.c
++++ b/net/mac80211/mesh_hwmp.c
+@@ -326,6 +326,9 @@ static u32 airtime_link_metric_get(struct ieee80211_local *local,
+ 	unsigned long fail_avg =
+ 		ewma_mesh_fail_avg_read(&sta->mesh->fail_avg);
  
-+/**
-+ * i40e_vc_validate_vqs_bitmaps - validate Rx/Tx queue bitmaps from VIRTHCHNL
-+ * @vqs: virtchnl_queue_select structure containing bitmaps to validate
-+ *
-+ * Returns true if validation was successful, else false.
-+ */
-+static bool i40e_vc_validate_vqs_bitmaps(struct virtchnl_queue_select *vqs)
-+{
-+	if ((!vqs->rx_queues && !vqs->tx_queues) ||
-+	    vqs->rx_queues >= BIT(I40E_MAX_VF_QUEUES) ||
-+	    vqs->tx_queues >= BIT(I40E_MAX_VF_QUEUES))
-+		return false;
++	if (sta->mesh->plink_state != NL80211_PLINK_ESTAB)
++		return MAX_METRIC;
 +
-+	return true;
-+}
-+
- /**
-  * i40e_vc_enable_queues_msg
-  * @vf: pointer to the VF info
-@@ -2347,7 +2363,7 @@ static int i40e_vc_enable_queues_msg(struct i40e_vf *vf, u8 *msg)
- 		goto error_param;
- 	}
- 
--	if ((0 == vqs->rx_queues) && (0 == vqs->tx_queues)) {
-+	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2409,9 +2425,7 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
- 		goto error_param;
- 	}
- 
--	if ((vqs->rx_queues == 0 && vqs->tx_queues == 0) ||
--	    vqs->rx_queues > I40E_MAX_VF_QUEUES ||
--	    vqs->tx_queues > I40E_MAX_VF_QUEUES) {
-+	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
+ 	/* Try to get rate based on HW/SW RC algorithm.
+ 	 * Rate is returned in units of Kbps, correct this
+ 	 * to comply with airtime calculation units
 -- 
 2.20.1
 
