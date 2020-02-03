@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EBD150CF2
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A92150D4D
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730414AbgBCQfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:35:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50446 "EHLO mail.kernel.org"
+        id S1730424AbgBCQc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgBCQfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:34 -0500
+        id S1730420AbgBCQc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:26 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD29A2051A;
-        Mon,  3 Feb 2020 16:35:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BA0321744;
+        Mon,  3 Feb 2020 16:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747734;
-        bh=2dCeTe+htp6bYLj6TEvc7v6Uv3nrYBGHsJ2ytgCOJwM=;
+        s=default; t=1580747544;
+        bh=gzerEBnobQSk9HW2tP5Ss82Ye2lwxuasUMh0JmOVQeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7x8RZCuj+2mg1GpYwwG5cTAfCGNRSvfBD4oB9nR/lyGd/nwu2UU+nN9seHRWkKEs
-         Yld1kmrnHD/IL/ZuzC091t8m0Lq8ZYSo3u1vAHv+mbIimnINJfd/izpv144ElWO9BI
-         UWMkWSI+ni2moaDXtF0mAgtlIDmuHvxciaNuEC7k=
+        b=orVY7xvBR0bhwwnYlEBvnTCPYrzZA+M6vv6g31bK/cQT4tRyQGdYqmvTDPpBCiX9I
+         sKOY28hVLS6wfoI7Ci/PMSMWlMxWm6NcrmFmJBaJk7lxaYlsaQTZDrMzou7DmKPvb1
+         l/jL6/CYak6+0Rh1FIHK+JgYCxqiFebZjwr11Wts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        Manfred Rudigier <manfred.rudigier@omicronenergy.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/90] ASoC: hdac_hda: Fix error in driver removal after failed probe
+Subject: [PATCH 4.19 37/70] igb: Fix SGMII SFP module discovery for 100FX/LX.
 Date:   Mon,  3 Feb 2020 16:19:49 +0000
-Message-Id: <20200203161923.638680544@linuxfoundation.org>
+Message-Id: <20200203161917.819956666@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Manfred Rudigier <manfred.rudigier@omicronenergy.com>
 
-[ Upstream commit 552b1a85da9f63856e7e341b81c16e0e078204f1 ]
+[ Upstream commit 5365ec1aeff5b9f2962a9c9b31d63f9dad7e0e2d ]
 
-In case system has multiple HDA codecs, and codec probe fails for
-at least one but not all codecs, driver will end up cancelling
-a non-initialized timer context upon driver removal.
+Changing the link mode should also be done for 100BaseFX SGMII modules,
+otherwise they just don't work when the default link mode in CTRL_EXT
+coming from the EEPROM is SERDES.
 
-Call trace of typical case:
+Additionally 100Base-LX SGMII SFP modules are also supported now, which
+was not the case before.
 
-[   60.593646] WARNING: CPU: 1 PID: 1147 at kernel/workqueue.c:3032
-__flush_work+0x18b/0x1a0
-[...]
-[   60.593670]  __cancel_work_timer+0x11f/0x1a0
-[   60.593673]  hdac_hda_dev_remove+0x25/0x30 [snd_soc_hdac_hda]
-[   60.593674]  device_release_driver_internal+0xe0/0x1c0
-[   60.593675]  bus_remove_device+0xd6/0x140
-[   60.593677]  device_del+0x175/0x3e0
-[   60.593679]  ? widget_tree_free.isra.7+0x90/0xb0 [snd_hda_core]
-[   60.593680]  snd_hdac_device_unregister+0x34/0x50 [snd_hda_core]
-[   60.593682]  snd_hdac_ext_bus_device_remove+0x2a/0x60 [snd_hda_ext_core]
-[   60.593684]  hda_dsp_remove+0x26/0x100 [snd_sof_intel_hda_common]
-[   60.593686]  snd_sof_device_remove+0x84/0xa0 [snd_sof]
-[   60.593687]  sof_pci_remove+0x10/0x30 [snd_sof_pci]
-[   60.593689]  pci_device_remove+0x36/0xb0
+Tested with an i210 using Flexoptix S.1303.2M.G 100FX and
+S.1303.10.G 100LX SGMII SFP modules.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200110235751.3404-9-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Manfred Rudigier <manfred.rudigier@omicronenergy.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/e1000_82575.c | 8 ++------
+ drivers/net/ethernet/intel/igb/igb_ethtool.c | 2 +-
+ 2 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/hdac_hda.c b/sound/soc/codecs/hdac_hda.c
-index 4570f662fb48b..d78f4d856aaff 100644
---- a/sound/soc/codecs/hdac_hda.c
-+++ b/sound/soc/codecs/hdac_hda.c
-@@ -498,7 +498,9 @@ static int hdac_hda_dev_remove(struct hdac_device *hdev)
- 	struct hdac_hda_priv *hda_pvt;
+diff --git a/drivers/net/ethernet/intel/igb/e1000_82575.c b/drivers/net/ethernet/intel/igb/e1000_82575.c
+index bafdcf70a353d..fdab974b245b7 100644
+--- a/drivers/net/ethernet/intel/igb/e1000_82575.c
++++ b/drivers/net/ethernet/intel/igb/e1000_82575.c
+@@ -530,7 +530,7 @@ static s32 igb_set_sfp_media_type_82575(struct e1000_hw *hw)
+ 		dev_spec->module_plugged = true;
+ 		if (eth_flags->e1000_base_lx || eth_flags->e1000_base_sx) {
+ 			hw->phy.media_type = e1000_media_type_internal_serdes;
+-		} else if (eth_flags->e100_base_fx) {
++		} else if (eth_flags->e100_base_fx || eth_flags->e100_base_lx) {
+ 			dev_spec->sgmii_active = true;
+ 			hw->phy.media_type = e1000_media_type_internal_serdes;
+ 		} else if (eth_flags->e1000_base_t) {
+@@ -657,14 +657,10 @@ static s32 igb_get_invariants_82575(struct e1000_hw *hw)
+ 			break;
+ 		}
  
- 	hda_pvt = dev_get_drvdata(&hdev->dev);
--	cancel_delayed_work_sync(&hda_pvt->codec.jackpoll_work);
-+	if (hda_pvt && hda_pvt->codec.registered)
-+		cancel_delayed_work_sync(&hda_pvt->codec.jackpoll_work);
-+
- 	return 0;
- }
+-		/* do not change link mode for 100BaseFX */
+-		if (dev_spec->eth_flags.e100_base_fx)
+-			break;
+-
+ 		/* change current link mode setting */
+ 		ctrl_ext &= ~E1000_CTRL_EXT_LINK_MODE_MASK;
  
+-		if (hw->phy.media_type == e1000_media_type_copper)
++		if (dev_spec->sgmii_active)
+ 			ctrl_ext |= E1000_CTRL_EXT_LINK_MODE_SGMII;
+ 		else
+ 			ctrl_ext |= E1000_CTRL_EXT_LINK_MODE_PCIE_SERDES;
+diff --git a/drivers/net/ethernet/intel/igb/igb_ethtool.c b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+index 5acf3b743876a..50954e4449854 100644
+--- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
++++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+@@ -181,7 +181,7 @@ static int igb_get_link_ksettings(struct net_device *netdev,
+ 				advertising &= ~ADVERTISED_1000baseKX_Full;
+ 			}
+ 		}
+-		if (eth_flags->e100_base_fx) {
++		if (eth_flags->e100_base_fx || eth_flags->e100_base_lx) {
+ 			supported |= SUPPORTED_100baseT_Full;
+ 			advertising |= ADVERTISED_100baseT_Full;
+ 		}
 -- 
 2.20.1
 
