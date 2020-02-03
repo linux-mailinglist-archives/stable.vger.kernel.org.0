@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA56150D70
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAEC150D73
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730262AbgBCQbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:31:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45016 "EHLO mail.kernel.org"
+        id S1729725AbgBCQ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:29:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730233AbgBCQbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:39 -0500
+        id S1729734AbgBCQ3L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:29:11 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 049322082E;
-        Mon,  3 Feb 2020 16:31:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA1D92080C;
+        Mon,  3 Feb 2020 16:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747499;
-        bh=T/LbyhOpANalFGth4QIQR7yQjVB/DcC7Wez3GWw4MgM=;
+        s=default; t=1580747351;
+        bh=nbVpVw4p1VfuJ7QN8lurRGFg/BN8CBl5Bc8vLSaxQwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxDfaqXYjbXwuB+A+7AUSxTNwoX2BzGPhkajvSiR2zz04z8It4cJFNmoTkH39pC5O
-         6IWRUhepIfDKdvKjjWWOXFfCBjWD0mgoXaqGbASU1DcWWDDbcMV8ONpwMoe/L0WxqY
-         aobhNW+/76wbKZV2c/h2TSfDMhXNqe+UQ5kCjgHY=
+        b=Rj9dmXNHPCVFpeP4h1Di+GXIZJdMa3u7R58PaWxYO78GDl+kRr/wod3MlTcY2bq0X
+         nJHISJ4RqOMQ4KwBtPZYhh0tgBC7HL2lJMaS9mdYSWAjM/nsdYrHTicYMTBMSr1jx0
+         ira56NUWOBSagGCgY6qrUVyPWQ70OVTuX310tY4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+efea72d4a0a1d03596cd@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 4.19 20/70] tomoyo: Use atomic_t for statistics counter
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        syzbot+32310fc2aea76898d074@syzkaller.appspotmail.com,
+        syzbot+99706d6390be1ac542a2@syzkaller.appspotmail.com,
+        syzbot+64437af5c781a7f0e08e@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 47/89] media: gspca: zero usb_buf
 Date:   Mon,  3 Feb 2020 16:19:32 +0000
-Message-Id: <20200203161915.573229417@linuxfoundation.org>
+Message-Id: <20200203161923.290659014@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit a8772fad0172aeae339144598b809fd8d4823331 upstream.
+commit de89d0864f66c2a1b75becfdd6bf3793c07ce870 upstream.
 
-syzbot is reporting that there is a race at tomoyo_stat_update() [1].
-Although it is acceptable to fail to track exact number of times policy
-was updated, convert to atomic_t because this is not a hot path.
+Allocate gspca_dev->usb_buf with kzalloc instead of kmalloc to
+ensure it is property zeroed. This fixes various syzbot errors
+about uninitialized data.
 
-[1] https://syzkaller.appspot.com/bug?id=a4d7b973972eeed410596e6604580e0133b0fc04
+Syzbot links:
 
-Reported-by: syzbot <syzbot+efea72d4a0a1d03596cd@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+https://syzkaller.appspot.com/bug?extid=32310fc2aea76898d074
+https://syzkaller.appspot.com/bug?extid=99706d6390be1ac542a2
+https://syzkaller.appspot.com/bug?extid=64437af5c781a7f0e08e
+
+Reported-and-tested-by: syzbot+32310fc2aea76898d074@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+99706d6390be1ac542a2@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+64437af5c781a7f0e08e@syzkaller.appspotmail.com
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/tomoyo/common.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/media/usb/gspca/gspca.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/tomoyo/common.c
-+++ b/security/tomoyo/common.c
-@@ -2254,9 +2254,9 @@ static const char * const tomoyo_memory_
- 	[TOMOYO_MEMORY_QUERY]  = "query message:",
- };
- 
--/* Timestamp counter for last updated. */
--static unsigned int tomoyo_stat_updated[TOMOYO_MAX_POLICY_STAT];
- /* Counter for number of updates. */
-+static atomic_t tomoyo_stat_updated[TOMOYO_MAX_POLICY_STAT];
-+/* Timestamp counter for last updated. */
- static time64_t tomoyo_stat_modified[TOMOYO_MAX_POLICY_STAT];
- 
- /**
-@@ -2268,10 +2268,7 @@ static time64_t tomoyo_stat_modified[TOM
-  */
- void tomoyo_update_stat(const u8 index)
- {
--	/*
--	 * I don't use atomic operations because race condition is not fatal.
--	 */
--	tomoyo_stat_updated[index]++;
-+	atomic_inc(&tomoyo_stat_updated[index]);
- 	tomoyo_stat_modified[index] = ktime_get_real_seconds();
- }
- 
-@@ -2291,7 +2288,7 @@ static void tomoyo_read_stat(struct tomo
- 	for (i = 0; i < TOMOYO_MAX_POLICY_STAT; i++) {
- 		tomoyo_io_printf(head, "Policy %-30s %10u",
- 				 tomoyo_policy_headers[i],
--				 tomoyo_stat_updated[i]);
-+				 atomic_read(&tomoyo_stat_updated[i]));
- 		if (tomoyo_stat_modified[i]) {
- 			struct tomoyo_time stamp;
- 			tomoyo_convert_time(tomoyo_stat_modified[i], &stamp);
+--- a/drivers/media/usb/gspca/gspca.c
++++ b/drivers/media/usb/gspca/gspca.c
+@@ -2038,7 +2038,7 @@ int gspca_dev_probe2(struct usb_interfac
+ 		pr_err("couldn't kzalloc gspca struct\n");
+ 		return -ENOMEM;
+ 	}
+-	gspca_dev->usb_buf = kmalloc(USB_BUF_SZ, GFP_KERNEL);
++	gspca_dev->usb_buf = kzalloc(USB_BUF_SZ, GFP_KERNEL);
+ 	if (!gspca_dev->usb_buf) {
+ 		pr_err("out of memory\n");
+ 		ret = -ENOMEM;
 
 
