@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7D3150C0A
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:32:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53219150DE7
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730201AbgBCQcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:32:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46704 "EHLO mail.kernel.org"
+        id S1729336AbgBCQ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:27:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730491AbgBCQcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:32:53 -0500
+        id S1729333AbgBCQ1H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:27:07 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB4152051A;
-        Mon,  3 Feb 2020 16:32:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 644DB2086A;
+        Mon,  3 Feb 2020 16:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747573;
-        bh=3v/fM/ecCBvsIgWS4BzRSVHHVFOa8m8sqfvh1xJbbkc=;
+        s=default; t=1580747224;
+        bh=bYRu9xAq3TrK7LyKKXCxOGboiZsoLtfEg8a7OZShoPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myt1q7Dy+7h07Ba946EMAf48Vquis5xUNm/4u1tQr/52bzetBOq8TGRh9rl7wuSOs
-         V6SFMbv676VPFAzN5LicfcYrwanmpWLfp1LAAaMg8ZervyxON8kw6WFTiOvYRoAiXD
-         +MkN3GHRtADeNplRJGtZOd8mOMvyWKUQvdPCpg9E=
+        b=zSmVWpOJ2dYn+nlSHtaLBfhuzNuF0EHji5Vg63JumTrlMwTgWFjRnqOv3TNWs7VYB
+         ADW7Vj0Y8YGCb66+bRxxnqLUNzgUWbGjt9H9RbXuQmSNMVOAWxg1ARu15Q1uOHMea2
+         8FLcwpablBlqkO2gno9f9oYQCDWtUInzu7emQh+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/70] bnxt_en: Fix ipv6 RFS filter matching logic.
+Subject: [PATCH 4.9 64/68] net/sonic: Fix receive buffer handling
 Date:   Mon,  3 Feb 2020 16:20:00 +0000
-Message-Id: <20200203161919.270322585@linuxfoundation.org>
+Message-Id: <20200203161915.371037510@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 6fc7caa84e713f7627e171ab1e7c4b5be0dc9b3d ]
+[ Upstream commit 9e311820f67e740f4fb8dcb82b4c4b5b05bdd1a5 ]
 
-Fix bnxt_fltr_match() to match ipv6 source and destination addresses.
-The function currently only checks ipv4 addresses and will not work
-corrently on ipv6 filters.
+The SONIC can sometimes advance its rx buffer pointer (RRP register)
+without advancing its rx descriptor pointer (CRDA register). As a result
+the index of the current rx descriptor may not equal that of the current
+rx buffer. The driver mistakenly assumes that they are always equal.
+This assumption leads to incorrect packet lengths and possible packet
+duplication. Avoid this by calling a new function to locate the buffer
+corresponding to a given descriptor.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/natsemi/sonic.c | 35 ++++++++++++++++++++++++----
+ drivers/net/ethernet/natsemi/sonic.h |  5 ++--
+ 2 files changed, 33 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 2f61175f5655a..5cf85a89016e0 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8215,11 +8215,23 @@ static bool bnxt_fltr_match(struct bnxt_ntuple_filter *f1,
- 	struct flow_keys *keys1 = &f1->fkeys;
- 	struct flow_keys *keys2 = &f2->fkeys;
+diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
+index 7aa7f8050d44e..b6599aa22504f 100644
+--- a/drivers/net/ethernet/natsemi/sonic.c
++++ b/drivers/net/ethernet/natsemi/sonic.c
+@@ -423,6 +423,21 @@ static irqreturn_t sonic_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
--	if (keys1->addrs.v4addrs.src == keys2->addrs.v4addrs.src &&
--	    keys1->addrs.v4addrs.dst == keys2->addrs.v4addrs.dst &&
--	    keys1->ports.ports == keys2->ports.ports &&
--	    keys1->basic.ip_proto == keys2->basic.ip_proto &&
--	    keys1->basic.n_proto == keys2->basic.n_proto &&
-+	if (keys1->basic.n_proto != keys2->basic.n_proto ||
-+	    keys1->basic.ip_proto != keys2->basic.ip_proto)
-+		return false;
++/* Return the array index corresponding to a given Receive Buffer pointer. */
++static int index_from_addr(struct sonic_local *lp, dma_addr_t addr,
++			   unsigned int last)
++{
++	unsigned int i = last;
 +
-+	if (keys1->basic.n_proto == htons(ETH_P_IP)) {
-+		if (keys1->addrs.v4addrs.src != keys2->addrs.v4addrs.src ||
-+		    keys1->addrs.v4addrs.dst != keys2->addrs.v4addrs.dst)
-+			return false;
-+	} else {
-+		if (memcmp(&keys1->addrs.v6addrs.src, &keys2->addrs.v6addrs.src,
-+			   sizeof(keys1->addrs.v6addrs.src)) ||
-+		    memcmp(&keys1->addrs.v6addrs.dst, &keys2->addrs.v6addrs.dst,
-+			   sizeof(keys1->addrs.v6addrs.dst)))
-+			return false;
-+	}
++	do {
++		i = (i + 1) & SONIC_RRS_MASK;
++		if (addr == lp->rx_laddr[i])
++			return i;
++	} while (i != last);
 +
-+	if (keys1->ports.ports == keys2->ports.ports &&
- 	    keys1->control.flags == keys2->control.flags &&
- 	    ether_addr_equal(f1->src_mac_addr, f2->src_mac_addr) &&
- 	    ether_addr_equal(f1->dst_mac_addr, f2->dst_mac_addr))
++	return -ENOENT;
++}
++
+ /*
+  * We have a good packet(s), pass it/them up the network stack.
+  */
+@@ -442,6 +457,16 @@ static void sonic_rx(struct net_device *dev)
+ 
+ 		status = sonic_rda_get(dev, entry, SONIC_RD_STATUS);
+ 		if (status & SONIC_RCR_PRX) {
++			u32 addr = (sonic_rda_get(dev, entry,
++						  SONIC_RD_PKTPTR_H) << 16) |
++				   sonic_rda_get(dev, entry, SONIC_RD_PKTPTR_L);
++			int i = index_from_addr(lp, addr, entry);
++
++			if (i < 0) {
++				WARN_ONCE(1, "failed to find buffer!\n");
++				break;
++			}
++
+ 			/* Malloc up new buffer. */
+ 			new_skb = netdev_alloc_skb(dev, SONIC_RBSIZE + 2);
+ 			if (new_skb == NULL) {
+@@ -463,7 +488,7 @@ static void sonic_rx(struct net_device *dev)
+ 
+ 			/* now we have a new skb to replace it, pass the used one up the stack */
+ 			dma_unmap_single(lp->device, lp->rx_laddr[entry], SONIC_RBSIZE, DMA_FROM_DEVICE);
+-			used_skb = lp->rx_skb[entry];
++			used_skb = lp->rx_skb[i];
+ 			pkt_len = sonic_rda_get(dev, entry, SONIC_RD_PKTLEN);
+ 			skb_trim(used_skb, pkt_len);
+ 			used_skb->protocol = eth_type_trans(used_skb, dev);
+@@ -472,13 +497,13 @@ static void sonic_rx(struct net_device *dev)
+ 			lp->stats.rx_bytes += pkt_len;
+ 
+ 			/* and insert the new skb */
+-			lp->rx_laddr[entry] = new_laddr;
+-			lp->rx_skb[entry] = new_skb;
++			lp->rx_laddr[i] = new_laddr;
++			lp->rx_skb[i] = new_skb;
+ 
+ 			bufadr_l = (unsigned long)new_laddr & 0xffff;
+ 			bufadr_h = (unsigned long)new_laddr >> 16;
+-			sonic_rra_put(dev, entry, SONIC_RR_BUFADR_L, bufadr_l);
+-			sonic_rra_put(dev, entry, SONIC_RR_BUFADR_H, bufadr_h);
++			sonic_rra_put(dev, i, SONIC_RR_BUFADR_L, bufadr_l);
++			sonic_rra_put(dev, i, SONIC_RR_BUFADR_H, bufadr_h);
+ 		} else {
+ 			/* This should only happen, if we enable accepting broken packets. */
+ 			lp->stats.rx_errors++;
+diff --git a/drivers/net/ethernet/natsemi/sonic.h b/drivers/net/ethernet/natsemi/sonic.h
+index a009a99c0e544..d9f8ceb5353a4 100644
+--- a/drivers/net/ethernet/natsemi/sonic.h
++++ b/drivers/net/ethernet/natsemi/sonic.h
+@@ -273,8 +273,9 @@
+ #define SONIC_NUM_RDS   SONIC_NUM_RRS /* number of receive descriptors */
+ #define SONIC_NUM_TDS   16            /* number of transmit descriptors */
+ 
+-#define SONIC_RDS_MASK  (SONIC_NUM_RDS-1)
+-#define SONIC_TDS_MASK  (SONIC_NUM_TDS-1)
++#define SONIC_RRS_MASK  (SONIC_NUM_RRS - 1)
++#define SONIC_RDS_MASK  (SONIC_NUM_RDS - 1)
++#define SONIC_TDS_MASK  (SONIC_NUM_TDS - 1)
+ 
+ #define SONIC_RBSIZE	1520          /* size of one resource buffer */
+ 
 -- 
 2.20.1
 
