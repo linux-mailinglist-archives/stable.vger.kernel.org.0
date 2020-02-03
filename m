@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA248150B86
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A0B5150B0F
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729565AbgBCQ2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:28:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39836 "EHLO mail.kernel.org"
+        id S1728827AbgBCQUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:20:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729559AbgBCQ2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:28:19 -0500
+        id S1728824AbgBCQUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:20:19 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F50120CC7;
-        Mon,  3 Feb 2020 16:28:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9690620838;
+        Mon,  3 Feb 2020 16:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747299;
-        bh=exqW1YB8XKZ3dbWmNRrCkY4Cyio9kpbWiIWBCqpb6Tk=;
+        s=default; t=1580746819;
+        bh=sHEQDUxJfVWLAxmiD8XRiG1UUW3yDrMrHX0kipaQi00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAiat6x9ti6FyQwDwiBDa0PXN8cLVkDSKZld0bw2oPaEEmnrRavX52nsfP0HShAdA
-         oC/P99z9djLs0qj6IAiYlA3cWwRZfVzIhtA658ndTzzAFoH6ST8AY/B9ILEcYy2olf
-         S9eIf4PFIZhZ7g1ZbsId9+MhictwbWeYz623Pt+c=
+        b=gQv2GXP/TGTf8YVVJmPAd1FGYPdvjbC/SYrgAu2tD0nn26B/Dny4MSCyrvT1yonaM
+         3twDSEaVmsiN4TQBH33qd1U+uAvjLDRMxWrR/pgdlz+po5/eC8WefCcBKJJB43IV4V
+         1fhsHQpaRm4R3LECV3WTdX0dun/BzKCa7jcG2ePM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 4.14 08/89] staging: wlan-ng: ensure error return is actually returned
-Date:   Mon,  3 Feb 2020 16:18:53 +0000
-Message-Id: <20200203161917.937635999@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 02/53] orinoco_usb: fix interface sanity check
+Date:   Mon,  3 Feb 2020 16:18:54 +0000
+Message-Id: <20200203161903.457277571@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
+References: <20200203161902.714326084@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 upstream.
+commit b73e05aa543cf8db4f4927e36952360d71291d41 upstream.
 
-Currently when the call to prism2sta_ifst fails a netdev_err error
-is reported, error return variable result is set to -1 but the
-function always returns 0 for success.  Fix this by returning
-the error value in variable result rather than 0.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: 9afac70a7305 ("orinoco: add orinoco_usb driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.35
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/wlan-ng/prism2mgmt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/orinoco/orinoco_usb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/wlan-ng/prism2mgmt.c
-+++ b/drivers/staging/wlan-ng/prism2mgmt.c
-@@ -945,7 +945,7 @@ int prism2mgmt_flashdl_state(struct wlan
- 		}
- 	}
+--- a/drivers/net/wireless/orinoco/orinoco_usb.c
++++ b/drivers/net/wireless/orinoco/orinoco_usb.c
+@@ -1601,9 +1601,9 @@ static int ezusb_probe(struct usb_interf
+ 	/* set up the endpoint information */
+ 	/* check out the endpoints */
  
--	return 0;
-+	return result;
- }
+-	iface_desc = &interface->altsetting[0].desc;
++	iface_desc = &interface->cur_altsetting->desc;
+ 	for (i = 0; i < iface_desc->bNumEndpoints; ++i) {
+-		ep = &interface->altsetting[0].endpoint[i].desc;
++		ep = &interface->cur_altsetting->endpoint[i].desc;
  
- /*----------------------------------------------------------------
+ 		if (usb_endpoint_is_bulk_in(ep)) {
+ 			/* we found a bulk in endpoint */
 
 
