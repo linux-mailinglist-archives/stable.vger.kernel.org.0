@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A12BD150CFF
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A532D150DB1
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729790AbgBCQki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:40:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51328 "EHLO mail.kernel.org"
+        id S1727267AbgBCQ24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731136AbgBCQgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:36:09 -0500
+        id S1729678AbgBCQ2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:28:55 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74E3E222D9;
-        Mon,  3 Feb 2020 16:36:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FB1A2051A;
+        Mon,  3 Feb 2020 16:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747768;
-        bh=rcQDecP37dL91YXleyWQRqGSr0A+L9q6Ie3Ao5CUXLY=;
+        s=default; t=1580747334;
+        bh=SCJEmv0iAHFTm4Tp6DgzuSw1c6tPFAGLtEas5RCywVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TT2rrDdD6zNoMdmoIYgMho2p7tbYE3lrl1jHl2M4R1yUOPBIIpgfUZzhUVJu8MW5O
-         DHHtV8shE9VGAhuz7rn+M50kRZLQzHzzIHrHEikWENKC4k9gtz3dnotRAjxj9ZMlt+
-         HIzIxU8n/Q6FRVigTNarBYndERA+xaFKtDGk5YGY=
+        b=0t/d0algb5UcwvjV2OaE7fXk6I4moDYFCcD7qE9VkGUnxLZ2rNpkr9Wt+6hZZQs2w
+         cDX5YliLGcd7L/TokJ4+ypx0Q0hdutzXWdS3+Lsc8V+cyx7jSLlPQ6WJUmRXUnoK9X
+         0SHyG8N9aRfXlcooQBJbCMnfqydP67z0YQu9k0bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hedberg <johan.hedberg@intel.com>
-Subject: [PATCH 5.4 22/90] Bluetooth: Fix race condition in hci_release_sock()
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Dmitry Levin <ldv@altlinux.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        kbuild test robot <lkp@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vineet Gupta <vineet.gupta1@synopsys.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 40/89] tools lib: Fix builds when glibc contains strlcpy()
 Date:   Mon,  3 Feb 2020 16:19:25 +0000
-Message-Id: <20200203161920.591354269@linuxfoundation.org>
+Message-Id: <20200203161922.349505858@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +48,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-commit 11eb85ec42dc8c7a7ec519b90ccf2eeae9409de8 upstream.
+commit 6c4798d3f08b81c2c52936b10e0fa872590c96ae upstream.
 
-Syzbot managed to trigger a use after free "KASAN: use-after-free Write
-in hci_sock_bind".  I have reviewed the code manually and one possibly
-cause I have found is that we are not holding lock_sock(sk) when we do
-the hci_dev_put(hdev) in hci_sock_release().  My theory is that the bind
-and the release are racing against each other which results in this use
-after free.
+Disable a couple of compilation warnings (which are treated as errors)
+on strlcpy() definition and declaration, allowing users to compile perf
+and kernel (objtool) when:
 
-Reported-by: syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+1. glibc have strlcpy() (such as in ALT Linux since 2004) objtool and
+   perf build fails with this (in gcc):
+
+  In file included from exec-cmd.c:3:
+  tools/include/linux/string.h:20:15: error: redundant redeclaration of ‘strlcpy’ [-Werror=redundant-decls]
+     20 | extern size_t strlcpy(char *dest, const char *src, size_t size);
+
+2. clang ignores `-Wredundant-decls', but produces another warning when
+   building perf:
+
+    CC       util/string.o
+  ../lib/string.c:99:8: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  size_t __weak strlcpy(char *dest, const char *src, size_t size)
+  ../../tools/include/linux/compiler.h:66:34: note: expanded from macro '__weak'
+  # define __weak                 __attribute__((weak))
+  /usr/include/bits/string_fortified.h:151:8: note: previous definition is here
+  __NTH (strlcpy (char *__restrict __dest, const char *__restrict __src,
+
+Committer notes:
+
+The
+
+ #pragma GCC diagnostic
+
+directive was introduced in gcc 4.6, so check for that as well.
+
+Fixes: ce99091 ("perf tools: Move strlcpy() from perf to tools/lib/string.c")
+Fixes: 0215d59 ("tools lib: Reinstate strlcpy() header guard with __UCLIBC__")
+Resolves: https://bugzilla.kernel.org/show_bug.cgi?id=118481
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Reviewed-by: Dmitry Levin <ldv@altlinux.org>
+Cc: Dmitry Levin <ldv@altlinux.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: kbuild test robot <lkp@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
+Link: http://lore.kernel.org/lkml/20191224172029.19690-1-vt@altlinux.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_sock.c |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/include/linux/string.h |    8 ++++++++
+ tools/lib/string.c           |    7 +++++++
+ 2 files changed, 15 insertions(+)
 
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -831,6 +831,8 @@ static int hci_sock_release(struct socke
- 	if (!sk)
- 		return 0;
+--- a/tools/include/linux/string.h
++++ b/tools/include/linux/string.h
+@@ -14,7 +14,15 @@ int strtobool(const char *s, bool *res);
+  * However uClibc headers also define __GLIBC__ hence the hack below
+  */
+ #if defined(__GLIBC__) && !defined(__UCLIBC__)
++// pragma diagnostic was introduced in gcc 4.6
++#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wredundant-decls"
++#endif
+ extern size_t strlcpy(char *dest, const char *src, size_t size);
++#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
++#pragma GCC diagnostic pop
++#endif
+ #endif
  
-+	lock_sock(sk);
-+
- 	switch (hci_pi(sk)->channel) {
- 	case HCI_CHANNEL_MONITOR:
- 		atomic_dec(&monitor_promisc);
-@@ -878,6 +880,7 @@ static int hci_sock_release(struct socke
- 	skb_queue_purge(&sk->sk_receive_queue);
- 	skb_queue_purge(&sk->sk_write_queue);
- 
-+	release_sock(sk);
- 	sock_put(sk);
- 	return 0;
+ char *str_error_r(int errnum, char *buf, size_t buflen);
+--- a/tools/lib/string.c
++++ b/tools/lib/string.c
+@@ -95,6 +95,10 @@ int strtobool(const char *s, bool *res)
+  * If libc has strlcpy() then that version will override this
+  * implementation:
+  */
++#ifdef __clang__
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wignored-attributes"
++#endif
+ size_t __weak strlcpy(char *dest, const char *src, size_t size)
+ {
+ 	size_t ret = strlen(src);
+@@ -106,3 +110,6 @@ size_t __weak strlcpy(char *dest, const
+ 	}
+ 	return ret;
  }
++#ifdef __clang__
++#pragma clang diagnostic pop
++#endif
 
 
