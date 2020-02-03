@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E04150B68
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D69BE150B6D
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:27:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727339AbgBCQ1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:27:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38560 "EHLO mail.kernel.org"
+        id S1729409AbgBCQ1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:27:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729379AbgBCQ1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:27:20 -0500
+        id S1729415AbgBCQ13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:27:29 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7EB521741;
-        Mon,  3 Feb 2020 16:27:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61F5B2086A;
+        Mon,  3 Feb 2020 16:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747239;
-        bh=rOC8U+f1daTPhWJ4bxWs0HkmJ05pAb0NOy3PkAdNkRg=;
+        s=default; t=1580747248;
+        bh=mPV8pOApGUcWAqTRUtRnpic/2GQ030XfApSb2e1ez08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qNbi711BonNg2rF9xgQtNrMDaJslJRztE81FEhFZhvOFqCQK89PrfxFbBgXz0/MGN
-         O6Jsc+e2LimHRKFSxuMnSizC0q+9uK8mFS7pbz0tazk8o3VSqUQvgRV0mAd/gRr+1t
-         sixprfxm3jeYgv+tjYev/MmGfNVG88FH4qhZ5pFw=
+        b=fDq/Mt+jKNFV1GfPNl2nA0xmr7sqeWyuxb2PJJZpgAHifGtcDCUqNKPWdDA+rqNaS
+         eW4snNEND6YIUTgi+F3UovHV5GhHCEgdHqVssb8TqDnNFSEjPfMlFHALnZkodaEnOG
+         agm6YhFHLM64rVd2SgihYl1YlSVJIDZTuRHU5iLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 49/68] mac80211: Fix TKIP replay protection immediately after key setup
-Date:   Mon,  3 Feb 2020 16:19:45 +0000
-Message-Id: <20200203161913.035130758@linuxfoundation.org>
+Subject: [PATCH 4.9 53/68] scsi: fnic: do not queue commands during fwreset
+Date:   Mon,  3 Feb 2020 16:19:49 +0000
+Message-Id: <20200203161913.727410180@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
 References: <20200203161904.705434837@linuxfoundation.org>
@@ -44,62 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Malinen <j@w1.fi>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 6f601265215a421f425ba3a4850a35861d024643 ]
+[ Upstream commit 0e2209629fec427ba75a6351486153a9feddd36b ]
 
-TKIP replay protection was skipped for the very first frame received
-after a new key is configured. While this is potentially needed to avoid
-dropping a frame in some cases, this does leave a window for replay
-attacks with group-addressed frames at the station side. Any earlier
-frame sent by the AP using the same key would be accepted as a valid
-frame and the internal RSC would then be updated to the TSC from that
-frame. This would allow multiple previously transmitted group-addressed
-frames to be replayed until the next valid new group-addressed frame
-from the AP is received by the station.
+When a link is going down the driver will be calling fnic_cleanup_io(),
+which will traverse all commands and calling 'done' for each found command.
+While the traversal is handled under the host_lock, calling 'done' happens
+after the host_lock is being dropped.
 
-Fix this by limiting the no-replay-protection exception to apply only
-for the case where TSC=0, i.e., when this is for the very first frame
-protected using the new key, and the local RSC had not been set to a
-higher value when configuring the key (which may happen with GTK).
+As fnic_queuecommand_lck() is being called with the host_lock held, it
+might well be that it will pick the command being selected for abortion
+from the above routine and enqueue it for sending, but then 'done' is being
+called on that very command from the above routine.
 
-Signed-off-by: Jouni Malinen <j@w1.fi>
-Link: https://lore.kernel.org/r/20200107153545.10934-1-j@w1.fi
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Which of course confuses the hell out of the scsi midlayer.
+
+So fix this by not queueing commands when fnic_cleanup_io is active.
+
+Link: https://lore.kernel.org/r/20200116102053.62755-1-hare@suse.de
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tkip.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/scsi/fnic/fnic_scsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/mac80211/tkip.c b/net/mac80211/tkip.c
-index b3622823bad23..ebd66e8f46b3f 100644
---- a/net/mac80211/tkip.c
-+++ b/net/mac80211/tkip.c
-@@ -266,9 +266,21 @@ int ieee80211_tkip_decrypt_data(struct crypto_cipher *tfm,
- 	if ((keyid >> 6) != key->conf.keyidx)
- 		return TKIP_DECRYPT_INVALID_KEYIDX;
+diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
+index c056b8111ad27..7bf6102b4c3d5 100644
+--- a/drivers/scsi/fnic/fnic_scsi.c
++++ b/drivers/scsi/fnic/fnic_scsi.c
+@@ -445,6 +445,9 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
+ 	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_IO_BLOCKED)))
+ 		return SCSI_MLQUEUE_HOST_BUSY;
  
--	if (rx_ctx->ctx.state != TKIP_STATE_NOT_INIT &&
--	    (iv32 < rx_ctx->iv32 ||
--	     (iv32 == rx_ctx->iv32 && iv16 <= rx_ctx->iv16)))
-+	/* Reject replays if the received TSC is smaller than or equal to the
-+	 * last received value in a valid message, but with an exception for
-+	 * the case where a new key has been set and no valid frame using that
-+	 * key has yet received and the local RSC was initialized to 0. This
-+	 * exception allows the very first frame sent by the transmitter to be
-+	 * accepted even if that transmitter were to use TSC 0 (IEEE 802.11
-+	 * described TSC to be initialized to 1 whenever a new key is taken into
-+	 * use).
-+	 */
-+	if (iv32 < rx_ctx->iv32 ||
-+	    (iv32 == rx_ctx->iv32 &&
-+	     (iv16 < rx_ctx->iv16 ||
-+	      (iv16 == rx_ctx->iv16 &&
-+	       (rx_ctx->iv32 || rx_ctx->iv16 ||
-+		rx_ctx->ctx.state != TKIP_STATE_NOT_INIT)))))
- 		return TKIP_DECRYPT_REPLAY;
- 
- 	if (only_iv) {
++	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_FWRESET)))
++		return SCSI_MLQUEUE_HOST_BUSY;
++
+ 	rport = starget_to_rport(scsi_target(sc->device));
+ 	ret = fc_remote_port_chkready(rport);
+ 	if (ret) {
 -- 
 2.20.1
 
