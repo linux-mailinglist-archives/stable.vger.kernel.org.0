@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D99150C7B
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9635E150C9D
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730929AbgBCQgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:36:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52260 "EHLO mail.kernel.org"
+        id S1731438AbgBCQiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:38:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731232AbgBCQgv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:36:51 -0500
+        id S1731433AbgBCQiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:38:03 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED2702087E;
-        Mon,  3 Feb 2020 16:36:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B69AF20CC7;
+        Mon,  3 Feb 2020 16:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747811;
-        bh=cT221eGtXfBf/EoROk90JvQi1WD/sZCnFCuiMlMDBDU=;
+        s=default; t=1580747882;
+        bh=b5Xx3wUqY3pLbFR9mM/ktBYg8m5LfXKR6QBrlNYZJYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coZ+VrR+pSVfjnFRi6SAbPtHWqqb8/4OqKKYepNmBk/++5Mr4T7Vvsb/BODyp7XBW
-         RcWpdNZlSDX8lMiq6kc6+G3rdMTj/cuGawbfoufnEr/3JpP3ofICkCWMtyRw+kdNDb
-         BHG8Ff9qb9jH3TEE1BAj5MIu/6rIMhgzg5/sW7gs=
+        b=knDFsJtvcTUTDzhwMAIh1Qk4Kt1TDvoQ03UlJyKwA905KTenKjPU/l4Mn8UU3eeHL
+         G+xQFN1gDh/FszWZeo23yt5N+VVZeSy8NIcXAFS52vQuGBTtk7bP3kF/fgAHotWTUS
+         N8yCoL1v4FRr8bMdByoXa/6JqMnZPgebkL819I9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Xiaochen Shen <xiaochen.shen@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 80/90] r8152: disable DelayPhyPwrChg
+Subject: [PATCH 5.5 03/23] x86/resctrl: Fix a deadlock due to inaccurate reference
 Date:   Mon,  3 Feb 2020 16:20:23 +0000
-Message-Id: <20200203161926.942360252@linuxfoundation.org>
+Message-Id: <20200203161903.583723943@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
+References: <20200203161902.288335885@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +47,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Xiaochen Shen <xiaochen.shen@intel.com>
 
-[ Upstream commit aa475d935272481c9ffb1ae54eeca5c1819fbe1a ]
+[ Upstream commit 334b0f4e9b1b4a1d475f803419d202f6c5e4d18e ]
 
-When enabling this, the device would wait an internal signal which
-wouldn't be triggered. Then, the device couldn't enter P3 mode, so
-the power consumption is increased.
+There is a race condition which results in a deadlock when rmdir and
+mkdir execute concurrently:
 
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+$ ls /sys/fs/resctrl/c1/mon_groups/m1/
+cpus  cpus_list  mon_data  tasks
+
+Thread 1: rmdir /sys/fs/resctrl/c1
+Thread 2: mkdir /sys/fs/resctrl/c1/mon_groups/m1
+
+3 locks held by mkdir/48649:
+ #0:  (sb_writers#17){.+.+}, at: [<ffffffffb4ca2aa0>] mnt_want_write+0x20/0x50
+ #1:  (&type->i_mutex_dir_key#8/1){+.+.}, at: [<ffffffffb4c8c13b>] filename_create+0x7b/0x170
+ #2:  (rdtgroup_mutex){+.+.}, at: [<ffffffffb4a4389d>] rdtgroup_kn_lock_live+0x3d/0x70
+
+4 locks held by rmdir/48652:
+ #0:  (sb_writers#17){.+.+}, at: [<ffffffffb4ca2aa0>] mnt_want_write+0x20/0x50
+ #1:  (&type->i_mutex_dir_key#8/1){+.+.}, at: [<ffffffffb4c8c3cf>] do_rmdir+0x13f/0x1e0
+ #2:  (&type->i_mutex_dir_key#8){++++}, at: [<ffffffffb4c86d5d>] vfs_rmdir+0x4d/0x120
+ #3:  (rdtgroup_mutex){+.+.}, at: [<ffffffffb4a4389d>] rdtgroup_kn_lock_live+0x3d/0x70
+
+Thread 1 is deleting control group "c1". Holding rdtgroup_mutex,
+kernfs_remove() removes all kernfs nodes under directory "c1"
+recursively, then waits for sub kernfs node "mon_groups" to drop active
+reference.
+
+Thread 2 is trying to create a subdirectory "m1" in the "mon_groups"
+directory. The wrapper kernfs_iop_mkdir() takes an active reference to
+the "mon_groups" directory but the code drops the active reference to
+the parent directory "c1" instead.
+
+As a result, Thread 1 is blocked on waiting for active reference to drop
+and never release rdtgroup_mutex, while Thread 2 is also blocked on
+trying to get rdtgroup_mutex.
+
+Thread 1 (rdtgroup_rmdir)   Thread 2 (rdtgroup_mkdir)
+(rmdir /sys/fs/resctrl/c1)  (mkdir /sys/fs/resctrl/c1/mon_groups/m1)
+-------------------------   -------------------------
+                            kernfs_iop_mkdir
+                              /*
+                               * kn: "m1", parent_kn: "mon_groups",
+                               * prgrp_kn: parent_kn->parent: "c1",
+                               *
+                               * "mon_groups", parent_kn->active++: 1
+                               */
+                              kernfs_get_active(parent_kn)
+kernfs_iop_rmdir
+  /* "c1", kn->active++ */
+  kernfs_get_active(kn)
+
+  rdtgroup_kn_lock_live
+    atomic_inc(&rdtgrp->waitcount)
+    /* "c1", kn->active-- */
+    kernfs_break_active_protection(kn)
+    mutex_lock
+
+  rdtgroup_rmdir_ctrl
+    free_all_child_rdtgrp
+      sentry->flags = RDT_DELETED
+
+    rdtgroup_ctrl_remove
+      rdtgrp->flags = RDT_DELETED
+      kernfs_get(kn)
+      kernfs_remove(rdtgrp->kn)
+        __kernfs_remove
+          /* "mon_groups", sub_kn */
+          atomic_add(KN_DEACTIVATED_BIAS, &sub_kn->active)
+          kernfs_drain(sub_kn)
+            /*
+             * sub_kn->active == KN_DEACTIVATED_BIAS + 1,
+             * waiting on sub_kn->active to drop, but it
+             * never drops in Thread 2 which is blocked
+             * on getting rdtgroup_mutex.
+             */
+Thread 1 hangs here ---->
+            wait_event(sub_kn->active == KN_DEACTIVATED_BIAS)
+            ...
+                              rdtgroup_mkdir
+                                rdtgroup_mkdir_mon(parent_kn, prgrp_kn)
+                                  mkdir_rdt_prepare(parent_kn, prgrp_kn)
+                                    rdtgroup_kn_lock_live(prgrp_kn)
+                                      atomic_inc(&rdtgrp->waitcount)
+                                      /*
+                                       * "c1", prgrp_kn->active--
+                                       *
+                                       * The active reference on "c1" is
+                                       * dropped, but not matching the
+                                       * actual active reference taken
+                                       * on "mon_groups", thus causing
+                                       * Thread 1 to wait forever while
+                                       * holding rdtgroup_mutex.
+                                       */
+                                      kernfs_break_active_protection(
+                                                               prgrp_kn)
+                                      /*
+                                       * Trying to get rdtgroup_mutex
+                                       * which is held by Thread 1.
+                                       */
+Thread 2 hangs here ---->             mutex_lock
+                                      ...
+
+The problem is that the creation of a subdirectory in the "mon_groups"
+directory incorrectly releases the active protection of its parent
+directory instead of itself before it starts waiting for rdtgroup_mutex.
+This is triggered by the rdtgroup_mkdir() flow calling
+rdtgroup_kn_lock_live()/rdtgroup_kn_unlock() with kernfs node of the
+parent control group ("c1") as argument. It should be called with kernfs
+node "mon_groups" instead. What is currently missing is that the
+kn->priv of "mon_groups" is NULL instead of pointing to the rdtgrp.
+
+Fix it by pointing kn->priv to rdtgrp when "mon_groups" is created. Then
+it could be passed to rdtgroup_kn_lock_live()/rdtgroup_kn_unlock()
+instead. And then it operates on the same rdtgroup structure but handles
+the active reference of kernfs node "mon_groups" to prevent deadlock.
+The same changes are also made to the "mon_data" directories.
+
+This results in some unused function parameters that will be cleaned up
+in follow-up patch as the focus here is on the fix only in support of
+backporting efforts.
+
+Fixes: c7d9aac61311 ("x86/intel_rdt/cqm: Add mkdir support for RDT monitoring")
+Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1578500886-21771-4-git-send-email-xiaochen.shen@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 5f59affa94d0c..6912624eed4ad 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -29,7 +29,7 @@
- #define NETNEXT_VERSION		"10"
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index dac7209a07084..e4da26325e3ea 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -1970,7 +1970,7 @@ static int rdt_get_tree(struct fs_context *fc)
  
- /* Information for net */
--#define NET_VERSION		"10"
-+#define NET_VERSION		"11"
+ 	if (rdt_mon_capable) {
+ 		ret = mongroup_create_dir(rdtgroup_default.kn,
+-					  NULL, "mon_groups",
++					  &rdtgroup_default, "mon_groups",
+ 					  &kn_mongrp);
+ 		if (ret < 0)
+ 			goto out_info;
+@@ -2446,7 +2446,7 @@ static int mkdir_mondata_all(struct kernfs_node *parent_kn,
+ 	/*
+ 	 * Create the mon_data directory first.
+ 	 */
+-	ret = mongroup_create_dir(parent_kn, NULL, "mon_data", &kn);
++	ret = mongroup_create_dir(parent_kn, prgrp, "mon_data", &kn);
+ 	if (ret)
+ 		return ret;
  
- #define DRIVER_VERSION		"v1." NETNEXT_VERSION "." NET_VERSION
- #define DRIVER_AUTHOR "Realtek linux nic maintainers <nic_swsd@realtek.com>"
-@@ -104,6 +104,7 @@
- #define PLA_BP_EN		0xfc38
+@@ -2645,7 +2645,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ 	uint files = 0;
+ 	int ret;
  
- #define USB_USB2PHY		0xb41e
-+#define USB_SSPHYLINK1		0xb426
- #define USB_SSPHYLINK2		0xb428
- #define USB_U2P3_CTRL		0xb460
- #define USB_CSR_DUMMY1		0xb464
-@@ -363,6 +364,9 @@
- #define USB2PHY_SUSPEND		0x0001
- #define USB2PHY_L1		0x0002
+-	prdtgrp = rdtgroup_kn_lock_live(prgrp_kn);
++	prdtgrp = rdtgroup_kn_lock_live(parent_kn);
+ 	if (!prdtgrp) {
+ 		ret = -ENODEV;
+ 		goto out_unlock;
+@@ -2718,7 +2718,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ 	kernfs_activate(kn);
  
-+/* USB_SSPHYLINK1 */
-+#define DELAY_PHY_PWR_CHG	BIT(1)
-+
- /* USB_SSPHYLINK2 */
- #define pwd_dn_scale_mask	0x3ffe
- #define pwd_dn_scale(x)		((x) << 1)
-@@ -4030,6 +4034,10 @@ static void rtl8153_up(struct r8152 *tp)
- 	ocp_data &= ~LANWAKE_PIN;
- 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_LWAKE_CTRL_REG, ocp_data);
+ 	/*
+-	 * The caller unlocks the prgrp_kn upon success.
++	 * The caller unlocks the parent_kn upon success.
+ 	 */
+ 	return 0;
  
-+	ocp_data = ocp_read_word(tp, MCU_TYPE_USB, USB_SSPHYLINK1);
-+	ocp_data &= ~DELAY_PHY_PWR_CHG;
-+	ocp_write_word(tp, MCU_TYPE_USB, USB_SSPHYLINK1, ocp_data);
-+
- 	r8153_aldps_en(tp, true);
+@@ -2729,7 +2729,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ out_free_rgrp:
+ 	kfree(rdtgrp);
+ out_unlock:
+-	rdtgroup_kn_unlock(prgrp_kn);
++	rdtgroup_kn_unlock(parent_kn);
+ 	return ret;
+ }
  
- 	switch (tp->version) {
+@@ -2767,7 +2767,7 @@ static int rdtgroup_mkdir_mon(struct kernfs_node *parent_kn,
+ 	 */
+ 	list_add_tail(&rdtgrp->mon.crdtgrp_list, &prgrp->mon.crdtgrp_list);
+ 
+-	rdtgroup_kn_unlock(prgrp_kn);
++	rdtgroup_kn_unlock(parent_kn);
+ 	return ret;
+ }
+ 
+@@ -2810,7 +2810,7 @@ static int rdtgroup_mkdir_ctrl_mon(struct kernfs_node *parent_kn,
+ 		 * Create an empty mon_groups directory to hold the subset
+ 		 * of tasks and cpus to monitor.
+ 		 */
+-		ret = mongroup_create_dir(kn, NULL, "mon_groups", NULL);
++		ret = mongroup_create_dir(kn, rdtgrp, "mon_groups", NULL);
+ 		if (ret) {
+ 			rdt_last_cmd_puts("kernfs subdir error\n");
+ 			goto out_del_list;
+@@ -2826,7 +2826,7 @@ static int rdtgroup_mkdir_ctrl_mon(struct kernfs_node *parent_kn,
+ out_common_fail:
+ 	mkdir_rdt_prepare_clean(rdtgrp);
+ out_unlock:
+-	rdtgroup_kn_unlock(prgrp_kn);
++	rdtgroup_kn_unlock(parent_kn);
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
