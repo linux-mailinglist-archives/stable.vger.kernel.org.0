@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0365C150D4E
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5EB0150BB7
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730421AbgBCQc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:32:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46056 "EHLO mail.kernel.org"
+        id S1729889AbgBCQ34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:29:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730413AbgBCQcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:32:23 -0500
+        id S1729880AbgBCQ3z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:29:55 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF25421741;
-        Mon,  3 Feb 2020 16:32:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 261622051A;
+        Mon,  3 Feb 2020 16:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747542;
-        bh=DxN8coZhDZX7wQFQzVq2wymNWBofR8Gq1Op8S0pVaGw=;
+        s=default; t=1580747394;
+        bh=IJCDwsZ4sqrojp7q6Ut5B996TTxXGw4vFPVQ02U1p58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMU7/9YA7xZEPaz0uPseRMeocXLNfciJTvXJQqCzwvN1XoaTpgbZl1yYkEchuUV05
-         01b2b2Mxc8hFwS/ioQdYEDWMpD2RgCh7EgQcq9xOzPUsCQBax0dCJX4TuDI7rMXuMC
-         U8LN3qBi5A4dFYmuXw+zalpYBk7yzlxfoHavl6II=
+        b=tn7vajGC79Hw0u19HgiYyCySunxTi89aEkfVr8XyLFvdIYn3SIKtG+QBTs1eDzBvV
+         zeY1TRgMxtP9mkk+nZhUKLp+QZ3b/81zZh2E2TH/dUEq4W7650SQCwFEFH4csj1MAw
+         ufrrmM+E1OI+OFqe1XRoOaoYWAhm7OA2f2SUkXGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cambda Zhu <cambda@linux.alibaba.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Cathy Luo <xiaohua.luo@nxp.com>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/70] ixgbe: Fix calculation of queue with VFs and flow director on interface flap
+Subject: [PATCH 4.14 63/89] wireless: fix enabling channel 12 for custom regulatory domain
 Date:   Mon,  3 Feb 2020 16:19:48 +0000
-Message-Id: <20200203161917.694078668@linuxfoundation.org>
+Message-Id: <20200203161924.801752220@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,81 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cambda Zhu <cambda@linux.alibaba.com>
+From: Ganapathi Bhat <ganapathi.bhat@nxp.com>
 
-[ Upstream commit 4fad78ad6422d9bca62135bbed8b6abc4cbb85b8 ]
+[ Upstream commit c4b9d655e445a8be0bff624aedea190606b5ebbc ]
 
-This patch fixes the calculation of queue when we restore flow director
-filters after resetting adapter. In ixgbe_fdir_filter_restore(), filter's
-vf may be zero which makes the queue outside of the rx_ring array.
+Commit e33e2241e272 ("Revert "cfg80211: Use 5MHz bandwidth by
+default when checking usable channels"") fixed a broken
+regulatory (leaving channel 12 open for AP where not permitted).
+Apply a similar fix to custom regulatory domain processing.
 
-The calculation is changed to the same as ixgbe_add_ethtool_fdir_entry().
-
-Signed-off-by: Cambda Zhu <cambda@linux.alibaba.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Cathy Luo <xiaohua.luo@nxp.com>
+Signed-off-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Link: https://lore.kernel.org/r/1576836859-8945-1-git-send-email-ganapathi.bhat@nxp.com
+[reword commit message, fix coding style, add a comment]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 37 ++++++++++++++-----
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ net/wireless/reg.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 51cd58fbab695..8177276500f5a 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -5189,7 +5189,7 @@ static void ixgbe_fdir_filter_restore(struct ixgbe_adapter *adapter)
- 	struct ixgbe_hw *hw = &adapter->hw;
- 	struct hlist_node *node2;
- 	struct ixgbe_fdir_filter *filter;
--	u64 action;
-+	u8 queue;
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 804eac073b6b9..e60a7dedfbf1b 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1718,14 +1718,15 @@ static void update_all_wiphy_regulatory(enum nl80211_reg_initiator initiator)
  
- 	spin_lock(&adapter->fdir_perfect_lock);
+ static void handle_channel_custom(struct wiphy *wiphy,
+ 				  struct ieee80211_channel *chan,
+-				  const struct ieee80211_regdomain *regd)
++				  const struct ieee80211_regdomain *regd,
++				  u32 min_bw)
+ {
+ 	u32 bw_flags = 0;
+ 	const struct ieee80211_reg_rule *reg_rule = NULL;
+ 	const struct ieee80211_power_rule *power_rule = NULL;
+ 	u32 bw;
  
-@@ -5198,17 +5198,34 @@ static void ixgbe_fdir_filter_restore(struct ixgbe_adapter *adapter)
+-	for (bw = MHZ_TO_KHZ(20); bw >= MHZ_TO_KHZ(5); bw = bw / 2) {
++	for (bw = MHZ_TO_KHZ(20); bw >= min_bw; bw = bw / 2) {
+ 		reg_rule = freq_reg_info_regd(MHZ_TO_KHZ(chan->center_freq),
+ 					      regd, bw);
+ 		if (!IS_ERR(reg_rule))
+@@ -1781,8 +1782,14 @@ static void handle_band_custom(struct wiphy *wiphy,
+ 	if (!sband)
+ 		return;
  
- 	hlist_for_each_entry_safe(filter, node2,
- 				  &adapter->fdir_filter_list, fdir_node) {
--		action = filter->action;
--		if (action != IXGBE_FDIR_DROP_QUEUE && action != 0)
--			action =
--			(action >> ETHTOOL_RX_FLOW_SPEC_RING_VF_OFF) - 1;
-+		if (filter->action == IXGBE_FDIR_DROP_QUEUE) {
-+			queue = IXGBE_FDIR_DROP_QUEUE;
-+		} else {
-+			u32 ring = ethtool_get_flow_spec_ring(filter->action);
-+			u8 vf = ethtool_get_flow_spec_ring_vf(filter->action);
-+
-+			if (!vf && (ring >= adapter->num_rx_queues)) {
-+				e_err(drv, "FDIR restore failed without VF, ring: %u\n",
-+				      ring);
-+				continue;
-+			} else if (vf &&
-+				   ((vf > adapter->num_vfs) ||
-+				     ring >= adapter->num_rx_queues_per_pool)) {
-+				e_err(drv, "FDIR restore failed with VF, vf: %hhu, ring: %u\n",
-+				      vf, ring);
-+				continue;
-+			}
-+
-+			/* Map the ring onto the absolute queue index */
-+			if (!vf)
-+				queue = adapter->rx_ring[ring]->reg_idx;
-+			else
-+				queue = ((vf - 1) *
-+					adapter->num_rx_queues_per_pool) + ring;
-+		}
++	/*
++	 * We currently assume that you always want at least 20 MHz,
++	 * otherwise channel 12 might get enabled if this rule is
++	 * compatible to US, which permits 2402 - 2472 MHz.
++	 */
+ 	for (i = 0; i < sband->n_channels; i++)
+-		handle_channel_custom(wiphy, &sband->channels[i], regd);
++		handle_channel_custom(wiphy, &sband->channels[i], regd,
++				      MHZ_TO_KHZ(20));
+ }
  
- 		ixgbe_fdir_write_perfect_filter_82599(hw,
--				&filter->filter,
--				filter->sw_idx,
--				(action == IXGBE_FDIR_DROP_QUEUE) ?
--				IXGBE_FDIR_DROP_QUEUE :
--				adapter->rx_ring[action]->reg_idx);
-+				&filter->filter, filter->sw_idx, queue);
- 	}
- 
- 	spin_unlock(&adapter->fdir_perfect_lock);
+ /* Used by drivers prior to wiphy registration */
 -- 
 2.20.1
 
