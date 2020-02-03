@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EA5150C69
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90254150C0E
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730793AbgBCQgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:36:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51212 "EHLO mail.kernel.org"
+        id S1730491AbgBCQdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731121AbgBCQgE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:36:04 -0500
+        id S1730499AbgBCQc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:56 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2DEE20CC7;
-        Mon,  3 Feb 2020 16:36:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3344A2082E;
+        Mon,  3 Feb 2020 16:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747764;
-        bh=9KeJ7yaCGgNg9PgIAjp8U+LArV2ZV5IqK5631pvuGiM=;
+        s=default; t=1580747575;
+        bh=TRgddOces3KCcjZiCU9InaohUeoG1Yx/UpbqoCBwJ7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLc+/iFdQ435Wy4S/DOa3qEM3Y3w6sWDFUusIYNucSXAKabRMWVh0p+yQhzPIHrUG
-         +XiJ/2DOOoZXj9igUPxp2A7NBmM2c0jom6x8KdQEOjoy4vi2Euau45+XLduifJu66z
-         QQgFpOkecoeCp99rJiscdla7olnEJ2uR+Win1+zY=
+        b=oAy7Kzd5Pbn2zPl8xFi+8XEt0zu6RnJGJRA298jRdonFzMS4RjkEDum2NsHCUz7+I
+         0cHE6qO5fSJe+PFsGtBQigVC4rRluexmcF7wbKHhwea8Q4q80VhHHYdEQpShrQqD4o
+         rYl7or1GxkpNnaVwRAjBaVznoMYlnKDNAKUxg18g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+efea72d4a0a1d03596cd@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.4 20/90] tomoyo: Use atomic_t for statistics counter
+        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 11/70] arm64: kbuild: remove compressed images on make ARCH=arm64 (dist)clean
 Date:   Mon,  3 Feb 2020 16:19:23 +0000
-Message-Id: <20200203161920.345794713@linuxfoundation.org>
+Message-Id: <20200203161914.149896901@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Dirk Behme <dirk.behme@de.bosch.com>
 
-commit a8772fad0172aeae339144598b809fd8d4823331 upstream.
+commit d7bbd6c1b01cb5dd13c245d4586a83145c1d5f52 upstream.
 
-syzbot is reporting that there is a race at tomoyo_stat_update() [1].
-Although it is acceptable to fail to track exact number of times policy
-was updated, convert to atomic_t because this is not a hot path.
+Since v4.3-rc1 commit 0723c05fb75e44 ("arm64: enable more compressed
+Image formats"), it is possible to build Image.{bz2,lz4,lzma,lzo}
+AArch64 images. However, the commit missed adding support for removing
+those images on 'make ARCH=arm64 (dist)clean'.
 
-[1] https://syzkaller.appspot.com/bug?id=a4d7b973972eeed410596e6604580e0133b0fc04
+Fix this by adding them to the target list.
+Make sure to match the order of the recipes in the makefile.
 
-Reported-by: syzbot <syzbot+efea72d4a0a1d03596cd@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: stable@vger.kernel.org # v4.3+
+Fixes: 0723c05fb75e44 ("arm64: enable more compressed Image formats")
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/tomoyo/common.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ arch/arm64/boot/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/tomoyo/common.c
-+++ b/security/tomoyo/common.c
-@@ -2322,9 +2322,9 @@ static const char * const tomoyo_memory_
- 	[TOMOYO_MEMORY_QUERY]  = "query message:",
- };
+--- a/arch/arm64/boot/Makefile
++++ b/arch/arm64/boot/Makefile
+@@ -16,7 +16,7 @@
  
--/* Timestamp counter for last updated. */
--static unsigned int tomoyo_stat_updated[TOMOYO_MAX_POLICY_STAT];
- /* Counter for number of updates. */
-+static atomic_t tomoyo_stat_updated[TOMOYO_MAX_POLICY_STAT];
-+/* Timestamp counter for last updated. */
- static time64_t tomoyo_stat_modified[TOMOYO_MAX_POLICY_STAT];
+ OBJCOPYFLAGS_Image :=-O binary -R .note -R .note.gnu.build-id -R .comment -S
  
- /**
-@@ -2336,10 +2336,7 @@ static time64_t tomoyo_stat_modified[TOM
-  */
- void tomoyo_update_stat(const u8 index)
- {
--	/*
--	 * I don't use atomic operations because race condition is not fatal.
--	 */
--	tomoyo_stat_updated[index]++;
-+	atomic_inc(&tomoyo_stat_updated[index]);
- 	tomoyo_stat_modified[index] = ktime_get_real_seconds();
- }
+-targets := Image Image.gz
++targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
  
-@@ -2360,7 +2357,7 @@ static void tomoyo_read_stat(struct tomo
- 	for (i = 0; i < TOMOYO_MAX_POLICY_STAT; i++) {
- 		tomoyo_io_printf(head, "Policy %-30s %10u",
- 				 tomoyo_policy_headers[i],
--				 tomoyo_stat_updated[i]);
-+				 atomic_read(&tomoyo_stat_updated[i]));
- 		if (tomoyo_stat_modified[i]) {
- 			struct tomoyo_time stamp;
- 
+ $(obj)/Image: vmlinux FORCE
+ 	$(call if_changed,objcopy)
 
 
