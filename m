@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E025150B21
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE47150AF9
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727846AbgBCQY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:24:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35502 "EHLO mail.kernel.org"
+        id S1729090AbgBCQVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:21:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727382AbgBCQY6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:24:58 -0500
+        id S1729088AbgBCQVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:21:09 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 418B42080C;
-        Mon,  3 Feb 2020 16:24:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB1522082E;
+        Mon,  3 Feb 2020 16:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747097;
-        bh=blro8WKHqirWAxDR/MgBABqkpB2q71gDN9yLScRLkCA=;
+        s=default; t=1580746869;
+        bh=Arc0U913xpYMv6QaRiyEBGeYzW3xkup4GFG9woCvfAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJ3XjLwU9/H4ey4HQQlWNeytgN2Ewg/wrPTPMTG3V29gQBhMvjM8XXc1tZGyi6WjC
-         Y4O0ydGht/AHb71tIms416NU3eVju2P4i3zWwuaZCxBwjFE8PTtC/mVcpny9RVHX++
-         hkq23OY10NaAkrMq9dyNi0N9oy+qyJ5Lu22/baCw=
+        b=haoDnF+yle9GqgaIjSw5REIe6z4U+gOdNCjk/yQbg73+p6lmj8G+KQFJyYI01hbur
+         TQQnqLLS+WoEHK7cyZL1crFFElA6OK6v0EeKQxG7ira5e++s2xBNe/cqJHUojvYRci
+         jcKBVXSIshRVx50igdty4RHshB+ZxCAhdC1TN9xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fariya Fatima <fariyaf@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 03/68] rsi_91x_usb: fix interface sanity check
-Date:   Mon,  3 Feb 2020 16:18:59 +0000
-Message-Id: <20200203161905.273228676@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
+Subject: [PATCH 4.4 08/53] staging: wlan-ng: ensure error return is actually returned
+Date:   Mon,  3 Feb 2020 16:19:00 +0000
+Message-Id: <20200203161904.626327949@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
+References: <20200203161902.714326084@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 3139b180906af43bc09bd3373fc2338a8271d9d9 upstream.
+commit 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+Currently when the call to prism2sta_ifst fails a netdev_err error
+is reported, error return variable result is set to -1 but the
+function always returns 0 for success.  Fix this by returning
+the error value in variable result rather than 0.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
-Cc: stable <stable@vger.kernel.org>     # 3.15
-Cc: Fariya Fatima <fariyaf@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Addresses-Coverity: ("Unused value")
+Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c |    2 +-
+ drivers/staging/wlan-ng/prism2mgmt.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -103,7 +103,7 @@ static int rsi_find_bulk_in_and_out_endp
- 	__le16 buffer_size;
- 	int ii, bep_found = 0;
+--- a/drivers/staging/wlan-ng/prism2mgmt.c
++++ b/drivers/staging/wlan-ng/prism2mgmt.c
+@@ -940,7 +940,7 @@ int prism2mgmt_flashdl_state(wlandevice_
+ 		}
+ 	}
  
--	iface_desc = &(interface->altsetting[0]);
-+	iface_desc = interface->cur_altsetting;
+-	return 0;
++	return result;
+ }
  
- 	for (ii = 0; ii < iface_desc->desc.bNumEndpoints; ++ii) {
- 		endpoint = &(iface_desc->endpoint[ii].desc);
+ /*----------------------------------------------------------------
 
 
