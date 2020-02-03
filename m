@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA58150D98
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2C7150DBD
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbgBCQof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44544 "EHLO mail.kernel.org"
+        id S1728883AbgBCQqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:46:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730199AbgBCQbX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:23 -0500
+        id S1729610AbgBCQ2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:28:33 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 643C621744;
-        Mon,  3 Feb 2020 16:31:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01EC92051A;
+        Mon,  3 Feb 2020 16:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747482;
-        bh=ckcf98rypvLsz0Vp0cFslnWN27jANYoCwPDwd2GDQGs=;
+        s=default; t=1580747313;
+        bh=LPXC/bbMwboiC8gkHl4hEag4UPlGj4kkNkiySF5hbBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BM1cxcPqU9dov3Zp//GTlHhmqQaOyX/X7p50KT/VI8PCtNke4/TD7C12I2Ojh5qGd
-         tX/uFckMAGccfl4Zy+NnH3ThxuQuR6pzG3fswe5QQsoP2Z9CL4x+0qgGaxZUYBfTob
-         ofSqSVKe4cCs5rSz/+PWTuiwoj6+LlDk0/Ictr1E=
+        b=k9Qm7sHcotkNeq/5mMT+ifufv8Loc3aHvY2+mG1Uej6r+S2IMH0JhIeuaLnEar2cc
+         mzZHZgOumsftHBsCyEmPm6I6P0zncB4upPY015FagmCjWTCOf4ttjBV2WYmqNmIVXt
+         +DoR1fzyDdikZ80JUh1rHpCchzXa1G2hDaY5n4PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/70] crypto: pcrypt - Fix user-after-free on module unload
+        stable@vger.kernel.org,
+        syzbot+c2f1558d49e25cc36e5e@syzkaller.appspotmail.com,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 32/89] crypto: af_alg - Use bh_lock_sock in sk_destruct
 Date:   Mon,  3 Feb 2020 16:19:17 +0000
-Message-Id: <20200203161913.126861716@linuxfoundation.org>
+Message-Id: <20200203161921.119779644@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +47,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 07bfd9bdf568a38d9440c607b72342036011f727 ]
+commit 37f96694cf73ba116993a9d2d99ad6a75fa7fdb0 upstream.
 
-On module unload of pcrypt we must unregister the crypto algorithms
-first and then tear down the padata structure.  As otherwise the
-crypto algorithms are still alive and can be used while the padata
-structure is being freed.
+As af_alg_release_parent may be called from BH context (most notably
+due to an async request that only completes after socket closure,
+or as reported here because of an RCU-delayed sk_destruct call), we
+must use bh_lock_sock instead of lock_sock.
 
-Fixes: 5068c7a883d1 ("crypto: pcrypt - Add pcrypt crypto...")
+Reported-by: syzbot+c2f1558d49e25cc36e5e@syzkaller.appspotmail.com
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Fixes: c840ac6af3f8 ("crypto: af_alg - Disallow bind/setkey/...")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- crypto/pcrypt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ crypto/af_alg.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index a5718c0a3dc4e..1348541da463a 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -505,11 +505,12 @@ static int __init pcrypt_init(void)
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -139,11 +139,13 @@ void af_alg_release_parent(struct sock *
+ 	sk = ask->parent;
+ 	ask = alg_sk(sk);
  
- static void __exit pcrypt_exit(void)
- {
-+	crypto_unregister_template(&pcrypt_tmpl);
-+
- 	pcrypt_fini_padata(&pencrypt);
- 	pcrypt_fini_padata(&pdecrypt);
+-	lock_sock(sk);
++	local_bh_disable();
++	bh_lock_sock(sk);
+ 	ask->nokey_refcnt -= nokey;
+ 	if (!last)
+ 		last = !--ask->refcnt;
+-	release_sock(sk);
++	bh_unlock_sock(sk);
++	local_bh_enable();
  
- 	kset_unregister(pcrypt_kset);
--	crypto_unregister_template(&pcrypt_tmpl);
- }
- 
- module_init(pcrypt_init);
--- 
-2.20.1
-
+ 	if (last)
+ 		sock_put(sk);
 
 
