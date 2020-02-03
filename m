@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7679B150D7B
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE02150C3F
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729919AbgBCQaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42498 "EHLO mail.kernel.org"
+        id S1730786AbgBCQeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:34:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729390AbgBCQaL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:11 -0500
+        id S1730800AbgBCQea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:30 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87A702051A;
-        Mon,  3 Feb 2020 16:30:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E92A2082E;
+        Mon,  3 Feb 2020 16:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747409;
-        bh=oQU8j3iGAB4O7b8CkHV1klO/M50wrpvyCF2KqP6rjQ0=;
+        s=default; t=1580747670;
+        bh=nU36sniQgPFfGCvo9LY0os9+T+abyU6kUH4GzuHQaT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWO43R/KrVY60vvpytcJwWL/neWMGuXhHNPqbnnyjKD6YUUg5mTCFengmt732abte
-         lFIiSSE679xMmnO2kuSJQZQ8Nsp/4lTEf5PEQvMtGeimEycj+YuLVoCzi/j/o4c8vW
-         OBhmdpYbRM6fj98oxrnt3J9+4KPd2SI8PIV5y4Cg=
+        b=1H33yeBFh+gA9NjVz7RfEH58Ctcdjfxe6+kpg7YBR6VMX4JUKGQ1n8ta1sJm29sYX
+         1FrFqpag8pXeSkFfUV6IWQvk8qeLitde180YGQNGV02wJ1KOmrEM8uvG9U/Ytei/+2
+         Fc4BcxnbgjqIpdPcR8TZENd+a6aCso7kbdNdV2n8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/89] atm: eni: fix uninitialized variable warning
+        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 09/90] perf c2c: Fix return type for histogram sorting comparision functions
 Date:   Mon,  3 Feb 2020 16:19:12 +0000
-Message-Id: <20200203161920.477804135@linuxfoundation.org>
+Message-Id: <20200203161918.812118193@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +49,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Andres Freund <andres@anarazel.de>
 
-[ Upstream commit 30780d086a83332adcd9362281201cee7c3d9d19 ]
+commit c1c8013ec34d7163431d18367808ea40b2e305f8 upstream.
 
-With -O3, gcc has found an actual unintialized variable stored
-into an mmio register in two instances:
+Commit 722ddfde366f ("perf tools: Fix time sorting") changed - correctly
+so - hist_entry__sort to return int64. Unfortunately several of the
+builtin-c2c.c comparison routines only happened to work due the cast
+caused by the wrong return type.
 
-drivers/atm/eni.c: In function 'discard':
-drivers/atm/eni.c:465:13: error: 'dma[1]' is used uninitialized in this function [-Werror=uninitialized]
-   writel(dma[i*2+1],eni_dev->rx_dma+dma_wr*8+4);
-             ^
-drivers/atm/eni.c:465:13: error: 'dma[3]' is used uninitialized in this function [-Werror=uninitialized]
+This causes meaningless ordering of both the cacheline list, and the
+cacheline details page. E.g a simple:
 
-Change the code to always write zeroes instead.
+  perf c2c record -a sleep 3
+  perf c2c report
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+will result in cacheline table like
+  =================================================
+             Shared Data Cache Line Table
+  =================================================
+  #
+  #        ------- Cacheline ----------    Total     Tot  - LLC Load Hitm -  - Store Reference -  - Load Dram -     LLC  Total  - Core Load Hit -  - LLC Load Hit -
+  # Index         Address  Node  PA cnt  records    Hitm  Total  Lcl    Rmt  Total  L1Hit  L1Miss     Lcl   Rmt  Ld Miss  Loads    FB    L1   L2     Llc      Rmt
+  # .....  ..............  ....  ......  .......  ......  .....  .....  ...  ....   .....  ......  ......  ....  ......   .....  .....  ..... ...  ....     .......
+
+        0  0x7f0d27ffba00   N/A       0       52   0.12%     13      6    7    12      12       0       0     7      14      40      4     16    0    0           0
+        1  0x7f0d27ff61c0   N/A       0     6353  14.04%   1475    801  674   779     779       0       0   718    1392    5574   1299   1967    0  115           0
+        2  0x7f0d26d3ec80   N/A       0       71   0.15%     16      4   12    13      13       0       0    12      24      58      1     20    0    9           0
+        3  0x7f0d26d3ec00   N/A       0       98   0.22%     23     17    6    19      19       0       0     6      12      79      0     40    0   10           0
+
+i.e. with the list not being ordered by Total Hitm.
+
+Fixes: 722ddfde366f ("perf tools: Fix time sorting")
+Signed-off-by: Andres Freund <andres@anarazel.de>
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org # v3.16+
+Link: http://lore.kernel.org/lkml/20200109043030.233746-1-andres@anarazel.de
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/atm/eni.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/builtin-c2c.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
-index ce47eb17901d0..a106d15f6def0 100644
---- a/drivers/atm/eni.c
-+++ b/drivers/atm/eni.c
-@@ -372,7 +372,7 @@ static int do_rx_dma(struct atm_vcc *vcc,struct sk_buff *skb,
- 		here = (eni_vcc->descr+skip) & (eni_vcc->words-1);
- 		dma[j++] = (here << MID_DMA_COUNT_SHIFT) | (vcc->vci
- 		    << MID_DMA_VCI_SHIFT) | MID_DT_JK;
--		j++;
-+		dma[j++] = 0;
- 	}
- 	here = (eni_vcc->descr+size+skip) & (eni_vcc->words-1);
- 	if (!eff) size += skip;
-@@ -445,7 +445,7 @@ static int do_rx_dma(struct atm_vcc *vcc,struct sk_buff *skb,
- 	if (size != eff) {
- 		dma[j++] = (here << MID_DMA_COUNT_SHIFT) |
- 		    (vcc->vci << MID_DMA_VCI_SHIFT) | MID_DT_JK;
--		j++;
-+		dma[j++] = 0;
- 	}
- 	if (!j || j > 2*RX_DMA_BUF) {
- 		printk(KERN_CRIT DEV_LABEL "!j or j too big!!!\n");
--- 
-2.20.1
-
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __
+ {
+ 	struct c2c_hist_entry *c2c_left;
+ 	struct c2c_hist_entry *c2c_right;
+-	unsigned int tot_hitm_left;
+-	unsigned int tot_hitm_right;
++	uint64_t tot_hitm_left;
++	uint64_t tot_hitm_right;
+ 
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+@@ -629,7 +629,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __m
+ 									\
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
+-	return c2c_left->stats.__f - c2c_right->stats.__f;		\
++	return (uint64_t) c2c_left->stats.__f -				\
++	       (uint64_t) c2c_right->stats.__f;				\
+ }
+ 
+ #define STAT_FN(__f)		\
+@@ -682,7 +683,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+ 
+-	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
++	return (uint64_t) llc_miss(&c2c_left->stats) -
++	       (uint64_t) llc_miss(&c2c_right->stats);
+ }
+ 
+ static uint64_t total_records(struct c2c_stats *stats)
 
 
