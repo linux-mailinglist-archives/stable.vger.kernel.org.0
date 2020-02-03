@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C63FB150CDE
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61069150D53
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731375AbgBCQjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:39:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55758 "EHLO mail.kernel.org"
+        id S1730487AbgBCQcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731337AbgBCQjj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:39:39 -0500
+        id S1730482AbgBCQcv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:51 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 864A82192A;
-        Mon,  3 Feb 2020 16:39:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68B8E2082E;
+        Mon,  3 Feb 2020 16:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747979;
-        bh=BA46yIdWlpDA7i2X07YkpysZ6Pq9BB41WDFHVxN+xLc=;
+        s=default; t=1580747570;
+        bh=LhOqOE5Kws2Soqj4/HwGuQ0Mpx90Ny6cQYVhR9F1lZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+8OYsuZg7G7rtBYk9bUFsdufxG/lHKcFESYsZMdk9MWTu5q4wdoL4qY0sgGgIzH5
-         JwXUqc9gAp5xY8Q6LAoEeGVjX2jHN9xUhiyCmTmTNh7zl4MRyCZt+G5pjnVNBj9MjP
-         rk8zpwW1qOnNrxFlY6pnCPCShcw0AbK5HT4S4iAc=
+        b=xiH79BnaynXuf7ztsgWke4o4LI1kZwWUKHY1QQ/lTSnWBAEq1RQ52rNwW+862fm6a
+         WHjBHVqFqAQjLABfG6a4GVXTx1pGj6mHK+8NA4Fic0MkgyfpRFXczLC547ZbchRNJJ
+         qkruYb4KLO5cPmr2Snp/6DG7uVoOPFdCqAt2qmKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rosales-fernandez, Carlos" <carlos.rosales-fernandez@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 55/90] perf/x86/intel/uncore: Add PCI ID of IMC for Xeon E3 V5 Family
-Date:   Mon,  3 Feb 2020 16:19:58 +0000
-Message-Id: <20200203161924.464976443@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 47/70] net: dsa: bcm_sf2: Configure IMP port for 2Gb/sec
+Date:   Mon,  3 Feb 2020 16:19:59 +0000
+Message-Id: <20200203161919.146287783@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit e74383045119fb8055cf31cb39e0fe951d67163a ]
+[ Upstream commit 8f1880cbe8d0d49ebb7e9ae409b3b96676e5aa97 ]
 
-The IMC uncore support is missed for E3-1585 v5 CPU.
+With the implementation of the system reset controller we lost a setting
+that is currently applied by the bootloader and which configures the IMP
+port for 2Gb/sec, the default is 1Gb/sec. This is needed given the
+number of ports and applications we expect to run so bring back that
+setting.
 
-Intel Xeon E3 V5 Family has Sky Lake CPU.
-Add the PCI ID of IMC for Intel Xeon E3 V5 Family.
-
-Reported-by: Rosales-fernandez, Carlos <carlos.rosales-fernandez@intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Rosales-fernandez, Carlos <carlos.rosales-fernandez@intel.com>
-Link: https://lkml.kernel.org/r/1578687311-158748-1-git-send-email-kan.liang@linux.intel.com
+Fixes: 01b0ac07589e ("net: dsa: bcm_sf2: Add support for optional reset controller line")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snb.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/dsa/bcm_sf2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
-index dbaa1b088a30e..c37cb12d0ef68 100644
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -15,6 +15,7 @@
- #define PCI_DEVICE_ID_INTEL_SKL_HQ_IMC		0x1910
- #define PCI_DEVICE_ID_INTEL_SKL_SD_IMC		0x190f
- #define PCI_DEVICE_ID_INTEL_SKL_SQ_IMC		0x191f
-+#define PCI_DEVICE_ID_INTEL_SKL_E3_IMC		0x1918
- #define PCI_DEVICE_ID_INTEL_KBL_Y_IMC		0x590c
- #define PCI_DEVICE_ID_INTEL_KBL_U_IMC		0x5904
- #define PCI_DEVICE_ID_INTEL_KBL_UQ_IMC		0x5914
-@@ -657,6 +658,10 @@ static const struct pci_device_id skl_uncore_pci_ids[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SKL_SQ_IMC),
- 		.driver_data = UNCORE_PCI_DEV_DATA(SNB_PCI_UNCORE_IMC, 0),
- 	},
-+	{ /* IMC */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SKL_E3_IMC),
-+		.driver_data = UNCORE_PCI_DEV_DATA(SNB_PCI_UNCORE_IMC, 0),
-+	},
- 	{ /* IMC */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_KBL_Y_IMC),
- 		.driver_data = UNCORE_PCI_DEV_DATA(SNB_PCI_UNCORE_IMC, 0),
-@@ -826,6 +831,7 @@ static const struct imc_uncore_pci_dev desktop_imc_pci_ids[] = {
- 	IMC_DEV(SKL_HQ_IMC, &skl_uncore_pci_driver),  /* 6th Gen Core H Quad Core */
- 	IMC_DEV(SKL_SD_IMC, &skl_uncore_pci_driver),  /* 6th Gen Core S Dual Core */
- 	IMC_DEV(SKL_SQ_IMC, &skl_uncore_pci_driver),  /* 6th Gen Core S Quad Core */
-+	IMC_DEV(SKL_E3_IMC, &skl_uncore_pci_driver),  /* Xeon E3 V5 Gen Core processor */
- 	IMC_DEV(KBL_Y_IMC, &skl_uncore_pci_driver),  /* 7th Gen Core Y */
- 	IMC_DEV(KBL_U_IMC, &skl_uncore_pci_driver),  /* 7th Gen Core U */
- 	IMC_DEV(KBL_UQ_IMC, &skl_uncore_pci_driver),  /* 7th Gen Core U Quad Core */
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 02a4187d81bd0..c936090076706 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -72,7 +72,7 @@ static void bcm_sf2_imp_setup(struct dsa_switch *ds, int port)
+ 
+ 		/* Force link status for IMP port */
+ 		reg = core_readl(priv, offset);
+-		reg |= (MII_SW_OR | LINK_STS);
++		reg |= (MII_SW_OR | LINK_STS | GMII_SPEED_UP_2G);
+ 		core_writel(priv, reg, offset);
+ 
+ 		/* Enable Broadcast, Multicast, Unicast forwarding to IMP port */
 -- 
 2.20.1
 
