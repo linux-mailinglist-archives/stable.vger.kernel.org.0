@@ -2,87 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FDF5150488
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 11:48:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F03615048E
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 11:51:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727239AbgBCKsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 05:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727102AbgBCKsB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 05:48:01 -0500
+        id S1727368AbgBCKvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 05:51:08 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35891 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727435AbgBCKvH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 05:51:07 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6260A21FC5;
+        Mon,  3 Feb 2020 05:51:06 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 03 Feb 2020 05:51:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ne2D2U
+        efS1Q+4dEEN22k3cyAy2eJFfgPYdo2akXiqMw=; b=i7Zi7ca3dhHwpzdW8qeE9q
+        4njMfknh9Vz8NCjTKSvkxy/13SrssPRhPh9ya3OcspQLeLQjAwcO2i421XXGscha
+        ZJIV8Mu0VBfFBmguPp97kikF92uqbFzEsYMaC9VT1kIXWbX/pAVeuR+jLSR1sfcq
+        mwb4RT97FXabq/kGBKD5jjKXaRwcvpLqFv+WK5JwGeF1OTNdaonB96/L3G4YIQ+A
+        zgn6bSIL/ViJ3xP2BPLRCaiEtLDOcPvJm4DYYp0Bes5qr9VFSYie8D6vIzw2/JS+
+        ASG5SrEvt4+3OTzSOwAkOTKcvQUzLEmcV/GueInSm0Huc1w65gGnaPr+3l1nm6zg
+        ==
+X-ME-Sender: <xms:Gfs3XsaYR7PYpGv_uB6Rdi1cKo5Ivn2aDrsw44ATREsdtONUHZYW9w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrgeejgddvtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepuddtgedrudefvddrgeehrdelleenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:Gfs3Xl54sFKpWNMTC1A2GsrOxXh8CMTqwoGBB_DkPOYX6LuUzn-bLg>
+    <xmx:Gfs3XifzDdpalzcJvBdsDHWygMOaD_r4BlpKjet16K3L07zqgVTlYw>
+    <xmx:Gfs3Xgwl1TxPnaRc37i88V1D_QnUkRXnmggFLtReSzvZGkYdLUzH6Q>
+    <xmx:Gvs3XgTIMaE4Z6te0SyPQViITacpgeGAOorEh1Aw7uFBD0RHssvlMA>
 Received: from localhost (unknown [104.132.45.99])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF3B20661;
-        Mon,  3 Feb 2020 10:47:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580726879;
-        bh=p+KVuxPSlhGE7b4/aoscDI5Hl5aESLYvHXS0z6rEn5c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jfqkqbp1NKkJsvGSA0ReyGq5vDlV0NffnOcd84Q4ZjcdETFE9Fr19ccD8zwsFM1jZ
-         RolrSw7iqErjttn2RxhrQ55Y13TFnOaRvPNT5PTyBNKfXyGj12yn8g+LJJoFpx4HoU
-         SWHC/zlfyGVaCQfcPjpM4OecS7h8K2Bk2PdiKTqw=
-Date:   Mon, 3 Feb 2020 10:47:57 +0000
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Zubin Mithra <zsm@chromium.org>
-Cc:     stable@vger.kernel.org, groeck@chromium.org, tytso@mit.edu,
-        adilger.kernel@dilger.ca
-Subject: Re: [PATCH v4.19.y] ext4: validate the debug_want_extra_isize mount
- option at parse time
-Message-ID: <20200203104757.GA3130828@kroah.com>
-References: <20200201050601.148009-1-zsm@chromium.org>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4BA483060134;
+        Mon,  3 Feb 2020 05:51:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] netfilter: ipset: use bitmap infrastructure completely" failed to apply to 5.4-stable tree
+To:     kadlec@blackhole.kfki.hu, kadlec@netfilter.org, pablo@netfilter.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 03 Feb 2020 10:51:04 +0000
+Message-ID: <1580727064186159@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200201050601.148009-1-zsm@chromium.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 31, 2020 at 09:06:01PM -0800, Zubin Mithra wrote:
-> From: Theodore Ts'o <tytso@mit.edu>
-> 
-> commit 9803387c55f7d2ce69aa64340c5fdc6b3027dbc8 upstream.
-> 
-> Instead of setting s_want_extra_size and then making sure that it is a
-> valid value afterwards, validate the field before we set it.  This
-> avoids races and other problems when remounting the file system.
-> 
-> Link: https://lore.kernel.org/r/20191215063020.GA11512@mit.edu
-> Cc: stable@kernel.org
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> Reported-and-tested-by: syzbot+4a39a025912b265cacef@syzkaller.appspotmail.com
-> Signed-off-by: Zubin Mithra <zsm@chromium.org>
-> ---
-> Notes:
-> * Syzkaller triggered a UAF on 4.19 kernels with the following
-> stacktrace:
->  __dump_stack lib/dump_stack.c:77 [inline]
->  dump_stack+0xc8/0x129 lib/dump_stack.c:113
->  print_address_description+0x67/0x22a mm/kasan/report.c:256
->  kasan_report_error mm/kasan/report.c:354 [inline]
->  kasan_report mm/kasan/report.c:412 [inline]
->  kasan_report+0x251/0x28f mm/kasan/report.c:396
->  ext4_xattr_set_entry+0x45e/0x2222 fs/ext4/xattr.c:1604
->  ext4_xattr_ibody_set+0x7d/0x226 fs/ext4/xattr.c:2240
->  ext4_xattr_set_handle+0x553/0xa92 fs/ext4/xattr.c:2396
->  ext4_xattr_set+0x16a/0x200 fs/ext4/xattr.c:2508
->  __vfs_setxattr+0xfc/0x13d fs/xattr.c:149
->  __vfs_setxattr_noperm+0xf5/0x19c fs/xattr.c:180
->  vfs_setxattr+0x9c/0xca fs/xattr.c:223
->  setxattr+0x20e/0x275 fs/xattr.c:450
->  path_setxattr+0xca/0x144 fs/xattr.c:469
->  __do_sys_lsetxattr fs/xattr.c:491 [inline]
->  __se_sys_lsetxattr fs/xattr.c:487 [inline]
->  __x64_sys_lsetxattr+0xd7/0xe1 fs/xattr.c:487
->  do_syscall_64+0xfe/0x137 arch/x86/entry/common.c:294
->  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> 
-> * This commit is present in linux-5.4.y. A backport for 4.14.y has been
-> sent separately.
 
-Many thanks for this and the 4.14.y backport, now both applied.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 32c72165dbd0e246e69d16a3ad348a4851afd415 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kadlecsik=20J=C3=B3zsef?= <kadlec@blackhole.kfki.hu>
+Date: Sun, 19 Jan 2020 22:06:49 +0100
+Subject: [PATCH] netfilter: ipset: use bitmap infrastructure completely
+
+The bitmap allocation did not use full unsigned long sizes
+when calculating the required size and that was triggered by KASAN
+as slab-out-of-bounds read in several places. The patch fixes all
+of them.
+
+Reported-by: syzbot+fabca5cbf5e54f3fe2de@syzkaller.appspotmail.com
+Reported-by: syzbot+827ced406c9a1d9570ed@syzkaller.appspotmail.com
+Reported-by: syzbot+190d63957b22ef673ea5@syzkaller.appspotmail.com
+Reported-by: syzbot+dfccdb2bdb4a12ad425e@syzkaller.appspotmail.com
+Reported-by: syzbot+df0d0f5895ef1f41a65b@syzkaller.appspotmail.com
+Reported-by: syzbot+b08bd19bb37513357fd4@syzkaller.appspotmail.com
+Reported-by: syzbot+53cdd0ec0bbabd53370a@syzkaller.appspotmail.com
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+
+diff --git a/include/linux/netfilter/ipset/ip_set.h b/include/linux/netfilter/ipset/ip_set.h
+index 4d8b1eaf7708..908d38dbcb91 100644
+--- a/include/linux/netfilter/ipset/ip_set.h
++++ b/include/linux/netfilter/ipset/ip_set.h
+@@ -426,13 +426,6 @@ ip6addrptr(const struct sk_buff *skb, bool src, struct in6_addr *addr)
+ 	       sizeof(*addr));
+ }
+ 
+-/* Calculate the bytes required to store the inclusive range of a-b */
+-static inline int
+-bitmap_bytes(u32 a, u32 b)
+-{
+-	return 4 * ((((b - a + 8) / 8) + 3) / 4);
+-}
+-
+ /* How often should the gc be run by default */
+ #define IPSET_GC_TIME			(3 * 60)
+ 
+diff --git a/net/netfilter/ipset/ip_set_bitmap_gen.h b/net/netfilter/ipset/ip_set_bitmap_gen.h
+index 077a2cb65fcb..26ab0e9612d8 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_gen.h
++++ b/net/netfilter/ipset/ip_set_bitmap_gen.h
+@@ -75,7 +75,7 @@ mtype_flush(struct ip_set *set)
+ 
+ 	if (set->extensions & IPSET_EXT_DESTROY)
+ 		mtype_ext_cleanup(set);
+-	memset(map->members, 0, map->memsize);
++	bitmap_zero(map->members, map->elements);
+ 	set->elements = 0;
+ 	set->ext_size = 0;
+ }
+diff --git a/net/netfilter/ipset/ip_set_bitmap_ip.c b/net/netfilter/ipset/ip_set_bitmap_ip.c
+index abe8f77d7d23..0a2196f59106 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_ip.c
++++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
+@@ -37,7 +37,7 @@ MODULE_ALIAS("ip_set_bitmap:ip");
+ 
+ /* Type structure */
+ struct bitmap_ip {
+-	void *members;		/* the set members */
++	unsigned long *members;	/* the set members */
+ 	u32 first_ip;		/* host byte order, included in range */
+ 	u32 last_ip;		/* host byte order, included in range */
+ 	u32 elements;		/* number of max elements in the set */
+@@ -220,7 +220,7 @@ init_map_ip(struct ip_set *set, struct bitmap_ip *map,
+ 	    u32 first_ip, u32 last_ip,
+ 	    u32 elements, u32 hosts, u8 netmask)
+ {
+-	map->members = ip_set_alloc(map->memsize);
++	map->members = bitmap_zalloc(elements, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!map->members)
+ 		return false;
+ 	map->first_ip = first_ip;
+@@ -322,7 +322,7 @@ bitmap_ip_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
+ 	if (!map)
+ 		return -ENOMEM;
+ 
+-	map->memsize = bitmap_bytes(0, elements - 1);
++	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
+ 	set->variant = &bitmap_ip;
+ 	if (!init_map_ip(set, map, first_ip, last_ip,
+ 			 elements, hosts, netmask)) {
+diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
+index b618713297da..739e343efaf6 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
++++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
+@@ -42,7 +42,7 @@ enum {
+ 
+ /* Type structure */
+ struct bitmap_ipmac {
+-	void *members;		/* the set members */
++	unsigned long *members;	/* the set members */
+ 	u32 first_ip;		/* host byte order, included in range */
+ 	u32 last_ip;		/* host byte order, included in range */
+ 	u32 elements;		/* number of max elements in the set */
+@@ -299,7 +299,7 @@ static bool
+ init_map_ipmac(struct ip_set *set, struct bitmap_ipmac *map,
+ 	       u32 first_ip, u32 last_ip, u32 elements)
+ {
+-	map->members = ip_set_alloc(map->memsize);
++	map->members = bitmap_zalloc(elements, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!map->members)
+ 		return false;
+ 	map->first_ip = first_ip;
+@@ -360,7 +360,7 @@ bitmap_ipmac_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
+ 	if (!map)
+ 		return -ENOMEM;
+ 
+-	map->memsize = bitmap_bytes(0, elements - 1);
++	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
+ 	set->variant = &bitmap_ipmac;
+ 	if (!init_map_ipmac(set, map, first_ip, last_ip, elements)) {
+ 		kfree(map);
+diff --git a/net/netfilter/ipset/ip_set_bitmap_port.c b/net/netfilter/ipset/ip_set_bitmap_port.c
+index 23d6095cb196..b49978dd810d 100644
+--- a/net/netfilter/ipset/ip_set_bitmap_port.c
++++ b/net/netfilter/ipset/ip_set_bitmap_port.c
+@@ -30,7 +30,7 @@ MODULE_ALIAS("ip_set_bitmap:port");
+ 
+ /* Type structure */
+ struct bitmap_port {
+-	void *members;		/* the set members */
++	unsigned long *members;	/* the set members */
+ 	u16 first_port;		/* host byte order, included in range */
+ 	u16 last_port;		/* host byte order, included in range */
+ 	u32 elements;		/* number of max elements in the set */
+@@ -231,7 +231,7 @@ static bool
+ init_map_port(struct ip_set *set, struct bitmap_port *map,
+ 	      u16 first_port, u16 last_port)
+ {
+-	map->members = ip_set_alloc(map->memsize);
++	map->members = bitmap_zalloc(map->elements, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!map->members)
+ 		return false;
+ 	map->first_port = first_port;
+@@ -271,7 +271,7 @@ bitmap_port_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
+ 		return -ENOMEM;
+ 
+ 	map->elements = elements;
+-	map->memsize = bitmap_bytes(0, map->elements);
++	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
+ 	set->variant = &bitmap_port;
+ 	if (!init_map_port(set, map, first_port, last_port)) {
+ 		kfree(map);
+
