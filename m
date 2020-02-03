@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C851150BDB
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 387CA150DDE
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbgBCQbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:31:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44052 "EHLO mail.kernel.org"
+        id S1729320AbgBCQ1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:27:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730118AbgBCQbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:06 -0500
+        id S1729334AbgBCQ1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:27:08 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBFB72080D;
-        Mon,  3 Feb 2020 16:31:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFA7020CC7;
+        Mon,  3 Feb 2020 16:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747466;
-        bh=hwXRl+Lx/wvWDC0qswCYyJICTS5Jv0MsAO4f/H81hn8=;
+        s=default; t=1580747227;
+        bh=NppVjnLV3r5GnbaYNatziiQxUUaV7EeySwWkXUouchg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjsnkHtBHaTyrCPH0JQP6YLaXslSe8ghm4UMkW8G63n2Pz4NeHvKgzBoZ+ToNDSl4
-         D20LLTQ998oMcmrMMv2YioktVbjlcQ7bIEMN+WCmXQY+s/0+1u9fENebYhrGTqhMU9
-         U/BO94BSUeD9ITh1qwki3Ys/M+vyxR3v+9ig+JbY=
+        b=rpmIqxoVMBn+4XbLmBhC3DMoBsz75NiKaq3e3KQYtatAdCthvkgu6KNFQBMFg7IZq
+         114ZvsPnCDgNx0v/F2TGd4OABVUjqiko0tqKKGak8c+gj8kOfi5M0wgJQNXEbZRhEY
+         uSpCDSR+Uc9X8aWjV2spwQulYIoe8OZlbMQQK0qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
+        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 75/89] tee: optee: Fix compilation issue with nommu
-Date:   Mon,  3 Feb 2020 16:20:00 +0000
-Message-Id: <20200203161926.121917970@linuxfoundation.org>
+Subject: [PATCH 4.9 65/68] net/sonic: Quiesce SONIC before re-initializing descriptor memory
+Date:   Mon,  3 Feb 2020 16:20:01 +0000
+Message-Id: <20200203161915.546551603@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 9e0caab8e0f96f0af7d1dd388e62f44184a75372 ]
+[ Upstream commit 3f4b7e6a2be982fd8820a2b54d46dd9c351db899 ]
 
-The optee driver uses specific page table types to verify if a memory
-region is normal. These types are not defined in nommu systems. Trying
-to compile the driver in these systems results in a build error:
+Make sure the SONIC's DMA engine is idle before altering the transmit
+and receive descriptors. Add a helper for this as it will be needed
+again.
 
-  linux/drivers/tee/optee/call.c: In function ‘is_normal_memory’:
-  linux/drivers/tee/optee/call.c:533:26: error: ‘L_PTE_MT_MASK’ undeclared
-     (first use in this function); did you mean ‘PREEMPT_MASK’?
-     return (pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC;
-                             ^~~~~~~~~~~~~
-                             PREEMPT_MASK
-  linux/drivers/tee/optee/call.c:533:26: note: each undeclared identifier is
-     reported only once for each function it appears in
-  linux/drivers/tee/optee/call.c:533:44: error: ‘L_PTE_MT_WRITEALLOC’ undeclared
-     (first use in this function)
-     return (pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC;
-                                            ^~~~~~~~~~~~~~~~~~~
-
-Make the optee driver depend on MMU to fix the compilation issue.
-
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-[jw: update commit title]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tee/optee/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/natsemi/sonic.c | 25 +++++++++++++++++++++++++
+ drivers/net/ethernet/natsemi/sonic.h |  3 +++
+ 2 files changed, 28 insertions(+)
 
-diff --git a/drivers/tee/optee/Kconfig b/drivers/tee/optee/Kconfig
-index 0126de898036c..108600c6eb564 100644
---- a/drivers/tee/optee/Kconfig
-+++ b/drivers/tee/optee/Kconfig
-@@ -2,6 +2,7 @@
- config OPTEE
- 	tristate "OP-TEE"
- 	depends on HAVE_ARM_SMCCC
-+	depends on MMU
- 	help
- 	  This implements the OP-TEE Trusted Execution Environment (TEE)
- 	  driver.
+diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
+index b6599aa22504f..254e6dbc4c6aa 100644
+--- a/drivers/net/ethernet/natsemi/sonic.c
++++ b/drivers/net/ethernet/natsemi/sonic.c
+@@ -103,6 +103,24 @@ static int sonic_open(struct net_device *dev)
+ 	return 0;
+ }
+ 
++/* Wait for the SONIC to become idle. */
++static void sonic_quiesce(struct net_device *dev, u16 mask)
++{
++	struct sonic_local * __maybe_unused lp = netdev_priv(dev);
++	int i;
++	u16 bits;
++
++	for (i = 0; i < 1000; ++i) {
++		bits = SONIC_READ(SONIC_CMD) & mask;
++		if (!bits)
++			return;
++		if (irqs_disabled() || in_interrupt())
++			udelay(20);
++		else
++			usleep_range(100, 200);
++	}
++	WARN_ONCE(1, "command deadline expired! 0x%04x\n", bits);
++}
+ 
+ /*
+  * Close the SONIC device
+@@ -120,6 +138,9 @@ static int sonic_close(struct net_device *dev)
+ 	/*
+ 	 * stop the SONIC, disable interrupts
+ 	 */
++	SONIC_WRITE(SONIC_CMD, SONIC_CR_RXDIS);
++	sonic_quiesce(dev, SONIC_CR_ALL);
++
+ 	SONIC_WRITE(SONIC_IMR, 0);
+ 	SONIC_WRITE(SONIC_ISR, 0x7fff);
+ 	SONIC_WRITE(SONIC_CMD, SONIC_CR_RST);
+@@ -159,6 +180,9 @@ static void sonic_tx_timeout(struct net_device *dev)
+ 	 * put the Sonic into software-reset mode and
+ 	 * disable all interrupts before releasing DMA buffers
+ 	 */
++	SONIC_WRITE(SONIC_CMD, SONIC_CR_RXDIS);
++	sonic_quiesce(dev, SONIC_CR_ALL);
++
+ 	SONIC_WRITE(SONIC_IMR, 0);
+ 	SONIC_WRITE(SONIC_ISR, 0x7fff);
+ 	SONIC_WRITE(SONIC_CMD, SONIC_CR_RST);
+@@ -638,6 +662,7 @@ static int sonic_init(struct net_device *dev)
+ 	 */
+ 	SONIC_WRITE(SONIC_CMD, 0);
+ 	SONIC_WRITE(SONIC_CMD, SONIC_CR_RXDIS);
++	sonic_quiesce(dev, SONIC_CR_ALL);
+ 
+ 	/*
+ 	 * initialize the receive resource area
+diff --git a/drivers/net/ethernet/natsemi/sonic.h b/drivers/net/ethernet/natsemi/sonic.h
+index d9f8ceb5353a4..7dcf913d7395a 100644
+--- a/drivers/net/ethernet/natsemi/sonic.h
++++ b/drivers/net/ethernet/natsemi/sonic.h
+@@ -109,6 +109,9 @@
+ #define SONIC_CR_TXP            0x0002
+ #define SONIC_CR_HTX            0x0001
+ 
++#define SONIC_CR_ALL (SONIC_CR_LCAM | SONIC_CR_RRRA | \
++		      SONIC_CR_RXEN | SONIC_CR_TXP)
++
+ /*
+  * SONIC data configuration bits
+  */
 -- 
 2.20.1
 
