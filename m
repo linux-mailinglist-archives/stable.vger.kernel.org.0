@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC433150CA6
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7859C150CAC
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:38:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731501AbgBCQi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:38:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
+        id S1729129AbgBCQia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:38:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731496AbgBCQi0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:38:26 -0500
+        id S1728087AbgBCQi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:38:28 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335C020CC7;
-        Mon,  3 Feb 2020 16:38:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9284021582;
+        Mon,  3 Feb 2020 16:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747905;
-        bh=rcQDecP37dL91YXleyWQRqGSr0A+L9q6Ie3Ao5CUXLY=;
+        s=default; t=1580747908;
+        bh=lfYwe/tarBoLxtm2H/IsO93UK4HI9kUOUSlZzZUkZ5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Za36l2V4VY7yPIAV2Ct0/pedz4lzF6VHFClxTOzn5rRYeVy+ppfJU6BBQEz8keEAk
-         lieXsXfYPrn50jX1k6X2yRWfUILLfXDbNKMLbV4UXQWTJ9NGylI7XyqqCPjRRrrs8N
-         6r+d3A+Zdv8Yli27jGh1vg5nIAzo9OXqdsMuAXOo=
+        b=jFni65XR1UqofCLRql4dEsq9xzknbYelGxHP/36CjlKgIH+HhxYMOc8O4vATmln9u
+         g7RT5NOVEulJP8tyP8SanQHXaRl3yow8Iq0E6l9wMloqocGPz2mtsuNjvU5Jl7i+e+
+         VSeDAW+ULDl+OeGGadT+W0AjoWt4ziyKgTU+m70w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hedberg <johan.hedberg@intel.com>
-Subject: [PATCH 5.5 22/23] Bluetooth: Fix race condition in hci_release_sock()
-Date:   Mon,  3 Feb 2020 16:20:42 +0000
-Message-Id: <20200203161906.839102086@linuxfoundation.org>
+        syzbot+5493b2a54d31d6aea629@syzkaller.appspotmail.com,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.5 23/23] cgroup: Prevent double killing of css when enabling threaded cgroup
+Date:   Mon,  3 Feb 2020 16:20:43 +0000
+Message-Id: <20200203161906.999202354@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
 References: <20200203161902.288335885@linuxfoundation.org>
@@ -45,44 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Michal Koutný <mkoutny@suse.com>
 
-commit 11eb85ec42dc8c7a7ec519b90ccf2eeae9409de8 upstream.
+commit 3bc0bb36fa30e95ca829e9cf480e1ef7f7638333 upstream.
 
-Syzbot managed to trigger a use after free "KASAN: use-after-free Write
-in hci_sock_bind".  I have reviewed the code manually and one possibly
-cause I have found is that we are not holding lock_sock(sk) when we do
-the hci_dev_put(hdev) in hci_sock_release().  My theory is that the bind
-and the release are racing against each other which results in this use
-after free.
+The test_cgcore_no_internal_process_constraint_on_threads selftest when
+running with subsystem controlling noise triggers two warnings:
 
-Reported-by: syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+> [  597.443115] WARNING: CPU: 1 PID: 28167 at kernel/cgroup/cgroup.c:3131 cgroup_apply_control_enable+0xe0/0x3f0
+> [  597.443413] WARNING: CPU: 1 PID: 28167 at kernel/cgroup/cgroup.c:3177 cgroup_apply_control_disable+0xa6/0x160
+
+Both stem from a call to cgroup_type_write. The first warning was also
+triggered by syzkaller.
+
+When we're switching cgroup to threaded mode shortly after a subsystem
+was disabled on it, we can see the respective subsystem css dying there.
+
+The warning in cgroup_apply_control_enable is harmless in this case
+since we're not adding new subsys anyway.
+The warning in cgroup_apply_control_disable indicates an attempt to kill
+css of recently disabled subsystem repeatedly.
+
+The commit prevents these situations by making cgroup_type_write wait
+for all dying csses to go away before re-applying subtree controls.
+When at it, the locations of WARN_ON_ONCE calls are moved so that
+warning is triggered only when we are about to misuse the dying css.
+
+Reported-by: syzbot+5493b2a54d31d6aea629@syzkaller.appspotmail.com
+Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_sock.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/cgroup/cgroup.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -831,6 +831,8 @@ static int hci_sock_release(struct socke
- 	if (!sk)
- 		return 0;
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -3055,8 +3055,6 @@ static int cgroup_apply_control_enable(s
+ 		for_each_subsys(ss, ssid) {
+ 			struct cgroup_subsys_state *css = cgroup_css(dsct, ss);
  
-+	lock_sock(sk);
+-			WARN_ON_ONCE(css && percpu_ref_is_dying(&css->refcnt));
+-
+ 			if (!(cgroup_ss_mask(dsct) & (1 << ss->id)))
+ 				continue;
+ 
+@@ -3066,6 +3064,8 @@ static int cgroup_apply_control_enable(s
+ 					return PTR_ERR(css);
+ 			}
+ 
++			WARN_ON_ONCE(percpu_ref_is_dying(&css->refcnt));
 +
- 	switch (hci_pi(sk)->channel) {
- 	case HCI_CHANNEL_MONITOR:
- 		atomic_dec(&monitor_promisc);
-@@ -878,6 +880,7 @@ static int hci_sock_release(struct socke
- 	skb_queue_purge(&sk->sk_receive_queue);
- 	skb_queue_purge(&sk->sk_write_queue);
+ 			if (css_visible(css)) {
+ 				ret = css_populate_dir(css);
+ 				if (ret)
+@@ -3101,11 +3101,11 @@ static void cgroup_apply_control_disable
+ 		for_each_subsys(ss, ssid) {
+ 			struct cgroup_subsys_state *css = cgroup_css(dsct, ss);
  
-+	release_sock(sk);
- 	sock_put(sk);
- 	return 0;
- }
+-			WARN_ON_ONCE(css && percpu_ref_is_dying(&css->refcnt));
+-
+ 			if (!css)
+ 				continue;
+ 
++			WARN_ON_ONCE(percpu_ref_is_dying(&css->refcnt));
++
+ 			if (css->parent &&
+ 			    !(cgroup_ss_mask(dsct) & (1 << ss->id))) {
+ 				kill_css(css);
+@@ -3392,7 +3392,8 @@ static ssize_t cgroup_type_write(struct
+ 	if (strcmp(strstrip(buf), "threaded"))
+ 		return -EINVAL;
+ 
+-	cgrp = cgroup_kn_lock_live(of->kn, false);
++	/* drain dying csses before we re-apply (threaded) subtree control */
++	cgrp = cgroup_kn_lock_live(of->kn, true);
+ 	if (!cgrp)
+ 		return -ENOENT;
+ 
 
 
