@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF87150E12
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA571150D72
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728811AbgBCQZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:25:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36840 "EHLO mail.kernel.org"
+        id S1729719AbgBCQ3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:29:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728810AbgBCQZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:25:57 -0500
+        id S1729716AbgBCQ3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:29:06 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA35D2086A;
-        Mon,  3 Feb 2020 16:25:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20E7B2051A;
+        Mon,  3 Feb 2020 16:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747157;
+        s=default; t=1580747346;
         bh=FBjiEtGCtQUkVz8QK73eh6OPI6OZsUJp4HJ12lzYckk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SG2RgqMRKk/LZl7VZLOaAJMkVfW9XypR2ChvHN5alpumw7dD9J0h1DW5C0PIjuiAb
-         cMBBwjE6mgKelv6Bopds0WMrTdXIg1IA6VTSh+DAuwwRSciJxeSqvwAXIxbfgZhThe
-         aJRjqHLRthmA6j6V0Ds0Qvqy4TJ3yeWjbIC6vdNo=
+        b=PhBdMa2vIZI1VU3LJrixTbUNszqX8UXQlyIQautZ4PHTHUGBjQyyl2hiiB0JQ9/mc
+         /CTcnaHuwPjVKDi+SBtj2CHJbubd6Kwvv1yrkQOwfc4MMk/YWsy8903qsemugMvxn+
+         rLdBIcNvR9ts0A5vpub609r97clLGrX2zGU08aKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com,
         Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 34/68] media: digitv: dont continue if remote control state cant be read
+Subject: [PATCH 4.14 45/89] media: digitv: dont continue if remote control state cant be read
 Date:   Mon,  3 Feb 2020 16:19:30 +0000
-Message-Id: <20200203161910.546197790@linuxfoundation.org>
+Message-Id: <20200203161922.990454218@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
