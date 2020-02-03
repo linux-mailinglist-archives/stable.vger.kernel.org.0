@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ADB0150491
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 11:51:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A02B150492
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 11:51:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727253AbgBCKvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 05:51:12 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59413 "EHLO
+        id S1727529AbgBCKvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 05:51:15 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46129 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727435AbgBCKvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 05:51:11 -0500
+        by vger.kernel.org with ESMTP id S1727435AbgBCKvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 05:51:15 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6240C210AC;
-        Mon,  3 Feb 2020 05:51:10 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 03 Feb 2020 05:51:10 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id D0C1F21533;
+        Mon,  3 Feb 2020 05:51:13 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 03 Feb 2020 05:51:13 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BLhBIW
-        EmPHsFtocR6BQoz4XKbhp3Fb2wHK7ATL35T3w=; b=n98ot1dosYefhNjHzkf28K
-        QsBX+Rz+LZ09MNRlpfIXPjdTonrsqbXoV6d9MgXydUNI1b865DUnG+IXnSbX/P8R
-        RybM3qcZDySJf2jZ1fquisqFsnqBYP+0MYr4QmXMSP4tFRPM4JymzNK58O4iUYAO
-        qlvf3xDRDwHhgtsD9AaXpUrMt9YwNE5I1KcOHAXMO73ixl7zg3VUVok5gg2+Ac+2
-        nabFtwFsTKhrw7xBTiRwTipEFil5y8RyJIOQNOvbf9rDy8J3laG4pzR1QWGtaQRn
-        sZ0DaJ86Xn5wUE1H7fUZS5gPvT+4jY6WuSslnjO3spUYVfo6jpEKBdgYkJffZ09g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ruSfHg
+        AryQndxIyvc484t7PqFiwk4fD8b/HKbMNMFNo=; b=hpC8mF319dWcYFQ2KUK0JL
+        8V4BrqCZ3Eck+jPBVsL2aHfv3ERMHnk6+dYDZzVlx0xycKvJ1p5+3sYiuz56O+D7
+        X2NSAC64A6vyHC0cFPfkH6Wy23fo9fdz4A9UobeuJQRx3WQhxbLiFMppvH9pfEwB
+        R844uGHK5ACwcYvO6BPw4czl7NhG1wmyRd4msW01cTi8p38sKTVO+07pzQEv1elN
+        TbOjpAGsZPkSqPp5mvp582OYfoTdnMlGZ2tO+ZTiSIWmS60tg/Gmbx82kfbWGJUT
+        jCqNqd8gaC1wi6VSsHoG1kJC6J+EG5fDsCLDeaQuSYMjPe06RURh1eVh3WXAQ/RA
         ==
-X-ME-Sender: <xms:Hvs3XkBVaCVIz8kRSxH1cYxNzATWhIAIcD6d_f-OUISocNpsNns_-g>
+X-ME-Sender: <xms:Ifs3Xo6gbVC6jtj45b7BPvsK-pe4VCzziBWH17THhBPvmvWQopjZZA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrgeejgddvtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepuddtgedrudefvddrgeehrdelleenucevlhhushhtvghrufhiiigvpeefne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Hvs3XqzBKGIBXUZZYBt6eXnorpgcNbQh9Pkmd_MQ2HMbdMxyPSiFHw>
-    <xmx:Hvs3Xinrld3iv65YZQaADNW3-3fl_JlSjtqKU9CSCRzJK7MZ_VSwzA>
-    <xmx:Hvs3XvH_5nA3o7F8AVnts6YDSfGHLWTNSWUFydOXQo0Ir5jo6oMU_A>
-    <xmx:Hvs3XgT59qi-9UYeBH6avPwN6zWqfkkDlKYKXoZb0oc_OgWbT4hfzw>
+X-ME-Proxy: <xmx:Ifs3XhD3cREBCfre7a8beYgIMNo3UpYSpDdszmKVNXFJmuMCT-DHzA>
+    <xmx:Ifs3Xpxo1jfWPIyfOsGeZuCYlheU8xbEB6vipwZs84Xkz-tBRswcbg>
+    <xmx:Ifs3Xl5VWLlspfM5X7kII5GlP9l97u2X-81W8__hF1ru_Ix2vH5XYw>
+    <xmx:Ifs3Xt_1g3L9k0Ztw7Y8SQK01EBgfxu9vEohrQH-osdtj6xslqN7rQ>
 Received: from localhost (unknown [104.132.45.99])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 12BF7328005A;
-        Mon,  3 Feb 2020 05:51:10 -0500 (EST)
-Subject: FAILED: patch "[PATCH] netfilter: ipset: use bitmap infrastructure completely" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 834033060134;
+        Mon,  3 Feb 2020 05:51:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] netfilter: ipset: use bitmap infrastructure completely" failed to apply to 4.4-stable tree
 To:     kadlec@blackhole.kfki.hu, kadlec@netfilter.org, pablo@netfilter.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Feb 2020 10:51:05 +0000
-Message-ID: <158072706525219@kroah.com>
+Date:   Mon, 03 Feb 2020 10:51:06 +0000
+Message-ID: <15807270668581@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
