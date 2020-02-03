@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14458150DE3
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B10150C60
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729252AbgBCQ0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:26:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37940 "EHLO mail.kernel.org"
+        id S1730276AbgBCQfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:35:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729292AbgBCQ0u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:50 -0500
+        id S1730598AbgBCQfq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:35:46 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D1052051A;
-        Mon,  3 Feb 2020 16:26:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 794C92051A;
+        Mon,  3 Feb 2020 16:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747210;
-        bh=w/V+7udM5IAnQfSftwDRwG0pQYmXYZVEWGB5lGKibik=;
+        s=default; t=1580747745;
+        bh=jQ+TaHHThZHA3Y8tm3ijmMsa/OkFMve527Jlx5shKTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTZHXJcJP+50/c3ZKjDjCbdS0PpYGO+8dLLhI1mI+yT+/Rja95n/IGDXjQM/Os9l5
-         ikvs3JJy78x0YSgYGkb6ENmxHHaYWKsW9ydzUM6jb1EPjd0RTuq35GWTCT0zN1EeC2
-         Tnaa79muwPJUNJhf+D2ggK3+j3nVyn8I+3gFhoWY=
+        b=iOdb47i6OKCU6Qw+r7rAAIUZ83J+DLwk6vvPEjhuWZkfvfGRYu0pCUr8E2p+HuKnL
+         76UeqCMoSwGRhYFMqBfiNeL/9268NnJlaWIP/4nRmiiz8wEBBC40V6JmnnbURtkEcW
+         X1utmSzYCkh/ZE3Xx6djX/kDYwNBlHadPUXmJaac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shahed Shaikh <shshaikh@marvell.com>,
-        Yonggen Xu <Yonggen.Xu@dell.com>,
-        Manish Chopra <manishc@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Cathy Luo <xiaohua.luo@nxp.com>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 58/68] qlcnic: Fix CPU soft lockup while collecting firmware dump
+Subject: [PATCH 5.4 51/90] wireless: fix enabling channel 12 for custom regulatory domain
 Date:   Mon,  3 Feb 2020 16:19:54 +0000
-Message-Id: <20200203161914.482173732@linuxfoundation.org>
+Message-Id: <20200203161924.108407734@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Ganapathi Bhat <ganapathi.bhat@nxp.com>
 
-[ Upstream commit 22e984493a41bf8081f13d9ed84def3ca8cfd427 ]
+[ Upstream commit c4b9d655e445a8be0bff624aedea190606b5ebbc ]
 
-Driver while collecting firmware dump takes longer time to
-collect/process some of the firmware dump entries/memories.
-Bigger capture masks makes it worse as it results in larger
-amount of data being collected and results in CPU soft lockup.
-Place cond_resched() in some of the driver flows that are
-expectedly time consuming to relinquish the CPU to avoid CPU
-soft lockup panic.
+Commit e33e2241e272 ("Revert "cfg80211: Use 5MHz bandwidth by
+default when checking usable channels"") fixed a broken
+regulatory (leaving channel 12 open for AP where not permitted).
+Apply a similar fix to custom regulatory domain processing.
 
-Signed-off-by: Shahed Shaikh <shshaikh@marvell.com>
-Tested-by: Yonggen Xu <Yonggen.Xu@dell.com>
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Cathy Luo <xiaohua.luo@nxp.com>
+Signed-off-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Link: https://lore.kernel.org/r/1576836859-8945-1-git-send-email-ganapathi.bhat@nxp.com
+[reword commit message, fix coding style, add a comment]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c | 1 +
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c  | 2 ++
- 2 files changed, 3 insertions(+)
+ net/wireless/reg.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-index a496390b8632f..07f9067affc65 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2043,6 +2043,7 @@ static void qlcnic_83xx_exec_template_cmd(struct qlcnic_adapter *p_dev,
- 			break;
- 		}
- 		entry += p_hdr->size;
-+		cond_resched();
- 	}
- 	p_dev->ahw->reset.seq_index = index;
- }
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-index 0844b7c757670..5174e0bd75d1e 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-@@ -703,6 +703,7 @@ static u32 qlcnic_read_memory_test_agent(struct qlcnic_adapter *adapter,
- 		addr += 16;
- 		reg_read -= 16;
- 		ret += 16;
-+		cond_resched();
- 	}
- out:
- 	mutex_unlock(&adapter->ahw->mem_lock);
-@@ -1383,6 +1384,7 @@ int qlcnic_dump_fw(struct qlcnic_adapter *adapter)
- 		buf_offset += entry->hdr.cap_size;
- 		entry_offset += entry->hdr.offset;
- 		buffer = fw_dump->data + buf_offset;
-+		cond_resched();
- 	}
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 446c76d44e65a..3c2070040277d 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -2261,14 +2261,15 @@ static void update_all_wiphy_regulatory(enum nl80211_reg_initiator initiator)
  
- 	fw_dump->clr = 1;
+ static void handle_channel_custom(struct wiphy *wiphy,
+ 				  struct ieee80211_channel *chan,
+-				  const struct ieee80211_regdomain *regd)
++				  const struct ieee80211_regdomain *regd,
++				  u32 min_bw)
+ {
+ 	u32 bw_flags = 0;
+ 	const struct ieee80211_reg_rule *reg_rule = NULL;
+ 	const struct ieee80211_power_rule *power_rule = NULL;
+ 	u32 bw;
+ 
+-	for (bw = MHZ_TO_KHZ(20); bw >= MHZ_TO_KHZ(5); bw = bw / 2) {
++	for (bw = MHZ_TO_KHZ(20); bw >= min_bw; bw = bw / 2) {
+ 		reg_rule = freq_reg_info_regd(MHZ_TO_KHZ(chan->center_freq),
+ 					      regd, bw);
+ 		if (!IS_ERR(reg_rule))
+@@ -2324,8 +2325,14 @@ static void handle_band_custom(struct wiphy *wiphy,
+ 	if (!sband)
+ 		return;
+ 
++	/*
++	 * We currently assume that you always want at least 20 MHz,
++	 * otherwise channel 12 might get enabled if this rule is
++	 * compatible to US, which permits 2402 - 2472 MHz.
++	 */
+ 	for (i = 0; i < sband->n_channels; i++)
+-		handle_channel_custom(wiphy, &sband->channels[i], regd);
++		handle_channel_custom(wiphy, &sband->channels[i], regd,
++				      MHZ_TO_KHZ(20));
+ }
+ 
+ /* Used by drivers prior to wiphy registration */
 -- 
 2.20.1
 
