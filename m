@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89542150D12
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF157150D66
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730894AbgBCQfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:35:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
+        id S1730324AbgBCQbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:31:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730890AbgBCQfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:01 -0500
+        id S1730318AbgBCQby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:31:54 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 913F92087E;
-        Mon,  3 Feb 2020 16:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A8D92082E;
+        Mon,  3 Feb 2020 16:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747701;
-        bh=kBkd5mUihVG4SraVZKSYG5V3/ELkKainFmm4pZDj604=;
+        s=default; t=1580747513;
+        bh=Eks/9HFVArPyWzQM0TOyCpnfOGYzDbio/Tb3ivsQxGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kK/VScyU8j5gmqBDPsD+jXtKtUy187rm52q/d8ewznQTvZ9LW3Ee98CwTpNS5z1og
-         d+YL50OjlorTq21JhDVjAACegOQq4eex0K1paK1RGAvaqxyqEfpwbF7lrFOZeseRbX
-         zr6Tc2uEm6rPf0tsifC3K6W1uhjAiUeAsv6bJPSo=
+        b=1WNqvFPfZGSicvc8fjAsIh48nT5a5SBUdvQAx33yvPVTf4SJdPkiztnj8jqSNnFOY
+         rrsyFrIAbfeD6PGv4MdXxTqFwvWIyvntz478DMXpyJ+RpdUexZHwkNC5GJ8RmDBfS1
+         fawg4Q0QynqtgQmkkpKgExS+OZCEPMSAQe3bZtxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 16/90] media: af9005: uninitialized variable printked
-Date:   Mon,  3 Feb 2020 16:19:19 +0000
-Message-Id: <20200203161919.874815094@linuxfoundation.org>
+        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 08/70] perf c2c: Fix return type for histogram sorting comparision functions
+Date:   Mon,  3 Feb 2020 16:19:20 +0000
+Message-Id: <20200203161913.708583322@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,31 +49,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Andres Freund <andres@anarazel.de>
 
-commit 51d0c99b391f0cac61ad7b827c26f549ee55672c upstream.
+commit c1c8013ec34d7163431d18367808ea40b2e305f8 upstream.
 
-If usb_bulk_msg() fails, actual_length can be uninitialized.
+Commit 722ddfde366f ("perf tools: Fix time sorting") changed - correctly
+so - hist_entry__sort to return int64. Unfortunately several of the
+builtin-c2c.c comparison routines only happened to work due the cast
+caused by the wrong return type.
 
-Reported-by: syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This causes meaningless ordering of both the cacheline list, and the
+cacheline details page. E.g a simple:
+
+  perf c2c record -a sleep 3
+  perf c2c report
+
+will result in cacheline table like
+  =================================================
+             Shared Data Cache Line Table
+  =================================================
+  #
+  #        ------- Cacheline ----------    Total     Tot  - LLC Load Hitm -  - Store Reference -  - Load Dram -     LLC  Total  - Core Load Hit -  - LLC Load Hit -
+  # Index         Address  Node  PA cnt  records    Hitm  Total  Lcl    Rmt  Total  L1Hit  L1Miss     Lcl   Rmt  Ld Miss  Loads    FB    L1   L2     Llc      Rmt
+  # .....  ..............  ....  ......  .......  ......  .....  .....  ...  ....   .....  ......  ......  ....  ......   .....  .....  ..... ...  ....     .......
+
+        0  0x7f0d27ffba00   N/A       0       52   0.12%     13      6    7    12      12       0       0     7      14      40      4     16    0    0           0
+        1  0x7f0d27ff61c0   N/A       0     6353  14.04%   1475    801  674   779     779       0       0   718    1392    5574   1299   1967    0  115           0
+        2  0x7f0d26d3ec80   N/A       0       71   0.15%     16      4   12    13      13       0       0    12      24      58      1     20    0    9           0
+        3  0x7f0d26d3ec00   N/A       0       98   0.22%     23     17    6    19      19       0       0     6      12      79      0     40    0   10           0
+
+i.e. with the list not being ordered by Total Hitm.
+
+Fixes: 722ddfde366f ("perf tools: Fix time sorting")
+Signed-off-by: Andres Freund <andres@anarazel.de>
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org # v3.16+
+Link: http://lore.kernel.org/lkml/20200109043030.233746-1-andres@anarazel.de
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/af9005.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/builtin-c2c.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/af9005.c
-+++ b/drivers/media/usb/dvb-usb/af9005.c
-@@ -554,7 +554,7 @@ static int af9005_boot_packet(struct usb
- 			      u8 *buf, int size)
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -586,8 +586,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __
  {
- 	u16 checksum;
--	int act_len, i, ret;
-+	int act_len = 0, i, ret;
+ 	struct c2c_hist_entry *c2c_left;
+ 	struct c2c_hist_entry *c2c_right;
+-	unsigned int tot_hitm_left;
+-	unsigned int tot_hitm_right;
++	uint64_t tot_hitm_left;
++	uint64_t tot_hitm_right;
  
- 	memset(buf, 0, size);
- 	buf[0] = (u8) (FW_BULKOUT_SIZE & 0xff);
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+@@ -620,7 +620,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __m
+ 									\
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
+-	return c2c_left->stats.__f - c2c_right->stats.__f;		\
++	return (uint64_t) c2c_left->stats.__f -				\
++	       (uint64_t) c2c_right->stats.__f;				\
+ }
+ 
+ #define STAT_FN(__f)		\
+@@ -673,7 +674,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+ 
+-	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
++	return (uint64_t) llc_miss(&c2c_left->stats) -
++	       (uint64_t) llc_miss(&c2c_right->stats);
+ }
+ 
+ static uint64_t total_records(struct c2c_stats *stats)
 
 
