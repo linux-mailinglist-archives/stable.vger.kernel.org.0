@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0D5150D6A
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98913150D10
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730312AbgBCQbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:31:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45324 "EHLO mail.kernel.org"
+        id S1730907AbgBCQfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:35:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730305AbgBCQbw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:52 -0500
+        id S1730901AbgBCQfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:35:04 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 018A62051A;
-        Mon,  3 Feb 2020 16:31:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F382C2087E;
+        Mon,  3 Feb 2020 16:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747511;
-        bh=T/jzZ2ogRvUw89rxkC5bNFbY9f/guSXh75QqfLjQDUQ=;
+        s=default; t=1580747703;
+        bh=qVSo41/s7T8HG9ndWY0t08ZWXbSoREZ6+XJRms8b+Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXcEewh6i+ES/qCY1sEyMxFcTFOjzABp0/iIMPqNPGPQJAFS2IFUqtnccqc34jeHi
-         Q2LzvWh1VgbZww8ngJQAfyKdLYLex6VkKQJOsk1hdzotRzMwPtZ60WZX4aO0E+eozb
-         t3U47Xb75TjmLlc/00fyWlBYzfkYXnNoNqu+Oq3s=
+        b=koubNpJ3fmbGmG/lxaTGCYC5QNmpee7hK3OcqkMPWI5oMpqr9cAk1CJEsirojbn1b
+         0rWzf9tt4rwZdxv34UHi7nsLhC8XeDODLap1CVkfQdIApXXrKavANtIcqCAJafhhFe
+         t5Aayyc8mj4K0RG0nfzCoHsqD/RYdBOQ61S/6SWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/70] ARM: dts: sun8i: a83t: Correct USB3503 GPIOs polarity
+Subject: [PATCH 5.4 34/90] mac80211: mesh: restrict airtime metric to peered established plinks
 Date:   Mon,  3 Feb 2020 16:19:37 +0000
-Message-Id: <20200203161916.211831274@linuxfoundation.org>
+Message-Id: <20200203161922.190564249@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-[ Upstream commit 1c226017d3ec93547b58082bdf778d9db7401c95 ]
+[ Upstream commit 02a614499600af836137c3fbc4404cd96365fff2 ]
 
-Current USB3503 driver ignores GPIO polarity and always operates as if the
-GPIO lines were flagged as ACTIVE_HIGH. Fix the polarity for the existing
-USB3503 chip applications to match the chip specification and common
-convention for naming the pins. The only pin, which has to be ACTIVE_LOW
-is the reset pin. The remaining are ACTIVE_HIGH. This change allows later
-to fix the USB3503 driver to properly use generic GPIO bindings and read
-polarity from DT.
+The following warning is triggered every time an unestablished mesh peer
+gets dumped. Checks if a peer link is established before retrieving the
+airtime link metric.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+[ 9563.022567] WARNING: CPU: 0 PID: 6287 at net/mac80211/mesh_hwmp.c:345
+               airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022697] Hardware name: PC Engines apu2/apu2, BIOS v4.10.0.3
+[ 9563.022756] RIP: 0010:airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022838] Call Trace:
+[ 9563.022897]  sta_set_sinfo+0x936/0xa10 [mac80211]
+[ 9563.022964]  ieee80211_dump_station+0x6d/0x90 [mac80211]
+[ 9563.023062]  nl80211_dump_station+0x154/0x2a0 [cfg80211]
+[ 9563.023120]  netlink_dump+0x17b/0x370
+[ 9563.023130]  netlink_recvmsg+0x2a4/0x480
+[ 9563.023140]  ____sys_recvmsg+0xa6/0x160
+[ 9563.023154]  ___sys_recvmsg+0x93/0xe0
+[ 9563.023169]  __sys_recvmsg+0x7e/0xd0
+[ 9563.023210]  do_syscall_64+0x4e/0x140
+[ 9563.023217]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191203180644.70653-1-markus.theil@tu-ilmenau.de
+[rewrite commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/mesh_hwmp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts b/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
-index e5f0645e53a7b..7e74ba83f8095 100644
---- a/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
-+++ b/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
-@@ -90,7 +90,7 @@
- 		initial-mode = <1>; /* initialize in HUB mode */
- 		disabled-ports = <1>;
- 		intn-gpios = <&pio 7 5 GPIO_ACTIVE_HIGH>; /* PH5 */
--		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>; /* PE16 */
-+		reset-gpios = <&pio 4 16 GPIO_ACTIVE_LOW>; /* PE16 */
- 		connect-gpios = <&pio 4 17 GPIO_ACTIVE_HIGH>; /* PE17 */
- 		refclk-frequency = <19200000>;
- 	};
+diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
+index 68af623063858..d699833703819 100644
+--- a/net/mac80211/mesh_hwmp.c
++++ b/net/mac80211/mesh_hwmp.c
+@@ -328,6 +328,9 @@ u32 airtime_link_metric_get(struct ieee80211_local *local,
+ 	unsigned long fail_avg =
+ 		ewma_mesh_fail_avg_read(&sta->mesh->fail_avg);
+ 
++	if (sta->mesh->plink_state != NL80211_PLINK_ESTAB)
++		return MAX_METRIC;
++
+ 	/* Try to get rate based on HW/SW RC algorithm.
+ 	 * Rate is returned in units of Kbps, correct this
+ 	 * to comply with airtime calculation units
 -- 
 2.20.1
 
