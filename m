@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 765AD150D87
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB91150D44
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:43:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729516AbgBCQau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
+        id S1730082AbgBCQdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729324AbgBCQau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:50 -0500
+        id S1730266AbgBCQdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:17 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22E492080C;
-        Mon,  3 Feb 2020 16:30:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 555632082E;
+        Mon,  3 Feb 2020 16:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747449;
-        bh=FokpwCo7yq9QcNvC9K+1UdYma9BMD+zI5H/clmdOOyA=;
+        s=default; t=1580747596;
+        bh=umPH9Q9KzyoNAqubzv/F//6lCA5k+AIpbCZWryYqfGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LYQ9rWWTnFalH3MUS+eU+XG3LynLMN2DADDhMVOaYeC+dFab8K/tHU9hOzKOfoejQ
-         Pb+ISopidrvbASYxwva85FstKHjreiqH2BLrN16Nf3DKE+cWeFoCeWf9VTRIXGlLMj
-         fihAwcp4/QBcVX8HsuEcBi1xUt6ZFZ6UycuaGmbM=
+        b=XDOmPMC7Qlc/dYiTnCb/VhCZDF+BMlD9PVSbGQHUcj5CaZFF4xgx6uXrurFRfJwcZ
+         y+lTXjyYJk6ex+F0KDrFSwlpvgEJYfOoFNeM7jLyj/aj2rJp4IUklqNONhFqganSyo
+         uBmtp3s1XZDJ0DgOMbEB4QijeRpGHYJ1W7231e/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 88/89] l2t_seq_next should increase position index
+Subject: [PATCH 4.19 61/70] airo: Add missing CAP_NET_ADMIN check in AIROOLDIOCTL/SIOCDEVPRIVATE
 Date:   Mon,  3 Feb 2020 16:20:13 +0000
-Message-Id: <20200203161927.408284554@linuxfoundation.org>
+Message-Id: <20200203161921.008885855@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 66018a102f7756cf72db4d2704e1b93969d9d332 ]
+[ Upstream commit 78f7a7566f5eb59321e99b55a6fdb16ea05b37d1 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+The driver for Cisco Aironet 4500 and 4800 series cards (airo.c),
+implements AIROOLDIOCTL/SIOCDEVPRIVATE in airo_ioctl().
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+The ioctl handler copies an aironet_ioctl struct from userspace, which
+includes a command. Some of the commands are handled in readrids(),
+where the user controlled command is converted into a driver-internal
+value called "ridcode".
+
+There are two command values, AIROGWEPKTMP and AIROGWEPKNV, which
+correspond to ridcode values of RID_WEP_TEMP and RID_WEP_PERM
+respectively. These commands both have checks that the user has
+CAP_NET_ADMIN, with the comment that "Only super-user can read WEP
+keys", otherwise they return -EPERM.
+
+However there is another command value, AIRORRID, that lets the user
+specify the ridcode value directly, with no other checks. This means
+the user can bypass the CAP_NET_ADMIN check on AIROGWEPKTMP and
+AIROGWEPKNV.
+
+Fix it by moving the CAP_NET_ADMIN check out of the command handling
+and instead do it later based on the ridcode. That way regardless of
+whether the ridcode is set via AIROGWEPKTMP or AIROGWEPKNV, or passed
+in using AIRORID, we always do the CAP_NET_ADMIN check.
+
+Found by Ilja by code inspection, not tested as I don't have the
+required hardware.
+
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/l2t.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/cisco/airo.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/l2t.c b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-index f7ef8871dd0b0..67aa3c9974173 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-@@ -682,8 +682,7 @@ static void *l2t_seq_start(struct seq_file *seq, loff_t *pos)
- static void *l2t_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
- 	v = l2t_get_idx(seq, *pos);
--	if (v)
--		++*pos;
-+	++(*pos);
- 	return v;
- }
+diff --git a/drivers/net/wireless/cisco/airo.c b/drivers/net/wireless/cisco/airo.c
+index 9344cf17d6b11..c3fe9bfff8122 100644
+--- a/drivers/net/wireless/cisco/airo.c
++++ b/drivers/net/wireless/cisco/airo.c
+@@ -7786,16 +7786,8 @@ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
+ 	case AIROGVLIST:    ridcode = RID_APLIST;       break;
+ 	case AIROGDRVNAM:   ridcode = RID_DRVNAME;      break;
+ 	case AIROGEHTENC:   ridcode = RID_ETHERENCAP;   break;
+-	case AIROGWEPKTMP:  ridcode = RID_WEP_TEMP;
+-		/* Only super-user can read WEP keys */
+-		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
+-		break;
+-	case AIROGWEPKNV:   ridcode = RID_WEP_PERM;
+-		/* Only super-user can read WEP keys */
+-		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
+-		break;
++	case AIROGWEPKTMP:  ridcode = RID_WEP_TEMP;	break;
++	case AIROGWEPKNV:   ridcode = RID_WEP_PERM;	break;
+ 	case AIROGSTAT:     ridcode = RID_STATUS;       break;
+ 	case AIROGSTATSD32: ridcode = RID_STATSDELTA;   break;
+ 	case AIROGSTATSC32: ridcode = RID_STATS;        break;
+@@ -7809,6 +7801,12 @@ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
+ 		return -EINVAL;
+ 	}
+ 
++	if (ridcode == RID_WEP_TEMP || ridcode == RID_WEP_PERM) {
++		/* Only super-user can read WEP keys */
++		if (!capable(CAP_NET_ADMIN))
++			return -EPERM;
++	}
++
+ 	if ((iobuf = kzalloc(RIDSIZE, GFP_KERNEL)) == NULL)
+ 		return -ENOMEM;
  
 -- 
 2.20.1
