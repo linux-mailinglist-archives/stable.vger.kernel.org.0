@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AA4150DD1
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3113150DCD
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbgBCQ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:27:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39194 "EHLO mail.kernel.org"
+        id S1729486AbgBCQ1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:27:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729477AbgBCQ1s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:27:48 -0500
+        id S1729482AbgBCQ1u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:27:50 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 601A02080C;
-        Mon,  3 Feb 2020 16:27:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6C9220838;
+        Mon,  3 Feb 2020 16:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747267;
-        bh=gedCApNfPrc//LS/tGcmI9glIz8nDSTe2XPtHdRuYwo=;
+        s=default; t=1580747270;
+        bh=CiQeIRcGx1eIKU7i3VXIcuFBQVvaTX2mx9Zqf/l7cyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cl7CiGg5ttF1NhRRSCEuNbzjLRtBduIPJzJ1sSMOpUpgMR3ptop7KCOiHAscXrFZH
-         QdpC/dyvwNWRRtJeHK0ukNOJ7JlFaY044z5uY3TK6k2dZQD8yC4ouzJqFz5E7X0F+T
-         kpfagv3PlYqkW7epDebAz2YY+YiOh3soHvY7bgl4=
+        b=l5gkyEFsvqyBUVmTLdSShThHn4Lr/fDG8ATAr4Te0eti/K1mlZ0zhVmb7TOgkZqd3
+         ajqzhfgU/uAbHxqPPQAvnS6HAABLifgxDrLo29qEuCL/RwqmhpEQgYZhpagWGtygXn
+         qQvqbvZ3DWmCpYRm0tfP4FotTE3KIhxkBgWgG4gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atul Gupta <atul.gupta@chelsio.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 13/89] crypto: chelsio - fix writing tfm flags to wrong place
-Date:   Mon,  3 Feb 2020 16:18:58 +0000
-Message-Id: <20200203161918.621197108@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 14/89] ath9k: fix storage endpoint lookup
+Date:   Mon,  3 Feb 2020 16:18:59 +0000
+Message-Id: <20200203161918.759534226@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
 References: <20200203161916.847439465@linuxfoundation.org>
@@ -44,92 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit bd56cea012fc2d6381e8cd3209510ce09f9de8c9 upstream.
+commit 0ef332951e856efa89507cdd13ba8f4fb8d4db12 upstream.
 
-The chelsio crypto driver is casting 'struct crypto_aead' directly to
-'struct crypto_tfm', which is incorrect because the crypto_tfm isn't the
-first field of 'struct crypto_aead'.  Consequently, the calls to
-crypto_tfm_set_flags() are modifying some other field in the struct.
+Make sure to use the current alternate setting when verifying the
+storage interface descriptors to avoid submitting an URB to an invalid
+endpoint.
 
-Also, the driver is setting CRYPTO_TFM_RES_BAD_KEY_LEN in
-->setauthsize(), not just in ->setkey().  This is incorrect since this
-flag is for bad key lengths, not for bad authentication tag lengths.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Fix these bugs by removing the broken crypto_tfm_set_flags() calls from
-->setauthsize() and by fixing them in ->setkey().
-
-Fixes: 324429d74127 ("chcr: Support for Chelsio's Crypto Hardware")
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Atul Gupta <atul.gupta@chelsio.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 36bcce430657 ("ath9k_htc: Handle storage devices")
+Cc: stable <stable@vger.kernel.org>     # 2.6.39
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/chelsio/chcr_algo.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -2693,9 +2693,6 @@ static int chcr_gcm_setauthsize(struct c
- 		aeadctx->mayverify = VERIFY_SW;
- 		break;
- 	default:
--
--		  crypto_tfm_set_flags((struct crypto_tfm *) tfm,
--			CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -2720,8 +2717,6 @@ static int chcr_4106_4309_setauthsize(st
- 		aeadctx->mayverify = VERIFY_HW;
- 		break;
- 	default:
--		crypto_tfm_set_flags((struct crypto_tfm *)tfm,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -2762,8 +2757,6 @@ static int chcr_ccm_setauthsize(struct c
- 		aeadctx->mayverify = VERIFY_HW;
- 		break;
- 	default:
--		crypto_tfm_set_flags((struct crypto_tfm *)tfm,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		return -EINVAL;
- 	}
- 	return crypto_aead_setauthsize(aeadctx->sw_cipher, authsize);
-@@ -2790,8 +2783,7 @@ static int chcr_ccm_common_setkey(struct
- 		ck_size = CHCR_KEYCTX_CIPHER_KEY_SIZE_256;
- 		mk_size = CHCR_KEYCTX_MAC_KEY_SIZE_256;
- 	} else {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		aeadctx->enckey_len = 0;
- 		return	-EINVAL;
- 	}
-@@ -2831,8 +2823,7 @@ static int chcr_aead_rfc4309_setkey(stru
- 	int error;
- 
- 	if (keylen < 3) {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		aeadctx->enckey_len = 0;
- 		return	-EINVAL;
- 	}
-@@ -2883,8 +2874,7 @@ static int chcr_gcm_setkey(struct crypto
- 	} else if (keylen == AES_KEYSIZE_256) {
- 		ck_size = CHCR_KEYCTX_CIPHER_KEY_SIZE_256;
- 	} else {
--		crypto_tfm_set_flags((struct crypto_tfm *)aead,
--				     CRYPTO_TFM_RES_BAD_KEY_LEN);
-+		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
- 		pr_err("GCM: Invalid key length %d\n", keylen);
- 		ret = -EINVAL;
- 		goto out;
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -1214,7 +1214,7 @@ err_fw:
+ static int send_eject_command(struct usb_interface *interface)
+ {
+ 	struct usb_device *udev = interface_to_usbdev(interface);
+-	struct usb_host_interface *iface_desc = &interface->altsetting[0];
++	struct usb_host_interface *iface_desc = interface->cur_altsetting;
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	unsigned char *cmd;
+ 	u8 bulk_out_ep;
 
 
