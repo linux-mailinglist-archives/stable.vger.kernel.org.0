@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30086150AB2
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9108150B52
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:26:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728746AbgBCQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:20:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
+        id S1729220AbgBCQ0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:26:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728714AbgBCQUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:20:05 -0500
+        id S1727672AbgBCQ0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:26:36 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AD0520838;
-        Mon,  3 Feb 2020 16:20:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94D042051A;
+        Mon,  3 Feb 2020 16:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580746804;
-        bh=OGjfV5n9QaMI+CzD3q5e6U652LeN/eafcdZBsbNKC84=;
+        s=default; t=1580747196;
+        bh=bYrPaXwOWdfPDci+/9/1/dgerrTDLlxE+CfpNpAri/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBJu9B/MxtEFmNC6URn71+fP6e2znWnmEzCAeRm1xATxtslHK7jErsVvM2mat02aA
-         gz1LTbifdAGJdH/YctuNbiAnm5bR+9Rmr6Tf+mf+eJwN4sW7S/RDdIjQQzXpVueyLZ
-         d67v5wdh7RMQQPMtg5D+CYhv+9YqL2cCfpBM+Gs8=
+        b=r9Nzw0BjVa/vwyj3rKyvUSrjkuBknqZvyALUb4+OTyrieJlWwWcYDPcMWos4w5FcH
+         ieOLY5r1FMAgaxv+tSl7NzUsdbTDWcCfnb9h0wAnQSkxKPJLfBABhDkbZa7Hn1JRGA
+         9/Ls3vAnjAN8Yhr3/9hh4BZr27ECIMLm+eittNXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jes Sorensen <Jes.Sorensen@redhat.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 14/53] rtl8xxxu: fix interface sanity check
+        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH 4.9 10/68] staging: vt6656: use NULLFUCTION stack on mac80211
 Date:   Mon,  3 Feb 2020 16:19:06 +0000
-Message-Id: <20200203161905.703605867@linuxfoundation.org>
+Message-Id: <20200203161906.572491274@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
-References: <20200203161902.714326084@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit 39a4281c312f2d226c710bc656ce380c621a2b16 upstream.
+commit d579c43c82f093e63639151625b2139166c730fd upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+It appears that the drivers does not go into power save correctly the
+NULL data packets are not being transmitted because it not enabled
+in mac80211.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+The driver needs to capture ieee80211_is_nullfunc headers and
+copy the duration_id to it's own duration data header.
 
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Cc: stable <stable@vger.kernel.org>     # 4.4
-Cc: Jes Sorensen <Jes.Sorensen@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/610971ae-555b-a6c3-61b3-444a0c1e35b4@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/vt6656/main_usb.c |    1 +
+ drivers/staging/vt6656/rxtx.c     |   14 +++++---------
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.c
-@@ -5555,7 +5555,7 @@ static int rtl8xxxu_parse_usb(struct rtl
- 	u8 dir, xtype, num;
- 	int ret = 0;
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -995,6 +995,7 @@ vt6656_probe(struct usb_interface *intf,
+ 	ieee80211_hw_set(priv->hw, RX_INCLUDES_FCS);
+ 	ieee80211_hw_set(priv->hw, REPORTS_TX_ACK_STATUS);
+ 	ieee80211_hw_set(priv->hw, SUPPORTS_PS);
++	ieee80211_hw_set(priv->hw, PS_NULLFUNC_STACK);
  
--	host_interface = &interface->altsetting[0];
-+	host_interface = interface->cur_altsetting;
- 	interface_desc = &host_interface->desc;
- 	endpoints = interface_desc->bNumEndpoints;
+ 	priv->hw->max_signal = 100;
  
+--- a/drivers/staging/vt6656/rxtx.c
++++ b/drivers/staging/vt6656/rxtx.c
+@@ -277,11 +277,9 @@ static u16 vnt_rxtx_datahead_g(struct vn
+ 							PK_TYPE_11B, &buf->b);
+ 
+ 	/* Get Duration and TimeStamp */
+-	if (ieee80211_is_pspoll(hdr->frame_control)) {
+-		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
+-
+-		buf->duration_a = dur;
+-		buf->duration_b = dur;
++	if (ieee80211_is_nullfunc(hdr->frame_control)) {
++		buf->duration_a = hdr->duration_id;
++		buf->duration_b = hdr->duration_id;
+ 	} else {
+ 		buf->duration_a = vnt_get_duration_le(priv,
+ 						tx_context->pkt_type, need_ack);
+@@ -370,10 +368,8 @@ static u16 vnt_rxtx_datahead_ab(struct v
+ 			  tx_context->pkt_type, &buf->ab);
+ 
+ 	/* Get Duration and TimeStampOff */
+-	if (ieee80211_is_pspoll(hdr->frame_control)) {
+-		__le16 dur = cpu_to_le16(priv->current_aid | BIT(14) | BIT(15));
+-
+-		buf->duration = dur;
++	if (ieee80211_is_nullfunc(hdr->frame_control)) {
++		buf->duration = hdr->duration_id;
+ 	} else {
+ 		buf->duration = vnt_get_duration_le(priv, tx_context->pkt_type,
+ 						    need_ack);
 
 
