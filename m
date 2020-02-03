@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 791D9150ABE
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:20:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12982150B0A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:23:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728917AbgBCQUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:20:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60414 "EHLO mail.kernel.org"
+        id S1728469AbgBCQUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727924AbgBCQUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:20:34 -0500
+        id S1728486AbgBCQUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:20:36 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3D982086A;
-        Mon,  3 Feb 2020 16:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27DFA20838;
+        Mon,  3 Feb 2020 16:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580746833;
-        bh=wZFsyhga5QYSTylqGI7UKwbx9C1pwpOU3qFRICQa2Z8=;
+        s=default; t=1580746835;
+        bh=UlhBxJ78W/uvMNsytpxoAbV/PPJsttRUazpMtceXIXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DajFgzhmdH5WILd0tebpFmh2XoGR5RkQnrc/hssn0UN+EnRjQTiYihI4KnpTXnJC6
-         BwnJLmWR/daYHZKOMGwZIdGjb9KS+Fz+MD4MFo3wjZbsNI0gTE2JPmEW2QTglBLt0l
-         zDz9U+6Oa9KuJpQmymmvCOgWE5V4kjwALqWRLJhM=
+        b=Zz9D4OHnaRR5O+mg/dOSKoZFgg6RiatpMLL8MxKcAl/4OxNpkNlmytZ7vPNg/KxJ1
+         7y+zHofWrbZMs1Ui/41eWxPESAelvCdVarga/z0a+lCh2Om0QcQe8AFIB1Hx6tGK6z
+         03zJL5IvijXQArEuSNTrxUvZefYm6i3OUuqrxGwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.4 25/53] arm64: kbuild: remove compressed images on make ARCH=arm64 (dist)clean
-Date:   Mon,  3 Feb 2020 16:19:17 +0000
-Message-Id: <20200203161907.624089847@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e64a13c5369a194d67df@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@kernel.org>,
+        Lee Schermerhorn <lee.schermerhorn@hp.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 26/53] mm/mempolicy.c: fix out of bounds write in mpol_parse_str()
+Date:   Mon,  3 Feb 2020 16:19:18 +0000
+Message-Id: <20200203161907.906583720@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
 References: <20200203161902.714326084@linuxfoundation.org>
@@ -45,40 +51,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d7bbd6c1b01cb5dd13c245d4586a83145c1d5f52 upstream.
+commit c7a91bc7c2e17e0a9c8b9745a2cb118891218fd1 upstream.
 
-Since v4.3-rc1 commit 0723c05fb75e44 ("arm64: enable more compressed
-Image formats"), it is possible to build Image.{bz2,lz4,lzma,lzo}
-AArch64 images. However, the commit missed adding support for removing
-those images on 'make ARCH=arm64 (dist)clean'.
+What we are trying to do is change the '=' character to a NUL terminator
+and then at the end of the function we restore it back to an '='.  The
+problem is there are two error paths where we jump to the end of the
+function before we have replaced the '=' with NUL.
 
-Fix this by adding them to the target list.
-Make sure to match the order of the recipes in the makefile.
+We end up putting the '=' in the wrong place (possibly one element
+before the start of the buffer).
 
-Cc: stable@vger.kernel.org # v4.3+
-Fixes: 0723c05fb75e44 ("arm64: enable more compressed Image formats")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: http://lkml.kernel.org/r/20200115055426.vdjwvry44nfug7yy@kili.mountain
+Reported-by: syzbot+e64a13c5369a194d67df@syzkaller.appspotmail.com
+Fixes: 095f1fc4ebf3 ("mempolicy: rework shmem mpol parsing and display")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Dmitry Vyukov <dvyukov@google.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Lee Schermerhorn <lee.schermerhorn@hp.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/mempolicy.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/boot/Makefile
-+++ b/arch/arm64/boot/Makefile
-@@ -14,7 +14,7 @@
- # Based on the ia64 boot/Makefile.
- #
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2701,6 +2701,9 @@ int mpol_parse_str(char *str, struct mem
+ 	char *flags = strchr(str, '=');
+ 	int err = 1;
  
--targets := Image Image.gz
-+targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
++	if (flags)
++		*flags++ = '\0';	/* terminate mode string */
++
+ 	if (nodelist) {
+ 		/* NUL-terminate mode or flags string */
+ 		*nodelist++ = '\0';
+@@ -2711,9 +2714,6 @@ int mpol_parse_str(char *str, struct mem
+ 	} else
+ 		nodes_clear(nodes);
  
- $(obj)/Image: vmlinux FORCE
- 	$(call if_changed,objcopy)
+-	if (flags)
+-		*flags++ = '\0';	/* terminate mode string */
+-
+ 	for (mode = 0; mode < MPOL_MAX; mode++) {
+ 		if (!strcmp(str, policy_modes[mode])) {
+ 			break;
 
 
