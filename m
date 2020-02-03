@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F25150BCF
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C86150C2A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730047AbgBCQaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43242 "EHLO mail.kernel.org"
+        id S1730692AbgBCQdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730046AbgBCQai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:38 -0500
+        id S1730686AbgBCQdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:55 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DB1620838;
-        Mon,  3 Feb 2020 16:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FA3321775;
+        Mon,  3 Feb 2020 16:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747437;
-        bh=2H8ajiglt+EHRYvL1YjeXhL/YtkZxe/aW5ueYBO8jVY=;
+        s=default; t=1580747634;
+        bh=lyfHlZxCuvdVXLyDtTWxrp0LGBg4suiUMtlIpv6ANgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1nQydR4rrLR699nCgDWeCy2I60K3lSefQnG2oKu8XRkIp51JhkMLfYsyM25QzZPGz
-         rXL9DdDX21/7tYtsIGXVNeF6i6COZMmqkngbVDIZ/Q6k0U4LNlUxF+BbA0cX/VrFNg
-         +iQsF0eUBFHULmJXxn98R/uRJGujy2eShb9HBYQ0=
+        b=oduchFHVsSKuV72yrPl8w9tkOwBjQASXqDZ65XqjtlU/pcuGLLC2vMmcVDWSjk2iu
+         MyCy4D598FMZAgAvRYvY1kZlJNULNQe/rCWC7iqjNyQOQvpetzQiqHaiy1D8oM7rjb
+         23bOX5YJIUWz7DQbRVLYIbsawHpJl5A6xDKAhaoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 84/89] net/sonic: Use MMIO accessors
+Subject: [PATCH 4.19 57/70] scsi: fnic: do not queue commands during fwreset
 Date:   Mon,  3 Feb 2020 16:20:09 +0000
-Message-Id: <20200203161926.998786057@linuxfoundation.org>
+Message-Id: <20200203161920.494332953@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit e3885f576196ddfc670b3d53e745de96ffcb49ab ]
+[ Upstream commit 0e2209629fec427ba75a6351486153a9feddd36b ]
 
-The driver accesses descriptor memory which is simultaneously accessed by
-the chip, so the compiler must not be allowed to re-order CPU accesses.
-sonic_buf_get() used 'volatile' to prevent that. sonic_buf_put() should
-have done so too but was overlooked.
+When a link is going down the driver will be calling fnic_cleanup_io(),
+which will traverse all commands and calling 'done' for each found command.
+While the traversal is handled under the host_lock, calling 'done' happens
+after the host_lock is being dropped.
 
-Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+As fnic_queuecommand_lck() is being called with the host_lock held, it
+might well be that it will pick the command being selected for abortion
+from the above routine and enqueue it for sending, but then 'done' is being
+called on that very command from the above routine.
+
+Which of course confuses the hell out of the scsi midlayer.
+
+So fix this by not queueing commands when fnic_cleanup_io is active.
+
+Link: https://lore.kernel.org/r/20200116102053.62755-1-hare@suse.de
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/sonic.h | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/scsi/fnic/fnic_scsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/natsemi/sonic.h b/drivers/net/ethernet/natsemi/sonic.h
-index 944f4830c4a1d..7057760cb55c6 100644
---- a/drivers/net/ethernet/natsemi/sonic.h
-+++ b/drivers/net/ethernet/natsemi/sonic.h
-@@ -343,30 +343,30 @@ static void sonic_tx_timeout(struct net_device *dev);
-    as far as we can tell. */
- /* OpenBSD calls this "SWO".  I'd like to think that sonic_buf_put()
-    is a much better name. */
--static inline void sonic_buf_put(void* base, int bitmode,
-+static inline void sonic_buf_put(u16 *base, int bitmode,
- 				 int offset, __u16 val)
- {
- 	if (bitmode)
- #ifdef __BIG_ENDIAN
--		((__u16 *) base + (offset*2))[1] = val;
-+		__raw_writew(val, base + (offset * 2) + 1);
- #else
--		((__u16 *) base + (offset*2))[0] = val;
-+		__raw_writew(val, base + (offset * 2) + 0);
- #endif
- 	else
--	 	((__u16 *) base)[offset] = val;
-+		__raw_writew(val, base + (offset * 1) + 0);
- }
+diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
+index 8cbd3c9f0b4cb..73ffc16ec0225 100644
+--- a/drivers/scsi/fnic/fnic_scsi.c
++++ b/drivers/scsi/fnic/fnic_scsi.c
+@@ -446,6 +446,9 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
+ 	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_IO_BLOCKED)))
+ 		return SCSI_MLQUEUE_HOST_BUSY;
  
--static inline __u16 sonic_buf_get(void* base, int bitmode,
-+static inline __u16 sonic_buf_get(u16 *base, int bitmode,
- 				  int offset)
- {
- 	if (bitmode)
- #ifdef __BIG_ENDIAN
--		return ((volatile __u16 *) base + (offset*2))[1];
-+		return __raw_readw(base + (offset * 2) + 1);
- #else
--		return ((volatile __u16 *) base + (offset*2))[0];
-+		return __raw_readw(base + (offset * 2) + 0);
- #endif
- 	else
--		return ((volatile __u16 *) base)[offset];
-+		return __raw_readw(base + (offset * 1) + 0);
- }
- 
- /* Inlines that you should actually use for reading/writing DMA buffers */
++	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_FWRESET)))
++		return SCSI_MLQUEUE_HOST_BUSY;
++
+ 	rport = starget_to_rport(scsi_target(sc->device));
+ 	if (!rport) {
+ 		FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
 -- 
 2.20.1
 
