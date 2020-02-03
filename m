@@ -2,160 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC6E150FFA
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 19:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A42815107A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 20:49:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728793AbgBCSwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 13:52:22 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:56342 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728707AbgBCSwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 13:52:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580755940;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WxxqmNqN4+u9WuwjHeqcGXqvaUr6K7Pz14tR1poHNLU=;
-        b=UqQygm24Vc8Z1JtMehZ/fJv1r8KGmdwa2Ewsy+5XHFWZSM7jX8/+LA2XkS0fE9f1n3tcop
-        Lpy9AksBA8G/mb0AmAvdXno20S2i5zmY+ohYUAioqFjCCJbotwE2bpLABLNTkgeWKSx+pH
-        VjAHFZynLC9cpWbqChC0ryExvd7qi0o=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-327-WcQd2rkJO2GDzUiRzr74mg-1; Mon, 03 Feb 2020 13:52:14 -0500
-X-MC-Unique: WcQd2rkJO2GDzUiRzr74mg-1
-Received: by mail-wr1-f69.google.com with SMTP id w17so3595936wrr.9
-        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 10:52:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WxxqmNqN4+u9WuwjHeqcGXqvaUr6K7Pz14tR1poHNLU=;
-        b=CuPeu/6Q8/8uZLI6hfRJIfHvpKZiLgMAdHWP83/DdDPcTp2ffn9BxyDF5szcPMLxZH
-         G0pra9UYtjkaJIzwkj6d6ws0tZfHqzq5nJhInkHyOhAkxhH/tFeJB5JOMJXFd8yscp2i
-         sNKAgwXFjtwCMLgHhrnanWP+a+lsKNO4f16QQIyfo21ngywK9ZFgxsKCYn2SD0WG4oyG
-         dBifG5AKZPlCeuzbEmtcYtP8x/umrNxC/wiKfHmb5Evm1Re0RVFrd9VaLJjxomUSltHT
-         c27gZ4XfHeG6zpW2sGracHgOH2DOVhUtg49+VP3amHp3BUfTiWcdQS+0ZNR0qS8iNLSd
-         zkbQ==
-X-Gm-Message-State: APjAAAXsWOBwaGlELxAzY0TU0I7DPhsa8t4x3Kj/Z5DVuKy676NockEe
-        zVg/hglTKLXxPFE0epxxAWqu2ObAg5STs7C5B2jvoI9rFZoXsNMvnuXtAx9eC0aLYVigDx2srxR
-        qASe9Iz4iZDnCnwpO
-X-Received: by 2002:a5d:6b88:: with SMTP id n8mr17926069wrx.288.1580755933570;
-        Mon, 03 Feb 2020 10:52:13 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyQd1U+egjG9xO3itB9VTUpOv9w+NsmegmdKhmDD/KKyVNGqnfFGK8XCVTMu/uSyWv+dHEwnw==
-X-Received: by 2002:a5d:6b88:: with SMTP id n8mr17926053wrx.288.1580755933381;
-        Mon, 03 Feb 2020 10:52:13 -0800 (PST)
-Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
-        by smtp.gmail.com with ESMTPSA id z19sm331883wmi.35.2020.02.03.10.52.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Feb 2020 10:52:12 -0800 (PST)
-Subject: Re: [PATCH v2] HID: ite: Only bind to keyboard USB interface on Acer
- SW5-012 keyboard dock
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>,
-        =?UTF-8?Q?Zden=c4=9bk_Rampas?= <zdenda.rampas@gmail.com>
-References: <20200201115648.3934-1-hdegoede@redhat.com>
- <CAO-hwJK0BjKQMeUT11MxR4TaDN4sdMvN-4YtVBk+V_-JBOrEuw@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <4dc29694-8a7c-40bc-dfd5-97cb4ce8112c@redhat.com>
-Date:   Mon, 3 Feb 2020 19:52:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726018AbgBCTtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 14:49:10 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43477 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725372AbgBCTtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 14:49:09 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 7F10D88D;
+        Mon,  3 Feb 2020 14:49:08 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 03 Feb 2020 14:49:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iPX40N
+        6j7ojTzJPGEXvo6MbLPWn8a6LGrQKlPgTISkI=; b=xAqn17O7J8o5Dyi+T812Zz
+        oIP9KlXqXe3Hq4m8qKd4BB1FqzbqO21BvBY6VpaSvFo4zroul3xPG1l+gCij/KZL
+        tiTuGD0Ss7UohMD2HiY8g7eWQDTeSIyvC6Rhvj8mzdPkg7EAjrKOQC2LWja746kT
+        9SRDs0WZkHKXao6lldnhC6seMC4FaSDyzx63cCzOi+dGXcte0eWVmMGMMrhB4A7f
+        wVQyNqFYiTJo0x26OmK/adJV26fQPokzX/kfc0Xe1L9vT1KY+Lp/1SOX917liP7m
+        P0khrYZKr5L/vIiN49nIQLR9Xxpu+DzAC+1azLP4woEaVDztXhVmXvuSLdk8NIsw
+        ==
+X-ME-Sender: <xms:M3k4XrO_NyI52jxKEheuCF832_BJQ0PEyuOKQ4BHY_mzMVENEhbaCA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrgeejgdduvdeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppedukeehrddutdegrddufeeirddvleenucevlhhushhtvghrufhiiigvpe
+    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:M3k4XhgbM6nms1W2jOG4olRF7OJjpLxEZVJuQNtBFOtmiYKQrovIxQ>
+    <xmx:M3k4XhhjCfRdGv3gfNhdgS8VbusfZX_S5Lt0Sf7F_S83TkyVXs44Iw>
+    <xmx:M3k4XoEE-9CUa5j6MNHWFKERw-_XA5uNsGJZarGyPdKHOZstSO13FA>
+    <xmx:NHk4XhE37j9z6NNw04wRM8yeyp63Ohnin2aKrhJcQCDVD8J1DIFB5A>
+Received: from localhost (unknown [185.104.136.29])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 69C193280059;
+        Mon,  3 Feb 2020 14:49:07 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: do not zero f_bavail if we have available space" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, martin@lichtvoll.de,
+        wqu@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 03 Feb 2020 19:49:06 +0000
+Message-ID: <158075934615111@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <CAO-hwJK0BjKQMeUT11MxR4TaDN4sdMvN-4YtVBk+V_-JBOrEuw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-HI,
 
-On 03-02-2020 16:14, Benjamin Tissoires wrote:
-> On Sat, Feb 1, 2020 at 12:56 PM Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard
->> dock") added the USB id for the Acer SW5-012's keyboard dock to the
->> hid-ite driver to fix the rfkill driver not working.
->>
->> Most keyboard docks with an ITE 8595 keyboard/touchpad controller have the
->> "Wireless Radio Control" bits which need the special hid-ite driver on the
->> second USB interface (the mouse interface) and their touchpad only supports
->> mouse emulation, so using generic hid-input handling for anything but
->> the "Wireless Radio Control" bits is fine. On these devices we simply bind
->> to all USB interfaces.
->>
->> But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
->> (SW5-012)'s touchpad not only does mouse emulation it also supports
->> HID-multitouch and all the keys including the "Wireless Radio Control"
->> bits have been moved to the first USB interface (the keyboard intf).
->>
->> So we need hid-ite to handle the first (keyboard) USB interface and have
->> it NOT bind to the second (mouse) USB interface so that that can be
->> handled by hid-multitouch.c and we get proper multi-touch support.
->>
->> This commit changes the hid_device_id for the SW5-012 keyboard dock to
->> only match on hid devices from the HID_GROUP_GENERIC group, this way
->> hid-ite will not bind the the mouse/multi-touch interface which has
->> HID_GROUP_MULTITOUCH_WIN_8 as group.
->> This fixes the regression to mouse-emulation mode introduced by adding
->> the keyboard dock USB id.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard dock")
->> Reported-by: Zdeněk Rampas <zdenda.rampas@gmail.com>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> - Extend hid_device_id to also match on the HID_GROUP_GENERIC group,
->>    instead of adding a match callback which peeks at the USB descriptors
-> 
-> Thanks for the quick revision.
-> 
-> Applied to for-5.6/upstream-fixes
-> 
-> And for the record, 2 MR have been added to hid-tools for regression testing:
-> - https://gitlab.freedesktop.org/libevdev/hid-tools/merge_requests/70
-> (keyboard and wifi key)
-> - https://gitlab.freedesktop.org/libevdev/hid-tools/merge_requests/69
-> (touchpad, which currently fails on Linux master unless this patch
-> gets in)
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cool, thank you for doing that.
+thanks,
 
-Regards,
+greg k-h
 
-Hans
+------------------ original commit in Linus's tree ------------------
 
+From d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Fri, 31 Jan 2020 09:31:05 -0500
+Subject: [PATCH] btrfs: do not zero f_bavail if we have available space
 
->> ---
->>   drivers/hid/hid-ite.c | 5 +++--
->>   1 file changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
->> index c436e12feb23..6c55682c5974 100644
->> --- a/drivers/hid/hid-ite.c
->> +++ b/drivers/hid/hid-ite.c
->> @@ -41,8 +41,9 @@ static const struct hid_device_id ite_devices[] = {
->>          { HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
->>          /* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
->> -       { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
->> -                        USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
->> +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
->> +                    USB_VENDOR_ID_SYNAPTICS,
->> +                    USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
->>          { }
->>   };
->>   MODULE_DEVICE_TABLE(hid, ite_devices);
->> --
->> 2.23.0
->>
-> 
+There was some logic added a while ago to clear out f_bavail in statfs()
+if we did not have enough free metadata space to satisfy our global
+reserve.  This was incorrect at the time, however didn't really pose a
+problem for normal file systems because we would often allocate chunks
+if we got this low on free metadata space, and thus wouldn't really hit
+this case unless we were actually full.
+
+Fast forward to today and now we are much better about not allocating
+metadata chunks all of the time.  Couple this with d792b0f19711 ("btrfs:
+always reserve our entire size for the global reserve") which now means
+we'll easily have a larger global reserve than our free space, we are
+now more likely to trip over this while still having plenty of space.
+
+Fix this by skipping this logic if the global rsv's space_info is not
+full.  space_info->full is 0 unless we've attempted to allocate a chunk
+for that space_info and that has failed.  If this happens then the space
+for the global reserve is definitely sacred and we need to report
+b_avail == 0, but before then we can just use our calculated b_avail.
+
+Reported-by: Martin Steigerwald <martin@lichtvoll.de>
+Fixes: ca8a51b3a979 ("btrfs: statfs: report zero available if metadata are exhausted")
+CC: stable@vger.kernel.org # 4.5+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Tested-By: Martin Steigerwald <martin@lichtvoll.de>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index a906315efd19..0616a5434793 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2135,7 +2135,15 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 	 */
+ 	thresh = SZ_4M;
+ 
+-	if (!mixed && total_free_meta - thresh < block_rsv->size)
++	/*
++	 * We only want to claim there's no available space if we can no longer
++	 * allocate chunks for our metadata profile and our global reserve will
++	 * not fit in the free metadata space.  If we aren't ->full then we
++	 * still can allocate chunks and thus are fine using the currently
++	 * calculated f_bavail.
++	 */
++	if (!mixed && block_rsv->space_info->full &&
++	    total_free_meta - thresh < block_rsv->size)
+ 		buf->f_bavail = 0;
+ 
+ 	buf->f_type = BTRFS_SUPER_MAGIC;
 
