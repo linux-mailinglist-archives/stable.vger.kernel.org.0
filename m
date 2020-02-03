@@ -2,72 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E88515122D
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 23:00:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9B9151245
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 23:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726369AbgBCWAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 17:00:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48164 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726278AbgBCWAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 17:00:43 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 506012084E;
-        Mon,  3 Feb 2020 22:00:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580767242;
-        bh=FS3+zcIq9vRjfPIEGimk0dwflndvQTLHJeH8VhY+sIQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pmLQCC6s2uvKL+xFeLTk8E2306JBO0ihQqpvIe+wIcLDueqqLouK1pQmOJEGQovMS
-         wkDeJCgPbqvQ2uWe5TMSTuqVCozO8izIY57mIJ8Km48kyXha6tSiUJloVRN8HujXz/
-         l4uo9o9FKI7hbdkcNkbKRKU95+f6cXhMZ5Bo1B1w=
-Date:   Mon, 3 Feb 2020 17:00:41 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     dsterba@suse.cz, stable@vger.kernel.org,
-        linux-btrfs@vger.kernel.org
-Subject: Re: Please add d55966c4279bfc6 to 5.4.x and 5.5.x
-Message-ID: <20200203220041.GA31482@sasha-vm>
-References: <20200203182949.GD2654@twin.jikos.cz>
- <20200203195007.GA3853072@kroah.com>
+        id S1726369AbgBCWQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 17:16:24 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:37455 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726278AbgBCWQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 17:16:24 -0500
+Received: by mail-wr1-f65.google.com with SMTP id w15so20390391wru.4
+        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 14:16:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eFQxThRtHqaEG7b9qoP1K43MIggKKeg/hZ0K14G09GA=;
+        b=c6UeqFhjpo3Fypz6Am0g8iG66lVfo+jbfdxMFqkart5Op1tPun3Uv35X9SyM+jZ4wo
+         P9Hf3B9AIydvV9HQ0NgYtuaJhY24C6OJewjzwYcym7JlGe5wTO+DT0iLleNCqgI4y3sN
+         SrXDEi6zmlt6S1TL+elneseAULlBZ/UpsFG6pOMqAaJewDtxkgiip1CemFtw/j6sPx+Y
+         LqVnzDVhC+/0sVN/eSOaTNtP7T8h//QpCe2pYy8Z9+LjqEBfaFjnjJrnsFrTalkzoHT1
+         MP8zeCz1fykYq3/jOQYM7RyB+Lxda7El/2cZfNCicxoihjkQ0Qvr8/TNzINKmWWgXWXr
+         vDPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eFQxThRtHqaEG7b9qoP1K43MIggKKeg/hZ0K14G09GA=;
+        b=ZQ3xEjekC6ijCI1YBoc1D5vl5rngNyAQ6FPPD611roFqhiTS3J/pl3zct6V5C/5DlH
+         h75ce3Ika2OMVEQzaZUwIq8BfBiCp+9EhP24t63eGVxco6pD5VfC8Z34EKgzY3bG2UGT
+         fVbZiz1NxBG8gVp1ok04lOupxP800NrhsmFgxT/OBGJ8JPNHQ72DeWaSkQ8Vx3QmhLjA
+         xqY417rL2GCSkN9AcWcXuxZvOxZ5FuN3J5hX2xdGskzjrfSuX1co2vrYg3375vrJnSa0
+         p9pZiiSR4hEHy7UAFbDjSEXZnqB5pszdA7UaPuo48LlkCAvGYotKfK3NHsPYXrU0XVf8
+         ScQA==
+X-Gm-Message-State: APjAAAWMWr5j5nPCbcRcuckacNmzCv3YyD4a9Pn+eRW5aGjhz5UzCndw
+        +Hm45JLgyeoLbz7t5k1g6zONhlC2wH/1Qw==
+X-Google-Smtp-Source: APXvYqzrQsbo/pKmi5gkVeNfsXRPba13B/G6RpsDl11EdN//s//1Wu5k+1zBxuZb+EgbG5c3D+yh9Q==
+X-Received: by 2002:adf:f20b:: with SMTP id p11mr16644449wro.195.1580768183037;
+        Mon, 03 Feb 2020 14:16:23 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b10sm27789977wrt.90.2020.02.03.14.16.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Feb 2020 14:16:22 -0800 (PST)
+Message-ID: <5e389bb6.1c69fb81.c6251.a166@mx.google.com>
+Date:   Mon, 03 Feb 2020 14:16:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200203195007.GA3853072@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.212-69-g056575131d28
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 49 boots: 1 failed,
+ 46 passed with 2 offline (v4.9.212-69-g056575131d28)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 03, 2020 at 07:50:07PM +0000, Greg KH wrote:
->On Mon, Feb 03, 2020 at 07:29:49PM +0100, David Sterba wrote:
->> Hi,
->>
->> I'd like to ask the stable team to add the patch
->>
->> d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6
->> btrfs: do not zero f_bavail if we have available space
->>
->> to 5.4 and 5.5 stable trees as early as possible.
->>
->> I'm not familiar with your release schedules but I saw the large patch
->> sets for review and I hope I could squeeze that one in the upcoming
->> release.
->>
->> The commit fixes a problem in 'df' that causes false alerts and there
->> are a lot of users hitting it. The patch itself is a one-liner, but
->> with a high impact on usability.
->
->I've snuck it in now, and if you could provide a backport for 4.4.y,
->that would be great as I think it's also needed there.
+stable-rc/linux-4.9.y boot: 49 boots: 1 failed, 46 passed with 2 offline (v=
+4.9.212-69-g056575131d28)
 
-To help my OCD I snuck it in to 4.4 as well, it just depended on
-ae02d1bd0707 ("btrfs: fix mixed block count of available space") which
-is a fix on it's own.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.212-69-g056575131d28/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.212-69-g056575131d28/
 
--- 
-Thanks,
-Sasha
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.212-69-g056575131d28
+Git Commit: 056575131d284c9c9bc6b3d5823fb3668b44cd47
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 32 unique boards, 15 SoC families, 15 builds out of 156
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            tegra30-beaver: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra30-beaver: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
