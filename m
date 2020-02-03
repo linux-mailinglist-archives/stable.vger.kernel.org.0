@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A68B150DDB
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FC95150C14
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728496AbgBCQ1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:27:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
+        id S1730536AbgBCQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbgBCQ1M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:27:12 -0500
+        id S1730531AbgBCQdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:10 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A55B920838;
-        Mon,  3 Feb 2020 16:27:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F7882051A;
+        Mon,  3 Feb 2020 16:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747232;
-        bh=ud4UxmXveAjSSNyHYAXdWglwo6mPcrhBtKmMNcvwCs8=;
+        s=default; t=1580747589;
+        bh=GzBI8V60FUYu9RM7Xn8K/45VI8KK+rbKc8M7kGcisDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogqPbk28h0Y8NadpFGXhk7l9VEYPMqFbWCWvh/HjqQIU9Cxenc4M4kuGa5N/9mBv2
-         Dq/crIxeselwWJmRE2YTLUdV33HZK269WpKOs67G19lpXZNG03o5hwyMADVunIc4zz
-         FPdOVwuXjUwv/1kTLrE1iHordDsv1cBjrwGlXUCU=
+        b=rDKQTNgahB5ZNOgkhCh/eE53/dSyhkp345KE4+zwE5lE1Ejvt9UFqJvy9am9Setu0
+         /zQFkJAXFePJac9UElRzySzkuKvW3GcE8ENMzhdekKoOSGbAZfgjDr9KBF25aQqsx4
+         hHoLNdg4and+c3OTHB5vf/q+rp4SzmjfdfdGmcQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Stefan Sperling <stsp@stsp.name>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 66/68] seq_tab_next() should increase position index
+Subject: [PATCH 4.19 50/70] iwlwifi: mvm: fix NVM check for 3168 devices
 Date:   Mon,  3 Feb 2020 16:20:02 +0000
-Message-Id: <20200203161915.682858455@linuxfoundation.org>
+Message-Id: <20200203161919.566332299@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 70a87287c821e9721b62463777f55ba588ac4623 ]
+[ Upstream commit b3f20e098293892388d6a0491d6bbb2efb46fbff ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+We had a check on !NVM_EXT and then a check for NVM_SDP in the else
+block of this if.  The else block, obviously, could only be reached if
+using NVM_EXT, so it would never be NVM_SDP.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix that by checking whether the nvm_type is IWL_NVM instead of
+checking for !IWL_NVM_EXT to solve this issue.
+
+Reported-by: Stefan Sperling <stsp@stsp.name>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/nvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-index 61c55621b9589..c150521647172 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-@@ -66,8 +66,7 @@ static void *seq_tab_start(struct seq_file *seq, loff_t *pos)
- static void *seq_tab_next(struct seq_file *seq, void *v, loff_t *pos)
- {
- 	v = seq_tab_get_idx(seq->private, *pos + 1);
--	if (v)
--		++*pos;
-+	++(*pos);
- 	return v;
- }
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
+index f2579c94ffdbc..3270faafe0bc3 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
+@@ -286,7 +286,7 @@ iwl_parse_nvm_sections(struct iwl_mvm *mvm)
+ 	int regulatory_type;
  
+ 	/* Checking for required sections */
+-	if (mvm->trans->cfg->nvm_type != IWL_NVM_EXT) {
++	if (mvm->trans->cfg->nvm_type == IWL_NVM) {
+ 		if (!mvm->nvm_sections[NVM_SECTION_TYPE_SW].data ||
+ 		    !mvm->nvm_sections[mvm->cfg->nvm_hw_section_num].data) {
+ 			IWL_ERR(mvm, "Can't parse empty OTP/NVM sections\n");
 -- 
 2.20.1
 
