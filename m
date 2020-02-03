@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75197150D1B
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDBC150D93
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731069AbgBCQlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49150 "EHLO mail.kernel.org"
+        id S1729723AbgBCQbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:31:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730839AbgBCQem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:34:42 -0500
+        id S1730240AbgBCQbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:31:33 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78E982082E;
-        Mon,  3 Feb 2020 16:34:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2E3321741;
+        Mon,  3 Feb 2020 16:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747681;
-        bh=8q1Jas/q+s5IaRxGYxL9jFMJFjlPUTIRXcKAPTYK13U=;
+        s=default; t=1580747492;
+        bh=YI+K7IGw1hFDO7jWCP/horOkFjcgQzuInx7y0VatEN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NiZc+h7d9IZaf2iTzbKwDyveEdFS1zZwrCxqNqD0x1sLRG7oGQwIjoxjF+Xkn3bU7
-         FH4TJWJLOWtfZ4xn8AhYmz2SXm4uFxqhiS2UdBapwNRj66VRy5+AZu87Uh+Ou4N1W2
-         5ZHmYc6nCoAZxLaj9VgKHk9snC+T1RrrE0OA94VQ=
+        b=HLbK6f1pBASQfboR1nUORbo2Lk0DDSb0jx2WfqSsCEQjl5thNBywT1WT5ArWENDry
+         D0S7cUvYWE0JQErYM3TE2UdYpKB3cM6wYrBd7HIIrx1L6MtA7EipNKoGgPs2/JtvJh
+         AGFp4BzD9QXCdcimP1LGYR544DtrzOdJlo4x6osM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/90] ARM: dts: sun8i: a83t: Correct USB3503 GPIOs polarity
+        syzbot+ec869945d3dde5f33b43@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 17/70] media: vp7045: do not read uninitialized values if usb transfer fails
 Date:   Mon,  3 Feb 2020 16:19:29 +0000
-Message-Id: <20200203161921.061213173@linuxfoundation.org>
+Message-Id: <20200203161915.115680482@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 1c226017d3ec93547b58082bdf778d9db7401c95 ]
+commit 26cff637121d8bb866ebd6515c430ac890e6ec80 upstream.
 
-Current USB3503 driver ignores GPIO polarity and always operates as if the
-GPIO lines were flagged as ACTIVE_HIGH. Fix the polarity for the existing
-USB3503 chip applications to match the chip specification and common
-convention for naming the pins. The only pin, which has to be ACTIVE_LOW
-is the reset pin. The remaining are ACTIVE_HIGH. This change allows later
-to fix the USB3503 driver to properly use generic GPIO bindings and read
-polarity from DT.
+It is not a fatal error if reading the mac address or the remote control
+decoder state fails.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+ec869945d3dde5f33b43@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/vp7045.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts b/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
-index fb928503ad45d..d9be511f054f0 100644
---- a/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
-+++ b/arch/arm/boot/dts/sun8i-a83t-cubietruck-plus.dts
-@@ -101,7 +101,7 @@
- 		initial-mode = <1>; /* initialize in HUB mode */
- 		disabled-ports = <1>;
- 		intn-gpios = <&pio 7 5 GPIO_ACTIVE_HIGH>; /* PH5 */
--		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>; /* PE16 */
-+		reset-gpios = <&pio 4 16 GPIO_ACTIVE_LOW>; /* PE16 */
- 		connect-gpios = <&pio 4 17 GPIO_ACTIVE_HIGH>; /* PE17 */
- 		refclk-frequency = <19200000>;
- 	};
--- 
-2.20.1
-
+--- a/drivers/media/usb/dvb-usb/vp7045.c
++++ b/drivers/media/usb/dvb-usb/vp7045.c
+@@ -99,10 +99,14 @@ static int vp7045_power_ctrl(struct dvb_
+ 
+ static int vp7045_rc_query(struct dvb_usb_device *d)
+ {
++	int ret;
+ 	u8 key;
+-	vp7045_usb_op(d,RC_VAL_READ,NULL,0,&key,1,20);
+ 
+-	deb_rc("remote query key: %x %d\n",key,key);
++	ret = vp7045_usb_op(d, RC_VAL_READ, NULL, 0, &key, 1, 20);
++	if (ret)
++		return ret;
++
++	deb_rc("remote query key: %x\n", key);
+ 
+ 	if (key != 0x44) {
+ 		/*
+@@ -118,15 +122,18 @@ static int vp7045_rc_query(struct dvb_us
+ 
+ static int vp7045_read_eeprom(struct dvb_usb_device *d,u8 *buf, int len, int offset)
+ {
+-	int i = 0;
+-	u8 v,br[2];
++	int i, ret;
++	u8 v, br[2];
+ 	for (i=0; i < len; i++) {
+ 		v = offset + i;
+-		vp7045_usb_op(d,GET_EE_VALUE,&v,1,br,2,5);
++		ret = vp7045_usb_op(d, GET_EE_VALUE, &v, 1, br, 2, 5);
++		if (ret)
++			return ret;
++
+ 		buf[i] = br[1];
+ 	}
+-	deb_info("VP7045 EEPROM read (offs: %d, len: %d) : ",offset, i);
+-	debug_dump(buf,i,deb_info);
++	deb_info("VP7045 EEPROM read (offs: %d, len: %d) : ", offset, i);
++	debug_dump(buf, i, deb_info);
+ 	return 0;
+ }
+ 
 
 
