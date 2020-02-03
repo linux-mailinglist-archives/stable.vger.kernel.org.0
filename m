@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FAE150D55
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BAFA150DB9
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730495AbgBCQnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:43:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47040 "EHLO mail.kernel.org"
+        id S1730109AbgBCQqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:46:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730522AbgBCQdI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:33:08 -0500
+        id S1729615AbgBCQ2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:28:36 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5AF4218AC;
-        Mon,  3 Feb 2020 16:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DA0C2080C;
+        Mon,  3 Feb 2020 16:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747587;
-        bh=UThbzfSf4Wwh3VgJmibCx6y+YMZQIWjX9JUof9n9J8o=;
+        s=default; t=1580747315;
+        bh=ONebF2UAM9DjtkYxHchWm/ax6fQTIsdCY9aEriA8tec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0tdVuNlFEOVA+zj/bi1qnmVBozCAD8IYWw+9CZ6BithrFmiqEDIPql+5wW6ntyC8R
-         D02BPZjdsW8hTInw6W/deOJvqtlMQgOJA6Rxbu+cvs5Ic0ljKG89QSKipervGRKNIt
-         ZYSP+C8klGuN1lFaPosIOEsd6T9NYLHROd8zhybU=
+        b=ASzSG9fBE6Ix9TPJRk8TDkCSlk60eAsLN6wP4Z4Oje8IpzgSIsozJQ0SMEueU30K7
+         iVE4yzhc7xuyICqkE//r4tXEZAGLypLok9jt+YSZdc25ZI8CCmDjNj+dwAKTjPs8HD
+         Q5xoS8nLfG5F2LOJrrRlSMxVSv5HHKEH5gb/M4Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/70] rsi: add hci detach for hibernation and poweroff
+        "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>,
+        syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com,
+        stable@kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 33/89] vfs: fix do_last() regression
 Date:   Mon,  3 Feb 2020 16:19:18 +0000
-Message-Id: <20200203161913.332966143@linuxfoundation.org>
+Message-Id: <20200203161921.319406598@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit cbde979b33fa16e06dadc2c81093699a2bc787db ]
+commit 6404674acd596de41fd3ad5f267b4525494a891a upstream.
 
-As we missed to detach HCI, while entering power off or hibernation,
-an extra hci interface gets created whenever system is woken up, to
-avoid this we added hci_detach() in rsi_disconnect(), rsi_freeze(),
-and rsi_shutdown() functions which are invoked for these tests.
-This patch fixes the issue
+Brown paperbag time: fetching ->i_uid/->i_mode really should've been
+done from nd->inode.  I even suggested that, but the reason for that has
+slipped through the cracks and I went for dir->d_inode instead - made
+for more "obvious" patch.
 
-Signed-off-by: Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Analysis:
+
+ - at the entry into do_last() and all the way to step_into(): dir (aka
+   nd->path.dentry) is known not to have been freed; so's nd->inode and
+   it's equal to dir->d_inode unless we are already doomed to -ECHILD.
+   inode of the file to get opened is not known.
+
+ - after step_into(): inode of the file to get opened is known; dir
+   might be pointing to freed memory/be negative/etc.
+
+ - at the call of may_create_in_sticky(): guaranteed to be out of RCU
+   mode; inode of the file to get opened is known and pinned; dir might
+   be garbage.
+
+The last was the reason for the original patch.  Except that at the
+do_last() entry we can be in RCU mode and it is possible that
+nd->path.dentry->d_inode has already changed under us.
+
+In that case we are going to fail with -ECHILD, but we need to be
+careful; nd->inode is pointing to valid struct inode and it's the same
+as nd->path.dentry->d_inode in "won't fail with -ECHILD" case, so we
+should use that.
+
+Reported-by: "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Reported-by: syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com
+Wearing-brown-paperbag: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@kernel.org
+Fixes: d0cb50185ae9 ("do_last(): fetch directory ->i_mode and ->i_uid before it's too late")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c | 18 ++++++++++++++++++
- drivers/net/wireless/rsi/rsi_91x_usb.c  |  7 +++++++
- 2 files changed, 25 insertions(+)
+ fs/namei.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_sdio.c b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-index 5733e440ecaff..81cc1044532d1 100644
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -1129,6 +1129,12 @@ static void rsi_disconnect(struct sdio_func *pfunction)
- 	rsi_mac80211_detach(adapter);
- 	mdelay(10);
- 
-+	if (IS_ENABLED(CONFIG_RSI_COEX) && adapter->priv->coex_mode > 1 &&
-+	    adapter->priv->bt_adapter) {
-+		rsi_bt_ops.detach(adapter->priv->bt_adapter);
-+		adapter->priv->bt_adapter = NULL;
-+	}
-+
- 	/* Reset Chip */
- 	rsi_reset_chip(adapter);
- 
-@@ -1305,6 +1311,12 @@ static int rsi_freeze(struct device *dev)
- 		rsi_dbg(ERR_ZONE,
- 			"##### Device can not wake up through WLAN\n");
- 
-+	if (IS_ENABLED(CONFIG_RSI_COEX) && common->coex_mode > 1 &&
-+	    common->bt_adapter) {
-+		rsi_bt_ops.detach(common->bt_adapter);
-+		common->bt_adapter = NULL;
-+	}
-+
- 	ret = rsi_sdio_disable_interrupts(pfunction);
- 
- 	if (sdev->write_fail)
-@@ -1352,6 +1364,12 @@ static void rsi_shutdown(struct device *dev)
- 	if (rsi_config_wowlan(adapter, wowlan))
- 		rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
- 
-+	if (IS_ENABLED(CONFIG_RSI_COEX) && adapter->priv->coex_mode > 1 &&
-+	    adapter->priv->bt_adapter) {
-+		rsi_bt_ops.detach(adapter->priv->bt_adapter);
-+		adapter->priv->bt_adapter = NULL;
-+	}
-+
- 	rsi_sdio_disable_interrupts(sdev->pfunction);
- 
- 	if (sdev->write_fail)
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index 90eb749e2b616..c62e7e0f82f32 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -818,6 +818,13 @@ static void rsi_disconnect(struct usb_interface *pfunction)
- 		return;
- 
- 	rsi_mac80211_detach(adapter);
-+
-+	if (IS_ENABLED(CONFIG_RSI_COEX) && adapter->priv->coex_mode > 1 &&
-+	    adapter->priv->bt_adapter) {
-+		rsi_bt_ops.detach(adapter->priv->bt_adapter);
-+		adapter->priv->bt_adapter = NULL;
-+	}
-+
- 	rsi_reset_card(adapter);
- 	rsi_deinit_usb_interface(adapter);
- 	rsi_91x_deinit(adapter);
--- 
-2.20.1
-
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3266,8 +3266,8 @@ static int do_last(struct nameidata *nd,
+ 		   int *opened)
+ {
+ 	struct dentry *dir = nd->path.dentry;
+-	kuid_t dir_uid = dir->d_inode->i_uid;
+-	umode_t dir_mode = dir->d_inode->i_mode;
++	kuid_t dir_uid = nd->inode->i_uid;
++	umode_t dir_mode = nd->inode->i_mode;
+ 	int open_flag = op->open_flag;
+ 	bool will_truncate = (open_flag & O_TRUNC) != 0;
+ 	bool got_write = false;
 
 
