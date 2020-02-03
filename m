@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9DD150DB4
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A04150D1F
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729685AbgBCQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:46:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
+        id S1730771AbgBCQeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:34:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729127AbgBCQ2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:28:53 -0500
+        id S1730466AbgBCQeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:19 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23A2F2080C;
-        Mon,  3 Feb 2020 16:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C410421775;
+        Mon,  3 Feb 2020 16:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747332;
-        bh=Xx6NspAId0wP+mlZ4mJIqcrWJ7K8o+uHRjuJ9rUmNos=;
+        s=default; t=1580747658;
+        bh=xYuZxASDJzRdJFvffnSMjjcEVkeHubuXhswIAaTn+kI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys51KbTdQMjx3AhIhqaWoSPf1HE/jQgOMuqrqNbTsYGhfTcffFPy6U582mQpJ9/u6
-         6WcoitCzTvAtD3y5G0Ft0G2rHCjJb2KlPFGLIo3n3fArHopix0sRDFgRZRPxw9Q87b
-         JI3/WnVTK9jokFweKxc4Ut19/DhqLcSseTfqZdjo=
+        b=IS6nS03pV+alyfKdAxN9/KnTlCRia1gLbctAPUEMoBoFCoDsxki57e7AzdgEJ3+FS
+         GtvD+218BTIdFt2X8utu2aXdHUjtQJdBLgCd+OSENwSmoX1ftYbpRgCJZ3Y9XFHVHd
+         em0dQvZ2u+mOa+4DRKIaYn3/B6reeGeOYwVZJvgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Xiaochen Shen <xiaochen.shen@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/89] watchdog: rn5t618_wdt: fix module aliases
+Subject: [PATCH 5.4 04/90] x86/resctrl: Fix use-after-free when deleting resource groups
 Date:   Mon,  3 Feb 2020 16:19:07 +0000
-Message-Id: <20200203161919.889851959@linuxfoundation.org>
+Message-Id: <20200203161918.178616188@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +47,222 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Xiaochen Shen <xiaochen.shen@intel.com>
 
-[ Upstream commit a76dfb859cd42df6e3d1910659128ffcd2fb6ba2 ]
+[ Upstream commit b8511ccc75c033f6d54188ea4df7bf1e85778740 ]
 
-Platform device aliases were missing so module autoloading
-did not work.
+A resource group (rdtgrp) contains a reference count (rdtgrp->waitcount)
+that indicates how many waiters expect this rdtgrp to exist. Waiters
+could be waiting on rdtgroup_mutex or some work sitting on a task's
+workqueue for when the task returns from kernel mode or exits.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20191213214802.22268-1-andreas@kemnade.info
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+The deletion of a rdtgrp is intended to have two phases:
+
+  (1) while holding rdtgroup_mutex the necessary cleanup is done and
+  rdtgrp->flags is set to RDT_DELETED,
+
+  (2) after releasing the rdtgroup_mutex, the rdtgrp structure is freed
+  only if there are no waiters and its flag is set to RDT_DELETED. Upon
+  gaining access to rdtgroup_mutex or rdtgrp, a waiter is required to check
+  for the RDT_DELETED flag.
+
+When unmounting the resctrl file system or deleting ctrl_mon groups,
+all of the subdirectories are removed and the data structure of rdtgrp
+is forcibly freed without checking rdtgrp->waitcount. If at this point
+there was a waiter on rdtgrp then a use-after-free issue occurs when the
+waiter starts running and accesses the rdtgrp structure it was waiting
+on.
+
+See kfree() calls in [1], [2] and [3] in these two call paths in
+following scenarios:
+(1) rdt_kill_sb() -> rmdir_all_sub() -> free_all_child_rdtgrp()
+(2) rdtgroup_rmdir() -> rdtgroup_rmdir_ctrl() -> free_all_child_rdtgrp()
+
+There are several scenarios that result in use-after-free issue in
+following:
+
+Scenario 1:
+-----------
+In Thread 1, rdtgroup_tasks_write() adds a task_work callback
+move_myself(). If move_myself() is scheduled to execute after Thread 2
+rdt_kill_sb() is finished, referring to earlier rdtgrp memory
+(rdtgrp->waitcount) which was already freed in Thread 2 results in
+use-after-free issue.
+
+Thread 1 (rdtgroup_tasks_write)        Thread 2 (rdt_kill_sb)
+-------------------------------        ----------------------
+rdtgroup_kn_lock_live
+  atomic_inc(&rdtgrp->waitcount)
+  mutex_lock
+rdtgroup_move_task
+  __rdtgroup_move_task
+    /*
+     * Take an extra refcount, so rdtgrp cannot be freed
+     * before the call back move_myself has been invoked
+     */
+    atomic_inc(&rdtgrp->waitcount)
+    /* Callback move_myself will be scheduled for later */
+    task_work_add(move_myself)
+rdtgroup_kn_unlock
+  mutex_unlock
+  atomic_dec_and_test(&rdtgrp->waitcount)
+  && (flags & RDT_DELETED)
+                                       mutex_lock
+                                       rmdir_all_sub
+                                         /*
+                                          * sentry and rdtgrp are freed
+                                          * without checking refcount
+                                          */
+                                         free_all_child_rdtgrp
+                                           kfree(sentry)*[1]
+                                         kfree(rdtgrp)*[2]
+                                       mutex_unlock
+/*
+ * Callback is scheduled to execute
+ * after rdt_kill_sb is finished
+ */
+move_myself
+  /*
+   * Use-after-free: refer to earlier rdtgrp
+   * memory which was freed in [1] or [2].
+   */
+  atomic_dec_and_test(&rdtgrp->waitcount)
+  && (flags & RDT_DELETED)
+    kfree(rdtgrp)
+
+Scenario 2:
+-----------
+In Thread 1, rdtgroup_tasks_write() adds a task_work callback
+move_myself(). If move_myself() is scheduled to execute after Thread 2
+rdtgroup_rmdir() is finished, referring to earlier rdtgrp memory
+(rdtgrp->waitcount) which was already freed in Thread 2 results in
+use-after-free issue.
+
+Thread 1 (rdtgroup_tasks_write)        Thread 2 (rdtgroup_rmdir)
+-------------------------------        -------------------------
+rdtgroup_kn_lock_live
+  atomic_inc(&rdtgrp->waitcount)
+  mutex_lock
+rdtgroup_move_task
+  __rdtgroup_move_task
+    /*
+     * Take an extra refcount, so rdtgrp cannot be freed
+     * before the call back move_myself has been invoked
+     */
+    atomic_inc(&rdtgrp->waitcount)
+    /* Callback move_myself will be scheduled for later */
+    task_work_add(move_myself)
+rdtgroup_kn_unlock
+  mutex_unlock
+  atomic_dec_and_test(&rdtgrp->waitcount)
+  && (flags & RDT_DELETED)
+                                       rdtgroup_kn_lock_live
+                                         atomic_inc(&rdtgrp->waitcount)
+                                         mutex_lock
+                                       rdtgroup_rmdir_ctrl
+                                         free_all_child_rdtgrp
+                                           /*
+                                            * sentry is freed without
+                                            * checking refcount
+                                            */
+                                           kfree(sentry)*[3]
+                                         rdtgroup_ctrl_remove
+                                           rdtgrp->flags = RDT_DELETED
+                                       rdtgroup_kn_unlock
+                                         mutex_unlock
+                                         atomic_dec_and_test(
+                                                     &rdtgrp->waitcount)
+                                         && (flags & RDT_DELETED)
+                                           kfree(rdtgrp)
+/*
+ * Callback is scheduled to execute
+ * after rdt_kill_sb is finished
+ */
+move_myself
+  /*
+   * Use-after-free: refer to earlier rdtgrp
+   * memory which was freed in [3].
+   */
+  atomic_dec_and_test(&rdtgrp->waitcount)
+  && (flags & RDT_DELETED)
+    kfree(rdtgrp)
+
+If CONFIG_DEBUG_SLAB=y, Slab corruption on kmalloc-2k can be observed
+like following. Note that "0x6b" is POISON_FREE after kfree(). The
+corrupted bits "0x6a", "0x64" at offset 0x424 correspond to
+waitcount member of struct rdtgroup which was freed:
+
+  Slab corruption (Not tainted): kmalloc-2k start=ffff9504c5b0d000, len=2048
+  420: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkjkkkkkkkkkkk
+  Single bit error detected. Probably bad RAM.
+  Run memtest86+ or a similar memory test tool.
+  Next obj: start=ffff9504c5b0d800, len=2048
+  000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+  010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+
+  Slab corruption (Not tainted): kmalloc-2k start=ffff9504c58ab800, len=2048
+  420: 6b 6b 6b 6b 64 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkdkkkkkkkkkkk
+  Prev obj: start=ffff9504c58ab000, len=2048
+  000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+  010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+
+Fix this by taking reference count (waitcount) of rdtgrp into account in
+the two call paths that currently do not do so. Instead of always
+freeing the resource group it will only be freed if there are no waiters
+on it. If there are waiters, the resource group will have its flags set
+to RDT_DELETED.
+
+It will be left to the waiter to free the resource group when it starts
+running and finding that it was the last waiter and the resource group
+has been removed (rdtgrp->flags & RDT_DELETED) since. (1) rdt_kill_sb()
+-> rmdir_all_sub() -> free_all_child_rdtgrp() (2) rdtgroup_rmdir() ->
+rdtgroup_rmdir_ctrl() -> free_all_child_rdtgrp()
+
+Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
+Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
+Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1578500886-21771-2-git-send-email-xiaochen.shen@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/rn5t618_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-index e60f55702ab79..d2e79cf70e774 100644
---- a/drivers/watchdog/rn5t618_wdt.c
-+++ b/drivers/watchdog/rn5t618_wdt.c
-@@ -193,6 +193,7 @@ static struct platform_driver rn5t618_wdt_driver = {
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index e4da26325e3ea..c7564294a12a8 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -2205,7 +2205,11 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
+ 	list_for_each_entry_safe(sentry, stmp, head, mon.crdtgrp_list) {
+ 		free_rmid(sentry->mon.rmid);
+ 		list_del(&sentry->mon.crdtgrp_list);
+-		kfree(sentry);
++
++		if (atomic_read(&sentry->waitcount) != 0)
++			sentry->flags = RDT_DELETED;
++		else
++			kfree(sentry);
+ 	}
+ }
  
- module_platform_driver(rn5t618_wdt_driver);
+@@ -2243,7 +2247,11 @@ static void rmdir_all_sub(void)
  
-+MODULE_ALIAS("platform:rn5t618-wdt");
- MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
- MODULE_DESCRIPTION("RN5T618 watchdog driver");
- MODULE_LICENSE("GPL v2");
+ 		kernfs_remove(rdtgrp->kn);
+ 		list_del(&rdtgrp->rdtgroup_list);
+-		kfree(rdtgrp);
++
++		if (atomic_read(&rdtgrp->waitcount) != 0)
++			rdtgrp->flags = RDT_DELETED;
++		else
++			kfree(rdtgrp);
+ 	}
+ 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
+ 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
 -- 
 2.20.1
 
