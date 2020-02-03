@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D14150E07
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 014C6150D7C
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbgBCQZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:25:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35808 "EHLO mail.kernel.org"
+        id S1729936AbgBCQaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:30:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728128AbgBCQZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:25:10 -0500
+        id S1729636AbgBCQaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:30:12 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4581821582;
-        Mon,  3 Feb 2020 16:25:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB91A2080C;
+        Mon,  3 Feb 2020 16:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747109;
-        bh=12c1Cba7k9vHIdxb59e3M30I8y9BZKq3PODOf2RGwDs=;
+        s=default; t=1580747411;
+        bh=d97+DNOiVfSHCsLfElaDRBIQhu0ScRku/iaDxOT3hWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fX788b/kPduGmEJF6ECai68kcLZy9scUT73QCg3o0Gdfe9Q/H7p2ep2HizMD6AIHb
-         NVYT37f7TGL0fcfC2XA+F1fPVIWda/ZdLWvdkENl7EmR00p94S3vb9q1gnJeIJNxng
-         Fr5aOBn2ne45VNd7gTD5KXeHU1joFv7yDewSaPSo=
+        b=IuPjzVU43adfQbY3fZU1NH1ygxpeSO12dvRMIMCW6WqJZdXLKZCe9DO7tVdLDVnAa
+         A7CfDdkkcHO7SVjLgvdZ1WwBObdbnlLIqXkfU0+CEVbwRcr7lGguGa4ynDl9CUTyco
+         WF7dgiO/t8e3XMCOOdixnqe8S8keqXOWNVO+glfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 16/68] zd1211rw: fix storage endpoint lookup
-Date:   Mon,  3 Feb 2020 16:19:12 +0000
-Message-Id: <20200203161907.738309609@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Slawomir Pawlowski <slawomir.pawlowski@intel.com>,
+        Przemek Kitszel <przemyslawx.kitszel@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 28/89] PCI: Add DMA alias quirk for Intel VCA NTB
+Date:   Mon,  3 Feb 2020 16:19:13 +0000
+Message-Id: <20200203161920.597368358@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Slawomir Pawlowski <slawomir.pawlowski@intel.com>
 
-commit 2d68bb2687abb747558b933e80845ff31570a49c upstream.
+[ Upstream commit 56b4cd4b7da9ee95778eb5c8abea49f641ebfd91 ]
 
-Make sure to use the current alternate setting when verifying the
-storage interface descriptors to avoid submitting an URB to an invalid
-endpoint.
+Intel Visual Compute Accelerator (VCA) is a family of PCIe add-in devices
+exposing computational units via Non Transparent Bridges (NTB, PEX 87xx).
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+Similarly to MIC x200, we need to add DMA aliases to allow buffer access
+when IOMMU is enabled.
 
-Fixes: a1030e92c150 ("[PATCH] zd1211rw: Convert installer CDROM device into WLAN device")
-Cc: stable <stable@vger.kernel.org>     # 2.6.19
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add aliases to allow computational unit access to host memory.  These
+aliases mark the whole VCA device as one IOMMU group.
 
+All possible slot numbers (0x20) are used, since we are unable to tell what
+slot is used on other side.  This quirk is intended for both host and
+computational unit sides.  The VCA devices have up to five functions: four
+for DMA channels and one additional.
+
+Link: https://lore.kernel.org/r/5683A335CC8BE1438C3C30C49DCC38DF637CED8E@IRSMSX102.ger.corp.intel.com
+Signed-off-by: Slawomir Pawlowski <slawomir.pawlowski@intel.com>
+Signed-off-by: Przemek Kitszel <przemyslawx.kitszel@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/zydas/zd1211rw/zd_usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
---- a/drivers/net/wireless/zydas/zd1211rw/zd_usb.c
-+++ b/drivers/net/wireless/zydas/zd1211rw/zd_usb.c
-@@ -1272,7 +1272,7 @@ static void print_id(struct usb_device *
- static int eject_installer(struct usb_interface *intf)
- {
- 	struct usb_device *udev = interface_to_usbdev(intf);
--	struct usb_host_interface *iface_desc = &intf->altsetting[0];
-+	struct usb_host_interface *iface_desc = intf->cur_altsetting;
- 	struct usb_endpoint_descriptor *endpoint;
- 	unsigned char *cmd;
- 	u8 bulk_out_ep;
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 90df085e9f925..e7ed051ec125e 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4019,6 +4019,40 @@ static void quirk_mic_x200_dma_alias(struct pci_dev *pdev)
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2260, quirk_mic_x200_dma_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2264, quirk_mic_x200_dma_alias);
+ 
++/*
++ * Intel Visual Compute Accelerator (VCA) is a family of PCIe add-in devices
++ * exposing computational units via Non Transparent Bridges (NTB, PEX 87xx).
++ *
++ * Similarly to MIC x200, we need to add DMA aliases to allow buffer access
++ * when IOMMU is enabled.  These aliases allow computational unit access to
++ * host memory.  These aliases mark the whole VCA device as one IOMMU
++ * group.
++ *
++ * All possible slot numbers (0x20) are used, since we are unable to tell
++ * what slot is used on other side.  This quirk is intended for both host
++ * and computational unit sides.  The VCA devices have up to five functions
++ * (four for DMA channels and one additional).
++ */
++static void quirk_pex_vca_alias(struct pci_dev *pdev)
++{
++	const unsigned int num_pci_slots = 0x20;
++	unsigned int slot;
++
++	for (slot = 0; slot < num_pci_slots; slot++) {
++		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x0));
++		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x1));
++		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x2));
++		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x3));
++		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x4));
++	}
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2954, quirk_pex_vca_alias);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2955, quirk_pex_vca_alias);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2956, quirk_pex_vca_alias);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2958, quirk_pex_vca_alias);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2959, quirk_pex_vca_alias);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x295A, quirk_pex_vca_alias);
++
+ /*
+  * The IOMMU and interrupt controller on Broadcom Vulcan/Cavium ThunderX2 are
+  * associated not at the root bus, but at a bridge below. This quirk avoids
+-- 
+2.20.1
+
 
 
