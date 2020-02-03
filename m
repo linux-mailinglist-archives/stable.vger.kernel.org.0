@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A48150DF4
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEECB150BC4
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727872AbgBCQsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:48:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
+        id S1729961AbgBCQaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:30:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729187AbgBCQ0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:32 -0500
+        id S1729956AbgBCQaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:30:17 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96C902051A;
-        Mon,  3 Feb 2020 16:26:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4D382051A;
+        Mon,  3 Feb 2020 16:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747191;
-        bh=2KLD0sJk2Cbx1wymConOooNrrg7yNCXRvjpJb1zNXlA=;
+        s=default; t=1580747416;
+        bh=Icfs7dzmGLlT+hgorSORj+xu364BUM8vtKrQpAU/dAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hs+qaXSxKvq2iQo1BgBx5jo1CA3raMLuYfhWzB2H6di5nXvXU4j8bU7v1UBx97PHD
-         8fVfyfWXYaPSkMmdetF+MjbHfdezPAfeV4D8pVdPSX8kXgj7hHr2N9LrBr3TpSbiDi
-         8xvkaYyrfqEE7rFy1+Tby/xn0KOPjdjOEwIFLcXc=
+        b=d6mU7zjjrPCJ5OwhmeVCqlumck2aQfcg2jnS8EjAGesMqbC4wpbFFIuieh9kHE5p3
+         FqMQl3bRZxp0CBaTkW/xaiM0tkAYBNJQWw3gGr/L/oc/nuFAMu+HfoynmPqJZlVWl9
+         iisFUFLcZoeXrrMsEn61Lmum6l9jqy0ukX/kMXwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 4.9 08/68] staging: wlan-ng: ensure error return is actually returned
-Date:   Mon,  3 Feb 2020 16:19:04 +0000
-Message-Id: <20200203161906.244864664@linuxfoundation.org>
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/89] phy: cpcap-usb: Prevent USB line glitches from waking up modem
+Date:   Mon,  3 Feb 2020 16:19:05 +0000
+Message-Id: <20200203161919.622920947@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +47,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 upstream.
+[ Upstream commit 63078b6ba09e842f09df052c5728857389fddcd2 ]
 
-Currently when the call to prism2sta_ifst fails a netdev_err error
-is reported, error return variable result is set to -1 but the
-function always returns 0 for success.  Fix this by returning
-the error value in variable result rather than 0.
+The micro-USB connector on Motorola Mapphone devices can be muxed between
+the SoC and the mdm6600 modem. But even when used for the SoC, configuring
+the PHY with ID pin grounded will wake up the modem from idle state. Looks
+like the issue is probably caused by line glitches.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We can prevent the glitches by using a previously unknown mode of the
+GPIO mux to prevent the USB lines from being connected to the moden while
+configuring the USB PHY, and enable the USB lines after configuring the
+PHY.
 
+Note that this only prevents waking up mdm6600 as regular USB A-host mode,
+and does not help when connected to a lapdock. The lapdock specific issue
+still needs to be debugged separately.
+
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wlan-ng/prism2mgmt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/motorola/phy-cpcap-usb.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/wlan-ng/prism2mgmt.c
-+++ b/drivers/staging/wlan-ng/prism2mgmt.c
-@@ -938,7 +938,7 @@ int prism2mgmt_flashdl_state(struct wlan
- 		}
- 	}
+diff --git a/drivers/phy/motorola/phy-cpcap-usb.c b/drivers/phy/motorola/phy-cpcap-usb.c
+index 4ba3634009afc..593c77dbde2eb 100644
+--- a/drivers/phy/motorola/phy-cpcap-usb.c
++++ b/drivers/phy/motorola/phy-cpcap-usb.c
+@@ -115,7 +115,7 @@ struct cpcap_usb_ints_state {
+ enum cpcap_gpio_mode {
+ 	CPCAP_DM_DP,
+ 	CPCAP_MDM_RX_TX,
+-	CPCAP_UNKNOWN,
++	CPCAP_UNKNOWN_DISABLED,	/* Seems to disable USB lines */
+ 	CPCAP_OTG_DM_DP,
+ };
  
--	return 0;
-+	return result;
- }
+@@ -379,7 +379,8 @@ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata)
+ {
+ 	int error;
  
- /*----------------------------------------------------------------
+-	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_DM_DP);
++	/* Disable lines to prevent glitches from waking up mdm6600 */
++	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_UNKNOWN_DISABLED);
+ 	if (error)
+ 		goto out_err;
+ 
+@@ -406,6 +407,11 @@ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata)
+ 	if (error)
+ 		goto out_err;
+ 
++	/* Enable UART mode */
++	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_DM_DP);
++	if (error)
++		goto out_err;
++
+ 	return 0;
+ 
+ out_err:
+@@ -418,7 +424,8 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
+ {
+ 	int error;
+ 
+-	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_OTG_DM_DP);
++	/* Disable lines to prevent glitches from waking up mdm6600 */
++	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_UNKNOWN_DISABLED);
+ 	if (error)
+ 		return error;
+ 
+@@ -458,6 +465,11 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
+ 	if (error)
+ 		goto out_err;
+ 
++	/* Enable USB mode */
++	error = cpcap_usb_gpio_set_mode(ddata, CPCAP_OTG_DM_DP);
++	if (error)
++		goto out_err;
++
+ 	return 0;
+ 
+ out_err:
+-- 
+2.20.1
+
 
 
