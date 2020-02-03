@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31ABC150C64
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEA3C150BFE
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731082AbgBCQfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:35:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50918 "EHLO mail.kernel.org"
+        id S1730400AbgBCQcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730553AbgBCQfx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:53 -0500
+        id S1730407AbgBCQcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:20 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 801552051A;
-        Mon,  3 Feb 2020 16:35:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7153621744;
+        Mon,  3 Feb 2020 16:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747752;
-        bh=W7OtS8SI7erFGisFYGpsxO0NJjdpkZVRWfwp69rcqY8=;
+        s=default; t=1580747539;
+        bh=SYyVBxqOvd8PZBMYuPnTKpW3r9nD8zK15FsRGcjFJXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mn6k5hRthNhc7+g3TUmPgrSkE9/QWt/G+RZMpVDa+b/N9e/qyzkauRR3Tgm9atdMq
-         dobvJ3dspi1GS/FZ9tSIKBR/v0EJFOezQ940yRrF1ZiplwC24tYRh27qGMj8gyg6Al
-         iUjVXVh7HngNWlMMnpQT7s0UIRZkFum6WR+gt8y4=
+        b=xobgM9GApQV47iI9SAZJBd/XSfcZ9F+mtbI9vjKKLM08R348eL7pWYm9oehvCSuwh
+         FPYn5Nui+YgBk2QN0dWYi/Mp3hEZT+D7C8Rx8Q8z+HbSfLcrL/AuylqJ5UdX12eKnz
+         pGZt/bYgjDUBbTcVXL6LD5TweG9KpPRWVORwRPFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        syzbot+32310fc2aea76898d074@syzkaller.appspotmail.com,
-        syzbot+99706d6390be1ac542a2@syzkaller.appspotmail.com,
-        syzbot+64437af5c781a7f0e08e@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 18/90] media: gspca: zero usb_buf
+        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 4.19 09/70] PM / devfreq: Add new name attribute for sysfs
 Date:   Mon,  3 Feb 2020 16:19:21 +0000
-Message-Id: <20200203161920.107897723@linuxfoundation.org>
+Message-Id: <20200203161913.849916643@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Chanwoo Choi <cw00.choi@samsung.com>
 
-commit de89d0864f66c2a1b75becfdd6bf3793c07ce870 upstream.
+commit 2fee1a7cc6b1ce6634bb0f025be2c94a58dfa34d upstream.
 
-Allocate gspca_dev->usb_buf with kzalloc instead of kmalloc to
-ensure it is property zeroed. This fixes various syzbot errors
-about uninitialized data.
+The commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for
+sysfs") changed the node name to devfreq(x). After this commit, it is not
+possible to get the device name through /sys/class/devfreq/devfreq(X)/*.
 
-Syzbot links:
+Add new name attribute in order to get device name.
 
-https://syzkaller.appspot.com/bug?extid=32310fc2aea76898d074
-https://syzkaller.appspot.com/bug?extid=99706d6390be1ac542a2
-https://syzkaller.appspot.com/bug?extid=64437af5c781a7f0e08e
-
-Reported-and-tested-by: syzbot+32310fc2aea76898d074@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+99706d6390be1ac542a2@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+64437af5c781a7f0e08e@syzkaller.appspotmail.com
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for sysfs")
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/gspca.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/ABI/testing/sysfs-class-devfreq |    7 +++++++
+ drivers/devfreq/devfreq.c                     |    9 +++++++++
+ 2 files changed, 16 insertions(+)
 
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -1461,7 +1461,7 @@ int gspca_dev_probe2(struct usb_interfac
- 		pr_err("couldn't kzalloc gspca struct\n");
- 		return -ENOMEM;
- 	}
--	gspca_dev->usb_buf = kmalloc(USB_BUF_SZ, GFP_KERNEL);
-+	gspca_dev->usb_buf = kzalloc(USB_BUF_SZ, GFP_KERNEL);
- 	if (!gspca_dev->usb_buf) {
- 		pr_err("out of memory\n");
- 		ret = -ENOMEM;
+--- a/Documentation/ABI/testing/sysfs-class-devfreq
++++ b/Documentation/ABI/testing/sysfs-class-devfreq
+@@ -7,6 +7,13 @@ Description:
+ 		The name of devfreq object denoted as ... is same as the
+ 		name of device using devfreq.
+ 
++What:		/sys/class/devfreq/.../name
++Date:		November 2019
++Contact:	Chanwoo Choi <cw00.choi@samsung.com>
++Description:
++		The /sys/class/devfreq/.../name shows the name of device
++		of the corresponding devfreq object.
++
+ What:		/sys/class/devfreq/.../governor
+ Date:		September 2011
+ Contact:	MyungJoo Ham <myungjoo.ham@samsung.com>
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -1014,6 +1014,14 @@ err_out:
+ }
+ EXPORT_SYMBOL(devfreq_remove_governor);
+ 
++static ssize_t name_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct devfreq *devfreq = to_devfreq(dev);
++	return sprintf(buf, "%s\n", dev_name(devfreq->dev.parent));
++}
++static DEVICE_ATTR_RO(name);
++
+ static ssize_t governor_show(struct device *dev,
+ 			     struct device_attribute *attr, char *buf)
+ {
+@@ -1330,6 +1338,7 @@ static ssize_t trans_stat_show(struct de
+ static DEVICE_ATTR_RO(trans_stat);
+ 
+ static struct attribute *devfreq_attrs[] = {
++	&dev_attr_name.attr,
+ 	&dev_attr_governor.attr,
+ 	&dev_attr_available_governors.attr,
+ 	&dev_attr_cur_freq.attr,
 
 
