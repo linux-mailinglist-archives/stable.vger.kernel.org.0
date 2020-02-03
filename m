@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49864150B01
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 924B9150AC7
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:21:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbgBCQUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:20:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
+        id S1729017AbgBCQU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:20:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728984AbgBCQUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:20:55 -0500
+        id S1729016AbgBCQU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:20:57 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F4F42080D;
-        Mon,  3 Feb 2020 16:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70B192082E;
+        Mon,  3 Feb 2020 16:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580746854;
-        bh=8jjE9uv8uvJk6VowYOBj062JvcWcLL7+3in/HzO46K0=;
+        s=default; t=1580746856;
+        bh=MFdQwpC8ocAw3gqlG2PhUf+SO3XPMQEGZg511YDWX24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y5ghfWqcXK9wQPe4Ol1o/Je6Zzavc5HOX77ofmEWXNgBtsC6D3l5LVhhKabdJsWIw
-         QDYzpYJtEGw0JReTNoTu07KvPd0ELAN2MDJraQ0s5bVETgqwpQHiBzXeTy1ZqaEOGP
-         KsAvjJU362YYwA6PwHaPlk4X8VWYuKvnfDH4blfI=
+        b=WaB8gk1thL+CvRw+YH712TIZFLE8Mcc4CuEV3yfqZGcERKlZR/RAQO05WQzutJL83
+         T0CDzjTuFZt8n9iyfV+xUgvwTIcWI8H10cBuwarIMKZQwc2RrRJEw6pIR2c14Iq4HA
+         6g57hhlCwP34/A5KAtDEDKRcQsEf7cp5LFK6LALo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kbuild test robot <lkp@intel.com>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 33/53] media: si470x-i2c: Move free() past last use of radio
-Date:   Mon,  3 Feb 2020 16:19:25 +0000
-Message-Id: <20200203161909.026778929@linuxfoundation.org>
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Olof Johansson <olof@lixom.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 34/53] clk: mmp2: Fix the order of timer mux parents
+Date:   Mon,  3 Feb 2020 16:19:26 +0000
+Message-Id: <20200203161909.159100760@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
 References: <20200203161902.714326084@linuxfoundation.org>
@@ -44,42 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Lubomir Rintel <lkundrak@v3.sk>
 
-A pointer to 'struct si470x_device' is currently used after free:
+[ Upstream commit 8bea5ac0fbc5b2103f8779ddff216122e3c2e1ad ]
 
-  drivers/media/radio/si470x/radio-si470x-i2c.c:462:25-30: ERROR: reference
-    preceded by free on line 460
+Determined empirically, no documentation is available.
 
-Shift the call to free() down past its final use.
+The OLPC XO-1.75 laptop used parent 1, that one being VCTCXO/4 (65MHz), but
+thought it's a VCTCXO/2 (130MHz). The mmp2 timer driver, not knowing
+what is going on, ended up just dividing the rate as of
+commit f36797ee4380 ("ARM: mmp/mmp2: dt: enable the clock")'
 
-NB: Not sending to Mainline, since the problem does not exist there, it was
-caused by the backport of 2df200ab234a ("media: si470x-i2c: add missed
-operations in remove") to the stable trees.
-
-Cc: <stable@vger.kernel.org> # v3.18+
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20191218190454.420358-3-lkundrak@v3.sk
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c |    2 +-
+ drivers/clk/mmp/clk-of-mmp2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -458,10 +458,10 @@ static int si470x_i2c_remove(struct i2c_
+diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.c
+index 8b45cb2caed1b..60db6531996eb 100644
+--- a/drivers/clk/mmp/clk-of-mmp2.c
++++ b/drivers/clk/mmp/clk-of-mmp2.c
+@@ -134,7 +134,7 @@ static DEFINE_SPINLOCK(ssp3_lock);
+ static const char *ssp_parent_names[] = {"vctcxo_4", "vctcxo_2", "vctcxo", "pll1_16"};
  
- 	free_irq(client->irq, radio);
- 	video_unregister_device(&radio->videodev);
--	kfree(radio);
+ static DEFINE_SPINLOCK(timer_lock);
+-static const char *timer_parent_names[] = {"clk32", "vctcxo_2", "vctcxo_4", "vctcxo"};
++static const char *timer_parent_names[] = {"clk32", "vctcxo_4", "vctcxo_2", "vctcxo"};
  
- 	v4l2_ctrl_handler_free(&radio->hdl);
- 	v4l2_device_unregister(&radio->v4l2_dev);
-+	kfree(radio);
- 	return 0;
- }
+ static DEFINE_SPINLOCK(reset_lock);
  
+-- 
+2.20.1
+
 
 
