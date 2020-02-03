@@ -2,91 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9CC15107F
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 20:50:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1053F1510C8
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 21:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726187AbgBCTuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 14:50:12 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:56215 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725372AbgBCTuL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 14:50:11 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id A39E5814;
-        Mon,  3 Feb 2020 14:50:10 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 03 Feb 2020 14:50:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=3qGwQTwRO0ezqdl7FLjdG1jrWTZ
-        MrVEjYdKA0OodWKE=; b=DF6xMlafHDYL4k2RShD/bCe0GHk/D4Me9MdDldVicR5
-        vGaGjZ+TH9TL3/Fj1Aid60LMs8EVK3pwyXXZwxKT2hMHN/VclNCb63jJ6sf2lsLC
-        DSnp/LE5nmeKTUICFLQbzRyg+niyH0WzrJLhnzsgDmiP9Hp9cJXXxkmQJrKxzw4z
-        6Xxm9YBcmQu+hv6sN2o1gz6lc9NIf/tK9uvht+cvZn19LM56gT4EbAtgbVR42qXM
-        NijnWGorv6SZuHoyNCzpA4/ijboNT6lqpJNZHoQb0LwoD9l/R5dWZZZ2zX+RdLar
-        1FdIZ/LZ76kyQ+WyiP4iZR4bjP+q5bF1HQiDOa/893g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=3qGwQT
-        wRO0ezqdl7FLjdG1jrWTZMrVEjYdKA0OodWKE=; b=StKQZ0wUD3d6JP95UFFcjb
-        b6QcuQL8YEqSiODB/RW5Nokc9qAb/MrVBKnMDyNQtYKp7HRJUujJbkTJETpreIgQ
-        eegZ+Jc0kTSmfL+771RXJSGLl9mY8hUxyDNuyKLmzRfKAy0q5cJqNHYcDCvDKdwA
-        hXcBNU9yT7k/pphNSQLJ2SjsQm9dUeyjLHSTrpl/CTB3Qvv1Y6EQOfFgbRTDbb55
-        VdMcNjd9PRFIv+jUR9NvAtkfIHDBt2Ngk2nAPsowymlid19hA3o4HZuaXBl+R7fk
-        iOp4AVavpY/QbrRErcLivzOHP4rPtKLWapxerCz0nNqqEf4+DGHO0J7XOQqIC6ww
-        ==
-X-ME-Sender: <xms:cXk4XvqIA3l_waWzhn5YZoX9gSqa1aD0Q4Qi5w-fUvRPhKZr7GkZkw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrgeejgdduvdeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
-    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
-    necukfhppedukeehrddutdegrddufeeirddvleenucevlhhushhtvghrufhiiigvpedtne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:cXk4Xlrswab9pYZTK2ook7T2KY-oF7IfcI2NGJHVgjvpN1LtKRfM5w>
-    <xmx:cXk4XubOpawCEqMWBAO3DE23GnXy3RXsm75nHHUVBXivUzMNypxPvg>
-    <xmx:cXk4Xj-cN90Q7w5FZ50Dr1uSVwbZ8yF6gEuM1v4_fBB95lDzwH6OJw>
-    <xmx:cnk4XitiEMy6wApGH6H76ZtBFhXYdzT_x632xcjWcInLG22G9XIQew>
-Received: from localhost (unknown [185.104.136.29])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4006030605C8;
-        Mon,  3 Feb 2020 14:50:08 -0500 (EST)
-Date:   Mon, 3 Feb 2020 19:50:07 +0000
-From:   Greg KH <greg@kroah.com>
-To:     dsterba@suse.cz, stable@vger.kernel.org,
-        linux-btrfs@vger.kernel.org
-Subject: Re: Please add d55966c4279bfc6 to 5.4.x and 5.5.x
-Message-ID: <20200203195007.GA3853072@kroah.com>
-References: <20200203182949.GD2654@twin.jikos.cz>
+        id S1726561AbgBCUKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 15:10:51 -0500
+Received: from mail-qv1-f67.google.com ([209.85.219.67]:37437 "EHLO
+        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726187AbgBCUKu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 15:10:50 -0500
+Received: by mail-qv1-f67.google.com with SMTP id m5so7457707qvv.4;
+        Mon, 03 Feb 2020 12:10:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=nw70Z3f/pI3EKVI3TaFMheeJf5zaKvG6DNvjFq2WSWM=;
+        b=VC3UQ5VMOHxfKXSd9cayojQq0/bM75ayfIIv+3aainbhZ+JPegksxNwWExxkxyK4Ju
+         hTdI6mDcgJU56DJ5D2sR7QkdDLAruqQH2jSUenu1UZrMiprzGVQitJEZPy6soAsiQ9aI
+         7PjggS5OM0H5BT+cisrXTMoRxTJlOEQIEjhZjKVEZEd8mhO+cvxe1OyjcjA80AkoB/6F
+         oQtxFMPk/ssQfM534c/eLCLFEroTLoBpNHhR/Tx7F4cFoAfqzvzSDYBhsQHp7tN50PcK
+         +aGdPGAmpFtPuPP6xY7mO+Ow0GlLdhhXVha2bx5dXcvAKP7xnVdRyBWd2rzgkGP9Ucsd
+         TBJg==
+X-Gm-Message-State: APjAAAXvxuClm9TfC2Tqwr5P7xav2sfjTJaExLK2bcd+QpaqeQMh0Q4+
+        rXEz9Ox/O1RCnCjyI1J7mlo=
+X-Google-Smtp-Source: APXvYqwfoBFGGWY2U0kn8JnKUDX54sgTNGsVambpWvo4p8xxClwziHcr9axnaFqDeHx7yqP3lC+R/A==
+X-Received: by 2002:a05:6214:209:: with SMTP id i9mr24402119qvt.54.1580760649781;
+        Mon, 03 Feb 2020 12:10:49 -0800 (PST)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id c45sm10921693qtd.43.2020.02.03.12.10.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Feb 2020 12:10:48 -0800 (PST)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 3CC7F404B0; Mon,  3 Feb 2020 20:10:47 +0000 (UTC)
+Date:   Mon, 3 Feb 2020 20:10:47 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Jari Ruusu <jari.ruusu@gmail.com>
+Cc:     Borislav Petkov <bp@alien8.de>, Fenghua Yu <fenghua.yu@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Fix built-in early-load Intel microcode alignment
+Message-ID: <20200203201047.GL11244@42.do-not-panic.com>
+References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200203182949.GD2654@twin.jikos.cz>
+In-Reply-To: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 03, 2020 at 07:29:49PM +0100, David Sterba wrote:
-> Hi,
+On Sun, Jan 12, 2020 at 03:00:53PM +0200, Jari Ruusu wrote:
+> Intel Software Developer's Manual, volume 3, chapter 9.11.6 says:
+> "Note that the microcode update must be aligned on a 16-byte
+> boundary and the size of the microcode update must be 1-KByte
+> granular"
 > 
-> I'd like to ask the stable team to add the patch
+> When early-load Intel microcode is loaded from initramfs,
+> userspace tool 'iucode_tool' has already 16-byte aligned those
+> microcode bits in that initramfs image. Image that was created
+> something like this:
 > 
-> d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6
-> btrfs: do not zero f_bavail if we have available space
+>  iucode_tool --write-earlyfw=FOO.cpio microcode-files...
 > 
-> to 5.4 and 5.5 stable trees as early as possible.
+> However, when early-load Intel microcode is loaded from built-in
+> firmware BLOB using CONFIG_EXTRA_FIRMWARE= kernel config option,
+> that 16-byte alignment is not guaranteed.
 > 
-> I'm not familiar with your release schedules but I saw the large patch
-> sets for review and I hope I could squeeze that one in the upcoming
-> release.
+> Fix this by forcing all built-in firmware BLOBs to 16-byte
+> alignment.
 > 
-> The commit fixes a problem in 'df' that causes false alerts and there
-> are a lot of users hitting it. The patch itself is a one-liner, but
-> with a high impact on usability.
+> 
+> Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
+> 
+> --- a/drivers/base/firmware_loader/builtin/Makefile
+> +++ b/drivers/base/firmware_loader/builtin/Makefile
+> @@ -17,7 +17,7 @@
+>  filechk_fwbin = \
+>  	echo "/* Generated by $(src)/Makefile */"		;\
+>  	echo "    .section .rodata"				;\
+> -	echo "    .p2align $(ASM_ALIGN)"			;\
+> +	echo "    .p2align 4"					;\
 
-I've snuck it in now, and if you could provide a backport for 4.4.y,
-that would be great as I think it's also needed there.
+Why not just keep ASM_ALIGN and define it to 4, with a nice
+comment explaining the ucode stuff. Now we have a raw 4 here
+and still use ASM_ALIGN which will depend on 64-bit or not.
 
-thanks,
+  Luis
 
-greg k-h
+>  	echo "_fw_$(FWSTR)_bin:"				;\
+>  	echo "    .incbin \"$(fwdir)/$(FWNAME)\""		;\
+>  	echo "_fw_end:"						;\
+> 
+> -- 
+> Jari Ruusu  4096R/8132F189 12D6 4C3A DCDA 0AA4 27BD  ACDF F073 3C80 8132 F189
