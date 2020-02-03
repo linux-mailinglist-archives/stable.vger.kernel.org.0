@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B8C8150C90
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39779150D3D
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:43:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730955AbgBCQhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:37:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53188 "EHLO mail.kernel.org"
+        id S1730622AbgBCQdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731357AbgBCQhg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:36 -0500
+        id S1730161AbgBCQdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:38 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 090A42082E;
-        Mon,  3 Feb 2020 16:37:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9CD72051A;
+        Mon,  3 Feb 2020 16:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747856;
-        bh=bMgZZy1qqrTGcobRB/v6mBwqSQpFkgMhc+FHm3UYgUo=;
+        s=default; t=1580747618;
+        bh=V67d985jCKm5fPRVRf9nl7XWuWBHPQXZixIhQw/nxHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FIOCAStzuc1FOPDc8LDWqwPFXo3zJ73UQ8gr2syWdrMH7+k7mMDdvaR30p8aM7GrL
-         D/XgqQET6bP5TRIUz/1u0qBwyvUhSNXOCr5uaOs+dX5bMFTau2l6wZfT2hwF7rUImM
-         yw5IKReGc5NvDq5IJIgAv12wMueUv3lnyj1YTloo=
+        b=YmfcO2UzJ+5DIqnp04YG4iZEHlAM7XUmK03uctZfj4vrWDi2hcBwTxVp4xYYXTaur
+         QGdnaXdd0RJptkdmcid7KGlstYsO+L3wX1b1/ub2qt87bv54kZVlzUW6FSoeq2MHnz
+         9SqHpW73vVjkxnhSjuCkcy/YNnIwibDIv8Azfpp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>,
-        syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com,
-        stable@kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 01/23] vfs: fix do_last() regression
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 69/70] l2t_seq_next should increase position index
 Date:   Mon,  3 Feb 2020 16:20:21 +0000
-Message-Id: <20200203161903.315802929@linuxfoundation.org>
+Message-Id: <20200203161922.032186269@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
-References: <20200203161902.288335885@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,63 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 6404674acd596de41fd3ad5f267b4525494a891a upstream.
+[ Upstream commit 66018a102f7756cf72db4d2704e1b93969d9d332 ]
 
-Brown paperbag time: fetching ->i_uid/->i_mode really should've been
-done from nd->inode.  I even suggested that, but the reason for that has
-slipped through the cracks and I went for dir->d_inode instead - made
-for more "obvious" patch.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Analysis:
-
- - at the entry into do_last() and all the way to step_into(): dir (aka
-   nd->path.dentry) is known not to have been freed; so's nd->inode and
-   it's equal to dir->d_inode unless we are already doomed to -ECHILD.
-   inode of the file to get opened is not known.
-
- - after step_into(): inode of the file to get opened is known; dir
-   might be pointing to freed memory/be negative/etc.
-
- - at the call of may_create_in_sticky(): guaranteed to be out of RCU
-   mode; inode of the file to get opened is known and pinned; dir might
-   be garbage.
-
-The last was the reason for the original patch.  Except that at the
-do_last() entry we can be in RCU mode and it is possible that
-nd->path.dentry->d_inode has already changed under us.
-
-In that case we are going to fail with -ECHILD, but we need to be
-careful; nd->inode is pointing to valid struct inode and it's the same
-as nd->path.dentry->d_inode in "won't fail with -ECHILD" case, so we
-should use that.
-
-Reported-by: "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
-Reported-by: syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com
-Wearing-brown-paperbag: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@kernel.org
-Fixes: d0cb50185ae9 ("do_last(): fetch directory ->i_mode and ->i_uid before it's too late")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/l2t.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3202,8 +3202,8 @@ static int do_last(struct nameidata *nd,
- 		   struct file *file, const struct open_flags *op)
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/l2t.c b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
+index 301c4df8a5664..986277744611c 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/l2t.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
+@@ -683,8 +683,7 @@ static void *l2t_seq_start(struct seq_file *seq, loff_t *pos)
+ static void *l2t_seq_next(struct seq_file *seq, void *v, loff_t *pos)
  {
- 	struct dentry *dir = nd->path.dentry;
--	kuid_t dir_uid = dir->d_inode->i_uid;
--	umode_t dir_mode = dir->d_inode->i_mode;
-+	kuid_t dir_uid = nd->inode->i_uid;
-+	umode_t dir_mode = nd->inode->i_mode;
- 	int open_flag = op->open_flag;
- 	bool will_truncate = (open_flag & O_TRUNC) != 0;
- 	bool got_write = false;
+ 	v = l2t_get_idx(seq, *pos);
+-	if (v)
+-		++*pos;
++	++(*pos);
+ 	return v;
+ }
+ 
+-- 
+2.20.1
+
 
 
