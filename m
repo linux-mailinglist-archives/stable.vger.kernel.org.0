@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E08EF150CB2
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5CE0150CD6
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728988AbgBCQir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:38:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
+        id S1731272AbgBCQhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:37:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731463AbgBCQiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:38:14 -0500
+        id S1730787AbgBCQhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:03 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FE862051A;
-        Mon,  3 Feb 2020 16:38:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF82A2051A;
+        Mon,  3 Feb 2020 16:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747894;
-        bh=CVclESlCh4sxDfLxveJPDtGVWFzcdGQ7O6FFLEyx1Yk=;
+        s=default; t=1580747823;
+        bh=PC4ZT9U2x9qg5fsi7hIoUtVwsFQ/+dxYmuyK9xgD0L4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuXiHaJJEmw6seoyKxNKiDWgxkojMynLTf6dUkej+wwQa+9/ofePYmyt5VzNIbZtd
-         IfPxMpGV2jq9kPtt90AsntImKMQya7pRzojtNbGhwUr7yjlzHblZ57iqCP68adqA3s
-         RqmiVHbsfp1mtN1Cp545PIrVBxrR3RALZ4kUGqog=
+        b=09Rzt56mpSxiZaXxxxPTR2UGq7C4KLKmWCxaw3m0+6R4XOAcDOvLFpbBIkzSpMQpY
+         r1L2GK9/oEYTyDJNlmNue3xlcvxJtTg1o1MmlYv3Z7xwv3biCEhQEZcjH8MOwAdN/+
+         wEoEUApCCKzwCgj51Ih+zzlQJ1CLg5GkSvdv70FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Yury Norov <yury.norov@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 08/23] lib/test_bitmap: correct test data offsets for 32-bit
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 85/90] net: fsl/fman: rename IF_MODE_XGMII to IF_MODE_10G
 Date:   Mon,  3 Feb 2020 16:20:28 +0000
-Message-Id: <20200203161904.366836024@linuxfoundation.org>
+Message-Id: <20200203161927.430171780@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
-References: <20200203161902.288335885@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,59 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Madalin Bucur <madalin.bucur@oss.nxp.com>
 
-commit 69334ca530da80c1563ac6a3bd32afa40884ccd3 upstream.
+[ Upstream commit 457bfc0a4bf531487ecc3cf82ec728a5e114fb1e ]
 
-On 32-bit platform the size of long is only 32 bits which makes wrong
-offset in the array of 64 bit size.
+As the only 10G PHY interface type defined at the moment the code
+was developed was XGMII, although the PHY interface mode used was
+not XGMII, XGMII was used in the code to denote 10G. This patch
+renames the 10G interface mode to remove the ambiguity.
 
-Calculate offset based on BITS_PER_LONG.
-
-Link: http://lkml.kernel.org/r/20200109103601.45929-1-andriy.shevchenko@linux.intel.com
-Fixes: 30544ed5de43 ("lib/bitmap: introduce bitmap_replace() helper")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_bitmap.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/freescale/fman/fman_memac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/lib/test_bitmap.c
-+++ b/lib/test_bitmap.c
-@@ -275,22 +275,23 @@ static void __init test_copy(void)
- static void __init test_replace(void)
- {
- 	unsigned int nbits = 64;
-+	unsigned int nlongs = DIV_ROUND_UP(nbits, BITS_PER_LONG);
- 	DECLARE_BITMAP(bmap, 1024);
+diff --git a/drivers/net/ethernet/freescale/fman/fman_memac.c b/drivers/net/ethernet/freescale/fman/fman_memac.c
+index 41c6fa200e746..e1901874c19f0 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_memac.c
++++ b/drivers/net/ethernet/freescale/fman/fman_memac.c
+@@ -110,7 +110,7 @@ do {									\
+ /* Interface Mode Register (IF_MODE) */
  
- 	bitmap_zero(bmap, 1024);
--	bitmap_replace(bmap, &exp2[0], &exp2[1], exp2_to_exp3_mask, nbits);
-+	bitmap_replace(bmap, &exp2[0 * nlongs], &exp2[1 * nlongs], exp2_to_exp3_mask, nbits);
- 	expect_eq_bitmap(bmap, exp3_0_1, nbits);
- 
- 	bitmap_zero(bmap, 1024);
--	bitmap_replace(bmap, &exp2[1], &exp2[0], exp2_to_exp3_mask, nbits);
-+	bitmap_replace(bmap, &exp2[1 * nlongs], &exp2[0 * nlongs], exp2_to_exp3_mask, nbits);
- 	expect_eq_bitmap(bmap, exp3_1_0, nbits);
- 
- 	bitmap_fill(bmap, 1024);
--	bitmap_replace(bmap, &exp2[0], &exp2[1], exp2_to_exp3_mask, nbits);
-+	bitmap_replace(bmap, &exp2[0 * nlongs], &exp2[1 * nlongs], exp2_to_exp3_mask, nbits);
- 	expect_eq_bitmap(bmap, exp3_0_1, nbits);
- 
- 	bitmap_fill(bmap, 1024);
--	bitmap_replace(bmap, &exp2[1], &exp2[0], exp2_to_exp3_mask, nbits);
-+	bitmap_replace(bmap, &exp2[1 * nlongs], &exp2[0 * nlongs], exp2_to_exp3_mask, nbits);
- 	expect_eq_bitmap(bmap, exp3_1_0, nbits);
- }
- 
+ #define IF_MODE_MASK		0x00000003 /* 30-31 Mask on i/f mode bits */
+-#define IF_MODE_XGMII		0x00000000 /* 30-31 XGMII (10G) interface */
++#define IF_MODE_10G		0x00000000 /* 30-31 10G interface */
+ #define IF_MODE_GMII		0x00000002 /* 30-31 GMII (1G) interface */
+ #define IF_MODE_RGMII		0x00000004
+ #define IF_MODE_RGMII_AUTO	0x00008000
+@@ -440,7 +440,7 @@ static int init(struct memac_regs __iomem *regs, struct memac_cfg *cfg,
+ 	tmp = 0;
+ 	switch (phy_if) {
+ 	case PHY_INTERFACE_MODE_XGMII:
+-		tmp |= IF_MODE_XGMII;
++		tmp |= IF_MODE_10G;
+ 		break;
+ 	default:
+ 		tmp |= IF_MODE_GMII;
+-- 
+2.20.1
+
 
 
