@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F5D150AF6
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5F3150B3E
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:26:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728333AbgBCQWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:22:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33694 "EHLO mail.kernel.org"
+        id S1728558AbgBCQZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:25:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728601AbgBCQVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:21:41 -0500
+        id S1728786AbgBCQZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:25:55 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A24D52080C;
-        Mon,  3 Feb 2020 16:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AD342086A;
+        Mon,  3 Feb 2020 16:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580746900;
-        bh=FbqL9DxWWj8vs/OxbIAQM1UlvvUfqLzpDxKU81KI42M=;
+        s=default; t=1580747154;
+        bh=Hlv4BgpjQ57ab2jPSw4SsV+tpSLZyoBSgMWy+tEbRU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEbWf8aAlK/UQeq35T8tr0boSLiq3hPk/RTkAx/g5NoIozbA+KT46NNcWHPGAtv7d
-         l+lLnExyY2oPmexWDt8tshTZAPeP+JZGmnSrDlukIm/Qy7mzzTxYDoHKmcwskIkOhy
-         MCiFa1s7IZGUmWrlLKtQtGg5G49MgumJU+MtHLFU=
+        b=lldwuz+CmQBKO69xkgsBkMua6mgVj7t62gAoVHAhxy7dG7hl943H/K//1tSZogSGN
+         VSlggMeASFssRQ7Q/rADT1qne33A2qapdsgcJ0DaXEJqkkwvFG1EeQTx73lqhQCgXV
+         xCjD/Po7pp6Ax4tmRX/AsmkVVPAT5IAc1uV3IXOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 37/53] wireless: wext: avoid gcc -O3 warning
+        stable@vger.kernel.org,
+        syzbot+1c6756baf4b16b94d2a6@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 33/68] reiserfs: Fix memory leak of journal device string
 Date:   Mon,  3 Feb 2020 16:19:29 +0000
-Message-Id: <20200203161909.602727646@linuxfoundation.org>
+Message-Id: <20200203161910.404914413@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
-References: <20200203161902.714326084@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit e16119655c9e6c4aa5767cd971baa9c491f41b13 ]
+commit 5474ca7da6f34fa95e82edc747d5faa19cbdfb5c upstream.
 
-After the introduction of CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3,
-the wext code produces a bogus warning:
+When a filesystem is mounted with jdev mount option, we store the
+journal device name in an allocated string in superblock. However we
+fail to ever free that string. Fix it.
 
-In function 'iw_handler_get_iwstats',
-    inlined from 'ioctl_standard_call' at net/wireless/wext-core.c:1015:9,
-    inlined from 'wireless_process_ioctl' at net/wireless/wext-core.c:935:10,
-    inlined from 'wext_ioctl_dispatch.part.8' at net/wireless/wext-core.c:986:8,
-    inlined from 'wext_handle_ioctl':
-net/wireless/wext-core.c:671:3: error: argument 1 null where non-null expected [-Werror=nonnull]
-   memcpy(extra, stats, sizeof(struct iw_statistics));
-   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In file included from arch/x86/include/asm/string.h:5,
-net/wireless/wext-core.c: In function 'wext_handle_ioctl':
-arch/x86/include/asm/string_64.h:14:14: note: in a call to function 'memcpy' declared here
+Reported-by: syzbot+1c6756baf4b16b94d2a6@syzkaller.appspotmail.com
+Fixes: c3aa077648e1 ("reiserfs: Properly display mount options in /proc/mounts")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The problem is that ioctl_standard_call() sometimes calls the handler
-with a NULL argument that would cause a problem for iw_handler_get_iwstats.
-However, iw_handler_get_iwstats never actually gets called that way.
-
-Marking that function as noinline avoids the warning and leads
-to slightly smaller object code as well.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200107200741.3588770-1-arnd@arndb.de
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/wext-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/reiserfs/super.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/wireless/wext-core.c b/net/wireless/wext-core.c
-index b50ee5d622e14..843d2cf1e6a6c 100644
---- a/net/wireless/wext-core.c
-+++ b/net/wireless/wext-core.c
-@@ -656,7 +656,8 @@ struct iw_statistics *get_wireless_stats(struct net_device *dev)
- 	return NULL;
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -599,6 +599,7 @@ static void reiserfs_put_super(struct su
+ 	reiserfs_write_unlock(s);
+ 	mutex_destroy(&REISERFS_SB(s)->lock);
+ 	destroy_workqueue(REISERFS_SB(s)->commit_wq);
++	kfree(REISERFS_SB(s)->s_jdev);
+ 	kfree(s->s_fs_info);
+ 	s->s_fs_info = NULL;
  }
+@@ -2217,6 +2218,7 @@ error_unlocked:
+ 			kfree(qf_names[j]);
+ 	}
+ #endif
++	kfree(sbi->s_jdev);
+ 	kfree(sbi);
  
--static int iw_handler_get_iwstats(struct net_device *		dev,
-+/* noinline to avoid a bogus warning with -O3 */
-+static noinline int iw_handler_get_iwstats(struct net_device *	dev,
- 				  struct iw_request_info *	info,
- 				  union iwreq_data *		wrqu,
- 				  char *			extra)
--- 
-2.20.1
-
+ 	s->s_fs_info = NULL;
 
 
