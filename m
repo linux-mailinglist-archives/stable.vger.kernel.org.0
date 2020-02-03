@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6592B150C06
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5692150CF7
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730462AbgBCQcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:32:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46460 "EHLO mail.kernel.org"
+        id S1731086AbgBCQfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:35:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730159AbgBCQcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:32:41 -0500
+        id S1731082AbgBCQfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:35:51 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D33E02082E;
-        Mon,  3 Feb 2020 16:32:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3176D2051A;
+        Mon,  3 Feb 2020 16:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747561;
-        bh=rOC8U+f1daTPhWJ4bxWs0HkmJ05pAb0NOy3PkAdNkRg=;
+        s=default; t=1580747750;
+        bh=4lUYntdem9KaoQXqTsHcnMgcRvsiAA2mzCa1crZVygQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QU2BrUgFlnor5Qk/hGAZO+kK5MaVS1TyyxCW0rvkOMz1KFHJhQuC+9RplkP2HUg/f
-         vY+Y4ufjkWPys59Ni9lSFbmzVuneQmCsaeZTEyU1nBhYvFEvPicjHAr+4Q2IaQC7yp
-         XhS9NE/3B0zrVS8xX0LAiP0X29gmccjj5stKwkMo=
+        b=lMqwJs1c/z8Drc8fSKYsFoudWI53hoBAL79iQR/CYyldP+zrEkr1eHZ6mpntJDyOz
+         1InkA2wZIIdNNWf3DMs/OTyKGbbOvAJ0gVHK0P70stqcRyXAYPaEp5O8WJ1uObd6sF
+         UqzGO5hz+plibgEEq8T8LI88Z6n/lM6LCsavniUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/70] mac80211: Fix TKIP replay protection immediately after key setup
+Subject: [PATCH 5.4 53/90] mac80211: Fix TKIP replay protection immediately after key setup
 Date:   Mon,  3 Feb 2020 16:19:56 +0000
-Message-Id: <20200203161918.742702787@linuxfoundation.org>
+Message-Id: <20200203161924.283085792@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/net/mac80211/tkip.c b/net/mac80211/tkip.c
-index b3622823bad23..ebd66e8f46b3f 100644
+index 727dc9f3f3b3a..e7f57bb18f6e0 100644
 --- a/net/mac80211/tkip.c
 +++ b/net/mac80211/tkip.c
-@@ -266,9 +266,21 @@ int ieee80211_tkip_decrypt_data(struct crypto_cipher *tfm,
+@@ -263,9 +263,21 @@ int ieee80211_tkip_decrypt_data(struct arc4_ctx *ctx,
  	if ((keyid >> 6) != key->conf.keyidx)
  		return TKIP_DECRYPT_INVALID_KEYIDX;
  
