@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA571150D72
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 930CA150D16
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgBCQ3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40954 "EHLO mail.kernel.org"
+        id S1730519AbgBCQep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:34:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729716AbgBCQ3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:06 -0500
+        id S1730846AbgBCQeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:44 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20E7B2051A;
-        Mon,  3 Feb 2020 16:29:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C950E20CC7;
+        Mon,  3 Feb 2020 16:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747346;
-        bh=FBjiEtGCtQUkVz8QK73eh6OPI6OZsUJp4HJ12lzYckk=;
+        s=default; t=1580747684;
+        bh=p5WUSpnRjJjRF9kGCVdRNlAHBDmitXxxgOiHRt0J9RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhBdMa2vIZI1VU3LJrixTbUNszqX8UXQlyIQautZ4PHTHUGBjQyyl2hiiB0JQ9/mc
-         /CTcnaHuwPjVKDi+SBtj2CHJbubd6Kwvv1yrkQOwfc4MMk/YWsy8903qsemugMvxn+
-         rLdBIcNvR9ts0A5vpub609r97clLGrX2zGU08aKY=
+        b=OMxT04g+FALL/ZKYUreJnanuGgfcqYav7Iadqp8c77RmPK6srQbxPhtiJPu6a4t8P
+         C/KyIJmSCmYlW8Kf6JP8czigqCkR9NOGTPZCZ6husQ6LVSUaKd0qDPSiMraSKRfUjk
+         nW5g7mXm150v94DA05/UxZNxB3aUSu+byJGCjlnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 45/89] media: digitv: dont continue if remote control state cant be read
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/90] ARM: dts: am57xx-beagle-x15/am57xx-idk: Remove "gpios" for  endpoint dt nodes
 Date:   Mon,  3 Feb 2020 16:19:30 +0000
-Message-Id: <20200203161922.990454218@linuxfoundation.org>
+Message-Id: <20200203161921.206999917@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit eecc70d22ae51225de1ef629c1159f7116476b2e upstream.
+[ Upstream commit 81cc0877840f72210e809bbedd6346d686560fc1 ]
 
-This results in an uninitialized variable read.
+PERST# line in the PCIE connector is driven by the host mode and not
+EP mode. The gpios property here is used for driving the PERST# line.
+Remove gpios property from all endpoint device tree nodes.
 
-Reported-by: syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/digitv.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/am571x-idk.dts                | 4 ----
+ arch/arm/boot/dts/am572x-idk-common.dtsi        | 4 ----
+ arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi | 4 ----
+ 3 files changed, 12 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/digitv.c
-+++ b/drivers/media/usb/dvb-usb/digitv.c
-@@ -233,18 +233,22 @@ static struct rc_map_table rc_map_digitv
+diff --git a/arch/arm/boot/dts/am571x-idk.dts b/arch/arm/boot/dts/am571x-idk.dts
+index 9d6a872c2b236..10105a497c1ac 100644
+--- a/arch/arm/boot/dts/am571x-idk.dts
++++ b/arch/arm/boot/dts/am571x-idk.dts
+@@ -170,10 +170,6 @@
+ 	gpios = <&gpio5 18 GPIO_ACTIVE_HIGH>;
+ };
  
- static int digitv_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
- {
--	int i;
-+	int ret, i;
- 	u8 key[5];
- 	u8 b[4] = { 0 };
+-&pcie1_ep {
+-	gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;
+-};
+-
+ &mmc1 {
+ 	pinctrl-names = "default", "hs";
+ 	pinctrl-0 = <&mmc1_pins_default_no_clk_pu>;
+diff --git a/arch/arm/boot/dts/am572x-idk-common.dtsi b/arch/arm/boot/dts/am572x-idk-common.dtsi
+index a064f13b38802..ddf123620e962 100644
+--- a/arch/arm/boot/dts/am572x-idk-common.dtsi
++++ b/arch/arm/boot/dts/am572x-idk-common.dtsi
+@@ -147,10 +147,6 @@
+ 	gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;
+ };
  
- 	*event = 0;
- 	*state = REMOTE_NO_KEY_PRESSED;
+-&pcie1_ep {
+-	gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;
+-};
+-
+ &mailbox5 {
+ 	status = "okay";
+ 	mbox_ipu1_ipc3x: mbox_ipu1_ipc3x {
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+index bc76f1705c0f6..9a94c96b0350e 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+@@ -547,10 +547,6 @@
+ 	gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
+ };
  
--	digitv_ctrl_msg(d,USB_READ_REMOTE,0,NULL,0,&key[1],4);
-+	ret = digitv_ctrl_msg(d, USB_READ_REMOTE, 0, NULL, 0, &key[1], 4);
-+	if (ret)
-+		return ret;
- 
- 	/* Tell the device we've read the remote. Not sure how necessary
- 	   this is, but the Nebula SDK does it. */
--	digitv_ctrl_msg(d,USB_WRITE_REMOTE,0,b,4,NULL,0);
-+	ret = digitv_ctrl_msg(d, USB_WRITE_REMOTE, 0, b, 4, NULL, 0);
-+	if (ret)
-+		return ret;
- 
- 	/* if something is inside the buffer, simulate key press */
- 	if (key[1] != 0)
+-&pcie1_ep {
+-	gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
+-};
+-
+ &mcasp3 {
+ 	#sound-dai-cells = <0>;
+ 	assigned-clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 24>;
+-- 
+2.20.1
+
 
 
