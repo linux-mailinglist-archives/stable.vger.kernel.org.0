@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49DCC150BD6
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 546D7150CF8
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730121AbgBCQbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:31:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43886 "EHLO mail.kernel.org"
+        id S1731104AbgBCQf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:35:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730118AbgBCQa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:59 -0500
+        id S1731097AbgBCQfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:35:55 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 925372080D;
-        Mon,  3 Feb 2020 16:30:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3B6320CC7;
+        Mon,  3 Feb 2020 16:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747459;
-        bh=rA3Xwyv3tWdNx7mUlH4cBYOADEK9whLY8ocxRTdKpTQ=;
+        s=default; t=1580747755;
+        bh=3X1PU6uQea7BRgZqf4K6xrZwu/6yQq6UNJ+3wSZR3WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DD0/DO1WpJlNyt3ocs0xKrG2RZgiASYICMiE+e0sYvJmP64FzFdSHyS/tTJOyktZx
-         d7KBdhOy9AHqpxN1wuaseYPp3CZ/0JDTdA/HZJKRTMjVbj8S4KDvF8QUDOOINfAXyR
-         FuDSYCF/DFEwxzKo6Kb4CRJRzvCrzVsscsjTl1oE=
+        b=Yhv0mvL4be622Xr3TPz4QUVX6eQFb2TBjEAIcLekQmpza/0KmBXjHdEaCGAbmRcms
+         CsRIRlvCdm3OSQTzlpNqsQe7yfe031nFWGQttVtH4n2gqirofNXz5BTGX1wvnHdpD4
+         QGUs65EpkTHCLSiC6Ng1lEjM7sSuu4zxXjW0Gy/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 72/89] vti[6]: fix packet tx through bpf_redirect()
+Subject: [PATCH 5.4 54/90] wireless: wext: avoid gcc -O3 warning
 Date:   Mon,  3 Feb 2020 16:19:57 +0000
-Message-Id: <20200203161925.817011845@linuxfoundation.org>
+Message-Id: <20200203161924.377160222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 95224166a9032ff5d08fca633d37113078ce7d01 ]
+[ Upstream commit e16119655c9e6c4aa5767cd971baa9c491f41b13 ]
 
-With an ebpf program that redirects packets through a vti[6] interface,
-the packets are dropped because no dst is attached.
+After the introduction of CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3,
+the wext code produces a bogus warning:
 
-This could also be reproduced with an AF_PACKET socket, with the following
-python script (vti1 is an ip_vti interface):
+In function 'iw_handler_get_iwstats',
+    inlined from 'ioctl_standard_call' at net/wireless/wext-core.c:1015:9,
+    inlined from 'wireless_process_ioctl' at net/wireless/wext-core.c:935:10,
+    inlined from 'wext_ioctl_dispatch.part.8' at net/wireless/wext-core.c:986:8,
+    inlined from 'wext_handle_ioctl':
+net/wireless/wext-core.c:671:3: error: argument 1 null where non-null expected [-Werror=nonnull]
+   memcpy(extra, stats, sizeof(struct iw_statistics));
+   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/x86/include/asm/string.h:5,
+net/wireless/wext-core.c: In function 'wext_handle_ioctl':
+arch/x86/include/asm/string_64.h:14:14: note: in a call to function 'memcpy' declared here
 
- import socket
- send_s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, 0)
- # scapy
- # p = IP(src='10.100.0.2', dst='10.200.0.1')/ICMP(type='echo-request')
- # raw(p)
- req = b'E\x00\x00\x1c\x00\x01\x00\x00@\x01e\xb2\nd\x00\x02\n\xc8\x00\x01\x08\x00\xf7\xff\x00\x00\x00\x00'
- send_s.sendto(req, ('vti1', 0x800, 0, 0))
+The problem is that ioctl_standard_call() sometimes calls the handler
+with a NULL argument that would cause a problem for iw_handler_get_iwstats.
+However, iw_handler_get_iwstats never actually gets called that way.
 
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Marking that function as noinline avoids the warning and leads
+to slightly smaller object code as well.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200107200741.3588770-1-arnd@arndb.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_vti.c  | 13 +++++++++++--
- net/ipv6/ip6_vti.c | 13 +++++++++++--
- 2 files changed, 22 insertions(+), 4 deletions(-)
+ net/wireless/wext-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_vti.c b/net/ipv4/ip_vti.c
-index 08c15dd42d935..59384ffe89f73 100644
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -208,8 +208,17 @@ static netdev_tx_t vti_xmit(struct sk_buff *skb, struct net_device *dev,
- 	int mtu;
+diff --git a/net/wireless/wext-core.c b/net/wireless/wext-core.c
+index 5e677dac2a0ce..69102fda9ebd4 100644
+--- a/net/wireless/wext-core.c
++++ b/net/wireless/wext-core.c
+@@ -657,7 +657,8 @@ struct iw_statistics *get_wireless_stats(struct net_device *dev)
+ 	return NULL;
+ }
  
- 	if (!dst) {
--		dev->stats.tx_carrier_errors++;
--		goto tx_error_icmp;
-+		struct rtable *rt;
-+
-+		fl->u.ip4.flowi4_oif = dev->ifindex;
-+		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
-+		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
-+		if (IS_ERR(rt)) {
-+			dev->stats.tx_carrier_errors++;
-+			goto tx_error_icmp;
-+		}
-+		dst = &rt->dst;
-+		skb_dst_set(skb, dst);
- 	}
- 
- 	dst_hold(dst);
-diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
-index 557fe3880a3f3..396a0f61f5f88 100644
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -453,8 +453,17 @@ vti6_xmit(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
- 	int err = -1;
- 	int mtu;
- 
--	if (!dst)
--		goto tx_err_link_failure;
-+	if (!dst) {
-+		fl->u.ip6.flowi6_oif = dev->ifindex;
-+		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
-+		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
-+		if (dst->error) {
-+			dst_release(dst);
-+			dst = NULL;
-+			goto tx_err_link_failure;
-+		}
-+		skb_dst_set(skb, dst);
-+	}
- 
- 	dst_hold(dst);
- 	dst = xfrm_lookup(t->net, dst, fl, NULL, 0);
+-static int iw_handler_get_iwstats(struct net_device *		dev,
++/* noinline to avoid a bogus warning with -O3 */
++static noinline int iw_handler_get_iwstats(struct net_device *	dev,
+ 				  struct iw_request_info *	info,
+ 				  union iwreq_data *		wrqu,
+ 				  char *			extra)
 -- 
 2.20.1
 
