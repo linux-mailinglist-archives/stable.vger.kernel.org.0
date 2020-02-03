@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA84150BB1
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95D1F150D4A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729843AbgBCQ3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41774 "EHLO mail.kernel.org"
+        id S1730366AbgBCQcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729541AbgBCQ3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:43 -0500
+        id S1730372AbgBCQcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:10 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17F662051A;
-        Mon,  3 Feb 2020 16:29:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC71821741;
+        Mon,  3 Feb 2020 16:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747382;
-        bh=E0KfDQpncrdbMkcBNsr0lecI8NGoQG1IQc4zpwXf10E=;
+        s=default; t=1580747530;
+        bh=OHbEb95UQ/uDxKtaT7TWCgF3ujdAcFfh7VMwS96ofwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxqM9TWrTFghwLKUjyghGXU2wDfHCrxjz1ojjZOCp6+7RCQKb9srz9MfAP5qIr3qD
-         cWDVeQ42rfkzDTx6zfKDy5rD4tqnnZSY/BuH4LLnzCZxqUTkZcQJP92yJjs21OcCRZ
-         tvv+PW5nddbIo/K5Q+skaqFIWlsydMJtt4DLENCo=
+        b=TjaB1yR40LEuyZ9hVhd/usXYsiEwaoLHXgUmZJxFASft6s5+Y1XYjkovC34Qv61XK
+         4Ya5gzN0lfRSbL4hVh9Pb6FfJskB6/t6++/6tl9RBJZK/aJpAFZCcVAkQR0Cl1QMUK
+         GyZLbLojEmEHBfLVbixABmp25CRcBiYynNa5wCUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cambda Zhu <cambda@linux.alibaba.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 59/89] ixgbe: Fix calculation of queue with VFs and flow director on interface flap
+Subject: [PATCH 4.19 32/70] mac80211: mesh: restrict airtime metric to peered established plinks
 Date:   Mon,  3 Feb 2020 16:19:44 +0000
-Message-Id: <20200203161924.436859082@linuxfoundation.org>
+Message-Id: <20200203161917.195331532@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,81 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cambda Zhu <cambda@linux.alibaba.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-[ Upstream commit 4fad78ad6422d9bca62135bbed8b6abc4cbb85b8 ]
+[ Upstream commit 02a614499600af836137c3fbc4404cd96365fff2 ]
 
-This patch fixes the calculation of queue when we restore flow director
-filters after resetting adapter. In ixgbe_fdir_filter_restore(), filter's
-vf may be zero which makes the queue outside of the rx_ring array.
+The following warning is triggered every time an unestablished mesh peer
+gets dumped. Checks if a peer link is established before retrieving the
+airtime link metric.
 
-The calculation is changed to the same as ixgbe_add_ethtool_fdir_entry().
+[ 9563.022567] WARNING: CPU: 0 PID: 6287 at net/mac80211/mesh_hwmp.c:345
+               airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022697] Hardware name: PC Engines apu2/apu2, BIOS v4.10.0.3
+[ 9563.022756] RIP: 0010:airtime_link_metric_get+0xa2/0xb0 [mac80211]
+[ 9563.022838] Call Trace:
+[ 9563.022897]  sta_set_sinfo+0x936/0xa10 [mac80211]
+[ 9563.022964]  ieee80211_dump_station+0x6d/0x90 [mac80211]
+[ 9563.023062]  nl80211_dump_station+0x154/0x2a0 [cfg80211]
+[ 9563.023120]  netlink_dump+0x17b/0x370
+[ 9563.023130]  netlink_recvmsg+0x2a4/0x480
+[ 9563.023140]  ____sys_recvmsg+0xa6/0x160
+[ 9563.023154]  ___sys_recvmsg+0x93/0xe0
+[ 9563.023169]  __sys_recvmsg+0x7e/0xd0
+[ 9563.023210]  do_syscall_64+0x4e/0x140
+[ 9563.023217]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Cambda Zhu <cambda@linux.alibaba.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191203180644.70653-1-markus.theil@tu-ilmenau.de
+[rewrite commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 37 ++++++++++++++-----
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ net/mac80211/mesh_hwmp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index e4c1e6345edd0..ba184287e11f3 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -5131,7 +5131,7 @@ static void ixgbe_fdir_filter_restore(struct ixgbe_adapter *adapter)
- 	struct ixgbe_hw *hw = &adapter->hw;
- 	struct hlist_node *node2;
- 	struct ixgbe_fdir_filter *filter;
--	u64 action;
-+	u8 queue;
+diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
+index 6950cd0bf5940..740dc9fa127cd 100644
+--- a/net/mac80211/mesh_hwmp.c
++++ b/net/mac80211/mesh_hwmp.c
+@@ -326,6 +326,9 @@ static u32 airtime_link_metric_get(struct ieee80211_local *local,
+ 	unsigned long fail_avg =
+ 		ewma_mesh_fail_avg_read(&sta->mesh->fail_avg);
  
- 	spin_lock(&adapter->fdir_perfect_lock);
- 
-@@ -5140,17 +5140,34 @@ static void ixgbe_fdir_filter_restore(struct ixgbe_adapter *adapter)
- 
- 	hlist_for_each_entry_safe(filter, node2,
- 				  &adapter->fdir_filter_list, fdir_node) {
--		action = filter->action;
--		if (action != IXGBE_FDIR_DROP_QUEUE && action != 0)
--			action =
--			(action >> ETHTOOL_RX_FLOW_SPEC_RING_VF_OFF) - 1;
-+		if (filter->action == IXGBE_FDIR_DROP_QUEUE) {
-+			queue = IXGBE_FDIR_DROP_QUEUE;
-+		} else {
-+			u32 ring = ethtool_get_flow_spec_ring(filter->action);
-+			u8 vf = ethtool_get_flow_spec_ring_vf(filter->action);
++	if (sta->mesh->plink_state != NL80211_PLINK_ESTAB)
++		return MAX_METRIC;
 +
-+			if (!vf && (ring >= adapter->num_rx_queues)) {
-+				e_err(drv, "FDIR restore failed without VF, ring: %u\n",
-+				      ring);
-+				continue;
-+			} else if (vf &&
-+				   ((vf > adapter->num_vfs) ||
-+				     ring >= adapter->num_rx_queues_per_pool)) {
-+				e_err(drv, "FDIR restore failed with VF, vf: %hhu, ring: %u\n",
-+				      vf, ring);
-+				continue;
-+			}
-+
-+			/* Map the ring onto the absolute queue index */
-+			if (!vf)
-+				queue = adapter->rx_ring[ring]->reg_idx;
-+			else
-+				queue = ((vf - 1) *
-+					adapter->num_rx_queues_per_pool) + ring;
-+		}
- 
- 		ixgbe_fdir_write_perfect_filter_82599(hw,
--				&filter->filter,
--				filter->sw_idx,
--				(action == IXGBE_FDIR_DROP_QUEUE) ?
--				IXGBE_FDIR_DROP_QUEUE :
--				adapter->rx_ring[action]->reg_idx);
-+				&filter->filter, filter->sw_idx, queue);
- 	}
- 
- 	spin_unlock(&adapter->fdir_perfect_lock);
+ 	/* Try to get rate based on HW/SW RC algorithm.
+ 	 * Rate is returned in units of Kbps, correct this
+ 	 * to comply with airtime calculation units
 -- 
 2.20.1
 
