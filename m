@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B48BA150B9E
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97B6C150AE5
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729734AbgBCQ3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41164 "EHLO mail.kernel.org"
+        id S1729199AbgBCQVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:21:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729755AbgBCQ3Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:16 -0500
+        id S1729215AbgBCQVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:21:53 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0C5E20CC7;
-        Mon,  3 Feb 2020 16:29:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 830632080C;
+        Mon,  3 Feb 2020 16:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747356;
-        bh=f6/Ccx65vDvsW4yhp/ZsExnlynZ3BNePDvYFyDnc58U=;
+        s=default; t=1580746912;
+        bh=dJ99gQh3O/vojkuYbo/2Mnv1K1SLRfANzJC7ZNyQkx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRQHmDFo8bumOI4g6G2MXzzM5MWVQya3gthTUnwpi2L/mbasRVFYew6tW1QzFTUgX
-         quQoO4Q0T82uJxoc+lEidoix1yGVTQ8r8nKKR7qTMt+VlBSOkfUtfCLoqVjgeofGuD
-         GHKvNZJGX1yzKnbzUTck8XtAH7AMUz3X2a1jnr54=
+        b=gqqODzwRduX1BkNgnriu07IL1/3nvaDJ8FAXbe2dX++Gr5kEAgsUmxl/P+JnhVE3S
+         6mJz3g0K2ynvip9kt9zFv/vHYx8R5q75YGnGHSqGoOU3SbuGxG4YIEhQnFXjKxj3BR
+         K/lvduHwdgFH/F9oXxYROMF9x3muAez6iaiZJGrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com,
-        Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 49/89] ttyprintk: fix a potential deadlock in interrupt context issue
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 42/53] airo: Fix possible info leak in AIROOLDIOCTL/SIOCDEVPRIVATE
 Date:   Mon,  3 Feb 2020 16:19:34 +0000
-Message-Id: <20200203161923.502078294@linuxfoundation.org>
+Message-Id: <20200203161910.324910174@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
+References: <20200203161902.714326084@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 9a655c77ff8fc65699a3f98e237db563b37c439b upstream.
+[ Upstream commit d6bce2137f5d6bb1093e96d2f801479099b28094 ]
 
-tpk_write()/tpk_close() could be interrupted when holding a mutex, then
-in timer handler tpk_write() may be called again trying to acquire same
-mutex, lead to deadlock.
+The driver for Cisco Aironet 4500 and 4800 series cards (airo.c),
+implements AIROOLDIOCTL/SIOCDEVPRIVATE in airo_ioctl().
 
-Google syzbot reported this issue with CONFIG_DEBUG_ATOMIC_SLEEP
-enabled:
+The ioctl handler copies an aironet_ioctl struct from userspace, which
+includes a command and a length. Some of the commands are handled in
+readrids(), which kmalloc()'s a buffer of RIDSIZE (2048) bytes.
 
-BUG: sleeping function called from invalid context at
-kernel/locking/mutex.c:938
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/1
-1 lock held by swapper/1/0:
-...
-Call Trace:
-  <IRQ>
-  dump_stack+0x197/0x210
-  ___might_sleep.cold+0x1fb/0x23e
-  __might_sleep+0x95/0x190
-  __mutex_lock+0xc5/0x13c0
-  mutex_lock_nested+0x16/0x20
-  tpk_write+0x5d/0x340
-  resync_tnc+0x1b6/0x320
-  call_timer_fn+0x1ac/0x780
-  run_timer_softirq+0x6c3/0x1790
-  __do_softirq+0x262/0x98c
-  irq_exit+0x19b/0x1e0
-  smp_apic_timer_interrupt+0x1a3/0x610
-  apic_timer_interrupt+0xf/0x20
-  </IRQ>
+That buffer is then passed to PC4500_readrid(), which has two cases.
+The else case does some setup and then reads up to RIDSIZE bytes from
+the hardware into the kmalloc()'ed buffer.
 
-See link https://syzkaller.appspot.com/bug?extid=2eeef62ee31f9460ad65 for
-more details.
+Here len == RIDSIZE, pBuf is the kmalloc()'ed buffer:
 
-Fix it by using spinlock in process context instead of mutex and having
-interrupt disabled in critical section.
+	// read the rid length field
+	bap_read(ai, pBuf, 2, BAP1);
+	// length for remaining part of rid
+	len = min(len, (int)le16_to_cpu(*(__le16*)pBuf)) - 2;
+	...
+	// read remainder of the rid
+	rc = bap_read(ai, ((__le16*)pBuf)+1, len, BAP1);
 
-Reported-by: syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200113034842.435-1-zhenzhong.duan@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+PC4500_readrid() then returns to readrids() which does:
 
+	len = comp->len;
+	if (copy_to_user(comp->data, iobuf, min(len, (int)RIDSIZE))) {
+
+Where comp->len is the user controlled length field.
+
+So if the "rid length field" returned by the hardware is < 2048, and
+the user requests 2048 bytes in comp->len, we will leak the previous
+contents of the kmalloc()'ed buffer to userspace.
+
+Fix it by kzalloc()'ing the buffer.
+
+Found by Ilja by code inspection, not tested as I don't have the
+required hardware.
+
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ttyprintk.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/wireless/airo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/ttyprintk.c
-+++ b/drivers/char/ttyprintk.c
-@@ -18,10 +18,11 @@
- #include <linux/serial.h>
- #include <linux/tty.h>
- #include <linux/module.h>
-+#include <linux/spinlock.h>
+diff --git a/drivers/net/wireless/airo.c b/drivers/net/wireless/airo.c
+index 82d24f2b9c190..94df9ddfb7eb1 100644
+--- a/drivers/net/wireless/airo.c
++++ b/drivers/net/wireless/airo.c
+@@ -7831,7 +7831,7 @@ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
+ 		return -EINVAL;
+ 	}
  
- struct ttyprintk_port {
- 	struct tty_port port;
--	struct mutex port_write_mutex;
-+	spinlock_t spinlock;
- };
+-	if ((iobuf = kmalloc(RIDSIZE, GFP_KERNEL)) == NULL)
++	if ((iobuf = kzalloc(RIDSIZE, GFP_KERNEL)) == NULL)
+ 		return -ENOMEM;
  
- static struct ttyprintk_port tpk_port;
-@@ -100,11 +101,12 @@ static int tpk_open(struct tty_struct *t
- static void tpk_close(struct tty_struct *tty, struct file *filp)
- {
- 	struct ttyprintk_port *tpkp = tty->driver_data;
-+	unsigned long flags;
- 
--	mutex_lock(&tpkp->port_write_mutex);
-+	spin_lock_irqsave(&tpkp->spinlock, flags);
- 	/* flush tpk_printk buffer */
- 	tpk_printk(NULL, 0);
--	mutex_unlock(&tpkp->port_write_mutex);
-+	spin_unlock_irqrestore(&tpkp->spinlock, flags);
- 
- 	tty_port_close(&tpkp->port, tty, filp);
- }
-@@ -116,13 +118,14 @@ static int tpk_write(struct tty_struct *
- 		const unsigned char *buf, int count)
- {
- 	struct ttyprintk_port *tpkp = tty->driver_data;
-+	unsigned long flags;
- 	int ret;
- 
- 
- 	/* exclusive use of tpk_printk within this tty */
--	mutex_lock(&tpkp->port_write_mutex);
-+	spin_lock_irqsave(&tpkp->spinlock, flags);
- 	ret = tpk_printk(buf, count);
--	mutex_unlock(&tpkp->port_write_mutex);
-+	spin_unlock_irqrestore(&tpkp->spinlock, flags);
- 
- 	return ret;
- }
-@@ -172,7 +175,7 @@ static int __init ttyprintk_init(void)
- {
- 	int ret = -ENOMEM;
- 
--	mutex_init(&tpk_port.port_write_mutex);
-+	spin_lock_init(&tpk_port.spinlock);
- 
- 	ttyprintk_driver = tty_alloc_driver(1,
- 			TTY_DRIVER_RESET_TERMIOS |
+ 	PC4500_readrid(ai,ridcode,iobuf,RIDSIZE, 1);
+-- 
+2.20.1
+
 
 
