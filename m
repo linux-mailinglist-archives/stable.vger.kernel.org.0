@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E52150BC9
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC29150C24
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730007AbgBCQa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
+        id S1730364AbgBCQdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730002AbgBCQa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:26 -0500
+        id S1730359AbgBCQdn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:43 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46A6E2086A;
-        Mon,  3 Feb 2020 16:30:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 619912051A;
+        Mon,  3 Feb 2020 16:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747425;
-        bh=3wGRL90czmoweh8O1WUlHwtiqXhbAD81rd8yS1gnIek=;
+        s=default; t=1580747622;
+        bh=bRDxASd4pXuwaIG0C6ZLI8ag5CYBoRgCK8NpwNg/rFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qd1RtVFMt8cYwBW1zMWYCmav8y8EnGoVV7M5OSi/7GTGynbbYCIg5FImVqFBM/fYR
-         TNNcQdTezP7u5kFicXW4A2acPkX4a6pl1bUuB/PDXKmC6X53BaxxdMVM4zskyGC8m7
-         jRZtXTeKRuRbwnFx12MpGMxg7Pd3HMm9SJSB7oSE=
+        b=E3jgazon0PEmbKJpi8cXh0WvZ/5scamVh0NSVkB8I4qxNmMVDBwz10UnGuXCUlKfV
+         S6SVFkTAq51uB0zQyKC/HYT0zpNBg0g8J1fXNYy1WJA5MyuJcneR4IgC9WqFBcwIPc
+         Ljzs06QvjkQLAd3wAvbg1lcnARtVMWpN59dzORCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shahed Shaikh <shshaikh@marvell.com>,
-        Yonggen Xu <Yonggen.Xu@dell.com>,
-        Manish Chopra <manishc@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Vladis Dronov <vdronov@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 79/89] qlcnic: Fix CPU soft lockup while collecting firmware dump
+Subject: [PATCH 4.19 52/70] Input: aiptek - use descriptors of current altsetting
 Date:   Mon,  3 Feb 2020 16:20:04 +0000
-Message-Id: <20200203161926.520406709@linuxfoundation.org>
+Message-Id: <20200203161919.888636372@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 22e984493a41bf8081f13d9ed84def3ca8cfd427 ]
+[ Upstream commit cfa4f6a99fb183742cace65ec551b444852b8ef6 ]
 
-Driver while collecting firmware dump takes longer time to
-collect/process some of the firmware dump entries/memories.
-Bigger capture masks makes it worse as it results in larger
-amount of data being collected and results in CPU soft lockup.
-Place cond_resched() in some of the driver flows that are
-expectedly time consuming to relinquish the CPU to avoid CPU
-soft lockup panic.
+Make sure to always use the descriptors of the current alternate setting
+to avoid future issues when accessing fields that may differ between
+settings.
 
-Signed-off-by: Shahed Shaikh <shshaikh@marvell.com>
-Tested-by: Yonggen Xu <Yonggen.Xu@dell.com>
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Vladis Dronov <vdronov@redhat.com>
+Link: https://lore.kernel.org/r/20191210113737.4016-4-johan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c | 1 +
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c  | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/input/tablet/aiptek.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-index a496390b8632f..07f9067affc65 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2043,6 +2043,7 @@ static void qlcnic_83xx_exec_template_cmd(struct qlcnic_adapter *p_dev,
- 			break;
- 		}
- 		entry += p_hdr->size;
-+		cond_resched();
- 	}
- 	p_dev->ahw->reset.seq_index = index;
- }
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-index afa10a163da1f..f34ae8c75bc5e 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-@@ -703,6 +703,7 @@ static u32 qlcnic_read_memory_test_agent(struct qlcnic_adapter *adapter,
- 		addr += 16;
- 		reg_read -= 16;
- 		ret += 16;
-+		cond_resched();
- 	}
- out:
- 	mutex_unlock(&adapter->ahw->mem_lock);
-@@ -1383,6 +1384,7 @@ int qlcnic_dump_fw(struct qlcnic_adapter *adapter)
- 		buf_offset += entry->hdr.cap_size;
- 		entry_offset += entry->hdr.offset;
- 		buffer = fw_dump->data + buf_offset;
-+		cond_resched();
- 	}
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index dc2ad1cc8fe1d..8632ca509887d 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1726,7 +1726,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
  
- 	fw_dump->clr = 1;
+ 	aiptek->inputdev = inputdev;
+ 	aiptek->intf = intf;
+-	aiptek->ifnum = intf->altsetting[0].desc.bInterfaceNumber;
++	aiptek->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+ 	aiptek->inDelay = 0;
+ 	aiptek->endDelay = 0;
+ 	aiptek->previousJitterable = 0;
 -- 
 2.20.1
 
