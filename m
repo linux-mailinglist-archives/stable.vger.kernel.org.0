@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D341150CC3
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C716150C97
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728708AbgBCQjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:39:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
+        id S1731397AbgBCQhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:37:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731387AbgBCQhs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:48 -0500
+        id S1730901AbgBCQhv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:51 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D825E2051A;
-        Mon,  3 Feb 2020 16:37:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40B222051A;
+        Mon,  3 Feb 2020 16:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747868;
-        bh=f2TNS1cJv4uSFQ7VapAKb7Sb5+qrgmmBWsgN10lGess=;
+        s=default; t=1580747870;
+        bh=6DmBolbtfr5xFdGIY7cFqc5o5dNUZ0YZKeKqRMpNUGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NhVZumt1FcsFLZs58km7KJcJW7OBMWXl1eMzUYo5uZjTX6qM+O7I1BIqPZAzYN+R/
-         oa+pHWe8E6rcA5/sfHvtHwksO56xmoMeC+X2A2zuzTVghm8M27xuHouagfwIewDSkO
-         D5nWgX0kYIYmtI0OVesO2+pGr+Ou/umUNKbzJAXQ=
+        b=XFTXoiWpx+4ORXBgj6f4eH8eaX49e33TolgRsSKXO9Ypxh5lE/zbKpVarCXHV5mHT
+         O5YuNM9samnPc1Gw1oeYL7Nq7InyNheV6DNCkKXIRXlrr8qNH+H9ep2vPLgIsVUwKA
+         p6X63COqwcO82u6nCs9mKIxCiFRKoyonBGt7gbKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+1c6756baf4b16b94d2a6@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.5 14/23] reiserfs: Fix memory leak of journal device string
-Date:   Mon,  3 Feb 2020 16:20:34 +0000
-Message-Id: <20200203161905.380898375@linuxfoundation.org>
+        syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.5 15/23] media: digitv: dont continue if remote control state cant be read
+Date:   Mon,  3 Feb 2020 16:20:35 +0000
+Message-Id: <20200203161905.564349234@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
 References: <20200203161902.288335885@linuxfoundation.org>
@@ -44,41 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sean Young <sean@mess.org>
 
-commit 5474ca7da6f34fa95e82edc747d5faa19cbdfb5c upstream.
+commit eecc70d22ae51225de1ef629c1159f7116476b2e upstream.
 
-When a filesystem is mounted with jdev mount option, we store the
-journal device name in an allocated string in superblock. However we
-fail to ever free that string. Fix it.
+This results in an uninitialized variable read.
 
-Reported-by: syzbot+1c6756baf4b16b94d2a6@syzkaller.appspotmail.com
-Fixes: c3aa077648e1 ("reiserfs: Properly display mount options in /proc/mounts")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/reiserfs/super.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/dvb-usb/digitv.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -629,6 +629,7 @@ static void reiserfs_put_super(struct su
- 	reiserfs_write_unlock(s);
- 	mutex_destroy(&REISERFS_SB(s)->lock);
- 	destroy_workqueue(REISERFS_SB(s)->commit_wq);
-+	kfree(REISERFS_SB(s)->s_jdev);
- 	kfree(s->s_fs_info);
- 	s->s_fs_info = NULL;
- }
-@@ -2240,6 +2241,7 @@ error_unlocked:
- 			kfree(qf_names[j]);
- 	}
- #endif
-+	kfree(sbi->s_jdev);
- 	kfree(sbi);
+--- a/drivers/media/usb/dvb-usb/digitv.c
++++ b/drivers/media/usb/dvb-usb/digitv.c
+@@ -230,18 +230,22 @@ static struct rc_map_table rc_map_digitv
  
- 	s->s_fs_info = NULL;
+ static int digitv_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+ {
+-	int i;
++	int ret, i;
+ 	u8 key[5];
+ 	u8 b[4] = { 0 };
+ 
+ 	*event = 0;
+ 	*state = REMOTE_NO_KEY_PRESSED;
+ 
+-	digitv_ctrl_msg(d,USB_READ_REMOTE,0,NULL,0,&key[1],4);
++	ret = digitv_ctrl_msg(d, USB_READ_REMOTE, 0, NULL, 0, &key[1], 4);
++	if (ret)
++		return ret;
+ 
+ 	/* Tell the device we've read the remote. Not sure how necessary
+ 	   this is, but the Nebula SDK does it. */
+-	digitv_ctrl_msg(d,USB_WRITE_REMOTE,0,b,4,NULL,0);
++	ret = digitv_ctrl_msg(d, USB_WRITE_REMOTE, 0, b, 4, NULL, 0);
++	if (ret)
++		return ret;
+ 
+ 	/* if something is inside the buffer, simulate key press */
+ 	if (key[1] != 0)
 
 
