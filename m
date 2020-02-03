@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6798150D8A
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49DCC150BD6
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729779AbgBCQa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43862 "EHLO mail.kernel.org"
+        id S1730121AbgBCQbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:31:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729275AbgBCQa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:57 -0500
+        id S1730118AbgBCQa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:30:59 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3189A2080C;
-        Mon,  3 Feb 2020 16:30:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 925372080D;
+        Mon,  3 Feb 2020 16:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747456;
-        bh=B9JCGm51siuIgX7EcU2ySapCcDCJW8dAc+m2KJEWRyw=;
+        s=default; t=1580747459;
+        bh=rA3Xwyv3tWdNx7mUlH4cBYOADEK9whLY8ocxRTdKpTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgJJSv2Fmq6Zcr/+XRhvVxnDvbu9eyAgGYr7M+fnwU5ID2LSphK6zj5wXo/V/fUyo
-         8QgA3loiNcGbZaUEKgQhex6FCP7YwlLp5+hCise+iKdT5R9luw19yBHofapel5vqNx
-         fHYUBd5Rd4QUP6ElOmT7ARKZjoFf71dZGbeyIwBU=
+        b=DD0/DO1WpJlNyt3ocs0xKrG2RZgiASYICMiE+e0sYvJmP64FzFdSHyS/tTJOyktZx
+         d7KBdhOy9AHqpxN1wuaseYPp3CZ/0JDTdA/HZJKRTMjVbj8S4KDvF8QUDOOINfAXyR
+         FuDSYCF/DFEwxzKo6Kb4CRJRzvCrzVsscsjTl1oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Matwey V. Kornilov" <matwey@sai.msu.ru>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 71/89] ARM: dts: am335x-boneblack-common: fix memory size
-Date:   Mon,  3 Feb 2020 16:19:56 +0000
-Message-Id: <20200203161925.711697365@linuxfoundation.org>
+Subject: [PATCH 4.14 72/89] vti[6]: fix packet tx through bpf_redirect()
+Date:   Mon,  3 Feb 2020 16:19:57 +0000
+Message-Id: <20200203161925.817011845@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
 References: <20200203161916.847439465@linuxfoundation.org>
@@ -44,39 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matwey V. Kornilov <matwey@sai.msu.ru>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 5abd45ea0fc3060f7805e131753fdcbafd6c6618 ]
+[ Upstream commit 95224166a9032ff5d08fca633d37113078ce7d01 ]
 
-BeagleBone Black series is equipped with 512MB RAM
-whereas only 256MB is included from am335x-bone-common.dtsi
+With an ebpf program that redirects packets through a vti[6] interface,
+the packets are dropped because no dst is attached.
 
-This leads to an issue with unusual setups when devicetree
-is loaded by GRUB2 directly.
+This could also be reproduced with an AF_PACKET socket, with the following
+python script (vti1 is an ip_vti interface):
 
-Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+ import socket
+ send_s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, 0)
+ # scapy
+ # p = IP(src='10.100.0.2', dst='10.200.0.1')/ICMP(type='echo-request')
+ # raw(p)
+ req = b'E\x00\x00\x1c\x00\x01\x00\x00@\x01e\xb2\nd\x00\x02\n\xc8\x00\x01\x08\x00\xf7\xff\x00\x00\x00\x00'
+ send_s.sendto(req, ('vti1', 0x800, 0, 0))
+
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-boneblack-common.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv4/ip_vti.c  | 13 +++++++++++--
+ net/ipv6/ip6_vti.c | 13 +++++++++++--
+ 2 files changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-boneblack-common.dtsi b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
-index 325daae40278a..485c27f039f59 100644
---- a/arch/arm/boot/dts/am335x-boneblack-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
-@@ -131,6 +131,11 @@
- };
+diff --git a/net/ipv4/ip_vti.c b/net/ipv4/ip_vti.c
+index 08c15dd42d935..59384ffe89f73 100644
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -208,8 +208,17 @@ static netdev_tx_t vti_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	int mtu;
  
- / {
-+	memory@80000000 {
-+		device_type = "memory";
-+		reg = <0x80000000 0x20000000>; /* 512 MB */
-+	};
+ 	if (!dst) {
+-		dev->stats.tx_carrier_errors++;
+-		goto tx_error_icmp;
++		struct rtable *rt;
 +
- 	clk_mcasp0_fixed: clk_mcasp0_fixed {
- 		#clock-cells = <0>;
- 		compatible = "fixed-clock";
++		fl->u.ip4.flowi4_oif = dev->ifindex;
++		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++		if (IS_ERR(rt)) {
++			dev->stats.tx_carrier_errors++;
++			goto tx_error_icmp;
++		}
++		dst = &rt->dst;
++		skb_dst_set(skb, dst);
+ 	}
+ 
+ 	dst_hold(dst);
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 557fe3880a3f3..396a0f61f5f88 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -453,8 +453,17 @@ vti6_xmit(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 	int err = -1;
+ 	int mtu;
+ 
+-	if (!dst)
+-		goto tx_err_link_failure;
++	if (!dst) {
++		fl->u.ip6.flowi6_oif = dev->ifindex;
++		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++		if (dst->error) {
++			dst_release(dst);
++			dst = NULL;
++			goto tx_err_link_failure;
++		}
++		skb_dst_set(skb, dst);
++	}
+ 
+ 	dst_hold(dst);
+ 	dst = xfrm_lookup(t->net, dst, fl, NULL, 0);
 -- 
 2.20.1
 
