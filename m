@@ -2,90 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DDC150341
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 10:19:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD2015044F
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 11:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727308AbgBCJTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 04:19:14 -0500
-Received: from mga18.intel.com ([134.134.136.126]:7704 "EHLO mga18.intel.com"
+        id S1727223AbgBCKcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 05:32:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726853AbgBCJTN (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 04:19:13 -0500
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Feb 2020 01:19:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,397,1574150400"; 
-   d="scan'208";a="230952934"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga003.jf.intel.com with ESMTP; 03 Feb 2020 01:19:11 -0800
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1iyXsv-0004L7-68; Mon, 03 Feb 2020 11:19:13 +0200
-Date:   Mon, 3 Feb 2020 11:19:13 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, leonard.crestez@nxp.com,
-        lorenzo.bianconi83@gmail.com
-Subject: Re: FAILED: patch "[PATCH] iio: st_gyro: Correct data for LSM9DS0
- gyro" failed to apply to 4.9-stable tree
-Message-ID: <20200203091913.GW32742@smile.fi.intel.com>
-References: <158037876398197@kroah.com>
- <20200203005842.GH1732@sasha-vm>
+        id S1727102AbgBCKcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 05:32:53 -0500
+Received: from localhost (unknown [104.132.45.99])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E284420721;
+        Mon,  3 Feb 2020 10:32:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580725973;
+        bh=ApCdZROMbWHwnYNb29FMGtyRpx5V9PNc19Ze7FIFWMw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1gmcUBtPUtUSE5kvkHUAwNqNNOc77jE8gjLCECavfQegwNWzz8ipVfs2ljDSMrvx+
+         VNkHYsXdinM6l2zMCzhXMbOvRZTyQ2szPuGC2+ucbnD+UtEtZA9c89SL/XV4dpobJA
+         spAukNMI1FRtiSUghOiumRyYhlumAc3OMPSg1QE4=
+Date:   Mon, 3 Feb 2020 10:32:51 +0000
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Julia Lawall <julia.lawall@inria.fr>, kbuild-all@lists.01.org,
+        philip.li@intel.com, sashal@kernel.org, stable@vger.kernel.org
+Subject: Re: [lee:android-3.18-preview 136/224]
+ drivers/media/radio/si470x/radio-si470x-i2c.c:462:25-30: ERROR: reference
+ preceded by free on line 460 (fwd)
+Message-ID: <20200203103251.GA3117936@kroah.com>
+References: <alpine.DEB.2.21.2001311542130.2236@hadrien>
+ <20200131150809.GF3548@dell>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200203005842.GH1732@sasha-vm>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200131150809.GF3548@dell>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 02, 2020 at 07:58:42PM -0500, Sasha Levin wrote:
-> On Thu, Jan 30, 2020 at 11:06:03AM +0100, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.9-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > From e825070f697abddf3b9b0a675ed0ff1884114818 Mon Sep 17 00:00:00 2001
-> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Date: Tue, 17 Dec 2019 19:10:38 +0200
-> > Subject: [PATCH] iio: st_gyro: Correct data for LSM9DS0 gyro
-> > 
-> > The commit 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
-> > assumes that gyro in LSM9DS0 is the same as others with 0xd4 WAI ID,
-> > but datasheet tells slight different story, i.e. the first scale factor
-> > for the chip is 245 dps, and not 250 dps.
-> > 
-> > Correct this by introducing a separate settings for LSM9DS0.
-> > 
-> > Fixes: 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
-> > Depends-on: 45a4e4220bf4 ("iio: gyro: st_gyro: fix L3GD20H support")
-> > Cc: Leonard Crestez <leonard.crestez@nxp.com>
-> > Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
-> > Cc: <Stable@vger.kernel.org>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+On Fri, Jan 31, 2020 at 03:08:09PM +0000, Lee Jones wrote:
+> On Fri, 31 Jan 2020, Julia Lawall wrote:
 > 
-> I've also grabbed d8594fa22a3f ("iio: gyro: st_gyro: inline per-sensor
-> data") for 4.9 to resolve this.
+> > The code on line 462 looks suspicious.
+> 
+> Thank you Julia.
+> 
+> Have you already reported this to the other Stable Maintainers?
+> 
+> This issue appears to affect; 4.4, 4.9, 4.14 and 4.19.
 
-Thank you, Sasha!
+Ick :(
 
--- 
-With Best Regards,
-Andy Shevchenko
+Can you send us a fix-up patch for this to be applied everywhere?
 
+thanks,
 
+greg k-h
