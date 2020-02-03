@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5EB0150BB7
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7138C150DDA
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729889AbgBCQ34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42082 "EHLO mail.kernel.org"
+        id S1728720AbgBCQ11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:27:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729880AbgBCQ3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:55 -0500
+        id S1729397AbgBCQ10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:27:26 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 261622051A;
-        Mon,  3 Feb 2020 16:29:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB7DA2051A;
+        Mon,  3 Feb 2020 16:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747394;
-        bh=IJCDwsZ4sqrojp7q6Ut5B996TTxXGw4vFPVQ02U1p58=;
+        s=default; t=1580747246;
+        bh=MTIi2xvUFrgETjS3sxrsfHrN4tB0xrG35zGaFnLhi2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tn7vajGC79Hw0u19HgiYyCySunxTi89aEkfVr8XyLFvdIYn3SIKtG+QBTs1eDzBvV
-         zeY1TRgMxtP9mkk+nZhUKLp+QZ3b/81zZh2E2TH/dUEq4W7650SQCwFEFH4csj1MAw
-         ufrrmM+E1OI+OFqe1XRoOaoYWAhm7OA2f2SUkXGM=
+        b=o2NZOTQ+7G5u+Uf1ioN0htvnE0OgUuIsVGNhYzWvKQuACdkjOTQbkPmliBFC2gih2
+         Zz6hLiGtw1qERKhw19lMS2mmMnraaYrBiiJpIodgyzhs2D1VpDfJN2UMGcSkGqVU+6
+         9ek5BijlneY0/PlGfR1R9ihbV+CUtiSvZkSPArRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cathy Luo <xiaohua.luo@nxp.com>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 63/89] wireless: fix enabling channel 12 for custom regulatory domain
+Subject: [PATCH 4.9 52/68] vti[6]: fix packet tx through bpf_redirect()
 Date:   Mon,  3 Feb 2020 16:19:48 +0000
-Message-Id: <20200203161924.801752220@linuxfoundation.org>
+Message-Id: <20200203161913.604139588@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit c4b9d655e445a8be0bff624aedea190606b5ebbc ]
+[ Upstream commit 95224166a9032ff5d08fca633d37113078ce7d01 ]
 
-Commit e33e2241e272 ("Revert "cfg80211: Use 5MHz bandwidth by
-default when checking usable channels"") fixed a broken
-regulatory (leaving channel 12 open for AP where not permitted).
-Apply a similar fix to custom regulatory domain processing.
+With an ebpf program that redirects packets through a vti[6] interface,
+the packets are dropped because no dst is attached.
 
-Signed-off-by: Cathy Luo <xiaohua.luo@nxp.com>
-Signed-off-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Link: https://lore.kernel.org/r/1576836859-8945-1-git-send-email-ganapathi.bhat@nxp.com
-[reword commit message, fix coding style, add a comment]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This could also be reproduced with an AF_PACKET socket, with the following
+python script (vti1 is an ip_vti interface):
+
+ import socket
+ send_s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, 0)
+ # scapy
+ # p = IP(src='10.100.0.2', dst='10.200.0.1')/ICMP(type='echo-request')
+ # raw(p)
+ req = b'E\x00\x00\x1c\x00\x01\x00\x00@\x01e\xb2\nd\x00\x02\n\xc8\x00\x01\x08\x00\xf7\xff\x00\x00\x00\x00'
+ send_s.sendto(req, ('vti1', 0x800, 0, 0))
+
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/ipv4/ip_vti.c  | 13 +++++++++++--
+ net/ipv6/ip6_vti.c | 13 +++++++++++--
+ 2 files changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 804eac073b6b9..e60a7dedfbf1b 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -1718,14 +1718,15 @@ static void update_all_wiphy_regulatory(enum nl80211_reg_initiator initiator)
+diff --git a/net/ipv4/ip_vti.c b/net/ipv4/ip_vti.c
+index 4e39c935e057e..ec417156f388e 100644
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -208,8 +208,17 @@ static netdev_tx_t vti_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	int mtu;
  
- static void handle_channel_custom(struct wiphy *wiphy,
- 				  struct ieee80211_channel *chan,
--				  const struct ieee80211_regdomain *regd)
-+				  const struct ieee80211_regdomain *regd,
-+				  u32 min_bw)
- {
- 	u32 bw_flags = 0;
- 	const struct ieee80211_reg_rule *reg_rule = NULL;
- 	const struct ieee80211_power_rule *power_rule = NULL;
- 	u32 bw;
+ 	if (!dst) {
+-		dev->stats.tx_carrier_errors++;
+-		goto tx_error_icmp;
++		struct rtable *rt;
++
++		fl->u.ip4.flowi4_oif = dev->ifindex;
++		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++		if (IS_ERR(rt)) {
++			dev->stats.tx_carrier_errors++;
++			goto tx_error_icmp;
++		}
++		dst = &rt->dst;
++		skb_dst_set(skb, dst);
+ 	}
  
--	for (bw = MHZ_TO_KHZ(20); bw >= MHZ_TO_KHZ(5); bw = bw / 2) {
-+	for (bw = MHZ_TO_KHZ(20); bw >= min_bw; bw = bw / 2) {
- 		reg_rule = freq_reg_info_regd(MHZ_TO_KHZ(chan->center_freq),
- 					      regd, bw);
- 		if (!IS_ERR(reg_rule))
-@@ -1781,8 +1782,14 @@ static void handle_band_custom(struct wiphy *wiphy,
- 	if (!sband)
- 		return;
+ 	dst_hold(dst);
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index c2b2ee71fc6c3..a266fac084261 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -453,8 +453,17 @@ vti6_xmit(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 	int err = -1;
+ 	int mtu;
  
-+	/*
-+	 * We currently assume that you always want at least 20 MHz,
-+	 * otherwise channel 12 might get enabled if this rule is
-+	 * compatible to US, which permits 2402 - 2472 MHz.
-+	 */
- 	for (i = 0; i < sband->n_channels; i++)
--		handle_channel_custom(wiphy, &sband->channels[i], regd);
-+		handle_channel_custom(wiphy, &sband->channels[i], regd,
-+				      MHZ_TO_KHZ(20));
- }
+-	if (!dst)
+-		goto tx_err_link_failure;
++	if (!dst) {
++		fl->u.ip6.flowi6_oif = dev->ifindex;
++		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++		if (dst->error) {
++			dst_release(dst);
++			dst = NULL;
++			goto tx_err_link_failure;
++		}
++		skb_dst_set(skb, dst);
++	}
  
- /* Used by drivers prior to wiphy registration */
+ 	dst_hold(dst);
+ 	dst = xfrm_lookup(t->net, dst, fl, NULL, 0);
 -- 
 2.20.1
 
