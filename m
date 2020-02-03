@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB91150D44
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:43:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0A9150C71
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730082AbgBCQdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:33:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
+        id S1731179AbgBCQg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730266AbgBCQdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:33:17 -0500
+        id S1729078AbgBCQgZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:36:25 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 555632082E;
-        Mon,  3 Feb 2020 16:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0376A20CC7;
+        Mon,  3 Feb 2020 16:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747596;
-        bh=umPH9Q9KzyoNAqubzv/F//6lCA5k+AIpbCZWryYqfGM=;
+        s=default; t=1580747785;
+        bh=ss7Ch1X+1y2bjXhIPfs5CMbSa5TXR6pSfvlg/0M9wrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDOmPMC7Qlc/dYiTnCb/VhCZDF+BMlD9PVSbGQHUcj5CaZFF4xgx6uXrurFRfJwcZ
-         y+lTXjyYJk6ex+F0KDrFSwlpvgEJYfOoFNeM7jLyj/aj2rJp4IUklqNONhFqganSyo
-         uBmtp3s1XZDJ0DgOMbEB4QijeRpGHYJ1W7231e/4=
+        b=m3mT76CfbVjsf9iQPuM/oYn2/Ap5foFFIpnq/VpERa2fBQRCJyrmkrc+hmqccCbmb
+         1jOKQNmOQ89XxUh54bRpfmZddVtGAs7dP+uocygiRIjUchK7t12L5yZJlWGxY6512w
+         8gp9/0yXBLcUSHuzxyq0hHLHiyYGGvZq4f4od5xM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 61/70] airo: Add missing CAP_NET_ADMIN check in AIROOLDIOCTL/SIOCDEVPRIVATE
+Subject: [PATCH 5.4 70/90] Input: max77650-onkey - add of_match table
 Date:   Mon,  3 Feb 2020 16:20:13 +0000
-Message-Id: <20200203161921.008885855@linuxfoundation.org>
+Message-Id: <20200203161925.971200751@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-[ Upstream commit 78f7a7566f5eb59321e99b55a6fdb16ea05b37d1 ]
+[ Upstream commit ce535a2efb48d8d4c4e4b97e2764d7cee73d9b55 ]
 
-The driver for Cisco Aironet 4500 and 4800 series cards (airo.c),
-implements AIROOLDIOCTL/SIOCDEVPRIVATE in airo_ioctl().
+We need the of_match table if we want to use the compatible string in
+the pmic's child node and get the onkey driver loaded automatically.
 
-The ioctl handler copies an aironet_ioctl struct from userspace, which
-includes a command. Some of the commands are handled in readrids(),
-where the user controlled command is converted into a driver-internal
-value called "ridcode".
-
-There are two command values, AIROGWEPKTMP and AIROGWEPKNV, which
-correspond to ridcode values of RID_WEP_TEMP and RID_WEP_PERM
-respectively. These commands both have checks that the user has
-CAP_NET_ADMIN, with the comment that "Only super-user can read WEP
-keys", otherwise they return -EPERM.
-
-However there is another command value, AIRORRID, that lets the user
-specify the ridcode value directly, with no other checks. This means
-the user can bypass the CAP_NET_ADMIN check on AIROGWEPKTMP and
-AIROGWEPKNV.
-
-Fix it by moving the CAP_NET_ADMIN check out of the command handling
-and instead do it later based on the ridcode. That way regardless of
-whether the ridcode is set via AIROGWEPKTMP or AIROGWEPKNV, or passed
-in using AIRORID, we always do the CAP_NET_ADMIN check.
-
-Found by Ilja by code inspection, not tested as I don't have the
-required hardware.
-
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/cisco/airo.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/input/misc/max77650-onkey.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/wireless/cisco/airo.c b/drivers/net/wireless/cisco/airo.c
-index 9344cf17d6b11..c3fe9bfff8122 100644
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -7786,16 +7786,8 @@ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
- 	case AIROGVLIST:    ridcode = RID_APLIST;       break;
- 	case AIROGDRVNAM:   ridcode = RID_DRVNAME;      break;
- 	case AIROGEHTENC:   ridcode = RID_ETHERENCAP;   break;
--	case AIROGWEPKTMP:  ridcode = RID_WEP_TEMP;
--		/* Only super-user can read WEP keys */
--		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--		break;
--	case AIROGWEPKNV:   ridcode = RID_WEP_PERM;
--		/* Only super-user can read WEP keys */
--		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--		break;
-+	case AIROGWEPKTMP:  ridcode = RID_WEP_TEMP;	break;
-+	case AIROGWEPKNV:   ridcode = RID_WEP_PERM;	break;
- 	case AIROGSTAT:     ridcode = RID_STATUS;       break;
- 	case AIROGSTATSD32: ridcode = RID_STATSDELTA;   break;
- 	case AIROGSTATSC32: ridcode = RID_STATS;        break;
-@@ -7809,6 +7801,12 @@ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
- 		return -EINVAL;
- 	}
+diff --git a/drivers/input/misc/max77650-onkey.c b/drivers/input/misc/max77650-onkey.c
+index 4d875f2ac13d6..ee55f22dbca54 100644
+--- a/drivers/input/misc/max77650-onkey.c
++++ b/drivers/input/misc/max77650-onkey.c
+@@ -108,9 +108,16 @@ static int max77650_onkey_probe(struct platform_device *pdev)
+ 	return input_register_device(onkey->input);
+ }
  
-+	if (ridcode == RID_WEP_TEMP || ridcode == RID_WEP_PERM) {
-+		/* Only super-user can read WEP keys */
-+		if (!capable(CAP_NET_ADMIN))
-+			return -EPERM;
-+	}
++static const struct of_device_id max77650_onkey_of_match[] = {
++	{ .compatible = "maxim,max77650-onkey" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, max77650_onkey_of_match);
 +
- 	if ((iobuf = kzalloc(RIDSIZE, GFP_KERNEL)) == NULL)
- 		return -ENOMEM;
- 
+ static struct platform_driver max77650_onkey_driver = {
+ 	.driver = {
+ 		.name = "max77650-onkey",
++		.of_match_table = max77650_onkey_of_match,
+ 	},
+ 	.probe = max77650_onkey_probe,
+ };
 -- 
 2.20.1
 
