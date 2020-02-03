@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 546D7150CF8
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED99150C07
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731104AbgBCQf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:35:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50980 "EHLO mail.kernel.org"
+        id S1730470AbgBCQcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731097AbgBCQfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:55 -0500
+        id S1730467AbgBCQco (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:44 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3B6320CC7;
-        Mon,  3 Feb 2020 16:35:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40B972082E;
+        Mon,  3 Feb 2020 16:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747755;
+        s=default; t=1580747563;
         bh=3X1PU6uQea7BRgZqf4K6xrZwu/6yQq6UNJ+3wSZR3WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yhv0mvL4be622Xr3TPz4QUVX6eQFb2TBjEAIcLekQmpza/0KmBXjHdEaCGAbmRcms
-         CsRIRlvCdm3OSQTzlpNqsQe7yfe031nFWGQttVtH4n2gqirofNXz5BTGX1wvnHdpD4
-         QGUs65EpkTHCLSiC6Ng1lEjM7sSuu4zxXjW0Gy/Q=
+        b=IEFk3Jh2AWdCeDcbcttWcbDy3qqHyA3PizqQOxdBLbry7HvM34C1JIiE4iXYG6aM5
+         b/631mWC0Lu0/tCv2bFmf3WeBxlyaDDTFoKk02NvAu+WtxTtkcFn2BGnonUSk3qf4k
+         Yr1h1CSq4QjsKEFd1nYZNlWIpAEZrOgJy9tER+xI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 54/90] wireless: wext: avoid gcc -O3 warning
+Subject: [PATCH 4.19 45/70] wireless: wext: avoid gcc -O3 warning
 Date:   Mon,  3 Feb 2020 16:19:57 +0000
-Message-Id: <20200203161924.377160222@linuxfoundation.org>
+Message-Id: <20200203161918.866439075@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
