@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B3E150D2B
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 705D8150C1A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730815AbgBCQg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
+        id S1730569AbgBCQdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:33:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731198AbgBCQg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:36:28 -0500
+        id S1730563AbgBCQdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:20 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 598A720CC7;
-        Mon,  3 Feb 2020 16:36:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB3E621741;
+        Mon,  3 Feb 2020 16:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747787;
-        bh=XOxqpovrcV8j1t9Tw3jUSFjv9Txf9xyBxqqZhpFiAw4=;
+        s=default; t=1580747599;
+        bh=jWRssr90GBfEJ4YHTI/skt6o02YDdSqapYNKQs8ZPNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5r5J3dr4rPtou1XuKKofEAzNS2alHUAjcjuL4KIAFK48dDaB5EB1DYPmKFmfK0gj
-         6HaytW2s3BTivaMunZ7scxMTtxweyd9/g08MlrpO5uT51EBpHV5NIU8Norfch+ohCk
-         ZP6ll77tjhFcrbWdYQ54PEmSOMatYPvfkThiy60I=
+        b=V8MHyI2UrNRQG9U/WIFaGmlVDMWfEN136UQ6wmh1B+qqBB/pS3Bzmgd9ApTMMWawZ
+         GONN2+Iyed4Ecv+2gsX2IwhO2N69jn4mNdQ+u5yAj2Zw43C/FKG7fiKAUbJB0ZZF48
+         aQSai8E5dm5IvHkMUIdsKoxrHxzv30ZsxndFReY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 71/90] scsi: fnic: do not queue commands during fwreset
+Subject: [PATCH 4.19 62/70] r8152: get default setting of WOL before initializing
 Date:   Mon,  3 Feb 2020 16:20:14 +0000
-Message-Id: <20200203161926.071561120@linuxfoundation.org>
+Message-Id: <20200203161921.126096722@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Hayes Wang <hayeswang@realtek.com>
 
-[ Upstream commit 0e2209629fec427ba75a6351486153a9feddd36b ]
+[ Upstream commit 9583a3638dc07cc1878f41265e85ed497f72efcb ]
 
-When a link is going down the driver will be calling fnic_cleanup_io(),
-which will traverse all commands and calling 'done' for each found command.
-While the traversal is handled under the host_lock, calling 'done' happens
-after the host_lock is being dropped.
+Initailization would reset runtime suspend by tp->saved_wolopts, so
+the tp->saved_wolopts should be set before initializing.
 
-As fnic_queuecommand_lck() is being called with the host_lock held, it
-might well be that it will pick the command being selected for abortion
-from the above routine and enqueue it for sending, but then 'done' is being
-called on that very command from the above routine.
-
-Which of course confuses the hell out of the scsi midlayer.
-
-So fix this by not queueing commands when fnic_cleanup_io is active.
-
-Link: https://lore.kernel.org/r/20200116102053.62755-1-hare@suse.de
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fnic/fnic_scsi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/r8152.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
-index 80608b53897bb..e3f5c91d5e4fe 100644
---- a/drivers/scsi/fnic/fnic_scsi.c
-+++ b/drivers/scsi/fnic/fnic_scsi.c
-@@ -439,6 +439,9 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
- 	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_IO_BLOCKED)))
- 		return SCSI_MLQUEUE_HOST_BUSY;
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index db817d3c2bb8b..c5c188dc66268 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -5259,6 +5259,11 @@ static int rtl8152_probe(struct usb_interface *intf,
  
-+	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_FWRESET)))
-+		return SCSI_MLQUEUE_HOST_BUSY;
+ 	intf->needs_remote_wakeup = 1;
+ 
++	if (!rtl_can_wakeup(tp))
++		__rtl_set_wol(tp, 0);
++	else
++		tp->saved_wolopts = __rtl_get_wol(tp);
 +
- 	rport = starget_to_rport(scsi_target(sc->device));
- 	if (!rport) {
- 		FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+ 	tp->rtl_ops.init(tp);
+ 	queue_delayed_work(system_long_wq, &tp->hw_phy_work, 0);
+ 	set_ethernet_addr(tp);
+@@ -5272,10 +5277,6 @@ static int rtl8152_probe(struct usb_interface *intf,
+ 		goto out1;
+ 	}
+ 
+-	if (!rtl_can_wakeup(tp))
+-		__rtl_set_wol(tp, 0);
+-
+-	tp->saved_wolopts = __rtl_get_wol(tp);
+ 	if (tp->saved_wolopts)
+ 		device_set_wakeup_enable(&udev->dev, true);
+ 	else
 -- 
 2.20.1
 
