@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B576A150DD3
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AFBF150D99
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729436AbgBCQ1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:27:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38874 "EHLO mail.kernel.org"
+        id S1730349AbgBCQol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:44:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729433AbgBCQ1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:27:34 -0500
+        id S1730163AbgBCQbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:31:11 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 317052086A;
-        Mon,  3 Feb 2020 16:27:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77995218AC;
+        Mon,  3 Feb 2020 16:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747253;
-        bh=p8BeVFlI4B5jR4xhcn1nzxAZeFco8rxCzUuCaHxiy8E=;
+        s=default; t=1580747470;
+        bh=l2qtxbwG21AWKLUFUMXqPMXfxUgLx7Rl/bW6KpVZbh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LlOkBys0By3xopfdq437g2h+Ddegjaf5ueLjgetxffIuQHVzZDycojNv5SWimYFdR
-         2waxTM0rGZt0BD6aJe+O0LX5kBgDHJ1Fu/xLPvCuENigt/uJH90RwPOaasaFM/QXbb
-         oa/bW9y7NUL0MNZNU17CnJT4UPUELTv/sPy2+ybM=
+        b=IE5X2x42eJgBb4bUxMq4rYh/PhFeU0DP2aw8hR3qcBzy+aMc+9N8GQDxhKp/VHZ58
+         pvSgpMEtdLms6MqSuCvtIAzV8X3mD3BTJNbLLrvCi4lpg1HtisNZ3Y4BEGbfz8thTH
+         bC6snRNGkDeV9M0wdMd4Sw91Vl62cWdqO7wTx1l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 55/68] airo: Fix possible info leak in AIROOLDIOCTL/SIOCDEVPRIVATE
-Date:   Mon,  3 Feb 2020 16:19:51 +0000
-Message-Id: <20200203161914.040441122@linuxfoundation.org>
+Subject: [PATCH 4.14 67/89] net: dsa: bcm_sf2: Configure IMP port for 2Gb/sec
+Date:   Mon,  3 Feb 2020 16:19:52 +0000
+Message-Id: <20200203161925.294554396@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit d6bce2137f5d6bb1093e96d2f801479099b28094 ]
+[ Upstream commit 8f1880cbe8d0d49ebb7e9ae409b3b96676e5aa97 ]
 
-The driver for Cisco Aironet 4500 and 4800 series cards (airo.c),
-implements AIROOLDIOCTL/SIOCDEVPRIVATE in airo_ioctl().
+With the implementation of the system reset controller we lost a setting
+that is currently applied by the bootloader and which configures the IMP
+port for 2Gb/sec, the default is 1Gb/sec. This is needed given the
+number of ports and applications we expect to run so bring back that
+setting.
 
-The ioctl handler copies an aironet_ioctl struct from userspace, which
-includes a command and a length. Some of the commands are handled in
-readrids(), which kmalloc()'s a buffer of RIDSIZE (2048) bytes.
-
-That buffer is then passed to PC4500_readrid(), which has two cases.
-The else case does some setup and then reads up to RIDSIZE bytes from
-the hardware into the kmalloc()'ed buffer.
-
-Here len == RIDSIZE, pBuf is the kmalloc()'ed buffer:
-
-	// read the rid length field
-	bap_read(ai, pBuf, 2, BAP1);
-	// length for remaining part of rid
-	len = min(len, (int)le16_to_cpu(*(__le16*)pBuf)) - 2;
-	...
-	// read remainder of the rid
-	rc = bap_read(ai, ((__le16*)pBuf)+1, len, BAP1);
-
-PC4500_readrid() then returns to readrids() which does:
-
-	len = comp->len;
-	if (copy_to_user(comp->data, iobuf, min(len, (int)RIDSIZE))) {
-
-Where comp->len is the user controlled length field.
-
-So if the "rid length field" returned by the hardware is < 2048, and
-the user requests 2048 bytes in comp->len, we will leak the previous
-contents of the kmalloc()'ed buffer to userspace.
-
-Fix it by kzalloc()'ing the buffer.
-
-Found by Ilja by code inspection, not tested as I don't have the
-required hardware.
-
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 01b0ac07589e ("net: dsa: bcm_sf2: Add support for optional reset controller line")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/cisco/airo.c | 2 +-
+ drivers/net/dsa/bcm_sf2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/cisco/airo.c b/drivers/net/wireless/cisco/airo.c
-index 04939e576ee02..7956b5b529c99 100644
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -7819,7 +7819,7 @@ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 94ad2fdd6ef0d..05440b7272615 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -137,7 +137,7 @@ static void bcm_sf2_imp_setup(struct dsa_switch *ds, int port)
  
--	if ((iobuf = kmalloc(RIDSIZE, GFP_KERNEL)) == NULL)
-+	if ((iobuf = kzalloc(RIDSIZE, GFP_KERNEL)) == NULL)
- 		return -ENOMEM;
+ 		/* Force link status for IMP port */
+ 		reg = core_readl(priv, offset);
+-		reg |= (MII_SW_OR | LINK_STS);
++		reg |= (MII_SW_OR | LINK_STS | GMII_SPEED_UP_2G);
+ 		core_writel(priv, reg, offset);
  
- 	PC4500_readrid(ai,ridcode,iobuf,RIDSIZE, 1);
+ 		/* Enable Broadcast, Multicast, Unicast forwarding to IMP port */
 -- 
 2.20.1
 
