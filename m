@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC77150CC8
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D341150CC3
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731423AbgBCQjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:39:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53490 "EHLO mail.kernel.org"
+        id S1728708AbgBCQjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:39:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731121AbgBCQhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:47 -0500
+        id S1731387AbgBCQhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:48 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 794AE2087E;
-        Mon,  3 Feb 2020 16:37:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D825E2051A;
+        Mon,  3 Feb 2020 16:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747865;
-        bh=1L0W+2zKUHOGjHafjKPkVteEIbrR9GouXU4BbuPV4pU=;
+        s=default; t=1580747868;
+        bh=f2TNS1cJv4uSFQ7VapAKb7Sb5+qrgmmBWsgN10lGess=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+Fmc3hpn6H+hgJuG8GwfLgvSefPNu3HcDn5sihigDw79bETvzBwqnyGsNCxdAjRA
-         SzenvNghwQX77S2Mm8N809q5dN1pcQise6f4D/Lw3EA6VqUD1yzg9FHIMm0qOSL3jn
-         Y+eZDkfQpFBHE6y5rJgVLHDgzNyqAy3JdNUQQhUs=
+        b=NhVZumt1FcsFLZs58km7KJcJW7OBMWXl1eMzUYo5uZjTX6qM+O7I1BIqPZAzYN+R/
+         oa+pHWe8E6rcA5/sfHvtHwksO56xmoMeC+X2A2zuzTVghm8M27xuHouagfwIewDSkO
+         D5nWgX0kYIYmtI0OVesO2+pGr+Ou/umUNKbzJAXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+e64a13c5369a194d67df@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Michal Hocko <mhocko@kernel.org>,
-        Lee Schermerhorn <lee.schermerhorn@hp.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 13/23] mm/mempolicy.c: fix out of bounds write in mpol_parse_str()
-Date:   Mon,  3 Feb 2020 16:20:33 +0000
-Message-Id: <20200203161905.207969687@linuxfoundation.org>
+        syzbot+1c6756baf4b16b94d2a6@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.5 14/23] reiserfs: Fix memory leak of journal device string
+Date:   Mon,  3 Feb 2020 16:20:34 +0000
+Message-Id: <20200203161905.380898375@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
 References: <20200203161902.288335885@linuxfoundation.org>
@@ -51,59 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jan Kara <jack@suse.cz>
 
-commit c7a91bc7c2e17e0a9c8b9745a2cb118891218fd1 upstream.
+commit 5474ca7da6f34fa95e82edc747d5faa19cbdfb5c upstream.
 
-What we are trying to do is change the '=' character to a NUL terminator
-and then at the end of the function we restore it back to an '='.  The
-problem is there are two error paths where we jump to the end of the
-function before we have replaced the '=' with NUL.
+When a filesystem is mounted with jdev mount option, we store the
+journal device name in an allocated string in superblock. However we
+fail to ever free that string. Fix it.
 
-We end up putting the '=' in the wrong place (possibly one element
-before the start of the buffer).
-
-Link: http://lkml.kernel.org/r/20200115055426.vdjwvry44nfug7yy@kili.mountain
-Reported-by: syzbot+e64a13c5369a194d67df@syzkaller.appspotmail.com
-Fixes: 095f1fc4ebf3 ("mempolicy: rework shmem mpol parsing and display")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Dmitry Vyukov <dvyukov@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Lee Schermerhorn <lee.schermerhorn@hp.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot+1c6756baf4b16b94d2a6@syzkaller.appspotmail.com
+Fixes: c3aa077648e1 ("reiserfs: Properly display mount options in /proc/mounts")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mempolicy.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/reiserfs/super.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2821,6 +2821,9 @@ int mpol_parse_str(char *str, struct mem
- 	char *flags = strchr(str, '=');
- 	int err = 1, mode;
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -629,6 +629,7 @@ static void reiserfs_put_super(struct su
+ 	reiserfs_write_unlock(s);
+ 	mutex_destroy(&REISERFS_SB(s)->lock);
+ 	destroy_workqueue(REISERFS_SB(s)->commit_wq);
++	kfree(REISERFS_SB(s)->s_jdev);
+ 	kfree(s->s_fs_info);
+ 	s->s_fs_info = NULL;
+ }
+@@ -2240,6 +2241,7 @@ error_unlocked:
+ 			kfree(qf_names[j]);
+ 	}
+ #endif
++	kfree(sbi->s_jdev);
+ 	kfree(sbi);
  
-+	if (flags)
-+		*flags++ = '\0';	/* terminate mode string */
-+
- 	if (nodelist) {
- 		/* NUL-terminate mode or flags string */
- 		*nodelist++ = '\0';
-@@ -2831,9 +2834,6 @@ int mpol_parse_str(char *str, struct mem
- 	} else
- 		nodes_clear(nodes);
- 
--	if (flags)
--		*flags++ = '\0';	/* terminate mode string */
--
- 	mode = match_string(policy_modes, MPOL_MAX, str);
- 	if (mode < 0)
- 		goto out;
+ 	s->s_fs_info = NULL;
 
 
