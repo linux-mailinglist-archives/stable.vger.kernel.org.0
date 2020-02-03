@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05797150C6C
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 307B8150DB0
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730804AbgBCQgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:36:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51364 "EHLO mail.kernel.org"
+        id S1729182AbgBCQ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:29:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731144AbgBCQgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:36:12 -0500
+        id S1729662AbgBCQ25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:28:57 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF6112051A;
-        Mon,  3 Feb 2020 16:36:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5DD520838;
+        Mon,  3 Feb 2020 16:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747771;
-        bh=JnRYNnGNOF9cZ3qsuZzHZ8R6s46Ky+gu6E3H11b26uw=;
+        s=default; t=1580747337;
+        bh=TRgddOces3KCcjZiCU9InaohUeoG1Yx/UpbqoCBwJ7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hv+Tuj21u3jnd1tmdk4AykhN6xWHLX4JI9fv40iAy2IpPPGhcEt/2M/6UVdxCbvpD
-         xeTReFNy4INxdU01NFPftpC4ZgMJbcsv6z9esQKra1vWd4s6+rYoRSh2GznUru4I2t
-         gVzd4rd+gmWVSQZUm3M/AjdIQZiw/kiiZaeeuil8=
+        b=GZRNIof7dl7l2+FEag/cBIyUcAVh+C4jJUdTMsXZ3pBplPH6lftN21fNXTSHu0OgY
+         y32mh+aJxCLwCqrdEDuIj2RtWDF8g9KWllZncxs4UrY+URrCoqfuH3scJtVSo5PuS9
+         7rU8lFRFU2KXeNvqWXZx6f5ZuHAs/CvR3WlArabg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5493b2a54d31d6aea629@syzkaller.appspotmail.com,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 23/90] cgroup: Prevent double killing of css when enabling threaded cgroup
+        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.14 41/89] arm64: kbuild: remove compressed images on make ARCH=arm64 (dist)clean
 Date:   Mon,  3 Feb 2020 16:19:26 +0000
-Message-Id: <20200203161920.701201485@linuxfoundation.org>
+Message-Id: <20200203161922.483714935@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+From: Dirk Behme <dirk.behme@de.bosch.com>
 
-commit 3bc0bb36fa30e95ca829e9cf480e1ef7f7638333 upstream.
+commit d7bbd6c1b01cb5dd13c245d4586a83145c1d5f52 upstream.
 
-The test_cgcore_no_internal_process_constraint_on_threads selftest when
-running with subsystem controlling noise triggers two warnings:
+Since v4.3-rc1 commit 0723c05fb75e44 ("arm64: enable more compressed
+Image formats"), it is possible to build Image.{bz2,lz4,lzma,lzo}
+AArch64 images. However, the commit missed adding support for removing
+those images on 'make ARCH=arm64 (dist)clean'.
 
-> [  597.443115] WARNING: CPU: 1 PID: 28167 at kernel/cgroup/cgroup.c:3131 cgroup_apply_control_enable+0xe0/0x3f0
-> [  597.443413] WARNING: CPU: 1 PID: 28167 at kernel/cgroup/cgroup.c:3177 cgroup_apply_control_disable+0xa6/0x160
+Fix this by adding them to the target list.
+Make sure to match the order of the recipes in the makefile.
 
-Both stem from a call to cgroup_type_write. The first warning was also
-triggered by syzkaller.
-
-When we're switching cgroup to threaded mode shortly after a subsystem
-was disabled on it, we can see the respective subsystem css dying there.
-
-The warning in cgroup_apply_control_enable is harmless in this case
-since we're not adding new subsys anyway.
-The warning in cgroup_apply_control_disable indicates an attempt to kill
-css of recently disabled subsystem repeatedly.
-
-The commit prevents these situations by making cgroup_type_write wait
-for all dying csses to go away before re-applying subtree controls.
-When at it, the locations of WARN_ON_ONCE calls are moved so that
-warning is triggered only when we are about to misuse the dying css.
-
-Reported-by: syzbot+5493b2a54d31d6aea629@syzkaller.appspotmail.com
-Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org # v4.3+
+Fixes: 0723c05fb75e44 ("arm64: enable more compressed Image formats")
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cgroup/cgroup.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/arm64/boot/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3111,8 +3111,6 @@ static int cgroup_apply_control_enable(s
- 		for_each_subsys(ss, ssid) {
- 			struct cgroup_subsys_state *css = cgroup_css(dsct, ss);
+--- a/arch/arm64/boot/Makefile
++++ b/arch/arm64/boot/Makefile
+@@ -16,7 +16,7 @@
  
--			WARN_ON_ONCE(css && percpu_ref_is_dying(&css->refcnt));
--
- 			if (!(cgroup_ss_mask(dsct) & (1 << ss->id)))
- 				continue;
+ OBJCOPYFLAGS_Image :=-O binary -R .note -R .note.gnu.build-id -R .comment -S
  
-@@ -3122,6 +3120,8 @@ static int cgroup_apply_control_enable(s
- 					return PTR_ERR(css);
- 			}
+-targets := Image Image.gz
++targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
  
-+			WARN_ON_ONCE(percpu_ref_is_dying(&css->refcnt));
-+
- 			if (css_visible(css)) {
- 				ret = css_populate_dir(css);
- 				if (ret)
-@@ -3157,11 +3157,11 @@ static void cgroup_apply_control_disable
- 		for_each_subsys(ss, ssid) {
- 			struct cgroup_subsys_state *css = cgroup_css(dsct, ss);
- 
--			WARN_ON_ONCE(css && percpu_ref_is_dying(&css->refcnt));
--
- 			if (!css)
- 				continue;
- 
-+			WARN_ON_ONCE(percpu_ref_is_dying(&css->refcnt));
-+
- 			if (css->parent &&
- 			    !(cgroup_ss_mask(dsct) & (1 << ss->id))) {
- 				kill_css(css);
-@@ -3448,7 +3448,8 @@ static ssize_t cgroup_type_write(struct
- 	if (strcmp(strstrip(buf), "threaded"))
- 		return -EINVAL;
- 
--	cgrp = cgroup_kn_lock_live(of->kn, false);
-+	/* drain dying csses before we re-apply (threaded) subtree control */
-+	cgrp = cgroup_kn_lock_live(of->kn, true);
- 	if (!cgrp)
- 		return -ENOENT;
- 
+ $(obj)/Image: vmlinux FORCE
+ 	$(call if_changed,objcopy)
 
 
