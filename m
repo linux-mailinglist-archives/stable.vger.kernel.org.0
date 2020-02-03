@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4052F150DFF
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:48:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F208150C49
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727044AbgBCQ0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:26:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37064 "EHLO mail.kernel.org"
+        id S1730878AbgBCQez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:34:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728930AbgBCQ0H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:07 -0500
+        id S1730870AbgBCQez (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:55 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5345F2080C;
-        Mon,  3 Feb 2020 16:26:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6137521582;
+        Mon,  3 Feb 2020 16:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747166;
-        bh=f6/Ccx65vDvsW4yhp/ZsExnlynZ3BNePDvYFyDnc58U=;
+        s=default; t=1580747693;
+        bh=AmEqEAEwhWaxYqsep9Gus/Ym4kZ63m22rEoB5FCfM7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwOvH7NvjboqvFevwRCM+BJq3LiiUYwW4hXJ4r9bXfglXilMO09MaqUSKSiZda120
-         8Y7Vve0i7Ey3bvOUQ/wkyiIkLgsKAG3u7y/KTNqIGlLnGvvJpvAZnifHp9Np0Io8+w
-         1g9TB5oBqoL4klt0rxI3aeBPcXDXMBcS3cmnaSdQ=
+        b=fP7wIwRGxNM63lYdBPKkmN7tkGARGP+foq2yHt3Y2aRudARM06J6CeEZvKiVBVt5+
+         L6iUOT1HpHEq2beRzVUucgm+GxRSmhFeMmEcllSIHLUOdg1IWUdoB2yypMhG1nQZBL
+         iIz30STYdiKASUv27E7MK7pXgZiLdQw2oMMv4/d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com,
-        Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 38/68] ttyprintk: fix a potential deadlock in interrupt context issue
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 31/90] rseq: Unregister rseq for clone CLONE_VM
 Date:   Mon,  3 Feb 2020 16:19:34 +0000
-Message-Id: <20200203161911.229512565@linuxfoundation.org>
+Message-Id: <20200203161921.828621507@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 9a655c77ff8fc65699a3f98e237db563b37c439b upstream.
+[ Upstream commit 463f550fb47bede3a5d7d5177f363a6c3b45d50b ]
 
-tpk_write()/tpk_close() could be interrupted when holding a mutex, then
-in timer handler tpk_write() may be called again trying to acquire same
-mutex, lead to deadlock.
+It has been reported by Google that rseq is not behaving properly
+with respect to clone when CLONE_VM is used without CLONE_THREAD.
 
-Google syzbot reported this issue with CONFIG_DEBUG_ATOMIC_SLEEP
-enabled:
+It keeps the prior thread's rseq TLS registered when the TLS of the
+thread has moved, so the kernel can corrupt the TLS of the parent.
 
-BUG: sleeping function called from invalid context at
-kernel/locking/mutex.c:938
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/1
-1 lock held by swapper/1/0:
-...
-Call Trace:
-  <IRQ>
-  dump_stack+0x197/0x210
-  ___might_sleep.cold+0x1fb/0x23e
-  __might_sleep+0x95/0x190
-  __mutex_lock+0xc5/0x13c0
-  mutex_lock_nested+0x16/0x20
-  tpk_write+0x5d/0x340
-  resync_tnc+0x1b6/0x320
-  call_timer_fn+0x1ac/0x780
-  run_timer_softirq+0x6c3/0x1790
-  __do_softirq+0x262/0x98c
-  irq_exit+0x19b/0x1e0
-  smp_apic_timer_interrupt+0x1a3/0x610
-  apic_timer_interrupt+0xf/0x20
-  </IRQ>
+The approach of clearing the per task-struct rseq registration
+on clone with CLONE_THREAD flag is incomplete. It does not cover
+the use-case of clone with CLONE_VM set, but without CLONE_THREAD.
 
-See link https://syzkaller.appspot.com/bug?extid=2eeef62ee31f9460ad65 for
-more details.
+Here is the rationale for unregistering rseq on clone with CLONE_VM
+flag set:
 
-Fix it by using spinlock in process context instead of mutex and having
-interrupt disabled in critical section.
+1) CLONE_THREAD requires CLONE_SIGHAND, which requires CLONE_VM to be
+   set. Therefore, just checking for CLONE_VM covers all CLONE_THREAD
+   uses. There is no point in checking for both CLONE_THREAD and
+   CLONE_VM,
 
-Reported-by: syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200113034842.435-1-zhenzhong.duan@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+2) There is the possibility of an unlikely scenario where CLONE_SETTLS
+   is used without CLONE_VM. In order to be an issue, it would require
+   that the rseq TLS is in a shared memory area.
 
+   I do not plan on adding CLONE_SETTLS to the set of clone flags which
+   unregister RSEQ, because it would require that we also unregister RSEQ
+   on set_thread_area(2) and arch_prctl(2) ARCH_SET_FS for completeness.
+   So rather than doing a partial solution, it appears better to let
+   user-space explicitly perform rseq unregistration across clone if
+   needed in scenarios where CLONE_VM is not set.
+
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20191211161713.4490-3-mathieu.desnoyers@efficios.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ttyprintk.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ include/linux/sched.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ttyprintk.c
-+++ b/drivers/char/ttyprintk.c
-@@ -18,10 +18,11 @@
- #include <linux/serial.h>
- #include <linux/tty.h>
- #include <linux/module.h>
-+#include <linux/spinlock.h>
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 775503573ed70..b968d736833bb 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1915,11 +1915,11 @@ static inline void rseq_migrate(struct task_struct *t)
  
- struct ttyprintk_port {
- 	struct tty_port port;
--	struct mutex port_write_mutex;
-+	spinlock_t spinlock;
- };
- 
- static struct ttyprintk_port tpk_port;
-@@ -100,11 +101,12 @@ static int tpk_open(struct tty_struct *t
- static void tpk_close(struct tty_struct *tty, struct file *filp)
+ /*
+  * If parent process has a registered restartable sequences area, the
+- * child inherits. Only applies when forking a process, not a thread.
++ * child inherits. Unregister rseq for a clone with CLONE_VM set.
+  */
+ static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
  {
- 	struct ttyprintk_port *tpkp = tty->driver_data;
-+	unsigned long flags;
- 
--	mutex_lock(&tpkp->port_write_mutex);
-+	spin_lock_irqsave(&tpkp->spinlock, flags);
- 	/* flush tpk_printk buffer */
- 	tpk_printk(NULL, 0);
--	mutex_unlock(&tpkp->port_write_mutex);
-+	spin_unlock_irqrestore(&tpkp->spinlock, flags);
- 
- 	tty_port_close(&tpkp->port, tty, filp);
- }
-@@ -116,13 +118,14 @@ static int tpk_write(struct tty_struct *
- 		const unsigned char *buf, int count)
- {
- 	struct ttyprintk_port *tpkp = tty->driver_data;
-+	unsigned long flags;
- 	int ret;
- 
- 
- 	/* exclusive use of tpk_printk within this tty */
--	mutex_lock(&tpkp->port_write_mutex);
-+	spin_lock_irqsave(&tpkp->spinlock, flags);
- 	ret = tpk_printk(buf, count);
--	mutex_unlock(&tpkp->port_write_mutex);
-+	spin_unlock_irqrestore(&tpkp->spinlock, flags);
- 
- 	return ret;
- }
-@@ -172,7 +175,7 @@ static int __init ttyprintk_init(void)
- {
- 	int ret = -ENOMEM;
- 
--	mutex_init(&tpk_port.port_write_mutex);
-+	spin_lock_init(&tpk_port.spinlock);
- 
- 	ttyprintk_driver = tty_alloc_driver(1,
- 			TTY_DRIVER_RESET_TERMIOS |
+-	if (clone_flags & CLONE_THREAD) {
++	if (clone_flags & CLONE_VM) {
+ 		t->rseq = NULL;
+ 		t->rseq_sig = 0;
+ 		t->rseq_event_mask = 0;
+-- 
+2.20.1
+
 
 
