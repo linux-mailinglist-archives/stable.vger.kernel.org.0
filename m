@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C65150CB9
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0A7150CC1
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731406AbgBCQhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:37:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53622 "EHLO mail.kernel.org"
+        id S1730999AbgBCQjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:39:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731400AbgBCQhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:53 -0500
+        id S1730909AbgBCQh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:56 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E2A22051A;
-        Mon,  3 Feb 2020 16:37:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED8462051A;
+        Mon,  3 Feb 2020 16:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747873;
-        bh=kBkd5mUihVG4SraVZKSYG5V3/ELkKainFmm4pZDj604=;
+        s=default; t=1580747875;
+        bh=wuY22ular1rKxKb63oVD+ukgP8kNjdEQM+Si4zVm7Y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWFItMwMrZ6ZTRTUmGa3brWEKFEDf9iXvGGTsp4XvdXqNLjsaAZTCgaBuyJiFS1iv
-         ceYvE+SIZG+/FcvuMqbY2uiVCPvQKEVVVS7ulFnPe0P7pNxdEa6wLX0OV7J1qbL4kN
-         eBhsKC9guDyrQQjBU0fRhQnO7mGFPCQaMcwaquxc=
+        b=SuMJXVaQGZPDxLnQmQzw1H3z66JWmeA06EqtIYePnq4vwxUN3zv64HQBaVSPsYH2L
+         SHKi11eMerc2QG9qlkfa2esfF0VDYnYy/ec6YqHUx1EjgDh/oEp733idJtSap81Ifc
+         agHTRzx6Zdsp/xi6a2joRefUvDPERiAR3xEIaaHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com,
+        syzbot+ec869945d3dde5f33b43@syzkaller.appspotmail.com,
         Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 16/23] media: af9005: uninitialized variable printked
-Date:   Mon,  3 Feb 2020 16:20:36 +0000
-Message-Id: <20200203161905.734306738@linuxfoundation.org>
+Subject: [PATCH 5.5 17/23] media: vp7045: do not read uninitialized values if usb transfer fails
+Date:   Mon,  3 Feb 2020 16:20:37 +0000
+Message-Id: <20200203161905.867506901@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
 References: <20200203161902.288335885@linuxfoundation.org>
@@ -47,29 +47,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Young <sean@mess.org>
 
-commit 51d0c99b391f0cac61ad7b827c26f549ee55672c upstream.
+commit 26cff637121d8bb866ebd6515c430ac890e6ec80 upstream.
 
-If usb_bulk_msg() fails, actual_length can be uninitialized.
+It is not a fatal error if reading the mac address or the remote control
+decoder state fails.
 
-Reported-by: syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com
+Reported-by: syzbot+ec869945d3dde5f33b43@syzkaller.appspotmail.com
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/af9005.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/vp7045.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/af9005.c
-+++ b/drivers/media/usb/dvb-usb/af9005.c
-@@ -554,7 +554,7 @@ static int af9005_boot_packet(struct usb
- 			      u8 *buf, int size)
- {
- 	u16 checksum;
--	int act_len, i, ret;
-+	int act_len = 0, i, ret;
+--- a/drivers/media/usb/dvb-usb/vp7045.c
++++ b/drivers/media/usb/dvb-usb/vp7045.c
+@@ -96,10 +96,14 @@ static int vp7045_power_ctrl(struct dvb_
  
- 	memset(buf, 0, size);
- 	buf[0] = (u8) (FW_BULKOUT_SIZE & 0xff);
+ static int vp7045_rc_query(struct dvb_usb_device *d)
+ {
++	int ret;
+ 	u8 key;
+-	vp7045_usb_op(d,RC_VAL_READ,NULL,0,&key,1,20);
+ 
+-	deb_rc("remote query key: %x %d\n",key,key);
++	ret = vp7045_usb_op(d, RC_VAL_READ, NULL, 0, &key, 1, 20);
++	if (ret)
++		return ret;
++
++	deb_rc("remote query key: %x\n", key);
+ 
+ 	if (key != 0x44) {
+ 		/*
+@@ -115,15 +119,18 @@ static int vp7045_rc_query(struct dvb_us
+ 
+ static int vp7045_read_eeprom(struct dvb_usb_device *d,u8 *buf, int len, int offset)
+ {
+-	int i = 0;
+-	u8 v,br[2];
++	int i, ret;
++	u8 v, br[2];
+ 	for (i=0; i < len; i++) {
+ 		v = offset + i;
+-		vp7045_usb_op(d,GET_EE_VALUE,&v,1,br,2,5);
++		ret = vp7045_usb_op(d, GET_EE_VALUE, &v, 1, br, 2, 5);
++		if (ret)
++			return ret;
++
+ 		buf[i] = br[1];
+ 	}
+-	deb_info("VP7045 EEPROM read (offs: %d, len: %d) : ",offset, i);
+-	debug_dump(buf,i,deb_info);
++	deb_info("VP7045 EEPROM read (offs: %d, len: %d) : ", offset, i);
++	debug_dump(buf, i, deb_info);
+ 	return 0;
+ }
+ 
 
 
