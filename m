@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2656B150B93
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1528150AFE
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729360AbgBCQ2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:28:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40510 "EHLO mail.kernel.org"
+        id S1728039AbgBCQUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:20:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729657AbgBCQ2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:28:48 -0500
+        id S1728980AbgBCQUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:20:50 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 592DF2051A;
-        Mon,  3 Feb 2020 16:28:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EEC32080D;
+        Mon,  3 Feb 2020 16:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747327;
-        bh=RAaMw1GoJKgjkz+PKYuc2ip6hIl/aRXvb4UczCFTohI=;
+        s=default; t=1580746849;
+        bh=ioBHRb4V/QTF8R6bPGv5A7tgDqkiLs9xIG/676Q5g7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0BKjYqOY/Qbnz+sEIoeMWEUVE6EB53Oq8ljghQLDDKQOpNMoMlD+tIGAKZbPWMfWx
-         nDuGk0/km4PxuEnLNnykLXtZwWtMZz+juXjCfPscBjkTZLCKuKtVA7F4F2aPdBgeDz
-         CxiulH8j6YGC6AeRF2qozoS9Jy9gIZUITnYwQngg=
+        b=TtCjSz3/twQ1etTPXk3TKNuwkzdMFXJPTRomh7c6mzpZv1v2lLKb5PDb/g3HVuerF
+         fEflAo6noFf/rSeQtm9SeK0DWJ/l8xffZHbW7+GYhpaMeoYF8FGea74qf4KR/vze7D
+         vW92+16SUVIO+CP9vRu4H/8BKSa9F9XxDsWQibms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 38/89] perf c2c: Fix return type for histogram sorting comparision functions
+        stable@vger.kernel.org,
+        syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com,
+        Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.4 31/53] ttyprintk: fix a potential deadlock in interrupt context issue
 Date:   Mon,  3 Feb 2020 16:19:23 +0000
-Message-Id: <20200203161922.078754322@linuxfoundation.org>
+Message-Id: <20200203161908.701223007@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
+References: <20200203161902.714326084@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,86 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andres Freund <andres@anarazel.de>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-commit c1c8013ec34d7163431d18367808ea40b2e305f8 upstream.
+commit 9a655c77ff8fc65699a3f98e237db563b37c439b upstream.
 
-Commit 722ddfde366f ("perf tools: Fix time sorting") changed - correctly
-so - hist_entry__sort to return int64. Unfortunately several of the
-builtin-c2c.c comparison routines only happened to work due the cast
-caused by the wrong return type.
+tpk_write()/tpk_close() could be interrupted when holding a mutex, then
+in timer handler tpk_write() may be called again trying to acquire same
+mutex, lead to deadlock.
 
-This causes meaningless ordering of both the cacheline list, and the
-cacheline details page. E.g a simple:
+Google syzbot reported this issue with CONFIG_DEBUG_ATOMIC_SLEEP
+enabled:
 
-  perf c2c record -a sleep 3
-  perf c2c report
+BUG: sleeping function called from invalid context at
+kernel/locking/mutex.c:938
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/1
+1 lock held by swapper/1/0:
+...
+Call Trace:
+  <IRQ>
+  dump_stack+0x197/0x210
+  ___might_sleep.cold+0x1fb/0x23e
+  __might_sleep+0x95/0x190
+  __mutex_lock+0xc5/0x13c0
+  mutex_lock_nested+0x16/0x20
+  tpk_write+0x5d/0x340
+  resync_tnc+0x1b6/0x320
+  call_timer_fn+0x1ac/0x780
+  run_timer_softirq+0x6c3/0x1790
+  __do_softirq+0x262/0x98c
+  irq_exit+0x19b/0x1e0
+  smp_apic_timer_interrupt+0x1a3/0x610
+  apic_timer_interrupt+0xf/0x20
+  </IRQ>
 
-will result in cacheline table like
-  =================================================
-             Shared Data Cache Line Table
-  =================================================
-  #
-  #        ------- Cacheline ----------    Total     Tot  - LLC Load Hitm -  - Store Reference -  - Load Dram -     LLC  Total  - Core Load Hit -  - LLC Load Hit -
-  # Index         Address  Node  PA cnt  records    Hitm  Total  Lcl    Rmt  Total  L1Hit  L1Miss     Lcl   Rmt  Ld Miss  Loads    FB    L1   L2     Llc      Rmt
-  # .....  ..............  ....  ......  .......  ......  .....  .....  ...  ....   .....  ......  ......  ....  ......   .....  .....  ..... ...  ....     .......
+See link https://syzkaller.appspot.com/bug?extid=2eeef62ee31f9460ad65 for
+more details.
 
-        0  0x7f0d27ffba00   N/A       0       52   0.12%     13      6    7    12      12       0       0     7      14      40      4     16    0    0           0
-        1  0x7f0d27ff61c0   N/A       0     6353  14.04%   1475    801  674   779     779       0       0   718    1392    5574   1299   1967    0  115           0
-        2  0x7f0d26d3ec80   N/A       0       71   0.15%     16      4   12    13      13       0       0    12      24      58      1     20    0    9           0
-        3  0x7f0d26d3ec00   N/A       0       98   0.22%     23     17    6    19      19       0       0     6      12      79      0     40    0   10           0
+Fix it by using spinlock in process context instead of mutex and having
+interrupt disabled in critical section.
 
-i.e. with the list not being ordered by Total Hitm.
-
-Fixes: 722ddfde366f ("perf tools: Fix time sorting")
-Signed-off-by: Andres Freund <andres@anarazel.de>
-Tested-by: Michael Petlan <mpetlan@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org # v3.16+
-Link: http://lore.kernel.org/lkml/20200109043030.233746-1-andres@anarazel.de
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: syzbot+2eeef62ee31f9460ad65@syzkaller.appspotmail.com
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200113034842.435-1-zhenzhong.duan@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/builtin-c2c.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/char/ttyprintk.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -528,8 +528,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __
+--- a/drivers/char/ttyprintk.c
++++ b/drivers/char/ttyprintk.c
+@@ -18,10 +18,11 @@
+ #include <linux/serial.h>
+ #include <linux/tty.h>
+ #include <linux/module.h>
++#include <linux/spinlock.h>
+ 
+ struct ttyprintk_port {
+ 	struct tty_port port;
+-	struct mutex port_write_mutex;
++	spinlock_t spinlock;
+ };
+ 
+ static struct ttyprintk_port tpk_port;
+@@ -107,11 +108,12 @@ static int tpk_open(struct tty_struct *t
+ static void tpk_close(struct tty_struct *tty, struct file *filp)
  {
- 	struct c2c_hist_entry *c2c_left;
- 	struct c2c_hist_entry *c2c_right;
--	unsigned int tot_hitm_left;
--	unsigned int tot_hitm_right;
-+	uint64_t tot_hitm_left;
-+	uint64_t tot_hitm_right;
+ 	struct ttyprintk_port *tpkp = tty->driver_data;
++	unsigned long flags;
  
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);
-@@ -562,7 +562,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __m
- 									\
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
--	return c2c_left->stats.__f - c2c_right->stats.__f;		\
-+	return (uint64_t) c2c_left->stats.__f -				\
-+	       (uint64_t) c2c_right->stats.__f;				\
+-	mutex_lock(&tpkp->port_write_mutex);
++	spin_lock_irqsave(&tpkp->spinlock, flags);
+ 	/* flush tpk_printk buffer */
+ 	tpk_printk(NULL, 0);
+-	mutex_unlock(&tpkp->port_write_mutex);
++	spin_unlock_irqrestore(&tpkp->spinlock, flags);
+ 
+ 	tty_port_close(&tpkp->port, tty, filp);
  }
+@@ -123,13 +125,14 @@ static int tpk_write(struct tty_struct *
+ 		const unsigned char *buf, int count)
+ {
+ 	struct ttyprintk_port *tpkp = tty->driver_data;
++	unsigned long flags;
+ 	int ret;
  
- #define STAT_FN(__f)		\
-@@ -615,7 +616,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);
  
--	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
-+	return (uint64_t) llc_miss(&c2c_left->stats) -
-+	       (uint64_t) llc_miss(&c2c_right->stats);
+ 	/* exclusive use of tpk_printk within this tty */
+-	mutex_lock(&tpkp->port_write_mutex);
++	spin_lock_irqsave(&tpkp->spinlock, flags);
+ 	ret = tpk_printk(buf, count);
+-	mutex_unlock(&tpkp->port_write_mutex);
++	spin_unlock_irqrestore(&tpkp->spinlock, flags);
+ 
+ 	return ret;
  }
+@@ -179,7 +182,7 @@ static int __init ttyprintk_init(void)
+ {
+ 	int ret = -ENOMEM;
  
- static uint64_t total_records(struct c2c_stats *stats)
+-	mutex_init(&tpk_port.port_write_mutex);
++	spin_lock_init(&tpk_port.spinlock);
+ 
+ 	ttyprintk_driver = tty_alloc_driver(1,
+ 			TTY_DRIVER_RESET_TERMIOS |
 
 
