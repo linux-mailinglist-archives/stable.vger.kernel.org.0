@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 701CC150D65
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADF58150DED
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:48:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730343AbgBCQoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:44:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45470 "EHLO mail.kernel.org"
+        id S1729142AbgBCQ0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:26:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730318AbgBCQb7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:59 -0500
+        id S1729113AbgBCQ0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:26:22 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0CF92051A;
-        Mon,  3 Feb 2020 16:31:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9B7B2051A;
+        Mon,  3 Feb 2020 16:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747518;
-        bh=NrobwdqGaNU0yOau8EcxQ97LyAVOpcmmB++1rcAI2n4=;
+        s=default; t=1580747181;
+        bh=l6cloJhamHOBRbigpyNLbKO8rrDSvstEKce5/7sOMOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5/9aUAarX3wSAuUKM0CEneuthCrnu6d8pwfNffqW6Kr9CwkOhWv7JzYE/LiOE29x
-         aOF5bHooGN6HFxUWjMNv3lkFBZWtr0483TStp41iTU9nm79kQNzkXPcGpjfyEJ2HCq
-         ZDkzJhPTJsxYkLuTmsev7iS5lqioCUxjKnZjWjnM=
+        b=fRSxOZgox9zl6eFZ9m4x4DRwGdj2ukeZ7wk+gvEf0uofDWsLCrkF3DZi8QU1XoG/k
+         Zqhsi3lOJ9jq7SSqMBBt6rd9IU0P9Xrbybun/qK9PLoLLAS6Js9UsCWKg7CXPhmQ4R
+         Whnm3ErWAIjZ1B2hDkThYAIMcZRqQFqUkRTEA9AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
+        Dave Gerlach <d-gerlach@ti.com>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/70] ARM: dts: beagle-x15-common: Model 5V0 regulator
+Subject: [PATCH 4.9 43/68] soc: ti: wkup_m3_ipc: Fix race condition with rproc_boot
 Date:   Mon,  3 Feb 2020 16:19:39 +0000
-Message-Id: <20200203161916.469335121@linuxfoundation.org>
+Message-Id: <20200203161912.034960468@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Dave Gerlach <d-gerlach@ti.com>
 
-[ Upstream commit e17e7c498d4f734df93c300441e100818ed58168 ]
+[ Upstream commit 03729cfa0d543bc996bf959e762ec999afc8f3d2 ]
 
-On am57xx-beagle-x15, 5V0 is connected to P16, P17, P18 and P19
-connectors. On am57xx-evm, 5V0 regulator is used to get 3V6 regulator
-which is connected to the COMQ port. Model 5V0 regulator here in order
-for it to be used in am57xx-evm to model 3V6 regulator.
+Any user of wkup_m3_ipc calls wkup_m3_ipc_get to get a handle and this
+checks the value of the static variable m3_ipc_state to see if the
+wkup_m3 is ready. Currently this is populated during probe before
+rproc_boot has been called, meaning there is a window of time that
+wkup_m3_ipc_get can return a valid handle but the wkup_m3 itself is not
+ready, leading to invalid IPC calls to the wkup_m3 and system
+instability.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+To avoid this, move the population of the m3_ipc_state variable until
+after rproc_boot has succeeded to guarantee a valid and usable handle
+is always returned.
+
+Reported-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/am57xx-beagle-x15-common.dtsi    | 21 +++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-index 872382bd043f8..0051b2e05c2d5 100644
---- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-+++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-@@ -32,6 +32,27 @@
- 		reg = <0x0 0x80000000 0x0 0x80000000>;
- 	};
+diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
+index 5bb376009d98b..fc33bfdc957cc 100644
+--- a/drivers/soc/ti/wkup_m3_ipc.c
++++ b/drivers/soc/ti/wkup_m3_ipc.c
+@@ -377,6 +377,8 @@ static void wkup_m3_rproc_boot_thread(struct wkup_m3_ipc *m3_ipc)
+ 	ret = rproc_boot(m3_ipc->rproc);
+ 	if (ret)
+ 		dev_err(dev, "rproc_boot failed\n");
++	else
++		m3_ipc_state = m3_ipc;
  
-+	main_12v0: fixedregulator-main_12v0 {
-+		/* main supply */
-+		compatible = "regulator-fixed";
-+		regulator-name = "main_12v0";
-+		regulator-min-microvolt = <12000000>;
-+		regulator-max-microvolt = <12000000>;
-+		regulator-always-on;
-+		regulator-boot-on;
-+	};
-+
-+	evm_5v0: fixedregulator-evm_5v0 {
-+		/* Output of TPS54531D */
-+		compatible = "regulator-fixed";
-+		regulator-name = "evm_5v0";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		vin-supply = <&main_12v0>;
-+		regulator-always-on;
-+		regulator-boot-on;
-+	};
-+
- 	vdd_3v3: fixedregulator-vdd_3v3 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vdd_3v3";
+ 	do_exit(0);
+ }
+@@ -463,8 +465,6 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
+ 		goto err_put_rproc;
+ 	}
+ 
+-	m3_ipc_state = m3_ipc;
+-
+ 	return 0;
+ 
+ err_put_rproc:
 -- 
 2.20.1
 
