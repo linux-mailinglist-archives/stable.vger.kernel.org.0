@@ -2,213 +2,374 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A02B150492
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 11:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D192A1505AD
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 12:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727529AbgBCKvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 05:51:15 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46129 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727435AbgBCKvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 05:51:15 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D0C1F21533;
-        Mon,  3 Feb 2020 05:51:13 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 03 Feb 2020 05:51:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ruSfHg
-        AryQndxIyvc484t7PqFiwk4fD8b/HKbMNMFNo=; b=hpC8mF319dWcYFQ2KUK0JL
-        8V4BrqCZ3Eck+jPBVsL2aHfv3ERMHnk6+dYDZzVlx0xycKvJ1p5+3sYiuz56O+D7
-        X2NSAC64A6vyHC0cFPfkH6Wy23fo9fdz4A9UobeuJQRx3WQhxbLiFMppvH9pfEwB
-        R844uGHK5ACwcYvO6BPw4czl7NhG1wmyRd4msW01cTi8p38sKTVO+07pzQEv1elN
-        TbOjpAGsZPkSqPp5mvp582OYfoTdnMlGZ2tO+ZTiSIWmS60tg/Gmbx82kfbWGJUT
-        jCqNqd8gaC1wi6VSsHoG1kJC6J+EG5fDsCLDeaQuSYMjPe06RURh1eVh3WXAQ/RA
-        ==
-X-ME-Sender: <xms:Ifs3Xo6gbVC6jtj45b7BPvsK-pe4VCzziBWH17THhBPvmvWQopjZZA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrgeejgddvtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepuddtgedrudefvddrgeehrdelleenucevlhhushhtvghrufhiiigvpeefne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Ifs3XhD3cREBCfre7a8beYgIMNo3UpYSpDdszmKVNXFJmuMCT-DHzA>
-    <xmx:Ifs3Xpxo1jfWPIyfOsGeZuCYlheU8xbEB6vipwZs84Xkz-tBRswcbg>
-    <xmx:Ifs3Xl5VWLlspfM5X7kII5GlP9l97u2X-81W8__hF1ru_Ix2vH5XYw>
-    <xmx:Ifs3Xt_1g3L9k0Ztw7Y8SQK01EBgfxu9vEohrQH-osdtj6xslqN7rQ>
-Received: from localhost (unknown [104.132.45.99])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 834033060134;
-        Mon,  3 Feb 2020 05:51:13 -0500 (EST)
-Subject: FAILED: patch "[PATCH] netfilter: ipset: use bitmap infrastructure completely" failed to apply to 4.4-stable tree
-To:     kadlec@blackhole.kfki.hu, kadlec@netfilter.org, pablo@netfilter.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Feb 2020 10:51:06 +0000
-Message-ID: <15807270668581@kroah.com>
+        id S1726100AbgBCLxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 06:53:39 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:21191 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727256AbgBCLxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 06:53:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580730817;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UFA0sUwFQiVI/v8qtF4RtDICWiIO9VSKBpDkFRWbZHU=;
+        b=gCHtmC7pHUmij5qYq9y28JJNH0b398VIBhWiAZNaVhOrc1KwBqI8kktpCqQSnMe0Be1Sic
+        gFNZ/x2F0h6ivMrithyqlou9p7gx94AzXgnek96V9+3SHKs/ZZAfInlKdBk2wsPif4N6PG
+        KRVhycyNjZ6hPMm0oAr66oEGTn0n98U=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-139-aUMDxmvXP5S9W3045PtEIA-1; Mon, 03 Feb 2020 06:53:33 -0500
+X-MC-Unique: aUMDxmvXP5S9W3045PtEIA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CBA4E1851FD8
+        for <stable@vger.kernel.org>; Mon,  3 Feb 2020 11:53:32 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id C34231BC6D
+        for <stable@vger.kernel.org>; Mon,  3 Feb 2020 11:53:32 +0000 (UTC)
+Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id BA8E281720;
+        Mon,  3 Feb 2020 11:53:32 +0000 (UTC)
+Date:   Mon, 3 Feb 2020 06:53:32 -0500 (EST)
+From:   Veronika Kabatova <vkabatov@redhat.com>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+Message-ID: <1764516057.4804858.1580730812581.JavaMail.zimbra@redhat.com>
+In-Reply-To: <cki.23F8456381.YW5PMKDN0H@redhat.com>
+References: <cki.23F8456381.YW5PMKDN0H@redhat.com>
+Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kerne?=
+ =?utf-8?Q?l_5.5.0-b3e3082.cki_(stable-next)?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [10.40.205.219, 10.4.195.3]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.5.0-b3e3082.cki (stable-next)
+Thread-Index: EtqCIF1aYt42nzXZMDYXcdJ4nKfJIA==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+----- Original Message -----
+> From: "CKI Project" <cki-project@redhat.com>
+> To: "Linux Stable maillist" <stable@vger.kernel.org>
+> Sent: Monday, February 3, 2020 9:06:21 AM
+> Subject: =E2=9D=8C FAIL: Test report for kernel 5.5.0-b3e3082.cki (stable=
+-next)
+>=20
+>=20
+> Hello,
+>=20
+> We ran automated tests on a recent commit from this kernel tree:
+>=20
+>        Kernel repo:
+>        git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.=
+git
+>             Commit: b3e3082be48b - ARM: dma-api: fix max_pfn off-by-one e=
+rror
+>             in __dma_supported()
+>=20
+> The results of these automated tests are provided below.
+>=20
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: OK
+>              Tests: FAILED
+>=20
+> All kernel binaries, config files, and logs are available for download he=
+re:
+>=20
+>   https://artifacts.cki-project.org/pipelines/417813
+>=20
+> One or more kernel tests failed:
+>=20
+>     ppc64le:
+>      =E2=9D=8C Boot test
+>=20
 
-greg k-h
+[   40.416312] bnx2x 0045:01:00.0: Direct firmware load for bnx2x/bnx2x-e2-=
+7.13.15.0.fw failed with error -2=20
+[   40.416339] bnx2x: [bnx2x_init_firmware:13556(enP69p1s0f0)]Can't load fi=
+rmware file bnx2x/bnx2x-e2-7.13.15.0.fw=20
+[   40.416349] bnx2x: [bnx2x_func_hw_init:6002(enP69p1s0f0)]Error loading f=
+irmware=20
+[   40.416362] bnx2x: [bnx2x_nic_load:2731(enP69p1s0f0)]HW init failed, abo=
+rting=20
+[   40.556594] bnx2x 0045:01:00.1: Direct firmware load for bnx2x/bnx2x-e2-=
+7.13.15.0.fw failed with error -2=20
+[   40.556621] bnx2x: [bnx2x_init_firmware:13556(enP69p1s0f1)]Can't load fi=
+rmware file bnx2x/bnx2x-e2-7.13.15.0.fw=20
+[   40.556631] bnx2x: [bnx2x_func_hw_init:6002(enP69p1s0f1)]Error loading f=
+irmware=20
+[   40.556646] bnx2x: [bnx2x_nic_load:2731(enP69p1s0f1)]HW init failed, abo=
+rting=20
+[   40.706538] bnx2x 0045:01:00.2: Direct firmware load for bnx2x/bnx2x-e2-=
+7.13.15.0.fw failed with error -2=20
+[   40.706563] bnx2x: [bnx2x_init_firmware:13556(enP69p1s0f2)]Can't load fi=
+rmware file bnx2x/bnx2x-e2-7.13.15.0.fw=20
+[   40.706572] bnx2x: [bnx2x_func_hw_init:6002(enP69p1s0f2)]Error loading f=
+irmware=20
+[   40.706587] bnx2x: [bnx2x_nic_load:2731(enP69p1s0f2)]HW init failed, abo=
+rting=20
+[   40.836616] bnx2x 0045:01:00.3: Direct firmware load for bnx2x/bnx2x-e2-=
+7.13.15.0.fw failed with error -2=20
+[   40.836638] bnx2x: [bnx2x_init_firmware:13556(enP69p1s0f3)]Can't load fi=
+rmware file bnx2x/bnx2x-e2-7.13.15.0.fw=20
+[   40.836645] bnx2x: [bnx2x_func_hw_init:6002(enP69p1s0f3)]Error loading f=
+irmware=20
+[   40.836657] bnx2x: [bnx2x_nic_load:2731(enP69p1s0f3)]HW init failed, abo=
+rting=20
 
------------------- original commit in Linus's tree ------------------
+The recipe aborted later due to networking issues, which might be caused by
+the messages above.
 
-From 32c72165dbd0e246e69d16a3ad348a4851afd415 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Kadlecsik=20J=C3=B3zsef?= <kadlec@blackhole.kfki.hu>
-Date: Sun, 19 Jan 2020 22:06:49 +0100
-Subject: [PATCH] netfilter: ipset: use bitmap infrastructure completely
+The messages are not present with kernel-5.4.8-200.fc31.ppc64le which makes
+me wonder if something related changed in the kernel, whether it's a planne=
+d
+change we need to account for or actual breakage? The other ppc64le machine
+we ran on didn't use bnx2x.
 
-The bitmap allocation did not use full unsigned long sizes
-when calculating the required size and that was triggered by KASAN
-as slab-out-of-bounds read in several places. The patch fixes all
-of them.
 
-Reported-by: syzbot+fabca5cbf5e54f3fe2de@syzkaller.appspotmail.com
-Reported-by: syzbot+827ced406c9a1d9570ed@syzkaller.appspotmail.com
-Reported-by: syzbot+190d63957b22ef673ea5@syzkaller.appspotmail.com
-Reported-by: syzbot+dfccdb2bdb4a12ad425e@syzkaller.appspotmail.com
-Reported-by: syzbot+df0d0f5895ef1f41a65b@syzkaller.appspotmail.com
-Reported-by: syzbot+b08bd19bb37513357fd4@syzkaller.appspotmail.com
-Reported-by: syzbot+53cdd0ec0bbabd53370a@syzkaller.appspotmail.com
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Veronika
 
-diff --git a/include/linux/netfilter/ipset/ip_set.h b/include/linux/netfilter/ipset/ip_set.h
-index 4d8b1eaf7708..908d38dbcb91 100644
---- a/include/linux/netfilter/ipset/ip_set.h
-+++ b/include/linux/netfilter/ipset/ip_set.h
-@@ -426,13 +426,6 @@ ip6addrptr(const struct sk_buff *skb, bool src, struct in6_addr *addr)
- 	       sizeof(*addr));
- }
- 
--/* Calculate the bytes required to store the inclusive range of a-b */
--static inline int
--bitmap_bytes(u32 a, u32 b)
--{
--	return 4 * ((((b - a + 8) / 8) + 3) / 4);
--}
--
- /* How often should the gc be run by default */
- #define IPSET_GC_TIME			(3 * 60)
- 
-diff --git a/net/netfilter/ipset/ip_set_bitmap_gen.h b/net/netfilter/ipset/ip_set_bitmap_gen.h
-index 077a2cb65fcb..26ab0e9612d8 100644
---- a/net/netfilter/ipset/ip_set_bitmap_gen.h
-+++ b/net/netfilter/ipset/ip_set_bitmap_gen.h
-@@ -75,7 +75,7 @@ mtype_flush(struct ip_set *set)
- 
- 	if (set->extensions & IPSET_EXT_DESTROY)
- 		mtype_ext_cleanup(set);
--	memset(map->members, 0, map->memsize);
-+	bitmap_zero(map->members, map->elements);
- 	set->elements = 0;
- 	set->ext_size = 0;
- }
-diff --git a/net/netfilter/ipset/ip_set_bitmap_ip.c b/net/netfilter/ipset/ip_set_bitmap_ip.c
-index abe8f77d7d23..0a2196f59106 100644
---- a/net/netfilter/ipset/ip_set_bitmap_ip.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
-@@ -37,7 +37,7 @@ MODULE_ALIAS("ip_set_bitmap:ip");
- 
- /* Type structure */
- struct bitmap_ip {
--	void *members;		/* the set members */
-+	unsigned long *members;	/* the set members */
- 	u32 first_ip;		/* host byte order, included in range */
- 	u32 last_ip;		/* host byte order, included in range */
- 	u32 elements;		/* number of max elements in the set */
-@@ -220,7 +220,7 @@ init_map_ip(struct ip_set *set, struct bitmap_ip *map,
- 	    u32 first_ip, u32 last_ip,
- 	    u32 elements, u32 hosts, u8 netmask)
- {
--	map->members = ip_set_alloc(map->memsize);
-+	map->members = bitmap_zalloc(elements, GFP_KERNEL | __GFP_NOWARN);
- 	if (!map->members)
- 		return false;
- 	map->first_ip = first_ip;
-@@ -322,7 +322,7 @@ bitmap_ip_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
- 	if (!map)
- 		return -ENOMEM;
- 
--	map->memsize = bitmap_bytes(0, elements - 1);
-+	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
- 	set->variant = &bitmap_ip;
- 	if (!init_map_ip(set, map, first_ip, last_ip,
- 			 elements, hosts, netmask)) {
-diff --git a/net/netfilter/ipset/ip_set_bitmap_ipmac.c b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-index b618713297da..739e343efaf6 100644
---- a/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ipmac.c
-@@ -42,7 +42,7 @@ enum {
- 
- /* Type structure */
- struct bitmap_ipmac {
--	void *members;		/* the set members */
-+	unsigned long *members;	/* the set members */
- 	u32 first_ip;		/* host byte order, included in range */
- 	u32 last_ip;		/* host byte order, included in range */
- 	u32 elements;		/* number of max elements in the set */
-@@ -299,7 +299,7 @@ static bool
- init_map_ipmac(struct ip_set *set, struct bitmap_ipmac *map,
- 	       u32 first_ip, u32 last_ip, u32 elements)
- {
--	map->members = ip_set_alloc(map->memsize);
-+	map->members = bitmap_zalloc(elements, GFP_KERNEL | __GFP_NOWARN);
- 	if (!map->members)
- 		return false;
- 	map->first_ip = first_ip;
-@@ -360,7 +360,7 @@ bitmap_ipmac_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
- 	if (!map)
- 		return -ENOMEM;
- 
--	map->memsize = bitmap_bytes(0, elements - 1);
-+	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
- 	set->variant = &bitmap_ipmac;
- 	if (!init_map_ipmac(set, map, first_ip, last_ip, elements)) {
- 		kfree(map);
-diff --git a/net/netfilter/ipset/ip_set_bitmap_port.c b/net/netfilter/ipset/ip_set_bitmap_port.c
-index 23d6095cb196..b49978dd810d 100644
---- a/net/netfilter/ipset/ip_set_bitmap_port.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_port.c
-@@ -30,7 +30,7 @@ MODULE_ALIAS("ip_set_bitmap:port");
- 
- /* Type structure */
- struct bitmap_port {
--	void *members;		/* the set members */
-+	unsigned long *members;	/* the set members */
- 	u16 first_port;		/* host byte order, included in range */
- 	u16 last_port;		/* host byte order, included in range */
- 	u32 elements;		/* number of max elements in the set */
-@@ -231,7 +231,7 @@ static bool
- init_map_port(struct ip_set *set, struct bitmap_port *map,
- 	      u16 first_port, u16 last_port)
- {
--	map->members = ip_set_alloc(map->memsize);
-+	map->members = bitmap_zalloc(map->elements, GFP_KERNEL | __GFP_NOWARN);
- 	if (!map->members)
- 		return false;
- 	map->first_port = first_port;
-@@ -271,7 +271,7 @@ bitmap_port_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
- 		return -ENOMEM;
- 
- 	map->elements = elements;
--	map->memsize = bitmap_bytes(0, map->elements);
-+	map->memsize = BITS_TO_LONGS(elements) * sizeof(unsigned long);
- 	set->variant = &bitmap_port;
- 	if (!init_map_port(set, map, first_port, last_port)) {
- 		kfree(map);
+> We hope that these logs can help you find the problem quickly. For the fu=
+ll
+> detail on our testing procedures, please scroll to the bottom of this
+> message.
+>=20
+> Please reply to this email if you have any questions about the tests that=
+ we
+> ran or if you have any suggestions on how to make future tests more
+> effective.
+>=20
+>         ,-.   ,-.
+>        ( C ) ( K )  Continuous
+>         `-',-.`-'   Kernel
+>           ( I )     Integration
+>            `-'
+> _________________________________________________________________________=
+_____
+>=20
+> Compile testing
+> ---------------
+>=20
+> We compiled the kernel for 3 architectures:
+>=20
+>     aarch64:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>     ppc64le:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>     x86_64:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>=20
+> Hardware testing
+> ----------------
+> We booted each kernel and ran the following tests:
+>=20
+>   aarch64:
+>     Host 1:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 xfstests: ext4
+>        =E2=9C=85 xfstests: xfs
+>        =E2=9C=85 selinux-policy: serge-testsuite
+>        =E2=9C=85 lvm thinp sanity
+>        =E2=9C=85 storage: software RAID testing
+>        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+>=20
+>     Host 2:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 Podman system integration test (as root)
+>        =E2=9C=85 Podman system integration test (as user)
+>        =E2=9C=85 LTP
+>        =E2=9C=85 Loopdev Sanity
+>        =E2=9C=85 Memory function: memfd_create
+>        =E2=9C=85 AMTU (Abstract Machine Test Utility)
+>        =E2=9C=85 Networking bridge: sanity
+>        =E2=9C=85 Ethernet drivers sanity
+>        =E2=9C=85 Networking MACsec: sanity
+>        =E2=9C=85 Networking socket: fuzz
+>        =E2=9C=85 Networking sctp-auth: sockopts test
+>        =E2=9C=85 Networking: igmp conformance test
+>        =E2=9C=85 Networking route: pmtu
+>        =E2=9C=85 Networking route_func: local
+>        =E2=9C=85 Networking route_func: forward
+>        =E2=9C=85 Networking TCP: keepalive test
+>        =E2=9C=85 Networking UDP: socket
+>        =E2=9C=85 Networking tunnel: geneve basic test
+>        =E2=9C=85 Networking tunnel: gre basic
+>        =E2=9C=85 L2TP basic test
+>        =E2=9C=85 Networking tunnel: vxlan basic
+>        =E2=9C=85 Networking ipsec: basic netns transport
+>        =E2=9C=85 Networking ipsec: basic netns tunnel
+>        =E2=9C=85 audit: audit testsuite test
+>        =E2=9C=85 httpd: mod_ssl smoke sanity
+>        =E2=9C=85 tuned: tune-processes-through-perf
+>        =E2=9C=85 ALSA PCM loopback test
+>        =E2=9C=85 ALSA Control (mixer) Userspace Element test
+>        =E2=9C=85 storage: SCSI VPD
+>        =E2=9C=85 trace: ftrace/tracer
+>        =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+>        =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+>        =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+>        =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+>        =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+>        =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+>        =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+>        =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+>        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+>=20
+>   ppc64le:
+>     Host 1:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 Podman system integration test (as root)
+>        =E2=9C=85 Podman system integration test (as user)
+>        =E2=9C=85 LTP
+>        =E2=9C=85 Loopdev Sanity
+>        =E2=9C=85 Memory function: memfd_create
+>        =E2=9C=85 AMTU (Abstract Machine Test Utility)
+>        =E2=9C=85 Networking bridge: sanity
+>        =E2=9C=85 Ethernet drivers sanity
+>        =E2=9C=85 Networking MACsec: sanity
+>        =E2=9C=85 Networking socket: fuzz
+>        =E2=9C=85 Networking sctp-auth: sockopts test
+>        =E2=9C=85 Networking route: pmtu
+>        =E2=9C=85 Networking route_func: local
+>        =E2=9C=85 Networking route_func: forward
+>        =E2=9C=85 Networking TCP: keepalive test
+>        =E2=9C=85 Networking UDP: socket
+>        =E2=9C=85 Networking tunnel: geneve basic test
+>        =E2=9C=85 Networking tunnel: gre basic
+>        =E2=9C=85 L2TP basic test
+>        =E2=9C=85 Networking tunnel: vxlan basic
+>        =E2=9C=85 Networking ipsec: basic netns tunnel
+>        =E2=9C=85 audit: audit testsuite test
+>        =E2=9C=85 httpd: mod_ssl smoke sanity
+>        =E2=9C=85 tuned: tune-processes-through-perf
+>        =E2=9C=85 ALSA PCM loopback test
+>        =E2=9C=85 ALSA Control (mixer) Userspace Element test
+>        =E2=9C=85 trace: ftrace/tracer
+>        =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+>        =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+>        =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+>        =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+>        =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+>        =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+>        =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+>        =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+>        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+>=20
+>     Host 2:
+>        =E2=9D=8C Boot test
+>        =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
+>        =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+>        =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+>        =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
+>        =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+>        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+>        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+>        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+>=20
+>   x86_64:
+>     Host 1:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 Storage SAN device stress - mpt3sas driver
+>=20
+>     Host 2:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 Podman system integration test (as root)
+>        =E2=9C=85 Podman system integration test (as user)
+>        =E2=9C=85 LTP
+>        =E2=9C=85 Loopdev Sanity
+>        =E2=9C=85 Memory function: memfd_create
+>        =E2=9C=85 AMTU (Abstract Machine Test Utility)
+>        =E2=9C=85 Networking bridge: sanity
+>        =E2=9C=85 Ethernet drivers sanity
+>        =E2=9C=85 Networking MACsec: sanity
+>        =E2=9C=85 Networking socket: fuzz
+>        =E2=9C=85 Networking sctp-auth: sockopts test
+>        =E2=9C=85 Networking: igmp conformance test
+>        =E2=9C=85 Networking route: pmtu
+>        =E2=9C=85 Networking route_func: local
+>        =E2=9C=85 Networking route_func: forward
+>        =E2=9C=85 Networking TCP: keepalive test
+>        =E2=9C=85 Networking UDP: socket
+>        =E2=9C=85 Networking tunnel: geneve basic test
+>        =E2=9C=85 Networking tunnel: gre basic
+>        =E2=9C=85 L2TP basic test
+>        =E2=9C=85 Networking tunnel: vxlan basic
+>        =E2=9C=85 Networking ipsec: basic netns transport
+>        =E2=9C=85 Networking ipsec: basic netns tunnel
+>        =E2=9C=85 audit: audit testsuite test
+>        =E2=9C=85 httpd: mod_ssl smoke sanity
+>        =E2=9C=85 tuned: tune-processes-through-perf
+>        =E2=9C=85 pciutils: sanity smoke test
+>        =E2=9C=85 ALSA PCM loopback test
+>        =E2=9C=85 ALSA Control (mixer) Userspace Element test
+>        =E2=9C=85 storage: SCSI VPD
+>        =E2=9C=85 trace: ftrace/tracer
+>        =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+>        =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+>        =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+>        =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+>        =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+>        =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+>        =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+>        =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+>        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+>=20
+>     Host 3:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 Storage SAN device stress - megaraid_sas
+>=20
+>     Host 4:
+>        =E2=9C=85 Boot test
+>        =E2=9C=85 xfstests: ext4
+>        =E2=9C=85 xfstests: xfs
+>        =E2=9C=85 selinux-policy: serge-testsuite
+>        =E2=9C=85 lvm thinp sanity
+>        =E2=9C=85 storage: software RAID testing
+>        =E2=9C=85 stress: stress-ng
+>        =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+>        =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+>        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+>        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+>=20
+>   Test sources: https://github.com/CKI-project/tests-beaker
+>     =F0=9F=92=9A Pull requests are welcome for new tests or improvements =
+to existing
+>     tests!
+>=20
+> Waived tests
+> ------------
+> If the test run included waived tests, they are marked with =F0=9F=9A=A7.=
+ Such tests
+> are
+> executed but their results are not taken into account. Tests are waived w=
+hen
+> their results are not reliable enough, e.g. when they're just introduced =
+or
+> are
+> being fixed.
+>=20
+> Testing timeout
+> ---------------
+> We aim to provide a report within reasonable timeframe. Tests that haven'=
+t
+> finished running are marked with =E2=8F=B1. Reports for non-upstream kern=
+els have
+> a Beaker recipe linked to next to each host.
+>=20
+>=20
 
