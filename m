@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C716150C97
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C65150CB9
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731397AbgBCQhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:37:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53566 "EHLO mail.kernel.org"
+        id S1731406AbgBCQhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:37:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730901AbgBCQhv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:51 -0500
+        id S1731400AbgBCQhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:53 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40B222051A;
-        Mon,  3 Feb 2020 16:37:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E2A22051A;
+        Mon,  3 Feb 2020 16:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747870;
-        bh=6DmBolbtfr5xFdGIY7cFqc5o5dNUZ0YZKeKqRMpNUGo=;
+        s=default; t=1580747873;
+        bh=kBkd5mUihVG4SraVZKSYG5V3/ELkKainFmm4pZDj604=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFTXoiWpx+4ORXBgj6f4eH8eaX49e33TolgRsSKXO9Ypxh5lE/zbKpVarCXHV5mHT
-         O5YuNM9samnPc1Gw1oeYL7Nq7InyNheV6DNCkKXIRXlrr8qNH+H9ep2vPLgIsVUwKA
-         p6X63COqwcO82u6nCs9mKIxCiFRKoyonBGt7gbKw=
+        b=kWFItMwMrZ6ZTRTUmGa3brWEKFEDf9iXvGGTsp4XvdXqNLjsaAZTCgaBuyJiFS1iv
+         ceYvE+SIZG+/FcvuMqbY2uiVCPvQKEVVVS7ulFnPe0P7pNxdEa6wLX0OV7J1qbL4kN
+         eBhsKC9guDyrQQjBU0fRhQnO7mGFPCQaMcwaquxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com,
+        syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com,
         Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 15/23] media: digitv: dont continue if remote control state cant be read
-Date:   Mon,  3 Feb 2020 16:20:35 +0000
-Message-Id: <20200203161905.564349234@linuxfoundation.org>
+Subject: [PATCH 5.5 16/23] media: af9005: uninitialized variable printked
+Date:   Mon,  3 Feb 2020 16:20:36 +0000
+Message-Id: <20200203161905.734306738@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
 References: <20200203161902.288335885@linuxfoundation.org>
@@ -47,46 +47,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Young <sean@mess.org>
 
-commit eecc70d22ae51225de1ef629c1159f7116476b2e upstream.
+commit 51d0c99b391f0cac61ad7b827c26f549ee55672c upstream.
 
-This results in an uninitialized variable read.
+If usb_bulk_msg() fails, actual_length can be uninitialized.
 
-Reported-by: syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com
+Reported-by: syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/digitv.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/media/usb/dvb-usb/af9005.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/dvb-usb/digitv.c
-+++ b/drivers/media/usb/dvb-usb/digitv.c
-@@ -230,18 +230,22 @@ static struct rc_map_table rc_map_digitv
- 
- static int digitv_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+--- a/drivers/media/usb/dvb-usb/af9005.c
++++ b/drivers/media/usb/dvb-usb/af9005.c
+@@ -554,7 +554,7 @@ static int af9005_boot_packet(struct usb
+ 			      u8 *buf, int size)
  {
--	int i;
-+	int ret, i;
- 	u8 key[5];
- 	u8 b[4] = { 0 };
+ 	u16 checksum;
+-	int act_len, i, ret;
++	int act_len = 0, i, ret;
  
- 	*event = 0;
- 	*state = REMOTE_NO_KEY_PRESSED;
- 
--	digitv_ctrl_msg(d,USB_READ_REMOTE,0,NULL,0,&key[1],4);
-+	ret = digitv_ctrl_msg(d, USB_READ_REMOTE, 0, NULL, 0, &key[1], 4);
-+	if (ret)
-+		return ret;
- 
- 	/* Tell the device we've read the remote. Not sure how necessary
- 	   this is, but the Nebula SDK does it. */
--	digitv_ctrl_msg(d,USB_WRITE_REMOTE,0,b,4,NULL,0);
-+	ret = digitv_ctrl_msg(d, USB_WRITE_REMOTE, 0, b, 4, NULL, 0);
-+	if (ret)
-+		return ret;
- 
- 	/* if something is inside the buffer, simulate key press */
- 	if (key[1] != 0)
+ 	memset(buf, 0, size);
+ 	buf[0] = (u8) (FW_BULKOUT_SIZE & 0xff);
 
 
