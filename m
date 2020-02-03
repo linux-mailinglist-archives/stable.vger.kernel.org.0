@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38C96150C81
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D640150C83
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbgBCQhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52692 "EHLO mail.kernel.org"
+        id S1731301AbgBCQhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:37:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731292AbgBCQhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:10 -0500
+        id S1731298AbgBCQhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:13 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C78CB20721;
-        Mon,  3 Feb 2020 16:37:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BCD62082E;
+        Mon,  3 Feb 2020 16:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747830;
-        bh=ATu7mnQ7kjwkEutz/nZqrsLZmfziIVGeD0WmcPB723g=;
+        s=default; t=1580747832;
+        bh=PnGhYvZwFi0lcWRXayC8zBhGlbnyQ7u8vlcKAZSNZvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/wajTEcE36aVR9kGe2cTvIo1RLNgR9pTx5heyADEHBKZP3bDTpWftSEpLQP5w6e3
-         JRDYIKLEfXP95gx+E40WoohP8RQIDNaLU1wHGPRt+iO3rE/V2nocKZHi2FVZKisZPE
-         71/pnqzPPAVpRA7RJqiYqPJH0ZeOEvFvBHkLLkvU=
+        b=vO9tmJSbDULrsbmS8H4dvpy5XvWbWAxhwwPr9Gy9Fl8vivgnONvGxPcFpDjUcsDZ/
+         MABNEz3EtA3HZDBY/3r8TGzGj/QNuBBMBQRzhChcWZVncNe/VG75dyOjep0f+Zhmz6
+         bkWfsxJPLAcG67yXtjW4hPxF+TeKTZ5XERGCvWmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 87/90] l2t_seq_next should increase position index
-Date:   Mon,  3 Feb 2020 16:20:30 +0000
-Message-Id: <20200203161927.644506604@linuxfoundation.org>
+Subject: [PATCH 5.4 88/90] netfilter: conntrack: sctp: use distinct states for new SCTP connections
+Date:   Mon,  3 Feb 2020 16:20:31 +0000
+Message-Id: <20200203161927.735006699@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
 References: <20200203161917.612554987@linuxfoundation.org>
@@ -44,35 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jiri Wiesner <jwiesner@suse.com>
 
-[ Upstream commit 66018a102f7756cf72db4d2704e1b93969d9d332 ]
+[ Upstream commit ab658b9fa7a2c467f79eac8b53ea308b8f98113d ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+The netlink notifications triggered by the INIT and INIT_ACK chunks
+for a tracked SCTP association do not include protocol information
+for the corresponding connection - SCTP state and verification tags
+for the original and reply direction are missing. Since the connection
+tracking implementation allows user space programs to receive
+notifications about a connection and then create a new connection
+based on the values received in a notification, it makes sense that
+INIT and INIT_ACK notifications should contain the SCTP state
+and verification tags available at the time when a notification
+is sent. The missing verification tags cause a newly created
+netfilter connection to fail to verify the tags of SCTP packets
+when this connection has been created from the values previously
+received in an INIT or INIT_ACK notification.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+A PROTOINFO event is cached in sctp_packet() when the state
+of a connection changes. The CLOSED and COOKIE_WAIT state will
+be used for connections that have seen an INIT and INIT_ACK chunk,
+respectively. The distinct states will cause a connection state
+change in sctp_packet().
+
+Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/l2t.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_proto_sctp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/l2t.c b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-index 1a407d3c1d67c..e6fe2870137b0 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-@@ -682,8 +682,7 @@ static void *l2t_seq_start(struct seq_file *seq, loff_t *pos)
- static void *l2t_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
- 	v = l2t_get_idx(seq, *pos);
--	if (v)
--		++*pos;
-+	++(*pos);
- 	return v;
- }
+diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
+index 0399ae8f1188f..4f897b14b6069 100644
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -114,7 +114,7 @@ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
+ 	{
+ /*	ORIGINAL	*/
+ /*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sCW, sCW, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
++/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
+ /* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},
+ /* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
+ /* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL, sSS},
+@@ -130,7 +130,7 @@ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
+ /*	REPLY	*/
+ /*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+ /* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* INIT in sCL Big TODO */
+-/* init_ack     */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
++/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
+ /* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV, sCL},
+ /* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV, sSR},
+ /* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV, sHA},
+@@ -316,7 +316,7 @@ sctp_new(struct nf_conn *ct, const struct sk_buff *skb,
+ 			ct->proto.sctp.vtag[IP_CT_DIR_REPLY] = sh->vtag;
+ 		}
  
+-		ct->proto.sctp.state = new_state;
++		ct->proto.sctp.state = SCTP_CONNTRACK_NONE;
+ 	}
+ 
+ 	return true;
 -- 
 2.20.1
 
