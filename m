@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3C6150D23
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49D4150BB3
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729397AbgBCQlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:41:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S1729849AbgBCQ3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:29:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730772AbgBCQeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:34:21 -0500
+        id S1729847AbgBCQ3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:29:45 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1622D21927;
-        Mon,  3 Feb 2020 16:34:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CE9E20838;
+        Mon,  3 Feb 2020 16:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747660;
-        bh=QRu/AKVn0AAOHfG/bix1Ht8U43k9W/oQjtS6X83Z7s0=;
+        s=default; t=1580747384;
+        bh=c+d813cZMCYf0vAj2pTZXXiLVWj7SVH0DsY+S6RlMds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rgho43YuSWMmIji90JmtVAhW0yiyfSG/ii24kwE4DQSjlZafBh0ZZA+wwmRaYfbQG
-         7R2PCtcOX3BfN7VEC9rRjl15AmmfUQazZwjgfla3jvcZVYZdiRu6RykXFWPmY20hnp
-         CEt7tx0LqLRuLNoa2tZXWwi51a0lgpPVofFWFvWs=
+        b=k3z1dP6A9kCFsm/oeTRsd1ASuhOeJ2eMUTFKmld2stU3bS0tOr2JcKBN+fUYgtLFd
+         FnEZlj9uQD8AAlYvsLrrvLBAB8JnPk731bWBKSvb5bCQIFn3o9pgE38VdRR88KhjYf
+         7QwYzB/NEFiqGzvM1F4OjZ4+ruT/LcYsvoFwIPPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/90] x86/resctrl: Fix use-after-free due to inaccurate refcount of rdtgroup
-Date:   Mon,  3 Feb 2020 16:19:08 +0000
-Message-Id: <20200203161918.304723675@linuxfoundation.org>
+Subject: [PATCH 4.14 24/89] drivers/net/b44: Change to non-atomic bit operations on pwol_mask
+Date:   Mon,  3 Feb 2020 16:19:09 +0000
+Message-Id: <20200203161920.127855118@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,125 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit 074fadee59ee7a9d2b216e9854bd4efb5dad679f ]
+[ Upstream commit f11421ba4af706cb4f5703de34fa77fba8472776 ]
 
-There is a race condition in the following scenario which results in an
-use-after-free issue when reading a monitoring file and deleting the
-parent ctrl_mon group concurrently:
+Atomic operations that span cache lines are super-expensive on x86
+(not just to the current processor, but also to other processes as all
+memory operations are blocked until the operation completes). Upcoming
+x86 processors have a switch to cause such operations to generate a #AC
+trap. It is expected that some real time systems will enable this mode
+in BIOS.
 
-Thread 1 calls atomic_inc() to take refcount of rdtgrp and then calls
-kernfs_break_active_protection() to drop the active reference of kernfs
-node in rdtgroup_kn_lock_live().
+In preparation for this, it is necessary to fix code that may execute
+atomic instructions with operands that cross cachelines because the #AC
+trap will crash the kernel.
 
-In Thread 2, kernfs_remove() is a blocking routine. It waits on all sub
-kernfs nodes to drop the active reference when removing all subtree
-kernfs nodes recursively. Thread 2 could block on kernfs_remove() until
-Thread 1 calls kernfs_break_active_protection(). Only after
-kernfs_remove() completes the refcount of rdtgrp could be trusted.
+Since "pwol_mask" is local and never exposed to concurrency, there is
+no need to set bits in pwol_mask using atomic operations.
 
-Before Thread 1 calls atomic_inc() and kernfs_break_active_protection(),
-Thread 2 could call kfree() when the refcount of rdtgrp (sentry) is 0
-instead of 1 due to the race.
+Directly operate on the byte which contains the bit instead of using
+__set_bit() to avoid any big endian concern due to type cast to
+unsigned long in __set_bit().
 
-In Thread 1, in rdtgroup_kn_unlock(), referring to earlier rdtgrp memory
-(rdtgrp->waitcount) which was already freed in Thread 2 results in
-use-after-free issue.
-
-Thread 1 (rdtgroup_mondata_show)  Thread 2 (rdtgroup_rmdir)
---------------------------------  -------------------------
-rdtgroup_kn_lock_live
-  /*
-   * kn active protection until
-   * kernfs_break_active_protection(kn)
-   */
-  rdtgrp = kernfs_to_rdtgroup(kn)
-                                  rdtgroup_kn_lock_live
-                                    atomic_inc(&rdtgrp->waitcount)
-                                    mutex_lock
-                                  rdtgroup_rmdir_ctrl
-                                    free_all_child_rdtgrp
-                                      /*
-                                       * sentry->waitcount should be 1
-                                       * but is 0 now due to the race.
-                                       */
-                                      kfree(sentry)*[1]
-  /*
-   * Only after kernfs_remove()
-   * completes, the refcount of
-   * rdtgrp could be trusted.
-   */
-  atomic_inc(&rdtgrp->waitcount)
-  /* kn->active-- */
-  kernfs_break_active_protection(kn)
-                                    rdtgroup_ctrl_remove
-                                      rdtgrp->flags = RDT_DELETED
-                                      /*
-                                       * Blocking routine, wait for
-                                       * all sub kernfs nodes to drop
-                                       * active reference in
-                                       * kernfs_break_active_protection.
-                                       */
-                                      kernfs_remove(rdtgrp->kn)
-                                  rdtgroup_kn_unlock
-                                    mutex_unlock
-                                    atomic_dec_and_test(
-                                                &rdtgrp->waitcount)
-                                    && (flags & RDT_DELETED)
-                                      kernfs_unbreak_active_protection(kn)
-                                      kfree(rdtgrp)
-  mutex_lock
-mon_event_read
-rdtgroup_kn_unlock
-  mutex_unlock
-  /*
-   * Use-after-free: refer to earlier rdtgrp
-   * memory which was freed in [1].
-   */
-  atomic_dec_and_test(&rdtgrp->waitcount)
-  && (flags & RDT_DELETED)
-    /* kn->active++ */
-    kernfs_unbreak_active_protection(kn)
-    kfree(rdtgrp)
-
-Fix it by moving free_all_child_rdtgrp() to after kernfs_remove() in
-rdtgroup_rmdir_ctrl() to ensure it has the accurate refcount of rdtgrp.
-
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1578500886-21771-3-git-send-email-xiaochen.shen@intel.com
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/b44.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index c7564294a12a8..954fd048ad9bd 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -2960,13 +2960,13 @@ static int rdtgroup_rmdir_ctrl(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
- 	closid_free(rdtgrp->closid);
- 	free_rmid(rdtgrp->mon.rmid);
+diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/broadcom/b44.c
+index a1125d10c8255..8b9a0ce1d29f5 100644
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -1521,8 +1521,10 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 	int ethaddr_bytes = ETH_ALEN;
  
-+	rdtgroup_ctrl_remove(kn, rdtgrp);
-+
- 	/*
- 	 * Free all the child monitor group rmids.
- 	 */
- 	free_all_child_rdtgrp(rdtgrp);
+ 	memset(ppattern + offset, 0xff, magicsync);
+-	for (j = 0; j < magicsync; j++)
+-		set_bit(len++, (unsigned long *) pmask);
++	for (j = 0; j < magicsync; j++) {
++		pmask[len >> 3] |= BIT(len & 7);
++		len++;
++	}
  
--	rdtgroup_ctrl_remove(kn, rdtgrp);
--
- 	return 0;
- }
- 
+ 	for (j = 0; j < B44_MAX_PATTERNS; j++) {
+ 		if ((B44_PATTERN_SIZE - len) >= ETH_ALEN)
+@@ -1534,7 +1536,8 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 		for (k = 0; k< ethaddr_bytes; k++) {
+ 			ppattern[offset + magicsync +
+ 				(j * ETH_ALEN) + k] = macaddr[k];
+-			set_bit(len++, (unsigned long *) pmask);
++			pmask[len >> 3] |= BIT(len & 7);
++			len++;
+ 		}
+ 	}
+ 	return len - 1;
 -- 
 2.20.1
 
