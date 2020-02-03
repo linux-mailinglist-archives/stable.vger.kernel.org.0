@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B10150C60
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D8B150C04
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730276AbgBCQfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:35:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50770 "EHLO mail.kernel.org"
+        id S1730101AbgBCQch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730598AbgBCQfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:35:46 -0500
+        id S1730446AbgBCQch (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:37 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 794C92051A;
-        Mon,  3 Feb 2020 16:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E8AB218AC;
+        Mon,  3 Feb 2020 16:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747745;
-        bh=jQ+TaHHThZHA3Y8tm3ijmMsa/OkFMve527Jlx5shKTc=;
+        s=default; t=1580747556;
+        bh=gmdhob6KOz5MnFgokEv9xP6qg2mwuk7AnCDlJ8CzVGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOdb47i6OKCU6Qw+r7rAAIUZ83J+DLwk6vvPEjhuWZkfvfGRYu0pCUr8E2p+HuKnL
-         76UeqCMoSwGRhYFMqBfiNeL/9268NnJlaWIP/4nRmiiz8wEBBC40V6JmnnbURtkEcW
-         X1utmSzYCkh/ZE3Xx6djX/kDYwNBlHadPUXmJaac=
+        b=oO1YoOI2BFlDxN0RoZL5B7b33gmtdC+vs/K1KfK083OjW9esmboGdfQ2dY1caHzRM
+         gnVqalBZporGbrQZvZDVkvZlE9vISxxbLy9X7yLaZEvrW2s6IZNB6atnwdPzpUNBAX
+         53rOOOpEsvIpy3Z7Fiy/0L4GqKjMHhSqEh/E0wrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ganapathi Bhat <ganapathi.bhat@nxp.com>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 51/90] wireless: fix enabling channel 12 for custom regulatory domain
+Subject: [PATCH 4.19 42/70] wireless: fix enabling channel 12 for custom regulatory domain
 Date:   Mon,  3 Feb 2020 16:19:54 +0000
-Message-Id: <20200203161924.108407734@linuxfoundation.org>
+Message-Id: <20200203161918.472611354@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,10 +65,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+), 3 deletions(-)
 
 diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 446c76d44e65a..3c2070040277d 100644
+index 5643bdee7198f..4c3c8a1c116da 100644
 --- a/net/wireless/reg.c
 +++ b/net/wireless/reg.c
-@@ -2261,14 +2261,15 @@ static void update_all_wiphy_regulatory(enum nl80211_reg_initiator initiator)
+@@ -2254,14 +2254,15 @@ static void update_all_wiphy_regulatory(enum nl80211_reg_initiator initiator)
  
  static void handle_channel_custom(struct wiphy *wiphy,
  				  struct ieee80211_channel *chan,
@@ -86,7 +86,7 @@ index 446c76d44e65a..3c2070040277d 100644
  		reg_rule = freq_reg_info_regd(MHZ_TO_KHZ(chan->center_freq),
  					      regd, bw);
  		if (!IS_ERR(reg_rule))
-@@ -2324,8 +2325,14 @@ static void handle_band_custom(struct wiphy *wiphy,
+@@ -2317,8 +2318,14 @@ static void handle_band_custom(struct wiphy *wiphy,
  	if (!sband)
  		return;
  
