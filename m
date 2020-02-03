@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA765150B74
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D882150B03
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728873AbgBCQ1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:27:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
+        id S1729016AbgBCQVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:21:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728887AbgBCQ1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:27:43 -0500
+        id S1729026AbgBCQU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:20:59 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90ED12051A;
-        Mon,  3 Feb 2020 16:27:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE5162080D;
+        Mon,  3 Feb 2020 16:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747263;
-        bh=528ZcrQJZQ4TUfVFsu6KSmmCu84dPYeWmgxcuBYdxTs=;
+        s=default; t=1580746859;
+        bh=gwwaMJc62zOc4cwZ+A57UL//D1KSGXRTJYpOZuPMX4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTNAUF/wu5h4f9s/xvKI5IHUKhATYLI5yoxiAVBwsz5Cl21LlrCOIcsVcN16cEiN/
-         bVaxINiQl+fqCHrrfu/X0bz4XOofoF6Qw1qU4NHwuUsRloowhzNAn40X38kPeZ/Hlf
-         CxcZS50rXFqOC/ZOobbm3O9IfQw0pYcTE7Zehn4w=
+        b=uzWNMzn0FHC0I2J5BsjxHtvUxkAtH9MfhzQCdytjRN6SQLILpvHlgScoS+qbjpCnm
+         KKjKp6ZOgm/OQb2niojAZ5Ee9CQiMmvOwDT7GtNGe2dLBWOI+dowJ5XM+Be1PWoGqy
+         U/k3bJ5hq0nnWDCda4bbD68AW5MEeQSJH5U3z6wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.14 11/89] staging: vt6656: Fix false Tx excessive retries reporting.
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 04/53] USB: serial: ir-usb: add missing endpoint sanity check
 Date:   Mon,  3 Feb 2020 16:18:56 +0000
-Message-Id: <20200203161918.372503759@linuxfoundation.org>
+Message-Id: <20200203161903.906704798@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
+References: <20200203161902.714326084@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9dd631fa99dc0a0dfbd191173bf355ba30ea786a upstream.
+commit 2988a8ae7476fe9535ab620320790d1714bdad1d upstream.
 
-The driver reporting  IEEE80211_TX_STAT_ACK is not being handled
-correctly. The driver should only report on TSR_TMO flag is not
-set indicating no transmission errors and when not IEEE80211_TX_CTL_NO_ACK
-is being requested.
+Add missing endpoint sanity check to avoid dereferencing a NULL-pointer
+on open() in case a device lacks a bulk-out endpoint.
 
+Note that prior to commit f4a4cbb2047e ("USB: ir-usb: reimplement using
+generic framework") the oops would instead happen on open() if the
+device lacked a bulk-in endpoint and on write() if it lacked a bulk-out
+endpoint.
+
+Fixes: f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/340f1f7f-c310-dca5-476f-abc059b9cd97@gmail.com
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/int.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ir-usb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/vt6656/int.c
-+++ b/drivers/staging/vt6656/int.c
-@@ -107,9 +107,11 @@ static int vnt_int_report_rate(struct vn
+--- a/drivers/usb/serial/ir-usb.c
++++ b/drivers/usb/serial/ir-usb.c
+@@ -198,6 +198,9 @@ static int ir_startup(struct usb_serial
+ {
+ 	struct usb_irda_cs_descriptor *irda_desc;
  
- 	info->status.rates[0].count = tx_retry;
- 
--	if (!(tsr & (TSR_TMO | TSR_RETRYTMO))) {
-+	if (!(tsr & TSR_TMO)) {
- 		info->status.rates[0].idx = idx;
--		info->flags |= IEEE80211_TX_STAT_ACK;
++	if (serial->num_bulk_in < 1 || serial->num_bulk_out < 1)
++		return -ENODEV;
 +
-+		if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
-+			info->flags |= IEEE80211_TX_STAT_ACK;
- 	}
- 
- 	ieee80211_tx_status_irqsafe(priv->hw, context->skb);
+ 	irda_desc = irda_usb_find_class_desc(serial, 0);
+ 	if (!irda_desc) {
+ 		dev_err(&serial->dev->dev,
 
 
