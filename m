@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D09150B9B
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37262150B42
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729451AbgBCQ3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41012 "EHLO mail.kernel.org"
+        id S1727792AbgBCQ0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:26:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729725AbgBCQ3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:09 -0500
+        id S1728882AbgBCQ0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:26:03 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86F082086A;
-        Mon,  3 Feb 2020 16:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5A002080C;
+        Mon,  3 Feb 2020 16:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747349;
-        bh=gz9eAKYke4ruOq2+sHvKHX8F3njkkoFPfbTen9cabb8=;
+        s=default; t=1580747162;
+        bh=UteHNnpLt/O9YQ6oHAMfw8GJtA0rGXMaFuZvPNpQoR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qP/d1W9h5ike8M7BZ84A8rya6jOgGGAS+/hlIJXBhs5jroNltpqTaOg7PW8PdPBxI
-         h6CxCBbn9KLMnRs3zs2VOEofbDBZnp2iYPEL2NNXwsIBoLkXMAuj9xnBel3V6RvDHj
-         fU1RAoPvO2l9fY2CZ/8TRTNcRMzlYKauNlBdwHnw=
+        b=RwW46wH4oj+MabdomE9w58XUEX4YLjKkssxkMRSS6zsDeeKyWzXxd34D16B6XWGhR
+         aSzmkXKRXXLYMEhXq6awDkx52zInMFe3gsmiXfR5LFW3cqPzlgxJqYk4/DR5N4pcBu
+         TTPeRCvy8ufKBS5TFySKLAdReyxI8K+XRGZLMvm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 46/89] media: af9005: uninitialized variable printked
-Date:   Mon,  3 Feb 2020 16:19:31 +0000
-Message-Id: <20200203161923.154799137@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        syzbot+32310fc2aea76898d074@syzkaller.appspotmail.com,
+        syzbot+99706d6390be1ac542a2@syzkaller.appspotmail.com,
+        syzbot+64437af5c781a7f0e08e@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 36/68] media: gspca: zero usb_buf
+Date:   Mon,  3 Feb 2020 16:19:32 +0000
+Message-Id: <20200203161910.889671568@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,31 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 51d0c99b391f0cac61ad7b827c26f549ee55672c upstream.
+commit de89d0864f66c2a1b75becfdd6bf3793c07ce870 upstream.
 
-If usb_bulk_msg() fails, actual_length can be uninitialized.
+Allocate gspca_dev->usb_buf with kzalloc instead of kmalloc to
+ensure it is property zeroed. This fixes various syzbot errors
+about uninitialized data.
 
-Reported-by: syzbot+9d42b7773d2fecd983ab@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
+Syzbot links:
+
+https://syzkaller.appspot.com/bug?extid=32310fc2aea76898d074
+https://syzkaller.appspot.com/bug?extid=99706d6390be1ac542a2
+https://syzkaller.appspot.com/bug?extid=64437af5c781a7f0e08e
+
+Reported-and-tested-by: syzbot+32310fc2aea76898d074@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+99706d6390be1ac542a2@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+64437af5c781a7f0e08e@syzkaller.appspotmail.com
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/af9005.c |    2 +-
+ drivers/media/usb/gspca/gspca.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/dvb-usb/af9005.c
-+++ b/drivers/media/usb/dvb-usb/af9005.c
-@@ -563,7 +563,7 @@ static int af9005_boot_packet(struct usb
- 			      u8 *buf, int size)
- {
- 	u16 checksum;
--	int act_len, i, ret;
-+	int act_len = 0, i, ret;
- 
- 	memset(buf, 0, size);
- 	buf[0] = (u8) (FW_BULKOUT_SIZE & 0xff);
+--- a/drivers/media/usb/gspca/gspca.c
++++ b/drivers/media/usb/gspca/gspca.c
+@@ -2043,7 +2043,7 @@ int gspca_dev_probe2(struct usb_interfac
+ 		pr_err("couldn't kzalloc gspca struct\n");
+ 		return -ENOMEM;
+ 	}
+-	gspca_dev->usb_buf = kmalloc(USB_BUF_SZ, GFP_KERNEL);
++	gspca_dev->usb_buf = kzalloc(USB_BUF_SZ, GFP_KERNEL);
+ 	if (!gspca_dev->usb_buf) {
+ 		pr_err("out of memory\n");
+ 		ret = -ENOMEM;
 
 
