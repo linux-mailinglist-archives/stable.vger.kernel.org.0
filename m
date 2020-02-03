@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA92F150D90
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9FDC150C31
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:34:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730188AbgBCQbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:31:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44332 "EHLO mail.kernel.org"
+        id S1730736AbgBCQeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:34:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730187AbgBCQbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:31:16 -0500
+        id S1730729AbgBCQeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:07 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38602218AC;
-        Mon,  3 Feb 2020 16:31:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F7FD2087E;
+        Mon,  3 Feb 2020 16:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747475;
-        bh=Y3xkd8sEhNcJ0giMnTNLUAOqVwbTp+YszgwrvSTnY5A=;
+        s=default; t=1580747646;
+        bh=NS5ojRQwoa0VTd8vLTGmijdKyn6yx81L7neitWsZBow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoudWFQHDOyQ7NRvlsXIUp7P2n99AwJw+9N2Bjly3Rna+DH6JNlnHiHT+9jNuz2xs
-         /QlrhlBSkJzYd4HLv/bLxSMXKfmqf3kdZKe3GodFHqvqE/JHXRCfisSY/oMvThjoe9
-         YL2lU85Jx6Xushe2f2c2IRHaCqelf9UjuOweZllU=
+        b=zXMyU4990rVdrUV03n4k/+miyZMGm3H9m5yXuGELpzPRVvtLoGNwcGqsAUZX33nTX
+         +vITV2vHsEisVmgoM6J7dbRb3HKJqkssYX62OPsgBe+LEcC3gnzr3mzwHXRRWTyD9z
+         yBQHDIPgL4IwDzV1O6yF10nsU7ihD5Aopm8bDXOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/70] x86/resctrl: Fix use-after-free when deleting resource groups
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Dmitry Levin <ldv@altlinux.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        kbuild test robot <lkp@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vineet Gupta <vineet.gupta1@synopsys.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 11/90] tools lib: Fix builds when glibc contains strlcpy()
 Date:   Mon,  3 Feb 2020 16:19:14 +0000
-Message-Id: <20200203161912.599819041@linuxfoundation.org>
+Message-Id: <20200203161919.110051704@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
-References: <20200203161912.158976871@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,234 +48,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-commit b8511ccc75c033f6d54188ea4df7bf1e85778740 upstream.
+commit 6c4798d3f08b81c2c52936b10e0fa872590c96ae upstream.
 
-A resource group (rdtgrp) contains a reference count (rdtgrp->waitcount)
-that indicates how many waiters expect this rdtgrp to exist. Waiters
-could be waiting on rdtgroup_mutex or some work sitting on a task's
-workqueue for when the task returns from kernel mode or exits.
+Disable a couple of compilation warnings (which are treated as errors)
+on strlcpy() definition and declaration, allowing users to compile perf
+and kernel (objtool) when:
 
-The deletion of a rdtgrp is intended to have two phases:
+1. glibc have strlcpy() (such as in ALT Linux since 2004) objtool and
+   perf build fails with this (in gcc):
 
-  (1) while holding rdtgroup_mutex the necessary cleanup is done and
-  rdtgrp->flags is set to RDT_DELETED,
+  In file included from exec-cmd.c:3:
+  tools/include/linux/string.h:20:15: error: redundant redeclaration of ‘strlcpy’ [-Werror=redundant-decls]
+     20 | extern size_t strlcpy(char *dest, const char *src, size_t size);
 
-  (2) after releasing the rdtgroup_mutex, the rdtgrp structure is freed
-  only if there are no waiters and its flag is set to RDT_DELETED. Upon
-  gaining access to rdtgroup_mutex or rdtgrp, a waiter is required to check
-  for the RDT_DELETED flag.
+2. clang ignores `-Wredundant-decls', but produces another warning when
+   building perf:
 
-When unmounting the resctrl file system or deleting ctrl_mon groups,
-all of the subdirectories are removed and the data structure of rdtgrp
-is forcibly freed without checking rdtgrp->waitcount. If at this point
-there was a waiter on rdtgrp then a use-after-free issue occurs when the
-waiter starts running and accesses the rdtgrp structure it was waiting
-on.
+    CC       util/string.o
+  ../lib/string.c:99:8: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  size_t __weak strlcpy(char *dest, const char *src, size_t size)
+  ../../tools/include/linux/compiler.h:66:34: note: expanded from macro '__weak'
+  # define __weak                 __attribute__((weak))
+  /usr/include/bits/string_fortified.h:151:8: note: previous definition is here
+  __NTH (strlcpy (char *__restrict __dest, const char *__restrict __src,
 
-See kfree() calls in [1], [2] and [3] in these two call paths in
-following scenarios:
-(1) rdt_kill_sb() -> rmdir_all_sub() -> free_all_child_rdtgrp()
-(2) rdtgroup_rmdir() -> rdtgroup_rmdir_ctrl() -> free_all_child_rdtgrp()
+Committer notes:
 
-There are several scenarios that result in use-after-free issue in
-following:
+The
 
-Scenario 1:
------------
-In Thread 1, rdtgroup_tasks_write() adds a task_work callback
-move_myself(). If move_myself() is scheduled to execute after Thread 2
-rdt_kill_sb() is finished, referring to earlier rdtgrp memory
-(rdtgrp->waitcount) which was already freed in Thread 2 results in
-use-after-free issue.
+ #pragma GCC diagnostic
 
-Thread 1 (rdtgroup_tasks_write)        Thread 2 (rdt_kill_sb)
--------------------------------        ----------------------
-rdtgroup_kn_lock_live
-  atomic_inc(&rdtgrp->waitcount)
-  mutex_lock
-rdtgroup_move_task
-  __rdtgroup_move_task
-    /*
-     * Take an extra refcount, so rdtgrp cannot be freed
-     * before the call back move_myself has been invoked
-     */
-    atomic_inc(&rdtgrp->waitcount)
-    /* Callback move_myself will be scheduled for later */
-    task_work_add(move_myself)
-rdtgroup_kn_unlock
-  mutex_unlock
-  atomic_dec_and_test(&rdtgrp->waitcount)
-  && (flags & RDT_DELETED)
-                                       mutex_lock
-                                       rmdir_all_sub
-                                         /*
-                                          * sentry and rdtgrp are freed
-                                          * without checking refcount
-                                          */
-                                         free_all_child_rdtgrp
-                                           kfree(sentry)*[1]
-                                         kfree(rdtgrp)*[2]
-                                       mutex_unlock
-/*
- * Callback is scheduled to execute
- * after rdt_kill_sb is finished
- */
-move_myself
-  /*
-   * Use-after-free: refer to earlier rdtgrp
-   * memory which was freed in [1] or [2].
-   */
-  atomic_dec_and_test(&rdtgrp->waitcount)
-  && (flags & RDT_DELETED)
-    kfree(rdtgrp)
+directive was introduced in gcc 4.6, so check for that as well.
 
-Scenario 2:
------------
-In Thread 1, rdtgroup_tasks_write() adds a task_work callback
-move_myself(). If move_myself() is scheduled to execute after Thread 2
-rdtgroup_rmdir() is finished, referring to earlier rdtgrp memory
-(rdtgrp->waitcount) which was already freed in Thread 2 results in
-use-after-free issue.
-
-Thread 1 (rdtgroup_tasks_write)        Thread 2 (rdtgroup_rmdir)
--------------------------------        -------------------------
-rdtgroup_kn_lock_live
-  atomic_inc(&rdtgrp->waitcount)
-  mutex_lock
-rdtgroup_move_task
-  __rdtgroup_move_task
-    /*
-     * Take an extra refcount, so rdtgrp cannot be freed
-     * before the call back move_myself has been invoked
-     */
-    atomic_inc(&rdtgrp->waitcount)
-    /* Callback move_myself will be scheduled for later */
-    task_work_add(move_myself)
-rdtgroup_kn_unlock
-  mutex_unlock
-  atomic_dec_and_test(&rdtgrp->waitcount)
-  && (flags & RDT_DELETED)
-                                       rdtgroup_kn_lock_live
-                                         atomic_inc(&rdtgrp->waitcount)
-                                         mutex_lock
-                                       rdtgroup_rmdir_ctrl
-                                         free_all_child_rdtgrp
-                                           /*
-                                            * sentry is freed without
-                                            * checking refcount
-                                            */
-                                           kfree(sentry)*[3]
-                                         rdtgroup_ctrl_remove
-                                           rdtgrp->flags = RDT_DELETED
-                                       rdtgroup_kn_unlock
-                                         mutex_unlock
-                                         atomic_dec_and_test(
-                                                     &rdtgrp->waitcount)
-                                         && (flags & RDT_DELETED)
-                                           kfree(rdtgrp)
-/*
- * Callback is scheduled to execute
- * after rdt_kill_sb is finished
- */
-move_myself
-  /*
-   * Use-after-free: refer to earlier rdtgrp
-   * memory which was freed in [3].
-   */
-  atomic_dec_and_test(&rdtgrp->waitcount)
-  && (flags & RDT_DELETED)
-    kfree(rdtgrp)
-
-If CONFIG_DEBUG_SLAB=y, Slab corruption on kmalloc-2k can be observed
-like following. Note that "0x6b" is POISON_FREE after kfree(). The
-corrupted bits "0x6a", "0x64" at offset 0x424 correspond to
-waitcount member of struct rdtgroup which was freed:
-
-  Slab corruption (Not tainted): kmalloc-2k start=ffff9504c5b0d000, len=2048
-  420: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkjkkkkkkkkkkk
-  Single bit error detected. Probably bad RAM.
-  Run memtest86+ or a similar memory test tool.
-  Next obj: start=ffff9504c5b0d800, len=2048
-  000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-  010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-
-  Slab corruption (Not tainted): kmalloc-2k start=ffff9504c58ab800, len=2048
-  420: 6b 6b 6b 6b 64 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkdkkkkkkkkkkk
-  Prev obj: start=ffff9504c58ab000, len=2048
-  000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-  010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-
-Fix this by taking reference count (waitcount) of rdtgrp into account in
-the two call paths that currently do not do so. Instead of always
-freeing the resource group it will only be freed if there are no waiters
-on it. If there are waiters, the resource group will have its flags set
-to RDT_DELETED.
-
-It will be left to the waiter to free the resource group when it starts
-running and finding that it was the last waiter and the resource group
-has been removed (rdtgrp->flags & RDT_DELETED) since. (1) rdt_kill_sb()
--> rmdir_all_sub() -> free_all_child_rdtgrp() (2) rdtgroup_rmdir() ->
-rdtgroup_rmdir_ctrl() -> free_all_child_rdtgrp()
-
-Backporting notes:
-
-Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
-files to a separate directory"), the file
-arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
-arch/x86/kernel/cpu/resctrl/rdtgroup.c.
-
-Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-in older stable trees.
-
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Fixes: ce99091 ("perf tools: Move strlcpy() from perf to tools/lib/string.c")
+Fixes: 0215d59 ("tools lib: Reinstate strlcpy() header guard with __UCLIBC__")
+Resolves: https://bugzilla.kernel.org/show_bug.cgi?id=118481
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Reviewed-by: Dmitry Levin <ldv@altlinux.org>
+Cc: Dmitry Levin <ldv@altlinux.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: kbuild test robot <lkp@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1578500886-21771-2-git-send-email-xiaochen.shen@intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
+Link: http://lore.kernel.org/lkml/20191224172029.19690-1-vt@altlinux.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ tools/include/linux/string.h |    8 ++++++++
+ tools/lib/string.c           |    7 +++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index 841a0246eb897..db22ba0bf9167 100644
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -2167,7 +2167,11 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
- 	list_for_each_entry_safe(sentry, stmp, head, mon.crdtgrp_list) {
- 		free_rmid(sentry->mon.rmid);
- 		list_del(&sentry->mon.crdtgrp_list);
--		kfree(sentry);
-+
-+		if (atomic_read(&sentry->waitcount) != 0)
-+			sentry->flags = RDT_DELETED;
-+		else
-+			kfree(sentry);
+--- a/tools/include/linux/string.h
++++ b/tools/include/linux/string.h
+@@ -17,7 +17,15 @@ int strtobool(const char *s, bool *res);
+  * However uClibc headers also define __GLIBC__ hence the hack below
+  */
+ #if defined(__GLIBC__) && !defined(__UCLIBC__)
++// pragma diagnostic was introduced in gcc 4.6
++#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wredundant-decls"
++#endif
+ extern size_t strlcpy(char *dest, const char *src, size_t size);
++#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
++#pragma GCC diagnostic pop
++#endif
+ #endif
+ 
+ char *str_error_r(int errnum, char *buf, size_t buflen);
+--- a/tools/lib/string.c
++++ b/tools/lib/string.c
+@@ -96,6 +96,10 @@ int strtobool(const char *s, bool *res)
+  * If libc has strlcpy() then that version will override this
+  * implementation:
+  */
++#ifdef __clang__
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wignored-attributes"
++#endif
+ size_t __weak strlcpy(char *dest, const char *src, size_t size)
+ {
+ 	size_t ret = strlen(src);
+@@ -107,6 +111,9 @@ size_t __weak strlcpy(char *dest, const
  	}
+ 	return ret;
  }
++#ifdef __clang__
++#pragma clang diagnostic pop
++#endif
  
-@@ -2205,7 +2209,11 @@ static void rmdir_all_sub(void)
- 
- 		kernfs_remove(rdtgrp->kn);
- 		list_del(&rdtgrp->rdtgroup_list);
--		kfree(rdtgrp);
-+
-+		if (atomic_read(&rdtgrp->waitcount) != 0)
-+			rdtgrp->flags = RDT_DELETED;
-+		else
-+			kfree(rdtgrp);
- 	}
- 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
- 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
--- 
-2.20.1
-
+ /**
+  * skip_spaces - Removes leading whitespace from @str.
 
 
