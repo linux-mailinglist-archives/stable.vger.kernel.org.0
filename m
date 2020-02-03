@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7505F150BD0
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE64B150C6E
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730055AbgBCQal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S1731175AbgBCQgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:36:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730051AbgBCQak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:40 -0500
+        id S1731170AbgBCQgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:36:19 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83FC220838;
-        Mon,  3 Feb 2020 16:30:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3C072051A;
+        Mon,  3 Feb 2020 16:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747440;
-        bh=DEA7i2iLMYI9451c3fc7Eoi7txpoaaTpVg2P1e3zJPw=;
+        s=default; t=1580747778;
+        bh=jBuj1GJ7SQLlWXpyXLdmFYb8a41GA4jJHfpdL8iISgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EucaWatugxe8WC2gWkziXwNwVp5VokSib7SG5fBbmf5iXpyPtHSNw81kB7t7EmKCt
-         j9YVFe/cnNfvx76z1jW+oLmBHtn0Ud9hZ7jnMSoxo/ZLnnro2TYR9Q6RjTxml00JkR
-         h5SC7JlU3RFrzOojlnZlHIdzj/vdGjHmX/QN0+oQ=
+        b=qU0H7wwK5tzFcdAzxirXrS3qSuxVQudXk/gWURNu+HrTSBrLlGvKuFupyaOLMVlbX
+         /D2Mez33C47uDwTCPy3CXBmInRclC+n9an+rYOLzy6hnQpfDW9Tq4VoxIVQPC2tNEm
+         zBwS9kF5536GjJDPdd7tsTPTYSFRx4jGF2RYy9Xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 85/89] net/sonic: Fix receive buffer handling
+Subject: [PATCH 5.4 67/90] vti[6]: fix packet tx through bpf_redirect()
 Date:   Mon,  3 Feb 2020 16:20:10 +0000
-Message-Id: <20200203161927.096706108@linuxfoundation.org>
+Message-Id: <20200203161925.664813257@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,114 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 9e311820f67e740f4fb8dcb82b4c4b5b05bdd1a5 ]
+[ Upstream commit 95224166a9032ff5d08fca633d37113078ce7d01 ]
 
-The SONIC can sometimes advance its rx buffer pointer (RRP register)
-without advancing its rx descriptor pointer (CRDA register). As a result
-the index of the current rx descriptor may not equal that of the current
-rx buffer. The driver mistakenly assumes that they are always equal.
-This assumption leads to incorrect packet lengths and possible packet
-duplication. Avoid this by calling a new function to locate the buffer
-corresponding to a given descriptor.
+With an ebpf program that redirects packets through a vti[6] interface,
+the packets are dropped because no dst is attached.
 
-Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This could also be reproduced with an AF_PACKET socket, with the following
+python script (vti1 is an ip_vti interface):
+
+ import socket
+ send_s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, 0)
+ # scapy
+ # p = IP(src='10.100.0.2', dst='10.200.0.1')/ICMP(type='echo-request')
+ # raw(p)
+ req = b'E\x00\x00\x1c\x00\x01\x00\x00@\x01e\xb2\nd\x00\x02\n\xc8\x00\x01\x08\x00\xf7\xff\x00\x00\x00\x00'
+ send_s.sendto(req, ('vti1', 0x800, 0, 0))
+
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/sonic.c | 35 ++++++++++++++++++++++++----
- drivers/net/ethernet/natsemi/sonic.h |  5 ++--
- 2 files changed, 33 insertions(+), 7 deletions(-)
+ net/ipv4/ip_vti.c  | 13 +++++++++++--
+ net/ipv6/ip6_vti.c | 13 +++++++++++--
+ 2 files changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
-index 7aa7f8050d44e..b6599aa22504f 100644
---- a/drivers/net/ethernet/natsemi/sonic.c
-+++ b/drivers/net/ethernet/natsemi/sonic.c
-@@ -423,6 +423,21 @@ static irqreturn_t sonic_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
+diff --git a/net/ipv4/ip_vti.c b/net/ipv4/ip_vti.c
+index fb9f6d60c27cd..79eef5db336a4 100644
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -187,8 +187,17 @@ static netdev_tx_t vti_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	int mtu;
  
-+/* Return the array index corresponding to a given Receive Buffer pointer. */
-+static int index_from_addr(struct sonic_local *lp, dma_addr_t addr,
-+			   unsigned int last)
-+{
-+	unsigned int i = last;
+ 	if (!dst) {
+-		dev->stats.tx_carrier_errors++;
+-		goto tx_error_icmp;
++		struct rtable *rt;
 +
-+	do {
-+		i = (i + 1) & SONIC_RRS_MASK;
-+		if (addr == lp->rx_laddr[i])
-+			return i;
-+	} while (i != last);
-+
-+	return -ENOENT;
-+}
-+
- /*
-  * We have a good packet(s), pass it/them up the network stack.
-  */
-@@ -442,6 +457,16 @@ static void sonic_rx(struct net_device *dev)
++		fl->u.ip4.flowi4_oif = dev->ifindex;
++		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++		if (IS_ERR(rt)) {
++			dev->stats.tx_carrier_errors++;
++			goto tx_error_icmp;
++		}
++		dst = &rt->dst;
++		skb_dst_set(skb, dst);
+ 	}
  
- 		status = sonic_rda_get(dev, entry, SONIC_RD_STATUS);
- 		if (status & SONIC_RCR_PRX) {
-+			u32 addr = (sonic_rda_get(dev, entry,
-+						  SONIC_RD_PKTPTR_H) << 16) |
-+				   sonic_rda_get(dev, entry, SONIC_RD_PKTPTR_L);
-+			int i = index_from_addr(lp, addr, entry);
-+
-+			if (i < 0) {
-+				WARN_ONCE(1, "failed to find buffer!\n");
-+				break;
-+			}
-+
- 			/* Malloc up new buffer. */
- 			new_skb = netdev_alloc_skb(dev, SONIC_RBSIZE + 2);
- 			if (new_skb == NULL) {
-@@ -463,7 +488,7 @@ static void sonic_rx(struct net_device *dev)
+ 	dst_hold(dst);
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 6f08b760c2a7c..524006aa0d78a 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -449,8 +449,17 @@ vti6_xmit(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 	int err = -1;
+ 	int mtu;
  
- 			/* now we have a new skb to replace it, pass the used one up the stack */
- 			dma_unmap_single(lp->device, lp->rx_laddr[entry], SONIC_RBSIZE, DMA_FROM_DEVICE);
--			used_skb = lp->rx_skb[entry];
-+			used_skb = lp->rx_skb[i];
- 			pkt_len = sonic_rda_get(dev, entry, SONIC_RD_PKTLEN);
- 			skb_trim(used_skb, pkt_len);
- 			used_skb->protocol = eth_type_trans(used_skb, dev);
-@@ -472,13 +497,13 @@ static void sonic_rx(struct net_device *dev)
- 			lp->stats.rx_bytes += pkt_len;
+-	if (!dst)
+-		goto tx_err_link_failure;
++	if (!dst) {
++		fl->u.ip6.flowi6_oif = dev->ifindex;
++		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++		if (dst->error) {
++			dst_release(dst);
++			dst = NULL;
++			goto tx_err_link_failure;
++		}
++		skb_dst_set(skb, dst);
++	}
  
- 			/* and insert the new skb */
--			lp->rx_laddr[entry] = new_laddr;
--			lp->rx_skb[entry] = new_skb;
-+			lp->rx_laddr[i] = new_laddr;
-+			lp->rx_skb[i] = new_skb;
- 
- 			bufadr_l = (unsigned long)new_laddr & 0xffff;
- 			bufadr_h = (unsigned long)new_laddr >> 16;
--			sonic_rra_put(dev, entry, SONIC_RR_BUFADR_L, bufadr_l);
--			sonic_rra_put(dev, entry, SONIC_RR_BUFADR_H, bufadr_h);
-+			sonic_rra_put(dev, i, SONIC_RR_BUFADR_L, bufadr_l);
-+			sonic_rra_put(dev, i, SONIC_RR_BUFADR_H, bufadr_h);
- 		} else {
- 			/* This should only happen, if we enable accepting broken packets. */
- 			lp->stats.rx_errors++;
-diff --git a/drivers/net/ethernet/natsemi/sonic.h b/drivers/net/ethernet/natsemi/sonic.h
-index 7057760cb55c6..83905eee6960c 100644
---- a/drivers/net/ethernet/natsemi/sonic.h
-+++ b/drivers/net/ethernet/natsemi/sonic.h
-@@ -274,8 +274,9 @@
- #define SONIC_NUM_RDS   SONIC_NUM_RRS /* number of receive descriptors */
- #define SONIC_NUM_TDS   16            /* number of transmit descriptors */
- 
--#define SONIC_RDS_MASK  (SONIC_NUM_RDS-1)
--#define SONIC_TDS_MASK  (SONIC_NUM_TDS-1)
-+#define SONIC_RRS_MASK  (SONIC_NUM_RRS - 1)
-+#define SONIC_RDS_MASK  (SONIC_NUM_RDS - 1)
-+#define SONIC_TDS_MASK  (SONIC_NUM_TDS - 1)
- 
- #define SONIC_RBSIZE	1520          /* size of one resource buffer */
- 
+ 	dst_hold(dst);
+ 	dst = xfrm_lookup(t->net, dst, fl, NULL, 0);
 -- 
 2.20.1
 
