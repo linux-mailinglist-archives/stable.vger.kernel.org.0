@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE49150DAF
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F84150D57
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729695AbgBCQ3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:29:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
+        id S1730522AbgBCQn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:43:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729678AbgBCQ3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:29:00 -0500
+        id S1730509AbgBCQdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:33:06 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B00220838;
-        Mon,  3 Feb 2020 16:28:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 834342082E;
+        Mon,  3 Feb 2020 16:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747339;
-        bh=qF4a9teJ9VsdKlTbjI7CLhaqbCFKwzOnJr0oTgDxSq8=;
+        s=default; t=1580747585;
+        bh=FBjiEtGCtQUkVz8QK73eh6OPI6OZsUJp4HJ12lzYckk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zS0e7q5px57DQptpJTlB16AbYffr5hRZ7P9HrHTy3/iAVGmvrimrSLkGyPITaS3D4
-         LjwmDuw6G9SU+FMEepDWZkNBNojX5vDEg+OXunlaLV0BPJ6nz3jGLVtORBmKttxHWe
-         wb4n+GCkveoa1ByuUydsr4Od36s0mj5hkZ1VLqIQ=
+        b=TtUlEJxfyxp8Gb8/hz/0oabVo47xg29twVW08BcR+syCI0omhLYwXuwbyDDXbCfAP
+         yeSMN+z1madRgI0eXK9D63XKDk9K4sAfBSMm0F6hnY0F/mGLVN+7S+/Jg3judyFaMG
+         97RUVburVTnZQs9S3PDB0ZL6j0bEVWUSY8M347/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>, Zubin Mithra <zsm@chromium.org>,
-        syzbot+4a39a025912b265cacef@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 42/89] ext4: validate the debug_want_extra_isize mount option at parse time
+        stable@vger.kernel.org,
+        syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 15/70] media: digitv: dont continue if remote control state cant be read
 Date:   Mon,  3 Feb 2020 16:19:27 +0000
-Message-Id: <20200203161922.617213813@linuxfoundation.org>
+Message-Id: <20200203161914.805392984@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,195 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Sean Young <sean@mess.org>
 
-commit 9803387c55f7d2ce69aa64340c5fdc6b3027dbc8 upstream.
+commit eecc70d22ae51225de1ef629c1159f7116476b2e upstream.
 
-Instead of setting s_want_extra_size and then making sure that it is a
-valid value afterwards, validate the field before we set it.  This
-avoids races and other problems when remounting the file system.
+This results in an uninitialized variable read.
 
-Link: https://lore.kernel.org/r/20191215063020.GA11512@mit.edu
-Cc: stable@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reported-and-tested-by: syzbot+4a39a025912b265cacef@syzkaller.appspotmail.com
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Reported-by: syzbot+6bf9606ee955b646c0e1@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |  127 +++++++++++++++++++++++++++++---------------------------
- 1 file changed, 66 insertions(+), 61 deletions(-)
+ drivers/media/usb/dvb-usb/digitv.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1782,6 +1782,13 @@ static int handle_mount_opt(struct super
- 			arg = JBD2_DEFAULT_MAX_COMMIT_AGE;
- 		sbi->s_commit_interval = HZ * arg;
- 	} else if (token == Opt_debug_want_extra_isize) {
-+		if ((arg & 1) ||
-+		    (arg < 4) ||
-+		    (arg > (sbi->s_inode_size - EXT4_GOOD_OLD_INODE_SIZE))) {
-+			ext4_msg(sb, KERN_ERR,
-+				 "Invalid want_extra_isize %d", arg);
-+			return -1;
-+		}
- 		sbi->s_want_extra_isize = arg;
- 	} else if (token == Opt_max_batch_time) {
- 		sbi->s_max_batch_time = arg;
-@@ -3454,40 +3461,6 @@ int ext4_calculate_overhead(struct super
- 	return 0;
- }
+--- a/drivers/media/usb/dvb-usb/digitv.c
++++ b/drivers/media/usb/dvb-usb/digitv.c
+@@ -233,18 +233,22 @@ static struct rc_map_table rc_map_digitv
  
--static void ext4_clamp_want_extra_isize(struct super_block *sb)
--{
--	struct ext4_sb_info *sbi = EXT4_SB(sb);
--	struct ext4_super_block *es = sbi->s_es;
--	unsigned def_extra_isize = sizeof(struct ext4_inode) -
--						EXT4_GOOD_OLD_INODE_SIZE;
--
--	if (sbi->s_inode_size == EXT4_GOOD_OLD_INODE_SIZE) {
--		sbi->s_want_extra_isize = 0;
--		return;
--	}
--	if (sbi->s_want_extra_isize < 4) {
--		sbi->s_want_extra_isize = def_extra_isize;
--		if (ext4_has_feature_extra_isize(sb)) {
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_want_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_want_extra_isize);
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_min_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_min_extra_isize);
--		}
--	}
--	/* Check if enough inode space is available */
--	if ((sbi->s_want_extra_isize > sbi->s_inode_size) ||
--	    (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
--							sbi->s_inode_size)) {
--		sbi->s_want_extra_isize = def_extra_isize;
--		ext4_msg(sb, KERN_INFO,
--			 "required extra inode space not available");
--	}
--}
--
- static void ext4_set_resv_clusters(struct super_block *sb)
+ static int digitv_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
  {
- 	ext4_fsblk_t resv_clusters;
-@@ -3695,6 +3668,65 @@ static int ext4_fill_super(struct super_
- 	 */
- 	sbi->s_li_wait_mult = EXT4_DEF_LI_WAIT_MULT;
+-	int i;
++	int ret, i;
+ 	u8 key[5];
+ 	u8 b[4] = { 0 };
  
-+	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV) {
-+		sbi->s_inode_size = EXT4_GOOD_OLD_INODE_SIZE;
-+		sbi->s_first_ino = EXT4_GOOD_OLD_FIRST_INO;
-+	} else {
-+		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
-+		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
-+		if (sbi->s_first_ino < EXT4_GOOD_OLD_FIRST_INO) {
-+			ext4_msg(sb, KERN_ERR, "invalid first ino: %u",
-+				 sbi->s_first_ino);
-+			goto failed_mount;
-+		}
-+		if ((sbi->s_inode_size < EXT4_GOOD_OLD_INODE_SIZE) ||
-+		    (!is_power_of_2(sbi->s_inode_size)) ||
-+		    (sbi->s_inode_size > blocksize)) {
-+			ext4_msg(sb, KERN_ERR,
-+			       "unsupported inode size: %d",
-+			       sbi->s_inode_size);
-+			goto failed_mount;
-+		}
-+		/*
-+		 * i_atime_extra is the last extra field available for
-+		 * [acm]times in struct ext4_inode. Checking for that
-+		 * field should suffice to ensure we have extra space
-+		 * for all three.
-+		 */
-+		if (sbi->s_inode_size >= offsetof(struct ext4_inode, i_atime_extra) +
-+			sizeof(((struct ext4_inode *)0)->i_atime_extra)) {
-+			sb->s_time_gran = 1;
-+		} else {
-+			sb->s_time_gran = NSEC_PER_SEC;
-+		}
-+	}
-+	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+			EXT4_GOOD_OLD_INODE_SIZE;
-+		if (ext4_has_feature_extra_isize(sb)) {
-+			unsigned v, max = (sbi->s_inode_size -
-+					   EXT4_GOOD_OLD_INODE_SIZE);
-+
-+			v = le16_to_cpu(es->s_want_extra_isize);
-+			if (v > max) {
-+				ext4_msg(sb, KERN_ERR,
-+					 "bad s_want_extra_isize: %d", v);
-+				goto failed_mount;
-+			}
-+			if (sbi->s_want_extra_isize < v)
-+				sbi->s_want_extra_isize = v;
-+
-+			v = le16_to_cpu(es->s_min_extra_isize);
-+			if (v > max) {
-+				ext4_msg(sb, KERN_ERR,
-+					 "bad s_min_extra_isize: %d", v);
-+				goto failed_mount;
-+			}
-+			if (sbi->s_want_extra_isize < v)
-+				sbi->s_want_extra_isize = v;
-+		}
-+	}
-+
- 	if (sbi->s_es->s_mount_opts[0]) {
- 		char *s_mount_opts = kstrndup(sbi->s_es->s_mount_opts,
- 					      sizeof(sbi->s_es->s_mount_opts),
-@@ -3893,29 +3925,6 @@ static int ext4_fill_super(struct super_
- 						      has_huge_files);
- 	sb->s_maxbytes = ext4_max_size(sb->s_blocksize_bits, has_huge_files);
+ 	*event = 0;
+ 	*state = REMOTE_NO_KEY_PRESSED;
  
--	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV) {
--		sbi->s_inode_size = EXT4_GOOD_OLD_INODE_SIZE;
--		sbi->s_first_ino = EXT4_GOOD_OLD_FIRST_INO;
--	} else {
--		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
--		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
--		if (sbi->s_first_ino < EXT4_GOOD_OLD_FIRST_INO) {
--			ext4_msg(sb, KERN_ERR, "invalid first ino: %u",
--				 sbi->s_first_ino);
--			goto failed_mount;
--		}
--		if ((sbi->s_inode_size < EXT4_GOOD_OLD_INODE_SIZE) ||
--		    (!is_power_of_2(sbi->s_inode_size)) ||
--		    (sbi->s_inode_size > blocksize)) {
--			ext4_msg(sb, KERN_ERR,
--			       "unsupported inode size: %d",
--			       sbi->s_inode_size);
--			goto failed_mount;
--		}
--		if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE)
--			sb->s_time_gran = 1 << (EXT4_EPOCH_BITS - 2);
--	}
--
- 	sbi->s_desc_size = le16_to_cpu(es->s_desc_size);
- 	if (ext4_has_feature_64bit(sb)) {
- 		if (sbi->s_desc_size < EXT4_MIN_DESC_SIZE_64BIT ||
-@@ -4354,8 +4363,6 @@ no_journal:
- 	if (ext4_setup_super(sb, es, sb_rdonly(sb)))
- 		sb->s_flags |= MS_RDONLY;
+-	digitv_ctrl_msg(d,USB_READ_REMOTE,0,NULL,0,&key[1],4);
++	ret = digitv_ctrl_msg(d, USB_READ_REMOTE, 0, NULL, 0, &key[1], 4);
++	if (ret)
++		return ret;
  
--	ext4_clamp_want_extra_isize(sb);
--
- 	ext4_set_resv_clusters(sb);
+ 	/* Tell the device we've read the remote. Not sure how necessary
+ 	   this is, but the Nebula SDK does it. */
+-	digitv_ctrl_msg(d,USB_WRITE_REMOTE,0,b,4,NULL,0);
++	ret = digitv_ctrl_msg(d, USB_WRITE_REMOTE, 0, b, 4, NULL, 0);
++	if (ret)
++		return ret;
  
- 	err = ext4_setup_system_zone(sb);
-@@ -5139,8 +5146,6 @@ static int ext4_remount(struct super_blo
- 		goto restore_opts;
- 	}
- 
--	ext4_clamp_want_extra_isize(sb);
--
- 	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
- 	    test_opt(sb, JOURNAL_CHECKSUM)) {
- 		ext4_msg(sb, KERN_ERR, "changing journal_checksum "
+ 	/* if something is inside the buffer, simulate key press */
+ 	if (key[1] != 0)
 
 
