@@ -2,129 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7859C150CAC
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30376150BF2
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbgBCQia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:38:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54454 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728087AbgBCQi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:38:28 -0500
-Received: from localhost (unknown [104.132.45.99])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9284021582;
-        Mon,  3 Feb 2020 16:38:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747908;
-        bh=lfYwe/tarBoLxtm2H/IsO93UK4HI9kUOUSlZzZUkZ5c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFni65XR1UqofCLRql4dEsq9xzknbYelGxHP/36CjlKgIH+HhxYMOc8O4vATmln9u
-         g7RT5NOVEulJP8tyP8SanQHXaRl3yow8Iq0E6l9wMloqocGPz2mtsuNjvU5Jl7i+e+
-         VSeDAW+ULDl+OeGGadT+W0AjoWt4ziyKgTU+m70w=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5493b2a54d31d6aea629@syzkaller.appspotmail.com,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.5 23/23] cgroup: Prevent double killing of css when enabling threaded cgroup
-Date:   Mon,  3 Feb 2020 16:20:43 +0000
-Message-Id: <20200203161906.999202354@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
-References: <20200203161902.288335885@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1730339AbgBCQb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:31:59 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:43552 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730336AbgBCQb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 11:31:59 -0500
+Received: by mail-wr1-f68.google.com with SMTP id z9so6830633wrs.10
+        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 08:31:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CbgBUSiwEpbCbXVU15eR2EKVYmItCdvyTVNMFQorXj0=;
+        b=cGaZ8b+0GYh94Clisagt8L6luh4XANMrPZmBIqNY2/b1AP6cH/jzp3IABJ2FpNTV8I
+         zaKFEA3O7fZS2lRkKvODNd80BtJA0/7gZOAId/1EJZM3vol7KPcpkqDXyQlwGiyFn10e
+         nOHD6FxzxOf001Vl6oTCXCXrI7l9F6mAAgO2IHzlk0J347V5lBK4Z0A+lOwhWDmkf6Ds
+         rh3tohQy2Xw+kdyEBJ84fS4lATyz4aeitlOo8lzdH+0l2Q7LFZeXWoQr30ZYTAFaetgx
+         F4BqgNYGCxjDehf38Qc/34DKQhdpzkIYHK4aVwqGfHQz5/T0nniSgmjw4tIRZEywy3zR
+         6bxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CbgBUSiwEpbCbXVU15eR2EKVYmItCdvyTVNMFQorXj0=;
+        b=ADrPcr/yXjMzH7sNMgJ06wr7fqhYgesbTXVfbFUmoUPwV1foRSQgCTaZcHW1ZdY0Hw
+         hCjyHA1v2x+zQxuhsvT3r7+odlTqHl3l9k6vs5cA0M76UpHb1yyhZIN432R4C/jIDCMx
+         LuPenWyj8zMCFAIJgc8el5Vu8OSqP0OHrQGmjxoDBaAe0Kqy6Q5VhGRSr8/307NTe2H9
+         FyuY2xgeLv4BXzTnCSxUFT6Ml3PiVcTnzsL4yNHuCGxwvoXufdz+LKgYwNsw3mEKxp3n
+         mCJaLBTQP9z8RaNXrXFT9VrlZPgke/MWlUrrgw6zOLAz5b4RlBhzOlIaQ6+vLPSm2T0Z
+         XwBA==
+X-Gm-Message-State: APjAAAWT7C6+3Os1Bm00uIsoDZ60SNlkaDxaI4nGhewLfBgWzVQh/hpp
+        MBvPPpGZYcDztN6AR9sJKxzcgYbMFAU=
+X-Google-Smtp-Source: APXvYqw1XS1K7EzEMTWo6y+NdxKofRgMdzeZ9oeVA6J8vJYD/70FnoRDKxAl8+A3fIST6wIe4dFBrA==
+X-Received: by 2002:a5d:6a10:: with SMTP id m16mr16249283wru.411.1580747516697;
+        Mon, 03 Feb 2020 08:31:56 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x14sm23332436wmj.42.2020.02.03.08.31.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Feb 2020 08:31:55 -0800 (PST)
+Message-ID: <5e384afb.1c69fb81.e97dd.55de@mx.google.com>
+Date:   Mon, 03 Feb 2020 08:31:55 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.17
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 75 boots: 1 failed,
+ 68 passed with 4 offline, 2 untried/unknown (v5.4.17)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+stable-rc/linux-5.4.y boot: 75 boots: 1 failed, 68 passed with 4 offline, 2=
+ untried/unknown (v5.4.17)
 
-commit 3bc0bb36fa30e95ca829e9cf480e1ef7f7638333 upstream.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.17/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.17/
 
-The test_cgcore_no_internal_process_constraint_on_threads selftest when
-running with subsystem controlling noise triggers two warnings:
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.17
+Git Commit: 313c8460cf0290fb1b9f71a20573fc32ac6c9cee
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 56 unique boards, 21 SoC families, 13 builds out of 159
 
-> [  597.443115] WARNING: CPU: 1 PID: 28167 at kernel/cgroup/cgroup.c:3131 cgroup_apply_control_enable+0xe0/0x3f0
-> [  597.443413] WARNING: CPU: 1 PID: 28167 at kernel/cgroup/cgroup.c:3177 cgroup_apply_control_disable+0xa6/0x160
+Boot Regressions Detected:
 
-Both stem from a call to cgroup_type_write. The first warning was also
-triggered by syzkaller.
+arc:
 
-When we're switching cgroup to threaded mode shortly after a subsystem
-was disabled on it, we can see the respective subsystem css dying there.
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: new failure (last pass: v5.4.16-111-g1bde1c5138=
+87)
 
-The warning in cgroup_apply_control_enable is harmless in this case
-since we're not adding new subsys anyway.
-The warning in cgroup_apply_control_disable indicates an attempt to kill
-css of recently disabled subsystem repeatedly.
+arm:
 
-The commit prevents these situations by making cgroup_type_write wait
-for all dying csses to go away before re-applying subtree controls.
-When at it, the locations of WARN_ON_ONCE calls are moved so that
-warning is triggered only when we are about to misuse the dying css.
+    multi_v7_defconfig:
+        gcc-8:
+          mt7629-rfb:
+              lab-baylibre-seattle: new failure (last pass: v5.4.16-111-g1b=
+de1c513887)
 
-Reported-by: syzbot+5493b2a54d31d6aea629@syzkaller.appspotmail.com
-Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    tegra_defconfig:
+        gcc-8:
+          tegra30-beaver:
+              lab-baylibre-seattle: new failure (last pass: v5.4.16)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v5.4.16-111-g1b=
+de1c513887)
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            mt7629-rfb: 1 offline lab
+            tegra30-beaver: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra30-beaver: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
 
 ---
- kernel/cgroup/cgroup.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3055,8 +3055,6 @@ static int cgroup_apply_control_enable(s
- 		for_each_subsys(ss, ssid) {
- 			struct cgroup_subsys_state *css = cgroup_css(dsct, ss);
- 
--			WARN_ON_ONCE(css && percpu_ref_is_dying(&css->refcnt));
--
- 			if (!(cgroup_ss_mask(dsct) & (1 << ss->id)))
- 				continue;
- 
-@@ -3066,6 +3064,8 @@ static int cgroup_apply_control_enable(s
- 					return PTR_ERR(css);
- 			}
- 
-+			WARN_ON_ONCE(percpu_ref_is_dying(&css->refcnt));
-+
- 			if (css_visible(css)) {
- 				ret = css_populate_dir(css);
- 				if (ret)
-@@ -3101,11 +3101,11 @@ static void cgroup_apply_control_disable
- 		for_each_subsys(ss, ssid) {
- 			struct cgroup_subsys_state *css = cgroup_css(dsct, ss);
- 
--			WARN_ON_ONCE(css && percpu_ref_is_dying(&css->refcnt));
--
- 			if (!css)
- 				continue;
- 
-+			WARN_ON_ONCE(percpu_ref_is_dying(&css->refcnt));
-+
- 			if (css->parent &&
- 			    !(cgroup_ss_mask(dsct) & (1 << ss->id))) {
- 				kill_css(css);
-@@ -3392,7 +3392,8 @@ static ssize_t cgroup_type_write(struct
- 	if (strcmp(strstrip(buf), "threaded"))
- 		return -EINVAL;
- 
--	cgrp = cgroup_kn_lock_live(of->kn, false);
-+	/* drain dying csses before we re-apply (threaded) subtree control */
-+	cgrp = cgroup_kn_lock_live(of->kn, true);
- 	if (!cgrp)
- 		return -ENOENT;
- 
-
-
+For more info write to <info@kernelci.org>
