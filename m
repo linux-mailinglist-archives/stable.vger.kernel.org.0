@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA0D150E0D
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C1E150C0D
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728637AbgBCQZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:25:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36426 "EHLO mail.kernel.org"
+        id S1729855AbgBCQc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:32:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728627AbgBCQZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:25:41 -0500
+        id S1730504AbgBCQc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:58 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 217AA2086A;
-        Mon,  3 Feb 2020 16:25:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 923A72051A;
+        Mon,  3 Feb 2020 16:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747140;
-        bh=ec1kGG7zpDr102FKDa9SS42NmIToMcZX3w0XRmrtsDY=;
+        s=default; t=1580747578;
+        bh=s79AFNuWI6DuIPhPDSa54BwdoM9eLCk/ctOOg7bL6uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zua7z6BpFlOqQ0CRDuVEdrOhbiiOk5c1g4PZgMfY46e1901zbOWsg4VGg3mIEKwFw
-         mU+Nnd9yR2I0Abx2l91M61X5u4dfIxnQ+K9tQDYxBmMoUKrTSO6sdZkoRF46aBcYCP
-         GDQCsufnbaBLQospKWv83tBKNrEGtGuCjzLRzL7A=
+        b=IhlTT6TYAYiiW22e56YOyW17R9bsP7RWtv5fiy0y78+Utc//s4r+27uDQqbQIypcc
+         rQECfynKfkl7zS5Mwqn0enYD6djoWEWEpgYTUfcyZOW+xMY7o2miIxo0kgwcDLjuOV
+         JbBS4OtyeBCqtGn4dO8V8pF67yMWnPVv3s/M16D4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/68] iio: gyro: st_gyro: inline per-sensor data
+        stable@vger.kernel.org, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>, Zubin Mithra <zsm@chromium.org>,
+        syzbot+4a39a025912b265cacef@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 12/70] ext4: validate the debug_want_extra_isize mount option at parse time
 Date:   Mon,  3 Feb 2020 16:19:24 +0000
-Message-Id: <20200203161909.663307230@linuxfoundation.org>
+Message-Id: <20200203161914.334164647@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,387 +44,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit d8594fa22a3f7c294639d9aa2959d63e66d9437c ]
+commit 9803387c55f7d2ce69aa64340c5fdc6b3027dbc8 upstream.
 
-We have #defines for all the individual sensor registers and
-value/mask pairs #defined at the top of the file and used at
-exactly one spot.
+Instead of setting s_want_extra_size and then making sure that it is a
+valid value afterwards, validate the field before we set it.  This
+avoids races and other problems when remounting the file system.
 
-This is usually good if the #defines give a meaning to the
-opaque magic numbers.
+Link: https://lore.kernel.org/r/20191215063020.GA11512@mit.edu
+Cc: stable@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-and-tested-by: syzbot+4a39a025912b265cacef@syzkaller.appspotmail.com
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-However in this case, the semantic meaning is inherent in the
-name of the C99-addressable fields, and that means duplication
-of information, and only makes the code hard to maintain since
-you every time have to add a new #define AND update the site
-where it is to be used.
-
-Get rid of the #defines and just open code the values into the
-appropriate struct elements. Make sure to explicitly address
-the .hz and .value fields in the st_sensor_odr_avl struct
-so that the meaning of all values is clear.
-
-This patch is purely syntactic should have no semantic effect.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jonathan Cameron <jic23@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/gyro/st_gyro_core.c | 205 ++++++++++----------------------
- 1 file changed, 66 insertions(+), 139 deletions(-)
+ fs/ext4/super.c |  127 +++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 66 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/iio/gyro/st_gyro_core.c b/drivers/iio/gyro/st_gyro_core.c
-index aea034d8fe0fb..2a42b3d583e85 100644
---- a/drivers/iio/gyro/st_gyro_core.c
-+++ b/drivers/iio/gyro/st_gyro_core.c
-@@ -39,79 +39,6 @@
- #define ST_GYRO_FS_AVL_500DPS			500
- #define ST_GYRO_FS_AVL_2000DPS			2000
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1842,6 +1842,13 @@ static int handle_mount_opt(struct super
+ 			arg = JBD2_DEFAULT_MAX_COMMIT_AGE;
+ 		sbi->s_commit_interval = HZ * arg;
+ 	} else if (token == Opt_debug_want_extra_isize) {
++		if ((arg & 1) ||
++		    (arg < 4) ||
++		    (arg > (sbi->s_inode_size - EXT4_GOOD_OLD_INODE_SIZE))) {
++			ext4_msg(sb, KERN_ERR,
++				 "Invalid want_extra_isize %d", arg);
++			return -1;
++		}
+ 		sbi->s_want_extra_isize = arg;
+ 	} else if (token == Opt_max_batch_time) {
+ 		sbi->s_max_batch_time = arg;
+@@ -3513,40 +3520,6 @@ int ext4_calculate_overhead(struct super
+ 	return 0;
+ }
  
--/* CUSTOM VALUES FOR SENSOR 1 */
--#define ST_GYRO_1_WAI_EXP			0xd3
--#define ST_GYRO_1_ODR_ADDR			0x20
--#define ST_GYRO_1_ODR_MASK			0xc0
--#define ST_GYRO_1_ODR_AVL_100HZ_VAL		0x00
--#define ST_GYRO_1_ODR_AVL_200HZ_VAL		0x01
--#define ST_GYRO_1_ODR_AVL_400HZ_VAL		0x02
--#define ST_GYRO_1_ODR_AVL_800HZ_VAL		0x03
--#define ST_GYRO_1_PW_ADDR			0x20
--#define ST_GYRO_1_PW_MASK			0x08
--#define ST_GYRO_1_FS_ADDR			0x23
--#define ST_GYRO_1_FS_MASK			0x30
--#define ST_GYRO_1_FS_AVL_250_VAL		0x00
--#define ST_GYRO_1_FS_AVL_500_VAL		0x01
--#define ST_GYRO_1_FS_AVL_2000_VAL		0x02
--#define ST_GYRO_1_FS_AVL_250_GAIN		IIO_DEGREE_TO_RAD(8750)
--#define ST_GYRO_1_FS_AVL_500_GAIN		IIO_DEGREE_TO_RAD(17500)
--#define ST_GYRO_1_FS_AVL_2000_GAIN		IIO_DEGREE_TO_RAD(70000)
--#define ST_GYRO_1_BDU_ADDR			0x23
--#define ST_GYRO_1_BDU_MASK			0x80
--#define ST_GYRO_1_DRDY_IRQ_ADDR			0x22
--#define ST_GYRO_1_DRDY_IRQ_INT2_MASK		0x08
--#define ST_GYRO_1_MULTIREAD_BIT			true
+-static void ext4_clamp_want_extra_isize(struct super_block *sb)
+-{
+-	struct ext4_sb_info *sbi = EXT4_SB(sb);
+-	struct ext4_super_block *es = sbi->s_es;
+-	unsigned def_extra_isize = sizeof(struct ext4_inode) -
+-						EXT4_GOOD_OLD_INODE_SIZE;
 -
--/* CUSTOM VALUES FOR SENSOR 2 */
--#define ST_GYRO_2_WAI_EXP			0xd4
--#define ST_GYRO_2_ODR_ADDR			0x20
--#define ST_GYRO_2_ODR_MASK			0xc0
--#define ST_GYRO_2_ODR_AVL_95HZ_VAL		0x00
--#define ST_GYRO_2_ODR_AVL_190HZ_VAL		0x01
--#define ST_GYRO_2_ODR_AVL_380HZ_VAL		0x02
--#define ST_GYRO_2_ODR_AVL_760HZ_VAL		0x03
--#define ST_GYRO_2_PW_ADDR			0x20
--#define ST_GYRO_2_PW_MASK			0x08
--#define ST_GYRO_2_FS_ADDR			0x23
--#define ST_GYRO_2_FS_MASK			0x30
--#define ST_GYRO_2_FS_AVL_250_VAL		0x00
--#define ST_GYRO_2_FS_AVL_500_VAL		0x01
--#define ST_GYRO_2_FS_AVL_2000_VAL		0x02
--#define ST_GYRO_2_FS_AVL_250_GAIN		IIO_DEGREE_TO_RAD(8750)
--#define ST_GYRO_2_FS_AVL_500_GAIN		IIO_DEGREE_TO_RAD(17500)
--#define ST_GYRO_2_FS_AVL_2000_GAIN		IIO_DEGREE_TO_RAD(70000)
--#define ST_GYRO_2_BDU_ADDR			0x23
--#define ST_GYRO_2_BDU_MASK			0x80
--#define ST_GYRO_2_DRDY_IRQ_ADDR			0x22
--#define ST_GYRO_2_DRDY_IRQ_INT2_MASK		0x08
--#define ST_GYRO_2_MULTIREAD_BIT			true
+-	if (sbi->s_inode_size == EXT4_GOOD_OLD_INODE_SIZE) {
+-		sbi->s_want_extra_isize = 0;
+-		return;
+-	}
+-	if (sbi->s_want_extra_isize < 4) {
+-		sbi->s_want_extra_isize = def_extra_isize;
+-		if (ext4_has_feature_extra_isize(sb)) {
+-			if (sbi->s_want_extra_isize <
+-			    le16_to_cpu(es->s_want_extra_isize))
+-				sbi->s_want_extra_isize =
+-					le16_to_cpu(es->s_want_extra_isize);
+-			if (sbi->s_want_extra_isize <
+-			    le16_to_cpu(es->s_min_extra_isize))
+-				sbi->s_want_extra_isize =
+-					le16_to_cpu(es->s_min_extra_isize);
+-		}
+-	}
+-	/* Check if enough inode space is available */
+-	if ((sbi->s_want_extra_isize > sbi->s_inode_size) ||
+-	    (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
+-							sbi->s_inode_size)) {
+-		sbi->s_want_extra_isize = def_extra_isize;
+-		ext4_msg(sb, KERN_INFO,
+-			 "required extra inode space not available");
+-	}
+-}
 -
--/* CUSTOM VALUES FOR SENSOR 3 */
--#define ST_GYRO_3_WAI_EXP			0xd7
--#define ST_GYRO_3_ODR_ADDR			0x20
--#define ST_GYRO_3_ODR_MASK			0xc0
--#define ST_GYRO_3_ODR_AVL_95HZ_VAL		0x00
--#define ST_GYRO_3_ODR_AVL_190HZ_VAL		0x01
--#define ST_GYRO_3_ODR_AVL_380HZ_VAL		0x02
--#define ST_GYRO_3_ODR_AVL_760HZ_VAL		0x03
--#define ST_GYRO_3_PW_ADDR			0x20
--#define ST_GYRO_3_PW_MASK			0x08
--#define ST_GYRO_3_FS_ADDR			0x23
--#define ST_GYRO_3_FS_MASK			0x30
--#define ST_GYRO_3_FS_AVL_250_VAL		0x00
--#define ST_GYRO_3_FS_AVL_500_VAL		0x01
--#define ST_GYRO_3_FS_AVL_2000_VAL		0x02
--#define ST_GYRO_3_FS_AVL_250_GAIN		IIO_DEGREE_TO_RAD(8750)
--#define ST_GYRO_3_FS_AVL_500_GAIN		IIO_DEGREE_TO_RAD(17500)
--#define ST_GYRO_3_FS_AVL_2000_GAIN		IIO_DEGREE_TO_RAD(70000)
--#define ST_GYRO_3_BDU_ADDR			0x23
--#define ST_GYRO_3_BDU_MASK			0x80
--#define ST_GYRO_3_DRDY_IRQ_ADDR			0x22
--#define ST_GYRO_3_DRDY_IRQ_INT2_MASK		0x08
--#define ST_GYRO_3_MULTIREAD_BIT			true
--
--
- static const struct iio_chan_spec st_gyro_16bit_channels[] = {
- 	ST_SENSORS_LSM_CHANNELS(IIO_ANGL_VEL,
- 			BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
-@@ -130,7 +57,7 @@ static const struct iio_chan_spec st_gyro_16bit_channels[] = {
+ static void ext4_set_resv_clusters(struct super_block *sb)
+ {
+ 	ext4_fsblk_t resv_clusters;
+@@ -3754,6 +3727,65 @@ static int ext4_fill_super(struct super_
+ 	 */
+ 	sbi->s_li_wait_mult = EXT4_DEF_LI_WAIT_MULT;
  
- static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 	{
--		.wai = ST_GYRO_1_WAI_EXP,
-+		.wai = 0xd3,
- 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
- 		.sensors_supported = {
- 			[0] = L3G4200D_GYRO_DEV_NAME,
-@@ -138,18 +65,18 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
--			.addr = ST_GYRO_1_ODR_ADDR,
--			.mask = ST_GYRO_1_ODR_MASK,
-+			.addr = 0x20,
-+			.mask = 0xc0,
- 			.odr_avl = {
--				{ 100, ST_GYRO_1_ODR_AVL_100HZ_VAL, },
--				{ 200, ST_GYRO_1_ODR_AVL_200HZ_VAL, },
--				{ 400, ST_GYRO_1_ODR_AVL_400HZ_VAL, },
--				{ 800, ST_GYRO_1_ODR_AVL_800HZ_VAL, },
-+				{ .hz = 100, .value = 0x00, },
-+				{ .hz = 200, .value = 0x01, },
-+				{ .hz = 400, .value = 0x02, },
-+				{ .hz = 800, .value = 0x03, },
- 			},
- 		},
- 		.pw = {
--			.addr = ST_GYRO_1_PW_ADDR,
--			.mask = ST_GYRO_1_PW_MASK,
-+			.addr = 0x20,
-+			.mask = 0x08,
- 			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
- 			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
- 		},
-@@ -158,33 +85,33 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
- 		},
- 		.fs = {
--			.addr = ST_GYRO_1_FS_ADDR,
--			.mask = ST_GYRO_1_FS_MASK,
-+			.addr = 0x23,
-+			.mask = 0x30,
- 			.fs_avl = {
- 				[0] = {
- 					.num = ST_GYRO_FS_AVL_250DPS,
--					.value = ST_GYRO_1_FS_AVL_250_VAL,
--					.gain = ST_GYRO_1_FS_AVL_250_GAIN,
-+					.value = 0x00,
-+					.gain = IIO_DEGREE_TO_RAD(8750),
- 				},
- 				[1] = {
- 					.num = ST_GYRO_FS_AVL_500DPS,
--					.value = ST_GYRO_1_FS_AVL_500_VAL,
--					.gain = ST_GYRO_1_FS_AVL_500_GAIN,
-+					.value = 0x01,
-+					.gain = IIO_DEGREE_TO_RAD(17500),
- 				},
- 				[2] = {
- 					.num = ST_GYRO_FS_AVL_2000DPS,
--					.value = ST_GYRO_1_FS_AVL_2000_VAL,
--					.gain = ST_GYRO_1_FS_AVL_2000_GAIN,
-+					.value = 0x02,
-+					.gain = IIO_DEGREE_TO_RAD(70000),
- 				},
- 			},
- 		},
- 		.bdu = {
--			.addr = ST_GYRO_1_BDU_ADDR,
--			.mask = ST_GYRO_1_BDU_MASK,
-+			.addr = 0x23,
-+			.mask = 0x80,
- 		},
- 		.drdy_irq = {
--			.addr = ST_GYRO_1_DRDY_IRQ_ADDR,
--			.mask_int2 = ST_GYRO_1_DRDY_IRQ_INT2_MASK,
-+			.addr = 0x22,
-+			.mask_int2 = 0x08,
- 			/*
- 			 * The sensor has IHL (active low) and open
- 			 * drain settings, but only for INT1 and not
-@@ -192,11 +119,11 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			 */
- 			.addr_stat_drdy = ST_SENSORS_DEFAULT_STAT_ADDR,
- 		},
--		.multi_read_bit = ST_GYRO_1_MULTIREAD_BIT,
-+		.multi_read_bit = true,
- 		.bootime = 2,
- 	},
- 	{
--		.wai = ST_GYRO_2_WAI_EXP,
-+		.wai = 0xd4,
- 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
- 		.sensors_supported = {
- 			[0] = L3GD20_GYRO_DEV_NAME,
-@@ -208,18 +135,18 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
--			.addr = ST_GYRO_2_ODR_ADDR,
--			.mask = ST_GYRO_2_ODR_MASK,
-+			.addr = 0x20,
-+			.mask = 0xc0,
- 			.odr_avl = {
--				{ 95, ST_GYRO_2_ODR_AVL_95HZ_VAL, },
--				{ 190, ST_GYRO_2_ODR_AVL_190HZ_VAL, },
--				{ 380, ST_GYRO_2_ODR_AVL_380HZ_VAL, },
--				{ 760, ST_GYRO_2_ODR_AVL_760HZ_VAL, },
-+				{ .hz = 95, .value = 0x00, },
-+				{ .hz = 190, .value = 0x01, },
-+				{ .hz = 380, .value = 0x02, },
-+				{ .hz = 760, .value = 0x03, },
- 			},
- 		},
- 		.pw = {
--			.addr = ST_GYRO_2_PW_ADDR,
--			.mask = ST_GYRO_2_PW_MASK,
-+			.addr = 0x20,
-+			.mask = 0x08,
- 			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
- 			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
- 		},
-@@ -228,33 +155,33 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
- 		},
- 		.fs = {
--			.addr = ST_GYRO_2_FS_ADDR,
--			.mask = ST_GYRO_2_FS_MASK,
-+			.addr = 0x23,
-+			.mask = 0x30,
- 			.fs_avl = {
- 				[0] = {
- 					.num = ST_GYRO_FS_AVL_250DPS,
--					.value = ST_GYRO_2_FS_AVL_250_VAL,
--					.gain = ST_GYRO_2_FS_AVL_250_GAIN,
-+					.value = 0x00,
-+					.gain = IIO_DEGREE_TO_RAD(8750),
- 				},
- 				[1] = {
- 					.num = ST_GYRO_FS_AVL_500DPS,
--					.value = ST_GYRO_2_FS_AVL_500_VAL,
--					.gain = ST_GYRO_2_FS_AVL_500_GAIN,
-+					.value = 0x01,
-+					.gain = IIO_DEGREE_TO_RAD(17500),
- 				},
- 				[2] = {
- 					.num = ST_GYRO_FS_AVL_2000DPS,
--					.value = ST_GYRO_2_FS_AVL_2000_VAL,
--					.gain = ST_GYRO_2_FS_AVL_2000_GAIN,
-+					.value = 0x02,
-+					.gain = IIO_DEGREE_TO_RAD(70000),
- 				},
- 			},
- 		},
- 		.bdu = {
--			.addr = ST_GYRO_2_BDU_ADDR,
--			.mask = ST_GYRO_2_BDU_MASK,
-+			.addr = 0x23,
-+			.mask = 0x80,
- 		},
- 		.drdy_irq = {
--			.addr = ST_GYRO_2_DRDY_IRQ_ADDR,
--			.mask_int2 = ST_GYRO_2_DRDY_IRQ_INT2_MASK,
-+			.addr = 0x22,
-+			.mask_int2 = 0x08,
- 			/*
- 			 * The sensor has IHL (active low) and open
- 			 * drain settings, but only for INT1 and not
-@@ -262,29 +189,29 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			 */
- 			.addr_stat_drdy = ST_SENSORS_DEFAULT_STAT_ADDR,
- 		},
--		.multi_read_bit = ST_GYRO_2_MULTIREAD_BIT,
-+		.multi_read_bit = true,
- 		.bootime = 2,
- 	},
- 	{
--		.wai = ST_GYRO_3_WAI_EXP,
-+		.wai = 0xd7,
- 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
- 		.sensors_supported = {
- 			[0] = L3GD20_GYRO_DEV_NAME,
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
--			.addr = ST_GYRO_3_ODR_ADDR,
--			.mask = ST_GYRO_3_ODR_MASK,
-+			.addr = 0x20,
-+			.mask = 0xc0,
- 			.odr_avl = {
--				{ 95, ST_GYRO_3_ODR_AVL_95HZ_VAL, },
--				{ 190, ST_GYRO_3_ODR_AVL_190HZ_VAL, },
--				{ 380, ST_GYRO_3_ODR_AVL_380HZ_VAL, },
--				{ 760, ST_GYRO_3_ODR_AVL_760HZ_VAL, },
-+				{ .hz = 95, .value = 0x00, },
-+				{ .hz = 190, .value = 0x01, },
-+				{ .hz = 380, .value = 0x02, },
-+				{ .hz = 760, .value = 0x03, },
- 			},
- 		},
- 		.pw = {
--			.addr = ST_GYRO_3_PW_ADDR,
--			.mask = ST_GYRO_3_PW_MASK,
-+			.addr = 0x20,
-+			.mask = 0x08,
- 			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
- 			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
- 		},
-@@ -293,33 +220,33 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
- 		},
- 		.fs = {
--			.addr = ST_GYRO_3_FS_ADDR,
--			.mask = ST_GYRO_3_FS_MASK,
-+			.addr = 0x23,
-+			.mask = 0x30,
- 			.fs_avl = {
- 				[0] = {
- 					.num = ST_GYRO_FS_AVL_250DPS,
--					.value = ST_GYRO_3_FS_AVL_250_VAL,
--					.gain = ST_GYRO_3_FS_AVL_250_GAIN,
-+					.value = 0x00,
-+					.gain = IIO_DEGREE_TO_RAD(8750),
- 				},
- 				[1] = {
- 					.num = ST_GYRO_FS_AVL_500DPS,
--					.value = ST_GYRO_3_FS_AVL_500_VAL,
--					.gain = ST_GYRO_3_FS_AVL_500_GAIN,
-+					.value = 0x01,
-+					.gain = IIO_DEGREE_TO_RAD(17500),
- 				},
- 				[2] = {
- 					.num = ST_GYRO_FS_AVL_2000DPS,
--					.value = ST_GYRO_3_FS_AVL_2000_VAL,
--					.gain = ST_GYRO_3_FS_AVL_2000_GAIN,
-+					.value = 0x02,
-+					.gain = IIO_DEGREE_TO_RAD(70000),
- 				},
- 			},
- 		},
- 		.bdu = {
--			.addr = ST_GYRO_3_BDU_ADDR,
--			.mask = ST_GYRO_3_BDU_MASK,
-+			.addr = 0x23,
-+			.mask = 0x80,
- 		},
- 		.drdy_irq = {
--			.addr = ST_GYRO_3_DRDY_IRQ_ADDR,
--			.mask_int2 = ST_GYRO_3_DRDY_IRQ_INT2_MASK,
-+			.addr = 0x22,
-+			.mask_int2 = 0x08,
- 			/*
- 			 * The sensor has IHL (active low) and open
- 			 * drain settings, but only for INT1 and not
-@@ -327,7 +254,7 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			 */
- 			.addr_stat_drdy = ST_SENSORS_DEFAULT_STAT_ADDR,
- 		},
--		.multi_read_bit = ST_GYRO_3_MULTIREAD_BIT,
-+		.multi_read_bit = true,
- 		.bootime = 2,
- 	},
- };
--- 
-2.20.1
-
++	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV) {
++		sbi->s_inode_size = EXT4_GOOD_OLD_INODE_SIZE;
++		sbi->s_first_ino = EXT4_GOOD_OLD_FIRST_INO;
++	} else {
++		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
++		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
++		if (sbi->s_first_ino < EXT4_GOOD_OLD_FIRST_INO) {
++			ext4_msg(sb, KERN_ERR, "invalid first ino: %u",
++				 sbi->s_first_ino);
++			goto failed_mount;
++		}
++		if ((sbi->s_inode_size < EXT4_GOOD_OLD_INODE_SIZE) ||
++		    (!is_power_of_2(sbi->s_inode_size)) ||
++		    (sbi->s_inode_size > blocksize)) {
++			ext4_msg(sb, KERN_ERR,
++			       "unsupported inode size: %d",
++			       sbi->s_inode_size);
++			goto failed_mount;
++		}
++		/*
++		 * i_atime_extra is the last extra field available for
++		 * [acm]times in struct ext4_inode. Checking for that
++		 * field should suffice to ensure we have extra space
++		 * for all three.
++		 */
++		if (sbi->s_inode_size >= offsetof(struct ext4_inode, i_atime_extra) +
++			sizeof(((struct ext4_inode *)0)->i_atime_extra)) {
++			sb->s_time_gran = 1;
++		} else {
++			sb->s_time_gran = NSEC_PER_SEC;
++		}
++	}
++	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
++		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
++			EXT4_GOOD_OLD_INODE_SIZE;
++		if (ext4_has_feature_extra_isize(sb)) {
++			unsigned v, max = (sbi->s_inode_size -
++					   EXT4_GOOD_OLD_INODE_SIZE);
++
++			v = le16_to_cpu(es->s_want_extra_isize);
++			if (v > max) {
++				ext4_msg(sb, KERN_ERR,
++					 "bad s_want_extra_isize: %d", v);
++				goto failed_mount;
++			}
++			if (sbi->s_want_extra_isize < v)
++				sbi->s_want_extra_isize = v;
++
++			v = le16_to_cpu(es->s_min_extra_isize);
++			if (v > max) {
++				ext4_msg(sb, KERN_ERR,
++					 "bad s_min_extra_isize: %d", v);
++				goto failed_mount;
++			}
++			if (sbi->s_want_extra_isize < v)
++				sbi->s_want_extra_isize = v;
++		}
++	}
++
+ 	if (sbi->s_es->s_mount_opts[0]) {
+ 		char *s_mount_opts = kstrndup(sbi->s_es->s_mount_opts,
+ 					      sizeof(sbi->s_es->s_mount_opts),
+@@ -3955,29 +3987,6 @@ static int ext4_fill_super(struct super_
+ 						      has_huge_files);
+ 	sb->s_maxbytes = ext4_max_size(sb->s_blocksize_bits, has_huge_files);
+ 
+-	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV) {
+-		sbi->s_inode_size = EXT4_GOOD_OLD_INODE_SIZE;
+-		sbi->s_first_ino = EXT4_GOOD_OLD_FIRST_INO;
+-	} else {
+-		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
+-		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
+-		if (sbi->s_first_ino < EXT4_GOOD_OLD_FIRST_INO) {
+-			ext4_msg(sb, KERN_ERR, "invalid first ino: %u",
+-				 sbi->s_first_ino);
+-			goto failed_mount;
+-		}
+-		if ((sbi->s_inode_size < EXT4_GOOD_OLD_INODE_SIZE) ||
+-		    (!is_power_of_2(sbi->s_inode_size)) ||
+-		    (sbi->s_inode_size > blocksize)) {
+-			ext4_msg(sb, KERN_ERR,
+-			       "unsupported inode size: %d",
+-			       sbi->s_inode_size);
+-			goto failed_mount;
+-		}
+-		if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE)
+-			sb->s_time_gran = 1 << (EXT4_EPOCH_BITS - 2);
+-	}
+-
+ 	sbi->s_desc_size = le16_to_cpu(es->s_desc_size);
+ 	if (ext4_has_feature_64bit(sb)) {
+ 		if (sbi->s_desc_size < EXT4_MIN_DESC_SIZE_64BIT ||
+@@ -4421,8 +4430,6 @@ no_journal:
+ 	} else if (ret)
+ 		goto failed_mount4a;
+ 
+-	ext4_clamp_want_extra_isize(sb);
+-
+ 	ext4_set_resv_clusters(sb);
+ 
+ 	err = ext4_setup_system_zone(sb);
+@@ -5207,8 +5214,6 @@ static int ext4_remount(struct super_blo
+ 		goto restore_opts;
+ 	}
+ 
+-	ext4_clamp_want_extra_isize(sb);
+-
+ 	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
+ 	    test_opt(sb, JOURNAL_CHECKSUM)) {
+ 		ext4_msg(sb, KERN_ERR, "changing journal_checksum "
 
 
