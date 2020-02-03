@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F208150C49
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B79150D13
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730878AbgBCQez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:34:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
+        id S1730882AbgBCQe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:34:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730870AbgBCQez (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:34:55 -0500
+        id S1730879AbgBCQe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:56 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6137521582;
-        Mon,  3 Feb 2020 16:34:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C32152087E;
+        Mon,  3 Feb 2020 16:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747693;
-        bh=AmEqEAEwhWaxYqsep9Gus/Ym4kZ63m22rEoB5FCfM7k=;
+        s=default; t=1580747696;
+        bh=cOyqk97cutL1s+fJwmtKJKAfj/jZXdg6ZAmb/dhgNH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fP7wIwRGxNM63lYdBPKkmN7tkGARGP+foq2yHt3Y2aRudARM06J6CeEZvKiVBVt5+
-         L6iUOT1HpHEq2beRzVUucgm+GxRSmhFeMmEcllSIHLUOdg1IWUdoB2yypMhG1nQZBL
-         iIz30STYdiKASUv27E7MK7pXgZiLdQw2oMMv4/d8=
+        b=YBHw4LUk6S3AERQe8WFg8xvzSmou28FADGkag7LKQAucfDzfPTRmX1sIgqExx+kW+
+         kXGGb5euOoS1KWGIcaAsq18bfdyEldRkuN/f7nxdVN7ILY6YAuXbP046z3bWTvT9WM
+         Pnon+RuJCVTLslFfbhf3UKGywtUilZTbcJKA4gdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/90] rseq: Unregister rseq for clone CLONE_VM
-Date:   Mon,  3 Feb 2020 16:19:34 +0000
-Message-Id: <20200203161921.828621507@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 32/90] clk: sunxi-ng: sun8i-r: Fix divider on APB0 clock
+Date:   Mon,  3 Feb 2020 16:19:35 +0000
+Message-Id: <20200203161921.931106732@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
 References: <20200203161917.612554987@linuxfoundation.org>
@@ -47,69 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 463f550fb47bede3a5d7d5177f363a6c3b45d50b ]
+[ Upstream commit 47d64fef1f3ffbdf960d3330b9865fc9f12fdf84 ]
 
-It has been reported by Google that rseq is not behaving properly
-with respect to clone when CLONE_VM is used without CLONE_THREAD.
+According to the BSP source code, the APB0 clock on the H3 and H5 has a
+normal M divider, not a power-of-two divider. This matches the hardware
+in the A83T (as described in both the BSP source code and the manual).
+Since the A83T and H3/A64 clocks are actually the same, we can merge the
+definitions.
 
-It keeps the prior thread's rseq TLS registered when the TLS of the
-thread has moved, so the kernel can corrupt the TLS of the parent.
-
-The approach of clearing the per task-struct rseq registration
-on clone with CLONE_THREAD flag is incomplete. It does not cover
-the use-case of clone with CLONE_VM set, but without CLONE_THREAD.
-
-Here is the rationale for unregistering rseq on clone with CLONE_VM
-flag set:
-
-1) CLONE_THREAD requires CLONE_SIGHAND, which requires CLONE_VM to be
-   set. Therefore, just checking for CLONE_VM covers all CLONE_THREAD
-   uses. There is no point in checking for both CLONE_THREAD and
-   CLONE_VM,
-
-2) There is the possibility of an unlikely scenario where CLONE_SETTLS
-   is used without CLONE_VM. In order to be an issue, it would require
-   that the rseq TLS is in a shared memory area.
-
-   I do not plan on adding CLONE_SETTLS to the set of clone flags which
-   unregister RSEQ, because it would require that we also unregister RSEQ
-   on set_thread_area(2) and arch_prctl(2) ARCH_SET_FS for completeness.
-   So rather than doing a partial solution, it appears better to let
-   user-space explicitly perform rseq unregistration across clone if
-   needed in scenarios where CLONE_VM is not set.
-
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191211161713.4490-3-mathieu.desnoyers@efficios.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun8i-r.c | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 775503573ed70..b968d736833bb 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1915,11 +1915,11 @@ static inline void rseq_migrate(struct task_struct *t)
+diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-r.c b/drivers/clk/sunxi-ng/ccu-sun8i-r.c
+index 4646fdc61053b..4c8c491b87c27 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-r.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-r.c
+@@ -51,19 +51,7 @@ static struct ccu_div ar100_clk = {
+ 
+ static CLK_FIXED_FACTOR_HW(ahb0_clk, "ahb0", &ar100_clk.common.hw, 1, 1, 0);
+ 
+-static struct ccu_div apb0_clk = {
+-	.div		= _SUNXI_CCU_DIV_FLAGS(0, 2, CLK_DIVIDER_POWER_OF_TWO),
+-
+-	.common		= {
+-		.reg		= 0x0c,
+-		.hw.init	= CLK_HW_INIT_HW("apb0",
+-						 &ahb0_clk.hw,
+-						 &ccu_div_ops,
+-						 0),
+-	},
+-};
+-
+-static SUNXI_CCU_M(a83t_apb0_clk, "apb0", "ahb0", 0x0c, 0, 2, 0);
++static SUNXI_CCU_M(apb0_clk, "apb0", "ahb0", 0x0c, 0, 2, 0);
  
  /*
-  * If parent process has a registered restartable sequences area, the
-- * child inherits. Only applies when forking a process, not a thread.
-+ * child inherits. Unregister rseq for a clone with CLONE_VM set.
-  */
- static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
+  * Define the parent as an array that can be reused to save space
+@@ -127,7 +115,7 @@ static struct ccu_mp a83t_ir_clk = {
+ 
+ static struct ccu_common *sun8i_a83t_r_ccu_clks[] = {
+ 	&ar100_clk.common,
+-	&a83t_apb0_clk.common,
++	&apb0_clk.common,
+ 	&apb0_pio_clk.common,
+ 	&apb0_ir_clk.common,
+ 	&apb0_timer_clk.common,
+@@ -167,7 +155,7 @@ static struct clk_hw_onecell_data sun8i_a83t_r_hw_clks = {
+ 	.hws	= {
+ 		[CLK_AR100]		= &ar100_clk.common.hw,
+ 		[CLK_AHB0]		= &ahb0_clk.hw,
+-		[CLK_APB0]		= &a83t_apb0_clk.common.hw,
++		[CLK_APB0]		= &apb0_clk.common.hw,
+ 		[CLK_APB0_PIO]		= &apb0_pio_clk.common.hw,
+ 		[CLK_APB0_IR]		= &apb0_ir_clk.common.hw,
+ 		[CLK_APB0_TIMER]	= &apb0_timer_clk.common.hw,
+@@ -282,9 +270,6 @@ static void __init sunxi_r_ccu_init(struct device_node *node,
+ 
+ static void __init sun8i_a83t_r_ccu_setup(struct device_node *node)
  {
--	if (clone_flags & CLONE_THREAD) {
-+	if (clone_flags & CLONE_VM) {
- 		t->rseq = NULL;
- 		t->rseq_sig = 0;
- 		t->rseq_event_mask = 0;
+-	/* Fix apb0 bus gate parents here */
+-	apb0_gate_parent[0] = &a83t_apb0_clk.common.hw;
+-
+ 	sunxi_r_ccu_init(node, &sun8i_a83t_r_ccu_desc);
+ }
+ CLK_OF_DECLARE(sun8i_a83t_r_ccu, "allwinner,sun8i-a83t-r-ccu",
 -- 
 2.20.1
 
