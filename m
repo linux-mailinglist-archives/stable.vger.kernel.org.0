@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF2A6150E15
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A12BD150CFF
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729812AbgBCQss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:48:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36486 "EHLO mail.kernel.org"
+        id S1729790AbgBCQki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:40:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728647AbgBCQZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:25:44 -0500
+        id S1731136AbgBCQgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:36:09 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F37321582;
-        Mon,  3 Feb 2020 16:25:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74E3E222D9;
+        Mon,  3 Feb 2020 16:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747143;
-        bh=g/+wUwjKhuioqfJaajiZ0MXi6QiA3adqp7R+cE0Pu58=;
+        s=default; t=1580747768;
+        bh=rcQDecP37dL91YXleyWQRqGSr0A+L9q6Ie3Ao5CUXLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7PTy/nzpGYtTQy11Xe8mvV87RqUbU6vOygbtIF0jZDlqm1izAIAEOLdrK9FiiCWU
-         VWzR5tHFsWvqnS9rkAXcKGTn6WsIhhjLl6ITc8LG7DXClz1Ylt+Kkt53DNKmgjVGWX
-         xsRfa7FthJ4IDe+/E1i1QQDlAnxI+pZXGIpKdpmw=
+        b=TT2rrDdD6zNoMdmoIYgMho2p7tbYE3lrl1jHl2M4R1yUOPBIIpgfUZzhUVJu8MW5O
+         DHHtV8shE9VGAhuz7rn+M50kRZLQzHzzIHrHEikWENKC4k9gtz3dnotRAjxj9ZMlt+
+         HIzIxU8n/Q6FRVigTNarBYndERA+xaFKtDGk5YGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo.bianconi@st.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/68] iio: gyro: st_gyro: fix L3GD20H support
+        stable@vger.kernel.org,
+        syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Johan Hedberg <johan.hedberg@intel.com>
+Subject: [PATCH 5.4 22/90] Bluetooth: Fix race condition in hci_release_sock()
 Date:   Mon,  3 Feb 2020 16:19:25 +0000
-Message-Id: <20200203161909.808486209@linuxfoundation.org>
+Message-Id: <20200203161920.591354269@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,125 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 45a4e4220bf4927e321e18750e47c576bf62b000 ]
+commit 11eb85ec42dc8c7a7ec519b90ccf2eeae9409de8 upstream.
 
-Add proper support for L3GD20H gyroscope sensor. In particular:
-- use L3GD20H as device name instead of L3GD20
-- fix available full scales
-- fix available sample frequencies
+Syzbot managed to trigger a use after free "KASAN: use-after-free Write
+in hci_sock_bind".  I have reviewed the code manually and one possibly
+cause I have found is that we are not holding lock_sock(sk) when we do
+the hci_dev_put(hdev) in hci_sock_release().  My theory is that the bind
+and the release are racing against each other which results in this use
+after free.
 
-Note that the original patch listed first below introduced broken support for
-this part.  The second patch drops the support as it didn't work.
+Reported-by: syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This new patch brings in working support.
-
-Fixes: 9444a300c2be (IIO: Add support for L3GD20H gyroscope)
-Fixes: a0657716416f ("iio:gyro: bug on L3GD20H gyroscope support")
-Signed-off-by: Lorenzo Bianconi <lorenzo.bianconi@st.com>
-Signed-off-by: Jonathan Cameron <jic23@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/gyro/st_gyro.h      |  1 +
- drivers/iio/gyro/st_gyro_core.c | 13 +++++++------
- drivers/iio/gyro/st_gyro_i2c.c  |  5 +++++
- drivers/iio/gyro/st_gyro_spi.c  |  1 +
- 4 files changed, 14 insertions(+), 6 deletions(-)
+ net/bluetooth/hci_sock.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/gyro/st_gyro.h b/drivers/iio/gyro/st_gyro.h
-index a5c5c4e29addc..48923ae6ac3bd 100644
---- a/drivers/iio/gyro/st_gyro.h
-+++ b/drivers/iio/gyro/st_gyro.h
-@@ -19,6 +19,7 @@
- #define LSM330DL_GYRO_DEV_NAME		"lsm330dl_gyro"
- #define LSM330DLC_GYRO_DEV_NAME		"lsm330dlc_gyro"
- #define L3GD20_GYRO_DEV_NAME		"l3gd20"
-+#define L3GD20H_GYRO_DEV_NAME		"l3gd20h"
- #define L3G4IS_GYRO_DEV_NAME		"l3g4is_ui"
- #define LSM330_GYRO_DEV_NAME		"lsm330_gyro"
- #define LSM9DS0_GYRO_DEV_NAME		"lsm9ds0_gyro"
-diff --git a/drivers/iio/gyro/st_gyro_core.c b/drivers/iio/gyro/st_gyro_core.c
-index 2a42b3d583e85..e366422e85127 100644
---- a/drivers/iio/gyro/st_gyro_core.c
-+++ b/drivers/iio/gyro/st_gyro_core.c
-@@ -35,6 +35,7 @@
- #define ST_GYRO_DEFAULT_OUT_Z_L_ADDR		0x2c
+--- a/net/bluetooth/hci_sock.c
++++ b/net/bluetooth/hci_sock.c
+@@ -831,6 +831,8 @@ static int hci_sock_release(struct socke
+ 	if (!sk)
+ 		return 0;
  
- /* FULLSCALE */
-+#define ST_GYRO_FS_AVL_245DPS			245
- #define ST_GYRO_FS_AVL_250DPS			250
- #define ST_GYRO_FS_AVL_500DPS			500
- #define ST_GYRO_FS_AVL_2000DPS			2000
-@@ -196,17 +197,17 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 		.wai = 0xd7,
- 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
- 		.sensors_supported = {
--			[0] = L3GD20_GYRO_DEV_NAME,
-+			[0] = L3GD20H_GYRO_DEV_NAME,
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
- 			.addr = 0x20,
- 			.mask = 0xc0,
- 			.odr_avl = {
--				{ .hz = 95, .value = 0x00, },
--				{ .hz = 190, .value = 0x01, },
--				{ .hz = 380, .value = 0x02, },
--				{ .hz = 760, .value = 0x03, },
-+				{ .hz = 100, .value = 0x00, },
-+				{ .hz = 200, .value = 0x01, },
-+				{ .hz = 400, .value = 0x02, },
-+				{ .hz = 800, .value = 0x03, },
- 			},
- 		},
- 		.pw = {
-@@ -224,7 +225,7 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			.mask = 0x30,
- 			.fs_avl = {
- 				[0] = {
--					.num = ST_GYRO_FS_AVL_250DPS,
-+					.num = ST_GYRO_FS_AVL_245DPS,
- 					.value = 0x00,
- 					.gain = IIO_DEGREE_TO_RAD(8750),
- 				},
-diff --git a/drivers/iio/gyro/st_gyro_i2c.c b/drivers/iio/gyro/st_gyro_i2c.c
-index 40056b8210364..3f628746cb93e 100644
---- a/drivers/iio/gyro/st_gyro_i2c.c
-+++ b/drivers/iio/gyro/st_gyro_i2c.c
-@@ -40,6 +40,10 @@ static const struct of_device_id st_gyro_of_match[] = {
- 		.compatible = "st,l3gd20-gyro",
- 		.data = L3GD20_GYRO_DEV_NAME,
- 	},
-+	{
-+		.compatible = "st,l3gd20h-gyro",
-+		.data = L3GD20H_GYRO_DEV_NAME,
-+	},
- 	{
- 		.compatible = "st,l3g4is-gyro",
- 		.data = L3G4IS_GYRO_DEV_NAME,
-@@ -95,6 +99,7 @@ static const struct i2c_device_id st_gyro_id_table[] = {
- 	{ LSM330DL_GYRO_DEV_NAME },
- 	{ LSM330DLC_GYRO_DEV_NAME },
- 	{ L3GD20_GYRO_DEV_NAME },
-+	{ L3GD20H_GYRO_DEV_NAME },
- 	{ L3G4IS_GYRO_DEV_NAME },
- 	{ LSM330_GYRO_DEV_NAME },
- 	{ LSM9DS0_GYRO_DEV_NAME },
-diff --git a/drivers/iio/gyro/st_gyro_spi.c b/drivers/iio/gyro/st_gyro_spi.c
-index fbf2faed501c8..fa14d8f2170d7 100644
---- a/drivers/iio/gyro/st_gyro_spi.c
-+++ b/drivers/iio/gyro/st_gyro_spi.c
-@@ -52,6 +52,7 @@ static const struct spi_device_id st_gyro_id_table[] = {
- 	{ LSM330DL_GYRO_DEV_NAME },
- 	{ LSM330DLC_GYRO_DEV_NAME },
- 	{ L3GD20_GYRO_DEV_NAME },
-+	{ L3GD20H_GYRO_DEV_NAME },
- 	{ L3G4IS_GYRO_DEV_NAME },
- 	{ LSM330_GYRO_DEV_NAME },
- 	{ LSM9DS0_GYRO_DEV_NAME },
--- 
-2.20.1
-
++	lock_sock(sk);
++
+ 	switch (hci_pi(sk)->channel) {
+ 	case HCI_CHANNEL_MONITOR:
+ 		atomic_dec(&monitor_promisc);
+@@ -878,6 +880,7 @@ static int hci_sock_release(struct socke
+ 	skb_queue_purge(&sk->sk_receive_queue);
+ 	skb_queue_purge(&sk->sk_write_queue);
+ 
++	release_sock(sk);
+ 	sock_put(sk);
+ 	return 0;
+ }
 
 
