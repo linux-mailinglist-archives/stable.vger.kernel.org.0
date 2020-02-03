@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB3C1150D80
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:46:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E21150CDC
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:40:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730019AbgBCQab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:30:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42940 "EHLO mail.kernel.org"
+        id S1730573AbgBCQji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:39:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbgBCQab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:30:31 -0500
+        id S1731325AbgBCQh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:27 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E98F320838;
-        Mon,  3 Feb 2020 16:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BA0A2082E;
+        Mon,  3 Feb 2020 16:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747430;
-        bh=z8JvJ+ByIAn+lh5NmKZ61jSBglLW2Qni5MjImejmzhQ=;
+        s=default; t=1580747846;
+        bh=sC8I2Dcnh5vaB3VrbsvG6h94w3grYvNROZ0DczkC6rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1YABZPma7mWz6QmbWi93AgZnQEg9yNdUVtwPnBokgiWQ850BMuSOn/eXSJvLLMcm
-         NlRSfXfiT4Or86MH2PKnwpllnjpwwuttM+FuiuX45JmSJVGbZbkIahbIJQwfWfxxq4
-         7Txow95sSXDh5X2F9tmTYSmgrGWq63y43spKaLzE=
+        b=zjLULpKQ223ZSdhVr1Q7S5gmfdWictjxXhH4UFr17DVnnRDeQu5+ywrwY7MxYiRMz
+         Ep6FirqSyvLejKJNvz0hX5v8hCii8r4eCMXocrNDKDBghOnRDqUi/vYjFDNC2hZN9C
+         l/7SsQ7MNYIuYFe7YmTlv288F7Whog8KSLDRWJ/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 81/89] net/fsl: treat fsl,erratum-a011043
-Date:   Mon,  3 Feb 2020 16:20:06 +0000
-Message-Id: <20200203161926.710795710@linuxfoundation.org>
+Subject: [PATCH 5.4 64/90] Input: evdev - convert kzalloc()/vzalloc() to kvzalloc()
+Date:   Mon,  3 Feb 2020 16:20:07 +0000
+Message-Id: <20200203161925.352904126@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
-References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@oss.nxp.com>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 1d3ca681b9d9575ccf696ebc2840a1ebb1fd4074 ]
+[ Upstream commit 7f439bc2d7e8c8cc4e1bab08ab7fe1bb73c9b268 ]
 
-When fsl,erratum-a011043 is set, adjust for erratum A011043:
-MDIO reads to internal PCS registers may result in having
-the MDIO_CFG[MDIO_RD_ER] bit set, even when there is no
-error and read data (MDIO_DATA[MDIO_DATA]) is correct.
-Software may get false read error when reading internal
-PCS registers through MDIO. As a workaround, all internal
-MDIO accesses should ignore the MDIO_CFG[MDIO_RD_ER] bit.
+We observed a large(order-3) allocation in evdev_open() and it may
+cause an OOM kernel panic in kzalloc(), before we getting to the
+vzalloc() fallback.
 
-Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix it by converting kzalloc()/vzalloc() to kvzalloc() to avoid the
+OOM killer logic as we have a vmalloc fallback.
+
+InputReader invoked oom-killer: gfp_mask=0x240c2c0
+(GFP_KERNEL|__GFP_NOWARN|__GFP_COMP|__GFP_ZERO), nodemask=0, order=3,
+oom_score_adj=-900
+...
+(dump_backtrace) from (show_stack+0x18/0x1c)
+(show_stack) from (dump_stack+0x94/0xa8)
+(dump_stack) from (dump_header+0x7c/0xe4)
+(dump_header) from (out_of_memory+0x334/0x348)
+(out_of_memory) from (__alloc_pages_nodemask+0xe9c/0xeb8)
+(__alloc_pages_nodemask) from (kmalloc_order_trace+0x34/0x128)
+(kmalloc_order_trace) from (__kmalloc+0x258/0x36c)
+(__kmalloc) from (evdev_open+0x5c/0x17c)
+(evdev_open) from (chrdev_open+0x100/0x204)
+(chrdev_open) from (do_dentry_open+0x21c/0x354)
+(do_dentry_open) from (vfs_open+0x58/0x84)
+(vfs_open) from (path_openat+0x640/0xc98)
+(path_openat) from (do_filp_open+0x78/0x11c)
+(do_filp_open) from (do_sys_open+0x130/0x244)
+(do_sys_open) from (SyS_openat+0x14/0x18)
+(SyS_openat) from (__sys_trace_return+0x0/0x10)
+...
+Normal: 12488*4kB (UMEH) 6984*8kB (UMEH) 2101*16kB (UMEH) 0*32kB
+0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 139440kB
+HighMem: 206*4kB (H) 131*8kB (H) 42*16kB (H) 2*32kB (H) 0*64kB
+0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 2608kB
+...
+Kernel panic - not syncing: Out of memory and no killable processes...
+
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/xgmac_mdio.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/evdev.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/xgmac_mdio.c b/drivers/net/ethernet/freescale/xgmac_mdio.c
-index e03b30c60dcfd..c82c85ef5fb34 100644
---- a/drivers/net/ethernet/freescale/xgmac_mdio.c
-+++ b/drivers/net/ethernet/freescale/xgmac_mdio.c
-@@ -49,6 +49,7 @@ struct tgec_mdio_controller {
- struct mdio_fsl_priv {
- 	struct	tgec_mdio_controller __iomem *mdio_base;
- 	bool	is_little_endian;
-+	bool	has_a011043;
- };
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index f918fca9ada32..cb6e3a5f509c8 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -484,10 +484,7 @@ static int evdev_open(struct inode *inode, struct file *file)
+ 	struct evdev_client *client;
+ 	int error;
  
- static u32 xgmac_read32(void __iomem *regs,
-@@ -226,7 +227,8 @@ static int xgmac_mdio_read(struct mii_bus *bus, int phy_id, int regnum)
- 		return ret;
+-	client = kzalloc(struct_size(client, buffer, bufsize),
+-			 GFP_KERNEL | __GFP_NOWARN);
+-	if (!client)
+-		client = vzalloc(struct_size(client, buffer, bufsize));
++	client = kvzalloc(struct_size(client, buffer, bufsize), GFP_KERNEL);
+ 	if (!client)
+ 		return -ENOMEM;
  
- 	/* Return all Fs if nothing was there */
--	if (xgmac_read32(&regs->mdio_stat, endian) & MDIO_STAT_RD_ER) {
-+	if ((xgmac_read32(&regs->mdio_stat, endian) & MDIO_STAT_RD_ER) &&
-+	    !priv->has_a011043) {
- 		dev_err(&bus->dev,
- 			"Error while reading PHY%d reg at %d.%hhu\n",
- 			phy_id, dev_addr, regnum);
-@@ -274,6 +276,9 @@ static int xgmac_mdio_probe(struct platform_device *pdev)
- 	priv->is_little_endian = of_property_read_bool(pdev->dev.of_node,
- 						       "little-endian");
- 
-+	priv->has_a011043 = of_property_read_bool(pdev->dev.of_node,
-+						  "fsl,erratum-a011043");
-+
- 	ret = of_mdiobus_register(bus, np);
- 	if (ret) {
- 		dev_err(&pdev->dev, "cannot register MDIO bus\n");
 -- 
 2.20.1
 
