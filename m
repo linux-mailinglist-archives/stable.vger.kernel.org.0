@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC37150DEB
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:48:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A113150D14
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729004AbgBCQ0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:26:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
+        id S1729906AbgBCQl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:41:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728930AbgBCQ0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:09 -0500
+        id S1730885AbgBCQe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:34:59 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1D702051A;
-        Mon,  3 Feb 2020 16:26:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3059F21744;
+        Mon,  3 Feb 2020 16:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747169;
-        bh=+9v1YmqM5cGr9f0t/YOS9oSKpM+ddnVM0YUWm6ru+bU=;
+        s=default; t=1580747698;
+        bh=5Shb8Tk5ld6AXNX7FO+L8lYGIpZSgw9dqSshcT78Bqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o78BjAo42nP3+/ktwI8pcRKmdzvNR1Whl3ueJ2Pw2bKgh3Z6MXtGgQ+nuaf1yVHcW
-         LoODHgJMTKzkdAfI2d7IaFtiuTHcAcodLdQScBC+rO/pQ61VN3pJKfzYiD8smmVoLy
-         lnDWWyeNcOb9dOVvkC/bILym7TXJufHTzfg+/0tQ=
+        b=bMTUB4L4QbcJk3CRiSnlV9ovor0YvrRm2LZfuseW+JUWW73fk0NEvzuw5mxAKfAV9
+         lqvxeIoHHBlmG5Gi+oPr7IZbj96x324A7uL2Kp9weqYKu5R+uKCJxwNENVwqoW4C/U
+         a4TT8I9+l5aGioZrn0gFLN6fHT8GIyHkmLyLsME8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hedberg <johan.hedberg@intel.com>
-Subject: [PATCH 4.9 39/68] Bluetooth: Fix race condition in hci_release_sock()
-Date:   Mon,  3 Feb 2020 16:19:35 +0000
-Message-Id: <20200203161911.396469570@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 33/90] clk: sunxi-ng: h6-r: Fix AR100/R_APB2 parent order
+Date:   Mon,  3 Feb 2020 16:19:36 +0000
+Message-Id: <20200203161922.055743609@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 11eb85ec42dc8c7a7ec519b90ccf2eeae9409de8 upstream.
+[ Upstream commit 0c545240aebc2ccb8f661dc54283a14d64659804 ]
 
-Syzbot managed to trigger a use after free "KASAN: use-after-free Write
-in hci_sock_bind".  I have reviewed the code manually and one possibly
-cause I have found is that we are not holding lock_sock(sk) when we do
-the hci_dev_put(hdev) in hci_sock_release().  My theory is that the bind
-and the release are racing against each other which results in this use
-after free.
+According to the BSP source code, both the AR100 and R_APB2 clocks have
+PLL_PERIPH0 as mux index 3, not 2 as it was on previous chips. The pre-
+divider used for PLL_PERIPH0 should be changed to index 3 to match.
 
-Reported-by: syzbot+eba992608adf3d796bcc@syzkaller.appspotmail.com
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was verified by running a rough benchmark on the AR100 with various
+clock settings:
 
+        | mux | pre-divider | iterations/second | clock source |
+        |=====|=============|===================|==============|
+        |   0 |           0 |  19033   (stable) |       osc24M |
+        |   2 |           5 |  11466 (unstable) |  iosc/osc16M |
+        |   2 |          17 |  11422 (unstable) |  iosc/osc16M |
+        |   3 |           5 |  85338   (stable) |  pll-periph0 |
+        |   3 |          17 |  27167   (stable) |  pll-periph0 |
+
+The relative performance numbers all match up (with pll-periph0 running
+at its default 600MHz).
+
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sock.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -826,6 +826,8 @@ static int hci_sock_release(struct socke
- 	if (!sk)
- 		return 0;
+diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c b/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c
+index 45a1ed3fe6742..ab194143e06ce 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c
++++ b/drivers/clk/sunxi-ng/ccu-sun50i-h6-r.c
+@@ -23,9 +23,9 @@
+  */
  
-+	lock_sock(sk);
-+
- 	switch (hci_pi(sk)->channel) {
- 	case HCI_CHANNEL_MONITOR:
- 		atomic_dec(&monitor_promisc);
-@@ -873,6 +875,7 @@ static int hci_sock_release(struct socke
- 	skb_queue_purge(&sk->sk_receive_queue);
- 	skb_queue_purge(&sk->sk_write_queue);
+ static const char * const ar100_r_apb2_parents[] = { "osc24M", "osc32k",
+-					     "pll-periph0", "iosc" };
++						     "iosc", "pll-periph0" };
+ static const struct ccu_mux_var_prediv ar100_r_apb2_predivs[] = {
+-	{ .index = 2, .shift = 0, .width = 5 },
++	{ .index = 3, .shift = 0, .width = 5 },
+ };
  
-+	release_sock(sk);
- 	sock_put(sk);
- 	return 0;
- }
+ static struct ccu_div ar100_clk = {
+-- 
+2.20.1
+
 
 
