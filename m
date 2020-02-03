@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7652150DF7
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:48:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8BF150C4F
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728590AbgBCQsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:48:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37192 "EHLO mail.kernel.org"
+        id S1730926AbgBCQfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:35:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbgBCQ0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:14 -0500
+        id S1730909AbgBCQfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:35:06 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9291B2051A;
-        Mon,  3 Feb 2020 16:26:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C80821582;
+        Mon,  3 Feb 2020 16:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747174;
-        bh=8jjE9uv8uvJk6VowYOBj062JvcWcLL7+3in/HzO46K0=;
+        s=default; t=1580747705;
+        bh=wvibL/N1DiVGTjKauXYmvr6WaMH6WexNX705Ykpmzik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsdHbGRMej31yK1uO7k4P7ge1CHzwttJopKh2pVW41h1bxtM7/F58DxXyebhxqmNk
-         +dzXLuJWPIPQXuAcr6IecrPsM0L2THf1c5eedSlwVzFz9vjoiBFyBX2rJt17eMjNUq
-         coMGui8SQ2RUi4brQABAytczSgGWqNVRnEbDXZ2Y=
+        b=pwnGk4DcgnWeDgUQE2YO7fjNe3PoklDs26iTJysBZOCxD8uVvSca3SXT0TVWzkv9l
+         /lBvUnFp59i5u4Pb8MGN/bxRnGrUv/ln7uKm7vOmieZxPXdUxODye+hKEQDzdWdDWH
+         mQYUBkq9vaWPdUWvlsG4f58WNyx+CNYX5rapDfKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kbuild test robot <lkp@intel.com>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 41/68] media: si470x-i2c: Move free() past last use of radio
-Date:   Mon,  3 Feb 2020 16:19:37 +0000
-Message-Id: <20200203161911.742850167@linuxfoundation.org>
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Olof Johansson <olof@lixom.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 35/90] clk: mmp2: Fix the order of timer mux parents
+Date:   Mon,  3 Feb 2020 16:19:38 +0000
+Message-Id: <20200203161922.317929140@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Lubomir Rintel <lkundrak@v3.sk>
 
-A pointer to 'struct si470x_device' is currently used after free:
+[ Upstream commit 8bea5ac0fbc5b2103f8779ddff216122e3c2e1ad ]
 
-  drivers/media/radio/si470x/radio-si470x-i2c.c:462:25-30: ERROR: reference
-    preceded by free on line 460
+Determined empirically, no documentation is available.
 
-Shift the call to free() down past its final use.
+The OLPC XO-1.75 laptop used parent 1, that one being VCTCXO/4 (65MHz), but
+thought it's a VCTCXO/2 (130MHz). The mmp2 timer driver, not knowing
+what is going on, ended up just dividing the rate as of
+commit f36797ee4380 ("ARM: mmp/mmp2: dt: enable the clock")'
 
-NB: Not sending to Mainline, since the problem does not exist there, it was
-caused by the backport of 2df200ab234a ("media: si470x-i2c: add missed
-operations in remove") to the stable trees.
-
-Cc: <stable@vger.kernel.org> # v3.18+
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20191218190454.420358-3-lkundrak@v3.sk
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c |    2 +-
+ drivers/clk/mmp/clk-of-mmp2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -458,10 +458,10 @@ static int si470x_i2c_remove(struct i2c_
+diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.c
+index a60a1be937ad6..b4a95cbbda989 100644
+--- a/drivers/clk/mmp/clk-of-mmp2.c
++++ b/drivers/clk/mmp/clk-of-mmp2.c
+@@ -134,7 +134,7 @@ static DEFINE_SPINLOCK(ssp3_lock);
+ static const char *ssp_parent_names[] = {"vctcxo_4", "vctcxo_2", "vctcxo", "pll1_16"};
  
- 	free_irq(client->irq, radio);
- 	video_unregister_device(&radio->videodev);
--	kfree(radio);
+ static DEFINE_SPINLOCK(timer_lock);
+-static const char *timer_parent_names[] = {"clk32", "vctcxo_2", "vctcxo_4", "vctcxo"};
++static const char *timer_parent_names[] = {"clk32", "vctcxo_4", "vctcxo_2", "vctcxo"};
  
- 	v4l2_ctrl_handler_free(&radio->hdl);
- 	v4l2_device_unregister(&radio->v4l2_dev);
-+	kfree(radio);
- 	return 0;
- }
+ static DEFINE_SPINLOCK(reset_lock);
  
+-- 
+2.20.1
+
 
 
