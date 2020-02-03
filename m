@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 004D4150B1F
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A9C150B76
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727720AbgBCQYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:24:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35400 "EHLO mail.kernel.org"
+        id S1728988AbgBCQ1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:27:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727236AbgBCQYx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:24:53 -0500
+        id S1728793AbgBCQ1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:27:46 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7077C2080C;
-        Mon,  3 Feb 2020 16:24:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00E542051A;
+        Mon,  3 Feb 2020 16:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747092;
-        bh=+Bnp/PEjYgWugTCK5CbHdsK5GEnec/R5q6lbcnrZi3g=;
+        s=default; t=1580747265;
+        bh=p2WfEJ8ZKgV4J+cESH1NT9VjmZZwXfOgTWMsFY15Pwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6lKbpqbyGEJ+Oy4R9QLxlqNJZ+XfEZag3VbGXPaedOW+kXn2g0FFksfeR6Kus7GC
-         2SO0nHq5iu1NVoKVJ29I44HdXzC0kIm/5JUZf97AX8EQwbqsR2JcYuuzkY+DyiT9/q
-         VVVBHyhVRzT8SneMF5t8oAYMFBLqqPlDGH8fWMdQ=
+        b=RBiTzcQsDuJ54+H8R98Ykx5qmF5DDzdGw4ET6xhL1SlIdV1DwahA6hzgjxLIX+Czw
+         6l1z3lBNQmSWfIPAXrq24RyTREERrZ4JTWpHqzHh/wRH5ZvASDRhEeXa7BZGP//LN/
+         5kOfquXBFRJcJ30uyhxGKBC0XNzeLaeD2HvlAlK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Andreas Schneider <asn@cryptomilk.org>
-Subject: [PATCH 4.9 01/68] ALSA: pcm: Add missing copy ops check before clearing buffer
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH 4.14 12/89] serial: 8250_bcm2835aux: Fix line mismatch on driver unbind
 Date:   Mon,  3 Feb 2020 16:18:57 +0000
-Message-Id: <20200203161904.914178529@linuxfoundation.org>
+Message-Id: <20200203161918.499498763@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ this is a fix specific to 4.4.y and 4.9.y stable trees;
-  4.14.y and older already contain the right fix ]
+commit dc76697d7e933d5e299116f219c890568785ea15 upstream.
 
-The stable 4.4.y and 4.9.y backports of the upstream commit
-add9d56d7b37 ("ALSA: pcm: Avoid possible info leaks from PCM stream
-buffers") dropped the check of substream->ops->copy_user as copy_user
-is a new member that isn't present in the older kernels.
-Although upstream drivers should work without this NULL check, it may
-cause a regression with a downstream driver that sets some
-inaccessible address to runtime->dma_area, leading to a crash at
-worst.
+Unbinding the bcm2835aux UART driver raises the following error if the
+maximum number of 8250 UARTs is set to 1 (via the 8250.nr_uarts module
+parameter or CONFIG_SERIAL_8250_RUNTIME_UARTS):
 
-Since such drivers must have ops->copy member on older kernels instead
-of ops->copy_user, this patch adds the missing check of ops->copy for
-fixing the regression.
+(NULL device *): Removing wrong port: a6f80333 != fa20408b
 
-Reported-and-tested-by: Andreas Schneider <asn@cryptomilk.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+That's because bcm2835aux_serial_probe() retrieves UART line number 1
+from the devicetree and stores it in data->uart.port.line, while
+serial8250_register_8250_port() instead uses UART line number 0,
+which is stored in data->line.
+
+On driver unbind, bcm2835aux_serial_remove() uses data->uart.port.line,
+which contains the wrong number.  Fix it.
+
+The issue does not occur if the maximum number of 8250 UARTs is >= 2.
+
+Fixes: bdc5f3009580 ("serial: bcm2835: add driver for bcm2835-aux-uart")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.6+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/912ccf553c5258135c6d7e8f404a101ef320f0f4.1579175223.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/pcm_native.c |    2 +-
+ drivers/tty/serial/8250/8250_bcm2835aux.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -588,7 +588,7 @@ static int snd_pcm_hw_params(struct snd_
- 		runtime->boundary *= 2;
+--- a/drivers/tty/serial/8250/8250_bcm2835aux.c
++++ b/drivers/tty/serial/8250/8250_bcm2835aux.c
+@@ -119,7 +119,7 @@ static int bcm2835aux_serial_remove(stru
+ {
+ 	struct bcm2835aux_data *data = platform_get_drvdata(pdev);
  
- 	/* clear the buffer for avoiding possible kernel info leaks */
--	if (runtime->dma_area)
-+	if (runtime->dma_area && !substream->ops->copy)
- 		memset(runtime->dma_area, 0, runtime->dma_bytes);
+-	serial8250_unregister_port(data->uart.port.line);
++	serial8250_unregister_port(data->line);
+ 	clk_disable_unprepare(data->clk);
  
- 	snd_pcm_timer_resolution_change(substream);
+ 	return 0;
 
 
