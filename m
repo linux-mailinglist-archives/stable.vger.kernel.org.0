@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71453150E1D
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:50:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E87C1150BBE
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728157AbgBCQtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:49:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35754 "EHLO mail.kernel.org"
+        id S1729921AbgBCQaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:30:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728074AbgBCQZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:25:07 -0500
+        id S1729919AbgBCQaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:30:07 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF9982087E;
-        Mon,  3 Feb 2020 16:25:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27FB82051A;
+        Mon,  3 Feb 2020 16:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747107;
-        bh=0g42LAuj0tkgZiv0m+pSxZl1NoIyGCndGzp3CHEoVCQ=;
+        s=default; t=1580747406;
+        bh=kn99cz0GjAnKndxodtkxjSTxtT0/UlgUMolk8tUwlSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQWGeA5UBnWrqdPRXDc2GRmBcQQbi08WgiDnl16dNTBKJb7fzDG/CEB5yyvPL5hH9
-         OOa6/WGVeCxAFgw85szYf4k+GJBmaJ3Yd2SLiX+eAF2sH75l4psMcSCntCzfKlKoOB
-         iu7sZdjXbgFSTVeacZBJhzqEwBsAFaB5dXaZHqkU=
+        b=ISmNg/63LILatZonSREiRsS4VTt1WbL0EemEVZz3o6Wo2m1VFggaLymPcbV7Y09lT
+         eKCZ5tXo96YqPEq0BTtTiZeFyJNUd23KQjKAb3nvnyGnfvdBRGsWVKxgplVaMnKypE
+         I6YTdWEGi3J4dP85a1ISTOvID6bLH5cvNzp6812U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jes Sorensen <Jes.Sorensen@redhat.com>,
-        Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 15/68] rtl8xxxu: fix interface sanity check
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/89] gpio: max77620: Add missing dependency on GPIOLIB_IRQCHIP
 Date:   Mon,  3 Feb 2020 16:19:11 +0000
-Message-Id: <20200203161907.505766838@linuxfoundation.org>
+Message-Id: <20200203161920.369849753@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 39a4281c312f2d226c710bc656ce380c621a2b16 upstream.
+[ Upstream commit c5706c7defc79de68a115b5536376298a8fef111 ]
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+Driver fails to compile in a minimized kernel's configuration because of
+the missing dependency on GPIOLIB_IRQCHIP.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+ error: ‘struct gpio_chip’ has no member named ‘irq’
+   44 |   virq = irq_find_mapping(gpio->gpio_chip.irq.domain, offset);
 
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Cc: stable <stable@vger.kernel.org>     # 4.4
-Cc: Jes Sorensen <Jes.Sorensen@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20200106015154.12040-1-digetx@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5890,7 +5890,7 @@ static int rtl8xxxu_parse_usb(struct rtl
- 	u8 dir, xtype, num;
- 	int ret = 0;
- 
--	host_interface = &interface->altsetting[0];
-+	host_interface = interface->cur_altsetting;
- 	interface_desc = &host_interface->desc;
- 	endpoints = interface_desc->bNumEndpoints;
- 
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 2357d2f73c1ad..8d2ab77c6581d 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -990,6 +990,7 @@ config GPIO_LP87565
+ config GPIO_MAX77620
+ 	tristate "GPIO support for PMIC MAX77620 and MAX20024"
+ 	depends on MFD_MAX77620
++	select GPIOLIB_IRQCHIP
+ 	help
+ 	  GPIO driver for MAX77620 and MAX20024 PMIC from Maxim Semiconductor.
+ 	  MAX77620 PMIC has 8 pins that can be configured as GPIOs. The
+-- 
+2.20.1
+
 
 
