@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B361150AEE
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7AF150AE2
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:22:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727201AbgBCQWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:22:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33872 "EHLO mail.kernel.org"
+        id S1729203AbgBCQVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:21:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727388AbgBCQVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:21:47 -0500
+        id S1729199AbgBCQVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:21:50 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98D892082E;
-        Mon,  3 Feb 2020 16:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F05032087E;
+        Mon,  3 Feb 2020 16:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580746907;
-        bh=eCcBupJWyPIVCMW2tbb8Yp7ac840vUx0w9tzJELFKkQ=;
+        s=default; t=1580746909;
+        bh=C8C94JcxU1kfdUzgZcR5GWniSKPbME7wQTcbrrI6DyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qVxlqmw2GMx7VHLV2j9LcEaR+rjOpAjBL4haXNvhzTo3Fl26WiMI1ilK40q4+19h
-         YJPB1NaJ+V5MmQXiOXt2OjkLBbGJpFhM9n3mrp2IbNK4seGVFmD9rrV6dJ/y1zCxTT
-         lQOxwK8KkfExRcyQaZuxjKBymQQaAJg5u+sEg+2w=
+        b=Mqr8mA6sdKxHwJMXna+10XtdjIg0if0FLJa72zzG9zz0zAaunydZ0jaZhWJqxu4fN
+         /RdxeJ7WA/nE0IBgE8wlBc4ZCmuhL/yJU4nc52TZZ+p4RqBLMzSoaTeknqME9okbyo
+         rCextN13ORuzbz+yYSpJJ7VSylwN92xSU9SZdMx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 40/53] scsi: fnic: do not queue commands during fwreset
-Date:   Mon,  3 Feb 2020 16:19:32 +0000
-Message-Id: <20200203161910.048364164@linuxfoundation.org>
+Subject: [PATCH 4.4 41/53] ARM: 8955/1: virt: Relax arch timer version check during early boot
+Date:   Mon,  3 Feb 2020 16:19:33 +0000
+Message-Id: <20200203161910.201170377@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
 References: <20200203161902.714326084@linuxfoundation.org>
@@ -44,46 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-[ Upstream commit 0e2209629fec427ba75a6351486153a9feddd36b ]
+[ Upstream commit 6849b5eba1965ceb0cad3a75877ef4569dd3638e ]
 
-When a link is going down the driver will be calling fnic_cleanup_io(),
-which will traverse all commands and calling 'done' for each found command.
-While the traversal is handled under the host_lock, calling 'done' happens
-after the host_lock is being dropped.
+Updates to the Generic Timer architecture allow ID_PFR1.GenTimer to
+have values other than 0 or 1 while still preserving backward
+compatibility. At the moment, Linux is quite strict in the way it
+handles this field at early boot and will not configure arch timer if
+it doesn't find the value 1.
 
-As fnic_queuecommand_lck() is being called with the host_lock held, it
-might well be that it will pick the command being selected for abortion
-from the above routine and enqueue it for sending, but then 'done' is being
-called on that very command from the above routine.
+Since here use ubfx for arch timer version extraction (hyb-stub build
+with -march=armv7-a, so it is safe)
 
-Which of course confuses the hell out of the scsi midlayer.
+To help backports (even though the code was correct at the time of writing)
 
-So fix this by not queueing commands when fnic_cleanup_io is active.
-
-Link: https://lore.kernel.org/r/20200116102053.62755-1-hare@suse.de
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 8ec58be9f3ff ("ARM: virt: arch_timers: enable access to physical timers")
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fnic/fnic_scsi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/kernel/hyp-stub.S | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
-index 82e4bc8c11c57..fc6706b12ac76 100644
---- a/drivers/scsi/fnic/fnic_scsi.c
-+++ b/drivers/scsi/fnic/fnic_scsi.c
-@@ -446,6 +446,9 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
- 	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_IO_BLOCKED)))
- 		return SCSI_MLQUEUE_HOST_BUSY;
- 
-+	if (unlikely(fnic_chk_state_flags_locked(fnic, FNIC_FLAGS_FWRESET)))
-+		return SCSI_MLQUEUE_HOST_BUSY;
-+
- 	rport = starget_to_rport(scsi_target(sc->device));
- 	ret = fc_remote_port_chkready(rport);
- 	if (ret) {
+diff --git a/arch/arm/kernel/hyp-stub.S b/arch/arm/kernel/hyp-stub.S
+index 2a55373f49bfb..f9948363111d1 100644
+--- a/arch/arm/kernel/hyp-stub.S
++++ b/arch/arm/kernel/hyp-stub.S
+@@ -144,10 +144,9 @@ ARM_BE8(orr	r7, r7, #(1 << 25))     @ HSCTLR.EE
+ #if !defined(ZIMAGE) && defined(CONFIG_ARM_ARCH_TIMER)
+ 	@ make CNTP_* and CNTPCT accessible from PL1
+ 	mrc	p15, 0, r7, c0, c1, 1	@ ID_PFR1
+-	lsr	r7, #16
+-	and	r7, #0xf
+-	cmp	r7, #1
+-	bne	1f
++	ubfx	r7, r7, #16, #4
++	teq	r7, #0
++	beq	1f
+ 	mrc	p15, 4, r7, c14, c1, 0	@ CNTHCTL
+ 	orr	r7, r7, #3		@ PL1PCEN | PL1PCTEN
+ 	mcr	p15, 4, r7, c14, c1, 0	@ CNTHCTL
 -- 
 2.20.1
 
