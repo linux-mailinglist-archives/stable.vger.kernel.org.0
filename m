@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86583150DE4
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36984150D5B
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729293AbgBCQ0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:26:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38004 "EHLO mail.kernel.org"
+        id S1729132AbgBCQnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:43:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727802AbgBCQ0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:26:54 -0500
+        id S1730129AbgBCQcj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:32:39 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 714892080C;
-        Mon,  3 Feb 2020 16:26:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 700942051A;
+        Mon,  3 Feb 2020 16:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747212;
-        bh=aF/BTm/ry3ZPezd9ZAZKJhW2hopoqOnb4lMGR5HlmH0=;
+        s=default; t=1580747558;
+        bh=wxmR6bK+1cTs6I/4bhCczSGmGHbhgq301hFma19OM/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iP/qLttja1K600N00QLH17b362msEKxE8/GBLCf8UFfxlGuHjZkn5rP0Hzno962dX
-         WdXaevhplYRSS4R/vEwRuKx/nQn81BFUJsStGtDJ/0SWiYtqcG8R0h1sf6gibHqQ6D
-         Fz+F6M9NNQrTnL+e4WNpdsmEiy+Qx6fxoJOIL55U=
+        b=tNNxzYEOaq2YRCN4nu46040rh1v7yCGJi7rWc4PZ54tCNiLwJ5thLe7XJoPDDm/wO
+         zsfi3EvIhBERUXZSntF9WX+rfVAdsKLhYMHmm9yjH3ahEKdaAH55hkDitBT+cIMNSw
+         fZIrcOjmgsUn5wCpEI6U/vHpVgt6k/Aybqq9mDNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Orr Mazor <Orr.Mazor@tandemg.com>,
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 59/68] powerpc/fsl/dts: add fsl,erratum-a011043
+Subject: [PATCH 4.19 43/70] cfg80211: Fix radar event during another phy CAC
 Date:   Mon,  3 Feb 2020 16:19:55 +0000
-Message-Id: <20200203161914.621513263@linuxfoundation.org>
+Message-Id: <20200203161918.611962441@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-References: <20200203161904.705434837@linuxfoundation.org>
+In-Reply-To: <20200203161912.158976871@linuxfoundation.org>
+References: <20200203161912.158976871@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,255 +45,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@oss.nxp.com>
+From: Orr Mazor <orr.mazor@tandemg.com>
 
-[ Upstream commit 73d527aef68f7644e59f22ce7f9ac75e7b533aea ]
+[ Upstream commit 26ec17a1dc5ecdd8d91aba63ead6f8b5ad5dea0d ]
 
-Add fsl,erratum-a011043 to internal MDIO buses.
-Software may get false read error when reading internal
-PCS registers through MDIO. As a workaround, all internal
-MDIO accesses should ignore the MDIO_CFG[MDIO_RD_ER] bit.
+In case a radar event of CAC_FINISHED or RADAR_DETECTED
+happens during another phy is during CAC we might need
+to cancel that CAC.
 
-Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+If we got a radar in a channel that another phy is now
+doing CAC on then the CAC should be canceled there.
+
+If, for example, 2 phys doing CAC on the same channels,
+or on comptable channels, once on of them will finish his
+CAC the other might need to cancel his CAC, since it is no
+longer relevant.
+
+To fix that the commit adds an callback and implement it in
+mac80211 to end CAC.
+This commit also adds a call to said callback if after a radar
+event we see the CAC is no longer relevant
+
+Signed-off-by: Orr Mazor <Orr.Mazor@tandemg.com>
+Reviewed-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Link: https://lore.kernel.org/r/20191222145449.15792-1-Orr.Mazor@tandemg.com
+[slightly reformat/reword commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0-best-effort.dtsi | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0.dtsi             | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1-best-effort.dtsi | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1.dtsi             | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-0.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-1.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-2.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-3.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-4.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-5.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-0.dtsi             | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-1.dtsi             | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-0.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-1.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-2.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-3.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-4.dtsi              | 1 +
- arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-5.dtsi              | 1 +
- 18 files changed, 18 insertions(+)
+ include/net/cfg80211.h  |  5 +++++
+ net/mac80211/cfg.c      | 23 +++++++++++++++++++++++
+ net/wireless/rdev-ops.h | 10 ++++++++++
+ net/wireless/reg.c      | 23 ++++++++++++++++++++++-
+ net/wireless/trace.h    |  5 +++++
+ 5 files changed, 65 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0-best-effort.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0-best-effort.dtsi
-index e1a961f05dcd5..baa0c503e741b 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0-best-effort.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0-best-effort.dtsi
-@@ -63,6 +63,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
+diff --git a/include/net/cfg80211.h b/include/net/cfg80211.h
+index 1fa2e72ff7a6a..ae936cd5567e0 100644
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -3050,6 +3050,9 @@ struct cfg80211_external_auth_params {
+  *
+  * @start_radar_detection: Start radar detection in the driver.
+  *
++ * @end_cac: End running CAC, probably because a related CAC
++ *	was finished on another phy.
++ *
+  * @update_ft_ies: Provide updated Fast BSS Transition information to the
+  *	driver. If the SME is in the driver/firmware, this information can be
+  *	used in building Authentication and Reassociation Request frames.
+@@ -3364,6 +3367,8 @@ struct cfg80211_ops {
+ 					 struct net_device *dev,
+ 					 struct cfg80211_chan_def *chandef,
+ 					 u32 cac_time_ms);
++	void	(*end_cac)(struct wiphy *wiphy,
++				struct net_device *dev);
+ 	int	(*update_ft_ies)(struct wiphy *wiphy, struct net_device *dev,
+ 				 struct cfg80211_update_ft_ies_params *ftie);
+ 	int	(*crit_proto_start)(struct wiphy *wiphy,
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index e46944500cfa1..cb7076d9a7698 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -2825,6 +2825,28 @@ static int ieee80211_start_radar_detection(struct wiphy *wiphy,
+ 	return err;
+ }
  
- 		pcsphy0: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0.dtsi
-index c288f3c6c6378..93095600e8086 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-0.dtsi
-@@ -60,6 +60,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xf1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
++static void ieee80211_end_cac(struct wiphy *wiphy,
++			      struct net_device *dev)
++{
++	struct ieee80211_sub_if_data *sdata = IEEE80211_DEV_TO_SUB_IF(dev);
++	struct ieee80211_local *local = sdata->local;
++
++	mutex_lock(&local->mtx);
++	list_for_each_entry(sdata, &local->interfaces, list) {
++		/* it might be waiting for the local->mtx, but then
++		 * by the time it gets it, sdata->wdev.cac_started
++		 * will no longer be true
++		 */
++		cancel_delayed_work(&sdata->dfs_cac_timer_work);
++
++		if (sdata->wdev.cac_started) {
++			ieee80211_vif_release_channel(sdata);
++			sdata->wdev.cac_started = false;
++		}
++	}
++	mutex_unlock(&local->mtx);
++}
++
+ static struct cfg80211_beacon_data *
+ cfg80211_beacon_dup(struct cfg80211_beacon_data *beacon)
+ {
+@@ -3848,6 +3870,7 @@ const struct cfg80211_ops mac80211_config_ops = {
+ #endif
+ 	.get_channel = ieee80211_cfg_get_channel,
+ 	.start_radar_detection = ieee80211_start_radar_detection,
++	.end_cac = ieee80211_end_cac,
+ 	.channel_switch = ieee80211_channel_switch,
+ 	.set_qos_map = ieee80211_set_qos_map,
+ 	.set_ap_chanwidth = ieee80211_set_ap_chanwidth,
+diff --git a/net/wireless/rdev-ops.h b/net/wireless/rdev-ops.h
+index 4cff76f33d45f..a8c58aeb9dde9 100644
+--- a/net/wireless/rdev-ops.h
++++ b/net/wireless/rdev-ops.h
+@@ -1170,6 +1170,16 @@ rdev_start_radar_detection(struct cfg80211_registered_device *rdev,
+ 	return ret;
+ }
  
- 		pcsphy6: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1-best-effort.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1-best-effort.dtsi
-index 94f3e71750124..ff4bd38f06459 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1-best-effort.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1-best-effort.dtsi
-@@ -63,6 +63,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
++static inline void
++rdev_end_cac(struct cfg80211_registered_device *rdev,
++	     struct net_device *dev)
++{
++	trace_rdev_end_cac(&rdev->wiphy, dev);
++	if (rdev->ops->end_cac)
++		rdev->ops->end_cac(&rdev->wiphy, dev);
++	trace_rdev_return_void(&rdev->wiphy);
++}
++
+ static inline int
+ rdev_set_mcast_rate(struct cfg80211_registered_device *rdev,
+ 		    struct net_device *dev,
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 4c3c8a1c116da..018c60be153a7 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -3840,6 +3840,25 @@ bool regulatory_pre_cac_allowed(struct wiphy *wiphy)
+ 	return pre_cac_allowed;
+ }
  
- 		pcsphy1: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1.dtsi
-index 94a76982d214b..1fa38ed6f59e2 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-1.dtsi
-@@ -60,6 +60,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xf3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
++static void cfg80211_check_and_end_cac(struct cfg80211_registered_device *rdev)
++{
++	struct wireless_dev *wdev;
++	/* If we finished CAC or received radar, we should end any
++	 * CAC running on the same channels.
++	 * the check !cfg80211_chandef_dfs_usable contain 2 options:
++	 * either all channels are available - those the CAC_FINISHED
++	 * event has effected another wdev state, or there is a channel
++	 * in unavailable state in wdev chandef - those the RADAR_DETECTED
++	 * event has effected another wdev state.
++	 * In both cases we should end the CAC on the wdev.
++	 */
++	list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
++		if (wdev->cac_started &&
++		    !cfg80211_chandef_dfs_usable(&rdev->wiphy, &wdev->chandef))
++			rdev_end_cac(rdev, wdev->netdev);
++	}
++}
++
+ void regulatory_propagate_dfs_state(struct wiphy *wiphy,
+ 				    struct cfg80211_chan_def *chandef,
+ 				    enum nl80211_dfs_state dfs_state,
+@@ -3866,8 +3885,10 @@ void regulatory_propagate_dfs_state(struct wiphy *wiphy,
+ 		cfg80211_set_dfs_state(&rdev->wiphy, chandef, dfs_state);
  
- 		pcsphy7: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-0.dtsi
-index b5ff5f71c6b8b..a8cc9780c0c42 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-0.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-0.dtsi
-@@ -59,6 +59,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
+ 		if (event == NL80211_RADAR_DETECTED ||
+-		    event == NL80211_RADAR_CAC_FINISHED)
++		    event == NL80211_RADAR_CAC_FINISHED) {
+ 			cfg80211_sched_dfs_chan_update(rdev);
++			cfg80211_check_and_end_cac(rdev);
++		}
  
- 		pcsphy0: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-1.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-1.dtsi
-index ee44182c63485..8b8bd70c93823 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-1.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-1.dtsi
-@@ -59,6 +59,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
+ 		nl80211_radar_notify(rdev, chandef, event, NULL, GFP_KERNEL);
+ 	}
+diff --git a/net/wireless/trace.h b/net/wireless/trace.h
+index 7c73510b161f3..54b0bb344cf93 100644
+--- a/net/wireless/trace.h
++++ b/net/wireless/trace.h
+@@ -607,6 +607,11 @@ DEFINE_EVENT(wiphy_netdev_evt, rdev_flush_pmksa,
+ 	TP_ARGS(wiphy, netdev)
+ );
  
- 		pcsphy1: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-2.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-2.dtsi
-index f05f0d775039b..619c880b54d8d 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-2.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-2.dtsi
-@@ -59,6 +59,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe5000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy2: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-3.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-3.dtsi
-index a9114ec510759..d7ebb73a400d0 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-3.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-3.dtsi
-@@ -59,6 +59,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe7000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy3: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-4.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-4.dtsi
-index 44dd00ac7367f..b151d696a0699 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-4.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-4.dtsi
-@@ -59,6 +59,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe9000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy4: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-5.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-5.dtsi
-index 5b1b84b58602f..adc0ae0013a3c 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-5.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-1g-5.dtsi
-@@ -59,6 +59,7 @@ fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xeb000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy5: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-0.dtsi
-index 0e1daaef9e74b..435047e0e250e 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-0.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-0.dtsi
-@@ -60,6 +60,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xf1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy14: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-1.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-1.dtsi
-index 68c5ef779266a..c098657cca0a7 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-1.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-10g-1.dtsi
-@@ -60,6 +60,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xf3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy15: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-0.dtsi
-index 605363cc1117f..9d06824815f34 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-0.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-0.dtsi
-@@ -59,6 +59,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy8: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-1.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-1.dtsi
-index 1955dfa136348..70e947730c4ba 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-1.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-1.dtsi
-@@ -59,6 +59,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy9: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-2.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-2.dtsi
-index 2c1476454ee01..ad96e65295959 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-2.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-2.dtsi
-@@ -59,6 +59,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe5000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy10: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-3.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-3.dtsi
-index b8b541ff5fb03..034bc4b71f7a5 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-3.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-3.dtsi
-@@ -59,6 +59,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe7000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy11: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-4.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-4.dtsi
-index 4b2cfddd1b155..93ca23d82b39b 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-4.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-4.dtsi
-@@ -59,6 +59,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xe9000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy12: ethernet-phy@0 {
- 			reg = <0x0>;
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-5.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-5.dtsi
-index 0a52ddf7cc171..23b3117a2fd2a 100644
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-5.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-1-1g-5.dtsi
-@@ -59,6 +59,7 @@ fman@500000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xeb000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
- 
- 		pcsphy13: ethernet-phy@0 {
- 			reg = <0x0>;
++DEFINE_EVENT(wiphy_netdev_evt, rdev_end_cac,
++	     TP_PROTO(struct wiphy *wiphy, struct net_device *netdev),
++	     TP_ARGS(wiphy, netdev)
++);
++
+ DECLARE_EVENT_CLASS(station_add_change,
+ 	TP_PROTO(struct wiphy *wiphy, struct net_device *netdev, u8 *mac,
+ 		 struct station_parameters *params),
 -- 
 2.20.1
 
