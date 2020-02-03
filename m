@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A0B5150B0F
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88085150B88
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728827AbgBCQUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:20:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60062 "EHLO mail.kernel.org"
+        id S1729581AbgBCQ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:28:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728824AbgBCQUT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:20:19 -0500
+        id S1729245AbgBCQ2W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:28:22 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9690620838;
-        Mon,  3 Feb 2020 16:20:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 042B52080C;
+        Mon,  3 Feb 2020 16:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580746819;
-        bh=sHEQDUxJfVWLAxmiD8XRiG1UUW3yDrMrHX0kipaQi00=;
+        s=default; t=1580747301;
+        bh=AL/Lh1kxI+HWzurICUoC6PRowq7LZ0ALNgNT3Ki+fgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQv2GXP/TGTf8YVVJmPAd1FGYPdvjbC/SYrgAu2tD0nn26B/Dny4MSCyrvT1yonaM
-         3twDSEaVmsiN4TQBH33qd1U+uAvjLDRMxWrR/pgdlz+po5/eC8WefCcBKJJB43IV4V
-         1fhsHQpaRm4R3LECV3WTdX0dun/BzKCa7jcG2ePM=
+        b=UH3+HmaTPWkFlStPsb6e83EIZHze/iFzdBoJToXKBFjwFL1E2PM6b0KTtRu9mexMm
+         JQiCK5XibyUcHM5a4jRycyAGCqSaIWOd9BBgCswJVNIbANIBXKy5D4vOOQBPguCgpu
+         RD9acZhwkm3b4Nour9pxoPq/sD1242GMakObMktU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 02/53] orinoco_usb: fix interface sanity check
+        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH 4.14 09/89] staging: vt6656: correct packet types for CTS protect, mode.
 Date:   Mon,  3 Feb 2020 16:18:54 +0000
-Message-Id: <20200203161903.457277571@linuxfoundation.org>
+Message-Id: <20200203161918.098717194@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.714326084@linuxfoundation.org>
-References: <20200203161902.714326084@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+References: <20200203161916.847439465@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit b73e05aa543cf8db4f4927e36952360d71291d41 upstream.
+commit d971fdd3412f8342747778fb59b8803720ed82b1 upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+It appears that the driver still transmits in CTS protect mode even
+though it is not enabled in mac80211.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+That is both packet types PK_TYPE_11GA and PK_TYPE_11GB both use CTS protect.
+The only difference between them GA does not use B rates.
 
-Fixes: 9afac70a7305 ("orinoco: add orinoco_usb driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.35
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Find if only B rate in GB or GA in protect mode otherwise transmit packets
+as PK_TYPE_11A.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/9c1323ff-dbb3-0eaa-43e1-9453f7390dc0@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/orinoco/orinoco_usb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/vt6656/device.h |    2 ++
+ drivers/staging/vt6656/rxtx.c   |   12 ++++++++----
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/orinoco/orinoco_usb.c
-+++ b/drivers/net/wireless/orinoco/orinoco_usb.c
-@@ -1601,9 +1601,9 @@ static int ezusb_probe(struct usb_interf
- 	/* set up the endpoint information */
- 	/* check out the endpoints */
+--- a/drivers/staging/vt6656/device.h
++++ b/drivers/staging/vt6656/device.h
+@@ -62,6 +62,8 @@
+ #define RATE_AUTO	12
  
--	iface_desc = &interface->altsetting[0].desc;
-+	iface_desc = &interface->cur_altsetting->desc;
- 	for (i = 0; i < iface_desc->bNumEndpoints; ++i) {
--		ep = &interface->altsetting[0].endpoint[i].desc;
-+		ep = &interface->cur_altsetting->endpoint[i].desc;
+ #define MAX_RATE			12
++#define VNT_B_RATES	(BIT(RATE_1M) | BIT(RATE_2M) |\
++			BIT(RATE_5M) | BIT(RATE_11M))
  
- 		if (usb_endpoint_is_bulk_in(ep)) {
- 			/* we found a bulk in endpoint */
+ /*
+  * device specific
+--- a/drivers/staging/vt6656/rxtx.c
++++ b/drivers/staging/vt6656/rxtx.c
+@@ -825,10 +825,14 @@ int vnt_tx_packet(struct vnt_private *pr
+ 		if (info->band == NL80211_BAND_5GHZ) {
+ 			pkt_type = PK_TYPE_11A;
+ 		} else {
+-			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT)
+-				pkt_type = PK_TYPE_11GB;
+-			else
+-				pkt_type = PK_TYPE_11GA;
++			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
++				if (priv->basic_rates & VNT_B_RATES)
++					pkt_type = PK_TYPE_11GB;
++				else
++					pkt_type = PK_TYPE_11GA;
++			} else {
++				pkt_type = PK_TYPE_11A;
++			}
+ 		}
+ 	} else {
+ 		pkt_type = PK_TYPE_11B;
 
 
