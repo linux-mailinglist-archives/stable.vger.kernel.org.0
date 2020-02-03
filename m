@@ -2,158 +2,291 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0659E151213
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 22:50:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B90BF151219
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 22:52:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726278AbgBCVuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 16:50:01 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:32966 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727090AbgBCVuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 16:50:01 -0500
-Received: by mail-wm1-f66.google.com with SMTP id m10so802745wmc.0
-        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 13:49:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Bz9H+rEoz42N2PohEklI4SsWSqfVLbtbYz6f4dlWqHo=;
-        b=XGoDm4C7Ws0L6899IO4mI2wTFfMnh2NrICZh4Oix8pkovjle7RGdl5wTXqF5cBNXLn
-         HVCrk1A7SWTs2MuCsgoDLl6kewc5yGJviw9sEaYNstVqguBv3EumaC+QUZonn4WiRw59
-         L6YJJhB3Ss47Movu5i3OMEKFpYkC8N1rfnyxtcFccfVINeWPD7k64nTH4/81lPG0iYo2
-         qSD6O62eCD2LC7Q26R4gJs/FSCt80zBkEGd3xahN9+yzMy+kvueE+F/RLtEpcA6e9BvH
-         XWiRVtzvE6upcKVdr8Wy3KiU7tHE4Xg9Qa+d4UVA0hN6KVHGOKBx/FXGJC6GTYLKJdTm
-         oJJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Bz9H+rEoz42N2PohEklI4SsWSqfVLbtbYz6f4dlWqHo=;
-        b=B4qKkGtAMJdz5fPpq3n4D7lx0uMFqN6+9yKIPtckYyX+elYFAa8k3xYK9ITXOAGNjD
-         V8Uf8Kpk6kfWyOwA2GqGNdHuUR+sEFERwwBU3C/GV7RLFLM0/WBPe/TExBioxOnPZOOq
-         +u54cXO6releEsf0psNv/5Dz0rEVicOYFsj1AJBD6bZpUi/CY9u7u8j4aKErGtKZWLZc
-         +ZIipog4MYtVEhO2t3VyNS0aUx0nqVP3fEjijBEfn69CqcelL7MlQu7qa7pB5wA+h2GV
-         Q5wuQ7/MPNHI+x+n4R3wktDJghzIa1VPT1+xYe0n5fsLyRnfX/TYIJp4/a0RW95Sb8Kn
-         tGVA==
-X-Gm-Message-State: APjAAAWuTh+hjIvdMjNuXtrDdSaaEwYkiHac4Vi/fgx3v8iAhaObyoIE
-        JKlum9OkcK7HSf3Iz+6YKVAc5IK3oVhDkzLfs3tJR/IZ
-X-Google-Smtp-Source: APXvYqyfoL3COtXhpTnhOUXZO+tkz1VpE8SA5wR1Bis4thbGX3S9VMZLXkKBQqgF1m53SOrLdMLOQmfMZhgL1gJ+njc=
-X-Received: by 2002:a05:600c:218b:: with SMTP id e11mr1105264wme.56.1580766599264;
- Mon, 03 Feb 2020 13:49:59 -0800 (PST)
+        id S1726331AbgBCVwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 16:52:02 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:28609 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726287AbgBCVwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Feb 2020 16:52:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580766720;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=RwAQRBpAw+GKnBGX5U9TTJ9lTw0+smQHY1d3uXcTpls=;
+        b=S93/TUeVQIFiCpT/jwCOHmij7kuOCoeiLVXxqyfaOHTNl42uQZLMJnsJgWNAbMkyI2gbMP
+        29KIFN5snaPRqM0mjILVVizRwyftOyn3VkoRnBxVVD/j4+mL/nyRxQPyGxzBwj3JIhYYet
+        2Fe7V4k3pCc8gr/VC0sDR+iHYpy/AYo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-267-6yMqHzH7M7mojKm8zuNSzg-1; Mon, 03 Feb 2020 16:51:47 -0500
+X-MC-Unique: 6yMqHzH7M7mojKm8zuNSzg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E04B28017CC
+        for <stable@vger.kernel.org>; Mon,  3 Feb 2020 21:51:45 +0000 (UTC)
+Received: from [172.54.32.64] (cpt-1011.paas.prod.upshift.rdu2.redhat.com [10.0.19.27])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 40AD15D9C5;
+        Mon,  3 Feb 2020 21:51:43 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20200202171635.4039044-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20200202171635.4039044-1-chris@chris-wilson.co.uk>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Mon, 3 Feb 2020 16:49:48 -0500
-Message-ID: <CADnq5_N7azVKP0iB1NMWz7KM79cU7HvR7Ssh1nbLDyBP946hxw@mail.gmail.com>
-Subject: Re: [PATCH 1/5] drm: Remove PageReserved manipulation from drm_pci_alloc
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Maling list - DRI developers <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        "for 3.8" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.18-rc1-166dfa3.cki
+ (stable)
+Date:   Mon, 03 Feb 2020 21:51:42 -0000
+Message-ID: <cki.E72D05DFE9.BHLKHGRBQU@redhat.com>
+X-Gitlab-Pipeline-ID: 418759
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/418759
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 2, 2020 at 12:16 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
->
-> drm_pci_alloc/drm_pci_free are very thin wrappers around the core dma
-> facilities, and we have no special reason within the drm layer to behave
-> differently. In particular, since
->
-> commit de09d31dd38a50fdce106c15abd68432eebbd014
-> Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> Date:   Fri Jan 15 16:51:42 2016 -0800
->
->     page-flags: define PG_reserved behavior on compound pages
->
->     As far as I can see there's no users of PG_reserved on compound pages.
->     Let's use PF_NO_COMPOUND here.
->
-> it has been illegal to combine GFP_COMP with SetPageReserved, so lets
-> stop doing both and leave the dma layer to its own devices.
->
-> Reported-by: Taketo Kabe
 
-Needs an email address.
+Hello,
 
-> Closes: https://gitlab.freedesktop.org/drm/intel/issues/1027
+We ran automated tests on a recent commit from this kernel tree:
 
-Should be Bug: rather than Closes:
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x-stable-rc.git
+            Commit: 166dfa3000e4 - Linux 5.4.18-rc1
 
-> Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: <stable@vger.kernel.org> # v4.5+
+The results of these automated tests are provided below.
 
-With those fixed:
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-> ---
->  drivers/gpu/drm/drm_pci.c | 23 ++---------------------
->  1 file changed, 2 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_pci.c b/drivers/gpu/drm/drm_pci.c
-> index f2e43d341980..d16dac4325f9 100644
-> --- a/drivers/gpu/drm/drm_pci.c
-> +++ b/drivers/gpu/drm/drm_pci.c
-> @@ -51,8 +51,6 @@
->  drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t align)
->  {
->         drm_dma_handle_t *dmah;
-> -       unsigned long addr;
-> -       size_t sz;
->
->         /* pci_alloc_consistent only guarantees alignment to the smallest
->          * PAGE_SIZE order which is greater than or equal to the requested size.
-> @@ -68,20 +66,13 @@ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t ali
->         dmah->size = size;
->         dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
->                                          &dmah->busaddr,
-> -                                        GFP_KERNEL | __GFP_COMP);
-> +                                        GFP_KERNEL);
->
->         if (dmah->vaddr == NULL) {
->                 kfree(dmah);
->                 return NULL;
->         }
->
-> -       /* XXX - Is virt_to_page() legal for consistent mem? */
-> -       /* Reserve */
-> -       for (addr = (unsigned long)dmah->vaddr, sz = size;
-> -            sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
-> -               SetPageReserved(virt_to_page((void *)addr));
-> -       }
-> -
->         return dmah;
->  }
->
-> @@ -94,19 +85,9 @@ EXPORT_SYMBOL(drm_pci_alloc);
->   */
->  void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
->  {
-> -       unsigned long addr;
-> -       size_t sz;
-> -
-> -       if (dmah->vaddr) {
-> -               /* XXX - Is virt_to_page() legal for consistent mem? */
-> -               /* Unreserve */
-> -               for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
-> -                    sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
-> -                       ClearPageReserved(virt_to_page((void *)addr));
-> -               }
-> +       if (dmah->vaddr)
->                 dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
->                                   dmah->busaddr);
-> -       }
->  }
->
->  /**
-> --
-> 2.25.0
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/418759
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
+have
+a Beaker recipe linked to next to each host.
+
