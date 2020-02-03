@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC7E150CC7
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD4E150C87
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:37:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731539AbgBCQjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:39:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53404 "EHLO mail.kernel.org"
+        id S1731059AbgBCQhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:37:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731376AbgBCQho (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:37:44 -0500
+        id S1730233AbgBCQhS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:37:18 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39F492051A;
-        Mon,  3 Feb 2020 16:37:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8DA72082E;
+        Mon,  3 Feb 2020 16:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747863;
-        bh=TRgddOces3KCcjZiCU9InaohUeoG1Yx/UpbqoCBwJ7o=;
+        s=default; t=1580747837;
+        bh=gGP/SfIH4lkKGzcbPEvojIacfy9rHxQn6f0FxjI501g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCc8bg6NATVpbE6hnhhK51dUU7nQEl9/7Rr2aoGay/Nn8yhXuaprYNW2zodpeXDZc
-         ITSd2rurznucJQF7EtvyAl3ondeMJE1MtthqjnsgbUgq80uDSArcVDffmjJvesO1oy
-         pYYV1gJIjFPW7OD7Gfcx+jRTUt1evRb6mJDINc7M=
+        b=ronKaj2bOCCQGSTG+XuEEQs1BMa/DhSyIYy38gNL3cL3khPh8xEThRm+bCgBN9pm+
+         i8N451lsZ6DUzV3Ddlv5eekIRfEyIZh2+POS5UnF4bfwj4a0IRA3WXEeE8DwiMyfa1
+         +uwCAMN9uNOAGFIZa/+0/kQkeu9XjktWR8TNNpXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.5 12/23] arm64: kbuild: remove compressed images on make ARCH=arm64 (dist)clean
-Date:   Mon,  3 Feb 2020 16:20:32 +0000
-Message-Id: <20200203161905.006724061@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Praveen Chaudhary <pchaudhary@linkedin.com>,
+        Zhenggen Xu <zxu@linkedin.com>,
+        Andy Stracner <astracner@linkedin.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 90/90] net: Fix skb->csum update in inet_proto_csum_replace16().
+Date:   Mon,  3 Feb 2020 16:20:33 +0000
+Message-Id: <20200203161927.937714547@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
-References: <20200203161902.288335885@linuxfoundation.org>
+In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
+References: <20200203161917.612554987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +48,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+From: Praveen Chaudhary <praveen5582@gmail.com>
 
-commit d7bbd6c1b01cb5dd13c245d4586a83145c1d5f52 upstream.
+[ Upstream commit 189c9b1e94539b11c80636bc13e9cf47529e7bba ]
 
-Since v4.3-rc1 commit 0723c05fb75e44 ("arm64: enable more compressed
-Image formats"), it is possible to build Image.{bz2,lz4,lzma,lzo}
-AArch64 images. However, the commit missed adding support for removing
-those images on 'make ARCH=arm64 (dist)clean'.
+skb->csum is updated incorrectly, when manipulation for
+NF_NAT_MANIP_SRC\DST is done on IPV6 packet.
 
-Fix this by adding them to the target list.
-Make sure to match the order of the recipes in the makefile.
+Fix:
+There is no need to update skb->csum in inet_proto_csum_replace16(),
+because update in two fields a.) IPv6 src/dst address and b.) L4 header
+checksum cancels each other for skb->csum calculation. Whereas
+inet_proto_csum_replace4 function needs to update skb->csum, because
+update in 3 fields a.) IPv4 src/dst address, b.) IPv4 Header checksum
+and c.) L4 header checksum results in same diff as L4 Header checksum
+for skb->csum calculation.
 
-Cc: stable@vger.kernel.org # v4.3+
-Fixes: 0723c05fb75e44 ("arm64: enable more compressed Image formats")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[ pablo@netfilter.org: a few comestic documentation edits ]
+Signed-off-by: Praveen Chaudhary <pchaudhary@linkedin.com>
+Signed-off-by: Zhenggen Xu <zxu@linkedin.com>
+Signed-off-by: Andy Stracner <astracner@linkedin.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/utils.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/boot/Makefile
-+++ b/arch/arm64/boot/Makefile
-@@ -16,7 +16,7 @@
+diff --git a/net/core/utils.c b/net/core/utils.c
+index 6b6e51db9f3b9..1f31a39236d52 100644
+--- a/net/core/utils.c
++++ b/net/core/utils.c
+@@ -438,6 +438,23 @@ void inet_proto_csum_replace4(__sum16 *sum, struct sk_buff *skb,
+ }
+ EXPORT_SYMBOL(inet_proto_csum_replace4);
  
- OBJCOPYFLAGS_Image :=-O binary -R .note -R .note.gnu.build-id -R .comment -S
- 
--targets := Image Image.gz
-+targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
- 
- $(obj)/Image: vmlinux FORCE
- 	$(call if_changed,objcopy)
++/**
++ * inet_proto_csum_replace16 - update layer 4 header checksum field
++ * @sum: Layer 4 header checksum field
++ * @skb: sk_buff for the packet
++ * @from: old IPv6 address
++ * @to: new IPv6 address
++ * @pseudohdr: True if layer 4 header checksum includes pseudoheader
++ *
++ * Update layer 4 header as per the update in IPv6 src/dst address.
++ *
++ * There is no need to update skb->csum in this function, because update in two
++ * fields a.) IPv6 src/dst address and b.) L4 header checksum cancels each other
++ * for skb->csum calculation. Whereas inet_proto_csum_replace4 function needs to
++ * update skb->csum, because update in 3 fields a.) IPv4 src/dst address,
++ * b.) IPv4 Header checksum and c.) L4 header checksum results in same diff as
++ * L4 Header checksum for skb->csum calculation.
++ */
+ void inet_proto_csum_replace16(__sum16 *sum, struct sk_buff *skb,
+ 			       const __be32 *from, const __be32 *to,
+ 			       bool pseudohdr)
+@@ -449,9 +466,6 @@ void inet_proto_csum_replace16(__sum16 *sum, struct sk_buff *skb,
+ 	if (skb->ip_summed != CHECKSUM_PARTIAL) {
+ 		*sum = csum_fold(csum_partial(diff, sizeof(diff),
+ 				 ~csum_unfold(*sum)));
+-		if (skb->ip_summed == CHECKSUM_COMPLETE && pseudohdr)
+-			skb->csum = ~csum_partial(diff, sizeof(diff),
+-						  ~skb->csum);
+ 	} else if (pseudohdr)
+ 		*sum = ~csum_fold(csum_partial(diff, sizeof(diff),
+ 				  csum_unfold(*sum)));
+-- 
+2.20.1
+
 
 
