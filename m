@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FDC150C31
-	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED18150E1A
+	for <lists+stable@lfdr.de>; Mon,  3 Feb 2020 17:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730736AbgBCQeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Feb 2020 11:34:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48342 "EHLO mail.kernel.org"
+        id S1729031AbgBCQtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Feb 2020 11:49:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730729AbgBCQeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Feb 2020 11:34:07 -0500
+        id S1727716AbgBCQZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Feb 2020 11:25:17 -0500
 Received: from localhost (unknown [104.132.45.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F7FD2087E;
-        Mon,  3 Feb 2020 16:34:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69CB320838;
+        Mon,  3 Feb 2020 16:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580747646;
-        bh=NS5ojRQwoa0VTd8vLTGmijdKyn6yx81L7neitWsZBow=;
+        s=default; t=1580747116;
+        bh=Yyoggdhu5x9DZsRzhyrznpN1Ss91IeU0GL8C1rPwGeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zXMyU4990rVdrUV03n4k/+miyZMGm3H9m5yXuGELpzPRVvtLoGNwcGqsAUZX33nTX
-         +vITV2vHsEisVmgoM6J7dbRb3HKJqkssYX62OPsgBe+LEcC3gnzr3mzwHXRRWTyD9z
-         yBQHDIPgL4IwDzV1O6yF10nsU7ihD5Aopm8bDXOM=
+        b=LtrnR4/PoMvO1sbkokU1uc0o34l1bC2vWFO5hMELqDNYlousJpEc7FUBQCi546K0J
+         nVu5pTeWs9wRtzdXF2oeHb0kZKPv8j7acWuJU89CgQURjsuOlCse/ONGtRFJOTfRYI
+         F+tybATmIBVrFFmbCuTfptPF0bQqDG9H3upn47kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
-        Dmitry Levin <ldv@altlinux.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        kbuild test robot <lkp@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 11/90] tools lib: Fix builds when glibc contains strlcpy()
-Date:   Mon,  3 Feb 2020 16:19:14 +0000
-Message-Id: <20200203161919.110051704@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 19/68] drivers/net/b44: Change to non-atomic bit operations on pwol_mask
+Date:   Mon,  3 Feb 2020 16:19:15 +0000
+Message-Id: <20200203161908.221127019@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-References: <20200203161917.612554987@linuxfoundation.org>
+In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
+References: <20200203161904.705434837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,100 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Chikunov <vt@altlinux.org>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-commit 6c4798d3f08b81c2c52936b10e0fa872590c96ae upstream.
+[ Upstream commit f11421ba4af706cb4f5703de34fa77fba8472776 ]
 
-Disable a couple of compilation warnings (which are treated as errors)
-on strlcpy() definition and declaration, allowing users to compile perf
-and kernel (objtool) when:
+Atomic operations that span cache lines are super-expensive on x86
+(not just to the current processor, but also to other processes as all
+memory operations are blocked until the operation completes). Upcoming
+x86 processors have a switch to cause such operations to generate a #AC
+trap. It is expected that some real time systems will enable this mode
+in BIOS.
 
-1. glibc have strlcpy() (such as in ALT Linux since 2004) objtool and
-   perf build fails with this (in gcc):
+In preparation for this, it is necessary to fix code that may execute
+atomic instructions with operands that cross cachelines because the #AC
+trap will crash the kernel.
 
-  In file included from exec-cmd.c:3:
-  tools/include/linux/string.h:20:15: error: redundant redeclaration of ‘strlcpy’ [-Werror=redundant-decls]
-     20 | extern size_t strlcpy(char *dest, const char *src, size_t size);
+Since "pwol_mask" is local and never exposed to concurrency, there is
+no need to set bits in pwol_mask using atomic operations.
 
-2. clang ignores `-Wredundant-decls', but produces another warning when
-   building perf:
+Directly operate on the byte which contains the bit instead of using
+__set_bit() to avoid any big endian concern due to type cast to
+unsigned long in __set_bit().
 
-    CC       util/string.o
-  ../lib/string.c:99:8: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
-  size_t __weak strlcpy(char *dest, const char *src, size_t size)
-  ../../tools/include/linux/compiler.h:66:34: note: expanded from macro '__weak'
-  # define __weak                 __attribute__((weak))
-  /usr/include/bits/string_fortified.h:151:8: note: previous definition is here
-  __NTH (strlcpy (char *__restrict __dest, const char *__restrict __src,
-
-Committer notes:
-
-The
-
- #pragma GCC diagnostic
-
-directive was introduced in gcc 4.6, so check for that as well.
-
-Fixes: ce99091 ("perf tools: Move strlcpy() from perf to tools/lib/string.c")
-Fixes: 0215d59 ("tools lib: Reinstate strlcpy() header guard with __UCLIBC__")
-Resolves: https://bugzilla.kernel.org/show_bug.cgi?id=118481
-Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
-Reviewed-by: Dmitry Levin <ldv@altlinux.org>
-Cc: Dmitry Levin <ldv@altlinux.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: kbuild test robot <lkp@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
-Link: http://lore.kernel.org/lkml/20191224172029.19690-1-vt@altlinux.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/linux/string.h |    8 ++++++++
- tools/lib/string.c           |    7 +++++++
- 2 files changed, 15 insertions(+)
+ drivers/net/ethernet/broadcom/b44.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/tools/include/linux/string.h
-+++ b/tools/include/linux/string.h
-@@ -17,7 +17,15 @@ int strtobool(const char *s, bool *res);
-  * However uClibc headers also define __GLIBC__ hence the hack below
-  */
- #if defined(__GLIBC__) && !defined(__UCLIBC__)
-+// pragma diagnostic was introduced in gcc 4.6
-+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
-+#pragma GCC diagnostic push
-+#pragma GCC diagnostic ignored "-Wredundant-decls"
-+#endif
- extern size_t strlcpy(char *dest, const char *src, size_t size);
-+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
-+#pragma GCC diagnostic pop
-+#endif
- #endif
+diff --git a/drivers/net/ethernet/broadcom/b44.c b/drivers/net/ethernet/broadcom/b44.c
+index 17aa33c5567d6..d95dec5957861 100644
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -1524,8 +1524,10 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 	int ethaddr_bytes = ETH_ALEN;
  
- char *str_error_r(int errnum, char *buf, size_t buflen);
---- a/tools/lib/string.c
-+++ b/tools/lib/string.c
-@@ -96,6 +96,10 @@ int strtobool(const char *s, bool *res)
-  * If libc has strlcpy() then that version will override this
-  * implementation:
-  */
-+#ifdef __clang__
-+#pragma clang diagnostic push
-+#pragma clang diagnostic ignored "-Wignored-attributes"
-+#endif
- size_t __weak strlcpy(char *dest, const char *src, size_t size)
- {
- 	size_t ret = strlen(src);
-@@ -107,6 +111,9 @@ size_t __weak strlcpy(char *dest, const
+ 	memset(ppattern + offset, 0xff, magicsync);
+-	for (j = 0; j < magicsync; j++)
+-		set_bit(len++, (unsigned long *) pmask);
++	for (j = 0; j < magicsync; j++) {
++		pmask[len >> 3] |= BIT(len & 7);
++		len++;
++	}
+ 
+ 	for (j = 0; j < B44_MAX_PATTERNS; j++) {
+ 		if ((B44_PATTERN_SIZE - len) >= ETH_ALEN)
+@@ -1537,7 +1539,8 @@ static int b44_magic_pattern(u8 *macaddr, u8 *ppattern, u8 *pmask, int offset)
+ 		for (k = 0; k< ethaddr_bytes; k++) {
+ 			ppattern[offset + magicsync +
+ 				(j * ETH_ALEN) + k] = macaddr[k];
+-			set_bit(len++, (unsigned long *) pmask);
++			pmask[len >> 3] |= BIT(len & 7);
++			len++;
+ 		}
  	}
- 	return ret;
- }
-+#ifdef __clang__
-+#pragma clang diagnostic pop
-+#endif
- 
- /**
-  * skip_spaces - Removes leading whitespace from @str.
+ 	return len - 1;
+-- 
+2.20.1
+
 
 
