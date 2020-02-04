@@ -2,160 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0546E15157A
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 06:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5591515F2
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 07:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgBDFej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 00:34:39 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:44029 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725976AbgBDFei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 00:34:38 -0500
-Received: by mail-lf1-f66.google.com with SMTP id 9so11303772lfq.10
-        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 21:34:37 -0800 (PST)
+        id S1727189AbgBDG0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 01:26:47 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:42585 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727176AbgBDG0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 01:26:47 -0500
+Received: by mail-pl1-f196.google.com with SMTP id e8so4231066plt.9
+        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 22:26:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=0KHT9BhfgYaqDdW1CHcbpVPcZ9QsrnR6avg+5+waSTw=;
-        b=BMVwg8aHsjGccry3A+S0CiSUUP/XULw3LG/W1EJR/js6Qkacit7jys9CFw9lm78wXw
-         JUge7PysVYyGE0Enjc41ZGjwXaJTeUCQONfp72AQO9Iljaf3dJnEbbB1lbDX1RCYM0vQ
-         FTDgo90bntWOaf1+xbP/XmxkVu9dhbNPV/s8gNmjd6PWnJtn5C2VQFS2wPCJ56JXPpEk
-         OJL5pwfhUsHPI3isDiTMrit007ng0/t4EHRwNyib16no427IGIkOwpwqy28GnWDj7Dse
-         ESE+ACxER3vDGT7yRgvOXqh43NVMEwqBX8iWw3ce5Bq/eGPPLDcZ06tA4RI50GL0Y7p5
-         uZ9g==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=9n+iEilQgwgwE8JFMeVrbJ2CZ9pJDHx5XtxEK2zVKro=;
+        b=u6GrVEIG8+UBR2o/8hky44AtgWEJu/hSWHE6UO+Bo2wzW17lOk6Vm0IvB/k2xNmvUk
+         z+5st6uz8ehnPkjJQwZYTB3CSzu+Z3oJQCazJWCes3PuRy4iD4AV0ec+fDyQEfKNCYMt
+         a888D7r3Wu/QCu8D2P7f3eqUHkv/O/KhBV0NqLqYvagFwqgm4FbyLkfCe2yH9Vag2tZ7
+         BHEQ97bOwhV7Y5B5ELu1XAjMKOmpohF2Th2i5rhVKfYQ5H0cm7rQqq/8yEMcua+LtGfL
+         8jgWHab7K+n29et5+fhNtUpEEIeFmx0axqq2nNdne7CKNJAUU8t4OtY2gt3oGZZxYW/w
+         XFDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=0KHT9BhfgYaqDdW1CHcbpVPcZ9QsrnR6avg+5+waSTw=;
-        b=JiUPG8OsMfCG/XGRMNPQo1qrrtU1/fF6LiOzmi3GvZv3U2lTbNUTHUtc88S9bJmwj4
-         R4XlTg7cc/7fIuEHsB6VDQRtnOUU/D7OSJHrCHv464/DxLGJmja9S8RsjoRjJZIFEsOT
-         rOULsy3xaCBvOrk3Ofo8pg3QEdaYDMHSJQ97ZK+Fyusbp8oeawHQbQ5gNgLym6bR5J2e
-         GEW7NcKzsUZkp/5GFEK7eg+TQq5tfJXsqpUtm0nO8oopzPFXh6ybpteAgLnx0A4v2Qd/
-         IKbr+u9aorQE2SXi7EII9tzbqAdpvmNaE7oGYL02I51e5pjANUVxlxtAO4RO1mevTewY
-         ziZw==
-X-Gm-Message-State: APjAAAVJuO1zFpX4utwpwPqxjsxbuEtowkJEvJRyA2kikZKArAOShdbB
-        7Q6+XeWZE2sKoKZoUDtxx3C7SSivPtta5k54FrblOw==
-X-Google-Smtp-Source: APXvYqyh8ZtBIBNXC59ZOsX6YIz0B4nqBc5/8pd/XZs54VWPZaZL1d6OWZzI1+lD/ShiTe9kCo3277c4ajlkeA7VpuA=
-X-Received: by 2002:a19:6d13:: with SMTP id i19mr13484357lfc.6.1580794476891;
- Mon, 03 Feb 2020 21:34:36 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=9n+iEilQgwgwE8JFMeVrbJ2CZ9pJDHx5XtxEK2zVKro=;
+        b=OrPWYUBjHZolR3H7r1nJDH3TU4VpVFYAMvCFV/+2kFo6jDuOzqXYrsFmI3Znpqwgp1
+         yJnL+rZ6SmPOplnhoci3OfYca1REFmu9PIEZB2DaKcuOmRrj9Ih3D555h2g9wuMriCLH
+         SmhuKxGLCXCVNqz6vzODFAfz73VQC1dLz44Y/EgobfdHx1iZPrE67ynOVI9FFH8JSMrK
+         Zo6gXTb8YUdVyF7h47tTAn6BNU94VB65Umhmicm7NdkPie47q9FiJszyeEb4U7IQjQbn
+         tp0CJ0o0xhZfNukt89ZzJ2NKWFZjAFb9UwnxRu7yS/Koz+wyQZVkdM4uRSO+eAQ0NTch
+         +TUg==
+X-Gm-Message-State: APjAAAX78YcUcBVmOVpr2fyFIYPgEBi9u0vV5PtWdERKflLQ/lyGC9je
+        68Cdi7I0UyQdT7s8yrthxOwycA==
+X-Google-Smtp-Source: APXvYqzlDyVn6Ye4duFE46q2xndT/Npv5RabzJq8m523NGOTCYL9sgiqsz+ngJOvLV+HIedeJyfA6A==
+X-Received: by 2002:a17:90a:c78b:: with SMTP id gn11mr4266519pjb.97.1580797606636;
+        Mon, 03 Feb 2020 22:26:46 -0800 (PST)
+Received: from localhost.localdomain (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
+        by smtp.gmail.com with ESMTPSA id l69sm6901897pgd.1.2020.02.03.22.26.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Feb 2020 22:26:46 -0800 (PST)
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>
+Cc:     linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v3 1/2] remoteproc: qcom_q6v5_mss: Don't reassign mpss region on shutdown
+Date:   Mon,  3 Feb 2020 22:26:40 -0800
+Message-Id: <20200204062641.393949-2-bjorn.andersson@linaro.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20200204062641.393949-1-bjorn.andersson@linaro.org>
+References: <20200204062641.393949-1-bjorn.andersson@linaro.org>
 MIME-Version: 1.0
-References: <20200203161904.705434837@linuxfoundation.org>
-In-Reply-To: <20200203161904.705434837@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 4 Feb 2020 11:04:25 +0530
-Message-ID: <CA+G9fYu00d=x9DrhdoTva9b+SGK3fOwmAF2QvVa+qH0rCPx2mw@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/68] 4.9.213-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 3 Feb 2020 at 21:54, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.213 release.
-> There are 68 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.213-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Trying to reclaim mpss memory while the mba is not running causes the
+system to crash on devices with security fuses blown, so leave it
+assigned to the remote on shutdown and recover it on a subsequent boot.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
 
-Summary
-------------------------------------------------------------------------
+Changes since v2:
+- The assignment of mpss memory back to Linux is rejected in the coredump case
+  on production devices, so check the return value of q6v5_xfer_mem_ownership()
+  before attempting to memcpy() the data.
 
-kernel: 4.9.213-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: 1fec4502bd05d2ac63a18e776d588d9fac65a35c
-git describe: v4.9.212-70-g1fec4502bd05
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.212-70-g1fec4502bd05
+ drivers/remoteproc/qcom_q6v5_mss.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-No regressions (compared to build v4.9.212)
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index 471128a2e723..25c03a26bf88 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -887,11 +887,6 @@ static void q6v5_mba_reclaim(struct q6v5 *qproc)
+ 		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+ 	}
+ 
+-	ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
+-				      false, qproc->mpss_phys,
+-				      qproc->mpss_size);
+-	WARN_ON(ret);
+-
+ 	q6v5_reset_assert(qproc);
+ 
+ 	q6v5_clk_disable(qproc->dev, qproc->reset_clks,
+@@ -981,6 +976,10 @@ static int q6v5_mpss_load(struct q6v5 *qproc)
+ 			max_addr = ALIGN(phdr->p_paddr + phdr->p_memsz, SZ_4K);
+ 	}
+ 
++	/* Try to reset ownership back to Linux */
++	q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm, false,
++				qproc->mpss_phys, qproc->mpss_size);
++
+ 	mpss_reloc = relocate ? min_addr : qproc->mpss_phys;
+ 	qproc->mpss_reloc = mpss_reloc;
+ 	/* Load firmware segments */
+@@ -1070,8 +1069,16 @@ static void qcom_q6v5_dump_segment(struct rproc *rproc,
+ 	void *ptr = rproc_da_to_va(rproc, segment->da, segment->size);
+ 
+ 	/* Unlock mba before copying segments */
+-	if (!qproc->dump_mba_loaded)
++	if (!qproc->dump_mba_loaded) {
+ 		ret = q6v5_mba_load(qproc);
++		if (!ret) {
++			/* Try to reset ownership back to Linux */
++			ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
++						      false,
++						      qproc->mpss_phys,
++						      qproc->mpss_size);
++		}
++	}
+ 
+ 	if (!ptr || ret)
+ 		memset(dest, 0xff, segment->size);
+@@ -1123,10 +1130,6 @@ static int q6v5_start(struct rproc *rproc)
+ 	return 0;
+ 
+ reclaim_mpss:
+-	xfermemop_ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
+-						false, qproc->mpss_phys,
+-						qproc->mpss_size);
+-	WARN_ON(xfermemop_ret);
+ 	q6v5_mba_reclaim(qproc);
+ 
+ 	return ret;
+-- 
+2.23.0
 
-No fixes (compared to build v4.9.212)
-
-Ran 15083 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-open-posix-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
