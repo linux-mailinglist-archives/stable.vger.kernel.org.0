@@ -2,162 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF6A1151EE2
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 18:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1614B151EFC
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 18:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727367AbgBDREi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 12:04:38 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:46061 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727296AbgBDREi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 12:04:38 -0500
-Received: by mail-lj1-f195.google.com with SMTP id f25so19368747ljg.12
-        for <stable@vger.kernel.org>; Tue, 04 Feb 2020 09:04:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=nt7CE8qs1Z/UFG2lKpIThN+DMppMwf6bhXCmE+krseE=;
-        b=rDK9kCkLe1zZbD6nNr5wvuOWv50YVDMFMKyi1xpZrM/8c9Ixoj+hP/F5TGE1jgbNpX
-         BlIZuFuQEg6MeUpcSCLbFCWr1w1+CcTvgEnqGGg2N//6ASflIKZD98Z52etlQmA4YZ5P
-         aM91B+8shpB131KwUa0HbcxK5imZ2fTne4XmQ/c7U6BYb+rnNbjhR2BLFJiPyamK1qkc
-         kMLnG+QNlvt1ENPxmNa2A2ep4hnyRMXJwDJGyZpKOiJ/gxGOkYO4SOChfnluYZsRZqr8
-         vFQlK4y89DRdft22WzyUD4LMf133UbMWWW9FQcdZJVplIj8YuYOIH+9ffaOHhTfEj9N6
-         XSiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nt7CE8qs1Z/UFG2lKpIThN+DMppMwf6bhXCmE+krseE=;
-        b=oUtPjArTmZ3e8tY6h+wxtsKwauoKVeyOU925hS7zPfy9LLvWJDqXW9nAmUB5jBXHML
-         Y+R54VtYvjnp/nsD97bc/O5MQaz/B1DdfcNJXj9d3jnZqkkKZtaj7rijG+zmeTSdYkzy
-         R5lvgbErQwDoBCXETCjAQGexuUR3BgCwbXiZPCkoALzeqZWvtGaUG0mf936hlHmLFy/o
-         C/kc0TleN4yVGUcSd/iuCVferWx9MghMVmZixtc3yM3VvdCH+Wubm075pQZWyqazq7By
-         Y9c5LngJDL0HEVf07nRZWimpcdCfNJ7DM/PLfCirL/6USdFQ/3emVhcMYwQD11DJmxJ8
-         DZFw==
-X-Gm-Message-State: APjAAAVAQyxFVizK4meB77VtG+Q879+CnFelpEn1Uu8xq+heQXCWzp2W
-        3+cBJgmkGs9ccHkuCPEUa+KN1Yp3XUnI1N/AImegxg==
-X-Google-Smtp-Source: APXvYqwKjoM2CReeoU99n52JalOT+ZG+hYUolRReR/VFzI9vW6bCRE9Zx5z+tXFptEhWd7DeBsIJoSX6k+rI56a2KB0=
-X-Received: by 2002:a05:651c:414:: with SMTP id 20mr17156736lja.165.1580835876578;
- Tue, 04 Feb 2020 09:04:36 -0800 (PST)
+        id S1727379AbgBDRLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 12:11:18 -0500
+Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.52]:26127 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727368AbgBDRLR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 12:11:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1580836273;
+        s=strato-dkim-0002; d=hartkopp.net;
+        h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=97kFKdtjqzM1fuVk+6yX5/4JtYqIyrLVpwZ5MbyNC38=;
+        b=H1l+etZy9wheFJiMvEHfocFYBKHlmcJePG4g2yEHZKwJfkQ9t3rYv6SSQUFeOYI5fP
+        qyUkOkbjGX26yR3hQWp1rk085Rg4ev+Mz0bh9izUuqBdGsG6VJc7UPUWdjhu6EREoGo5
+        zvlJYhWFe2eAkvBaleQHm2SmkH+nvLDSCHbQnRJL1PB9YfkGB0wBfn+xi2/4S1WBE9Mp
+        3SoG2RULYx1j320NUL2gFxZiKw2DhvzIvBWjIwbfKMp6Avay1efa7hQgq1sfTr0ambKw
+        D1X/dhIazXKa2JK2DYKvEWcIRmCarQYCl9Ov7W4DCKNeDCTHkXg+f3TxK0RNpC/W/jIP
+        OV/Q==
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1o3PMaViOoLMJUsh6k0go"
+X-RZG-CLASS-ID: mo00
+Received: from [192.168.1.177]
+        by smtp.strato.de (RZmta 46.1.12 DYNA|AUTH)
+        with ESMTPSA id g084e8w14HB4DHS
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Tue, 4 Feb 2020 18:11:04 +0100 (CET)
+Subject: Re: [PATCH] bonding: do not enslave CAN devices
+To:     linux-can@vger.kernel.org
+Cc:     netdev@vger.kernel.org,
+        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
+        dvyukov@google.com, mkl@pengutronix.de, j.vosburgh@gmail.com,
+        vfalico@gmail.com, andy@greyhouse.net, davem@davemloft.net,
+        linux-stable <stable@vger.kernel.org>,
+        Sabrina Dubroca <sd@queasysnail.net>
+References: <20200130133046.2047-1-socketcan@hartkopp.net>
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
+Message-ID: <3315b977-8b62-ca07-7117-d87ad476a548@hartkopp.net>
+Date:   Tue, 4 Feb 2020 18:11:04 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200203161917.612554987@linuxfoundation.org>
-In-Reply-To: <20200203161917.612554987@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 4 Feb 2020 22:34:25 +0530
-Message-ID: <CA+G9fYusNeJtrBBHL=dUFP3Z=-7Ri6qk6u8a0eZ=euQWU6=O4g@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/90] 5.4.18-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200130133046.2047-1-socketcan@hartkopp.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 3 Feb 2020 at 22:04, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.18 release.
-> There are 90 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.18-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Any updates, reviews, acks on this?
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+As pointed out by Sabrina here 
+https://marc.info/?l=linux-netdev&m=158039302905460&w=2
+the issue is also relevant for the TEAM driver.
 
-Summary
-------------------------------------------------------------------------
+Best,
+Oliver
 
-kernel: 5.4.18-rc3
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: a59b851019bc15226d5c7c31ac4e0452e9a57d13
-git describe: v5.4.17-102-ga59b851019bc
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.17-102-ga59b851019bc
-
-No regressions (compared to build v5.4.17)
-
-No fixes (compared to build v5.4.17)
-
-
-Ran 11805 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* libhugetlbfs
-* ltp-cve-tests
-* ltp-open-posix-tests
-* ltp-syscalls-tests
-* spectre-meltdown-checker-test
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+On 30/01/2020 14.30, Oliver Hartkopp wrote:
+> Since commit 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
+> device struct can_dev_rcv_lists") the device specific CAN receive filter lists
+> are stored in netdev_priv() and dev->ml_priv points to these filters.
+> 
+> In the bug report Syzkaller enslaved a vxcan1 CAN device and accessed the
+> bonding device with a PF_CAN socket which lead to a crash due to an access of
+> an unhandled bond_dev->ml_priv pointer.
+> 
+> Deny to enslave CAN devices by the bonding driver as the resulting bond_dev
+> pretends to be a CAN device by copying dev->type without really being one.
+> 
+> Reported-by: syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com
+> Fixes: 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
+> device struct can_dev_rcv_lists")
+> Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
+> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+> ---
+>   drivers/net/bonding/bond_main.c | 12 ++++++++++++
+>   1 file changed, 12 insertions(+)
+> 
+> diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+> index 48d5ec770b94..4b781a7dfd96 100644
+> --- a/drivers/net/bonding/bond_main.c
+> +++ b/drivers/net/bonding/bond_main.c
+> @@ -1475,6 +1475,18 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+>   		return -EPERM;
+>   	}
+>   
+> +	/* CAN network devices hold device specific filter lists in
+> +	 * netdev_priv() where dev->ml_priv sets a reference to.
+> +	 * As bonding assumes to have some ethernet-like device it doesn't
+> +	 * take care about these CAN specific filter lists today.
+> +	 * So we deny the enslaving of CAN interfaces here.
+> +	 */
+> +	if (slave_dev->type == ARPHRD_CAN) {
+> +		NL_SET_ERR_MSG(extack, "CAN devices can not be enslaved");
+> +		slave_err(bond_dev, slave_dev, "no bonding on CAN devices\n");
+> +		return -EINVAL;
+> +	}
+> +
+>   	/* set bonding device ether type by slave - bonding netdevices are
+>   	 * created with ether_setup, so when the slave type is not ARPHRD_ETHER
+>   	 * there is a need to override some of the type dependent attribs/funcs.
+> 
