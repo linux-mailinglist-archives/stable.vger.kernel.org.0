@@ -2,102 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15901151717
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 09:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB43151750
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 10:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbgBDId1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 03:33:27 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:42600 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727023AbgBDId1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 03:33:27 -0500
-Received: by mail-lf1-f68.google.com with SMTP id y19so11580138lfl.9;
-        Tue, 04 Feb 2020 00:33:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=8DO+mGDd2sVt5YxyY/YYwABJQxNuUfjHg9DqBr31WD8=;
-        b=AMnFVGS082Xu+jVLWsHqPqikDHmHistgBgpdTCznf5utbvfRylK9yBsASQWY55ePLo
-         XHQivgXEa7gOoIIZaHKgc0e3xg5X00VZE+MCbslLE4do8mo9ZTthtXD9UuWLyvJwW66B
-         3DKm+ES8nUw5npsoaVCm8VjN62ONcP96ic101e9eCHCv9R/kd6yW2SCB9tJSz5kE9LBZ
-         oxhhfN4xxVER/EgAN8VxsIMy7MzkxxOJFK0Vts1Hm0AT1JdY+jIwphpekEb0ZxJ/YCoT
-         8W4xwHQhvPn+WbCXn705hcObAMEyJcZH9CtPwqeDH6MwK/rS97UMurE7w4SixrlqQWQC
-         oCgQ==
-X-Gm-Message-State: APjAAAXddzLUUSJOTE+cFqbU4X1P69WvpBAEsoHnm4+vClSVp1cslk4b
-        WwhrvGuwgQ0KmQaO0G6AmL4=
-X-Google-Smtp-Source: APXvYqx57PfajZ51uAxyTh/39jBSBUfBp4nFXJXPoPpIVX52VhlNHoSlhGlqc/gieGZyJIoFj862xA==
-X-Received: by 2002:ac2:555c:: with SMTP id l28mr14264850lfk.52.1580805203770;
-        Tue, 04 Feb 2020 00:33:23 -0800 (PST)
-Received: from xi.terra (c-12aae455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.170.18])
-        by smtp.gmail.com with ESMTPSA id h9sm6045753ljg.3.2020.02.04.00.33.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Feb 2020 00:33:23 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1iyteG-0008Mm-B8; Tue, 04 Feb 2020 09:33:32 +0100
-Date:   Tue, 4 Feb 2020 09:33:32 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Siva Rebbagondla <siva8118@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Denis Efremov <efremov@linux.com>
-Subject: Re: [PATCH 5.4 117/203] rsi: fix potential null dereference in
- rsi_probe()
-Message-ID: <20200204083332.GE26725@localhost>
-References: <20200116231745.218684830@linuxfoundation.org>
- <20200116231755.604943633@linuxfoundation.org>
+        id S1726189AbgBDJDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 04:03:01 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:34607 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726151AbgBDJDA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 04:03:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580806979;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=MgbQWepxvZEKVjhljUIgxQZLJyyhLVVP/zdUzW5X4U0=;
+        b=h1opbibRIobf4/I2TdmZLUNEnQSVA9XTe9nbIFAbfs50Dlp7juk3nlfC/4VSj6f5OEl2Ii
+        iF3XGSUUFEhY9apEJgZNqdtOkyuD14sQvrj4Vr77DEZpsAOiOCvyH1TOqCIfOr3W6WJtxZ
+        b/KcUJXIgNC3j7KQvTH5+zKpra83CYU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-31-cuqg0jjXPV2LC1SQt4jJ4w-1; Tue, 04 Feb 2020 04:02:53 -0500
+X-MC-Unique: cuqg0jjXPV2LC1SQt4jJ4w-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 135F885EE6F;
+        Tue,  4 Feb 2020 09:02:52 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0BADE5DA83;
+        Tue,  4 Feb 2020 09:02:51 +0000 (UTC)
+Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 25E861809563;
+        Tue,  4 Feb 2020 09:02:51 +0000 (UTC)
+Date:   Tue, 4 Feb 2020 04:02:50 -0500 (EST)
+From:   Jan Stancek <jstancek@redhat.com>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Jaroslav Kysela <jkysela@redhat.com>
+Message-ID: <1905459596.5574249.1580806970915.JavaMail.zimbra@redhat.com>
+In-Reply-To: <cki.A43C5F6701.3LH2WNZUVM@redhat.com>
+References: <cki.A43C5F6701.3LH2WNZUVM@redhat.com>
+Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kerne?=
+ =?utf-8?Q?l_5.4.18-rc1-6213eed.cki_(stable)?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200116231755.604943633@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [10.43.17.25, 10.4.195.11]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.4.18-rc1-6213eed.cki (stable)
+Thread-Index: lsdpAyQ4GSnbyv+nGAm45PURpUkWDA==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 17, 2020 at 12:17:14AM +0100, Greg Kroah-Hartman wrote:
-> From: Denis Efremov <efremov@linux.com>
-> 
-> commit f170d44bc4ec2feae5f6206980e7ae7fbf0432a0 upstream.
-> 
-> The id pointer can be NULL in rsi_probe(). It is checked everywhere except
-> for the else branch in the idProduct condition. The patch adds NULL check
-> before the id dereference in the rsi_dbg() call.
-> 
-> Fixes: 54fdb318c111 ("rsi: add new device model for 9116")
-> Cc: Amitkumar Karwar <amitkarwar@gmail.com>
-> Cc: Siva Rebbagondla <siva8118@gmail.com>
-> Cc: Kalle Valo <kvalo@codeaurora.org>
-> Signed-off-by: Denis Efremov <efremov@linux.com>
-> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This commit is bogus and was reverted shortly after it was applied in
-order to prevent autosel from picking it up for stable (reverted by
-c5dcf8f0e850 ("Revert "rsi: fix potential null dereference in
-rsi_probe()"")).
 
-The revert has now been picked up by Sasha, but shouldn't an
-explicit revert in the same pull-request prevent a bad patch from being
-backported in the first place? Seems like something that could be
-scripted. But perhaps the net-stable oddities come into play here.
+----- Original Message -----
+>=20
+> Hello,
+>=20
+> We ran automated tests on a recent commit from this kernel tree:
+>=20
+>        Kernel repo:
+>        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+>             Commit: 6213eed0e444 - Linux 5.4.18-rc1
+>=20
+> The results of these automated tests are provided below.
+>=20
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: OK
+>              Tests: FAILED
+>=20
+> All kernel binaries, config files, and logs are available for download he=
+re:
+>=20
+>   https://artifacts.cki-project.org/pipelines/419091
+>=20
+> One or more kernel tests failed:
+>=20
+>     ppc64le:
+>      =E2=9D=8C LTP
 
-> ---
->  drivers/net/wireless/rsi/rsi_91x_usb.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-> +++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-> @@ -793,7 +793,7 @@ static int rsi_probe(struct usb_interfac
->  		adapter->device_model = RSI_DEV_9116;
->  	} else {
->  		rsi_dbg(ERR_ZONE, "%s: Unsupported RSI device id 0x%x\n",
-> -			__func__, id->idProduct);
-> +			__func__, id ? id->idProduct : 0x0);
->  		goto err1;
->  	}
+b45d82cfbabc ("max_map_count: use default overcommit mode")
+should address that. CKI job is currently at LTP commit:
+  baf4ca1653a9 ("syscalls/capset01: Cleanup & convert to new library")
 
-Johan
