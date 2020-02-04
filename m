@@ -2,95 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBBCF151CE5
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 16:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2617D151D41
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 16:29:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727296AbgBDPEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 10:04:33 -0500
-Received: from dougal.metanate.com ([90.155.101.14]:34438 "EHLO metanate.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727282AbgBDPEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Feb 2020 10:04:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=simple/simple; d=metanate.com;
-         s=stronger; h=Content-Transfer-Encoding:Content-Type:MIME-Version:References
-        :In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=ieP8o0no7ny4dq1ZgQyoiOB7696+27Jc3q08Jbxmap0=; b=JCj3IuALSH3gV+mrcQLxCTI/wH
-        5a4rDIpJDUQxNv1R0TsGTTmYZievYgAHheBaJT0jt+nDgnTu0nP5qNpMat62CGzT+wblKEdOdNcUo
-        vgR+H2g4pOU7Lyc7eArRvvzYKNzDcbcDB2unGVa1Dx2yq102ABeLSshOtu6fJsoEWdPEH+sTRxlGt
-        FUNWZ8HLwVirukMnqq6lH7ro8zx/wRjgtASneROg1tNh4FeYH3tqICaAqrIo4XubKccdSocYzg65M
-        CSdrsAA3N/H3DCrnjUIB1yFL4yyOpKViraO/iTsEJTHpKD8Wbqb0UywsmRTPoZjvcNMyyQcZyAhY+
-        loq8X/7Q==;
-Received: from dougal.metanate.com ([192.168.88.1] helo=donbot)
-        by email.metanate.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <john@metanate.com>)
-        id 1iyzkY-0002aq-Lk; Tue, 04 Feb 2020 15:04:26 +0000
-Date:   Tue, 4 Feb 2020 15:04:26 +0000
-From:   John Keeping <john@metanate.com>
-To:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Cc:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        John Youn <John.Youn@synopsys.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
-Message-ID: <20200204150426.6cd3f0b6.john@metanate.com>
-In-Reply-To: <fd461c4e-331e-4941-061e-a02e7259aec2@synopsys.com>
-References: <f8af9e4b892a8d005f0ae3d42401fee532f44a27.1574938826.git.hminas@synopsys.com>
-        <8736dsl4u4.fsf@gmail.com>
-        <e314d265-6d87-eb7a-997e-52d77ccdb725@synopsys.com>
-        <d89dc76f-ab19-e7e7-1375-534cd2cfaa1c@synopsys.com>
-        <20200204114538.12af5d84.john@metanate.com>
-        <fd461c4e-331e-4941-061e-a02e7259aec2@synopsys.com>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1727314AbgBDP3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 10:29:30 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12494 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727319AbgBDP3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 10:29:30 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 014FP22G008385;
+        Tue, 4 Feb 2020 10:29:19 -0500
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xxn922qba-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Feb 2020 10:29:19 -0500
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 014FR05b017172;
+        Tue, 4 Feb 2020 15:29:18 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma02wdc.us.ibm.com with ESMTP id 2xw0y6abnb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Feb 2020 15:29:18 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 014FTHuE36045218
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 Feb 2020 15:29:17 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C09446E052;
+        Tue,  4 Feb 2020 15:29:17 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E35F86E04C;
+        Tue,  4 Feb 2020 15:29:15 +0000 (GMT)
+Received: from skywalker.linux.ibm.com (unknown [9.85.122.237])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue,  4 Feb 2020 15:29:15 +0000 (GMT)
+X-Mailer: emacs 27.0.60 (via feedmail 11-beta-1 I)
+From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To:     Vaibhav Jain <vaibhav@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-nvdimm@lists.01.org
+Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] libnvdimm/of_pmem: Fix leaking bus_desc.provider_name
+ in some paths
+In-Reply-To: <20200123031847.149325-1-vaibhav@linux.ibm.com>
+References: <20200123031847.149325-1-vaibhav@linux.ibm.com>
+Date:   Tue, 04 Feb 2020 20:59:13 +0530
+Message-ID: <87k152fk1i.fsf@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Authenticated: YES
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-04_05:2020-02-04,2020-02-04 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=2
+ mlxscore=0 adultscore=0 mlxlogscore=999 spamscore=0 impostorscore=0
+ lowpriorityscore=0 clxscore=1015 priorityscore=1501 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1911200001 definitions=main-2002040106
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 4 Feb 2020 11:50:12 +0000
-Minas Harutyunyan <Minas.Harutyunyan@synopsys.com> wrote:
+Vaibhav Jain <vaibhav@linux.ibm.com> writes:
 
-> On 2/4/2020 3:45 PM, John Keeping wrote:
-> > On Fri, 13 Dec 2019 11:54:11 +0000
-> > Minas Harutyunyan <Minas.Harutyunyan@synopsys.com> wrote:  
-> >> On 12/10/2019 6:19 PM, Minas Harutyunyan wrote:  
-> >>> On 12/10/2019 4:53 PM, Felipe Balbi wrote:  
-> >>>> Minas Harutyunyan <Minas.Harutyunyan@synopsys.com> writes:
-> >>>>     
-> >>>>> SET/CLEAR_FEATURE for Remote Wakeup allowance not handled correctly.
-> >>>>> GET_STATUS handling provided not correct data on DATA Stage.
-> >>>>> Issue seen when gadget's dr_mode set to "otg" mode and connected
-> >>>>> to MacOS.
-> >>>>> Both are fixed and tested using USBCV Ch.9 tests.
-> >>>>>
-> >>>>> Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>  
-> >>>>
-> >>>> do you want to add a Fixes tag here?  
-> >>>
-> >>> Fixes: fa389a6d7726 ("usb: dwc2: gadget: Add remote_wakeup_allowed flag")
-> >>>      
-> >> Got tested tag by issue reported.
-> >>
-> >> Tested-By: Jack Mitchell <ml@embed.me.uk>
-> >>
-> >> Should I resubmit patch as v2 with added "Fixes" and "Tested-by" tags.  
-> > 
-> > Was this patch ever picked up?  I don't see it in current next.
-> >   
-> Yes, it picked up by Felipe. It under testing/fixes
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/balbi/usb.git/commit/?h=testing/fixes&id=6de1e301b9cf8eb023357586ab8b02edda07320b
+> String 'bus_desc.provider_name' allocated inside
+> of_pmem_region_probe() will leak in case call to nvdimm_bus_register()
+> fails or when of_pmem_region_remove() is called.
+>
+> This minor patch ensures that 'bus_desc.provider_name' is freed in
+> error path for of_pmem_region_probe() as well as in
+> of_pmem_region_remove().
+>
 
-Thanks!  I'll try to remember to look there next time.
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-
-Sorry for the noise,
-John
+> Cc: stable@vger.kernel.org
+> Fixes:49bddc73d15c2("libnvdimm/of_pmem: Provide a unique name for bus provider")
+> Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+> ---
+>  drivers/nvdimm/of_pmem.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/nvdimm/of_pmem.c b/drivers/nvdimm/of_pmem.c
+> index 8224d1431ea9..9cb76f9837ad 100644
+> --- a/drivers/nvdimm/of_pmem.c
+> +++ b/drivers/nvdimm/of_pmem.c
+> @@ -36,6 +36,7 @@ static int of_pmem_region_probe(struct platform_device *pdev)
+>  
+>  	priv->bus = bus = nvdimm_bus_register(&pdev->dev, &priv->bus_desc);
+>  	if (!bus) {
+> +		kfree(priv->bus_desc.provider_name);
+>  		kfree(priv);
+>  		return -ENODEV;
+>  	}
+> @@ -81,6 +82,7 @@ static int of_pmem_region_remove(struct platform_device *pdev)
+>  	struct of_pmem_private *priv = platform_get_drvdata(pdev);
+>  
+>  	nvdimm_bus_unregister(priv->bus);
+> +	kfree(priv->bus_desc.provider_name);
+>  	kfree(priv);
+>  
+>  	return 0;
+> -- 
+> 2.24.1
+> _______________________________________________
+> Linux-nvdimm mailing list -- linux-nvdimm@lists.01.org
+> To unsubscribe send an email to linux-nvdimm-leave@lists.01.org
