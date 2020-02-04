@@ -2,110 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2617D151D41
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 16:29:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF3C151D95
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 16:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727314AbgBDP3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 10:29:30 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12494 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727319AbgBDP3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 10:29:30 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 014FP22G008385;
-        Tue, 4 Feb 2020 10:29:19 -0500
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xxn922qba-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Feb 2020 10:29:19 -0500
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 014FR05b017172;
-        Tue, 4 Feb 2020 15:29:18 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma02wdc.us.ibm.com with ESMTP id 2xw0y6abnb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Feb 2020 15:29:18 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 014FTHuE36045218
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 4 Feb 2020 15:29:17 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C09446E052;
-        Tue,  4 Feb 2020 15:29:17 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E35F86E04C;
-        Tue,  4 Feb 2020 15:29:15 +0000 (GMT)
-Received: from skywalker.linux.ibm.com (unknown [9.85.122.237])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue,  4 Feb 2020 15:29:15 +0000 (GMT)
-X-Mailer: emacs 27.0.60 (via feedmail 11-beta-1 I)
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-To:     Vaibhav Jain <vaibhav@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-nvdimm@lists.01.org
-Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] libnvdimm/of_pmem: Fix leaking bus_desc.provider_name
- in some paths
-In-Reply-To: <20200123031847.149325-1-vaibhav@linux.ibm.com>
-References: <20200123031847.149325-1-vaibhav@linux.ibm.com>
-Date:   Tue, 04 Feb 2020 20:59:13 +0530
-Message-ID: <87k152fk1i.fsf@linux.ibm.com>
+        id S1727311AbgBDPp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 10:45:57 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35276 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727297AbgBDPp5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 10:45:57 -0500
+Received: by mail-lj1-f193.google.com with SMTP id q8so19123329ljb.2
+        for <stable@vger.kernel.org>; Tue, 04 Feb 2020 07:45:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=k6Slq5vFgcD5zirO7zotlCMns+OlHVMHgfQPFMOibrQ=;
+        b=Fs5Wt2seqoq40mV/saXyQsHcE43Oky3V01mtKkRbpnbqQtzDtANujVUntXS7wnWO9e
+         fjnLd1hk/YDFFWRdWCw6B8mcZi0YOov/FKgdzqo2rflAee8SWhbiLY+e3w8DzgGqhsQ9
+         zeeeSYOiis7XhXNAyV+Te+yKbgdqekShezVje5K6V0C7hDBmnpqfgcdW89eECwtqNxTw
+         Ew2BKKLdObKmu42ous6FEnNmx6MOVJlksZ5uAdlW/EXl9l+lDobxhQc8MMozmhdeh7Q9
+         XR3hP3Le1t4ersgUQK8E0J0rXJIMZ7YcoO5bsWDaEMK9jEaZdZ92k1KZBFEvgJUADe2H
+         llRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=k6Slq5vFgcD5zirO7zotlCMns+OlHVMHgfQPFMOibrQ=;
+        b=Q7Lmrphs/pWBmgN155k+16zEgjXpr7DWoGoNKRdR+q8qtAHqZhVl+KyU5IWe7trsOT
+         o9IxOa6X50EamlVmLFo+L9DWTs4CiusfP1kloltwqTG2fbO2+2iRbwzbF85vAptemn7Z
+         sg/2lvhjX5rwmNV0/Ud5prWyVfQ6NcUBj69RVx0sOdVzo946FEdk747u9YNG02Qpi/su
+         VrFAAj0gtUONt2gq4O13NWKwEiQyDCwmym4ETi21u9PTS+x2yLnAAc7l9ByBcSEwNbUm
+         FPF3LnCEuaJNBKf3N6JaGTlS4plH5yZR1TYaI4VF6gb8makP2izPWOeg1PooN3rdhpBR
+         NucA==
+X-Gm-Message-State: APjAAAWTI+m68dSATRSgGPhSJee+50QMvu9tBC4GzPJNaD/gbwNMLiFI
+        xoJppqsiKQdIGrpcY8KXSi0RXJWIhLo8eb9zoM2gEw==
+X-Google-Smtp-Source: APXvYqwQOo0iPGAD/bwLoBLBOnzwCp+meSozRDAd8N/Bs4mMjPUH+km1/6apumCLz+RxjrXdzA+zqPY0JJ4VB+/39KY=
+X-Received: by 2002:a2e:9008:: with SMTP id h8mr17642797ljg.217.1580831155328;
+ Tue, 04 Feb 2020 07:45:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-02-04_05:2020-02-04,2020-02-04 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=2
- mlxscore=0 adultscore=0 mlxlogscore=999 spamscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1015 priorityscore=1501 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1911200001 definitions=main-2002040106
+References: <20200203161902.288335885@linuxfoundation.org>
+In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 4 Feb 2020 21:15:44 +0530
+Message-ID: <CA+G9fYuzYzwqaL6_5=2+KmRHy=BDRS0WgW2dGSL6wi+_FFFhCg@mail.gmail.com>
+Subject: Re: [PATCH 5.5 00/23] 5.5.2-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vaibhav Jain <vaibhav@linux.ibm.com> writes:
-
-> String 'bus_desc.provider_name' allocated inside
-> of_pmem_region_probe() will leak in case call to nvdimm_bus_register()
-> fails or when of_pmem_region_remove() is called.
+On Mon, 3 Feb 2020 at 22:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> This minor patch ensures that 'bus_desc.provider_name' is freed in
-> error path for of_pmem_region_probe() as well as in
-> of_pmem_region_remove().
+> This is the start of the stable review cycle for the 5.5.2 release.
+> There are 23 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-
-> Cc: stable@vger.kernel.org
-> Fixes:49bddc73d15c2("libnvdimm/of_pmem: Provide a unique name for bus provider")
-> Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-> ---
->  drivers/nvdimm/of_pmem.c | 2 ++
->  1 file changed, 2 insertions(+)
+> Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
+> Anything received after that time might be too late.
 >
-> diff --git a/drivers/nvdimm/of_pmem.c b/drivers/nvdimm/of_pmem.c
-> index 8224d1431ea9..9cb76f9837ad 100644
-> --- a/drivers/nvdimm/of_pmem.c
-> +++ b/drivers/nvdimm/of_pmem.c
-> @@ -36,6 +36,7 @@ static int of_pmem_region_probe(struct platform_device *pdev)
->  
->  	priv->bus = bus = nvdimm_bus_register(&pdev->dev, &priv->bus_desc);
->  	if (!bus) {
-> +		kfree(priv->bus_desc.provider_name);
->  		kfree(priv);
->  		return -ENODEV;
->  	}
-> @@ -81,6 +82,7 @@ static int of_pmem_region_remove(struct platform_device *pdev)
->  	struct of_pmem_private *priv = platform_get_drvdata(pdev);
->  
->  	nvdimm_bus_unregister(priv->bus);
-> +	kfree(priv->bus_desc.provider_name);
->  	kfree(priv);
->  
->  	return 0;
-> -- 
-> 2.24.1
-> _______________________________________________
-> Linux-nvdimm mailing list -- linux-nvdimm@lists.01.org
-> To unsubscribe send an email to linux-nvdimm-leave@lists.01.org
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.5.2-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.5.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.5.2-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.5.y
+git commit: 4ff4fd2d564ba792fa27ff72393eb5a4b5bd78e7
+git describe: v5.5.1-25-g4ff4fd2d564b
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.5-oe/bui=
+ld/v5.5.1-25-g4ff4fd2d564b
+
+No regressions (compared to build v5.5.1)
+
+No fixes (compared to build v5.5.1)
+
+Ran 11148 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* linux-log-parser
+* ltp-commands-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-syscalls-tests
+* kselftest
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
