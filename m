@@ -2,116 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAB0152087
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 19:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC1D51520A1
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 19:50:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727570AbgBDSml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 13:42:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59576 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727444AbgBDSml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Feb 2020 13:42:41 -0500
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E01F21927;
-        Tue,  4 Feb 2020 18:42:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580841760;
-        bh=iB61HbiOjSK42DgpbKKkgWViuKQLYoCEi4lU0tpcgLI=;
-        h=Date:From:To:Subject:From;
-        b=jNv2YVMZTL2kVOBf2Z/dNPt+w4LNdGAVF2ZpNkraY6VOmNXA6fFEfOY8guTZvjfcT
-         /YRdLDuW/H9UZ0zZRfUJB8HCclBHopB/9W3n0GEaPaULLXKUx49w/aq375bfJv8i/0
-         ehk+ZvypJnQVfcdbhCs9vBPFs0BeUnOieVoaSKHM=
-Date:   Tue, 04 Feb 2020 10:42:40 -0800
-From:   akpm@linux-foundation.org
-To:     hch@lst.de, linux@armlinux.org.uk, mm-commits@vger.kernel.org,
-        robin.murphy@arm.com, stable@vger.kernel.org, wens@csie.org
-Subject:  [merged]
- arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch removed
- from -mm tree
-Message-ID: <20200204184240.f6qTQJrAI%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727331AbgBDSuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 13:50:04 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:32789 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727381AbgBDSuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 13:50:03 -0500
+Received: from mail-wr1-f69.google.com ([209.85.221.69])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <ioanna-maria.alifieraki@canonical.com>)
+        id 1iz3Gr-00051P-OS
+        for stable@vger.kernel.org; Tue, 04 Feb 2020 18:50:01 +0000
+Received: by mail-wr1-f69.google.com with SMTP id a12so9075383wrn.19
+        for <stable@vger.kernel.org>; Tue, 04 Feb 2020 10:50:01 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id;
+        bh=wqNJjW0961V0F/Hsv7qunFjB3mjgTIfFca5lKHl9ZDc=;
+        b=NCmaiv8FwiJ+IS5FhPWaJC7+7u4MIaLQiODntN5SfhdsR+NkTQEaUORxHUM4y3bqmp
+         yrL3yya/6Vs61mVO6qABvhrT30pFlPsUE47JAp84UZUPPnvtTsqJAIzgEzkhpAzrDkZJ
+         tqM5puBFWoMnPhEPLZoTuowB2+XgjZpM5CZ961o9brR9hO7Dv4+5TpwbtP7JDZ7kXlX7
+         B1Lk5W3n9+2+7qRHySrKmy8ma28q6vn1IulRYwFbrpoI82Wex1vO4r4z0teqVDIxiNCB
+         vPf8gHatGRJOydB4KBA7nJ6lMOGkNY6z+J+SixC0sWHcXbG7lA8CKRF4sHjM/QGH7Rtq
+         JxSA==
+X-Gm-Message-State: APjAAAURhII7J+Iiiq/l3rydIY0DCO7T0wNWJLQkbsczDrdkNYLRGrav
+        E/hYRBfRUqM6KJ4QzpNFlJvMBXkFdiHHZIy/wpxC0LcB6GIxUFD7bnOLY6ryHjxfFF1HTVU5yxe
+        7dFBjXSczFADWTB7BQ3OgGn2T4Ls/xvinyQ==
+X-Received: by 2002:a1c:4144:: with SMTP id o65mr366353wma.81.1580842201477;
+        Tue, 04 Feb 2020 10:50:01 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzRFe+hJeL5rST0hSaPR4ib64GGHXk5+nrGpO0tQaud4j5+He+r93rqdEj/r9gqdbdAPTBb0A==
+X-Received: by 2002:a1c:4144:: with SMTP id o65mr366332wma.81.1580842201208;
+        Tue, 04 Feb 2020 10:50:01 -0800 (PST)
+Received: from localhost ([2a02:587:2808:4200:3c88:b258:f61b:eab3])
+        by smtp.gmail.com with ESMTPSA id z11sm30520937wrv.96.2020.02.04.10.50.00
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 04 Feb 2020 10:50:00 -0800 (PST)
+From:   Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+To:     ioanna.alifieraki@gmail.com, jay.vosburgh@canonical.com,
+        miklos@szeredi.hu, linux-unionfs@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, srivatsa@csail.mit.edu
+Subject: [4.4.y PATCH] Revert "ovl: modify ovl_permission() to do checks on two inodes"
+Date:   Tue,  4 Feb 2020 18:49:58 +0000
+Message-Id: <20200204184958.6586-1-ioanna-maria.alifieraki@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This reverts commit b24be4acd17a8963a29b2a92e1d80b9ddf759c95.
 
-The patch titled
-     Subject: ARM: dma-api: fix max_pfn off-by-one error in __dma_supported()
-has been removed from the -mm tree.  Its filename was
-     arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch
+Commit b24be4acd17a ("ovl: modify ovl_permission() to do checks on two
+inodes") (stable kernel  id) breaks r/w access in overlayfs when setting
+ACL to files, in 4.4 stable kernel. There is an available reproducer in
+[1].
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+To reproduce the issue :
+$./make-overlay.sh
+$./test.sh
+st_mode is 100644
+open failed: -1
+cat: /tmp/overlay/animal: Permission denied <---- Breaks access
+-rw-r--r-- 1 jo jo 0 Oct 11 09:57 /tmp/overlay/animal
 
-------------------------------------------------------
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: ARM: dma-api: fix max_pfn off-by-one error in __dma_supported()
+There are two options to fix this; (a) backport commit ce31513a9114
+("ovl: copyattr after setting POSIX ACL") to 4.4 or (b) revert offending
+commit b24be4acd17a ("ovl: modify ovl_permission() to do checks on two
+inodes"). Following option (a) entails high risk of regression since
+commit ce31513a9114 ("ovl: copyattr after setting POSIX ACL") has many
+dependencies on other commits that need to be backported too (~18
+commits).
 
-max_pfn, as set in arch/arm/mm/init.c:
+This patch proceeds with reverting commit b24be4acd17a ("ovl: modify
+ovl_permission() to do checks on two inodes").  The reverted commit is
+associated with CVE-2018-16597, however the test-script provided in [3]
+shows that 4.4 kernel is  NOT affected by this cve and therefore it's
+safe to revert it.
 
-    static void __init find_limits(unsigned long *min,
-				   unsigned long *max_low,
-				   unsigned long *max_high)
-    {
-	    *max_low = PFN_DOWN(memblock_get_current_limit());
-	    *min = PFN_UP(memblock_start_of_DRAM());
-	    *max_high = PFN_DOWN(memblock_end_of_DRAM());
-    }
+The offending commit was introduced upstream in v4.8-rc1. At this point
+had nothing to do with any CVE.  It was related with CVE-2018-16597 as
+it was the fix for bug [2]. Later on it was backported to stable 4.4.
 
-with memblock_end_of_DRAM() pointing to the next byte after DRAM.  As
-such, max_pfn points to the PFN after the end of DRAM.
+The test-script [3] tests whether 4.4 kernel is affected by
+CVE-2018-16597. It tests the reproducer found in [2] plus a few more
+cases. The correct output of the script is failure with "Permission
+denied" when a normal user tries to overwrite root owned files.  For
+more details please refer to [4].
 
-Thus when using max_pfn to check DMA masks, we should subtract one when
-checking DMA ranges against it.
+[1] https://gist.github.com/thomas-holmes/711bcdb28e2b8e6d1c39c1d99d292af7
+[2] https://bugzilla.suse.com/show_bug.cgi?id=1106512#c0
+[3] https://launchpadlibrarian.net/459694705/test_overlay_permission.sh
+[4] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1851243
 
-Commit 8bf1268f48ad ("ARM: dma-api: fix off-by-one error in
-__dma_supported()") fixed the same issue, but missed this spot.
-
-This issue was found while working on the sun4i-csi v4l2 driver on the
-Allwinner R40 SoC.  On Allwinner SoCs, DRAM is offset at 0x40000000, and
-we are starting to use of_dma_configure() with the "dma-ranges" property
-in the device tree to have the DMA API handle the offset.
-
-In this particular instance, dma-ranges was set to the same range as the
-actual available (2 GiB) DRAM.  The following error appeared when the
-driver attempted to allocate a buffer:
-
-    sun4i-csi 1c09000.csi: Coherent DMA mask 0x7fffffff (pfn 0x40000-0xc0000)
-    covers a smaller range of system memory than the DMA zone pfn 0x0-0xc0001
-    sun4i-csi 1c09000.csi: dma_alloc_coherent of size 307200 failed
-
-Fixing the off-by-one error makes things work.
-
-Link: http://lkml.kernel.org/r/20191224030239.5656-1-wens@kernel.org
-Fixes: 11a5aa32562e ("ARM: dma-mapping: check DMA mask against available memory")
-Fixes: 9f28cde0bc64 ("ARM: another fix for the DMA mapping checks")
-Fixes: ab746573c405 ("ARM: dma-mapping: allow larger DMA mask than supported")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
 ---
+ fs/overlayfs/inode.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
- arch/arm/mm/dma-mapping.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/arm/mm/dma-mapping.c~arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported
-+++ a/arch/arm/mm/dma-mapping.c
-@@ -221,7 +221,7 @@ EXPORT_SYMBOL(arm_coherent_dma_ops);
+diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+index 060482e349ef..013d27dc6f58 100644
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -9,7 +9,6 @@
  
- static int __dma_supported(struct device *dev, u64 mask, bool warn)
- {
--	unsigned long max_dma_pfn = min(max_pfn, arm_dma_pfn_limit);
-+	unsigned long max_dma_pfn = min(max_pfn - 1, arm_dma_pfn_limit);
+ #include <linux/fs.h>
+ #include <linux/slab.h>
+-#include <linux/cred.h>
+ #include <linux/xattr.h>
+ #include "overlayfs.h"
  
- 	/*
- 	 * Translate the device's DMA mask to a PFN limit.  This
-_
-
-Patches currently in -mm which might be from wens@csie.org are
-
+@@ -92,7 +91,6 @@ int ovl_permission(struct inode *inode, int mask)
+ 	struct ovl_entry *oe;
+ 	struct dentry *alias = NULL;
+ 	struct inode *realinode;
+-	const struct cred *old_cred;
+ 	struct dentry *realdentry;
+ 	bool is_upper;
+ 	int err;
+@@ -145,18 +143,7 @@ int ovl_permission(struct inode *inode, int mask)
+ 			goto out_dput;
+ 	}
+ 
+-	/*
+-	 * Check overlay inode with the creds of task and underlying inode
+-	 * with creds of mounter
+-	 */
+-	err = generic_permission(inode, mask);
+-	if (err)
+-		goto out_dput;
+-
+-	old_cred = ovl_override_creds(inode->i_sb);
+ 	err = __inode_permission(realinode, mask);
+-	revert_creds(old_cred);
+-
+ out_dput:
+ 	dput(alias);
+ 	return err;
+-- 
+2.17.1
 
