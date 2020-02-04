@@ -2,103 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB39115163F
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 08:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 508571516D3
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 09:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgBDHF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 02:05:57 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:53029 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725834AbgBDHF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 02:05:57 -0500
-Received: by mail-wm1-f68.google.com with SMTP id p9so1964870wmc.2
-        for <stable@vger.kernel.org>; Mon, 03 Feb 2020 23:05:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=b+XoCXCFYHgrlatYLX5G6UI1NnNpmllw9gkCOKf8h9k=;
-        b=zj+Og+ra1rqDg94BcvuWOQkfen9dqK9OxP9B3arO++LM0EtchNvgY0YiffyoP/zVog
-         UlcR2jJFHiCaBkwsPlf+ZRxpYhMjnpvv3FuNTPubtgEM0ZBFL+S56bptoQZ1az7fh6X8
-         wZo5gosPdO3d3ESYFgvHlduU2WcweIUfk53TFYPUxLiT5zq/eChOyFFd+SrTKEHtA9Jl
-         VzxxGgSSxfBTHqEll8Jc/lhBQCwQdgKufXlZK7YE8f5S0ASv5/CI7fk+ZZra1fjpHV8D
-         6VAyN5t26/kuT3ji4znHqAfPXaS91aP60l0Krmb68CsXoU6KAH78xsO1kUlEb7oTvVPP
-         yLMA==
+        id S1726706AbgBDILs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 03:11:48 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:39221 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726406AbgBDILs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 03:11:48 -0500
+Received: by mail-lj1-f195.google.com with SMTP id o15so11994534ljg.6;
+        Tue, 04 Feb 2020 00:11:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=b+XoCXCFYHgrlatYLX5G6UI1NnNpmllw9gkCOKf8h9k=;
-        b=rl+5OM0deJ68Ghd0hoBT4xDXvjqMlIvXQAnnm5+EtW29uZJQRfU+tXEmjFWjsw//Pr
-         QemzASAGOCcmTEyIXMFwskgZ6Np7RR5G5VvHJ4hUO3Y8Qgxg53r4DXIa4gv2/Y+Bezjv
-         Mk0sTQ69UHIzgHlUyRpsCrdEPlR8izsUqYziz+LNqBKVzEAumnly/85flS8IZGWPYg90
-         rdo+p43W/O21t9dS3F1QqoX8v/IQI6LvfMfOD3+V97i4lR0ogZDELpjnLn14KHFRb1HQ
-         u4o81Qb2baUzv5L1bWJCZFFj315mi20xZQKIqgPgvaVwD8jGvAi7CoS374LAJ6ZAVg+a
-         Areg==
-X-Gm-Message-State: APjAAAVy8C6giEXbK7vVyB3/thsSc4vVL6oN5AAYUB2WFe9sKCkvaBu/
-        pUZ0fCP6+Ksei4L51+pxZ1iat/01qP1rFw==
-X-Google-Smtp-Source: APXvYqzeJCQcELzXSNaDj6WtnjuPWmGwIIuVRVK14+xMDiNZlVJ/aF0WKZW1mBIdk1iR9AbWc8wamw==
-X-Received: by 2002:a7b:c147:: with SMTP id z7mr3806952wmi.168.1580799954931;
-        Mon, 03 Feb 2020 23:05:54 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o4sm13644854wrw.15.2020.02.03.23.05.54
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=6sqvvOg/zAjFutnY8VlDzQ+LHwP3wPOLlyLeY12TqRo=;
+        b=d0nXHj1AYL/cgvrqezF1eAENPZy5pqhoq8pqblU/RX/m+HKBtJPNcfUgRYFlqXvYea
+         7Yo+QmOHGRtrvBngFLPl5xMLJU+WpGYOq4Je1BKmebVkPU7JdszFwZjsoZyMepyMuNNK
+         du7rFV8Xet/kiKQMBw4VWYrV2FjJ4b01T6YXymwyZcyIgagbBxsHbA4nDpVZ9kmGJdKA
+         OT30W6N9+jmwa3qXWpMk4jjvFrSrJ0cLjTRGq32eqRG8uN52uzoRdt9jMpACs9jlJe+e
+         vZTYL2kSwdBaxhZLzsYRVGkSVs6Y60G05udx7HkQ0WUD42HZkar1wdHMALYA5WuzeeTZ
+         5fOQ==
+X-Gm-Message-State: APjAAAVNdDfbVzI3gYdQgraZlqZJavIFucH9t/z0P8xkJE6yc99xcNJG
+        LoCQo8PH1AXhfd71551qI8604j6C
+X-Google-Smtp-Source: APXvYqxLUwXw1YItqMStIvVnNVaPKbRTXtu6eTz1EIIRlzhPvMelYSxTm/BrTrOpMwUuSF3DC52aow==
+X-Received: by 2002:a2e:6e19:: with SMTP id j25mr16359366ljc.95.1580803906831;
+        Tue, 04 Feb 2020 00:11:46 -0800 (PST)
+Received: from xi.terra (c-12aae455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.170.18])
+        by smtp.gmail.com with ESMTPSA id a8sm11032729ljn.74.2020.02.04.00.11.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Feb 2020 23:05:54 -0800 (PST)
-Message-ID: <5e3917d2.1c69fb81.c4f2c.98c3@mx.google.com>
-Date:   Mon, 03 Feb 2020 23:05:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 04 Feb 2020 00:11:45 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1iytJL-0008Dh-3q; Tue, 04 Feb 2020 09:11:55 +0100
+Date:   Tue, 4 Feb 2020 09:11:55 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>,
+        Vladis Dronov <vdronov@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4 65/90] Input: aiptek - use descriptors of current
+ altsetting
+Message-ID: <20200204081155.GC26725@localhost>
+References: <20200203161917.612554987@linuxfoundation.org>
+ <20200203161925.451117468@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.17-102-g9028ac4fc837
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 99 boots: 2 failed,
- 97 passed (v5.4.17-102-g9028ac4fc837)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200203161925.451117468@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 99 boots: 2 failed, 97 passed (v5.4.17-102-g902=
-8ac4fc837)
+On Mon, Feb 03, 2020 at 04:20:08PM +0000, Greg Kroah-Hartman wrote:
+> From: Johan Hovold <johan@kernel.org>
+> 
+> [ Upstream commit cfa4f6a99fb183742cace65ec551b444852b8ef6 ]
+> 
+> Make sure to always use the descriptors of the current alternate setting
+> to avoid future issues when accessing fields that may differ between
+> settings.
+> 
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Acked-by: Vladis Dronov <vdronov@redhat.com>
+> Link: https://lore.kernel.org/r/20191210113737.4016-4-johan@kernel.org
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/input/tablet/aiptek.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+> index 06d0ffef4a171..e08b0ef078e81 100644
+> --- a/drivers/input/tablet/aiptek.c
+> +++ b/drivers/input/tablet/aiptek.c
+> @@ -1713,7 +1713,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+>  
+>  	aiptek->inputdev = inputdev;
+>  	aiptek->intf = intf;
+> -	aiptek->ifnum = intf->altsetting[0].desc.bInterfaceNumber;
+> +	aiptek->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+>  	aiptek->inDelay = 0;
+>  	aiptek->endDelay = 0;
+>  	aiptek->previousJitterable = 0;
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.17-102-g9028ac4fc837/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.17-102-g9028ac4fc837/
+I asked Sasha to drop this one directly when he added it, so it's
+probable gone from all the stable queues by now.
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.17-102-g9028ac4fc837
-Git Commit: 9028ac4fc83727a47f8fffd43cea9b88a8f026e3
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 62 unique boards, 18 SoC families, 13 builds out of 167
+But I'm still curious how this ended up being selected for stable in the
+first place? There's no fixes or stable tag in the commit, and I never
+received a mail from the AUTOSEL scripts.
 
-Boot Regressions Detected:
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxbb-p200:
-              lab-baylibre: new failure (last pass: v5.4.16)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+Johan
