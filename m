@@ -2,95 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB43151750
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 10:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3A015174F
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 10:02:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726189AbgBDJDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 04:03:01 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:34607 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726151AbgBDJDA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 04:03:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580806979;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=MgbQWepxvZEKVjhljUIgxQZLJyyhLVVP/zdUzW5X4U0=;
-        b=h1opbibRIobf4/I2TdmZLUNEnQSVA9XTe9nbIFAbfs50Dlp7juk3nlfC/4VSj6f5OEl2Ii
-        iF3XGSUUFEhY9apEJgZNqdtOkyuD14sQvrj4Vr77DEZpsAOiOCvyH1TOqCIfOr3W6WJtxZ
-        b/KcUJXIgNC3j7KQvTH5+zKpra83CYU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-31-cuqg0jjXPV2LC1SQt4jJ4w-1; Tue, 04 Feb 2020 04:02:53 -0500
-X-MC-Unique: cuqg0jjXPV2LC1SQt4jJ4w-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 135F885EE6F;
-        Tue,  4 Feb 2020 09:02:52 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0BADE5DA83;
-        Tue,  4 Feb 2020 09:02:51 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 25E861809563;
-        Tue,  4 Feb 2020 09:02:51 +0000 (UTC)
-Date:   Tue, 4 Feb 2020 04:02:50 -0500 (EST)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>,
-        Jaroslav Kysela <jkysela@redhat.com>
-Message-ID: <1905459596.5574249.1580806970915.JavaMail.zimbra@redhat.com>
-In-Reply-To: <cki.A43C5F6701.3LH2WNZUVM@redhat.com>
-References: <cki.A43C5F6701.3LH2WNZUVM@redhat.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kerne?=
- =?utf-8?Q?l_5.4.18-rc1-6213eed.cki_(stable)?=
+        id S1726230AbgBDJC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 04:02:58 -0500
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:39358 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726189AbgBDJC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 04:02:58 -0500
+Received: by mail-wm1-f45.google.com with SMTP id c84so2483445wme.4
+        for <stable@vger.kernel.org>; Tue, 04 Feb 2020 01:02:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Y3MFBCmJbAV2NTt28iyVIoEkdhXmr1mPWNzxTm9DC2w=;
+        b=ISWzNsioZtkqSbGPdFFVdoxm+ygbqmqdIWLGJOI+/xtAhT5Zv9QBpz4DymgIITMgAC
+         h/My2lBROO/6c+gRpC90yxUFPX0YEULP0DwD4Z5q04aO2DrhBftQwYHVOqb9J/GzUga9
+         37QLtT4pIC52FJ1yc3fjN3W06hMVXgPCTb/ayUmBLhhRkltadboyv/NV/5PAs85CAuzq
+         yXmqalx98YSlZxwHJzZs2g1R5UWodj5mZwmlqauSHZ2a5a8QLScqRSS2cNl/W65PDVXt
+         43AeIXAdd98Iou9dzOhuq2qRXTUQ9AAdXliLgdMd3rFwb2xAHzJhqAZ6zGM0Ane9rG8f
+         Ni5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Y3MFBCmJbAV2NTt28iyVIoEkdhXmr1mPWNzxTm9DC2w=;
+        b=oFw/cfzBC3WZr/lIGOQ0mfdO0clNSIyZEilT/bc+UlrS2yHGPcl7ZcYNixKp3Ce17d
+         ZxT4UcXu9pjJgt/4TmRFeqWez8oizvFtgFIw/CqGZCtMhczOgRO+XC1Nj0fzluJw2Lea
+         kKPZUpr4RHOYGapkdf8nzXPQAU1IUJ1p3wKea6YyNoo9D6KT/LB7w4SrzplwNk8qLyJK
+         0DbttqO9nkb46xDcrq2r3Lw4zC7fRyDmMNhO8DCzYyYES6SQXqp6868CzpGEiqWrnJ32
+         qu5U2nswfb3rJeofLX1BPW8jMMcHLyptAezn4Nw1baI5yKhCdYLH93hzXnED9CefHPC2
+         qgcw==
+X-Gm-Message-State: APjAAAUp8BMG7BxWxWzMk4oTfEccPqiVsBTuAIU0FHOf4P/n5zyABYK3
+        4Usw3RprbBeUnrBXdQtO/wS55nhc/Su+fg==
+X-Google-Smtp-Source: APXvYqz7mMbnDBVPX60XTsxD8pEx8hmLc8kihsCNqIhdDNF8JNU6JbrAqi9QILKg2t1/35Pm60nrKw==
+X-Received: by 2002:a1c:8095:: with SMTP id b143mr4413118wmd.7.1580806975773;
+        Tue, 04 Feb 2020 01:02:55 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s65sm3002199wmf.48.2020.02.04.01.02.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Feb 2020 01:02:55 -0800 (PST)
+Message-ID: <5e39333f.1c69fb81.f8f04.cdad@mx.google.com>
+Date:   Tue, 04 Feb 2020 01:02:55 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [10.43.17.25, 10.4.195.11]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.4.18-rc1-6213eed.cki (stable)
-Thread-Index: lsdpAyQ4GSnbyv+nGAm45PURpUkWDA==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.212-70-g1fec4502bd05
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 28 boots: 0 failed,
+ 28 passed (v4.9.212-70-g1fec4502bd05)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y boot: 28 boots: 0 failed, 28 passed (v4.9.212-70-g1fe=
+c4502bd05)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.212-70-g1fec4502bd05/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.212-70-g1fec4502bd05/
 
------ Original Message -----
->=20
-> Hello,
->=20
-> We ran automated tests on a recent commit from this kernel tree:
->=20
->        Kernel repo:
->        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
->             Commit: 6213eed0e444 - Linux 5.4.18-rc1
->=20
-> The results of these automated tests are provided below.
->=20
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: OK
->              Tests: FAILED
->=20
-> All kernel binaries, config files, and logs are available for download he=
-re:
->=20
->   https://artifacts.cki-project.org/pipelines/419091
->=20
-> One or more kernel tests failed:
->=20
->     ppc64le:
->      =E2=9D=8C LTP
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.212-70-g1fec4502bd05
+Git Commit: 1fec4502bd05d2ac63a18e776d588d9fac65a35c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 21 unique boards, 9 SoC families, 9 builds out of 158
 
-b45d82cfbabc ("max_map_count: use default overcommit mode")
-should address that. CKI job is currently at LTP commit:
-  baf4ca1653a9 ("syscalls/capset01: Cleanup & convert to new library")
-
+---
+For more info write to <info@kernelci.org>
