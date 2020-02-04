@@ -2,79 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F73151851
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 11:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B206F15186E
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 11:05:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbgBDKAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 05:00:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38910 "EHLO mail.kernel.org"
+        id S1726675AbgBDKFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 05:05:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726329AbgBDKAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Feb 2020 05:00:21 -0500
+        id S1726506AbgBDKFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Feb 2020 05:05:38 -0500
 Received: from localhost (unknown [212.187.182.163])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 398F3217BA;
-        Tue,  4 Feb 2020 10:00:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DDCA2192A;
+        Tue,  4 Feb 2020 10:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580810420;
-        bh=i4/pV3yXt1Xq5NaSU6N3KYYw34q7CC7h07LBX1XrFKI=;
+        s=default; t=1580810738;
+        bh=sVWw5io65CFud55R48cwmbeybCwucc32GqEz2clXunY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WcZprKCXPGJibCXsrLvxeuo1CW7VAvOY7oSXtV1zu8WkgBtiFdtvj6hdD97dmZyH4
-         c/SHnqYnyNp9da4tCocaDR/ZG+4kOJWSm+pH/u5z+8YA3yXKHgWbfgC3lx5cTmHK02
-         n+HpahEMU8dyzKY5EbnkoaewR/3Al7PnMd0MnJqM=
-Date:   Tue, 4 Feb 2020 10:00:16 +0000
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        b=Ax84ru3DK2QxnRTnncBb96xb4kYi7b9Nl02GW0bc1uYLwCNmBIZKvAejB5unuRIbP
+         swUYQujkGap5VWVJB/accBIEXOfyiz0/V9EXV6CS0OpVIqIrjk8o/j6nyJfou35mT8
+         Ps/R7s0IwOQNnQffVe81oqnurYtgOu/hAz+uqYaw=
+Date:   Tue, 4 Feb 2020 10:02:32 +0000
+From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Siva Rebbagondla <siva8118@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Denis Efremov <efremov@linux.com>
-Subject: Re: [PATCH 5.4 117/203] rsi: fix potential null dereference in
- rsi_probe()
-Message-ID: <20200204100016.GA1088789@kroah.com>
-References: <20200116231745.218684830@linuxfoundation.org>
- <20200116231755.604943633@linuxfoundation.org>
- <20200204083332.GE26725@localhost>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Martin Kepplinger <martink@posteo.de>
+Subject: Re: [PATCH 1/7] Input: pegasus_notetaker: fix endpoint sanity check
+Message-ID: <20200204100232.GB1088789@kroah.com>
+References: <20191210113737.4016-1-johan@kernel.org>
+ <20191210113737.4016-2-johan@kernel.org>
+ <20200204082441.GD26725@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200204083332.GE26725@localhost>
+In-Reply-To: <20200204082441.GD26725@localhost>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 04, 2020 at 09:33:32AM +0100, Johan Hovold wrote:
-> On Fri, Jan 17, 2020 at 12:17:14AM +0100, Greg Kroah-Hartman wrote:
-> > From: Denis Efremov <efremov@linux.com>
+On Tue, Feb 04, 2020 at 09:24:41AM +0100, Johan Hovold wrote:
+> On Tue, Dec 10, 2019 at 12:37:31PM +0100, Johan Hovold wrote:
+> > The driver was checking the number of endpoints of the first alternate
+> > setting instead of the current one, something which could be used by a
+> > malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
+> > dereference.
 > > 
-> > commit f170d44bc4ec2feae5f6206980e7ae7fbf0432a0 upstream.
-> > 
-> > The id pointer can be NULL in rsi_probe(). It is checked everywhere except
-> > for the else branch in the idProduct condition. The patch adds NULL check
-> > before the id dereference in the rsi_dbg() call.
-> > 
-> > Fixes: 54fdb318c111 ("rsi: add new device model for 9116")
-> > Cc: Amitkumar Karwar <amitkarwar@gmail.com>
-> > Cc: Siva Rebbagondla <siva8118@gmail.com>
-> > Cc: Kalle Valo <kvalo@codeaurora.org>
-> > Signed-off-by: Denis Efremov <efremov@linux.com>
-> > Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
+> > Cc: stable <stable@vger.kernel.org>     # 4.8
+> > Cc: Martin Kepplinger <martink@posteo.de>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
 > 
-> This commit is bogus and was reverted shortly after it was applied in
-> order to prevent autosel from picking it up for stable (reverted by
-> c5dcf8f0e850 ("Revert "rsi: fix potential null dereference in
-> rsi_probe()"")).
+> Looks like the stable tag was removed when this one was applied, and
+> similar for patches 2, 4 and 7 of this series (commits 3111491fca4f,
+> a8eeb74df5a6, 6b32391ed675 upstream).
 > 
-> The revert has now been picked up by Sasha, but shouldn't an
-> explicit revert in the same pull-request prevent a bad patch from being
-> backported in the first place? Seems like something that could be
-> scripted. But perhaps the net-stable oddities come into play here.
+> While the last three are mostly an issue for the syzbot fuzzer, we have
+> started backporting those as well.
+> 
+> This one (bcfcb7f9b480) is more clear cut as it can be used to trigger a
+> NULL-deref.
+> 
+> I only noticed because Sasha picked up one of the other patches in the
+> series which was never intended for stable.
 
-This was my fault, I picked it up, and didn't run a "has this patch been
-reverted" type search on them.  I'll add that to my workflow, sorry.
+Did I end up catching all of these properly?  I've had to expand my
+search for some patches like this that do not explicitly have the cc:
+stable mark on them as not all subsystems do this well (if at all.)
+
+And there's also Sasha's work in digging up patches based on patterns of
+fixes, which also is needed because of this "problem".
+
+thanks,
 
 greg k-h
