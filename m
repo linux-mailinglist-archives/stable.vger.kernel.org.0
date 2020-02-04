@@ -2,81 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90183151F39
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 18:20:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC42F152034
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 19:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727314AbgBDRUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 12:20:50 -0500
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:52424 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727308AbgBDRUu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 12:20:50 -0500
-Received: by mail-pj1-f68.google.com with SMTP id ep11so1665691pjb.2;
-        Tue, 04 Feb 2020 09:20:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=kPZ0FP9iKn3NpVfyfbzekp4EaJMOqkAb0O78P8cCHmE=;
-        b=qRm5XH2Oz9MFbIZaQQrdSsAKqrRuGi3L+pMYoCHSFURgZ4O5oho0bTJmTQe4sMtORU
-         iupgsRqnlcbS7q9LAEiY8BcckCM+cPQRa5NY+4zkFJlC82rocf62moXnw7NqHEW7RoHB
-         274QXrgvD9yyZxMi8aAImk2iiwXnuvLDLrEg3o7/Opy75ghIdtnw7+383qrd7gNWq4qp
-         +va7aQRZ61nIJqKPyrt22aHLM4CeQ6Vd7eqZ7r1zgKeWa3ciTD7Zmgl0uC2iqgu2beNA
-         QCOTrADXQlUPhCNn1REv95UAMwirf/Ox6V8XhqHAzfA+Dnz3xHZramfwJVsXphcFmy5g
-         U26Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=kPZ0FP9iKn3NpVfyfbzekp4EaJMOqkAb0O78P8cCHmE=;
-        b=SNdSA/biT9FYVTEf/XXpqpSS6M9tGXhNvXUBD8HKBPPQMd2KZGtenPsvd2MCkJEucL
-         3+TF9Yy9pXNPcc1LnrQiFtTY00jlOtfAdDYwDbzuZnhhBzywWLPxlpiQ8coUrOJNaEcr
-         zJgDQV9oxr6TH/sDbLZwGHJFihReinG0xsGmwZr8noB73V6+v8TGYVP+VfjdsyCV1OzG
-         NQCfNvHtTfFkhOh0cA5oN0qYROw6VjFdACwybOf8CP6ghk69wknd7pMM/BZKeuPk6Slf
-         ZjvYT4EfhTECHdgjfWnPZEjQ5seJUUPO8XR1SnFnugikI3t4GTb0sbqP8QnfcPr8APou
-         a8Ow==
-X-Gm-Message-State: APjAAAVD1+CNF7eCGDVI+Y/lB20liXc95lMmnbQFOhZZWXMwW9KMdWcI
-        hj6NpRZqBFG2SgLt9I3qGD0=
-X-Google-Smtp-Source: APXvYqy/xjE4+827o1ywDM9A1uTExyptoPE1eReZLLBC99Ns70ZHmdQHyG9IcWF1H8JzhBmoKppm5w==
-X-Received: by 2002:a17:90b:14e:: with SMTP id em14mr124044pjb.112.1580836848714;
-        Tue, 04 Feb 2020 09:20:48 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d22sm24082720pfo.187.2020.02.04.09.20.47
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 04 Feb 2020 09:20:48 -0800 (PST)
-Date:   Tue, 4 Feb 2020 09:20:47 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.5 00/23] 5.5.2-stable review
-Message-ID: <20200204172047.GF10163@roeck-us.net>
-References: <20200203161902.288335885@linuxfoundation.org>
+        id S1727415AbgBDSHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 13:07:01 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:21764 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727355AbgBDSHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 13:07:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580839620;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XWKVifPvzk7nGZkW2Rkc9lnH/1uQ5csPYFLkasrtOuc=;
+        b=N0J8HOCLhxYUGQzPFiHIuttpNA7m7HipbuohNnAij/PuuMgHEO16CpViB64jowu+PTzOCb
+        xNmEYLJR5hOmRwDxXmivxKsNHzU06pFLQ7OyogkTyfgjZ+Q+egMBJfF7FPQ1R93yuRJPjn
+        4ZTGWO8kViK69yMWsI0swBILxKVIyU4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-154-PGVruzOkOEWd4QzH82xiKA-1; Tue, 04 Feb 2020 13:06:35 -0500
+X-MC-Unique: PGVruzOkOEWd4QzH82xiKA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6ECDC8014CE;
+        Tue,  4 Feb 2020 18:06:34 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-121-102.rdu2.redhat.com [10.10.121.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7FE9B87EFF;
+        Tue,  4 Feb 2020 18:06:28 +0000 (UTC)
+Subject: =?UTF-8?Q?Re=3a_=5bLTP=5d_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_?=
+ =?UTF-8?Q?5=2e4=2e18-rc1-6213eed=2ecki_=28stable=29?=
+To:     Jan Stancek <jstancek@redhat.com>,
+        CKI Project <cki-project@redhat.com>
+Cc:     Memory Management <mm-qe@redhat.com>,
+        Jaroslav Kysela <jkysela@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>
+References: <cki.A43C5F6701.3LH2WNZUVM@redhat.com>
+ <1905459596.5574249.1580806970915.JavaMail.zimbra@redhat.com>
+From:   Rachel Sibley <rasibley@redhat.com>
+Message-ID: <fd899990-b29d-7b5d-208c-aa89e5d67859@redhat.com>
+Date:   Tue, 4 Feb 2020 13:06:23 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200203161902.288335885@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <1905459596.5574249.1580806970915.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 03, 2020 at 04:20:20PM +0000, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.5.2 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 157 pass: 157 fail: 0
-Qemu test results:
-	total: 393 pass: 393 fail: 0
 
-Guenter
+On 2/4/20 4:02 AM, Jan Stancek wrote:
+>=20
+>=20
+> ----- Original Message -----
+>>
+>> Hello,
+>>
+>> We ran automated tests on a recent commit from this kernel tree:
+>>
+>>         Kernel repo:
+>>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-sta=
+ble-rc.git
+>>              Commit: 6213eed0e444 - Linux 5.4.18-rc1
+>>
+>> The results of these automated tests are provided below.
+>>
+>>      Overall result: FAILED (see details below)
+>>               Merge: OK
+>>             Compile: OK
+>>               Tests: FAILED
+>>
+>> All kernel binaries, config files, and logs are available for download=
+ here:
+>>
+>>    https://artifacts.cki-project.org/pipelines/419091
+>>
+>> One or more kernel tests failed:
+>>
+>>      ppc64le:
+>>       =E2=9D=8C LTP
+>=20
+> b45d82cfbabc ("max_map_count: use default overcommit mode")
+> should address that. CKI job is currently at LTP commit:
+>    baf4ca1653a9 ("syscalls/capset01: Cleanup & convert to new library")
+
+Thanks for the reminder :-) I will update LTP to a recent commit today to=
+ pull
+in this change.
+
+-Rachel
+>=20
+>=20
+
