@@ -2,80 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B206F15186E
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 11:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7DB151862
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 11:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726675AbgBDKFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 05:05:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40110 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726506AbgBDKFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Feb 2020 05:05:38 -0500
-Received: from localhost (unknown [212.187.182.163])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DDCA2192A;
-        Tue,  4 Feb 2020 10:05:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580810738;
-        bh=sVWw5io65CFud55R48cwmbeybCwucc32GqEz2clXunY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ax84ru3DK2QxnRTnncBb96xb4kYi7b9Nl02GW0bc1uYLwCNmBIZKvAejB5unuRIbP
-         swUYQujkGap5VWVJB/accBIEXOfyiz0/V9EXV6CS0OpVIqIrjk8o/j6nyJfou35mT8
-         Ps/R7s0IwOQNnQffVe81oqnurYtgOu/hAz+uqYaw=
-Date:   Tue, 4 Feb 2020 10:02:32 +0000
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        stable@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Martin Kepplinger <martink@posteo.de>
-Subject: Re: [PATCH 1/7] Input: pegasus_notetaker: fix endpoint sanity check
-Message-ID: <20200204100232.GB1088789@kroah.com>
-References: <20191210113737.4016-1-johan@kernel.org>
- <20191210113737.4016-2-johan@kernel.org>
- <20200204082441.GD26725@localhost>
+        id S1726596AbgBDKDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 05:03:44 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:39763 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726343AbgBDKDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 05:03:44 -0500
+Received: by mail-lj1-f196.google.com with SMTP id o15so12361923ljg.6
+        for <stable@vger.kernel.org>; Tue, 04 Feb 2020 02:03:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=t6sE22BFWJuaXXDsiO7FA/020NBFi893pLEQAP7dUBQ=;
+        b=rM0NS6wcfQCIv9d7NHUEUWDnsO/NbJaMedoKi4BmxtRKzXggFWo2RDXWlUFJ0Gw/nf
+         pvjo9jh4M1E6WYEwAvOrckOdO6lpid30b1JIvPydDQhHebQS0CQzwkVbixZmSmAOdyJE
+         F+G+ZsXRz+ufVqscKYAgfYDvkBe11P+Z/UELqOg0Zw7APkWH/jQJQ2I5QlpKErXCWa4M
+         fKS+o0bRipnEyZmRUCf0iVipYRKxteXuaXwL+is8uR/xEH8XJHMNYogRrt3lDMIuBnLD
+         RvDtlyucrbHm5HJrHukFPeIZa2IPEyaed42Tjp2fov6XcEdBaXFb08VWXsMVhArC6u04
+         9cJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=t6sE22BFWJuaXXDsiO7FA/020NBFi893pLEQAP7dUBQ=;
+        b=TZRU4J26n8ecxtsMjEf+vKoUJS2GpZF3vXQlzENV91dQnEShIWy34o73cpLdZD6BTQ
+         PBIx4fkVBUgwwe2GzyjrGm+L435fcsp+sowLFsxjTFndV27VGIOGzR4ZL6D/skokppWF
+         ztBACAOMKKjvXtqp2ub5TQazQaPM1UaHsfTE5Rkri7HtdVJ6c6YyiOmvJhOj1npD06ny
+         sVNiYprpZPovwMvhAG+2hPPaGmjp42jVJfuvxgMMGCu9zcDttTW3ZTLAsCM0wn6IYu20
+         WdIEBLayzC9MSBmKTFIAg4PZpRBXzdmN1GG4AJQxSL6kdXwS16TvaxKrXnAlB5kAuiax
+         1vzw==
+X-Gm-Message-State: APjAAAUFMrzZqXvYSO+xAFFvoZ4OwuuYz+wAQudRZMleNVoojn2j9pmk
+        wNdiUxC5Z0VhUg8GC31/BnPwPtU33e9DdxDgFtk4oQ==
+X-Google-Smtp-Source: APXvYqyT3bDa5o7tDMylerK04ztSbFIu2yy3T8bURthgyjN9+22iHX/GuiiBRJj05A/8CvByvh3ohjlBYYFVN32UjGc=
+X-Received: by 2002:a2e:9008:: with SMTP id h8mr16772977ljg.217.1580810621713;
+ Tue, 04 Feb 2020 02:03:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200204082441.GD26725@localhost>
+References: <20200203161916.847439465@linuxfoundation.org>
+In-Reply-To: <20200203161916.847439465@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 4 Feb 2020 15:33:30 +0530
+Message-ID: <CA+G9fYs83tD7zDfJ1J0v4Xt4vrMxr5pMnVycRGUpPMCmAS6D1Q@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/89] 4.14.170-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 04, 2020 at 09:24:41AM +0100, Johan Hovold wrote:
-> On Tue, Dec 10, 2019 at 12:37:31PM +0100, Johan Hovold wrote:
-> > The driver was checking the number of endpoints of the first alternate
-> > setting instead of the current one, something which could be used by a
-> > malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
-> > dereference.
-> > 
-> > Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
-> > Cc: stable <stable@vger.kernel.org>     # 4.8
-> > Cc: Martin Kepplinger <martink@posteo.de>
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> 
-> Looks like the stable tag was removed when this one was applied, and
-> similar for patches 2, 4 and 7 of this series (commits 3111491fca4f,
-> a8eeb74df5a6, 6b32391ed675 upstream).
-> 
-> While the last three are mostly an issue for the syzbot fuzzer, we have
-> started backporting those as well.
-> 
-> This one (bcfcb7f9b480) is more clear cut as it can be used to trigger a
-> NULL-deref.
-> 
-> I only noticed because Sasha picked up one of the other patches in the
-> series which was never intended for stable.
+On Mon, 3 Feb 2020 at 21:58, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.170 release.
+> There are 89 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.170-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Did I end up catching all of these properly?  I've had to expand my
-search for some patches like this that do not explicitly have the cc:
-stable mark on them as not all subsystems do this well (if at all.)
 
-And there's also Sasha's work in digging up patches based on patterns of
-fixes, which also is needed because of this "problem".
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-thanks,
+Summary
+------------------------------------------------------------------------
 
-greg k-h
+kernel: 4.14.170-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: b4137330c582d6b6dac367230affdf2c484637c4
+git describe: v4.14.169-92-gb4137330c582
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.169-92-gb4137330c582
+
+
+No regressions (compared to build v4.14.169)
+
+No fixes (compared to build v4.14.169)
+
+Ran 13571 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-open-posix-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
