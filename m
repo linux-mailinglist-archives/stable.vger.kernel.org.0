@@ -2,120 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FAC151AB4
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 13:47:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC1C151ADB
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 13:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727127AbgBDMrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 07:47:24 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:50844 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727126AbgBDMrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 07:47:24 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E74F31C0141; Tue,  4 Feb 2020 13:47:21 +0100 (CET)
-Date:   Tue, 4 Feb 2020 13:47:21 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Chris Paterson <Chris.Paterson2@renesas.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
-Subject: Re: [PATCH 4.4 00/53] 4.4.213-stable review
-Message-ID: <20200204124721.GB6903@duo.ucw.cz>
-References: <20200203161902.714326084@linuxfoundation.org>
- <TYAPR01MB2285D96DC944217E7A22F8C6B7030@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+        id S1727170AbgBDMzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 07:55:24 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:38479 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727168AbgBDMzY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 07:55:24 -0500
+Received: by mail-wr1-f68.google.com with SMTP id y17so22919117wrh.5
+        for <stable@vger.kernel.org>; Tue, 04 Feb 2020 04:55:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=D6sPB35fUFrFu7yHT24chUXbfcu8vnoHruOhcrnWa9E=;
+        b=fyZD9mjKKJqBvR/evc25+Wt8Dcxnj03lT0D3c5zFs27NvdwGvP56Q+HVtE9QNtOGUU
+         TnHRm89uep1X8s0h96QQYQN08cIYqZ4fyph/pUfghXynzoebw6z5mW1X5uAPq/Yt5Lsl
+         +VRlpMeyda6UUW1P4Lp979Je4TIN2REH3PDqKTTaMiS1ip1RkZBej9NaFsxEfnhUzeLF
+         LrmfJtVgjVlGOewJu6SAYxP1N27Z89UBuma9zk59wPrW/ue7YczhkeSVDCsUAKEcUlp8
+         4sx+aeXmppnyzFXQZdC1P6axDLJT++zcBISlXbbeUsrE0II2iiyz1Cq77y/sNUthQM3R
+         0v7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=D6sPB35fUFrFu7yHT24chUXbfcu8vnoHruOhcrnWa9E=;
+        b=IA5+5/Kpyo4Xhjdy4xzb6uixH93PZTJ9Duhi0L8R7199/M1jRJgMyTi7gsJPhWcabM
+         wUBylKTvxOlB5mzY03nbFRiva/3lKTatvqLwuj9jhfuWc/R0RfjjMj3Ns1T1/6p/Lt6J
+         hdWIwGmiRRHcVjI6cBR5kGiLj4p05LJMi/vYq160efpU1hpGVfHk4G8NrKRZAUAoEVnf
+         VxqHskczFOlmn/uR5MwHXYUmVft73sx/jnAStXI7aC+gZqeY2JCZyOQofWjhO5SfFY0m
+         3Ikphu4nwpXAb7D0zQO6hvQb8BTZ8JNancWzPd7TNrMAVJapEzrcxOZH4qaKjE7Vg3rY
+         hurQ==
+X-Gm-Message-State: APjAAAUvwGGaLFCZ1IiRyIWjXkRymXLNB1QxVJrPEhheRoXswMPoGAEM
+        wPXGB8yAWam+vbhWIkDhx20OL0uURfIHHQ==
+X-Google-Smtp-Source: APXvYqyoxmYltJ2ccIENLXatuzhefwNIPgG+Nw/G7J9RFLB+j9BLn5S6BgFtUixBffXZouLZ7uUB+g==
+X-Received: by 2002:adf:eb8e:: with SMTP id t14mr21794599wrn.384.1580820922871;
+        Tue, 04 Feb 2020 04:55:22 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s12sm13256691wrw.20.2020.02.04.04.55.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Feb 2020 04:55:22 -0800 (PST)
+Message-ID: <5e3969ba.1c69fb81.9f222.89e6@mx.google.com>
+Date:   Tue, 04 Feb 2020 04:55:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
-Content-Disposition: inline
-In-Reply-To: <TYAPR01MB2285D96DC944217E7A22F8C6B7030@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.17-102-ga59b851019bc
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 61 boots: 1 failed,
+ 59 passed with 1 untried/unknown (v5.4.17-102-ga59b851019bc)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.4.y boot: 61 boots: 1 failed, 59 passed with 1 untried/un=
+known (v5.4.17-102-ga59b851019bc)
 
---i0/AhcQY5QxfSsSZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.17-102-ga59b851019bc/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.17-102-ga59b851019bc/
 
-Hi!
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.17-102-ga59b851019bc
+Git Commit: a59b851019bc15226d5c7c31ac4e0452e9a57d13
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 53 unique boards, 15 SoC families, 11 builds out of 150
 
-> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> > Behalf Of Greg Kroah-Hartman
-> > Sent: 03 February 2020 16:19
-> >=20
-> > This is the start of the stable review cycle for the 4.4.213 release.
-> > There are 53 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >=20
-> > Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
-> > Anything received after that time might be too late.
->=20
-> We're seeing an issue with 4.4.213-rc1 (36670370c48b) and 4.4.213-rc2 (75=
-8a39807529) with our 4 am335x configurations [0]:
->=20
->    AS      arch/arm/kernel/hyp-stub.o
->  arch/arm/kernel/hyp-stub.S:   CC      arch/arm/mach-omap2/sram.o
->  Assembler messages:
->    AS      arch/arm/kernel/smccc-call.o
->  arch/arm/kernel/hyp-stub.S:147: Error: selected processor does not suppo=
-rt `ubfx r7,r7,#16,#4' in ARM mode
->  scripts/Makefile.build:375: recipe for target 'arch/arm/kernel/hyp-stub.=
-o' failed
->  make[1]: *** [arch/arm/kernel/hyp-stub.o] Error 1
->=20
-> The culprit seems to be: 15163bcee7b5 ("ARM: 8955/1: virt: Relax arch tim=
-er version check during early boot")
-> Reverting the same resolves the build issue.
->=20
-> Latest pipeline: https://gitlab.com/cip-project/cip-testing/linux-stable-=
-rc-ci/pipelines/114683657
->=20
-> [0] https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/blob/ma=
-ster/4.4.y-cip/arm/
-> siemens_am335x-axm2_defconfig, siemens_am335x-draco_defconfig, siemens_am=
-335x-dxr2_defconfig, siemens_am335x-etamin_defconfig
->=20
+Boot Regressions Detected:
 
-For the record, build results are here:
+arc:
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/114=
-683657
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: new failure (last pass: v5.4.17-102-g9028ac4fc8=
+37)
 
-4.19.102 builds okay:
+arm64:
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/114=
-683672
+    defconfig:
+        gcc-8:
+          meson-gxm-q200:
+              lab-baylibre: new failure (last pass: v5.4.17-102-g9028ac4fc8=
+37)
 
-but that's probably because siemens_am335x* configurations are not
-tested in 4.19.X case.
+Boot Failure Detected:
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
 
---i0/AhcQY5QxfSsSZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXjln2QAKCRAw5/Bqldv6
-8sIgAKCyj4zI/uOT7gLAynk1FPJR4qIjfQCeMFByf8ArntJ0TdW9b+2Yosh+sEc=
-=7XhL
------END PGP SIGNATURE-----
-
---i0/AhcQY5QxfSsSZ--
+---
+For more info write to <info@kernelci.org>
