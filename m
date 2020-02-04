@@ -2,100 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB5C1516F7
-	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 09:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15901151717
+	for <lists+stable@lfdr.de>; Tue,  4 Feb 2020 09:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726189AbgBDIYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 03:24:35 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:36356 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726763AbgBDIYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 03:24:35 -0500
-Received: by mail-lf1-f66.google.com with SMTP id f24so11581238lfh.3;
-        Tue, 04 Feb 2020 00:24:33 -0800 (PST)
+        id S1727115AbgBDId1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 03:33:27 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:42600 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727023AbgBDId1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 03:33:27 -0500
+Received: by mail-lf1-f68.google.com with SMTP id y19so11580138lfl.9;
+        Tue, 04 Feb 2020 00:33:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=E6T1KOOke4/c747RNor42t/cZnyazvkZ3EY6Urb5I3I=;
-        b=mSRQsscU0xBPZIchK/X3YiAiekPaUYkwqordB7xA6oZRZ8DBnROSyLG5lWtylPidaw
-         5OUigektmD9fRVUwxSyPu3tXz1BMJMPwUTLJ699P15Y9ATPj8HJAyhMJMWwvovevLgqb
-         Gp0lkCYXnOGhryLX61rfQP4uRaBzPCZIA2Y7lFwsD2A/y5Z9EOBpCZYzehx3FrC747k/
-         98oVuTRBuIl8p+KWBvYZ+zN2gUGlJoJcePeClL+gw3TSCNS4FDU+qqBWDE1R2U/qbeh0
-         soDlu/6xN79t2z7jRBK4jmlx6ffnJv3XV+qVZA3xZZC1hQIZw9FF05MexOVdVpw5WgXR
-         0/kQ==
-X-Gm-Message-State: APjAAAU855vUymFZxUeV2Mj9edcJP+/Svsnk+KLYPLkEfaMcveXUFTb7
-        NvU2aP+oOYBHwfdWe0/xyIQ=
-X-Google-Smtp-Source: APXvYqxlKfcco2CZ6OmZ++hYA9pV0igvVPF/VyC2dwjPLoS7uc3OKJzegAJFxxgfc6cWfFbmSfpIDA==
-X-Received: by 2002:ac2:46dc:: with SMTP id p28mr14269160lfo.23.1580804672704;
-        Tue, 04 Feb 2020 00:24:32 -0800 (PST)
+        bh=8DO+mGDd2sVt5YxyY/YYwABJQxNuUfjHg9DqBr31WD8=;
+        b=AMnFVGS082Xu+jVLWsHqPqikDHmHistgBgpdTCznf5utbvfRylK9yBsASQWY55ePLo
+         XHQivgXEa7gOoIIZaHKgc0e3xg5X00VZE+MCbslLE4do8mo9ZTthtXD9UuWLyvJwW66B
+         3DKm+ES8nUw5npsoaVCm8VjN62ONcP96ic101e9eCHCv9R/kd6yW2SCB9tJSz5kE9LBZ
+         oxhhfN4xxVER/EgAN8VxsIMy7MzkxxOJFK0Vts1Hm0AT1JdY+jIwphpekEb0ZxJ/YCoT
+         8W4xwHQhvPn+WbCXn705hcObAMEyJcZH9CtPwqeDH6MwK/rS97UMurE7w4SixrlqQWQC
+         oCgQ==
+X-Gm-Message-State: APjAAAXddzLUUSJOTE+cFqbU4X1P69WvpBAEsoHnm4+vClSVp1cslk4b
+        WwhrvGuwgQ0KmQaO0G6AmL4=
+X-Google-Smtp-Source: APXvYqx57PfajZ51uAxyTh/39jBSBUfBp4nFXJXPoPpIVX52VhlNHoSlhGlqc/gieGZyJIoFj862xA==
+X-Received: by 2002:ac2:555c:: with SMTP id l28mr14264850lfk.52.1580805203770;
+        Tue, 04 Feb 2020 00:33:23 -0800 (PST)
 Received: from xi.terra (c-12aae455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.170.18])
-        by smtp.gmail.com with ESMTPSA id v7sm10192776lfa.10.2020.02.04.00.24.31
+        by smtp.gmail.com with ESMTPSA id h9sm6045753ljg.3.2020.02.04.00.33.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Feb 2020 00:24:32 -0800 (PST)
+        Tue, 04 Feb 2020 00:33:23 -0800 (PST)
 Received: from johan by xi.terra with local (Exim 4.92.3)
         (envelope-from <johan@kernel.org>)
-        id 1iytVh-0008Ia-6v; Tue, 04 Feb 2020 09:24:41 +0100
-Date:   Tue, 4 Feb 2020 09:24:41 +0100
+        id 1iyteG-0008Mm-B8; Tue, 04 Feb 2020 09:33:32 +0100
+Date:   Tue, 4 Feb 2020 09:33:32 +0100
 From:   Johan Hovold <johan@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, stable@vger.kernel.org
-Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Martin Kepplinger <martink@posteo.de>
-Subject: Re: [PATCH 1/7] Input: pegasus_notetaker: fix endpoint sanity check
-Message-ID: <20200204082441.GD26725@localhost>
-References: <20191210113737.4016-1-johan@kernel.org>
- <20191210113737.4016-2-johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Siva Rebbagondla <siva8118@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Denis Efremov <efremov@linux.com>
+Subject: Re: [PATCH 5.4 117/203] rsi: fix potential null dereference in
+ rsi_probe()
+Message-ID: <20200204083332.GE26725@localhost>
+References: <20200116231745.218684830@linuxfoundation.org>
+ <20200116231755.604943633@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191210113737.4016-2-johan@kernel.org>
+In-Reply-To: <20200116231755.604943633@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 12:37:31PM +0100, Johan Hovold wrote:
-> The driver was checking the number of endpoints of the first alternate
-> setting instead of the current one, something which could be used by a
-> malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
-> dereference.
+On Fri, Jan 17, 2020 at 12:17:14AM +0100, Greg Kroah-Hartman wrote:
+> From: Denis Efremov <efremov@linux.com>
 > 
-> Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
-> Cc: stable <stable@vger.kernel.org>     # 4.8
-> Cc: Martin Kepplinger <martink@posteo.de>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
+> commit f170d44bc4ec2feae5f6206980e7ae7fbf0432a0 upstream.
+> 
+> The id pointer can be NULL in rsi_probe(). It is checked everywhere except
+> for the else branch in the idProduct condition. The patch adds NULL check
+> before the id dereference in the rsi_dbg() call.
+> 
+> Fixes: 54fdb318c111 ("rsi: add new device model for 9116")
+> Cc: Amitkumar Karwar <amitkarwar@gmail.com>
+> Cc: Siva Rebbagondla <siva8118@gmail.com>
+> Cc: Kalle Valo <kvalo@codeaurora.org>
+> Signed-off-by: Denis Efremov <efremov@linux.com>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Looks like the stable tag was removed when this one was applied, and
-similar for patches 2, 4 and 7 of this series (commits 3111491fca4f,
-a8eeb74df5a6, 6b32391ed675 upstream).
+This commit is bogus and was reverted shortly after it was applied in
+order to prevent autosel from picking it up for stable (reverted by
+c5dcf8f0e850 ("Revert "rsi: fix potential null dereference in
+rsi_probe()"")).
 
-While the last three are mostly an issue for the syzbot fuzzer, we have
-started backporting those as well.
-
-This one (bcfcb7f9b480) is more clear cut as it can be used to trigger a
-NULL-deref.
-
-I only noticed because Sasha picked up one of the other patches in the
-series which was never intended for stable.
+The revert has now been picked up by Sasha, but shouldn't an
+explicit revert in the same pull-request prevent a bad patch from being
+backported in the first place? Seems like something that could be
+scripted. But perhaps the net-stable oddities come into play here.
 
 > ---
->  drivers/input/tablet/pegasus_notetaker.c | 2 +-
+>  drivers/net/wireless/rsi/rsi_91x_usb.c |    2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-> index a1f3a0cb197e..38f087404f7a 100644
-> --- a/drivers/input/tablet/pegasus_notetaker.c
-> +++ b/drivers/input/tablet/pegasus_notetaker.c
-> @@ -275,7 +275,7 @@ static int pegasus_probe(struct usb_interface *intf,
->  		return -ENODEV;
->  
->  	/* Sanity check that the device has an endpoint */
-> -	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
-> +	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
->  		dev_err(&intf->dev, "Invalid number of endpoints\n");
->  		return -EINVAL;
+> --- a/drivers/net/wireless/rsi/rsi_91x_usb.c
+> +++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
+> @@ -793,7 +793,7 @@ static int rsi_probe(struct usb_interfac
+>  		adapter->device_model = RSI_DEV_9116;
+>  	} else {
+>  		rsi_dbg(ERR_ZONE, "%s: Unsupported RSI device id 0x%x\n",
+> -			__func__, id->idProduct);
+> +			__func__, id ? id->idProduct : 0x0);
+>  		goto err1;
 >  	}
 
 Johan
