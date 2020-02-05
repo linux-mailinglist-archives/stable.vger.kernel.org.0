@@ -2,128 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC7D1524C9
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 03:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 117EB15259D
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 05:37:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727140AbgBEC0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Feb 2020 21:26:39 -0500
-Received: from mail26.static.mailgun.info ([104.130.122.26]:21186 "EHLO
-        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727674AbgBEC0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 21:26:39 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1580869598; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=Pgq9KvjPRshhckyUvQfLK0OTeO6Xr6mnSEYtpz2S3GE=;
- b=oic5PAMqoH8CTKVI86mItCckTOcke/VNhj2BXVFo4TMcWT6PPtAmOTzKhQpCdNR95BX0YHMT
- rglad2CerKHWZrC6yqIYhlnfm09P+oFOtAtZg1rzfCvp+ZpwcrpfMleDE+yr+5VXZaWf9T5M
- XIcYKUbICS3QmWfTA4QJCwjm7+8=
-X-Mailgun-Sending-Ip: 104.130.122.26
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e3a27dc.7f7f05ee4298-smtp-out-n01;
- Wed, 05 Feb 2020 02:26:36 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 7BABBC447A1; Wed,  5 Feb 2020 02:26:36 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: cang)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 38A01C433CB;
-        Wed,  5 Feb 2020 02:26:35 +0000 (UTC)
+        id S1727836AbgBEEhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Feb 2020 23:37:00 -0500
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:18752 "EHLO
+        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727832AbgBEEhA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Feb 2020 23:37:00 -0500
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+        by mx0b-0016f401.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0154WMgb020028;
+        Tue, 4 Feb 2020 20:36:58 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0818;
+ bh=0wtTTaRriNyiEGleoW7Fih+OI9irdCULzc2BaqO26yw=;
+ b=jy8POHz3mn/BNC5zVDG+3Qeg2Uzp82E45cfcb2eUDXxHc7vyILoqjriKlTpzLONKLHOA
+ GKvqnTz10Qcp6K7bFRGldThqApcZ8eoWG1XPPqXaQQkiuqWwdXIoDfZBHWMvV5AladAi
+ BdOMR+B+znHkJ+IoisEymf6S8oS4ymwgpk+77r2kFvd0vJhNtfXR79y5uAwxwuAcKeBG
+ obXi2CWYWdjCKRNUVZp0YdIeaQ1DFyAtcR5f/pfrmj29MsE/clls5cIiHJ25SNUvgM2+
+ pVcrnPKffcVbZQZlkoeWkm2i+pQgFyY6lZjLNIHIZVYCpZEc7mjkhxUfXyPFJy6sBy88 sw== 
+Received: from sc-exch02.marvell.com ([199.233.58.182])
+        by mx0b-0016f401.pphosted.com with ESMTP id 2xyhn116j8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Tue, 04 Feb 2020 20:36:58 -0800
+Received: from SC-EXCH01.marvell.com (10.93.176.81) by SC-EXCH02.marvell.com
+ (10.93.176.82) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 4 Feb
+ 2020 20:36:56 -0800
+Received: from maili.marvell.com (10.93.176.43) by SC-EXCH01.marvell.com
+ (10.93.176.81) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 4 Feb 2020 20:36:56 -0800
+Received: from dc5-eodlnx05.marvell.com (dc5-eodlnx05.marvell.com [10.69.113.147])
+        by maili.marvell.com (Postfix) with ESMTP id 929233F7402;
+        Tue,  4 Feb 2020 20:36:56 -0800 (PST)
+From:   Prabhakar Kushwaha <pkushwaha@marvell.com>
+To:     <stable@vger.kernel.org>, <axboe@kernel.dk>
+CC:     <gkulkarni@marvell.com>, <kamlakantp@marvell.com>,
+        <prabhakar.pkin@gmail.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>
+Subject: PATCH] ata: ahci: Add shutdown to freeze hardware resources of ahci
+Date:   Tue, 4 Feb 2020 20:36:49 -0800
+Message-ID: <1580877409-2775-1-git-send-email-pkushwaha@marvell.com>
+X-Mailer: git-send-email 1.8.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Wed, 05 Feb 2020 10:26:35 +0800
-From:   Can Guo <cang@codeaurora.org>
-To:     Stanley Chu <stanley.chu@mediatek.com>
-Cc:     linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
-        avri.altman@wdc.com, alim.akhtar@samsung.com, jejb@linux.ibm.com,
-        beanhuo@micron.com, asutoshd@codeaurora.org,
-        matthias.bgg@gmail.com, bvanassche@acm.org,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kuohong.wang@mediatek.com, peter.wang@mediatek.com,
-        chun-hung.wu@mediatek.com, andy.teng@mediatek.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH RESEND v3 3/4] scsi: ufs: fix Auto-Hibern8 error detection
-In-Reply-To: <20200129105251.12466-4-stanley.chu@mediatek.com>
-References: <20200129105251.12466-1-stanley.chu@mediatek.com>
- <20200129105251.12466-4-stanley.chu@mediatek.com>
-Message-ID: <42d40d961663b0a83e4d6bb266fe5ca1@codeaurora.org>
-X-Sender: cang@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-04_09:2020-02-04,2020-02-04 signatures=0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-01-29 18:52, Stanley Chu wrote:
-> Auto-Hibern8 may be disabled by some vendors or sysfs
-> in runtime even if Auto-Hibern8 capability is supported
-> by host. If Auto-Hibern8 capability is supported by host
-> but not actually enabled, Auto-Hibern8 error shall not happen.
-> 
-> To fix this, provide a way to detect if Auto-Hibern8 is
-> actually enabled first, and bypass Auto-Hibern8 disabling
-> case in ufshcd_is_auto_hibern8_error().
-> 
-> Fixes: 821744403913 ("scsi: ufs: Add error-handling of Auto-Hibernate")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-> Reviewed-by: Bean Huo <beanhuo@micron.com>
-> ---
+device_shutdown() called from reboot or power_shutdown expect
+all devices to be shutdown. Same is true for even ahci pci driver.
+As no ahci shutdown function is implemented, the ata subsystem
+always remains alive with DMA & interrupt support. File system
+related calls should not be honored after device_shutdown().
 
-Reviewed-by: Can Guo <cang@codeaurora.org>
+So defining ahci pci driver shutdown to freeze hardware (mask
+interrupt, stop DMA engine and free DMA resources).
 
->  drivers/scsi/ufs/ufshcd.c | 3 ++-
->  drivers/scsi/ufs/ufshcd.h | 6 ++++++
->  2 files changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-> index abd0e6b05f79..214a3f373dd8 100644
-> --- a/drivers/scsi/ufs/ufshcd.c
-> +++ b/drivers/scsi/ufs/ufshcd.c
-> @@ -5479,7 +5479,8 @@ static irqreturn_t
-> ufshcd_update_uic_error(struct ufs_hba *hba)
->  static bool ufshcd_is_auto_hibern8_error(struct ufs_hba *hba,
->  					 u32 intr_mask)
->  {
-> -	if (!ufshcd_is_auto_hibern8_supported(hba))
-> +	if (!ufshcd_is_auto_hibern8_supported(hba) ||
-> +	    !ufshcd_is_auto_hibern8_enabled(hba))
->  		return false;
-> 
->  	if (!(intr_mask & UFSHCD_UIC_HIBERN8_MASK))
-> diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-> index 2ae6c7c8528c..81c71a3e3474 100644
-> --- a/drivers/scsi/ufs/ufshcd.h
-> +++ b/drivers/scsi/ufs/ufshcd.h
-> @@ -55,6 +55,7 @@
->  #include <linux/clk.h>
->  #include <linux/completion.h>
->  #include <linux/regulator/consumer.h>
-> +#include <linux/bitfield.h>
->  #include "unipro.h"
-> 
->  #include <asm/irq.h>
-> @@ -773,6 +774,11 @@ static inline bool
-> ufshcd_is_auto_hibern8_supported(struct ufs_hba *hba)
->  	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT);
->  }
-> 
-> +static inline bool ufshcd_is_auto_hibern8_enabled(struct ufs_hba *hba)
-> +{
-> +	return FIELD_GET(UFSHCI_AHIBERN8_TIMER_MASK, hba->ahit) ? true : 
-> false;
-> +}
-> +
->  #define ufshcd_writel(hba, val, reg)	\
->  	writel((val), (hba)->mmio_base + (reg))
->  #define ufshcd_readl(hba, reg)	\
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+
+This problem has also been seen on older kernel. So sending to stable@vger.kernel.org 
+Note: It is already applied to Jens' block tree i.e. 
+git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git with
+commit id: 10a663a1b151 ("ata: ahci: Add shutdown to freeze hardware resources of ahci")
+
+ drivers/ata/ahci.c        |  7 +++++++
+ drivers/ata/libata-core.c | 21 +++++++++++++++++++++
+ include/linux/libata.h    |  1 +
+ 3 files changed, 29 insertions(+)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 4bfd1b14b390..11ea1aff40db 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -81,6 +81,7 @@ enum board_ids {
+ 
+ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent);
+ static void ahci_remove_one(struct pci_dev *dev);
++static void ahci_shutdown_one(struct pci_dev *dev);
+ static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
+ 				 unsigned long deadline);
+ static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
+@@ -606,6 +607,7 @@ static struct pci_driver ahci_pci_driver = {
+ 	.id_table		= ahci_pci_tbl,
+ 	.probe			= ahci_init_one,
+ 	.remove			= ahci_remove_one,
++	.shutdown		= ahci_shutdown_one,
+ 	.driver = {
+ 		.pm		= &ahci_pci_pm_ops,
+ 	},
+@@ -1877,6 +1879,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	return 0;
+ }
+ 
++static void ahci_shutdown_one(struct pci_dev *pdev)
++{
++	ata_pci_shutdown_one(pdev);
++}
++
+ static void ahci_remove_one(struct pci_dev *pdev)
+ {
+ 	pm_runtime_get_noresume(&pdev->dev);
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 6f4ab5c5b52d..42c8728f6117 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6767,6 +6767,26 @@ void ata_pci_remove_one(struct pci_dev *pdev)
+ 	ata_host_detach(host);
+ }
+ 
++void ata_pci_shutdown_one(struct pci_dev *pdev)
++{
++	struct ata_host *host = pci_get_drvdata(pdev);
++	int i;
++
++	for (i = 0; i < host->n_ports; i++) {
++		struct ata_port *ap = host->ports[i];
++
++		ap->pflags |= ATA_PFLAG_FROZEN;
++
++		/* Disable port interrupts */
++		if (ap->ops->freeze)
++			ap->ops->freeze(ap);
++
++		/* Stop the port DMA engines */
++		if (ap->ops->port_stop)
++			ap->ops->port_stop(ap);
++	}
++}
++
+ /* move to PCI subsystem */
+ int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits)
+ {
+@@ -7387,6 +7407,7 @@ EXPORT_SYMBOL_GPL(ata_timing_cycle2mode);
+ 
+ #ifdef CONFIG_PCI
+ EXPORT_SYMBOL_GPL(pci_test_config_bits);
++EXPORT_SYMBOL_GPL(ata_pci_shutdown_one);
+ EXPORT_SYMBOL_GPL(ata_pci_remove_one);
+ #ifdef CONFIG_PM
+ EXPORT_SYMBOL_GPL(ata_pci_device_do_suspend);
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 2dbde119721d..bff539918d82 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -1221,6 +1221,7 @@ struct pci_bits {
+ };
+ 
+ extern int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits);
++extern void ata_pci_shutdown_one(struct pci_dev *pdev);
+ extern void ata_pci_remove_one(struct pci_dev *pdev);
+ 
+ #ifdef CONFIG_PM
+-- 
+2.17.1
+
