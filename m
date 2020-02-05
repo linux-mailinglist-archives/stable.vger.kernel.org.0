@@ -2,120 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D487B153AF0
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 23:28:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7417153B09
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 23:37:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727116AbgBEW2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 17:28:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46212 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727106AbgBEW2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Feb 2020 17:28:11 -0500
-Received: from paulmck-ThinkPad-P72.home (50-39-105-78.bvtn.or.frontiernet.net [50.39.105.78])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F45214AF;
-        Wed,  5 Feb 2020 22:28:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580941689;
-        bh=mhFskXW68cjm8ngJsjNtNIsLZErDvTn4apWGcjHiQ7A=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=gbiYizyBE01xlOjsK4iCwW06pKI+hMYA6qlXF679HJDAScyMlGZKmHMGlX1n0j6zp
-         yf1QiYOaNIASXqy4VTRMSlQvNkUu23rwBg9cqKi8wJB336WLwAwub0Lwd/KvA9P0rp
-         Kliz7v9+iKQTCWUJIwzX3XeI1BfiySM4qVsQX2d8=
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id 7108035227EB; Wed,  5 Feb 2020 14:28:09 -0800 (PST)
-Date:   Wed, 5 Feb 2020 14:28:09 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Subject: Re: [for-next][PATCH 1/5] ftrace: Protect ftrace_graph_hash with
- ftrace_sync
-Message-ID: <20200205222809.GD2935@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20200205222110.912457436@goodmis.org>
- <20200205222142.810675558@goodmis.org>
+        id S1727279AbgBEWhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 17:37:40 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:35532 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727170AbgBEWhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 17:37:40 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 1330E1C036E; Wed,  5 Feb 2020 23:37:39 +0100 (CET)
+Date:   Wed, 5 Feb 2020 23:37:38 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Chris Paterson <Chris.Paterson2@renesas.com>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>
+Subject: Re: [cip-dev] [PATCH 4.4 00/53] 4.4.213-stable review
+Message-ID: <20200205223738.GC1140@amd>
+References: <20200203161902.714326084@linuxfoundation.org>
+ <TYAPR01MB2285D96DC944217E7A22F8C6B7030@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20200205130207.GA1199959@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="hYooF8G/hrfVAmum"
 Content-Disposition: inline
-In-Reply-To: <20200205222142.810675558@goodmis.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200205130207.GA1199959@kroah.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 05, 2020 at 05:21:11PM -0500, Steven Rostedt wrote:
-> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-> 
-> As function_graph tracer can run when RCU is not "watching", it can not be
-> protected by synchronize_rcu() it requires running a task on each CPU before
-> it can be freed. Calling schedule_on_each_cpu(ftrace_sync) needs to be used.
-> 
-> Link: https://lore.kernel.org/r/20200205131110.GT2935@paulmck-ThinkPad-P72
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: b9b0c831bed26 ("ftrace: Convert graph filter to use hash tables")
-> Reported-by: "Paul E. McKenney" <paulmck@kernel.org>
-> Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-Nice!  If there is much more call for this, perhaps I should take a hint
-from the ftrace_sync() comment and add synchronize_rcu_rude().  ;-)
+--hYooF8G/hrfVAmum
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: "Paul E. McKenney" <paulmck@kernel.org>
+On Wed 2020-02-05 13:02:07, Greg Kroah-Hartman wrote:
+> On Tue, Feb 04, 2020 at 09:50:56AM +0000, Chris Paterson wrote:
+> > Hi Greg,
+> >=20
+> > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > > Behalf Of Greg Kroah-Hartman
+> > > Sent: 03 February 2020 16:19
+> > >=20
+> > > This is the start of the stable review cycle for the 4.4.213 release.
+> > > There are 53 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, plea=
+se
+> > > let me know.
+> > >=20
+> > > Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
+> > > Anything received after that time might be too late.
+> >=20
+> > We're seeing an issue with 4.4.213-rc1 (36670370c48b) and 4.4.213-rc2 (=
+758a39807529) with our 4 am335x configurations [0]:
+> >=20
+> >    AS      arch/arm/kernel/hyp-stub.o
+> >  arch/arm/kernel/hyp-stub.S:   CC      arch/arm/mach-omap2/sram.o
+> >  Assembler messages:
+> >    AS      arch/arm/kernel/smccc-call.o
+> >  arch/arm/kernel/hyp-stub.S:147: Error: selected processor does not sup=
+port `ubfx r7,r7,#16,#4' in ARM mode
+> >  scripts/Makefile.build:375: recipe for target 'arch/arm/kernel/hyp-stu=
+b.o' failed
+> >  make[1]: *** [arch/arm/kernel/hyp-stub.o] Error 1
+> >=20
+> > The culprit seems to be: 15163bcee7b5 ("ARM: 8955/1: virt: Relax arch t=
+imer version check during early boot")
+> > Reverting the same resolves the build issue.
+> >=20
+> > Latest pipeline: https://gitlab.com/cip-project/cip-testing/linux-stabl=
+e-rc-ci/pipelines/114683657
+> >=20
+> > [0] https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-/blob/=
+master/4.4.y-cip/arm/
+> > siemens_am335x-axm2_defconfig, siemens_am335x-draco_defconfig, siemens_=
+am335x-dxr2_defconfig, siemens_am335x-etamin_defconfig
+>=20
+> Thanks, I'll go drop that patch from 4.4 and 4.9 trees.
 
-> ---
->  kernel/trace/ftrace.c | 11 +++++++++--
->  kernel/trace/trace.h  |  2 ++
->  2 files changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-> index 481ede3eac13..3f7ee102868a 100644
-> --- a/kernel/trace/ftrace.c
-> +++ b/kernel/trace/ftrace.c
-> @@ -5867,8 +5867,15 @@ ftrace_graph_release(struct inode *inode, struct file *file)
->  
->  		mutex_unlock(&graph_lock);
->  
-> -		/* Wait till all users are no longer using the old hash */
-> -		synchronize_rcu();
-> +		/*
-> +		 * We need to do a hard force of sched synchronization.
-> +		 * This is because we use preempt_disable() to do RCU, but
-> +		 * the function tracers can be called where RCU is not watching
-> +		 * (like before user_exit()). We can not rely on the RCU
-> +		 * infrastructure to do the synchronization, thus we must do it
-> +		 * ourselves.
-> +		 */
-> +		schedule_on_each_cpu(ftrace_sync);
->  
->  		free_ftrace_hash(old_hash);
->  	}
-> diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-> index 8c52f5de9384..3c75d29bd861 100644
-> --- a/kernel/trace/trace.h
-> +++ b/kernel/trace/trace.h
-> @@ -979,6 +979,7 @@ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
->  	 * Have to open code "rcu_dereference_sched()" because the
->  	 * function graph tracer can be called when RCU is not
->  	 * "watching".
-> +	 * Protected with schedule_on_each_cpu(ftrace_sync)
->  	 */
->  	hash = rcu_dereference_protected(ftrace_graph_hash, !preemptible());
->  
-> @@ -1031,6 +1032,7 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
->  	 * Have to open code "rcu_dereference_sched()" because the
->  	 * function graph tracer can be called when RCU is not
->  	 * "watching".
-> +	 * Protected with schedule_on_each_cpu(ftrace_sync)
->  	 */
->  	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
->  						 !preemptible());
-> -- 
-> 2.24.1
-> 
-> 
+I believe it is more likely than not to break 4.19 (and possibly
+mainline), too, but I have not yet done required testing.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--hYooF8G/hrfVAmum
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl47Q7IACgkQMOfwapXb+vIb9wCggda45Gbi7vfZ9Rh2gBfoXKpH
+0gUAoLsP4cEKshmiZdBQBpCgLvlCGSXr
+=gdVu
+-----END PGP SIGNATURE-----
+
+--hYooF8G/hrfVAmum--
