@@ -2,174 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA5F51533E9
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 16:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B311533F1
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 16:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727085AbgBEPch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 10:32:37 -0500
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2378 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726416AbgBEPcg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Feb 2020 10:32:36 -0500
-Received: from LHREML711-CAH.china.huawei.com (unknown [172.18.7.108])
-        by Forcepoint Email with ESMTP id 56F9ABB8073670B4BB93;
-        Wed,  5 Feb 2020 15:32:35 +0000 (GMT)
-Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
- LHREML711-CAH.china.huawei.com (10.201.108.34) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Wed, 5 Feb 2020 15:32:35 +0000
-Received: from [127.0.0.1] (10.202.226.45) by lhreml724-chm.china.huawei.com
- (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 5 Feb 2020
- 15:32:34 +0000
-Subject: Re: [PATCH] mtd: spi-nor: Fixup page size for S25FS-S
-To:     Alexander X Sverdlin <alexander.sverdlin@nokia.com>,
-        <linux-mtd@lists.infradead.org>
-CC:     Boris Brezillon <bbrezillon@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        <stable@vger.kernel.org>, Marek Vasut <marek.vasut@gmail.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        David Woodhouse <dwmw2@infradead.org>
-References: <20200114134704.4708-1-alexander.sverdlin@nokia.com>
-From:   John Garry <john.garry@huawei.com>
-Message-ID: <2759888e-0a88-cf76-d2c0-3f0f5141f8cd@huawei.com>
-Date:   Wed, 5 Feb 2020 15:32:33 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.2
+        id S1727453AbgBEPem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 10:34:42 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37827 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726661AbgBEPek (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 10:34:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580916880;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+qTtaHPN/sKfwNnk+hJQ/UVpSyF6ed7CcXYktzWB+dM=;
+        b=CFZAMuCuwezarMdmZssKvXHcOoqqiK/tau9CfYeo/oSuO9Y/7L+uPXQHFqfzcGZDUbfVGF
+        dtyTUl/STVWWfheU+m9cW1py27Z0v6/ZIVUle4Zx63BHFmK6nOqtbvljWV+0K7nm9e5r0l
+        +tsdmY7gq+odIntXKCvohQyDgGJf81E=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-307-mUHa5rg7PdeSlLimikn19A-1; Wed, 05 Feb 2020 10:34:36 -0500
+X-MC-Unique: mUHa5rg7PdeSlLimikn19A-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BAE9A1083E80;
+        Wed,  5 Feb 2020 15:34:34 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-116-179.ams2.redhat.com [10.36.116.179])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5C410857AE;
+        Wed,  5 Feb 2020 15:34:32 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Andy Shevchenko <andy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Vipul Kumar <vipulk0511@gmail.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        Len Brown <len.brown@intel.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v2 1/3] x86/tsc_msr: Use named struct initializers
+Date:   Wed,  5 Feb 2020 16:34:26 +0100
+Message-Id: <20200205153428.437087-2-hdegoede@redhat.com>
+In-Reply-To: <20200205153428.437087-1-hdegoede@redhat.com>
+References: <20200205153428.437087-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200114134704.4708-1-alexander.sverdlin@nokia.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.202.226.45]
-X-ClientProxiedBy: lhreml720-chm.china.huawei.com (10.201.108.71) To
- lhreml724-chm.china.huawei.com (10.201.108.75)
-X-CFilter-Loop: Reflected
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14/01/2020 13:47, Alexander X Sverdlin wrote:
-> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-> 
-> Spansion S25FS-S family has an issue in Basic Flash Parameter Table:
-> DWORD-11 bits 7-4 specify write page size 512 bytes. In reality this
-> is configurable in the non-volatile CR3NV register and even factory
-> default configuration is "wrap at 256 bytes". So blind relying on BFPT
-> breaks write operation on these Flashes.
-> 
-> All this story is vendor-specific, so add the corresponding fixup hook
-> which first restores the safe page size of 256 bytes from
-> struct flash_info but checks is more performant 512 bytes configuration
-> is active and adjusts the page_size accordingly.
-> 
+Use named struct initializers for the freq_desc struct-s initialization
+and change the "u8 msr_plat" to a "bool use_msr_plat" to make its meaning
+more clear instead of relying on a comment to explain it.
 
-Hi Alexander,
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ arch/x86/kernel/tsc_msr.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-One of my dev boards has part s25fl129p1, so I would like to try this 
-patch. However it does not apply. Any chance you could resend?
-
-Thanks
-John
-
-> Cc: stable@vger.kernel.org
-> Fixes: f384b352c ("mtd: spi-nor: parse Serial Flash Discoverable Parameters (SFDP) tables")
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-> ---
->   drivers/mtd/spi-nor/spi-nor.c | 39 +++++++++++++++++++++++++++++++++++++--
->   include/linux/mtd/spi-nor.h   |  5 +++++
->   2 files changed, 42 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
-> index 73172d7..18f8705 100644
-> --- a/drivers/mtd/spi-nor/spi-nor.c
-> +++ b/drivers/mtd/spi-nor/spi-nor.c
-> @@ -1711,6 +1711,39 @@ static struct spi_nor_fixups mx25l25635_fixups = {
->   	.post_bfpt = mx25l25635_post_bfpt_fixups,
->   };
->   
-> +/* Spansion S25FS-S SFDP workarounds */
-> +static int s25fs_s_post_bfpt_fixups(struct spi_nor *nor,
-> +	const struct sfdp_parameter_header *bfpt_header,
-> +	const struct sfdp_bfpt *bfpt,
-> +	struct spi_nor_flash_parameter *params)
-> +{
-> +	const struct flash_info *info = nor->info;
-> +	u8 read_opcode, buf;
-> +	int ret;
-> +
-> +	/* Default is safe */
-> +	params->page_size = info->page_size;
-> +
-> +	/*
-> +	 * But is the chip configured for more performant 512 bytes write page
-> +	 * size?
-> +	 */
-> +	read_opcode = nor->read_opcode;
-> +
-> +	nor->read_opcode = SPINOR_OP_RDAR;
-> +	ret = nor->read(nor, SPINOR_REG_CR3V, 1, &buf);
-
-struct spi_nor has no member .read AFAICS.
-
-> +	if (!ret && (buf & CR3V_02H_V))
-> +		params->page_size = 512;
-> +
-> +	nor->read_opcode = read_opcode;
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct spi_nor_fixups s25fs_s_fixups = {
-> +	.post_bfpt = s25fs_s_post_bfpt_fixups,
-> +};
-> +
->   /* NOTE: double check command sets and memory organization when you add
->    * more nor chips.  This current list focusses on newer chips, which
->    * have been converging on command sets which including JEDEC ID.
-> @@ -1903,7 +1936,8 @@ static const struct flash_info spi_nor_ids[] = {
->   			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->   	{ "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
->   			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
-> -	{ "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR) },
-> +	{ "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR)
-> +			.fixups = &s25fs_s_fixups, },
->   	{ "s25fl256s1", INFO(0x010219, 0x4d01,  64 * 1024, 512, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->   	{ "s25fl512s",  INFO6(0x010220, 0x4d0080, 256 * 1024, 256,
->   			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
-> @@ -1913,7 +1947,8 @@ static const struct flash_info spi_nor_ids[] = {
->   	{ "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
->   	{ "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
->   	{ "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
-> -	{ "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
-> +	{ "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
-> +			.fixups = &s25fs_s_fixups, },
->   	{ "s25sl004a",  INFO(0x010212,      0,  64 * 1024,   8, 0) },
->   	{ "s25sl008a",  INFO(0x010213,      0,  64 * 1024,  16, 0) },
->   	{ "s25sl016a",  INFO(0x010214,      0,  64 * 1024,  32, 0) },
-> diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
-> index b3d360b..222eee9 100644
-> --- a/include/linux/mtd/spi-nor.h
-> +++ b/include/linux/mtd/spi-nor.h
-> @@ -114,6 +114,7 @@
->   /* Used for Spansion flashes only. */
->   #define SPINOR_OP_BRWR		0x17	/* Bank register write */
->   #define SPINOR_OP_CLSR		0x30	/* Clear status register 1 */
-> +#define SPINOR_OP_RDAR		0x65	/* Read Any Register */
->   
->   /* Used for Micron flashes only. */
->   #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
-> @@ -149,6 +150,10 @@
->   /* Status Register 2 bits. */
->   #define SR2_QUAD_EN_BIT7	BIT(7)
->   
-> +/* Used for Spansion flashes RDAR command only. */
-> +#define SPINOR_REG_CR3V		0x800004
-> +#define CR3V_02H_V		BIT(4)	/* Page Buffer Wrap */
-> +
->   /* Supported SPI protocols */
->   #define SNOR_PROTO_INST_MASK	GENMASK(23, 16)
->   #define SNOR_PROTO_INST_SHIFT	16
-> 
+diff --git a/arch/x86/kernel/tsc_msr.c b/arch/x86/kernel/tsc_msr.c
+index e0cbe4f2af49..5fa41ac3feb1 100644
+--- a/arch/x86/kernel/tsc_msr.c
++++ b/arch/x86/kernel/tsc_msr.c
+@@ -22,10 +22,10 @@
+  * read in MSR_PLATFORM_ID[12:8], otherwise in MSR_PERF_STAT[44:40].
+  * Unfortunately some Intel Atom SoCs aren't quite compliant to this,
+  * so we need manually differentiate SoC families. This is what the
+- * field msr_plat does.
++ * field use_msr_plat does.
+  */
+ struct freq_desc {
+-	u8 msr_plat;	/* 1: use MSR_PLATFORM_INFO, 0: MSR_IA32_PERF_STATUS */
++	bool use_msr_plat;
+ 	u32 freqs[MAX_NUM_FREQS];
+ };
+=20
+@@ -35,31 +35,39 @@ struct freq_desc {
+  * by MSR based on SDM.
+  */
+ static const struct freq_desc freq_desc_pnw =3D {
+-	0, { 0, 0, 0, 0, 0, 99840, 0, 83200 }
++	.use_msr_plat =3D false,
++	.freqs =3D { 0, 0, 0, 0, 0, 99840, 0, 83200 },
+ };
+=20
+ static const struct freq_desc freq_desc_clv =3D {
+-	0, { 0, 133200, 0, 0, 0, 99840, 0, 83200 }
++	.use_msr_plat =3D false,
++	.freqs =3D { 0, 133200, 0, 0, 0, 99840, 0, 83200 },
+ };
+=20
+ static const struct freq_desc freq_desc_byt =3D {
+-	1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 }
++	.use_msr_plat =3D true,
++	.freqs =3D { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 },
+ };
+=20
+ static const struct freq_desc freq_desc_cht =3D {
+-	1, { 83300, 100000, 133300, 116700, 80000, 93300, 90000, 88900, 87500 }
++	.use_msr_plat =3D true,
++	.freqs =3D { 83300, 100000, 133300, 116700, 80000, 93300, 90000,
++		   88900, 87500 },
+ };
+=20
+ static const struct freq_desc freq_desc_tng =3D {
+-	1, { 0, 100000, 133300, 0, 0, 0, 0, 0 }
++	.use_msr_plat =3D true,
++	.freqs =3D { 0, 100000, 133300, 0, 0, 0, 0, 0 },
+ };
+=20
+ static const struct freq_desc freq_desc_ann =3D {
+-	1, { 83300, 100000, 133300, 100000, 0, 0, 0, 0 }
++	.use_msr_plat =3D true,
++	.freqs =3D { 83300, 100000, 133300, 100000, 0, 0, 0, 0 },
+ };
+=20
+ static const struct freq_desc freq_desc_lgm =3D {
+-	1, { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 }
++	.use_msr_plat =3D true,
++	.freqs =3D { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
+ };
+=20
+ static const struct x86_cpu_id tsc_msr_cpu_ids[] =3D {
+@@ -91,7 +99,7 @@ unsigned long cpu_khz_from_msr(void)
+ 		return 0;
+=20
+ 	freq_desc =3D (struct freq_desc *)id->driver_data;
+-	if (freq_desc->msr_plat) {
++	if (freq_desc->use_msr_plat) {
+ 		rdmsr(MSR_PLATFORM_INFO, lo, hi);
+ 		ratio =3D (lo >> 8) & 0xff;
+ 	} else {
+--=20
+2.24.1
 
