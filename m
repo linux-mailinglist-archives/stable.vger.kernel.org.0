@@ -2,134 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F42E1529B1
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 12:15:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2C215303F
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 12:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728034AbgBELPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 06:15:50 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:42852 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727170AbgBELPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 06:15:50 -0500
-Received: by mail-lf1-f65.google.com with SMTP id y19so1187119lfl.9;
-        Wed, 05 Feb 2020 03:15:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=x8ckLRvDL8dg/iPhi1vO5fg6t5hQSAQsmjIQBiNcoB4=;
-        b=EMit4qaHp+ClCDjyyJMWphi8crzhLGi3Smu8kLgmk5GeEWZLArq8dWq6YdlNJzI2Gk
-         tzdNIgVZZ8PnQSPgFY+dN9u8RZk5JhdzutPScZWOr6S7IKi466ZmSnxnjRIskLubxiYv
-         0EazMj9lgI8fWAOpzK/fZslU6nRAOw4Gwz0BezfxkS2HQWJjEEKiUxmqFLvsldQ6Mg5T
-         svzwQH3256oa3SVEHucPnZoIK7k0Alpj8B0lQQ6GEw//CfL0MPfGIec72ClV1tjCrGS1
-         OgYH7ZgBKyxrdHmHUoZeLo1dswYbKQr/NRyhxocM3avK7u+zYoRrc/xMI4/un4qwBD7+
-         SaZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=x8ckLRvDL8dg/iPhi1vO5fg6t5hQSAQsmjIQBiNcoB4=;
-        b=r02dXWSVGXd5s9bbPBs8z1Eihk5b4YrgxN8zcaAkQtqqgyLHcotH9hllJVMc0h3jA6
-         FC41Pu/LCSKYf1M6mrJNVgGG37EiRUwouQiyhRPUzTYavaczf3Sc0wtf994m1YNCP/I6
-         xASDX5zouV4h0YNTr9y+HYGgatqV9VySpGPcMf4xcyWvD5B4Q1AbKuMtGfHX0W1JSq9i
-         IJaSrXVHfV1uS7sXoLAo4AsO0Qtbugva9aDhx7JqwALysnlgvoMrhOJpIrqc83IM+On+
-         aUueIYAE6UQOsowEazh1w8kQlXGFvW5f/EdIAJoLo4xgT3r6z+Q+LqTbby5Vj+ciBhpV
-         BHEQ==
-X-Gm-Message-State: APjAAAWMqvdUfzXswEiFM+xuJWSak+hgVI6Ae8amLdVizyioW1x7siZt
-        vrs/buHe7frouih9jjAUTdqwXIY9VFxL2oCkdx8=
-X-Google-Smtp-Source: APXvYqx8oG0xURPnylXNJ0s8CMXSDW6QXuLPsyuAcMSJ8G+8s5BFjDWo3Ir56Hq28vLgMhIY4WDVZaO+tSSN5P0TS7Y=
-X-Received: by 2002:a05:6512:64:: with SMTP id i4mr17458571lfo.55.1580901348247;
- Wed, 05 Feb 2020 03:15:48 -0800 (PST)
+        id S1725793AbgBEL7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 06:59:03 -0500
+Received: from sonic306-19.consmr.mail.ir2.yahoo.com ([77.238.176.205]:40450
+        "EHLO sonic306-19.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726386AbgBEL7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 06:59:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1580903939; bh=i1iy2zmNcKe0bXbaLfhFmX2GVXb72vV0A+dUbZZzr/s=; h=Date:From:Reply-To:Subject:References:From:Subject; b=pn3+qu6Cdr7x8ZqZEDnzlFiqFd+8hBfq6kxjlQmwAdk3MEV2BekEXzu+hSOqtw8kFIXkcW6giEdfd5EszqSHzJffRiVP49vNek6YbLIglRQQRV/WmDKVi4uBaSiRQAfEePDXPmDROqVaYVLy46+E1ZiZ+0RxgAlCy85fVmlUx92ZlVufnUKKbI23h3BwwMkySOtUi8giyuHDB6HY9py06yapbtqpkKDlase7rM7vC9pl1v/sERWynC4dUSi9FeLP8PIlKAvms0pgKrSiUJVHpUO0i3nwimllDUsezsm/3vFCCcSF7PgICI8aGgfZWen5kmh8bG2lFVxYxBrUeyH1Hw==
+X-YMail-OSG: EmdJvM4VM1mF0efNQGfZ7TlVxjs6bK6FDH1GyGpIYpjdCSBv13QjspA7FM5nlgG
+ S7Up5V.n4LDzKcgruNJlY0We_0rJKAVAFR1gv4GayeJ41I410uPelgs4SMpLa9bAddF8oxC_oiMr
+ MBk.eXvNgEh_eHpsDkikobU3hcG.BgUcUy9CI.n3apUXYRZSNPj9k1IDx53mwv1FVifWPj8y.LmA
+ Gv2BLXdBums7RtS8Db10hSjxrlcavjrYeQBzpIO6LjbdJiMtUQEyoQj6I11g87ZHnaYFvrLmEroN
+ _FcxQ7pG.JdbCH4Sz3awU5kkcc5qMMmB34ISdgP5FKwaY5jQ1fS4S5eDnQJ3SBoZHVqE_eOVFdqD
+ kznSZ7jCujg1w2d1BRRUqg9wkFo72_wEpFUINgda0EMB_hzfCfDEgVVGNPh1OlqTL36JL47dDozF
+ H0DtX0cfv8OIZM5MU0jF_JPf8h2.iOUKs0ZKSU4Os_wCQncB28gPVg4Fc_HSenC5wUYudHweDFBr
+ lK4xSDtl1QCoyajjM8W.7_PeZFWAqinUXEMScuKroJcD6tNO2a0x3Lv7zB_VVD23J7paYlYhmIbI
+ k2HH0Xq_2TAyhVzcFP5WVDRQCaDgkSf2EalEgOUWb.QOGnt5ciLh7sxFIv6qTvnz9WOGBOIEGyIr
+ Hnt31Fp5vxDcYpZ0U2pyWTwrw0n.yrNLJWEu0DBsQQo._XL0YHPQQ8yugUgMPB2LAgyKAtVq1cjO
+ ttyUu6k0RDDklKnt6CN8sYAhTcXMT6eI2TztlDtgrV_VVEfz6BywXX.t1rn7yggB64jGN.e5LZwG
+ 1tghtjGUZj0kknAIkaTl4MNueblNsdrmV1I7wXK_M8_0KBNuVHUOBOD3VnJSgALJcn_NQbJaQJHU
+ Tr1iXFqcuxrIs3jSUuNYVqguNGHEcbRrDADeMdcuQ1OM9IdyVyWCFzGPL4YcXDQnjanzruJO4oHt
+ tjiGPcawL3EN9cleILbCWBblgYNaX8fEFwGJH7BqunsHaTXkCPa0K_VWl_l0mq0L_Tas0_KHOMfG
+ _PtAjR9MsvLSrRUcXc4n_welGacX3FRav0cS1QRRxzPqc4qqFly.G0R7D5YkvBwnLPwc26q1SFj7
+ yCd14IhYgWNQUvfC.ASQIG6uYZVSNJe2ZDvmdOislWqfAXDHACSDSyq.U2jflv13nnIZ0wJVefUq
+ PfGq6Oh5LgPdWxfSodSgoZSX5mz9pXyMWPUf96.WU6Yv12rmsV86Jxu97_gRgNfVTbZM_zieqymP
+ d6I2rthKj6ZqLLWT9Y7OUSkqx1CDkSqJ0wktXREDfQnMITrQu.2pMTZAoTMTc1U6gN0dcTtJJLb_
+ K5koX
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ir2.yahoo.com with HTTP; Wed, 5 Feb 2020 11:58:59 +0000
+Date:   Wed, 5 Feb 2020 11:58:55 +0000 (UTC)
+From:   "Mrs. Bridggie William" <mrsbridggieee1william@gmail.com>
+Reply-To: mrssbridggiee1william@gmail.com
+Message-ID: <1373283461.1350850.1580903935569@mail.yahoo.com>
+Subject: From Mrs Bridggie William writing from hospital
 MIME-Version: 1.0
-References: <20200205102852.12236-1-lhenriques@suse.com>
-In-Reply-To: <20200205102852.12236-1-lhenriques@suse.com>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Wed, 5 Feb 2020 12:16:02 +0100
-Message-ID: <CAOi1vP8w_ssGZJTimgDMULgd4jyb_CYuxNyjvHhbBR9FgAqB9A@mail.gmail.com>
-Subject: Re: [PATCH] ceph: fix copy_file_range error path in short copies
-To:     Luis Henriques <lhenriques@suse.com>
-Cc:     Jeff Layton <jlayton@kernel.org>, Sage Weil <sage@redhat.com>,
-        "Yan, Zheng" <zyan@redhat.com>,
-        Gregory Farnum <gfarnum@redhat.com>,
-        Ceph Development <ceph-devel@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1373283461.1350850.1580903935569.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.15158 YMailNodin Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.2; .NET4.0C; .NET4.0E)
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 5, 2020 at 11:28 AM Luis Henriques <lhenriques@suse.com> wrote:
->
-> When there's an error in the copying loop but some bytes have already been
-> copied into the destination file, it is necessary to dirty the caps and
-> eventually update the MDS with the file metadata (timestamps, size).  This
-> patch fixes this error path.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Luis Henriques <lhenriques@suse.com>
-> ---
->  fs/ceph/file.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-> index 11929d2bb594..7be47d24edb1 100644
-> --- a/fs/ceph/file.c
-> +++ b/fs/ceph/file.c
-> @@ -2104,9 +2104,16 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
->                         CEPH_OSD_OP_FLAG_FADVISE_DONTNEED, 0);
->                 if (err) {
->                         dout("ceph_osdc_copy_from returned %d\n", err);
-> -                       if (!ret)
-> +                       /*
-> +                        * If we haven't done any copy yet, just exit with the
-> +                        * error code; otherwise, return the number of bytes
-> +                        * already copied, update metadata and dirty caps.
-> +                        */
-> +                       if (!ret) {
->                                 ret = err;
-> -                       goto out_caps;
-> +                               goto out_caps;
-> +                       }
-> +                       goto out_early;
->                 }
->                 len -= object_size;
->                 src_off += object_size;
-> @@ -2118,6 +2125,7 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
->                 /* We still need one final local copy */
->                 do_final_copy = true;
->
-> +out_early:
 
-out_early is misleading, especially given that there already
-is out_caps, which just puts caps.  I suggest something like
-update_dst_inode.
 
->         file_update_time(dst_file);
->         inode_inc_iversion_raw(dst_inode);
->
+From Mrs Bridggie William
+Ave 12 Rue 123 Abobo 01
+Cote D' Ivoire Abidjan
 
-I think this is still buggy.  What follows is this:
 
-        if (endoff > size) {
-                int caps_flags = 0;
+With Due Respect And Humanity, I was compelled to write to you under a humanitarian ground. My name is Mrs Bridggie William nationality of Mozambique .I am married to Mr. Francisco Willam director J.R Industries Cote d'Ivoire. We were married for 46 years without a child. He died after a Cadiac Arteries Operation.
 
-                /* Let the MDS know about dst file size change */
-                if (ceph_quota_is_max_bytes_approaching(dst_inode, endoff))
-                        caps_flags |= CHECK_CAPS_NODELAY;
-                if (ceph_inode_set_size(dst_inode, endoff))
-                        caps_flags |= CHECK_CAPS_AUTHONLY;
-                if (caps_flags)
-                        ceph_check_caps(dst_ci, caps_flags, NULL);
-        }
+And Recently, My Doctor told me that I would not last longer due to my cancer problem (cancer of the liver and stroke).Before my husband died last year there is this sum $15.8 Million Dollars that he deposited at the Security Valut here In Ivory Coast. Presently this money is still in the Vault. Having known my condition I decided to donate this fund to any good God fearing brother or sister that will utilize this fund the way I am going to instruct herein..
 
-with endoff being:
+I want somebody that will use this fund according to the desire of mylate.husband to help Less privilaged people, orphanages,widows and propagating the word of God. I inherit this fund, And I don't want in any way where this money will be used in took this decision because I don't have any child that willan unGodly way. This is why I am taking this decision to hand you over this Fund.
 
-        size = i_size_read(dst_inode);
-        endoff = dst_off + len;
+I am not afraid of death hence I know where I am going.I want you to always remember me in your daily prayers because of my up coming Cancer Surgery. Write back as soon as possible any delay in your reply will give me room in sourcing another person for this same purpose.
 
-So a short copy effectively zero-fills the destination file...
+Hoping to read from you asap.God bless you as you listening to the voice of reasoning.
 
-Thanks,
-
-                Ilya
+Mrs. Bridggie William
