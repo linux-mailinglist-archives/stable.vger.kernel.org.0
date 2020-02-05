@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8D2153395
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 16:01:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3EF215339E
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 16:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726359AbgBEPBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 10:01:00 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:37892 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1726334AbgBEPBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 10:01:00 -0500
-Received: (qmail 1623 invoked by uid 2102); 5 Feb 2020 10:00:58 -0500
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 5 Feb 2020 10:00:58 -0500
-Date:   Wed, 5 Feb 2020 10:00:58 -0500 (EST)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To:     Jiri Kosina <jikos@kernel.org>
-cc:     "Enderborg, Peter" <Peter.Enderborg@sony.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com" 
-        <syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com>
-Subject: Re: [PATCH 5.4 17/78] HID: Fix slab-out-of-bounds read in
- hid_field_extract (Broken!)
-In-Reply-To: <nycvar.YFH.7.76.2002051053060.26888@cbobk.fhfr.pm>
-Message-ID: <Pine.LNX.4.44L0.2002051000050.1517-100000@iolanthe.rowland.org>
+        id S1726320AbgBEPGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 10:06:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726119AbgBEPGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Feb 2020 10:06:09 -0500
+Received: from localhost (unknown [212.187.182.164])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E577A217F4;
+        Wed,  5 Feb 2020 15:06:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580915168;
+        bh=rtrVh0sqihSzBYosYZJUZNh6GwTvtj59e+FjqGSwKc4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MqB1wnd1W9YMMaYltSVqsP1w92MM7DyZOxEQm7Yyf9vvXMOb/V3UtthdyTGklfTLX
+         VWocG1EBn+V9183Yxpq0UCiWOVexehjpNGQZUZj7MQWo9GWZ05InTVSOeW5cGQtrVf
+         EwSNaAceG6ijeD+8zJru7KuX9zrNFVFcL4sqh9A4=
+Date:   Wed, 5 Feb 2020 15:06:05 +0000
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/90] 5.4.18-stable review
+Message-ID: <20200205150605.GA1236691@kroah.com>
+References: <20200203161917.612554987@linuxfoundation.org>
+ <9a5a92f2-6e28-a9ab-a851-8d7e56482df6@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a5a92f2-6e28-a9ab-a851-8d7e56482df6@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 5 Feb 2020, Jiri Kosina wrote:
-
-> On Wed, 5 Feb 2020, Enderborg, Peter wrote:
+On Tue, Feb 04, 2020 at 06:37:38AM -0800, Guenter Roeck wrote:
+> ---
+> Building riscv:{defconfig, allnoconfig, tinyconfig} ... failed
 > 
-> > >> This patch breaks Elgato StreamDeck.
-> >
-> > > Does that mean the device is broken with a too-large of a report?
-> > 
-> > Yes.
-> 
-> In which way does the breakage pop up? Are you getting "report too long" 
-> errors in dmesg, or the device just doesn't enumerate at all?
-> 
-> Could you please post /sys/kernel/debug/hid/<device>/rdesc contents, and 
-> if the device is at least semi-alive, also contents of 
-> /sys/kernel/debug/hid/<device>/events from the time it misbehaves?
+> Error log:
+> arch/riscv/lib/tishift.S: Assembler messages:
+> arch/riscv/lib/tishift.S:9: Error: unrecognized opcode `sym_func_start(__lshrti3)'
+> [ many of those ]
 
-Also, please post the output from "lsusb -v" for the StreamDeck.
+Dropped the offending patch here, thanks.
 
-Alan Stern
-
+greg k-h
