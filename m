@@ -2,52 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82CB4153251
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 14:53:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E45153203
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 14:39:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727051AbgBENxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 08:53:49 -0500
-Received: from in01-tec.fasttelco.net ([78.159.162.5]:49347 "EHLO
-        in01-tec.fasttelco.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726822AbgBENxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 08:53:49 -0500
-X-Greylist: delayed 1727 seconds by postgrey-1.27 at vger.kernel.org; Wed, 05 Feb 2020 08:53:47 EST
-Received: from z7qu2sj.com ([62.215.195.91])
-        by in01-tec.fasttelco.net (8.14.3/8.14.3/Debian-9.4) with ESMTP id 015DOpxX003161
-        for <stable@vger.kernel.org>; Wed, 5 Feb 2020 16:24:55 +0300
-Message-Id: <202002051324.015DOpxX003161@in01-tec.fasttelco.net>
-From:   "Secretary-General for Development Coordination" 
-        <undc19@telefonica.net>
-Subject: General for Development Coordination
-To:     stable@vger.kernel.org
-Content-Type: text/plain; charset=us-ascii
-Reply-To: "Secretary-General for Development Coordination" 
-          <sarah.buchiri@gmail.com>, sarah.buchiri@gmail.com
-Date:   Wed, 5 Feb 2020 14:24:55 +0100
-X-Priority: 3
-X-Bayes-Prob: 0.0001 (Score 0, tokens from: corp_smtp, base:default, @@RPTN)
-X-Spam-Score: 2.67 (**) [Hold at 5.00] FREEMAIL_ENVFROM_END_DIGIT:0.25,FREEMAIL_FROM:0.001,FREEMAIL_REPLYTO:1,MISSING_MID:0.14,RDNS_NONE:1.274
-X-CanIt-Geo: ip=62.215.195.91; country=KW; latitude=29.3375; longitude=47.6581; http://maps.google.com/maps?q=29.3375,47.6581&z=6
-X-CanItPRO-Stream: base:corp_smtp (inherits from base:makc.com.kw,base:default)
-X-Canit-Stats-ID: 041X1oS4j - 695b83a75d64 - 20200205
-X-Antispam-Training-Forget: https://spam.fasttelco.com/canit/b.php?c=f&i=041X1oS4j&m=695b83a75d64&rlm=base&t=20200205
-X-Antispam-Training-Nonspam: https://spam.fasttelco.com/canit/b.php?c=n&i=041X1oS4j&m=695b83a75d64&rlm=base&t=20200205
-X-Antispam-Training-Phish: https://spam.fasttelco.com/canit/b.php?c=p&i=041X1oS4j&m=695b83a75d64&rlm=base&t=20200205
-X-Antispam-Training-Spam: https://spam.fasttelco.com/canit/b.php?c=s&i=041X1oS4j&m=695b83a75d64&rlm=base&t=20200205
-X-Scanned-By: CanIt (www . roaringpenguin . com) on 78.159.162.5
+        id S1728111AbgBENjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 08:39:25 -0500
+Received: from foss.arm.com ([217.140.110.172]:47394 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727970AbgBENjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Feb 2020 08:39:25 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4773131B;
+        Wed,  5 Feb 2020 05:39:24 -0800 (PST)
+Received: from [10.1.195.32] (e112269-lin.cambridge.arm.com [10.1.195.32])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 218BE3F52E;
+        Wed,  5 Feb 2020 05:39:23 -0800 (PST)
+Subject: Re: [PATCH 1/2] drm/panfrost: Make sure MMU context lifetime is not
+ bound to panfrost_priv
+To:     Boris Brezillon <boris.brezillon@collabora.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     Icecream95 <ixn@keemail.me>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+References: <20200204143504.135388-1-boris.brezillon@collabora.com>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <b798bc8f-e8a9-01e9-e234-a8fdef290259@arm.com>
+Date:   Wed, 5 Feb 2020 13:39:21 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <20200204143504.135388-1-boris.brezillon@collabora.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Congratulations,
+On 04/02/2020 14:35, Boris Brezillon wrote:
+> Jobs can be in-flight when the file descriptor is closed (either because
+> the process did not terminate properly, or because it didn't wait for
+> all GPU jobs to be finished), and apparently panfrost_job_close() does
+> not cancel already running jobs. Let's refcount the MMU context object
+> so it's lifetime is no longer bound to the FD lifetime and running jobs
+> can finish properly without generating spurious page faults.
 
+Is there any good reason not to just make panfrost_job_close() kill off
+any running jobs? I'm not sure what the benefit is of allowing the jobs
+to still run after the file descriptor has closed.
 
-Your email was randomly selected for the 2020 first quarter reimbursement via certified ATM CARD. Please reach Mrs. Sarah Buchiri with your code:U.N.D.C/2020/10/0109 for more information.
+In particular this could cause problems when(/if) Panfrost starts trying
+to deal with "compute" work loads that might have long runtimes. It's
+quite possible to produce a job which never (naturally) exits, currently
+we have a simplistic timeout which kills anything which doesn't complete
+promptly. However there is nothing conceptually wrong with a job which
+takes seconds (or even minutes) to complete. The hardware has support
+for task switching ('soft stopping') between jobs so this can be done to
+prevent blocking other applications.
 
-Contact Name: Mrs. Sarah Buchiri
-Email: sarah.buchiri@gmail.com
+If panfrost_job_close() doesn't kill the jobs then removing the timeouts
+could lead to the situation where there is an 'infinite' job with no
+owner and no way of killing it off. Which doesn't seem like a great
+feature ;)
 
+Another approach could be simply to silence the page fault output in
+this case - switching the address space to UNMAPPED is actually an
+effective way of killing jobs - at some point I think this was a
+workaround to a hardware bug, but IIRC that was unreleased hardware :)
 
-Robert Andrew Piper
-Assistant Secretary-General for Development Coordination
+Steve
