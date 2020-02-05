@@ -2,82 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26DB915352F
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 17:25:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73ACD1535B1
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 17:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727455AbgBEQZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 11:25:26 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:39466 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726534AbgBEQZ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 11:25:26 -0500
-Received: by mail-pj1-f66.google.com with SMTP id e9so1201844pjr.4;
-        Wed, 05 Feb 2020 08:25:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=OSi7/fFI6sqk2cAAPyCRPawwvSLhgaIHJ/zZTgqB4K8=;
-        b=tCk4Z9ymZ+f5+7FLygwYW8twEEDMetJKRXDV1xXhPxw6ZtXzvRioGFCpXANXNDJXAh
-         Xqyge0370CDgYQIho8sxDPw90aX4UEm8I0TtY57RfAiePIg7+nJSzcwsIJ+oMOPvRXaY
-         zU6TcyZR+fPgKYJOu0ReDtHr7sG4Q8njDEBLbZrLn3QMsH6rlDndfEB7ZIwDAjp9YIgz
-         nmZAWiKKpIZ3kkl3tE1ZD2UlWm+/arucfCRldh9RcfUkt301HW/VhmBkK6WZgVnaTdPh
-         l3BiUmYHNJoqx52v4DE7ZikpB0ECgfR6ZPZJrTdA07sF5wXrJZigD5x7Gtgx7904OpXL
-         jo7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=OSi7/fFI6sqk2cAAPyCRPawwvSLhgaIHJ/zZTgqB4K8=;
-        b=cdZSegUAgOTMAWigpqWTz48waMEm5JtbXCNuq1p0UAWG2a3QSfpy742UFDq8Vc3aeb
-         3PORz1JPzuPWWEW+5r57GuWz8RmdlEJSUSJjYzcBMs1VsvVozT2fwqtGddEZqlbRVPWc
-         8fq46W5yAmEybnXpSj1tNJfqB5Cbcg2oWRmwmEpVerohSg1WT6I+zmWlxunFvlvV3HQI
-         eUg+Yh0Yppcwdot248GkXrB0MHnBAKY1P1QuOrsACBz4cOgmdGtc2NRCBhukNGB9qHHr
-         mmPQefe38tcOlDhdy2IzW8z4t2MZz7vPF1+tMrZwgk8ToHj6r8EvzY9k/5/06vFcnbeC
-         oDBA==
-X-Gm-Message-State: APjAAAXOvRJlSwnAph4f3jjaIyx/JR0JnbdAn9jgCfBn4prCA+Z6d6tY
-        kLD7chnct1zRuT60dXcvOAU=
-X-Google-Smtp-Source: APXvYqwiDy4frwgCMmuJbsulnS1Im5oMvcfQ2R82W5I/1AEBEwTO0REkuIdRerDRFk8ADA18/h/Idw==
-X-Received: by 2002:a17:90a:f492:: with SMTP id bx18mr6681271pjb.118.1580919925328;
-        Wed, 05 Feb 2020 08:25:25 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id fz21sm265692pjb.15.2020.02.05.08.25.24
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 05 Feb 2020 08:25:24 -0800 (PST)
-Date:   Wed, 5 Feb 2020 08:25:24 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/90] 5.4.18-stable review
-Message-ID: <20200205162524.GC25403@roeck-us.net>
-References: <20200203161917.612554987@linuxfoundation.org>
- <9a5a92f2-6e28-a9ab-a851-8d7e56482df6@roeck-us.net>
- <20200205150605.GA1236691@kroah.com>
+        id S1726678AbgBEQ40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 11:56:26 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32144 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727054AbgBEQ40 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 11:56:26 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 015GnpZJ131463;
+        Wed, 5 Feb 2020 11:55:50 -0500
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xyhmgwxt7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Feb 2020 11:55:50 -0500
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 015Gp2Ri135129;
+        Wed, 5 Feb 2020 11:55:50 -0500
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xyhmgwxsu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Feb 2020 11:55:49 -0500
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 015GtnRg024988;
+        Wed, 5 Feb 2020 16:55:49 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma03wdc.us.ibm.com with ESMTP id 2xykc9e4k8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Feb 2020 16:55:49 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 015GtmHr11338068
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 5 Feb 2020 16:55:48 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5E96BC6063;
+        Wed,  5 Feb 2020 16:55:48 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 34DA6C605A;
+        Wed,  5 Feb 2020 16:55:48 +0000 (GMT)
+Received: from localhost (unknown [9.41.100.106])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed,  5 Feb 2020 16:55:48 +0000 (GMT)
+From:   Nathan Lynch <nathanl@linux.ibm.com>
+To:     Michal Suchanek <msuchanek@suse.de>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Michal Suchanek <msuchanek@suse.cz>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+        Leonardo Bras <leonardo@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Allison Randal <allison@lohutok.net>,
+        linuxppc-dev@lists.ozlabs.org, Libor Pechacek <lpechacek@suse.cz>
+Subject: Re: [PATCH v2] powerpc: drmem: avoid NULL pointer dereference when drmem is unavailable
+In-Reply-To: <20200131132829.10281-1-msuchanek@suse.de>
+References: <20200131132829.10281-1-msuchanek@suse.de>
+Date:   Wed, 05 Feb 2020 10:55:47 -0600
+Message-ID: <87r1z92cto.fsf@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200205150605.GA1236691@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-05_05:2020-02-04,2020-02-05 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=1
+ spamscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 mlxscore=0
+ clxscore=1011 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2002050128
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 05, 2020 at 03:06:05PM +0000, Greg Kroah-Hartman wrote:
-> On Tue, Feb 04, 2020 at 06:37:38AM -0800, Guenter Roeck wrote:
-> > ---
-> > Building riscv:{defconfig, allnoconfig, tinyconfig} ... failed
-> > 
-> > Error log:
-> > arch/riscv/lib/tishift.S: Assembler messages:
-> > arch/riscv/lib/tishift.S:9: Error: unrecognized opcode `sym_func_start(__lshrti3)'
-> > [ many of those ]
-> 
-> Dropped the offending patch here, thanks.
-> 
-This problem is indeed fixed with v5.4.17-99-gbd0c6624a110 (-rc4).
+Michal Suchanek <msuchanek@suse.de> writes:
+> From: Libor Pechacek <lpechacek@suse.cz>
+>
+> In guests without hotplugagble memory drmem structure is only zero
+> initialized. Trying to manipulate DLPAR parameters results in a crash.
+>
 
-Guenter
+[...]
+
+>
+> Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
+> Cc: Michal Suchanek <msuchanek@suse.cz>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Libor Pechacek <lpechacek@suse.cz>
+> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+> ---
+> v2: rename last_lmb -> limit, clarify error condition.
+
+Acked-by: Nathan Lynch <nathanl@linux.ibm.com>
+
+Thanks!
