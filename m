@@ -2,53 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E68AC153387
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 15:59:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8D2153395
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 16:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726416AbgBEO7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 09:59:06 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:35733 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726320AbgBEO7F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 09:59:05 -0500
-Received: from [212.187.182.165] (helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1izM8r-0003fi-57; Wed, 05 Feb 2020 15:59:01 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 3C089100C31; Wed,  5 Feb 2020 14:58:55 +0000 (GMT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Sasha Levin <sashal@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Evan Green <evgreen@chromium.org>
-Cc:     Rajat Jain <rajatja@google.com>, Rajat Jain <rajatja@google.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        x86@kernel.org, Marc Zyngier <maz@kernel.org>,
-        stable@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/apic/msi: Plug non-maskable MSI affinity race
-In-Reply-To: <20200205144509.7004C21D7D@mail.kernel.org>
-References: <87lfpn50id.fsf@nanos.tec.linutronix.de> <20200205144509.7004C21D7D@mail.kernel.org>
-Date:   Wed, 05 Feb 2020 14:58:55 +0000
-Message-ID: <87wo91rsgg.fsf@nanos.tec.linutronix.de>
+        id S1726359AbgBEPBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 10:01:00 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:37892 "HELO
+        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1726334AbgBEPBA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 10:01:00 -0500
+Received: (qmail 1623 invoked by uid 2102); 5 Feb 2020 10:00:58 -0500
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 5 Feb 2020 10:00:58 -0500
+Date:   Wed, 5 Feb 2020 10:00:58 -0500 (EST)
+From:   Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To:     Jiri Kosina <jikos@kernel.org>
+cc:     "Enderborg, Peter" <Peter.Enderborg@sony.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com" 
+        <syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com>
+Subject: Re: [PATCH 5.4 17/78] HID: Fix slab-out-of-bounds read in
+ hid_field_extract (Broken!)
+In-Reply-To: <nycvar.YFH.7.76.2002051053060.26888@cbobk.fhfr.pm>
+Message-ID: <Pine.LNX.4.44L0.2002051000050.1517-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin <sashal@kernel.org> writes:
+On Wed, 5 Feb 2020, Jiri Kosina wrote:
 
-> Hi,
->
-> [This is an automated email]
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
+> On Wed, 5 Feb 2020, Enderborg, Peter wrote:
+> 
+> > >> This patch breaks Elgato StreamDeck.
+> >
+> > > Does that mean the device is broken with a too-large of a report?
+> > 
+> > Yes.
+> 
+> In which way does the breakage pop up? Are you getting "report too long" 
+> errors in dmesg, or the device just doesn't enumerate at all?
+> 
+> Could you please post /sys/kernel/debug/hid/<device>/rdesc contents, and 
+> if the device is at least semi-alive, also contents of 
+> /sys/kernel/debug/hid/<device>/events from the time it misbehaves?
 
-Use V2 :)
+Also, please post the output from "lsusb -v" for the StreamDeck.
+
+Alan Stern
+
