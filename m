@@ -2,508 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC907153481
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 16:46:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55EE91534EB
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 17:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbgBEPps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 10:45:48 -0500
-Received: from foss.arm.com ([217.140.110.172]:48902 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726748AbgBEPps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Feb 2020 10:45:48 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DDF9A328;
-        Wed,  5 Feb 2020 07:45:46 -0800 (PST)
-Received: from [10.1.196.37] (e121345-lin.cambridge.arm.com [10.1.196.37])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8D6903F68E;
-        Wed,  5 Feb 2020 07:45:45 -0800 (PST)
-Subject: Re: [PATCH 1/2] drm/panfrost: Make sure MMU context lifetime is not
- bound to panfrost_priv
-To:     Boris Brezillon <boris.brezillon@collabora.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>
-Cc:     dri-devel@lists.freedesktop.org, Icecream95 <ixn@keemail.me>,
-        stable@vger.kernel.org
-References: <20200204143504.135388-1-boris.brezillon@collabora.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <987637cb-c7c9-a763-d727-a89f3c73f681@arm.com>
-Date:   Wed, 5 Feb 2020 15:45:44 +0000
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1726534AbgBEQDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 11:03:53 -0500
+Received: from mail-eopbgr60122.outbound.protection.outlook.com ([40.107.6.122]:21113
+        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726973AbgBEQDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Feb 2020 11:03:52 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WUQDSKUPIfYYlTA9A3g2AQD6ifaaSmnEC6P7kC9jxtqPIljTvvVTin/yiiY/Lcpmt73T5FbV4+BgAyjLSql1zWUElROYqtjU61f+AWCvgyqb3FbOLi9bo/vHaeSz61135Q8Nkd5jg7Sn790Uxt8tKnkOmOv1wI7OXYX3kQ0C7KvOXMVDbxF6PxwH8fhxJxQtUcaXWzGDr6mGQ7ly6+rV6urVUtPCH38mYfFtKFVomfWrnQDofXE5q8HIY3axhxWQ7gZJMOuD0KBI+PWhaD4XsoYvKFH7b6ER1p0Q0UdwfSafZQVQcCTLoYaAJQCZsPT/kn08Y46kvZd80qfCmY5KPA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=A5xgmJ0HT8+vo4v7DxGFVMzsF8J+wi2D79JmlWH1P2g=;
+ b=Vw2mT53ajzwGijGSOQWTSlPlrUxuJIsLfyhMMFdV/9bAxjLDjl9eYdisgizmb6SZ5Be2dZfEpH/+8suTHeRJGzKLxUK/fW7KxETohu68tQFdqWc7UCp7maarpcgmVzaGeomAPAhuBPaoO15/ClN+CopDL5tUPbLErNOHeeQKObgjII2g/rY/Qz6h7eip47gwPlVN3850CP3GldijVUFl/8GSkgTTKqOaIrotxztuYMDy6It5dGMPj2aR8nfROmJUqSUr7+JQJ74fJsCTwMqanfRsHEMCOxaOAyV4/A0Y0WWQsWMeIOsRifRCuxEtAcoa8z4ZVfO+Di0MyZHfrIXeKQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=A5xgmJ0HT8+vo4v7DxGFVMzsF8J+wi2D79JmlWH1P2g=;
+ b=COp9qQImzKaLmWlOFxZdHMRfbIbay4J0j4knqPGxcDhwhG7zgDcjXn9cOijUPNjxqOu8BXpGO5rhAqe3H23NCImmHb2aKUM88gwOYXgTTSy9tI6ySWEQhk9h1as+4eeaPy53h398k7iGFdM8HhNTC0wl9+kaRhlO7ZdNXIswsjs=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=alexander.sverdlin@nokia.com; 
+Received: from VI1PR07MB5040.eurprd07.prod.outlook.com (20.177.203.20) by
+ VI1PR07MB6014.eurprd07.prod.outlook.com (20.178.123.209) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2707.15; Wed, 5 Feb 2020 16:03:48 +0000
+Received: from VI1PR07MB5040.eurprd07.prod.outlook.com
+ ([fe80::20c4:7ce8:f735:316e]) by VI1PR07MB5040.eurprd07.prod.outlook.com
+ ([fe80::20c4:7ce8:f735:316e%2]) with mapi id 15.20.2707.011; Wed, 5 Feb 2020
+ 16:03:47 +0000
+Subject: Re: [PATCH] mtd: spi-nor: Fixup page size for S25FS-S
+To:     John Garry <john.garry@huawei.com>, linux-mtd@lists.infradead.org
+Cc:     Boris Brezillon <bbrezillon@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        stable@vger.kernel.org, Marek Vasut <marek.vasut@gmail.com>,
+        Brian Norris <computersforpeace@gmail.com>,
+        David Woodhouse <dwmw2@infradead.org>
+References: <20200114134704.4708-1-alexander.sverdlin@nokia.com>
+ <2759888e-0a88-cf76-d2c0-3f0f5141f8cd@huawei.com>
+From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Message-ID: <b376b949-67b1-b3cf-38cd-9f5e5622057d@nokia.com>
+Date:   Wed, 5 Feb 2020 17:03:43 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
+In-Reply-To: <2759888e-0a88-cf76-d2c0-3f0f5141f8cd@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: HE1PR05CA0257.eurprd05.prod.outlook.com
+ (2603:10a6:3:fb::33) To VI1PR07MB5040.eurprd07.prod.outlook.com
+ (2603:10a6:803:9c::20)
 MIME-Version: 1.0
-In-Reply-To: <20200204143504.135388-1-boris.brezillon@collabora.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Received: from [0.0.0.0] (131.228.32.167) by HE1PR05CA0257.eurprd05.prod.outlook.com (2603:10a6:3:fb::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2686.32 via Frontend Transport; Wed, 5 Feb 2020 16:03:46 +0000
+X-Originating-IP: [131.228.32.167]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 7a878cee-13fb-4513-e8fc-08d7aa54fbf8
+X-MS-TrafficTypeDiagnostic: VI1PR07MB6014:
+X-Microsoft-Antispam-PRVS: <VI1PR07MB6014A2D5A661E02C71C0224188020@VI1PR07MB6014.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-Forefront-PRVS: 0304E36CA3
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10019020)(4636009)(346002)(376002)(366004)(396003)(136003)(39860400002)(199004)(189003)(956004)(2616005)(44832011)(16576012)(26005)(31696002)(86362001)(8936002)(2906002)(316002)(8676002)(53546011)(6666004)(478600001)(66556008)(31686004)(66476007)(186003)(66946007)(16526019)(81156014)(81166006)(4326008)(6486002)(5660300002)(52116002)(54906003)(6706004)(36756003)(78286006);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR07MB6014;H:VI1PR07MB5040.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+Received-SPF: None (protection.outlook.com: nokia.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: eQiz9spku56vIeTM14wytEOL9iDif7jdblsmyMBuoKQht34b7wugJZiT1DawekCNX2x7LSCKRWhQYdunVYuQVVGJqAq22FK9VYGxWjCmm1vDSdXBR9q5TkfoaJa9GEGA9UpdP92y0/SqVYhSy2eZw2odF31oEdjWIvy1u62zNGLF4iDlyeuHJus/kl2tQbFvnj1+nyFZhutTeFqy1JFHHbnkrbEmipck5TAStpCP6zEHRQ9FA9wbTuK/lTYJuF7SvSg3KJEx69ua2CEWUESPOLKABhyzrVe6IGFXkvXg/SbWXlXuRDxcPDIMNf62/oM115aJ6uZJ8pmubthoZDYB33BxYsLLQ6ytg5LRQU1EqKqW9mO7hHvCYZEwV2aCYQ7LvuTgF/qPbwAsqFgkVwhryNPBpRFDFT+H5tba4rmi8k0uy7jVPskHuOzsmvC8RzZ42NH0EAx+7wMpEhjqoiB2z56T0ZZgGWyK3utDMzpy9qUjmD9ilj0w6HpBM/x142ipA+dKr4DUG2v+1rboj+etPQ==
+X-MS-Exchange-AntiSpam-MessageData: SwnJgDwlYxc5g7UNC3vx8VcTwsQI7tqcIDtTnztx/h4qWH6eYaArwXY7C986BPO0nnb+RzmuwTVTg27bQhO+AT5/xW9ZGZn1KRoIXfwOV7GWb2CM9cUIdQ10iPwr175ZYnLE2lspLFoKc7UZ/NJbBA==
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7a878cee-13fb-4513-e8fc-08d7aa54fbf8
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Feb 2020 16:03:47.9082
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2RjiipjT2oVkpybvfNngt1YOm83+w49qUmkgYyTTf4EprNtH1JRlw7uMzy1g99eax/FuMH8mJGVIY9geEWxMQk+9W1d2vqJX0ZVbEl3wc/Q=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR07MB6014
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/02/2020 2:35 pm, Boris Brezillon wrote:
-> Jobs can be in-flight when the file descriptor is closed (either because
-> the process did not terminate properly, or because it didn't wait for
-> all GPU jobs to be finished), and apparently panfrost_job_close() does
-> not cancel already running jobs. Let's refcount the MMU context object
-> so it's lifetime is no longer bound to the FD lifetime and running jobs
-> can finish properly without generating spurious page faults.
+Hello!
 
-Yup, this remedies what I've been seeing for ages, where - given a 
-sufficiently slow GPU - merely exiting kmscube generates a pile of 
-translation faults. With this patch applied that no longer happens 
-(yay!), however after a few tries I did now manage to hit this:
+On 05/02/2020 16:32, John Garry wrote:
+> On 14/01/2020 13:47, Alexander X Sverdlin wrote:
+>> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+>>
+>> Spansion S25FS-S family has an issue in Basic Flash Parameter Table:
+>> DWORD-11 bits 7-4 specify write page size 512 bytes. In reality this
+>> is configurable in the non-volatile CR3NV register and even factory
+>> default configuration is "wrap at 256 bytes". So blind relying on BFPT
+>> breaks write operation on these Flashes.
+>>
+>> All this story is vendor-specific, so add the corresponding fixup hook
+>> which first restores the safe page size of 256 bytes from
+>> struct flash_info but checks is more performant 512 bytes configuration
+>> is active and adjusts the page_size accordingly.
 
-[  539.190908] WARNING: CPU: 0 PID: 0 at 
-drivers/gpu/drm/panfrost/panfrost_mmu.c:200 panfrost_mmu_as_put+0x38/0x40
+[...]
 
-after which something apparently deadlocked because some weird SCMI 
-mailbox errors and continual RCU stalls in __switch_to() followed. Those 
-exact symptoms are probably particular to the Juno FPGA setup, but it 
-does seem to point to the GPU getting into an unhappy state.
+> One of my dev boards has part s25fl129p1, so I would like to try this patch. However it does not apply. Any chance you could resend?
 
-Robin.
+It was based on spi-nor/next branch of git://git.infradead.org/l2-mtd.git and as I can
+see, this branch is unchanged from the last patch submission.
+I can re-send if one of the maintainers confirms this wasn't the correct branch
+to base on.
 
-> Reported-by: Icecream95 <ixn@keemail.me>
-> Fixes: 7282f7645d06 ("drm/panfrost: Implement per FD address spaces")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> ---
->   drivers/gpu/drm/panfrost/panfrost_device.h |   8 +-
->   drivers/gpu/drm/panfrost/panfrost_drv.c    |  50 ++-----
->   drivers/gpu/drm/panfrost/panfrost_gem.c    |  20 ++-
->   drivers/gpu/drm/panfrost/panfrost_job.c    |   4 +-
->   drivers/gpu/drm/panfrost/panfrost_mmu.c    | 158 ++++++++++++++-------
->   drivers/gpu/drm/panfrost/panfrost_mmu.h    |   5 +-
->   6 files changed, 135 insertions(+), 110 deletions(-)
+[...]
+
+>> Cc: stable@vger.kernel.org
+>> Fixes: f384b352c ("mtd: spi-nor: parse Serial Flash Discoverable Parameters (SFDP) tables")
+>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+>> ---
+>>   drivers/mtd/spi-nor/spi-nor.c | 39 +++++++++++++++++++++++++++++++++++++--
+>>   include/linux/mtd/spi-nor.h   |  5 +++++
+>>   2 files changed, 42 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
+>> index 73172d7..18f8705 100644
+>> --- a/drivers/mtd/spi-nor/spi-nor.c
+>> +++ b/drivers/mtd/spi-nor/spi-nor.c
+>> @@ -1711,6 +1711,39 @@ static struct spi_nor_fixups mx25l25635_fixups = {
+>>       .post_bfpt = mx25l25635_post_bfpt_fixups,
+>>   };
+>>   +/* Spansion S25FS-S SFDP workarounds */
+>> +static int s25fs_s_post_bfpt_fixups(struct spi_nor *nor,
+>> +    const struct sfdp_parameter_header *bfpt_header,
+>> +    const struct sfdp_bfpt *bfpt,
+>> +    struct spi_nor_flash_parameter *params)
+>> +{
+>> +    const struct flash_info *info = nor->info;
+>> +    u8 read_opcode, buf;
+>> +    int ret;
+>> +
+>> +    /* Default is safe */
+>> +    params->page_size = info->page_size;
+>> +
+>> +    /*
+>> +     * But is the chip configured for more performant 512 bytes write page
+>> +     * size?
+>> +     */
+>> +    read_opcode = nor->read_opcode;
+>> +
+>> +    nor->read_opcode = SPINOR_OP_RDAR;
+>> +    ret = nor->read(nor, SPINOR_REG_CR3V, 1, &buf);
 > 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
-> index 06713811b92c..3f19288e8375 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_device.h
-> +++ b/drivers/gpu/drm/panfrost/panfrost_device.h
-> @@ -94,8 +94,12 @@ struct panfrost_device {
->   };
->   
->   struct panfrost_mmu {
-> +	struct panfrost_device *pfdev;
-> +	struct kref refcount;
->   	struct io_pgtable_cfg pgtbl_cfg;
->   	struct io_pgtable_ops *pgtbl_ops;
-> +	struct drm_mm mm;
-> +	spinlock_t mm_lock;
->   	int as;
->   	atomic_t as_count;
->   	struct list_head list;
-> @@ -106,9 +110,7 @@ struct panfrost_file_priv {
->   
->   	struct drm_sched_entity sched_entity[NUM_JOB_SLOTS];
->   
-> -	struct panfrost_mmu mmu;
-> -	struct drm_mm mm;
-> -	spinlock_t mm_lock;
-> +	struct panfrost_mmu *mmu;
->   };
->   
->   static inline struct panfrost_device *to_panfrost_device(struct drm_device *ddev)
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> index 273d67e251c2..41e574742a3c 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> @@ -418,7 +418,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->   		 * anyway, so let's not bother.
->   		 */
->   		if (!list_is_singular(&bo->mappings.list) ||
-> -		    WARN_ON_ONCE(first->mmu != &priv->mmu)) {
-> +		    WARN_ON_ONCE(first->mmu != priv->mmu)) {
->   			ret = -EINVAL;
->   			goto out_unlock_mappings;
->   		}
-> @@ -450,32 +450,6 @@ int panfrost_unstable_ioctl_check(void)
->   	return 0;
->   }
->   
-> -#define PFN_4G		(SZ_4G >> PAGE_SHIFT)
-> -#define PFN_4G_MASK	(PFN_4G - 1)
-> -#define PFN_16M		(SZ_16M >> PAGE_SHIFT)
-> -
-> -static void panfrost_drm_mm_color_adjust(const struct drm_mm_node *node,
-> -					 unsigned long color,
-> -					 u64 *start, u64 *end)
-> -{
-> -	/* Executable buffers can't start or end on a 4GB boundary */
-> -	if (!(color & PANFROST_BO_NOEXEC)) {
-> -		u64 next_seg;
-> -
-> -		if ((*start & PFN_4G_MASK) == 0)
-> -			(*start)++;
-> -
-> -		if ((*end & PFN_4G_MASK) == 0)
-> -			(*end)--;
-> -
-> -		next_seg = ALIGN(*start, PFN_4G);
-> -		if (next_seg - *start <= PFN_16M)
-> -			*start = next_seg + 1;
-> -
-> -		*end = min(*end, ALIGN(*start, PFN_4G) - 1);
-> -	}
-> -}
-> -
->   static int
->   panfrost_open(struct drm_device *dev, struct drm_file *file)
->   {
-> @@ -490,15 +464,11 @@ panfrost_open(struct drm_device *dev, struct drm_file *file)
->   	panfrost_priv->pfdev = pfdev;
->   	file->driver_priv = panfrost_priv;
->   
-> -	spin_lock_init(&panfrost_priv->mm_lock);
-> -
-> -	/* 4G enough for now. can be 48-bit */
-> -	drm_mm_init(&panfrost_priv->mm, SZ_32M >> PAGE_SHIFT, (SZ_4G - SZ_32M) >> PAGE_SHIFT);
-> -	panfrost_priv->mm.color_adjust = panfrost_drm_mm_color_adjust;
-> -
-> -	ret = panfrost_mmu_pgtable_alloc(panfrost_priv);
-> -	if (ret)
-> -		goto err_pgtable;
-> +	panfrost_priv->mmu = panfrost_mmu_ctx_create(pfdev);
-> +	if (IS_ERR(panfrost_priv->mmu)) {
-> +		ret = PTR_ERR(panfrost_priv->mmu);
-> +		goto err_free;
-> +	}
->   
->   	ret = panfrost_job_open(panfrost_priv);
->   	if (ret)
-> @@ -507,9 +477,8 @@ panfrost_open(struct drm_device *dev, struct drm_file *file)
->   	return 0;
->   
->   err_job:
-> -	panfrost_mmu_pgtable_free(panfrost_priv);
-> -err_pgtable:
-> -	drm_mm_takedown(&panfrost_priv->mm);
-> +	panfrost_mmu_ctx_put(panfrost_priv->mmu);
-> +err_free:
->   	kfree(panfrost_priv);
->   	return ret;
->   }
-> @@ -522,8 +491,7 @@ panfrost_postclose(struct drm_device *dev, struct drm_file *file)
->   	panfrost_perfcnt_close(file);
->   	panfrost_job_close(panfrost_priv);
->   
-> -	panfrost_mmu_pgtable_free(panfrost_priv);
-> -	drm_mm_takedown(&panfrost_priv->mm);
-> +	panfrost_mmu_ctx_put(panfrost_priv->mmu);
->   	kfree(panfrost_priv);
->   }
->   
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> index 17b654e1eb94..406e595f99e4 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> @@ -60,7 +60,7 @@ panfrost_gem_mapping_get(struct panfrost_gem_object *bo,
->   
->   	mutex_lock(&bo->mappings.lock);
->   	list_for_each_entry(iter, &bo->mappings.list, node) {
-> -		if (iter->mmu == &priv->mmu) {
-> +		if (iter->mmu == priv->mmu) {
->   			kref_get(&iter->refcount);
->   			mapping = iter;
->   			break;
-> @@ -74,16 +74,13 @@ panfrost_gem_mapping_get(struct panfrost_gem_object *bo,
->   static void
->   panfrost_gem_teardown_mapping(struct panfrost_gem_mapping *mapping)
->   {
-> -	struct panfrost_file_priv *priv;
-> -
->   	if (mapping->active)
->   		panfrost_mmu_unmap(mapping);
->   
-> -	priv = container_of(mapping->mmu, struct panfrost_file_priv, mmu);
-> -	spin_lock(&priv->mm_lock);
-> +	spin_lock(&mapping->mmu->mm_lock);
->   	if (drm_mm_node_allocated(&mapping->mmnode))
->   		drm_mm_remove_node(&mapping->mmnode);
-> -	spin_unlock(&priv->mm_lock);
-> +	spin_unlock(&mapping->mmu->mm_lock);
->   }
->   
->   static void panfrost_gem_mapping_release(struct kref *kref)
-> @@ -94,6 +91,7 @@ static void panfrost_gem_mapping_release(struct kref *kref)
->   
->   	panfrost_gem_teardown_mapping(mapping);
->   	drm_gem_object_put_unlocked(&mapping->obj->base.base);
-> +	panfrost_mmu_ctx_put(mapping->mmu);
->   	kfree(mapping);
->   }
->   
-> @@ -145,11 +143,11 @@ int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv)
->   	else
->   		align = size >= SZ_2M ? SZ_2M >> PAGE_SHIFT : 0;
->   
-> -	mapping->mmu = &priv->mmu;
-> -	spin_lock(&priv->mm_lock);
-> -	ret = drm_mm_insert_node_generic(&priv->mm, &mapping->mmnode,
-> +	mapping->mmu = panfrost_mmu_ctx_get(priv->mmu);
-> +	spin_lock(&mapping->mmu->mm_lock);
-> +	ret = drm_mm_insert_node_generic(&mapping->mmu->mm, &mapping->mmnode,
->   					 size >> PAGE_SHIFT, align, color, 0);
-> -	spin_unlock(&priv->mm_lock);
-> +	spin_unlock(&mapping->mmu->mm_lock);
->   	if (ret)
->   		goto err;
->   
-> @@ -178,7 +176,7 @@ void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
->   
->   	mutex_lock(&bo->mappings.lock);
->   	list_for_each_entry(iter, &bo->mappings.list, node) {
-> -		if (iter->mmu == &priv->mmu) {
-> +		if (iter->mmu == priv->mmu) {
->   			mapping = iter;
->   			list_del(&iter->node);
->   			break;
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-> index 4d383831c1fc..b0716e49eeca 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_job.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-> @@ -154,7 +154,7 @@ static void panfrost_job_hw_submit(struct panfrost_job *job, int js)
->   		return;
->   	}
->   
-> -	cfg = panfrost_mmu_as_get(pfdev, &job->file_priv->mmu);
-> +	cfg = panfrost_mmu_as_get(pfdev, job->file_priv->mmu);
->   	panfrost_devfreq_record_busy(pfdev);
->   
->   	job_write(pfdev, JS_HEAD_NEXT_LO(js), jc_head & 0xFFFFFFFF);
-> @@ -481,7 +481,7 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
->   			if (job) {
->   				pfdev->jobs[j] = NULL;
->   
-> -				panfrost_mmu_as_put(pfdev, &job->file_priv->mmu);
-> +				panfrost_mmu_as_put(pfdev, job->file_priv->mmu);
->   				panfrost_devfreq_record_idle(pfdev);
->   
->   				dma_fence_signal_locked(job->done_fence);
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> index 763cfca886a7..f70d5a75cbd5 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> @@ -1,5 +1,8 @@
->   // SPDX-License-Identifier:	GPL-2.0
->   /* Copyright 2019 Linaro, Ltd, Rob Herring <robh@kernel.org> */
-> +
-> +#include <drm/panfrost_drm.h>
-> +
->   #include <linux/atomic.h>
->   #include <linux/bitfield.h>
->   #include <linux/delay.h>
-> @@ -332,7 +335,7 @@ static void mmu_tlb_inv_context_s1(void *cookie)
->   
->   static void mmu_tlb_sync_context(void *cookie)
->   {
-> -	//struct panfrost_device *pfdev = cookie;
-> +	//struct panfrost_mmu *mmu = cookie;
->   	// TODO: Wait 1000 GPU cycles for HW_ISSUE_6367/T60X
->   }
->   
-> @@ -354,56 +357,10 @@ static const struct iommu_flush_ops mmu_tlb_ops = {
->   	.tlb_flush_leaf = mmu_tlb_flush_leaf,
->   };
->   
-> -int panfrost_mmu_pgtable_alloc(struct panfrost_file_priv *priv)
-> -{
-> -	struct panfrost_mmu *mmu = &priv->mmu;
-> -	struct panfrost_device *pfdev = priv->pfdev;
-> -
-> -	INIT_LIST_HEAD(&mmu->list);
-> -	mmu->as = -1;
-> -
-> -	mmu->pgtbl_cfg = (struct io_pgtable_cfg) {
-> -		.pgsize_bitmap	= SZ_4K | SZ_2M,
-> -		.ias		= FIELD_GET(0xff, pfdev->features.mmu_features),
-> -		.oas		= FIELD_GET(0xff00, pfdev->features.mmu_features),
-> -		.tlb		= &mmu_tlb_ops,
-> -		.iommu_dev	= pfdev->dev,
-> -	};
-> -
-> -	mmu->pgtbl_ops = alloc_io_pgtable_ops(ARM_MALI_LPAE, &mmu->pgtbl_cfg,
-> -					      priv);
-> -	if (!mmu->pgtbl_ops)
-> -		return -EINVAL;
-> -
-> -	return 0;
-> -}
-> -
-> -void panfrost_mmu_pgtable_free(struct panfrost_file_priv *priv)
-> -{
-> -	struct panfrost_device *pfdev = priv->pfdev;
-> -	struct panfrost_mmu *mmu = &priv->mmu;
-> -
-> -	spin_lock(&pfdev->as_lock);
-> -	if (mmu->as >= 0) {
-> -		pm_runtime_get_noresume(pfdev->dev);
-> -		if (pm_runtime_active(pfdev->dev))
-> -			panfrost_mmu_disable(pfdev, mmu->as);
-> -		pm_runtime_put_autosuspend(pfdev->dev);
-> -
-> -		clear_bit(mmu->as, &pfdev->as_alloc_mask);
-> -		clear_bit(mmu->as, &pfdev->as_in_use_mask);
-> -		list_del(&mmu->list);
-> -	}
-> -	spin_unlock(&pfdev->as_lock);
-> -
-> -	free_io_pgtable_ops(mmu->pgtbl_ops);
-> -}
-> -
->   static struct panfrost_gem_mapping *
->   addr_to_mapping(struct panfrost_device *pfdev, int as, u64 addr)
->   {
->   	struct panfrost_gem_mapping *mapping = NULL;
-> -	struct panfrost_file_priv *priv;
->   	struct drm_mm_node *node;
->   	u64 offset = addr >> PAGE_SHIFT;
->   	struct panfrost_mmu *mmu;
-> @@ -416,11 +373,10 @@ addr_to_mapping(struct panfrost_device *pfdev, int as, u64 addr)
->   	goto out;
->   
->   found_mmu:
-> -	priv = container_of(mmu, struct panfrost_file_priv, mmu);
->   
-> -	spin_lock(&priv->mm_lock);
-> +	spin_lock(&mmu->mm_lock);
->   
-> -	drm_mm_for_each_node(node, &priv->mm) {
-> +	drm_mm_for_each_node(node, &mmu->mm) {
->   		if (offset >= node->start &&
->   		    offset < (node->start + node->size)) {
->   			mapping = drm_mm_node_to_panfrost_mapping(node);
-> @@ -430,7 +386,7 @@ addr_to_mapping(struct panfrost_device *pfdev, int as, u64 addr)
->   		}
->   	}
->   
-> -	spin_unlock(&priv->mm_lock);
-> +	spin_unlock(&mmu->mm_lock);
->   out:
->   	spin_unlock(&pfdev->as_lock);
->   	return mapping;
-> @@ -537,6 +493,106 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
->   	return ret;
->   }
->   
-> +static void panfrost_mmu_release_ctx(struct kref *kref)
-> +{
-> +	struct panfrost_mmu *mmu = container_of(kref, struct panfrost_mmu,
-> +						refcount);
-> +	struct panfrost_device *pfdev = mmu->pfdev;
-> +
-> +	spin_lock(&pfdev->as_lock);
-> +	if (mmu->as >= 0) {
-> +		pm_runtime_get_noresume(pfdev->dev);
-> +		if (pm_runtime_active(pfdev->dev))
-> +			panfrost_mmu_disable(pfdev, mmu->as);
-> +		pm_runtime_put_autosuspend(pfdev->dev);
-> +
-> +		clear_bit(mmu->as, &pfdev->as_alloc_mask);
-> +		clear_bit(mmu->as, &pfdev->as_in_use_mask);
-> +		list_del(&mmu->list);
-> +	}
-> +	spin_unlock(&pfdev->as_lock);
-> +
-> +	free_io_pgtable_ops(mmu->pgtbl_ops);
-> +	drm_mm_takedown(&mmu->mm);
-> +	kfree(mmu);
-> +}
-> +
-> +void panfrost_mmu_ctx_put(struct panfrost_mmu *mmu)
-> +{
-> +	kref_put(&mmu->refcount, panfrost_mmu_release_ctx);
-> +}
-> +
-> +struct panfrost_mmu *panfrost_mmu_ctx_get(struct panfrost_mmu *mmu)
-> +{
-> +	kref_get(&mmu->refcount);
-> +
-> +	return mmu;
-> +}
-> +
-> +#define PFN_4G		(SZ_4G >> PAGE_SHIFT)
-> +#define PFN_4G_MASK	(PFN_4G - 1)
-> +#define PFN_16M		(SZ_16M >> PAGE_SHIFT)
-> +
-> +static void panfrost_drm_mm_color_adjust(const struct drm_mm_node *node,
-> +					 unsigned long color,
-> +					 u64 *start, u64 *end)
-> +{
-> +	/* Executable buffers can't start or end on a 4GB boundary */
-> +	if (!(color & PANFROST_BO_NOEXEC)) {
-> +		u64 next_seg;
-> +
-> +		if ((*start & PFN_4G_MASK) == 0)
-> +			(*start)++;
-> +
-> +		if ((*end & PFN_4G_MASK) == 0)
-> +			(*end)--;
-> +
-> +		next_seg = ALIGN(*start, PFN_4G);
-> +		if (next_seg - *start <= PFN_16M)
-> +			*start = next_seg + 1;
-> +
-> +		*end = min(*end, ALIGN(*start, PFN_4G) - 1);
-> +	}
-> +}
-> +
-> +struct panfrost_mmu *panfrost_mmu_ctx_create(struct panfrost_device *pfdev)
-> +{
-> +	struct panfrost_mmu *mmu;
-> +
-> +	mmu = kzalloc(sizeof(*mmu), GFP_KERNEL);
-> +	if (!mmu)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	mmu->pfdev = pfdev;
-> +	spin_lock_init(&mmu->mm_lock);
-> +
-> +	/* 4G enough for now. can be 48-bit */
-> +	drm_mm_init(&mmu->mm, SZ_32M >> PAGE_SHIFT, (SZ_4G - SZ_32M) >> PAGE_SHIFT);
-> +	mmu->mm.color_adjust = panfrost_drm_mm_color_adjust;
-> +
-> +	INIT_LIST_HEAD(&mmu->list);
-> +	mmu->as = -1;
-> +
-> +	mmu->pgtbl_cfg = (struct io_pgtable_cfg) {
-> +		.pgsize_bitmap	= SZ_4K | SZ_2M,
-> +		.ias		= FIELD_GET(0xff, pfdev->features.mmu_features),
-> +		.oas		= FIELD_GET(0xff00, pfdev->features.mmu_features),
-> +		.tlb		= &mmu_tlb_ops,
-> +		.iommu_dev	= pfdev->dev,
-> +	};
-> +
-> +	mmu->pgtbl_ops = alloc_io_pgtable_ops(ARM_MALI_LPAE, &mmu->pgtbl_cfg,
-> +					      mmu);
-> +	if (!mmu->pgtbl_ops) {
-> +		kfree(mmu);
-> +		return ERR_PTR(-EINVAL);
-> +	}
-> +
-> +	kref_init(&mmu->refcount);
-> +
-> +	return mmu;
-> +}
-> +
->   static const char *access_type_name(struct panfrost_device *pfdev,
->   		u32 fault_status)
->   {
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.h b/drivers/gpu/drm/panfrost/panfrost_mmu.h
-> index 44fc2edf63ce..cc2a0d307feb 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.h
-> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.h
-> @@ -18,7 +18,8 @@ void panfrost_mmu_reset(struct panfrost_device *pfdev);
->   u32 panfrost_mmu_as_get(struct panfrost_device *pfdev, struct panfrost_mmu *mmu);
->   void panfrost_mmu_as_put(struct panfrost_device *pfdev, struct panfrost_mmu *mmu);
->   
-> -int panfrost_mmu_pgtable_alloc(struct panfrost_file_priv *priv);
-> -void panfrost_mmu_pgtable_free(struct panfrost_file_priv *priv);
-> +struct panfrost_mmu *panfrost_mmu_ctx_get(struct panfrost_mmu *mmu);
-> +void panfrost_mmu_ctx_put(struct panfrost_mmu *mmu);
-> +struct panfrost_mmu *panfrost_mmu_ctx_create(struct panfrost_device *pfdev);
->   
->   #endif
+> struct spi_nor has no member .read AFAICS.
 > 
+>> +    if (!ret && (buf & CR3V_02H_V))
+>> +        params->page_size = 512;
+>> +
+>> +    nor->read_opcode = read_opcode;
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +static const struct spi_nor_fixups s25fs_s_fixups = {
+>> +    .post_bfpt = s25fs_s_post_bfpt_fixups,
+>> +};
+>> +
+>>   /* NOTE: double check command sets and memory organization when you add
+>>    * more nor chips.  This current list focusses on newer chips, which
+>>    * have been converging on command sets which including JEDEC ID.
+>> @@ -1903,7 +1936,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>       { "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
+>>               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> -    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR) },
+>> +    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR)
+>> +            .fixups = &s25fs_s_fixups, },
+>>       { "s25fl256s1", INFO(0x010219, 0x4d01,  64 * 1024, 512, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>       { "s25fl512s",  INFO6(0x010220, 0x4d0080, 256 * 1024, 256,
+>>               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+>> @@ -1913,7 +1947,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>       { "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
+>>       { "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
+>>       { "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> -    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> +    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
+>> +            .fixups = &s25fs_s_fixups, },
+>>       { "s25sl004a",  INFO(0x010212,      0,  64 * 1024,   8, 0) },
+>>       { "s25sl008a",  INFO(0x010213,      0,  64 * 1024,  16, 0) },
+>>       { "s25sl016a",  INFO(0x010214,      0,  64 * 1024,  32, 0) },
+>> diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
+>> index b3d360b..222eee9 100644
+>> --- a/include/linux/mtd/spi-nor.h
+>> +++ b/include/linux/mtd/spi-nor.h
+>> @@ -114,6 +114,7 @@
+>>   /* Used for Spansion flashes only. */
+>>   #define SPINOR_OP_BRWR        0x17    /* Bank register write */
+>>   #define SPINOR_OP_CLSR        0x30    /* Clear status register 1 */
+>> +#define SPINOR_OP_RDAR        0x65    /* Read Any Register */
+>>     /* Used for Micron flashes only. */
+>>   #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
+>> @@ -149,6 +150,10 @@
+>>   /* Status Register 2 bits. */
+>>   #define SR2_QUAD_EN_BIT7    BIT(7)
+>>   +/* Used for Spansion flashes RDAR command only. */
+>> +#define SPINOR_REG_CR3V        0x800004
+>> +#define CR3V_02H_V        BIT(4)    /* Page Buffer Wrap */
+>> +
+>>   /* Supported SPI protocols */
+>>   #define SNOR_PROTO_INST_MASK    GENMASK(23, 16)
+>>   #define SNOR_PROTO_INST_SHIFT    16
+>>
+> 
+> 
+
+-- 
+Best regards,
+Alexander Sverdlin.
