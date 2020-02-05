@@ -2,92 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B8B1539D4
-	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 22:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E86041539D9
+	for <lists+stable@lfdr.de>; Wed,  5 Feb 2020 22:01:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727361AbgBEVAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 16:00:41 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31336 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727085AbgBEVAl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 16:00:41 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 015Kruw7139264
-        for <stable@vger.kernel.org>; Wed, 5 Feb 2020 16:00:40 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xym4n3p05-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Wed, 05 Feb 2020 16:00:40 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
-        Wed, 5 Feb 2020 21:00:38 -0000
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
-        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Wed, 5 Feb 2020 21:00:34 -0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 015L0Xj460293240
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Feb 2020 21:00:33 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9BED942041;
-        Wed,  5 Feb 2020 21:00:33 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A65834204D;
-        Wed,  5 Feb 2020 21:00:32 +0000 (GMT)
-Received: from dhcp-9-31-103-105.watson.ibm.com (unknown [9.31.103.105])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  5 Feb 2020 21:00:32 +0000 (GMT)
-Subject: Re: [PATCH v2 2/8] ima: Switch to ima_hash_algo for boot aggregate
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>,
-        James.Bottomley@HansenPartnership.com,
-        jarkko.sakkinen@linux.intel.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        id S1727279AbgBEVB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 16:01:56 -0500
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:45742 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727106AbgBEVB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 16:01:56 -0500
+Received: by mail-pl1-f195.google.com with SMTP id b22so1365649pls.12;
+        Wed, 05 Feb 2020 13:01:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=V5Ya82AT4pQW2Zb1hIubalMGAZsHsnbL9u1TTZT+ojU=;
+        b=pu5NVfan4hvUUC4H7MWX7H8oiJa6r11XNrkBqIk/q1dfaK6gcIKEhG1dB317SqGvD1
+         f3ocIW4SnPXybVn1vQGe91ftFysoOTkUrYg5IANDsxwreOun7gLBVyESMLigxyec81/h
+         aIAWOwIZQws1v8WsUS6oN6n0q6bHKV4xbHsrDLQvCQmP45v/o14OTudT4TcBUAoF2EYE
+         VusU2pIOdqZnUorcev+0/KmA52+NqmRFlWcNiszQ11KxND1ifLKi1xpQfNCm+LATX9e/
+         U/bwh++vGBox32I4nf2HMWopDDC2b2Nn4eG5IlSv+czNuR488XZd2ccpqmGgMN5c+dzy
+         rBvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=V5Ya82AT4pQW2Zb1hIubalMGAZsHsnbL9u1TTZT+ojU=;
+        b=LNjC7734TH8uakVjh7dD6J9IRpPMfSf4d624ncxXNgj5LWfh0DZQdkviNrEkZPBQb9
+         BKl4fjbc18R4odR+ga+Y57tEd0Ny5a3cQLJG/QwyPpI5bUwtVvhVxGWVR5B0mNE1nUf/
+         mKRswG2nTQvHwq8VdrqaKv27dmrIvLI1uoGqRucz51WymM2uZLOqHp5IUnPiakA9R1U4
+         IOsy9olo24F/MFerbA64D3oy5Af47xn6u4zbBeR0iVb1CNpyXKM9ov3W8QSVtwDutnYt
+         VgDOimJxBqakrrKFgAuZdRo0ap+c991REY1nySecdz8Yz9xZ7NXVfo8F3pPwmRqZDGDj
+         sLHw==
+X-Gm-Message-State: APjAAAXoZKWV2sEEg5Dnoeztp+ve79AFHlOoIyKYnk4pAFiKuJUcib/z
+        fUXljcxQc5H3F2yyUPG++lI=
+X-Google-Smtp-Source: APXvYqyktnsAj93LGWXqW5QfEm/xoooCe6OO/kAgOLC0z7e0YXxBr4oz1kHsUw2pAjK26z5BPzZRSQ==
+X-Received: by 2002:a17:902:8d91:: with SMTP id v17mr35632917plo.53.1580936515173;
+        Wed, 05 Feb 2020 13:01:55 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c15sm392218pfo.137.2020.02.05.13.01.50
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 05 Feb 2020 13:01:53 -0800 (PST)
+Date:   Wed, 5 Feb 2020 13:01:50 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Date:   Wed, 05 Feb 2020 16:00:32 -0500
-In-Reply-To: <20200205103317.29356-3-roberto.sassu@huawei.com>
-References: <20200205103317.29356-1-roberto.sassu@huawei.com>
-         <20200205103317.29356-3-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 20020521-0016-0000-0000-000002E406B5
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20020521-0017-0000-0000-00003346E93C
-Message-Id: <1580936432.5585.309.camel@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-02-05_06:2020-02-04,2020-02-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- phishscore=0 impostorscore=0 bulkscore=0 mlxscore=0 lowpriorityscore=0
- adultscore=0 mlxlogscore=796 spamscore=0 priorityscore=1501 suspectscore=3
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002050160
+Subject: Re: [PATCH 5.4 00/90] 5.4.18-stable review
+Message-ID: <20200205210150.GA18483@roeck-us.net>
+References: <20200203161917.612554987@linuxfoundation.org>
+ <9a5a92f2-6e28-a9ab-a851-8d7e56482df6@roeck-us.net>
+ <20200205151357.GB1236691@kroah.com>
+ <20200205162429.GB25403@roeck-us.net>
+ <20200205193008.GC1327971@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200205193008.GC1327971@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Roberto,
+On Wed, Feb 05, 2020 at 07:30:08PM +0000, Greg Kroah-Hartman wrote:
+> On Wed, Feb 05, 2020 at 08:24:29AM -0800, Guenter Roeck wrote:
+> > On Wed, Feb 05, 2020 at 03:13:57PM +0000, Greg Kroah-Hartman wrote:
+> > > On Tue, Feb 04, 2020 at 06:37:38AM -0800, Guenter Roeck wrote:
+> > > > On 2/3/20 8:19 AM, Greg Kroah-Hartman wrote:
+> > > > > This is the start of the stable review cycle for the 5.4.18 release.
+> > > > > There are 90 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > > 
+> > > > > Responses should be made by Wed, 05 Feb 2020 16:17:59 +0000.
+> > > > > Anything received after that time might be too late.
+> > > > > 
+> > > > 
+> > > > Building i386:allyesconfig ... failed
+> > > > Building i386:allmodconfig ... failed
+> > > > --------------
+> > > > Error log:
+> > > > In file included from arch/x86/kernel/pci-dma.c:2:
+> > > > include/linux/dma-direct.h:29:20: error: conflicting types for 'dma_capable'
+> > > >    29 | static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size,
+> > > >       |                    ^~~~~~~~~~~
+> > > > In file included from include/linux/dma-direct.h:12,
+> > > >                  from arch/x86/kernel/pci-dma.c:2:
+> > > > arch/x86/include/asm/dma-direct.h:5:6: note: previous declaration of 'dma_capable' was here
+> > > >     5 | bool dma_capable(struct device *dev, dma_addr_t addr, size_t size);
+> > > 
+> > > Ok, I think this is now resolved with a patch that Sasha added.
+> > > 
+> > > I have pushed out a -rc4 that _should_ build and boot properly.
+> > > 
+> > The i386 build still fails with v5.4.17-99-gbd0c6624a110 (-rc4).
+> 
+> Crap.
+> 
+> Ok, let me get some food and then try to figure this out...
+> 
 
-On Wed, 2020-02-05 at 11:33 +0100, Roberto Sassu wrote:
+# bad: [bd0c6624a110d0f667cd2f3636f88e8de9b75851] Linux 5.4.18-rc4
+# good: [313c8460cf0290fb1b9f71a20573fc32ac6c9cee] Linux 5.4.17
+git bisect start 'HEAD' 'v5.4.17'
+# good: [7c8bd91288c71011d793de1926a30182382141a0] parisc: Use proper printk format for resource_size_t
+git bisect good 7c8bd91288c71011d793de1926a30182382141a0
+# good: [67040c483ee8137adb12e20bb6448786455f4de6] r8152: Disable PLA MCU clock speed down
+git bisect good 67040c483ee8137adb12e20bb6448786455f4de6
+# good: [b3f55c9d709e6dcf96af5230295e631f0cbc3a8f] netfilter: nf_tables_offload: fix check the chain offload flag
+git bisect good b3f55c9d709e6dcf96af5230295e631f0cbc3a8f
+# good: [87bd4bf79429566adf306b8b133625604460b7c2] perf report: Fix no libunwind compiled warning break s390 issue
+git bisect good 87bd4bf79429566adf306b8b133625604460b7c2
+# good: [f831fda5fe86918fcb049721fba779ba2300c022] ASoC: topology: fix soc_tplg_fe_link_create() - link->dobj initialization order
+git bisect good f831fda5fe86918fcb049721fba779ba2300c022
+# good: [cc47538aebee48bb7626c84607116e43f57118d5] tracing/uprobe: Fix to make trace_uprobe_filter alignment safe
+git bisect good cc47538aebee48bb7626c84607116e43f57118d5
+# bad: [26f444bf728054ad23e5888bdd4ffa899e364b45] dma-direct: unify the dma_capable definitions
+git bisect bad 26f444bf728054ad23e5888bdd4ffa899e364b45
+# first bad commit: [26f444bf728054ad23e5888bdd4ffa899e364b45] dma-direct: unify the dma_capable definitions
 
-<snip>
+Reverting 26f444bf728054ad23e5888bdd4ffa899e364b45 fixes that problem, but
+results in other build failures. After dropping this commit, another bisect yields:
 
-> Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
-> Suggested-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> Cc: stable@vger.kernel.org
+# bad: [56ea21e523a5ebf53e4ce88bc743c60c480d42ff] Linux 5.4.18-rc4
+# good: [313c8460cf0290fb1b9f71a20573fc32ac6c9cee] Linux 5.4.17
+git bisect start 'HEAD' 'v5.4.17'
+# good: [7c8bd91288c71011d793de1926a30182382141a0] parisc: Use proper printk format for resource_size_t
+git bisect good 7c8bd91288c71011d793de1926a30182382141a0
+# good: [afbfe89dc11d19769477c5378a7164837baf75be] r8152: disable U2P3 for RTL8153B
+git bisect good afbfe89dc11d19769477c5378a7164837baf75be
+# good: [8403906c74753734338665be315175ddd1e03f5e] netfilter: conntrack: sctp: use distinct states for new SCTP connections
+git bisect good 8403906c74753734338665be315175ddd1e03f5e
+# good: [6b1562623df22cd81bf2138d880915029bbd414c] dm thin: fix use-after-free in metadata_pre_commit_callback
+git bisect good 6b1562623df22cd81bf2138d880915029bbd414c
+# bad: [705430d0039088973d204feea9eb0b7740509194] mm/migrate.c: also overwrite error when it is bigger than zero
+git bisect bad 705430d0039088973d204feea9eb0b7740509194
+# bad: [180dafcb1d1c0ee38f935810fe18d02eb7658c9f] dma-direct: exclude dma_direct_map_resource from the min_low_pfn check
+git bisect bad 180dafcb1d1c0ee38f935810fe18d02eb7658c9f
+# good: [87bd4bf79429566adf306b8b133625604460b7c2] perf report: Fix no libunwind compiled warning break s390 issue
+git bisect good 87bd4bf79429566adf306b8b133625604460b7c2
+# first bad commit: [180dafcb1d1c0ee38f935810fe18d02eb7658c9f] dma-direct: exclude dma_direct_map_resource from the min_low_pfn check
 
-Cc'ing stable resulted in Sasha's automated message.  If you're going
-to Cc stable, then please include the stable kernel release (e.g. Cc: 
-stable@vger.kernel.org # v5.3).  Also please include a "Fixes" tag.
- Normally only bug fixes are backported.
+Dropping that patch as well fixes the problem for me.
 
-Mimi
-
+Guenter
