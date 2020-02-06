@@ -2,72 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6C615459C
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 14:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766D91545D0
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 15:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727825AbgBFN71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 08:59:27 -0500
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:41063 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727361AbgBFN71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 08:59:27 -0500
-Received: by mail-qt1-f195.google.com with SMTP id l19so4505944qtq.8
-        for <stable@vger.kernel.org>; Thu, 06 Feb 2020 05:59:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ksZ9yvJQLEPos9sVNg0k5UIVDrjEW5mJFI3LUcUgjiE=;
-        b=Pk3A9CBl52sVuqzVRp0abKF3wkMmowKW2I/9EAmcxHD6/lVJZCmbwumXtjnjseIBeC
-         l0HsCKvJd6FEFDFeFKAbd/RJVtjo2gNGaK5PKWPad6uoaTiTHIr4LJf5v3c3iGGFa+qo
-         P1tWmboX07vZMoqejFUjc3GLZkwhKzyETI83wZpD72Ktnb9w9ln9kCNIwGo7NVg0r5Vt
-         j6hFX9LPdMBJ0ZYbSwlXn5Tcnc57LfNY3E7N2XOJfUm+OrJn7s7DAkDZO0yl94wUgNIb
-         3GLeOOSucxd+8poDYFS97QpvnykAckRE9pjJ/rrYTSla8j8fxMo6m4XCh591E+uszeKH
-         411A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ksZ9yvJQLEPos9sVNg0k5UIVDrjEW5mJFI3LUcUgjiE=;
-        b=DvKkoYcIIIISHpcQckuWLeQW4KILqb0GoZt0d1w75v6hJ8s9d/IRRzZsbEqPNxwkCq
-         4Rm3wNZfIDKHFVv56syGIDFw1hQNWMKLF1P744hHEE2fZ/9f8/Sq/o/aoRDGylkOE4WP
-         fAf1FXPbwT86++0uNRPHTwStGCpIMb8GZoJoeBSCJqslUOwa29m1ZdVTaZ3krO8wJu6c
-         M6TIfQyYPoRUNcEcSXYBGv4sWeqZgKK4YCIzCCNvbnaJHTt9MDe/1qov1JMHBLKWVXgW
-         ANKYE2seZ+vzsizqw2hCwJ5YE27NFg9NHJ2x4RJEg5C536tNFYsbgSu+VAoY6audrhi0
-         zqJg==
-X-Gm-Message-State: APjAAAW03ogRKWToWiO2PWO5JQqlAUgkJ2UG5IsEbI/H7V5lcn8E+mBD
-        02cZz/+/6ebjxKhRlVn8FjM4/ORSgAfAG/OhFq8=
-X-Google-Smtp-Source: APXvYqy2/PwS+XPe/O2LnynQccbHzzkQSeFRww4IRiwtnr4midvrdfIiX+mSKpGmPn883ddXSkAmn9/IVxk3wwNunb0=
-X-Received: by 2002:ac8:2ffa:: with SMTP id m55mr2660214qta.189.1580997566422;
- Thu, 06 Feb 2020 05:59:26 -0800 (PST)
+        id S1727060AbgBFONe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 09:13:34 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:40454 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727955AbgBFONe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 09:13:34 -0500
+Received: from localhost.localdomain (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 2A2F8295281;
+        Thu,  6 Feb 2020 14:13:32 +0000 (GMT)
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     dri-devel@lists.freedesktop.org,
+        Antonio Caggiano <antonio.caggiano@collabora.com>,
+        Icecream95 <ixn@keemail.me>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/panfrost: perfcnt: Reserve/use the AS attached to the perfcnt MMU context
+Date:   Thu,  6 Feb 2020 15:13:27 +0100
+Message-Id: <20200206141327.446127-1-boris.brezillon@collabora.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Received: by 2002:ac8:670e:0:0:0:0:0 with HTTP; Thu, 6 Feb 2020 05:59:26 -0800 (PST)
-Reply-To: jpmorganchasebanknyusa@gmail.com
-From:   "MS. MARYANNA B. THOMASON" <westernunion.benin982@gmail.com>
-Date:   Thu, 6 Feb 2020 14:59:26 +0100
-Message-ID: <CAP=nHBK0nO3C-jA3kRcC_AgUBSNV3kuXhFQBdgvBNUguoX1mSg@mail.gmail.com>
-Subject: Contact Federal Reserve Bank New York to receive your inheritance
- contract payment (US$12.8M)
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention Fund Beneficiary,
-Contact Federal Reserve Bank New York to receive your inheritance
-contract payment  (US$12.8M)
-Payment Release Instruction from US department of Homeland Security New York.
-Contact Federal Reserve Bank New York to receive your inheritance
-contract payment  (US$12.8M) deposited this morning in your favor.
-Contact Person, Dr. Jerome H. Powell.
-CEO Director, Federal Reserve Bank New York
-Email: reservebank.ny93@gmail.com
-Telephone- (917) 983-4846)
-Note.I have paid the deposit and insurance fee for you,but only money
-you are required to send to the bank is $US25.00,your processing funds
-transfer fee only to enable them release your funds to you today.
-Thank you for your anticipated co-operation.
-TREAT AS URGENT.
-Mr.Richard Longhair
-DIRECTOR OF FUNDS CLEARANCE UNIT
+We need to use the AS attached to the opened FD when dumping counters.
+
+Reported-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+Fixes: 7282f7645d06 ("drm/panfrost: Implement per FD address spaces")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+---
+ drivers/gpu/drm/panfrost/panfrost_mmu.c     |  7 ++++++-
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.c | 11 ++++-------
+ 2 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+index 763cfca886a7..3107b0738e40 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -151,7 +151,12 @@ u32 panfrost_mmu_as_get(struct panfrost_device *pfdev, struct panfrost_mmu *mmu)
+ 	as = mmu->as;
+ 	if (as >= 0) {
+ 		int en = atomic_inc_return(&mmu->as_count);
+-		WARN_ON(en >= NUM_JOB_SLOTS);
++
++		/*
++		 * AS can be retained by active jobs or a perfcnt context,
++		 * hence the '+ 1' here.
++		 */
++		WARN_ON(en >= (NUM_JOB_SLOTS + 1));
+ 
+ 		list_move(&mmu->list, &pfdev->as_lru_list);
+ 		goto out;
+diff --git a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+index 684820448be3..6913578d5aa7 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
++++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+@@ -73,7 +73,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+ 	struct panfrost_file_priv *user = file_priv->driver_priv;
+ 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
+ 	struct drm_gem_shmem_object *bo;
+-	u32 cfg;
++	u32 cfg, as;
+ 	int ret;
+ 
+ 	if (user == perfcnt->user)
+@@ -126,12 +126,8 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+ 
+ 	perfcnt->user = user;
+ 
+-	/*
+-	 * Always use address space 0 for now.
+-	 * FIXME: this needs to be updated when we start using different
+-	 * address space.
+-	 */
+-	cfg = GPU_PERFCNT_CFG_AS(0) |
++	as = panfrost_mmu_as_get(pfdev, perfcnt->mapping->mmu);
++	cfg = GPU_PERFCNT_CFG_AS(as) |
+ 	      GPU_PERFCNT_CFG_MODE(GPU_PERFCNT_CFG_MODE_MANUAL);
+ 
+ 	/*
+@@ -195,6 +191,7 @@ static int panfrost_perfcnt_disable_locked(struct panfrost_device *pfdev,
+ 	drm_gem_shmem_vunmap(&perfcnt->mapping->obj->base.base, perfcnt->buf);
+ 	perfcnt->buf = NULL;
+ 	panfrost_gem_close(&perfcnt->mapping->obj->base.base, file_priv);
++	panfrost_mmu_as_put(pfdev, perfcnt->mapping->mmu);
+ 	panfrost_gem_mapping_put(perfcnt->mapping);
+ 	perfcnt->mapping = NULL;
+ 	pm_runtime_mark_last_busy(pfdev->dev);
+-- 
+2.24.1
+
