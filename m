@@ -2,113 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEE515446E
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 14:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFBF15451F
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 14:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727452AbgBFNBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 08:01:21 -0500
-Received: from smtp11.infineon.com ([217.10.52.105]:20415 "EHLO
-        smtp11.infineon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727379AbgBFNBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 08:01:21 -0500
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Thu, 06 Feb 2020 08:01:20 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=infineon.com; i=@infineon.com; q=dns/txt; s=IFXMAIL;
-  t=1580994081; x=1612530081;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=+LOsqSZOwaErmcvYyHE4Zb+x4vf935b6KUHXPd1MNms=;
-  b=hHZ/hnGmDzPFd4durapr3JqigKYRN6xegf+u3lIIEeHf1Nt/h+tOWc6B
-   i5qmxY3ZfAmwNRTVqpMzLIGLkYFdkMGoLnlVMJgsikLbex1wIL/MM7cfX
-   RN8/FdOj20eARambTAnzbhSGKgJPerExSQ0W0A8vhefax7Nbj0D6SMY/V
-   M=;
-IronPort-SDR: 3ajDCj45i+l3AxOjLL+D8zjefXWLzfftgrflXh5BML42yHT+uQB5hSEemkvDpkt0h59+BHxbGi
- KZgI0Rep3ezmoyjdnn6aglQ6UbvOtqS9JiIC1Br+Yk34Sl6gdVzAbIx+1upgK5RunfniBKVjmW
- mkpR5kUBOcQu8StBaArcsOnWUKjFi1PT+GWtjBb8c3/2l0qqIS8KFnKxkQLFCla3GgQZxsoeM3
- lNYhpqfAMd3REvNnDouABWg4Er5OxL+hiMuwR5stp4cQ80qlAI28Oad8XgNdB2FsTo3/r6uHG9
- e5Y=
-X-SBRS: None
-X-IronPort-AV: E=McAfee;i="6000,8403,9522"; a="148641042"
-X-IronPort-AV: E=Sophos;i="5.70,409,1574118000"; 
-   d="scan'208";a="148641042"
-Received: from unknown (HELO mucxv002.muc.infineon.com) ([172.23.11.17])
-  by smtp11.infineon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2020 13:54:12 +0100
-Received: from MUCSE708.infineon.com (MUCSE708.infineon.com [172.23.7.82])
-        by mucxv002.muc.infineon.com (Postfix) with ESMTPS;
-        Thu,  6 Feb 2020 13:54:12 +0100 (CET)
-Received: from [10.154.32.73] (172.23.8.247) by MUCSE708.infineon.com
- (172.23.7.82) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256) id 15.1.1713.5; Thu, 6 Feb
- 2020 13:54:12 +0100
-Subject: Re: [PATCH] tpm: Revert tpm_tis_spi_mod.ko to tpm_tis_spi.ko.
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        <linux-integrity@vger.kernel.org>
-CC:     Andrey Pronin <apronin@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>, <stable@vger.kernel.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
-From:   Alexander Steffen <Alexander.Steffen@infineon.com>
-Message-ID: <f865a01e-83a1-b0e2-a9ca-45f874d86b4c@infineon.com>
-Date:   Thu, 6 Feb 2020 13:54:11 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+        id S1727649AbgBFNlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 08:41:46 -0500
+Received: from mx2.suse.de ([195.135.220.15]:59886 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727481AbgBFNlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 08:41:45 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 28E3AB27A;
+        Thu,  6 Feb 2020 13:41:44 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id A73DCDA952; Thu,  6 Feb 2020 14:41:30 +0100 (CET)
+Date:   Thu, 6 Feb 2020 14:41:30 +0100
+From:   David Sterba <dsterba@suse.cz>
+To:     Anand Jain <anand.jain@oracle.com>
+Cc:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
+        Chris Murphy <lists@colorremedies.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] btrfs: print message when tree-log replay starts
+Message-ID: <20200206134130.GV2654@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
+        Chris Murphy <lists@colorremedies.com>, stable@vger.kernel.org
+References: <20200205161216.24260-1-dsterba@suse.com>
+ <69682127-4580-8795-5d8f-fc18d6d840fd@oracle.com>
+ <f9291224-ec67-f54b-3b09-5938c81e1568@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.23.8.247]
-X-ClientProxiedBy: MUCSE703.infineon.com (172.23.7.73) To
- MUCSE708.infineon.com (172.23.7.82)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f9291224-ec67-f54b-3b09-5938c81e1568@oracle.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05.02.2020 21:38, Jarkko Sakkinen wrote:
-> Revert tpm_tis_spi_mod.ko back to tpm_tis_spi.ko as the rename could break
-> the build script. This can be achieved by renaming tpm_tis_spi.c as
-> tpm_tis_spi_main.c. Then tpm_tis_spi-y can be used inside the makefile.
+On Thu, Feb 06, 2020 at 11:48:28AM +0800, Anand Jain wrote:
+> On 2/6/20 11:45 AM, Anand Jain wrote:
+> > On 2/6/20 12:12 AM, David Sterba wrote:
+> >> There's no logged information about tree-log replay although this is
+> >> something that points to previous unclean unmount. Other filesystems
+> >> report that as well.
+> >>
+> >> Suggested-by: Chris Murphy <lists@colorremedies.com>
+> >> CC: stable@vger.kernel.org # 4.4+
+> >> Signed-off-by: David Sterba <dsterba@suse.com>
+> >> ---
+> >>   fs/btrfs/disk-io.c | 1 +
+> >>   1 file changed, 1 insertion(+)
+> >>
+> >> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+> >> index 28622de9e642..295d5ebc9d5e 100644
+> >> --- a/fs/btrfs/disk-io.c
+> >> +++ b/fs/btrfs/disk-io.c
+> >> @@ -3146,6 +3146,7 @@ int __cold open_ctree(struct super_block *sb,
+> >>       /* do not make disk changes in broken FS or nologreplay is given */
+> >>       if (btrfs_super_log_root(disk_super) != 0 &&
+> >>           !btrfs_test_opt(fs_info, NOLOGREPLAY)) {
 > 
-> Cc: Andrey Pronin <apronin@chromium.org>
-> Cc: Stephen Boyd <swboyd@chromium.org>
-> Cc: stable@vger.kernel.org
-> Fixes: 797c0113c9a4 ("tpm: tpm_tis_spi: Support cr50 devices")
-> Reported-by: Alexander Steffen <Alexander.Steffen@infineon.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> ---
->   drivers/char/tpm/Makefile                              | 8 +++++---
->   drivers/char/tpm/{tpm_tis_spi.c => tpm_tis_spi_main.c} | 0
->   2 files changed, 5 insertions(+), 3 deletions(-)
->   rename drivers/char/tpm/{tpm_tis_spi.c => tpm_tis_spi_main.c} (100%)
 > 
-> diff --git a/drivers/char/tpm/Makefile b/drivers/char/tpm/Makefile
-> index 5a0d99d4fec0..9567e5197f74 100644
-> --- a/drivers/char/tpm/Makefile
-> +++ b/drivers/char/tpm/Makefile
-> @@ -21,9 +21,11 @@ tpm-$(CONFIG_EFI) += eventlog/efi.o
->   tpm-$(CONFIG_OF) += eventlog/of.o
->   obj-$(CONFIG_TCG_TIS_CORE) += tpm_tis_core.o
->   obj-$(CONFIG_TCG_TIS) += tpm_tis.o
-> -obj-$(CONFIG_TCG_TIS_SPI) += tpm_tis_spi_mod.o
-> -tpm_tis_spi_mod-y := tpm_tis_spi.o
-> -tpm_tis_spi_mod-$(CONFIG_TCG_TIS_SPI_CR50) += tpm_tis_spi_cr50.o
-> +
-> +obj-$(CONFIG_TCG_TIS_SPI) += tpm_tis_spi.o
-> +tpm_tis_spi-y := tpm_tis_spi_main.o
-> +tpm_tis_spi-$(CONFIG_TCG_TIS_SPI_CR50) += tpm_tis_spi_cr50.o
-> +
->   obj-$(CONFIG_TCG_TIS_I2C_ATMEL) += tpm_i2c_atmel.o
->   obj-$(CONFIG_TCG_TIS_I2C_INFINEON) += tpm_i2c_infineon.o
->   obj-$(CONFIG_TCG_TIS_I2C_NUVOTON) += tpm_i2c_nuvoton.o
-> diff --git a/drivers/char/tpm/tpm_tis_spi.c b/drivers/char/tpm/tpm_tis_spi_main.c
-> similarity index 100%
-> rename from drivers/char/tpm/tpm_tis_spi.c
-> rename to drivers/char/tpm/tpm_tis_spi_main.c
+> >> +        btrfs_info("start tree-log replay");
+> 
+> btrfs_info() needs struct btrfs_fs_info as first arg.
 
-Works for me, thank you very much :)
-
-Alexander
+Doh, that's what I get when I take months old patches and only briefly
+review them before sending.
