@@ -2,80 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C3A8153F61
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 08:49:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9381153F62
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 08:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbgBFHtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 02:49:43 -0500
-Received: from mail-wm1-f50.google.com ([209.85.128.50]:36717 "EHLO
-        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727500AbgBFHtn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 02:49:43 -0500
-Received: by mail-wm1-f50.google.com with SMTP id p17so5768366wma.1
-        for <stable@vger.kernel.org>; Wed, 05 Feb 2020 23:49:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=eB14vqDqFnE12f0UPL1T5bLOvr3uI5OzWPH0DI9AwhM=;
-        b=HC2+7DK3W9w1zZxgp4UrPzAJACuZN6dNi+nCFss6C750m3e8OkuthgpQHqNfz2dIy7
-         V6asMjKsQfzM1dGqU25gdLETu4oZO7Nccsnr81x+Lq8tYZ4SvNbUAWFG2kFj31VbwQXB
-         TzkQx575GHNB1LxbREx86tEtl5b+XTHU9HClOMqruXXILUtL+vO8XreytwmUY7o26Irr
-         1dTCnU1QiZ77h6Zjv1SJ/0qaaOLChXsKk7xunDe/9PaJqK5uPpKAkOUVw/C8+Eh2cPYK
-         7nYHywh5saKm5AIHjTvINhRiE+U4BW12KUL6PHYme/uhDChodWzuWQYanV1lRulD2sxr
-         cQWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=eB14vqDqFnE12f0UPL1T5bLOvr3uI5OzWPH0DI9AwhM=;
-        b=lxez4PeXZ7ecujQAnT+TiRFFWCHABaVG/tdO8Dd0xuoj2RDz4a+MPTFv9vM7BRCnTc
-         XD7npj5Lh3h9lDkQzM497GZxKdwmZeQlBRMjymzsm1jrqKsbl+sZ+wRuykthEbITh+b0
-         JfLAClR13q6djpIpDjdRtcjfOkFPpMIx+lpFjg6VpueREUvKQ7tAycpQLOrhjlpAAawK
-         HmykKR6agU+g2lwh1ZnCfwi6yrk05ADhVQAdH+mtQyzsyE9tvdESaQ372gCqnR/j+OFo
-         oP89TDFErDTzr2Xp4fKctD5Vxh/fjWJDn3zwJGYtkOJSNP3f54KW3wEh44OUZSwzELVs
-         MUcA==
-X-Gm-Message-State: APjAAAUetCuW5cQUGTotuI+QH3pp7Bgtel2StWUO6yMBIQZeBHwPUGcQ
-        QMoDLP/+FyAhS206D/bDN7rScvaOTCu2hg==
-X-Google-Smtp-Source: APXvYqyOZWt7CczO/ucF0lm1QJZiNZYPYFki8NiwfbRnEZoT++27LQsC3Cz7HJN8eklnIfwCDo3kzw==
-X-Received: by 2002:a1c:7718:: with SMTP id t24mr2802411wmi.119.1580975381422;
-        Wed, 05 Feb 2020 23:49:41 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i4sm837577wmd.23.2020.02.05.23.49.40
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Feb 2020 23:49:41 -0800 (PST)
-Message-ID: <5e3bc515.1c69fb81.ae813.2f20@mx.google.com>
-Date:   Wed, 05 Feb 2020 23:49:41 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727919AbgBFHtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 02:49:51 -0500
+Received: from mx2.suse.de ([195.135.220.15]:52390 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727500AbgBFHtu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 02:49:50 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 837C9AF93;
+        Thu,  6 Feb 2020 07:49:44 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 0985F1E0E31; Thu,  6 Feb 2020 08:49:44 +0100 (CET)
+Date:   Thu, 6 Feb 2020 08:49:44 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Andreas Dilger <adilger@dilger.ca>
+Cc:     Jan Kara <jack@suse.cz>, Ted Tso <tytso@mit.edu>,
+        linux-ext4@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ext4: Fix checksum errors with indexed dirs
+Message-ID: <20200206074944.GA14001@quack2.suse.cz>
+References: <20200205173025.12221-1-jack@suse.cz>
+ <BC1AA070-8C16-4399-B4D8-1E9F24D05D8D@dilger.ca>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.213
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.9.y boot: 6 boots: 0 failed, 6 passed (v4.9.213)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BC1AA070-8C16-4399-B4D8-1E9F24D05D8D@dilger.ca>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 6 boots: 0 failed, 6 passed (v4.9.213)
+On Wed 05-02-20 11:04:23, Andreas Dilger wrote:
+> On Feb 5, 2020, at 10:30 AM, Jan Kara <jack@suse.cz> wrote:
+> > 
+> > DIR_INDEX has been introduced as a compat ext4 feature. That means that
+> > even kernels / tools that don't understand the feature may modify the
+> > filesystem. This works because for kernels not understanding indexed dir
+> > format, internal htree nodes appear just as empty directory entries.
+> > Index dir aware kernels then check the htree structure is still
+> > consistent before using the data. This all worked reasonably well until
+> > metadata checksums were introduced. The problem is that these
+> > effectively made DIR_INDEX only ro-compatible because internal htree
+> > nodes store checksums in a different place than normal directory blocks.
+> > Thus any modification ignorant to DIR_INDEX (or just clearing
+> > EXT4_INDEX_FL from the inode) will effectively cause checksum mismatch
+> > and trigger kernel errors. So we have to be more careful when dealing
+> > with indexed directories on filesystems with checksumming enabled.
+> 
+> > 1) We just disallow loading and directory inodes with EXT4_INDEX_FL when
+> 
+> s/and/any/ ?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.213/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.213/
+Yes, will fix.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.213
-Git Commit: 0e96b1eb0ea5e4e8cdcdde6f0c68f89dc1d08be7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 6 unique boards, 5 SoC families, 2 builds out of 23
+> > DIR_INDEX is not enabled. This is harsh but it should be very rare (it
+> > means someone disabled DIR_INDEX on existing filesystem and didn't run
+> > e2fsck), e2fsck can fix the problem, and we don't want to answer the
+> > difficult question: "Should we rather corrupt the directory more or
+> > should we ignore that DIR_INDEX feature is not set?"
+> 
+> Wouldn't it be better to continue allowing the directory to be read, but
+> not modified?  Otherwise, essentially, metadata_csum is making the
+> filesystem _less_ robust rather than making it more robust.  We don't
+> _need_ the htree index to do a lookup in the directory.
 
----
-For more info write to <info@kernelci.org>
+Hum, I was somewhat afraid it may be a bit fragile but thinking about it
+now, there aren't that many places that need to check. OK, I will try to do
+this and see how it looks.
+
+> > 2) When we find out htree structure is corrupted (but the filesystem and
+> > the directory should in support htrees), we continue just ignoring htree
+> > information for reading but we refuse to add new entries to the
+> > directory to avoid corrupting it more.
+> > 
+> > CC: stable@vger.kernel.org
+> > Fixes: dbe89444042a ("ext4: Calculate and verify checksums for htree nodes")
+> > Signed-off-by: Jan Kara <jack@suse.cz>
+> > ---
+> > fs/ext4/dir.c   | 14 ++++++++------
+> > fs/ext4/ext4.h  |  5 ++++-
+> > fs/ext4/inode.c | 13 +++++++++++++
+> > fs/ext4/namei.c |  7 +++++++
+> > 4 files changed, 32 insertions(+), 7 deletions(-)
+> > 
+> > 
+> > diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+> > index 629a25d999f0..d33135308c1b 100644
+> > --- a/fs/ext4/inode.c
+> > +++ b/fs/ext4/inode.c
+> > @@ -4615,6 +4615,19 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+> > 		ret = -EFSCORRUPTED;
+> > 		goto bad_inode;
+> > 	}
+> > +	/*
+> > +	 * If dir_index is not enabled but there's dir with INDEX flag set,
+> > +	 * we'd normally treat htree data as empty space. But with metadata
+> > +	 * checksumming that corrupts checksums so forbid that.
+> > +	 */
+> > +	if (!ext4_has_feature_dir_index(sb) && ext4_has_metadata_csum(sb) &&
+> > +	    ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) {
+> > +		ext4_error_inode(inode, function, line, 0,
+> > +				 "iget: Dir with htree data on filesystem "
+> > +				 "without dir_index feature.");
+> 
+> Kernel style suggests error strings should not be line wrapped at 80 columns.
+
+OK. Will change. Thanks for review!
+
+									Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
