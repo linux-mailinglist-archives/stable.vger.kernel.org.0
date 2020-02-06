@@ -2,89 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B604D153F09
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 08:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C31C153F34
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 08:18:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726538AbgBFHB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 02:01:29 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:54393 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725895AbgBFHB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 02:01:29 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0259121F1E;
-        Thu,  6 Feb 2020 02:01:29 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 06 Feb 2020 02:01:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=IwQWOy+Iu2IfRMziDhxspW5Av3b
-        a8fSvDsJWs2NkdYM=; b=KuHqfahTbCF3F4fA6HS+cDJkbuTlruLKcEpFARDMDPT
-        e1hAYR8dlVe6j1pCjtu46DXDKMEPtcbZvmCdP3ydqyxnBOLZcIWT7VHOLHcCehVL
-        ahia96hVrNH9P6mtotQA4PdI4Pd1dPa+bKVuysFRB3r368MU9wHbI1pfVKRwqBr2
-        a8oMhfRhJ9KsbUiwYctiWpgtsAM/TNy85AQE4kHCyjv4QamB1oi7qtAF1LHbCIk5
-        X6SCjYa8rgQZ/tElYhVFy5A5UZvBJNRw8TbKPEn3Kzuk3701sw0gT3AgB3nQMgLV
-        F3HgPN3dSaYbUdaHrnHdTabBoO4BKOpxsloBW91xoBw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IwQWOy
-        +Iu2IfRMziDhxspW5Av3ba8fSvDsJWs2NkdYM=; b=mM7Wpqsuh5b9Q/6FETD8LW
-        HqqXz/y7LCJuYsTHUhrGcek+74loIaO9Ywoe/EMXBr6N7i3Fv1aw3ssQ58PAGG5U
-        1rmtF1fxV43bk0H5p5tfsxGOvlee1vF1zZPYIg5zTdGiy3SpYWm+1O7zJaZU5HG7
-        zoeEWREYy0muKw1w+oYgkAyHnagcnBy0ISk3ML40/+1EFQrED7ATJQixIVRra79K
-        XrM0esBzKItrKIiI6pNyi2UOH1Fk0I+Ls9X347AuE8siMIZPjAzlAVTfDdAN61i0
-        nqxm41y9IqKzOXmlifhi2AvGO0sgfd6JVrq1ha6rEzeFyvF+Z+SQXtrxK3KkbfXQ
-        ==
-X-ME-Sender: <xms:yLk7XkbyEIQJvJCBsNoRskpW7hWM8P0jhPMxHk9jGNDrrRGPtd0e8Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrhedvgddutdegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepvddufedruddvfedrheekrd
-    duudegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:yLk7XjPgHslzl2fdTpzcMDNZVM1-cpF88mZ6PxKfD4LQ_sYk0GT6KQ>
-    <xmx:yLk7XoCn5JoZ2TAjK0lkS-4W3gpKewsAJpzQc8VEtJfjoIrrbhgcqA>
-    <xmx:yLk7XiKtsj9oCBnPGsu8XVgi15L4JryLN05srFvuvv9wVogMuhtS3g>
-    <xmx:yLk7XrVREy4LuCbupxhrzvC3mNt7jXzSGsiUgDhwW3pm-gezbP6QzA>
-Received: from localhost (unknown [213.123.58.114])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3D62C3280063;
-        Thu,  6 Feb 2020 02:01:28 -0500 (EST)
-Date:   Thu, 6 Feb 2020 07:01:27 +0000
-From:   Greg KH <greg@kroah.com>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] ASoC: qcom: Fix of-node refcount unbalance to
- link->codec_of_node
-Message-ID: <20200206070127.GA3264238@kroah.com>
-References: <20200206033611.10593-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+        id S1727572AbgBFHSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 02:18:54 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:40171 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725895AbgBFHSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 02:18:54 -0500
+Received: by mail-wm1-f68.google.com with SMTP id t14so5649440wmi.5
+        for <stable@vger.kernel.org>; Wed, 05 Feb 2020 23:18:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xEkG3vhf8bQK8f2GzaXBmrWMprJWoFIN/8dQ0UOKA3w=;
+        b=Rg7Ikql7x4YxuxzVZQelW1jA9LrKCl6EuivE0ZYgLpyIFT51Gh5RL6DMrgrBKdh4lC
+         ZMIYr+t9OMkPUZNOxMtrj5dt69+GXDCoOR5pX52fh55T+d1BDVzi0p8wfwph+0QM6+ys
+         Souzwx7BO2sNadqCQdyRhpPmcNiOKT3cnd8oo+c0hqQlUGYMcDSyrjXViYscldkVnDmB
+         MRNKtT290MNgFqitbLpifc5+wffDTLdqCDbOK+aocoZBsJLUnBRVlrSahCizr6ISpUge
+         Az67Z4Am8ZtvTzi4HZfWji/x5ncLKVumH4ge9UJ2WZ2Aoo/eHCYtfUs2xOA6RE+9VHEr
+         o8FA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xEkG3vhf8bQK8f2GzaXBmrWMprJWoFIN/8dQ0UOKA3w=;
+        b=p8STTViK0MdKZZxvK0Rr3twe1OmUDROQRteoXMjKlkmx5WUWZPwukTBu2Un4b3pJaR
+         9E3TqQfVvdMxMePoyRmpODKRLoWjk5h9absva+5bRi5Wtd900oxejrlLWISN3v3UgJ5s
+         gVRhiTbtXhWPGNTZ6VQi7EBbJoYEjripdgdwclNvku3bJ+98jHh2RAWozSjx0Mh3wu1H
+         wkjGhXV1W9BsKuN2SVV990rB9xltTJzvR8uUVvfuRMzM7rbNHs5zFKcSiHksXCF1pYRv
+         BYTDb/1vWDqCCvyLH0bQoE4F+b6Uo9eXwSBIyNvI/ul4denlaFXRoZi1jbT4QIhlNZQ9
+         NhYg==
+X-Gm-Message-State: APjAAAXQ+/pXHXIC1Aqa2mxngVgXTduaVKYmoYeulHsSOjZdv2EflXHu
+        JL3uqapzLAMCW2jMpBqIgqPIRcPVWlxWjQ==
+X-Google-Smtp-Source: APXvYqz++rNk8INjhtmD/HxsEANkKVOhL7D8wCt1JXOgFF/hWFS5hhOI6kOY3CiSKPTXuhdBfOuu9A==
+X-Received: by 2002:a1c:6a06:: with SMTP id f6mr2682958wmc.137.1580973532319;
+        Wed, 05 Feb 2020 23:18:52 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y7sm9593227wmd.1.2020.02.05.23.18.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Feb 2020 23:18:51 -0800 (PST)
+Message-ID: <5e3bbddb.1c69fb81.1bf85.886c@mx.google.com>
+Date:   Wed, 05 Feb 2020 23:18:51 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200206033611.10593-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.213
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 3 boots: 0 failed, 3 passed (v4.4.213)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 12:36:11PM +0900, Nobuhiro Iwamatsu wrote:
-> [ This is a fix specific to 4.4.y and 4.9.y stable trees;
->   4.14.y and older are not affected ]
-> 
-> The of-node refcount fixes were made in commit 8d1667200850 ("ASoC: qcom: 
-> Fix of-node refcount unbalance in apq8016_sbc_parse_of()"), but not enough
-> in 4.4.y and 4.9.y. The modification of link->codec_of_node is missing.
-> This fixes of-node refcount unbalance to link->codec_of_node.
-> 
-> Fixes: 8d1667200850 ("ASoC: qcom: Fix of-node refcount unbalance in apq8016_sbc_parse_of()")
-> Cc: Patrick Lai <plai@codeaurora.org>
-> Cc: Banajit Goswami <bgoswami@codeaurora.org>
-> Cc: Takashi Iwai <tiwai@suse.de>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Sasha Levin <sashal@kernel.org>
-> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+stable-rc/linux-4.4.y boot: 3 boots: 0 failed, 3 passed (v4.4.213)
 
-Now queued up, thanks.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.213/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.213/
 
-greg k-h
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.213
+Git Commit: d6ccbff9be43dbb6113a6a3f107c3d066052097e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 3 unique boards, 2 SoC families, 2 builds out of 26
+
+---
+For more info write to <info@kernelci.org>
