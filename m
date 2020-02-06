@@ -2,215 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30063153DB2
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 04:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1B9153DB9
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 04:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbgBFDtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 22:49:09 -0500
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:39317 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727572AbgBFDtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 22:49:09 -0500
-Received: by mail-wr1-f52.google.com with SMTP id y11so5398898wrt.6
-        for <stable@vger.kernel.org>; Wed, 05 Feb 2020 19:49:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=45dMaHObD/uOQrhTPFcR2rMW2oBjTEvOnNALv4/5Vmk=;
-        b=d8NrbOU1qQEIfTMpJ+bAliz9Ii7y3PajGMsAs9kRJKD3lE7kYgkdeYtO3Tyz3RDPiZ
-         yTDJPIP7IjeMod4cqgL29v0etcEEW18gVSguvSkzuT9IeZlfTH/xmXwdpp6c7tu/HmQg
-         dwwD7q4ad0otOt2DkpxqwV+UBXMwVHvloO1RoxgjZ732udN6B/VtlLDlqJGbLY3S4DlZ
-         EevmJcy5YJnYRa5KvHznKt3POEsprjHrlustviYqKpUaHvcnrLsUgPmNHuHoUixfNiKu
-         EbldDv43IBJbcrsKqEbTXCQqZrveXfTvZlrYxewwEO6okVGk63R9U8Rc5jrYc/5ufHt/
-         0Ayg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=45dMaHObD/uOQrhTPFcR2rMW2oBjTEvOnNALv4/5Vmk=;
-        b=EvzRva+caAbyWGWZnYhtr/SV7MXUldTWeoKq6f7jbdbJjeuEiJioaHQ5FCSQxS1XTF
-         yS8BlKCDr9Wg1GUHcZjBKDpWI5sXgY1lxUtW1B+VfHP+QR9xsTk6NuQxyGjAioPNk17a
-         0YNf/cqn71zKDYVHxIcBe3nZ7kwxI7/JizdXPHCHoHlZ5kJMXzCYEYNAKno6RZohLlTA
-         aDNcbTfQqsjvnH9BWW3zWJqZGapv3RYltM7RKl3kp2nRfWNPEfySuIEXNh3irOlnvz/k
-         KGQ2zYvSxT1GIU1TapsECIROsPh5GjPKgK+OyN3e23P/rRsSl6k0RW/FSd5jrqfdaoyH
-         8snw==
-X-Gm-Message-State: APjAAAV4NvW723CSR2jkq9stX+QFhd5BhWU3x8TsAuq2ixoTkttvOOX3
-        TT9w25bKMeCDXq+KT1PZdXb8pbHWHTpuVA==
-X-Google-Smtp-Source: APXvYqzyLzZtxYyMHAV61rCAIQHJeu6y+lUyENEFUFHYz+b5F2Rf1kjbWTgzEmj5+/T4I9CEnCcZbQ==
-X-Received: by 2002:adf:cd03:: with SMTP id w3mr1080620wrm.191.1580960944934;
-        Wed, 05 Feb 2020 19:49:04 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x21sm1921003wmi.30.2020.02.05.19.49.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Feb 2020 19:49:04 -0800 (PST)
-Message-ID: <5e3b8cb0.1c69fb81.3872a.8342@mx.google.com>
-Date:   Wed, 05 Feb 2020 19:49:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727572AbgBFDvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 22:51:14 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:37062 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727558AbgBFDvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 22:51:14 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 0163mTjE184046;
+        Thu, 6 Feb 2020 03:51:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=aMGCiXgLlAd4b4ic2P+ZnNQs/IhCHZ9+384DVheqdqI=;
+ b=RW8soaPyrCwbd5ydVvM77q0s0/FVUO7lPj6k9unWDFcgR1P1vE9g2L8Lh9Kpu7PpKKyN
+ sPAtcONGDZ5yV88Umxk4uTZbBptXcGw+eEe3SiPDqtWg2fDURoQq7NKWIDvtkxpBTtdH
+ NiDx6S/SCcTU4+VD8R8tIoSjYSuVGAsw9l8m/8rhV0BA/i3k1puQpczzi7lDnl5BQShc
+ 0vpkbXbiujp+bz3EdkdC6eskzwJlawQR6zcvSW0vMjQdi0E0n9zOjwXoMlv0DQ0JA+p4
+ XxMsT3AcVXNKJP0Ye4nBt5b3om7mct3ZpfvbCNjHjoaJ2qPJcl8yI+2pVGqNqz/C04Bv VQ== 
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2019-08-05;
+ bh=aMGCiXgLlAd4b4ic2P+ZnNQs/IhCHZ9+384DVheqdqI=;
+ b=DSPzjoyZ+zxlcfGiJoq7hSXJ/M8xfxE28oSe4jOjRBknCHYuVf9LWV79zVl6XYKhm22F
+ hyj4zc6u2Uap4HqiEyZb/PauOY4TRR6TgbLonco/2VuNPlKRCf2qwVORItTHv6s5RX8Z
+ xlEg9ELEnGEeO9yTCdX3V9jcEWqy8Sy2jA4DMages5k5Tbjy/9/pYyR4wkIchMbChmRM
+ R5xDh+RcEBuoszjFZZSh695U2h4UbfyLERbpZp+rWU/HiYxiXUrXhK94gZ/uBYz3xJRY
+ 0+nPcYmic/tMhmjNwpefPFXkvHYTalDU3SRUjf2j9VCnCZdpnTFIYzupa4c7jnnQqnpd 4A== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2120.oracle.com with ESMTP id 2xykbp731s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 Feb 2020 03:51:09 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 0163mwPL075049;
+        Thu, 6 Feb 2020 03:51:09 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3020.oracle.com with ESMTP id 2xykc4ja9s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 Feb 2020 03:51:09 +0000
+Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0163p8al032402;
+        Thu, 6 Feb 2020 03:51:08 GMT
+Received: from [10.190.155.136] (/192.188.170.104)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 05 Feb 2020 19:51:08 -0800
+Subject: Re: [PATCH] btrfs: log message when rw remount is attempted with
+ unclean tree-log
+To:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20200205161228.24378-1-dsterba@suse.com>
+From:   Anand Jain <anand.jain@oracle.com>
+Message-ID: <9a74f394-8afc-bd34-08a1-e194440746d5@oracle.com>
+Date:   Thu, 6 Feb 2020 11:51:04 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Kernel: v4.4.213
-X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.4.y build: 26 builds: 0 failed, 26 passed (v4.4.213)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200205161228.24378-1-dsterba@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9522 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-2002060026
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9522 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
+ definitions=main-2002060026
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 26 builds: 0 failed, 26 passed (v4.4.213)
+On 2/6/20 12:12 AM, David Sterba wrote:
+> A remount to a read-write filesystem is not safe when there's tree-log
+> to be replayed. Files that could be opened until now might be affected
+> by the changes in the tree-log.
+> 
+> A regular mount is needed to replay the log so the filesystem presents
+> the consistent view with the pending changes included.
+> 
+> CC: stable@vger.kernel.org # 4.4+
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> ---
+>   fs/btrfs/super.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+> index 580ba7db67e5..a2554c651548 100644
+> --- a/fs/btrfs/super.c
+> +++ b/fs/btrfs/super.c
+> @@ -1834,6 +1834,8 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
+>   		}
+>   
+>   		if (btrfs_super_log_root(fs_info->super_copy) != 0) {
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.213/
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.213
-Git Commit: d6ccbff9be43dbb6113a6a3f107c3d066052097e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
+> +			btrfs_warn(f_info,
 
-Detailed per-defconfig build reports:
+                                  ^^^^
+                               fs_info,
 
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+Thanks, Anand
 
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+> +		"mount required to replay tree-log, cannot remount read-write");
+>   			ret = -EINVAL;
+>   			goto restore;
+>   		}
+> 
 
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----
-For more info write to <info@kernelci.org>
