@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB4C154C24
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:24:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B86F5154C22
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727979AbgBFTYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 14:24:44 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38235 "EHLO
+        id S1727798AbgBFTYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 14:24:42 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:60835 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727738AbgBFTYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:24:44 -0500
+        by vger.kernel.org with ESMTP id S1727738AbgBFTYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:24:42 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E2A9921DC6;
-        Thu,  6 Feb 2020 14:24:43 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:24:43 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id AD8BD2207A;
+        Thu,  6 Feb 2020 14:24:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:24:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fFEwnW
-        gD+xWTmJxzgxRjj+vA7Q1h5FpE5u6PMA650VI=; b=irr32GfP4ojNUQhGp8tMyC
-        EL2HXRw6NZ8U9KaieBcXNwIG2dj3daaFxSepb2+S10Dq7e/12qvNEafflu5ioRQj
-        xAfokQ1eKxSQc7HTU9ThUNYMvXQTTunmjvLACGqdhMoGnH1IXfRoCXXXxeHXzPQZ
-        m14DkT9OzD6llEP4FHDZiAxg0xQgGJS7Y9NvKyL9Drbn+TsA72oXrikART9+XhhI
-        JaoYMNNMSfHwB0ZmmvmG/9zq9pHE+TpVNcv7oIpMaJEiSYf9U4bd0DzaEuOSlkZY
-        qzHSMVvWQbr0I4WqXSGhEYhv0KUMqp8l10IR0M4k2XlSrdKW0Vrh7GH9Wx5Mwufw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=reL5mB
+        +1kPJjAEOGK715RpB69MESaiPf/2aeD04HgEU=; b=s2aWXaaaQOarYASqrxrpyP
+        suYliEsMC4m3WzhU9hd+dUwPeG/gMcC1r6uZT7cSW1gEeqROYwvxaUAV3xf94mGq
+        QVA/v5IHXnSOj3njuKvuYUfvNG//PjxKlWNsRpD0Z6IGOY7X8k5ctBHiIZsf7BzK
+        9bVCUYqZkvpIJH0jq3h4G5v9xEq1/X3ZZl4EGUM++usIomsd8sqlZ2gfcxwE0V59
+        v2kHOpU7i2o5OvshF3J7HQu61ogqLjPbh8OPhWunqDKGnJO8nylmlcbWBESQN4JX
+        5axYa8NWcPj/rLO1GDdAeDG6y5mA2LoFFDfPggGHrFx2yxTk4ZImXAgeO2cBy9VA
         ==
-X-ME-Sender: <xms:-2c8Xs1Hc3Nc_mDWMNFTYLjmq1oEZEj9aaOIzSykCxoZDosgJVpVYg>
+X-ME-Sender: <xms:-Gc8Xnd7ibWqr6V7J0isjXP7UPXaDFwqLInzvIVIwKxR-sndnkLD0Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheefgdduvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:-2c8XjatPnPLKS36cGdrv0eaKTzJycsu6Ayp3BwS_lXGRUIUf0peYQ>
-    <xmx:-2c8XnpNFfJ4t6vfgqfHdR2PCig0kENuQxhVwQUIgz3eVufvNonAGQ>
-    <xmx:-2c8Xno4uUeY8AttAAmpQ1cDctFIt89bE-Hfpr6CG5lOz3Ryay_M3A>
-    <xmx:-2c8Xrm8_MVgH0piK24B5qJ9ZXiIGUnKLV6C4TY7RtXzU1OO32gT8g>
+X-ME-Proxy: <xmx:-Gc8XhdxT3WDE7gDzQ-2nbrC3ej41v0ChXPYvhVAlukLQDKYnc5_lA>
+    <xmx:-Gc8Xri9TEc26nBNrg7VSwvRWTGDKrwBIn8PFWsTp_waIrZUIXcXxw>
+    <xmx:-Gc8XtQgv9L4Et2C5zBI5IGou67_tN9tWzxcVVju4kdU1oJFtHlCRA>
+    <xmx:-Gc8XnPu-RUkIvJPDOunCRt1ir9S6N7z_CeZR0xS0GpUEHtXBXfAnA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7BFFA328005E;
-        Thu,  6 Feb 2020 14:24:43 -0500 (EST)
-Subject: FAILED: patch "[PATCH] PCI: keystone: Fix link training retries initiation" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3D4C130600DC;
+        Thu,  6 Feb 2020 14:24:40 -0500 (EST)
+Subject: FAILED: patch "[PATCH] PCI: keystone: Fix link training retries initiation" failed to apply to 4.14-stable tree
 To:     monakov.y@gmail.com, andrew.murray@arm.com,
         lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 06 Feb 2020 20:06:45 +0100
-Message-ID: <158101600590150@kroah.com>
+Message-ID: <1581016005211144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
