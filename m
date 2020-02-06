@@ -2,97 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D450F154B73
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 19:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B95154C21
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727798AbgBFSto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 13:49:44 -0500
-Received: from mail-il1-f194.google.com ([209.85.166.194]:36952 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727703AbgBFStn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 13:49:43 -0500
-Received: by mail-il1-f194.google.com with SMTP id v13so6100445iln.4
-        for <stable@vger.kernel.org>; Thu, 06 Feb 2020 10:49:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/+yr6ZnUGHz18RBcRdXwTrFaudiLP7yFxeU/1OOsEwE=;
-        b=BDQMrvey+Ap7N6vFBhNYmxjWc54GyYmzVHvVCsboz81dC2Zr9XfUsgTnYRPMtlM3e0
-         8WcWH4hPnX7tA0vFmHKvhpIIW9rIIWmQC9FSQpIhhUzILZE6FOIlHsRhZPqVbwai3n45
-         Dh2A8Jc2wZGBA1HDm9D7U81zfYdJBgsJE3tShYWXgRlOFrijUVkMXIJWGPsOaEzGEDB7
-         B4Ua94T5fnWjUPS9HVJOZ2xoLcCp8mQTX0pJnht5tAcx9qKyPEN5u5FfjXd36ttFQaHA
-         yqh2NCJW97vpqMmNoA5XFEK0bGIaXnkYEWpbD+TrShuhwAS7cKA3UO+0D9KKMrnGxbof
-         6U/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/+yr6ZnUGHz18RBcRdXwTrFaudiLP7yFxeU/1OOsEwE=;
-        b=YIDc2HJZth1L/n42MPVj0MiBw8f06R3xOz6HGYmjaxAHuN8whpzYlsR2hMGCCR9z6L
-         JUtbyQIs1sNReiWFh3AiTOlgDwXVt4BYcO5u7crC2n9xQCBScOUM+K35QKAQX1QVKfBw
-         scO0s1jL83JbpMoqBnNZo8Y8sBoEGr6UUqi0F0ZNxldxMOHTAfAjfq2lmZjYnEbnPMJg
-         SSgZm9YeRS4pTq9fp+HWP9SqwqXy/uEUEIpP+M28+0BIi/yhKj1b2eloy2MQ+ura9RJj
-         3+zkDl+UfeCA6ElpX5E3hCL+1tikLH7owJtOI9CSE5wGXN9KfV7SWcpmaZy9iabr9q6g
-         GwsQ==
-X-Gm-Message-State: APjAAAVfMsLzYzwpxHkgDFmrp6OAq6S6YdVpcgc1i6Zuf0rM2DfOQiry
-        LV1JI+4BcUYzTWH/nLN2Hec1lw==
-X-Google-Smtp-Source: APXvYqyLS/L1otM4xOsx0/hycCgKncr6mUEukiNOTR4XI5s8Q2vZDonQRRXSoHv+vQA0wyRISZzp9g==
-X-Received: by 2002:a92:9603:: with SMTP id g3mr5418246ilh.231.1581014981691;
-        Thu, 06 Feb 2020 10:49:41 -0800 (PST)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id d12sm195559iln.63.2020.02.06.10.49.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Feb 2020 10:49:41 -0800 (PST)
-Subject: Re: [PATCH] blktrace: Protect q->blk_trace with RCU
-To:     Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
-        Jan Kara <jack@suse.cz>
-Cc:     "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "tristmd@gmail.com" <tristmd@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>
-References: <20200206142812.25989-1-jack@suse.cz>
- <BYAPR04MB5749BAE3D6813845E16D92E2861D0@BYAPR04MB5749.namprd04.prod.outlook.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <ddc358fb-8189-fbe9-619d-e3c943a05053@kernel.dk>
-Date:   Thu, 6 Feb 2020 11:49:40 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727835AbgBFTYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 14:24:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727738AbgBFTYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 14:24:38 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B259520659;
+        Thu,  6 Feb 2020 19:24:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581017078;
+        bh=PP6R51yDCaaxvqfN3MLLQLCcK3TRuUTekb4oV0BJCVo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nuIO32KMhWnE4eakoTdOQLEQ8FLCooE9k9oYA/aL1+MWc2wyxrqU25EqtMS8h/m21
+         VIvtV4NOJGtagpZXOiXbmS6tfttl5lVoSnjZH3wVGXJkLB/AS2fAfDnLo+ktOBw3mi
+         mpyn2EQsHyNV4SdrlMPpkL9QCD5xpluYySf5Xu1Q=
+Date:   Thu, 6 Feb 2020 20:05:02 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Florian Bezdeka <florian@bezdeka.de>
+Cc:     stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 4.19] crypto: geode-aes - convert to skcipher API and
+ make thread-safe
+Message-ID: <20200206190502.GA4096461@kroah.com>
+References: <20200206171534.4051-1-florian@bezdeka.de>
 MIME-Version: 1.0
-In-Reply-To: <BYAPR04MB5749BAE3D6813845E16D92E2861D0@BYAPR04MB5749.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200206171534.4051-1-florian@bezdeka.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/6/20 11:46 AM, Chaitanya Kulkarni wrote:
-> Hi Jan,
+On Thu, Feb 06, 2020 at 06:15:34PM +0100, Florian Bezdeka wrote:
+> commit 4549f7e5aa27ffc2cba63b5db8842a3b486f5688 upstream.
 > 
-> What do you think about following patch on the top of yours ?
+> The geode AES driver is heavily broken because it stores per-request
+> state in the transform context.  So it will crash or produce the wrong
+> result if used by any of the many places in the kernel that issue
+> concurrent requests for the same transform object.
 > 
-> The new helper that I've added on the top of your patch will also
-> future uses of the rcu_dereference_protected(). e.g. blktrace
-> extension [1] support that I'm working on.
+> This driver is also implemented using the deprecated blkcipher API,
+> which makes it difficult to fix, and puts it among the drivers
+> preventing that API from being removed.
 > 
-> P.S. it is compile only if your okay I'll send a separate patch.
+> Convert this driver to use the skcipher API, and change it to not store
+> per-request state in the transform context.
 > 
-> +
-> +/* Dereference q->blk_trace with q->blk_trace_mutex check only. */
-> +static inline struct blk_trace *blk_trace_rcu_deref(struct 
-> request_queue *q)
-> +{
-> +       return rcu_dereference_protected(q->blk_trace,
-> + 
-> lockdep_is_held(&q->blk_trace_mutex));
-> +}
+> Fixes: 9fe757b ("[PATCH] crypto: Add support for the Geode LX AES hardware")
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Florian Bezdeka <florian@bezdeka.de>
+> ---
+>  drivers/crypto/geode-aes.c | 442 ++++++++++++-------------------------
+>  drivers/crypto/geode-aes.h |  15 +-
+>  2 files changed, 149 insertions(+), 308 deletions(-)
 
-Let's please not do that, it serves no real purpose and it just
-obfuscates what's really going on.
+Thanks for the backport, now applied.
 
--- 
-Jens Axboe
-
+greg k-h
