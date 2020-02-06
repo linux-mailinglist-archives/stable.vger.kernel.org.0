@@ -2,108 +2,448 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 766D91545D0
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 15:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0B415461E
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 15:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727060AbgBFONe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 09:13:34 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:40454 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727955AbgBFONe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 09:13:34 -0500
-Received: from localhost.localdomain (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 2A2F8295281;
-        Thu,  6 Feb 2020 14:13:32 +0000 (GMT)
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>
-Cc:     dri-devel@lists.freedesktop.org,
-        Antonio Caggiano <antonio.caggiano@collabora.com>,
-        Icecream95 <ixn@keemail.me>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/panfrost: perfcnt: Reserve/use the AS attached to the perfcnt MMU context
-Date:   Thu,  6 Feb 2020 15:13:27 +0100
-Message-Id: <20200206141327.446127-1-boris.brezillon@collabora.com>
-X-Mailer: git-send-email 2.24.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727901AbgBFO22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 09:28:28 -0500
+Received: from mx2.suse.de ([195.135.220.15]:42962 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727828AbgBFO22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 09:28:28 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id AC97CAE52;
+        Thu,  6 Feb 2020 14:28:21 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 75B601E0DEB; Thu,  6 Feb 2020 15:28:21 +0100 (CET)
+From:   Jan Kara <jack@suse.cz>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     <linux-block@vger.kernel.org>, tristmd@gmail.com,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: [PATCH] blktrace: Protect q->blk_trace with RCU
+Date:   Thu,  6 Feb 2020 15:28:12 +0100
+Message-Id: <20200206142812.25989-1-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We need to use the AS attached to the opened FD when dumping counters.
+KASAN is reporting that __blk_add_trace() has a use-after-free issue
+when accessing q->blk_trace. Indeed the switching of block tracing (and
+thus eventual freeing of q->blk_trace) is completely unsynchronized with
+the currently running tracing and thus it can happen that the blk_trace
+structure is being freed just while __blk_add_trace() works on it.
+Protect accesses to q->blk_trace by RCU during tracing and make sure we
+wait for the end of RCU grace period when shutting down tracing. Luckily
+that is rare enough event that we can afford that. Note that postponing
+the freeing of blk_trace to an RCU callback should better be avoided as
+it could have unexpected user visible side-effects as debugfs files
+would be still existing for a short while block tracing has been shut
+down.
 
-Reported-by: Antonio Caggiano <antonio.caggiano@collabora.com>
-Fixes: 7282f7645d06 ("drm/panfrost: Implement per FD address spaces")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=205711
+CC: stable@vger.kernel.org
+Reported-by: Tristan <tristmd@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- drivers/gpu/drm/panfrost/panfrost_mmu.c     |  7 ++++++-
- drivers/gpu/drm/panfrost/panfrost_perfcnt.c | 11 ++++-------
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ include/linux/blkdev.h       |   2 +-
+ include/linux/blktrace_api.h |  18 +++++--
+ kernel/trace/blktrace.c      | 114 +++++++++++++++++++++++++++++++------------
+ 3 files changed, 97 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-index 763cfca886a7..3107b0738e40 100644
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -151,7 +151,12 @@ u32 panfrost_mmu_as_get(struct panfrost_device *pfdev, struct panfrost_mmu *mmu)
- 	as = mmu->as;
- 	if (as >= 0) {
- 		int en = atomic_inc_return(&mmu->as_count);
--		WARN_ON(en >= NUM_JOB_SLOTS);
-+
-+		/*
-+		 * AS can be retained by active jobs or a perfcnt context,
-+		 * hence the '+ 1' here.
-+		 */
-+		WARN_ON(en >= (NUM_JOB_SLOTS + 1));
- 
- 		list_move(&mmu->list, &pfdev->as_lru_list);
- 		goto out;
-diff --git a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-index 684820448be3..6913578d5aa7 100644
---- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-@@ -73,7 +73,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
- 	struct panfrost_file_priv *user = file_priv->driver_priv;
- 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
- 	struct drm_gem_shmem_object *bo;
--	u32 cfg;
-+	u32 cfg, as;
- 	int ret;
- 
- 	if (user == perfcnt->user)
-@@ -126,12 +126,8 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
- 
- 	perfcnt->user = user;
- 
--	/*
--	 * Always use address space 0 for now.
--	 * FIXME: this needs to be updated when we start using different
--	 * address space.
--	 */
--	cfg = GPU_PERFCNT_CFG_AS(0) |
-+	as = panfrost_mmu_as_get(pfdev, perfcnt->mapping->mmu);
-+	cfg = GPU_PERFCNT_CFG_AS(as) |
- 	      GPU_PERFCNT_CFG_MODE(GPU_PERFCNT_CFG_MODE_MANUAL);
- 
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 4c636c42ad68..1cb5afed5515 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -524,7 +524,7 @@ struct request_queue {
+ 	unsigned int		sg_reserved_size;
+ 	int			node;
+ #ifdef CONFIG_BLK_DEV_IO_TRACE
+-	struct blk_trace	*blk_trace;
++	struct blk_trace __rcu	*blk_trace;
+ 	struct mutex		blk_trace_mutex;
+ #endif
  	/*
-@@ -195,6 +191,7 @@ static int panfrost_perfcnt_disable_locked(struct panfrost_device *pfdev,
- 	drm_gem_shmem_vunmap(&perfcnt->mapping->obj->base.base, perfcnt->buf);
- 	perfcnt->buf = NULL;
- 	panfrost_gem_close(&perfcnt->mapping->obj->base.base, file_priv);
-+	panfrost_mmu_as_put(pfdev, perfcnt->mapping->mmu);
- 	panfrost_gem_mapping_put(perfcnt->mapping);
- 	perfcnt->mapping = NULL;
- 	pm_runtime_mark_last_busy(pfdev->dev);
+diff --git a/include/linux/blktrace_api.h b/include/linux/blktrace_api.h
+index 7bb2d8de9f30..3b6ff5902edc 100644
+--- a/include/linux/blktrace_api.h
++++ b/include/linux/blktrace_api.h
+@@ -51,9 +51,13 @@ void __trace_note_message(struct blk_trace *, struct blkcg *blkcg, const char *f
+  **/
+ #define blk_add_cgroup_trace_msg(q, cg, fmt, ...)			\
+ 	do {								\
+-		struct blk_trace *bt = (q)->blk_trace;			\
++		struct blk_trace *bt;					\
++									\
++		rcu_read_lock();					\
++		bt = rcu_dereference((q)->blk_trace);			\
+ 		if (unlikely(bt))					\
+ 			__trace_note_message(bt, cg, fmt, ##__VA_ARGS__);\
++		rcu_read_unlock();					\
+ 	} while (0)
+ #define blk_add_trace_msg(q, fmt, ...)					\
+ 	blk_add_cgroup_trace_msg(q, NULL, fmt, ##__VA_ARGS__)
+@@ -61,10 +65,14 @@ void __trace_note_message(struct blk_trace *, struct blkcg *blkcg, const char *f
+ 
+ static inline bool blk_trace_note_message_enabled(struct request_queue *q)
+ {
+-	struct blk_trace *bt = q->blk_trace;
+-	if (likely(!bt))
+-		return false;
+-	return bt->act_mask & BLK_TC_NOTIFY;
++	struct blk_trace *bt;
++	bool ret;
++
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
++	ret = bt && (bt->act_mask & BLK_TC_NOTIFY);
++	rcu_read_unlock();
++	return ret;
+ }
+ 
+ extern void blk_add_driver_data(struct request_queue *q, struct request *rq,
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 475e29498bca..a6d3016410eb 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -335,6 +335,7 @@ static void put_probe_ref(void)
+ 
+ static void blk_trace_cleanup(struct blk_trace *bt)
+ {
++	synchronize_rcu();
+ 	blk_trace_free(bt);
+ 	put_probe_ref();
+ }
+@@ -629,8 +630,10 @@ static int compat_blk_trace_setup(struct request_queue *q, char *name,
+ static int __blk_trace_startstop(struct request_queue *q, int start)
+ {
+ 	int ret;
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
++	bt = rcu_dereference_protected(q->blk_trace,
++				       lockdep_is_held(&q->blk_trace_mutex));
+ 	if (bt == NULL)
+ 		return -EINVAL;
+ 
+@@ -740,8 +743,8 @@ int blk_trace_ioctl(struct block_device *bdev, unsigned cmd, char __user *arg)
+ void blk_trace_shutdown(struct request_queue *q)
+ {
+ 	mutex_lock(&q->blk_trace_mutex);
+-
+-	if (q->blk_trace) {
++	if (rcu_dereference_protected(q->blk_trace,
++				      lockdep_is_held(&q->blk_trace_mutex))) {
+ 		__blk_trace_startstop(q, 0);
+ 		__blk_trace_remove(q);
+ 	}
+@@ -752,8 +755,10 @@ void blk_trace_shutdown(struct request_queue *q)
+ #ifdef CONFIG_BLK_CGROUP
+ static u64 blk_trace_bio_get_cgid(struct request_queue *q, struct bio *bio)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
++	/* We don't use the 'bt' value here except as an optimization... */
++	bt = rcu_dereference_protected(q->blk_trace, 1);
+ 	if (!bt || !(blk_tracer_flags.val & TRACE_BLK_OPT_CGROUP))
+ 		return 0;
+ 
+@@ -796,10 +801,14 @@ blk_trace_request_get_cgid(struct request_queue *q, struct request *rq)
+ static void blk_add_trace_rq(struct request *rq, int error,
+ 			     unsigned int nr_bytes, u32 what, u64 cgid)
+ {
+-	struct blk_trace *bt = rq->q->blk_trace;
++	struct blk_trace *bt;
+ 
+-	if (likely(!bt))
++	rcu_read_lock();
++	bt = rcu_dereference(rq->q->blk_trace);
++	if (likely(!bt)) {
++		rcu_read_unlock();
+ 		return;
++	}
+ 
+ 	if (blk_rq_is_passthrough(rq))
+ 		what |= BLK_TC_ACT(BLK_TC_PC);
+@@ -808,6 +817,7 @@ static void blk_add_trace_rq(struct request *rq, int error,
+ 
+ 	__blk_add_trace(bt, blk_rq_trace_sector(rq), nr_bytes, req_op(rq),
+ 			rq->cmd_flags, what, error, 0, NULL, cgid);
++	rcu_read_unlock();
+ }
+ 
+ static void blk_add_trace_rq_insert(void *ignore,
+@@ -853,14 +863,19 @@ static void blk_add_trace_rq_complete(void *ignore, struct request *rq,
+ static void blk_add_trace_bio(struct request_queue *q, struct bio *bio,
+ 			      u32 what, int error)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
+-	if (likely(!bt))
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
++	if (likely(!bt)) {
++		rcu_read_unlock();
+ 		return;
++	}
+ 
+ 	__blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
+ 			bio_op(bio), bio->bi_opf, what, error, 0, NULL,
+ 			blk_trace_bio_get_cgid(q, bio));
++	rcu_read_unlock();
+ }
+ 
+ static void blk_add_trace_bio_bounce(void *ignore,
+@@ -905,11 +920,14 @@ static void blk_add_trace_getrq(void *ignore,
+ 	if (bio)
+ 		blk_add_trace_bio(q, bio, BLK_TA_GETRQ, 0);
+ 	else {
+-		struct blk_trace *bt = q->blk_trace;
++		struct blk_trace *bt;
+ 
++		rcu_read_lock();
++		bt = rcu_dereference(q->blk_trace);
+ 		if (bt)
+ 			__blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_GETRQ, 0, 0,
+ 					NULL, 0);
++		rcu_read_unlock();
+ 	}
+ }
+ 
+@@ -921,27 +939,35 @@ static void blk_add_trace_sleeprq(void *ignore,
+ 	if (bio)
+ 		blk_add_trace_bio(q, bio, BLK_TA_SLEEPRQ, 0);
+ 	else {
+-		struct blk_trace *bt = q->blk_trace;
++		struct blk_trace *bt;
+ 
++		rcu_read_lock();
++		bt = rcu_dereference(q->blk_trace);
+ 		if (bt)
+ 			__blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_SLEEPRQ,
+ 					0, 0, NULL, 0);
++		rcu_read_unlock();
+ 	}
+ }
+ 
+ static void blk_add_trace_plug(void *ignore, struct request_queue *q)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
+ 	if (bt)
+ 		__blk_add_trace(bt, 0, 0, 0, 0, BLK_TA_PLUG, 0, 0, NULL, 0);
++	rcu_read_unlock();
+ }
+ 
+ static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
+ 				    unsigned int depth, bool explicit)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
+ 	if (bt) {
+ 		__be64 rpdu = cpu_to_be64(depth);
+ 		u32 what;
+@@ -953,14 +979,17 @@ static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
+ 
+ 		__blk_add_trace(bt, 0, 0, 0, 0, what, 0, sizeof(rpdu), &rpdu, 0);
+ 	}
++	rcu_read_unlock();
+ }
+ 
+ static void blk_add_trace_split(void *ignore,
+ 				struct request_queue *q, struct bio *bio,
+ 				unsigned int pdu)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
+ 	if (bt) {
+ 		__be64 rpdu = cpu_to_be64(pdu);
+ 
+@@ -969,6 +998,7 @@ static void blk_add_trace_split(void *ignore,
+ 				BLK_TA_SPLIT, bio->bi_status, sizeof(rpdu),
+ 				&rpdu, blk_trace_bio_get_cgid(q, bio));
+ 	}
++	rcu_read_unlock();
+ }
+ 
+ /**
+@@ -988,11 +1018,15 @@ static void blk_add_trace_bio_remap(void *ignore,
+ 				    struct request_queue *q, struct bio *bio,
+ 				    dev_t dev, sector_t from)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 	struct blk_io_trace_remap r;
+ 
+-	if (likely(!bt))
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
++	if (likely(!bt)) {
++		rcu_read_unlock();
+ 		return;
++	}
+ 
+ 	r.device_from = cpu_to_be32(dev);
+ 	r.device_to   = cpu_to_be32(bio_dev(bio));
+@@ -1001,6 +1035,7 @@ static void blk_add_trace_bio_remap(void *ignore,
+ 	__blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
+ 			bio_op(bio), bio->bi_opf, BLK_TA_REMAP, bio->bi_status,
+ 			sizeof(r), &r, blk_trace_bio_get_cgid(q, bio));
++	rcu_read_unlock();
+ }
+ 
+ /**
+@@ -1021,11 +1056,15 @@ static void blk_add_trace_rq_remap(void *ignore,
+ 				   struct request *rq, dev_t dev,
+ 				   sector_t from)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 	struct blk_io_trace_remap r;
+ 
+-	if (likely(!bt))
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
++	if (likely(!bt)) {
++		rcu_read_unlock();
+ 		return;
++	}
+ 
+ 	r.device_from = cpu_to_be32(dev);
+ 	r.device_to   = cpu_to_be32(disk_devt(rq->rq_disk));
+@@ -1034,6 +1073,7 @@ static void blk_add_trace_rq_remap(void *ignore,
+ 	__blk_add_trace(bt, blk_rq_pos(rq), blk_rq_bytes(rq),
+ 			rq_data_dir(rq), 0, BLK_TA_REMAP, 0,
+ 			sizeof(r), &r, blk_trace_request_get_cgid(q, rq));
++	rcu_read_unlock();
+ }
+ 
+ /**
+@@ -1051,14 +1091,19 @@ void blk_add_driver_data(struct request_queue *q,
+ 			 struct request *rq,
+ 			 void *data, size_t len)
+ {
+-	struct blk_trace *bt = q->blk_trace;
++	struct blk_trace *bt;
+ 
+-	if (likely(!bt))
++	rcu_read_lock();
++	bt = rcu_dereference(q->blk_trace);
++	if (likely(!bt)) {
++		rcu_read_unlock();
+ 		return;
++	}
+ 
+ 	__blk_add_trace(bt, blk_rq_trace_sector(rq), blk_rq_bytes(rq), 0, 0,
+ 				BLK_TA_DRV_DATA, 0, len, data,
+ 				blk_trace_request_get_cgid(q, rq));
++	rcu_read_unlock();
+ }
+ EXPORT_SYMBOL_GPL(blk_add_driver_data);
+ 
+@@ -1597,6 +1642,7 @@ static int blk_trace_remove_queue(struct request_queue *q)
+ 		return -EINVAL;
+ 
+ 	put_probe_ref();
++	synchronize_rcu();
+ 	blk_trace_free(bt);
+ 	return 0;
+ }
+@@ -1758,6 +1804,7 @@ static ssize_t sysfs_blk_trace_attr_show(struct device *dev,
+ 	struct hd_struct *p = dev_to_part(dev);
+ 	struct request_queue *q;
+ 	struct block_device *bdev;
++	struct blk_trace *bt;
+ 	ssize_t ret = -ENXIO;
+ 
+ 	bdev = bdget(part_devt(p));
+@@ -1770,21 +1817,23 @@ static ssize_t sysfs_blk_trace_attr_show(struct device *dev,
+ 
+ 	mutex_lock(&q->blk_trace_mutex);
+ 
++	bt = rcu_dereference_protected(q->blk_trace,
++				       lockdep_is_held(&q->blk_trace_mutex));
+ 	if (attr == &dev_attr_enable) {
+-		ret = sprintf(buf, "%u\n", !!q->blk_trace);
++		ret = sprintf(buf, "%u\n", !!bt);
+ 		goto out_unlock_bdev;
+ 	}
+ 
+-	if (q->blk_trace == NULL)
++	if (bt == NULL)
+ 		ret = sprintf(buf, "disabled\n");
+ 	else if (attr == &dev_attr_act_mask)
+-		ret = blk_trace_mask2str(buf, q->blk_trace->act_mask);
++		ret = blk_trace_mask2str(buf, bt->act_mask);
+ 	else if (attr == &dev_attr_pid)
+-		ret = sprintf(buf, "%u\n", q->blk_trace->pid);
++		ret = sprintf(buf, "%u\n", bt->pid);
+ 	else if (attr == &dev_attr_start_lba)
+-		ret = sprintf(buf, "%llu\n", q->blk_trace->start_lba);
++		ret = sprintf(buf, "%llu\n", bt->start_lba);
+ 	else if (attr == &dev_attr_end_lba)
+-		ret = sprintf(buf, "%llu\n", q->blk_trace->end_lba);
++		ret = sprintf(buf, "%llu\n", bt->end_lba);
+ 
+ out_unlock_bdev:
+ 	mutex_unlock(&q->blk_trace_mutex);
+@@ -1801,6 +1850,7 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
+ 	struct block_device *bdev;
+ 	struct request_queue *q;
+ 	struct hd_struct *p;
++	struct blk_trace *bt;
+ 	u64 value;
+ 	ssize_t ret = -EINVAL;
+ 
+@@ -1831,8 +1881,10 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
+ 
+ 	mutex_lock(&q->blk_trace_mutex);
+ 
++	bt = rcu_dereference_protected(q->blk_trace,
++				       lockdep_is_held(&q->blk_trace_mutex));
+ 	if (attr == &dev_attr_enable) {
+-		if (!!value == !!q->blk_trace) {
++		if (!!value == !!bt) {
+ 			ret = 0;
+ 			goto out_unlock_bdev;
+ 		}
+@@ -1844,18 +1896,18 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
+ 	}
+ 
+ 	ret = 0;
+-	if (q->blk_trace == NULL)
++	if (bt == NULL)
+ 		ret = blk_trace_setup_queue(q, bdev);
+ 
+ 	if (ret == 0) {
+ 		if (attr == &dev_attr_act_mask)
+-			q->blk_trace->act_mask = value;
++			bt->act_mask = value;
+ 		else if (attr == &dev_attr_pid)
+-			q->blk_trace->pid = value;
++			bt->pid = value;
+ 		else if (attr == &dev_attr_start_lba)
+-			q->blk_trace->start_lba = value;
++			bt->start_lba = value;
+ 		else if (attr == &dev_attr_end_lba)
+-			q->blk_trace->end_lba = value;
++			bt->end_lba = value;
+ 	}
+ 
+ out_unlock_bdev:
 -- 
-2.24.1
+2.16.4
 
