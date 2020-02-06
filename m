@@ -2,123 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD8EA154C37
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB42F154C0E
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:23:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727938AbgBFTZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 14:25:46 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:58409 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727836AbgBFTZq (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Thu, 6 Feb 2020 14:25:46 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 05F1E21D28;
-        Thu,  6 Feb 2020 14:25:45 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:25:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zNS2Gy
-        S7I3wBgIihgBz/M8lzhOJ0JTBEQpBLVwH3ZVU=; b=E1QaPRGjvlb1BKeeyLhu4M
-        S+TARSJXPoKznRiV5NloRpvWGRCh2h3uIir0+pbUsvQBmSIyjkkskFcbI9Im4V8q
-        jIZie5lkJ7i9lZ1x7EYI5f08FBSZfCI2N+ynoM5uh8nxGkWQVKkwKFnfi2i/IRer
-        AwWcr18GY9QmTgcIAbpeIu07DWZ7gknWH5d6opmTUDJEtvlj4whdLDZOYqdcPr7d
-        ID9s0b52SWvMNlUHuTwkEOOMffGdbMy9oGXo4uN7AgrK4mjdVRJYKsXBQncKoB9w
-        rqmuzSlNTl5DBimVdZEY6Tj4g5iQ8JfrysgCD7tq7FZT32Yh8uj6EDeKNkZMdJDw
-        ==
-X-ME-Sender: <xms:OGg8XqA-38wBSyyy1AhzZ2N2goblRIELR_8QTP8xLp9V9PwuO6pmxg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheefgdduvdegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:OGg8Xi-GwRQD47inZZ3BIHRbFNcF9W-4w44XQLtbTGXrsiwASVYnxQ>
-    <xmx:OGg8Xq_Pwmdl7Dg5wqN_sU8poUCzo18CwAj8LEbn-pmahb_8oQguzQ>
-    <xmx:OGg8Xr8sfiFQuDzOtqHUtcjPqkAYX4FvOe-q2VEwru5Wxky2GL7XwA>
-    <xmx:OWg8XpYEjz1Gbq7M_G_OSQIqaKshakILhqtOUF9IWEYKmxUklLwMrA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 99C173280059;
-        Thu,  6 Feb 2020 14:25:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent bulk-read and writepage" failed to apply to 4.4-stable tree
-To:     chengzhihao1@huawei.com, Stable@vger.kernel.org, richard@nod.at,
-        yi.zhang@huawei.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 06 Feb 2020 20:20:48 +0100
-Message-ID: <158101684823573@kroah.com>
+        id S1727925AbgBFTWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 14:22:46 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:44771 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727630AbgBFTWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:22:45 -0500
+Received: by mail-pf1-f196.google.com with SMTP id y5so3597134pfb.11
+        for <stable@vger.kernel.org>; Thu, 06 Feb 2020 11:22:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=message-id:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:cc:to:from:user-agent:date;
+        bh=77zEgP4+kvjzTDiKwzePB4Pg1qZYvQ9rh1jBzop1Cfo=;
+        b=UDJWWrKmyAku8utbdUF/Ir+N8v/ND76ypMceKgDu7fS4zXsNrq+sw4xiy6otRjvqNn
+         +ttDwYybEZg2A7GqfJwbjc3aV4UiF67/sYc9c/93Oy3JDYmIE5yKua4ATLykNnIjQh4k
+         81KgxcGBkJ3hKV6ws5TtT7IUmIpU437MTbHJE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:cc:to:from
+         :user-agent:date;
+        bh=77zEgP4+kvjzTDiKwzePB4Pg1qZYvQ9rh1jBzop1Cfo=;
+        b=SRFUyxYvSwvTbdPjMrSXy0lTI2W6Ltf2Cq4u73dnvYT6S5viEWMQ00/Q8grlUhWVuT
+         rvRhlHTHuFzrLoxhoCYE4mRz/O7JhP0Z+z6ybDsVk6G/FeHb09mS6lHP2I3gvbAmfnfR
+         UThjKm7bNGXn3aQEciR3fqSYkvQX6rEKmLQrs/ItnodGyLClttdMwxOJYRocUsJ+mnVo
+         3gbaY/U93eYWhDcB18FkrobVuxfSFEqeeRQH+Gwg2t0XlYDu/KHDiRoTv8ttSz4pvqEr
+         uR9QFWE6987bPzXTIDSVD31j5GzaPHE5t8wSDqvhbbPpJmYyAmiWHVBexeX10QJ+S+6E
+         ffCQ==
+X-Gm-Message-State: APjAAAUerLIlhCwLspvYCKw289KX/0Z8b6ZJ0qku8H6HaFei1E3z29C5
+        JtGx9W6lfuy8CXu8uegKxCXdtA==
+X-Google-Smtp-Source: APXvYqx15GV6iXPlg6VEgBbt5XLtoCLhj9G1kgJ4mJJ+PUEVWX9tF8+ZXmb7/HjMq5ZD3BXw5H8Yng==
+X-Received: by 2002:a63:1f54:: with SMTP id q20mr5053928pgm.400.1581016965253;
+        Thu, 06 Feb 2020 11:22:45 -0800 (PST)
+Received: from chromium.org ([2620:15c:202:1:fa53:7765:582b:82b9])
+        by smtp.gmail.com with ESMTPSA id e1sm171231pfl.98.2020.02.06.11.22.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Feb 2020 11:22:44 -0800 (PST)
+Message-ID: <5e3c6784.1c69fb81.34ded.0a42@mx.google.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
+References: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
+Subject: Re: [PATCH] tpm: Revert tpm_tis_spi_mod.ko to tpm_tis_spi.ko.
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Andrey Pronin <apronin@chromium.org>, stable@vger.kernel.org,
+        Alexander Steffen <Alexander.Steffen@infineon.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Stuebner <heiko@sntech.de>, linux-kernel@vger.kernel.org
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        linux-integrity@vger.kernel.org
+From:   Stephen Boyd <swboyd@chromium.org>
+User-Agent: alot/0.8.1
+Date:   Thu, 06 Feb 2020 11:22:44 -0800
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Quoting Jarkko Sakkinen (2020-02-05 12:38:18)
+> Revert tpm_tis_spi_mod.ko back to tpm_tis_spi.ko as the rename could break
+> the build script. This can be achieved by renaming tpm_tis_spi.c as
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Do you mean userspace scripts?
 
-thanks,
+> tpm_tis_spi_main.c. Then tpm_tis_spi-y can be used inside the makefile.
+>=20
+> Cc: Andrey Pronin <apronin@chromium.org>
+> Cc: Stephen Boyd <swboyd@chromium.org>
+> Cc: stable@vger.kernel.org
+> Fixes: 797c0113c9a4 ("tpm: tpm_tis_spi: Support cr50 devices")
+> Reported-by: Alexander Steffen <Alexander.Steffen@infineon.com>
+> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> ---
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From f5de5b83303e61b1f3fb09bd77ce3ac2d7a475f2 Mon Sep 17 00:00:00 2001
-From: Zhihao Cheng <chengzhihao1@huawei.com>
-Date: Sat, 11 Jan 2020 17:50:36 +0800
-Subject: [PATCH] ubifs: Fix deadlock in concurrent bulk-read and writepage
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-In ubifs, concurrent execution of writepage and bulk read on the same file
-may cause ABBA deadlock, for example (Reproduce method see Link):
-
-Process A(Bulk-read starts from page4)         Process B(write page4 back)
-  vfs_read                                       wb_workfn or fsync
-  ...                                            ...
-  generic_file_buffered_read                     write_cache_pages
-    ubifs_readpage                                 LOCK(page4)
-
-      ubifs_bulk_read                              ubifs_writepage
-        LOCK(ui->ui_mutex)                           ubifs_write_inode
-
-	  ubifs_do_bulk_read                           LOCK(ui->ui_mutex)
-	    find_or_create_page(alloc page4)                  ↑
-	      LOCK(page4)                   <--     ABBA deadlock occurs!
-
-In order to ensure the serialization execution of bulk read, we can't
-remove the big lock 'ui->ui_mutex' in ubifs_bulk_read(). Instead, we
-allow ubifs_do_bulk_read() to lock page failed by replacing
-find_or_create_page(FGP_LOCK) with
-pagecache_get_page(FGP_LOCK | FGP_NOWAIT).
-
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Suggested-by: zhangyi (F) <yi.zhang@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Fixes: 4793e7c5e1c ("UBIFS: add bulk-read facility")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206153
-Signed-off-by: Richard Weinberger <richard@nod.at>
-
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index cd52585c8f4f..c649048fcc81 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -786,7 +786,9 @@ static int ubifs_do_bulk_read(struct ubifs_info *c, struct bu_info *bu,
- 
- 		if (page_offset > end_index)
- 			break;
--		page = find_or_create_page(mapping, page_offset, ra_gfp_mask);
-+		page = pagecache_get_page(mapping, page_offset,
-+				 FGP_LOCK|FGP_ACCESSED|FGP_CREAT|FGP_NOWAIT,
-+				 ra_gfp_mask);
- 		if (!page)
- 			break;
- 		if (!PageUptodate(page))
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 
