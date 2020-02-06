@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C0CD154C2E
+	by mail.lfdr.de (Postfix) with ESMTP id F1354154C2F
 	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbgBFTY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 14:24:59 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:51149 "EHLO
+        id S1727848AbgBFTZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 14:25:01 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:35247 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727738AbgBFTY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:24:58 -0500
+        by vger.kernel.org with ESMTP id S1727738AbgBFTZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:25:00 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 46AEA22083;
-        Thu,  6 Feb 2020 14:24:58 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:24:58 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id A554B220C7;
+        Thu,  6 Feb 2020 14:24:59 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:24:59 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=POSNuU
-        eMFaQ7WA+6xb1RwrOFcMr68DFSG0QfKfPkKzw=; b=wPG6hG0PxzzOgWt+Yzugho
-        tLWvn4HmcW3ZcvcSWPBmWDrND0CY6Of3DMmaQB+ofNsnY2a1pyeMyED+o3NiusPy
-        rOEA5UxBgdw945kw/YN6TdhSX8F4M6dIhVhFwf25YRePBxRHW6BARSMRS+peIlwM
-        A5NlBmZ8v1cFPDQX3LpMNEYjm1qie9cNEnKKaUs2mvwQ/yblbu9KhSIk7BUsVCWI
-        iwz6m0vyqXAfTazh/w49BDGdsryS6t16sczDB894zX1j44Bjm1MV57uGQ0cnjW2g
-        RWKkXcSHiNzh5M+bOX4HEPsFAlz30/JJP1LLPaiSFkKAa0IBiVLnu1MynKB4ZUFw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=M1MD0M
+        zCWbbcKmzRZR6zU+LhwYZRANuYUzOgsTFPUhM=; b=1hU1hohIRSz5+TVK2Xm/MB
+        26QS4IIiNv7+SPxkhinrMnQK/p6S6F7nKVPIHPURaI7bdswsO6jYt2shXibguRdg
+        vv2AmJzhEDp9lKDKNBSMo4gxKE3gHKJTeolvQcHIhsoaUBSpcbUlsqZ+xASO2Zyi
+        fn2Q0t4nIgAp9+lH+dUBL2KJhoQ8DQ866BVKIc+uxR+MmtoXI7OGnpqRsT7asAkN
+        7+5g7vdI7Ll3ggp/OGGlINBoTvr7Wt2PtGr6fHKuu1e5zp9eA3SJaUdWsDADNzhJ
+        w8pJMD3jsKcW+hXML97Ozi/i6yJxbViCR5CdA/jV4xn5KIT0SU+XR4n3eoDbuhAQ
         ==
-X-ME-Sender: <xms:Cmg8XntuE1vVzbTIp3F5aSNvvrxGylVdT2XLZHyYhaM9zUHMX2wJGA>
+X-ME-Sender: <xms:C2g8XmbSuDg6wkv30DK6CFF6_QuqW1VcdWb1fJ-2llN9yOUIsWSxeQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheefgdduvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,21 +35,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheefgdduvdefucetufdoteggod
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Cmg8XkKfhqpMDlM6jGtm48yj4unvrVHXcxsoVgm3Y2AqEh6OySaMbQ>
-    <xmx:Cmg8XmYAq5-lvyJXgAcoJs72WKq8c1irJJSzn-_1lzlPL8LXVZUKNA>
-    <xmx:Cmg8XiUul1_vv5uwkfqjsamsoEERewizorkDSwW6u1x3DIU_9URQGA>
-    <xmx:Cmg8Xr-NIJOvmgKZqfi3afbjvHkr_cdzyK2Khfh_ah1QamKAPZgVBg>
+X-ME-Proxy: <xmx:C2g8XnppNXXXyu6_SAb5p0_2jHHKW75pekTe7DToKHrG6ihhIscilA>
+    <xmx:C2g8XqF8wotfheE_xNaTgVT17RABIraoIKoQeRfrNXZbO6cZk1_gdQ>
+    <xmx:C2g8Xp3gyE1f3X8hrXuPoGKGsxVLaXf6AdhYicahTDbHozxoeYC73g>
+    <xmx:C2g8XuZWxmTZREE5wH2wluhuvSG2yQH6wq3BuTXnAjUw4T5i4lHyVA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E0E4130606E9;
-        Thu,  6 Feb 2020 14:24:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mmc: sdhci-of-at91: fix memleak on clk_get failure" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 45F7F3280059;
+        Thu,  6 Feb 2020 14:24:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mmc: sdhci-of-at91: fix memleak on clk_get failure" failed to apply to 4.19-stable tree
 To:     mirq-linux@rere.qmqm.pl, adrian.hunter@intel.com,
         ludovic.desroches@microchip.com, stable@vger.kernel.org,
         ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 06 Feb 2020 20:08:48 +0100
-Message-ID: <158101612854213@kroah.com>
+Message-ID: <158101612875255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
