@@ -2,103 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DFF0154372
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 12:49:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4342715437D
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 12:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727512AbgBFLte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 06:49:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726538AbgBFLte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 06:49:34 -0500
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6880921741;
-        Thu,  6 Feb 2020 11:49:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580989773;
-        bh=92I49pV9+CFZtlXx3hqZUSrtiPGQqm5WyKohR25KhyA=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=mcSkBO1jrQ4O8gWRSrnqgP6aTucu2CtcURfdn4qZt5p8hsLiOON030sNDusMMNLnR
-         sXRirfJdba/AjPMOgtOg9xIIxgyOKybyGIdODwueyknW2H3LG+eSPd+hfDvRhIoRMb
-         4s//PyB+EB4cYEXIy6hMcOpOFZC1uBhNHUrBomB0=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1izff1-003J3b-NW; Thu, 06 Feb 2020 11:49:31 +0000
+        id S1727788AbgBFLuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 06:50:12 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:43889 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727575AbgBFLuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 06:50:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580989810;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=r0m6hUgjurvubbH9fgcIpOSpOggrFujmjO/VSj3cDIk=;
+        b=FgFHw5uYkQ1i8V2lIHY9tLfYRdo8NBQ7MOkzzUZfP6a9iYeP0nJn9U0xruPDlJtMSCqufY
+        /U/Ul6zCbnowsm9taqA6i/+NNJXRz88HoPVeXa+haKel5UnqzMYPH0BnTF8WVa/z3jC74B
+        AKG+htH6OMiF2OYHV1H3J4W6mccZX00=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-308-HiDkZNILOzCDkUmwOVlccw-1; Thu, 06 Feb 2020 06:50:09 -0500
+X-MC-Unique: HiDkZNILOzCDkUmwOVlccw-1
+Received: by mail-wr1-f69.google.com with SMTP id v17so3230612wrm.17
+        for <stable@vger.kernel.org>; Thu, 06 Feb 2020 03:50:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=r0m6hUgjurvubbH9fgcIpOSpOggrFujmjO/VSj3cDIk=;
+        b=OTBqsIU7B2xVBIx9kVQF1VHarIRyx+ihYy8WMKcMrM+e5NI3yxntERTb+hwwurxPya
+         L4NUrVoE9ZjVs+R4eHrgXA8XVCG+rmLtv0v4z2NWDVTsMTxKjzCvyb6EaYSqcsilVsq9
+         8ShxYPvpxvS3F7htKmKDoqp/SoyZWQ/tthcHKKSnD38LAd6wbHYR+v4u/2CE+0yEwqxu
+         HsP11ORYaRkFmkN4ZTVHPUJq7AX5zp0l2ozD6wn0ZMsJvIaxZYQa0sOtbBQYUMe690LJ
+         A+nHvUjTFjRhTggFqpEkOi5LAD33sNw/g2rZHA96hp/Pa5yDZoWZrn5rXYbCFGAjKm+e
+         MstQ==
+X-Gm-Message-State: APjAAAWKA4HNjrbq4o77eTRYkog73HqX2OWtiXiCCTpsOpVQ8TQhWXU+
+        lXEsnYqzxMtSK3usU2qeH/mlCRAVKot+NSoF6wU2hhE3rSDbK3la1kJpciiV7OfelkQ4DGFDMFa
+        rUl547avlCLYLAaqG
+X-Received: by 2002:a7b:c407:: with SMTP id k7mr4321215wmi.46.1580989807703;
+        Thu, 06 Feb 2020 03:50:07 -0800 (PST)
+X-Google-Smtp-Source: APXvYqw5VYfjKfZRYNlahF2fKL5l7AV53TsvDCkTeqFBD04fnQO77xZw5rTWNGzIdfV/0AK88uogXA==
+X-Received: by 2002:a7b:c407:: with SMTP id k7mr4321199wmi.46.1580989807494;
+        Thu, 06 Feb 2020 03:50:07 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-fc7e-fd47-85c1-1ab3.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:fc7e:fd47:85c1:1ab3])
+        by smtp.gmail.com with ESMTPSA id s139sm3479456wme.35.2020.02.06.03.50.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Feb 2020 03:50:06 -0800 (PST)
+Subject: Re: [PATCH] ata: ahci_platform: add 32-bit quirk for dwc-ahci
+To:     Roger Quadros <rogerq@ti.com>, axboe@kernel.dk
+Cc:     vigneshr@ti.com, nsekhar@ti.com, linux-ide@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20200206111728.6703-1-rogerq@ti.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <d3a80407-a40a-c9e4-830f-138cfe9b163c@redhat.com>
+Date:   Thu, 6 Feb 2020 12:50:06 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+In-Reply-To: <20200206111728.6703-1-rogerq@ti.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Date:   Thu, 06 Feb 2020 11:49:31 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
-        kernel-team@android.com, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Srinivas Ramana <sramana@codeaurora.org>
-Subject: Re: [PATCH] arm64: ssbs: Fix context-switch when SSBS instructions
- are present
-In-Reply-To: <20200206113410.18301-1-will@kernel.org>
-References: <20200206113410.18301-1-will@kernel.org>
-Message-ID: <10b7b4b0bcc443db7028efbdee789549@kernel.org>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/1.3.8
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: will@kernel.org, linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com, kernel-team@android.com, stable@vger.kernel.org, catalin.marinas@arm.com, sramana@codeaurora.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-02-06 11:34, Will Deacon wrote:
-> When all CPUs in the system implement the SSBS instructions, we
-> advertise this via an HWCAP and allow EL0 to toggle the SSBS field
-> in PSTATE directly. Consequently, the state of the mitigation is not
-> accurately tracked by the TIF_SSBD thread flag and the PSTATE value
-> is authoritative.
+Hi,
+
+On 2/6/20 12:17 PM, Roger Quadros wrote:
+> On TI Platforms using LPAE, SATA breaks with 64-bit DMA.
+> Restrict it to 32-bit.
 > 
-> Avoid forcing the SSBS field in context-switch on such a system, and
-> simply rely on the PSTATE register instead.
-> 
-> Cc: <stable@vger.kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Srinivas Ramana <sramana@codeaurora.org>
-> Fixes: cbdf8a189a66 ("arm64: Force SSBS on context switch")
-> Signed-off-by: Will Deacon <will@kernel.org>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Roger Quadros <rogerq@ti.com>
 > ---
->  arch/arm64/kernel/process.c | 7 +++++++
->  1 file changed, 7 insertions(+)
+>   drivers/ata/ahci_platform.c | 3 +++
+>   1 file changed, 3 insertions(+)
 > 
-> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-> index d54586d5b031..45e867f40a7a 100644
-> --- a/arch/arm64/kernel/process.c
-> +++ b/arch/arm64/kernel/process.c
-> @@ -466,6 +466,13 @@ static void ssbs_thread_switch(struct task_struct 
-> *next)
->  	if (unlikely(next->flags & PF_KTHREAD))
->  		return;
-> 
-> +	/*
-> +	 * If all CPUs implement the SSBS instructions, then we just
-> +	 * need to context-switch the PSTATE field.
-> +	 */
-> +	if (cpu_have_feature(cpu_feature(SSBS)))
-> +		return;
+> diff --git a/drivers/ata/ahci_platform.c b/drivers/ata/ahci_platform.c
+> index 3aab2e3d57f3..b925dc54cfa5 100644
+> --- a/drivers/ata/ahci_platform.c
+> +++ b/drivers/ata/ahci_platform.c
+> @@ -62,6 +62,9 @@ static int ahci_probe(struct platform_device *pdev)
+>   	if (of_device_is_compatible(dev->of_node, "hisilicon,hisi-ahci"))
+>   		hpriv->flags |= AHCI_HFLAG_NO_FBS | AHCI_HFLAG_NO_NCQ;
+>   
+> +	if (of_device_is_compatible(dev->of_node, "snps,dwc-ahci"))
+> +		hpriv->flags |= AHCI_HFLAG_32BIT_ONLY;
 > +
->  	/* If the mitigation is enabled, then we leave SSBS clear. */
->  	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
->  	    test_tsk_thread_flag(next, TIF_SSBD))
 
-Looks goot to me.
+The "snps,dwc-ahci" is a generic (non TI specific) compatible which
+is e.g. also used on some exynos devices. So using that to key the
+setting of the 32 bit flag seems wrong to me.
 
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+IMHO it would be better to introduce a TI specific compatible
+and use that to match on instead (and also adjust the dts files
+accordingly).
 
-         M.
--- 
-Jazz is not dead. It just smells funny...
+Regards,
+
+Hans
+
+
+
+>   	port = acpi_device_get_match_data(dev);
+>   	if (!port)
+>   		port = &ahci_port_info;
+> 
+
