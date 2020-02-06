@@ -2,57 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C753F1546E0
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 15:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17665154786
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 16:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726956AbgBFOyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 09:54:49 -0500
-Received: from mga11.intel.com ([192.55.52.93]:15814 "EHLO mga11.intel.com"
+        id S1727678AbgBFPSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 10:18:16 -0500
+Received: from msa14.plala.or.jp ([60.36.166.14]:55552 "EHLO msa14.plala.or.jp"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725535AbgBFOyt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 09:54:49 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Feb 2020 06:53:31 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,410,1574150400"; 
-   d="scan'208";a="255108112"
-Received: from dgbrowne-mobl.ger.corp.intel.com (HELO localhost) ([10.252.14.106])
-  by fmsmga004.fm.intel.com with ESMTP; 06 Feb 2020 06:53:28 -0800
-Date:   Thu, 6 Feb 2020 16:53:28 +0200
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Alexander Steffen <Alexander.Steffen@infineon.com>
-Cc:     linux-integrity@vger.kernel.org,
-        Andrey Pronin <apronin@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>, stable@vger.kernel.org,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tpm: Revert tpm_tis_spi_mod.ko to tpm_tis_spi.ko.
-Message-ID: <20200206145328.GB8148@linux.intel.com>
-References: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
- <f865a01e-83a1-b0e2-a9ca-45f874d86b4c@infineon.com>
+        id S1727763AbgBFPSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 10:18:15 -0500
+X-Greylist: delayed 509 seconds by postgrey-1.27 at vger.kernel.org; Thu, 06 Feb 2020 10:18:14 EST
+Received: from mweb11 ([172.23.13.121]) by msa13.plala.or.jp with ESMTP
+          id <20200206150944.GNGH25516.msa13.plala.or.jp@mweb11>;
+          Fri, 7 Feb 2020 00:09:44 +0900
+Date:   Fri, 7 Feb 2020 00:09:44 +0900
+From:   Ambassador Patricia Mahoney <hide-m@cameo.plala.or.jp>
+Reply-To: ambassador_pmahoney@yahoo.com
+Message-ID: <20200207000944.R3R4N.469.root@mweb11>
+Subject: SCAM VICTIM COMPENSATION $6.5M USD
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f865a01e-83a1-b0e2-a9ca-45f874d86b4c@infineon.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+Sensitivity: Normal
+X-VirusScan: Outbound; mvir-ac13; Fri, 7 Feb 2020 00:09:44 +0900
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 01:54:11PM +0100, Alexander Steffen wrote:
-> Works for me, thank you very much :)
 
-Apologies for having bad judgement with this in the first place :-)
+--
+Attention Beneficiary,
 
-I'll send another PR for the next kernel release as soon as v5.6-rc1 is
-out.
+I am Patricia Mahoney, the new U.S Ambassador to Benin.
 
-/Jarkko
+ I have received today the total of $6.5M USD from the Benin Government as a compensation to you for what you went through in the name of their Country.
+
+How do you wish to receive your compensation funds?
+
+Kindly re-confirm the following
+
+Name:
+Address:
+Phone:
+Occupation:
+Age:
+Country:
+How much you lost to the impostors:
+
+I hope to read from you soon.
+
+Yours in Service
+
+Ambassador Patricia Mahoney.
+U.S Ambassador to Benin.
+Direct Tel: +229 542512890
