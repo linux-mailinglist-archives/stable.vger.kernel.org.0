@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37949154C36
+	by mail.lfdr.de (Postfix) with ESMTP id AD8EA154C37
 	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:26:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727919AbgBFTZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 14:25:44 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:34257 "EHLO
+        id S1727938AbgBFTZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 14:25:46 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:58409 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727836AbgBFTZo (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Thu, 6 Feb 2020 14:25:44 -0500
+        by vger.kernel.org with ESMTP id S1727836AbgBFTZq (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Thu, 6 Feb 2020 14:25:46 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id BF1AE22083;
-        Thu,  6 Feb 2020 14:25:43 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 05F1E21D28;
+        Thu,  6 Feb 2020 14:25:45 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:25:43 -0500
+  by compute6.internal (MEProxy); Thu, 06 Feb 2020 14:25:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=pYi9Q3
-        ahTtvEXS7ORVdAYnC2EuMxbwPNto5V+4yx0L4=; b=QTfehTZf6G+BFXxXMuRgm/
-        2tX0D9aopsTgWyY8HtsHaRFYn7me0xE7xGpe/Kkh8diJLEoR+yaeJewqCtqp4koV
-        IkRgT1WF7vavqQDminukS3TD/LGFfiSy42sK55GG9jU2b5ssvavYI1ZoIjPzXMNR
-        7nOmberVdONEZoWtofDN9IF0hSTWz3GMAbyNEn4GQ9kHTsfm/Kdcz8V5DiL+Uf+q
-        aWgGbHaEB/jmeTgVm2oE9ZDpQ0CRIyt61Ey2dQQA4Sl3QJbaxTxuL97VBsfxejfN
-        E6DtxUVEt4+DTSB8lU3avjR8Vv2Z1Ew6v+/IEVYe6Tr5otssWSYgbzWjVIJPRNcQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zNS2Gy
+        S7I3wBgIihgBz/M8lzhOJ0JTBEQpBLVwH3ZVU=; b=E1QaPRGjvlb1BKeeyLhu4M
+        S+TARSJXPoKznRiV5NloRpvWGRCh2h3uIir0+pbUsvQBmSIyjkkskFcbI9Im4V8q
+        jIZie5lkJ7i9lZ1x7EYI5f08FBSZfCI2N+ynoM5uh8nxGkWQVKkwKFnfi2i/IRer
+        AwWcr18GY9QmTgcIAbpeIu07DWZ7gknWH5d6opmTUDJEtvlj4whdLDZOYqdcPr7d
+        ID9s0b52SWvMNlUHuTwkEOOMffGdbMy9oGXo4uN7AgrK4mjdVRJYKsXBQncKoB9w
+        rqmuzSlNTl5DBimVdZEY6Tj4g5iQ8JfrysgCD7tq7FZT32Yh8uj6EDeKNkZMdJDw
         ==
-X-ME-Sender: <xms:N2g8Xr3Fd3Dmk3cmDjIYI5dhzVHgW-Mm4z8w1vIJMn2uJG_K9Lk6QQ>
+X-ME-Sender: <xms:OGg8XqA-38wBSyyy1AhzZ2N2goblRIELR_8QTP8xLp9V9PwuO6pmxg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheefgdduvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheefgdduvdegucetufdoteggod
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:N2g8Xi5v9gUBcte0pCQbhKAxqxE2yYiNApmTr5dUUctT-RnA4BKgPA>
-    <xmx:N2g8Xi1lDVb8icufTdQQ9mbmz7ndLT2YTxoCor_I74gOdUbi1DXaAA>
-    <xmx:N2g8Xqa3icLZTth7LdzcGQBri_NHxcLXHA_yy-KSJlq7AFbhdWi2-g>
-    <xmx:N2g8XkUF0CL1TJlGOlqdTFqWl4QZrBQI8HgEUlG8DKhYTwreuQHJiQ>
+X-ME-Proxy: <xmx:OGg8Xi-GwRQD47inZZ3BIHRbFNcF9W-4w44XQLtbTGXrsiwASVYnxQ>
+    <xmx:OGg8Xq_Pwmdl7Dg5wqN_sU8poUCzo18CwAj8LEbn-pmahb_8oQguzQ>
+    <xmx:OGg8Xr8sfiFQuDzOtqHUtcjPqkAYX4FvOe-q2VEwru5Wxky2GL7XwA>
+    <xmx:OWg8XpYEjz1Gbq7M_G_OSQIqaKshakILhqtOUF9IWEYKmxUklLwMrA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0990B3280062;
-        Thu,  6 Feb 2020 14:25:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent bulk-read and writepage" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 99C173280059;
+        Thu,  6 Feb 2020 14:25:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent bulk-read and writepage" failed to apply to 4.4-stable tree
 To:     chengzhihao1@huawei.com, Stable@vger.kernel.org, richard@nod.at,
         yi.zhang@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 06 Feb 2020 20:20:48 +0100
-Message-ID: <1581016848106213@kroah.com>
+Message-ID: <158101684823573@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
