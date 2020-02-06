@@ -2,130 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACBC815442A
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 13:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEE515446E
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 14:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727608AbgBFMl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 07:41:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52306 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726538AbgBFMl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 07:41:29 -0500
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8B6820661;
-        Thu,  6 Feb 2020 12:41:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580992888;
-        bh=QRviXGPtTLyzMnnQbv0vI0Mfd+YpBIYml21mlWgU0JY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=dukTsp+cqOwyyk5+xn4FHVscByigbDNphLKi9gSUlLV0yVtNZKWg5f9dhq/yp5MLC
-         sk7G/RWALNj0XyAJh+A1tcBawP19Ru3dlxpk+vq2mv1M7Y4lhTlbqs0We6AEje+Z+S
-         e/ti5dLOVFHQVlvOJFToxne/19O8clq8AcbKPhC4=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1izgTG-003JYg-W4; Thu, 06 Feb 2020 12:41:27 +0000
+        id S1727452AbgBFNBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 08:01:21 -0500
+Received: from smtp11.infineon.com ([217.10.52.105]:20415 "EHLO
+        smtp11.infineon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727379AbgBFNBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 08:01:21 -0500
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Thu, 06 Feb 2020 08:01:20 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=infineon.com; i=@infineon.com; q=dns/txt; s=IFXMAIL;
+  t=1580994081; x=1612530081;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=+LOsqSZOwaErmcvYyHE4Zb+x4vf935b6KUHXPd1MNms=;
+  b=hHZ/hnGmDzPFd4durapr3JqigKYRN6xegf+u3lIIEeHf1Nt/h+tOWc6B
+   i5qmxY3ZfAmwNRTVqpMzLIGLkYFdkMGoLnlVMJgsikLbex1wIL/MM7cfX
+   RN8/FdOj20eARambTAnzbhSGKgJPerExSQ0W0A8vhefax7Nbj0D6SMY/V
+   M=;
+IronPort-SDR: 3ajDCj45i+l3AxOjLL+D8zjefXWLzfftgrflXh5BML42yHT+uQB5hSEemkvDpkt0h59+BHxbGi
+ KZgI0Rep3ezmoyjdnn6aglQ6UbvOtqS9JiIC1Br+Yk34Sl6gdVzAbIx+1upgK5RunfniBKVjmW
+ mkpR5kUBOcQu8StBaArcsOnWUKjFi1PT+GWtjBb8c3/2l0qqIS8KFnKxkQLFCla3GgQZxsoeM3
+ lNYhpqfAMd3REvNnDouABWg4Er5OxL+hiMuwR5stp4cQ80qlAI28Oad8XgNdB2FsTo3/r6uHG9
+ e5Y=
+X-SBRS: None
+X-IronPort-AV: E=McAfee;i="6000,8403,9522"; a="148641042"
+X-IronPort-AV: E=Sophos;i="5.70,409,1574118000"; 
+   d="scan'208";a="148641042"
+Received: from unknown (HELO mucxv002.muc.infineon.com) ([172.23.11.17])
+  by smtp11.infineon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2020 13:54:12 +0100
+Received: from MUCSE708.infineon.com (MUCSE708.infineon.com [172.23.7.82])
+        by mucxv002.muc.infineon.com (Postfix) with ESMTPS;
+        Thu,  6 Feb 2020 13:54:12 +0100 (CET)
+Received: from [10.154.32.73] (172.23.8.247) by MUCSE708.infineon.com
+ (172.23.7.82) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256) id 15.1.1713.5; Thu, 6 Feb
+ 2020 13:54:12 +0100
+Subject: Re: [PATCH] tpm: Revert tpm_tis_spi_mod.ko to tpm_tis_spi.ko.
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        <linux-integrity@vger.kernel.org>
+CC:     Andrey Pronin <apronin@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>, <stable@vger.kernel.org>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
+From:   Alexander Steffen <Alexander.Steffen@infineon.com>
+Message-ID: <f865a01e-83a1-b0e2-a9ca-45f874d86b4c@infineon.com>
+Date:   Thu, 6 Feb 2020 13:54:11 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+In-Reply-To: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-Date:   Thu, 06 Feb 2020 12:41:26 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
-        kernel-team@android.com, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Srinivas Ramana <sramana@codeaurora.org>
-Subject: Re: [PATCH] arm64: ssbs: Fix context-switch when SSBS instructions
- are present
-In-Reply-To: <20200206122047.GA18762@willie-the-truck>
-References: <20200206113410.18301-1-will@kernel.org>
- <10b7b4b0bcc443db7028efbdee789549@kernel.org>
- <20200206122047.GA18762@willie-the-truck>
-Message-ID: <b96ac2ae6b444a53be72a8656592ab01@kernel.org>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/1.3.8
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: will@kernel.org, linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com, kernel-team@android.com, stable@vger.kernel.org, catalin.marinas@arm.com, sramana@codeaurora.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Originating-IP: [172.23.8.247]
+X-ClientProxiedBy: MUCSE703.infineon.com (172.23.7.73) To
+ MUCSE708.infineon.com (172.23.7.82)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-02-06 12:20, Will Deacon wrote:
-> On Thu, Feb 06, 2020 at 11:49:31AM +0000, Marc Zyngier wrote:
->> On 2020-02-06 11:34, Will Deacon wrote:
->> > When all CPUs in the system implement the SSBS instructions, we
->> > advertise this via an HWCAP and allow EL0 to toggle the SSBS field
->> > in PSTATE directly. Consequently, the state of the mitigation is not
->> > accurately tracked by the TIF_SSBD thread flag and the PSTATE value
->> > is authoritative.
->> >
->> > Avoid forcing the SSBS field in context-switch on such a system, and
->> > simply rely on the PSTATE register instead.
->> >
->> > Cc: <stable@vger.kernel.org>
->> > Cc: Marc Zyngier <maz@kernel.org>
->> > Cc: Catalin Marinas <catalin.marinas@arm.com>
->> > Cc: Srinivas Ramana <sramana@codeaurora.org>
->> > Fixes: cbdf8a189a66 ("arm64: Force SSBS on context switch")
->> > Signed-off-by: Will Deacon <will@kernel.org>
->> > ---
->> >  arch/arm64/kernel/process.c | 7 +++++++
->> >  1 file changed, 7 insertions(+)
->> >
->> > diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
->> > index d54586d5b031..45e867f40a7a 100644
->> > --- a/arch/arm64/kernel/process.c
->> > +++ b/arch/arm64/kernel/process.c
->> > @@ -466,6 +466,13 @@ static void ssbs_thread_switch(struct task_struct
->> > *next)
->> >  	if (unlikely(next->flags & PF_KTHREAD))
->> >  		return;
->> >
->> > +	/*
->> > +	 * If all CPUs implement the SSBS instructions, then we just
->> > +	 * need to context-switch the PSTATE field.
->> > +	 */
->> > +	if (cpu_have_feature(cpu_feature(SSBS)))
->> > +		return;
->> > +
->> >  	/* If the mitigation is enabled, then we leave SSBS clear. */
->> >  	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
->> >  	    test_tsk_thread_flag(next, TIF_SSBD))
->> 
->> Looks goot to me.
+On 05.02.2020 21:38, Jarkko Sakkinen wrote:
+> Revert tpm_tis_spi_mod.ko back to tpm_tis_spi.ko as the rename could break
+> the build script. This can be achieved by renaming tpm_tis_spi.c as
+> tpm_tis_spi_main.c. Then tpm_tis_spi-y can be used inside the makefile.
 > 
-> Ja!
-
-Ach...
-
+> Cc: Andrey Pronin <apronin@chromium.org>
+> Cc: Stephen Boyd <swboyd@chromium.org>
+> Cc: stable@vger.kernel.org
+> Fixes: 797c0113c9a4 ("tpm: tpm_tis_spi: Support cr50 devices")
+> Reported-by: Alexander Steffen <Alexander.Steffen@infineon.com>
+> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> ---
+>   drivers/char/tpm/Makefile                              | 8 +++++---
+>   drivers/char/tpm/{tpm_tis_spi.c => tpm_tis_spi_main.c} | 0
+>   2 files changed, 5 insertions(+), 3 deletions(-)
+>   rename drivers/char/tpm/{tpm_tis_spi.c => tpm_tis_spi_main.c} (100%)
 > 
->> Reviewed-by: Marc Zyngier <maz@kernel.org>
-> 
-> Cheers. It occurs to me that, although the patch is correct, the 
-> comment and
-> the commit message need tweaking because we're actually predicating 
-> this on
-> the presence of SSBS in any form, so the instructions may not be
-> implemented. That's fine because the prctl() updates pstate, so it 
-> remains
-> authoritative and can't be lost by one of the CPUs treating it as 
-> RAZ/WI.
+> diff --git a/drivers/char/tpm/Makefile b/drivers/char/tpm/Makefile
+> index 5a0d99d4fec0..9567e5197f74 100644
+> --- a/drivers/char/tpm/Makefile
+> +++ b/drivers/char/tpm/Makefile
+> @@ -21,9 +21,11 @@ tpm-$(CONFIG_EFI) += eventlog/efi.o
+>   tpm-$(CONFIG_OF) += eventlog/of.o
+>   obj-$(CONFIG_TCG_TIS_CORE) += tpm_tis_core.o
+>   obj-$(CONFIG_TCG_TIS) += tpm_tis.o
+> -obj-$(CONFIG_TCG_TIS_SPI) += tpm_tis_spi_mod.o
+> -tpm_tis_spi_mod-y := tpm_tis_spi.o
+> -tpm_tis_spi_mod-$(CONFIG_TCG_TIS_SPI_CR50) += tpm_tis_spi_cr50.o
+> +
+> +obj-$(CONFIG_TCG_TIS_SPI) += tpm_tis_spi.o
+> +tpm_tis_spi-y := tpm_tis_spi_main.o
+> +tpm_tis_spi-$(CONFIG_TCG_TIS_SPI_CR50) += tpm_tis_spi_cr50.o
+> +
+>   obj-$(CONFIG_TCG_TIS_I2C_ATMEL) += tpm_i2c_atmel.o
+>   obj-$(CONFIG_TCG_TIS_I2C_INFINEON) += tpm_i2c_infineon.o
+>   obj-$(CONFIG_TCG_TIS_I2C_NUVOTON) += tpm_i2c_nuvoton.o
+> diff --git a/drivers/char/tpm/tpm_tis_spi.c b/drivers/char/tpm/tpm_tis_spi_main.c
+> similarity index 100%
+> rename from drivers/char/tpm/tpm_tis_spi.c
+> rename to drivers/char/tpm/tpm_tis_spi_main.c
 
-True. It is the PSTATE bit that actually matters, not the presence of 
-the control
-instruction.
+Works for me, thank you very much :)
 
-> I'll spin a v2 later on.
-
-Thanks,
-
-         M.
--- 
-Jazz is not dead. It just smells funny...
+Alexander
