@@ -2,124 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45074154391
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 12:55:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5481543A6
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 13:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727680AbgBFLzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 06:55:06 -0500
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:41050 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727630AbgBFLzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 06:55:05 -0500
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 016Bt0hH091917;
-        Thu, 6 Feb 2020 05:55:00 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1580990100;
-        bh=2Coh5p3qK7LHZQttiOinvCEs7fyz7VfDVezsyJy7rYQ=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=ek6SC1TAl5DzeYgwPpr9VSihDWTPoxgPuhzqO81fOexKs5XkSwS+tx++DPywyPBO2
-         JlnyeUMWiZTJwhSAXkaAr075Skh4H9qAUeqI0lNCzF9jTBqhZaQFZTPVX6UKiHa6Vk
-         yxBu8UH35HsY3jWQJ1XVxzWSnkvcGx39JUMuCPeI=
-Received: from DFLE115.ent.ti.com (dfle115.ent.ti.com [10.64.6.36])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 016Bt0os083904;
-        Thu, 6 Feb 2020 05:55:00 -0600
-Received: from DFLE101.ent.ti.com (10.64.6.22) by DFLE115.ent.ti.com
- (10.64.6.36) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 6 Feb
- 2020 05:55:00 -0600
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE101.ent.ti.com
- (10.64.6.22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Thu, 6 Feb 2020 05:55:00 -0600
-Received: from [192.168.2.14] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 016BswWh069423;
-        Thu, 6 Feb 2020 05:54:58 -0600
-Subject: Re: [PATCH] ata: ahci_platform: add 32-bit quirk for dwc-ahci
-To:     Hans de Goede <hdegoede@redhat.com>, <axboe@kernel.dk>
-CC:     <vigneshr@ti.com>, <nsekhar@ti.com>, <linux-ide@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20200206111728.6703-1-rogerq@ti.com>
- <d3a80407-a40a-c9e4-830f-138cfe9b163c@redhat.com>
-From:   Roger Quadros <rogerq@ti.com>
-Message-ID: <50ad68d2-39e2-d2f0-1794-cf7b499cb1f0@ti.com>
-Date:   Thu, 6 Feb 2020 13:54:57 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727138AbgBFMBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 07:01:45 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:37947 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727111AbgBFMBp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 07:01:45 -0500
+Received: by mail-wm1-f66.google.com with SMTP id a9so6780580wmj.3
+        for <stable@vger.kernel.org>; Thu, 06 Feb 2020 04:01:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VTAw99JrNpdhodOHXvS4cUbk/MvADwKXU/iOlIaZU2A=;
+        b=AbYm7SXx5M2tKOKljOlhCl5oeFfg254Ji/QxDwCgWbY6Twvcuf3vj0cQNmHoTFMEf1
+         HgtNDhpVrK+8rufbDNH9C7IeBPyqbsbcGFHse+BO+57M1RgznAT5D0txysl9/CzdKwnh
+         OaaJNythAjfWcolnwTJ4nNgxKsVFMaJ0Y/9zzuSvrra41gxScM1dL2/qRxFY49UTy7g1
+         pn9CWYSFJSqhJKP9KNjfzPE5Cutx/v/tH2vO4ZGwkQWimTQZTWJEEkN3bqjGIVaKKqz9
+         lpkoSqZhBT+q6Z4ePL/n/VNNo2Eua2AVc8bE7v3DSKLJCZoJbCSMGagelFZRSPvYm6S4
+         9F+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VTAw99JrNpdhodOHXvS4cUbk/MvADwKXU/iOlIaZU2A=;
+        b=Ay7JfvdhwPYVMfmuXMkqkxTylBL8yUffi/oX8/bW6FKEmFKXqx1OPdinCvCHWVG56e
+         84V9kQSDPoCnp6ZSjHXPR1aKnVc5/oJ+6ly9X4Qo0OhKTIU917yMFP+5IB7pJ7ZWQLl0
+         WLsxezAP7YG/kyoDqDFk8b62YE7naNUFd8T4qKzdH0szbN5g100QZ84otAWnb3fTjRFa
+         JTLH6NpBz1Ri334UQNd4U0oeKBiTm9d3dR0lWbIZdWbShup+DxSrVJmKr4GXsgZmy3i/
+         dSUi6D68Ch+0+O2Twen91WHqTLMJvbROB4DGK4IZxxV1Y5ONUpvXUJGCjki6yc6lXoOH
+         qdyg==
+X-Gm-Message-State: APjAAAXedvHWg0ysWlJt06ndJVCRhSiNCNd+OAAy4C552YU5MEv9he/d
+        fOAgvgYKU6G+p3k6/GJfAwlmLRVXzs5sTw==
+X-Google-Smtp-Source: APXvYqx+7QXXPq3cEBsaCkvqd+lBbIFXpPKkAAhfr1uF/L3uAzeOyq2KsWhes5yt4Zw/IyHErubbig==
+X-Received: by 2002:a1c:6389:: with SMTP id x131mr4360828wmb.155.1580990502814;
+        Thu, 06 Feb 2020 04:01:42 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g7sm3940699wrq.21.2020.02.06.04.01.42
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Feb 2020 04:01:42 -0800 (PST)
+Message-ID: <5e3c0026.1c69fb81.c9b78.1839@mx.google.com>
+Date:   Thu, 06 Feb 2020 04:01:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <d3a80407-a40a-c9e4-830f-138cfe9b163c@redhat.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.18
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-5.4.y boot: 34 boots: 1 failed, 33 passed (v5.4.18)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hans,
+stable/linux-5.4.y boot: 34 boots: 1 failed, 33 passed (v5.4.18)
 
-On 06/02/2020 13:50, Hans de Goede wrote:
-> Hi,
-> 
-> On 2/6/20 12:17 PM, Roger Quadros wrote:
->> On TI Platforms using LPAE, SATA breaks with 64-bit DMA.
->> Restrict it to 32-bit.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Roger Quadros <rogerq@ti.com>
->> ---
->>   drivers/ata/ahci_platform.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/ata/ahci_platform.c b/drivers/ata/ahci_platform.c
->> index 3aab2e3d57f3..b925dc54cfa5 100644
->> --- a/drivers/ata/ahci_platform.c
->> +++ b/drivers/ata/ahci_platform.c
->> @@ -62,6 +62,9 @@ static int ahci_probe(struct platform_device *pdev)
->>       if (of_device_is_compatible(dev->of_node, "hisilicon,hisi-ahci"))
->>           hpriv->flags |= AHCI_HFLAG_NO_FBS | AHCI_HFLAG_NO_NCQ;
->> +    if (of_device_is_compatible(dev->of_node, "snps,dwc-ahci"))
->> +        hpriv->flags |= AHCI_HFLAG_32BIT_ONLY;
->> +
-> 
-> The "snps,dwc-ahci" is a generic (non TI specific) compatible which
-> is e.g. also used on some exynos devices. So using that to key the
-> setting of the 32 bit flag seems wrong to me.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+4.y/kernel/v5.4.18/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
+rnel/v5.4.18/
 
-You are right, Vignesh also pointed this out to me offline.
+Tree: stable
+Branch: linux-5.4.y
+Git Describe: v5.4.18
+Git Commit: 58c72057f662cee4ec2aaab9be1abeced884814a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 32 unique boards, 9 SoC families, 1 build out of 27
 
-snps,dwc-ahci does indeed support 64-bit addressing, so this patch is wrong.
+Boot Failure Detected:
 
-> 
-> IMHO it would be better to introduce a TI specific compatible
-> and use that to match on instead (and also adjust the dts files
-> accordingly).
+arm64:
+    defconfig:
+        gcc-8:
+            msm8998-mtp: 1 failed lab
 
-The TI platform's TRM does say it has only 36-bits of the controller wired
-in the device. If that was the case and DDR address never goes beyond
-36-bits, we don't understand why it fails in the first place.
-
-80000000-afcfffff : System RAM
-b0000000-feffffff : System RAM
-200000000-27fffffff : System RAM
-
-cheers,
--roger
-
-> 
-> Regards,
-> 
-> Hans
-> 
-> 
-> 
->>       port = acpi_device_get_match_data(dev);
->>       if (!port)
->>           port = &ahci_port_info;
->>
-> 
-
--- 
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+---
+For more info write to <info@kernelci.org>
