@@ -2,102 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA9781543ED
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 13:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4AC154404
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 13:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgBFMUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 07:20:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727111AbgBFMUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 07:20:52 -0500
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D044221741;
-        Thu,  6 Feb 2020 12:20:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1580991652;
-        bh=Hz5mpDtiqCA0N/S1stMo+BEahL/BwrOPzwytyLbcvNQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RMhc20A6ccaCbc9w6tjniyG1wGM6LnQ7MctrJ88A82L9QdoUUDV1jFIwumX34uQRt
-         T/YzRaL4SoWJPuMhu65w7sxTkjAXL3LOmnsLXrkKFGH+anVJEm11GMlk27ty5HjFSs
-         e3J7Q3E/YF5v/tvxJm0I7aIU3TPwJLWewDt+nXoI=
-Date:   Thu, 6 Feb 2020 12:20:47 +0000
-From:   Will Deacon <will@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
-        kernel-team@android.com, stable@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Srinivas Ramana <sramana@codeaurora.org>
-Subject: Re: [PATCH] arm64: ssbs: Fix context-switch when SSBS instructions
- are present
-Message-ID: <20200206122047.GA18762@willie-the-truck>
-References: <20200206113410.18301-1-will@kernel.org>
- <10b7b4b0bcc443db7028efbdee789549@kernel.org>
+        id S1727471AbgBFM2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 07:28:21 -0500
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2387 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726744AbgBFM2V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 07:28:21 -0500
+Received: from LHREML710-CAH.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id 48935563F0E88C196A82;
+        Thu,  6 Feb 2020 12:28:19 +0000 (GMT)
+Received: from fraeml703-chm.china.huawei.com (10.206.15.52) by
+ LHREML710-CAH.china.huawei.com (10.201.108.33) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Thu, 6 Feb 2020 12:28:18 +0000
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml703-chm.china.huawei.com (10.206.15.52) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1713.5; Thu, 6 Feb 2020 13:28:18 +0100
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.1713.004;
+ Thu, 6 Feb 2020 13:28:18 +0100
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        "James.Bottomley@HansenPartnership.com" 
+        <James.Bottomley@HansenPartnership.com>,
+        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2 2/8] ima: Switch to ima_hash_algo for boot aggregate
+Thread-Topic: [PATCH v2 2/8] ima: Switch to ima_hash_algo for boot aggregate
+Thread-Index: AQHV3A/jJwoPNNxgYk6BJdeHa69IC6gNBbgAgADjWLCAABy9AIAAEWug
+Date:   Thu, 6 Feb 2020 12:28:18 +0000
+Message-ID: <17bfd3e2b7fa4f31a46a6688e4a6e34f@huawei.com>
+References: <20200205103317.29356-1-roberto.sassu@huawei.com>
+         <20200205103317.29356-3-roberto.sassu@huawei.com>
+         <1580936432.5585.309.camel@linux.ibm.com>
+         <b1507c1121b64b3abc00e154fcfeef65@huawei.com>
+ <1580991426.5585.334.camel@linux.ibm.com>
+In-Reply-To: <1580991426.5585.334.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.220.96.108]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10b7b4b0bcc443db7028efbdee789549@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 11:49:31AM +0000, Marc Zyngier wrote:
-> On 2020-02-06 11:34, Will Deacon wrote:
-> > When all CPUs in the system implement the SSBS instructions, we
-> > advertise this via an HWCAP and allow EL0 to toggle the SSBS field
-> > in PSTATE directly. Consequently, the state of the mitigation is not
-> > accurately tracked by the TIF_SSBD thread flag and the PSTATE value
-> > is authoritative.
-> > 
-> > Avoid forcing the SSBS field in context-switch on such a system, and
-> > simply rely on the PSTATE register instead.
-> > 
-> > Cc: <stable@vger.kernel.org>
-> > Cc: Marc Zyngier <maz@kernel.org>
-> > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > Cc: Srinivas Ramana <sramana@codeaurora.org>
-> > Fixes: cbdf8a189a66 ("arm64: Force SSBS on context switch")
-> > Signed-off-by: Will Deacon <will@kernel.org>
-> > ---
-> >  arch/arm64/kernel/process.c | 7 +++++++
-> >  1 file changed, 7 insertions(+)
-> > 
-> > diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-> > index d54586d5b031..45e867f40a7a 100644
-> > --- a/arch/arm64/kernel/process.c
-> > +++ b/arch/arm64/kernel/process.c
-> > @@ -466,6 +466,13 @@ static void ssbs_thread_switch(struct task_struct
-> > *next)
-> >  	if (unlikely(next->flags & PF_KTHREAD))
-> >  		return;
-> > 
-> > +	/*
-> > +	 * If all CPUs implement the SSBS instructions, then we just
-> > +	 * need to context-switch the PSTATE field.
-> > +	 */
-> > +	if (cpu_have_feature(cpu_feature(SSBS)))
-> > +		return;
-> > +
-> >  	/* If the mitigation is enabled, then we leave SSBS clear. */
-> >  	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
-> >  	    test_tsk_thread_flag(next, TIF_SSBD))
-> 
-> Looks goot to me.
-
-Ja!
-
-> Reviewed-by: Marc Zyngier <maz@kernel.org>
-
-Cheers. It occurs to me that, although the patch is correct, the comment and
-the commit message need tweaking because we're actually predicating this on
-the presence of SSBS in any form, so the instructions may not be
-implemented. That's fine because the prctl() updates pstate, so it remains
-authoritative and can't be lost by one of the CPUs treating it as RAZ/WI.
-
-I'll spin a v2 later on.
-
-Will
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBNaW1pIFpvaGFyIFttYWlsdG86
+em9oYXJAbGludXguaWJtLmNvbV0NCj4gU2VudDogVGh1cnNkYXksIEZlYnJ1YXJ5IDYsIDIwMjAg
+MToxNyBQTQ0KPiBUbzogUm9iZXJ0byBTYXNzdSA8cm9iZXJ0by5zYXNzdUBodWF3ZWkuY29tPjsN
+Cj4gSmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbTsNCj4gamFya2tvLnNha2tp
+bmVuQGxpbnV4LmludGVsLmNvbQ0KPiBDYzogbGludXgtaW50ZWdyaXR5QHZnZXIua2VybmVsLm9y
+ZzsgbGludXgtc2VjdXJpdHktbW9kdWxlQHZnZXIua2VybmVsLm9yZzsNCj4gbGludXgta2VybmVs
+QHZnZXIua2VybmVsLm9yZzsgU2lsdml1IFZsYXNjZWFudQ0KPiA8U2lsdml1LlZsYXNjZWFudUBo
+dWF3ZWkuY29tPjsgc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENI
+IHYyIDIvOF0gaW1hOiBTd2l0Y2ggdG8gaW1hX2hhc2hfYWxnbyBmb3IgYm9vdA0KPiBhZ2dyZWdh
+dGUNCj4gDQo+IE9uIFRodSwgMjAyMC0wMi0wNiBhdCAwOTozNiArMDAwMCwgUm9iZXJ0byBTYXNz
+dSB3cm90ZToNCj4gPiA+IEhpIFJvYmVydG8sDQo+ID4gPg0KPiA+ID4gT24gV2VkLCAyMDIwLTAy
+LTA1IGF0IDExOjMzICswMTAwLCBSb2JlcnRvIFNhc3N1IHdyb3RlOg0KPiA+ID4NCj4gPiA+IDxz
+bmlwPg0KPiA+ID4NCj4gPiA+ID4gUmVwb3J0ZWQtYnk6IEplcnJ5IFNuaXRzZWxhYXIgPGpzbml0
+c2VsQHJlZGhhdC5jb20+DQo+ID4gPiA+IFN1Z2dlc3RlZC1ieTogSmFtZXMgQm90dG9tbGV5DQo+
+ID4gPiA8SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbT4NCj4gPiA+ID4gU2ln
+bmVkLW9mZi1ieTogUm9iZXJ0byBTYXNzdSA8cm9iZXJ0by5zYXNzdUBodWF3ZWkuY29tPg0KPiA+
+ID4gPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiA+ID4NCj4gPiA+IENjJ2luZyBzdGFi
+bGUgcmVzdWx0ZWQgaW4gU2FzaGEncyBhdXRvbWF0ZWQgbWVzc2FnZS7CoMKgSWYgeW91J3JlIGdv
+aW5nDQo+ID4gPiB0byBDYyBzdGFibGUsIHRoZW4gcGxlYXNlIGluY2x1ZGUgdGhlIHN0YWJsZSBr
+ZXJuZWwgcmVsZWFzZSAoZS5nLiBDYzoNCj4gPiA+IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyB2
+NS4zKS4gwqBBbHNvIHBsZWFzZSBpbmNsdWRlIGEgIkZpeGVzIiB0YWcuDQo+ID4gPiDCoE5vcm1h
+bGx5IG9ubHkgYnVnIGZpeGVzIGFyZSBiYWNrcG9ydGVkLg0KPiA+DQo+ID4gT2ssIHdpbGwgYWRk
+IHRoZSBrZXJuZWwgdmVyc2lvbi4gSSBhbHNvIHRob3VnaHQgd2hpY2ggY29tbWl0IEkgc2hvdWxk
+DQo+ID4gbWVudGlvbiBpbiB0aGUgRml4ZXMgdGFnLiBJTUEgYWx3YXlzIHJlYWQgdGhlIFNIQTEg
+YmFuayBmcm9tIHRoZQ0KPiA+IGJlZ2lubmluZy4gSSBjb3VsZCBtZW50aW9uIHRoZSBwYXRjaCB0
+aGF0IGludHJvZHVjZXMgdGhlIG5ldyBBUEkNCj4gPiB0byByZWFkIG90aGVyIGJhbmtzLCBidXQg
+SSdtIG5vdCBzdXJlLiBXaGF0IGRvIHlvdSB0aGluaz8NCj4gDQo+IFRoaXMgcGF0Y2ggaXMgZGVw
+ZW5kZW50IG9uIG5yX2FsbG9jYXRlZF9iYW5rcy4gwqBQbGVhc2UgdHJ5IGFwcGx5aW5nDQo+IHRo
+aXMgcGF0Y2ggdG8gdGhlIGVhcmxpZXN0IHN0YWJsZSBrZXJuZWwgd2l0aCB0aGUgY29tbWl0IHRo
+YXQNCj4gaW50cm9kdWNlcyBucl9hbGxvY2F0ZWRfYmFua3MgYW5kIHRlc3QgdG8gbWFrZSBzdXJl
+IGl0IHdvcmtzIHByb3Blcmx5Lg0KDQpJdCBhbHNvIGRlcGVuZHMgb24gODc5YjU4OTIxMGE5ICgi
+dHBtOiByZXRyaWV2ZSBkaWdlc3Qgc2l6ZSBvZiB1bmtub3duIg0KYWxnb3JpdGhtcyB3aXRoIFBD
+UiByZWFkIikgd2hpY2ggZXhwb3J0ZWQgdGhlIG1hcHBpbmcgYmV0d2VlbiBUUE0NCmFsZ29yaXRo
+bSBJRCBhbmQgY3J5cHRvIElELCBhbmQgY2hhbmdlZCB0aGUgZGVmaW5pdGlvbiBvZiB0cG1fcGNy
+X3JlYWQoKQ0KdG8gcmVhZCBub24tU0hBMSBQQ1IgYmFua3MuIEl0IHJlcXVpcmVzIG1hbnkgcGF0
+Y2hlcywgc28gYmFja3BvcnRpbmcgaXQNCmlzIG5vdCBhIHRyaXZpYWwgdGFzay4gSSB0aGluayB0
+aGUgZWFybGllc3Qga2VybmVsIHRoaXMgcGF0Y2ggY2FuIGJlIGJhY2twb3J0ZWQgdG8NCmlzIDUu
+MS4NCg0KUm9iZXJ0bw0K
