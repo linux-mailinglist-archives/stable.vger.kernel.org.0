@@ -2,85 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB42F154C0E
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:23:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4848154C5A
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 20:37:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbgBFTWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 14:22:46 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:44771 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727630AbgBFTWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:22:45 -0500
-Received: by mail-pf1-f196.google.com with SMTP id y5so3597134pfb.11
-        for <stable@vger.kernel.org>; Thu, 06 Feb 2020 11:22:45 -0800 (PST)
+        id S1727902AbgBFThK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 14:37:10 -0500
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:61999 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727738AbgBFThJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Feb 2020 14:37:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1581017830; x=1612553830;
+  h=from:to:cc:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=9WHyig8zuTMnRE08czRy5SnQx9n2kFsmFFV5dSEdP8Q=;
+  b=TeXk69OnUlLYvely1XR5aji5LimfcV6Cd6YiEPlvkMrZ/Ua8sWrQ9Pvg
+   KZfRuv3BMoFT/EpkKUR0uUCTjUF2YxqBvT3hjcXlqmqidtZmBV9hjgC8A
+   Ed0a3+oHxqP6dIKcYDKjZSFsNVugGG7bdjczUyK0IgaVpBxfulJPE8gpD
+   I8QNDkRf20h7I6ap6EtBrA4ADdrjfBeAf+Q0trcQqkUWJzTiz4154Vj+g
+   qrxUOKxOipUjgvx9K5mObEmHCNyCbqFJWqRbz1Im/ChweF9nsT0QjkCBf
+   DnKOOrht0k3cukN8EakgJ40nvXowaXTqXOEoh9mLnJ4Cwp12gc6IRZOit
+   g==;
+IronPort-SDR: cecf223N3wCStLwZdcCItu4pF+QLDGVBHPVH2nnr9wwIeIorbG3Dt6MYFx1qTwSj3bxFg74004
+ uBOBKuGSmhCL+WN6m2Ww0Qe9C5sfLvuTbkWrG5lxLplErpgt9NutfJaSQI8ZzVS4H/0p+SXfu3
+ 4fPcp5gKiEUgeI/LeCxXKfeE9BRD2+ivHVkTTe3ksweb1XFdlg/2/Pp2IEDc21/KTQiGTKdIwz
+ kikF/BGvw3wo0jA/rAWNzSHYj/dCZhoSuK/mPX2XTkGAcHa8woFoetSd48eXvD3hYqG+ymNkoK
+ Tpg=
+X-IronPort-AV: E=Sophos;i="5.70,410,1574092800"; 
+   d="scan'208";a="129840679"
+Received: from mail-dm6nam11lp2176.outbound.protection.outlook.com (HELO NAM11-DM6-obe.outbound.protection.outlook.com) ([104.47.57.176])
+  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2020 03:37:09 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LhTMyYZDExrriPNJFixKuHKYuw/gDuyx03DkOi2ofpFhche/5RtigKvHcgGPf6syK9XdZbgZpmvrKh4rwIC/pHO8z+H8JAW23cy/VfABlqsUAbZ6gE6zZc+2BCP9jKrGxUkFB0igW8rGw2XGOS1osGgCozmaivHo/9cKg8qCXiMW56EMZN56nNp+4mfnWsk6h+2LSYNiySpHYAyhU+FEIWBBJBrB6lT3Y2zuSNISFE1mallRKaib8ScQXS+GK9jqgVBhLR9ffJZAS1dJryPDIeIz0mFUVg9dDvrX65NnFhenGOt/uB9+JU/Y1dIjczcJEzVUMnzEufrn4ALe+kI6KQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9WHyig8zuTMnRE08czRy5SnQx9n2kFsmFFV5dSEdP8Q=;
+ b=fZ14zZOwIskVeqdrLf4bSg/NHNvrgGmuQBl1j3UAaRItBYmCq8Z6OzaINAJenmZrCOlkIVBmYM68TiX5bciAXUWeVg2ZyPfT4DQwplzZ5tVgsrQ07c36tpx212GybXY6K39xQaZeKU84QQGXnghmikB55OQgRNb/jLl4IXOjQ9CGbb0yCyi77jmLgEGct9rTfOvMAaHIbTyM0In0n+eHDU3LB3yYHt0coqGMxYkvdRT+hKInsad5EkzOt2sKRDbjdwmT561NPz+3EOJywaBAKm7dMIoXF09RZsoowmTrkEW2vz4vBmDg4KwtOdcFtAUJpQzCE9ij7RvmMTxJ8g1Z1Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=message-id:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:cc:to:from:user-agent:date;
-        bh=77zEgP4+kvjzTDiKwzePB4Pg1qZYvQ9rh1jBzop1Cfo=;
-        b=UDJWWrKmyAku8utbdUF/Ir+N8v/ND76ypMceKgDu7fS4zXsNrq+sw4xiy6otRjvqNn
-         +ttDwYybEZg2A7GqfJwbjc3aV4UiF67/sYc9c/93Oy3JDYmIE5yKua4ATLykNnIjQh4k
-         81KgxcGBkJ3hKV6ws5TtT7IUmIpU437MTbHJE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:cc:to:from
-         :user-agent:date;
-        bh=77zEgP4+kvjzTDiKwzePB4Pg1qZYvQ9rh1jBzop1Cfo=;
-        b=SRFUyxYvSwvTbdPjMrSXy0lTI2W6Ltf2Cq4u73dnvYT6S5viEWMQ00/Q8grlUhWVuT
-         rvRhlHTHuFzrLoxhoCYE4mRz/O7JhP0Z+z6ybDsVk6G/FeHb09mS6lHP2I3gvbAmfnfR
-         UThjKm7bNGXn3aQEciR3fqSYkvQX6rEKmLQrs/ItnodGyLClttdMwxOJYRocUsJ+mnVo
-         3gbaY/U93eYWhDcB18FkrobVuxfSFEqeeRQH+Gwg2t0XlYDu/KHDiRoTv8ttSz4pvqEr
-         uR9QFWE6987bPzXTIDSVD31j5GzaPHE5t8wSDqvhbbPpJmYyAmiWHVBexeX10QJ+S+6E
-         ffCQ==
-X-Gm-Message-State: APjAAAUerLIlhCwLspvYCKw289KX/0Z8b6ZJ0qku8H6HaFei1E3z29C5
-        JtGx9W6lfuy8CXu8uegKxCXdtA==
-X-Google-Smtp-Source: APXvYqx15GV6iXPlg6VEgBbt5XLtoCLhj9G1kgJ4mJJ+PUEVWX9tF8+ZXmb7/HjMq5ZD3BXw5H8Yng==
-X-Received: by 2002:a63:1f54:: with SMTP id q20mr5053928pgm.400.1581016965253;
-        Thu, 06 Feb 2020 11:22:45 -0800 (PST)
-Received: from chromium.org ([2620:15c:202:1:fa53:7765:582b:82b9])
-        by smtp.gmail.com with ESMTPSA id e1sm171231pfl.98.2020.02.06.11.22.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Feb 2020 11:22:44 -0800 (PST)
-Message-ID: <5e3c6784.1c69fb81.34ded.0a42@mx.google.com>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9WHyig8zuTMnRE08czRy5SnQx9n2kFsmFFV5dSEdP8Q=;
+ b=VI7Vk+f+qFP0BaFH70LJN0ASWQam/AM6lGaqobVt+X3w/8Vc/QpnoZ8SreAgmE/tzOhbDuBt19r/HsVmMWMe8MJ1/6mATwYqdVhsHUBt0RuZRXqQOVlL/HwRA9wfg5u8KU+kzWz2odcSfvbroExhJeiWi6bprCjd5zSNoUI8SbE=
+Received: from BYAPR04MB5749.namprd04.prod.outlook.com (20.179.57.21) by
+ BYAPR04MB3896.namprd04.prod.outlook.com (52.135.220.152) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2707.23; Thu, 6 Feb 2020 19:37:06 +0000
+Received: from BYAPR04MB5749.namprd04.prod.outlook.com
+ ([fe80::a8ea:4ba9:cb57:e90f]) by BYAPR04MB5749.namprd04.prod.outlook.com
+ ([fe80::a8ea:4ba9:cb57:e90f%5]) with mapi id 15.20.2707.023; Thu, 6 Feb 2020
+ 19:37:06 +0000
+From:   Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+To:     Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
+CC:     "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "tristmd@gmail.com" <tristmd@gmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH] blktrace: Protect q->blk_trace with RCU
+Thread-Topic: [PATCH] blktrace: Protect q->blk_trace with RCU
+Thread-Index: AQHV3Pm1sBn7cXCscUyQVcxbWOqGBg==
+Date:   Thu, 6 Feb 2020 19:37:06 +0000
+Message-ID: <BYAPR04MB57496DF0F065E13FB8CD9024861D0@BYAPR04MB5749.namprd04.prod.outlook.com>
+References: <20200206142812.25989-1-jack@suse.cz>
+ <BYAPR04MB5749BAE3D6813845E16D92E2861D0@BYAPR04MB5749.namprd04.prod.outlook.com>
+ <ddc358fb-8189-fbe9-619d-e3c943a05053@kernel.dk>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=Chaitanya.Kulkarni@wdc.com; 
+x-originating-ip: [199.255.45.62]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: e575077b-1321-460a-f6fa-08d7ab3bf321
+x-ms-traffictypediagnostic: BYAPR04MB3896:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR04MB3896B9AF30CF26D043D2C2FA861D0@BYAPR04MB3896.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:3631;
+x-forefront-prvs: 0305463112
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(396003)(39860400002)(136003)(366004)(346002)(376002)(189003)(199004)(53546011)(8676002)(110136005)(52536014)(54906003)(6506007)(5660300002)(8936002)(81156014)(81166006)(2906002)(316002)(558084003)(66476007)(66946007)(4326008)(71200400001)(55016002)(9686003)(186003)(64756008)(66556008)(33656002)(66446008)(76116006)(7696005)(478600001)(86362001)(26005);DIR:OUT;SFP:1102;SCL:1;SRVR:BYAPR04MB3896;H:BYAPR04MB5749.namprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: BiU1FebIXXVCL56aXNSXvNFVMZmbAacwW1XRmqCokSV2QevgC1ghFcQ2oTPOIda8IaSOvjPVYSs/d6RKnQ2cMmTOtoHL1ktL4c/D3Z4vZoCfCU0TEvUJnJX2T4/tftmsQoEnySrCgJgD9MDL8VlmPN9tkxP7OGWcOACKvHY/C0ijkMqB2f1sjMiGH38w10Umlfdhduwra67bHIzP4jojKBfZPJjZZ8Pbqby3pa28IeoWiOCBzJHeUyKcXQ+mYKs4M43IsuZM00pQ0UQJca4p1w0r9ZmDjm4a3+7/ppZJQsyqa+G0ZaiIhl01nBhBhRxMEKxTx1m5mEMzjZYMsVSAB5Jf6Emblg+bvw+lWl8WKQ0gfC724GjQ9O0xzmbylIQ3mydFLH7geo0ZiDbkXT+netsZ7t6TY59HhJHt7OPV3vRr19iCUlSf0hCMMr+gqPRR
+x-ms-exchange-antispam-messagedata: mFw0DF5wrBxTM8T1SM0a40XP+CZOgTYsKiCRwfHTlycZq679L1ItXYU1UfvI24sovEgQArjswtYVPEtLk7ErF2G2B4XbJmxEMG4ugSnEqQ0GSOAg5UESeQGaoqc2nX5b7ULsPTAktckCLxklMExeGQ==
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
-References: <20200205203818.4679-1-jarkko.sakkinen@linux.intel.com>
-Subject: Re: [PATCH] tpm: Revert tpm_tis_spi_mod.ko to tpm_tis_spi.ko.
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Andrey Pronin <apronin@chromium.org>, stable@vger.kernel.org,
-        Alexander Steffen <Alexander.Steffen@infineon.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Stuebner <heiko@sntech.de>, linux-kernel@vger.kernel.org
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-integrity@vger.kernel.org
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.8.1
-Date:   Thu, 06 Feb 2020 11:22:44 -0800
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e575077b-1321-460a-f6fa-08d7ab3bf321
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Feb 2020 19:37:06.4885
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: XxpNePGhIF6yPzwIr5nPw1ohFXn8ZGKb0OXgD6/ssk35UKuct4s7uvOCF2kkVBeR7LRNaoYKc/i0FWodFUUkFBeNIAw5cMad52kVTDrlI84=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB3896
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Jarkko Sakkinen (2020-02-05 12:38:18)
-> Revert tpm_tis_spi_mod.ko back to tpm_tis_spi.ko as the rename could break
-> the build script. This can be achieved by renaming tpm_tis_spi.c as
-
-Do you mean userspace scripts?
-
-> tpm_tis_spi_main.c. Then tpm_tis_spi-y can be used inside the makefile.
->=20
-> Cc: Andrey Pronin <apronin@chromium.org>
-> Cc: Stephen Boyd <swboyd@chromium.org>
-> Cc: stable@vger.kernel.org
-> Fixes: 797c0113c9a4 ("tpm: tpm_tis_spi: Support cr50 devices")
-> Reported-by: Alexander Steffen <Alexander.Steffen@infineon.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> ---
-
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-
+On 02/06/2020 10:49 AM, Jens Axboe wrote:=0A=
+> Let's please not do that, it serves no real purpose and it just=0A=
+> obfuscates what's really going on.=0A=
+>=0A=
+> -- Jens Axboe=0A=
+=0A=
+Okay, will avoid such changes and comments in future.=0A=
+=0A=
+Thanks Jens for the clarification.=0A=
