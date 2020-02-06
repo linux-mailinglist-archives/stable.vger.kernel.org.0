@@ -2,68 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C32154147
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 10:41:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 176721541FD
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 11:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727795AbgBFJlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 04:41:49 -0500
-Received: from mx2.suse.de ([195.135.220.15]:41638 "EHLO mx2.suse.de"
+        id S1728261AbgBFKin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 05:38:43 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41282 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728225AbgBFJlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 04:41:49 -0500
+        id S1728368AbgBFKim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 05:38:42 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 88F9DB3B7;
-        Thu,  6 Feb 2020 09:41:47 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 0580A1E0E31; Thu,  6 Feb 2020 10:41:44 +0100 (CET)
-Date:   Thu, 6 Feb 2020 10:41:43 +0100
-From:   Jan Kara <jack@suse.cz>
-To:     Andreas Dilger <adilger@dilger.ca>
-Cc:     Jan Kara <jack@suse.cz>, Ted Tso <tytso@mit.edu>,
-        linux-ext4@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ext4: Fix checksum errors with indexed dirs
-Message-ID: <20200206094143.GG14001@quack2.suse.cz>
-References: <20200205173025.12221-1-jack@suse.cz>
- <BC1AA070-8C16-4399-B4D8-1E9F24D05D8D@dilger.ca>
- <20200206074944.GA14001@quack2.suse.cz>
+        by mx2.suse.de (Postfix) with ESMTP id 53E6BB159;
+        Thu,  6 Feb 2020 10:38:40 +0000 (UTC)
+From:   Luis Henriques <lhenriques@suse.com>
+To:     Jeff Layton <jlayton@kernel.org>, Sage Weil <sage@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        "Yan, Zheng" <zyan@redhat.com>, Gregory Farnum <gfarnum@redhat.com>
+Cc:     ceph-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Luis Henriques <lhenriques@suse.com>, stable@vger.kernel.org
+Subject: [PATCH v2] ceph: fix copy_file_range error path in short copies
+Date:   Thu,  6 Feb 2020 10:38:42 +0000
+Message-Id: <20200206103842.14936-1-lhenriques@suse.com>
+In-Reply-To: <20200205192414.GA27345@suse.com>
+References: <20200205192414.GA27345@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200206074944.GA14001@quack2.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 06-02-20 08:49:44, Jan Kara wrote:
-> On Wed 05-02-20 11:04:23, Andreas Dilger wrote:
-> > On Feb 5, 2020, at 10:30 AM, Jan Kara <jack@suse.cz> wrote:
-> > > DIR_INDEX is not enabled. This is harsh but it should be very rare (it
-> > > means someone disabled DIR_INDEX on existing filesystem and didn't run
-> > > e2fsck), e2fsck can fix the problem, and we don't want to answer the
-> > > difficult question: "Should we rather corrupt the directory more or
-> > > should we ignore that DIR_INDEX feature is not set?"
-> > 
-> > Wouldn't it be better to continue allowing the directory to be read, but
-> > not modified?  Otherwise, essentially, metadata_csum is making the
-> > filesystem _less_ robust rather than making it more robust.  We don't
-> > _need_ the htree index to do a lookup in the directory.
-> 
-> Hum, I was somewhat afraid it may be a bit fragile but thinking about it
-> now, there aren't that many places that need to check. OK, I will try to do
-> this and see how it looks.
+When there's an error in the copying loop but some bytes have already been
+copied into the destination file, it is necessary to dirty the caps and
+eventually update the MDS with the file metadata (timestamps, size).  This
+patch fixes this error path.
 
-When I actually implemented this and started testing, I found out why I
-didn't want to do it this way :) - the directories are not readable anyway
-because checksums are failing for block 0 (which used to be htree root
-node). And I'd rather not pile up further hacks in the kernel trying to
-work around this. As I wrote in the changelog, chances of anyone hitting
-this in practice are rather low and e2fsck can do the right thing...
+Another issue this patch fixes is the destination file size being reported
+to the MDS.  If we're on the error path but the amount of bytes written
+has already changed the destination file size, the offset to use is
+dst_off and not endoff.
 
-								Honza
+Cc: stable@vger.kernel.org
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+---
+ fs/ceph/file.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 11929d2bb594..f7f8cb6c243f 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -2104,9 +2104,16 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 			CEPH_OSD_OP_FLAG_FADVISE_DONTNEED, 0);
+ 		if (err) {
+ 			dout("ceph_osdc_copy_from returned %d\n", err);
+-			if (!ret)
++			/*
++			 * If we haven't done any copy yet, just exit with the
++			 * error code; otherwise, return the number of bytes
++			 * already copied, update metadata and dirty caps.
++			 */
++			if (!ret) {
+ 				ret = err;
+-			goto out_caps;
++				goto out_caps;
++			}
++			goto update_dst_inode;
+ 		}
+ 		len -= object_size;
+ 		src_off += object_size;
+@@ -2118,16 +2125,17 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 		/* We still need one final local copy */
+ 		do_final_copy = true;
+ 
++update_dst_inode:
+ 	file_update_time(dst_file);
+ 	inode_inc_iversion_raw(dst_inode);
+ 
+-	if (endoff > size) {
++	if (dst_off > size) {
+ 		int caps_flags = 0;
+ 
+ 		/* Let the MDS know about dst file size change */
+-		if (ceph_quota_is_max_bytes_approaching(dst_inode, endoff))
++		if (ceph_quota_is_max_bytes_approaching(dst_inode, dst_off))
+ 			caps_flags |= CHECK_CAPS_NODELAY;
+-		if (ceph_inode_set_size(dst_inode, endoff))
++		if (ceph_inode_set_size(dst_inode, dst_off))
+ 			caps_flags |= CHECK_CAPS_AUTHONLY;
+ 		if (caps_flags)
+ 			ceph_check_caps(dst_ci, caps_flags, NULL);
