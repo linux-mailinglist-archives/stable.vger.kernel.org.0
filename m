@@ -2,121 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A700153DB3
-	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 04:49:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30063153DB2
+	for <lists+stable@lfdr.de>; Thu,  6 Feb 2020 04:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727618AbgBFDtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Feb 2020 22:49:14 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:35720 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727558AbgBFDtO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 22:49:14 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 0163mOLJ183918;
-        Thu, 6 Feb 2020 03:49:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : from : to :
- cc : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=XhALtvuOwBbUvPhD614HLn2yUqcjfzQFIk94wyXOAWY=;
- b=WWiF53KzC37ywr8JrBbD2kw4Kc0gx4O7iUyoyhjBJNvpyhvhjO7MsZEPHf2EJvXid9jF
- jnW+sGcwkcnNMGxUyHuZ6Np6u4VGXUa9pSl9+rm2IUGCbXfo3KEpxhs8goXPDVUDCI3J
- vBbbdcJKMVPMJI/zN+/nI7HM5I29m6dd4hfeeyOrl8jj5GcR3kcB9KiNIYmpzmT//lEi
- vgRZIstKVsX8/U3rMCU9nSyVeI6M8i8llutNRxB56dtt386QsiEVO7Vvq4d8U27D5dG1
- arLBHVG+IN30Kp2A3sKrBENJZSSnruFs9OnGAdQwQ1dbnpZ8hqRya58kGi05M2NBwumd /Q== 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : from : to :
- cc : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2019-08-05;
- bh=XhALtvuOwBbUvPhD614HLn2yUqcjfzQFIk94wyXOAWY=;
- b=Q6YWn5wM1qjQj4Q7v+eeA/CncNgxvOI5RgREvyQ+O/sqkyQPOkuioQXoWKrQkAVFYe+B
- I6FWSd32Zwaz90Zhk4PsA91B8nqlmyLEGk65o9r27XJIQLCeU12WFG5SMW0xlup5ewKU
- VNkOTcnWwAaGvBmS1WKHrUGo/QnR8Ec0VKgFp1qAYG+iIGYFbz7nwlaFwctVqtXvIdzA
- 7y6Xgnd3jIc7/c2OBlcM6D5yZdEB0Wg+FnkpVYopRycDf0gASEz1y4SqvxaK4PkzBCnu
- K8KQXd/U6gUtd+FiRrZdpdtKlmcWyY8u45JzL2D81Jr8fAnP80bcuFNgSF173FG7Jr+X Uw== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2120.oracle.com with ESMTP id 2xykbp72w1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 06 Feb 2020 03:49:10 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 0163n5Js084210;
-        Thu, 6 Feb 2020 03:49:09 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3030.oracle.com with ESMTP id 2xymuucffd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 06 Feb 2020 03:49:09 +0000
-Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0163mWE1003342;
-        Thu, 6 Feb 2020 03:48:32 GMT
-Received: from [10.190.155.136] (/192.188.170.104)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 05 Feb 2020 19:48:32 -0800
-Subject: Re: [PATCH] btrfs: print message when tree-log replay starts
-From:   Anand Jain <anand.jain@oracle.com>
-To:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Cc:     Chris Murphy <lists@colorremedies.com>, stable@vger.kernel.org
-References: <20200205161216.24260-1-dsterba@suse.com>
- <69682127-4580-8795-5d8f-fc18d6d840fd@oracle.com>
-Message-ID: <f9291224-ec67-f54b-3b09-5938c81e1568@oracle.com>
-Date:   Thu, 6 Feb 2020 11:48:28 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726687AbgBFDtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Feb 2020 22:49:09 -0500
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:39317 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727572AbgBFDtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Feb 2020 22:49:09 -0500
+Received: by mail-wr1-f52.google.com with SMTP id y11so5398898wrt.6
+        for <stable@vger.kernel.org>; Wed, 05 Feb 2020 19:49:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=45dMaHObD/uOQrhTPFcR2rMW2oBjTEvOnNALv4/5Vmk=;
+        b=d8NrbOU1qQEIfTMpJ+bAliz9Ii7y3PajGMsAs9kRJKD3lE7kYgkdeYtO3Tyz3RDPiZ
+         yTDJPIP7IjeMod4cqgL29v0etcEEW18gVSguvSkzuT9IeZlfTH/xmXwdpp6c7tu/HmQg
+         dwwD7q4ad0otOt2DkpxqwV+UBXMwVHvloO1RoxgjZ732udN6B/VtlLDlqJGbLY3S4DlZ
+         EevmJcy5YJnYRa5KvHznKt3POEsprjHrlustviYqKpUaHvcnrLsUgPmNHuHoUixfNiKu
+         EbldDv43IBJbcrsKqEbTXCQqZrveXfTvZlrYxewwEO6okVGk63R9U8Rc5jrYc/5ufHt/
+         0Ayg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=45dMaHObD/uOQrhTPFcR2rMW2oBjTEvOnNALv4/5Vmk=;
+        b=EvzRva+caAbyWGWZnYhtr/SV7MXUldTWeoKq6f7jbdbJjeuEiJioaHQ5FCSQxS1XTF
+         yS8BlKCDr9Wg1GUHcZjBKDpWI5sXgY1lxUtW1B+VfHP+QR9xsTk6NuQxyGjAioPNk17a
+         0YNf/cqn71zKDYVHxIcBe3nZ7kwxI7/JizdXPHCHoHlZ5kJMXzCYEYNAKno6RZohLlTA
+         aDNcbTfQqsjvnH9BWW3zWJqZGapv3RYltM7RKl3kp2nRfWNPEfySuIEXNh3irOlnvz/k
+         KGQ2zYvSxT1GIU1TapsECIROsPh5GjPKgK+OyN3e23P/rRsSl6k0RW/FSd5jrqfdaoyH
+         8snw==
+X-Gm-Message-State: APjAAAV4NvW723CSR2jkq9stX+QFhd5BhWU3x8TsAuq2ixoTkttvOOX3
+        TT9w25bKMeCDXq+KT1PZdXb8pbHWHTpuVA==
+X-Google-Smtp-Source: APXvYqzyLzZtxYyMHAV61rCAIQHJeu6y+lUyENEFUFHYz+b5F2Rf1kjbWTgzEmj5+/T4I9CEnCcZbQ==
+X-Received: by 2002:adf:cd03:: with SMTP id w3mr1080620wrm.191.1580960944934;
+        Wed, 05 Feb 2020 19:49:04 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x21sm1921003wmi.30.2020.02.05.19.49.04
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Feb 2020 19:49:04 -0800 (PST)
+Message-ID: <5e3b8cb0.1c69fb81.3872a.8342@mx.google.com>
+Date:   Wed, 05 Feb 2020 19:49:04 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <69682127-4580-8795-5d8f-fc18d6d840fd@oracle.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9522 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-2002060026
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9522 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-2002060026
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Kernel: v4.4.213
+X-Kernelci-Report-Type: build
+Subject: stable-rc/linux-4.4.y build: 26 builds: 0 failed, 26 passed (v4.4.213)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y build: 26 builds: 0 failed, 26 passed (v4.4.213)
 
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.213/
 
-On 2/6/20 11:45 AM, Anand Jain wrote:
-> On 2/6/20 12:12 AM, David Sterba wrote:
->> There's no logged information about tree-log replay although this is
->> something that points to previous unclean unmount. Other filesystems
->> report that as well.
->>
->> Suggested-by: Chris Murphy <lists@colorremedies.com>
->> CC: stable@vger.kernel.org # 4.4+
->> Signed-off-by: David Sterba <dsterba@suse.com>
->> ---
->>   fs/btrfs/disk-io.c | 1 +
->>   1 file changed, 1 insertion(+)
->>
->> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
->> index 28622de9e642..295d5ebc9d5e 100644
->> --- a/fs/btrfs/disk-io.c
->> +++ b/fs/btrfs/disk-io.c
->> @@ -3146,6 +3146,7 @@ int __cold open_ctree(struct super_block *sb,
->>       /* do not make disk changes in broken FS or nologreplay is given */
->>       if (btrfs_super_log_root(disk_super) != 0 &&
->>           !btrfs_test_opt(fs_info, NOLOGREPLAY)) {
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.213
+Git Commit: d6ccbff9be43dbb6113a6a3f107c3d066052097e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
 
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
->> +        btrfs_info("start tree-log replay");
+Detailed per-defconfig build reports:
 
-btrfs_info() needs struct btrfs_fs_info as first arg.
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
->>           ret = btrfs_replay_log(fs_info, fs_devices);
->>           if (ret) {
->>               err = ret;
->>
-> 
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-> Reviewed-by: Anand Jain <anand.jain@oracle.com>
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-Sorry hit the send button too early.
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
-Thanks, Anand
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---
+For more info write to <info@kernelci.org>
