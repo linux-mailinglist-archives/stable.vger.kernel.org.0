@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D0161553E6
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 09:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A06E31553F5
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 09:49:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726619AbgBGIqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 03:46:45 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:37257 "EHLO
+        id S1726674AbgBGItW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 03:49:22 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:47673 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726451AbgBGIqp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 03:46:45 -0500
+        by vger.kernel.org with ESMTP id S1726130AbgBGItV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 03:49:21 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id A7E2621B55;
-        Fri,  7 Feb 2020 03:46:44 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 07 Feb 2020 03:46:44 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 645C321B81;
+        Fri,  7 Feb 2020 03:49:20 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 07 Feb 2020 03:49:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=82SqsV
-        ph7Ky/Rafs6WDHHZq0M0UeB7TrQyzUbLl0Frw=; b=VyOVNnQu40+zUpqBHEB2Zh
-        TLLnCOCOtxED3qmW6yUTEwasRxu1Lpl3OYRL/XRf4c0VwqmxZWqoXeRs6a5fJvls
-        PY0/zhLoBLMARBJcMHFFi5CZ8Gd+FLhzeFJJS9ow9UHJvpNyG43d7bUhKIJddtOH
-        ZuE51v/DVz9NBOCSUEDV5qHIMM/ZrHY7HEM+Hw/U0bA8fMODt69pechXQjq/etK9
-        1MEjglrHBxL+87jQx2/yT9uCJt9VRFNbys7GBVGEntznlczgC0FUZNoJds7T3RaF
-        PNAG/HsMvML38MGtJ4sr/uaF+tk4J0PHQQhby1MWbIRdSt7KH2YcYwNL9x8yE3UA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YVnQta
+        HkF7HjFRrIUC/3pM24fsfdFyoh2Y1sVg5KrD8=; b=sT2S/uVMCpahDg8ECoGq6r
+        Nwhdbj9UaaiHVYsMZNGPx//PTSGzxuYsVnMqsOax3uTCfw5Yvmy45uHzDyoVM9JY
+        6bIolPit9il1GonFd0RRPJI2u0xEqOU8dPao5RbKaq8MDbbkM1vBW6EsuliZGNyC
+        nucVlgjffQd4adF9EugzHlFx3mLqLIwI8TUYtR73JgvBk2sPfnFRDNyF4C/7P+jr
+        dheBcAoStr5tioerJ+6zcCLTkC8EdVcJVanTrFVKvauLHs2oXJW0Cni2pIk7xWXq
+        vkKLouGGEv09kqpaOKIZrm6ZDOgMekBJdbmHwVTsZ5IqI5mansOSh58dnmEGXPeA
         ==
-X-ME-Sender: <xms:9CM9XsI7arSVhqZoB1amhkqmoSY4LArBvBCuoj6rKtRBj1KERBkS4A>
+X-ME-Sender: <xms:kCQ9XpV-m5HQjXFijSFlQYxFHxPdj3E3ZAs0KaIdJnUCsl9vMp_l-Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheeggdduvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:9CM9XmZb_08hJmbWIENJTEskpQfyujM4oC-S1XPbyYZtryUNJtAOhw>
-    <xmx:9CM9Xudc4R4sNfm5W0FDU-WKgMVSJVHzeWNrHw8IQ9ResyZnUfVLwg>
-    <xmx:9CM9Xt9dhoHDvBxOg09T00U_alHGEZv6BQd6Qs1Hp4rIsFw1r-w6JA>
-    <xmx:9CM9XpsMx6tuVVcRXlu3DDXFcic-gaKgOJ38hlofnWDkfK2xzhcicw>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:kCQ9XjSm13dlbrmtlpWUdYFano7WFpFIu0IfgfydunagNm1PGyMRBQ>
+    <xmx:kCQ9Xku9dRWNJE1h3N5BZ0_f50NhISHK7CA8mEUqZHu01OK4uA42bw>
+    <xmx:kCQ9XkYZWIb77z4Jyr8-zCc_p5DET9gKDSiC_j-72RhZABZ1FGGSnA>
+    <xmx:kCQ9Xl81bburk6f4u0papCbZcPLhDBTjcakyAI1u_awuCvHj0XjQ2Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4F42C3280064;
-        Fri,  7 Feb 2020 03:46:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] padata: Remove broken queue flushing" failed to apply to 4.4-stable tree
-To:     herbert@gondor.apana.org.au, daniel.m.jordan@oracle.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id EC05930606E9;
+        Fri,  7 Feb 2020 03:49:19 -0500 (EST)
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix stuck login session using prli_pend_timer" failed to apply to 5.4-stable tree
+To:     qutran@marvell.com, hmadhani@marvell.com,
+        martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Feb 2020 09:46:33 +0100
-Message-ID: <15810651932494@kroah.com>
+Date:   Fri, 07 Feb 2020 09:49:15 +0100
+Message-ID: <158106535523929@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,134 +69,132 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 07928d9bfc81640bab36f5190e8725894d93b659 Mon Sep 17 00:00:00 2001
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Tue, 19 Nov 2019 13:17:31 +0800
-Subject: [PATCH] padata: Remove broken queue flushing
+From 8aaac2d7da873aebeba92c666f82c00bbd74aaf9 Mon Sep 17 00:00:00 2001
+From: Quinn Tran <qutran@marvell.com>
+Date: Tue, 17 Dec 2019 14:06:11 -0800
+Subject: [PATCH] scsi: qla2xxx: Fix stuck login session using prli_pend_timer
 
-The function padata_flush_queues is fundamentally broken because
-it cannot force padata users to complete the request that is
-underway.  IOW padata has to passively wait for the completion
-of any outstanding work.
+Session is stuck if driver sees FW has received a PRLI. Driver allows FW to
+finish with processing of PRLI by checking back with FW at a later time to
+see if the PRLI has finished. Instead, driver failed to push forward after
+re-checking PRLI completion.
 
-As it stands flushing is used in two places.  Its use in padata_stop
-is simply unnecessary because nothing depends on the queues to
-be flushed afterwards.
+Fixes: ce0ba496dccf ("scsi: qla2xxx: Fix stuck login session")
+Cc: stable@vger.kernel.org # 5.3
+Link: https://lore.kernel.org/r/20191217220617.28084-9-hmadhani@marvell.com
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-The other use in padata_replace is more substantial as we depend
-on it to free the old pd structure.  This patch instead uses the
-pd->refcnt to dynamically free the pd structure once all requests
-are complete.
-
-Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/kernel/padata.c b/kernel/padata.c
-index c3fec1413295..da56a235a255 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -35,6 +35,8 @@
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index 3b9ecdeecc8e..90dae8f2d080 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -2402,6 +2402,7 @@ typedef struct fc_port {
+ 	unsigned int scan_needed:1;
+ 	unsigned int n2n_flag:1;
+ 	unsigned int explicit_logout:1;
++	unsigned int prli_pend_timer:1;
  
- #define MAX_OBJ_NUM 1000
+ 	struct completion nvme_del_done;
+ 	uint32_t nvme_prli_service_param;
+@@ -2428,6 +2429,7 @@ typedef struct fc_port {
+ 	struct work_struct free_work;
+ 	struct work_struct reg_work;
+ 	uint64_t jiffies_at_registration;
++	unsigned long prli_expired;
+ 	struct qlt_plogi_ack_t *plogi_link[QLT_PLOGI_LINK_MAX];
  
-+static void padata_free_pd(struct parallel_data *pd);
+ 	uint16_t tgt_id;
+@@ -4858,6 +4860,9 @@ struct sff_8247_a0 {
+ 	(ha->fc4_type_priority == FC4_PRIORITY_NVME)) || \
+ 	NVME_ONLY_TARGET(fcport)) \
+ 
++#define PRLI_PHASE(_cls) \
++	((_cls == DSC_LS_PRLI_PEND) || (_cls == DSC_LS_PRLI_COMP))
 +
- static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
- {
- 	int cpu, target_cpu;
-@@ -283,6 +285,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	struct padata_serial_queue *squeue;
- 	struct parallel_data *pd;
- 	LIST_HEAD(local_list);
-+	int cnt;
+ #include "qla_target.h"
+ #include "qla_gbl.h"
+ #include "qla_dbg.h"
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 67f7c21edb4c..37aad8da7934 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -675,7 +675,7 @@ static void qla24xx_handle_gnl_done_event(scsi_qla_host_t *vha,
+ 	port_id_t id;
+ 	u64 wwn;
+ 	u16 data[2];
+-	u8 current_login_state;
++	u8 current_login_state, nvme_cls;
  
- 	local_bh_disable();
- 	squeue = container_of(serial_work, struct padata_serial_queue, work);
-@@ -292,6 +295,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	list_replace_init(&squeue->serial.list, &local_list);
- 	spin_unlock(&squeue->serial.lock);
+ 	fcport = ea->fcport;
+ 	ql_dbg(ql_dbg_disc, vha, 0xffff,
+@@ -734,10 +734,17 @@ static void qla24xx_handle_gnl_done_event(scsi_qla_host_t *vha,
  
-+	cnt = 0;
+ 		loop_id = le16_to_cpu(e->nport_handle);
+ 		loop_id = (loop_id & 0x7fff);
+-		if (NVME_TARGET(vha->hw, fcport))
+-			current_login_state = e->current_login_state >> 4;
+-		else
+-			current_login_state = e->current_login_state & 0xf;
++		nvme_cls = e->current_login_state >> 4;
++		current_login_state = e->current_login_state & 0xf;
 +
- 	while (!list_empty(&local_list)) {
- 		struct padata_priv *padata;
++		if (PRLI_PHASE(nvme_cls)) {
++			current_login_state = nvme_cls;
++			fcport->fc4_type &= ~FS_FC4TYPE_FCP;
++			fcport->fc4_type |= FS_FC4TYPE_NVME;
++		} else if (PRLI_PHASE(current_login_state)) {
++			fcport->fc4_type |= FS_FC4TYPE_FCP;
++			fcport->fc4_type &= ~FS_FC4TYPE_NVME;
++		}
  
-@@ -301,9 +306,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 		list_del_init(&padata->list);
+ 		ql_dbg(ql_dbg_disc, vha, 0x20e2,
+ 		    "%s found %8phC CLS [%x|%x] fc4_type %d ID[%06x|%06x] lid[%d|%d]\n",
+@@ -1207,12 +1214,19 @@ qla24xx_async_prli(struct scsi_qla_host *vha, fc_port_t *fcport)
+ 	struct srb_iocb *lio;
+ 	int rval = QLA_FUNCTION_FAILED;
  
- 		padata->serial(padata);
--		atomic_dec(&pd->refcnt);
-+		cnt++;
- 	}
- 	local_bh_enable();
-+
-+	if (atomic_sub_and_test(cnt, &pd->refcnt))
-+		padata_free_pd(pd);
- }
+-	if (!vha->flags.online)
++	if (!vha->flags.online) {
++		ql_dbg(ql_dbg_disc, vha, 0xffff, "%s %d %8phC exit\n",
++		    __func__, __LINE__, fcport->port_name);
+ 		return rval;
++	}
  
- /**
-@@ -440,7 +448,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	padata_init_squeues(pd);
- 	atomic_set(&pd->seq_nr, -1);
- 	atomic_set(&pd->reorder_objects, 0);
--	atomic_set(&pd->refcnt, 0);
-+	atomic_set(&pd->refcnt, 1);
- 	spin_lock_init(&pd->lock);
- 	pd->cpu = cpumask_first(pd->cpumask.pcpu);
- 	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
-@@ -466,29 +474,6 @@ static void padata_free_pd(struct parallel_data *pd)
- 	kfree(pd);
- }
+-	if (fcport->fw_login_state == DSC_LS_PLOGI_PEND ||
+-	    fcport->fw_login_state == DSC_LS_PRLI_PEND)
++	if ((fcport->fw_login_state == DSC_LS_PLOGI_PEND ||
++	    fcport->fw_login_state == DSC_LS_PRLI_PEND) &&
++	    qla_dual_mode_enabled(vha)) {
++		ql_dbg(ql_dbg_disc, vha, 0xffff, "%s %d %8phC exit\n",
++		    __func__, __LINE__, fcport->port_name);
+ 		return rval;
++	}
  
--/* Flush all objects out of the padata queues. */
--static void padata_flush_queues(struct parallel_data *pd)
--{
--	int cpu;
--	struct padata_parallel_queue *pqueue;
--	struct padata_serial_queue *squeue;
--
--	for_each_cpu(cpu, pd->cpumask.pcpu) {
--		pqueue = per_cpu_ptr(pd->pqueue, cpu);
--		flush_work(&pqueue->work);
--	}
--
--	if (atomic_read(&pd->reorder_objects))
--		padata_reorder(pd);
--
--	for_each_cpu(cpu, pd->cpumask.cbcpu) {
--		squeue = per_cpu_ptr(pd->squeue, cpu);
--		flush_work(&squeue->work);
--	}
--
--	BUG_ON(atomic_read(&pd->refcnt) != 0);
--}
--
- static void __padata_start(struct padata_instance *pinst)
- {
- 	pinst->flags |= PADATA_INIT;
-@@ -502,10 +487,6 @@ static void __padata_stop(struct padata_instance *pinst)
- 	pinst->flags &= ~PADATA_INIT;
+ 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
+ 	if (!sp)
+@@ -1591,6 +1605,10 @@ int qla24xx_fcport_handle_login(struct scsi_qla_host *vha, fc_port_t *fcport)
+ 			break;
+ 		default:
+ 			if (fcport->login_pause) {
++				ql_dbg(ql_dbg_disc, vha, 0x20d8,
++				    "%s %d %8phC exit\n",
++				    __func__, __LINE__,
++				    fcport->port_name);
+ 				fcport->last_rscn_gen = fcport->rscn_gen;
+ 				fcport->last_login_gen = fcport->login_gen;
+ 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index fecc2b2aabf9..0ef76743a26d 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -1258,6 +1258,7 @@ void qlt_schedule_sess_for_deletion(struct fc_port *sess)
+ 	sess->deleted = QLA_SESS_DELETION_IN_PROGRESS;
+ 	spin_unlock_irqrestore(&sess->vha->work_lock, flags);
  
- 	synchronize_rcu();
--
--	get_online_cpus();
--	padata_flush_queues(pinst->pd);
--	put_online_cpus();
- }
++	sess->prli_pend_timer = 0;
+ 	qla2x00_set_fcport_disc_state(sess, DSC_DELETE_PEND);
  
- /* Replace the internal control structure with a new one. */
-@@ -526,8 +507,8 @@ static void padata_replace(struct padata_instance *pinst,
- 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
- 		notification_mask |= PADATA_CPU_SERIAL;
- 
--	padata_flush_queues(pd_old);
--	padata_free_pd(pd_old);
-+	if (atomic_dec_and_test(&pd_old->refcnt))
-+		padata_free_pd(pd_old);
- 
- 	if (notification_mask)
- 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
+ 	qla24xx_chk_fcp_state(sess);
 
