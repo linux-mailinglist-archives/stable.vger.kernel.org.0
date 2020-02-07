@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7DC154FEC
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 02:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA50155003
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 02:21:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726956AbgBGBNn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 20:13:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43570 "EHLO mail.kernel.org"
+        id S1726956AbgBGBVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Feb 2020 20:21:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726838AbgBGBNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 20:13:43 -0500
+        id S1726597AbgBGBVm (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Thu, 6 Feb 2020 20:21:42 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E7EC20715;
-        Fri,  7 Feb 2020 01:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D13522082E;
+        Fri,  7 Feb 2020 01:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581038022;
-        bh=Tgalsm7tAF/zyu7ZKMWI6zSaZ13xomS6oQRXlGK064o=;
+        s=default; t=1581038502;
+        bh=LurDkaUhAuwghfmvIVFYwS/cdvisXh7A5RtdByIAI5U=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jAsHJ6u+kqzq1xoF9mx42x8pk7WZL52dZagMXd49Lr7TWOK7s68rLb/RXdJJ2To0e
-         Pgv+t7QL5CP874ZrKiuWCTKEN50jJb4di0o8QFZlPKgKLT5aVT5/5416fXjEJr/OiO
-         0GMDUoF4ShhBKYtyFhw1iwjzry5NMNy1xiATfvCY=
-Date:   Thu, 6 Feb 2020 20:13:41 -0500
+        b=U7hXUfAyEjaOHWeO4iNcTgTWXpyQX3FtK9c6FuKc8hHLqz5t48ZO6JwAgf+5kcZGs
+         mFaex2bNMhb5I/xw00ManYMYQk++PSXQ0+GzMAhk5+LX5E8f49QjWueaQGoP+qZHlb
+         +e5U+cRQFqV55bPEiPuCmONZsviYkgMZYqE53W/w=
+Date:   Thu, 6 Feb 2020 20:21:40 -0500
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     ebiggers@google.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ubifs: don't trigger assertion on invalid
- no-key filename" failed to apply to 4.14-stable tree
-Message-ID: <20200207011341.GR31482@sasha-vm>
-References: <158101646257220@kroah.com>
+Cc:     chengzhihao1@huawei.com, Stable@vger.kernel.org, richard@nod.at,
+        yi.zhang@huawei.com
+Subject: Re: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent
+ bulk-read and writepage" failed to apply to 4.9-stable tree
+Message-ID: <20200207012140.GS31482@sasha-vm>
+References: <1581016848106213@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <158101646257220@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1581016848106213@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 08:14:22PM +0100, gregkh@linuxfoundation.org wrote:
+On Thu, Feb 06, 2020 at 08:20:48PM +0100, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 4.14-stable tree.
+>The patch below does not apply to the 4.9-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
@@ -54,37 +56,45 @@ On Thu, Feb 06, 2020 at 08:14:22PM +0100, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From f0d07a98a070bb5e443df19c3aa55693cbca9341 Mon Sep 17 00:00:00 2001
->From: Eric Biggers <ebiggers@google.com>
->Date: Mon, 20 Jan 2020 14:31:59 -0800
->Subject: [PATCH] ubifs: don't trigger assertion on invalid no-key filename
+>From f5de5b83303e61b1f3fb09bd77ce3ac2d7a475f2 Mon Sep 17 00:00:00 2001
+>From: Zhihao Cheng <chengzhihao1@huawei.com>
+>Date: Sat, 11 Jan 2020 17:50:36 +0800
+>Subject: [PATCH] ubifs: Fix deadlock in concurrent bulk-read and writepage
+>MIME-Version: 1.0
+>Content-Type: text/plain; charset=UTF-8
+>Content-Transfer-Encoding: 8bit
 >
->If userspace provides an invalid fscrypt no-key filename which encodes a
->hash value with any of the UBIFS node type bits set (i.e. the high 3
->bits), gracefully report ENOENT rather than triggering ubifs_assert().
+>In ubifs, concurrent execution of writepage and bulk read on the same file
+>may cause ABBA deadlock, for example (Reproduce method see Link):
 >
->Test case with kvm-xfstests shell:
+>Process A(Bulk-read starts from page4)         Process B(write page4 back)
+>  vfs_read                                       wb_workfn or fsync
+>  ...                                            ...
+>  generic_file_buffered_read                     write_cache_pages
+>    ubifs_readpage                                 LOCK(page4)
 >
->    . fs/ubifs/config
->    . ~/xfstests/common/encrypt
->    dev=$(__blkdev_to_ubi_volume /dev/vdc)
->    ubiupdatevol $dev -t
->    mount $dev /mnt -t ubifs
->    mkdir /mnt/edir
->    xfs_io -c set_encpolicy /mnt/edir
->    rm /mnt/edir/_,,,,,DAAAAAAAAAAAAAAAAAAAAAAAAAA
+>      ubifs_bulk_read                              ubifs_writepage
+>        LOCK(ui->ui_mutex)                           ubifs_write_inode
 >
->With the bug, the following assertion fails on the 'rm' command:
+>	  ubifs_do_bulk_read                           LOCK(ui->ui_mutex)
+>	    find_or_create_page(alloc page4)                  ↑
+>	      LOCK(page4)                   <--     ABBA deadlock occurs!
 >
->    [   19.066048] UBIFS error (ubi0:0 pid 379): ubifs_assert_failed: UBIFS assert failed: !(hash & ~UBIFS_S_KEY_HASH_MASK), in fs/ubifs/key.h:170
+>In order to ensure the serialization execution of bulk read, we can't
+>remove the big lock 'ui->ui_mutex' in ubifs_bulk_read(). Instead, we
+>allow ubifs_do_bulk_read() to lock page failed by replacing
+>find_or_create_page(FGP_LOCK) with
+>pagecache_get_page(FGP_LOCK | FGP_NOWAIT).
 >
->Fixes: f4f61d2cc6d8 ("ubifs: Implement encrypted filenames")
->Cc: <stable@vger.kernel.org> # v4.10+
->Link: https://lore.kernel.org/r/20200120223201.241390-5-ebiggers@kernel.org
->Signed-off-by: Eric Biggers <ebiggers@google.com>
+>Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+>Suggested-by: zhangyi (F) <yi.zhang@huawei.com>
+>Cc: <Stable@vger.kernel.org>
+>Fixes: 4793e7c5e1c ("UBIFS: add bulk-read facility")
+>Link: https://bugzilla.kernel.org/show_bug.cgi?id=206153
+>Signed-off-by: Richard Weinberger <richard@nod.at>
 
-Contextual conflicts due to missing 6eb61d587f45 ("ubifs: Pass struct
-ubifs_info to ubifs_assert()"). Fixed up and queued up.
+I took in 480a1a6a3ef6 ("ubifs: Change gfp flags in page allocation for
+bulk read") as dependency and queued both for 4.9 and 4.4.
 
 -- 
 Thanks,
