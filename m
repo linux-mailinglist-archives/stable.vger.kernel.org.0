@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9053C15556C
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 11:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61F8B15556D
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 11:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbgBGKQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 05:16:29 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:58541 "EHLO
+        id S1726999AbgBGKQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 05:16:30 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:35963 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
         by vger.kernel.org with ESMTP id S1726954AbgBGKQ3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 05:16:29 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DABA32205C;
-        Fri,  7 Feb 2020 05:16:27 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 07 Feb 2020 05:16:27 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 4671120067;
+        Fri,  7 Feb 2020 05:16:29 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 07 Feb 2020 05:16:29 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TifOTN
-        d4/vu7aQ6tGPHhKuk+AU1CTSfofrf1yZxNTlQ=; b=LUB/hPUR0lU83fqLvR/Tv5
-        HKqgDb8mjicH8v3zJoefRiYwmpqOwuR6rrSOzQqz6XkOeyFQO8uWi+A5O+bK+w/m
-        UdIjvwsVKgR9slkGLUFwOqIDBeWToLyWlZUaKZwB9XK/0hE6lKXQIq55iWHry2JA
-        dIHiWufUUlz902aw5YJcIvKAjMyS+uDL0G6izPWzuLRUrIX98WbaDY+gXkHZ8bKs
-        53qoa4VlZf0tz4z7bS4xyfP+tkAntPjEyKgrYVO4gqLBu+G2lebaoEFnR1QLCO2o
-        uTwxxgOkH+MMm3utaN6hm4lB199S7xM6V54IlOBhoMVUQZeH3xNT81OKVCgaa6aA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=s3/xF9
+        ujMX6dVnZCNsoKDTbKl9TEJ7pf7NX682ck6I4=; b=HITqWS2KG2F76ectn+8Ae7
+        M7Jx7zWlbSR0efZPwQfvBFKReeV4N4RIlK0n6NclIj3mDd34A8IiYM0Wq3DqgVoq
+        /N4OJMAqLf/lfMHk57o1+BK4w3BUY35FQLXbi08bKbkM4/nXu94lHT1a/Ktt1SEJ
+        Hj/HLOyQDqnnifMwbtCpprBk3oBYAHFGUGSLiNAN7pQBmMgow9RHJhSWuFbf/xA9
+        8RGcaSJx4U76b2q6xmSf9g64WcAceGB2OYbS8chgXRmUh3RCykI8B0uMSEZzvc6d
+        omE98yS2m6SiJGxHKD2MrSljcK2u/TZT9qcZ4XRFpkIymInAIdDqwNzDtJkYyiIg
         ==
-X-ME-Sender: <xms:-zg9Xl9-DepmjnQtw5es0aJHPc63Zo462x1QOMLrc2D0WbpYVLLYag>
+X-ME-Sender: <xms:_Tg9XlqxIMSBVY05AeAokNd9hy1QOmgjVkBZsgNFGStd3f17HULTIQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheehgddugecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheehgddugecutefuodetggdote
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:-zg9XqeGsqPHsE9W950AT9SX1ZxAom7kJ1kMa4TR5s804DNQKEmJaw>
-    <xmx:-zg9Xm2e5p8TvaCJm8FNPnGgSfU-wYFTm7ZC6fa-U4-wIlBa7Wm7PQ>
-    <xmx:-zg9XrAQHTTBx-yYN-66DmeUaiGXShZJzN2VPwdk4_BG3m46RQqM7Q>
-    <xmx:-zg9XpT0SJd6nk-MfpECAvRGdvrusqG26uMlScvglhHo2hpq9cdesA>
+X-ME-Proxy: <xmx:_Tg9XjFxg2sR0STZ8rpYOdg1cjq5MTyTz4YW-1w2n4mx5DnGFoKhYA>
+    <xmx:_Tg9Xg5exgWcaK9wjzBk-uqhYrV5C1ymWgzR-D0xoIlvzSwRZYr7zQ>
+    <xmx:_Tg9XuDOgN9-MXDlPkGvIgkEVLeXNthOk9hfI6c2zAnXMIW0RqZyfg>
+    <xmx:_Tg9Xmwwj9qSYSmI2S_HyOvHC4ldg4pakm2rsXn90ebWGssLJLzDjA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 788EF3060717;
-        Fri,  7 Feb 2020 05:16:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ftrace: Protect ftrace_graph_hash with ftrace_sync" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DB680328005A;
+        Fri,  7 Feb 2020 05:16:28 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ftrace: Protect ftrace_graph_hash with ftrace_sync" failed to apply to 4.19-stable tree
 To:     rostedt@goodmis.org, joel@joelfernandes.org, paulmck@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 07 Feb 2020 11:16:17 +0100
-Message-ID: <1581070577174106@kroah.com>
+Message-ID: <15810705775143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
