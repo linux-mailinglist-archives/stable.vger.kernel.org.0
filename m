@@ -2,129 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F8B15556D
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 11:16:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF51E15557D
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 11:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726999AbgBGKQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 05:16:30 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:35963 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726954AbgBGKQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 05:16:29 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4671120067;
-        Fri,  7 Feb 2020 05:16:29 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 07 Feb 2020 05:16:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=s3/xF9
-        ujMX6dVnZCNsoKDTbKl9TEJ7pf7NX682ck6I4=; b=HITqWS2KG2F76ectn+8Ae7
-        M7Jx7zWlbSR0efZPwQfvBFKReeV4N4RIlK0n6NclIj3mDd34A8IiYM0Wq3DqgVoq
-        /N4OJMAqLf/lfMHk57o1+BK4w3BUY35FQLXbi08bKbkM4/nXu94lHT1a/Ktt1SEJ
-        Hj/HLOyQDqnnifMwbtCpprBk3oBYAHFGUGSLiNAN7pQBmMgow9RHJhSWuFbf/xA9
-        8RGcaSJx4U76b2q6xmSf9g64WcAceGB2OYbS8chgXRmUh3RCykI8B0uMSEZzvc6d
-        omE98yS2m6SiJGxHKD2MrSljcK2u/TZT9qcZ4XRFpkIymInAIdDqwNzDtJkYyiIg
-        ==
-X-ME-Sender: <xms:_Tg9XlqxIMSBVY05AeAokNd9hy1QOmgjVkBZsgNFGStd3f17HULTIQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheehgddugecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:_Tg9XjFxg2sR0STZ8rpYOdg1cjq5MTyTz4YW-1w2n4mx5DnGFoKhYA>
-    <xmx:_Tg9Xg5exgWcaK9wjzBk-uqhYrV5C1ymWgzR-D0xoIlvzSwRZYr7zQ>
-    <xmx:_Tg9XuDOgN9-MXDlPkGvIgkEVLeXNthOk9hfI6c2zAnXMIW0RqZyfg>
-    <xmx:_Tg9Xmwwj9qSYSmI2S_HyOvHC4ldg4pakm2rsXn90ebWGssLJLzDjA>
+        id S1726901AbgBGKTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 05:19:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34998 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726587AbgBGKTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Feb 2020 05:19:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DB680328005A;
-        Fri,  7 Feb 2020 05:16:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ftrace: Protect ftrace_graph_hash with ftrace_sync" failed to apply to 4.19-stable tree
-To:     rostedt@goodmis.org, joel@joelfernandes.org, paulmck@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Feb 2020 11:16:17 +0100
-Message-ID: <15810705775143@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49EE220838;
+        Fri,  7 Feb 2020 10:19:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581070776;
+        bh=E6Bhpu7PeadDR+lnSXCZdRb1H/HcVZY2jmhLQfHKHNg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IBIPcZrUPuEJRxdGdR2zitjAgr4tCGwahxSRTi44HMOpMwMsBIyghInx2g7K1OCzt
+         r6FIouey/1zVdHwkATxbGqY9ImByO4KTgLc/xzd2Kfb0oxvaC1RFZ0kWeX/04fCzh7
+         +HaVXdqiriiaLobngHWMzqgKg7XhVhE1Wr4DnAVk=
+Date:   Fri, 7 Feb 2020 11:19:34 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chengguang Xu <cgxu519@mykernel.net>
+Cc:     Pavel Machek <pavel@denx.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 062/114] f2fs: choose hardlimit when softlimit is
+ larger than hardlimit in f2fs_statfs_project()
+Message-ID: <20200207101934.GA635415@kroah.com>
+References: <20200102220029.183913184@linuxfoundation.org>
+ <20200102220035.294585461@linuxfoundation.org>
+ <20200103171213.GC14328@amd>
+ <16f6e3f5bbe.d291a05d38838.5222280714928609391@mykernel.net>
+ <20200104115308.GA1296856@kroah.com>
+ <1700010cc3e.12eb876364380.7472123035435503364@mykernel.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1700010cc3e.12eb876364380.7472123035435503364@mykernel.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Feb 01, 2020 at 05:24:25PM +0800, Chengguang Xu wrote:
+>  ---- 在 星期六, 2020-01-04 19:53:08 Greg Kroah-Hartman <gregkh@linuxfoundation.org> 撰写 ----
+>  > On Sat, Jan 04, 2020 at 09:50:43AM +0800, Chengguang Xu wrote:
+>  > >  ---- 在 星期六, 2020-01-04 01:12:13 Pavel Machek <pavel@denx.de> 撰写 ----
+>  > >  > Hi!
+>  > >  > 
+>  > >  > > From: Chengguang Xu <cgxu519@mykernel.net>
+>  > >  > > 
+>  > >  > > [ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
+>  > >  > > 
+>  > >  > > Setting softlimit larger than hardlimit seems meaningless
+>  > >  > > for disk quota but currently it is allowed. In this case,
+>  > >  > > there may be a bit of comfusion for users when they run
+>  > >  > > df comamnd to directory which has project quota.
+>  > >  > > 
+>  > >  > > For example, we set 20M softlimit and 10M hardlimit of
+>  > >  > > block usage limit for project quota of test_dir(project id 123).
+>  > >  > 
+>  > >  > > Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+>  > >  > > Reviewed-by: Chao Yu <yuchao0@huawei.com>
+>  > >  > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+>  > >  > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+>  > >  > > ---
+>  > >  > >  fs/f2fs/super.c | 20 ++++++++++++++------
+>  > >  > >  1 file changed, 14 insertions(+), 6 deletions(-)
+>  > >  > > 
+>  > >  > > diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+>  > >  > > index 7a9cc64f5ca3..662c7de58b99 100644
+>  > >  > > --- a/fs/f2fs/super.c
+>  > >  > > +++ b/fs/f2fs/super.c
+>  > >  > > @@ -1148,9 +1148,13 @@ static int f2fs_statfs_project(struct super_block *sb,
+>  > >  > >          return PTR_ERR(dquot);
+>  > >  > >      spin_lock(&dquot->dq_dqb_lock);
+>  > >  > >  
+>  > >  > > -    limit = (dquot->dq_dqb.dqb_bsoftlimit ?
+>  > >  > > -         dquot->dq_dqb.dqb_bsoftlimit :
+>  > >  > > -         dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
+>  > >  > > +    limit = 0;
+>  > >  > > +    if (dquot->dq_dqb.dqb_bsoftlimit)
+>  > >  > > +        limit = dquot->dq_dqb.dqb_bsoftlimit;
+>  > >  > > +    if (dquot->dq_dqb.dqb_bhardlimit &&
+>  > >  > > +            (!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
+>  > >  > > +        limit = dquot->dq_dqb.dqb_bhardlimit;
+>  > >  > > +
+>  > >  > >      if (limit && buf->f_blocks > limit) {
+>  > >  > 
+>  > >  > >> blocksize disappeared here. That can't be right.
+>  > >  > 
+>  > >  > Plus, is this just obfuscated way of saying
+>  > >  > 
+>  > >  > limit = min_not_zero(dquot->dq_dqb.dqb_bsoftlimit, dquot->dq_dqb.dqb_bhardlimit)?
+>  > >  > 
+>  > > 
+>  > > Please  skip this patch from  stable list,  I'll send  a revised patch to upstream.
+>  > 
+>  > This patch is already in Linus's tree, so you can't send a "revised"
+>  > version, only one that applies on top of this one :)
+>  > 
+>  > That being said, I'll go drop this from the stable queues, thanks.
+>  > Please let us know when the fixed patch is in Linus's tree and we will
+>  > be glad to take both of them.
+>  > 
+>  
+> 
+> Hi Greg, Sasha
+> 
+> Now the fix patch has been in Linus's tree, you can add below three patches together to  backport list.
+> 
+> 
+> commit 909110c060f22e6 "f2fs: choose hardlimit when softlimit is larger than hardlimit in f2fs_statfs_project()"
+> commit acdf2172172a511 "f2fs: fix miscounted block limit in f2fs_statfs_project()"
+> commit bf2cbd3c57159c2 "f2fs: code cleanup for f2fs_statfs_project()"
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+All now queued up, thanks for letting us know.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 54a16ff6f2e50775145b210bcd94d62c3c2af117 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Wed, 5 Feb 2020 09:20:32 -0500
-Subject: [PATCH] ftrace: Protect ftrace_graph_hash with ftrace_sync
-
-As function_graph tracer can run when RCU is not "watching", it can not be
-protected by synchronize_rcu() it requires running a task on each CPU before
-it can be freed. Calling schedule_on_each_cpu(ftrace_sync) needs to be used.
-
-Link: https://lore.kernel.org/r/20200205131110.GT2935@paulmck-ThinkPad-P72
-
-Cc: stable@vger.kernel.org
-Fixes: b9b0c831bed26 ("ftrace: Convert graph filter to use hash tables")
-Reported-by: "Paul E. McKenney" <paulmck@kernel.org>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 481ede3eac13..3f7ee102868a 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5867,8 +5867,15 @@ ftrace_graph_release(struct inode *inode, struct file *file)
- 
- 		mutex_unlock(&graph_lock);
- 
--		/* Wait till all users are no longer using the old hash */
--		synchronize_rcu();
-+		/*
-+		 * We need to do a hard force of sched synchronization.
-+		 * This is because we use preempt_disable() to do RCU, but
-+		 * the function tracers can be called where RCU is not watching
-+		 * (like before user_exit()). We can not rely on the RCU
-+		 * infrastructure to do the synchronization, thus we must do it
-+		 * ourselves.
-+		 */
-+		schedule_on_each_cpu(ftrace_sync);
- 
- 		free_ftrace_hash(old_hash);
- 	}
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index 8c52f5de9384..3c75d29bd861 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -979,6 +979,7 @@ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
- 	 * Have to open code "rcu_dereference_sched()" because the
- 	 * function graph tracer can be called when RCU is not
- 	 * "watching".
-+	 * Protected with schedule_on_each_cpu(ftrace_sync)
- 	 */
- 	hash = rcu_dereference_protected(ftrace_graph_hash, !preemptible());
- 
-@@ -1031,6 +1032,7 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
- 	 * Have to open code "rcu_dereference_sched()" because the
- 	 * function graph tracer can be called when RCU is not
- 	 * "watching".
-+	 * Protected with schedule_on_each_cpu(ftrace_sync)
- 	 */
- 	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
- 						 !preemptible());
-
