@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 118DD156034
+	by mail.lfdr.de (Postfix) with ESMTP id 8741E156035
 	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 21:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727130AbgBGUzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726987AbgBGUzL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 7 Feb 2020 15:55:11 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:56448 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726987AbgBGUzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 15:55:10 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:50222 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727129AbgBGUzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 15:55:11 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1581108906;
+        s=mimecast20190719; t=1581108910;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=wjEKFGXXbksGfV1gmf/5twtr6Wnt++aluNKN+T1SONI=;
-        b=O1VkLk3yRDvIUKBqWMHBe2vGj+iw5hrWIQXaSHyTD8Gn8ybgCwMgUlg3k7e52pn5JJ35Gd
-        ZM+aTsymywtLaIn7qa0VCFlw/u3svnb5YSL4hRsrMCUG+oyA651YzSs57TuVjh6TcJ01AM
-        VaBqe2d0Qj5tWBbDP7CqMQv6EcJVRBg=
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4ftTt++ca/8MmI8dAO4U6BdmPDTLMwQtmT1KY6Mdad8=;
+        b=S2bHU1tqZe5lTPoALDUI4MZn3vSWHXQgSleDm6GebaVHCZkDY5SpuL6slPJgUrGIKSwWzZ
+        TI9pHV4careqW0GDXsLR6Eg2dhXwxx0oHD3p0hYugJ9SiCj4jymT1s3XWY4IanVXOk53HQ
+        0uZi9z91eXnU4nXQx9y4AUksdfUfYaM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-357-8ISF2PKsMPmzfZQ87p3C0w-1; Fri, 07 Feb 2020 15:55:04 -0500
-X-MC-Unique: 8ISF2PKsMPmzfZQ87p3C0w-1
+ us-mta-186-ib_CRyoNNEy6w3BwJd1tkg-1; Fri, 07 Feb 2020 15:55:08 -0500
+X-MC-Unique: ib_CRyoNNEy6w3BwJd1tkg-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 46586800D55;
-        Fri,  7 Feb 2020 20:55:02 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5D2CA18FF660;
+        Fri,  7 Feb 2020 20:55:06 +0000 (UTC)
 Received: from x1.localdomain.com (ovpn-116-18.ams2.redhat.com [10.36.116.18])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6EBCD84DB4;
-        Fri,  7 Feb 2020 20:54:58 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A1EE884DB4;
+        Fri,  7 Feb 2020 20:55:02 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Andy Shevchenko <andy@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -47,10 +48,13 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         Tony Luck <tony.luck@intel.com>,
         Gayatri Kammela <gayatri.kammela@intel.com>, x86@kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 1/3] x86/tsc_msr: Use named struct initializers
-Date:   Fri,  7 Feb 2020 21:54:54 +0100
-Message-Id: <20200207205456.113758-1-hdegoede@redhat.com>
+Subject: [PATCH v3 2/3] x86/tsc_msr: Fix MSR_FSB_FREQ mask for Cherry Trail devices
+Date:   Fri,  7 Feb 2020 21:54:55 +0100
+Message-Id: <20200207205456.113758-2-hdegoede@redhat.com>
+In-Reply-To: <20200207205456.113758-1-hdegoede@redhat.com>
+References: <20200207205456.113758-1-hdegoede@redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -58,89 +62,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use named struct initializers for the freq_desc struct-s initialization
-and change the "u8 msr_plat" to a "bool use_msr_plat" to make its meaning
-more clear instead of relying on a comment to explain it.
+According to the "Intel 64 and IA-32 Architectures Software Developer=E2=80=
+=99s
+Manual Volume 4: Model-Specific Registers" on Cherry Trail (Airmont)
+devices the 4 lowest bits of the MSR_FSB_FREQ mask indicate the bus freq
+unlike on e.g. Bay Trail where only the lowest 3 bits are used.
+
+This is also the reason why MAX_NUM_FREQS is defined as 9, since
+Cherry Trail SoCs have 9 possible frequencies, so we need to mask
+the lo value from the MSR with 0x0f, not with 0x07 otherwise the
+9th frequency will get interpreted as the 1st.
+
+This commits bumps MAX_NUM_FREQS to 16 to avoid any possibility of
+addressing the array out of bounds and makes the mask part of
+the cpufreq struct so that we can set it per model.
+
+While at it also log an error when the index points to an uninitialized
+part of the freqs lookup-table.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- arch/x86/kernel/tsc_msr.c | 28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ arch/x86/kernel/tsc_msr.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/kernel/tsc_msr.c b/arch/x86/kernel/tsc_msr.c
-index e0cbe4f2af49..5fa41ac3feb1 100644
+index 5fa41ac3feb1..95030895fffa 100644
 --- a/arch/x86/kernel/tsc_msr.c
 +++ b/arch/x86/kernel/tsc_msr.c
-@@ -22,10 +22,10 @@
-  * read in MSR_PLATFORM_ID[12:8], otherwise in MSR_PERF_STAT[44:40].
-  * Unfortunately some Intel Atom SoCs aren't quite compliant to this,
-  * so we need manually differentiate SoC families. This is what the
-- * field msr_plat does.
-+ * field use_msr_plat does.
-  */
+@@ -15,7 +15,7 @@
+ #include <asm/param.h>
+ #include <asm/tsc.h>
+=20
+-#define MAX_NUM_FREQS	9
++#define MAX_NUM_FREQS	16 /* 4 bits to select the frequency */
+=20
+ /*
+  * If MSR_PERF_STAT[31] is set, the maximum resolved bus ratio can be
+@@ -27,6 +27,7 @@
  struct freq_desc {
--	u8 msr_plat;	/* 1: use MSR_PLATFORM_INFO, 0: MSR_IA32_PERF_STATUS */
-+	bool use_msr_plat;
+ 	bool use_msr_plat;
  	u32 freqs[MAX_NUM_FREQS];
++	u32 mask;
  };
 =20
-@@ -35,31 +35,39 @@ struct freq_desc {
-  * by MSR based on SDM.
-  */
+ /*
+@@ -37,37 +38,44 @@ struct freq_desc {
  static const struct freq_desc freq_desc_pnw =3D {
--	0, { 0, 0, 0, 0, 0, 99840, 0, 83200 }
-+	.use_msr_plat =3D false,
-+	.freqs =3D { 0, 0, 0, 0, 0, 99840, 0, 83200 },
+ 	.use_msr_plat =3D false,
+ 	.freqs =3D { 0, 0, 0, 0, 0, 99840, 0, 83200 },
++	.mask =3D 0x07,
  };
 =20
  static const struct freq_desc freq_desc_clv =3D {
--	0, { 0, 133200, 0, 0, 0, 99840, 0, 83200 }
-+	.use_msr_plat =3D false,
-+	.freqs =3D { 0, 133200, 0, 0, 0, 99840, 0, 83200 },
+ 	.use_msr_plat =3D false,
+ 	.freqs =3D { 0, 133200, 0, 0, 0, 99840, 0, 83200 },
++	.mask =3D 0x07,
  };
 =20
  static const struct freq_desc freq_desc_byt =3D {
--	1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 }
-+	.use_msr_plat =3D true,
-+	.freqs =3D { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 },
+ 	.use_msr_plat =3D true,
+ 	.freqs =3D { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 },
++	.mask =3D 0x07,
  };
 =20
  static const struct freq_desc freq_desc_cht =3D {
--	1, { 83300, 100000, 133300, 116700, 80000, 93300, 90000, 88900, 87500 }
-+	.use_msr_plat =3D true,
-+	.freqs =3D { 83300, 100000, 133300, 116700, 80000, 93300, 90000,
-+		   88900, 87500 },
+ 	.use_msr_plat =3D true,
+ 	.freqs =3D { 83300, 100000, 133300, 116700, 80000, 93300, 90000,
+ 		   88900, 87500 },
++	.mask =3D 0x0f,
  };
 =20
  static const struct freq_desc freq_desc_tng =3D {
--	1, { 0, 100000, 133300, 0, 0, 0, 0, 0 }
-+	.use_msr_plat =3D true,
-+	.freqs =3D { 0, 100000, 133300, 0, 0, 0, 0, 0 },
+ 	.use_msr_plat =3D true,
+ 	.freqs =3D { 0, 100000, 133300, 0, 0, 0, 0, 0 },
++	.mask =3D 0x07,
  };
 =20
  static const struct freq_desc freq_desc_ann =3D {
--	1, { 83300, 100000, 133300, 100000, 0, 0, 0, 0 }
-+	.use_msr_plat =3D true,
-+	.freqs =3D { 83300, 100000, 133300, 100000, 0, 0, 0, 0 },
+ 	.use_msr_plat =3D true,
+ 	.freqs =3D { 83300, 100000, 133300, 100000, 0, 0, 0, 0 },
++	.mask =3D 0x0f,
  };
 =20
  static const struct freq_desc freq_desc_lgm =3D {
--	1, { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 }
-+	.use_msr_plat =3D true,
-+	.freqs =3D { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
+ 	.use_msr_plat =3D true,
+ 	.freqs =3D { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
++	.mask =3D 0x0f,
  };
 =20
  static const struct x86_cpu_id tsc_msr_cpu_ids[] =3D {
-@@ -91,7 +99,7 @@ unsigned long cpu_khz_from_msr(void)
- 		return 0;
+@@ -93,6 +101,7 @@ unsigned long cpu_khz_from_msr(void)
+ 	const struct freq_desc *freq_desc;
+ 	const struct x86_cpu_id *id;
+ 	unsigned long res;
++	int index;
 =20
- 	freq_desc =3D (struct freq_desc *)id->driver_data;
--	if (freq_desc->msr_plat) {
-+	if (freq_desc->use_msr_plat) {
- 		rdmsr(MSR_PLATFORM_INFO, lo, hi);
- 		ratio =3D (lo >> 8) & 0xff;
- 	} else {
+ 	id =3D x86_match_cpu(tsc_msr_cpu_ids);
+ 	if (!id)
+@@ -109,13 +118,17 @@ unsigned long cpu_khz_from_msr(void)
+=20
+ 	/* Get FSB FREQ ID */
+ 	rdmsr(MSR_FSB_FREQ, lo, hi);
++	index =3D lo & freq_desc->mask;
+=20
+ 	/* Map CPU reference clock freq ID(0-7) to CPU reference clock freq(KHz=
+) */
+-	freq =3D freq_desc->freqs[lo & 0x7];
++	freq =3D freq_desc->freqs[index];
+=20
+ 	/* TSC frequency =3D maximum resolved freq * maximum resolved bus ratio=
+ */
+ 	res =3D freq * ratio;
+=20
++	if (freq =3D=3D 0)
++		pr_err("Error MSR_FSB_FREQ index %d is unknown\n", index);
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	lapic_timer_period =3D (freq * 1000) / HZ;
+ #endif
 --=20
 2.25.0
 
