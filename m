@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFB015608B
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 22:11:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0355A15609D
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 22:14:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727012AbgBGVLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 16:11:38 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:53796 "EHLO
+        id S1727031AbgBGVO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 16:14:57 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:57048 "EHLO
         fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726947AbgBGVLi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 16:11:38 -0500
+        with ESMTP id S1726947AbgBGVO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 16:14:56 -0500
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20153569-1500050 
-        for multiple; Fri, 07 Feb 2020 21:11:35 +0000
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20153593-1500050 
+        for multiple; Fri, 07 Feb 2020 21:14:53 +0000
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         stable@vger.kernel.org
 Subject: [PATCH] drm/i915/execlists: Always force a context reload when rewinding RING_TAIL
-Date:   Fri,  7 Feb 2020 21:11:32 +0000
-Message-Id: <20200207211132.2860292-1-chris@chris-wilson.co.uk>
+Date:   Fri,  7 Feb 2020 21:14:52 +0000
+Message-Id: <20200207211452.2860634-1-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200207205010.2857970-1-chris@chris-wilson.co.uk>
 References: <20200207205010.2857970-1-chris@chris-wilson.co.uk>
@@ -43,13 +43,13 @@ rewinds.
    <idle>-0       0d.s2 1280851190us : __execlists_submission_tasklet: 0000:00:02.0 rcs0: expired last=130:4698, prio=3, hint=3
    <idle>-0       0d.s2 1280851192us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 66:119966, current 119964
    <idle>-0       0d.s2 1280851195us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4698, current 4695
+   <idle>-0       0d.s2 1280851198us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
 ^----  Note we unwind 2 requests from the same context
 
-   <idle>-0       0d.s2 1280851198us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
    <idle>-0       0d.s2 1280851208us : __i915_request_submit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
    <idle>-0       0d.s2 1280851213us : __i915_request_submit: 0000:00:02.0 rcs0: fence 134:1508, current 1506
 ^---- But to apply the new timeslice, we have to replay the first request
-      before he new client can start
+      before the new client can start
 
    <idle>-0       0d.s2 1280851219us : trace_ports: 0000:00:02.0 rcs0: submit { 130:4696*, 134:1508 }
  synmark2-5425    2..s. 1280851239us : process_csb: 0000:00:02.0 rcs0: cs-irq head=5, tail=0
