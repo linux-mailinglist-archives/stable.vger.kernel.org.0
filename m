@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E9D1553E5
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 09:46:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0161553E6
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 09:46:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726586AbgBGIqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 03:46:44 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42755 "EHLO
+        id S1726619AbgBGIqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 03:46:45 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:37257 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726451AbgBGIqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 03:46:44 -0500
+        by vger.kernel.org with ESMTP id S1726451AbgBGIqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 03:46:45 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 31F4821E92;
-        Fri,  7 Feb 2020 03:46:43 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id A7E2621B55;
+        Fri,  7 Feb 2020 03:46:44 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 07 Feb 2020 03:46:43 -0500
+  by compute6.internal (MEProxy); Fri, 07 Feb 2020 03:46:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VefFnq
-        9iN/dzx/KMOHB229V2aGAZnZeFf7EZp5r4rJg=; b=iNdlN3HWAoSmJICu5aYDPk
-        AvrMrsVI+bbcm191SVKyMRp/fEI4aePWTjeNzSHQ5hN5fGL4jS80HOQED+xUHZHv
-        fDRFEZEYejsHSNxsMuC34ckSMNxGcbtuefsi8Co/2+5YhJ1AqLV/21tpE0HUVvG5
-        mqNrzDmHPwExQ4yIzqe67ZYgXE2CVbLRrlYZiqSgy2ur5Iueju+sULOAKk1AK4ms
-        JhDyoUyrpFeXeOaSdSgBvBL6lLzmk/ZCTl/8MwBLcOVNXB7plNVjfAmMVYQ3y103
-        cYKSu9PevZ9UCrXDURmDDt5zLPOtv/az0wm4XAOJi4h8mC90KjN97TvKuRdgWgEQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=82SqsV
+        ph7Ky/Rafs6WDHHZq0M0UeB7TrQyzUbLl0Frw=; b=VyOVNnQu40+zUpqBHEB2Zh
+        TLLnCOCOtxED3qmW6yUTEwasRxu1Lpl3OYRL/XRf4c0VwqmxZWqoXeRs6a5fJvls
+        PY0/zhLoBLMARBJcMHFFi5CZ8Gd+FLhzeFJJS9ow9UHJvpNyG43d7bUhKIJddtOH
+        ZuE51v/DVz9NBOCSUEDV5qHIMM/ZrHY7HEM+Hw/U0bA8fMODt69pechXQjq/etK9
+        1MEjglrHBxL+87jQx2/yT9uCJt9VRFNbys7GBVGEntznlczgC0FUZNoJds7T3RaF
+        PNAG/HsMvML38MGtJ4sr/uaF+tk4J0PHQQhby1MWbIRdSt7KH2YcYwNL9x8yE3UA
         ==
-X-ME-Sender: <xms:8yM9Xj1_pclgaMSm04CDr17x54t5qCs2xmlKZrrxC_nVypdD4zjPxg>
+X-ME-Sender: <xms:9CM9XsI7arSVhqZoB1amhkqmoSY4LArBvBCuoj6rKtRBj1KERBkS4A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheeggdduvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:8yM9Xu2kTltq6wcuUWSwOCfehlcphb5DQJSdnFCEUJFVYlMrcTMJ8Q>
-    <xmx:8yM9XuemuXP1QIOmB8MD0pufu2phinp6Jyb-rjeUzbLmQal4h8-B4A>
-    <xmx:8yM9XsFU8Uw5aip6PjUrkn67EaX1OHYeKIW-U_3mMmNLCuh9ZYL37g>
-    <xmx:8yM9Xi60l9YHdf6EngTE1o09boMfkoA3W5j7OZ1o2bxwLisyQ1EmXw>
+X-ME-Proxy: <xmx:9CM9XmZb_08hJmbWIENJTEskpQfyujM4oC-S1XPbyYZtryUNJtAOhw>
+    <xmx:9CM9Xudc4R4sNfm5W0FDU-WKgMVSJVHzeWNrHw8IQ9ResyZnUfVLwg>
+    <xmx:9CM9Xt9dhoHDvBxOg09T00U_alHGEZv6BQd6Qs1Hp4rIsFw1r-w6JA>
+    <xmx:9CM9XpsMx6tuVVcRXlu3DDXFcic-gaKgOJ38hlofnWDkfK2xzhcicw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C7FCD328005A;
-        Fri,  7 Feb 2020 03:46:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] padata: Remove broken queue flushing" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4F42C3280064;
+        Fri,  7 Feb 2020 03:46:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] padata: Remove broken queue flushing" failed to apply to 4.4-stable tree
 To:     herbert@gondor.apana.org.au, daniel.m.jordan@oracle.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Feb 2020 09:46:32 +0100
-Message-ID: <158106519225375@kroah.com>
+Date:   Fri, 07 Feb 2020 09:46:33 +0100
+Message-ID: <15810651932494@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
