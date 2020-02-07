@@ -2,220 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0B81553BB
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 09:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5621553E3
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 09:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbgBGIcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 03:32:09 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:41796 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726901AbgBGIcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 03:32:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1581064324;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=h5PxoGF4lW28Wv4+q/wL0t8wnMQQso1jdOdEBv/C2U8=;
-        b=E9itMJQq4quKnJtGiXPA0VypiUwKEuf+OBCpCgiVB+7e4vJBhME6tG/GnP+mCB9qRZB+jH
-        DOOar+OGvDnH5swcrVfizL15aBxvdGuxAV/0KILmU1WP5byMbb/s3Ei5Z6u7Nfua/EJWg7
-        gGibZ3JBa4EhUPt2W4fiuUBOF8JuEBo=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-49-W1w4wT-pPgCutBlNQKEp4Q-1; Fri, 07 Feb 2020 03:32:02 -0500
-X-MC-Unique: W1w4wT-pPgCutBlNQKEp4Q-1
-Received: by mail-wm1-f71.google.com with SMTP id s25so405343wmj.3
-        for <stable@vger.kernel.org>; Fri, 07 Feb 2020 00:32:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=h5PxoGF4lW28Wv4+q/wL0t8wnMQQso1jdOdEBv/C2U8=;
-        b=Ofja62DgWQlg28BFBrrEkpno0qUHCKfi5lZmIWmZvYkpAqkUaopt4wJzMAUPrOt4nD
-         F0DEoXRfZrIdqQ75lYOsTiCSOS3YtOQzZxFo1dYKXr3fy4ZnmFiiUKSY5mKNcOL9INeM
-         buITg2XvWhTKslYOLj87QYQ0z3lJg0csGaOwaYl1n/lqXMDoLQX38mfDJ/cmEcuso/AL
-         odNsmxnlORmCpPrWUvHLbClVhjND6arnWM//avXpBEJ1e+yuxwQUlNgOwuV0ICxyMYwB
-         1g1ERlx5apK19ZIa/GhWl9QFV9+l9CPxFj27nZCDNNDm3MsxJV11FhWachAH99HUy4H3
-         CXyg==
-X-Gm-Message-State: APjAAAXIb7amsIcMJbUM+iU8099ftndsD08zPXsSuO0MJtuTdI4U5egp
-        8bxOIr7LlZ3GvuuDqQOyZKRlyp3N3YJ5+wjCnVuTOQrb1KPvPOU0XAbl0cT73a/WA4WtQnyEgw8
-        1J1iH6X5d29SuGKCR
-X-Received: by 2002:a5d:5283:: with SMTP id c3mr3434104wrv.148.1581064321175;
-        Fri, 07 Feb 2020 00:32:01 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwvVIpbfaRt4igrDmgOFpT6SET1fiC7v1wNzmTDIH5FVWwod2izKvg3ymP0O9zwHuWYdtuxQA==
-X-Received: by 2002:a5d:5283:: with SMTP id c3mr3434065wrv.148.1581064320898;
-        Fri, 07 Feb 2020 00:32:00 -0800 (PST)
-Received: from x1.localdomain ([109.36.130.245])
-        by smtp.gmail.com with ESMTPSA id q1sm2513114wrw.5.2020.02.07.00.31.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 07 Feb 2020 00:32:00 -0800 (PST)
-From:   Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 3/3] x86/tsc_msr: Make MSR derived TSC frequency more
- accurate
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Andy Shevchenko <andy@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Vipul Kumar <vipulk0511@gmail.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        Len Brown <len.brown@intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-References: <20200205153428.437087-1-hdegoede@redhat.com>
- <20200205153428.437087-4-hdegoede@redhat.com>
- <CAHp75Vfc=LN+_iDLDZ2s-i-q6tZ-K_FV7hqAcH6fhwBA9-AHUQ@mail.gmail.com>
-Message-ID: <b6c1e57e-8001-19f1-7f37-7a5975e565d6@redhat.com>
-Date:   Fri, 7 Feb 2020 09:31:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726417AbgBGIqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 03:46:35 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:44171 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726136AbgBGIqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 03:46:35 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 76A8C21B55;
+        Fri,  7 Feb 2020 03:46:34 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 07 Feb 2020 03:46:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KrHE7H
+        FyHQ5w1JJ9dfiVzpL770UGVXQcM42zk5qKZ3w=; b=38gmxBvUliHPrVjQ+oO5x5
+        p7j0255pdXMKn6kRGEE13Phau7/QNlE++9dnVPDg1x+azvs0WzSHy/hxT3yr676M
+        MZnVezLYiVawUGURYsVdeZuTdl9QizBPGI/Lx9sftJ2F18hjFbV6C3p0tsFUhCUL
+        gAZhCj//BrUO1FDvTFyOFIWftbUB9PX3fPPJIDVl+djLImLKWfdEtdGeyB3rK2Iu
+        sd491zCNrZMfW3Mju1kp55l1JU3rJ1M2qtavMe+9bOitssfK2MX5J7XLigShebLf
+        jvFY/R0ypfIIw7bCFl66QNity2w7gN/kguH+cjccIijoMfC+CwQeRIp323ZV4WtA
+        ==
+X-ME-Sender: <xms:6SM9XskRPdbXFDbU9KOGWXEFGQtQZ4V5pnlxAtUnzgHwdK0DMM6Z7A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheeggdduvdegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:6SM9XjK-bv6ttKpvJaobYHhQzdGuhZvx3uHQTI0V5L5LE2n_qiwObQ>
+    <xmx:6SM9XtRW5c-ZyX8Rdn4pf09qH4LxkP-w1jV2x3MXL_EFr60wYh4s2Q>
+    <xmx:6SM9XiqVOtyn3NOcpVhgPJOP8BkfD1Y0v8v-sg2Ay-wd5-PF2EL9XA>
+    <xmx:6iM9Xtl0wkjAFw2GhCc0k0-zkBNafayLTfBgLILRTapZT3vs0jkakQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 61FC730605C8;
+        Fri,  7 Feb 2020 03:46:33 -0500 (EST)
+Subject: FAILED: patch "[PATCH] padata: Remove broken queue flushing" failed to apply to 4.19-stable tree
+To:     herbert@gondor.apana.org.au, daniel.m.jordan@oracle.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 07 Feb 2020 09:46:31 +0100
+Message-ID: <1581065191136112@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75Vfc=LN+_iDLDZ2s-i-q6tZ-K_FV7hqAcH6fhwBA9-AHUQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi All,
 
-On 2/5/20 5:59 PM, Andy Shevchenko wrote:
-> On Wed, Feb 5, 2020 at 5:34 PM Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> The "Intel 64 and IA-32 Architectures Software Developer’s Manual
->> Volume 4: Model-Specific Registers" has the following table for the
->> values from freq_desc_byt:
->>
->>     000B: 083.3 MHz
->>     001B: 100.0 MHz
->>     010B: 133.3 MHz
->>     011B: 116.7 MHz
->>     100B: 080.0 MHz
->>
->> Notice how for e.g the 83.3 MHz value there are 3 significant digits,
->> which translates to an accuracy of a 1000 ppm, where as your typical
->> crystal oscillator is 20 - 100 ppm, so the accuracy of the frequency
->> format used in the Software Developer’s Manual is not really helpful.
->>
->> As far as we know Bay Trail SoCs use a 25 MHz crystal and Cherry Trail
->> uses a 19.2 MHz crystal, the crystal is the source clk for a root PLL
->> which outputs 1600 and 100 MHz. It is unclear if the root PLL outputs are
->> used directly by the CPU clock PLL or if there is another PLL in between.
->>
->> This does not matter though, we can model the chain of PLLs as a single
->> PLL with a quotient equal to the quotients of all PLLs in the chain
->> multiplied.
->>
->> So we can create a simplified model of the CPU clock setup using a
->> reference clock of 100 MHz plus a quotient which gets us as close to the
->> frequency from the SDM as possible.
->>
->> For the 83.3 MHz example from above this would give us 100 MHz * 5 / 6 =
->> 83 and 1/3 MHz, which matches exactly what has been measured on actual hw.
->>
->> This commit makes the tsc_msr.c code use a simplified PLL model with a
->> reference clock of 100 MHz for all Bay and Cherry Trail models.
->>
->> This has been tested on the following models:
->>
->>                CPU freq before:        CPU freq after this commit:
->> Intel N2840   2165.800 MHz            2166.667 MHz
->> Intel Z3736   1332.800 MHz            1333.333 MHz
->> Intel Z3775   1466.300 MHz            1466.667 MHz
->> Intel Z8350   1440.000 MHz            1440.000 MHz
->> Intel Z8750   1600.000 MHz            1600.000 MHz
->>
->> This fixes the time drifting by about 1 second per hour (20 - 30 seconds
->> per day) on (some) devices which rely on the tsc_msr.c code to determine
->> the TSC frequency.
-> 
-> Thanks for this effort!
-> 
-> ...
-> 
->> +#define REFERENCE_KHZ 100000
-> 
-> Perhaps TSC_REFERENCE_KHZ ?
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Ok, changed to TSC_REFERENCE_KHZ for v3
+thanks,
 
-> 
-> ...
-> 
->> +       struct {
->> +               u32 multiplier;
->> +               u32 divider;
->> +       } pairs[MAX_NUM_FREQS];
-> 
-> Perhaps pairs -> muldiv ?
+greg k-h
 
-Ok, changed to muldiv for v3
+------------------ original commit in Linus's tree ------------------
 
-> 
-> ...
-> 
->> +       .pairs = { {  5,  6 }, { 1,  1 }, { 4, 3 }, { 7, 6 }, { 4, 5 },
->> +                  { 14, 15 }, { 9, 10 }, { 8, 9 }, { 7, 8 } },
-> 
-> Maybe 4 per line or alike (8 per line) for better understanding which
-> muldiv maps to which value?
+From 07928d9bfc81640bab36f5190e8725894d93b659 Mon Sep 17 00:00:00 2001
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Tue, 19 Nov 2019 13:17:31 +0800
+Subject: [PATCH] padata: Remove broken queue flushing
 
-Ok, changed for v3.
+The function padata_flush_queues is fundamentally broken because
+it cannot force padata users to complete the request that is
+underway.  IOW padata has to passively wait for the completion
+of any outstanding work.
 
-> 
-> ...
-> 
->> +       .pairs = { { 0, 0 }, { 1, 1 }, { 4, 3 } },
-> 
-> And maybe list all of them always? (I'm fine with either approach).
+As it stands flushing is used in two places.  Its use in padata_stop
+is simply unnecessary because nothing depends on the queues to
+be flushed afterwards.
 
-I prefer to just list the valid ones.
+The other use in padata_replace is more substantial as we depend
+on it to free the old pd structure.  This patch instead uses the
+pd->refcnt to dynamically free the pd structure once all requests
+are complete.
 
-> 
-> ...
-> 
->> +/* 24 MHz crystal? : 24 * 13 / 4 = 78 MHz */
-> 
-> Perhaps Cc to LGM SoC developers team (they did it recently, so, they
-> have to know).
+Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Ok, I've added the following people to the Cc for v3 based on the Sob-s and Cc-s of:
-0cc5359d8fd45bc("x86/cpu: Update init data for new Airmont CPU model"):
-
-Cc: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Gayatri Kammela <gayatri.kammela@intel.com>
-
-
-> ...
-> 
->> +       if (freq_desc->pairs[index].divider) {
-> 
->> +               freq = DIV_ROUND_CLOSEST(REFERENCE_KHZ *
->> +                                           freq_desc->pairs[index].multiplier,
->> +                                        freq_desc->pairs[index].divider);
-> 
-> Maybe helper?
-> 
->> +               /* Multiply by ratio before the divide for better accuracy */
->> +               res = DIV_ROUND_CLOSEST(REFERENCE_KHZ *
->> +                                           freq_desc->pairs[index].multiplier *
->> +                                           ratio,
->> +                                       freq_desc->pairs[index].divider);
-> 
-> ...which may be used here as well.
-
-Nah, I would prefer to keep this as is. I'm never a fan of single line
-helpers they just make it harder to see what the code is actually doing.
-
-Regards,
-
-Hans
+diff --git a/kernel/padata.c b/kernel/padata.c
+index c3fec1413295..da56a235a255 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -35,6 +35,8 @@
+ 
+ #define MAX_OBJ_NUM 1000
+ 
++static void padata_free_pd(struct parallel_data *pd);
++
+ static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
+ {
+ 	int cpu, target_cpu;
+@@ -283,6 +285,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 	struct padata_serial_queue *squeue;
+ 	struct parallel_data *pd;
+ 	LIST_HEAD(local_list);
++	int cnt;
+ 
+ 	local_bh_disable();
+ 	squeue = container_of(serial_work, struct padata_serial_queue, work);
+@@ -292,6 +295,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 	list_replace_init(&squeue->serial.list, &local_list);
+ 	spin_unlock(&squeue->serial.lock);
+ 
++	cnt = 0;
++
+ 	while (!list_empty(&local_list)) {
+ 		struct padata_priv *padata;
+ 
+@@ -301,9 +306,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 		list_del_init(&padata->list);
+ 
+ 		padata->serial(padata);
+-		atomic_dec(&pd->refcnt);
++		cnt++;
+ 	}
+ 	local_bh_enable();
++
++	if (atomic_sub_and_test(cnt, &pd->refcnt))
++		padata_free_pd(pd);
+ }
+ 
+ /**
+@@ -440,7 +448,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
+ 	padata_init_squeues(pd);
+ 	atomic_set(&pd->seq_nr, -1);
+ 	atomic_set(&pd->reorder_objects, 0);
+-	atomic_set(&pd->refcnt, 0);
++	atomic_set(&pd->refcnt, 1);
+ 	spin_lock_init(&pd->lock);
+ 	pd->cpu = cpumask_first(pd->cpumask.pcpu);
+ 	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
+@@ -466,29 +474,6 @@ static void padata_free_pd(struct parallel_data *pd)
+ 	kfree(pd);
+ }
+ 
+-/* Flush all objects out of the padata queues. */
+-static void padata_flush_queues(struct parallel_data *pd)
+-{
+-	int cpu;
+-	struct padata_parallel_queue *pqueue;
+-	struct padata_serial_queue *squeue;
+-
+-	for_each_cpu(cpu, pd->cpumask.pcpu) {
+-		pqueue = per_cpu_ptr(pd->pqueue, cpu);
+-		flush_work(&pqueue->work);
+-	}
+-
+-	if (atomic_read(&pd->reorder_objects))
+-		padata_reorder(pd);
+-
+-	for_each_cpu(cpu, pd->cpumask.cbcpu) {
+-		squeue = per_cpu_ptr(pd->squeue, cpu);
+-		flush_work(&squeue->work);
+-	}
+-
+-	BUG_ON(atomic_read(&pd->refcnt) != 0);
+-}
+-
+ static void __padata_start(struct padata_instance *pinst)
+ {
+ 	pinst->flags |= PADATA_INIT;
+@@ -502,10 +487,6 @@ static void __padata_stop(struct padata_instance *pinst)
+ 	pinst->flags &= ~PADATA_INIT;
+ 
+ 	synchronize_rcu();
+-
+-	get_online_cpus();
+-	padata_flush_queues(pinst->pd);
+-	put_online_cpus();
+ }
+ 
+ /* Replace the internal control structure with a new one. */
+@@ -526,8 +507,8 @@ static void padata_replace(struct padata_instance *pinst,
+ 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
+ 		notification_mask |= PADATA_CPU_SERIAL;
+ 
+-	padata_flush_queues(pd_old);
+-	padata_free_pd(pd_old);
++	if (atomic_dec_and_test(&pd_old->refcnt))
++		padata_free_pd(pd_old);
+ 
+ 	if (notification_mask)
+ 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
 
