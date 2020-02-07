@@ -2,91 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 053BE1559F8
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 15:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1BC155A59
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 16:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726901AbgBGOrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 09:47:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
+        id S1727117AbgBGPHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 10:07:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726674AbgBGOrm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Feb 2020 09:47:42 -0500
+        id S1726974AbgBGPHa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Feb 2020 10:07:30 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C9EB20720;
-        Fri,  7 Feb 2020 14:47:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9724D21741;
+        Fri,  7 Feb 2020 15:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581086862;
-        bh=78E8bx+aEJWfnalPJN2FgX8UCelWHY/ZMQW4TN6udxg=;
+        s=default; t=1581088049;
+        bh=M569W9421dzjoxt2SWlmqyIzn4fe5+qb1hQ4GP8XL0A=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Dq+rSOHvHLCUc98GvyGjfS4sO8dZJRE7G0q58ADPRc8PfWlPXAnWYcqb5gkK3ziXh
-         fQH/WSBX1uYKiQNSdaotW6/KLpAwhS0YUtWgW27cN9nVBuSDQQD64JwJzNazY9hFvZ
-         7YNLT220Mzm+wYJ5am15+6D3AOEaNiSsoJhKinRs=
-Date:   Fri, 7 Feb 2020 09:47:41 -0500
+        b=xBFuJ1nrt1kT+WmX0tiqnfITU6oYPXIQdLkgSKD/Q1WawemNhtyh8vXG1ZD72RVHK
+         8g9/JT5zkSAjALsxg4nAGNzPeNnEeotIjpzGE72idCP+60GwHneO++pA6DPXoak7Rs
+         FYYV+IqXeGAcQOy5LcPu5RoWBlR1kLlOP34MlAiM=
+Date:   Fri, 7 Feb 2020 10:07:28 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     pierre-louis.bossart@linux.intel.com, broonie@kernel.org,
-        kai.vehmanen@linux.intel.com, tiwai@suse.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ASoC: SOF: core: release resources on
- errors in" failed to apply to 5.5-stable tree
-Message-ID: <20200207144741.GV31482@sasha-vm>
-References: <1581065627242228@kroah.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     gregkh@linuxfoundation.org, joel@joelfernandes.org,
+        paulmck@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ftrace: Protect ftrace_graph_hash with
+ ftrace_sync" failed to apply to 5.5-stable tree
+Message-ID: <20200207150728.GW31482@sasha-vm>
+References: <15810705761598@kroah.com>
+ <20200207082842.1ce4bf32@oasis.local.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1581065627242228@kroah.com>
+In-Reply-To: <20200207082842.1ce4bf32@oasis.local.home>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 07, 2020 at 09:53:47AM +0100, gregkh@linuxfoundation.org wrote:
+On Fri, Feb 07, 2020 at 08:28:42AM -0500, Steven Rostedt wrote:
 >
->The patch below does not apply to the 5.5-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+>Hi Greg,
 >
->thanks,
+>On Fri, 07 Feb 2020 11:16:16 +0100
+><gregkh@linuxfoundation.org> wrote:
 >
->greg k-h
+>> diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+>> index 8c52f5de9384..3c75d29bd861 100644
+>> --- a/kernel/trace/trace.h
+>> +++ b/kernel/trace/trace.h
+>> @@ -979,6 +979,7 @@ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+>>  	 * Have to open code "rcu_dereference_sched()" because the
+>>  	 * function graph tracer can be called when RCU is not
+>>  	 * "watching".
+>> +	 * Protected with schedule_on_each_cpu(ftrace_sync)
+>>  	 */
+>>  	hash = rcu_dereference_protected(ftrace_graph_hash, !preemptible());
+>>
+>> @@ -1031,6 +1032,7 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
+>>  	 * Have to open code "rcu_dereference_sched()" because the
+>>  	 * function graph tracer can be called when RCU is not
+>>  	 * "watching".
+>> +	 * Protected with schedule_on_each_cpu(ftrace_sync)
+>>  	 */
+>>  	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
+>>  						 !preemptible());
 >
->------------------ original commit in Linus's tree ------------------
->
->From 410e5e55c9c1c9c0d452ac5b9adb37b933a7747e Mon Sep 17 00:00:00 2001
->From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
->Date: Fri, 24 Jan 2020 15:36:21 -0600
->Subject: [PATCH] ASoC: SOF: core: release resources on errors in
-> probe_continue
->
->The initial intent of releasing resources in the .remove does not work
->well with HDaudio codecs. If the probe_continue() fails in a work
->queue, e.g. due to missing firmware or authentication issues, we don't
->release any resources, and as a result the kernel oopses during
->suspend operations.
->
->The suggested fix is to release all resources during errors in
->probe_continue(), and use fw_state to track resource allocation
->state, so that .remove does not attempt to release the same
->hardware resources twice. PM operations are also modified so that
->no action is done if DSP resources have been freed due to
->an error at probe.
->
->Reported-by: Takashi Iwai <tiwai@suse.de>
->Co-developed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
->Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
->Bugzilla:  http://bugzilla.suse.com/show_bug.cgi?id=1161246
->Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
->Reviewed-by: Takashi Iwai <tiwai@suse.de>
->Link: https://lore.kernel.org/r/20200124213625.30186-4-pierre-louis.bossart@linux.intel.com
->Signed-off-by: Mark Brown <broonie@kernel.org>
->Cc: stable@vger.kernel.org
+>Ah, I updated that patch to insert these comments, which makes it
+>dependent on 16052dd5bdfa ("ftrace: Add comment to why
+>rcu_dereference_sched() is open coded"). This is just adding comments
+>and should have a very lower risk of breaking anything. If you add that
+>patch first, then this patch should apply cleanly. Would it be OK to
+>add that comment patch? It should fix most the conflicts.
 
-Conflict due to missing 285880a23d10 ("ASoC: SOF: Make creation of
-machine device from SOF core optional") and a "random" space added in
-this commit. Cleaned up and queued for 5.5 and 5.4.
+I've ended up taking these additional commits, and queued everything for
+5.5-4.14:
+
+16052dd5bdfa ("ftrace: Add comment to why rcu_dereference_sched() is open coded")
+24a9729f8314 ("tracing: Annotate ftrace_graph_hash pointer with __rcu")
+fd0e6852c407 ("tracing: Annotate ftrace_graph_notrace_hash pointer with __rcu")
 
 -- 
 Thanks,
