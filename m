@@ -2,127 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF51E15557D
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 11:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E58341555C7
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 11:34:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726901AbgBGKTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Feb 2020 05:19:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34998 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726587AbgBGKTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Feb 2020 05:19:38 -0500
+        id S1726798AbgBGKev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 05:34:51 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:43165 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726958AbgBGKeu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 05:34:50 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 2411C22036;
+        Fri,  7 Feb 2020 05:34:50 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 07 Feb 2020 05:34:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/palOc
+        w53/XeAqXvbuNcaxr9wLPHe4R6qd7gZAZHqTM=; b=FZJPEB8bVf7+7jPmO41GYi
+        HCcQ//wMQJS5V6g5hoS88OLZvpYcgigY1M0fmHmlyzohvUVGXEltMR3cXNbTJCKY
+        aeLs6xHUhWPOe0NT3CNxNGZZDF6t45wfn4vGlyHlhX2T8AJQDRi4ryMS+ow+Ri1R
+        eoqBvn8p0jRYw4PiQ1C40Sh6zKIH8Nlyj9b1QOErF0cyeBhz6WYTlqaXXSaSDyc+
+        3S6/EGZS7ElfCg6OxotDoAezyN+Xe8xSg6avDfk68G0BzDO+UPgtHX/D4xv1QvR4
+        Pd50zEqv2qZ/l1WKqbLF5bzUqxwJlTKP8MRNGiZnG6k9TKEjBbHXY5wVbKxJYkng
+        ==
+X-ME-Sender: <xms:ST09Xnd2Ai40U2HZlrl6GtHiQF6voASL8rtBrvL2N2b01Z-biaqtrQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheehgddujecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:ST09Xk3T5iwG70pUxSBddO7QzFdW8n4PT9kk8-91d7S_xexsjqLJFA>
+    <xmx:ST09Xgst5CYd_dN1pfG01rqQaa6tYsk_UcQWDg3ygi9Jnul7HpTz1g>
+    <xmx:ST09Xg_1hAbQv45TQ1EilIPoVtDMVa9Ss5pGWgqeSLKdjrAhb3O0PQ>
+    <xmx:Sj09XqaXC3LEA7MAjB-aeZzUlsrgxP_D7HXdgJv8t2xn89uTCieXPQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49EE220838;
-        Fri,  7 Feb 2020 10:19:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581070776;
-        bh=E6Bhpu7PeadDR+lnSXCZdRb1H/HcVZY2jmhLQfHKHNg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IBIPcZrUPuEJRxdGdR2zitjAgr4tCGwahxSRTi44HMOpMwMsBIyghInx2g7K1OCzt
-         r6FIouey/1zVdHwkATxbGqY9ImByO4KTgLc/xzd2Kfb0oxvaC1RFZ0kWeX/04fCzh7
-         +HaVXdqiriiaLobngHWMzqgKg7XhVhE1Wr4DnAVk=
-Date:   Fri, 7 Feb 2020 11:19:34 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chengguang Xu <cgxu519@mykernel.net>
-Cc:     Pavel Machek <pavel@denx.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 062/114] f2fs: choose hardlimit when softlimit is
- larger than hardlimit in f2fs_statfs_project()
-Message-ID: <20200207101934.GA635415@kroah.com>
-References: <20200102220029.183913184@linuxfoundation.org>
- <20200102220035.294585461@linuxfoundation.org>
- <20200103171213.GC14328@amd>
- <16f6e3f5bbe.d291a05d38838.5222280714928609391@mykernel.net>
- <20200104115308.GA1296856@kroah.com>
- <1700010cc3e.12eb876364380.7472123035435503364@mykernel.net>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8332C3280062;
+        Fri,  7 Feb 2020 05:34:49 -0500 (EST)
+Subject: FAILED: patch "[PATCH] dm writecache: fix incorrect flush sequence when doing SSD" failed to apply to 4.19-stable tree
+To:     mpatocka@redhat.com, snitzer@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 07 Feb 2020 11:34:48 +0100
+Message-ID: <15810716881950@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1700010cc3e.12eb876364380.7472123035435503364@mykernel.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 01, 2020 at 05:24:25PM +0800, Chengguang Xu wrote:
->  ---- 在 星期六, 2020-01-04 19:53:08 Greg Kroah-Hartman <gregkh@linuxfoundation.org> 撰写 ----
->  > On Sat, Jan 04, 2020 at 09:50:43AM +0800, Chengguang Xu wrote:
->  > >  ---- 在 星期六, 2020-01-04 01:12:13 Pavel Machek <pavel@denx.de> 撰写 ----
->  > >  > Hi!
->  > >  > 
->  > >  > > From: Chengguang Xu <cgxu519@mykernel.net>
->  > >  > > 
->  > >  > > [ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
->  > >  > > 
->  > >  > > Setting softlimit larger than hardlimit seems meaningless
->  > >  > > for disk quota but currently it is allowed. In this case,
->  > >  > > there may be a bit of comfusion for users when they run
->  > >  > > df comamnd to directory which has project quota.
->  > >  > > 
->  > >  > > For example, we set 20M softlimit and 10M hardlimit of
->  > >  > > block usage limit for project quota of test_dir(project id 123).
->  > >  > 
->  > >  > > Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
->  > >  > > Reviewed-by: Chao Yu <yuchao0@huawei.com>
->  > >  > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
->  > >  > > Signed-off-by: Sasha Levin <sashal@kernel.org>
->  > >  > > ---
->  > >  > >  fs/f2fs/super.c | 20 ++++++++++++++------
->  > >  > >  1 file changed, 14 insertions(+), 6 deletions(-)
->  > >  > > 
->  > >  > > diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
->  > >  > > index 7a9cc64f5ca3..662c7de58b99 100644
->  > >  > > --- a/fs/f2fs/super.c
->  > >  > > +++ b/fs/f2fs/super.c
->  > >  > > @@ -1148,9 +1148,13 @@ static int f2fs_statfs_project(struct super_block *sb,
->  > >  > >          return PTR_ERR(dquot);
->  > >  > >      spin_lock(&dquot->dq_dqb_lock);
->  > >  > >  
->  > >  > > -    limit = (dquot->dq_dqb.dqb_bsoftlimit ?
->  > >  > > -         dquot->dq_dqb.dqb_bsoftlimit :
->  > >  > > -         dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
->  > >  > > +    limit = 0;
->  > >  > > +    if (dquot->dq_dqb.dqb_bsoftlimit)
->  > >  > > +        limit = dquot->dq_dqb.dqb_bsoftlimit;
->  > >  > > +    if (dquot->dq_dqb.dqb_bhardlimit &&
->  > >  > > +            (!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
->  > >  > > +        limit = dquot->dq_dqb.dqb_bhardlimit;
->  > >  > > +
->  > >  > >      if (limit && buf->f_blocks > limit) {
->  > >  > 
->  > >  > >> blocksize disappeared here. That can't be right.
->  > >  > 
->  > >  > Plus, is this just obfuscated way of saying
->  > >  > 
->  > >  > limit = min_not_zero(dquot->dq_dqb.dqb_bsoftlimit, dquot->dq_dqb.dqb_bhardlimit)?
->  > >  > 
->  > > 
->  > > Please  skip this patch from  stable list,  I'll send  a revised patch to upstream.
->  > 
->  > This patch is already in Linus's tree, so you can't send a "revised"
->  > version, only one that applies on top of this one :)
->  > 
->  > That being said, I'll go drop this from the stable queues, thanks.
->  > Please let us know when the fixed patch is in Linus's tree and we will
->  > be glad to take both of them.
->  > 
->  
-> 
-> Hi Greg, Sasha
-> 
-> Now the fix patch has been in Linus's tree, you can add below three patches together to  backport list.
-> 
-> 
-> commit 909110c060f22e6 "f2fs: choose hardlimit when softlimit is larger than hardlimit in f2fs_statfs_project()"
-> commit acdf2172172a511 "f2fs: fix miscounted block limit in f2fs_statfs_project()"
-> commit bf2cbd3c57159c2 "f2fs: code cleanup for f2fs_statfs_project()"
 
-All now queued up, thanks for letting us know.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From aa9509209c5ac2f0b35d01a922bf9ae072d0c2fc Mon Sep 17 00:00:00 2001
+From: Mikulas Patocka <mpatocka@redhat.com>
+Date: Wed, 8 Jan 2020 10:46:05 -0500
+Subject: [PATCH] dm writecache: fix incorrect flush sequence when doing SSD
+ mode commit
+
+When committing state, the function writecache_flush does the following:
+1. write metadata (writecache_commit_flushed)
+2. flush disk cache (writecache_commit_flushed)
+3. wait for data writes to complete (writecache_wait_for_ios)
+4. increase superblock seq_count
+5. write the superblock
+6. flush disk cache
+
+It may happen that at step 3, when we wait for some write to finish, the
+disk may report the write as finished, but the write only hit the disk
+cache and it is not yet stored in persistent storage. At step 5 we write
+the superblock - it may happen that the superblock is written before the
+write that we waited for in step 3. If the machine crashes, it may result
+in incorrect data being returned after reboot.
+
+In order to fix the bug, we must swap steps 2 and 3 in the above sequence,
+so that we first wait for writes to complete and then flush the disk
+cache.
+
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index 7d727a72aa13..9b0a3bf6a4a1 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -442,7 +442,13 @@ static void writecache_notify_io(unsigned long error, void *context)
+ 		complete(&endio->c);
+ }
+ 
+-static void ssd_commit_flushed(struct dm_writecache *wc)
++static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
++{
++	wait_event(wc->bio_in_progress_wait[direction],
++		   !atomic_read(&wc->bio_in_progress[direction]));
++}
++
++static void ssd_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	struct dm_io_region region;
+ 	struct dm_io_request req;
+@@ -488,17 +494,20 @@ static void ssd_commit_flushed(struct dm_writecache *wc)
+ 	writecache_notify_io(0, &endio);
+ 	wait_for_completion_io(&endio.c);
+ 
++	if (wait_for_ios)
++		writecache_wait_for_ios(wc, WRITE);
++
+ 	writecache_disk_flush(wc, wc->ssd_dev);
+ 
+ 	memset(wc->dirty_bitmap, 0, wc->dirty_bitmap_size);
+ }
+ 
+-static void writecache_commit_flushed(struct dm_writecache *wc)
++static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	if (WC_MODE_PMEM(wc))
+ 		wmb();
+ 	else
+-		ssd_commit_flushed(wc);
++		ssd_commit_flushed(wc, wait_for_ios);
+ }
+ 
+ static void writecache_disk_flush(struct dm_writecache *wc, struct dm_dev *dev)
+@@ -522,12 +531,6 @@ static void writecache_disk_flush(struct dm_writecache *wc, struct dm_dev *dev)
+ 		writecache_error(wc, r, "error flushing metadata: %d", r);
+ }
+ 
+-static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
+-{
+-	wait_event(wc->bio_in_progress_wait[direction],
+-		   !atomic_read(&wc->bio_in_progress[direction]));
+-}
+-
+ #define WFE_RETURN_FOLLOWING	1
+ #define WFE_LOWEST_SEQ		2
+ 
+@@ -724,15 +727,12 @@ static void writecache_flush(struct dm_writecache *wc)
+ 		e = e2;
+ 		cond_resched();
+ 	}
+-	writecache_commit_flushed(wc);
+-
+-	if (!WC_MODE_PMEM(wc))
+-		writecache_wait_for_ios(wc, WRITE);
++	writecache_commit_flushed(wc, true);
+ 
+ 	wc->seq_count++;
+ 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(wc->seq_count));
+ 	writecache_flush_region(wc, &sb(wc)->seq_count, sizeof sb(wc)->seq_count);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	wc->overwrote_committed = false;
+ 
+@@ -756,7 +756,7 @@ static void writecache_flush(struct dm_writecache *wc)
+ 	}
+ 
+ 	if (need_flush_after_free)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static void writecache_flush_work(struct work_struct *work)
+@@ -809,7 +809,7 @@ static void writecache_discard(struct dm_writecache *wc, sector_t start, sector_
+ 	}
+ 
+ 	if (discarded_something)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static bool writecache_wait_for_writeback(struct dm_writecache *wc)
+@@ -958,7 +958,7 @@ static void writecache_resume(struct dm_target *ti)
+ 
+ 	if (need_flush) {
+ 		writecache_flush_all_metadata(wc);
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 	}
+ 
+ 	wc_unlock(wc);
+@@ -1342,7 +1342,7 @@ static void __writecache_endio_pmem(struct dm_writecache *wc, struct list_head *
+ 			wc->writeback_size--;
+ 			n_walked++;
+ 			if (unlikely(n_walked >= ENDIO_LATENCY)) {
+-				writecache_commit_flushed(wc);
++				writecache_commit_flushed(wc, false);
+ 				wc_unlock(wc);
+ 				wc_lock(wc);
+ 				n_walked = 0;
+@@ -1423,7 +1423,7 @@ static int writecache_endio_thread(void *data)
+ 			writecache_wait_for_ios(wc, READ);
+ 		}
+ 
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 
+ 		wc_unlock(wc);
+ 	}
+@@ -1766,10 +1766,10 @@ static int init_memory(struct dm_writecache *wc)
+ 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
+ 
+ 	writecache_flush_all_metadata(wc);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 	pmem_assign(sb(wc)->magic, cpu_to_le32(MEMORY_SUPERBLOCK_MAGIC));
+ 	writecache_flush_region(wc, &sb(wc)->magic, sizeof sb(wc)->magic);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	return 0;
+ }
+
