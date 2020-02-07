@@ -2,100 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA50155003
-	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 02:21:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4167A1551AD
+	for <lists+stable@lfdr.de>; Fri,  7 Feb 2020 06:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726956AbgBGBVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Feb 2020 20:21:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726597AbgBGBVm (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Thu, 6 Feb 2020 20:21:42 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D13522082E;
-        Fri,  7 Feb 2020 01:21:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581038502;
-        bh=LurDkaUhAuwghfmvIVFYwS/cdvisXh7A5RtdByIAI5U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U7hXUfAyEjaOHWeO4iNcTgTWXpyQX3FtK9c6FuKc8hHLqz5t48ZO6JwAgf+5kcZGs
-         mFaex2bNMhb5I/xw00ManYMYQk++PSXQ0+GzMAhk5+LX5E8f49QjWueaQGoP+qZHlb
-         +e5U+cRQFqV55bPEiPuCmONZsviYkgMZYqE53W/w=
-Date:   Thu, 6 Feb 2020 20:21:40 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     chengzhihao1@huawei.com, Stable@vger.kernel.org, richard@nod.at,
-        yi.zhang@huawei.com
-Subject: Re: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent
- bulk-read and writepage" failed to apply to 4.9-stable tree
-Message-ID: <20200207012140.GS31482@sasha-vm>
-References: <1581016848106213@kroah.com>
+        id S1725851AbgBGFDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Feb 2020 00:03:36 -0500
+Received: from lelv0143.ext.ti.com ([198.47.23.248]:35666 "EHLO
+        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725837AbgBGFDg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Feb 2020 00:03:36 -0500
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 01752q9W130484;
+        Thu, 6 Feb 2020 23:02:52 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1581051772;
+        bh=erIMCRx9fjvY7yhdtjzBeMd16LGFEZD4T/l0xF/Y/BA=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=I/k7PL9qrBl7x0JqPAU321lz7GAg0ubXo+g/zwu54r3pssMnWGLz2e0FZu/TkGp9w
+         T/WfhJlPcnphGb0EdczgIBxu/wMjQaRWX2LVuaK7xgElfu90+GQGaYYE6JbFbgJKo3
+         bLJ51ulwBFR/Wl9EZpCvF0x0b+mczgNPjLlKVgUw=
+Received: from DFLE112.ent.ti.com (dfle112.ent.ti.com [10.64.6.33])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01752pF4077144;
+        Thu, 6 Feb 2020 23:02:52 -0600
+Received: from DFLE109.ent.ti.com (10.64.6.30) by DFLE112.ent.ti.com
+ (10.64.6.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 6 Feb
+ 2020 23:02:51 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE109.ent.ti.com
+ (10.64.6.30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Thu, 6 Feb 2020 23:02:51 -0600
+Received: from [172.24.145.136] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01752mgu030727;
+        Thu, 6 Feb 2020 23:02:48 -0600
+Subject: Re: [PATCH v2] mtd: spi-nor: Fixup page size for S25FS-S
+To:     John Garry <john.garry@huawei.com>,
+        Alexander A Sverdlin <alexander.sverdlin@nokia.com>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
+CC:     Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Richard Weinberger <richard@nod.at>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Brian Norris <computersforpeace@gmail.com>,
+        David Woodhouse <dwmw2@infradead.org>
+References: <20200205165736.4964-1-alexander.sverdlin@nokia.com>
+ <62a35797-4e78-f6b0-de86-50004bc636ca@huawei.com>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+Message-ID: <385c743e-0d8d-bcdc-7dd8-a1a619380b0a@ti.com>
+Date:   Fri, 7 Feb 2020 10:33:27 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
+In-Reply-To: <62a35797-4e78-f6b0-de86-50004bc636ca@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1581016848106213@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 08:20:48PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.9-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From f5de5b83303e61b1f3fb09bd77ce3ac2d7a475f2 Mon Sep 17 00:00:00 2001
->From: Zhihao Cheng <chengzhihao1@huawei.com>
->Date: Sat, 11 Jan 2020 17:50:36 +0800
->Subject: [PATCH] ubifs: Fix deadlock in concurrent bulk-read and writepage
->MIME-Version: 1.0
->Content-Type: text/plain; charset=UTF-8
->Content-Transfer-Encoding: 8bit
->
->In ubifs, concurrent execution of writepage and bulk read on the same file
->may cause ABBA deadlock, for example (Reproduce method see Link):
->
->Process A(Bulk-read starts from page4)         Process B(write page4 back)
->  vfs_read                                       wb_workfn or fsync
->  ...                                            ...
->  generic_file_buffered_read                     write_cache_pages
->    ubifs_readpage                                 LOCK(page4)
->
->      ubifs_bulk_read                              ubifs_writepage
->        LOCK(ui->ui_mutex)                           ubifs_write_inode
->
->	  ubifs_do_bulk_read                           LOCK(ui->ui_mutex)
->	    find_or_create_page(alloc page4)                  ↑
->	      LOCK(page4)                   <--     ABBA deadlock occurs!
->
->In order to ensure the serialization execution of bulk read, we can't
->remove the big lock 'ui->ui_mutex' in ubifs_bulk_read(). Instead, we
->allow ubifs_do_bulk_read() to lock page failed by replacing
->find_or_create_page(FGP_LOCK) with
->pagecache_get_page(FGP_LOCK | FGP_NOWAIT).
->
->Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
->Suggested-by: zhangyi (F) <yi.zhang@huawei.com>
->Cc: <Stable@vger.kernel.org>
->Fixes: 4793e7c5e1c ("UBIFS: add bulk-read facility")
->Link: https://bugzilla.kernel.org/show_bug.cgi?id=206153
->Signed-off-by: Richard Weinberger <richard@nod.at>
+Hi Alexander,
 
-I took in 480a1a6a3ef6 ("ubifs: Change gfp flags in page allocation for
-bulk read") as dependency and queued both for 4.9 and 4.4.
+On 06/02/20 5:08 pm, John Garry wrote:
+> On 05/02/2020 16:57, Alexander A Sverdlin wrote:
+>> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+>>
+[...]
+>> +static int s25fs_s_post_bfpt_fixups(struct spi_nor *nor,
+>> +    const struct sfdp_parameter_header *bfpt_header,
+>> +    const struct sfdp_bfpt *bfpt,
+>> +    struct spi_nor_flash_parameter *params)
+>> +{
+>> +    const struct flash_info *info = nor->info;
+>> +    u8 read_opcode, buf;
+>> +    int ret;
+>> +
+>> +    /* Default is safe */
+>> +    params->page_size = info->page_size;
+>> +
+>> +    /*
+>> +     * But is the chip configured for more performant 512 bytes write
+>> page
+>> +     * size?
+>> +     */
+>> +    read_opcode = nor->read_opcode;
+>> +
+>> +    nor->read_opcode = SPINOR_OP_RDAR;
+>> +    ret = nor->read(nor, SPINOR_REG_CR3V, 1, &buf);
+> 
+> The read method is now gone from struct spi_nor, moved into
+> spi_nor.controller_ops. And we also support spi_mem ops now.
+> 
+
+Yes, please rebase patch on top of latest spi-nor/next or linux-next tree at:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git spi-nor/next
+
+Regards
+Vignesh
+
+
+> 
+>> +    if (!ret && (buf & CR3V_02H_V))
+>> +        params->page_size = 512;
+>> +
+>> +    nor->read_opcode = read_opcode;
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +static const struct spi_nor_fixups s25fs_s_fixups = {
+>> +    .post_bfpt = s25fs_s_post_bfpt_fixups,
+>> +};
+>> +
+>>   /* NOTE: double check command sets and memory organization when you add
+>>    * more nor chips.  This current list focusses on newer chips, which
+>>    * have been converging on command sets which including JEDEC ID.
+>> @@ -2536,7 +2569,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>       { "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
+>>               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> -    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR) },
+>> +    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR)
+>> +            .fixups = &s25fs_s_fixups, },
+>>       { "s25fl256s1", INFO(0x010219, 0x4d01,  64 * 1024, 512,
+>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>       { "s25fl512s",  INFO6(0x010220, 0x4d0080, 256 * 1024, 256,
+>>               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+>> @@ -2546,7 +2580,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>       { "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
+>>       { "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
+>>       { "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64,
+>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> -    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256,
+>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> +    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256,
+>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
+>> +            .fixups = &s25fs_s_fixups, },
+>>       { "s25sl004a",  INFO(0x010212,      0,  64 * 1024,   8, 0) },
+>>       { "s25sl008a",  INFO(0x010213,      0,  64 * 1024,  16, 0) },
+>>       { "s25sl016a",  INFO(0x010214,      0,  64 * 1024,  32, 0) },
+>> diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
+>> index 5abd91c..7ce3e79 100644
+>> --- a/include/linux/mtd/spi-nor.h
+>> +++ b/include/linux/mtd/spi-nor.h
+>> @@ -116,6 +116,7 @@
+>>   /* Used for Spansion flashes only. */
+>>   #define SPINOR_OP_BRWR        0x17    /* Bank register write */
+>>   #define SPINOR_OP_CLSR        0x30    /* Clear status register 1 */
+>> +#define SPINOR_OP_RDAR        0x65    /* Read Any Register */
+>>     /* Used for Micron flashes only. */
+>>   #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
+>> @@ -150,6 +151,10 @@
+>>   #define SR2_QUAD_EN_BIT1    BIT(1)
+>>   #define SR2_QUAD_EN_BIT7    BIT(7)
+>>   +/* Used for Spansion flashes RDAR command only. */
+>> +#define SPINOR_REG_CR3V        0x800004
+>> +#define CR3V_02H_V        BIT(4)    /* Page Buffer Wrap */
+>> +
+>>   /* Supported SPI protocols */
+>>   #define SNOR_PROTO_INST_MASK    GENMASK(23, 16)
+>>   #define SNOR_PROTO_INST_SHIFT    16
+>>
+> 
+> 
+> ______________________________________________________
+> Linux MTD discussion mailing list
+> http://lists.infradead.org/mailman/listinfo/linux-mtd/
 
 -- 
-Thanks,
-Sasha
+Regards
+Vignesh
