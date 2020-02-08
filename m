@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06ADE156605
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F921566EC
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbgBHSbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:31:17 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34818 "EHLO
+        id S1728197AbgBHSiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:38:00 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33736 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727975AbgBHS3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:50 -0500
+        by vger.kernel.org with ESMTP id S1727720AbgBHS3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:37 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrG-0003d3-7P; Sat, 08 Feb 2020 18:29:34 +0000
+        id 1j0UrG-0003d4-8v; Sat, 08 Feb 2020 18:29:34 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrF-000CL2-F4; Sat, 08 Feb 2020 18:29:33 +0000
+        id 1j0UrF-000CL7-MG; Sat, 08 Feb 2020 18:29:33 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Andy Shevchenko" <andy.shevchenko@gmail.com>,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Sebastian Siewior" <bigeasy@linutronix.de>
-Date:   Sat, 08 Feb 2020 18:19:32 +0000
-Message-ID: <lsq.1581185940.70008285@decadent.org.uk>
+        "Yang Xu" <xuyang2018.jy@cn.fujitsu.com>,
+        "Eric Sandeen" <sandeen@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Jan Kara" <jack@suse.cz>
+Date:   Sat, 08 Feb 2020 18:19:33 +0000
+Message-ID: <lsq.1581185940.841782982@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 033/148] x86/ioapic: Prevent inconsistent state when
- moving an interrupt
+Subject: [PATCH 3.16 034/148] xfs: Sanity check flags of Q_XQUOTARM call
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,76 +48,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jan Kara <jack@suse.cz>
 
-commit df4393424af3fbdcd5c404077176082a8ce459c4 upstream.
+commit 3dd4d40b420846dd35869ccc8f8627feef2cff32 upstream.
 
-There is an issue with threaded interrupts which are marked ONESHOT
-and using the fasteoi handler:
+Flags passed to Q_XQUOTARM were not sanity checked for invalid values.
+Fix that.
 
-  if (IS_ONESHOT())
-    mask_irq();
-  ....
-  cond_unmask_eoi_irq()
-    chip->irq_eoi();
-      if (setaffinity_pending) {
-         mask_ioapic();
-         ...
-	 move_affinity();
-	 unmask_ioapic();
-      }
-
-So if setaffinity is pending the interrupt will be moved and then
-unconditionally unmasked at the ioapic level, which is wrong in two
-aspects:
-
- 1) It should be kept masked up to the point where the threaded handler
-    finished.
-
- 2) The physical chip state and the software masked state are inconsistent
-
-Guard both the mask and the unmask with a check for the software masked
-state. If the line is marked masked then the ioapic line is also masked, so
-both mask_ioapic() and unmask_ioapic() can be skipped safely.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sebastian Siewior <bigeasy@linutronix.de>
-Fixes: 3aa551c9b4c4 ("genirq: add threaded interrupt handler support")
-Link: https://lkml.kernel.org/r/20191017101938.321393687@linutronix.de
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[bwh: Backported to 3.16: Keep using {,un}mask_iopaic_irq()]
+Fixes: 9da93f9b7cdf ("xfs: fix Q_XQUOTARM ioctl")
+Reported-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/apic/io_apic.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_quotaops.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2377,9 +2377,10 @@ static bool io_apic_level_ack_pending(st
+--- a/fs/xfs/xfs_quotaops.c
++++ b/fs/xfs/xfs_quotaops.c
+@@ -119,6 +119,9 @@ xfs_fs_rm_xquota(
+ 	if (XFS_IS_QUOTA_ON(mp))
+ 		return -EINVAL;
  
- static inline bool ioapic_irqd_mask(struct irq_data *data, struct irq_cfg *cfg)
- {
--	/* If we are moving the irq we need to mask it */
-+	/* If we are moving the IRQ we need to mask it */
- 	if (unlikely(irqd_is_setaffinity_pending(data))) {
--		mask_ioapic(cfg);
-+		if (!irqd_irq_masked(data))
-+			mask_ioapic(cfg);
- 		return true;
- 	}
- 	return false;
-@@ -2417,7 +2418,9 @@ static inline void ioapic_irqd_unmask(st
- 		 */
- 		if (!io_apic_level_ack_pending(cfg))
- 			irq_move_masked_irq(data);
--		unmask_ioapic(cfg);
-+		/* If the IRQ is masked in the core, leave it: */
-+		if (!irqd_irq_masked(data))
-+			unmask_ioapic(cfg);
- 	}
- }
- #else
++	if (uflags & ~(FS_USER_QUOTA | FS_GROUP_QUOTA | FS_PROJ_QUOTA))
++		return -EINVAL;
++
+ 	if (uflags & FS_USER_QUOTA)
+ 		flags |= XFS_DQ_USER;
+ 	if (uflags & FS_GROUP_QUOTA)
 
