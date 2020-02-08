@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 135B91565D4
+	by mail.lfdr.de (Postfix) with ESMTP id 886A91565D5
 	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727530AbgBHS3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:29:33 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33454 "EHLO
+        id S1727605AbgBHS3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:29:34 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33524 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727543AbgBHS3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:33 -0500
+        by vger.kernel.org with ESMTP id S1727584AbgBHS3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:34 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrC-0003Zr-6E; Sat, 08 Feb 2020 18:29:30 +0000
+        id 1j0UrE-0003b0-0k; Sat, 08 Feb 2020 18:29:32 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrB-000CIl-Bu; Sat, 08 Feb 2020 18:29:29 +0000
+        id 1j0UrD-000CJu-0j; Sat, 08 Feb 2020 18:29:31 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Arnd Bergmann" <arnd@arndb.de>, "Pavel Machek" <pavel@denx.de>,
-        "Daniel Wagner" <dwagner@suse.de>,
-        "David S. Miller" <davem@davemloft.net>
-Date:   Sat, 08 Feb 2020 18:19:04 +0000
-Message-ID: <lsq.1581185940.230442033@decadent.org.uk>
+        "Dan Carpenter" <dan.carpenter@oracle.com>,
+        "Chris Wilson" <chris@chris-wilson.co.uk>
+Date:   Sat, 08 Feb 2020 18:19:18 +0000
+Message-ID: <lsq.1581185940.740550818@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 005/148] net: davinci_cpdma: use dma_addr_t for DMA
- address
+Subject: [PATCH 3.16 019/148] drm/i810: Prevent underflow in ioctl
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,80 +46,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 84092996673211f16ef3b942a191d7952e9dfea9 upstream.
+commit 4f69851fbaa26b155330be35ce8ac393e93e7442 upstream.
 
-The davinci_cpdma mixes up physical addresses as seen from the CPU
-and DMA addresses as seen from a DMA master, since it can operate
-on both normal memory or an on-chip buffer. If dma_addr_t is
-different from phys_addr_t, this means we get a compile-time warning
-about the type mismatch:
+The "used" variables here come from the user in the ioctl and it can be
+negative.  It could result in an out of bounds write.
 
-ethernet/ti/davinci_cpdma.c: In function 'cpdma_desc_pool_create':
-ethernet/ti/davinci_cpdma.c:182:48: error: passing argument 3 of 'dma_alloc_coherent' from incompatible pointer type [-Werror=incompatible-pointer-types]
-   pool->cpumap = dma_alloc_coherent(dev, size, &pool->phys,
-In file included from ethernet/ti/davinci_cpdma.c:21:0:
-dma-mapping.h:398:21: note: expected 'dma_addr_t * {aka long long unsigned int *}' but argument is of type 'phys_addr_t * {aka unsigned int *}'
- static inline void *dma_alloc_coherent(struct device *dev, size_t size,
-
-This slightly restructures the code so the address we use for
-mapping RAM into a DMA address is always a dma_addr_t, avoiding
-the warning. The code is correct even if both types are 32-bit
-because the DMA master in this device only supports 32-bit addressing
-anyway, independent of the types that are used.
-
-We still assign this value to pool->phys, and that is wrong if
-the driver is ever used with an IOMMU, but that value appears to
-be never used, so there is no problem really. I've added a couple
-of comments about where we do things that are slightly violating
-the API.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: Pavel Machek <pavel@denx.de>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191004102251.GC823@mwanda
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/ethernet/ti/davinci_cpdma.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i810/i810_dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/ti/davinci_cpdma.c
-+++ b/drivers/net/ethernet/ti/davinci_cpdma.c
-@@ -82,7 +82,7 @@ struct cpdma_desc {
+--- a/drivers/gpu/drm/i810/i810_dma.c
++++ b/drivers/gpu/drm/i810/i810_dma.c
+@@ -724,7 +724,7 @@ static void i810_dma_dispatch_vertex(str
+ 	if (nbox > I810_NR_SAREA_CLIPRECTS)
+ 		nbox = I810_NR_SAREA_CLIPRECTS;
  
- struct cpdma_desc_pool {
- 	phys_addr_t		phys;
--	u32			hw_addr;
-+	dma_addr_t		hw_addr;
- 	void __iomem		*iomap;		/* ioremap map */
- 	void			*cpumap;	/* dma_alloc map */
- 	int			desc_size, mem_size;
-@@ -152,7 +152,7 @@ struct cpdma_chan {
-  * abstract out these details
-  */
- static struct cpdma_desc_pool *
--cpdma_desc_pool_create(struct device *dev, u32 phys, u32 hw_addr,
-+cpdma_desc_pool_create(struct device *dev, u32 phys, dma_addr_t hw_addr,
- 				int size, int align)
- {
- 	int bitmap_size;
-@@ -176,13 +176,13 @@ cpdma_desc_pool_create(struct device *de
+-	if (used > 4 * 1024)
++	if (used < 0 || used > 4 * 1024)
+ 		used = 0;
  
- 	if (phys) {
- 		pool->phys  = phys;
--		pool->iomap = ioremap(phys, size);
-+		pool->iomap = ioremap(phys, size); /* should be memremap? */
- 		pool->hw_addr = hw_addr;
- 	} else {
--		pool->cpumap = dma_alloc_coherent(dev, size, &pool->phys,
-+		pool->cpumap = dma_alloc_coherent(dev, size, &pool->hw_addr,
- 						  GFP_KERNEL);
--		pool->iomap = pool->cpumap;
--		pool->hw_addr = pool->phys;
-+		pool->iomap = (void __iomem __force *)pool->cpumap;
-+		pool->phys = pool->hw_addr; /* assumes no IOMMU, don't use this value */
- 	}
+ 	if (sarea_priv->dirty)
+@@ -1044,7 +1044,7 @@ static void i810_dma_dispatch_mc(struct
+ 	if (u != I810_BUF_CLIENT)
+ 		DRM_DEBUG("MC found buffer that isn't mine!\n");
  
- 	if (pool->iomap)
+-	if (used > 4 * 1024)
++	if (used < 0 || used > 4 * 1024)
+ 		used = 0;
+ 
+ 	sarea_priv->dirty = 0x7f;
 
