@@ -2,73 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDFE1564F9
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 16:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF84E156541
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 16:48:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727350AbgBHPDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 10:03:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727341AbgBHPDh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Feb 2020 10:03:37 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C4372082E;
-        Sat,  8 Feb 2020 15:03:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581174216;
-        bh=X/BlWF00pSiOmcPTld4qliJRsKSfoijVH3MX2uKtugg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ULz6mnIDnKD/0ldo0JARP/QHyjPifpQNH8XMPwmAVwCQc2EGgwcyBF6doy0vNZzAE
-         zjwFCfdPqDlpw0+ZVxmNKokkAzK5mDyic9DXpBVakSd5RM2W5DCJQNruocfshoR5+0
-         Q/6LGnj6BZ6NgDxIQA2pqS3rToxGEJGlO1l+ZfXM=
-Date:   Sat, 8 Feb 2020 16:03:34 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: v4.9.y.queue build failures (s390)
-Message-ID: <20200208150334.GA1269910@kroah.com>
-References: <e63c50d7-68c0-1ada-dc05-86452d17a76a@roeck-us.net>
- <20200208132823.GA1234618@kroah.com>
- <15bfd5ad-bb01-3142-3c4a-44cb3661a772@roeck-us.net>
+        id S1727341AbgBHPs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 10:48:57 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:36369 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727340AbgBHPs5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 10:48:57 -0500
+Received: by mail-qk1-f194.google.com with SMTP id w25so2261136qki.3
+        for <stable@vger.kernel.org>; Sat, 08 Feb 2020 07:48:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=vD8w9dB3zgqSjk5nwacxGTDTtYd6QDcADYrRSfNWxqU=;
+        b=u8foXaqXu9exBY+Gl9u1f7i9fo3t3ihRiFmm4+cWYb9OvLSxHCAOAQ00V8etrShdys
+         HzcGnhig/L28HPEUB1nO+VTRQK/Wo65TOOuEUGM8oP+Tk8Hfah7P5qDjuhl+lK9HuFvg
+         9pTJft0aOQcerRChqrDC6qJetToNmryUVthhQHNMNAwtoa46K2c2knuaozoThiFftHAg
+         pKMNl8FKto1MnU1L5mBlrhStTtwoxHUxjhJeoHMCXsyxhHbzItQVivlystRfck3UPNer
+         23OzP80URxqYL55osJ8exNghrT4w+VdrCD0M7WCoJbbrIu3AnRrwkGF0clM6mgc0ZZXN
+         nfkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=vD8w9dB3zgqSjk5nwacxGTDTtYd6QDcADYrRSfNWxqU=;
+        b=WlMj4i74ZhQ9bDcKuu1JYtFcOknq27A3Jw+CkxEZ9EiIyHJRp2+T7KUQJ7WYlwm0pY
+         6GJbilFoJK47cifd1XiQqMMNcqvNneGWmwgg2wMChFKl9yfVzE7rSiRx8TzhvXWehff9
+         745I9kNSbXLHnylasx5MA8fVWeELi4mP9V2uFyYze25dtZjpAHZWjZLLMOFLdLJL8YZw
+         avtHsGqnK3uoBunIJxHLFwyakI/ergq7teqvmH17ssFTH8Rc2vA+dPfBtY9lv6yc+bpv
+         GIwEUfflvAwAWNINJ7XURT1QqfFv6bHCag6S+hEklY2nfsLId786sTabfWfoXY1+Xfl6
+         LMug==
+X-Gm-Message-State: APjAAAX6kMoMAQdM5cefpG34y6T/fuvKo+CIFKGmahppv3C/7ZaHvFUV
+        27sLKXIc672BKmwfvAtWXwzEQM8roRGRiI/f1/o=
+X-Google-Smtp-Source: APXvYqwok2Yye8DtBOBc9SwIyMcAt+LwH08h9zI9iIEURV5n9pAjDfS1krRJU46gE74GhbSr9BEbYzk3Z6Uvzx+izcA=
+X-Received: by 2002:ae9:e513:: with SMTP id w19mr3828417qkf.34.1581176936560;
+ Sat, 08 Feb 2020 07:48:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15bfd5ad-bb01-3142-3c4a-44cb3661a772@roeck-us.net>
+Received: by 2002:aed:2a77:0:0:0:0:0 with HTTP; Sat, 8 Feb 2020 07:48:55 -0800 (PST)
+Reply-To: kaboreissa888@gmail.com
+From:   kabore Issa <mrsamalouedrago56@gmail.com>
+Date:   Sat, 8 Feb 2020 16:48:55 +0100
+Message-ID: <CAEeQLj_hbvjVcQ66=GEiaQUHdcKb=0rEuA3LVv0sawfv5Pu6zw@mail.gmail.com>
+Subject: Hello,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 08, 2020 at 05:34:04AM -0800, Guenter Roeck wrote:
-> On 2/8/20 5:28 AM, Greg Kroah-Hartman wrote:
-> > On Sat, Feb 08, 2020 at 05:15:43AM -0800, Guenter Roeck wrote:
-> > > For v4.9.213-37-g860ec95da9ad:
-> > > 
-> > > arch/s390/mm/hugetlbpage.c:14:10: fatal error: linux/sched/mm.h: No such file or directory
-> > >     14 | #include <linux/sched/mm.h>
-> > >        |          ^~~~~~~~~~~~~~~~~~
-> > > compilation terminated.
-> > > scripts/Makefile.build:304: recipe for target 'arch/s390/mm/hugetlbpage.o' failed
-> > > make[1]: *** [arch/s390/mm/hugetlbpage.o] Error 1
-> > > Makefile:1688: recipe for target 'arch/s390/mm/hugetlbpage.o' failed
-> > > make: *** [arch/s390/mm/hugetlbpage.o] Error 2
-> > > 
-> > > Guenter
-> > 
-> > Thanks for letting me know, I'll try to guess and pick "sched.h" instead
-> > here and push out an update.
-> > 
-> > greg k-h
-> > 
-> 
-> You have "s390/mm: fix dynamic pagetable upgrade for hugetlbfs"
-> in there which is tagged 4.12+.
+Hello,
 
-{sigh}
+I am Mr. Kabore Issa, from Burkina Faso in West African region. I
+work with the Bank of Africa here Which i am the audit manager . Can
+you safe Guard these amount( $18 Million USD) for me in your Country??
+Further Details will be given to you if you show Interest.
 
-yeah, stupid me, now dropped.
+Regards
 
-thanks,
-greg k-h
+Mr. Kabore Issa
