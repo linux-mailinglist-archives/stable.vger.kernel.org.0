@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA445156719
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2D5156713
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727702AbgBHSjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:39:20 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33466 "EHLO
+        id S1727912AbgBHSjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:39:01 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33492 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727550AbgBHS3d (ORCPT
+        by vger.kernel.org with ESMTP id S1727570AbgBHS3d (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:33 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrC-0003Zx-D5; Sat, 08 Feb 2020 18:29:30 +0000
+        id 1j0UrC-0003Zy-CY; Sat, 08 Feb 2020 18:29:30 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrB-000CJ0-G3; Sat, 08 Feb 2020 18:29:29 +0000
+        id 1j0UrB-000CJ5-Hq; Sat, 08 Feb 2020 18:29:29 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Aviraj CJ" <acj@cisco.com>,
-        "Aaro Koskinen" <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Date:   Sat, 08 Feb 2020 18:19:07 +0000
-Message-ID: <lsq.1581185940.213979890@decadent.org.uk>
+        "Tejun Heo" <tj@kernel.org>,
+        "Williams, Gerald S" <gerald.s.williams@intel.com>,
+        "Marcin Pawlowski" <mpawlowski@fb.com>
+Date:   Sat, 08 Feb 2020 18:19:08 +0000
+Message-ID: <lsq.1581185940.932320075@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 008/148] net: stmmac: don't stop NAPI processing when
- dropping a packet
+Subject: [PATCH 3.16 009/148] workqueue: Fix spurious sanity check
+ failures in destroy_workqueue()
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,77 +48,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 07b3975352374c3f5ebb4a42ef0b253fe370542d upstream.
+commit def98c84b6cdf2eeea19ec5736e90e316df5206b upstream.
 
-Currently, if we drop a packet, we exit from NAPI loop before the budget
-is consumed. In some situations this will make the RX processing stall
-e.g. when flood pinging the system with oversized packets, as the
-errorneous packets are not dropped efficiently.
+Before actually destrying a workqueue, destroy_workqueue() checks
+whether it's actually idle.  If it isn't, it prints out a bunch of
+warning messages and leaves the workqueue dangling.  It unfortunately
+has a couple issues.
 
-If we drop a packet, we should just continue to the next one as long as
-the budget allows.
+* Mayday list queueing increments pwq's refcnts which gets detected as
+  busy and fails the sanity checks.  However, because mayday list
+  queueing is asynchronous, this condition can happen without any
+  actual work items left in the workqueue.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[acj: backport v4.4 -stable
--adjust context]
-Signed-off-by: Aviraj CJ <acj@cisco.com>
+* Sanity check failure leaves the sysfs interface behind too which can
+  lead to init failure of newer instances of the workqueue.
+
+This patch fixes the above two by
+
+* If a workqueue has a rescuer, disable and kill the rescuer before
+  sanity checks.  Disabling and killing is guaranteed to flush the
+  existing mayday list.
+
+* Remove sysfs interface before sanity checks.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Marcin Pawlowski <mpawlowski@fb.com>
+Reported-by: "Williams, Gerald S" <gerald.s.williams@intel.com>
+[bwh: Backported to 3.16: destroy_workqueue() also freed wq->rescuer itself]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2060,8 +2060,7 @@ static inline void stmmac_rx_refill(stru
- static int stmmac_rx(struct stmmac_priv *priv, int limit)
- {
- 	unsigned int rxsize = priv->dma_rx_size;
--	unsigned int entry = priv->cur_rx % rxsize;
--	unsigned int next_entry;
-+	unsigned int next_entry = priv->cur_rx % rxsize;
- 	unsigned int count = 0;
- 	int coe = priv->plat->rx_coe;
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -4266,9 +4266,29 @@ void destroy_workqueue(struct workqueue_
+ 	struct pool_workqueue *pwq;
+ 	int node;
  
-@@ -2073,9 +2072,11 @@ static int stmmac_rx(struct stmmac_priv
- 			stmmac_display_ring((void *)priv->dma_rx, rxsize, 0);
- 	}
- 	while (count < limit) {
--		int status;
-+		int status, entry;
- 		struct dma_desc *p;
- 
-+		entry = next_entry;
++	/*
++	 * Remove it from sysfs first so that sanity check failure doesn't
++	 * lead to sysfs name conflicts.
++	 */
++	workqueue_sysfs_unregister(wq);
 +
- 		if (priv->extend_desc)
- 			p = (struct dma_desc *)(priv->dma_erx + entry);
- 		else
-@@ -2123,7 +2124,7 @@ static int stmmac_rx(struct stmmac_priv
- 			/*  check if frame_len fits the preallocated memory */
- 			if (frame_len > priv->dma_buf_sz) {
- 				priv->dev->stats.rx_length_errors++;
--				break;
-+				continue;
- 			}
+ 	/* drain it before proceeding with destruction */
+ 	drain_workqueue(wq);
  
- 			/* ACS is set; GMAC core strips PAD/FCS for IEEE 802.3
-@@ -2144,7 +2145,7 @@ static int stmmac_rx(struct stmmac_priv
- 				pr_err("%s: Inconsistent Rx descriptor chain\n",
- 				       priv->dev->name);
- 				priv->dev->stats.rx_dropped++;
--				break;
-+				continue;
- 			}
- 			prefetch(skb->data - NET_IP_ALIGN);
- 			priv->rx_skbuff[entry] = NULL;
-@@ -2175,7 +2176,6 @@ static int stmmac_rx(struct stmmac_priv
- 			priv->dev->stats.rx_packets++;
- 			priv->dev->stats.rx_bytes += frame_len;
- 		}
--		entry = next_entry;
- 	}
++	/* kill rescuer, if sanity checks fail, leave it w/o rescuer */
++	if (wq->rescuer) {
++		struct worker *rescuer = wq->rescuer;
++
++		/* this prevents new queueing */
++		spin_lock_irq(&wq_mayday_lock);
++		wq->rescuer = NULL;
++		spin_unlock_irq(&wq_mayday_lock);
++
++		/* rescuer will empty maydays list before exiting */
++		kthread_stop(rescuer->task);
++		kfree(rescuer);
++	}
++
+ 	/* sanity checks */
+ 	mutex_lock(&wq->mutex);
+ 	for_each_pwq(pwq, wq) {
+@@ -4298,14 +4318,6 @@ void destroy_workqueue(struct workqueue_
+ 	list_del_init(&wq->list);
+ 	mutex_unlock(&wq_pool_mutex);
  
- 	stmmac_rx_refill(priv);
+-	workqueue_sysfs_unregister(wq);
+-
+-	if (wq->rescuer) {
+-		kthread_stop(wq->rescuer->task);
+-		kfree(wq->rescuer);
+-		wq->rescuer = NULL;
+-	}
+-
+ 	if (!(wq->flags & WQ_UNBOUND)) {
+ 		/*
+ 		 * The base ref is never dropped on per-cpu pwqs.  Directly
 
