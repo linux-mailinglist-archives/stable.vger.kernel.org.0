@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFAE156672
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:35:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F00156642
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:33:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgBHSev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:34:51 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34166 "EHLO
+        id S1728100AbgBHSdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:33:05 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34404 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727870AbgBHS3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:44 -0500
+        by vger.kernel.org with ESMTP id S1727922AbgBHS3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:47 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrK-0003fo-7Z; Sat, 08 Feb 2020 18:29:38 +0000
+        id 1j0UrK-0003fw-3m; Sat, 08 Feb 2020 18:29:38 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-000CR1-6e; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-000CR5-7S; Sat, 08 Feb 2020 18:29:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jann Horn" <jannh@google.com>,
-        "Christian Brauner" <christian.brauner@ubuntu.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Feb 2020 18:20:33 +0000
-Message-ID: <lsq.1581185940.741520546@decadent.org.uk>
+        "Fabio D'Urso" <fabiodurso@hotmail.it>,
+        "Johan Hovold" <johan@kernel.org>
+Date:   Sat, 08 Feb 2020 18:20:34 +0000
+Message-ID: <lsq.1581185940.898117046@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 094/148] binder: Handle start==NULL in
- binder_update_page_range()
+Subject: [PATCH 3.16 095/148] USB: serial: ftdi_sio: add device IDs for
+ U-Blox C099-F9P
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,53 +47,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jann Horn <jannh@google.com>
+From: Fabio D'Urso <fabiodurso@hotmail.it>
 
-commit 2a9edd056ed4fbf9d2e797c3fc06335af35bccc4 upstream.
+commit c1a1f273d0825774c80896b8deb1c9ea1d0b91e3 upstream.
 
-The old loop wouldn't stop when reaching `start` if `start==NULL`, instead
-continuing backwards to index -1 and crashing.
+This device presents itself as a USB hub with three attached devices:
+ - An ACM serial port connected to the GPS module (not affected by this
+   commit)
+ - An FTDI serial port connected to the GPS module (1546:0502)
+ - Another FTDI serial port connected to the ODIN-W2 radio module
+   (1546:0503)
 
-Luckily you need to be highly privileged to map things at NULL, so it's not
-a big problem.
+This commit registers U-Blox's VID and the PIDs of the second and third
+devices.
 
-Fix it by adjusting the loop so that the loop variable is always in bounds.
+Datasheet: https://www.u-blox.com/sites/default/files/C099-F9P-AppBoard-Mbed-OS3-FW_UserGuide_%28UBX-18063024%29.pdf
 
-This patch is deliberately minimal to simplify backporting, but IMO this
-function could use a refactor. The jump labels in the second loop body are
-horrible (the error gotos should be jumping to free_range instead), and
-both loops would look nicer if they just iterated upwards through indices.
-And the up_read()+mmput() shouldn't be duplicated like that.
-
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20191018205631.248274-3-jannh@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: There is no continue statement in the loop,
- so we only need to check the exit condition at the bottom]
+Signed-off-by: Fabio D'Urso <fabiodurso@hotmail.it>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/drivers/staging/android/binder.c
-+++ b/drivers/staging/android/binder.c
-@@ -624,8 +624,7 @@ static int binder_update_page_range(stru
- 	return 0;
+ drivers/usb/serial/ftdi_sio.c     | 3 +++
+ drivers/usb/serial/ftdi_sio_ids.h | 7 +++++++
+ 2 files changed, 10 insertions(+)
+
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1041,6 +1041,9 @@ static const struct usb_device_id id_tab
+ 	/* Sienna devices */
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
+ 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
++	/* U-Blox devices */
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+ 	{ }					/* Terminating entry */
+ };
  
- free_range:
--	for (page_addr = end - PAGE_SIZE; page_addr >= start;
--	     page_addr -= PAGE_SIZE) {
-+	for (page_addr = end - PAGE_SIZE; 1; page_addr -= PAGE_SIZE) {
- 		page = &proc->pages[(page_addr - proc->buffer) / PAGE_SIZE];
- 		if (vma)
- 			zap_page_range(vma, (uintptr_t)page_addr +
-@@ -636,7 +635,8 @@ err_map_kernel_failed:
- 		__free_page(*page);
- 		*page = NULL;
- err_alloc_page_failed:
--		;
-+		if (page_addr == start)
-+			break;
- 	}
- err_no_vma:
- 	if (mm) {
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1557,3 +1557,10 @@
+  */
+ #define UNJO_VID			0x22B7
+ #define UNJO_ISODEBUG_V1_PID		0x150D
++
++/*
++ * U-Blox products (http://www.u-blox.com).
++ */
++#define UBLOX_VID			0x1546
++#define UBLOX_C099F9P_ZED_PID		0x0502
++#define UBLOX_C099F9P_ODIN_PID		0x0503
 
