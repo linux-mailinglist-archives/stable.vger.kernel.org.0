@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBCD315662F
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 769DB156626
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727574AbgBHSck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:32:40 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34562 "EHLO
+        id S1728457AbgBHScY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:32:24 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34582 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727938AbgBHS3s (ORCPT
+        by vger.kernel.org with ESMTP id S1727939AbgBHS3s (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:48 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrO-0003jJ-2Z; Sat, 08 Feb 2020 18:29:42 +0000
+        id 1j0UrO-0003jM-5x; Sat, 08 Feb 2020 18:29:42 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrL-000CVa-BX; Sat, 08 Feb 2020 18:29:39 +0000
+        id 1j0UrL-000CVj-HX; Sat, 08 Feb 2020 18:29:39 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Menglong Dong" <dong.menglong@zte.com.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Date:   Sat, 08 Feb 2020 18:21:02 +0000
-Message-ID: <lsq.1581185941.238945398@decadent.org.uk>
+        "Bjorn Helgaas" <bhelgaas@google.com>,
+        "Jian-Hong Pan" <jian-hong@endlessm.com>
+Date:   Sat, 08 Feb 2020 18:21:03 +0000
+Message-ID: <lsq.1581185941.640775918@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 123/148] macvlan: schedule bc_work even if error
+Subject: [PATCH 3.16 124/148] PCI/MSI: Fix incorrect MSI-X masking on resume
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,51 +46,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit 1d7ea55668878bb350979c377fc72509dd6f5b21 upstream.
+commit e045fa29e89383c717e308609edd19d2fd29e1be upstream.
 
-While enqueueing a broadcast skb to port->bc_queue, schedule_work()
-is called to add port->bc_work, which processes the skbs in
-bc_queue, to "events" work queue. If port->bc_queue is full, the
-skb will be discarded and schedule_work(&port->bc_work) won't be
-called. However, if port->bc_queue is full and port->bc_work is not
-running or pending, port->bc_queue will keep full and schedule_work()
-won't be called any more, and all broadcast skbs to macvlan will be
-discarded. This case can happen:
+When a driver enables MSI-X, msix_program_entries() reads the MSI-X Vector
+Control register for each vector and saves it in desc->masked.  Each
+register is 32 bits and bit 0 is the actual Mask bit.
 
-macvlan_process_broadcast() is the pending function of port->bc_work,
-it moves all the skbs in port->bc_queue to the queue "list", and
-processes the skbs in "list". During this, new skbs will keep being
-added to port->bc_queue in macvlan_broadcast_enqueue(), and
-port->bc_queue may already full when macvlan_process_broadcast()
-return. This may happen, especially when there are a lot of real-time
-threads and the process is preempted.
+When we restored these registers during resume, we previously set the Mask
+bit if *any* bit in desc->masked was set instead of when the Mask bit
+itself was set:
 
-Fix this by calling schedule_work(&port->bc_work) even if
-port->bc_work is full in macvlan_broadcast_enqueue().
+  pci_restore_state
+    pci_restore_msi_state
+      __pci_restore_msix_state
+        for_each_pci_msi_entry
+          msix_mask_irq(entry, entry->masked)   <-- entire u32 word
+            __pci_msix_desc_mask_irq(desc, flag)
+              mask_bits = desc->masked & ~PCI_MSIX_ENTRY_CTRL_MASKBIT
+              if (flag)       <-- testing entire u32, not just bit 0
+                mask_bits |= PCI_MSIX_ENTRY_CTRL_MASKBIT
+              writel(mask_bits, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL)
 
-Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This means that after resume, MSI-X vectors were masked when they shouldn't
+be, which leads to timeouts like this:
+
+  nvme nvme0: I/O 978 QID 3 timeout, completion polled
+
+On resume, set the Mask bit only when the saved Mask bit from suspend was
+set.
+
+This should remove the need for 19ea025e1d28 ("nvme: Add quirk for Kingston
+NVME SSD running FW E8FK11.T").
+
+[bhelgaas: commit log, move fix to __pci_msix_desc_mask_irq()]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204887
+Link: https://lore.kernel.org/r/20191008034238.2503-1-jian-hong@endlessm.com
+Fixes: f2440d9acbe8 ("PCI MSI: Refactor interrupt masking code")
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/macvlan.c | 3 ++-
+ drivers/pci/msi.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -262,10 +262,11 @@ static void macvlan_broadcast_enqueue(st
- 	}
- 	spin_unlock(&port->bc_queue.lock);
- 
-+	schedule_work(&port->bc_work);
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -220,8 +220,9 @@ u32 default_msix_mask_irq(struct msi_des
+ 	u32 mask_bits = desc->masked;
+ 	unsigned offset = desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
+ 						PCI_MSIX_ENTRY_VECTOR_CTRL;
 +
- 	if (err)
- 		goto free_nskb;
+ 	mask_bits &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
+-	if (flag)
++	if (flag & PCI_MSIX_ENTRY_CTRL_MASKBIT)
+ 		mask_bits |= PCI_MSIX_ENTRY_CTRL_MASKBIT;
+ 	writel(mask_bits, desc->mask_base + offset);
  
--	schedule_work(&port->bc_work);
- 	return;
- 
- free_nskb:
 
