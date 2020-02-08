@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4013B15660B
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:31:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5CF1566AB
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728290AbgBHSbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:31:25 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34820 "EHLO
+        id S1727922AbgBHSgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:36:13 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33918 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727974AbgBHS3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:50 -0500
+        by vger.kernel.org with ESMTP id S1727813AbgBHS3l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:41 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrH-0003dB-IC; Sat, 08 Feb 2020 18:29:35 +0000
+        id 1j0UrH-0003dH-I6; Sat, 08 Feb 2020 18:29:35 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrG-000CNB-MB; Sat, 08 Feb 2020 18:29:34 +0000
+        id 1j0UrG-000CNG-My; Sat, 08 Feb 2020 18:29:34 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -27,15 +27,16 @@ From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Masami Hiramatsu" <masami.hiramatsu.pt@hitachi.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
+        "Jiri Olsa" <jolsa@redhat.com>, "David Ahern" <dsahern@gmail.com>,
         "Arnaldo Carvalho de Melo" <acme@redhat.com>,
+        "Arnaldo Carvalho de Melo" <acme@kernel.org>,
         "Namhyung Kim" <namhyung@kernel.org>
-Date:   Sat, 08 Feb 2020 18:19:58 +0000
-Message-ID: <lsq.1581185940.917825935@decadent.org.uk>
+Date:   Sat, 08 Feb 2020 18:19:59 +0000
+Message-ID: <lsq.1581185940.619552824@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 059/148] perf probe: Fix to handle optimized
- not-inlined functions
+Subject: [PATCH 3.16 060/148] perf probe: Fix to show lines of sys_
+ functions correctly
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,124 +52,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 
-commit e1ecbbc3fa834cc6b4b344edb1968e734d57189b upstream.
+commit 75186a9b09e47072f442f43e292cd47180b67b5c upstream.
 
-Fix to handle optimized no-inline functions which have only function
-definition but no actual instance at that point.
+"perf probe --lines sys_poll" shows only the first line of sys_poll,
+because the SYSCALL_DEFINE macro:
 
-To fix this problem, we need to find actual instance of the function.
-
-Without this patch:
   ----
-  # perf probe -a __up
-  Failed to get entry address of __up.
-    Error: Failed to add events.
-  # perf probe -L __up
-  Specified source line is not found.
-    Error: Failed to show lines.
+  SYSCALL_DEFINE*(foo,...)
+  {
+    body;
+  }
   ----
 
-With this patch:
-  ----
-  # perf probe -a __up
-  Added new event:
-    probe:__up           (on __up)
+  is expanded as below (on debuginfo)
 
-  You can now use it in all perf tools, such as:
-
-          perf record -e probe:__up -aR sleep 1
-
-  # perf probe -L __up
-  <__up@/home/fedora/ksrc/linux-3/kernel/locking/semaphore.c:0>
-        0  static noinline void __sched __up(struct semaphore *sem)
-           {
-                  struct semaphore_waiter *waiter = list_first_entry(&sem->wait_
-                                                          struct semaphore_waite
-        4         list_del(&waiter->list);
-        5         waiter->up = true;
-        6         wake_up_process(waiter->task);
-        7  }
   ----
 
+  static inline int SYSC_foo(...)
+  {
+    body;
+  }
+  int SyS_foo(...) <- is an alias of sys_foo.
+  {
+    return SYSC_foo(...);
+  }
+  ----
+
+So, "perf probe --lines sys_foo" decodes SyS_foo function and it also skips
+inlined functions(SYSC_foo) inside the target function because those functions
+are usually defined somewhere else.
+
+To fix this issue, this fix checks whether the inlined function is defined at
+the same point of the target function, and if so, it doesn't skip the inline
+function.
+
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
 Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/20150130093744.30575.43290.stgit@localhost.localdomain
+Link: http://lkml.kernel.org/r/20150812012406.11811.94691.stgit@localhost.localdomain
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- tools/perf/util/dwarf-aux.c    | 15 +++++++++++++++
- tools/perf/util/dwarf-aux.h    |  3 +++
- tools/perf/util/probe-finder.c | 12 ++++--------
- 3 files changed, 22 insertions(+), 8 deletions(-)
+ tools/perf/util/dwarf-aux.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 --- a/tools/perf/util/dwarf-aux.c
 +++ b/tools/perf/util/dwarf-aux.c
-@@ -278,6 +278,21 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- }
+@@ -681,15 +681,18 @@ int die_walk_lines(Dwarf_Die *rt_die, li
+ 	Dwarf_Lines *lines;
+ 	Dwarf_Line *line;
+ 	Dwarf_Addr addr;
+-	const char *fname;
++	const char *fname, *decf = NULL;
+ 	int lineno, ret = 0;
++	int decl = 0, inl;
+ 	Dwarf_Die die_mem, *cu_die;
+ 	size_t nlines, i;
  
- /**
-+ * die_is_func_instance - Ensure that this DIE is an instance of a subprogram
-+ * @dw_die: a DIE
-+ *
-+ * Ensure that this DIE is an instance (which has an entry address).
-+ * This returns true if @dw_die is a function instance. If not, you need to
-+ * call die_walk_instances() to find actual instances.
-+ **/
-+bool die_is_func_instance(Dwarf_Die *dw_die)
-+{
-+	Dwarf_Addr tmp;
-+
-+	/* Actually gcc optimizes non-inline as like as inlined */
-+	return !dwarf_func_inline(dw_die) && dwarf_entrypc(dw_die, &tmp) == 0;
-+}
-+/**
-  * die_get_data_member_location - Get the data-member offset
-  * @mb_die: a DIE of a member of a data structure
-  * @offs: The offset of the member in the data structure
---- a/tools/perf/util/dwarf-aux.h
-+++ b/tools/perf/util/dwarf-aux.h
-@@ -41,6 +41,9 @@ extern int cu_walk_functions_at(Dwarf_Di
- /* Ensure that this DIE is a subprogram and definition (not declaration) */
- extern bool die_is_func_def(Dwarf_Die *dw_die);
+ 	/* Get the CU die */
+-	if (dwarf_tag(rt_die) != DW_TAG_compile_unit)
++	if (dwarf_tag(rt_die) != DW_TAG_compile_unit) {
+ 		cu_die = dwarf_diecu(rt_die, &die_mem, NULL, NULL);
+-	else
++		dwarf_decl_line(rt_die, &decl);
++		decf = dwarf_decl_file(rt_die);
++	} else
+ 		cu_die = rt_die;
+ 	if (!cu_die) {
+ 		pr_debug2("Failed to get CU from given DIE.\n");
+@@ -720,9 +723,14 @@ int die_walk_lines(Dwarf_Die *rt_die, li
+ 			 * The line is included in given function, and
+ 			 * no inline block includes it.
+ 			 */
+-			if (!dwarf_haspc(rt_die, addr) ||
+-			    die_find_inlinefunc(rt_die, addr, &die_mem))
++			if (!dwarf_haspc(rt_die, addr))
+ 				continue;
++			if (die_find_inlinefunc(rt_die, addr, &die_mem)) {
++				dwarf_decl_line(&die_mem, &inl);
++				if (inl != decl ||
++				    decf != dwarf_decl_file(&die_mem))
++					continue;
++			}
+ 		/* Get source line */
+ 		fname = dwarf_linesrc(line, NULL, NULL);
  
-+/* Ensure that this DIE is an instance of a subprogram */
-+extern bool die_is_func_instance(Dwarf_Die *dw_die);
-+
- /* Compare diename and tname */
- extern bool die_compare_name(Dwarf_Die *dw_die, const char *tname);
- 
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -909,17 +909,13 @@ static int probe_point_search_cb(Dwarf_D
- 		dwarf_decl_line(sp_die, &pf->lno);
- 		pf->lno += pp->line;
- 		param->retval = find_probe_point_by_line(pf);
--	} else if (!dwarf_func_inline(sp_die)) {
-+	} else if (die_is_func_instance(sp_die)) {
-+		/* Instances always have the entry address */
-+		dwarf_entrypc(sp_die, &pf->addr);
- 		/* Real function */
- 		if (pp->lazy_line)
- 			param->retval = find_probe_point_lazy(sp_die, pf);
- 		else {
--			if (dwarf_entrypc(sp_die, &pf->addr) != 0) {
--				pr_warning("Failed to get entry address of "
--					   "%s.\n", dwarf_diename(sp_die));
--				param->retval = -ENOENT;
--				return DWARF_CB_ABORT;
--			}
- 			pf->addr += pp->offset;
- 			/* TODO: Check the address in this function */
- 			param->retval = call_probe_finder(sp_die, pf);
-@@ -1514,7 +1510,7 @@ static int line_range_search_cb(Dwarf_Di
- 		pr_debug("New line range: %d to %d\n", lf->lno_s, lf->lno_e);
- 		lr->start = lf->lno_s;
- 		lr->end = lf->lno_e;
--		if (dwarf_func_inline(sp_die))
-+		if (!die_is_func_instance(sp_die))
- 			param->retval = die_walk_instances(sp_die,
- 						line_range_inline_cb, lf);
- 		else
 
