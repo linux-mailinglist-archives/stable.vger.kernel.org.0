@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC48A1565EC
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:30:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6591565DF
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbgBHSaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:30:03 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35118 "EHLO
+        id S1727973AbgBHS3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:29:49 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34302 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728033AbgBHSaD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:30:03 -0500
+        by vger.kernel.org with ESMTP id S1727911AbgBHS3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:46 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrK-0003fe-1g; Sat, 08 Feb 2020 18:29:38 +0000
+        id 1j0UrL-0003fr-8O; Sat, 08 Feb 2020 18:29:39 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-000CRH-D2; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrK-000CTc-2n; Sat, 08 Feb 2020 18:29:38 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,27 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ingo Molnar" <mingo@redhat.com>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Borislav Petkov" <bp@suse.de>, "x86-ml" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Tyler Hicks" <tyhicks@canonical.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Jiri Kosina" <jkosina@suse.cz>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Tim Chen" <tim.c.chen@linux.intel.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Tony Luck" <tony.luck@intel.com>,
-        "Mark Gross" <mgross@linux.intel.com>, linux-doc@vger.kernel.org,
-        "Jonathan Corbet" <corbet@lwn.net>,
-        "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>,
-        "Waiman Long" <longman@redhat.com>
-Date:   Sat, 08 Feb 2020 18:20:36 +0000
-Message-ID: <lsq.1581185940.817819654@decadent.org.uk>
+        "Jiangfeng Xiao" <xiaojiangfeng@huawei.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+Date:   Sat, 08 Feb 2020 18:20:50 +0000
+Message-ID: <lsq.1581185940.550661998@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 097/148] x86/speculation: Fix incorrect MDS/TAA
- mitigation status
+Subject: [PATCH 3.16 111/148] serial: serial_core: Perform NULL checks for
+ break_ctl ops
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -60,152 +47,124 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Waiman Long <longman@redhat.com>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-commit 64870ed1b12e235cfca3f6c6da75b542c973ff78 upstream.
+commit 7d73170e1c282576419f8b50a771f1fcd2b81a94 upstream.
 
-For MDS vulnerable processors with TSX support, enabling either MDS or
-TAA mitigations will enable the use of VERW to flush internal processor
-buffers at the right code path. IOW, they are either both mitigated
-or both not. However, if the command line options are inconsistent,
-the vulnerabilites sysfs files may not report the mitigation status
-correctly.
+Doing fuzz test on sbsa uart device, causes a kernel crash
+due to NULL pointer dereference:
 
-For example, with only the "mds=off" option:
+------------[ cut here ]------------
+Unable to handle kernel paging request at virtual address fffffffffffffffc
+pgd = ffffffe331723000
+[fffffffffffffffc] *pgd=0000002333595003, *pud=0000002333595003, *pmd=00000
+Internal error: Oops: 96000005 [#1] PREEMPT SMP
+Modules linked in: ping(O) jffs2 rtos_snapshot(O) pramdisk(O) hisi_sfc(O)
+Drv_Nandc_K(O) Drv_SysCtl_K(O) Drv_SysClk_K(O) bsp_reg(O) hns3(O)
+hns3_uio_enet(O) hclgevf(O) hclge(O) hnae3(O) mdio_factory(O)
+mdio_registry(O) mdio_dev(O) mdio(O) hns3_info(O) rtos_kbox_panic(O)
+uart_suspend(O) rsm(O) stp llc tunnel4 xt_tcpudp ipt_REJECT nf_reject_ipv4
+iptable_filter ip_tables x_tables sd_mod xhci_plat_hcd xhci_pci xhci_hcd
+usbmon usbhid usb_storage ohci_platform ohci_pci ohci_hcd hid_generic hid
+ehci_platform ehci_pci ehci_hcd vfat fat usbcore usb_common scsi_mod
+yaffs2multi(O) ext4 jbd2 ext2 mbcache ofpart i2c_dev i2c_core uio ubi nand
+nand_ecc nand_ids cfi_cmdset_0002 cfi_cmdset_0001 cfi_probe gen_probe
+cmdlinepart chipreg mtdblock mtd_blkdevs mtd nfsd auth_rpcgss oid_registry
+nfsv3 nfs nfs_acl lockd sunrpc grace autofs4
+CPU: 2 PID: 2385 Comm: tty_fuzz_test Tainted: G           O    4.4.193 #1
+task: ffffffe32b23f110 task.stack: ffffffe32bda4000
+PC is at uart_break_ctl+0x44/0x84
+LR is at uart_break_ctl+0x34/0x84
+pc : [<ffffff8393196098>] lr : [<ffffff8393196088>] pstate: 80000005
+sp : ffffffe32bda7cc0
+x29: ffffffe32bda7cc0 x28: ffffffe32b23f110
+x27: ffffff8393402000 x26: 0000000000000000
+x25: ffffffe32b233f40 x24: ffffffc07a8ec680
+x23: 0000000000005425 x22: 00000000ffffffff
+x21: ffffffe33ed73c98 x20: 0000000000000000
+x19: ffffffe33ed94168 x18: 0000000000000004
+x17: 0000007f92ae9d30 x16: ffffff8392fa6064
+x15: 0000000000000010 x14: 0000000000000000
+x13: 0000000000000000 x12: 0000000000000000
+x11: 0000000000000020 x10: 0000007ffdac1708
+x9 : 0000000000000078 x8 : 000000000000001d
+x7 : 0000000052a64887 x6 : ffffffe32bda7e08
+x5 : ffffffe32b23c000 x4 : 0000005fbc5b0000
+x3 : ffffff83938d5018 x2 : 0000000000000080
+x1 : ffffffe32b23c040 x0 : ffffff83934428f8
+virtual start addr offset is 38ac00000
+module base offset is 2cd4cf1000
+linear region base offset is : 0
+Process tty_fuzz_test (pid: 2385, stack limit = 0xffffffe32bda4000)
+Stack: (0xffffffe32bda7cc0 to 0xffffffe32bda8000)
+7cc0: ffffffe32bda7cf0 ffffff8393177718 ffffffc07a8ec680 ffffff8393196054
+7ce0: 000000001739f2e0 0000007ffdac1978 ffffffe32bda7d20 ffffff8393179a1c
+7d00: 0000000000000000 ffffff8393c0a000 ffffffc07a8ec680 cb88537fdc8ba600
+7d20: ffffffe32bda7df0 ffffff8392fa5a40 ffffff8393c0a000 0000000000005425
+7d40: 0000007ffdac1978 ffffffe32b233f40 ffffff8393178dcc 0000000000000003
+7d60: 000000000000011d 000000000000001d ffffffe32b23f110 000000000000029e
+7d80: ffffffe34fe8d5d0 0000000000000000 ffffffe32bda7e14 cb88537fdc8ba600
+7da0: ffffffe32bda7e30 ffffff8393042cfc ffffff8393c41720 ffffff8393c46410
+7dc0: ffffff839304fa68 ffffffe32b233f40 0000000000005425 0000007ffdac1978
+7de0: 000000000000011d cb88537fdc8ba600 ffffffe32bda7e70 ffffff8392fa60cc
+7e00: 0000000000000000 ffffffe32b233f40 ffffffe32b233f40 0000000000000003
+7e20: 0000000000005425 0000007ffdac1978 ffffffe32bda7e70 ffffff8392fa60b0
+7e40: 0000000000000280 ffffffe32b233f40 ffffffe32b233f40 0000000000000003
+7e60: 0000000000005425 cb88537fdc8ba600 0000000000000000 ffffff8392e02e78
+7e80: 0000000000000280 0000005fbc5b0000 ffffffffffffffff 0000007f92ae9d3c
+7ea0: 0000000060000000 0000000000000015 0000000000000003 0000000000005425
+7ec0: 0000007ffdac1978 0000000000000000 00000000a54c910e 0000007f92b95014
+7ee0: 0000007f92b95090 0000000052a64887 000000000000001d 0000000000000078
+7f00: 0000007ffdac1708 0000000000000020 0000000000000000 0000000000000000
+7f20: 0000000000000000 0000000000000010 000000556acf0090 0000007f92ae9d30
+7f40: 0000000000000004 000000556acdef10 0000000000000000 000000556acdebd0
+7f60: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+7f80: 0000000000000000 0000000000000000 0000000000000000 0000007ffdac1840
+7fa0: 000000556acdedcc 0000007ffdac1840 0000007f92ae9d3c 0000000060000000
+7fc0: 0000000000000000 0000000000000000 0000000000000003 000000000000001d
+7fe0: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+Call trace:
+Exception stack(0xffffffe32bda7ab0 to 0xffffffe32bda7bf0)
+7aa0:                                   0000000000001000 0000007fffffffff
+7ac0: ffffffe32bda7cc0 ffffff8393196098 0000000080000005 0000000000000025
+7ae0: ffffffe32b233f40 ffffff83930d777c ffffffe32bda7b30 ffffff83930d777c
+7b00: ffffffe32bda7be0 ffffff83938d5000 ffffffe32bda7be0 ffffffe32bda7c20
+7b20: ffffffe32bda7b60 ffffff83930d777c ffffffe32bda7c10 ffffff83938d5000
+7b40: ffffffe32bda7c10 ffffffe32bda7c50 ffffff8393c0a000 ffffffe32b23f110
+7b60: ffffffe32bda7b70 ffffff8392e09df4 ffffffe32bda7bb0 cb88537fdc8ba600
+7b80: ffffff83934428f8 ffffffe32b23c040 0000000000000080 ffffff83938d5018
+7ba0: 0000005fbc5b0000 ffffffe32b23c000 ffffffe32bda7e08 0000000052a64887
+7bc0: 000000000000001d 0000000000000078 0000007ffdac1708 0000000000000020
+7be0: 0000000000000000 0000000000000000
+[<ffffff8393196098>] uart_break_ctl+0x44/0x84
+[<ffffff8393177718>] send_break+0xa0/0x114
+[<ffffff8393179a1c>] tty_ioctl+0xc50/0xe84
+[<ffffff8392fa5a40>] do_vfs_ioctl+0xc4/0x6e8
+[<ffffff8392fa60cc>] SyS_ioctl+0x68/0x9c
+[<ffffff8392e02e78>] __sys_trace_return+0x0/0x4
+Code: b9410ea0 34000160 f9408aa0 f9402814 (b85fc280)
+---[ end trace 8606094f1960c5e0 ]---
+Kernel panic - not syncing: Fatal exception
 
-  vulnerabilities/mds:Vulnerable; SMT vulnerable
-  vulnerabilities/tsx_async_abort:Mitigation: Clear CPU buffers; SMT vulnerable
+Fix this problem by adding NULL checks prior to calling break_ctl ops.
 
-The mds vulnerabilities file has wrong status in this case. Similarly,
-the taa vulnerability file will be wrong with mds mitigation on, but
-taa off.
-
-Change taa_select_mitigation() to sync up the two mitigation status
-and have them turned off if both "mds=off" and "tsx_async_abort=off"
-are present.
-
-Update documentation to emphasize the fact that both "mds=off" and
-"tsx_async_abort=off" have to be specified together for processors that
-are affected by both TAA and MDS to be effective.
-
- [ bp: Massage and add kernel-parameters.txt change too. ]
-
-Fixes: 1b42f017415b ("x86/speculation/taa: Add mitigation for TSX Async Abort")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: linux-doc@vger.kernel.org
-Cc: Mark Gross <mgross@linux.intel.com>
-Cc: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Tyler Hicks <tyhicks@canonical.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191115161445.30809-2-longman@redhat.com
-[bwh: Backported to 3.16: adjust filenames]
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Link: https://lore.kernel.org/r/1574263133-28259-1-git-send-email-xiaojiangfeng@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- Documentation/hw-vuln/mds.rst             |  7 +++++--
- Documentation/hw-vuln/tsx_async_abort.rst |  5 ++++-
- Documentation/kernel-parameters.txt       | 11 +++++++++++
- arch/x86/kernel/cpu/bugs.c                | 17 +++++++++++++++--
- 4 files changed, 35 insertions(+), 5 deletions(-)
+ drivers/tty/serial/serial_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/hw-vuln/mds.rst
-+++ b/Documentation/hw-vuln/mds.rst
-@@ -262,8 +262,11 @@ time with the option "mds=". The valid a
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1013,7 +1013,7 @@ static int uart_break_ctl(struct tty_str
  
-   ============  =============================================================
+ 	mutex_lock(&port->mutex);
  
--Not specifying this option is equivalent to "mds=full".
--
-+Not specifying this option is equivalent to "mds=full". For processors
-+that are affected by both TAA (TSX Asynchronous Abort) and MDS,
-+specifying just "mds=off" without an accompanying "tsx_async_abort=off"
-+will have no effect as the same mitigation is used for both
-+vulnerabilities.
+-	if (uport->type != PORT_UNKNOWN)
++	if (uport->type != PORT_UNKNOWN && uport->ops->break_ctl)
+ 		uport->ops->break_ctl(uport, break_state);
  
- Mitigation selection guide
- --------------------------
---- a/Documentation/hw-vuln/tsx_async_abort.rst
-+++ b/Documentation/hw-vuln/tsx_async_abort.rst
-@@ -169,7 +169,10 @@ the option "tsx_async_abort=". The valid
-                 systems will have no effect.
-   ============  =============================================================
- 
--Not specifying this option is equivalent to "tsx_async_abort=full".
-+Not specifying this option is equivalent to "tsx_async_abort=full". For
-+processors that are affected by both TAA and MDS, specifying just
-+"tsx_async_abort=off" without an accompanying "mds=off" will have no
-+effect as the same mitigation is used for both vulnerabilities.
- 
- The kernel command line also allows to control the TSX feature using the
- parameter "tsx=" on CPUs which support TSX control. MSR_IA32_TSX_CTRL is used
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -1793,6 +1793,12 @@ bytes respectively. Such letter suffixes
- 			full    - Enable MDS mitigation on vulnerable CPUs
- 			off     - Unconditionally disable MDS mitigation
- 
-+			On TAA-affected machines, mds=off can be prevented by
-+			an active TAA mitigation as both vulnerabilities are
-+			mitigated with the same mechanism so in order to disable
-+			this mitigation, you need to specify tsx_async_abort=off
-+			too.
-+
- 			Not specifying this option is equivalent to
- 			mds=full.
- 
-@@ -3634,6 +3640,11 @@ bytes respectively. Such letter suffixes
- 
- 			off        - Unconditionally disable TAA mitigation
- 
-+			On MDS-affected machines, tsx_async_abort=off can be
-+			prevented by an active MDS mitigation as both vulnerabilities
-+			are mitigated with the same mechanism so in order to disable
-+			this mitigation, you need to specify mds=off too.
-+
- 			Not specifying this option is equivalent to
- 			tsx_async_abort=full.  On CPUs which are MDS affected
- 			and deploy MDS mitigation, TAA mitigation is not
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -349,8 +349,12 @@ static void __init taa_select_mitigation
- 		return;
- 	}
- 
--	/* TAA mitigation is turned off on the cmdline (tsx_async_abort=off) */
--	if (taa_mitigation == TAA_MITIGATION_OFF)
-+	/*
-+	 * TAA mitigation via VERW is turned off if both
-+	 * tsx_async_abort=off and mds=off are specified.
-+	 */
-+	if (taa_mitigation == TAA_MITIGATION_OFF &&
-+	    mds_mitigation == MDS_MITIGATION_OFF)
- 		goto out;
- 
- 	if (boot_cpu_has(X86_FEATURE_MD_CLEAR))
-@@ -381,6 +385,15 @@ static void __init taa_select_mitigation
- 	 */
- 	static_branch_enable(&mds_user_clear);
- 
-+	/*
-+	 * Update MDS mitigation, if necessary, as the mds_user_clear is
-+	 * now enabled for TAA mitigation.
-+	 */
-+	if (mds_mitigation == MDS_MITIGATION_OFF &&
-+	    boot_cpu_has_bug(X86_BUG_MDS)) {
-+		mds_mitigation = MDS_MITIGATION_FULL;
-+		mds_select_mitigation();
-+	}
- out:
- 	pr_info("%s\n", taa_strings[taa_mitigation]);
- }
+ 	mutex_unlock(&port->mutex);
 
