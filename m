@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 494BA1565E7
+	by mail.lfdr.de (Postfix) with ESMTP id BF06E1565E8
 	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727996AbgBHS3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:29:53 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34770 "EHLO
+        id S1727755AbgBHS3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:29:54 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34778 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727966AbgBHS3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:49 -0500
+        by vger.kernel.org with ESMTP id S1727967AbgBHS3u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:50 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrO-0003jW-OG; Sat, 08 Feb 2020 18:29:42 +0000
+        id 1j0UrP-0003jn-0m; Sat, 08 Feb 2020 18:29:43 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrM-000CW6-9k; Sat, 08 Feb 2020 18:29:40 +0000
+        id 1j0UrM-000CWY-Jt; Sat, 08 Feb 2020 18:29:40 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Vamshi K Sthambamkadi" <vamshi.k.sthambamkadi@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date:   Sat, 08 Feb 2020 18:21:08 +0000
-Message-ID: <lsq.1581185941.716147760@decadent.org.uk>
+        syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>,
+        "Nikolay Aleksandrov" <nikolay@cumulusnetworks.com>
+Date:   Sat, 08 Feb 2020 18:21:13 +0000
+Message-ID: <lsq.1581185941.176527532@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 129/148] ACPI: bus: Fix NULL pointer check in
- acpi_bus_get_private_data()
+Subject: [PATCH 3.16 134/148] net: bridge: deny dev_set_mac_address() when
+ unregistering
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,56 +48,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-commit 627ead724eff33673597216f5020b72118827de4 upstream.
+commit c4b4c421857dc7b1cf0dccbd738472360ff2cd70 upstream.
 
-kmemleak reported backtrace:
-    [<bbee0454>] kmem_cache_alloc_trace+0x128/0x260
-    [<6677f215>] i2c_acpi_install_space_handler+0x4b/0xe0
-    [<1180f4fc>] i2c_register_adapter+0x186/0x400
-    [<6083baf7>] i2c_add_adapter+0x4e/0x70
-    [<a3ddf966>] intel_gmbus_setup+0x1a2/0x2c0 [i915]
-    [<84cb69ae>] i915_driver_probe+0x8d8/0x13a0 [i915]
-    [<81911d4b>] i915_pci_probe+0x48/0x160 [i915]
-    [<4b159af1>] pci_device_probe+0xdc/0x160
-    [<b3c64704>] really_probe+0x1ee/0x450
-    [<bc029f5a>] driver_probe_device+0x142/0x1b0
-    [<d8829d20>] device_driver_attach+0x49/0x50
-    [<de71f045>] __driver_attach+0xc9/0x150
-    [<df33ac83>] bus_for_each_dev+0x56/0xa0
-    [<80089bba>] driver_attach+0x19/0x20
-    [<cc73f583>] bus_add_driver+0x177/0x220
-    [<7b29d8c7>] driver_register+0x56/0xf0
+We have an interesting memory leak in the bridge when it is being
+unregistered and is a slave to a master device which would change the
+mac of its slaves on unregister (e.g. bond, team). This is a very
+unusual setup but we do end up leaking 1 fdb entry because
+dev_set_mac_address() would cause the bridge to insert the new mac address
+into its table after all fdbs are flushed, i.e. after dellink() on the
+bridge has finished and we call NETDEV_UNREGISTER the bond/team would
+release it and will call dev_set_mac_address() to restore its original
+address and that in turn will add an fdb in the bridge.
+One fix is to check for the bridge dev's reg_state in its
+ndo_set_mac_address callback and return an error if the bridge is not in
+NETREG_REGISTERED.
 
-In i2c_acpi_remove_space_handler(), a leak occurs whenever the
-"data" parameter is initialized to 0 before being passed to
-acpi_bus_get_private_data().
+Easy steps to reproduce:
+ 1. add bond in mode != A/B
+ 2. add any slave to the bond
+ 3. add bridge dev as a slave to the bond
+ 4. destroy the bridge device
 
-This is because the NULL pointer check in acpi_bus_get_private_data()
-(condition->if(!*data)) returns EINVAL and, in consequence, memory is
-never freed in i2c_acpi_remove_space_handler().
+Trace:
+ unreferenced object 0xffff888035c4d080 (size 128):
+   comm "ip", pid 4068, jiffies 4296209429 (age 1413.753s)
+   hex dump (first 32 bytes):
+     41 1d c9 36 80 88 ff ff 00 00 00 00 00 00 00 00  A..6............
+     d2 19 c9 5e 3f d7 00 00 00 00 00 00 00 00 00 00  ...^?...........
+   backtrace:
+     [<00000000ddb525dc>] kmem_cache_alloc+0x155/0x26f
+     [<00000000633ff1e0>] fdb_create+0x21/0x486 [bridge]
+     [<0000000092b17e9c>] fdb_insert+0x91/0xdc [bridge]
+     [<00000000f2a0f0ff>] br_fdb_change_mac_address+0xb3/0x175 [bridge]
+     [<000000001de02dbd>] br_stp_change_bridge_id+0xf/0xff [bridge]
+     [<00000000ac0e32b1>] br_set_mac_address+0x76/0x99 [bridge]
+     [<000000006846a77f>] dev_set_mac_address+0x63/0x9b
+     [<00000000d30738fc>] __bond_release_one+0x3f6/0x455 [bonding]
+     [<00000000fc7ec01d>] bond_netdev_event+0x2f2/0x400 [bonding]
+     [<00000000305d7795>] notifier_call_chain+0x38/0x56
+     [<0000000028885d4a>] call_netdevice_notifiers+0x1e/0x23
+     [<000000008279477b>] rollback_registered_many+0x353/0x6a4
+     [<0000000018ef753a>] unregister_netdevice_many+0x17/0x6f
+     [<00000000ba854b7a>] rtnl_delete_link+0x3c/0x43
+     [<00000000adf8618d>] rtnl_dellink+0x1dc/0x20a
+     [<000000009b6395fd>] rtnetlink_rcv_msg+0x23d/0x268
 
-Fix the NULL pointer check in acpi_bus_get_private_data() to follow
-the analogous check in acpi_get_data_full().
-
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-[ rjw: Subject & changelog ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 43598813386f ("bridge: add local MAC address to forwarding table (v2)")
+Reported-by: syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/acpi/bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_device.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -154,7 +154,7 @@ int acpi_bus_get_private_data(acpi_handl
- {
- 	acpi_status status;
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -193,6 +193,12 @@ static int br_set_mac_address(struct net
+ 	if (!is_valid_ether_addr(addr->sa_data))
+ 		return -EADDRNOTAVAIL;
  
--	if (!*data)
-+	if (!data)
- 		return -EINVAL;
- 
- 	status = acpi_get_data(handle, acpi_bus_private_data_handler, data);
++	/* dev_set_mac_addr() can be called by a master device on bridge's
++	 * NETDEV_UNREGISTER, but since it's being destroyed do nothing
++	 */
++	if (dev->reg_state != NETREG_REGISTERED)
++		return -EBUSY;
++
+ 	spin_lock_bh(&br->lock);
+ 	if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
+ 		/* Mac address will be changed in br_stp_change_bridge_id(). */
 
