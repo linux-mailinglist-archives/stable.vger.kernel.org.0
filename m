@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CC9156675
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:35:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8700156668
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727870AbgBHSe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:34:59 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34148 "EHLO
+        id S1727985AbgBHSeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:34:22 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34242 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727866AbgBHS3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:44 -0500
+        by vger.kernel.org with ESMTP id S1727894AbgBHS3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:45 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrK-0003fr-2P; Sat, 08 Feb 2020 18:29:38 +0000
+        id 1j0UrK-0003fl-1T; Sat, 08 Feb 2020 18:29:38 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-000CQl-2B; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-000CQq-3C; Sat, 08 Feb 2020 18:29:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -28,12 +28,12 @@ To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Peng Fan" <peng.fan@nxp.com>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Feb 2020 18:20:30 +0000
-Message-ID: <lsq.1581185940.694016861@decadent.org.uk>
+Date:   Sat, 08 Feb 2020 18:20:31 +0000
+Message-ID: <lsq.1581185940.296671502@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 091/148] tty: serial: imx: use the sg count from
- dma_map_sg
+Subject: [PATCH 3.16 092/148] tty: serial: pch_uart: correct usage of
+ dma_unmap_sg
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,30 +49,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peng Fan <peng.fan@nxp.com>
 
-commit 596fd8dffb745afcebc0ec6968e17fe29f02044c upstream.
+commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 upstream.
 
-The dmaengine_prep_slave_sg needs to use sg count returned
-by dma_map_sg, not use sport->dma_tx_nents, because the return
-value of dma_map_sg is not always same with "nents".
+Per Documentation/DMA-API-HOWTO.txt,
+To unmap a scatterlist, just call:
+	dma_unmap_sg(dev, sglist, nents, direction);
 
-Fixes: b4cdc8f61beb ("serial: imx: add DMA support for imx6q")
+.. note::
+
+	The 'nents' argument to the dma_unmap_sg call must be
+	the _same_ one you passed into the dma_map_sg call,
+	it should _NOT_ be the 'count' value _returned_ from the
+	dma_map_sg call.
+
+However in the driver, priv->nent is directly assigned with value
+returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
+this breaks the API usage.
+
+So introduce a new entry orig_nent to remember 'nents'.
+
+Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
 Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573108875-26530-1-git-send-email-peng.fan@nxp.com
+Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/tty/serial/imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/pch_uart.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -541,7 +541,7 @@ static void imx_dma_tx(struct imx_port *
- 		dev_err(dev, "DMA mapping error for TX.\n");
- 		return;
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -251,6 +251,7 @@ struct eg20t_port {
+ 	struct dma_chan			*chan_rx;
+ 	struct scatterlist		*sg_tx_p;
+ 	int				nent;
++	int				orig_nent;
+ 	struct scatterlist		sg_rx;
+ 	int				tx_dma_use;
+ 	void				*rx_buf_virt;
+@@ -803,9 +804,10 @@ static void pch_dma_tx_complete(void *ar
  	}
--	desc = dmaengine_prep_slave_sg(chan, sgl, sport->dma_tx_nents,
-+	desc = dmaengine_prep_slave_sg(chan, sgl, ret,
- 					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
- 	if (!desc) {
- 		dev_err(dev, "We cannot prepare for the TX slave dma!\n");
+ 	xmit->tail &= UART_XMIT_SIZE - 1;
+ 	async_tx_ack(priv->desc_tx);
+-	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
++	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
+ 	priv->tx_dma_use = 0;
+ 	priv->nent = 0;
++	priv->orig_nent = 0;
+ 	kfree(priv->sg_tx_p);
+ 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
+ }
+@@ -1030,6 +1032,7 @@ static unsigned int dma_handle_tx(struct
+ 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
+ 		return 0;
+ 	}
++	priv->orig_nent = num;
+ 	priv->nent = nent;
+ 
+ 	for (i = 0; i < nent; i++, sg++) {
 
