@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4328F15665A
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E132115662B
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727962AbgBHSeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:34:02 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34214 "EHLO
+        id S1727945AbgBHS3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:29:48 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34200 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727885AbgBHS3p (ORCPT
+        by vger.kernel.org with ESMTP id S1727884AbgBHS3p (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:45 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-0003fl-NK; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-0003fo-J7; Sat, 08 Feb 2020 18:29:37 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrI-000CPU-AV; Sat, 08 Feb 2020 18:29:36 +0000
+        id 1j0UrI-000CPZ-CO; Sat, 08 Feb 2020 18:29:36 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jiri Olsa" <jolsa@redhat.com>,
-        "Masami Hiramatsu" <mhiramat@kernel.org>,
         "Arnaldo Carvalho de Melo" <acme@redhat.com>,
+        "Masami Hiramatsu" <mhiramat@kernel.org>,
+        "Jiri Olsa" <jolsa@redhat.com>,
         "Namhyung Kim" <namhyung@kernel.org>
-Date:   Sat, 08 Feb 2020 18:20:14 +0000
-Message-ID: <lsq.1581185940.421697680@decadent.org.uk>
+Date:   Sat, 08 Feb 2020 18:20:15 +0000
+Message-ID: <lsq.1581185940.273828537@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 075/148] perf probe: Fix to show calling lines of
- inlined functions
+Subject: [PATCH 3.16 076/148] perf probe: Skip overlapped location on
+ searching variables
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,114 +51,96 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 86c0bf8539e7f46d91bd105e55eda96e0064caef upstream.
+commit dee36a2abb67c175265d49b9a8c7dfa564463d9a upstream.
 
-Fix to show calling lines of inlined functions (where an inline function
-is called).
+Since debuginfo__find_probes() callback function can be called with  the
+location which already passed, the callback function must filter out
+such overlapped locations.
 
-die_walk_lines() filtered out the lines inside inlined functions based
-on the address. However this also filtered out the lines which call
-those inlined functions from the target function.
+add_probe_trace_event() has already done it by commit 1a375ae7659a
+("perf probe: Skip same probe address for a given line"), but
+add_available_vars() doesn't. Thus perf probe -v shows same address
+repeatedly as below:
 
-To solve this issue, check the call_file and call_line attributes and do
-not filter out if it matches to the line information.
+  # perf probe -V vfs_read:18
+  Available variables at vfs_read:18
+          @<vfs_read+217>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
+          @<vfs_read+217>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
+          @<vfs_read+226>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
 
-Without this fix, perf probe -L doesn't show some lines correctly.
-(don't see the lines after 17)
+With this fix, perf probe -V shows it correctly:
 
-  # perf probe -L vfs_read
-  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
-        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
-        1  {
-        2         ssize_t ret;
+  # perf probe -V vfs_read:18
+  Available variables at vfs_read:18
+          @<vfs_read+217>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
+          @<vfs_read+226>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
 
-        4         if (!(file->f_mode & FMODE_READ))
-                          return -EBADF;
-        6         if (!(file->f_mode & FMODE_CAN_READ))
-                          return -EINVAL;
-        8         if (unlikely(!access_ok(buf, count)))
-                          return -EFAULT;
-
-       11         ret = rw_verify_area(READ, file, pos, count);
-       12         if (!ret) {
-       13                 if (count > MAX_RW_COUNT)
-                                  count =  MAX_RW_COUNT;
-       15                 ret = __vfs_read(file, buf, count, pos);
-       16                 if (ret > 0) {
-                                  fsnotify_access(file);
-                                  add_rchar(current, ret);
-                          }
-
-With this fix:
-
-  # perf probe -L vfs_read
-  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
-        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
-        1  {
-        2         ssize_t ret;
-
-        4         if (!(file->f_mode & FMODE_READ))
-                          return -EBADF;
-        6         if (!(file->f_mode & FMODE_CAN_READ))
-                          return -EINVAL;
-        8         if (unlikely(!access_ok(buf, count)))
-                          return -EFAULT;
-
-       11         ret = rw_verify_area(READ, file, pos, count);
-       12         if (!ret) {
-       13                 if (count > MAX_RW_COUNT)
-                                  count =  MAX_RW_COUNT;
-       15                 ret = __vfs_read(file, buf, count, pos);
-       16                 if (ret > 0) {
-       17                         fsnotify_access(file);
-       18                         add_rchar(current, ret);
-                          }
-       20                 inc_syscr(current);
-                  }
-
-Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
+Fixes: cf6eb489e5c0 ("perf probe: Show accessible local variables")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241937995.32002.17899884017011512577.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157241938927.32002.4026859017790562751.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- tools/perf/util/dwarf-aux.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ tools/perf/util/probe-finder.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -714,7 +714,7 @@ int die_walk_lines(Dwarf_Die *rt_die, li
- 	Dwarf_Lines *lines;
- 	Dwarf_Line *line;
- 	Dwarf_Addr addr;
--	const char *fname, *decf = NULL;
-+	const char *fname, *decf = NULL, *inf = NULL;
- 	int lineno, ret = 0;
- 	int decl = 0, inl;
- 	Dwarf_Die die_mem, *cu_die;
-@@ -765,13 +765,21 @@ int die_walk_lines(Dwarf_Die *rt_die, li
- 			 */
- 			if (!dwarf_haspc(rt_die, addr))
- 				continue;
-+
- 			if (die_find_inlinefunc(rt_die, addr, &die_mem)) {
-+				/* Call-site check */
-+				inf = die_get_call_file(&die_mem);
-+				if ((inf && !strcmp(inf, decf)) &&
-+				    die_get_call_lineno(&die_mem) == lineno)
-+					goto found;
-+
- 				dwarf_decl_line(&die_mem, &inl);
- 				if (inl != decl ||
- 				    decf != dwarf_decl_file(&die_mem))
- 					continue;
- 			}
- 		}
-+found:
- 		/* Get source line */
- 		fname = dwarf_linesrc(line, NULL, NULL);
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1230,6 +1230,18 @@ static int collect_variables_cb(Dwarf_Di
+ 		return DIE_FIND_CB_SIBLING;
+ }
  
++static bool available_var_finder_overlap(struct available_var_finder *af)
++{
++	int i;
++
++	for (i = 0; i < af->nvls; i++) {
++		if (af->pf.addr == af->vls[i].point.address)
++			return true;
++	}
++	return false;
++
++}
++
+ /* Add a found vars into available variables list */
+ static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
+ {
+@@ -1239,6 +1251,14 @@ static int add_available_vars(Dwarf_Die
+ 	Dwarf_Die die_mem;
+ 	int ret;
+ 
++	/*
++	 * For some reason (e.g. different column assigned to same address),
++	 * this callback can be called with the address which already passed.
++	 * Ignore it first.
++	 */
++	if (available_var_finder_overlap(af))
++		return 0;
++
+ 	/* Check number of tevs */
+ 	if (af->nvls == af->max_vls) {
+ 		pr_warning("Too many( > %d) probe point found.\n", af->max_vls);
 
