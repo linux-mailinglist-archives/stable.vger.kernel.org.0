@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CE4A15671C
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E734156720
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727550AbgBHSj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:39:29 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33414 "EHLO
+        id S1727529AbgBHSjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:39:41 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33428 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727505AbgBHS3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:33 -0500
+        by vger.kernel.org with ESMTP id S1727524AbgBHS3c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:32 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrC-0003a7-QF; Sat, 08 Feb 2020 18:29:30 +0000
+        id 1j0UrD-0003aE-0O; Sat, 08 Feb 2020 18:29:31 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrB-000CJJ-Lv; Sat, 08 Feb 2020 18:29:29 +0000
+        id 1j0UrB-000CJN-RT; Sat, 08 Feb 2020 18:29:29 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Krzysztof Kozlowski" <krzk@kernel.org>
-Date:   Sat, 08 Feb 2020 18:19:11 +0000
-Message-ID: <lsq.1581185940.956414429@decadent.org.uk>
+        "Janusz Krzysztofik" <jmkrzyszt@gmail.com>,
+        "Sakari Ailus" <sakari.ailus@linux.intel.com>,
+        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
+Date:   Sat, 08 Feb 2020 18:19:12 +0000
+Message-ID: <lsq.1581185940.826746022@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 012/148] pinctrl: samsung: Fix device node refcount
- leaks in S3C64xx wakeup controller init
+Subject: [PATCH 3.16 013/148] media: ov6650: Fix incorrect use of JPEG
+ colorspace
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,43 +48,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-commit 7f028caadf6c37580d0f59c6c094ed09afc04062 upstream.
+commit 12500731895ef09afc5b66b86b76c0884fb9c7bf upstream.
 
-In s3c64xx_eint_eint0_init() the for_each_child_of_node() loop is used
-with a break to find a matching child node.  Although each iteration of
-for_each_child_of_node puts the previous node, but early exit from loop
-misses it.  This leads to leak of device node.
+Since its initial submission, the driver selects V4L2_COLORSPACE_JPEG
+for supported formats other than V4L2_MBUS_FMT_SBGGR8_1X8.  According
+to v4l2-compliance test program, V4L2_COLORSPACE_JPEG applies
+exclusively to V4L2_PIX_FMT_JPEG.  Since the sensor does not support
+JPEG format, fix it to always select V4L2_COLORSPACE_SRGB.
 
-Fixes: 61dd72613177 ("pinctrl: Add pinctrl-s3c64xx driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 [bwh: Backported to 3.16: adjust filename, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/drivers/pinctrl/pinctrl-s3c64xx.c
-+++ b/drivers/pinctrl/pinctrl-s3c64xx.c
-@@ -718,6 +718,7 @@ static int s3c64xx_eint_eint0_init(struc
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		dev_err(dev, "could not allocate memory for wkup eint data\n");
-+		of_node_put(eint0_np);
- 		return -ENOMEM;
- 	}
- 	data->drvdata = d;
-@@ -728,12 +729,14 @@ static int s3c64xx_eint_eint0_init(struc
- 		irq = irq_of_parse_and_map(eint0_np, i);
- 		if (!irq) {
- 			dev_err(dev, "failed to get wakeup EINT IRQ %d\n", i);
-+			of_node_put(eint0_np);
- 			return -ENXIO;
- 		}
+ drivers/media/i2c/soc_camera/ov6650.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
+
+--- a/drivers/media/i2c/soc_camera/ov6650.c
++++ b/drivers/media/i2c/soc_camera/ov6650.c
+@@ -203,7 +203,6 @@ struct ov6650 {
+ 	unsigned long		pclk_max;	/* from resolution and format */
+ 	struct v4l2_fract	tpf;		/* as requested with s_parm */
+ 	enum v4l2_mbus_pixelcode code;
+-	enum v4l2_colorspace	colorspace;
+ };
  
- 		irq_set_chained_handler(irq, s3c64xx_eint0_handlers[i]);
- 		irq_set_handler_data(irq, data);
- 	}
-+	of_node_put(eint0_np);
  
- 	bank = d->ctrl->pin_banks;
- 	for (i = 0; i < d->ctrl->nr_banks; ++i, ++bank) {
+@@ -508,7 +507,7 @@ static int ov6650_g_fmt(struct v4l2_subd
+ 	mf->width	= priv->rect.width >> priv->half_scale;
+ 	mf->height	= priv->rect.height >> priv->half_scale;
+ 	mf->code	= priv->code;
+-	mf->colorspace	= priv->colorspace;
++	mf->colorspace	= V4L2_COLORSPACE_SRGB;
+ 	mf->field	= V4L2_FIELD_NONE;
+ 
+ 	return 0;
+@@ -619,11 +618,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 		priv->pclk_max = 8000000;
+ 	}
+ 
+-	if (code == V4L2_MBUS_FMT_SBGGR8_1X8)
+-		priv->colorspace = V4L2_COLORSPACE_SRGB;
+-	else if (code != 0)
+-		priv->colorspace = V4L2_COLORSPACE_JPEG;
+-
+ 	if (half_scale) {
+ 		dev_dbg(&client->dev, "max resolution: QCIF\n");
+ 		coma_set |= COMA_QCIF;
+@@ -676,7 +670,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 		ret = ov6650_reg_rmw(client, REG_COML, coml_set, coml_mask);
+ 
+ 	if (!ret) {
+-		mf->colorspace	= priv->colorspace;
+ 		mf->width = priv->rect.width >> half_scale;
+ 		mf->height = priv->rect.height >> half_scale;
+ 	}
+@@ -695,6 +688,7 @@ static int ov6650_try_fmt(struct v4l2_su
+ 				&mf->height, 2, H_CIF, 1, 0);
+ 
+ 	mf->field = V4L2_FIELD_NONE;
++	mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 
+ 	switch (mf->code) {
+ 	case V4L2_MBUS_FMT_Y10_1X10:
+@@ -704,12 +698,10 @@ static int ov6650_try_fmt(struct v4l2_su
+ 	case V4L2_MBUS_FMT_YUYV8_2X8:
+ 	case V4L2_MBUS_FMT_VYUY8_2X8:
+ 	case V4L2_MBUS_FMT_UYVY8_2X8:
+-		mf->colorspace = V4L2_COLORSPACE_JPEG;
+ 		break;
+ 	default:
+ 		mf->code = V4L2_MBUS_FMT_SBGGR8_1X8;
+ 	case V4L2_MBUS_FMT_SBGGR8_1X8:
+-		mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 		break;
+ 	}
+ 
+@@ -1016,7 +1008,6 @@ static int ov6650_probe(struct i2c_clien
+ 	priv->rect.height = H_CIF;
+ 	priv->half_scale  = false;
+ 	priv->code	  = V4L2_MBUS_FMT_YUYV8_2X8;
+-	priv->colorspace  = V4L2_COLORSPACE_JPEG;
+ 
+ 	priv->clk = v4l2_clk_get(&client->dev, "mclk");
+ 	if (IS_ERR(priv->clk)) {
 
