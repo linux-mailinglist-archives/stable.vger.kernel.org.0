@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C09951566EB
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:39:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E21D41566E0
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728238AbgBHSiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:38:00 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33712 "EHLO
+        id S1728237AbgBHShh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:37:37 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33786 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727692AbgBHS3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:37 -0500
+        by vger.kernel.org with ESMTP id S1727762AbgBHS3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:39 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrF-0003cf-VM; Sat, 08 Feb 2020 18:29:34 +0000
+        id 1j0UrG-0003cs-53; Sat, 08 Feb 2020 18:29:34 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrF-000CKt-25; Sat, 08 Feb 2020 18:29:33 +0000
+        id 1j0UrF-000CKx-98; Sat, 08 Feb 2020 18:29:33 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ladislav Michl" <ladis@linux-mips.org>,
-        "Felipe Balbi" <felipe.balbi@linux.intel.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "=?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?=" <mirq-linux@rere.qmqm.pl>
-Date:   Sat, 08 Feb 2020 18:19:30 +0000
-Message-ID: <lsq.1581185940.136997408@decadent.org.uk>
+        "Arnd Bergmann" <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        "Eric Dumazet" <edumazet@google.com>
+Date:   Sat, 08 Feb 2020 18:19:31 +0000
+Message-ID: <lsq.1581185940.889552404@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 031/148] usb: gadget: u_serial: add missing port
- entry locking
+Subject: [PATCH 3.16 032/148] compat_ioctl: handle SIOCOUTQNSD
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,34 +47,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit daf82bd24e308c5a83758047aff1bd81edda4f11 upstream.
+commit 9d7bf41fafa5b5ddd4c13eb39446b0045f0a8167 upstream.
 
-gserial_alloc_line() misses locking (for a release barrier) while
-resetting port entry on TTY allocation failure. Fix this.
+Unlike the normal SIOCOUTQ, SIOCOUTQNSD was never handled in compat
+mode. Add it to the common socket compat handler along with similar
+ones.
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-by: Ladislav Michl <ladis@linux-mips.org>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-[bwh: Backported to 3.16: adjust filename]
+Fixes: 2f4e1b397097 ("tcp: ioctl type SIOCOUTQNSD returns amount of data not sent")
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/gadget/u_serial.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/socket.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/u_serial.c
-+++ b/drivers/usb/gadget/u_serial.c
-@@ -1140,8 +1140,10 @@ int gserial_alloc_line(unsigned char *li
- 				__func__, port_num, PTR_ERR(tty_dev));
- 
- 		ret = PTR_ERR(tty_dev);
-+		mutex_lock(&ports[port_num].lock);
- 		port = ports[port_num].port;
- 		ports[port_num].port = NULL;
-+		mutex_unlock(&ports[port_num].lock);
- 		gserial_free_port(port);
- 		goto err;
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -3311,6 +3311,7 @@ static int compat_sock_ioctl_trans(struc
+ 	case SIOCSARP:
+ 	case SIOCGARP:
+ 	case SIOCDARP:
++	case SIOCOUTQNSD:
+ 	case SIOCATMARK:
+ 		return sock_do_ioctl(net, sock, cmd, arg);
  	}
 
