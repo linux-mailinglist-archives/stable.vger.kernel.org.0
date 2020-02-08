@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9C8156705
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EDC156700
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728415AbgBHSik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:38:40 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33584 "EHLO
+        id S1728303AbgBHSij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:38:39 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33588 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727613AbgBHS3f (ORCPT
+        by vger.kernel.org with ESMTP id S1727618AbgBHS3f (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:35 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrF-0003bj-8R; Sat, 08 Feb 2020 18:29:33 +0000
+        id 1j0UrF-0003by-8i; Sat, 08 Feb 2020 18:29:33 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrE-000CKT-3l; Sat, 08 Feb 2020 18:29:32 +0000
+        id 1j0UrE-000CKY-7t; Sat, 08 Feb 2020 18:29:32 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Alan Stern" <stern@rowland.harvard.edu>,
-        "Hans Verkuil" <hverkuil-cisco@xs4all.nl>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
-Date:   Sat, 08 Feb 2020 18:19:25 +0000
-Message-ID: <lsq.1581185940.144154732@decadent.org.uk>
+        "Pavel Tikhomirov" <ptikhomirov@virtuozzo.com>,
+        "J. Bruce Fields" <bfields@redhat.com>, "NeilBrown" <neilb@suse.de>
+Date:   Sat, 08 Feb 2020 18:19:26 +0000
+Message-ID: <lsq.1581185940.733123692@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 026/148] media: usbvision: Fix races among open,
- close, and disconnect
+Subject: [PATCH 3.16 027/148] sunrpc: fix crash when cache_head become
+ valid before update
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,136 +47,121 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
 
-commit 9e08117c9d4efc1e1bc6fce83dab856d9fd284b6 upstream.
+commit 5fcaf6982d1167f1cd9b264704f6d1ef4c505d54 upstream.
 
-Visual inspection of the usbvision driver shows that it suffers from
-three races between its open, close, and disconnect handlers.  In
-particular, the driver is careful to update its usbvision->user and
-usbvision->remove_pending flags while holding the private mutex, but:
+I was investigating a crash in our Virtuozzo7 kernel which happened in
+in svcauth_unix_set_client. I found out that we access m_client field
+in ip_map structure, which was received from sunrpc_cache_lookup (we
+have a bit older kernel, now the code is in sunrpc_cache_add_entry), and
+these field looks uninitialized (m_client == 0x74 don't look like a
+pointer) but in the cache_head in flags we see 0x1 which is CACHE_VALID.
 
-	usbvision_v4l2_close() and usbvision_radio_close() don't hold
-	the mutex while they check the value of
-	usbvision->remove_pending;
+It looks like the problem appeared from our previous fix to sunrpc (1):
+commit 4ecd55ea0742 ("sunrpc: fix cache_head leak due to queued
+request")
 
-	usbvision_disconnect() doesn't hold the mutex while checking
-	the value of usbvision->user; and
+And we've also found a patch already fixing our patch (2):
+commit d58431eacb22 ("sunrpc: don't mark uninitialised items as VALID.")
 
-	also, usbvision_v4l2_open() and usbvision_radio_open() don't
-	check whether the device has been unplugged before allowing
-	the user to open the device files.
+Though the crash is eliminated, I think the core of the problem is not
+completely fixed:
 
-Each of these can potentially lead to usbvision_release() being called
-twice and use-after-free errors.
+Neil in the patch (2) makes cache_head CACHE_NEGATIVE, before
+cache_fresh_locked which was added in (1) to fix crash. These way
+cache_is_valid won't say the cache is valid anymore and in
+svcauth_unix_set_client the function cache_check will return error
+instead of 0, and we don't count entry as initialized.
 
-This patch fixes the races by reading the flags while the mutex is
-still held and checking for pending removes before allowing an open to
-succeed.
+But it looks like we need to remove cache_fresh_locked completely in
+sunrpc_cache_lookup:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-[bwh: Backported to 3.16:
- - Add unlock label in usbvision_v4l2_open()
- - Adjust context]
+In (1) we've only wanted to make cache_fresh_unlocked->cache_dequeue so
+that cache_requests with no readers also release corresponding
+cache_head, to fix their leak.  We with Vasily were not sure if
+cache_fresh_locked and cache_fresh_unlocked should be used in pair or
+not, so we've guessed to use them in pair.
+
+Now we see that we don't want the CACHE_VALID bit set here by
+cache_fresh_locked, as "valid" means "initialized" and there is no
+initialization in sunrpc_cache_add_entry. Both expiry_time and
+last_refresh are not used in cache_fresh_unlocked code-path and also not
+required for the initial fix.
+
+So to conclude cache_fresh_locked was called by mistake, and we can just
+safely remove it instead of crutching it with CACHE_NEGATIVE. It looks
+ideologically better for me. Hope I don't miss something here.
+
+Here is our crash backtrace:
+[13108726.326291] BUG: unable to handle kernel NULL pointer dereference at 0000000000000074
+[13108726.326365] IP: [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
+[13108726.326448] PGD 0
+[13108726.326468] Oops: 0002 [#1] SMP
+[13108726.326497] Modules linked in: nbd isofs xfs loop kpatch_cumulative_81_0_r1(O) xt_physdev nfnetlink_queue bluetooth rfkill ip6table_nat nf_nat_ipv6 ip_vs_wrr ip_vs_wlc ip_vs_sh nf_conntrack_netlink ip_vs_sed ip_vs_pe_sip nf_conntrack_sip ip_vs_nq ip_vs_lc ip_vs_lblcr ip_vs_lblc ip_vs_ftp ip_vs_dh nf_nat_ftp nf_conntrack_ftp iptable_raw xt_recent nf_log_ipv6 xt_hl ip6t_rt nf_log_ipv4 nf_log_common xt_LOG xt_limit xt_TCPMSS xt_tcpmss vxlan ip6_udp_tunnel udp_tunnel xt_statistic xt_NFLOG nfnetlink_log dummy xt_mark xt_REDIRECT nf_nat_redirect raw_diag udp_diag tcp_diag inet_diag netlink_diag af_packet_diag unix_diag rpcsec_gss_krb5 xt_addrtype ip6t_rpfilter ipt_REJECT nf_reject_ipv4 ip6t_REJECT nf_reject_ipv6 ebtable_nat ebtable_broute nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_mangle ip6table_raw nfsv4
+[13108726.327173]  dns_resolver cls_u32 binfmt_misc arptable_filter arp_tables ip6table_filter ip6_tables devlink fuse_kio_pcs ipt_MASQUERADE nf_nat_masquerade_ipv4 xt_nat iptable_nat nf_nat_ipv4 xt_comment nf_conntrack_ipv4 nf_defrag_ipv4 xt_wdog_tmo xt_multiport bonding xt_set xt_conntrack iptable_filter iptable_mangle kpatch(O) ebtable_filter ebt_among ebtables ip_set_hash_ip ip_set nfnetlink vfat fat skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass fuse pcspkr ses enclosure joydev sg mei_me hpwdt hpilo lpc_ich mei ipmi_si shpchp ipmi_devintf ipmi_msghandler xt_ipvs acpi_power_meter ip_vs_rr nfsv3 nfsd auth_rpcgss nfs_acl nfs lockd grace fscache nf_nat cls_fw sch_htb sch_cbq sch_sfq ip_vs em_u32 nf_conntrack tun br_netfilter veth overlay ip6_vzprivnet ip6_vznetstat ip_vznetstat
+[13108726.327817]  ip_vzprivnet vziolimit vzevent vzlist vzstat vznetstat vznetdev vzmon vzdev bridge pio_kaio pio_nfs pio_direct pfmt_raw pfmt_ploop1 ploop ip_tables ext4 mbcache jbd2 sd_mod crc_t10dif crct10dif_generic mgag200 i2c_algo_bit drm_kms_helper scsi_transport_iscsi 8021q syscopyarea sysfillrect garp sysimgblt fb_sys_fops mrp stp ttm llc bnx2x crct10dif_pclmul crct10dif_common crc32_pclmul crc32c_intel drm dm_multipath ghash_clmulni_intel uas aesni_intel lrw gf128mul glue_helper ablk_helper cryptd tg3 smartpqi scsi_transport_sas mdio libcrc32c i2c_core usb_storage ptp pps_core wmi sunrpc dm_mirror dm_region_hash dm_log dm_mod [last unloaded: kpatch_cumulative_82_0_r1]
+[13108726.328403] CPU: 35 PID: 63742 Comm: nfsd ve: 51332 Kdump: loaded Tainted: G        W  O   ------------   3.10.0-862.20.2.vz7.73.29 #1 73.29
+[13108726.328491] Hardware name: HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 10/02/2018
+[13108726.328554] task: ffffa0a6a41b1160 ti: ffffa0c2a74bc000 task.ti: ffffa0c2a74bc000
+[13108726.328610] RIP: 0010:[<ffffffffc01f79eb>]  [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
+[13108726.328706] RSP: 0018:ffffa0c2a74bfd80  EFLAGS: 00010246
+[13108726.328750] RAX: 0000000000000001 RBX: ffffa0a6183ae000 RCX: 0000000000000000
+[13108726.328811] RDX: 0000000000000074 RSI: 0000000000000286 RDI: ffffa0c2a74bfcf0
+[13108726.328864] RBP: ffffa0c2a74bfe00 R08: ffffa0bab8c22960 R09: 0000000000000001
+[13108726.328916] R10: 0000000000000001 R11: 0000000000000001 R12: ffffa0a32aa7f000
+[13108726.328969] R13: ffffa0a6183afac0 R14: ffffa0c233d88d00 R15: ffffa0c2a74bfdb4
+[13108726.329022] FS:  0000000000000000(0000) GS:ffffa0e17f9c0000(0000) knlGS:0000000000000000
+[13108726.329081] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[13108726.332311] CR2: 0000000000000074 CR3: 00000026a1b28000 CR4: 00000000007607e0
+[13108726.334606] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[13108726.336754] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[13108726.338908] PKRU: 00000000
+[13108726.341047] Call Trace:
+[13108726.343074]  [<ffffffff8a2c78b4>] ? groups_alloc+0x34/0x110
+[13108726.344837]  [<ffffffffc01f5eb4>] svc_set_client+0x24/0x30 [sunrpc]
+[13108726.346631]  [<ffffffffc01f2ac1>] svc_process_common+0x241/0x710 [sunrpc]
+[13108726.348332]  [<ffffffffc01f3093>] svc_process+0x103/0x190 [sunrpc]
+[13108726.350016]  [<ffffffffc07d605f>] nfsd+0xdf/0x150 [nfsd]
+[13108726.351735]  [<ffffffffc07d5f80>] ? nfsd_destroy+0x80/0x80 [nfsd]
+[13108726.353459]  [<ffffffff8a2bf741>] kthread+0xd1/0xe0
+[13108726.355195]  [<ffffffff8a2bf670>] ? create_kthread+0x60/0x60
+[13108726.356896]  [<ffffffff8a9556dd>] ret_from_fork_nospec_begin+0x7/0x21
+[13108726.358577]  [<ffffffff8a2bf670>] ? create_kthread+0x60/0x60
+[13108726.360240] Code: 4c 8b 45 98 0f 8e 2e 01 00 00 83 f8 fe 0f 84 76 fe ff ff 85 c0 0f 85 2b 01 00 00 49 8b 50 40 b8 01 00 00 00 48 89 93 d0 1a 00 00 <f0> 0f c1 02 83 c0 01 83 f8 01 0f 8e 53 02 00 00 49 8b 44 24 38
+[13108726.363769] RIP  [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
+[13108726.365530]  RSP <ffffa0c2a74bfd80>
+[13108726.367179] CR2: 0000000000000074
+
+Fixes: d58431eacb22 ("sunrpc: don't mark uninitialised items as VALID.")
+Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Acked-by: NeilBrown <neilb@suse.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+[bwh: Backported to 3.16: cache_fresh_locked() had only 2 parameters here]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/drivers/media/usb/usbvision/usbvision-video.c
-+++ b/drivers/media/usb/usbvision/usbvision-video.c
-@@ -348,6 +348,10 @@ static int usbvision_v4l2_open(struct fi
- 	if (mutex_lock_interruptible(&usbvision->v4l2_lock))
- 		return -ERESTARTSYS;
+ net/sunrpc/cache.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+--- a/net/sunrpc/cache.c
++++ b/net/sunrpc/cache.c
+@@ -50,8 +50,6 @@ static void cache_init(struct cache_head
+ 	h->last_refresh = now;
+ }
  
-+	if (usbvision->remove_pending) {
-+		err_code = -ENODEV;
-+		goto unlock;
-+	}
- 	if (usbvision->user) {
- 		err_code = -EBUSY;
- 	} else {
-@@ -389,6 +393,7 @@ static int usbvision_v4l2_open(struct fi
- 		}
- 	}
+-static inline int cache_is_valid(struct cache_head *h);
+-static void cache_fresh_locked(struct cache_head *head, time_t expiry);
+ static void cache_fresh_unlocked(struct cache_head *head,
+ 				struct cache_detail *detail);
  
-+unlock:
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
- 	PDEBUG(DBG_IO, "success");
-@@ -406,6 +411,7 @@ static int usbvision_v4l2_open(struct fi
- static int usbvision_v4l2_close(struct file *file)
- {
- 	struct usb_usbvision *usbvision = video_drvdata(file);
-+	int r;
- 
- 	PDEBUG(DBG_IO, "close");
- 
-@@ -420,9 +426,10 @@ static int usbvision_v4l2_close(struct f
- 	usbvision_scratch_free(usbvision);
- 
- 	usbvision->user--;
-+	r = usbvision->remove_pending;
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
--	if (usbvision->remove_pending) {
-+	if (r) {
- 		printk(KERN_INFO "%s: Final disconnect\n", __func__);
- 		usbvision_release(usbvision);
- 		return 0;
-@@ -1136,6 +1143,11 @@ static int usbvision_radio_open(struct f
- 
- 	if (mutex_lock_interruptible(&usbvision->v4l2_lock))
- 		return -ERESTARTSYS;
-+
-+	if (usbvision->remove_pending) {
-+		err_code = -ENODEV;
-+		goto out;
-+	}
- 	if (usbvision->user) {
- 		dev_err(&usbvision->rdev->dev,
- 			"%s: Someone tried to open an already opened USBVision Radio!\n",
-@@ -1166,6 +1178,7 @@ static int usbvision_radio_close(struct
- {
- 	struct usb_usbvision *usbvision = video_drvdata(file);
- 	int err_code = 0;
-+	int r;
- 
- 	PDEBUG(DBG_IO, "");
- 
-@@ -1179,9 +1192,10 @@ static int usbvision_radio_close(struct
- 	usbvision_audio_off(usbvision);
- 	usbvision->radio = 0;
- 	usbvision->user--;
-+	r = usbvision->remove_pending;
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
--	if (usbvision->remove_pending) {
-+	if (r) {
- 		printk(KERN_INFO "%s: Final disconnect\n", __func__);
- 		usbvision_release(usbvision);
- 		return err_code;
-@@ -1614,6 +1628,7 @@ err_usb:
- static void usbvision_disconnect(struct usb_interface *intf)
- {
- 	struct usb_usbvision *usbvision = to_usbvision(usb_get_intfdata(intf));
-+	int u;
- 
- 	PDEBUG(DBG_PROBE, "");
- 
-@@ -1630,13 +1645,14 @@ static void usbvision_disconnect(struct
- 	v4l2_device_disconnect(&usbvision->v4l2_dev);
- 	usbvision_i2c_unregister(usbvision);
- 	usbvision->remove_pending = 1;	/* Now all ISO data will be ignored */
-+	u = usbvision->user;
- 
- 	usb_put_dev(usbvision->dev);
- 	usbvision->dev = NULL;	/* USB device is no more */
- 
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
--	if (usbvision->user) {
-+	if (u) {
- 		printk(KERN_INFO "%s: In use, disconnect pending\n",
- 		       __func__);
- 		wake_up_interruptible(&usbvision->wait_frame);
+@@ -99,9 +97,6 @@ struct cache_head *sunrpc_cache_lookup(s
+ 				*hp = tmp->next;
+ 				tmp->next = NULL;
+ 				detail->entries --;
+-				if (cache_is_valid(tmp) == -EAGAIN)
+-					set_bit(CACHE_NEGATIVE, &tmp->flags);
+-				cache_fresh_locked(tmp, 0);
+ 				freeme = tmp;
+ 				break;
+ 			}
 
