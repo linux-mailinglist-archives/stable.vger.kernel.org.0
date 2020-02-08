@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C58FE15668F
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04EA21566E7
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:39:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727769AbgBHS3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:29:39 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33762 "EHLO
+        id S1727762AbgBHSht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:37:49 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33740 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727751AbgBHS3i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:38 -0500
+        by vger.kernel.org with ESMTP id S1727721AbgBHS3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:37 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrG-0003dG-Ih; Sat, 08 Feb 2020 18:29:34 +0000
+        id 1j0UrG-0003dH-Lo; Sat, 08 Feb 2020 18:29:34 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrF-000CLV-Ud; Sat, 08 Feb 2020 18:29:33 +0000
+        id 1j0UrF-000CLZ-VY; Sat, 08 Feb 2020 18:29:33 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Steffen Maier" <maier@linux.ibm.com>,
-        "Benjamin Block" <bblock@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Date:   Sat, 08 Feb 2020 18:19:37 +0000
-Message-ID: <lsq.1581185940.779304711@decadent.org.uk>
+        "Sylwester Nawrocki" <s.nawrocki@samsung.com>,
+        "Marian Mihailescu" <mihailescu2m@gmail.com>
+Date:   Sat, 08 Feb 2020 18:19:38 +0000
+Message-ID: <lsq.1581185940.503234023@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 038/148] scsi: zfcp: trace channel log even for FCP
- command responses
+Subject: [PATCH 3.16 039/148] clk: samsung: exynos5420: Preserve CPU
+ clocks configuration during suspend/resume
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,44 +47,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Marian Mihailescu <mihailescu2m@gmail.com>
 
-commit 100843f176109af94600e500da0428e21030ca7f upstream.
+commit e21be0d1d7bd7f78a77613f6bcb6965e72b22fc1 upstream.
 
-While v2.6.26 commit b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug
-trace") is right that we don't want to flood the (payload) trace ring
-buffer, we don't trace successful FCP command responses by default.  So we
-can include the channel log for problem determination with failed responses
-of any FSF request type.
+Save and restore top PLL related configuration registers for big (APLL)
+and LITTLE (KPLL) cores during suspend/resume cycle. So far, CPU clocks
+were reset to default values after suspend/resume cycle and performance
+after system resume was affected when performance governor has been selected.
 
-Fixes: b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug trace")
-Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
-Link: https://lore.kernel.org/r/e37597b5c4ae123aaa85fd86c23a9f71e994e4a9.1572018132.git.bblock@linux.ibm.com
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[bwh: Backported to 3.16: Deleted condition is slightly different]
+Fixes: 773424326b51 ("clk: samsung: exynos5420: add more registers to restore list")
+Signed-off-by: Marian Mihailescu <mihailescu2m@gmail.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/s390/scsi/zfcp_dbf.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/clk/samsung/clk-exynos5420.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -93,11 +93,9 @@ void zfcp_dbf_hba_fsf_res(char *tag, int
- 	memcpy(rec->u.res.fsf_status_qual, &q_head->fsf_status_qual,
- 	       FSF_STATUS_QUALIFIER_SIZE);
- 
--	if (req->fsf_command != FSF_QTCB_FCP_CMND) {
--		rec->pl_len = q_head->log_length;
--		zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
--				  rec->pl_len, "fsf_res", req->req_id);
--	}
-+	rec->pl_len = q_head->log_length;
-+	zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
-+			  rec->pl_len, "fsf_res", req->req_id);
- 
- 	debug_event(dbf->hba, level, rec, sizeof(*rec));
- 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
+--- a/drivers/clk/samsung/clk-exynos5420.c
++++ b/drivers/clk/samsung/clk-exynos5420.c
+@@ -162,6 +162,8 @@ static unsigned long exynos5x_clk_regs[]
+ 	GATE_BUS_CPU,
+ 	GATE_SCLK_CPU,
+ 	CLKOUT_CMU_CPU,
++	APLL_CON0,
++	KPLL_CON0,
+ 	CPLL_CON0,
+ 	DPLL_CON0,
+ 	EPLL_CON0,
 
