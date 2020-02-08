@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF06E1565E8
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A641565E4
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727755AbgBHS3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:29:54 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34778 "EHLO
+        id S1727991AbgBHS3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:29:52 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34678 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727967AbgBHS3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:50 -0500
+        by vger.kernel.org with ESMTP id S1727960AbgBHS3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:49 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrP-0003jn-0m; Sat, 08 Feb 2020 18:29:43 +0000
+        id 1j0UrO-0003jq-U8; Sat, 08 Feb 2020 18:29:43 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrM-000CWY-Jt; Sat, 08 Feb 2020 18:29:40 +0000
+        id 1j0UrM-000CWd-MB; Sat, 08 Feb 2020 18:29:40 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com,
-        "David S. Miller" <davem@davemloft.net>,
-        "Nikolay Aleksandrov" <nikolay@cumulusnetworks.com>
-Date:   Sat, 08 Feb 2020 18:21:13 +0000
-Message-ID: <lsq.1581185941.176527532@decadent.org.uk>
+        "Meelis Roos" <mroos@linux.ee>,
+        "Michel =?UTF-8?Q?D=C3=A4nzer?=" <mdaenzer@redhat.com>,
+        "Alex Deucher" <alexander.deucher@amd.com>
+Date:   Sat, 08 Feb 2020 18:21:14 +0000
+Message-ID: <lsq.1581185941.15711959@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 134/148] net: bridge: deny dev_set_mac_address() when
- unregistering
+Subject: [PATCH 3.16 135/148] drm/radeon: fix r1xx/r2xx register checker
+ for POT textures
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,75 +48,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit c4b4c421857dc7b1cf0dccbd738472360ff2cd70 upstream.
+commit 008037d4d972c9c47b273e40e52ae34f9d9e33e7 upstream.
 
-We have an interesting memory leak in the bridge when it is being
-unregistered and is a slave to a master device which would change the
-mac of its slaves on unregister (e.g. bond, team). This is a very
-unusual setup but we do end up leaking 1 fdb entry because
-dev_set_mac_address() would cause the bridge to insert the new mac address
-into its table after all fdbs are flushed, i.e. after dellink() on the
-bridge has finished and we call NETDEV_UNREGISTER the bond/team would
-release it and will call dev_set_mac_address() to restore its original
-address and that in turn will add an fdb in the bridge.
-One fix is to check for the bridge dev's reg_state in its
-ndo_set_mac_address callback and return an error if the bridge is not in
-NETREG_REGISTERED.
+Shift and mask were reversed.  Noticed by chance.
 
-Easy steps to reproduce:
- 1. add bond in mode != A/B
- 2. add any slave to the bond
- 3. add bridge dev as a slave to the bond
- 4. destroy the bridge device
-
-Trace:
- unreferenced object 0xffff888035c4d080 (size 128):
-   comm "ip", pid 4068, jiffies 4296209429 (age 1413.753s)
-   hex dump (first 32 bytes):
-     41 1d c9 36 80 88 ff ff 00 00 00 00 00 00 00 00  A..6............
-     d2 19 c9 5e 3f d7 00 00 00 00 00 00 00 00 00 00  ...^?...........
-   backtrace:
-     [<00000000ddb525dc>] kmem_cache_alloc+0x155/0x26f
-     [<00000000633ff1e0>] fdb_create+0x21/0x486 [bridge]
-     [<0000000092b17e9c>] fdb_insert+0x91/0xdc [bridge]
-     [<00000000f2a0f0ff>] br_fdb_change_mac_address+0xb3/0x175 [bridge]
-     [<000000001de02dbd>] br_stp_change_bridge_id+0xf/0xff [bridge]
-     [<00000000ac0e32b1>] br_set_mac_address+0x76/0x99 [bridge]
-     [<000000006846a77f>] dev_set_mac_address+0x63/0x9b
-     [<00000000d30738fc>] __bond_release_one+0x3f6/0x455 [bonding]
-     [<00000000fc7ec01d>] bond_netdev_event+0x2f2/0x400 [bonding]
-     [<00000000305d7795>] notifier_call_chain+0x38/0x56
-     [<0000000028885d4a>] call_netdevice_notifiers+0x1e/0x23
-     [<000000008279477b>] rollback_registered_many+0x353/0x6a4
-     [<0000000018ef753a>] unregister_netdevice_many+0x17/0x6f
-     [<00000000ba854b7a>] rtnl_delete_link+0x3c/0x43
-     [<00000000adf8618d>] rtnl_dellink+0x1dc/0x20a
-     [<000000009b6395fd>] rtnetlink_rcv_msg+0x23d/0x268
-
-Fixes: 43598813386f ("bridge: add local MAC address to forwarding table (v2)")
-Reported-by: syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Meelis Roos <mroos@linux.ee>
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/bridge/br_device.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/radeon/r100.c | 4 ++--
+ drivers/gpu/drm/radeon/r200.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -193,6 +193,12 @@ static int br_set_mac_address(struct net
- 	if (!is_valid_ether_addr(addr->sa_data))
- 		return -EADDRNOTAVAIL;
- 
-+	/* dev_set_mac_addr() can be called by a master device on bridge's
-+	 * NETDEV_UNREGISTER, but since it's being destroyed do nothing
-+	 */
-+	if (dev->reg_state != NETREG_REGISTERED)
-+		return -EBUSY;
-+
- 	spin_lock_bh(&br->lock);
- 	if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
- 		/* Mac address will be changed in br_stp_change_bridge_id(). */
+--- a/drivers/gpu/drm/radeon/r100.c
++++ b/drivers/gpu/drm/radeon/r100.c
+@@ -1810,8 +1810,8 @@ static int r100_packet0_check(struct rad
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & RADEON_TXFORMAT_CUBIC_MAP_ENABLE)
+ 			track->textures[i].tex_coord_type = 2;
+--- a/drivers/gpu/drm/radeon/r200.c
++++ b/drivers/gpu/drm/radeon/r200.c
+@@ -473,8 +473,8 @@ int r200_packet0_check(struct radeon_cs_
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & R200_TXFORMAT_LOOKUP_DISABLE)
+ 			track->textures[i].lookup_disable = true;
 
