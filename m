@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0D1156693
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C86E156658
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728263AbgBHSfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:35:31 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34056 "EHLO
+        id S1727484AbgBHSeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:34:01 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34234 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727850AbgBHS3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:43 -0500
+        by vger.kernel.org with ESMTP id S1727891AbgBHS3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:45 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-0003fL-Us; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-0003fX-VJ; Sat, 08 Feb 2020 18:29:38 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-000CRk-LG; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-000CRq-MP; Sat, 08 Feb 2020 18:29:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Nikolay Borisov" <nborisov@suse.com>,
         "Josef Bacik" <josef@toxicpanda.com>,
-        "David Sterba" <dsterba@suse.com>,
-        "Filipe Manana" <fdmanana@suse.com>
-Date:   Sat, 08 Feb 2020 18:20:41 +0000
-Message-ID: <lsq.1581185940.422809182@decadent.org.uk>
+        "Filipe Manana" <fdmanana@suse.com>,
+        "David Sterba" <dsterba@suse.com>
+Date:   Sat, 08 Feb 2020 18:20:42 +0000
+Message-ID: <lsq.1581185940.727355076@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 102/148] Btrfs: fix negative subv_writers counter and
- data space leak after buffered write
+Subject: [PATCH 3.16 103/148] btrfs: check page->mapping when loading free
+ space cache
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,84 +49,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit a0e248bb502d5165b3314ac3819e888fdcdf7d9f upstream.
+commit 3797136b626ad4b6582223660c041efdea8f26b2 upstream.
 
-When doing a buffered write it's possible to leave the subv_writers
-counter of the root, used for synchronization between buffered nocow
-writers and snapshotting. This happens in an exceptional case like the
-following:
+While testing 5.2 we ran into the following panic
 
-1) We fail to allocate data space for the write, since there's not
-   enough available data space nor enough unallocated space for allocating
-   a new data block group;
+[52238.017028] BUG: kernel NULL pointer dereference, address: 0000000000000001
+[52238.105608] RIP: 0010:drop_buffers+0x3d/0x150
+[52238.304051] Call Trace:
+[52238.308958]  try_to_free_buffers+0x15b/0x1b0
+[52238.317503]  shrink_page_list+0x1164/0x1780
+[52238.325877]  shrink_inactive_list+0x18f/0x3b0
+[52238.334596]  shrink_node_memcg+0x23e/0x7d0
+[52238.342790]  ? do_shrink_slab+0x4f/0x290
+[52238.350648]  shrink_node+0xce/0x4a0
+[52238.357628]  balance_pgdat+0x2c7/0x510
+[52238.365135]  kswapd+0x216/0x3e0
+[52238.371425]  ? wait_woken+0x80/0x80
+[52238.378412]  ? balance_pgdat+0x510/0x510
+[52238.386265]  kthread+0x111/0x130
+[52238.392727]  ? kthread_create_on_node+0x60/0x60
+[52238.401782]  ret_from_fork+0x1f/0x30
 
-2) Because of that failure, we try to go to NOCOW mode, which succeeds
-   and therefore we set the local variable 'only_release_metadata' to true
-   and set the root's sub_writers counter to 1 through the call to
-   btrfs_start_write_no_snapshotting() made by check_can_nocow();
+The page we were trying to drop had a page->private, but had no
+page->mapping and so called drop_buffers, assuming that we had a
+buffer_head on the page, and then panic'ed trying to deref 1, which is
+our page->private for data pages.
 
-3) The call to btrfs_copy_from_user() returns zero, which is very unlikely
-   to happen but not impossible;
+This is happening because we're truncating the free space cache while
+we're trying to load the free space cache.  This isn't supposed to
+happen, and I'll fix that in a followup patch.  However we still
+shouldn't allow those sort of mistakes to result in messing with pages
+that do not belong to us.  So add the page->mapping check to verify that
+we still own this page after dropping and re-acquiring the page lock.
 
-4) No pages are copied because btrfs_copy_from_user() returned zero;
+This page being unlocked as:
+btrfs_readpage
+  extent_read_full_page
+    __extent_read_full_page
+      __do_readpage
+        if (!nr)
+	   unlock_page  <-- nr can be 0 only if submit_extent_page
+			    returns an error
 
-5) We call btrfs_end_write_no_snapshotting() which decrements the root's
-   subv_writers counter to 0;
-
-6) We don't set 'only_release_metadata' back to 'false' because we do
-   it only if 'copied', the value returned by btrfs_copy_from_user(), is
-   greater than zero;
-
-7) On the next iteration of the while loop, which processes the same
-   page range, we are now able to allocate data space for the write (we
-   got enough data space released in the meanwhile);
-
-8) After this if we fail at btrfs_delalloc_reserve_metadata(), because
-   now there isn't enough free metadata space, or in some other place
-   further below (prepare_pages(), lock_and_cleanup_extent_if_need(),
-   btrfs_dirty_pages()), we break out of the while loop with
-   'only_release_metadata' having a value of 'true';
-
-9) Because 'only_release_metadata' is 'true' we end up decrementing the
-   root's subv_writers counter to -1 (through a call to
-   btrfs_end_write_no_snapshotting()), and we also end up not releasing the
-   data space previously reserved through btrfs_check_data_free_space().
-   As a consequence the mechanism for synchronizing NOCOW buffered writes
-   with snapshotting gets broken.
-
-Fix this by always setting 'only_release_metadata' to false at the start
-of each iteration.
-
-Fixes: 8257b2dc3c1a ("Btrfs: introduce btrfs_{start, end}_nocow_write() for each subvolume")
-Fixes: 7ee9e4405f26 ("Btrfs: check if we can nocow if we don't have data space")
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+[ add callchain ]
 Signed-off-by: David Sterba <dsterba@suse.com>
-[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/btrfs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/free-space-cache.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -1540,6 +1540,7 @@ static noinline ssize_t __btrfs_buffered
- 			break;
- 		}
- 
-+		only_release_metadata = false;
- 		reserve_bytes = num_pages << PAGE_CACHE_SHIFT;
- 		ret = btrfs_check_data_free_space(inode, reserve_bytes);
- 		if (ret == -ENOSPC &&
-@@ -1671,7 +1672,6 @@ again:
- 			set_extent_bit(&BTRFS_I(inode)->io_tree, lockstart,
- 				       lockend, EXTENT_NORESERVE, NULL,
- 				       NULL, GFP_NOFS);
--			only_release_metadata = false;
- 		}
- 
- 		btrfs_drop_pages(pages, num_pages);
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -360,6 +360,12 @@ static int io_ctl_prepare_pages(struct i
+ 		if (uptodate && !PageUptodate(page)) {
+ 			btrfs_readpage(NULL, page);
+ 			lock_page(page);
++			if (page->mapping != inode->i_mapping) {
++				btrfs_err(BTRFS_I(inode)->root->fs_info,
++					  "free space cache page truncated");
++				io_ctl_drop_pages(io_ctl);
++				return -EIO;
++			}
+ 			if (!PageUptodate(page)) {
+ 				btrfs_err(BTRFS_I(inode)->root->fs_info,
+ 					   "error reading free space cache");
 
