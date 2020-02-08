@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C61B215648F
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 14:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D001156490
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 14:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727195AbgBHNdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 08:33:12 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:54775 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727131AbgBHNdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 08:33:12 -0500
-Received: by mail-pj1-f66.google.com with SMTP id dw13so2147157pjb.4
-        for <stable@vger.kernel.org>; Sat, 08 Feb 2020 05:33:12 -0800 (PST)
+        id S1727144AbgBHNeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 08:34:06 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:46024 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727131AbgBHNeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 08:34:06 -0500
+Received: by mail-pf1-f193.google.com with SMTP id 2so1232745pfg.12
+        for <stable@vger.kernel.org>; Sat, 08 Feb 2020 05:34:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=+TgtRglFPsKGoYDV5FVYpCFpV4d7G0dQ7Cix7b6Bqk0=;
-        b=vIb4SvpRDowmcRdTYVCHl/f7UwYplg9r04yFXdD6JXyHoS7eidx5tGEQTDd3GdqDjG
-         BSKckCMFzbefljnHbaSj6qvwBv72dvfRIXSPQNvP+wj97SBE9xzZDpwtoNAWuHZc8rxC
-         1pL3V/F25nWOib+7oiDVYyASMH0Vf6Yto4myfmKcWO3pN/7ccfKKdIv0KQLHdpLm7IKp
-         OC/U0BT6yuW/J3E71XdQdGwUnjICeKoX/nn7Rl32iKhYPlRhF2qlFF7zKfMaXUaKJPCx
-         3TuIrjaVLH+vQ31pEAlTDyO+PH/r7PqyKBqoiGlOARWYKuk8yu/25C2lrZY6ru5p/rP/
-         xjhw==
+        bh=SdgkevJj45koTHnxdq9o3Aw2kMisdrvqzvNoeWuyqk8=;
+        b=oc6Ltvcpf/dyyK9+29H+WQDC27CrMxbWVJwVFfc6mgis/ZKy7ex6N7zYnfszECGbQn
+         eAN1LxbFdkdx/IIoV1V6X7Q0EK8Im3VqEMRRwqKDI1Uqy/em2bkxrXKRvcZZoa8AFyyj
+         bsuwUiPSW2npNmDZPTCiHQyzGTem9vD48K+58FzFLDhbRX4/Mxu2FIsVhVyuRgSlAh9j
+         FQ2WjCxKQJoIJhQNYq1F6C7dUmPPx//Ek7RCKWuzb9r7XFn17qykjI84B7CkMrtkkpVo
+         8K05Wcd6Qdf5mjYXWzDB/xjTFF8mTNb/kYx/Kltp1nT3oQN3FKoWRKl4XMOQt2YapgTd
+         XXow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=+TgtRglFPsKGoYDV5FVYpCFpV4d7G0dQ7Cix7b6Bqk0=;
-        b=J8H2x5kMyRPNes0Dtek9YlsLevURvuQQBe8O3lbka4wqyKIlq/1M9OgnQKC/MbGsYu
-         HDUDljaculdOkY/lGQnS9w7pTBBiTZbZZ4/GeAtV3tMKWeweVOWq/oST7dwVOZIE7a8/
-         HFuZoDkxCKaY0/uhI+Xw/xFZgWeuD8u04k54QmAEguaxqhTAXuShU3jKwMRxmPJ4/FtS
-         jP2ib10irQoZ0YW5FkQ3wUG3KTIeKgxlAlou8ehgGVHjirBUcyK6+0a9kARKEFCMRehw
-         HAH94NaukJrBtxW3UnjIPpOzJwDOZd3SUwF4dEG50KfQBCRqSERoizCubVi5s7+lmMPN
-         4QVw==
-X-Gm-Message-State: APjAAAWbWPYYjwgLSMRjsmgxRCPkK63DEqPbyOwvUr1/pXfup3Rn8WpN
-        5L3VC87pBw0l5+8NeLjx3jHGHCUq
-X-Google-Smtp-Source: APXvYqx9aPUGCmOXCmFcNk83m0sIn+DYYe/RY3AjBNjAPcHlslywCjcKUrgopOnvObW0wM6qcMgIvw==
-X-Received: by 2002:a17:90a:d985:: with SMTP id d5mr10594425pjv.73.1581168791550;
-        Sat, 08 Feb 2020 05:33:11 -0800 (PST)
+        bh=SdgkevJj45koTHnxdq9o3Aw2kMisdrvqzvNoeWuyqk8=;
+        b=Ja0jKTwCZ0QRCFYbbf5CoYnSJJvRK7kmdug0iXEIhMiAPcMz3v9ujB8KMsQ0iu/p/p
+         jNIa8+s/hCNX+fujuH4ZfdtgTrEV75lx/NMwQ9dMV1Ti8P5nnqTObvHG2AsIH/9BBw2x
+         DVUYyKoTpNeDQxx3Q5m38EtYx9dFbnaBGaYxQOWLMohLv/l5UE+FYeeiydipFIeGLtmW
+         bgG/vtcWxDf76aRL5UCIeOQz5YgwGc76cvRmZYSRmz/TnfnQyUuZ82c5Us9eEn/zjEXD
+         ZWj6bgEeDfXatKUvVIt+zmfgm6TRfoU89nrYqSK55d4L9+DKsjrCdHjuAlIF+IaObtBU
+         dYOA==
+X-Gm-Message-State: APjAAAX54HbgjgoFsh9LhOG7KNOSzeEXme1NLKomCa+WNkFg6J3zR2Wq
+        X/OCybQPiL65YaZEyn3VIY5LADZJ
+X-Google-Smtp-Source: APXvYqwmrsT/JQnjNSzr/UGs45ny1fgw8n6LtCvTou3BlF1KWAfadCwfVymavEMlLoS4BhWPydcohw==
+X-Received: by 2002:a63:5508:: with SMTP id j8mr4622440pgb.170.1581168845639;
+        Sat, 08 Feb 2020 05:34:05 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i68sm6502006pfe.173.2020.02.08.05.33.10
+        by smtp.gmail.com with ESMTPSA id i9sm6548711pfk.24.2020.02.08.05.34.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 08 Feb 2020 05:33:10 -0800 (PST)
+        Sat, 08 Feb 2020 05:34:05 -0800 (PST)
 Subject: Re: v4.9.y.queue build failures (s390)
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable <stable@vger.kernel.org>
 References: <e63c50d7-68c0-1ada-dc05-86452d17a76a@roeck-us.net>
  <20200208132823.GA1234618@kroah.com>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <8a9d90ac-7510-dee2-d9d1-bc77cdeeb55d@roeck-us.net>
-Date:   Sat, 8 Feb 2020 05:33:09 -0800
+Message-ID: <15bfd5ad-bb01-3142-3c4a-44cb3661a772@roeck-us.net>
+Date:   Sat, 8 Feb 2020 05:34:04 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
@@ -83,17 +83,10 @@ On 2/8/20 5:28 AM, Greg Kroah-Hartman wrote:
 > Thanks for letting me know, I'll try to guess and pick "sched.h" instead
 > here and push out an update.
 > 
+> greg k-h
+> 
 
-Then you'll get:
-
-arch/s390/mm/hugetlbpage.c: In function 'hugetlb_get_unmapped_area':
-arch/s390/mm/hugetlbpage.c:320:8: error: too many arguments to function 'crst_table_upgrade'
-   320 |   rc = crst_table_upgrade(mm, addr + len);
-       |        ^~~~~~~~~~~~~~~~~~
-In file included from ./arch/s390/include/asm/tlbflush.h:7,
-                  from ./include/linux/hugetlb.h:21,
-                  from arch/s390/mm/hugetlbpage.c:12:
-./arch/s390/include/asm/pgalloc.h:57:5: note: declared here
-    57 | int crst_table_upgrade(struct mm_struct *);
+You have "s390/mm: fix dynamic pagetable upgrade for hugetlbfs"
+in there which is tagged 4.12+.
 
 Guenter
