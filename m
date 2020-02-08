@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B051566BA
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:38:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4013B15660B
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:31:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727969AbgBHSgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:36:37 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33868 "EHLO
+        id S1728290AbgBHSbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:31:25 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34820 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727787AbgBHS3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:40 -0500
+        by vger.kernel.org with ESMTP id S1727974AbgBHS3u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:50 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrH-0003dE-IC; Sat, 08 Feb 2020 18:29:35 +0000
+        id 1j0UrH-0003dB-IC; Sat, 08 Feb 2020 18:29:35 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrG-000CN6-Kr; Sat, 08 Feb 2020 18:29:34 +0000
+        id 1j0UrG-000CNB-MB; Sat, 08 Feb 2020 18:29:34 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Johan Hovold" <johan@kernel.org>,
-        "=?UTF-8?q?Pavel=20L=C3=B6bl?=" <pavel@loebl.cz>
-Date:   Sat, 08 Feb 2020 18:19:57 +0000
-Message-ID: <lsq.1581185940.481254882@decadent.org.uk>
+        "Masami Hiramatsu" <masami.hiramatsu.pt@hitachi.com>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Arnaldo Carvalho de Melo" <acme@redhat.com>,
+        "Namhyung Kim" <namhyung@kernel.org>
+Date:   Sat, 08 Feb 2020 18:19:58 +0000
+Message-ID: <lsq.1581185940.917825935@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 058/148] USB: serial: mos7840: add USB ID to support
- Moxa UPort 2210
+Subject: [PATCH 3.16 059/148] perf probe: Fix to handle optimized
+ not-inlined functions
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,66 +49,126 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Pavel Löbl <pavel@loebl.cz>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 
-commit e696d00e65e81d46e911f24b12e441037bf11b38 upstream.
+commit e1ecbbc3fa834cc6b4b344edb1968e734d57189b upstream.
 
-Add USB ID for MOXA UPort 2210. This device contains mos7820 but
-it passes GPIO0 check implemented by driver and it's detected as
-mos7840. Hence product id check is added to force mos7820 mode.
+Fix to handle optimized no-inline functions which have only function
+definition but no actual instance at that point.
 
-Signed-off-by: Pavel Löbl <pavel@loebl.cz>
-[ johan: rename id defines and add vendor-id check ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+To fix this problem, we need to find actual instance of the function.
+
+Without this patch:
+  ----
+  # perf probe -a __up
+  Failed to get entry address of __up.
+    Error: Failed to add events.
+  # perf probe -L __up
+  Specified source line is not found.
+    Error: Failed to show lines.
+  ----
+
+With this patch:
+  ----
+  # perf probe -a __up
+  Added new event:
+    probe:__up           (on __up)
+
+  You can now use it in all perf tools, such as:
+
+          perf record -e probe:__up -aR sleep 1
+
+  # perf probe -L __up
+  <__up@/home/fedora/ksrc/linux-3/kernel/locking/semaphore.c:0>
+        0  static noinline void __sched __up(struct semaphore *sem)
+           {
+                  struct semaphore_waiter *waiter = list_first_entry(&sem->wait_
+                                                          struct semaphore_waite
+        4         list_del(&waiter->list);
+        5         waiter->up = true;
+        6         wake_up_process(waiter->task);
+        7  }
+  ----
+
+Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lkml.kernel.org/r/20150130093744.30575.43290.stgit@localhost.localdomain
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/serial/mos7840.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/perf/util/dwarf-aux.c    | 15 +++++++++++++++
+ tools/perf/util/dwarf-aux.h    |  3 +++
+ tools/perf/util/probe-finder.c | 12 ++++--------
+ 3 files changed, 22 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -131,11 +131,15 @@
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-  * ATEN UC2322 device using Moschip MCS7820
-+ * MOXA UPort 2210 device using Moschip MCS7820
-  */
- #define USB_VENDOR_ID_ATENINTL		0x0557
- #define ATENINTL_DEVICE_ID_UC2324	0x2011
- #define ATENINTL_DEVICE_ID_UC2322	0x7820
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -278,6 +278,21 @@ bool die_is_func_def(Dwarf_Die *dw_die)
+ }
  
-+#define USB_VENDOR_ID_MOXA		0x110a
-+#define MOXA_DEVICE_ID_2210		0x2210
+ /**
++ * die_is_func_instance - Ensure that this DIE is an instance of a subprogram
++ * @dw_die: a DIE
++ *
++ * Ensure that this DIE is an instance (which has an entry address).
++ * This returns true if @dw_die is a function instance. If not, you need to
++ * call die_walk_instances() to find actual instances.
++ **/
++bool die_is_func_instance(Dwarf_Die *dw_die)
++{
++	Dwarf_Addr tmp;
 +
- /* Interrupt Routine Defines    */
++	/* Actually gcc optimizes non-inline as like as inlined */
++	return !dwarf_func_inline(dw_die) && dwarf_entrypc(dw_die, &tmp) == 0;
++}
++/**
+  * die_get_data_member_location - Get the data-member offset
+  * @mb_die: a DIE of a member of a data structure
+  * @offs: The offset of the member in the data structure
+--- a/tools/perf/util/dwarf-aux.h
++++ b/tools/perf/util/dwarf-aux.h
+@@ -41,6 +41,9 @@ extern int cu_walk_functions_at(Dwarf_Di
+ /* Ensure that this DIE is a subprogram and definition (not declaration) */
+ extern bool die_is_func_def(Dwarf_Die *dw_die);
  
- #define SERIAL_IIR_RLS      0x06
-@@ -206,6 +210,7 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
-+	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
- 	{}			/* terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, id_table);
-@@ -2139,6 +2144,7 @@ static int mos7840_probe(struct usb_seri
- 				const struct usb_device_id *id)
- {
- 	u16 product = le16_to_cpu(serial->dev->descriptor.idProduct);
-+	u16 vid = le16_to_cpu(serial->dev->descriptor.idVendor);
- 	u8 *buf;
- 	int device_type;
- 
-@@ -2148,6 +2154,11 @@ static int mos7840_probe(struct usb_seri
- 		goto out;
- 	}
- 
-+	if (vid == USB_VENDOR_ID_MOXA && product == MOXA_DEVICE_ID_2210) {
-+		device_type = MOSCHIP_DEVICE_ID_7820;
-+		goto out;
-+	}
++/* Ensure that this DIE is an instance of a subprogram */
++extern bool die_is_func_instance(Dwarf_Die *dw_die);
 +
- 	buf = kzalloc(VENDOR_READ_LENGTH, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
+ /* Compare diename and tname */
+ extern bool die_compare_name(Dwarf_Die *dw_die, const char *tname);
+ 
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -909,17 +909,13 @@ static int probe_point_search_cb(Dwarf_D
+ 		dwarf_decl_line(sp_die, &pf->lno);
+ 		pf->lno += pp->line;
+ 		param->retval = find_probe_point_by_line(pf);
+-	} else if (!dwarf_func_inline(sp_die)) {
++	} else if (die_is_func_instance(sp_die)) {
++		/* Instances always have the entry address */
++		dwarf_entrypc(sp_die, &pf->addr);
+ 		/* Real function */
+ 		if (pp->lazy_line)
+ 			param->retval = find_probe_point_lazy(sp_die, pf);
+ 		else {
+-			if (dwarf_entrypc(sp_die, &pf->addr) != 0) {
+-				pr_warning("Failed to get entry address of "
+-					   "%s.\n", dwarf_diename(sp_die));
+-				param->retval = -ENOENT;
+-				return DWARF_CB_ABORT;
+-			}
+ 			pf->addr += pp->offset;
+ 			/* TODO: Check the address in this function */
+ 			param->retval = call_probe_finder(sp_die, pf);
+@@ -1514,7 +1510,7 @@ static int line_range_search_cb(Dwarf_Di
+ 		pr_debug("New line range: %d to %d\n", lf->lno_s, lf->lno_e);
+ 		lr->start = lf->lno_s;
+ 		lr->end = lf->lno_e;
+-		if (dwarf_func_inline(sp_die))
++		if (!die_is_func_instance(sp_die))
+ 			param->retval = die_walk_instances(sp_die,
+ 						line_range_inline_cb, lf);
+ 		else
 
