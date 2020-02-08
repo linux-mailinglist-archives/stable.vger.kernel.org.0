@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D45156680
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F162156671
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:35:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728078AbgBHSfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:35:00 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34130 "EHLO
+        id S1727522AbgBHSeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:34:50 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34164 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727865AbgBHS3o (ORCPT
+        by vger.kernel.org with ESMTP id S1727873AbgBHS3o (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:44 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-0003fo-Uc; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrK-0003fR-1Q; Sat, 08 Feb 2020 18:29:38 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-000CS8-Ot; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-000CSF-Pk; Sat, 08 Feb 2020 18:29:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Kars de Jong" <jongk@linux-m68k.org>,
-        "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
-        "Geert Uytterhoeven" <geert@linux-m68k.org>
-Date:   Sat, 08 Feb 2020 18:20:44 +0000
-Message-ID: <lsq.1581185940.280930361@decadent.org.uk>
+        "Dan Carpenter" <dan.carpenter@oracle.com>,
+        "Marcel Holtmann" <marcel@holtmann.org>
+Date:   Sat, 08 Feb 2020 18:20:45 +0000
+Message-ID: <lsq.1581185940.488106583@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 105/148] rtc: msm6242: Fix reading of 10-hour digit
+Subject: [PATCH 3.16 106/148] Bluetooth: delete a stray unlock
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,38 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e34494c8df0cd96fc432efae121db3212c46ae48 upstream.
+commit df66499a1fab340c167250a5743931dc50d5f0fa upstream.
 
-The driver was reading the wrong register as the 10-hour digit due to
-a misplaced ')'. It was in fact reading the 1-second digit register due
-to this bug.
+We used to take a lock in amp_physical_cfm() but then we moved it to
+the caller function.  Unfortunately the unlock on this error path was
+overlooked so it leads to a double unlock.
 
-Also remove the use of a magic number for the hour mask and use the define
-for it which was already present.
-
-Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
-Tested-by: Kars de Jong <jongk@linux-m68k.org>
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: a514b17fab51 ("Bluetooth: Refactor locking in amp_physical_cfm")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/rtc/rtc-msm6242.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/rtc/rtc-msm6242.c
-+++ b/drivers/rtc/rtc-msm6242.c
-@@ -130,7 +130,8 @@ static int msm6242_read_time(struct devi
- 		      msm6242_read(priv, MSM6242_SECOND1);
- 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
- 		      msm6242_read(priv, MSM6242_MINUTE1);
--	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
-+	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
-+		       MSM6242_HOUR10_HR_MASK) * 10 +
- 		      msm6242_read(priv, MSM6242_HOUR1);
- 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
- 		      msm6242_read(priv, MSM6242_DAY1);
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4902,10 +4902,8 @@ void __l2cap_physical_cfm(struct l2cap_c
+ 	BT_DBG("chan %p, result %d, local_amp_id %d, remote_amp_id %d",
+ 	       chan, result, local_amp_id, remote_amp_id);
+ 
+-	if (chan->state == BT_DISCONN || chan->state == BT_CLOSED) {
+-		l2cap_chan_unlock(chan);
++	if (chan->state == BT_DISCONN || chan->state == BT_CLOSED)
+ 		return;
+-	}
+ 
+ 	if (chan->state != BT_CONNECTED) {
+ 		l2cap_do_create(chan, result, local_amp_id, remote_amp_id);
 
