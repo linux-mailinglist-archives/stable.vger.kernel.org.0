@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EDAF15661E
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:32:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54FB7156643
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728398AbgBHScE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:32:04 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34694 "EHLO
+        id S1727927AbgBHSdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:33:05 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34506 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727961AbgBHS3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:49 -0500
+        by vger.kernel.org with ESMTP id S1727930AbgBHS3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:47 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrO-0003ir-4k; Sat, 08 Feb 2020 18:29:42 +0000
+        id 1j0UrN-0003iT-Jn; Sat, 08 Feb 2020 18:29:41 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrN-000CXG-59; Sat, 08 Feb 2020 18:29:41 +0000
+        id 1j0UrN-000CXR-7f; Sat, 08 Feb 2020 18:29:41 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -28,14 +28,13 @@ To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
         "Eric Dumazet" <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Guillaume Nault" <gnault@redhat.com>
-Date:   Sat, 08 Feb 2020 18:21:22 +0000
-Message-ID: <lsq.1581185941.148021438@decadent.org.uk>
+        "syzbot" <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Date:   Sat, 08 Feb 2020 18:21:23 +0000
+Message-ID: <lsq.1581185941.933407726@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 143/148] tcp: Protect accesses to .ts_recent_stamp
- with {READ,WRITE}_ONCE()
+Subject: [PATCH 3.16 144/148] inet: protect against too small mtu values.
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,51 +48,180 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 721c8dafad26ccfa90ff659ee19755e3377b829d upstream.
+commit 501a90c945103e8627406763dac418f20f3837b2 upstream.
 
-Syncookies borrow the ->rx_opt.ts_recent_stamp field to store the
-timestamp of the last synflood. Protect them with READ_ONCE() and
-WRITE_ONCE() since reads and writes aren't serialised.
+syzbot was once again able to crash a host by setting a very small mtu
+on loopback device.
 
-Use of .rx_opt.ts_recent_stamp for storing the synflood timestamp was
-introduced by a0f82f64e269 ("syncookies: remove last_synq_overflow from
-struct tcp_sock"). But unprotected accesses were already there when
-timestamp was stored in .last_synq_overflow.
+Let's make inetdev_valid_mtu() available in include/net/ip.h,
+and use it in ip_setup_cork(), so that we protect both ip_append_page()
+and __ip_append_data()
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Also add a READ_ONCE() when the device mtu is read.
+
+Pairs this lockless read with one WRITE_ONCE() in __dev_set_mtu(),
+even if other code paths might write over this field.
+
+Add a big comment in include/linux/netdevice.h about dev->mtu
+needing READ_ONCE()/WRITE_ONCE() annotations.
+
+Hopefully we will add the missing ones in followup patches.
+
+[1]
+
+refcount_t: saturated; leaking memory.
+WARNING: CPU: 0 PID: 9464 at lib/refcount.c:22 refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 9464 Comm: syz-executor850 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ panic+0x2e3/0x75c kernel/panic.c:221
+ __warn.cold+0x2f/0x3e kernel/panic.c:582
+ report_bug+0x289/0x300 lib/bug.c:195
+ fixup_bug arch/x86/kernel/traps.c:174 [inline]
+ fixup_bug arch/x86/kernel/traps.c:169 [inline]
+ do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
+ do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
+ invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
+RIP: 0010:refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
+Code: 06 31 ff 89 de e8 c8 f5 e6 fd 84 db 0f 85 6f ff ff ff e8 7b f4 e6 fd 48 c7 c7 e0 71 4f 88 c6 05 56 a6 a4 06 01 e8 c7 a8 b7 fd <0f> 0b e9 50 ff ff ff e8 5c f4 e6 fd 0f b6 1d 3d a6 a4 06 31 ff 89
+RSP: 0018:ffff88809689f550 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff815e4336 RDI: ffffed1012d13e9c
+RBP: ffff88809689f560 R08: ffff88809c50a3c0 R09: fffffbfff15d31b1
+R10: fffffbfff15d31b0 R11: ffffffff8ae98d87 R12: 0000000000000001
+R13: 0000000000040100 R14: ffff888099041104 R15: ffff888218d96e40
+ refcount_add include/linux/refcount.h:193 [inline]
+ skb_set_owner_w+0x2b6/0x410 net/core/sock.c:1999
+ sock_wmalloc+0xf1/0x120 net/core/sock.c:2096
+ ip_append_page+0x7ef/0x1190 net/ipv4/ip_output.c:1383
+ udp_sendpage+0x1c7/0x480 net/ipv4/udp.c:1276
+ inet_sendpage+0xdb/0x150 net/ipv4/af_inet.c:821
+ kernel_sendpage+0x92/0xf0 net/socket.c:3794
+ sock_sendpage+0x8b/0xc0 net/socket.c:936
+ pipe_to_sendpage+0x2da/0x3c0 fs/splice.c:458
+ splice_from_pipe_feed fs/splice.c:512 [inline]
+ __splice_from_pipe+0x3ee/0x7c0 fs/splice.c:636
+ splice_from_pipe+0x108/0x170 fs/splice.c:671
+ generic_splice_sendpage+0x3c/0x50 fs/splice.c:842
+ do_splice_from fs/splice.c:861 [inline]
+ direct_splice_actor+0x123/0x190 fs/splice.c:1035
+ splice_direct_to_actor+0x3b4/0xa30 fs/splice.c:990
+ do_splice_direct+0x1da/0x2a0 fs/splice.c:1078
+ do_sendfile+0x597/0xd00 fs/read_write.c:1464
+ __do_sys_sendfile64 fs/read_write.c:1525 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1511 [inline]
+ __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x441409
+Code: e8 ac e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fffb64c4f78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441409
+RDX: 0000000000000000 RSI: 0000000000000006 RDI: 0000000000000005
+RBP: 0000000000073b8a R08: 0000000000000010 R09: 0000000000000010
+R10: 0000000000010001 R11: 0000000000000246 R12: 0000000000402180
+R13: 0000000000402210 R14: 0000000000000000 R15: 0000000000000000
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
+
+Fixes: 1470ddf7f8ce ("inet: Remove explicit write references to sk/inet in ip_append_data")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: Use ACCESS_ONCE() instead of {READ,WRITE}_ONCE()]
+[bwh: Backported to 3.16:
+ - Use ACCESS_ONCE() instead of {READ,WRITE}_ONCE()
+ - Keep using literal 68 instead of IPV4_MIN_MTU
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/net/tcp.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/netdevice.h |  5 +++++
+ include/net/ip.h          |  5 +++++
+ net/core/dev.c            |  3 ++-
+ net/ipv4/devinet.c        |  5 -----
+ net/ipv4/ip_output.c      | 14 +++++++++-----
+ 5 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -482,17 +482,17 @@ struct sock *cookie_v4_check(struct sock
-  */
- static inline void tcp_synq_overflow(struct sock *sk)
- {
--	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
-+	unsigned long last_overflow = ACCESS_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
- 	unsigned long now = jiffies;
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1345,6 +1345,11 @@ struct net_device {
+ 	unsigned char		if_port;	/* Selectable AUI, TP,..*/
+ 	unsigned char		dma;		/* DMA channel		*/
  
- 	if (!time_between32(now, last_overflow, last_overflow + HZ))
--		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
-+		ACCESS_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp) = now;
++	/* Note : dev->mtu is often read without holding a lock.
++	 * Writers usually hold RTNL.
++	 * It is recommended to use ACCESS_ONCE() to annotate the reads
++	 * and writes.
++	 */
+ 	unsigned int		mtu;	/* interface MTU value		*/
+ 	unsigned short		type;	/* interface hardware type	*/
+ 	unsigned short		hard_header_len;	/* hardware hdr length	*/
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -522,4 +522,9 @@ void ip_local_error(struct sock *sk, int
+ int ip_misc_proc_init(void);
+ #endif
+ 
++static inline bool inetdev_valid_mtu(unsigned int mtu)
++{
++	return likely(mtu >= 68);
++}
++
+ #endif	/* _IP_H */
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5680,7 +5680,8 @@ static int __dev_set_mtu(struct net_devi
+ 	if (ops->ndo_change_mtu)
+ 		return ops->ndo_change_mtu(dev, new_mtu);
+ 
+-	dev->mtu = new_mtu;
++	/* Pairs with all the lockless reads of dev->mtu in the stack */
++	ACCESS_ONCE(dev->mtu) = new_mtu;
+ 	return 0;
  }
  
- /* syncookies: no recent synqueue overflow on this listening socket? */
- static inline bool tcp_synq_no_recent_overflow(const struct sock *sk)
- {
--	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
-+	unsigned long last_overflow = ACCESS_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
- 
- 	return time_after(jiffies, last_overflow + TCP_SYNCOOKIE_VALID);
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -1318,11 +1318,6 @@ skip:
+ 	}
  }
+ 
+-static bool inetdev_valid_mtu(unsigned int mtu)
+-{
+-	return mtu >= 68;
+-}
+-
+ static void inetdev_send_gratuitous_arp(struct net_device *dev,
+ 					struct in_device *in_dev)
+ 
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -1106,13 +1106,17 @@ static int ip_setup_cork(struct sock *sk
+ 	rt = *rtp;
+ 	if (unlikely(!rt))
+ 		return -EFAULT;
+-	/*
+-	 * We steal reference to this route, caller should not release it
+-	 */
+-	*rtp = NULL;
++
+ 	cork->fragsize = ip_sk_use_pmtu(sk) ?
+-			 dst_mtu(&rt->dst) : rt->dst.dev->mtu;
++			 dst_mtu(&rt->dst) : ACCESS_ONCE(rt->dst.dev->mtu);
++
++	if (!inetdev_valid_mtu(cork->fragsize))
++		return -ENETUNREACH;
++
+ 	cork->dst = &rt->dst;
++	/* We stole this route, caller should not release it. */
++	*rtp = NULL;
++
+ 	cork->length = 0;
+ 	cork->ttl = ipc->ttl;
+ 	cork->tos = ipc->tos;
 
