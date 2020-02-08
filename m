@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8700156668
-	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60682156645
+	for <lists+stable@lfdr.de>; Sat,  8 Feb 2020 19:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727985AbgBHSeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Feb 2020 13:34:22 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34242 "EHLO
+        id S1727932AbgBHSdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Feb 2020 13:33:23 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34346 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727894AbgBHS3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:45 -0500
+        by vger.kernel.org with ESMTP id S1727913AbgBHS3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Feb 2020 13:29:46 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrK-0003fl-1T; Sat, 08 Feb 2020 18:29:38 +0000
+        id 1j0UrL-0003fl-5t; Sat, 08 Feb 2020 18:29:39 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1j0UrJ-000CQq-3C; Sat, 08 Feb 2020 18:29:37 +0000
+        id 1j0UrJ-000CQu-51; Sat, 08 Feb 2020 18:29:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Peng Fan" <peng.fan@nxp.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Feb 2020 18:20:31 +0000
-Message-ID: <lsq.1581185940.296671502@decadent.org.uk>
+        "Honggang Li" <honli@redhat.com>,
+        "Jason Gunthorpe" <jgg@mellanox.com>,
+        "Bart Van Assche" <bvanassche@acm.org>
+Date:   Sat, 08 Feb 2020 18:20:32 +0000
+Message-ID: <lsq.1581185940.462189931@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 092/148] tty: serial: pch_uart: correct usage of
- dma_unmap_sg
+Subject: [PATCH 3.16 093/148] RDMA/srpt: Report the SCSI residual to the
+ initiator
 In-Reply-To: <lsq.1581185939.857586636@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,64 +48,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 upstream.
+commit e88982ad1bb12db699de96fbc07096359ef6176c upstream.
 
-Per Documentation/DMA-API-HOWTO.txt,
-To unmap a scatterlist, just call:
-	dma_unmap_sg(dev, sglist, nents, direction);
+The code added by this patch is similar to the code that already exists in
+ibmvscsis_determine_resid(). This patch has been tested by running the
+following command:
 
-.. note::
+strace sg_raw -r 1k /dev/sdb 12 00 00 00 60 00 -o inquiry.bin |&
+    grep resid=
 
-	The 'nents' argument to the dma_unmap_sg call must be
-	the _same_ one you passed into the dma_map_sg call,
-	it should _NOT_ be the 'count' value _returned_ from the
-	dma_map_sg call.
-
-However in the driver, priv->nent is directly assigned with value
-returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
-this breaks the API usage.
-
-So introduce a new entry orig_nent to remember 'nents'.
-
-Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191105214632.183302-1-bvanassche@acm.org
+Fixes: a42d985bd5b2 ("ib_srpt: Initial SRP Target merge for v3.3-rc1")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Honggang Li <honli@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/tty/serial/pch_uart.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/infiniband/ulp/srpt/ib_srpt.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -251,6 +251,7 @@ struct eg20t_port {
- 	struct dma_chan			*chan_rx;
- 	struct scatterlist		*sg_tx_p;
- 	int				nent;
-+	int				orig_nent;
- 	struct scatterlist		sg_rx;
- 	int				tx_dma_use;
- 	void				*rx_buf_virt;
-@@ -803,9 +804,10 @@ static void pch_dma_tx_complete(void *ar
- 	}
- 	xmit->tail &= UART_XMIT_SIZE - 1;
- 	async_tx_ack(priv->desc_tx);
--	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
-+	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
- 	priv->tx_dma_use = 0;
- 	priv->nent = 0;
-+	priv->orig_nent = 0;
- 	kfree(priv->sg_tx_p);
- 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
- }
-@@ -1030,6 +1032,7 @@ static unsigned int dma_handle_tx(struct
- 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
- 		return 0;
- 	}
-+	priv->orig_nent = num;
- 	priv->nent = nent;
+--- a/drivers/infiniband/ulp/srpt/ib_srpt.c
++++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
+@@ -1519,9 +1519,11 @@ static int srpt_build_cmd_rsp(struct srp
+ 			      struct srpt_send_ioctx *ioctx, u64 tag,
+ 			      int status)
+ {
++	struct se_cmd *cmd = &ioctx->cmd;
+ 	struct srp_rsp *srp_rsp;
+ 	const u8 *sense_data;
+ 	int sense_data_len, max_sense_len;
++	u32 resid = cmd->residual_count;
  
- 	for (i = 0; i < nent; i++, sg++) {
+ 	/*
+ 	 * The lowest bit of all SAM-3 status codes is zero (see also
+@@ -1543,6 +1545,28 @@ static int srpt_build_cmd_rsp(struct srp
+ 	srp_rsp->tag = tag;
+ 	srp_rsp->status = status;
+ 
++	if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
++		if (cmd->data_direction == DMA_TO_DEVICE) {
++			/* residual data from an underflow write */
++			srp_rsp->flags = SRP_RSP_FLAG_DOUNDER;
++			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
++		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
++			/* residual data from an underflow read */
++			srp_rsp->flags = SRP_RSP_FLAG_DIUNDER;
++			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
++		}
++	} else if (cmd->se_cmd_flags & SCF_OVERFLOW_BIT) {
++		if (cmd->data_direction == DMA_TO_DEVICE) {
++			/* residual data from an overflow write */
++			srp_rsp->flags = SRP_RSP_FLAG_DOOVER;
++			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
++		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
++			/* residual data from an overflow read */
++			srp_rsp->flags = SRP_RSP_FLAG_DIOVER;
++			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
++		}
++	}
++
+ 	if (sense_data_len) {
+ 		BUILD_BUG_ON(MIN_MAX_RSP_SIZE <= sizeof(*srp_rsp));
+ 		max_sense_len = ch->max_ti_iu_len - sizeof(*srp_rsp);
 
