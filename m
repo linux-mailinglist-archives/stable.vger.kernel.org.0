@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9334B156A79
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B854156A7A
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727698AbgBINGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:06:55 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:38395 "EHLO
+        id S1727650AbgBINHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:07:04 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:54517 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727473AbgBINGz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:06:55 -0500
+        by vger.kernel.org with ESMTP id S1727473AbgBINHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:07:03 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 081BC21EBC;
-        Sun,  9 Feb 2020 08:06:54 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id EF59621EBC;
+        Sun,  9 Feb 2020 08:07:02 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:06:54 -0500
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:07:02 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6t679B
-        LY+UJSzWR24hDYRaQwJUdipmO0k3BKqh2/yT8=; b=4ISguw58WlF6RLOMdzfgbA
-        yOys270ub0X05LntWAOT8uaRS2gk5QwPT7K44RRT7PXCEnTJDgcQtHZ2OqmpTOT4
-        c4DXw2DOne6T8HEyj2ibF8UyoNPLXyUj7NPjlFcGdA598Nm33yJgFsp3Hnvjjeqq
-        Ur/9ClrL072AY5uQj+fUDcaCZopciC5r5vzK8WhHwiHRV5ZGyNLCYHk589iW8pcH
-        wNp9eDKjkBdrPAiEAQ9f10gSYvBw9p24gmbc/gBTaQNDZXaq26HCb8XvW0mUU9u+
-        1XFEo/bxeQZLetyhtFDlOZhz9+wZM8+pDz50fuUXUPkB7n6k9kTkg5YE/B9b4cDQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=79X9tV
+        zg7y3Wazd5896DK8/szFxa6fDYVJLHZZYtbZU=; b=GEkfaTRGyYwwwSHQm5TYMn
+        Chjmvwe94fz96A9WB9QYw5+DsDKHFjJ+Xnq5sOhdQkKNssw4D5jMXcnEjWp84RZa
+        S5c80xYYzicfDCjYzjpFkYLvKsJ1Nv5caZsJJNQtGneKvuTu2Iy5m0xx/YcerZUn
+        owNF4MV89zrhusrAETCLhO28pEbd3+/fGhuUNXvJBr+ac38X8i2yCiPOr4FxqYAP
+        K1hcJKJT8bzSnXTS+awDaUxaSBxSTfOImap2PSJZJ7tbbC3urRKJ9g8hUnF7kc+W
+        2CvpkIZjgtCWAJHWvwQuC0TC/AqTmg1ryda2wSJrvFJTOopLCqEXDnnLaKUVLzmQ
         ==
-X-ME-Sender: <xms:7QNAXhBd0O1eHRWgd6xcCOO833JGx26H-h9SUYeBcZSQ9IGLUAJoGQ>
+X-ME-Sender: <xms:9gNAXjTYaH4cISlHPLAH4IYi8QOIybz8UW24g9fmK2vXvraHBoWQeA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepjeenuc
+    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepkeenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:7QNAXr_1CYmvWHPEFCK_NiZ8dwYlpepqYz6_fa_5RVX1itphJkf8Zw>
-    <xmx:7QNAXolQXtmoKzsWAavQn1kDku-XrCbzjrw3Aj1EQN8NS89M5LDgBg>
-    <xmx:7QNAXtMLWEg26tLD6ZbWFnEUenLZtxdIA5-jkXnR5Jo9hppe_LiZpA>
-    <xmx:7gNAXtKbM3rf7IyByb7uEyxKHBgjo30_swDANS3-wMJRxDMCWt0ScQ>
+X-ME-Proxy: <xmx:9gNAXjD2RkSgRlhOqOyR-fapFz4KXMHO2MPsJUsSBxPSzmSI-AQuYw>
+    <xmx:9gNAXh_qbgbME_MpEVoBx8Lroe8BkVoahbpof6rgJUFHNEWwT8Gdjg>
+    <xmx:9gNAXkOzuqfkZ7GTUdg8PioPcOaPunceHpkey5V9XItg6VYlUaR0eQ>
+    <xmx:9gNAXv0AM6rlnxikx10rlP0L0uCG98Zm9ipKhGEl9Jrj0yZFyrcxng>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3F6C030606E9;
-        Sun,  9 Feb 2020 08:06:52 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: prevent potential eventfd recursion on poll" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 49A073060272;
+        Sun,  9 Feb 2020 08:07:01 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: prevent potential eventfd recursion on poll" failed to apply to 5.5-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:52:50 +0100
-Message-ID: <15812491701283@kroah.com>
+Date:   Sun, 09 Feb 2020 12:52:51 +0100
+Message-ID: <158124917113830@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
