@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C6C156A52
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C25156A53
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbgBINBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:01:15 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:60613 "EHLO
+        id S1727668AbgBINB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:01:26 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44949 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727473AbgBINBO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:01:14 -0500
+        by vger.kernel.org with ESMTP id S1727473AbgBINB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:01:26 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C62B821E97;
-        Sun,  9 Feb 2020 08:01:13 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:01:13 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id C482521AA4;
+        Sun,  9 Feb 2020 08:01:24 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:01:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iPX40N
-        6j7ojTzJPGEXvo6MbLPWn8a6LGrQKlPgTISkI=; b=REnkx1qyZ95jEU1X4OQmE6
-        bM3OffAgqrRuUGO1MB8q0FyKqE46T+ieWReluOTTkAArDS5j2lk4n6zZKTX3IJLm
-        4bpcA6ZstdwTKxj1VjXfu80EA6yTqadqKMp4ZbwaW0r9hXI5tM7joCJtsXhCrq47
-        zV8591XKzlU/Igidvd8VP5ne96mz3Z9BUAdtFIcZ06R2v8dU/c/l+hL7KtUto7pu
-        pb4cHp1Dvw8rE6IURjK2eoFWVNN7S7WwB+8QrtO94UTzyzmhkQT76Zo1XRT60yIT
-        yqdvgkCn/uI0U2HlpGLXWD+hhgplV9+Luh8VHI8Gs/KsL/8/lpMFTcjSghEWqJcw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Cb5u8y
+        b/jWgOBlpTfq3Xwsy0yWIbAXb3hK9lidZHp3I=; b=MwVRhgN1o4qS7xBxlZvenH
+        XY2FQ+N3A+BVD8y10sO/OLLoc6r/KzEFrTY/5umU0muPBagQsrSjzFSwAuwPD0+k
+        6tSxugMv2AUHsDT4hqL6h/x6NVMOfZy01a0KMNAAxIiRITO8LisN2/twO5BwN95X
+        p2oCCe0Tj4QSwApvPtHOLOPfw7SOpFkZCZ9gx6rw2/JM/O+iHLeFRUZL2tT4mBtN
+        WpruYt6QOSP/r3I1A5KZtnAWc7fBA61JRF8sMEXn4U7316f22tkwb/oSIO2MyFCx
+        Ojc5B1vVPf7JOSTXSRdmuE8UPG/VuYHILss2Kv/L4Zc60zrfmHrM1Ig/s3+EZbaw
         ==
-X-ME-Sender: <xms:mQJAXrSRRQRYd6cMyLOi5mDC1NHRd6Fpho_ELmGgcKUhKPOE3w8FjA>
+X-ME-Sender: <xms:pAJAXrUafVm7i1N1X_DPj0xyjMnJIXlcVHri4BRmUYXwNeRbjQGHNw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepgeenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:mQJAXo3Ku-dajIkeYf1uPRK99ADYI08ogPeqMHKPed-JiuMiMSvC1Q>
-    <xmx:mQJAXmymivmEguYs1pJONgXR9pNRIvapJcfxA71M9n2skyoHPBE3vg>
-    <xmx:mQJAXr_xb9uRZwp8pyM7kZaBznuHbuC-ahRYYKllBb63ObxocFdiQw>
-    <xmx:mQJAXqbnyf94DIVQX80Amx_9yEbc_b8u6WDMlwYRMGeMIRXpy0YMEw>
+    uegrihhlohhuthemuceftddtnecufghrlhcuvffnffculddqiedmnecujfgurhepuffvhf
+    ffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhho
+    uhhnuggrthhiohhnrdhorhhgqeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluh
+    hsthgvrhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
+    rghhrdgtohhm
+X-ME-Proxy: <xmx:pAJAXvED92tG1BgGpEQMpQ2UQVvblBvfNV8oulLjPKXfuHIiCSSliQ>
+    <xmx:pAJAXtbqk21i0AEavImzOnxNexoOYTh10NWKrWW0UyVl9EuDpEj6xg>
+    <xmx:pAJAXkEWx9SPucreiqoSNpKgLT-oJmRQvUcKWdIqXCTsaJf-0IWc7w>
+    <xmx:pAJAXrB9-aFaKXSEk-xZ_OZFBs_0g4c4wZ4NhLNYfg2cg36DflhCHg>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 677573060272;
-        Sun,  9 Feb 2020 08:01:12 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: do not zero f_bavail if we have available space" failed to apply to 4.4-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, martin@lichtvoll.de,
-        wqu@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 04EB03280065;
+        Sun,  9 Feb 2020 08:01:23 -0500 (EST)
+Subject: FAILED: patch "[PATCH] selinux: reorder hooks to make runtime disable less broken" failed to apply to 5.5-stable tree
+To:     omosnace@redhat.com, paul@paul-moore.com, sds@tycho.nsa.gov
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:33:41 +0100
-Message-ID: <158124802120462@kroah.com>
+Date:   Sun, 09 Feb 2020 12:38:29 +0100
+Message-ID: <1581248309117170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,58 +68,271 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Fri, 31 Jan 2020 09:31:05 -0500
-Subject: [PATCH] btrfs: do not zero f_bavail if we have available space
+From cfff75d8973ae4a90b3df3ae7fbba1ce9af9c8f0 Mon Sep 17 00:00:00 2001
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Wed, 8 Jan 2020 15:09:58 +0100
+Subject: [PATCH] selinux: reorder hooks to make runtime disable less broken
 
-There was some logic added a while ago to clear out f_bavail in statfs()
-if we did not have enough free metadata space to satisfy our global
-reserve.  This was incorrect at the time, however didn't really pose a
-problem for normal file systems because we would often allocate chunks
-if we got this low on free metadata space, and thus wouldn't really hit
-this case unless we were actually full.
+Commit b1d9e6b0646d ("LSM: Switch to lists of hooks") switched the LSM
+infrastructure to use per-hook lists, which meant that removing the
+hooks for a given module was no longer atomic. Even though the commit
+clearly documents that modules implementing runtime revmoval of hooks
+(only SELinux attempts this madness) need to take special precautions to
+avoid race conditions, SELinux has never addressed this.
 
-Fast forward to today and now we are much better about not allocating
-metadata chunks all of the time.  Couple this with d792b0f19711 ("btrfs:
-always reserve our entire size for the global reserve") which now means
-we'll easily have a larger global reserve than our free space, we are
-now more likely to trip over this while still having plenty of space.
+By inserting an artificial delay between the loop iterations of
+security_delete_hooks() (I used 100 ms), booting to a state where
+SELinux is enabled, but policy is not yet loaded, and running these
+commands:
 
-Fix this by skipping this logic if the global rsv's space_info is not
-full.  space_info->full is 0 unless we've attempted to allocate a chunk
-for that space_info and that has failed.  If this happens then the space
-for the global reserve is definitely sacred and we need to report
-b_avail == 0, but before then we can just use our calculated b_avail.
+    while true; do ping -c 1 <some IP>; done &
+    echo -n 1 >/sys/fs/selinux/disable
+    kill %1
+    wait
 
-Reported-by: Martin Steigerwald <martin@lichtvoll.de>
-Fixes: ca8a51b3a979 ("btrfs: statfs: report zero available if metadata are exhausted")
-CC: stable@vger.kernel.org # 4.5+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Tested-By: Martin Steigerwald <martin@lichtvoll.de>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+...I was able to trigger NULL pointer dereferences in various places. I
+also have a report of someone getting panics on a stock RHEL-8 kernel
+after setting SELINUX=disabled in /etc/selinux/config and rebooting
+(without adding "selinux=0" to kernel command-line).
 
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index a906315efd19..0616a5434793 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2135,7 +2135,15 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
- 	 */
- 	thresh = SZ_4M;
+Reordering the SELinux hooks such that those that allocate structures
+are removed last seems to prevent these panics. It is very much possible
+that this doesn't make the runtime disable completely race-free, but at
+least it makes the operation much less fragile.
+
+Cc: stable@vger.kernel.org
+Fixes: b1d9e6b0646d ("LSM: Switch to lists of hooks")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a81631f8cc5d..2c84b12d50bc 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6892,6 +6892,21 @@ static int selinux_perf_event_write(struct perf_event *event)
+ }
+ #endif
  
--	if (!mixed && total_free_meta - thresh < block_rsv->size)
++/*
++ * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
++ * 1. any hooks that don't belong to (2.) or (3.) below,
++ * 2. hooks that both access structures allocated by other hooks, and allocate
++ *    structures that can be later accessed by other hooks (mostly "cloning"
++ *    hooks),
++ * 3. hooks that only allocate structures that can be later accessed by other
++ *    hooks ("allocating" hooks).
++ *
++ * Please follow block comment delimiters in the list to keep this order.
++ *
++ * This ordering is needed for SELinux runtime disable to work at least somewhat
++ * safely. Breaking the ordering rules above might lead to NULL pointer derefs
++ * when disabling SELinux at runtime.
++ */
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
+ 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+@@ -6914,12 +6929,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
+ 	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
+ 
+-	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
+-	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
+-
+-	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
+ 	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+-	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
+ 	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
+ 	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
+ 	LSM_HOOK_INIT(sb_kern_mount, selinux_sb_kern_mount),
+@@ -6929,12 +6939,10 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(sb_umount, selinux_umount),
+ 	LSM_HOOK_INIT(sb_set_mnt_opts, selinux_set_mnt_opts),
+ 	LSM_HOOK_INIT(sb_clone_mnt_opts, selinux_sb_clone_mnt_opts),
+-	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
+ 
+ 	LSM_HOOK_INIT(dentry_init_security, selinux_dentry_init_security),
+ 	LSM_HOOK_INIT(dentry_create_files_as, selinux_dentry_create_files_as),
+ 
+-	LSM_HOOK_INIT(inode_alloc_security, selinux_inode_alloc_security),
+ 	LSM_HOOK_INIT(inode_free_security, selinux_inode_free_security),
+ 	LSM_HOOK_INIT(inode_init_security, selinux_inode_init_security),
+ 	LSM_HOOK_INIT(inode_create, selinux_inode_create),
+@@ -7006,21 +7014,15 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
+ 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
+ 
+-	LSM_HOOK_INIT(msg_msg_alloc_security, selinux_msg_msg_alloc_security),
+-
+-	LSM_HOOK_INIT(msg_queue_alloc_security,
+-			selinux_msg_queue_alloc_security),
+ 	LSM_HOOK_INIT(msg_queue_associate, selinux_msg_queue_associate),
+ 	LSM_HOOK_INIT(msg_queue_msgctl, selinux_msg_queue_msgctl),
+ 	LSM_HOOK_INIT(msg_queue_msgsnd, selinux_msg_queue_msgsnd),
+ 	LSM_HOOK_INIT(msg_queue_msgrcv, selinux_msg_queue_msgrcv),
+ 
+-	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
+ 	LSM_HOOK_INIT(shm_associate, selinux_shm_associate),
+ 	LSM_HOOK_INIT(shm_shmctl, selinux_shm_shmctl),
+ 	LSM_HOOK_INIT(shm_shmat, selinux_shm_shmat),
+ 
+-	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
+ 	LSM_HOOK_INIT(sem_associate, selinux_sem_associate),
+ 	LSM_HOOK_INIT(sem_semctl, selinux_sem_semctl),
+ 	LSM_HOOK_INIT(sem_semop, selinux_sem_semop),
+@@ -7031,13 +7033,11 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
+ 
+ 	LSM_HOOK_INIT(ismaclabel, selinux_ismaclabel),
+-	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
+ 	LSM_HOOK_INIT(secctx_to_secid, selinux_secctx_to_secid),
+ 	LSM_HOOK_INIT(release_secctx, selinux_release_secctx),
+ 	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_secctx),
+ 	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
+ 	LSM_HOOK_INIT(inode_setsecctx, selinux_inode_setsecctx),
+-	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
+ 
+ 	LSM_HOOK_INIT(unix_stream_connect, selinux_socket_unix_stream_connect),
+ 	LSM_HOOK_INIT(unix_may_send, selinux_socket_unix_may_send),
+@@ -7060,7 +7060,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(socket_getpeersec_stream,
+ 			selinux_socket_getpeersec_stream),
+ 	LSM_HOOK_INIT(socket_getpeersec_dgram, selinux_socket_getpeersec_dgram),
+-	LSM_HOOK_INIT(sk_alloc_security, selinux_sk_alloc_security),
+ 	LSM_HOOK_INIT(sk_free_security, selinux_sk_free_security),
+ 	LSM_HOOK_INIT(sk_clone_security, selinux_sk_clone_security),
+ 	LSM_HOOK_INIT(sk_getsecid, selinux_sk_getsecid),
+@@ -7075,7 +7074,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(secmark_refcount_inc, selinux_secmark_refcount_inc),
+ 	LSM_HOOK_INIT(secmark_refcount_dec, selinux_secmark_refcount_dec),
+ 	LSM_HOOK_INIT(req_classify_flow, selinux_req_classify_flow),
+-	LSM_HOOK_INIT(tun_dev_alloc_security, selinux_tun_dev_alloc_security),
+ 	LSM_HOOK_INIT(tun_dev_free_security, selinux_tun_dev_free_security),
+ 	LSM_HOOK_INIT(tun_dev_create, selinux_tun_dev_create),
+ 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
+@@ -7085,17 +7083,11 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
+ 	LSM_HOOK_INIT(ib_endport_manage_subnet,
+ 		      selinux_ib_endport_manage_subnet),
+-	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
+ 	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
+ #endif
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+-	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
+-	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
+ 	LSM_HOOK_INIT(xfrm_policy_free_security, selinux_xfrm_policy_free),
+ 	LSM_HOOK_INIT(xfrm_policy_delete_security, selinux_xfrm_policy_delete),
+-	LSM_HOOK_INIT(xfrm_state_alloc, selinux_xfrm_state_alloc),
+-	LSM_HOOK_INIT(xfrm_state_alloc_acquire,
+-			selinux_xfrm_state_alloc_acquire),
+ 	LSM_HOOK_INIT(xfrm_state_free_security, selinux_xfrm_state_free),
+ 	LSM_HOOK_INIT(xfrm_state_delete_security, selinux_xfrm_state_delete),
+ 	LSM_HOOK_INIT(xfrm_policy_lookup, selinux_xfrm_policy_lookup),
+@@ -7105,14 +7097,12 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ #endif
+ 
+ #ifdef CONFIG_KEYS
+-	LSM_HOOK_INIT(key_alloc, selinux_key_alloc),
+ 	LSM_HOOK_INIT(key_free, selinux_key_free),
+ 	LSM_HOOK_INIT(key_permission, selinux_key_permission),
+ 	LSM_HOOK_INIT(key_getsecurity, selinux_key_getsecurity),
+ #endif
+ 
+ #ifdef CONFIG_AUDIT
+-	LSM_HOOK_INIT(audit_rule_init, selinux_audit_rule_init),
+ 	LSM_HOOK_INIT(audit_rule_known, selinux_audit_rule_known),
+ 	LSM_HOOK_INIT(audit_rule_match, selinux_audit_rule_match),
+ 	LSM_HOOK_INIT(audit_rule_free, selinux_audit_rule_free),
+@@ -7122,21 +7112,66 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(bpf, selinux_bpf),
+ 	LSM_HOOK_INIT(bpf_map, selinux_bpf_map),
+ 	LSM_HOOK_INIT(bpf_prog, selinux_bpf_prog),
+-	LSM_HOOK_INIT(bpf_map_alloc_security, selinux_bpf_map_alloc),
+-	LSM_HOOK_INIT(bpf_prog_alloc_security, selinux_bpf_prog_alloc),
+ 	LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
+ 	LSM_HOOK_INIT(bpf_prog_free_security, selinux_bpf_prog_free),
+ #endif
+ 
+ #ifdef CONFIG_PERF_EVENTS
+ 	LSM_HOOK_INIT(perf_event_open, selinux_perf_event_open),
+-	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+ 	LSM_HOOK_INIT(perf_event_free, selinux_perf_event_free),
+ 	LSM_HOOK_INIT(perf_event_read, selinux_perf_event_read),
+ 	LSM_HOOK_INIT(perf_event_write, selinux_perf_event_write),
+ #endif
+ 
+ 	LSM_HOOK_INIT(locked_down, selinux_lockdown),
++
 +	/*
-+	 * We only want to claim there's no available space if we can no longer
-+	 * allocate chunks for our metadata profile and our global reserve will
-+	 * not fit in the free metadata space.  If we aren't ->full then we
-+	 * still can allocate chunks and thus are fine using the currently
-+	 * calculated f_bavail.
++	 * PUT "CLONING" (ACCESSING + ALLOCATING) HOOKS HERE
 +	 */
-+	if (!mixed && block_rsv->space_info->full &&
-+	    total_free_meta - thresh < block_rsv->size)
- 		buf->f_bavail = 0;
++	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
++	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
++	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
++	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
++#ifdef CONFIG_SECURITY_NETWORK_XFRM
++	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
++#endif
++
++	/*
++	 * PUT "ALLOCATING" HOOKS HERE
++	 */
++	LSM_HOOK_INIT(msg_msg_alloc_security, selinux_msg_msg_alloc_security),
++	LSM_HOOK_INIT(msg_queue_alloc_security,
++		      selinux_msg_queue_alloc_security),
++	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
++	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
++	LSM_HOOK_INIT(inode_alloc_security, selinux_inode_alloc_security),
++	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
++	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
++	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
++	LSM_HOOK_INIT(sk_alloc_security, selinux_sk_alloc_security),
++	LSM_HOOK_INIT(tun_dev_alloc_security, selinux_tun_dev_alloc_security),
++#ifdef CONFIG_SECURITY_INFINIBAND
++	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
++#endif
++#ifdef CONFIG_SECURITY_NETWORK_XFRM
++	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
++	LSM_HOOK_INIT(xfrm_state_alloc, selinux_xfrm_state_alloc),
++	LSM_HOOK_INIT(xfrm_state_alloc_acquire,
++		      selinux_xfrm_state_alloc_acquire),
++#endif
++#ifdef CONFIG_KEYS
++	LSM_HOOK_INIT(key_alloc, selinux_key_alloc),
++#endif
++#ifdef CONFIG_AUDIT
++	LSM_HOOK_INIT(audit_rule_init, selinux_audit_rule_init),
++#endif
++#ifdef CONFIG_BPF_SYSCALL
++	LSM_HOOK_INIT(bpf_map_alloc_security, selinux_bpf_map_alloc),
++	LSM_HOOK_INIT(bpf_prog_alloc_security, selinux_bpf_prog_alloc),
++#endif
++#ifdef CONFIG_PERF_EVENTS
++	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
++#endif
+ };
  
- 	buf->f_type = BTRFS_SUPER_MAGIC;
+ static __init int selinux_init(void)
+@@ -7315,14 +7350,18 @@ int selinux_disable(struct selinux_state *state)
+ 
+ 	pr_info("SELinux:  Disabled at runtime.\n");
+ 
++	/*
++	 * Unregister netfilter hooks.
++	 * Must be done before security_delete_hooks() to avoid breaking
++	 * runtime disable.
++	 */
++	selinux_nf_ip_exit();
++
+ 	security_delete_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
+ 
+ 	/* Try to destroy the avc node cache */
+ 	avc_disable();
+ 
+-	/* Unregister netfilter hooks. */
+-	selinux_nf_ip_exit();
+-
+ 	/* Unregister selinuxfs. */
+ 	exit_sel_fs();
+ 
 
