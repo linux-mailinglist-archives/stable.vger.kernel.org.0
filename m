@@ -2,88 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C6E156AC0
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50219156AC4
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727721AbgBINpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:45:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57980 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727707AbgBINpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Feb 2020 08:45:18 -0500
+        id S1727631AbgBINwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:52:18 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58485 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727473AbgBINwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:52:18 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 2EA9C21A7B;
+        Sun,  9 Feb 2020 08:52:17 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:52:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nuCwXh
+        NZkL4aLerrJXA1hA/bgIT2xEK+H5ffztakvME=; b=1hRJp93FHLtSZFaSAdxBFA
+        1TieIEPgNV4BeSIiQ1+Dg1MykPv+vofU/Ed9TSnERrUN3Rlj1SHu/Oh+74bEwVsu
+        XY9RehKoh+jTKSTBleBciv5s0wp2A4UGsjPlex+xl0HGNPKj90AL8ufO/dlQssw1
+        Yc4jnmtcRh9D4cf/Ss32RLCpxsMKfUb+Ath0CJJBk9LzYcUUlZnS02kIqFlwbz3U
+        sLEW3fFmwr/nVpK4O679Ff81Yz2dEf8+kuHyqDoTlS96aHOoo1f70XZXE8lnfp74
+        l6C4h7EqsHZO3oT54F4qikg4JqsWdKtTgu87CPZTkGEfB1VqD2tYHVLNyH1Oofyw
+        ==
+X-ME-Sender: <xms:kA5AXr_wuZK4d_yf-xhb07qnj5nvdDg65AgQhLv4uTdj2u-zepxd9w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgdefgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeefkedrleekrdefjedrud
+    efheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:kA5AXvHg31LQGqp4nLzaol9ZB06oPIgYx6DIsZrF3D8OxbHn6w44HQ>
+    <xmx:kA5AXlCaBjw5HYMFgTZgBiHEG9IZeJOmEdbawcGrHto_H-cPZKW9yw>
+    <xmx:kA5AXhEpuRIrAl5n5YQcYWDiemibN0CjFkw3F0B-SLcSZ9B8Lc8ztg>
+    <xmx:kQ5AXqFuZkjV3cR0pF6Wp_moj06G8OBcdo-VSmcgvJi8tzJgjCmIPQ>
 Received: from localhost (unknown [38.98.37.135])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 063CD20715;
-        Sun,  9 Feb 2020 13:45:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581255916;
-        bh=C5ZnmNinn7r93jfXQQ4TfyDFAbimGfnEEt98N+V1Ha0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X+u2XVMDfgfX6w+wlTW17cd22Cfj3m9/RZsEFAfnC++Obmj6K5wqxDZLjmv42onQX
-         ri8uKC68GxM6pypoY9fPDLVZiNlJulSZYi6C3ZlrDzj920rwvn17VVrVr/l+vhLBil
-         AzTsN5T6/83vPtRJEVcgJHUG8vjlzUFd6qhhlxnw=
-Date:   Sun, 9 Feb 2020 13:41:20 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Mike Rapoport <rppt@linux.ibm.com>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Wentao Wang <witallwang@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 200/321] mm/page_alloc.c: deduplicate
- __memblock_free_early() and memblock_free()
-Message-ID: <20200209124120.GA1622852@kroah.com>
-References: <20191203223427.103571230@linuxfoundation.org>
- <20191203223437.527630884@linuxfoundation.org>
- <20191205115043.GA25107@duo.ucw.cz>
- <20191205131128.GA25566@linux.ibm.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id D1C7630606FB;
+        Sun,  9 Feb 2020 08:52:14 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/mmu_gather: invalidate TLB correctly on batch allocation" failed to apply to 4.14-stable tree
+To:     peterz@infradead.org, akpm@linux-foundation.org,
+        aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 09 Feb 2020 14:01:55 +0100
+Message-ID: <1581253315129149@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191205131128.GA25566@linux.ibm.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 05, 2019 at 03:11:28PM +0200, Mike Rapoport wrote:
-> On Thu, Dec 05, 2019 at 12:50:43PM +0100, Pavel Machek wrote:
-> > Hi!
-> > On Tue 2019-12-03 23:34:26, Greg Kroah-Hartman wrote:
-> > > From: Wentao Wang <witallwang@gmail.com>
-> > > 
-> > > [ Upstream commit d31cfe7bff9109476da92c245b56083e9b48d60a ]
-> > 
-> > 
-> > > @@ -1537,12 +1537,7 @@ void * __init memblock_virt_alloc_try_nid(
-> > >   */
-> > >  void __init __memblock_free_early(phys_addr_t base, phys_addr_t size)
-> > >  {
-> > > -	phys_addr_t end = base + size - 1;
-> > > -
-> > > -	memblock_dbg("%s: [%pa-%pa] %pF\n",
-> > > -		     __func__, &base, &end, (void *)_RET_IP_);
-> > > -	kmemleak_free_part_phys(base, size);
-> > > -	memblock_remove_range(&memblock.reserved, base, size);
-> > > +	memblock_free(base, size);
-> > >  }
-> > 
-> > This makes the memblock_dbg() less useful: _RET_IP_ will now be one of
-> > __memblock_free_early(), not of the original caller.
-> > 
-> > That may be okay, but I guess it should be mentioned in changelog, and
-> > I don't really see why it is queued for -stable.
-> 
-> Not sure why this one was picked for -stable, but in upstream there is a
-> followup commit 4d72868c8f7c ("memblock: replace usage of
-> __memblock_free_early() with memblock_free()") that completely eliminates
-> __memblock_free_early(). IMHO it would make sense to either to take both or
-> to drop both.
 
-Ok, I'll try, but that commit does not apply cleanly to 5.0, so it might
-take a bit of time...
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0ed1325967ab5f7a4549a2641c6ebe115f76e228 Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Mon, 3 Feb 2020 17:36:49 -0800
+Subject: [PATCH] mm/mmu_gather: invalidate TLB correctly on batch allocation
+ failure and flush
+
+Architectures for which we have hardware walkers of Linux page table
+should flush TLB on mmu gather batch allocation failures and batch flush.
+Some architectures like POWER supports multiple translation modes (hash
+and radix) and in the case of POWER only radix translation mode needs the
+above TLBI.  This is because for hash translation mode kernel wants to
+avoid this extra flush since there are no hardware walkers of linux page
+table.  With radix translation, the hardware also walks linux page table
+and with that, kernel needs to make sure to TLB invalidate page walk cache
+before page table pages are freed.
+
+More details in commit d86564a2f085 ("mm/tlb, x86/mm: Support invalidating
+TLB caches for RCU_TABLE_FREE")
+
+The changes to sparc are to make sure we keep the old behavior since we
+are now removing HAVE_RCU_TABLE_NO_INVALIDATE.  The default value for
+tlb_needs_table_invalidate is to always force an invalidate and sparc can
+avoid the table invalidate.  Hence we define tlb_needs_table_invalidate to
+false for sparc architecture.
+
+Link: http://lkml.kernel.org/r/20200116064531.483522-3-aneesh.kumar@linux.ibm.com
+Fixes: a46cc7a90fd8 ("powerpc/mm/radix: Improve TLB/PWC flushes")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>	[powerpc]
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 48b5e103bdb0..208aad121630 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -396,9 +396,6 @@ config HAVE_ARCH_JUMP_LABEL_RELATIVE
+ config HAVE_RCU_TABLE_FREE
+ 	bool
+ 
+-config HAVE_RCU_TABLE_NO_INVALIDATE
+-	bool
+-
+ config HAVE_MMU_GATHER_PAGE_SIZE
+ 	bool
+ 
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 54b7f2af7cb1..c22ed1fe275d 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -223,7 +223,6 @@ config PPC
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_RCU_TABLE_FREE
+-	select HAVE_RCU_TABLE_NO_INVALIDATE	if HAVE_RCU_TABLE_FREE
+ 	select HAVE_MMU_GATHER_PAGE_SIZE
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select HAVE_RELIABLE_STACKTRACE		if PPC_BOOK3S_64 && CPU_LITTLE_ENDIAN
+diff --git a/arch/powerpc/include/asm/tlb.h b/arch/powerpc/include/asm/tlb.h
+index b2c0be93929d..7f3a8b902325 100644
+--- a/arch/powerpc/include/asm/tlb.h
++++ b/arch/powerpc/include/asm/tlb.h
+@@ -26,6 +26,17 @@
+ 
+ #define tlb_flush tlb_flush
+ extern void tlb_flush(struct mmu_gather *tlb);
++/*
++ * book3s:
++ * Hash does not use the linux page-tables, so we can avoid
++ * the TLB invalidate for page-table freeing, Radix otoh does use the
++ * page-tables and needs the TLBI.
++ *
++ * nohash:
++ * We still do TLB invalidate in the __pte_free_tlb routine before we
++ * add the page table pages to mmu gather table batch.
++ */
++#define tlb_needs_table_invalidate()	radix_enabled()
+ 
+ /* Get the generic bits... */
+ #include <asm-generic/tlb.h>
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index e8c3ea01c12f..7b9b3a954a76 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -65,7 +65,6 @@ config SPARC64
+ 	select HAVE_KRETPROBES
+ 	select HAVE_KPROBES
+ 	select HAVE_RCU_TABLE_FREE if SMP
+-	select HAVE_RCU_TABLE_NO_INVALIDATE if HAVE_RCU_TABLE_FREE
+ 	select HAVE_MEMBLOCK_NODE_MAP
+ 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
+ 	select HAVE_DYNAMIC_FTRACE
+diff --git a/arch/sparc/include/asm/tlb_64.h b/arch/sparc/include/asm/tlb_64.h
+index a2f3fa61ee36..8cb8f3833239 100644
+--- a/arch/sparc/include/asm/tlb_64.h
++++ b/arch/sparc/include/asm/tlb_64.h
+@@ -28,6 +28,15 @@ void flush_tlb_pending(void);
+ #define __tlb_remove_tlb_entry(tlb, ptep, address) do { } while (0)
+ #define tlb_flush(tlb)	flush_tlb_pending()
+ 
++/*
++ * SPARC64's hardware TLB fill does not use the Linux page-tables
++ * and therefore we don't need a TLBI when freeing page-table pages.
++ */
++
++#ifdef CONFIG_HAVE_RCU_TABLE_FREE
++#define tlb_needs_table_invalidate()	(false)
++#endif
++
+ #include <asm-generic/tlb.h>
+ 
+ #endif /* _SPARC64_TLB_H */
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index 2b10036fefd0..9e22ac369d1d 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -137,13 +137,6 @@
+  *  When used, an architecture is expected to provide __tlb_remove_table()
+  *  which does the actual freeing of these pages.
+  *
+- *  HAVE_RCU_TABLE_NO_INVALIDATE
+- *
+- *  This makes HAVE_RCU_TABLE_FREE avoid calling tlb_flush_mmu_tlbonly() before
+- *  freeing the page-table pages. This can be avoided if you use
+- *  HAVE_RCU_TABLE_FREE and your architecture does _NOT_ use the Linux
+- *  page-tables natively.
+- *
+  *  MMU_GATHER_NO_RANGE
+  *
+  *  Use this if your architecture lacks an efficient flush_tlb_range().
+@@ -189,8 +182,23 @@ struct mmu_table_batch {
+ 
+ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
+ 
++/*
++ * This allows an architecture that does not use the linux page-tables for
++ * hardware to skip the TLBI when freeing page tables.
++ */
++#ifndef tlb_needs_table_invalidate
++#define tlb_needs_table_invalidate() (true)
++#endif
++
++#else
++
++#ifdef tlb_needs_table_invalidate
++#error tlb_needs_table_invalidate() requires HAVE_RCU_TABLE_FREE
+ #endif
+ 
++#endif /* CONFIG_HAVE_RCU_TABLE_FREE */
++
++
+ #ifndef CONFIG_HAVE_MMU_GATHER_NO_GATHER
+ /*
+  * If we can't allocate a page to make a big batch of page pointers
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index 7d70e5c78f97..7c1b8f67af7b 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -102,14 +102,14 @@ bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_
+  */
+ static inline void tlb_table_invalidate(struct mmu_gather *tlb)
+ {
+-#ifndef CONFIG_HAVE_RCU_TABLE_NO_INVALIDATE
+-	/*
+-	 * Invalidate page-table caches used by hardware walkers. Then we still
+-	 * need to RCU-sched wait while freeing the pages because software
+-	 * walkers can still be in-flight.
+-	 */
+-	tlb_flush_mmu_tlbonly(tlb);
+-#endif
++	if (tlb_needs_table_invalidate()) {
++		/*
++		 * Invalidate page-table caches used by hardware walkers. Then
++		 * we still need to RCU-sched wait while freeing the pages
++		 * because software walkers can still be in-flight.
++		 */
++		tlb_flush_mmu_tlbonly(tlb);
++	}
+ }
+ 
+ static void tlb_remove_table_smp_sync(void *arg)
+
