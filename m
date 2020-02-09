@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2F9156C35
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 20:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B0D156C39
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 20:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727409AbgBITAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 14:00:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59380 "EHLO mail.kernel.org"
+        id S1727419AbgBITOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 14:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727408AbgBITAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Feb 2020 14:00:19 -0500
+        id S1727416AbgBITOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 14:14:43 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D00720715;
-        Sun,  9 Feb 2020 19:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A98D207FF;
+        Sun,  9 Feb 2020 19:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581274818;
-        bh=vgsPAO3P6qvfgyUPvpfi4Nxp4MFVXELY1Bpx+hbzFsc=;
+        s=default; t=1581275682;
+        bh=zvazstsLmDXgi0ZUsGadsRQKhwTg9bq6S7ig+NV7AKo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C3hCfjXx/8ZE7NVOf8PO409xHFBkPWjS7yCbnN0HWhv1NurATKteeMSa683cghmj1
-         HQasiVEXtr1ZQG80rh4CZQ/kSAjhHc3FWRJ2Sz+jdwuNO3jJOafSbIQwVshfZCwFvJ
-         c3wr0eqz8PiJe3RdYf9WrV55e6UUGmCQfY1CeMpE=
-Date:   Sun, 9 Feb 2020 14:00:17 -0500
+        b=nJtNVRlU8FBiQlUEvpglKOC/83eIyQx4vaxY9H8K09xL1FEFnJN20BkTwIDbR8uIm
+         +EHF2jCcEFXktNQPMuk8ZQAVGe5x7Ut2ZdRupROffHw/BGGjSYqJWaJHoT/Te6RhJU
+         pJvy8OkMIg4MbwnUYQXM3jZGeKHhvX4j//l+4XAI=
+Date:   Sun, 9 Feb 2020 14:14:41 -0500
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     pomonis@google.com, ahonig@google.com, jmattson@google.com,
-        nifi@google.com, pbonzini@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: x86: Protect kvm_lapic_reg_write()
- from Spectre-v1/L1TF" failed to apply to 4.4-stable tree
-Message-ID: <20200209190017.GS3584@sasha-vm>
-References: <158124948610483@kroah.com>
+Cc:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: flush write bio if we loop in
+ extent_write_cache_pages" failed to apply to 4.9-stable tree
+Message-ID: <20200209191441.GT3584@sasha-vm>
+References: <1581249829159209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <158124948610483@kroah.com>
+In-Reply-To: <1581249829159209@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 09, 2020 at 12:58:06PM +0100, gregkh@linuxfoundation.org wrote:
+On Sun, Feb 09, 2020 at 01:03:49PM +0100, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 4.4-stable tree.
+>The patch below does not apply to the 4.9-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
@@ -55,27 +55,86 @@ On Sun, Feb 09, 2020 at 12:58:06PM +0100, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 4bf79cb089f6b1c6c632492c0271054ce52ad766 Mon Sep 17 00:00:00 2001
->From: Marios Pomonis <pomonis@google.com>
->Date: Wed, 11 Dec 2019 12:47:46 -0800
->Subject: [PATCH] KVM: x86: Protect kvm_lapic_reg_write() from Spectre-v1/L1TF
-> attacks
+>From 42ffb0bf584ae5b6b38f72259af1e0ee417ac77f Mon Sep 17 00:00:00 2001
+>From: Josef Bacik <josef@toxicpanda.com>
+>Date: Thu, 23 Jan 2020 15:33:02 -0500
+>Subject: [PATCH] btrfs: flush write bio if we loop in extent_write_cache_pages
 >
->This fixes a Spectre-v1/L1TF vulnerability in kvm_lapic_reg_write().
->This function contains index computations based on the
->(attacker-controlled) MSR number.
+>There exists a deadlock with range_cyclic that has existed forever.  If
+>we loop around with a bio already built we could deadlock with a writer
+>who has the page locked that we're attempting to write but is waiting on
+>a page in our bio to be written out.  The task traces are as follows
 >
->Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
+>  PID: 1329874  TASK: ffff889ebcdf3800  CPU: 33  COMMAND: "kworker/u113:5"
+>   #0 [ffffc900297bb658] __schedule at ffffffff81a4c33f
+>   #1 [ffffc900297bb6e0] schedule at ffffffff81a4c6e3
+>   #2 [ffffc900297bb6f8] io_schedule at ffffffff81a4ca42
+>   #3 [ffffc900297bb708] __lock_page at ffffffff811f145b
+>   #4 [ffffc900297bb798] __process_pages_contig at ffffffff814bc502
+>   #5 [ffffc900297bb8c8] lock_delalloc_pages at ffffffff814bc684
+>   #6 [ffffc900297bb900] find_lock_delalloc_range at ffffffff814be9ff
+>   #7 [ffffc900297bb9a0] writepage_delalloc at ffffffff814bebd0
+>   #8 [ffffc900297bba18] __extent_writepage at ffffffff814bfbf2
+>   #9 [ffffc900297bba98] extent_write_cache_pages at ffffffff814bffbd
 >
->Signed-off-by: Nick Finco <nifi@google.com>
->Signed-off-by: Marios Pomonis <pomonis@google.com>
->Reviewed-by: Andrew Honig <ahonig@google.com>
->Cc: stable@vger.kernel.org
->Reviewed-by: Jim Mattson <jmattson@google.com>
->Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+>  PID: 2167901  TASK: ffff889dc6a59c00  CPU: 14  COMMAND:
+>  "aio-dio-invalid"
+>   #0 [ffffc9003b50bb18] __schedule at ffffffff81a4c33f
+>   #1 [ffffc9003b50bba0] schedule at ffffffff81a4c6e3
+>   #2 [ffffc9003b50bbb8] io_schedule at ffffffff81a4ca42
+>   #3 [ffffc9003b50bbc8] wait_on_page_bit at ffffffff811f24d6
+>   #4 [ffffc9003b50bc60] prepare_pages at ffffffff814b05a7
+>   #5 [ffffc9003b50bcd8] btrfs_buffered_write at ffffffff814b1359
+>   #6 [ffffc9003b50bdb0] btrfs_file_write_iter at ffffffff814b5933
+>   #7 [ffffc9003b50be38] new_sync_write at ffffffff8128f6a8
+>   #8 [ffffc9003b50bec8] vfs_write at ffffffff81292b9d
+>   #9 [ffffc9003b50bf00] ksys_pwrite64 at ffffffff81293032
+>
+>I used drgn to find the respective pages we were stuck on
+>
+>page_entry.page 0xffffea00fbfc7500 index 8148 bit 15 pid 2167901
+>page_entry.page 0xffffea00f9bb7400 index 7680 bit 0 pid 1329874
+>
+>As you can see the kworker is waiting for bit 0 (PG_locked) on index
+>7680, and aio-dio-invalid is waiting for bit 15 (PG_writeback) on index
+>8148.  aio-dio-invalid has 7680, and the kworker epd looks like the
+>following
+>
+>  crash> struct extent_page_data ffffc900297bbbb0
+>  struct extent_page_data {
+>    bio = 0xffff889f747ed830,
+>    tree = 0xffff889eed6ba448,
+>    extent_locked = 0,
+>    sync_io = 0
+>  }
+>
+>Probably worth mentioning as well that it waits for writeback of the
+>page to complete while holding a lock on it (at prepare_pages()).
+>
+>Using drgn I walked the bio pages looking for page
+>0xffffea00fbfc7500 which is the one we're waiting for writeback on
+>
+>  bio = Object(prog, 'struct bio', address=0xffff889f747ed830)
+>  for i in range(0, bio.bi_vcnt.value_()):
+>      bv = bio.bi_io_vec[i]
+>      if bv.bv_page.value_() == 0xffffea00fbfc7500:
+>	  print("FOUND IT")
+>
+>which validated what I suspected.
+>
+>The fix for this is simple, flush the epd before we loop back around to
+>the beginning of the file during writeout.
+>
+>Fixes: b293f02e1423 ("Btrfs: Add writepages support")
+>CC: stable@vger.kernel.org # 4.4+
+>Reviewed-by: Filipe Manana <fdmanana@suse.com>
+>Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+>Signed-off-by: David Sterba <dsterba@suse.com>
 
-We didn't have 1e6e2755b635 ("KVM: x86: Misc LAPIC changes to expose
-helper functions") in 4.4. I've fixed it and queued this patch for 4.4.
+There was a build error here because we didn't have aab6e9edf07f
+("btrfs: unify extent_page_data type passed as void") on 4.9 and older.
+
+Fixed and queued for 4.9-4.4.
 
 -- 
 Thanks,
