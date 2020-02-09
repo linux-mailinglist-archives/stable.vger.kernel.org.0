@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2C2156AB1
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:42:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4595A156AB2
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727732AbgBINm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:42:59 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:38859 "EHLO
+        id S1727740AbgBINnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:43:08 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59927 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727514AbgBINm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:42:59 -0500
+        by vger.kernel.org with ESMTP id S1727514AbgBINnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:43:08 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9DE9621DC1;
-        Sun,  9 Feb 2020 08:42:58 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:42:58 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id C47AF21B01;
+        Sun,  9 Feb 2020 08:43:07 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:43:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lIz8Od
-        wNoV+4Ia8bIZU8D8Y+2rw4/NXkLQC/50G7xIk=; b=uexdlxsMiV53sZjUCAhVH7
-        TfQCl1pnPOq7Y1dKJRhOEvk63j2+Md5vvXOTwJFBrzVB33SPsriHbq9jau4IRIsV
-        MjBjfg4txbuqny5M33hcjFYxHmW1z8lI6MNGMoHXTN+aRJx81G0Q9fx+N7+NeRW0
-        zYsQQlwbpQ6+kuw2S19JA/JfBD47sDA/rfELoBXSB7kcFzlDvLCkOFcvDmB7MZcT
-        3tyJVfUtBsLkycwnbnDT6fQBnQRFA690x2Scck9ff6uhbzJQUv7dpILUJ6h9zYY4
-        MxMv2vIHlBGk1cBeKRiH11EBjpY20gRyqIjgUJmPMSmthAOyqBQNiWOMKUOkWp+Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TIKiU3
+        /NZziU0mF5C/xrkfMUk9LkyKSdW1hB/OMWYAE=; b=BUDxZwb0PjwcYjbmqvSw1m
+        StdBncPX1uxn0QASIar+tYD3qsq3zHZvmejbPWD4cWebMfIPyLoa6TZVd8TIwTUr
+        x33KDgERveqsys5ED4RkPA9mSCG3POWPzqh4KORnQXTyHzrdJJi95jRRpHIb2I1i
+        cRYdncMwHFPhKK2FBta1PYmQD6EdkIJuLVl0Dp4hzKrl8bEse1iP3GmMVw5u0E8B
+        WiCFt6gxV76zbNMak88R/Nr+RJkL1wMUsGScjgGFQq1vqxePdqzqVZAPRNuZx17L
+        RcWYDuE3HnkIct1IHYJQXbfK5I4aX6cA+j5CI7/+6yy2HDGKHhxIRbawB3yx659g
         ==
-X-ME-Sender: <xms:YgxAXl42_Ln16KhMvVCpXPWaFNlTvuBKW7zkIRLyrv0kRDKTD6Ve1A>
+X-ME-Sender: <xms:awxAXjXv3iWixahh415Dgjt2sbMo30yOZVu27hiBUNAdabX-adgKBQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgdefvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepleenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:YgxAXrsJ98Lsqdm_DStyfMdyY2eh6LqJoZntA5PXd5smABamPZYtdA>
-    <xmx:YgxAXjbhJRpAMe076_yQqXiSRzw9imQGeJ-OpORgoUuOsLmbaey8XA>
-    <xmx:YgxAXnudsmbMxi9curHTV995qlyUxP_mFDq0UHi4jCEWmbD4TG9eKQ>
-    <xmx:YgxAXr095fQQiYwypBxt_UH2tivXttplZ8IS78Ts5jKGj4SzJrMDnQ>
+    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepuddtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:awxAXndKltw_8HJWoWJu5PPp0Z-Ye4fUKIjvJ10dhZjyeh9hZYZu7Q>
+    <xmx:awxAXsa5Y5qUk9EiX0RhDzqElb3G8Id1h0xnXZDWnVX4hoMFLwwvig>
+    <xmx:awxAXjNoFwmrGjDGodnSVGOtq-P1I5w_641JNL_YVHcNAUeKlIt17w>
+    <xmx:awxAXg1jqVk0k65nKvyBg-J4i-X1iSc0UfuoHnxz_E1UP9QnVjpgow>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5C57F328005D;
-        Sun,  9 Feb 2020 08:42:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: vmread should not set rflags to specify success in" failed to apply to 4.14-stable tree
-To:     linmiaohe@huawei.com, liran.alon@oracle.com, pbonzini@redhat.com,
-        sean.j.christopherson@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 653543060272;
+        Sun,  9 Feb 2020 08:43:06 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: Use vcpu-specific gva->hva translation when querying" failed to apply to 5.5-stable tree
+To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 13:36:26 +0100
-Message-ID: <1581251786207242@kroah.com>
+Date:   Sun, 09 Feb 2020 13:36:38 +0100
+Message-ID: <15812517989452@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,36 +67,93 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a4d956b9390418623ae5d07933e2679c68b6f83c Mon Sep 17 00:00:00 2001
-From: Miaohe Lin <linmiaohe@huawei.com>
-Date: Sat, 28 Dec 2019 14:25:24 +0800
-Subject: [PATCH] KVM: nVMX: vmread should not set rflags to specify success in
- case of #PF
+From f9b84e19221efc5f493156ee0329df3142085f28 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Date: Wed, 8 Jan 2020 12:24:37 -0800
+Subject: [PATCH] KVM: Use vcpu-specific gva->hva translation when querying
+ host page size
 
-In case writing to vmread destination operand result in a #PF, vmread
-should not call nested_vmx_succeed() to set rflags to specify success.
-Similar to as done in VMPTRST (See handle_vmptrst()).
+Use kvm_vcpu_gfn_to_hva() when retrieving the host page size so that the
+correct set of memslots is used when handling x86 page faults in SMM.
 
-Reviewed-by: Liran Alon <liran.alon@oracle.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Fixes: 54bf36aac520 ("KVM: x86: use vcpu-specific functions to read/write/translate GFNs")
 Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index e038a331583c..ef2d53854d15 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4799,8 +4799,10 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
- 					instr_info, true, len, &gva))
- 			return 1;
- 		/* _system ok, nested_vmx_check_permission has verified cpl=0 */
--		if (kvm_write_guest_virt_system(vcpu, gva, &value, len, &e))
-+		if (kvm_write_guest_virt_system(vcpu, gva, &value, len, &e)) {
- 			kvm_inject_page_fault(vcpu, &e);
-+			return 1;
-+		}
- 	}
+diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
+index d83adb1e1490..6ef0151ff70a 100644
+--- a/arch/powerpc/kvm/book3s_xive_native.c
++++ b/arch/powerpc/kvm/book3s_xive_native.c
+@@ -631,7 +631,7 @@ static int kvmppc_xive_native_set_queue_config(struct kvmppc_xive *xive,
+ 	srcu_idx = srcu_read_lock(&kvm->srcu);
+ 	gfn = gpa_to_gfn(kvm_eq.qaddr);
  
- 	return nested_vmx_succeed(vcpu);
+-	page_size = kvm_host_page_size(kvm, gfn);
++	page_size = kvm_host_page_size(vcpu, gfn);
+ 	if (1ull << kvm_eq.qshift > page_size) {
+ 		srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 		pr_warn("Incompatible host page size %lx!\n", page_size);
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 7eb21a22cc13..e4458c9aec8c 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -1286,12 +1286,12 @@ static bool mmu_gfn_lpage_is_disallowed(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 	return __mmu_gfn_lpage_is_disallowed(gfn, level, slot);
+ }
+ 
+-static int host_mapping_level(struct kvm *kvm, gfn_t gfn)
++static int host_mapping_level(struct kvm_vcpu *vcpu, gfn_t gfn)
+ {
+ 	unsigned long page_size;
+ 	int i, ret = 0;
+ 
+-	page_size = kvm_host_page_size(kvm, gfn);
++	page_size = kvm_host_page_size(vcpu, gfn);
+ 
+ 	for (i = PT_PAGE_TABLE_LEVEL; i <= PT_MAX_HUGEPAGE_LEVEL; ++i) {
+ 		if (page_size >= KVM_HPAGE_SIZE(i))
+@@ -1362,7 +1362,7 @@ static int mapping_level(struct kvm_vcpu *vcpu, gfn_t large_gfn,
+ 	 * So, do not propagate host_mapping_level() to max_level as KVM can
+ 	 * still promote the guest mapping to a huge page in the THP case.
+ 	 */
+-	host_level = host_mapping_level(vcpu->kvm, large_gfn);
++	host_level = host_mapping_level(vcpu, large_gfn);
+ 	return min(host_level, max_level);
+ }
+ 
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 46fdb7533678..6d5331b0d937 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -762,7 +762,7 @@ int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
+ int kvm_clear_guest(struct kvm *kvm, gpa_t gpa, unsigned long len);
+ struct kvm_memory_slot *gfn_to_memslot(struct kvm *kvm, gfn_t gfn);
+ bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn);
+-unsigned long kvm_host_page_size(struct kvm *kvm, gfn_t gfn);
++unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn);
+ void mark_page_dirty(struct kvm *kvm, gfn_t gfn);
+ 
+ struct kvm_memslots *kvm_vcpu_memslots(struct kvm_vcpu *vcpu);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 64e9e9d65ed4..f6f8ffc2e865 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1402,14 +1402,14 @@ bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn)
+ }
+ EXPORT_SYMBOL_GPL(kvm_is_visible_gfn);
+ 
+-unsigned long kvm_host_page_size(struct kvm *kvm, gfn_t gfn)
++unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn)
+ {
+ 	struct vm_area_struct *vma;
+ 	unsigned long addr, size;
+ 
+ 	size = PAGE_SIZE;
+ 
+-	addr = gfn_to_hva(kvm, gfn);
++	addr = kvm_vcpu_gfn_to_hva(vcpu, gfn);
+ 	if (kvm_is_error_hva(addr))
+ 		return PAGE_SIZE;
+ 
 
