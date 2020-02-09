@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C25156A53
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51AD0156A54
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727668AbgBINB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:01:26 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44949 "EHLO
+        id S1727654AbgBINBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:01:36 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:45871 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727473AbgBINB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:01:26 -0500
+        by vger.kernel.org with ESMTP id S1727473AbgBINBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:01:36 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C482521AA4;
-        Sun,  9 Feb 2020 08:01:24 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:01:24 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 34C0321E95;
+        Sun,  9 Feb 2020 08:01:34 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:01:34 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Cb5u8y
-        b/jWgOBlpTfq3Xwsy0yWIbAXb3hK9lidZHp3I=; b=MwVRhgN1o4qS7xBxlZvenH
-        XY2FQ+N3A+BVD8y10sO/OLLoc6r/KzEFrTY/5umU0muPBagQsrSjzFSwAuwPD0+k
-        6tSxugMv2AUHsDT4hqL6h/x6NVMOfZy01a0KMNAAxIiRITO8LisN2/twO5BwN95X
-        p2oCCe0Tj4QSwApvPtHOLOPfw7SOpFkZCZ9gx6rw2/JM/O+iHLeFRUZL2tT4mBtN
-        WpruYt6QOSP/r3I1A5KZtnAWc7fBA61JRF8sMEXn4U7316f22tkwb/oSIO2MyFCx
-        Ojc5B1vVPf7JOSTXSRdmuE8UPG/VuYHILss2Kv/L4Zc60zrfmHrM1Ig/s3+EZbaw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1Bja3K
+        w/hx61On6CVlWcPD9EsES7kSWd5BBy5EWYdxs=; b=PagPYA9VlIv7HRcikNmvKN
+        Yv+8/wgqyrsQ7v4dgousUaJ4XBP8EHGKouoG2Uba1OQwZVeefxSjtIyms9tJ/mGg
+        m9fyRGnxL++wemBQdZpjlKHdMMBZaaMTBQCx2AiOQhnKY9BjK8rsDhiOJWiPCH1w
+        DJGBTquPxo02nNbkxzt/0RD56k9JHWLKl9lpurk43D1MKJpkXxljBohREl6KhYSu
+        1MN+K67BAbIO/l9Oarrj8bw+ir7imiDLjrTSaBpQp882fVBcz6jsLJcMQHi8kcQf
+        /ZS3C33Y3OvjJpp/fb4S22/fVF7qsXppfeHZPe54HRp7D2sCq9WI3rbjz9ana+Xw
         ==
-X-ME-Sender: <xms:pAJAXrUafVm7i1N1X_DPj0xyjMnJIXlcVHri4BRmUYXwNeRbjQGHNw>
+X-ME-Sender: <xms:rgJAXnjqPu9u7IVJj_rpODZikt7L1EN5k2wYntmGx06id99XGXCeSw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecufghrlhcuvffnffculddqiedmnecujfgurhepuffvhf
     ffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhho
     uhhnuggrthhiohhnrdhorhhgqeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluh
-    hsthgvrhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
+    hsthgvrhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
     rghhrdgtohhm
-X-ME-Proxy: <xmx:pAJAXvED92tG1BgGpEQMpQ2UQVvblBvfNV8oulLjPKXfuHIiCSSliQ>
-    <xmx:pAJAXtbqk21i0AEavImzOnxNexoOYTh10NWKrWW0UyVl9EuDpEj6xg>
-    <xmx:pAJAXkEWx9SPucreiqoSNpKgLT-oJmRQvUcKWdIqXCTsaJf-0IWc7w>
-    <xmx:pAJAXrB9-aFaKXSEk-xZ_OZFBs_0g4c4wZ4NhLNYfg2cg36DflhCHg>
+X-ME-Proxy: <xmx:rgJAXhK7hqVRZkZ39fvfLKO2NqP_TGnqpaaMCtHZlaNBo374ZEcMbw>
+    <xmx:rgJAXni6eDVib4ww142F0GCTZaLt8e7Odzj6hbnGo9xiq8Ju2pjDUw>
+    <xmx:rgJAXlS2aM4jknrd96JpBs6ZNB_GCFMOe_SuO9Mjd3b7FwudJqFMCg>
+    <xmx:rgJAXtMLu8d37EPJuKumqazjvVsd88Mk3qxy38_Od7ABayc94Cn_nA>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 04EB03280065;
-        Sun,  9 Feb 2020 08:01:23 -0500 (EST)
-Subject: FAILED: patch "[PATCH] selinux: reorder hooks to make runtime disable less broken" failed to apply to 5.5-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A296630606E9;
+        Sun,  9 Feb 2020 08:01:32 -0500 (EST)
+Subject: FAILED: patch "[PATCH] selinux: reorder hooks to make runtime disable less broken" failed to apply to 5.4-stable tree
 To:     omosnace@redhat.com, paul@paul-moore.com, sds@tycho.nsa.gov
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:38:29 +0100
-Message-ID: <1581248309117170@kroah.com>
+Date:   Sun, 09 Feb 2020 12:38:31 +0100
+Message-ID: <158124831193255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.5-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
