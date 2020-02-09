@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F35156A78
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9334B156A79
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727631AbgBINGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:06:45 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:34379 "EHLO
+        id S1727698AbgBINGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:06:55 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:38395 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727473AbgBINGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:06:44 -0500
+        by vger.kernel.org with ESMTP id S1727473AbgBINGz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:06:55 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 47FCA21B24;
-        Sun,  9 Feb 2020 08:06:44 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 081BC21EBC;
+        Sun,  9 Feb 2020 08:06:54 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:06:44 -0500
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:06:54 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hW72Ia
-        h/IQ4UJ+SowUMa5TLGS3ARGzxTZ1E5qrd6BwU=; b=IO/liTKPliPNWCmBTmvDrI
-        XXUlUkejYT8kxonbX2xDl+xf0qPeZWZGaItlqz0tjj+CHjGerXgaFFUcV7erJr0E
-        0tGX0NV2k5xq2Bpw+kzXmSHHBy+H3GLdxeiAn6v9IrVCYDwieZT4acTQ3tKZVBR7
-        VLrLnW3lix4r3rsudQqP1uo0KRIcY8YkKkt5RTqWype7wpFdfr/sklI/cI18nBWS
-        UEjt8qCArr5vNPC/83hkNlpPHPoJzR7mJsuF5wyOCOS2dB9LboPl61y9ZXRGhEhy
-        23+ixEboB9gwHqsL8EeEXSJDdrSOZeJyi9HLCAcrZmnV8EKqiBEjE6jv0RA6+KVA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6t679B
+        LY+UJSzWR24hDYRaQwJUdipmO0k3BKqh2/yT8=; b=4ISguw58WlF6RLOMdzfgbA
+        yOys270ub0X05LntWAOT8uaRS2gk5QwPT7K44RRT7PXCEnTJDgcQtHZ2OqmpTOT4
+        c4DXw2DOne6T8HEyj2ibF8UyoNPLXyUj7NPjlFcGdA598Nm33yJgFsp3Hnvjjeqq
+        Ur/9ClrL072AY5uQj+fUDcaCZopciC5r5vzK8WhHwiHRV5ZGyNLCYHk589iW8pcH
+        wNp9eDKjkBdrPAiEAQ9f10gSYvBw9p24gmbc/gBTaQNDZXaq26HCb8XvW0mUU9u+
+        1XFEo/bxeQZLetyhtFDlOZhz9+wZM8+pDz50fuUXUPkB7n6k9kTkg5YE/B9b4cDQ
         ==
-X-ME-Sender: <xms:5ANAXoiQKoHlUEgPGdUMtKo2BuUbSal0dLcGClC8HetREMNy_FHQzg>
+X-ME-Sender: <xms:7QNAXhBd0O1eHRWgd6xcCOO833JGx26H-h9SUYeBcZSQ9IGLUAJoGQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepieenuc
+    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepjeenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:5ANAXj4c5VjIrjaXnrN63SnfaENHepdEPMsS5l9_qJZ-F9nLiyJiww>
-    <xmx:5ANAXg5aiF9PlnuGvptNs6Xz6JEzgv4bFXVbbDtk_8AUKowRCDN1cA>
-    <xmx:5ANAXrHBm4hytviV76WQrLRyGj1UZ7cpCXavhYsunfeQGl8tEL5YQA>
-    <xmx:5ANAXty1TgPt2iWB7YnbOS196x5JfQdxz40w6JNeGJjPtv2s_fgNig>
+X-ME-Proxy: <xmx:7QNAXr_1CYmvWHPEFCK_NiZ8dwYlpepqYz6_fa_5RVX1itphJkf8Zw>
+    <xmx:7QNAXolQXtmoKzsWAavQn1kDku-XrCbzjrw3Aj1EQN8NS89M5LDgBg>
+    <xmx:7QNAXtMLWEg26tLD6ZbWFnEUenLZtxdIA5-jkXnR5Jo9hppe_LiZpA>
+    <xmx:7gNAXtKbM3rf7IyByb7uEyxKHBgjo30_swDANS3-wMJRxDMCWt0ScQ>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5BB863060701;
-        Sun,  9 Feb 2020 08:06:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] media: cec: check 'transmit_in_progress', not 'transmitting'" failed to apply to 5.5-stable tree
-To:     hverkuil-cisco@xs4all.nl, mchehab+huawei@kernel.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3F6C030606E9;
+        Sun,  9 Feb 2020 08:06:52 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: prevent potential eventfd recursion on poll" failed to apply to 5.4-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:48:05 +0100
-Message-ID: <158124888510314@kroah.com>
+Date:   Sun, 09 Feb 2020 12:52:50 +0100
+Message-ID: <15812491701283@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.5-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,79 +67,99 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d51224b73d18d207912f15ad4eb7a4b456682729 Mon Sep 17 00:00:00 2001
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date: Wed, 11 Dec 2019 12:47:57 +0100
-Subject: [PATCH] media: cec: check 'transmit_in_progress', not 'transmitting'
+From f0b493e6b9a8959356983f57112229e69c2f7b8c Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Sat, 1 Feb 2020 21:30:11 -0700
+Subject: [PATCH] io_uring: prevent potential eventfd recursion on poll
 
-Currently wait_event_interruptible_timeout is called in cec_thread_func()
-when adap->transmitting is set. But if the adapter is unconfigured
-while transmitting, then adap->transmitting is set to NULL. But the
-hardware is still actually transmitting the message, and that's
-indicated by adap->transmit_in_progress and we should wait until that
-is finished or times out before transmitting new messages.
+If we have nested or circular eventfd wakeups, then we can deadlock if
+we run them inline from our poll waitqueue wakeup handler. It's also
+possible to have very long chains of notifications, to the extent where
+we could risk blowing the stack.
 
-As the original commit says: adap->transmitting is the userspace view,
-adap->transmit_in_progress reflects the hardware state.
+Check the eventfd recursion count before calling eventfd_signal(). If
+it's non-zero, then punt the signaling to async context. This is always
+safe, as it takes us out-of-line in terms of stack and locking context.
 
-However, if adap->transmitting is NULL and adap->transmit_in_progress
-is true, then wait_event_interruptible is called (no timeout), which
-can get stuck indefinitely if the CEC driver is flaky and never marks
-the transmit-in-progress as 'done'.
+Cc: stable@vger.kernel.org # 5.1+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-So test against transmit_in_progress when deciding whether to use
-the timeout variant or not, instead of testing against adap->transmitting.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 32804fcb612b ("media: cec: keep track of outstanding transmits")
-Cc: <stable@vger.kernel.org>      # for v4.19 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
-diff --git a/drivers/media/cec/cec-adap.c b/drivers/media/cec/cec-adap.c
-index 1060e633b623..6c95dc471d4c 100644
---- a/drivers/media/cec/cec-adap.c
-+++ b/drivers/media/cec/cec-adap.c
-@@ -465,7 +465,7 @@ int cec_thread_func(void *_adap)
- 		bool timeout = false;
- 		u8 attempts;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 217721c7bc41..43f3b7d90299 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1020,21 +1020,28 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
  
--		if (adap->transmitting) {
-+		if (adap->transmit_in_progress) {
- 			int err;
+ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
+ {
++	if (!ctx->cq_ev_fd)
++		return false;
+ 	if (!ctx->eventfd_async)
+ 		return true;
+ 	return io_wq_current_is_worker() || in_interrupt();
+ }
  
- 			/*
-@@ -500,7 +500,7 @@ int cec_thread_func(void *_adap)
- 			goto unlock;
- 		}
+-static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
++static void __io_cqring_ev_posted(struct io_ring_ctx *ctx, bool trigger_ev)
+ {
+ 	if (waitqueue_active(&ctx->wait))
+ 		wake_up(&ctx->wait);
+ 	if (waitqueue_active(&ctx->sqo_wait))
+ 		wake_up(&ctx->sqo_wait);
+-	if (ctx->cq_ev_fd && io_should_trigger_evfd(ctx))
++	if (trigger_ev)
+ 		eventfd_signal(ctx->cq_ev_fd, 1);
+ }
  
--		if (adap->transmitting && timeout) {
-+		if (adap->transmit_in_progress && timeout) {
- 			/*
- 			 * If we timeout, then log that. Normally this does
- 			 * not happen and it is an indication of a faulty CEC
-@@ -509,14 +509,18 @@ int cec_thread_func(void *_adap)
- 			 * so much traffic on the bus that the adapter was
- 			 * unable to transmit for CEC_XFER_TIMEOUT_MS (2.1s).
- 			 */
--			pr_warn("cec-%s: message %*ph timed out\n", adap->name,
--				adap->transmitting->msg.len,
--				adap->transmitting->msg.msg);
-+			if (adap->transmitting) {
-+				pr_warn("cec-%s: message %*ph timed out\n", adap->name,
-+					adap->transmitting->msg.len,
-+					adap->transmitting->msg.msg);
-+				/* Just give up on this. */
-+				cec_data_cancel(adap->transmitting,
-+						CEC_TX_STATUS_TIMEOUT);
++static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
++{
++	__io_cqring_ev_posted(ctx, io_should_trigger_evfd(ctx));
++}
++
+ /* Returns true if there are no backlogged entries after the flush */
+ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ {
+@@ -3561,6 +3568,14 @@ static void io_poll_flush(struct io_wq_work **workptr)
+ 		__io_poll_flush(req->ctx, nodes);
+ }
+ 
++static void io_poll_trigger_evfd(struct io_wq_work **workptr)
++{
++	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
++
++	eventfd_signal(req->ctx->cq_ev_fd, 1);
++	io_put_req(req);
++}
++
+ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 			void *key)
+ {
+@@ -3586,14 +3601,22 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 
+ 		if (llist_empty(&ctx->poll_llist) &&
+ 		    spin_trylock_irqsave(&ctx->completion_lock, flags)) {
++			bool trigger_ev;
++
+ 			hash_del(&req->hash_node);
+ 			io_poll_complete(req, mask, 0);
+-			req->flags |= REQ_F_COMP_LOCKED;
+-			io_put_req(req);
+-			spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+-			io_cqring_ev_posted(ctx);
+-			req = NULL;
++			trigger_ev = io_should_trigger_evfd(ctx);
++			if (trigger_ev && eventfd_signal_count()) {
++				trigger_ev = false;
++				req->work.func = io_poll_trigger_evfd;
 +			} else {
-+				pr_warn("cec-%s: transmit timed out\n", adap->name);
++				req->flags |= REQ_F_COMP_LOCKED;
++				io_put_req(req);
++				req = NULL;
 +			}
- 			adap->transmit_in_progress = false;
- 			adap->tx_timeouts++;
--			/* Just give up on this. */
--			cec_data_cancel(adap->transmitting,
--					CEC_TX_STATUS_TIMEOUT);
- 			goto unlock;
- 		}
- 
++			spin_unlock_irqrestore(&ctx->completion_lock, flags);
++			__io_cqring_ev_posted(ctx, trigger_ev);
+ 		} else {
+ 			req->result = mask;
+ 			req->llist_node.next = NULL;
 
