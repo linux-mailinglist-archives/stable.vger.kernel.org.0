@@ -2,152 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D26156AA5
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E93156AC2
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:50:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727514AbgBINi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:38:28 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:35266 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727340AbgBINi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:38:28 -0500
-Received: by mail-wr1-f68.google.com with SMTP id w12so4280868wrt.2
-        for <stable@vger.kernel.org>; Sun, 09 Feb 2020 05:38:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9r1+mVgV44d6e/tamyv6BA1kctskFn3unz58xi71VOE=;
-        b=D/5BPAI++gzvO5NLEHQtr+CL68Ckzp3zgKH00/q4g69aS8Wgud90C2zMYwQ3Azuvc8
-         1AJyDurHGCPP2MxOcIg0n2fGNGCXp+wV5wqnyKbUI0ZhW/AZCYS8LS0QJ9KwYUnMa5cO
-         elwsRQCbWin1/6atmdb+fyiSTSlhbzYI6qsnFgmGYJyHU/ErS/dgQxYT7u4CYXM73hO5
-         /wgOWxQ6QCtThtVJS/+eBMecoyD9BpLypfJ+euqOCrlH0XQ+ABr7XhUegjwOrc6oi3J4
-         NlWKWR9zbtVFjhJZl6hoxq5Nnh4D+UlL64n6v8UfCYGxdtAv5f0vZnsAao16ZS1VOnUs
-         JIBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9r1+mVgV44d6e/tamyv6BA1kctskFn3unz58xi71VOE=;
-        b=t0sf5B7aChqJDd94bUBhppAFd/VY75nDRpXaOvT+zfR0UE2qfUoXLHMIdoiQiqOUFh
-         m/IQZa7MgddDzIi+GHQGIlx5l/1GOaKT/Vszv7Y+NTgwHU8cMLGgq0vSt0nF/87667Eo
-         rWwLVuLGJ7NB83wnVrDb9WZN6eFL3ItNTA7TwY3j8h9BtAdpSUgGEUD15+VQxL0IQeMZ
-         1aJ/WvBF+TvhhwW5q+wXQf0ubemvw1MDUzq2iEjZHw9cPYAzqi+I98mf1S2EL7EnJu5e
-         nhy8oBEnSQe93k2u180IzVdXtKm+t8TMkIEPqwDJsVrmBpB1vWB24M8FyHKcLwKDGdjl
-         KANg==
-X-Gm-Message-State: APjAAAWzAFy3LtuLs0+L3t8bE4DJePAbhPe8RVRn7IkO2xsJpYG836qb
-        xFhkIciINTCJK0VIiW4Y0Pjti7Oxf68=
-X-Google-Smtp-Source: APXvYqwafqnXO2B3yW4vfVsBITWzC4jnzQZP6RqGUoXjuR1r7R6VLEkUh5JHuV9Nlc8jc+6U0VGiGQ==
-X-Received: by 2002:adf:82ee:: with SMTP id 101mr11102587wrc.130.1581255506278;
-        Sun, 09 Feb 2020 05:38:26 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id k8sm11856229wrq.67.2020.02.09.05.38.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Feb 2020 05:38:25 -0800 (PST)
-Message-ID: <5e400b51.1c69fb81.faf76.1cde@mx.google.com>
-Date:   Sun, 09 Feb 2020 05:38:25 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727707AbgBINuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:50:14 -0500
+Received: from luna.lichtvoll.de ([194.150.191.11]:54877 "EHLO
+        mail.lichtvoll.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727631AbgBINuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:50:14 -0500
+X-Greylist: delayed 419 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Feb 2020 08:50:13 EST
+Received: from 127.0.0.1 (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.lichtvoll.de (Postfix) with ESMTPSA id C74BDAFAB4;
+        Sun,  9 Feb 2020 14:43:12 +0100 (CET)
+From:   Martin Steigerwald <martin@lichtvoll.de>
+To:     gregkh@linuxfoundation.org
+Cc:     josef@toxicpanda.com, dsterba@suse.com, wqu@suse.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: do not zero f_bavail if we have available space" failed to apply to 5.5-stable tree
+Date:   Sun, 09 Feb 2020 14:43:11 +0100
+Message-ID: <6540456.ZgMnpaWDUL@merkaba>
+In-Reply-To: <158124801131151@kroah.com>
+References: <158124801131151@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.102-102-g77b07d6abbd2
-Subject: stable-rc/linux-4.19.y boot: 82 boots: 4 failed,
- 73 passed with 5 offline (v4.19.102-102-g77b07d6abbd2)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+Authentication-Results: mail.lichtvoll.de;
+        auth=pass smtp.auth=martin smtp.mailfrom=martin@lichtvoll.de
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 82 boots: 4 failed, 73 passed with 5 offline (=
-v4.19.102-102-g77b07d6abbd2)
+Dear Greg,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.102-102-g77b07d6abbd2/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.102-102-g77b07d6abbd2/
+gregkh@linuxfoundation.org - 09.02.20, 12:33:31 CET:
+> The patch below does not apply to the 5.5-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git
+> commit id to <stable@vger.kernel.org>.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.102-102-g77b07d6abbd2
-Git Commit: 77b07d6abbd2c34ac34c3a3b49ff66ce28c72649
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 64 unique boards, 20 SoC families, 17 builds out of 168
+I believe you tried to apply it twice, since it is already in 5.5.2.
 
-Boot Regressions Detected:
+Best,
+Martin
 
-arm:
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6 Mon Sep 17 00:00:00 2001
+> From: Josef Bacik <josef@toxicpanda.com>
+> Date: Fri, 31 Jan 2020 09:31:05 -0500
+> Subject: [PATCH] btrfs: do not zero f_bavail if we have available
+> space
+> 
+> There was some logic added a while ago to clear out f_bavail in
+> statfs() if we did not have enough free metadata space to satisfy our
+> global reserve.  This was incorrect at the time, however didn't
+> really pose a problem for normal file systems because we would often
+> allocate chunks if we got this low on free metadata space, and thus
+> wouldn't really hit this case unless we were actually full.
+> 
+> Fast forward to today and now we are much better about not allocating
+> metadata chunks all of the time.  Couple this with d792b0f19711
+> ("btrfs: always reserve our entire size for the global reserve")
+> which now means we'll easily have a larger global reserve than our
+> free space, we are now more likely to trip over this while still
+> having plenty of space.
+> 
+> Fix this by skipping this logic if the global rsv's space_info is not
+> full.  space_info->full is 0 unless we've attempted to allocate a
+> chunk for that space_info and that has failed.  If this happens then
+> the space for the global reserve is definitely sacred and we need to
+> report b_avail == 0, but before then we can just use our calculated
+> b_avail.
+> 
+> Reported-by: Martin Steigerwald <martin@lichtvoll.de>
+> Fixes: ca8a51b3a979 ("btrfs: statfs: report zero available if metadata
+> are exhausted") CC: stable@vger.kernel.org # 4.5+
+> Reviewed-by: Qu Wenruo <wqu@suse.com>
+> Tested-By: Martin Steigerwald <martin@lichtvoll.de>
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> Reviewed-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> 
+> diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+> index a906315efd19..0616a5434793 100644
+> --- a/fs/btrfs/super.c
+> +++ b/fs/btrfs/super.c
+> @@ -2135,7 +2135,15 @@ static int btrfs_statfs(struct dentry *dentry,
+> struct kstatfs *buf) */
+>  	thresh = SZ_4M;
+> 
+> -	if (!mixed && total_free_meta - thresh < block_rsv->size)
+> +	/*
+> +	 * We only want to claim there's no available space if we can no
+> longer +	 * allocate chunks for our metadata profile and our 
+global
+> reserve will +	 * not fit in the free metadata space.  If we aren't
+> ->full then we +	 * still can allocate chunks and thus are fine using
+> the currently +	 * calculated f_bavail.
+> +	 */
+> +	if (!mixed && block_rsv->space_info->full &&
+> +	    total_free_meta - thresh < block_rsv->size)
+>  		buf->f_bavail = 0;
+> 
+>  	buf->f_type = BTRFS_SUPER_MAGIC;
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.1=
-01 - first fail: v4.19.102-96-g0632821fe218)
 
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 4 days (last pass: v4.19.=
-101 - first fail: v4.19.101-74-g32591972abd8)
+-- 
+Martin
 
-arm64:
 
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v4.19.102-96-g0=
-632821fe218)
-          meson-gxl-s805x-p241:
-              lab-baylibre: new failure (last pass: v4.19.102-96-g0632821fe=
-218)
-
-Boot Failures Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxl-s805x-p241: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
