@@ -2,108 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F6C156C10
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 19:32:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A23BE156C12
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 19:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727419AbgBISc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 13:32:56 -0500
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:45218 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727388AbgBISc4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 13:32:56 -0500
-Received: by mail-qk1-f196.google.com with SMTP id a2so3884510qko.12;
-        Sun, 09 Feb 2020 10:32:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FwnS7raatQida7H2CFe9qp4MAjUyBdHcORgJ6PWgqUw=;
-        b=Y0/5tjKL7sgveyW9gFjK83XEW6pBvdPc7r2ljDKNaFdD0C5k4z04v/XHmxnIcNqlHt
-         R1FZqLK1nN3M/HDZ39GErlxZrRsFjvjiqEzuf70TZ1IWJ3wOa08OGIXoXCJQOhDyD6Wv
-         K8fFjtpOx2GgKTNxIBdkN07b3mzdrwgueEzNSEPjB7XiV3BhyaF6NJdOLLQ7GQUAxRzy
-         Lc4uBrl9ILU3JyCeQw5s7r8dlEpTQok8sNQBZOxYaCqydnqlVR1ARdAKzo8Kyz/wDDEO
-         7Cq+5hr+JRPZYIIhKnl8CwEfyeKN91wu15vDylKtSVM5gPZsIXfAISXQgW8m9LxknXHp
-         v8WA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FwnS7raatQida7H2CFe9qp4MAjUyBdHcORgJ6PWgqUw=;
-        b=l1IqnaOoiEtXGeqmtOiDqhHrSbXthF1Jvj3OUkjr0oQLynaxjAUvU3Fo4gB4YOffZd
-         ZzsqpWVmuv+qgAgqvuXkGghkTWKpWBfUWQ7HIVGW6isWt0BiVzJbFw3Mxa1unNGeu1s2
-         dw5wFV7qwaA1EXi+Tms1grIZxD+uajV+CFME4zOHAjtTY1Wc34gYlVV0I7w20k+Mglzw
-         u9rden5iYsnWQg7Ku7iwPBED4STVmXNUwq2EQ79J3/Lc4ixUK8O0XgtyEIuPtuST9VKR
-         /SgSheUs1m/DZ6anQhL0IIltpLxbBL45qwWQlBkSkyi951WGcGui0A91AxDI/4gdqNpQ
-         sMvw==
-X-Gm-Message-State: APjAAAX89mjrC0rJEWFXAzg6wI5bJK/bXcNDSCbo9oQ7rBqOVksRxeN2
-        Cbi+PDWMKSWJ20ggcZNiP4/TZaYh/qME6yk1QDA=
-X-Google-Smtp-Source: APXvYqzP1RxfdsKNw9pW8Ehjii9Jtw2/sFYVRAqs2QF8LyqIifQ9oDd/1PxgSaZ9JptPmg/yJPgXwA1OFrk95pqGvno=
-X-Received: by 2002:a37:785:: with SMTP id 127mr7831977qkh.437.1581273174941;
- Sun, 09 Feb 2020 10:32:54 -0800 (PST)
+        id S1727427AbgBISdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 13:33:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54722 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727413AbgBISdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 13:33:46 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 414F1207FF;
+        Sun,  9 Feb 2020 18:33:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581273226;
+        bh=M0K7xZf5ZP6IT40OVPb1SuMawHOKgFxVfbcOd7V97rE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lPoUd2Tug+7Uq9XHiq8RTbec/zyuBOjkXP3NtMLzRdXlkXFOOdXR/TsG8UmJmFxA9
+         eIoDKh9MvsPKliIcBywNxDH7uI9PnDuL59Ano24tJzlbvA2/MTqVbup2kQPDDoWnsj
+         vSm552S2L5iDwHQNZCSUO7WulQO+6tJjML1WvxV8=
+Date:   Sun, 9 Feb 2020 13:33:45 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     axboe@kernel.dk, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] io_uring: prevent potential eventfd
+ recursion on poll" failed to apply to 5.5-stable tree
+Message-ID: <20200209183345.GP3584@sasha-vm>
+References: <158124917113830@kroah.com>
 MIME-Version: 1.0
-References: <20191212013521.1689228-1-andriin@fb.com> <CA+G9fYtAQGwf=OoEvHwbJpitcfhpfhy-ar+6FRrWC_-ti7sUTg@mail.gmail.com>
-In-Reply-To: <CA+G9fYtAQGwf=OoEvHwbJpitcfhpfhy-ar+6FRrWC_-ti7sUTg@mail.gmail.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Sun, 9 Feb 2020 10:32:43 -0800
-Message-ID: <CAEf4BzbEfuDNVr_gfEu13GvBAvdE1Qdw6nOxOJENzm69=iyUgg@mail.gmail.com>
-Subject: Re: [PATCH bpf-next 0/4] Fix perf_buffer creation on systems with
- offline CPUs
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, bpf <bpf@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>, Alexei Starovoitov <ast@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Kernel Team <kernel-team@fb.com>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <158124917113830@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 9, 2020 at 9:18 AM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+On Sun, Feb 09, 2020 at 12:52:51PM +0100, gregkh@linuxfoundation.org wrote:
 >
-> On Thu, 12 Dec 2019 at 07:05, Andrii Nakryiko <andriin@fb.com> wrote:
-> >
-> > This patch set fixes perf_buffer__new() behavior on systems which have some of
-> > the CPUs offline/missing (due to difference between "possible" and "online"
-> > sets). perf_buffer will create per-CPU buffer and open/attach to corresponding
-> > perf_event only on CPUs present and online at the moment of perf_buffer
-> > creation. Without this logic, perf_buffer creation has no chances of
-> > succeeding on such systems, preventing valid and correct BPF applications from
-> > starting.
-> >
-> > Andrii Nakryiko (4):
-> >   libbpf: extract and generalize CPU mask parsing logic
-> >   selftests/bpf: add CPU mask parsing tests
-> >   libbpf: don't attach perf_buffer to offline/missing CPUs
+>The patch below does not apply to the 5.5-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
 >
-> perf build failed on stable-rc 5.5 branch.
+>thanks,
 >
-> libbpf.c: In function '__perf_buffer__new':
-> libbpf.c:6159:8: error: implicit declaration of function
-> 'parse_cpu_mask_file'; did you mean 'parse_uint_from_file'?
-> [-Werror=implicit-function-declaration]
->   err = parse_cpu_mask_file(online_cpus_file, &online, &n);
->         ^~~~~~~~~~~~~~~~~~~
->         parse_uint_from_file
-> libbpf.c:6159:8: error: nested extern declaration of
-> 'parse_cpu_mask_file' [-Werror=nested-externs]
+>greg k-h
 >
-> build log,
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.5/DISTRO=lkft,MACHINE=hikey,label=docker-lkft/11/console
+>------------------ original commit in Linus's tree ------------------
 >
+>From f0b493e6b9a8959356983f57112229e69c2f7b8c Mon Sep 17 00:00:00 2001
+>From: Jens Axboe <axboe@kernel.dk>
+>Date: Sat, 1 Feb 2020 21:30:11 -0700
+>Subject: [PATCH] io_uring: prevent potential eventfd recursion on poll
+>
+>If we have nested or circular eventfd wakeups, then we can deadlock if
+>we run them inline from our poll waitqueue wakeup handler. It's also
+>possible to have very long chains of notifications, to the extent where
+>we could risk blowing the stack.
+>
+>Check the eventfd recursion count before calling eventfd_signal(). If
+>it's non-zero, then punt the signaling to async context. This is always
+>safe, as it takes us out-of-line in terms of stack and locking context.
+>
+>Cc: stable@vger.kernel.org # 5.1+
+>Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Thanks for reporting!
+I queued it back to 5.5 by taking f2842ab5b72d ("io_uring: enable option
+to only trigger eventfd for async completions") and working around
+missing commit 69b3e546139a ("io_uring: change io_ring_ctx bool fields
+into bit fields"). However, 5.4 is a bit more complex than what I can
+tackle without a test suite.
 
-These changes depend on commit 6803ee25f0ea ("libbpf: Extract and
-generalize CPU mask parsing logic"), which weren't backported to
-stable. Greg, can you please pull that one as well? Thanks!
+Jens, is there something I can run to validate io_uring on older
+kernels?
 
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+-- 
+Thanks,
+Sasha
