@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A96156A87
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:08:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BF7156A88
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727722AbgBINIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:08:49 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:36333 "EHLO
+        id S1727761AbgBINI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:08:58 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:35609 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727682AbgBINIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:08:49 -0500
+        by vger.kernel.org with ESMTP id S1727682AbgBINI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:08:58 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 73B1B21EAF;
-        Sun,  9 Feb 2020 08:08:48 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4F5C021F18;
+        Sun,  9 Feb 2020 08:08:57 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:08:48 -0500
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:08:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=OHz+2b
-        ubBArussOz2rYXrcZ6i8rnSdc4dZATuAm6YmQ=; b=bsfkwc7YyVRolQUMAuMv2F
-        zAGb1eytGFO7Iu502w8LmZx9prv3jWcKCjGX0z+hhCB45+9Xw+q270rLjPdm5WfG
-        21gqcdZytOjvr1dEBozskGcMSjXywtAYPfytB7Ap2K44D4ArcOct/jBgtN+M6RhM
-        CQyBuYhHgd+rG+q8IzODRivNzd4oBYnSnP/acD0IJYhy9vPMwOVkGSBB43Jpd1lt
-        +vYz9ocvg8umQar9Epa3cwAHe3I6QDmPhYdOZJlDG3n8793Yl91xlBXEwzDKgT2o
-        ciG1BybcpMy7aUa0q1fOHXHVx6qXPfdmQs7UxYaArs4GyLqesO8TdJAdlmqrdUOA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kckNWv
+        qpxxGS3H5iwRXujfUL+D/Lguv0hQ0CnpqTjjs=; b=c/MmIKPCFQgign8qB78klo
+        A71/gfiKyNZjnS4K+iu9MZ9FC77xHYefZCRHe58/Wmh0IZshy1j+Il6EGJeVHFZ1
+        AfSgkYAZklGCxJMWVs4hOGfxtkIsAz8LvWmczeB08KHFdqgNjqqIi5soZaYDGzmv
+        vfFdNoxI3LsxhzLoOOjJVnaHnkDACIFuAyWzQw8ooj0RTWsCx9eTjB9Mxun0ciN/
+        ToCxRCUE0z16Pp6j3VpvE5wl9yE05KhHVfxNRCca8vuqgB8KVY6/WDop7VpCJXKj
+        X7QSRfdeckqFHXP/ltWZU7CQbaSU3OU0/vrwDsQNuIzqqZWJ/utOEPbLkBTdbcEw
         ==
-X-ME-Sender: <xms:YARAXheXOxPdE2LJh3iX9B1XRcrn67gv8v0M9937y3GLiG8MwdYz6Q>
+X-ME-Sender: <xms:aQRAXrfyABAFWCTnP2D8ViHXOkvqzhrLp8X987bi99GjPdyg-YJJTQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepudekne
+    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepudelne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:YARAXhdK3ut8-gTEGl35eGV18n29nprNUd7eBzwXVTDxzxniP2Q6rA>
-    <xmx:YARAXqOH-w-auQR7SGO3RKx5WAat_CVGkrBwuDRpYMAGDleCjVhnkA>
-    <xmx:YARAXnqYeoCXGl7QPbxQySODW2pDgp6EoWdGVmxQPvVPOq-FFsxaEQ>
-    <xmx:YARAXnSCzt18DyEuY9MLb2nlseThApct036nUmWNDNWkmxRP7QCh1Q>
+X-ME-Proxy: <xmx:aQRAXmNfUWONAxMGJIOGzA75gq8kGODa9BQewYNZgu1PlNi9cNzihQ>
+    <xmx:aQRAXlZWCUoeseOg8Kb6owxTys-hOpPzVjP2XFSFA6QCW1j_Op6AFw>
+    <xmx:aQRAXitKken0oMXV0s52GGdlfx7L61dG7Q33HiKH8YMfW4Q6E3OHLQ>
+    <xmx:aQRAXqeZJ6t7nYedrja8X3hEtF9OVzA_C6EIEq9q54GHAsMRbcLmfA>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A70C53280064;
-        Sun,  9 Feb 2020 08:08:46 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: x86: Fix potential put_fpu() w/o load_fpu() on MPX" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 05ABF328005E;
+        Sun,  9 Feb 2020 08:08:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM" failed to apply to 5.4-stable tree
 To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 13:22:44 +0100
-Message-ID: <158125096467128@kroah.com>
+Date:   Sun, 09 Feb 2020 13:26:43 +0100
+Message-ID: <15812512030168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,53 +67,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f958bd2314d117f8c29f4821401bc1925bc2e5ef Mon Sep 17 00:00:00 2001
+From e30a7d623dccdb3f880fbcad980b0cb589a1da45 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Mon, 9 Dec 2019 12:19:31 -0800
-Subject: [PATCH] KVM: x86: Fix potential put_fpu() w/o load_fpu() on MPX
- platform
+Date: Tue, 7 Jan 2020 16:12:10 -0800
+Subject: [PATCH] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM
 
-Unlike most state managed by XSAVE, MPX is initialized to zero on INIT.
-Because INITs are usually recognized in the context of a VCPU_RUN call,
-kvm_vcpu_reset() puts the guest's FPU so that the FPU state is resident
-in memory, zeros the MPX state, and reloads FPU state to hardware.  But,
-in the unlikely event that an INIT is recognized during
-kvm_arch_vcpu_ioctl_get_mpstate() via kvm_apic_accept_events(),
-kvm_vcpu_reset() will call kvm_put_guest_fpu() without a preceding
-kvm_load_guest_fpu() and corrupt the guest's FPU state (and possibly
-userspace's FPU state as well).
+Remove the bogus 64-bit only condition from the check that disables MMIO
+spte optimization when the system supports the max PA, i.e. doesn't have
+any reserved PA bits.  32-bit KVM always uses PAE paging for the shadow
+MMU, and per Intel's SDM:
 
-Given that MPX is being removed from the kernel[*], fix the bug with the
-simple-but-ugly approach of loading the guest's FPU during
-KVM_GET_MP_STATE.
+  PAE paging translates 32-bit linear addresses to 52-bit physical
+  addresses.
 
-[*] See commit f240652b6032b ("x86/mpx: Remove MPX APIs").
+The kernel's restrictions on max physical addresses are limits on how
+much memory the kernel can reasonably use, not what physical addresses
+are supported by hardware.
 
-Fixes: f775b13eedee2 ("x86,kvm: move qemu/guest FPU switching out to vcpu_run")
+Fixes: ce88decffd17 ("KVM: MMU: mmio page fault support")
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 3051324f72d3..0af5cb637bea 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8714,6 +8714,8 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
- 	vcpu_load(vcpu);
-+	if (kvm_mpx_supported())
-+		kvm_load_guest_fpu(vcpu);
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 2992ff7b42a7..57e4dbddba72 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6193,7 +6193,7 @@ static void kvm_set_mmio_spte_mask(void)
+ 	 * If reserved bit is not supported, clear the present bit to disable
+ 	 * mmio page fault.
+ 	 */
+-	if (IS_ENABLED(CONFIG_X86_64) && shadow_phys_bits == 52)
++	if (shadow_phys_bits == 52)
+ 		mask &= ~1ull;
  
- 	kvm_apic_accept_events(vcpu);
- 	if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
-@@ -8722,6 +8724,8 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 	else
- 		mp_state->mp_state = vcpu->arch.mp_state;
- 
-+	if (kvm_mpx_supported())
-+		kvm_put_guest_fpu(vcpu);
- 	vcpu_put(vcpu);
- 	return 0;
- }
+ 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
 
