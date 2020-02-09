@@ -2,104 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F31BA156A8C
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:09:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C692156A67
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727704AbgBINJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:09:39 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:40627 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727654AbgBINJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:09:39 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5A99621EA0;
-        Sun,  9 Feb 2020 08:09:38 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:09:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RZ5wRb
-        lb1C8KMRkfQglXgjPhnOYTHdkLk2NOPL26kFo=; b=nEh0G2l2YXZecjxozdsZ+0
-        6U7UtAJpGqh6frWgxCPYybRAVAzyrPIYEKx5X2OmqH/Dc59v1OhU/lzhZV981vs5
-        xLw7PiasNFccz0bMrBOEBmKusRZWps2h+PwWS+W1GEkXNc09482AGZKF0c7mmRqr
-        A8cg0jmg4CQiVCWWErH7XwNF0MT1vlaHfwGOTwrdnHszW/L9fzpAJTuxgF0bQVCU
-        nsl2jM5yfh3tYHsx0pvbak1ij2P9PdyKSMs7ZyDUJfPSlEy9fkHwXLjrKcOvTA7i
-        +4YH1zO4D+2OAC63NlREJYqxOIEzuWFcQKdQR9jag6Y09wkmnbbhWZm/w/F6+X4g
-        ==
-X-ME-Sender: <xms:kgRAXp_pY15e6quOLRrfiBQc1tk7J_kNANWw9KKtF58OmcEhq4uRDg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepvdefne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:kgRAXu_T3NCGBqYrbB47zlnxo8zUSim7onhE5IjlsZNcr3BUo0_C3A>
-    <xmx:kgRAXsWxYkQMniCRvGcnctNGbzNGuxVhhQyrdadHLY4WRCCpHTbEZQ>
-    <xmx:kgRAXrZAkVBcrYjsu7h5mElJjeIG1QmIuCC_LLOBel7sEzyERUquyA>
-    <xmx:kgRAXuYVbUc_xmpsL3q0OLOdnzWGJ2zUU4lsHt7FCrEAD_5zcLvnxg>
-Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2F12D3280064;
-        Sun,  9 Feb 2020 08:09:37 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM" failed to apply to 4.9-stable tree
-To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 13:26:49 +0100
-Message-ID: <158125120965113@kroah.com>
+        id S1727340AbgBINE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:04:26 -0500
+Received: from mail-wm1-f46.google.com ([209.85.128.46]:40836 "EHLO
+        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727682AbgBINEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:04:25 -0500
+Received: by mail-wm1-f46.google.com with SMTP id t14so7501421wmi.5
+        for <stable@vger.kernel.org>; Sun, 09 Feb 2020 05:04:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=flUP6yfKBOQigTWvAq4ULSPJ6UU0pGd0tRUv+ZQCLGY=;
+        b=mq0PjgF2o2hneQKAbFkCUowml12GK711AZMWUlfxAzznN4ho3LTWnsQC0wgK6mjJoV
+         VgB8AYnJYY5OJ5zBOZnwHy5zlI/oKOKHYi9LVL5842A1XgPlfMOLrLD3KoiJPZWVT4uw
+         WlL3SHkj5MW86Ni5Vr1jj6w9jAap3DfFB9eeyv/g55USmYMUdVMDh42KYClt3+Ku5MlQ
+         lp2HDHSGW7cml9uyW6ECyhrKUPow30X+71EOX0/33OgkJOCR8x2KLCtL8eTRc+isU/lS
+         rvQds/1Ll7Lx/wi0IPm/bkCTpstL3pz310bgejRNVLhe6GhqfL5RE8LNXOqUj91MSqb7
+         lb8g==
+X-Gm-Message-State: APjAAAWnTh36VsfMcUSTgli6YNTn6EpN3c/0Cmf/IVmYBehQSGJIQAGC
+        hHCIEWAyZtRkHD1LA+GeDRFAuAvln24=
+X-Google-Smtp-Source: APXvYqyB2mJxecXhKlGn77tC4N2DGfb2zQkcBvGAfZqyeLO2MgZ3hAH2A/Ok5RaZmRAKLWUHWxZNSA==
+X-Received: by 2002:a1c:1f56:: with SMTP id f83mr9569524wmf.93.1581253463323;
+        Sun, 09 Feb 2020 05:04:23 -0800 (PST)
+Received: from ?IPv6:2a0b:e7c0:0:107::49? ([2a0b:e7c0:0:107::49])
+        by smtp.gmail.com with ESMTPSA id y20sm10416849wmi.25.2020.02.09.05.04.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 09 Feb 2020 05:04:22 -0800 (PST)
+Subject: Re: FAILED: patch "[PATCH] btrfs: do not zero f_bavail if we have
+ available space" failed to apply to 5.5-stable tree
+To:     gregkh@linuxfoundation.org, josef@toxicpanda.com, dsterba@suse.com,
+        martin@lichtvoll.de, wqu@suse.com
+Cc:     stable@vger.kernel.org
+References: <158124801131151@kroah.com>
+From:   Jiri Slaby <jslaby@suse.cz>
+Autocrypt: addr=jslaby@suse.cz; prefer-encrypt=mutual; keydata=
+ mQINBE6S54YBEACzzjLwDUbU5elY4GTg/NdotjA0jyyJtYI86wdKraekbNE0bC4zV+ryvH4j
+ rrcDwGs6tFVrAHvdHeIdI07s1iIx5R/ndcHwt4fvI8CL5PzPmn5J+h0WERR5rFprRh6axhOk
+ rSD5CwQl19fm4AJCS6A9GJtOoiLpWn2/IbogPc71jQVrupZYYx51rAaHZ0D2KYK/uhfc6neJ
+ i0WqPlbtIlIrpvWxckucNu6ZwXjFY0f3qIRg3Vqh5QxPkojGsq9tXVFVLEkSVz6FoqCHrUTx
+ wr+aw6qqQVgvT/McQtsI0S66uIkQjzPUrgAEtWUv76rM4ekqL9stHyvTGw0Fjsualwb0Gwdx
+ ReTZzMgheAyoy/umIOKrSEpWouVoBt5FFSZUyjuDdlPPYyPav+hpI6ggmCTld3u2hyiHji2H
+ cDpcLM2LMhlHBipu80s9anNeZhCANDhbC5E+NZmuwgzHBcan8WC7xsPXPaiZSIm7TKaVoOcL
+ 9tE5aN3jQmIlrT7ZUX52Ff/hSdx/JKDP3YMNtt4B0cH6ejIjtqTd+Ge8sSttsnNM0CQUkXps
+ w98jwz+Lxw/bKMr3NSnnFpUZaxwji3BC9vYyxKMAwNelBCHEgS/OAa3EJoTfuYOK6wT6nadm
+ YqYjwYbZE5V/SwzMbpWu7Jwlvuwyfo5mh7w5iMfnZE+vHFwp/wARAQABtBtKaXJpIFNsYWJ5
+ IDxqc2xhYnlAc3VzZS5jej6JAjgEEwECACIFAk6S6NgCGwMGCwkIBwMCBhUIAgkKCwQWAgMB
+ Ah4BAheAAAoJEL0lsQQGtHBJgDsP/j9wh0vzWXsOPO3rDpHjeC3BT5DKwjVN/KtP7uZttlkB
+ duReCYMTZGzSrmK27QhCflZ7Tw0Naq4FtmQSH8dkqVFugirhlCOGSnDYiZAAubjTrNLTqf7e
+ 5poQxE8mmniH/Asg4KufD9bpxSIi7gYIzaY3hqvYbVF1vYwaMTujojlixvesf0AFlE4x8WKs
+ wpk43fmo0ZLcwObTnC3Hl1JBsPujCVY8t4E7zmLm7kOB+8EHaHiRZ4fFDWweuTzRDIJtVmrH
+ LWvRDAYg+IH3SoxtdJe28xD9KoJw4jOX1URuzIU6dklQAnsKVqxz/rpp1+UVV6Ky6OBEFuoR
+ 613qxHCFuPbkRdpKmHyE0UzmniJgMif3v0zm/+1A/VIxpyN74cgwxjhxhj/XZWN/LnFuER1W
+ zTHcwaQNjq/I62AiPec5KgxtDeV+VllpKmFOtJ194nm9QM9oDSRBMzrG/2AY/6GgOdZ0+qe+
+ 4BpXyt8TmqkWHIsVpE7I5zVDgKE/YTyhDuqYUaWMoI19bUlBBUQfdgdgSKRMJX4vE72dl8BZ
+ +/ONKWECTQ0hYntShkmdczcUEsWjtIwZvFOqgGDbev46skyakWyod6vSbOJtEHmEq04NegUD
+ al3W7Y/FKSO8NqcfrsRNFWHZ3bZ2Q5X0tR6fc6gnZkNEtOm5fcWLY+NVz4HLaKrJuQINBE6S
+ 54YBEADPnA1iy/lr3PXC4QNjl2f4DJruzW2Co37YdVMjrgXeXpiDvneEXxTNNlxUyLeDMcIQ
+ K8obCkEHAOIkDZXZG8nr4mKzyloy040V0+XA9paVs6/ice5l+yJ1eSTs9UKvj/pyVmCAY1Co
+ SNN7sfPaefAmIpduGacp9heXF+1Pop2PJSSAcCzwZ3PWdAJ/w1Z1Dg/tMCHGFZ2QCg4iFzg5
+ Bqk4N34WcG24vigIbRzxTNnxsNlU1H+tiB81fngUp2pszzgXNV7CWCkaNxRzXi7kvH+MFHu2
+ 1m/TuujzxSv0ZHqjV+mpJBQX/VX62da0xCgMidrqn9RCNaJWJxDZOPtNCAWvgWrxkPFFvXRl
+ t52z637jleVFL257EkMI+u6UnawUKopa+Tf+R/c+1Qg0NHYbiTbbw0pU39olBQaoJN7JpZ99
+ T1GIlT6zD9FeI2tIvarTv0wdNa0308l00bas+d6juXRrGIpYiTuWlJofLMFaaLYCuP+e4d8x
+ rGlzvTxoJ5wHanilSE2hUy2NSEoPj7W+CqJYojo6wTJkFEiVbZFFzKwjAnrjwxh6O9/V3O+Z
+ XB5RrjN8hAf/4bSo8qa2y3i39cuMT8k3nhec4P9M7UWTSmYnIBJsclDQRx5wSh0Mc9Y/psx9
+ B42WbV4xrtiiydfBtO6tH6c9mT5Ng+d1sN/VTSPyfQARAQABiQIfBBgBAgAJBQJOkueGAhsM
+ AAoJEL0lsQQGtHBJN7UQAIDvgxaW8iGuEZZ36XFtewH56WYvVUefs6+Pep9ox/9ZXcETv0vk
+ DUgPKnQAajG/ViOATWqADYHINAEuNvTKtLWmlipAI5JBgE+5g9UOT4i69OmP/is3a/dHlFZ3
+ qjNk1EEGyvioeycJhla0RjakKw5PoETbypxsBTXk5EyrSdD/I2Hez9YGW/RcI/WC8Y4Z/7FS
+ ITZhASwaCOzy/vX2yC6iTx4AMFt+a6Z6uH/xGE8pG5NbGtd02r+m7SfuEDoG3Hs1iMGecPyV
+ XxCVvSV6dwRQFc0UOZ1a6ywwCWfGOYqFnJvfSbUiCMV8bfRSWhnNQYLIuSv/nckyi8CzCYIg
+ c21cfBvnwiSfWLZTTj1oWyj5a0PPgGOdgGoIvVjYXul3yXYeYOqbYjiC5t99JpEeIFupxIGV
+ ciMk6t3pDrq7n7Vi/faqT+c4vnjazJi0UMfYnnAzYBa9+NkfW0w5W9Uy7kW/v7SffH/2yFiK
+ 9HKkJqkN9xYEYaxtfl5pelF8idoxMZpTvCZY7jhnl2IemZCBMs6s338wS12Qro5WEAxV6cjD
+ VSdmcD5l9plhKGLmgVNCTe8DPv81oDn9s0cIRLg9wNnDtj8aIiH8lBHwfUkpn32iv0uMV6Ae
+ sLxhDWfOR4N+wu1gzXWgLel4drkCJcuYK5IL1qaZDcuGR8RPo3jbFO7Y
+Message-ID: <45d4c547-7e27-3c59-e2f7-19f4e7b3548c@suse.cz>
+Date:   Sun, 9 Feb 2020 14:04:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <158124801131151@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 09. 02. 20, 12:33, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.5-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6 Mon Sep 17 00:00:00 2001
+> From: Josef Bacik <josef@toxicpanda.com>
+> Date: Fri, 31 Jan 2020 09:31:05 -0500
+> Subject: [PATCH] btrfs: do not zero f_bavail if we have available space
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+5.5.2 was already released with this patch:
+commit 165387a9c90152f35976d82feca6eff5f0d5ac02
+Author: Josef Bacik <josef@toxicpanda.com>
+Date:   Fri Jan 31 09:31:05 2020 -0500
+
+    btrfs: do not zero f_bavail if we have available space
+
+    commit d55966c4279bfc6a0cf0b32bf13f5df228a1eeb6 upstream.
+
+It cannot be applied twice :).
 
 thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From e30a7d623dccdb3f880fbcad980b0cb589a1da45 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Tue, 7 Jan 2020 16:12:10 -0800
-Subject: [PATCH] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM
-
-Remove the bogus 64-bit only condition from the check that disables MMIO
-spte optimization when the system supports the max PA, i.e. doesn't have
-any reserved PA bits.  32-bit KVM always uses PAE paging for the shadow
-MMU, and per Intel's SDM:
-
-  PAE paging translates 32-bit linear addresses to 52-bit physical
-  addresses.
-
-The kernel's restrictions on max physical addresses are limits on how
-much memory the kernel can reasonably use, not what physical addresses
-are supported by hardware.
-
-Fixes: ce88decffd17 ("KVM: MMU: mmio page fault support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 2992ff7b42a7..57e4dbddba72 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -6193,7 +6193,7 @@ static void kvm_set_mmio_spte_mask(void)
- 	 * If reserved bit is not supported, clear the present bit to disable
- 	 * mmio page fault.
- 	 */
--	if (IS_ENABLED(CONFIG_X86_64) && shadow_phys_bits == 52)
-+	if (shadow_phys_bits == 52)
- 		mask &= ~1ull;
- 
- 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
-
+-- 
+js
+suse labs
