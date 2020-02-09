@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C484C156A5E
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CED6156A5F
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbgBINDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:03:01 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44869 "EHLO
+        id S1727725AbgBINDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:03:11 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:52563 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727340AbgBINDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:03:01 -0500
+        by vger.kernel.org with ESMTP id S1727340AbgBINDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:03:10 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1C6DC21368;
-        Sun,  9 Feb 2020 08:03:01 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:03:01 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 4AFD721B34;
+        Sun,  9 Feb 2020 08:03:10 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:03:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mf0Xxd
-        5AGRw/iR6NCpKLv0Kzi+t3cmDLoblpyj7lrkw=; b=aVOpgUQ0BFYQfO41NxPLlD
-        TNA0/VNy6hgU6mB+jWnJVMzHneQ17MBDQP1V0MQeoquovRt+6KZEPnE/XNv/mRde
-        srBudHnoIXqqxbsc8DHQJDMCFWZ/tCdEwOFRz1cHTQf0JvJoNH/DooQLdBw7LQF3
-        Sk7VdMuS9V/GNYgR78L16uP6a+371xF/KHck3elWcssEj0HuyGgW1DL3UoL7r8Vp
-        frXKrjhgTlfz069gJ4+XMXKwJJ/PBwql0Z0NbyTqYELMRzW81K23D5cR5ITbyUC5
-        LXAZ768YM2m1r+TbpKyBlhEkZb4d2xdt8rACAOm924fmvEdew6Xc1W/5aHFZb8rA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XzsFbl
+        B2zM7Z8/WiAdLjiTK7m7vqzM+d5DLmMz1PO4s=; b=RI23FNBOW3e0IrScwf9Ml3
+        tePZE1oZhzKCUOZHq8JwR2bm4C4z1lLnr1O/sayO1Z2Os+Ha90m599tNMiybn25Q
+        +9024FdYyQd1o2PWGT72DaX47EVlTjhxYtZ00oYSMvfUcrFPJeuAujAbm1oErkhY
+        SJjLMw4xlecUUhVNJI+2kVRALwc+EtAcpNYdRaZXopgnZlah0GD76C4oedR9dcBv
+        ZMAGXwF03bHJkNmidpbzisSNHqOKWrFufUECR9xG1Kl2JCDwSn/oXEx5+db75D8x
+        EQ3Bs/MTPfOjrUMd6OYRgnFiEg4RGtP02Az9pHelX21T2CxzFuN+VT6CjlckdK6Q
         ==
-X-ME-Sender: <xms:BANAXuqxdg-qcEqFXBV5NyNmoB86qYdONwJ0WDSd0izjBzamBTv_qQ>
+X-ME-Sender: <xms:DgNAXmAPHEijrdjFQzZa1C24OCKu71fFdvQ3Ur4cv-0YZuZ_Yq4afg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepfeekrdelke
-    drfeejrddufeehnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhf
+    drfeejrddufeehnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrghilhhf
     rhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:BANAXg7yPsptSSZHh6xWDo5ZHgiSFlE9w7_uJv9ZCyMZFur3PrCYBA>
-    <xmx:BANAXuOQ2LTeMfVyxBXrrxm8uANm73lfakh1zOCPyQjaulJyD2OZwQ>
-    <xmx:BANAXiOspAznUXKEeKIBGcODZKuMQmqR7r3y0FjgJzazFLnqJJnFuQ>
-    <xmx:BQNAXv7bXkevOPyoyHB6uZLhwzDdymZjED-y3eOF_Xs55zmmjKJOgw>
+X-ME-Proxy: <xmx:DgNAXkzBZ_caN8ou-LwXUAJ1JLPIln9waKrRqz5AP_yfKWAOEGMJCw>
+    <xmx:DgNAXkmCkmrNJYjk-O7Vr4j--ODeMvvzG6EEj1HXAu_kaFzywECZmA>
+    <xmx:DgNAXpEYunnHKAXlw1fwh8s1x7uTp41qititTTuOusbbCMhG2xD4sA>
+    <xmx:DgNAXiRUA2_YZuj-MtNUGHFkwaXQVVJNeb19s5RY3PReu5hk3iaSTw>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D4AEC328005A;
-        Sun,  9 Feb 2020 08:02:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm: atmel-hlcdc: enable clock before configuring timing" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id ED53730606E9;
+        Sun,  9 Feb 2020 08:03:08 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm: atmel-hlcdc: enable clock before configuring timing" failed to apply to 4.4-stable tree
 To:     claudiu.beznea@microchip.com, boris.brezillon@free-electrons.com,
         sam@ravnborg.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:40:23 +0100
-Message-ID: <1581248423255249@kroah.com>
+Date:   Sun, 09 Feb 2020 12:40:24 +0100
+Message-ID: <158124842416260@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
