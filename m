@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4880156C4D
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 20:58:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D25FC156C51
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 21:05:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbgBIT6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 14:58:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48310 "EHLO mail.kernel.org"
+        id S1727420AbgBIUFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 15:05:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727404AbgBIT6I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Feb 2020 14:58:08 -0500
+        id S1727404AbgBIUFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 15:05:24 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D4D220726;
-        Sun,  9 Feb 2020 19:58:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 873EF20726;
+        Sun,  9 Feb 2020 20:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581278287;
-        bh=2lHMTvAtQK5z6b5BuzYTkRS2cBKV4mQNRfKKrcMNyuw=;
+        s=default; t=1581278723;
+        bh=Yg7GMZYy/hUBbdZzTwaLLT1cGbBZyAWRj08PI4NKb5k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=w13/A/T1sfv2ZjT1hLOVDmabjSoRISEBc7k8MtmNjogBBn+/OfEhKUU981i35fsoD
-         9Oje3pG00dKJZjTt95cuFFAOVap567CJbbon9hUW0Lzd3BjDyw0HR/D3wtbRZLm+k5
-         nQcXw0ITWEp95KJ7uwwhFnYJOvJZf2V6Q4Uu4wlc=
-Date:   Sun, 9 Feb 2020 14:58:05 -0500
+        b=tqvrtPhu4P5XZuax5IZbIg9/W454r+SqYJFLB16SfiqJtJHaCxoSYf7Qazzg00t1y
+         adM8T5gMDictVqgJVO434FWTRXgr87FwgAPtCIRUb0vH2CgDC0w+vy9Q8r51AZv8bU
+         lCBtE1Sz9tjunxt39E/rnyM1/4eG5onNLsYNf/x4=
+Date:   Sun, 9 Feb 2020 15:05:22 -0500
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
 Cc:     pbonzini@redhat.com, thomas.lendacky@amd.com,
         stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] KVM: x86: use CPUID to locate host page
  table reserved bits" failed to apply to 5.4-stable tree
-Message-ID: <20200209195805.GW3584@sasha-vm>
+Message-ID: <20200209200522.GX3584@sasha-vm>
 References: <158125147044100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -68,8 +68,7 @@ On Sun, Feb 09, 2020 at 01:31:10PM +0100, gregkh@linuxfoundation.org wrote:
 >Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
 >Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-For 5.4 it was just due to a file rename, I've fixed it and queued it
-up. 4.19 still needs a backport.
+I've fixed it up and queued for 5.4 and 4.19.
 
 -- 
 Thanks,
