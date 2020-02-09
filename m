@@ -2,99 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AA8156BC5
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 18:18:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 850A0156BC6
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 18:20:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727397AbgBIRSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 12:18:32 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:40382 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727406AbgBIRSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 12:18:31 -0500
-Received: by mail-lj1-f194.google.com with SMTP id n18so4453107ljo.7
-        for <stable@vger.kernel.org>; Sun, 09 Feb 2020 09:18:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=iX/Cwymqqdc137iwGo9GrIAl1+HtFCOAKUHk7azo7/w=;
-        b=sFUKdPO93vKYZEw/Ug0TorBuaULTB+Uw596VwGq84N61fjEmKVVtqeA1xgrFozmuU2
-         t4Hr906mncO3lEM4knNauRFkz7lxi9OkRW8vMUA4xKmPmMqg8PIDYE8orwi/XEA5P0pz
-         D70H67FMgivq0pq5Ra9CyBfYUfA4+HgOx8L1xi34ipbW+pkORxq4FAx6XUj4YwPmnfb5
-         oDm4Fm8O9SmqRSwPTzoQQaYEMA3heSsqggV3Nnu63ZDv/SoBa13svFvS8d1MflbOg4ix
-         5ff4rLLjpD3YlA5SkDC2t1QNgDcP3yNuOu3K8nq47bF2tsUKf6Il/Dka4R0t3M9kPHKd
-         zRMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iX/Cwymqqdc137iwGo9GrIAl1+HtFCOAKUHk7azo7/w=;
-        b=MWCJmfaEUtCLBbH1jk2k2SZbjenyeXkbUg+skOeySF6E0H/663qRfrjTtLhjmf1Ces
-         sM/zJ6gF1v+IV/yaYPTKq+w7RUrWcQbBVth23Llb3c5ITK97kPEDD0Nyu0QhW7XvExE1
-         w8Uh7U+VJMXV7cyHg9lk3NdZLO8xTLC6o6BADss+2pmqbc5rE2RIO+5s7MjFkALzi94a
-         WrFB4N/U9KfT7C4Ulg9H+PWKY7dvUtSSWKxAPLAnoIafpO+RAYMEcRgnQOEhRluFVnSc
-         SZZWDG0nrJ+ePQ608CBxuJp32lQj3Fzgao76x3DZT0FKJZnPE20/qeWEvHZ/M6fMYcOu
-         bIvw==
-X-Gm-Message-State: APjAAAWQgeXOP6DOuZYMKmtGKIMljk777obOR5a8e0J82M9OVbDpRWEZ
-        tD4YBAh3IQ5utQX+13R3MD++HCwzT1OjROoFTuq1yA==
-X-Google-Smtp-Source: APXvYqyERfzIRnh/UXfObLOmFk7HYzVxiDdS8MmtBaFvyP0yHM3y5rLzZkIaO0+sLLsBQtyMm6TQpLy5ZjyByBduyOA=
-X-Received: by 2002:a05:651c:414:: with SMTP id 20mr5307683lja.165.1581268708042;
- Sun, 09 Feb 2020 09:18:28 -0800 (PST)
+        id S1727406AbgBIRUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 12:20:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41828 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727388AbgBIRUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 12:20:22 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C855920715;
+        Sun,  9 Feb 2020 17:20:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581268822;
+        bh=SQxG9JHU7M0JpvNpGmW2KhG9/UKbFfZNFDTIRfHh9SY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ecNqKmiA2k5/aFCG1jn8RdI0C0jCLN3RVaiUtjlWWoga7KJ3cVf/jkbacFRZmMrBZ
+         fx2VpObGqG6IZbP8yoI3EvA+ZmYBGT3MpAIHknWIRORhIvZz82hiQN2BYp7BbznSMw
+         I5iGhfYoHNirkY7ayyDqE6O5FReuhnvPXToMlaU0=
+Date:   Sun, 9 Feb 2020 12:20:20 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     josef@toxicpanda.com, dsterba@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: free block groups after free'ing
+ fs trees" failed to apply to 5.4-stable tree
+Message-ID: <20200209172020.GF3584@sasha-vm>
+References: <1581247841121239@kroah.com>
 MIME-Version: 1.0
-References: <20191212013521.1689228-1-andriin@fb.com>
-In-Reply-To: <20191212013521.1689228-1-andriin@fb.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 9 Feb 2020 22:48:16 +0530
-Message-ID: <CA+G9fYtAQGwf=OoEvHwbJpitcfhpfhy-ar+6FRrWC_-ti7sUTg@mail.gmail.com>
-Subject: Re: [PATCH bpf-next 0/4] Fix perf_buffer creation on systems with
- offline CPUs
-To:     Andrii Nakryiko <andriin@fb.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     bpf <bpf@vger.kernel.org>, Netdev <netdev@vger.kernel.org>,
-        ast@fb.com, Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Kernel Team <kernel-team@fb.com>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1581247841121239@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Dec 2019 at 07:05, Andrii Nakryiko <andriin@fb.com> wrote:
+On Sun, Feb 09, 2020 at 12:30:41PM +0100, gregkh@linuxfoundation.org wrote:
 >
-> This patch set fixes perf_buffer__new() behavior on systems which have some of
-> the CPUs offline/missing (due to difference between "possible" and "online"
-> sets). perf_buffer will create per-CPU buffer and open/attach to corresponding
-> perf_event only on CPUs present and online at the moment of perf_buffer
-> creation. Without this logic, perf_buffer creation has no chances of
-> succeeding on such systems, preventing valid and correct BPF applications from
-> starting.
+>The patch below does not apply to the 5.4-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
 >
-> Andrii Nakryiko (4):
->   libbpf: extract and generalize CPU mask parsing logic
->   selftests/bpf: add CPU mask parsing tests
->   libbpf: don't attach perf_buffer to offline/missing CPUs
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 4e19443da1941050b346f8fc4c368aa68413bc88 Mon Sep 17 00:00:00 2001
+>From: Josef Bacik <josef@toxicpanda.com>
+>Date: Tue, 21 Jan 2020 09:17:06 -0500
+>Subject: [PATCH] btrfs: free block groups after free'ing fs trees
+>
+>Sometimes when running generic/475 we would trip the
+>WARN_ON(cache->reserved) check when free'ing the block groups on umount.
+>This is because sometimes we don't commit the transaction because of IO
+>errors and thus do not cleanup the tree logs until at umount time.
+>
+>These blocks are still reserved until they are cleaned up, but they
+>aren't cleaned up until _after_ we do the free block groups work.  Fix
+>this by moving the free after free'ing the fs roots, that way all of the
+>tree logs are cleaned up and we have a properly cleaned fs.  A bunch of
+>loops of generic/475 confirmed this fixes the problem.
+>
+>CC: stable@vger.kernel.org # 4.9+
+>Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+>Reviewed-by: David Sterba <dsterba@suse.com>
+>Signed-off-by: David Sterba <dsterba@suse.com>
 
-perf build failed on stable-rc 5.5 branch.
-
-libbpf.c: In function '__perf_buffer__new':
-libbpf.c:6159:8: error: implicit declaration of function
-'parse_cpu_mask_file'; did you mean 'parse_uint_from_file'?
-[-Werror=implicit-function-declaration]
-  err = parse_cpu_mask_file(online_cpus_file, &online, &n);
-        ^~~~~~~~~~~~~~~~~~~
-        parse_uint_from_file
-libbpf.c:6159:8: error: nested extern declaration of
-'parse_cpu_mask_file' [-Werror=nested-externs]
-
-build log,
-https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.5/DISTRO=lkft,MACHINE=hikey,label=docker-lkft/11/console
+I took 4273eaff9b8d ("btrfs: use bool argument in free_root_pointers()")
+too and queued both for 5.4-4.9.
 
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
+Sasha
