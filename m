@@ -2,61 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9CF156AE5
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 15:55:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 870E3156AF3
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 16:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727661AbgBIOzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 09:55:00 -0500
-Received: from sonic313-56.consmr.mail.ne1.yahoo.com ([66.163.185.31]:45894
-        "EHLO sonic313-56.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727514AbgBIOzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 09:55:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1581260099; bh=zI0m+DRhZDm01EKX+YHsQU600DuE8AwybL7Vu4lblwE=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Cw0DyaNDxMHzLkgPfJZrsTpqn4XedV/97YGPrUzn9+sujTFfjlmwwkx8N1gEKueqQCMs0SnhnDCY5xdX4dsW4XUUGA6qmmwBv4oLmdxLs8sFOFSiocxEIQMtP9oAgJVUnpvLZo0lyqS13VM5eUMP1W3o8VFlYMoPY/zeCzEZlpdMPA4bxwb/yfxN1nFHpF0RQcXwvtH1/A0E0TuuW/S8zVjFvBQSHEaAO4EInRxlOd5XZecSJnoXBD1RddgUr2TWJ52MuXWLmp+2lpp9Sj3C0VEf4Tq2EmgakcvE43wsOliVJO/ZUChKj+LmrDZWxGwBXiEe3LvWENOnwsGF7pRs8Q==
-X-YMail-OSG: D4L5ZUMVM1kX7aAvejykAM_f3zf6qOm87XuPkjFYgBtgHAGcdmaaW4q74J5dX1.
- dneaTfUgQ5BLMvMjdPki7hgU.djaAGcCPj5FfiXX19TSSFsDzrA7kABN70Pt2jzo6kuz05oIW7ZC
- Aycuf_Fet9NpMPEZ61k9I.3oWcr3yICBweaReOeao3RFSrYCqovx_4mP.VdvMnBlQl2QwZTp0dX7
- 1BFBDHMIlio9_9slEHct19Jc6CYBeM.Tcd3TTSw23_.pdZooH.M2PkL56coEKG2_A60b.hI0EyoM
- 2IhMpp1.SOMpSGy6uSLq0FWufKUbd81lon3C69t8Y9UvS9ixDVfxane4Luad4syjfwFC3wtvFpfm
- Dcs1ZL0rHM.UpGn6GKb_gDm3ezs4HhXI6Oe9JNShKN4kbQXTH8xxqDrk8KRzealmQZ_17L7mqGMQ
- HdHtc6kF1Uvb2l8MLdBnfy1PfHUdvHCvfK19KDuU3bVmhhGTpvFML6lJoVxAPYLNpe.Jgm0171fR
- hextr8_OZorS.1OOaB83XuU5VUalvM8Frxx58gg.Ly2qfzGSprFrFH0INAfZO8T0ZVpNpTdmyrvf
- 4AClrrZeK8Ua9syieYZEBeND.Avjn.q0rxsW6P5fgHju_HRD8n4wi61w4GLvRXaQSfkJ4cFkO4ab
- MflqSfaED0A94kVNRrUacJXxMEZZfJTEtqsRSTZt5uN4PWR8NXVseJqq7gOBEd8q2S6NRpnMFtSn
- FcJ6Z_FZGQx5KhWKQWkRu0.IC_KQA3hJpW2FDUx_wiLV9e2nmvXlflyYWqYRU638zTInGQi8Ri9K
- kRKK2R8T1z29aFCqBhkIPgkXmwW55pMdQO1k0EVlTRbXlapdTmszwaq9xcZfb56itF3gofjzAeUo
- 8FSMX3oI6eIwP9_OujqtSFUsi9iuXrhoCVGgwiKNd7pZ6yhrdiwcRz38vx4JcBkK80FSjLbKUi1F
- e6xWTclCyQMzfeeyhfbfTK6zhGkEj5XWK0gNVXdxRo.m8ypKS9PW2zuGp2CXgLh5bsc9iwwikJIv
- lsTNg3U5mdy1fWe7QYf5pwXujuvJSXOgxSItKBFfLqGQ5dcl3lYt1moXHHOLFFmNEwdS_yOq8ZzL
- qL.o8ZVYQwH4P15uoDdSKTZ.TjqWxsfmqtP_rN.fzeftfIC_SryVXsKCFRjfvCoAYr2d8PN9R2_Z
- OsXkvH4JRpuvwt2MauPQDAhROLZoZHLqmkXQ4X4skhMKMQldfGHaI0Mw1TTguxIu9uqULAdgKOBA
- TRcvQ9xZoDB_q6d8wZC.Rblmw9RKd104d_rVdgNEiaP3P8R6brjPFdvqfBQ2iZtzNRHrlk_un0uC
- W7mucuQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Sun, 9 Feb 2020 14:54:59 +0000
-Date:   Sun, 9 Feb 2020 14:54:58 +0000 (UTC)
-From:   Lisa Williams <wlisa2633@gmail.com>
-Reply-To: lisawilam@yahoo.com
-Message-ID: <1424333018.423971.1581260098616@mail.yahoo.com>
-Subject: Hi Dear
+        id S1727692AbgBIPLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 10:11:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44494 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727682AbgBIPLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 10:11:53 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FD1420733;
+        Sun,  9 Feb 2020 15:11:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581261112;
+        bh=FIlmFup55SO8y+55BY+G1BAjC194TWSe0Ksc8TzAEJI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Yl8T0TIZfzL/FffeylMkf3j/XcfW3i5Tr8xaF26b2ESYZruS/DbJ/poA0Ak5dFq/1
+         qv2lW4xgXKxrJnoPs1aboCsIo6+1i7YSXgDzuScx55jxRfbVo5+w4FnBOxkURp5Q1O
+         8cnHH+BDmraBwwnO5m0uXPesbIc5okDQruZd7uwQ=
+Date:   Sun, 9 Feb 2020 10:11:51 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     trondmy@gmail.com, Anna.Schumaker@Netapp.com, bcodding@redhat.com,
+        trond.myklebust@hammerspace.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] NFS: Fix memory leaks and corruption in
+ readdir" failed to apply to 4.9-stable tree
+Message-ID: <20200209151151.GA3584@sasha-vm>
+References: <158124745033180@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1424333018.423971.1581260098616.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15199 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:72.0) Gecko/20100101 Firefox/72.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <158124745033180@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Feb 09, 2020 at 12:24:10PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.9-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 4b310319c6a8ce708f1033d57145e2aa027a883c Mon Sep 17 00:00:00 2001
+>From: Trond Myklebust <trondmy@gmail.com>
+>Date: Sun, 2 Feb 2020 17:53:53 -0500
+>Subject: [PATCH] NFS: Fix memory leaks and corruption in readdir
+>
+>nfs_readdir_xdr_to_array() must not exit without having initialised
+>the array, so that the page cache deletion routines can safely
+>call nfs_readdir_clear_array().
+>Furthermore, we should ensure that if we exit nfs_readdir_filler()
+>with an error, we free up any page contents to prevent a leak
+>if we try to fill the page again.
+>
+>Fixes: 11de3b11e08c ("NFS: Fix a memory leak in nfs_readdir")
+>Cc: stable@vger.kernel.org # v2.6.37+
+>Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+>Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+>Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
+I also took b044f6451384 ("NFS: switch back to to ->iterate()") and
+queued both for 4.9 and 4.4.
 
-Hi Dear,
-
- How are you doing hope you are fine and OK?
-
-I was just going through the Internet search when I found your email address, I want to make a new and special friend, so I decided to contact you to see how we can make it work out if we can. Please I wish you will have the desire with me so that we can get to know each other better and see what happens in future.
-
-My name is Lisa Williams, I am an American, but presently I live in the UK, I will be glad to see your reply for us to know each other better to exchange pictures and details about us.
-
-Yours
-Lisa
+-- 
+Thanks,
+Sasha
