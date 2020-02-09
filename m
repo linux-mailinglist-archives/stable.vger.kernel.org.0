@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B197156C5F
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 21:22:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4295156C64
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 21:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727420AbgBIUV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 15:21:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41168 "EHLO mail.kernel.org"
+        id S1727404AbgBIUcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 15:32:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727416AbgBIUV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Feb 2020 15:21:59 -0500
+        id S1727409AbgBIUcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 15:32:42 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0DB5207FF;
-        Sun,  9 Feb 2020 20:21:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B29A207FF;
+        Sun,  9 Feb 2020 20:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581279718;
-        bh=DAIiZ1FeKjFZJRrjvW4ERJIBqsFExtCLkv7b+RM75uQ=;
+        s=default; t=1581280361;
+        bh=P/v7SK5fSzdNNM7h+0uqrnw/0mggqkG3IsZ47tZyNPU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xz4I4FEopAXqH2y0pzug4TRQAqrl3Ko2MKyY2EyKKtEZk5UbR8tAG7q0zbgivjG5j
-         MZ4tP9owzlClCZ92+b29WAfP+OCthRTaSxwYWMNNqUMQfICpR9F16uwYHR/Ud33NBi
-         xuj97SyxINp7YfHghRHKGgp8JVwE6Erbc21ivJj8=
-Date:   Sun, 9 Feb 2020 15:21:57 -0500
+        b=JjMqnWSocfuY09K62EXup8CrKqH9m8SE6y/hUrXeWWVMU9wkgYax654HMGLCvX0xQ
+         /AtbumIuJil/Y8GHaStCgerBKDtuwfDZalAl9BrkuB7lkjSm43mWB3oewTZjFijJE6
+         JWeL88c8JLLXHQPwuLFwB8NmSLTDSmJtkSTureag=
+Date:   Sun, 9 Feb 2020 15:32:40 -0500
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     pbonzini@redhat.com, bgardon@google.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: x86: fix overlap between
- SPTE_MMIO_MASK and generation" failed to apply to 5.4-stable tree
-Message-ID: <20200209202157.GB3584@sasha-vm>
-References: <1581251651184158@kroah.com>
+Cc:     linmiaohe@huawei.com, liran.alon@oracle.com, pbonzini@redhat.com,
+        sean.j.christopherson@intel.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: nVMX: vmread should not set rflags
+ to specify success in" failed to apply to 5.4-stable tree
+Message-ID: <20200209203240.GC3584@sasha-vm>
+References: <158125178414544@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1581251651184158@kroah.com>
+In-Reply-To: <158125178414544@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 09, 2020 at 01:34:11PM +0100, gregkh@linuxfoundation.org wrote:
+On Sun, Feb 09, 2020 at 01:36:24PM +0100, gregkh@linuxfoundation.org wrote:
 >
 >The patch below does not apply to the 5.4-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
@@ -54,27 +55,25 @@ On Sun, Feb 09, 2020 at 01:34:11PM +0100, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 56871d444bc4d7ea66708775e62e2e0926384dbc Mon Sep 17 00:00:00 2001
->From: Paolo Bonzini <pbonzini@redhat.com>
->Date: Sat, 18 Jan 2020 20:09:03 +0100
->Subject: [PATCH] KVM: x86: fix overlap between SPTE_MMIO_MASK and generation
+>From a4d956b9390418623ae5d07933e2679c68b6f83c Mon Sep 17 00:00:00 2001
+>From: Miaohe Lin <linmiaohe@huawei.com>
+>Date: Sat, 28 Dec 2019 14:25:24 +0800
+>Subject: [PATCH] KVM: nVMX: vmread should not set rflags to specify success in
+> case of #PF
 >
->The SPTE_MMIO_MASK overlaps with the bits used to track MMIO
->generation number.  A high enough generation number would overwrite the
->SPTE_SPECIAL_MASK region and cause the MMIO SPTE to be misinterpreted.
+>In case writing to vmread destination operand result in a #PF, vmread
+>should not call nested_vmx_succeed() to set rflags to specify success.
+>Similar to as done in VMPTRST (See handle_vmptrst()).
 >
->Likewise, setting bits 52 and 53 would also cause an incorrect generation
->number to be read from the PTE, though this was partially mitigated by the
->(useless if it weren't for the bug) removal of SPTE_SPECIAL_MASK from
->the spte in get_mmio_spte_generation.  Drop that removal, and replace
->it with a compile-time assertion.
->
->Fixes: 6eeb4ef049e7 ("KVM: x86: assign two bits to track SPTE kinds")
->Reported-by: Ben Gardon <bgardon@google.com>
+>Reviewed-by: Liran Alon <liran.alon@oracle.com>
+>Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
 >Cc: stable@vger.kernel.org
+>Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
 >Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Conflict due to file rename. I've fixed it up and queued up.
+Conflict because of missing c90f4d03cce1 ("kvm: nVMX: Aesthetic cleanup
+of handle_vmread and handle_vmwrite") on older kernels. Cleaned up and
+queued for 5.4-4.4.
 
 -- 
 Thanks,
