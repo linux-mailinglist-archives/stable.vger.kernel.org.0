@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C11BF156A3A
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 13:57:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43402156A3B
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 13:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727661AbgBIM5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 07:57:42 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:41493 "EHLO
+        id S1727682AbgBIM5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 07:57:51 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:56595 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727514AbgBIM5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 07:57:42 -0500
+        by vger.kernel.org with ESMTP id S1727514AbgBIM5v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 07:57:51 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 126B521AA4;
-        Sun,  9 Feb 2020 07:57:41 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 07:57:41 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id A691321AA4;
+        Sun,  9 Feb 2020 07:57:50 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 07:57:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EdqpuK
-        sVXHqIYFZiuYrJxwBfS4hwjHMU9ADwkAvZvLk=; b=tuyof6ORWg+ivLFXrexbw7
-        Ay5AZe4urGoGc4bG6aB2sP9n+UYVJmKD2gm6TB+w0Q02lDUEKW8mOnFrSELvjyFy
-        2EPTs/604PZFnXqgrDc6Rqja958bO6NVCrEhp1t7FrIqF4wC9he3pP1z5IAzHhyV
-        /f2ivzQiXMQ1qEwmxpWN0hzV8WcNb1HKJKIuEN33wH98oOYEDx8E0PLX8xKr0r99
-        Fc69DbjcgzeHxiR68j3gO7F5ZQZOYrcgWy8pz7oqZjqh7177jbzSB0uDE5L9k5Mn
-        /VN8jYeLnYKeH8j05cjBw6TLciJnlVjZS6Xf5c/reFEiR0HpxMyM42k8On9VUSOA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mIwUpj
+        G9VKSrexVopvPWjHy4Qzz9G77DbqTGOqaUvIw=; b=c6eBHuFuTR71snZt2r6ZkA
+        ACpCR91Eq4dAdwCA2RkAOH5HD7NqOILMzdEikPx3XJ7N9rN3S66bHZTjxPERs2Y3
+        uPtg/8QzbtpKtQu8BRCzvK1h1OSz+ijpTSnEVmMEcdkOeZ7O5GMZRVcfBwCjcsLZ
+        gREQ1fivyInWx86bcmp6poI1IG0RWeDgwCakR3rKd+dsSkD+ufZnddCirP+6rvls
+        ARgnocFNpp7HppkX/lbNI/790fYal8sCwuXVsx4SAHaA+JzVOkJeA6AAsI7TdCmJ
+        Kj7tgPVqIeMXXZx/KTjHTs3srwa66g9HmFiCt7IHSS6/1GIom9u7qCd5F7AXBtKw
         ==
-X-ME-Sender: <xms:xAFAXiKb1fqV-3Ys_DDyPBjgKiMKaAFGMFgfe2QTDbIav3kDXBDAJQ>
+X-ME-Sender: <xms:zgFAXgD1xYjsmaWObOhB4-vM6P4CfxPj7rREMRsv4Rlsi-rR_hoaHw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepvdenuc
+    qeenucfkphepfeekrdelkedrfeejrddufeehnecuvehluhhsthgvrhfuihiivgepfeenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:xAFAXmBskCxJ1_VvV8pEVkh_HRIdBEkvSs7-UUUwN7gsiHnA5z-5nQ>
-    <xmx:xAFAXvt_J7NvZ-C4pEj9dScVgQtZ95p3G2zffwnHKt6by6Dr5TwX1w>
-    <xmx:xAFAXsRqYid_j1RBhCe8IAlWmpIp2Mf_Ow1twdX8AFUNGA8Mu5yGCw>
-    <xmx:xQFAXhG2r-nK79zoCcX8J5oVBumKZrGAGh4AtR8L8ng2k6K00_ghMw>
+X-ME-Proxy: <xmx:zgFAXjZlqlHn6Cl81wPorwN6BkqYRCfMhKW63Lw8WxXJY60fK2HvQA>
+    <xmx:zgFAXnxHzPDLooZljU5iVoq84CqvRF2bmoGuze9eM4DyloRi3YYhfw>
+    <xmx:zgFAXplS2fY_5mI07KGuZ6PNiiZZvUtci1G79jlwZt8PEoVuq2GNEw>
+    <xmx:zgFAXmRQfg4NQLIxQlBERvd-IDtjMWIWj3wFSgQVg9ZwpP9hHUCX2A>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C09D0328005D;
-        Sun,  9 Feb 2020 07:57:39 -0500 (EST)
-Subject: FAILED: patch "[PATCH] NFS: Directory page cache pages need to be locked when read" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5F0453060272;
+        Sun,  9 Feb 2020 07:57:48 -0500 (EST)
+Subject: FAILED: patch "[PATCH] NFS: Directory page cache pages need to be locked when read" failed to apply to 4.4-stable tree
 To:     trondmy@gmail.com, Anna.Schumaker@Netapp.com, bcodding@redhat.com,
         trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:24:34 +0100
-Message-ID: <1581247474219231@kroah.com>
+Date:   Sun, 09 Feb 2020 12:24:35 +0100
+Message-ID: <158124747522521@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
