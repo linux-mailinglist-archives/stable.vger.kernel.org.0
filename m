@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D606F156A61
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F9BF156A62
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 14:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727631AbgBINDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 08:03:37 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:35883 "EHLO
+        id S1727650AbgBINDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 08:03:45 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42413 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727340AbgBINDh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:03:37 -0500
+        by vger.kernel.org with ESMTP id S1727340AbgBINDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 08:03:45 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4130A215B2;
-        Sun,  9 Feb 2020 08:03:36 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 94EF821368;
+        Sun,  9 Feb 2020 08:03:44 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:03:36 -0500
+  by compute6.internal (MEProxy); Sun, 09 Feb 2020 08:03:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iAs6Ds
-        1ZIUJmI1PdlNXqryuKIDd9QkU65D0pPlnOCeM=; b=KH3o6/oHfsOOXDaXZFUYxr
-        2YoELX/56Xq4eXdGvQoFDjD8LnS8Uo54oRHqmCVi0w2iyAHIfCStMYfYLk+v+ZFE
-        3ggBorJYdR81ykRTwB6jwBbywAS9D4vivYjbtggi7RCSNE/fxxFgOasthAs7Htvr
-        ARVYjNfbIMI36bi1Uz/HRavHa2aweXvv6uuztxdsK6r15x8Cqq/9H7Exo4Ct6f7h
-        ljoIhCCCpQLy4nWXsmYYujsQ3ambeaDn9FAowTyK501FW2b4NJsrG3rVIr0hTiGU
-        pZsqN0PDjC/ip+6/ns2FM384OrwSXh8qFlaU2lFl0JKHluabYSZfJu+q+5SciXqQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=oNmujB
+        5un+P0fW1FCN9OJnaBBj2xXWovcL6n15e94G4=; b=TCmf5SZBBWtpu/jgFxD35h
+        Nkb0EA819VmEA6ZImDTPM1PnZ5UALAQIEY02FLVr8sOyCrCwTKfMC6NVAvrj0xaj
+        rZkGWuPGDyRLDdRWyozx59A+TGQgjctY7+FvBqfmukljyy/PBPUc46meoAwi1VVN
+        dTVAzL/Tb8Z6t8KotTzty74sdpC0VbOyMwU191jLLtGk1JrW2v70I6ojjHIi2MWQ
+        f4R0p85ypkTw2dDU2WcWmKq/LUSComtnE1kBgqlyG+WZucpDqcAoQ2KKMatj4iEC
+        8lSLlUF/Ap7wKWgnqXeSbUAhyCPMPMec+Y0Xi82RHEFTnbzUm8VppuPfk8fqKDmQ
         ==
-X-ME-Sender: <xms:KANAXghbPfQ4y2GSJ6HkbVvfEbKp3X97d2wTRKZlJE6JgbHnoKc6pQ>
+X-ME-Sender: <xms:MANAXrrk16wlxsm_Og_uzx4RgPWW-MjyDgLFvNYRPkDS-quaQvx9wQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrheelgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepfeekrdelke
-    drfeejrddufeehnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpehmrghilhhf
+    drfeejrddufeehnecuvehluhhsthgvrhfuihiivgepieenucfrrghrrghmpehmrghilhhf
     rhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:KANAXtTnbZq-KKaWNDjxmbN12ByG7WRpe1JbSLkrbFUSPNC7MSI1qg>
-    <xmx:KANAXjEaL9CyMoV8dnGsFnAauAFad-Re2Vk1XAG5z8ZoAC6QBCRdGg>
-    <xmx:KANAXlk2wacfbeHnCRe02i07imIcAcWeQKCp1F4HfbPRJ-zU9hAClw>
-    <xmx:KANAXgHPL9LpmFjAhdqTd7Fj0MJj5FEopAXimsd2YFB96sEwQ0u0nQ>
+X-ME-Proxy: <xmx:MANAXj7yTmyUzjmaqZRRzFQtybiWdwRki1UY8xEkzzf_GFEXzjWrvw>
+    <xmx:MANAXiVcVSfcrhxWYaV6sQ7I5XOdi7vkW2GS3pTmcwIGdLSkXkfkXA>
+    <xmx:MANAXrTUH0giNtv6twPFBuQBzUn4wS00ogdmKG3kzZpn_lXkcGc7Rw>
+    <xmx:MANAXv4ZZce-Z8wxKt_Vw8f2i5xCLH6n53eDjVzFqg5WkL09hN13WQ>
 Received: from localhost (unknown [38.98.37.135])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E99B830606E9;
-        Sun,  9 Feb 2020 08:03:34 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/dp_mst: Remove VCPI while disabling topology mgr" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 209E430606FB;
+        Sun,  9 Feb 2020 08:03:43 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/dp_mst: Remove VCPI while disabling topology mgr" failed to apply to 4.19-stable tree
 To:     Wayne.Lin@amd.com, lyude@redhat.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Feb 2020 12:41:06 +0100
-Message-ID: <15812484664197@kroah.com>
+Date:   Sun, 09 Feb 2020 12:41:08 +0100
+Message-ID: <1581248468118156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
