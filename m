@@ -2,89 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93ED6156CB8
-	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 22:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 657F8156CC1
+	for <lists+stable@lfdr.de>; Sun,  9 Feb 2020 22:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726575AbgBIV3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 16:29:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37536 "EHLO mail.kernel.org"
+        id S1726626AbgBIVd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 16:33:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725906AbgBIV33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Feb 2020 16:29:29 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1726575AbgBIVd0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Feb 2020 16:33:26 -0500
+Received: from localhost (unknown [38.98.37.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2465020726;
-        Sun,  9 Feb 2020 21:29:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D2E720726;
+        Sun,  9 Feb 2020 21:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581283769;
-        bh=333a0iqIvpw7uaAO1dZ9y1/SXijvva+03F7OwgU5BDc=;
+        s=default; t=1581284006;
+        bh=gNhiN1TYJV8Z2RPWTla09+0vYfcdmkahombuy/n7Klw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wT4nQNSYX6s1RHXAd2olLnP9U44rDWK9Ekylyb8SzO80Fe2f1AaiNH2C9/8ivNiLL
-         bZj2T/Va1EbqIs6dAT1n1sO0vR6gBPgC+Z/Xlq2CENllBDr4Sj/H8HO66zZRYmqNuu
-         kVo9S02vd297iGq4Wa2dAmbgTlXXuYqvajdgtboM=
-Date:   Sun, 9 Feb 2020 16:29:28 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     sean.j.christopherson@intel.com, pbonzini@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: Play nice with read-only memslots
- when querying host" failed to apply to 5.5-stable tree
-Message-ID: <20200209212928.GE3584@sasha-vm>
-References: <158125181221109@kroah.com>
+        b=TWNY6BM71FfsNK8v7Wpjkl4ZU63yXChvk4iUdpaqhm5sggF0Cv5Cv1FN5S0uQHRw8
+         zfb6cjdVXiNjKeUJYeIAAhIFYHWEkeyvDG5//61I7p2rJCBVMq8fFz9idL9QcLV64O
+         Y9UyqqxdofX0gavY0rLV79z/06fp4SFWesIwEqgM=
+Date:   Sun, 9 Feb 2020 22:15:38 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ingo Molnar <mingo@kernel.org>
+Cc:     stable kernel team <stable@vger.kernel.org>
+Subject: Re: [tip-bot2@linutronix.de: [tip: x86/urgent] x86/timer: Don't skip
+ PIT setup when APIC is disabled or in legacy mode]
+Message-ID: <20200209211538.GA55369@kroah.com>
+References: <20200201093001.GB71555@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <158125181221109@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200201093001.GB71555@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 09, 2020 at 01:36:52PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.5-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 42cde48b2d39772dba47e680781a32a6c4b7dc33 Mon Sep 17 00:00:00 2001
->From: Sean Christopherson <sean.j.christopherson@intel.com>
->Date: Wed, 8 Jan 2020 12:24:38 -0800
->Subject: [PATCH] KVM: Play nice with read-only memslots when querying host
-> page size
->
->Avoid the "writable" check in __gfn_to_hva_many(), which will always fail
->on read-only memslots due to gfn_to_hva() assuming writes.  Functionally,
->this allows x86 to create large mappings for read-only memslots that
->are backed by HugeTLB mappings.
->
->Note, the changelog for commit 05da45583de9 ("KVM: MMU: large page
->support") states "If the largepage contains write-protected pages, a
->large pte is not used.", but "write-protected" refers to pages that are
->temporarily read-only, e.g. read-only memslots didn't even exist at the
->time.
->
->Fixes: 4d8b81abc47b ("KVM: introduce readonly memslot")
->Cc: stable@vger.kernel.org
->Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
->[Redone using kvm_vcpu_gfn_to_memslot_prot. - Paolo]
->Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+On Sat, Feb 01, 2020 at 10:30:01AM +0100, Ingo Molnar wrote:
+> 
+> hi Greg,
+> 
+> Wondering whether you could include 979923871f69a4 in -stable once it 
+> hits upstream - we forgot to tag it. Or should I track it myself and 
+> notify you once that happens?
 
-I'm not sure what was wrong with 5.5-4.14, it applied/built fine for me.
+Now queued up, thanks.
 
-For 4.9 and 4.4, it depends on f9b84e19221e ("KVM: Use vcpu-specific
-gva->hva translation when querying host page size") which wasn't
-backported that far, so this one should also be backported to 4.9 and
-4.4.
-
--- 
-Thanks,
-Sasha
+greg k-h
