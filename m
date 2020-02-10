@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9D41576CB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C841576CD
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730072AbgBJMls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730069AbgBJMls (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 07:41:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44720 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730063AbgBJMlq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728865AbgBJMlq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:41:46 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6EC62080C;
-        Mon, 10 Feb 2020 12:41:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E15921569;
+        Mon, 10 Feb 2020 12:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338505;
-        bh=kIFTEBfA3dx7yd2p+vy1SVGpsCsAblpfc3uwi/4hlZU=;
+        s=default; t=1581338506;
+        bh=dADVztZeb6G9viFvzKw+h3k0rY7ip4xnuV6dfLYV7rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7OqyRsRM9t6/mzuGBp2lHZdxnd5sXHdWjkAXY1mCWoWv/x/TRPYlUR8enMB3TJYK
-         paHE0KvsXU0ILlYBAjioVm/oCJfgfImZ3KJWuNwmWafXTcvwrJNjsoTmRaeR1d182Z
-         CD7wYRUD17MJvmKKbVnmbijNcIezQQ+tLdkpGuXo=
+        b=EKO1JyDHT7P0za7AX9yRn3shCCzucJN2CbHDXI9gd1L8ioRCmENLPKE8ooN68zuNu
+         7uyA65Hbw8+0Qpmf0S/MOtVkKtKPVgEt2p0wSbFxouZuXaC0b4/jtNRNXYYKoWRONC
+         718XN1rK8ocEo2UDsyLZPpdLXw1EiAMVwvrM932c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
         Fabio Estevam <festevam@gmail.com>,
         Igor Opaniuk <igor.opaniuk@toradex.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
         Marcel Ziswiler <marcel.ziswiler@toradex.com>,
         Mark Brown <broonie@kernel.org>,
         Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Subject: [PATCH 5.5 306/367] regulator: core: Add regulator_is_equal() helper
-Date:   Mon, 10 Feb 2020 04:33:39 -0800
-Message-Id: <20200210122451.675961231@linuxfoundation.org>
+Subject: [PATCH 5.5 307/367] ASoC: sgtl5000: Fix VDDA and VDDIO comparison
+Date:   Mon, 10 Feb 2020 04:33:40 -0800
+Message-Id: <20200210122451.742375489@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -50,77 +49,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-commit b059b7e0ec3208ff1e17cff6387d75a9fbab4e02 upstream.
+commit e19ecbf105b236a6334fab64d8fd5437b12ee019 upstream.
 
-Add regulator_is_equal() helper to compare whether two regulators are
-the same. This is useful for checking whether two separate regulators
-in a driver are actually the same supply.
+Comparing the voltage of VDDA and VDDIO to determine whether or not to
+enable VDDC manual override is insufficient. This is a problem in case
+the VDDA is supplied from different regulator than VDDIO, while both
+report the same voltage to the regulator framework. In that case where
+VDDA and VDDIO is supplied by different regulators, the VDDC manual
+override must not be applied.
 
+Fixes: b6319b061ba2 ("ASoC: sgtl5000: Fix charge pump source assignment")
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Fabio Estevam <festevam@gmail.com>
 Cc: Igor Opaniuk <igor.opaniuk@toradex.com>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
 Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
 Cc: Mark Brown <broonie@kernel.org>
 Cc: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Link: https://lore.kernel.org/r/20191220164450.1395038-1-marex@denx.de
+Link: https://lore.kernel.org/r/20191220164450.1395038-2-marex@denx.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/helpers.c        |   14 ++++++++++++++
- include/linux/regulator/consumer.h |    7 +++++++
- 2 files changed, 21 insertions(+)
+ sound/soc/codecs/sgtl5000.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/regulator/helpers.c
-+++ b/drivers/regulator/helpers.c
-@@ -13,6 +13,8 @@
- #include <linux/regulator/driver.h>
- #include <linux/module.h>
- 
-+#include "internal.h"
-+
- /**
-  * regulator_is_enabled_regmap - standard is_enabled() for regmap users
-  *
-@@ -881,3 +883,15 @@ void regulator_bulk_set_supply_names(str
- 		consumers[i].supply = supply_names[i];
- }
- EXPORT_SYMBOL_GPL(regulator_bulk_set_supply_names);
-+
-+/**
-+ * regulator_is_equal - test whether two regulators are the same
-+ *
-+ * @reg1: first regulator to operate on
-+ * @reg2: second regulator to operate on
-+ */
-+bool regulator_is_equal(struct regulator *reg1, struct regulator *reg2)
-+{
-+	return reg1->rdev == reg2->rdev;
-+}
-+EXPORT_SYMBOL_GPL(regulator_is_equal);
---- a/include/linux/regulator/consumer.h
-+++ b/include/linux/regulator/consumer.h
-@@ -287,6 +287,8 @@ void regulator_bulk_set_supply_names(str
- 				     const char *const *supply_names,
- 				     unsigned int num_supplies);
- 
-+bool regulator_is_equal(struct regulator *reg1, struct regulator *reg2);
-+
- #else
- 
- /*
-@@ -593,6 +595,11 @@ regulator_bulk_set_supply_names(struct r
- {
- }
- 
-+static inline bool
-+regulator_is_equal(struct regulator *reg1, struct regulator *reg2);
-+{
-+	return false;
-+}
- #endif
- 
- static inline int regulator_set_voltage_triplet(struct regulator *regulator,
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1344,7 +1344,8 @@ static int sgtl5000_set_power_regs(struc
+ 		 * if vddio == vdda the source of charge pump should be
+ 		 * assigned manually to VDDIO
+ 		 */
+-		if (vddio == vdda) {
++		if (regulator_is_equal(sgtl5000->supplies[VDDA].consumer,
++				       sgtl5000->supplies[VDDIO].consumer)) {
+ 			lreg_ctrl |= SGTL5000_VDDC_ASSN_OVRD;
+ 			lreg_ctrl |= SGTL5000_VDDC_MAN_ASSN_VDDIO <<
+ 				    SGTL5000_VDDC_MAN_ASSN_SHIFT;
 
 
