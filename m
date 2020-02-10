@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73390157C72
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:37:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75784157C6D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727618AbgBJNhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:37:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51130 "EHLO mail.kernel.org"
+        id S1727604AbgBJMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:35:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727587AbgBJMfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727594AbgBJMfB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:35:01 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 862D820873;
-        Mon, 10 Feb 2020 12:34:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BFB1208C4;
+        Mon, 10 Feb 2020 12:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338099;
-        bh=iW2erDbgdHRSyYnWrC6Cbf3Cy5uDHy6bDSkEM2YR5mw=;
+        s=default; t=1581338100;
+        bh=VGnV3/lfouC4/jrWkmn86cxsPGl55+xsY7xkBTgO0Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZyfcLKVk/3TBlBpS80Z1E5xoAqbKUjQAZJocWAyh2CF92lEgbTMp23xXLzazq+Ev
-         1mPsvaXCjHpjM83ZY5RiHKjuOK4EHpExX35FcMQUJbowTtGbc0fls1IMaXcb8Nby5k
-         m/XLzdyOD9/igN5dyALhXnm2A5/Lo7sAhTWA5DHo=
+        b=tNuggxqxKu0VPGYFcY8EApGxHDdPgaazl7boOxSeitzBLVhoKS3O3ABzKk/gIzqAi
+         5tUwFaoCErRuSsQaGOvPjU9019MIaSVYdasXmDB5upA7EUEfLOE0zcC36FYM1Nd6CL
+         qhLSFTQ7oAyVOhkihPXxuH4u1PCEntqLf+4Od7Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+35d4dea36c387813ed31@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 015/195] net_sched: fix an OOB access in cls_tcindex
-Date:   Mon, 10 Feb 2020 04:31:13 -0800
-Message-Id: <20200210122307.161447010@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 016/195] net: stmmac: Delete txtimer in suspend()
+Date:   Mon, 10 Feb 2020 04:31:14 -0800
+Message-Id: <20200210122307.262390222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -49,100 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-[ Upstream commit 599be01ee567b61f4471ee8078870847d0a11e8e ]
+[ Upstream commit 14b41a2959fbaa50932699d32ceefd6643abacc6 ]
 
-As Eric noticed, tcindex_alloc_perfect_hash() uses cp->hash
-to compute the size of memory allocation, but cp->hash is
-set again after the allocation, this caused an out-of-bound
-access.
+When running v5.5 with a rootfs on NFS, memory abort may happen in
+the system resume stage:
+ Unable to handle kernel paging request at virtual address dead00000000012a
+ [dead00000000012a] address between user and kernel address ranges
+ pc : run_timer_softirq+0x334/0x3d8
+ lr : run_timer_softirq+0x244/0x3d8
+ x1 : ffff800011cafe80 x0 : dead000000000122
+ Call trace:
+  run_timer_softirq+0x334/0x3d8
+  efi_header_end+0x114/0x234
+  irq_exit+0xd0/0xd8
+  __handle_domain_irq+0x60/0xb0
+  gic_handle_irq+0x58/0xa8
+  el1_irq+0xb8/0x180
+  arch_cpu_idle+0x10/0x18
+  do_idle+0x1d8/0x2b0
+  cpu_startup_entry+0x24/0x40
+  secondary_start_kernel+0x1b4/0x208
+ Code: f9000693 a9400660 f9000020 b4000040 (f9000401)
+ ---[ end trace bb83ceeb4c482071 ]---
+ Kernel panic - not syncing: Fatal exception in interrupt
+ SMP: stopping secondary CPUs
+ SMP: failed to stop secondary CPUs 2-3
+ Kernel Offset: disabled
+ CPU features: 0x00002,2300aa30
+ Memory Limit: none
+ ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
 
-So we have to move all cp->hash initialization and computation
-before the memory allocation. Move cp->mask and cp->shift together
-as cp->hash may need them for computation too.
+It's found that stmmac_xmit() and stmmac_resume() sometimes might
+run concurrently, possibly resulting in a race condition between
+mod_timer() and setup_timer(), being called by stmmac_xmit() and
+stmmac_resume() respectively.
 
-Reported-and-tested-by: syzbot+35d4dea36c387813ed31@syzkaller.appspotmail.com
-Fixes: 331b72922c5f ("net: sched: RCU cls_tcindex")
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since the resume() runs setup_timer() every time, it'd be safer to
+have del_timer_sync() in the suspend() as the counterpart.
+
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_tcindex.c |   40 ++++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -333,12 +333,31 @@ tcindex_set_parms(struct net *net, struc
- 	cp->fall_through = p->fall_through;
- 	cp->tp = tp;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4513,6 +4513,7 @@ int stmmac_suspend(struct device *dev)
+ {
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct stmmac_priv *priv = netdev_priv(ndev);
++	u32 chan;
  
-+	if (tb[TCA_TCINDEX_HASH])
-+		cp->hash = nla_get_u32(tb[TCA_TCINDEX_HASH]);
+ 	if (!ndev || !netif_running(ndev))
+ 		return 0;
+@@ -4527,6 +4528,9 @@ int stmmac_suspend(struct device *dev)
+ 
+ 	stmmac_disable_all_queues(priv);
+ 
++	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
++		del_timer_sync(&priv->tx_queue[chan].txtimer);
 +
-+	if (tb[TCA_TCINDEX_MASK])
-+		cp->mask = nla_get_u16(tb[TCA_TCINDEX_MASK]);
-+
-+	if (tb[TCA_TCINDEX_SHIFT])
-+		cp->shift = nla_get_u32(tb[TCA_TCINDEX_SHIFT]);
-+
-+	if (!cp->hash) {
-+		/* Hash not specified, use perfect hash if the upper limit
-+		 * of the hashing index is below the threshold.
-+		 */
-+		if ((cp->mask >> cp->shift) < PERFECT_HASH_THRESHOLD)
-+			cp->hash = (cp->mask >> cp->shift) + 1;
-+		else
-+			cp->hash = DEFAULT_HASH_SIZE;
-+	}
-+
- 	if (p->perfect) {
- 		int i;
- 
- 		if (tcindex_alloc_perfect_hash(net, cp) < 0)
- 			goto errout;
--		for (i = 0; i < cp->hash; i++)
-+		for (i = 0; i < min(cp->hash, p->hash); i++)
- 			cp->perfect[i].res = p->perfect[i].res;
- 		balloc = 1;
- 	}
-@@ -350,15 +369,6 @@ tcindex_set_parms(struct net *net, struc
- 	if (old_r)
- 		cr = r->res;
- 
--	if (tb[TCA_TCINDEX_HASH])
--		cp->hash = nla_get_u32(tb[TCA_TCINDEX_HASH]);
--
--	if (tb[TCA_TCINDEX_MASK])
--		cp->mask = nla_get_u16(tb[TCA_TCINDEX_MASK]);
--
--	if (tb[TCA_TCINDEX_SHIFT])
--		cp->shift = nla_get_u32(tb[TCA_TCINDEX_SHIFT]);
--
- 	err = -EBUSY;
- 
- 	/* Hash already allocated, make sure that we still meet the
-@@ -376,16 +386,6 @@ tcindex_set_parms(struct net *net, struc
- 	if (tb[TCA_TCINDEX_FALL_THROUGH])
- 		cp->fall_through = nla_get_u32(tb[TCA_TCINDEX_FALL_THROUGH]);
- 
--	if (!cp->hash) {
--		/* Hash not specified, use perfect hash if the upper limit
--		 * of the hashing index is below the threshold.
--		 */
--		if ((cp->mask >> cp->shift) < PERFECT_HASH_THRESHOLD)
--			cp->hash = (cp->mask >> cp->shift) + 1;
--		else
--			cp->hash = DEFAULT_HASH_SIZE;
--	}
--
- 	if (!cp->perfect && !cp->h)
- 		cp->alloc_hash = cp->hash;
+ 	/* Stop TX/RX DMA */
+ 	stmmac_stop_all_dma(priv);
  
 
 
