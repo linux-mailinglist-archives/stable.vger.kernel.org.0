@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 821CB157A83
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D74591577CA
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728685AbgBJNXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:23:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
+        id S1729497AbgBJNCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:02:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728674AbgBJMhO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:14 -0500
+        id S1729754AbgBJMkd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:33 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 521942168B;
-        Mon, 10 Feb 2020 12:37:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C06120842;
+        Mon, 10 Feb 2020 12:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338233;
-        bh=4TGeChPRyuXFUV3+vhkYhou0tkrHrIcyRXRDdoN1aAY=;
+        s=default; t=1581338433;
+        bh=Ass9Qglo5YTankLhHR3RLmxch4QTiOoSFpOhVzRIISk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWhLKmExfy+Pew4auNElnT3mfZr6YZQX26bYh8b45ryT6pVjGNMvUyXbTCN0CS/xH
-         FfHCuMuqSM1mMOTgq1pLvUYmGCU63rzqruBBqlxQh9U93d3+i8SiMN7vQEi5M9s3yp
-         Z2XlflOcb7PSUjjQVYyk+TOMWCZdIfbExGOrLA/o=
+        b=N4cTdnlaU3Ovhh8fb7BiyvhEWOgP1rrYZGB9b+BMVeDGbU6oS0+HmPzb8D+36gwi7
+         t0QZaX7ja9VxF+8QkvhMfE9efKTc9XIKINF0Htvc48nFOgF0IlYLexbG3R2cEeuSUH
+         e5V73vBXmiauOFG7pCLzz2RBoA5zRTFeedgZB4zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 078/309] powerpc/32s: Fix bad_kuap_fault()
-Date:   Mon, 10 Feb 2020 04:30:34 -0800
-Message-Id: <20200210122413.337153415@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.5 122/367] scripts/find-unused-docs: Fix massive false positives
+Date:   Mon, 10 Feb 2020 04:30:35 -0800
+Message-Id: <20200210122436.041153823@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 6ec20aa2e510b6297906c45f009aa08b2d97269a upstream.
+commit 1630146db2111412e7524d05d812ff8f2c75977e upstream.
 
-At the moment, bad_kuap_fault() reports a fault only if a bad access
-to userspace occurred while access to userspace was not granted.
+scripts/find-unused-docs.sh invokes scripts/kernel-doc to find out if a
+source file contains kerneldoc or not.
 
-But if a fault occurs for a write outside the allowed userspace
-segment(s) that have been unlocked, bad_kuap_fault() fails to
-detect it and the kernel loops forever in do_page_fault().
+However, as it passes the no longer supported "-text" option to
+scripts/kernel-doc, the latter prints out its help text, causing all
+files to be considered containing kerneldoc.
 
-Fix it by checking that the accessed address is within the allowed
-range.
+Get rid of these false positives by removing the no longer supported
+"-text" option from the scripts/kernel-doc invocation.
 
-Fixes: a68c31fc01ef ("powerpc/32s: Implement Kernel Userspace Access Protection")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/f48244e9485ada0a304ed33ccbb8da271180c80d.1579866752.git.christophe.leroy@c-s.fr
+Cc: stable@vger.kernel.org  # 4.16+
+Fixes: b05142675310d2ac ("scripts: kernel-doc: get rid of unused output formats")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200127093107.26401-1-geert+renesas@glider.be
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/book3s/32/kup.h       |    9 +++++++--
- arch/powerpc/include/asm/book3s/64/kup-radix.h |    3 ++-
- arch/powerpc/include/asm/kup.h                 |    6 +++++-
- arch/powerpc/include/asm/nohash/32/kup-8xx.h   |    3 ++-
- arch/powerpc/mm/fault.c                        |    2 +-
- 5 files changed, 17 insertions(+), 6 deletions(-)
+ scripts/find-unused-docs.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/book3s/32/kup.h
-+++ b/arch/powerpc/include/asm/book3s/32/kup.h
-@@ -131,12 +131,17 @@ static inline void prevent_user_access(v
- 	kuap_update_sr(mfsrin(addr) | SR_KS, addr, end);	/* set Ks */
- }
- 
--static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write)
-+static inline bool
-+bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
- {
-+	unsigned long begin = regs->kuap & 0xf0000000;
-+	unsigned long end = regs->kuap << 28;
-+
- 	if (!is_write)
- 		return false;
- 
--	return WARN(!regs->kuap, "Bug: write fault blocked by segment registers !");
-+	return WARN(address < begin || address >= end,
-+		    "Bug: write fault blocked by segment registers !");
- }
- 
- #endif /* CONFIG_PPC_KUAP */
---- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-@@ -95,7 +95,8 @@ static inline void prevent_user_access(v
- 	set_kuap(AMR_KUAP_BLOCKED);
- }
- 
--static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write)
-+static inline bool
-+bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
- {
- 	return WARN(mmu_has_feature(MMU_FTR_RADIX_KUAP) &&
- 		    (regs->kuap & (is_write ? AMR_KUAP_BLOCK_WRITE : AMR_KUAP_BLOCK_READ)),
---- a/arch/powerpc/include/asm/kup.h
-+++ b/arch/powerpc/include/asm/kup.h
-@@ -45,7 +45,11 @@ static inline void allow_user_access(voi
- 				     unsigned long size) { }
- static inline void prevent_user_access(void __user *to, const void __user *from,
- 				       unsigned long size) { }
--static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write) { return false; }
-+static inline bool
-+bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
-+{
-+	return false;
-+}
- #endif /* CONFIG_PPC_KUAP */
- 
- static inline void allow_read_from_user(const void __user *from, unsigned long size)
---- a/arch/powerpc/include/asm/nohash/32/kup-8xx.h
-+++ b/arch/powerpc/include/asm/nohash/32/kup-8xx.h
-@@ -45,7 +45,8 @@ static inline void prevent_user_access(v
- 	mtspr(SPRN_MD_AP, MD_APG_KUAP);
- }
- 
--static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write)
-+static inline bool
-+bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
- {
- 	return WARN(!((regs->kuap ^ MD_APG_KUAP) & 0xf0000000),
- 		    "Bug: fault blocked by AP register !");
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -233,7 +233,7 @@ static bool bad_kernel_fault(struct pt_r
- 
- 	// Read/write fault in a valid region (the exception table search passed
- 	// above), but blocked by KUAP is bad, it can never succeed.
--	if (bad_kuap_fault(regs, is_write))
-+	if (bad_kuap_fault(regs, address, is_write))
- 		return true;
- 
- 	// What's left? Kernel fault on user in well defined regions (extable
+--- a/scripts/find-unused-docs.sh
++++ b/scripts/find-unused-docs.sh
+@@ -54,7 +54,7 @@ for file in `find $1 -name '*.c'`; do
+ 	if [[ ${FILES_INCLUDED[$file]+_} ]]; then
+ 	continue;
+ 	fi
+-	str=$(scripts/kernel-doc -text -export "$file" 2>/dev/null)
++	str=$(scripts/kernel-doc -export "$file" 2>/dev/null)
+ 	if [[ -n "$str" ]]; then
+ 	echo "$file"
+ 	fi
 
 
