@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFA31574A0
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:34:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 626DA1574FB
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727079AbgBJMe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:34:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
+        id S1728787AbgBJMhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:37:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726796AbgBJMe6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:34:58 -0500
+        id S1728781AbgBJMhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:31 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A2F1208C3;
-        Mon, 10 Feb 2020 12:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86EF120842;
+        Mon, 10 Feb 2020 12:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338097;
-        bh=zI3FjhTKtppzFs/Jqwl5BCcFUovYZrWJ5RyzsJUbedY=;
+        s=default; t=1581338250;
+        bh=w5A4eA5jMsXvzpUtja3e+W6Wm1p/u6dChInaxePgKbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLFGtq1x3FQXcoq9u4sW43hAeKyZAFafGzcwMbo+SU6pCtEm1wvC+KUvxC9kM/ir3
-         DqgwJ4eCy7k606IdATcGI3i1JXbp5erze5Nv6Nh04W+o9iTE/Tj+3ZDjDRL8zpr+7F
-         OI9wn7aDMxWaISxYnHh4bdZX4K/t/5oepije291A=
+        b=ZZlT9adks7Y9kbNi2LIw0vjiFYZFbQpjNL+LXVjQGz69UXsTuIw9Ueib4Ozrp7XB4
+         9EUEteJmIEd0rhN5LC1GLmLrcsxxKpU/dhnyCkBi9825QAK9pazRfz/RbpEINhVA4m
+         dtnHh1VVCwCQtVELktjzZr2SE1Y2nTKZ7OtSxISU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 011/195] cls_rsvp: fix rsvp_policy
+        stable@vger.kernel.org, Thomas Renninger <trenn@suse.de>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.4 113/309] cpupower: Revert library ABI changes from commit ae2917093fb60bdc1ed3e
 Date:   Mon, 10 Feb 2020 04:31:09 -0800
-Message-Id: <20200210122306.847147829@linuxfoundation.org>
+Message-Id: <20200210122417.442063112@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +43,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Thomas Renninger <trenn@suse.de>
 
-[ Upstream commit cb3c0e6bdf64d0d124e94ce43cbe4ccbb9b37f51 ]
+commit 41ddb7e1f79693d904502ae9bea609837973eff8 upstream.
 
-NLA_BINARY can be confusing, since .len value represents
-the max size of the blob.
+Commit ae2917093fb6 ("tools/power/cpupower: Display boost frequency
+separately") modified the library function:
 
-cls_rsvp really wants user space to provide long enough data
-for TCA_RSVP_DST and TCA_RSVP_SRC attributes.
+struct cpufreq_available_frequencies
+*cpufreq_get_available_frequencies(unsigned int cpu)
 
-BUG: KMSAN: uninit-value in rsvp_get net/sched/cls_rsvp.h:258 [inline]
-BUG: KMSAN: uninit-value in gen_handle net/sched/cls_rsvp.h:402 [inline]
-BUG: KMSAN: uninit-value in rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
-CPU: 1 PID: 13228 Comm: syz-executor.1 Not tainted 5.5.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- rsvp_get net/sched/cls_rsvp.h:258 [inline]
- gen_handle net/sched/cls_rsvp.h:402 [inline]
- rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
- tc_new_tfilter+0x31fe/0x5010 net/sched/cls_api.c:2104
- rtnetlink_rcv_msg+0xcb7/0x1570 net/core/rtnetlink.c:5415
- netlink_rcv_skb+0x451/0x650 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5442
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0xf9e/0x1100 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x1248/0x14d0 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg net/socket.c:659 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
- ___sys_sendmsg net/socket.c:2384 [inline]
- __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45b349
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f269d43dc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f269d43e6d4 RCX: 000000000045b349
-RDX: 0000000000000000 RSI: 00000000200001c0 RDI: 0000000000000003
-RBP: 000000000075bfc8 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00000000000009c2 R14: 00000000004cb338 R15: 000000000075bfd4
+to
+struct cpufreq_frequencies
+*cpufreq_get_frequencies(const char *type, unsigned int cpu)
 
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2774 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4382
- __kmalloc_reserve net/core/skbuff.c:141 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:209
- alloc_skb include/linux/skbuff.h:1049 [inline]
- netlink_alloc_large_skb net/netlink/af_netlink.c:1174 [inline]
- netlink_sendmsg+0x7d3/0x14d0 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg net/socket.c:659 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
- ___sys_sendmsg net/socket.c:2384 [inline]
- __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This patch recovers the old API and implements the new functionality
+in a newly introduce method:
+struct cpufreq_boost_frequencies
+*cpufreq_get_available_frequencies(unsigned int cpu)
 
-Fixes: 6fa8c0144b77 ("[NET_SCHED]: Use nla_policy for attribute validation in classifiers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This one should get merged into stable kernels back to 5.0 when
+the above had been introduced.
+
+Fixes: ae2917093fb6 ("tools/power/cpupower: Display boost frequency separately")
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Renninger <trenn@suse.de>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_rsvp.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/sched/cls_rsvp.h
-+++ b/net/sched/cls_rsvp.h
-@@ -466,10 +466,8 @@ static u32 gen_tunnel(struct rsvp_head *
+---
+ tools/power/cpupower/lib/cpufreq.c        |   78 ++++++++++++++++++++++++++----
+ tools/power/cpupower/lib/cpufreq.h        |   20 +++++--
+ tools/power/cpupower/utils/cpufreq-info.c |   12 ++--
+ 3 files changed, 87 insertions(+), 23 deletions(-)
+
+--- a/tools/power/cpupower/lib/cpufreq.c
++++ b/tools/power/cpupower/lib/cpufreq.c
+@@ -332,21 +332,74 @@ void cpufreq_put_available_governors(str
+ }
  
- static const struct nla_policy rsvp_policy[TCA_RSVP_MAX + 1] = {
- 	[TCA_RSVP_CLASSID]	= { .type = NLA_U32 },
--	[TCA_RSVP_DST]		= { .type = NLA_BINARY,
--				    .len = RSVP_DST_LEN * sizeof(u32) },
--	[TCA_RSVP_SRC]		= { .type = NLA_BINARY,
--				    .len = RSVP_DST_LEN * sizeof(u32) },
-+	[TCA_RSVP_DST]		= { .len = RSVP_DST_LEN * sizeof(u32) },
-+	[TCA_RSVP_SRC]		= { .len = RSVP_DST_LEN * sizeof(u32) },
- 	[TCA_RSVP_PINFO]	= { .len = sizeof(struct tc_rsvp_pinfo) },
+ 
+-struct cpufreq_frequencies
+-*cpufreq_get_frequencies(const char *type, unsigned int cpu)
++struct cpufreq_available_frequencies
++*cpufreq_get_available_frequencies(unsigned int cpu)
+ {
+-	struct cpufreq_frequencies *first = NULL;
+-	struct cpufreq_frequencies *current = NULL;
++	struct cpufreq_available_frequencies *first = NULL;
++	struct cpufreq_available_frequencies *current = NULL;
+ 	char one_value[SYSFS_PATH_MAX];
+ 	char linebuf[MAX_LINE_LEN];
+-	char fname[MAX_LINE_LEN];
+ 	unsigned int pos, i;
+ 	unsigned int len;
+ 
+-	snprintf(fname, MAX_LINE_LEN, "scaling_%s_frequencies", type);
++	len = sysfs_cpufreq_read_file(cpu, "scaling_available_frequencies",
++				      linebuf, sizeof(linebuf));
++	if (len == 0)
++		return NULL;
++
++	pos = 0;
++	for (i = 0; i < len; i++) {
++		if (linebuf[i] == ' ' || linebuf[i] == '\n') {
++			if (i - pos < 2)
++				continue;
++			if (i - pos >= SYSFS_PATH_MAX)
++				goto error_out;
++			if (current) {
++				current->next = malloc(sizeof(*current));
++				if (!current->next)
++					goto error_out;
++				current = current->next;
++			} else {
++				first = malloc(sizeof(*first));
++				if (!first)
++					goto error_out;
++				current = first;
++			}
++			current->first = first;
++			current->next = NULL;
++
++			memcpy(one_value, linebuf + pos, i - pos);
++			one_value[i - pos] = '\0';
++			if (sscanf(one_value, "%lu", &current->frequency) != 1)
++				goto error_out;
++
++			pos = i + 1;
++		}
++	}
++
++	return first;
++
++ error_out:
++	while (first) {
++		current = first->next;
++		free(first);
++		first = current;
++	}
++	return NULL;
++}
+ 
+-	len = sysfs_cpufreq_read_file(cpu, fname,
+-				linebuf, sizeof(linebuf));
++struct cpufreq_available_frequencies
++*cpufreq_get_boost_frequencies(unsigned int cpu)
++{
++	struct cpufreq_available_frequencies *first = NULL;
++	struct cpufreq_available_frequencies *current = NULL;
++	char one_value[SYSFS_PATH_MAX];
++	char linebuf[MAX_LINE_LEN];
++	unsigned int pos, i;
++	unsigned int len;
++
++	len = sysfs_cpufreq_read_file(cpu, "scaling_boost_frequencies",
++				      linebuf, sizeof(linebuf));
+ 	if (len == 0)
+ 		return NULL;
+ 
+@@ -391,9 +444,9 @@ struct cpufreq_frequencies
+ 	return NULL;
+ }
+ 
+-void cpufreq_put_frequencies(struct cpufreq_frequencies *any)
++void cpufreq_put_available_frequencies(struct cpufreq_available_frequencies *any)
+ {
+-	struct cpufreq_frequencies *tmp, *next;
++	struct cpufreq_available_frequencies *tmp, *next;
+ 
+ 	if (!any)
+ 		return;
+@@ -406,6 +459,11 @@ void cpufreq_put_frequencies(struct cpuf
+ 	}
+ }
+ 
++void cpufreq_put_boost_frequencies(struct cpufreq_available_frequencies *any)
++{
++	cpufreq_put_available_frequencies(any);
++}
++
+ static struct cpufreq_affected_cpus *sysfs_get_cpu_list(unsigned int cpu,
+ 							const char *file)
+ {
+--- a/tools/power/cpupower/lib/cpufreq.h
++++ b/tools/power/cpupower/lib/cpufreq.h
+@@ -20,10 +20,10 @@ struct cpufreq_available_governors {
+ 	struct cpufreq_available_governors *first;
  };
  
+-struct cpufreq_frequencies {
++struct cpufreq_available_frequencies {
+ 	unsigned long frequency;
+-	struct cpufreq_frequencies *next;
+-	struct cpufreq_frequencies *first;
++	struct cpufreq_available_frequencies *next;
++	struct cpufreq_available_frequencies *first;
+ };
+ 
+ 
+@@ -124,11 +124,17 @@ void cpufreq_put_available_governors(
+  * cpufreq_put_frequencies after use.
+  */
+ 
+-struct cpufreq_frequencies
+-*cpufreq_get_frequencies(const char *type, unsigned int cpu);
++struct cpufreq_available_frequencies
++*cpufreq_get_available_frequencies(unsigned int cpu);
+ 
+-void cpufreq_put_frequencies(
+-		struct cpufreq_frequencies *first);
++void cpufreq_put_available_frequencies(
++		struct cpufreq_available_frequencies *first);
++
++struct cpufreq_available_frequencies
++*cpufreq_get_boost_frequencies(unsigned int cpu);
++
++void cpufreq_put_boost_frequencies(
++		struct cpufreq_available_frequencies *first);
+ 
+ 
+ /* determine affected CPUs
+--- a/tools/power/cpupower/utils/cpufreq-info.c
++++ b/tools/power/cpupower/utils/cpufreq-info.c
+@@ -244,14 +244,14 @@ static int get_boost_mode_x86(unsigned i
+ 
+ static int get_boost_mode(unsigned int cpu)
+ {
+-	struct cpufreq_frequencies *freqs;
++	struct cpufreq_available_frequencies *freqs;
+ 
+ 	if (cpupower_cpu_info.vendor == X86_VENDOR_AMD ||
+ 	    cpupower_cpu_info.vendor == X86_VENDOR_HYGON ||
+ 	    cpupower_cpu_info.vendor == X86_VENDOR_INTEL)
+ 		return get_boost_mode_x86(cpu);
+ 
+-	freqs = cpufreq_get_frequencies("boost", cpu);
++	freqs = cpufreq_get_boost_frequencies(cpu);
+ 	if (freqs) {
+ 		printf(_("  boost frequency steps: "));
+ 		while (freqs->next) {
+@@ -261,7 +261,7 @@ static int get_boost_mode(unsigned int c
+ 		}
+ 		print_speed(freqs->frequency);
+ 		printf("\n");
+-		cpufreq_put_frequencies(freqs);
++		cpufreq_put_available_frequencies(freqs);
+ 	}
+ 
+ 	return 0;
+@@ -475,7 +475,7 @@ static int get_latency(unsigned int cpu,
+ 
+ static void debug_output_one(unsigned int cpu)
+ {
+-	struct cpufreq_frequencies *freqs;
++	struct cpufreq_available_frequencies *freqs;
+ 
+ 	get_driver(cpu);
+ 	get_related_cpus(cpu);
+@@ -483,7 +483,7 @@ static void debug_output_one(unsigned in
+ 	get_latency(cpu, 1);
+ 	get_hardware_limits(cpu, 1);
+ 
+-	freqs = cpufreq_get_frequencies("available", cpu);
++	freqs = cpufreq_get_available_frequencies(cpu);
+ 	if (freqs) {
+ 		printf(_("  available frequency steps:  "));
+ 		while (freqs->next) {
+@@ -493,7 +493,7 @@ static void debug_output_one(unsigned in
+ 		}
+ 		print_speed(freqs->frequency);
+ 		printf("\n");
+-		cpufreq_put_frequencies(freqs);
++		cpufreq_put_available_frequencies(freqs);
+ 	}
+ 
+ 	get_available_governors(cpu);
 
 
