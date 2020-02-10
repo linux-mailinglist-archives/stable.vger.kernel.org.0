@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D180157AEE
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E417F15785E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731150AbgBJN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:26:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56700 "EHLO mail.kernel.org"
+        id S1728315AbgBJNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728503AbgBJMgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:45 -0500
+        id S1728135AbgBJMjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:45 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F9A42080C;
-        Mon, 10 Feb 2020 12:36:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA5A820733;
+        Mon, 10 Feb 2020 12:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338204;
-        bh=17MaOto3qGiNDsjCGWj6Y/lMgIC4o3kD41TiSnZ/HA8=;
+        s=default; t=1581338385;
+        bh=Cii59v+tE1D5Tcds59Ldt4r2lnGyvOzYXC1dTbz939M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTzYObC7270Nz58CMmMxUHk1o0Az1Mk0v7Vf5ZP4EBZ5pn6lzzHUSHcN4sH+ydGBg
-         DpOpeNfIUCIzpdADNYFlTHn4ICNa+RUZAdgC6Js6gdF4NYN1Yf4GlY8BnpcFuji/gJ
-         fkzZA4SaEYbsLkXdtvxNeaj8Yctd1olLjsTDnTHI=
+        b=bVuhtMo4vkw9A1ixUEYx0+/8tF34hp+4tpKROyQePewvruW/zAf0xLT5u4PQ4oQ2o
+         eKH7UMcHo/5sBIMTrmHNgbNEreC+tAwb9B/SBxdr58QvHwwZ8YKGJ8bdEVnnjOuZUV
+         rN9yuwpt4gVwHse09NvT8Krki2Q7kBq7cp4xeaTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 023/309] mfd: dln2: More sanity checking for endpoints
-Date:   Mon, 10 Feb 2020 04:29:39 -0800
-Message-Id: <20200210122408.223606021@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.5 067/367] platform/x86: intel_scu_ipc: Fix interrupt support
+Date:   Mon, 10 Feb 2020 04:29:40 -0800
+Message-Id: <20200210122430.296784279@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 2b8bd606b1e60ca28c765f69c1eedd7d2a2e9dca upstream.
+commit e48b72a568bbd641c91dad354138d3c17d03ee6f upstream.
 
-It is not enough to check for the number of endpoints.
-The types must also be correct.
+Currently the driver has disabled interrupt support for Tangier but
+actually interrupt works just fine if the command is not written twice
+in a row. Also we need to ack the interrupt in the handler.
 
-Reported-and-tested-by: syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mfd/dln2.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/platform/x86/intel_scu_ipc.c |   21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -722,6 +722,8 @@ static int dln2_probe(struct usb_interfa
- 		      const struct usb_device_id *usb_id)
+--- a/drivers/platform/x86/intel_scu_ipc.c
++++ b/drivers/platform/x86/intel_scu_ipc.c
+@@ -67,26 +67,22 @@
+ struct intel_scu_ipc_pdata_t {
+ 	u32 i2c_base;
+ 	u32 i2c_len;
+-	u8 irq_mode;
+ };
+ 
+ static const struct intel_scu_ipc_pdata_t intel_scu_ipc_lincroft_pdata = {
+ 	.i2c_base = 0xff12b000,
+ 	.i2c_len = 0x10,
+-	.irq_mode = 0,
+ };
+ 
+ /* Penwell and Cloverview */
+ static const struct intel_scu_ipc_pdata_t intel_scu_ipc_penwell_pdata = {
+ 	.i2c_base = 0xff12b000,
+ 	.i2c_len = 0x10,
+-	.irq_mode = 1,
+ };
+ 
+ static const struct intel_scu_ipc_pdata_t intel_scu_ipc_tangier_pdata = {
+ 	.i2c_base  = 0xff00d000,
+ 	.i2c_len = 0x10,
+-	.irq_mode = 0,
+ };
+ 
+ struct intel_scu_ipc_dev {
+@@ -99,6 +95,9 @@ struct intel_scu_ipc_dev {
+ 
+ static struct intel_scu_ipc_dev  ipcdev; /* Only one for now */
+ 
++#define IPC_STATUS		0x04
++#define IPC_STATUS_IRQ		BIT(2)
++
+ /*
+  * IPC Read Buffer (Read Only):
+  * 16 byte buffer for receiving data from SCU, if IPC command
+@@ -120,11 +119,8 @@ static DEFINE_MUTEX(ipclock); /* lock us
+  */
+ static inline void ipc_command(struct intel_scu_ipc_dev *scu, u32 cmd)
  {
- 	struct usb_host_interface *hostif = interface->cur_altsetting;
-+	struct usb_endpoint_descriptor *epin;
-+	struct usb_endpoint_descriptor *epout;
- 	struct device *dev = &interface->dev;
- 	struct dln2_dev *dln2;
- 	int ret;
-@@ -731,12 +733,19 @@ static int dln2_probe(struct usb_interfa
- 	    hostif->desc.bNumEndpoints < 2)
+-	if (scu->irq_mode) {
+-		reinit_completion(&scu->cmd_complete);
+-		writel(cmd | IPC_IOC, scu->ipc_base);
+-	}
+-	writel(cmd, scu->ipc_base);
++	reinit_completion(&scu->cmd_complete);
++	writel(cmd | IPC_IOC, scu->ipc_base);
+ }
+ 
+ /*
+@@ -610,9 +606,10 @@ EXPORT_SYMBOL(intel_scu_ipc_i2c_cntrl);
+ static irqreturn_t ioc(int irq, void *dev_id)
+ {
+ 	struct intel_scu_ipc_dev *scu = dev_id;
++	int status = ipc_read_status(scu);
+ 
+-	if (scu->irq_mode)
+-		complete(&scu->cmd_complete);
++	writel(status | IPC_STATUS_IRQ, scu->ipc_base + IPC_STATUS);
++	complete(&scu->cmd_complete);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -638,8 +635,6 @@ static int ipc_probe(struct pci_dev *pde
+ 	if (!pdata)
  		return -ENODEV;
  
-+	epin = &hostif->endpoint[0].desc;
-+	epout = &hostif->endpoint[1].desc;
-+	if (!usb_endpoint_is_bulk_out(epout))
-+		return -ENODEV;
-+	if (!usb_endpoint_is_bulk_in(epin))
-+		return -ENODEV;
-+
- 	dln2 = kzalloc(sizeof(*dln2), GFP_KERNEL);
- 	if (!dln2)
- 		return -ENOMEM;
- 
--	dln2->ep_out = hostif->endpoint[0].desc.bEndpointAddress;
--	dln2->ep_in = hostif->endpoint[1].desc.bEndpointAddress;
-+	dln2->ep_out = epout->bEndpointAddress;
-+	dln2->ep_in = epin->bEndpointAddress;
- 	dln2->usb_dev = usb_get_dev(interface_to_usbdev(interface));
- 	dln2->interface = interface;
- 	usb_set_intfdata(interface, dln2);
+-	scu->irq_mode = pdata->irq_mode;
+-
+ 	err = pcim_enable_device(pdev);
+ 	if (err)
+ 		return err;
 
 
