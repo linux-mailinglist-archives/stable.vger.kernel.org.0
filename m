@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA617157817
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC651577BC
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728846AbgBJNFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:05:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39548 "EHLO mail.kernel.org"
+        id S1729764AbgBJMkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729634AbgBJMkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:09 -0500
+        id S1729757AbgBJMke (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:34 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BAED20873;
-        Mon, 10 Feb 2020 12:40:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C16720661;
+        Mon, 10 Feb 2020 12:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338408;
-        bh=LNeibIY6axNTtFN8sdKrJ2bxfbs3upu9sCY0s3IUwDg=;
+        s=default; t=1581338434;
+        bh=bcivqPUoKibzVZRLYV93mZU5UcqeoabEktaxltG0Mfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLQpyrAvNiU96W3nydFQRhZUlHFVUF02Xb5pH+wlTxjROD59ud5RMN1AA8wwq8uBJ
-         l+0MLIn+fSi9Yq6SBTjm6xmy/1XLNOgaDyOFIohvZws/gBeR9qOR7brsjGu6eRYP67
-         dlzI6jG06unXQ1WgeJS2thIK0R1A2WpHhZBb2g2w=
+        b=uOng/T8DOmHCJfJVjIKo/eP/Ejkb6bMOpxRsRgQWTuAsMUDEESHhobnoExJe70ilt
+         4r2h2ip+kFkF/AGUiIYP4euCdWf8AHeJt3wqOKCaMxTTx2qoR2JfCk530vVAo5bLeJ
+         BPzm7mwtDUcW9Q+wWS/tPbEPZ20RT2+CiS/6Cj3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitan Biswas <bbiswas@nvidia.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.5 113/367] nvmem: core: fix memory abort in cleanup path
-Date:   Mon, 10 Feb 2020 04:30:26 -0800
-Message-Id: <20200210122435.013356076@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 114/367] crypto: api - Check spawn->alg under lock in crypto_drop_spawn
+Date:   Mon, 10 Feb 2020 04:30:27 -0800
+Message-Id: <20200210122435.110457807@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,115 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitan Biswas <bbiswas@nvidia.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 16bb7abc4a6b9defffa294e4dc28383e62a1dbcf upstream.
+commit 7db3b61b6bba4310f454588c2ca6faf2958ad79f upstream.
 
-nvmem_cell_info_to_nvmem_cell implementation has static
-allocation of name. nvmem_add_cells_from_of() call may
-return error and kfree name results in memory abort. Use
-kstrdup_const() and kfree_const calls for name alloc and free.
+We need to check whether spawn->alg is NULL under lock as otherwise
+the algorithm could be removed from under us after we have checked
+it and found it to be non-NULL.  This could cause us to remove the
+spawn from a non-existent list.
 
-Unable to handle kernel paging request at virtual address ffffffffffe44888
-Mem abort info:
-  ESR = 0x96000006
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-Data abort info:
-  ISV = 0, ISS = 0x00000006
-  CM = 0, WnR = 0
-swapper pgtable: 64k pages, 48-bit VAs, pgdp=00000000815d0000
-[ffffffffffe44888] pgd=0000000081d30803, pud=0000000081d30803,
-pmd=0000000000000000
-Internal error: Oops: 96000006 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 2 PID: 43 Comm: kworker/2:1 Tainted
-Hardware name: quill (DT)
-Workqueue: events deferred_probe_work_func
-pstate: a0000005 (NzCv daif -PAN -UAO)
-pc : kfree+0x38/0x278
-lr : nvmem_cell_drop+0x68/0x80
-sp : ffff80001284f9d0
-x29: ffff80001284f9d0 x28: ffff0001f677e830
-x27: ffff800011b0b000 x26: ffff0001c36e1008
-x25: ffff8000112ad000 x24: ffff8000112c9000
-x23: ffffffffffffffea x22: ffff800010adc7f0
-x21: ffffffffffe44880 x20: ffff800011b0b068
-x19: ffff80001122d380 x18: ffffffffffffffff
-x17: 00000000d5cb4756 x16: 0000000070b193b8
-x15: ffff8000119538c8 x14: 0720072007200720
-x13: 07200720076e0772 x12: 07750762072d0765
-x11: 0773077507660765 x10: 072f073007300730
-x9 : 0730073207380733 x8 : 0000000000000151
-x7 : 07660765072f0720 x6 : ffff0001c00e0f00
-x5 : 0000000000000000 x4 : ffff0001c0b43800
-x3 : ffff800011b0b068 x2 : 0000000000000000
-x1 : 0000000000000000 x0 : ffffffdfffe00000
-Call trace:
- kfree+0x38/0x278
- nvmem_cell_drop+0x68/0x80
- nvmem_device_remove_all_cells+0x2c/0x50
- nvmem_register.part.9+0x520/0x628
- devm_nvmem_register+0x48/0xa0
- tegra_fuse_probe+0x140/0x1f0
- platform_drv_probe+0x50/0xa0
- really_probe+0x108/0x348
- driver_probe_device+0x58/0x100
- __device_attach_driver+0x90/0xb0
- bus_for_each_drv+0x64/0xc8
- __device_attach+0xd8/0x138
- device_initial_probe+0x10/0x18
- bus_probe_device+0x90/0x98
- deferred_probe_work_func+0x74/0xb0
- process_one_work+0x1e0/0x358
- worker_thread+0x208/0x488
- kthread+0x118/0x120
- ret_from_fork+0x10/0x18
-Code: d350feb5 f2dffbe0 aa1e03f6 8b151815 (f94006a0)
----[ end trace 49b1303c6b83198e ]---
-
-Fixes: badcdff107cbf ("nvmem: Convert to using %pOFn instead of device_node.name")
-Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200109104017.6249-5-srinivas.kandagatla@linaro.org
+Fixes: 7ede5a5ba55a ("crypto: api - Fix crypto_drop_spawn crash...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvmem/core.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ crypto/algapi.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -83,7 +83,7 @@ static void nvmem_cell_drop(struct nvmem
- 	list_del(&cell->node);
- 	mutex_unlock(&nvmem_mutex);
- 	of_node_put(cell->np);
--	kfree(cell->name);
-+	kfree_const(cell->name);
- 	kfree(cell);
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -669,11 +669,9 @@ EXPORT_SYMBOL_GPL(crypto_grab_spawn);
+ 
+ void crypto_drop_spawn(struct crypto_spawn *spawn)
+ {
+-	if (!spawn->alg)
+-		return;
+-
+ 	down_write(&crypto_alg_sem);
+-	list_del(&spawn->list);
++	if (spawn->alg)
++		list_del(&spawn->list);
+ 	up_write(&crypto_alg_sem);
  }
- 
-@@ -110,7 +110,9 @@ static int nvmem_cell_info_to_nvmem_cell
- 	cell->nvmem = nvmem;
- 	cell->offset = info->offset;
- 	cell->bytes = info->bytes;
--	cell->name = info->name;
-+	cell->name = kstrdup_const(info->name, GFP_KERNEL);
-+	if (!cell->name)
-+		return -ENOMEM;
- 
- 	cell->bit_offset = info->bit_offset;
- 	cell->nbits = info->nbits;
-@@ -300,7 +302,7 @@ static int nvmem_add_cells_from_of(struc
- 			dev_err(dev, "cell %s unaligned to nvmem stride %d\n",
- 				cell->name, nvmem->stride);
- 			/* Cells already added will be freed later. */
--			kfree(cell->name);
-+			kfree_const(cell->name);
- 			kfree(cell);
- 			return -EINVAL;
- 		}
+ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
 
 
