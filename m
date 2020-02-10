@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 507A81574B3
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41142157579
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727898AbgBJMfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51458 "EHLO mail.kernel.org"
+        id S1729914AbgBJMlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727884AbgBJMfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:23 -0500
+        id S1729904AbgBJMlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:09 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0166B2467A;
-        Mon, 10 Feb 2020 12:35:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB340208C4;
+        Mon, 10 Feb 2020 12:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338123;
-        bh=uxzVkfjZHTrRZHXjZeaZLag94HnsyuCwEOX2EkAmkMs=;
+        s=default; t=1581338468;
+        bh=8NAGo9e5AJ0Ux3q1OgbYLdinV3moyrh9CcR77rKraOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjGJAHmNQk3P02hz5KIvHE03MRbMCDPvhgoE44Acv5Rx1yc8DdZlroa9QWR40M8bt
-         dS+iUeiPZy485OsX+74KQIEQ/JMmyfR1jAgeyi7xFyqQy2TBFnJxCqqXzOPLeDPq9m
-         JIiA7C/ELSuYErg/zoAcyMFzn3zHZ08waFNVIGBk=
+        b=DUwxAYlOs9T6BJlyBdr8UDQJvFhDUromGrZ5yAbtGcVe8/Q/z5/MJLlB51jhx5bE0
+         es4CQVYDrymq4kf0xlQffH8QX7PUqfVvj5SVSysO/L6fCmaOkXN5FeceyyjuTJAoZl
+         Z6WQnl0ylTQdq3FPHtewxwA8S1c9eTBRgAZ2CFV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 060/195] ACPI / battery: Deal with design or full capacity being reported as -1
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.5 205/367] ARM: tegra: Enable PLLP bypass during Tegra124 LP1
 Date:   Mon, 10 Feb 2020 04:31:58 -0800
-Message-Id: <20200210122311.771146207@linuxfoundation.org>
+Message-Id: <20200210122443.388410820@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,96 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Stephen Warren <swarren@nvidia.com>
 
-commit cc99f0ad52467028cb1251160f23ad4bb65baf20 upstream.
+commit 1a3388d506bf5b45bb283e6a4c4706cfb4897333 upstream.
 
-Commit b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design]
-on devices without full_charge_capacity") added support for some (broken)
-devices which always report 0 for both design- and full_charge-capacity.
+For a little over a year, U-Boot has configured the flow controller to
+perform automatic RAM re-repair on off->on power transitions of the CPU
+rail[1]. This is mandatory for correct operation of Tegra124. However,
+RAM re-repair relies on certain clocks, which the kernel must enable and
+leave running. PLLP is one of those clocks. This clock is shut down
+during LP1 in order to save power. Enable bypass (which I believe routes
+osc_div_clk, essentially the crystal clock, to the PLL output) so that
+this clock signal toggles even though the PLL is not active. This is
+required so that LP1 power mode (system suspend) operates correctly.
 
-This assumes that if the capacity is not being reported it is 0. The
-ThunderSoft TS178 tablet's _BIX implementation falsifies this assumption.
-It reports ACPI_BATTERY_VALUE_UNKNOWN (-1) as full_charge_capacity, which
-we treat as a valid value which causes several problems.
+The bypass configuration must then be undone when resuming from LP1, so
+that all peripheral clocks run at the expected rate. Without this, many
+peripherals won't work correctly; for example, the UART baud rate would
+be incorrect.
 
-This commit fixes this by adding a new ACPI_BATTERY_CAPACITY_VALID() helper
-which checks that the value is not 0 and not -1; and using this whenever we
-need to test if either design_capacity or full_charge_capacity is valid.
+NVIDIA's downstream kernel code only does this if not compiled for
+Tegra30, so the added code is made conditional upon the chip ID.
+NVIDIA's downstream code makes this change conditional upon the active
+CPU cluster. The upstream kernel currently doesn't support cluster
+switching, so this patch doesn't test the active CPU cluster ID.
 
-Fixes: b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on devices without full_charge_capacity")
-Cc: 4.19+ <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
+
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/battery.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ arch/arm/mach-tegra/sleep-tegra30.S |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -51,6 +51,8 @@
- #define PREFIX "ACPI: "
+--- a/arch/arm/mach-tegra/sleep-tegra30.S
++++ b/arch/arm/mach-tegra/sleep-tegra30.S
+@@ -370,6 +370,14 @@ _pll_m_c_x_done:
+ 	pll_locked r1, r0, CLK_RESET_PLLC_BASE
+ 	pll_locked r1, r0, CLK_RESET_PLLX_BASE
  
- #define ACPI_BATTERY_VALUE_UNKNOWN 0xFFFFFFFF
-+#define ACPI_BATTERY_CAPACITY_VALID(capacity) \
-+	((capacity) != 0 && (capacity) != ACPI_BATTERY_VALUE_UNKNOWN)
++	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
++	cmp	r1, #TEGRA30
++	beq	1f
++	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
++	bic	r1, r1, #(1<<31)	@ disable PllP bypass
++	str	r1, [r0, #CLK_RESET_PLLP_BASE]
++1:
++
+ 	mov32	r7, TEGRA_TMRUS_BASE
+ 	ldr	r1, [r7]
+ 	add	r1, r1, #LOCK_DELAY
+@@ -630,7 +638,10 @@ tegra30_switch_cpu_to_clk32k:
+ 	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
  
- #define ACPI_BATTERY_DEVICE_NAME	"Battery"
- 
-@@ -205,7 +207,8 @@ static int acpi_battery_is_charged(struc
- 
- static bool acpi_battery_is_degraded(struct acpi_battery *battery)
- {
--	return battery->full_charge_capacity && battery->design_capacity &&
-+	return ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity) &&
-+		ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity) &&
- 		battery->full_charge_capacity < battery->design_capacity;
- }
- 
-@@ -276,14 +279,14 @@ static int acpi_battery_get_property(str
- 		break;
- 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
- 	case POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN:
--		if (battery->design_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
-+		if (!ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity))
- 			ret = -ENODEV;
- 		else
- 			val->intval = battery->design_capacity * 1000;
- 		break;
- 	case POWER_SUPPLY_PROP_CHARGE_FULL:
- 	case POWER_SUPPLY_PROP_ENERGY_FULL:
--		if (battery->full_charge_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
-+		if (!ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity))
- 			ret = -ENODEV;
- 		else
- 			val->intval = battery->full_charge_capacity * 1000;
-@@ -296,11 +299,12 @@ static int acpi_battery_get_property(str
- 			val->intval = battery->capacity_now * 1000;
- 		break;
- 	case POWER_SUPPLY_PROP_CAPACITY:
--		if (battery->capacity_now && battery->full_charge_capacity)
-+		if (battery->capacity_now == ACPI_BATTERY_VALUE_UNKNOWN ||
-+		    !ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity))
-+			ret = -ENODEV;
-+		else
- 			val->intval = battery->capacity_now * 100/
- 					battery->full_charge_capacity;
--		else
--			val->intval = 0;
- 		break;
- 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
- 		if (battery->state & ACPI_BATTERY_STATE_CRITICAL)
-@@ -812,7 +816,8 @@ static int sysfs_add_battery(struct acpi
- 		battery->bat_desc.properties = charge_battery_props;
- 		battery->bat_desc.num_properties =
- 			ARRAY_SIZE(charge_battery_props);
--	} else if (battery->full_charge_capacity == 0) {
-+	} else if (!ACPI_BATTERY_CAPACITY_VALID(
-+					battery->full_charge_capacity)) {
- 		battery->bat_desc.properties =
- 			energy_battery_full_cap_broken_props;
- 		battery->bat_desc.num_properties =
+ 	/* disable PLLP, PLLA, PLLC and PLLX */
++	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
++	cmp	r1, #TEGRA30
+ 	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
++	orrne	r0, r0, #(1 << 31)	@ enable PllP bypass on fast cluster
+ 	bic	r0, r0, #(1 << 30)
+ 	str	r0, [r5, #CLK_RESET_PLLP_BASE]
+ 	ldr	r0, [r5, #CLK_RESET_PLLA_BASE]
 
 
