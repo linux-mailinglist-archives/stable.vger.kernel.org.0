@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 232E3157AE7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9380D15780C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbgBJN0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:26:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56700 "EHLO mail.kernel.org"
+        id S1729461AbgBJNEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:04:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727924AbgBJMgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:47 -0500
+        id S1729654AbgBJMkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:13 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EAAA20733;
-        Mon, 10 Feb 2020 12:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85BEC20838;
+        Mon, 10 Feb 2020 12:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338206;
-        bh=54VNu45w/vLNKLZ2cxJsWNJgFLn0bNvrtrd9wtIlbaI=;
+        s=default; t=1581338411;
+        bh=0HoyKO07B0flucA91DLoS4VCK644iMhiylh9+BkIANw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA3LfErgIASlYX3Cz5Ufr3LcMEnD/OztakzX4rpmQs/SK5sQMXdA1g3PyWzz4REa8
-         ApP57dLLTKJDoZE4nr7ljIbkOg49jeGYaaWKXI39rp5zgkdDX4SKHv1NinS/FepgNM
-         SU8aiunlzrYXQOpN3XOVH/S2zVf9T1DeEOkb51CI=
+        b=YZ+DHyq+z0w2P8E521vSy8tM3IQK35lWLJnSGIJp9DRqtPDvSFY1Jb4BA8LCG4KP6
+         fwgoGtv/c3P5c3tbpCEjb7T2uk3rH4kEaX+WPoVmCxMBbUD8R7U67dvTFcwcuBiqRB
+         zIobWM4O44xyKMs0H/Ri+LNPuJ8Gj1zUxAonefSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 026/309] tracing/kprobes: Have uname use __get_str() in print_fmt
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 069/367] ALSA: hda: Add Clevo W65_67SB the power_save blacklist
 Date:   Mon, 10 Feb 2020 04:29:42 -0800
-Message-Id: <20200210122408.499910156@linuxfoundation.org>
+Message-Id: <20200210122430.486167177@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 20279420ae3a8ef4c5d9fedc360a2c37a1dbdf1b upstream.
+commit d8feb6080bb0c9f4d799a423d9453048fdd06990 upstream.
 
-Thomas Richter reported:
+Using HDA power-saving on the Clevo W65_67SB causes the first 0.5
+seconds of audio to be missing every time audio starts playing.
 
-> Test case 66 'Use vfs_getname probe to get syscall args filenames'
-> is broken on s390, but works on x86. The test case fails with:
->
->  [root@m35lp76 perf]# perf test -F 66
->  66: Use vfs_getname probe to get syscall args filenames
->            :Recording open file:
->  [ perf record: Woken up 1 times to write data ]
->  [ perf record: Captured and wrote 0.004 MB /tmp/__perf_test.perf.data.TCdYj\
-> 	 (20 samples) ]
->  Looking at perf.data file for vfs_getname records for the file we touched:
->   FAILED!
->   [root@m35lp76 perf]#
-
-The root cause was the print_fmt of the kprobe event that referenced the
-"ustring"
-
-> Setting up the kprobe event using perf command:
->
->  # ./perf probe "vfs_getname=getname_flags:72 pathname=filename:ustring"
->
-> generates this format file:
->   [root@m35lp76 perf]# cat /sys/kernel/debug/tracing/events/probe/\
-> 	  vfs_getname/format
->   name: vfs_getname
->   ID: 1172
->   format:
->     field:unsigned short common_type; offset:0; size:2; signed:0;
->     field:unsigned char common_flags; offset:2; size:1; signed:0;
->     field:unsigned char common_preempt_count; offset:3; size:1; signed:0;
->     field:int common_pid; offset:4; size:4; signed:1;
->
->     field:unsigned long __probe_ip; offset:8; size:8; signed:0;
->     field:__data_loc char[] pathname; offset:16; size:4; signed:1;
->
->     print fmt: "(%lx) pathname=\"%s\"", REC->__probe_ip, REC->pathname
-
-Instead of using "__get_str(pathname)" it referenced it directly.
-
-Link: http://lkml.kernel.org/r/20200124100742.4050c15e@gandalf.local.home
+This commit adds the Clevo W65_67SB the power_save blacklist to avoid
+this issue.
 
 Cc: stable@vger.kernel.org
-Fixes: 88903c464321 ("tracing/probe: Add ustring type for user-space string")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1525104
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200125181021.70446-1-hdegoede@redhat.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_probe.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_intel.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/trace/trace_probe.c
-+++ b/kernel/trace/trace_probe.c
-@@ -876,7 +876,8 @@ static int __set_print_fmt(struct trace_
- 	for (i = 0; i < tp->nr_args; i++) {
- 		parg = tp->args + i;
- 		if (parg->count) {
--			if (strcmp(parg->type->name, "string") == 0)
-+			if ((strcmp(parg->type->name, "string") == 0) ||
-+			    (strcmp(parg->type->name, "ustring") == 0))
- 				fmt = ", __get_str(%s[%d])";
- 			else
- 				fmt = ", REC->%s[%d]";
-@@ -884,7 +885,8 @@ static int __set_print_fmt(struct trace_
- 				pos += snprintf(buf + pos, LEN_OR_ZERO,
- 						fmt, parg->name, j);
- 		} else {
--			if (strcmp(parg->type->name, "string") == 0)
-+			if ((strcmp(parg->type->name, "string") == 0) ||
-+			    (strcmp(parg->type->name, "ustring") == 0))
- 				fmt = ", __get_str(%s)";
- 			else
- 				fmt = ", REC->%s";
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2188,6 +2188,8 @@ static struct snd_pci_quirk power_save_b
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1581607 */
+ 	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
++	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
++	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1028, 0x0497, "Dell Precision T3600", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	/* Note the P55A-UD3 and Z87-D3HP share the subsys id for the HDA dev */
 
 
