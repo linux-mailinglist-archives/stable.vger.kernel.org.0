@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1F7157997
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA7A15799D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730929AbgBJNQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:16:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32908 "EHLO mail.kernel.org"
+        id S1729898AbgBJNQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:16:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728320AbgBJMiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:07 -0500
+        id S1728488AbgBJMiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:08 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9378B20733;
-        Mon, 10 Feb 2020 12:38:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18E1620838;
+        Mon, 10 Feb 2020 12:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338286;
-        bh=tYeZfu7jqi6yrxklEYqx2fgiuCnEapHBrnMBEtjf6wg=;
+        s=default; t=1581338287;
+        bh=IUxzkbV4y8t9RmxGGJIIkdoyBSZBfGfzwVwqW44vYy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wu2OwMZAr5SA+gc5u3CpzAShkFygRnDQ94FNRmIDtBYueDkV5YZbPw/Fdb0nU7mWF
-         olIXQc9myi/Nftu3oQuk3abMgUk+atIsfHfrwa43tXlKickSEi5ZRcXpoKEoiwndtE
-         Dz28BBpEscfqaEOVlTFKBPL6w6z/d0WpUo/OCJyA=
+        b=2H3nPJ4wLXtPDUX6gnEI9g8PEtboploBfhn2G/z2Fx1mbxN0j8/nybBeUa+5QUYai
+         yJVmHUbn172d6sv11tzVI8M+M80HE4vCsFB5tIrWmaEItHYCWFnnfE/wRvLXAuZXBS
+         0swcLuBBGqVY8o62qHA+PC+LSscJU5HBYVrW1tZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.4 185/309] gfs2: fix O_SYNC write handling
-Date:   Mon, 10 Feb 2020 04:32:21 -0800
-Message-Id: <20200210122424.324778763@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Boris Brezillon <bbrezillon@kernel.org>
+Subject: [PATCH 5.4 186/309] drm: atmel-hlcdc: use double rate for pixel clock only if supported
+Date:   Mon, 10 Feb 2020 04:32:22 -0800
+Message-Id: <20200210122424.421183250@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -42,111 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 6e5e41e2dc4e4413296d5a4af54ac92d7cd52317 upstream.
+commit 07acf4bafe81dd37eff3fbcfbbdbc48084bc202b upstream.
 
-In gfs2_file_write_iter, for direct writes, the error checking in the buffered
-write fallback case is incomplete.  This can cause inode write errors to go
-undetected.  Fix and clean up gfs2_file_write_iter along the way.
+Doubled system clock should be used as pixel cock source only if this
+is supported. This is emphasized by the value of
+atmel_hlcdc_crtc::dc::desc::fixed_clksrc.
 
-Based on a proposed fix by Christoph Hellwig <hch@lst.de>.
-
-Fixes: 967bcc91b044 ("gfs2: iomap direct I/O support")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: a6eca2abdd42 ("drm: atmel-hlcdc: add config option for clock selection")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: <stable@vger.kernel.org> # v5.3+
+Link: https://patchwork.freedesktop.org/patch/msgid/1576672109-22707-2-git-send-email-claudiu.beznea@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/file.c |   51 +++++++++++++++++++++------------------------------
- 1 file changed, 21 insertions(+), 30 deletions(-)
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -833,7 +833,7 @@ static ssize_t gfs2_file_write_iter(stru
- 	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file_inode(file);
- 	struct gfs2_inode *ip = GFS2_I(inode);
--	ssize_t written = 0, ret;
-+	ssize_t ret;
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+@@ -95,14 +95,14 @@ static void atmel_hlcdc_crtc_mode_set_no
+ 		     (adj->crtc_hdisplay - 1) |
+ 		     ((adj->crtc_vdisplay - 1) << 16));
  
- 	ret = gfs2_rsqa_alloc(ip);
- 	if (ret)
-@@ -865,55 +865,46 @@ static ssize_t gfs2_file_write_iter(stru
- 
- 	if (iocb->ki_flags & IOCB_DIRECT) {
- 		struct address_space *mapping = file->f_mapping;
--		loff_t pos, endbyte;
--		ssize_t buffered;
-+		ssize_t buffered, ret2;
- 
--		written = gfs2_file_direct_write(iocb, from);
--		if (written < 0 || !iov_iter_count(from))
-+		ret = gfs2_file_direct_write(iocb, from);
-+		if (ret < 0 || !iov_iter_count(from))
- 			goto out_unlock;
- 
-+		iocb->ki_flags |= IOCB_DSYNC;
- 		current->backing_dev_info = inode_to_bdi(inode);
--		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
-+		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (unlikely(ret < 0))
-+		if (unlikely(buffered <= 0))
- 			goto out_unlock;
--		buffered = ret;
- 
- 		/*
- 		 * We need to ensure that the page cache pages are written to
- 		 * disk and invalidated to preserve the expected O_DIRECT
--		 * semantics.
-+		 * semantics.  If the writeback or invalidate fails, only report
-+		 * the direct I/O range as we don't know if the buffered pages
-+		 * made it to disk.
- 		 */
--		pos = iocb->ki_pos;
--		endbyte = pos + buffered - 1;
--		ret = filemap_write_and_wait_range(mapping, pos, endbyte);
--		if (!ret) {
--			iocb->ki_pos += buffered;
--			written += buffered;
--			invalidate_mapping_pages(mapping,
--						 pos >> PAGE_SHIFT,
--						 endbyte >> PAGE_SHIFT);
--		} else {
--			/*
--			 * We don't know how much we wrote, so just return
--			 * the number of bytes which were direct-written
--			 */
--		}
-+		iocb->ki_pos += buffered;
-+		ret2 = generic_write_sync(iocb, buffered);
-+		invalidate_mapping_pages(mapping,
-+				(iocb->ki_pos - buffered) >> PAGE_SHIFT,
-+				(iocb->ki_pos - 1) >> PAGE_SHIFT);
-+		if (!ret || ret2 > 0)
-+			ret += ret2;
- 	} else {
- 		current->backing_dev_info = inode_to_bdi(inode);
- 		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (likely(ret > 0))
-+		if (likely(ret > 0)) {
- 			iocb->ki_pos += ret;
-+			ret = generic_write_sync(iocb, ret);
-+		}
++	prate = clk_get_rate(crtc->dc->hlcdc->sys_clk);
++	mode_rate = adj->crtc_clock * 1000;
+ 	if (!crtc->dc->desc->fixed_clksrc) {
++		prate *= 2;
+ 		cfg |= ATMEL_HLCDC_CLKSEL;
+ 		mask |= ATMEL_HLCDC_CLKSEL;
  	}
  
- out_unlock:
- 	inode_unlock(inode);
--	if (likely(ret > 0)) {
--		/* Handle various SYNC-type writes */
--		ret = generic_write_sync(iocb, ret);
--	}
--	return written ? written : ret;
-+	return ret;
- }
- 
- static int fallocate_chunk(struct inode *inode, loff_t offset, loff_t len,
+-	prate = 2 * clk_get_rate(crtc->dc->hlcdc->sys_clk);
+-	mode_rate = adj->crtc_clock * 1000;
+-
+ 	div = DIV_ROUND_UP(prate, mode_rate);
+ 	if (div < 2) {
+ 		div = 2;
 
 
