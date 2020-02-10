@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 526E1157672
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E92B1574DE
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728546AbgBJMwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:52:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46368 "EHLO mail.kernel.org"
+        id S1728416AbgBJMgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729958AbgBJMmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:19 -0500
+        id S1728410AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:32 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C48E2085B;
-        Mon, 10 Feb 2020 12:42:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3210620842;
+        Mon, 10 Feb 2020 12:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338539;
-        bh=9a4kOFsJltgCdSoy24riEqC1fTZGjp5zyK8t7m2kL/A=;
+        s=default; t=1581338192;
+        bh=oEM3+nzDqWEevdqdRzE0EAc4DVyMz1ux+ltBjgdHDZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jzdUvlzhzTE/x6gut31asc/VFyKxpuz6sppgJyeS4hkgSdfk97n9xIaulpAUdfcR
-         XqXWYgRpxxLAIH2HpV9wvaqrBcSxy59BvbUUnLMxpZZzRKDgaMy/U2YKUz1sfpE7cs
-         K5YkseRFN3Rm0cdx9LaLspGPoK66WDbnx0ArslUw=
+        b=LngIwRZspy3C5f2B2hBYP1VYMcaqi81ZPd+0AIx50R0XB1CGwz3fbwRwo/xVqVGnA
+         JXn3UDHPWO6Bs6utrb9YXyGwFn0EyIiDeP60i61UY5gIk+XQ9hULjL3wTly4/DCEko
+         7N8VULTsOwGz8R6XELwmdfQ9OGkeDeNc92yk7G6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 339/367] taprio: Fix dropping packets when using taprio + ETF offloading
-Date:   Mon, 10 Feb 2020 04:34:12 -0800
-Message-Id: <20200210122453.975739078@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 195/195] rxrpc: Fix service call disconnection
+Date:   Mon, 10 Feb 2020 04:34:13 -0800
+Message-Id: <20200210122324.215756193@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit bfabd41da34180d05382312533a3adc2e012dee0 ]
+[ Upstream commit b39a934ec72fa2b5a74123891f25273a38378b90 ]
 
-When using taprio offloading together with ETF offloading, configured
-like this, for example:
+The recent patch that substituted a flag on an rxrpc_call for the
+connection pointer being NULL as an indication that a call was disconnected
+puts the set_bit in the wrong place for service calls.  This is only a
+problem if a call is implicitly terminated by a new call coming in on the
+same connection channel instead of a terminating ACK packet.
 
-$ tc qdisc replace dev $IFACE parent root handle 100 taprio \
-  	num_tc 4 \
-        map 2 2 1 0 3 2 2 2 2 2 2 2 2 2 2 2 \
-	queues 1@0 1@1 1@2 1@3 \
-	base-time $BASE_TIME \
-	sched-entry S 01 1000000 \
-	sched-entry S 0e 1000000 \
-	flags 0x2
+In such a case, rxrpc_input_implicit_end_call() calls
+__rxrpc_disconnect_call(), which is now (incorrectly) setting the
+disconnection bit, meaning that when rxrpc_release_call() is later called,
+it doesn't call rxrpc_disconnect_call() and so the call isn't removed from
+the peer's error distribution list and the list gets corrupted.
 
-$ tc qdisc replace dev $IFACE parent 100:1 etf \
-     	offload delta 300000 clockid CLOCK_TAI
+KASAN finds the issue as an access after release on a call, but the
+position at which it occurs is confusing as it appears to be related to a
+different call (the call site is where the latter call is being removed
+from the error distribution list and either the next or pprev pointer
+points to a previously released call).
 
-During enqueue, it works out that the verification added for the
-"txtime" assisted mode is run when using taprio + ETF offloading, the
-only thing missing is initializing the 'next_txtime' of all the cycle
-entries. (if we don't set 'next_txtime' all packets from SO_TXTIME
-sockets are dropped)
+Fix this by moving the setting of the flag from __rxrpc_disconnect_call()
+to rxrpc_disconnect_call() in the same place that the connection pointer
+was being cleared.
 
-Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Fixes: 5273a191dca6 ("rxrpc: Fix NULL pointer deref due to call->conn being cleared on disconnect")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rxrpc/conn_object.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1522,9 +1522,9 @@ static int taprio_change(struct Qdisc *s
- 		goto unlock;
- 	}
+diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
+index a81e64be4a24f..c4c4450891e0f 100644
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -174,8 +174,6 @@ void __rxrpc_disconnect_call(struct rxrpc_connection *conn,
  
--	if (TXTIME_ASSIST_IS_ENABLED(q->flags)) {
--		setup_txtime(q, new_admin, start);
-+	setup_txtime(q, new_admin, start);
+ 	_enter("%d,%x", conn->debug_id, call->cid);
  
-+	if (TXTIME_ASSIST_IS_ENABLED(q->flags)) {
- 		if (!oper) {
- 			rcu_assign_pointer(q->oper_sched, new_admin);
- 			err = 0;
+-	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
+-
+ 	if (rcu_access_pointer(chan->call) == call) {
+ 		/* Save the result of the call so that we can repeat it if necessary
+ 		 * through the channel, whilst disposing of the actual call record.
+@@ -228,6 +226,7 @@ void rxrpc_disconnect_call(struct rxrpc_call *call)
+ 	__rxrpc_disconnect_call(conn, call);
+ 	spin_unlock(&conn->channel_lock);
+ 
++	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
+ 	conn->idle_timestamp = jiffies;
+ }
+ 
+-- 
+2.20.1
+
 
 
