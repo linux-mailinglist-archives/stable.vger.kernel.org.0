@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65467157816
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDDBD157813
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730391AbgBJNEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729990AbgBJNEx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 08:04:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39548 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728846AbgBJMkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728671AbgBJMkL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:40:11 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FB7D2465D;
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DF6E20842;
         Mon, 10 Feb 2020 12:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338410;
-        bh=qshXvdA5Kg6VGhQrzBIZUBGtLVi8pv1xpZ6xFKQgbno=;
+        bh=vvmGs6nVmzOQFlgd10Nl4XppRHWf2yjrDu/yBIVkwIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yz1TclbpvveSpt5Jt1c4T66g4PJmUNw2yi8FCk21MiggA+pwoKyPHHeVynracpkJe
-         UXvTcOeSqK8P7kCL5BKJ+m2/hT1p+GfOJZj9mkNJoG92Pu6P4gvOCZ0DVBmWWIjKvQ
-         gFRCd8x02Us1x0hIIETQ7CtGXjTQsDWxAJdv3ObE=
+        b=ZWYkbVImMqDLlv9BGp258IJmBq71sWdafV+56b0WPVNyUJ31owmwbZNs3hCADJOoU
+         Njhr+aidwEymUmJw9eC2QlijZjK/X4LfdFswfvePyqe5kYiH0lzWj+OpbQfy3ebkOk
+         c6+4N2XxODG3fs4zEbV5SLmOFv8kgaKIxyiHHmpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.5 076/367] KVM: arm64: Only sign-extend MMIO up to register width
-Date:   Mon, 10 Feb 2020 04:29:49 -0800
-Message-Id: <20200210122431.237679561@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@dlink.ru>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Rob Herring <robh@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH 5.5 077/367] MIPS: syscalls: fix indentation of the SYSNR message
+Date:   Mon, 10 Feb 2020 04:29:50 -0800
+Message-Id: <20200210122431.337176361@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,125 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoffer Dall <christoffer.dall@arm.com>
+From: Alexander Lobakin <alobakin@dlink.ru>
 
-commit b6ae256afd32f96bec0117175b329d0dd617655e upstream.
+commit 4f29ad200f7b40fbcf73cd65f95087535ba78380 upstream.
 
-On AArch64 you can do a sign-extended load to either a 32-bit or 64-bit
-register, and we should only sign extend the register up to the width of
-the register as specified in the operation (by using the 32-bit Wn or
-64-bit Xn register specifier).
+It also lacks a whitespace (copy'n'paste error?) and also messes up the
+output:
 
-As it turns out, the architecture provides this decoding information in
-the SF ("Sixty-Four" -- how cute...) bit.
+  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n32.h
+  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n64.h
+  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_o32.h
+  SYSNR  arch/mips/include/generated/uapi/asm/unistd_nr_n32.h
+  SYSNR  arch/mips/include/generated/uapi/asm/unistd_nr_n64.h
+  SYSNR  arch/mips/include/generated/uapi/asm/unistd_nr_o32.h
+  WRAP    arch/mips/include/generated/uapi/asm/bpf_perf_event.h
+  WRAP    arch/mips/include/generated/uapi/asm/ipcbuf.h
 
-Let's take advantage of this with the usual 32-bit/64-bit header file
-dance and do the right thing on AArch64 hosts.
+After:
 
-Signed-off-by: Christoffer Dall <christoffer.dall@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191212195055.5541-1-christoffer.dall@arm.com
+  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n32.h
+  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n64.h
+  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_o32.h
+  SYSNR   arch/mips/include/generated/uapi/asm/unistd_nr_n32.h
+  SYSNR   arch/mips/include/generated/uapi/asm/unistd_nr_n64.h
+  SYSNR   arch/mips/include/generated/uapi/asm/unistd_nr_o32.h
+  WRAP    arch/mips/include/generated/uapi/asm/bpf_perf_event.h
+  WRAP    arch/mips/include/generated/uapi/asm/ipcbuf.h
+
+Present since day 0 of syscall table generation introduction for MIPS.
+
+Fixes: 9bcbf97c6293 ("mips: add system call table generation support")
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Rob Herring <robh@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/include/asm/kvm_emulate.h   |    5 +++++
- arch/arm/include/asm/kvm_mmio.h      |    2 ++
- arch/arm64/include/asm/kvm_emulate.h |    5 +++++
- arch/arm64/include/asm/kvm_mmio.h    |    6 ++----
- virt/kvm/arm/mmio.c                  |    6 ++++++
- 5 files changed, 20 insertions(+), 4 deletions(-)
+ arch/mips/kernel/syscalls/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/include/asm/kvm_emulate.h
-+++ b/arch/arm/include/asm/kvm_emulate.h
-@@ -199,6 +199,11 @@ static inline bool kvm_vcpu_dabt_issext(
- 	return kvm_vcpu_get_hsr(vcpu) & HSR_SSE;
- }
+--- a/arch/mips/kernel/syscalls/Makefile
++++ b/arch/mips/kernel/syscalls/Makefile
+@@ -18,7 +18,7 @@ quiet_cmd_syshdr = SYSHDR  $@
+ 		   '$(syshdr_pfx_$(basetarget))'		\
+ 		   '$(syshdr_offset_$(basetarget))'
  
-+static inline bool kvm_vcpu_dabt_issf(const struct kvm_vcpu *vcpu)
-+{
-+	return false;
-+}
-+
- static inline int kvm_vcpu_dabt_get_rd(struct kvm_vcpu *vcpu)
- {
- 	return (kvm_vcpu_get_hsr(vcpu) & HSR_SRT_MASK) >> HSR_SRT_SHIFT;
---- a/arch/arm/include/asm/kvm_mmio.h
-+++ b/arch/arm/include/asm/kvm_mmio.h
-@@ -14,6 +14,8 @@
- struct kvm_decode {
- 	unsigned long rt;
- 	bool sign_extend;
-+	/* Not used on 32-bit arm */
-+	bool sixty_four;
- };
- 
- void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -315,6 +315,11 @@ static inline bool kvm_vcpu_dabt_issext(
- 	return !!(kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SSE);
- }
- 
-+static inline bool kvm_vcpu_dabt_issf(const struct kvm_vcpu *vcpu)
-+{
-+	return !!(kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SF);
-+}
-+
- static inline int kvm_vcpu_dabt_get_rd(const struct kvm_vcpu *vcpu)
- {
- 	return (kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SRT_MASK) >> ESR_ELx_SRT_SHIFT;
---- a/arch/arm64/include/asm/kvm_mmio.h
-+++ b/arch/arm64/include/asm/kvm_mmio.h
-@@ -10,13 +10,11 @@
- #include <linux/kvm_host.h>
- #include <asm/kvm_arm.h>
- 
--/*
-- * This is annoying. The mmio code requires this, even if we don't
-- * need any decoding. To be fixed.
-- */
- struct kvm_decode {
- 	unsigned long rt;
- 	bool sign_extend;
-+	/* Witdth of the register accessed by the faulting instruction is 64-bits */
-+	bool sixty_four;
- };
- 
- void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
---- a/virt/kvm/arm/mmio.c
-+++ b/virt/kvm/arm/mmio.c
-@@ -105,6 +105,9 @@ int kvm_handle_mmio_return(struct kvm_vc
- 			data = (data ^ mask) - mask;
- 		}
- 
-+		if (!vcpu->arch.mmio_decode.sixty_four)
-+			data = data & 0xffffffff;
-+
- 		trace_kvm_mmio(KVM_TRACE_MMIO_READ, len, run->mmio.phys_addr,
- 			       &data);
- 		data = vcpu_data_host_to_guest(vcpu, data, len);
-@@ -125,6 +128,7 @@ static int decode_hsr(struct kvm_vcpu *v
- 	unsigned long rt;
- 	int access_size;
- 	bool sign_extend;
-+	bool sixty_four;
- 
- 	if (kvm_vcpu_dabt_iss1tw(vcpu)) {
- 		/* page table accesses IO mem: tell guest to fix its TTBR */
-@@ -138,11 +142,13 @@ static int decode_hsr(struct kvm_vcpu *v
- 
- 	*is_write = kvm_vcpu_dabt_iswrite(vcpu);
- 	sign_extend = kvm_vcpu_dabt_issext(vcpu);
-+	sixty_four = kvm_vcpu_dabt_issf(vcpu);
- 	rt = kvm_vcpu_dabt_get_rd(vcpu);
- 
- 	*len = access_size;
- 	vcpu->arch.mmio_decode.sign_extend = sign_extend;
- 	vcpu->arch.mmio_decode.rt = rt;
-+	vcpu->arch.mmio_decode.sixty_four = sixty_four;
- 
- 	return 0;
- }
+-quiet_cmd_sysnr = SYSNR  $@
++quiet_cmd_sysnr = SYSNR   $@
+       cmd_sysnr = $(CONFIG_SHELL) '$(sysnr)' '$<' '$@'		\
+ 		  '$(sysnr_abis_$(basetarget))'			\
+ 		  '$(sysnr_pfx_$(basetarget))'			\
 
 
