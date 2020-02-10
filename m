@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E02F81578BE
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:10:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B421578A8
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:09:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728732AbgBJNKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:10:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36236 "EHLO mail.kernel.org"
+        id S1729613AbgBJNJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:09:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729368AbgBJMjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:14 -0500
+        id S1729399AbgBJMjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:20 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BD4F21739;
-        Mon, 10 Feb 2020 12:39:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C24E720733;
+        Mon, 10 Feb 2020 12:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338354;
-        bh=wovP3Mj7Cc3GvATp2zQxzdlvx6+rxd/8fCceQK2SHRs=;
+        s=default; t=1581338359;
+        bh=OR8aHjYil6DSiTAuNKe4AkTAl8Dsbgx1++0yiXkrjtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUGElK8jq3ggOTO5QxHD3kphCkb7U72IfOYrssS/ndVraDbz9zJ1SzWn9qlnuKMNA
-         /ITgmPrqMF2MnnBuFHKN8EDN5OUPBEXzUXIrXN3HgP6Prqgkf/fnDO5LAXstN08VkL
-         wSe5a/IF4VcAmbgIGHBDTzRLA0uyVkWkNroEqBbs=
+        b=KKuZwNW/+6mxNJg66PMgk8CB3d1vBGfhI944029nT8OSg1yBIJ+fSgctDoe6o0aXy
+         DR7bh1EHhWlle8fLlcLBL/ekto/9yjfHYyh0SAfMoABSr3SxcpVye5xmkq8Xgn6XZ0
+         OFebrnD/pcuZatx/nfjRrsUOXDsmtEv1BQ50Y3gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        "Dmitry V . Levin" <ldv@altlinux.org>,
-        Rich Felker <dalias@libc.org>, libc-alpha@sourceware.org,
-        Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 001/367] [PATCH] sparc32: fix struct ipc64_perm type definition
-Date:   Mon, 10 Feb 2020 04:28:34 -0800
-Message-Id: <20200210122423.883447269@linuxfoundation.org>
+Subject: [PATCH 5.5 002/367] bnxt_en: Move devlink_register before registering netdev
+Date:   Mon, 10 Feb 2020 04:28:35 -0800
+Message-Id: <20200210122423.996838240@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,69 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 34ca70ef7d3a9fa7e89151597db5e37ae1d429b4 ]
+[ Upstream commit cda2cab0771183932d6ba73c5ac63bb63decdadf ]
 
-As discussed in the strace issue tracker, it appears that the sparc32
-sysvipc support has been broken for the past 11 years. It was however
-working in compat mode, which is how it must have escaped most of the
-regular testing.
+Latest kernels get the phys_port_name via devlink, if
+ndo_get_phys_port_name is not defined. To provide the phys_port_name
+correctly, register devlink before registering netdev.
 
-The problem is that a cleanup patch inadvertently changed the uid/gid
-fields in struct ipc64_perm from 32-bit types to 16-bit types in uapi
-headers.
+Also call devlink_port_type_eth_set() after registering netdev as
+devlink port updates the netdev structure and notifies user.
 
-Both glibc and uclibc-ng still use the original types, so they should
-work fine with compat mode, but not natively.  Change the definitions
-to use __kernel_uid32_t and __kernel_gid32_t again.
-
-Fixes: 83c86984bff2 ("sparc: unify ipcbuf.h")
-Link: https://github.com/strace/strace/issues/116
-Cc: <stable@vger.kernel.org> # v2.6.29
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Dmitry V . Levin" <ldv@altlinux.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: libc-alpha@sourceware.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/include/uapi/asm/ipcbuf.h |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   12 ++++++++----
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c |    1 -
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/arch/sparc/include/uapi/asm/ipcbuf.h
-+++ b/arch/sparc/include/uapi/asm/ipcbuf.h
-@@ -17,19 +17,19 @@
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -11433,9 +11433,9 @@ static void bnxt_remove_one(struct pci_d
+ 		bnxt_sriov_disable(bp);
  
- struct ipc64_perm
- {
--	__kernel_key_t	key;
--	__kernel_uid_t	uid;
--	__kernel_gid_t	gid;
--	__kernel_uid_t	cuid;
--	__kernel_gid_t	cgid;
-+	__kernel_key_t		key;
-+	__kernel_uid32_t	uid;
-+	__kernel_gid32_t	gid;
-+	__kernel_uid32_t	cuid;
-+	__kernel_gid32_t	cgid;
- #ifndef __arch64__
--	unsigned short	__pad0;
-+	unsigned short		__pad0;
- #endif
--	__kernel_mode_t	mode;
--	unsigned short	__pad1;
--	unsigned short	seq;
--	unsigned long long __unused1;
--	unsigned long long __unused2;
-+	__kernel_mode_t		mode;
-+	unsigned short		__pad1;
-+	unsigned short		seq;
-+	unsigned long long	__unused1;
-+	unsigned long long	__unused2;
- };
+ 	bnxt_dl_fw_reporters_destroy(bp, true);
+-	bnxt_dl_unregister(bp);
+ 	pci_disable_pcie_error_reporting(pdev);
+ 	unregister_netdev(dev);
++	bnxt_dl_unregister(bp);
+ 	bnxt_shutdown_tc(bp);
+ 	bnxt_cancel_sp_work(bp);
+ 	bp->sp_event = 0;
+@@ -11905,11 +11905,14 @@ static int bnxt_init_one(struct pci_dev
+ 		bnxt_init_tc(bp);
+ 	}
  
- #endif /* __SPARC_IPCBUF_H */
++	bnxt_dl_register(bp);
++
+ 	rc = register_netdev(dev);
+ 	if (rc)
+-		goto init_err_cleanup_tc;
++		goto init_err_cleanup;
+ 
+-	bnxt_dl_register(bp);
++	if (BNXT_PF(bp))
++		devlink_port_type_eth_set(&bp->dl_port, bp->dev);
+ 	bnxt_dl_fw_reporters_create(bp);
+ 
+ 	netdev_info(dev, "%s found at mem %lx, node addr %pM\n",
+@@ -11919,7 +11922,8 @@ static int bnxt_init_one(struct pci_dev
+ 
+ 	return 0;
+ 
+-init_err_cleanup_tc:
++init_err_cleanup:
++	bnxt_dl_unregister(bp);
+ 	bnxt_shutdown_tc(bp);
+ 	bnxt_clear_int_mode(bp);
+ 
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
+@@ -526,7 +526,6 @@ int bnxt_dl_register(struct bnxt *bp)
+ 		netdev_err(bp->dev, "devlink_port_register failed");
+ 		goto err_dl_param_unreg;
+ 	}
+-	devlink_port_type_eth_set(&bp->dl_port, bp->dev);
+ 
+ 	rc = devlink_port_params_register(&bp->dl_port, bnxt_dl_port_params,
+ 					  ARRAY_SIZE(bnxt_dl_port_params));
 
 
