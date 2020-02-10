@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41743157A41
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:21:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2690B157A46
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728776AbgBJMha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
+        id S1730292AbgBJNVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:21:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728767AbgBJMh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728768AbgBJMh3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:37:29 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0313524649;
-        Mon, 10 Feb 2020 12:37:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83F7A24671;
+        Mon, 10 Feb 2020 12:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338248;
-        bh=CpLcdBXpLAY7Mi1THkNhFo1NTC21A9vtFyD/9QcbqPg=;
+        bh=Ass9Qglo5YTankLhHR3RLmxch4QTiOoSFpOhVzRIISk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jsh9L2V4qliYADE1icAfxLwyLdrF8/Pccr7S4NMlTw+T75b4l9R1rQpe9lhKRKGly
-         UOZoSGMRrB85CAEQM4MAbpgGIQET4GmkaHrfdAl7bDBTx5lING6M7Hu/lzKiLrjzEc
-         /07bkdq3pgfqdJeangst0fKq1UL9qUsAtnW9vQak=
+        b=gc52uEmNmGGGIAXHK3KzTzonnThmG3xHOg6VTeYNCIdkw0YXVoqQIFPLc75mW62/q
+         KzyKEQEPHfxWAmVYIOgbRvPsz4TC2kIT9NbDRisqyi5DEmz0dnDIPrhzsd9Kh2PkVt
+         Wr3zEImdxtEJI/BnF5wjnICTrQ6ZNc5LVvmKq3vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 108/309] fs: allow deduplication of eof block into the end of the destination file
-Date:   Mon, 10 Feb 2020 04:31:04 -0800
-Message-Id: <20200210122416.746170855@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.4 109/309] scripts/find-unused-docs: Fix massive false positives
+Date:   Mon, 10 Feb 2020 04:31:05 -0800
+Message-Id: <20200210122417.125536808@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -45,68 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit a5e6ea18e3d132be4716eb5fdd520c2c234e3003 upstream.
+commit 1630146db2111412e7524d05d812ff8f2c75977e upstream.
 
-We always round down, to a multiple of the filesystem's block size, the
-length to deduplicate at generic_remap_check_len().  However this is only
-needed if an attempt to deduplicate the last block into the middle of the
-destination file is requested, since that leads into a corruption if the
-length of the source file is not block size aligned.  When an attempt to
-deduplicate the last block into the end of the destination file is
-requested, we should allow it because it is safe to do it - there's no
-stale data exposure and we are prepared to compare the data ranges for
-a length not aligned to the block (or page) size - in fact we even do
-the data compare before adjusting the deduplication length.
+scripts/find-unused-docs.sh invokes scripts/kernel-doc to find out if a
+source file contains kerneldoc or not.
 
-After btrfs was updated to use the generic helpers from VFS (by commit
-34a28e3d77535e ("Btrfs: use generic_remap_file_range_prep() for cloning
-and deduplication")) we started to have user reports of deduplication
-not reflinking the last block anymore, and whence users getting lower
-deduplication scores.  The main use case is deduplication of entire
-files that have a size not aligned to the block size of the filesystem.
+However, as it passes the no longer supported "-text" option to
+scripts/kernel-doc, the latter prints out its help text, causing all
+files to be considered containing kerneldoc.
 
-We already allow cloning the last block to the end (and beyond) of the
-destination file, so allow for deduplication as well.
+Get rid of these false positives by removing the no longer supported
+"-text" option from the scripts/kernel-doc invocation.
 
-Link: https://lore.kernel.org/linux-btrfs/2019-1576167349.500456@svIo.N5dq.dFFD/
-CC: stable@vger.kernel.org # 5.1+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org  # 4.16+
+Fixes: b05142675310d2ac ("scripts: kernel-doc: get rid of unused output formats")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200127093107.26401-1-geert+renesas@glider.be
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/read_write.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ scripts/find-unused-docs.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1777,10 +1777,9 @@ static int remap_verify_area(struct file
-  * else.  Assume that the offsets have already been checked for block
-  * alignment.
-  *
-- * For deduplication we always scale down to the previous block because we
-- * can't meaningfully compare post-EOF contents.
-- *
-- * For clone we only link a partial EOF block above the destination file's EOF.
-+ * For clone we only link a partial EOF block above or at the destination file's
-+ * EOF.  For deduplication we accept a partial EOF block only if it ends at the
-+ * destination file's EOF (can not link it into the middle of a file).
-  *
-  * Shorten the request if possible.
-  */
-@@ -1796,8 +1795,7 @@ static int generic_remap_check_len(struc
- 	if ((*len & blkmask) == 0)
- 		return 0;
- 
--	if ((remap_flags & REMAP_FILE_DEDUP) ||
--	    pos_out + *len < i_size_read(inode_out))
-+	if (pos_out + *len < i_size_read(inode_out))
- 		new_len &= ~blkmask;
- 
- 	if (new_len == *len)
+--- a/scripts/find-unused-docs.sh
++++ b/scripts/find-unused-docs.sh
+@@ -54,7 +54,7 @@ for file in `find $1 -name '*.c'`; do
+ 	if [[ ${FILES_INCLUDED[$file]+_} ]]; then
+ 	continue;
+ 	fi
+-	str=$(scripts/kernel-doc -text -export "$file" 2>/dev/null)
++	str=$(scripts/kernel-doc -export "$file" 2>/dev/null)
+ 	if [[ -n "$str" ]]; then
+ 	echo "$file"
+ 	fi
 
 
