@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C356157584
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5806E157518
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729254AbgBJMla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43758 "EHLO mail.kernel.org"
+        id S1728546AbgBJMia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730005AbgBJMl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:29 -0500
+        id S1727698AbgBJMi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:29 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04B212085B;
-        Mon, 10 Feb 2020 12:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AC2D20838;
+        Mon, 10 Feb 2020 12:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338489;
-        bh=Zf2/fN+yFVuwN+D07uFxRUj+FqdUBL7qqbUS1ZvDQ/0=;
+        s=default; t=1581338309;
+        bh=Q4PnS2JzjpPbL/HeiLoeHjWVwjFTej7Ww8+17hOs4Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XHdQOuf3QKORRL3eCGlPwvpLLoD4qBsnmD1zon1heL1fdq6lWNSn1okegTctdF799
-         UxoIIoKXuPscVkIYuMMF6zqYDNFjc3pzjcdIhlcXpINvUwEr6qTTOcl2E1kM9Uwnk9
-         RIoOHErAP38I+UfquRgHZYEd61fNWEwRQX2dFju8=
+        b=r3m0UgddzQZJ2/wruTud7hCdaJDLM8xOi0ceHqYV4iZeANxdCvt7TZ6I1ccgdHIrU
+         nAo0wcCFwYmJc+diB1C6VG6PHX6omw5Dld3R0F4Xzp3kRmCWu0w7+1SUN+Dy087qQK
+         MSiv+J7/XDQF08mzKQHeP0kradu3LA8HD/nbIkMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.5 272/367] drm/amdgpu/navi10: add OD_RANGE for navi overclocking
-Date:   Mon, 10 Feb 2020 04:33:05 -0800
-Message-Id: <20200210122449.378070584@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.4 230/309] clk: tegra: Mark fuse clock as critical
+Date:   Mon, 10 Feb 2020 04:33:06 -0800
+Message-Id: <20200210122428.629151015@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,103 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Stephen Warren <swarren@nvidia.com>
 
-commit ee23a518fdc2c1dd1aaaf3a2c7ffdd6c83b396ec upstream.
+commit bf83b96f87ae2abb1e535306ea53608e8de5dfbb upstream.
 
-So users can see the range of valid values.
+For a little over a year, U-Boot on Tegra124 has configured the flow
+controller to perform automatic RAM re-repair on off->on power
+transitions of the CPU rail[1]. This is mandatory for correct operation
+of Tegra124. However, RAM re-repair relies on certain clocks, which the
+kernel must enable and leave running. The fuse clock is one of those
+clocks. Mark this clock as critical so that LP1 power mode (system
+suspend) operates correctly.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/1020
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.5.x
+[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
+
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/navi10_ppt.c |   59 +++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+ drivers/clk/tegra/clk-tegra-periph.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-@@ -710,6 +710,15 @@ static inline bool navi10_od_feature_is_
- 	return od_table->cap[feature];
- }
- 
-+static void navi10_od_setting_get_range(struct smu_11_0_overdrive_table *od_table,
-+					enum SMU_11_0_ODSETTING_ID setting,
-+					uint32_t *min, uint32_t *max)
-+{
-+	if (min)
-+		*min = od_table->min[setting];
-+	if (max)
-+		*max = od_table->max[setting];
-+}
- 
- static int navi10_print_clk_levels(struct smu_context *smu,
- 			enum smu_clk_type clk_type, char *buf)
-@@ -728,6 +737,7 @@ static int navi10_print_clk_levels(struc
- 	OverDriveTable_t *od_table =
- 		(OverDriveTable_t *)table_context->overdrive_table;
- 	struct smu_11_0_overdrive_table *od_settings = smu->od_settings;
-+	uint32_t min_value, max_value;
- 
- 	switch (clk_type) {
- 	case SMU_GFXCLK:
-@@ -841,6 +851,55 @@ static int navi10_print_clk_levels(struc
- 			size += sprintf(buf + size, "%d: %uMHz @ %umV\n", i, curve_settings[0], curve_settings[1] / NAVI10_VOLTAGE_SCALE);
- 		}
- 		break;
-+	case SMU_OD_RANGE:
-+		if (!smu->od_enabled || !od_table || !od_settings)
-+			break;
-+		size = sprintf(buf, "%s:\n", "OD_RANGE");
-+
-+		if (navi10_od_feature_is_supported(od_settings, SMU_11_0_ODFEATURE_GFXCLK_LIMITS)) {
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_GFXCLKFMIN,
-+						    &min_value, NULL);
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_GFXCLKFMAX,
-+						    NULL, &max_value);
-+			size += sprintf(buf + size, "SCLK: %7uMhz %10uMhz\n",
-+					min_value, max_value);
-+		}
-+
-+		if (navi10_od_feature_is_supported(od_settings, SMU_11_0_ODFEATURE_UCLK_MAX)) {
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_UCLKFMAX,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "MCLK: %7uMhz %10uMhz\n",
-+					min_value, max_value);
-+		}
-+
-+		if (navi10_od_feature_is_supported(od_settings, SMU_11_0_ODFEATURE_GFXCLK_CURVE)) {
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_VDDGFXCURVEFREQ_P1,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "VDDC_CURVE_SCLK[0]: %7uMhz %10uMhz\n",
-+					min_value, max_value);
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_VDDGFXCURVEVOLTAGE_P1,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "VDDC_CURVE_VOLT[0]: %7dmV %11dmV\n",
-+					min_value, max_value);
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_VDDGFXCURVEFREQ_P2,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "VDDC_CURVE_SCLK[1]: %7uMhz %10uMhz\n",
-+					min_value, max_value);
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_VDDGFXCURVEVOLTAGE_P2,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "VDDC_CURVE_VOLT[1]: %7dmV %11dmV\n",
-+					min_value, max_value);
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_VDDGFXCURVEFREQ_P3,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "VDDC_CURVE_SCLK[2]: %7uMhz %10uMhz\n",
-+					min_value, max_value);
-+			navi10_od_setting_get_range(od_settings, SMU_11_0_ODSETTING_VDDGFXCURVEVOLTAGE_P3,
-+						    &min_value, &max_value);
-+			size += sprintf(buf + size, "VDDC_CURVE_VOLT[2]: %7dmV %11dmV\n",
-+					min_value, max_value);
-+		}
-+
-+		break;
- 	default:
- 		break;
- 	}
+--- a/drivers/clk/tegra/clk-tegra-periph.c
++++ b/drivers/clk/tegra/clk-tegra-periph.c
+@@ -785,7 +785,11 @@ static struct tegra_periph_init_data gat
+ 	GATE("ahbdma", "hclk", 33, 0, tegra_clk_ahbdma, 0),
+ 	GATE("apbdma", "pclk", 34, 0, tegra_clk_apbdma, 0),
+ 	GATE("kbc", "clk_32k", 36, TEGRA_PERIPH_ON_APB | TEGRA_PERIPH_NO_RESET, tegra_clk_kbc, 0),
+-	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, 0),
++	/*
++	 * Critical for RAM re-repair operation, which must occur on resume
++	 * from LP1 system suspend and as part of CCPLEX cluster switching.
++	 */
++	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, CLK_IS_CRITICAL),
+ 	GATE("fuse_burn", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse_burn, 0),
+ 	GATE("kfuse", "clk_m", 40, TEGRA_PERIPH_ON_APB, tegra_clk_kfuse, 0),
+ 	GATE("apbif", "clk_m", 107, TEGRA_PERIPH_ON_APB, tegra_clk_apbif, 0),
 
 
