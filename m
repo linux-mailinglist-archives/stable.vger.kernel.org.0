@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD368157A91
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE40157A8F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728973AbgBJNXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:23:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58298 "EHLO mail.kernel.org"
+        id S1728111AbgBJNXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:23:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728656AbgBJMhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:11 -0500
+        id S1728663AbgBJMhM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2BB024682;
-        Mon, 10 Feb 2020 12:37:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 317E12051A;
+        Mon, 10 Feb 2020 12:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338230;
-        bh=09SYqOBbhNp3PmyxLBZXQZrSJJzmBUGN03hJg5diMvo=;
+        s=default; t=1581338231;
+        bh=umZ8qvNJVUO4pM3hHHLwj3O2jPhnSNExIOdVA6tCJBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZKWONZI5M79YQ53ZaPAAXQLj1muGFvFksOOC8qv+5+d2JyJEajx61j8zAwTdY9CF
-         KPiMZicKJkXWMbp0TfYbUPIwMkIyi6i11qoM8k9Brrarc3pTiMgHXWdKdMqeBEeOMb
-         bUY7Pk89aocgcVHY6LBPvDbM9/dq7Jujz0EZ15yQ=
+        b=AHD7Bmdbj4olBm2w5Va4TmTff6pJoSMxX1rtIOVMc+a4pNtQbicn6gzTFPXOPeb7P
+         GMjJsHJpd8OQzKc3CAZSH2k60rUPzBecfEMfjoOxVr3M0tAv/oPn4EfP9WylhURb5r
+         0niKR3bd5gUFD+cHWkroIYqAFKHBpGx+Q6yCXHeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 073/309] s390/mm: fix dynamic pagetable upgrade for hugetlbfs
-Date:   Mon, 10 Feb 2020 04:30:29 -0800
-Message-Id: <20200210122412.893873313@linuxfoundation.org>
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 074/309] powerpc/mmu_gather: enable RCU_TABLE_FREE even for !SMP case
+Date:   Mon, 10 Feb 2020 04:30:30 -0800
+Message-Id: <20200210122412.974846456@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -44,181 +47,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 5f490a520bcb393389a4d44bec90afcb332eb112 upstream.
+commit 12e4d53f3f04e81f9e83d6fc10edc7314ab9f6b9 upstream.
 
-Commit ee71d16d22bb ("s390/mm: make TASK_SIZE independent from the number
-of page table levels") changed the logic of TASK_SIZE and also removed the
-arch_mmap_check() implementation for s390. This combination has a subtle
-effect on how get_unmapped_area() for hugetlbfs pages works. It is now
-possible that a user process establishes a hugetlbfs mapping at an address
-above 4 TB, without triggering a dynamic pagetable upgrade from 3 to 4
-levels.
+Patch series "Fixup page directory freeing", v4.
 
-This is because hugetlbfs mappings will not use mm->get_unmapped_area, but
-rather file->f_op->get_unmapped_area, which currently is the generic
-implementation of hugetlb_get_unmapped_area() that does not know about s390
-dynamic pagetable upgrades, but with the new definition of TASK_SIZE, it
-will now allow mappings above 4 TB.
+This is a repost of patch series from Peter with the arch specific changes
+except ppc64 dropped.  ppc64 changes are added here because we are redoing
+the patch series on top of ppc64 changes.  This makes it easy to backport
+these changes.  Only the first 2 patches need to be backported to stable.
 
-Subsequent access to such a mapped address above 4 TB will result in a page
-fault loop, because the CPU cannot translate such a large address with 3
-pagetable levels. The fault handler will try to map in a hugepage at the
-address, but due to the folded pagetable logic it will end up with creating
-entries in the 3 level pagetable, possibly overwriting existing mappings,
-and then it all repeats when the access is retried.
+The thing is, on anything SMP, freeing page directories should observe the
+exact same order as normal page freeing:
 
-Apart from the page fault loop, this can have various nasty effects, e.g.
-kernel panic from one of the BUG_ON() checks in memory management code,
-or even data loss if an existing mapping gets overwritten.
+ 1) unhook page/directory
+ 2) TLB invalidate
+ 3) free page/directory
 
-Fix this by implementing HAVE_ARCH_HUGETLB_UNMAPPED_AREA support for s390,
-providing an s390 version for hugetlb_get_unmapped_area() with pagetable
-upgrade support similar to arch_get_unmapped_area(), which will then be
-used instead of the generic version.
+Without this, any concurrent page-table walk could end up with a
+Use-after-Free.  This is esp.  trivial for anything that has software
+page-table walkers (HAVE_FAST_GUP / software TLB fill) or the hardware
+caches partial page-walks (ie.  caches page directories).
 
-Fixes: ee71d16d22bb ("s390/mm: make TASK_SIZE independent from the number of page table levels")
-Cc: <stable@vger.kernel.org> # 4.12+
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Even on UP this might give issues since mmu_gather is preemptible these
+days.  An interrupt or preempted task accessing user pages might stumble
+into the free page if the hardware caches page directories.
+
+This patch series fixes ppc64 and add generic MMU_GATHER changes to
+support the conversion of other architectures.  I haven't added patches
+w.r.t other architecture because they are yet to be acked.
+
+This patch (of 9):
+
+A followup patch is going to make sure we correctly invalidate page walk
+cache before we free page table pages.  In order to keep things simple
+enable RCU_TABLE_FREE even for !SMP so that we don't have to fixup the
+!SMP case differently in the followup patch
+
+!SMP case is right now broken for radix translation w.r.t page walk
+cache flush.  We can get interrupted in between page table free and
+that would imply we have page walk cache entries pointing to tables
+which got freed already.  Michael said "both our platforms that run on
+Power9 force SMP on in Kconfig, so the !SMP case is unlikely to be a
+problem for anyone in practice, unless they've hacked their kernel to
+build it !SMP."
+
+Link: http://lkml.kernel.org/r/20200116064531.483522-2-aneesh.kumar@linux.ibm.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/page.h |    2 
- arch/s390/mm/hugetlbpage.c   |  100 ++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 101 insertions(+), 1 deletion(-)
+ arch/powerpc/Kconfig                         |    2 +-
+ arch/powerpc/include/asm/book3s/32/pgalloc.h |    8 --------
+ arch/powerpc/include/asm/book3s/64/pgalloc.h |    2 --
+ arch/powerpc/include/asm/nohash/pgalloc.h    |    8 --------
+ arch/powerpc/mm/book3s64/pgtable.c           |    7 -------
+ 5 files changed, 1 insertion(+), 26 deletions(-)
 
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -33,6 +33,8 @@
- #define ARCH_HAS_PREPARE_HUGEPAGE
- #define ARCH_HAS_HUGEPAGE_CLEAR_FLUSH
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -221,7 +221,7 @@ config PPC
+ 	select HAVE_HARDLOCKUP_DETECTOR_PERF	if PERF_EVENTS && HAVE_PERF_EVENTS_NMI && !HAVE_HARDLOCKUP_DETECTOR_ARCH
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+-	select HAVE_RCU_TABLE_FREE		if SMP
++	select HAVE_RCU_TABLE_FREE
+ 	select HAVE_RCU_TABLE_NO_INVALIDATE	if HAVE_RCU_TABLE_FREE
+ 	select HAVE_MMU_GATHER_PAGE_SIZE
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+--- a/arch/powerpc/include/asm/book3s/32/pgalloc.h
++++ b/arch/powerpc/include/asm/book3s/32/pgalloc.h
+@@ -49,7 +49,6 @@ static inline void pgtable_free(void *ta
  
-+#define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
-+
- #include <asm/setup.h>
- #ifndef __ASSEMBLY__
+ #define get_hugepd_cache_index(x)  (x)
  
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -2,7 +2,7 @@
- /*
-  *  IBM System z Huge TLB Page Support for Kernel.
-  *
-- *    Copyright IBM Corp. 2007,2016
-+ *    Copyright IBM Corp. 2007,2020
-  *    Author(s): Gerald Schaefer <gerald.schaefer@de.ibm.com>
-  */
+-#ifdef CONFIG_SMP
+ static inline void pgtable_free_tlb(struct mmu_gather *tlb,
+ 				    void *table, int shift)
+ {
+@@ -66,13 +65,6 @@ static inline void __tlb_remove_table(vo
  
-@@ -11,6 +11,9 @@
- 
- #include <linux/mm.h>
- #include <linux/hugetlb.h>
-+#include <linux/mman.h>
-+#include <linux/sched/mm.h>
-+#include <linux/security.h>
- 
- /*
-  * If the bit selected by single-bit bitmask "a" is set within "x", move
-@@ -267,3 +270,98 @@ static __init int setup_hugepagesz(char
- 	return 1;
+ 	pgtable_free(table, shift);
  }
- __setup("hugepagesz=", setup_hugepagesz);
-+
-+static unsigned long hugetlb_get_unmapped_area_bottomup(struct file *file,
-+		unsigned long addr, unsigned long len,
-+		unsigned long pgoff, unsigned long flags)
-+{
-+	struct hstate *h = hstate_file(file);
-+	struct vm_unmapped_area_info info;
-+
-+	info.flags = 0;
-+	info.length = len;
-+	info.low_limit = current->mm->mmap_base;
-+	info.high_limit = TASK_SIZE;
-+	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
-+	info.align_offset = 0;
-+	return vm_unmapped_area(&info);
-+}
-+
-+static unsigned long hugetlb_get_unmapped_area_topdown(struct file *file,
-+		unsigned long addr0, unsigned long len,
-+		unsigned long pgoff, unsigned long flags)
-+{
-+	struct hstate *h = hstate_file(file);
-+	struct vm_unmapped_area_info info;
-+	unsigned long addr;
-+
-+	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
-+	info.length = len;
-+	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
-+	info.high_limit = current->mm->mmap_base;
-+	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
-+	info.align_offset = 0;
-+	addr = vm_unmapped_area(&info);
-+
-+	/*
-+	 * A failed mmap() very likely causes application failure,
-+	 * so fall back to the bottom-up function here. This scenario
-+	 * can happen with large stack limits and large mmap()
-+	 * allocations.
-+	 */
-+	if (addr & ~PAGE_MASK) {
-+		VM_BUG_ON(addr != -ENOMEM);
-+		info.flags = 0;
-+		info.low_limit = TASK_UNMAPPED_BASE;
-+		info.high_limit = TASK_SIZE;
-+		addr = vm_unmapped_area(&info);
-+	}
-+
-+	return addr;
-+}
-+
-+unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
-+		unsigned long len, unsigned long pgoff, unsigned long flags)
-+{
-+	struct hstate *h = hstate_file(file);
-+	struct mm_struct *mm = current->mm;
-+	struct vm_area_struct *vma;
-+	int rc;
-+
-+	if (len & ~huge_page_mask(h))
-+		return -EINVAL;
-+	if (len > TASK_SIZE - mmap_min_addr)
-+		return -ENOMEM;
-+
-+	if (flags & MAP_FIXED) {
-+		if (prepare_hugepage_range(file, addr, len))
-+			return -EINVAL;
-+		goto check_asce_limit;
-+	}
-+
-+	if (addr) {
-+		addr = ALIGN(addr, huge_page_size(h));
-+		vma = find_vma(mm, addr);
-+		if (TASK_SIZE - len >= addr && addr >= mmap_min_addr &&
-+		    (!vma || addr + len <= vm_start_gap(vma)))
-+			goto check_asce_limit;
-+	}
-+
-+	if (mm->get_unmapped_area == arch_get_unmapped_area)
-+		addr = hugetlb_get_unmapped_area_bottomup(file, addr, len,
-+				pgoff, flags);
-+	else
-+		addr = hugetlb_get_unmapped_area_topdown(file, addr, len,
-+				pgoff, flags);
-+	if (addr & ~PAGE_MASK)
-+		return addr;
-+
-+check_asce_limit:
-+	if (addr + len > current->mm->context.asce_limit &&
-+	    addr + len <= TASK_SIZE) {
-+		rc = crst_table_upgrade(mm, addr + len);
-+		if (rc)
-+			return (unsigned long) rc;
-+	}
-+	return addr;
-+}
+-#else
+-static inline void pgtable_free_tlb(struct mmu_gather *tlb,
+-				    void *table, int shift)
+-{
+-	pgtable_free(table, shift);
+-}
+-#endif
+ 
+ static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
+ 				  unsigned long address)
+--- a/arch/powerpc/include/asm/book3s/64/pgalloc.h
++++ b/arch/powerpc/include/asm/book3s/64/pgalloc.h
+@@ -19,9 +19,7 @@ extern struct vmemmap_backing *vmemmap_l
+ extern pmd_t *pmd_fragment_alloc(struct mm_struct *, unsigned long);
+ extern void pmd_fragment_free(unsigned long *);
+ extern void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int shift);
+-#ifdef CONFIG_SMP
+ extern void __tlb_remove_table(void *_table);
+-#endif
+ void pte_frag_destroy(void *pte_frag);
+ 
+ static inline pgd_t *radix__pgd_alloc(struct mm_struct *mm)
+--- a/arch/powerpc/include/asm/nohash/pgalloc.h
++++ b/arch/powerpc/include/asm/nohash/pgalloc.h
+@@ -46,7 +46,6 @@ static inline void pgtable_free(void *ta
+ 
+ #define get_hugepd_cache_index(x)	(x)
+ 
+-#ifdef CONFIG_SMP
+ static inline void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int shift)
+ {
+ 	unsigned long pgf = (unsigned long)table;
+@@ -64,13 +63,6 @@ static inline void __tlb_remove_table(vo
+ 	pgtable_free(table, shift);
+ }
+ 
+-#else
+-static inline void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int shift)
+-{
+-	pgtable_free(table, shift);
+-}
+-#endif
+-
+ static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
+ 				  unsigned long address)
+ {
+--- a/arch/powerpc/mm/book3s64/pgtable.c
++++ b/arch/powerpc/mm/book3s64/pgtable.c
+@@ -378,7 +378,6 @@ static inline void pgtable_free(void *ta
+ 	}
+ }
+ 
+-#ifdef CONFIG_SMP
+ void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int index)
+ {
+ 	unsigned long pgf = (unsigned long)table;
+@@ -395,12 +394,6 @@ void __tlb_remove_table(void *_table)
+ 
+ 	return pgtable_free(table, index);
+ }
+-#else
+-void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int index)
+-{
+-	return pgtable_free(table, index);
+-}
+-#endif
+ 
+ #ifdef CONFIG_PROC_FS
+ atomic_long_t direct_pages_count[MMU_PAGE_COUNT];
 
 
