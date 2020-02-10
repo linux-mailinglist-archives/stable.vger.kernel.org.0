@@ -2,38 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 866C4157B02
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:27:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7792157862
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728750AbgBJN0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:26:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
+        id S1729091AbgBJNH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:07:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728472AbgBJMgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:42 -0500
+        id S1729490AbgBJMjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:42 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80C662051A;
-        Mon, 10 Feb 2020 12:36:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A84820661;
+        Mon, 10 Feb 2020 12:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338201;
-        bh=VOS8l+8h754/Kct7mPhTe9ZEIvqJpnlDf+dQg/7zPl0=;
+        s=default; t=1581338381;
+        bh=A95hlQ6AVMm6kpXa44K/lEBxP2TWcW8AepWKW9AqfRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZ/bSKs+CrFmJXD5lXr6vEnFctKx4+o9yKA8/ZaKuGP6eWA36sEOCx9c0z5DXZ1lQ
-         zRqvuoMbSwni+jNTOopkuEUL5iRyj/TNe0GmAcOwHZZXXcl+i1DH0AmAfKT3aWRnM6
-         AW1EXqLHwYTCTqFda4/wXPbJv1e/hZygo1sxdvUE=
+        b=16WrHD5ALC6Nyc6dQvTFoH0L3cYsy6915ItQ7uc6QCOXugznA3/ZKQ10Ko4Ar9nNJ
+         p+AHuxNgFd4DS5mBbt5/lsTo/qxL5pkMXP+lEeJPbvtBprvhBXV9FSxaEzZAgMjX89
+         bK9+tDr7ThdVJD4PmhvsK449ZZaQhGAufz9IYypg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 018/309] ionic: fix rxq comp packet type mask
+        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+        Jerome Glisse <jglisse@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 061/367] media/v4l2-core: set pages dirty upon releasing DMA buffers
 Date:   Mon, 10 Feb 2020 04:29:34 -0800
-Message-Id: <20200210122407.739393002@linuxfoundation.org>
+Message-Id: <20200210122429.708255637@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +60,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: John Hubbard <jhubbard@nvidia.com>
 
-[ Upstream commit b5ce31b5e11b768b7d685b2bab7db09ad5549493 ]
+commit 3c7470b6f68434acae459482ab920d1e3fabd1c7 upstream.
 
-Be sure to include all the packet type bits in the mask.
+After DMA is complete, and the device and CPU caches are synchronized,
+it's still required to mark the CPU pages as dirty, if the data was
+coming from the device.  However, this driver was just issuing a bare
+put_page() call, without any set_page_dirty*() call.
 
-Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix the problem, by calling set_page_dirty_lock() if the CPU pages were
+potentially receiving data from the device.
+
+Link: http://lkml.kernel.org/r/20200107224558.2362728-11-jhubbard@nvidia.com
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Björn Töpel <bjorn.topel@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Leon Romanovsky <leonro@mellanox.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/pensando/ionic/ionic_if.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/pensando/ionic/ionic_if.h
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_if.h
-@@ -862,7 +862,7 @@ struct ionic_rxq_comp {
- #define IONIC_RXQ_COMP_CSUM_F_VLAN	0x40
- #define IONIC_RXQ_COMP_CSUM_F_CALC	0x80
- 	u8     pkt_type_color;
--#define IONIC_RXQ_COMP_PKT_TYPE_MASK	0x0f
-+#define IONIC_RXQ_COMP_PKT_TYPE_MASK	0x7f
- };
+---
+ drivers/media/v4l2-core/videobuf-dma-sg.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/drivers/media/v4l2-core/videobuf-dma-sg.c
++++ b/drivers/media/v4l2-core/videobuf-dma-sg.c
+@@ -349,8 +349,11 @@ int videobuf_dma_free(struct videobuf_dm
+ 	BUG_ON(dma->sglen);
  
- enum ionic_pkt_type {
+ 	if (dma->pages) {
+-		for (i = 0; i < dma->nr_pages; i++)
++		for (i = 0; i < dma->nr_pages; i++) {
++			if (dma->direction == DMA_FROM_DEVICE)
++				set_page_dirty_lock(dma->pages[i]);
+ 			put_page(dma->pages[i]);
++		}
+ 		kfree(dma->pages);
+ 		dma->pages = NULL;
+ 	}
 
 
