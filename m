@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF6A1579C6
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F441579CB
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728965AbgBJMh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60632 "EHLO mail.kernel.org"
+        id S1729142AbgBJNSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:18:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728958AbgBJMh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:56 -0500
+        id S1728961AbgBJMh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:57 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335E424680;
+        by mail.kernel.org (Postfix) with ESMTPSA id AAB322168B;
         Mon, 10 Feb 2020 12:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338276;
-        bh=5ffel+uqaGLmRjLQorijdcIDxRctM3kqvSQoBkq/7sA=;
+        bh=dbT2HJ03wcRgkccWrDwHhvTc/3UAs06v8MHzqQvBWis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0KzJ87B7bG1LbZa45guejEHfBSQa9Grv7DFntTrrgfxXI8ld1FAg80EhiwGfbY+5
-         CKQYyKkom0NqiCzQJzNRqhwcqudEHpXhmciWcoUz+v2Uw/VQ3mSqwodSWXfDV8kuCL
-         FRcgg4GE+3rocD0wrzrwg+HJyurY7Ca3b7bcOKoI=
+        b=geJWpBs0uL/Uq+X5Yehi0p6xw6o6oABa8mr1VogUGpQN+NLRfLqssSCKYx+1+LS4Z
+         LFb7BwtIMu0yn7ZMiwNq+xtx9hfTsLBQ+E+/FB5dJ7JMEf9XkTMaicIigCEM+CP/+z
+         KOPx25VjgrklujrbykbRKVx9jmnIw7TPvNMv0JjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 162/309] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
-Date:   Mon, 10 Feb 2020 04:31:58 -0800
-Message-Id: <20200210122421.777359103@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e808452bad7c375cbee6@syzkaller-ppc64.appspotmail.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: [PATCH 5.4 163/309] powerpc/futex: Fix incorrect user access blocking
+Date:   Mon, 10 Feb 2020 04:31:59 -0800
+Message-Id: <20200210122421.891045626@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,62 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
+commit 9dc086f1e9ef39dd823bd27954b884b2062f9e70 upstream.
 
-Since tasklet is needed to be initialized before registering IRQ
-handler, adjust the position of tasklet_init to fix the wrong order.
+The early versions of our kernel user access prevention (KUAP) were
+written by Russell and Christophe, and didn't have separate
+read/write access.
 
-Besides, to fix the missed tasklet_kill, this patch adds a helper
-function and uses devm_add_action to kill the tasklet automatically.
+At some point I picked up the series and added the read/write access,
+but I failed to update the usages in futex.h to correctly allow read
+and write.
 
-Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+However we didn't notice because of another bug which was causing the
+low-level code to always enable read and write. That bug was fixed
+recently in commit 1d8f739b07bd ("powerpc/kuap: Fix set direction in
+allow/prevent_user_access()").
+
+futex_atomic_cmpxchg_inatomic() is passed the user address as %3 and
+does:
+
+  1:     lwarx   %1,  0, %3
+         cmpw    0,  %1, %4
+         bne-    3f
+  2:     stwcx.  %5,  0, %3
+
+Which clearly loads and stores from/to %3. The logic in
+arch_futex_atomic_op_inuser() is similar, so fix both of them to use
+allow_read_write_user().
+
+Without this fix, and with PPC_KUAP_DEBUG=y, we see eg:
+
+  Bug: Read fault blocked by AMR!
+  WARNING: CPU: 94 PID: 149215 at arch/powerpc/include/asm/book3s/64/kup-radix.h:126 __do_page_fault+0x600/0xf30
+  CPU: 94 PID: 149215 Comm: futex_requeue_p Tainted: G        W         5.5.0-rc7-gcc9x-g4c25df5640ae #1
+  ...
+  NIP [c000000000070680] __do_page_fault+0x600/0xf30
+  LR [c00000000007067c] __do_page_fault+0x5fc/0xf30
+  Call Trace:
+  [c00020138e5637e0] [c00000000007067c] __do_page_fault+0x5fc/0xf30 (unreliable)
+  [c00020138e5638c0] [c00000000000ada8] handle_page_fault+0x10/0x30
+  --- interrupt: 301 at cmpxchg_futex_value_locked+0x68/0xd0
+      LR = futex_lock_pi_atomic+0xe0/0x1f0
+  [c00020138e563bc0] [c000000000217b50] futex_lock_pi_atomic+0x80/0x1f0 (unreliable)
+  [c00020138e563c30] [c00000000021b668] futex_requeue+0x438/0xb60
+  [c00020138e563d60] [c00000000021c6cc] do_futex+0x1ec/0x2b0
+  [c00020138e563d90] [c00000000021c8b8] sys_futex+0x128/0x200
+  [c00020138e563e20] [c00000000000b7ac] system_call+0x5c/0x68
+
+Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: syzbot+e808452bad7c375cbee6@syzkaller-ppc64.appspotmail.com
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Link: https://lore.kernel.org/r/20200207122145.11928-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/futex.h |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/crypto/picoxcell_crypto.c
-+++ b/drivers/crypto/picoxcell_crypto.c
-@@ -1613,6 +1613,11 @@ static const struct of_device_id spacc_o
- MODULE_DEVICE_TABLE(of, spacc_of_id_table);
- #endif /* CONFIG_OF */
- 
-+static void spacc_tasklet_kill(void *data)
-+{
-+	tasklet_kill(data);
-+}
-+
- static int spacc_probe(struct platform_device *pdev)
+--- a/arch/powerpc/include/asm/futex.h
++++ b/arch/powerpc/include/asm/futex.h
+@@ -35,7 +35,7 @@ static inline int arch_futex_atomic_op_i
  {
- 	int i, err, ret;
-@@ -1655,6 +1660,14 @@ static int spacc_probe(struct platform_d
- 		return -ENXIO;
- 	}
+ 	int oldval = 0, ret;
  
-+	tasklet_init(&engine->complete, spacc_spacc_complete,
-+		     (unsigned long)engine);
-+
-+	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
-+			      &engine->complete);
-+	if (ret)
-+		return ret;
-+
- 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
- 			     engine->name, engine)) {
- 		dev_err(engine->dev, "failed to request IRQ\n");
-@@ -1712,8 +1725,6 @@ static int spacc_probe(struct platform_d
- 	INIT_LIST_HEAD(&engine->completed);
- 	INIT_LIST_HEAD(&engine->in_progress);
- 	engine->in_flight = 0;
--	tasklet_init(&engine->complete, spacc_spacc_complete,
--		     (unsigned long)engine);
+-	allow_write_to_user(uaddr, sizeof(*uaddr));
++	allow_read_write_user(uaddr, uaddr, sizeof(*uaddr));
+ 	pagefault_disable();
  
- 	platform_set_drvdata(pdev, engine);
+ 	switch (op) {
+@@ -62,7 +62,7 @@ static inline int arch_futex_atomic_op_i
+ 
+ 	*oval = oldval;
+ 
+-	prevent_write_to_user(uaddr, sizeof(*uaddr));
++	prevent_read_write_user(uaddr, uaddr, sizeof(*uaddr));
+ 	return ret;
+ }
+ 
+@@ -76,7 +76,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	if (!access_ok(uaddr, sizeof(u32)))
+ 		return -EFAULT;
+ 
+-	allow_write_to_user(uaddr, sizeof(*uaddr));
++	allow_read_write_user(uaddr, uaddr, sizeof(*uaddr));
++
+         __asm__ __volatile__ (
+         PPC_ATOMIC_ENTRY_BARRIER
+ "1:     lwarx   %1,0,%3         # futex_atomic_cmpxchg_inatomic\n\
+@@ -97,7 +98,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+         : "cc", "memory");
+ 
+ 	*uval = prev;
+-	prevent_write_to_user(uaddr, sizeof(*uaddr));
++	prevent_read_write_user(uaddr, uaddr, sizeof(*uaddr));
++
+         return ret;
+ }
  
 
 
