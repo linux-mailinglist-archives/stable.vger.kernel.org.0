@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7871577B7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA9A21579EA
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729772AbgBJMkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
+        id S1727775AbgBJNTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:19:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729301AbgBJMki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:38 -0500
+        id S1728913AbgBJMht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:49 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFDA420661;
-        Mon, 10 Feb 2020 12:40:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7448A20838;
+        Mon, 10 Feb 2020 12:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338438;
-        bh=UUQFGP3pj9DJoqDSltpk18FQw+I+6J/hACUTurBQtEw=;
+        s=default; t=1581338268;
+        bh=On/b13BkslPuTXAbYJbp7a7hdtDg7ESrC7NRhPdErqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egih3imhOsgzU+xsKR6nop60763Y/8C+P1ekdgShlG9Bj/zhGjC8TAQ8b77Q8le+F
-         KJf42j9bcCwBhy8HgJbJiJLslKZ5BHDk+vUboUc0qzQXZrGr2RuOdlmQ0tbgUrk4Q9
-         /O1z4VOO+gv5EGnzolw+BMz1m+SzveT1hzVsfJFw=
+        b=OljBu6XznnAKGdEsSCrfh1joh9IVSuv5U+Ceyes/Z0+OJIZxAPXWUZvmYaXSn8WTD
+         fNPg216NRjtn1NFyaGqtdtGHTNOp0/y2la5y2SGLcO3tMLKKHwuQ73BLXiMVR/68k/
+         C9Z7ZUTY/wq8w1O9+yWxgFHs9u9cqK6PlineWSJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.5 173/367] selftests: bpf: Ignore FIN packets for reuseport tests
-Date:   Mon, 10 Feb 2020 04:31:26 -0800
-Message-Id: <20200210122440.824564923@linuxfoundation.org>
+        stable@vger.kernel.org, Jerad Simpson <jbsimpson@gmail.com>,
+        Milan Broz <gmazyland@gmail.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 131/309] dm crypt: fix benbi IV constructor crash if used in authenticated mode
+Date:   Mon, 10 Feb 2020 04:31:27 -0800
+Message-Id: <20200210122418.955759660@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Milan Broz <gmazyland@gmail.com>
 
-commit 8bec4f665e0baecb5f1b683379fc10b3745eb612 upstream.
+commit 4ea9471fbd1addb25a4d269991dc724e200ca5b5 upstream.
 
-The reuseport tests currently suffer from a race condition: FIN
-packets count towards DROP_ERR_SKB_DATA, since they don't contain
-a valid struct cmd. Tests will spuriously fail depending on whether
-check_results is called before or after the FIN is processed.
+If benbi IV is used in AEAD construction, for example:
+  cryptsetup luksFormat <device> --cipher twofish-xts-benbi --key-size 512 --integrity=hmac-sha256
+the constructor uses wrong skcipher function and crashes:
 
-Exit the BPF program early if FIN is set.
+ BUG: kernel NULL pointer dereference, address: 00000014
+ ...
+ EIP: crypt_iv_benbi_ctr+0x15/0x70 [dm_crypt]
+ Call Trace:
+  ? crypt_subkey_size+0x20/0x20 [dm_crypt]
+  crypt_ctr+0x567/0xfc0 [dm_crypt]
+  dm_table_add_target+0x15f/0x340 [dm_mod]
 
-Fixes: 91134d849a0e ("bpf: Test BPF_PROG_TYPE_SK_REUSEPORT")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20200124112754.19664-3-lmb@cloudflare.com
+Fix this by properly using crypt_aead_blocksize() in this case.
+
+Fixes: ef43aa38063a6 ("dm crypt: add cryptographic data integrity protection (authenticated encryption)")
+Cc: stable@vger.kernel.org # v4.12+
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=941051
+Reported-by: Jerad Simpson <jbsimpson@gmail.com>
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/bpf/progs/test_select_reuseport_kern.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/md/dm-crypt.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/bpf/progs/test_select_reuseport_kern.c
-+++ b/tools/testing/selftests/bpf/progs/test_select_reuseport_kern.c
-@@ -113,6 +113,12 @@ int _select_by_skb_data(struct sk_reusep
- 		data_check.skb_ports[0] = th->source;
- 		data_check.skb_ports[1] = th->dest;
- 
-+		if (th->fin)
-+			/* The connection is being torn down at the end of a
-+			 * test. It can't contain a cmd, so return early.
-+			 */
-+			return SK_PASS;
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -331,8 +331,14 @@ static int crypt_iv_essiv_gen(struct cry
+ static int crypt_iv_benbi_ctr(struct crypt_config *cc, struct dm_target *ti,
+ 			      const char *opts)
+ {
+-	unsigned bs = crypto_skcipher_blocksize(any_tfm(cc));
+-	int log = ilog2(bs);
++	unsigned bs;
++	int log;
 +
- 		if ((th->doff << 2) + sizeof(*cmd) > data_check.len)
- 			GOTO_DONE(DROP_ERR_SKB_DATA);
- 		if (bpf_skb_load_bytes(reuse_md, th->doff << 2, &cmd_copy,
++	if (test_bit(CRYPT_MODE_INTEGRITY_AEAD, &cc->cipher_flags))
++		bs = crypto_aead_blocksize(any_tfm_aead(cc));
++	else
++		bs = crypto_skcipher_blocksize(any_tfm(cc));
++	log = ilog2(bs);
+ 
+ 	/* we need to calculate how far we must shift the sector count
+ 	 * to get the cipher block count, we use this shift in _gen */
 
 
