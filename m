@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 238A615794D
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8533915793E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728636AbgBJNOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:14:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
+        id S1729175AbgBJMii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728328AbgBJMih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:37 -0500
+        id S1729170AbgBJMii (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:38 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9926220661;
-        Mon, 10 Feb 2020 12:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CA0B20733;
+        Mon, 10 Feb 2020 12:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338316;
-        bh=s1mFnvxsI4gPo3aiXIZ6kqtRpYquPMdBQ/2z2dS9MrM=;
+        s=default; t=1581338317;
+        bh=+rpPukVyXSRat+AIBRd3Dok+i5Z3ZVjtWl1lwbRpOjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uG0UrniRo2wdHKKoEWWhVCjOEv0ig2Wx59EfPrG0mW81/qC5kEe1w47dUl5snGbZD
-         sIiH3K6pO7SeuEsdVa8Wu+c/A2yU1UdeK4A0BIg+AIA6Y5pulHc5MEgIEG6JkRbnUD
-         lYCH02idL8EQ5cOOcP81HFMR5oqjcRQ3wUETNNko=
+        b=mS3nkh6c1PRFxVbNvjAh5kSp9FRk0EkFCJQBVU6FTGY74iWDZgxZ9NnNC2URIWEl6
+         /8zfmfMOXYShqK+EcGeLERKfkKiTUGnXF83+1p3hd/JDcbSnZgV0mBdHm2MpKtuQOx
+         tKrUqA75EPzH/FWnfU6H5OngQY+HHK4Qh0E5e0Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 244/309] ext2: Adjust indentation in ext2_fill_super
-Date:   Mon, 10 Feb 2020 04:33:20 -0800
-Message-Id: <20200210122429.950426894@linuxfoundation.org>
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 245/309] powerpc/44x: Adjust indentation in ibm4xx_denali_fixup_memsize
+Date:   Mon, 10 Feb 2020 04:33:21 -0800
+Message-Id: <20200210122430.048569328@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -46,48 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit d9e9866803f7b6c3fdd35d345e97fb0b2908bbbc upstream.
+commit c3aae14e5d468d18dbb5d7c0c8c7e2968cc14aad upstream.
 
 Clang warns:
 
-../fs/ext2/super.c:1076:3: warning: misleading indentation; statement is
-not part of the previous 'if' [-Wmisleading-indentation]
-        sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
+../arch/powerpc/boot/4xx.c:231:3: warning: misleading indentation;
+statement is not part of the previous 'else' [-Wmisleading-indentation]
+        val = SDRAM0_READ(DDR0_42);
         ^
-../fs/ext2/super.c:1074:2: note: previous statement is here
-        if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
+../arch/powerpc/boot/4xx.c:227:2: note: previous statement is here
+        else
         ^
-1 warning generated.
 
-This warning occurs because there is a space before the tab on this
-line. Remove it so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
+This is because there is a space at the beginning of this line; remove
+it so that the indentation is consistent according to the Linux kernel
+coding style and clang no longer warns.
 
-Fixes: 41f04d852e35 ("[PATCH] ext2: fix mounts at 16T")
-Link: https://github.com/ClangBuiltLinux/linux/issues/827
-Link: https://lore.kernel.org/r/20191218031930.31393-1-natechancellor@gmail.com
+Fixes: d23f5099297c ("[POWERPC] 4xx: Adds decoding of 440SPE memory size to boot wrapper library")
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/780
+Link: https://lore.kernel.org/r/20191209200338.12546-1-natechancellor@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext2/super.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/boot/4xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -1082,9 +1082,9 @@ static int ext2_fill_super(struct super_
+--- a/arch/powerpc/boot/4xx.c
++++ b/arch/powerpc/boot/4xx.c
+@@ -228,7 +228,7 @@ void ibm4xx_denali_fixup_memsize(void)
+ 		dpath = 8; /* 64 bits */
  
- 	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
- 		goto cantfind_ext2;
-- 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
-- 				le32_to_cpu(es->s_first_data_block) - 1)
-- 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
-+	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
-+				le32_to_cpu(es->s_first_data_block) - 1)
-+					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
- 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT2_DESC_PER_BLOCK(sb);
- 	sbi->s_group_desc = kmalloc_array (db_count,
+ 	/* get address pins (rows) */
+- 	val = SDRAM0_READ(DDR0_42);
++	val = SDRAM0_READ(DDR0_42);
+ 
+ 	row = DDR_GET_VAL(val, DDR_APIN, DDR_APIN_SHIFT);
+ 	if (row > max_row)
 
 
