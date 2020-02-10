@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DA61578EE
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A69157B17
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729010AbgBJNLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:11:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35888 "EHLO mail.kernel.org"
+        id S1728442AbgBJN1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:27:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728217AbgBJMjD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:03 -0500
+        id S1728399AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:32 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 620D920842;
-        Mon, 10 Feb 2020 12:39:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A458324682;
+        Mon, 10 Feb 2020 12:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338342;
-        bh=exXNXzf1cHvVwikGX3IV1idHH8PFG+HFa1qNwutgC1Q=;
+        s=default; t=1581338190;
+        bh=3HY3Rw2M/HsSQAl37UWr38IZEfW7JSTfdcP4zEYG+3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCc/yC5iVlybK9UmJXbuia791jGSFGLNeS/71NVhCkwj8tJY/QZQsWjnrN5NyMv16
-         PyxE6E1zv51XmB0TX4RQs22Wq3KDkpUnIQ1kqb4nnHDKci0ESV/jPLXwXK3eyNWsbG
-         mIMGBoprMHuBXT8yTT6B0XzCb9Jpu9F44kHmYEXo=
+        b=U1qUFLNOpAvDM3f6/buml7OoF6nfl/mRLBqATXQvE8/qMUzGCExyQcNMSRU/YF+Dq
+         FVlASJMAaObEe32WRzAj/gUbJA0UydwfVfELw/jSIqaV27WQyPBi6vNzm4HORU4Q83
+         4SfoNdRi6krOTy1HGttiNcb+zFPDAads4FK+BZvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 294/309] drm/dp_mst: Remove VCPI while disabling topology mgr
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 192/195] x86/apic/msi: Plug non-maskable MSI affinity race
 Date:   Mon, 10 Feb 2020 04:34:10 -0800
-Message-Id: <20200210122435.037704314@linuxfoundation.org>
+Message-Id: <20200210122323.941566904@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +43,370 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 64e62bdf04ab8529f45ed0a85122c703035dec3a ]
+commit 6f1a4891a5928a5969c87fa5a584844c983ec823 upstream.
 
-[Why]
+Evan tracked down a subtle race between the update of the MSI message and
+the device raising an interrupt internally on PCI devices which do not
+support MSI masking. The update of the MSI message is non-atomic and
+consists of either 2 or 3 sequential 32bit wide writes to the PCI config
+space.
 
-This patch is trying to address the issue observed when hotplug DP
-daisy chain monitors.
+   - Write address low 32bits
+   - Write address high 32bits (If supported by device)
+   - Write data
 
-e.g.
-src-mstb-mstb-sst -> src (unplug) mstb-mstb-sst -> src-mstb-mstb-sst
-(plug in again)
+When an interrupt is migrated then both address and data might change, so
+the kernel attempts to mask the MSI interrupt first. But for MSI masking is
+optional, so there exist devices which do not provide it. That means that
+if the device raises an interrupt internally between the writes then a MSI
+message is sent built from half updated state.
 
-Once unplug a DP MST capable device, driver will call
-drm_dp_mst_topology_mgr_set_mst() to disable MST. In this function,
-it cleans data of topology manager while disabling mst_state. However,
-it doesn't clean up the proposed_vcpis of topology manager.
-If proposed_vcpi is not reset, once plug in MST daisy chain monitors
-later, code will fail at checking port validation while trying to
-allocate payloads.
+On x86 this can lead to spurious interrupts on the wrong interrupt
+vector when the affinity setting changes both address and data. As a
+consequence the device interrupt can be lost causing the device to
+become stuck or malfunctioning.
 
-When MST capable device is plugged in again and try to allocate
-payloads by calling drm_dp_update_payload_part1(), this
-function will iterate over all proposed virtual channels to see if
-any proposed VCPI's num_slots is greater than 0. If any proposed
-VCPI's num_slots is greater than 0 and the port which the
-specific virtual channel directed to is not in the topology, code then
-fails at the port validation. Since there are stale VCPI allocations
-from the previous topology enablement in proposed_vcpi[], code will fail
-at port validation and reurn EINVAL.
+Evan tried to handle that by disabling MSI accross an MSI message
+update. That's not feasible because disabling MSI has issues on its own:
 
-[How]
+ If MSI is disabled the PCI device is routing an interrupt to the legacy
+ INTx mechanism. The INTx delivery can be disabled, but the disablement is
+ not working on all devices.
 
-Clean up the data of stale proposed_vcpi[] and reset mgr->proposed_vcpis
-to NULL while disabling mst in drm_dp_mst_topology_mgr_set_mst().
+ Some devices lose interrupts when both MSI and INTx delivery are disabled.
 
-Changes since v1:
-*Add on more details in commit message to describe the issue which the
-patch is trying to fix
+Another way to solve this would be to enforce the allocation of the same
+vector on all CPUs in the system for this kind of screwed devices. That
+could be done, but it would bring back the vector space exhaustion problems
+which got solved a few years ago.
 
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-[added cc to stable]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191205090043.7580-1-Wayne.Lin@amd.com
-Cc: <stable@vger.kernel.org> # v3.17+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fortunately the high address (if supported by the device) is only relevant
+when X2APIC is enabled which implies interrupt remapping. In the interrupt
+remapping case the affinity setting is happening at the interrupt remapping
+unit and the PCI MSI message is programmed only once when the PCI device is
+initialized.
+
+That makes it possible to solve it with a two step update:
+
+  1) Target the MSI msg to the new vector on the current target CPU
+
+  2) Target the MSI msg to the new vector on the new target CPU
+
+In both cases writing the MSI message is only changing a single 32bit word
+which prevents the issue of inconsistency.
+
+After writing the final destination it is necessary to check whether the
+device issued an interrupt while the intermediate state #1 (new vector,
+current CPU) was in effect.
+
+This is possible because the affinity change is always happening on the
+current target CPU. The code runs with interrupts disabled, so the
+interrupt can be detected by checking the IRR of the local APIC. If the
+vector is pending in the IRR then the interrupt is retriggered on the new
+target CPU by sending an IPI for the associated vector on the target CPU.
+
+This can cause spurious interrupts on both the local and the new target
+CPU.
+
+ 1) If the new vector is not in use on the local CPU and the device
+    affected by the affinity change raised an interrupt during the
+    transitional state (step #1 above) then interrupt entry code will
+    ignore that spurious interrupt. The vector is marked so that the
+    'No irq handler for vector' warning is supressed once.
+
+ 2) If the new vector is in use already on the local CPU then the IRR check
+    might see an pending interrupt from the device which is using this
+    vector. The IPI to the new target CPU will then invoke the handler of
+    the device, which got the affinity change, even if that device did not
+    issue an interrupt
+
+ 3) If the new vector is in use already on the local CPU and the device
+    affected by the affinity change raised an interrupt during the
+    transitional state (step #1 above) then the handler of the device which
+    uses that vector on the local CPU will be invoked.
+
+expose issues in device driver interrupt handlers which are not prepared to
+handle a spurious interrupt correctly. This not a regression, it's just
+exposing something which was already broken as spurious interrupts can
+happen for a lot of reasons and all driver handlers need to be able to deal
+with them.
+
+Reported-by: Evan Green <evgreen@chromium.org>
+Debugged-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Evan Green <evgreen@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87imkr4s7n.fsf@nanos.tec.linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/x86/include/asm/apic.h |    8 ++
+ arch/x86/kernel/apic/msi.c  |  128 ++++++++++++++++++++++++++++++++++++++++++--
+ include/linux/irq.h         |   18 ++++++
+ include/linux/irqdomain.h   |    7 ++
+ kernel/irq/debugfs.c        |    1 
+ kernel/irq/msi.c            |    5 +
+ 6 files changed, 163 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index a48a4c21b1b38..c5e9e2305fffc 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2694,6 +2694,7 @@ static bool drm_dp_get_vc_payload_bw(int dp_link_bw,
- int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state)
- {
- 	int ret = 0;
-+	int i = 0;
- 	struct drm_dp_mst_branch *mstb = NULL;
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -448,6 +448,14 @@ static inline void ack_APIC_irq(void)
+ 	apic_eoi();
+ }
  
- 	mutex_lock(&mgr->lock);
-@@ -2754,10 +2755,21 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
-+		mutex_lock(&mgr->payload_lock);
- 		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
- 		mgr->payload_mask = 0;
- 		set_bit(0, &mgr->payload_mask);
-+		for (i = 0; i < mgr->max_payloads; i++) {
-+			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
 +
-+			if (vcpi) {
-+				vcpi->vcpi = 0;
-+				vcpi->num_slots = 0;
-+			}
-+			mgr->proposed_vcpis[i] = NULL;
-+		}
- 		mgr->vcpi_mask = 0;
-+		mutex_unlock(&mgr->payload_lock);
- 	}
++static inline bool lapic_vector_set_in_irr(unsigned int vector)
++{
++	u32 irr = apic_read(APIC_IRR + (vector / 32 * 0x10));
++
++	return !!(irr & (1U << (vector % 32)));
++}
++
+ static inline unsigned default_get_apic_id(unsigned long x)
+ {
+ 	unsigned int ver = GET_APIC_VERSION(apic_read(APIC_LVR));
+--- a/arch/x86/kernel/apic/msi.c
++++ b/arch/x86/kernel/apic/msi.c
+@@ -26,10 +26,8 @@
  
- out_unlock:
--- 
-2.20.1
-
+ static struct irq_domain *msi_default_domain;
+ 
+-static void irq_msi_compose_msg(struct irq_data *data, struct msi_msg *msg)
++static void __irq_msi_compose_msg(struct irq_cfg *cfg, struct msi_msg *msg)
+ {
+-	struct irq_cfg *cfg = irqd_cfg(data);
+-
+ 	msg->address_hi = MSI_ADDR_BASE_HI;
+ 
+ 	if (x2apic_enabled())
+@@ -50,6 +48,127 @@ static void irq_msi_compose_msg(struct i
+ 		MSI_DATA_VECTOR(cfg->vector);
+ }
+ 
++static void irq_msi_compose_msg(struct irq_data *data, struct msi_msg *msg)
++{
++	__irq_msi_compose_msg(irqd_cfg(data), msg);
++}
++
++static void irq_msi_update_msg(struct irq_data *irqd, struct irq_cfg *cfg)
++{
++	struct msi_msg msg[2] = { [1] = { }, };
++
++	__irq_msi_compose_msg(cfg, msg);
++	irq_data_get_irq_chip(irqd)->irq_write_msi_msg(irqd, msg);
++}
++
++static int
++msi_set_affinity(struct irq_data *irqd, const struct cpumask *mask, bool force)
++{
++	struct irq_cfg old_cfg, *cfg = irqd_cfg(irqd);
++	struct irq_data *parent = irqd->parent_data;
++	unsigned int cpu;
++	int ret;
++
++	/* Save the current configuration */
++	cpu = cpumask_first(irq_data_get_effective_affinity_mask(irqd));
++	old_cfg = *cfg;
++
++	/* Allocate a new target vector */
++	ret = parent->chip->irq_set_affinity(parent, mask, force);
++	if (ret < 0 || ret == IRQ_SET_MASK_OK_DONE)
++		return ret;
++
++	/*
++	 * For non-maskable and non-remapped MSI interrupts the migration
++	 * to a different destination CPU and a different vector has to be
++	 * done careful to handle the possible stray interrupt which can be
++	 * caused by the non-atomic update of the address/data pair.
++	 *
++	 * Direct update is possible when:
++	 * - The MSI is maskable (remapped MSI does not use this code path)).
++	 *   The quirk bit is not set in this case.
++	 * - The new vector is the same as the old vector
++	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
++	 * - The new destination CPU is the same as the old destination CPU
++	 */
++	if (!irqd_msi_nomask_quirk(irqd) ||
++	    cfg->vector == old_cfg.vector ||
++	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
++	    cfg->dest_apicid == old_cfg.dest_apicid) {
++		irq_msi_update_msg(irqd, cfg);
++		return ret;
++	}
++
++	/*
++	 * Paranoia: Validate that the interrupt target is the local
++	 * CPU.
++	 */
++	if (WARN_ON_ONCE(cpu != smp_processor_id())) {
++		irq_msi_update_msg(irqd, cfg);
++		return ret;
++	}
++
++	/*
++	 * Redirect the interrupt to the new vector on the current CPU
++	 * first. This might cause a spurious interrupt on this vector if
++	 * the device raises an interrupt right between this update and the
++	 * update to the final destination CPU.
++	 *
++	 * If the vector is in use then the installed device handler will
++	 * denote it as spurious which is no harm as this is a rare event
++	 * and interrupt handlers have to cope with spurious interrupts
++	 * anyway. If the vector is unused, then it is marked so it won't
++	 * trigger the 'No irq handler for vector' warning in do_IRQ().
++	 *
++	 * This requires to hold vector lock to prevent concurrent updates to
++	 * the affected vector.
++	 */
++	lock_vector_lock();
++
++	/*
++	 * Mark the new target vector on the local CPU if it is currently
++	 * unused. Reuse the VECTOR_RETRIGGERED state which is also used in
++	 * the CPU hotplug path for a similar purpose. This cannot be
++	 * undone here as the current CPU has interrupts disabled and
++	 * cannot handle the interrupt before the whole set_affinity()
++	 * section is done. In the CPU unplug case, the current CPU is
++	 * about to vanish and will not handle any interrupts anymore. The
++	 * vector is cleaned up when the CPU comes online again.
++	 */
++	if (IS_ERR_OR_NULL(this_cpu_read(vector_irq[cfg->vector])))
++		this_cpu_write(vector_irq[cfg->vector], VECTOR_RETRIGGERED);
++
++	/* Redirect it to the new vector on the local CPU temporarily */
++	old_cfg.vector = cfg->vector;
++	irq_msi_update_msg(irqd, &old_cfg);
++
++	/* Now transition it to the target CPU */
++	irq_msi_update_msg(irqd, cfg);
++
++	/*
++	 * All interrupts after this point are now targeted at the new
++	 * vector/CPU.
++	 *
++	 * Drop vector lock before testing whether the temporary assignment
++	 * to the local CPU was hit by an interrupt raised in the device,
++	 * because the retrigger function acquires vector lock again.
++	 */
++	unlock_vector_lock();
++
++	/*
++	 * Check whether the transition raced with a device interrupt and
++	 * is pending in the local APICs IRR. It is safe to do this outside
++	 * of vector lock as the irq_desc::lock of this interrupt is still
++	 * held and interrupts are disabled: The check is not accessing the
++	 * underlying vector store. It's just checking the local APIC's
++	 * IRR.
++	 */
++	if (lapic_vector_set_in_irr(cfg->vector))
++		irq_data_get_irq_chip(irqd)->irq_retrigger(irqd);
++
++	return ret;
++}
++
+ /*
+  * IRQ Chip for MSI PCI/PCI-X/PCI-Express Devices,
+  * which implement the MSI or MSI-X Capability Structure.
+@@ -61,6 +180,7 @@ static struct irq_chip pci_msi_controlle
+ 	.irq_ack		= irq_chip_ack_parent,
+ 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+ 	.irq_compose_msi_msg	= irq_msi_compose_msg,
++	.irq_set_affinity	= msi_set_affinity,
+ 	.flags			= IRQCHIP_SKIP_SET_WAKE,
+ };
+ 
+@@ -149,6 +269,8 @@ void __init arch_init_msi_domain(struct
+ 	}
+ 	if (!msi_default_domain)
+ 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
++	else
++		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
+ }
+ 
+ #ifdef CONFIG_IRQ_REMAP
+--- a/include/linux/irq.h
++++ b/include/linux/irq.h
+@@ -208,6 +208,8 @@ struct irq_data {
+  * IRQD_SINGLE_TARGET		- IRQ allows only a single affinity target
+  * IRQD_DEFAULT_TRIGGER_SET	- Expected trigger already been set
+  * IRQD_CAN_RESERVE		- Can use reservation mode
++ * IRQD_MSI_NOMASK_QUIRK	- Non-maskable MSI quirk for affinity change
++ *				  required
+  */
+ enum {
+ 	IRQD_TRIGGER_MASK		= 0xf,
+@@ -230,6 +232,7 @@ enum {
+ 	IRQD_SINGLE_TARGET		= (1 << 24),
+ 	IRQD_DEFAULT_TRIGGER_SET	= (1 << 25),
+ 	IRQD_CAN_RESERVE		= (1 << 26),
++	IRQD_MSI_NOMASK_QUIRK		= (1 << 27),
+ };
+ 
+ #define __irqd_to_state(d) ACCESS_PRIVATE((d)->common, state_use_accessors)
+@@ -389,6 +392,21 @@ static inline bool irqd_can_reserve(stru
+ 	return __irqd_to_state(d) & IRQD_CAN_RESERVE;
+ }
+ 
++static inline void irqd_set_msi_nomask_quirk(struct irq_data *d)
++{
++	__irqd_to_state(d) |= IRQD_MSI_NOMASK_QUIRK;
++}
++
++static inline void irqd_clr_msi_nomask_quirk(struct irq_data *d)
++{
++	__irqd_to_state(d) &= ~IRQD_MSI_NOMASK_QUIRK;
++}
++
++static inline bool irqd_msi_nomask_quirk(struct irq_data *d)
++{
++	return __irqd_to_state(d) & IRQD_MSI_NOMASK_QUIRK;
++}
++
+ #undef __irqd_to_state
+ 
+ static inline irq_hw_number_t irqd_to_hwirq(struct irq_data *d)
+--- a/include/linux/irqdomain.h
++++ b/include/linux/irqdomain.h
+@@ -203,6 +203,13 @@ enum {
+ 	IRQ_DOMAIN_FLAG_MSI_REMAP	= (1 << 5),
+ 
+ 	/*
++	 * Quirk to handle MSI implementations which do not provide
++	 * masking. Currently known to affect x86, but partially
++	 * handled in core code.
++	 */
++	IRQ_DOMAIN_MSI_NOMASK_QUIRK	= (1 << 6),
++
++	/*
+ 	 * Flags starting from IRQ_DOMAIN_FLAG_NONCORE are reserved
+ 	 * for implementation specific purposes and ignored by the
+ 	 * core code.
+--- a/kernel/irq/debugfs.c
++++ b/kernel/irq/debugfs.c
+@@ -113,6 +113,7 @@ static const struct irq_bit_descr irqdat
+ 	BIT_MASK_DESCR(IRQD_AFFINITY_MANAGED),
+ 	BIT_MASK_DESCR(IRQD_MANAGED_SHUTDOWN),
+ 	BIT_MASK_DESCR(IRQD_CAN_RESERVE),
++	BIT_MASK_DESCR(IRQD_MSI_NOMASK_QUIRK),
+ 
+ 	BIT_MASK_DESCR(IRQD_FORWARDED_TO_VCPU),
+ 
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -453,8 +453,11 @@ int msi_domain_alloc_irqs(struct irq_dom
+ 			continue;
+ 
+ 		irq_data = irq_domain_get_irq_data(domain, desc->irq);
+-		if (!can_reserve)
++		if (!can_reserve) {
+ 			irqd_clr_can_reserve(irq_data);
++			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
++				irqd_set_msi_nomask_quirk(irq_data);
++		}
+ 		ret = irq_domain_activate_irq(irq_data, can_reserve);
+ 		if (ret)
+ 			goto cleanup;
 
 
