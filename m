@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA7581577B6
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 780DD1579CE
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729212AbgBJMkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40998 "EHLO mail.kernel.org"
+        id S1729235AbgBJNSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:18:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729035AbgBJMki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:38 -0500
+        id S1728952AbgBJMhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:54 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C51524672;
-        Mon, 10 Feb 2020 12:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3911424687;
+        Mon, 10 Feb 2020 12:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338438;
-        bh=eemhR6Ru7qO7yi4QKm/U7unt7CD/VUvZkbGxGq9Z+10=;
+        s=default; t=1581338274;
+        bh=RC5LyErzA5QLiIz6fXV5CAXcGDg3k+bE+UcIo5ET3PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQXrfS3wflste5FMmfMPhvCeouVwIJ0XNlXZbGvhspzndoBjVRZcc/aC9R+CUSL8s
-         Kl6Atfyodgy6DnXDQUUZchfZa9QrMVxnsTtzSvnvMN/DcQUl79CBl/2r95o8BvNv85
-         98zC09l1NXxO5qC+vkydd06d0TIO9rC9I8SCa7Bk=
+        b=ARXYI+xvV+Hm+73v5Nkvq+GSGCf5COUe1TrWhWx6kWpCgvDJD8HKssvZODaSyL9gG
+         JRDf6+u9FiMw0YCyfRSppzlUtFhYP9AltEjilt8oO3e7RLeYVyu5kS3mjo0pZiQWND
+         oDTDBoKP0v6HDdeYhNF65PvP4+kJrCtKL+XBv9oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.5 174/367] crypto: sun8i-ss - fix removal of module
-Date:   Mon, 10 Feb 2020 04:31:27 -0800
-Message-Id: <20200210122440.903610748@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 132/309] dm thin metadata: use pool locking at end of dm_pool_metadata_close
+Date:   Mon, 10 Feb 2020 04:31:28 -0800
+Message-Id: <20200210122419.047329981@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit 7b3d853ead8187288bf99df38ed71ee02773a65f upstream.
+commit 44d8ebf436399a40fcd10dd31b29d37823d62fcc upstream.
 
-Removing the driver cause an oops due to the fact we clean an extra
-channel.
-Let's give the right index to the cleaning function.
-Fixes: f08fcced6d00 ("crypto: allwinner - Add sun8i-ss cryptographic offloader")
+Ensure that the pool is locked during calls to __commit_transaction and
+__destroy_persistent_data_objects.  Just being consistent with locking,
+but reality is dm_pool_metadata_close is called once pool is being
+destroyed so access to pool shouldn't be contended.
 
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Also, use pmd_write_lock_in_core rather than __pmd_write_lock in
+dm_pool_commit_metadata and rename __pmd_write_lock to
+pmd_write_lock_in_core -- there was no need for the alias.
+
+In addition, verify that the pool is locked in __commit_transaction().
+
+Fixes: 873f258becca ("dm thin metadata: do not write metadata if no changes occurred")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-thin-metadata.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-@@ -595,7 +595,7 @@ error_alg:
- error_irq:
- 	sun8i_ss_pm_exit(ss);
- error_pm:
--	sun8i_ss_free_flows(ss, MAXFLOW);
-+	sun8i_ss_free_flows(ss, MAXFLOW - 1);
- 	return err;
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -387,16 +387,15 @@ static int subtree_equal(void *context,
+  * Variant that is used for in-core only changes or code that
+  * shouldn't put the pool in service on its own (e.g. commit).
+  */
+-static inline void __pmd_write_lock(struct dm_pool_metadata *pmd)
++static inline void pmd_write_lock_in_core(struct dm_pool_metadata *pmd)
+ 	__acquires(pmd->root_lock)
+ {
+ 	down_write(&pmd->root_lock);
  }
+-#define pmd_write_lock_in_core(pmd) __pmd_write_lock((pmd))
  
-@@ -609,7 +609,7 @@ static int sun8i_ss_remove(struct platfo
- 	debugfs_remove_recursive(ss->dbgfs_dir);
- #endif
+ static inline void pmd_write_lock(struct dm_pool_metadata *pmd)
+ {
+-	__pmd_write_lock(pmd);
++	pmd_write_lock_in_core(pmd);
+ 	if (unlikely(!pmd->in_service))
+ 		pmd->in_service = true;
+ }
+@@ -831,6 +830,7 @@ static int __commit_transaction(struct d
+ 	 * We need to know if the thin_disk_superblock exceeds a 512-byte sector.
+ 	 */
+ 	BUILD_BUG_ON(sizeof(struct thin_disk_superblock) > 512);
++	BUG_ON(!rwsem_is_locked(&pmd->root_lock));
  
--	sun8i_ss_free_flows(ss, MAXFLOW);
-+	sun8i_ss_free_flows(ss, MAXFLOW - 1);
+ 	if (unlikely(!pmd->in_service))
+ 		return 0;
+@@ -953,6 +953,7 @@ int dm_pool_metadata_close(struct dm_poo
+ 		return -EBUSY;
+ 	}
  
- 	sun8i_ss_pm_exit(ss);
++	pmd_write_lock_in_core(pmd);
+ 	if (!dm_bm_is_read_only(pmd->bm) && !pmd->fail_io) {
+ 		r = __commit_transaction(pmd);
+ 		if (r < 0)
+@@ -961,6 +962,7 @@ int dm_pool_metadata_close(struct dm_poo
+ 	}
+ 	if (!pmd->fail_io)
+ 		__destroy_persistent_data_objects(pmd);
++	pmd_write_unlock(pmd);
+ 
+ 	kfree(pmd);
+ 	return 0;
+@@ -1841,7 +1843,7 @@ int dm_pool_commit_metadata(struct dm_po
+ 	 * Care is taken to not have commit be what
+ 	 * triggers putting the thin-pool in-service.
+ 	 */
+-	__pmd_write_lock(pmd);
++	pmd_write_lock_in_core(pmd);
+ 	if (pmd->fail_io)
+ 		goto out;
  
 
 
