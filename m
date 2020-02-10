@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6297157B5A
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C65EA157958
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728352AbgBJMgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55324 "EHLO mail.kernel.org"
+        id S1730392AbgBJNOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:14:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728349AbgBJMgW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:22 -0500
+        id S1729147AbgBJMic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:32 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEFA820842;
-        Mon, 10 Feb 2020 12:36:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00C4F20842;
+        Mon, 10 Feb 2020 12:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338181;
-        bh=S7kWw8FEdGpjDBHJ7X/ptjF/z4pqPesnqgOF3svUM44=;
+        s=default; t=1581338312;
+        bh=xPjFRomVxdpO+HM2q+A9172l/tUjWzy5wahhYlj59YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HofmPK+bbiffvlLb/WVrbVR6DQymJZcl5AHsNarvubb3/veuQBzITIGh7inN8ndqo
-         jYQUk9vTw5Eu2cpSXFeEaqblH5hDm+s1N6qCj0fj9aEMkyrXwSyQuBb+bIT3l0iNzi
-         6AZgjwnfuy9EkPadN2GmvSClPBgviEaXuOkF0W+M=
+        b=SE6AOFVnb9ClD7tuM7/+Wwn+s+sB2lzVxezaU3+Ar8R4+Na4qnjpCv8/cy/VgNcWu
+         hh8Gs8DUCrvgB+Vl4aqPWn8hpFppbPrgv78xDAYvUaJiJ77mIAjdQBZMc6Zovmk5mq
+         DgtYOQtWNPRzNqjPWAMSU/fkTAeB/Rn4FMoceeh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 133/195] KVM: x86: Protect x86_decode_insn from Spectre-v1/L1TF attacks
-Date:   Mon, 10 Feb 2020 04:33:11 -0800
-Message-Id: <20200210122318.406949930@linuxfoundation.org>
+        stable@vger.kernel.org, Erdem Aktas <erdemaktas@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Dennis Zhou <dennis@kernel.org>
+Subject: [PATCH 5.4 236/309] percpu: Separate decrypted varaibles anytime encryption can be enabled
+Date:   Mon, 10 Feb 2020 04:33:12 -0800
+Message-Id: <20200210122429.193975577@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Erdem Aktas <erdemaktas@google.com>
 
-commit 3c9053a2cae7ba2ba73766a34cea41baa70f57f7 upstream.
+commit 264b0d2bee148073c117e7bbbde5be7125a53be1 upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
-kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
-symbol, so KVM should treat it conservatively from a security perspective.
+CONFIG_VIRTUALIZATION may not be enabled for memory encrypted guests.  If
+disabled, decrypted per-CPU variables may end up sharing the same page
+with variables that should be left encrypted.
 
-Fixes: 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
+Always separate per-CPU variables that should be decrypted into their own
+page anytime memory encryption can be enabled in the guest rather than
+rely on any other config option that may not be enabled.
 
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: ac26963a1175 ("percpu: Introduce DEFINE_PER_CPU_DECRYPTED")
+Cc: stable@vger.kernel.org # 4.15+
+Signed-off-by: Erdem Aktas <erdemaktas@google.com>
+Signed-off-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ include/linux/percpu-defs.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5269,10 +5269,15 @@ done_prefixes:
- 			}
- 			break;
- 		case Escape:
--			if (ctxt->modrm > 0xbf)
--				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
--			else
-+			if (ctxt->modrm > 0xbf) {
-+				size_t size = ARRAY_SIZE(opcode.u.esc->high);
-+				u32 index = array_index_nospec(
-+					ctxt->modrm - 0xc0, size);
-+
-+				opcode = opcode.u.esc->high[index];
-+			} else {
- 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
-+			}
- 			break;
- 		case InstrDual:
- 			if ((ctxt->modrm >> 6) == 3)
+--- a/include/linux/percpu-defs.h
++++ b/include/linux/percpu-defs.h
+@@ -175,8 +175,7 @@
+  * Declaration/definition used for per-CPU variables that should be accessed
+  * as decrypted when memory encryption is enabled in the guest.
+  */
+-#if defined(CONFIG_VIRTUALIZATION) && defined(CONFIG_AMD_MEM_ENCRYPT)
+-
++#ifdef CONFIG_AMD_MEM_ENCRYPT
+ #define DECLARE_PER_CPU_DECRYPTED(type, name)				\
+ 	DECLARE_PER_CPU_SECTION(type, name, "..decrypted")
+ 
 
 
