@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8824157C0C
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:34:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56DE0157C13
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:34:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbgBJMf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52582 "EHLO mail.kernel.org"
+        id S1728064AbgBJNep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:34:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727916AbgBJMf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727810AbgBJMf0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:35:26 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EC7A24650;
-        Mon, 10 Feb 2020 12:35:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E68F2085B;
+        Mon, 10 Feb 2020 12:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338125;
-        bh=QAZXJ/sae3h0vsMDXh6DwTtV4mUQUtgNoAGVanXsHw8=;
+        s=default; t=1581338126;
+        bh=Ya7kUE3r1RdwvEo0pvSWj1bpC7gvvwPITlbbRbtj07w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARY9er1s3RD2TY7ACucpQnalbILBmUuOmXW0QraB05HNNqe7Cb7etej0nRH4sZ3xG
-         xL1BxPPfNDBlw/ziEr8ZpDHJ8uSgfEgd0lovA95xn0kDJymDt5LH4aU2B3qiXIW9Qy
-         c4yzd9exVc0M87W39SsntZSG1yDnavdAVMs4IFQA=
+        b=NxXHXYWzrtuyUumM4flbMYVu5MkA1/tVCYXkK8kjgvQ2FOFuNpyXsVtFZvevGx456
+         rhKiLRBJQVa2GvHjmkyMH+c6Hp7b1CROdBjj1A6MS+59Iy0bfubzM7x+U4hyZ8xMuE
+         znoYlaZIXc66IkiHL/ya/vxry6NVYueQ+pskPXbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 065/195] ubifs: dont trigger assertion on invalid no-key filename
-Date:   Mon, 10 Feb 2020 04:32:03 -0800
-Message-Id: <20200210122312.195454150@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.19 066/195] ubifs: Fix FS_IOC_SETFLAGS unexpectedly clearing encrypt flag
+Date:   Mon, 10 Feb 2020 04:32:04 -0800
+Message-Id: <20200210122312.255512653@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -44,47 +45,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit f0d07a98a070bb5e443df19c3aa55693cbca9341 upstream.
+commit 2b57067a7778484c10892fa191997bfda29fea13 upstream.
 
-If userspace provides an invalid fscrypt no-key filename which encodes a
-hash value with any of the UBIFS node type bits set (i.e. the high 3
-bits), gracefully report ENOENT rather than triggering ubifs_assert().
+UBIFS's implementation of FS_IOC_SETFLAGS fails to preserve existing
+inode flags that aren't settable by FS_IOC_SETFLAGS, namely the encrypt
+flag.  This causes the encrypt flag to be unexpectedly cleared.
+
+Fix it by preserving existing unsettable flags, like ext4 and f2fs do.
 
 Test case with kvm-xfstests shell:
 
+    FSTYP=ubifs KEYCTL_PROG=keyctl
     . fs/ubifs/config
     . ~/xfstests/common/encrypt
     dev=$(__blkdev_to_ubi_volume /dev/vdc)
-    ubiupdatevol $dev -t
+    ubiupdatevol -t $dev
     mount $dev /mnt -t ubifs
+    k=$(_generate_session_encryption_key)
     mkdir /mnt/edir
-    xfs_io -c set_encpolicy /mnt/edir
-    rm /mnt/edir/_,,,,,DAAAAAAAAAAAAAAAAAAAAAAAAAA
+    xfs_io -c "set_encpolicy $k" /mnt/edir
+    echo contents > /mnt/edir/file
+    chattr +i /mnt/edir/file
+    chattr -i /mnt/edir/file
 
-With the bug, the following assertion fails on the 'rm' command:
+With the bug, the following errors occur on the last command:
 
-    [   19.066048] UBIFS error (ubi0:0 pid 379): ubifs_assert_failed: UBIFS assert failed: !(hash & ~UBIFS_S_KEY_HASH_MASK), in fs/ubifs/key.h:170
+    [   18.081559] fscrypt (ubifs, inode 67): Inconsistent encryption context (parent directory: 65)
+    chattr: Operation not permitted while reading flags on /mnt/edir/file
 
-Fixes: f4f61d2cc6d8 ("ubifs: Implement encrypted filenames")
+Fixes: d475a507457b ("ubifs: Add skeleton for fscrypto")
 Cc: <stable@vger.kernel.org> # v4.10+
-Link: https://lore.kernel.org/r/20200120223201.241390-5-ebiggers@kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/dir.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ubifs/ioctl.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -242,6 +242,8 @@ static struct dentry *ubifs_lookup(struc
- 	if (nm.hash) {
- 		ubifs_assert(c, fname_len(&nm) == 0);
- 		ubifs_assert(c, fname_name(&nm) == NULL);
-+		if (nm.hash & ~UBIFS_S_KEY_HASH_MASK)
-+			goto done; /* ENOENT */
- 		dent_key_init_hash(c, &key, dir->i_ino, nm.hash);
- 		err = ubifs_tnc_lookup_dh(c, &key, dent, nm.minor_hash);
- 	} else {
+--- a/fs/ubifs/ioctl.c
++++ b/fs/ubifs/ioctl.c
+@@ -132,7 +132,8 @@ static int setflags(struct inode *inode,
+ 		}
+ 	}
+ 
+-	ui->flags = ioctl2ubifs(flags);
++	ui->flags &= ~ioctl2ubifs(UBIFS_SUPPORTED_IOCTL_FLAGS);
++	ui->flags |= ioctl2ubifs(flags);
+ 	ubifs_set_inode_flags(inode);
+ 	inode->i_ctime = current_time(inode);
+ 	release = ui->dirty;
 
 
