@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3C8157691
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33526157592
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:42:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728204AbgBJMxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:53:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
+        id S1730154AbgBJMmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:42:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730151AbgBJMmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:06 -0500
+        id S1730152AbgBJMmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:07 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 626CD20838;
+        by mail.kernel.org (Postfix) with ESMTPSA id E11382085B;
         Mon, 10 Feb 2020 12:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338526;
-        bh=OXiUvrVzIJ7XyIE+fQLd2qgJDI8aMUNySP+I27n7S5k=;
+        s=default; t=1581338527;
+        bh=D6Xx5M7Rs1pV0xGzj0es8MZ19wcAYT/gPZPjlbzvoug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aO4hoW7s1Sma1Eq0ehjOD9jODyg1Mfjx3UkWFZ5+savilalftAQnlHJVXnKhfyIhP
-         FocGLz2a1hYTpLzQnRvK7ywz6TxCrc8RWpsKcd4RgXsYpOAw5DNyc8IHh4+MBAZWoB
-         lq+HvJz8L2eCQgfeolk74K4FSG83EYjP4tCrFh20=
+        b=T/B1Z0PZc8MugixW6DyuWZMw3cByC1bXIfN+a9j2Dk+og9Xb9REQfCb+avQEkC6ta
+         r9JL5ovAk1loy5o6PalBGzUFjcfJBcAAMjz1XgPZ3Mlaqt7IfQ50aoiwvefD3oHzO4
+         dNoCvWKfsyEBtIBvzRwEMXWIOg8Ys9gRbjwKeSf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.5 347/367] cifs: fail i/o on soft mounts if sessionsetup errors out
-Date:   Mon, 10 Feb 2020 04:34:20 -0800
-Message-Id: <20200210122454.595292547@linuxfoundation.org>
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>
+Subject: [PATCH 5.5 348/367] cifs: fix mode bits from dir listing when mounted with modefromsid
+Date:   Mon, 10 Feb 2020 04:34:21 -0800
+Message-Id: <20200210122454.675867923@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,51 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-commit b0dd940e582b6a60296b9847a54012a4b080dc72 upstream.
+commit e3e056c35108661e418c803adfc054bf683426e7 upstream.
 
-RHBZ: 1579050
+When mounting with -o modefromsid, the mode bits are stored in an
+ACE. Directory enumeration (e.g. ls -l /mnt) triggers an SMB Query Dir
+which does not include ACEs in its response. The mode bits in this
+case are silently set to a default value of 755 instead.
 
-If we have a soft mount we should fail commands for session-setup
-failures (such as the password having changed/ account being deleted/ ...)
-and return an error back to the application.
+This patch marks the dentry created during the directory enumeration
+as needing re-evaluation (i.e. additional Query Info with ACEs) so
+that the mode bits can be properly extracted.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Quick repro:
+
+$ mount.cifs //win19.test/data /mnt -o ...,modefromsid
+$ touch /mnt/foo && chmod 751 /mnt/foo
+$ stat /mnt/foo
+  # reports 751 (OK)
+$ sleep 2
+  # dentry older than 1s by default get invalidated
+$ ls -l /mnt
+  # since dentry invalid, ls does a Query Dir
+  # and reports foo as 755 (WRONG)
+
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2pdu.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/cifs/readdir.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -350,9 +350,14 @@ smb2_reconnect(__le16 smb2_command, stru
- 	}
+--- a/fs/cifs/readdir.c
++++ b/fs/cifs/readdir.c
+@@ -196,7 +196,8 @@ cifs_fill_common_info(struct cifs_fattr
+ 	 * may look wrong since the inodes may not have timed out by the time
+ 	 * "ls" does a stat() call on them.
+ 	 */
+-	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_ACL)
++	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_ACL) ||
++	    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MODE_FROM_SID))
+ 		fattr->cf_flags |= CIFS_FATTR_NEED_REVAL;
  
- 	rc = cifs_negotiate_protocol(0, tcon->ses);
--	if (!rc && tcon->ses->need_reconnect)
-+	if (!rc && tcon->ses->need_reconnect) {
- 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
--
-+		if ((rc == -EACCES) && !tcon->retry) {
-+			rc = -EHOSTDOWN;
-+			mutex_unlock(&tcon->ses->session_mutex);
-+			goto failed;
-+		}
-+	}
- 	if (rc || !tcon->need_reconnect) {
- 		mutex_unlock(&tcon->ses->session_mutex);
- 		goto out;
-@@ -397,6 +402,7 @@ out:
- 	case SMB2_SET_INFO:
- 		rc = -EAGAIN;
- 	}
-+failed:
- 	unload_nls(nls_codepage);
- 	return rc;
- }
+ 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_UNX_EMUL &&
 
 
