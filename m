@@ -2,229 +2,430 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5208C157EE0
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 16:35:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97BDA157F07
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 16:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727549AbgBJPfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 10:35:31 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:43246 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726563AbgBJPfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 10:35:31 -0500
-Received: by mail-pf1-f193.google.com with SMTP id s1so3864290pfh.10
-        for <stable@vger.kernel.org>; Mon, 10 Feb 2020 07:35:30 -0800 (PST)
+        id S1726809AbgBJPls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 10:41:48 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:32848 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726816AbgBJPlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 10:41:47 -0500
+Received: by mail-lj1-f195.google.com with SMTP id y6so7724934lji.0
+        for <stable@vger.kernel.org>; Mon, 10 Feb 2020 07:41:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=delphix.com; s=google;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=vHTzd+CnWobBfS0/01KE8KFjhCDe3Pck0cjBoLW1qhY=;
-        b=E29EjGZpUENTXavjaMIihRKEftiugdCjWLo0HHr+/ojqMM5UUwTG8pQ9/W9SEsG5q+
-         /Wiw3rXrUeZP14z2rHHk9msxCEjcUCE15uDPRrNI03B5LsojEZ8oRwbk0Vvgk7a9ujOT
-         TlMRTwlnrmkgI5/52hMqXkPO0TmTUMu2aA5RU=
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=vxeX3iDS3qAf3x+JMLRj0YdyqYpgOcBfoAPBACaCp4A=;
+        b=ydZH6vB5q5uqqUEAchV6QpyAqs+jXxS4xZMDXS3nRhJKyBZCJ1jQQBaohMTDbypzIT
+         hpGq+wfdtNo/Z2tjM7MkfkUVH+VHx3XsQld4hVCGwJuLFpMfixr5BPVkrL5yMAzU2Lv8
+         IUdehmritbgsGuDrp5CwcEJfSjtNYNwS8AUzeBK9zuHnwgZKXSHlJIcykzzwzZr7YVx+
+         r7SSbAHl56IlF9A7gRVz23NecVWpHCgcN+qIXrd9Hw0uY5uDfTArpm1JUH9DMQM/M6nX
+         e55KnpdQoJzdzpfy6JnWZS+Zx5Xl3heQBEaocUI5nAr4XAloNPgA4d4bdSunZJkMQkFi
+         RMCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=vHTzd+CnWobBfS0/01KE8KFjhCDe3Pck0cjBoLW1qhY=;
-        b=DP6m8qPlEwMYs4nh3j2RJkQCO2VQfcmJHZw2InAm4aCDh7xSC0I7NTtbnCXiNQL+um
-         73nylnccV6P3+Ksphv74RWISGwhVpmxT6yJ75eFSy9Vpxllk5CJfYEhkXZnOQkYaHj8C
-         O9S3nJvgqAZe+WeiFhGJAjL5M9ph16PaOw5LIMUEkjX84HAsB9x9Q91ipK2ZXJwrPJ7J
-         Kb7CYClOR0uM3uiKMqppcv8KAVl4d7Kf5ryDosb5WPxWp8VudWUBKcvj8olNHa8pxzSM
-         Y0R37QDByRTruRUxjMccNmvWrzinKVDlhCeSi6cXYddQLy0kZjs1UbwDQgReMd/8m8gT
-         eKtw==
-X-Gm-Message-State: APjAAAWM+8URs3s1d/eSQVwF731T5nmhGZOS7a6pubiRm2+AF0mopHEn
-        PPE7gd7Sw1Ecb/r5yCNnXGNi0g==
-X-Google-Smtp-Source: APXvYqywLp19FJB2XM7IqSfy0acjCo8F5N9OUp/Js6Vq5wUp1AlCSyip1vfBl9xWv/eJT1yGMcUURQ==
-X-Received: by 2002:a63:e011:: with SMTP id e17mr2307573pgh.49.1581348930146;
-        Mon, 10 Feb 2020 07:35:30 -0800 (PST)
-Received: from [192.168.0.103] (modemcable127.167-81-70.mc.videotron.ca. [70.81.167.127])
-        by smtp.gmail.com with ESMTPSA id d24sm804742pfq.75.2020.02.10.07.35.28
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 10 Feb 2020 07:35:29 -0800 (PST)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH] Revert "target/core: Inline transport_lun_remove_cmd()"
-From:   Pavel Zakharov <pavel.zakharov@delphix.com>
-In-Reply-To: <20200210051202.12934-1-bvanassche@acm.org>
-Date:   Mon, 10 Feb 2020 10:35:27 -0500
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        target-devel@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        stable@vger.kernel.org
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=vxeX3iDS3qAf3x+JMLRj0YdyqYpgOcBfoAPBACaCp4A=;
+        b=Do9rfigXfsrX7XNpyQ05OCjuE/QQlWvrvCvl1Bo3gXHHGf3jJBNsO8oCQ5GYldDQWq
+         m2J2NXUP4vDTgbUgpaJmfyaFsWnVyQJdYlfg8+DTOZFATg0vTB2FWZxM6EpyGO7Vqqmu
+         wXMkZWtQkSD29dIfwN+sQvGh9WWrv5XAR9hIRIGFFubojuXVHmgGNLs9HWlQW6FKX7Y+
+         UKRd0TUmvEbcO9RHbGICBi656MRLvWvZAGZIeI0n2NCC9ePWUJmnGorwjzCpzCytJerW
+         Xfy+9JJRgEMZW8dxM3Pd5AiZsjnAFFf6TE3xYY4s/qzt+vkrYQM7W9C4332xMf90HHZV
+         H6TQ==
+X-Gm-Message-State: APjAAAUwYh+N/LYaYLMt620gnVYys1FDkyAyYxyj30vYLpJ6076ePDw7
+        te+n5fhMyYUPdi80DIuYQHNYdHFywfG/nRMfYsJXiQ==
+X-Google-Smtp-Source: APXvYqwhdAy9fxTUvJ7QqQiFyn3YgBzq7FGMPk9SLTWqRWP0z45RPncxITz7TvkrRWATf6463wrUtLm+ZZRaRXet8QY=
+X-Received: by 2002:a2e:9008:: with SMTP id h8mr1259917ljg.217.1581349303995;
+ Mon, 10 Feb 2020 07:41:43 -0800 (PST)
+MIME-Version: 1.0
+References: <20200210122423.695146547@linuxfoundation.org> <20200210122450.176337512@linuxfoundation.org>
+In-Reply-To: <20200210122450.176337512@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 10 Feb 2020 21:11:32 +0530
+Message-ID: <CA+G9fYu4pDFaG-dA2KbVp61HGNzA1R3F_=Z5isC8_ammG4iZkQ@mail.gmail.com>
+Subject: Re: [PATCH 5.5 284/367] compat: scsi: sg: fix v3 compat read/write interface
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Basil Eljuse <Basil.Eljuse@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <6C9DC161-FB80-4675-BDF4-3795F96B92EB@delphix.com>
-References: <20200210051202.12934-1-bvanassche@acm.org>
-To:     Bart Van Assche <bvanassche@acm.org>
-X-Mailer: Apple Mail (2.3445.104.11)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thank you Bart for such a fast response!
+The arm64 architecture 64k page size enabled build failed on stable rc 5.5
+CONFIG_ARM64_64K_PAGES=3Dy
+CROSS_COMPILE=3Daarch64-linux-gnu-
+Toolchain gcc-9
 
-This LGTM.
+In file included from ../block/scsi_ioctl.c:23:
+ ../include/scsi/sg.h:75:2: error: unknown type name =E2=80=98compat_int_t=
+=E2=80=99
+  compat_int_t interface_id; /* [i] 'S' for SCSI generic (required) */
+  ^~~~~~~~~~~~
+ ../include/scsi/sg.h:76:2: error: unknown type name =E2=80=98compat_int_t=
+=E2=80=99
+  compat_int_t dxfer_direction; /* [i] data transfer direction  */
+  ^~~~~~~~~~~~
 
-Pavel
+...
+ ../include/scsi/sg.h:97:2: error: unknown type name =E2=80=98compat_uint_t=
+=E2=80=99
+  compat_uint_t info;  /* [o] auxiliary information */
+  ^~~~~~~~~~~~~
+ make[2]: *** [../scripts/Makefile.build:266: block/bsg.o] Error
 
-> On Feb 10, 2020, at 12:12 AM, Bart Van Assche <bvanassche@acm.org> =
-wrote:
->=20
-> Commit 83f85b8ec305 postponed the =
-percpu_ref_put(&se_cmd->se_lun->lun_ref)
-> call from command completion to the time when the final command =
-reference
-> is dropped. That approach is not compatible with the iSCSI target =
-driver
-> because the iSCSI target driver keeps the command with the highest =
-stat_sn
-> after it has completed until the next command is received (see also
-> iscsit_ack_from_expstatsn()). Fix this regression by reverting commit
-> 83f85b8ec305.
->=20
-> Reported-by: Pavel Zakharov <pavel.zakharov@delphix.com>
-> Cc: Pavel Zakharov <pavel.zakharov@delphix.com>
-> Cc: Mike Christie <mchristi@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Fixes: 83f85b8ec305 ("scsi: target/core: Inline =
-transport_lun_remove_cmd()")
-> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Ref:
+https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/431659186
+
+On Mon, 10 Feb 2020 at 18:18, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> commit 78ed001d9e7106171e0ee761cd854137dd731302 upstream.
+>
+> In the v5.4 merge window, a cleanup patch from Al Viro conflicted
+> with my rework of the compat handling for sg.c read(). Linus Torvalds
+> did a correct merge but pointed out that the resulting code is still
+> unsatisfactory.
+>
+> I later noticed that the sg_new_read() function still gets the compat
+> mode wrong, when the 'count' argument is large enough to pass a
+> compat_sg_io_hdr object, but not a nativ sg_io_hdr.
+>
+> To address both of these, move the definition of compat_sg_io_hdr
+> into a scsi/sg.h to make it visible to sg.c and rewrite the logic
+> for reading req_pack_id as well as the size check to a simpler
+> version that gets the expected results.
+>
+> Fixes: c35a5cfb4150 ("scsi: sg: sg_read(): simplify reading ->pack_id of =
+userland sg_io_hdr_t")
+> Fixes: 98aaaec4a150 ("compat_ioctl: reimplement SG_IO handling")
+> Reviewed-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
 > ---
-> drivers/target/target_core_transport.c | 31 +++++++++++++++++++++++---
-> 1 file changed, 28 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/target/target_core_transport.c =
-b/drivers/target/target_core_transport.c
-> index ea482d4b1f00..0ae9e60fc4d5 100644
-> --- a/drivers/target/target_core_transport.c
-> +++ b/drivers/target/target_core_transport.c
-> @@ -666,6 +666,11 @@ static int =
-transport_cmd_check_stop_to_fabric(struct se_cmd *cmd)
->=20
-> 	target_remove_from_state_list(cmd);
->=20
-> +	/*
-> +	 * Clear struct se_cmd->se_lun before the handoff to FE.
-> +	 */
-> +	cmd->se_lun =3D NULL;
-> +
-> 	spin_lock_irqsave(&cmd->t_state_lock, flags);
-> 	/*
-> 	 * Determine if frontend context caller is requesting the =
-stopping of
-> @@ -693,6 +698,17 @@ static int =
-transport_cmd_check_stop_to_fabric(struct se_cmd *cmd)
-> 	return cmd->se_tfo->check_stop_free(cmd);
-> }
->=20
-> +static void transport_lun_remove_cmd(struct se_cmd *cmd)
+>  block/scsi_ioctl.c |   29 ------------
+>  drivers/scsi/sg.c  |  126 ++++++++++++++++++++++++----------------------=
+-------
+>  include/scsi/sg.h  |   30 ++++++++++++
+>  3 files changed, 90 insertions(+), 95 deletions(-)
+>
+> --- a/block/scsi_ioctl.c
+> +++ b/block/scsi_ioctl.c
+> @@ -20,6 +20,7 @@
+>  #include <scsi/scsi.h>
+>  #include <scsi/scsi_ioctl.h>
+>  #include <scsi/scsi_cmnd.h>
+> +#include <scsi/sg.h>
+>
+>  struct blk_cmd_filter {
+>         unsigned long read_ok[BLK_SCSI_CMD_PER_LONG];
+> @@ -550,34 +551,6 @@ static inline int blk_send_start_stop(st
+>         return __blk_send_generic(q, bd_disk, GPCMD_START_STOP_UNIT, data=
+);
+>  }
+>
+> -#ifdef CONFIG_COMPAT
+> -struct compat_sg_io_hdr {
+> -       compat_int_t interface_id;      /* [i] 'S' for SCSI generic (requ=
+ired) */
+> -       compat_int_t dxfer_direction;   /* [i] data transfer direction  *=
+/
+> -       unsigned char cmd_len;          /* [i] SCSI command length ( <=3D=
+ 16 bytes) */
+> -       unsigned char mx_sb_len;        /* [i] max length to write to sbp=
+ */
+> -       unsigned short iovec_count;     /* [i] 0 implies no scatter gathe=
+r */
+> -       compat_uint_t dxfer_len;        /* [i] byte count of data transfe=
+r */
+> -       compat_uint_t dxferp;           /* [i], [*io] points to data tran=
+sfer memory
+> -                                               or scatter gather list */
+> -       compat_uptr_t cmdp;             /* [i], [*i] points to command to=
+ perform */
+> -       compat_uptr_t sbp;              /* [i], [*o] points to sense_buff=
+er memory */
+> -       compat_uint_t timeout;          /* [i] MAX_UINT->no timeout (unit=
+: millisec) */
+> -       compat_uint_t flags;            /* [i] 0 -> default, see SG_FLAG.=
+.. */
+> -       compat_int_t pack_id;           /* [i->o] unused internally (norm=
+ally) */
+> -       compat_uptr_t usr_ptr;          /* [i->o] unused internally */
+> -       unsigned char status;           /* [o] scsi status */
+> -       unsigned char masked_status;    /* [o] shifted, masked scsi statu=
+s */
+> -       unsigned char msg_status;       /* [o] messaging level data (opti=
+onal) */
+> -       unsigned char sb_len_wr;        /* [o] byte count actually writte=
+n to sbp */
+> -       unsigned short host_status;     /* [o] errors from host adapter *=
+/
+> -       unsigned short driver_status;   /* [o] errors from software drive=
+r */
+> -       compat_int_t resid;             /* [o] dxfer_len - actual_transfe=
+rred */
+> -       compat_uint_t duration;         /* [o] time taken by cmd (unit: m=
+illisec) */
+> -       compat_uint_t info;             /* [o] auxiliary information */
+> -};
+> -#endif
+> -
+>  int put_sg_io_hdr(const struct sg_io_hdr *hdr, void __user *argp)
+>  {
+>  #ifdef CONFIG_COMPAT
+> --- a/drivers/scsi/sg.c
+> +++ b/drivers/scsi/sg.c
+> @@ -405,6 +405,38 @@ sg_release(struct inode *inode, struct f
+>         return 0;
+>  }
+>
+> +static int get_sg_io_pack_id(int *pack_id, void __user *buf, size_t coun=
+t)
 > +{
-> +	struct se_lun *lun =3D cmd->se_lun;
+> +       struct sg_header __user *old_hdr =3D buf;
+> +       int reply_len;
 > +
-> +	if (!lun)
-> +		return;
+> +       if (count >=3D SZ_SG_HEADER) {
+> +               /* negative reply_len means v3 format, otherwise v1/v2 */
+> +               if (get_user(reply_len, &old_hdr->reply_len))
+> +                       return -EFAULT;
 > +
-> +	if (cmpxchg(&cmd->lun_ref_active, true, false))
-> +		percpu_ref_put(&lun->lun_ref);
+> +               if (reply_len >=3D 0)
+> +                       return get_user(*pack_id, &old_hdr->pack_id);
+> +
+> +               if (in_compat_syscall() &&
+> +                   count >=3D sizeof(struct compat_sg_io_hdr)) {
+> +                       struct compat_sg_io_hdr __user *hp =3D buf;
+> +
+> +                       return get_user(*pack_id, &hp->pack_id);
+> +               }
+> +
+> +               if (count >=3D sizeof(struct sg_io_hdr)) {
+> +                       struct sg_io_hdr __user *hp =3D buf;
+> +
+> +                       return get_user(*pack_id, &hp->pack_id);
+> +               }
+> +       }
+> +
+> +       /* no valid header was passed, so ignore the pack_id */
+> +       *pack_id =3D -1;
+> +       return 0;
 > +}
 > +
-> static void target_complete_failure_work(struct work_struct *work)
-> {
-> 	struct se_cmd *cmd =3D container_of(work, struct se_cmd, work);
-> @@ -783,6 +799,8 @@ static void target_handle_abort(struct se_cmd =
-*cmd)
->=20
-> 	WARN_ON_ONCE(kref_read(&cmd->cmd_kref) =3D=3D 0);
->=20
-> +	transport_lun_remove_cmd(cmd);
+>  static ssize_t
+>  sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos=
+)
+>  {
+> @@ -413,8 +445,8 @@ sg_read(struct file *filp, char __user *
+>         Sg_request *srp;
+>         int req_pack_id =3D -1;
+>         sg_io_hdr_t *hp;
+> -       struct sg_header *old_hdr =3D NULL;
+> -       int retval =3D 0;
+> +       struct sg_header *old_hdr;
+> +       int retval;
+>
+>         /*
+>          * This could cause a response to be stranded. Close the associat=
+ed
+> @@ -429,79 +461,34 @@ sg_read(struct file *filp, char __user *
+>         SCSI_LOG_TIMEOUT(3, sg_printk(KERN_INFO, sdp,
+>                                       "sg_read: count=3D%d\n", (int) coun=
+t));
+>
+> -       if (sfp->force_packid && (count >=3D SZ_SG_HEADER)) {
+> -               old_hdr =3D memdup_user(buf, SZ_SG_HEADER);
+> -               if (IS_ERR(old_hdr))
+> -                       return PTR_ERR(old_hdr);
+> -               if (old_hdr->reply_len < 0) {
+> -                       if (count >=3D SZ_SG_IO_HDR) {
+> -                               /*
+> -                                * This is stupid.
+> -                                *
+> -                                * We're copying the whole sg_io_hdr_t fr=
+om user
+> -                                * space just to get the 'pack_id' field.=
+ But the
+> -                                * field is at different offsets for the =
+compat
+> -                                * case, so we'll use "get_sg_io_hdr()" t=
+o copy
+> -                                * the whole thing and convert it.
+> -                                *
+> -                                * We could do something like just calcul=
+ating the
+> -                                * offset based of 'in_compat_syscall()',=
+ but the
+> -                                * 'compat_sg_io_hdr' definition is in th=
+e wrong
+> -                                * place for that.
+> -                                */
+> -                               sg_io_hdr_t *new_hdr;
+> -                               new_hdr =3D kmalloc(SZ_SG_IO_HDR, GFP_KER=
+NEL);
+> -                               if (!new_hdr) {
+> -                                       retval =3D -ENOMEM;
+> -                                       goto free_old_hdr;
+> -                               }
+> -                               retval =3D get_sg_io_hdr(new_hdr, buf);
+> -                               req_pack_id =3D new_hdr->pack_id;
+> -                               kfree(new_hdr);
+> -                               if (retval) {
+> -                                       retval =3D -EFAULT;
+> -                                       goto free_old_hdr;
+> -                               }
+> -                       }
+> -               } else
+> -                       req_pack_id =3D old_hdr->pack_id;
+> -       }
+> +       if (sfp->force_packid)
+> +               retval =3D get_sg_io_pack_id(&req_pack_id, buf, count);
+> +       if (retval)
+> +               return retval;
 > +
-> 	transport_cmd_check_stop_to_fabric(cmd);
-> }
->=20
-> @@ -1708,6 +1726,7 @@ static void target_complete_tmr_failure(struct =
-work_struct *work)
-> 	se_cmd->se_tmr_req->response =3D TMR_LUN_DOES_NOT_EXIST;
-> 	se_cmd->se_tfo->queue_tm_rsp(se_cmd);
->=20
-> +	transport_lun_remove_cmd(se_cmd);
-> 	transport_cmd_check_stop_to_fabric(se_cmd);
-> }
->=20
-> @@ -1898,6 +1917,7 @@ void transport_generic_request_failure(struct =
-se_cmd *cmd,
-> 		goto queue_full;
->=20
-> check_stop:
-> +	transport_lun_remove_cmd(cmd);
-> 	transport_cmd_check_stop_to_fabric(cmd);
-> 	return;
->=20
-> @@ -2195,6 +2215,7 @@ static void transport_complete_qf(struct se_cmd =
-*cmd)
-> 		transport_handle_queue_full(cmd, cmd->se_dev, ret, =
-false);
-> 		return;
-> 	}
-> +	transport_lun_remove_cmd(cmd);
-> 	transport_cmd_check_stop_to_fabric(cmd);
-> }
->=20
-> @@ -2289,6 +2310,7 @@ static void target_complete_ok_work(struct =
-work_struct *work)
-> 		if (ret)
-> 			goto queue_full;
->=20
-> +		transport_lun_remove_cmd(cmd);
-> 		transport_cmd_check_stop_to_fabric(cmd);
-> 		return;
-> 	}
-> @@ -2314,6 +2336,7 @@ static void target_complete_ok_work(struct =
-work_struct *work)
-> 			if (ret)
-> 				goto queue_full;
->=20
-> +			transport_lun_remove_cmd(cmd);
-> 			transport_cmd_check_stop_to_fabric(cmd);
-> 			return;
-> 		}
-> @@ -2349,6 +2372,7 @@ static void target_complete_ok_work(struct =
-work_struct *work)
-> 			if (ret)
-> 				goto queue_full;
->=20
-> +			transport_lun_remove_cmd(cmd);
-> 			transport_cmd_check_stop_to_fabric(cmd);
-> 			return;
-> 		}
-> @@ -2384,6 +2408,7 @@ static void target_complete_ok_work(struct =
-work_struct *work)
-> 		break;
-> 	}
->=20
-> +	transport_lun_remove_cmd(cmd);
-> 	transport_cmd_check_stop_to_fabric(cmd);
-> 	return;
->=20
-> @@ -2710,6 +2735,9 @@ int transport_generic_free_cmd(struct se_cmd =
-*cmd, int wait_for_tasks)
-> 		 */
-> 		if (cmd->state_active)
-> 			target_remove_from_state_list(cmd);
+>         srp =3D sg_get_rq_mark(sfp, req_pack_id);
+>         if (!srp) {             /* now wait on packet to arrive */
+> -               if (atomic_read(&sdp->detaching)) {
+> -                       retval =3D -ENODEV;
+> -                       goto free_old_hdr;
+> -               }
+> -               if (filp->f_flags & O_NONBLOCK) {
+> -                       retval =3D -EAGAIN;
+> -                       goto free_old_hdr;
+> -               }
+> +               if (atomic_read(&sdp->detaching))
+> +                       return -ENODEV;
+> +               if (filp->f_flags & O_NONBLOCK)
+> +                       return -EAGAIN;
+>                 retval =3D wait_event_interruptible(sfp->read_wait,
+>                         (atomic_read(&sdp->detaching) ||
+>                         (srp =3D sg_get_rq_mark(sfp, req_pack_id))));
+> -               if (atomic_read(&sdp->detaching)) {
+> -                       retval =3D -ENODEV;
+> -                       goto free_old_hdr;
+> -               }
+> -               if (retval) {
+> +               if (atomic_read(&sdp->detaching))
+> +                       return -ENODEV;
+> +               if (retval)
+>                         /* -ERESTARTSYS as signal hit process */
+> -                       goto free_old_hdr;
+> -               }
+> -       }
+> -       if (srp->header.interface_id !=3D '\0') {
+> -               retval =3D sg_new_read(sfp, buf, count, srp);
+> -               goto free_old_hdr;
+> +                       return retval;
+>         }
+> +       if (srp->header.interface_id !=3D '\0')
+> +               return sg_new_read(sfp, buf, count, srp);
+>
+>         hp =3D &srp->header;
+> -       if (old_hdr =3D=3D NULL) {
+> -               old_hdr =3D kmalloc(SZ_SG_HEADER, GFP_KERNEL);
+> -               if (! old_hdr) {
+> -                       retval =3D -ENOMEM;
+> -                       goto free_old_hdr;
+> -               }
+> -       }
+> -       memset(old_hdr, 0, SZ_SG_HEADER);
+> +       old_hdr =3D kzalloc(SZ_SG_HEADER, GFP_KERNEL);
+> +       if (!old_hdr)
+> +               return -ENOMEM;
 > +
-> +		if (cmd->se_lun)
-> +			transport_lun_remove_cmd(cmd);
-> 	}
-> 	if (aborted)
-> 		cmd->free_compl =3D &compl;
-> @@ -2781,9 +2809,6 @@ static void target_release_cmd_kref(struct kref =
-*kref)
-> 	struct completion *abrt_compl =3D se_cmd->abrt_compl;
-> 	unsigned long flags;
->=20
-> -	if (se_cmd->lun_ref_active)
-> -		percpu_ref_put(&se_cmd->se_lun->lun_ref);
-> -
-> 	if (se_sess) {
-> 		spin_lock_irqsave(&se_sess->sess_cmd_lock, flags);
-> 		list_del_init(&se_cmd->se_cmd_list);
+>         old_hdr->reply_len =3D (int) hp->timeout;
+>         old_hdr->pack_len =3D old_hdr->reply_len; /* old, strange behavio=
+ur */
+>         old_hdr->pack_id =3D hp->pack_id;
+> @@ -575,7 +562,12 @@ sg_new_read(Sg_fd * sfp, char __user *bu
+>         int err =3D 0, err2;
+>         int len;
+>
+> -       if (count < SZ_SG_IO_HDR) {
+> +       if (in_compat_syscall()) {
+> +               if (count < sizeof(struct compat_sg_io_hdr)) {
+> +                       err =3D -EINVAL;
+> +                       goto err_out;
+> +               }
+> +       } else if (count < SZ_SG_IO_HDR) {
+>                 err =3D -EINVAL;
+>                 goto err_out;
+>         }
+> --- a/include/scsi/sg.h
+> +++ b/include/scsi/sg.h
+> @@ -68,6 +68,36 @@ typedef struct sg_io_hdr
+>      unsigned int info;          /* [o] auxiliary information */
+>  } sg_io_hdr_t;  /* 64 bytes long (on i386) */
+>
+> +#if defined(__KERNEL__)
+> +#include <linux/compat.h>
+> +
+> +struct compat_sg_io_hdr {
+> +       compat_int_t interface_id;      /* [i] 'S' for SCSI generic (requ=
+ired) */
+> +       compat_int_t dxfer_direction;   /* [i] data transfer direction  *=
+/
+> +       unsigned char cmd_len;          /* [i] SCSI command length ( <=3D=
+ 16 bytes) */
+> +       unsigned char mx_sb_len;        /* [i] max length to write to sbp=
+ */
+> +       unsigned short iovec_count;     /* [i] 0 implies no scatter gathe=
+r */
+> +       compat_uint_t dxfer_len;        /* [i] byte count of data transfe=
+r */
+> +       compat_uint_t dxferp;           /* [i], [*io] points to data tran=
+sfer memory
+> +                                               or scatter gather list */
+> +       compat_uptr_t cmdp;             /* [i], [*i] points to command to=
+ perform */
+> +       compat_uptr_t sbp;              /* [i], [*o] points to sense_buff=
+er memory */
+> +       compat_uint_t timeout;          /* [i] MAX_UINT->no timeout (unit=
+: millisec) */
+> +       compat_uint_t flags;            /* [i] 0 -> default, see SG_FLAG.=
+.. */
+> +       compat_int_t pack_id;           /* [i->o] unused internally (norm=
+ally) */
+> +       compat_uptr_t usr_ptr;          /* [i->o] unused internally */
+> +       unsigned char status;           /* [o] scsi status */
+> +       unsigned char masked_status;    /* [o] shifted, masked scsi statu=
+s */
+> +       unsigned char msg_status;       /* [o] messaging level data (opti=
+onal) */
+> +       unsigned char sb_len_wr;        /* [o] byte count actually writte=
+n to sbp */
+> +       unsigned short host_status;     /* [o] errors from host adapter *=
+/
+> +       unsigned short driver_status;   /* [o] errors from software drive=
+r */
+> +       compat_int_t resid;             /* [o] dxfer_len - actual_transfe=
+rred */
+> +       compat_uint_t duration;         /* [o] time taken by cmd (unit: m=
+illisec) */
+> +       compat_uint_t info;             /* [o] auxiliary information */
+> +};
+> +#endif
+> +
+>  #define SG_INTERFACE_ID_ORIG 'S'
+>
+>  /* Use negative values to flag difference from original sg_header struct=
+ure */
+>
+>
 
+--=20
+Linaro LKFT
+https://lkft.linaro.org
