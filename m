@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50363157972
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE0B157964
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728440AbgBJNPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:15:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33634 "EHLO mail.kernel.org"
+        id S1728977AbgBJNPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:15:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbgBJMiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:22 -0500
+        id S1728059AbgBJMi0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:26 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E8DE20838;
-        Mon, 10 Feb 2020 12:38:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30AC92173E;
+        Mon, 10 Feb 2020 12:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338302;
-        bh=kxFncGf/eva9sctmoin6ssD2buP8wYRxGrlH4Bw3S9I=;
+        s=default; t=1581338305;
+        bh=8NAGo9e5AJ0Ux3q1OgbYLdinV3moyrh9CcR77rKraOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyj6qn+aJCoZOYwJbARtTM6FckLLRwlUBt0RaZyUJsW6STev+guE+vvka4fFYzkXO
-         LfS+ISeDjDLuWZcdlHHb0wtBQYDhLnaF7AM5j93P3CnMPiERSoKWDBnc+MczsE3SrS
-         PBs6bw6Zd/yqVYVN51udcmOZFDjAv4nCEXBdQlrU=
+        b=aZr7KHopNwxjWonpDFphM5WFPUmYV6U3W+8PFIjuJwsjhlCggdfBE0IAbAPznsQTk
+         4U0GI2cde9doZDya4f3oW2+Nyswi+PKbWTxugg0UtEl44lyytZNGkAvJhTLXV26LlD
+         Z25VsFkIcl0g0NWHWJuqIqH/iNcFy+AxqQunBY5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 178/309] btrfs: Correctly handle empty trees in find_first_clear_extent_bit
-Date:   Mon, 10 Feb 2020 04:32:14 -0800
-Message-Id: <20200210122423.563423231@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.4 179/309] ARM: tegra: Enable PLLP bypass during Tegra124 LP1
+Date:   Mon, 10 Feb 2020 04:32:15 -0800
+Message-Id: <20200210122423.673949891@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,122 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Stephen Warren <swarren@nvidia.com>
 
-commit 5750c37523a2c8cbb450b9ef31e21c2ba876b05e upstream.
+commit 1a3388d506bf5b45bb283e6a4c4706cfb4897333 upstream.
 
-Raviu reported that running his regular fs_trim segfaulted with the
-following backtrace:
+For a little over a year, U-Boot has configured the flow controller to
+perform automatic RAM re-repair on off->on power transitions of the CPU
+rail[1]. This is mandatory for correct operation of Tegra124. However,
+RAM re-repair relies on certain clocks, which the kernel must enable and
+leave running. PLLP is one of those clocks. This clock is shut down
+during LP1 in order to save power. Enable bypass (which I believe routes
+osc_div_clk, essentially the crystal clock, to the PLL output) so that
+this clock signal toggles even though the PLL is not active. This is
+required so that LP1 power mode (system suspend) operates correctly.
 
-[  237.525947] assertion failed: prev, in ../fs/btrfs/extent_io.c:1595
-[  237.525984] ------------[ cut here ]------------
-[  237.525985] kernel BUG at ../fs/btrfs/ctree.h:3117!
-[  237.525992] invalid opcode: 0000 [#1] SMP PTI
-[  237.525998] CPU: 4 PID: 4423 Comm: fstrim Tainted: G     U     OE     5.4.14-8-vanilla #1
-[  237.526001] Hardware name: ASUSTeK COMPUTER INC.
-[  237.526044] RIP: 0010:assfail.constprop.58+0x18/0x1a [btrfs]
-[  237.526079] Call Trace:
-[  237.526120]  find_first_clear_extent_bit+0x13d/0x150 [btrfs]
-[  237.526148]  btrfs_trim_fs+0x211/0x3f0 [btrfs]
-[  237.526184]  btrfs_ioctl_fitrim+0x103/0x170 [btrfs]
-[  237.526219]  btrfs_ioctl+0x129a/0x2ed0 [btrfs]
-[  237.526227]  ? filemap_map_pages+0x190/0x3d0
-[  237.526232]  ? do_filp_open+0xaf/0x110
-[  237.526238]  ? _copy_to_user+0x22/0x30
-[  237.526242]  ? cp_new_stat+0x150/0x180
-[  237.526247]  ? do_vfs_ioctl+0xa4/0x640
-[  237.526278]  ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
-[  237.526283]  do_vfs_ioctl+0xa4/0x640
-[  237.526288]  ? __do_sys_newfstat+0x3c/0x60
-[  237.526292]  ksys_ioctl+0x70/0x80
-[  237.526297]  __x64_sys_ioctl+0x16/0x20
-[  237.526303]  do_syscall_64+0x5a/0x1c0
-[  237.526310]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+The bypass configuration must then be undone when resuming from LP1, so
+that all peripheral clocks run at the expected rate. Without this, many
+peripherals won't work correctly; for example, the UART baud rate would
+be incorrect.
 
-That was due to btrfs_fs_device::aloc_tree being empty. Initially I
-thought this wasn't possible and as a percaution have put the assert in
-find_first_clear_extent_bit. Turns out this is indeed possible and could
-happen when a file system with SINGLE data/metadata profile has a 2nd
-device added. Until balance is run or a new chunk is allocated on this
-device it will be completely empty.
+NVIDIA's downstream kernel code only does this if not compiled for
+Tegra30, so the added code is made conditional upon the chip ID.
+NVIDIA's downstream code makes this change conditional upon the active
+CPU cluster. The upstream kernel currently doesn't support cluster
+switching, so this patch doesn't test the active CPU cluster ID.
 
-In this case find_first_clear_extent_bit should return the full range
-[0, -1ULL] and let the caller handle this i.e for trim the end will be
-capped at the size of actual device.
+[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
 
-Link: https://lore.kernel.org/linux-btrfs/izW2WNyvy1dEDweBICizKnd2KDwDiDyY2EYQr4YCwk7pkuIpthx-JRn65MPBde00ND6V0_Lh8mW0kZwzDiLDv25pUYWxkskWNJnVP0kgdMA=@protonmail.com/
-Fixes: 45bfcfc168f8 ("btrfs: Implement find_first_clear_extent_bit")
-CC: stable@vger.kernel.org # 5.2+
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c             |   32 ++++++++++++++++++--------------
- fs/btrfs/tests/extent-io-tests.c |    9 +++++++++
- 2 files changed, 27 insertions(+), 14 deletions(-)
+ arch/arm/mach-tegra/sleep-tegra30.S |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -1583,21 +1583,25 @@ void find_first_clear_extent_bit(struct
- 	/* Find first extent with bits cleared */
- 	while (1) {
- 		node = __etree_search(tree, start, &next, &prev, NULL, NULL);
--		if (!node) {
-+		if (!node && !next && !prev) {
-+			/*
-+			 * Tree is completely empty, send full range and let
-+			 * caller deal with it
-+			 */
-+			*start_ret = 0;
-+			*end_ret = -1;
-+			goto out;
-+		} else if (!node && !next) {
-+			/*
-+			 * We are past the last allocated chunk, set start at
-+			 * the end of the last extent.
-+			 */
-+			state = rb_entry(prev, struct extent_state, rb_node);
-+			*start_ret = state->end + 1;
-+			*end_ret = -1;
-+			goto out;
-+		} else if (!node) {
- 			node = next;
--			if (!node) {
--				/*
--				 * We are past the last allocated chunk,
--				 * set start at the end of the last extent. The
--				 * device alloc tree should never be empty so
--				 * prev is always set.
--				 */
--				ASSERT(prev);
--				state = rb_entry(prev, struct extent_state, rb_node);
--				*start_ret = state->end + 1;
--				*end_ret = -1;
--				goto out;
--			}
- 		}
- 		/*
- 		 * At this point 'node' either contains 'start' or start is
---- a/fs/btrfs/tests/extent-io-tests.c
-+++ b/fs/btrfs/tests/extent-io-tests.c
-@@ -441,8 +441,17 @@ static int test_find_first_clear_extent_
- 	int ret = -EINVAL;
+--- a/arch/arm/mach-tegra/sleep-tegra30.S
++++ b/arch/arm/mach-tegra/sleep-tegra30.S
+@@ -370,6 +370,14 @@ _pll_m_c_x_done:
+ 	pll_locked r1, r0, CLK_RESET_PLLC_BASE
+ 	pll_locked r1, r0, CLK_RESET_PLLX_BASE
  
- 	test_msg("running find_first_clear_extent_bit test");
++	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
++	cmp	r1, #TEGRA30
++	beq	1f
++	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
++	bic	r1, r1, #(1<<31)	@ disable PllP bypass
++	str	r1, [r0, #CLK_RESET_PLLP_BASE]
++1:
 +
- 	extent_io_tree_init(NULL, &tree, IO_TREE_SELFTEST, NULL);
+ 	mov32	r7, TEGRA_TMRUS_BASE
+ 	ldr	r1, [r7]
+ 	add	r1, r1, #LOCK_DELAY
+@@ -630,7 +638,10 @@ tegra30_switch_cpu_to_clk32k:
+ 	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
  
-+	/* Test correct handling of empty tree */
-+	find_first_clear_extent_bit(&tree, 0, &start, &end, CHUNK_TRIMMED);
-+	if (start != 0 || end != -1) {
-+		test_err(
-+	"error getting a range from completely empty tree: start %llu end %llu",
-+			 start, end);
-+		goto out;
-+	}
- 	/*
- 	 * Set 1M-4M alloc/discard and 32M-64M thus leaving a hole between
- 	 * 4M-32M
+ 	/* disable PLLP, PLLA, PLLC and PLLX */
++	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
++	cmp	r1, #TEGRA30
+ 	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
++	orrne	r0, r0, #(1 << 31)	@ enable PllP bypass on fast cluster
+ 	bic	r0, r0, #(1 << 30)
+ 	str	r0, [r5, #CLK_RESET_PLLP_BASE]
+ 	ldr	r0, [r5, #CLK_RESET_PLLA_BASE]
 
 
