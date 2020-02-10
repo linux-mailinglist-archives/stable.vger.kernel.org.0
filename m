@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD810157BDC
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:33:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 832C7157BBE
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728065AbgBJNdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:33:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52932 "EHLO mail.kernel.org"
+        id S1728146AbgBJMfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:35:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728054AbgBJMfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:40 -0500
+        id S1728138AbgBJMfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:51 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F045124676;
-        Mon, 10 Feb 2020 12:35:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42EDC2168B;
+        Mon, 10 Feb 2020 12:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338139;
-        bh=3iWbfAP+PG1KW8y63o4x49d5mJdWLWyQ+qpsewFAmDw=;
+        s=default; t=1581338150;
+        bh=MwYhGUE+jYWpjZsa+15g3hupFybA4O768IPBJA8Bcy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jt2TLEPXrH/bn8sGevCwpnaAh/9HtSEw6wfFeLOVWoxxYjOUm6aweC/PN1Y6h2+b
-         CjGwbrS4BXJeypI0kqqN6kONAr43ovW59BGBXAsJsq5b4UeVLB3vJUswbcBwsc2Git
-         3BdrqVPLbsXb76uABgHR+PxFoj0rO1Ongrs68dhk=
+        b=Hbvv8KwAVH6pTGb3a6LqZpiBI8wEc97kWfNFUSNLy39yLVqS5rNxpOsiVv80oLkSp
+         EzfbdHWhNZHTNZPTTtFomP93BzZeqJ1FJ5ZFEfgwtS0/+/TrXUcqxDf+txiZXQzhY4
+         bfdvu27lpC2bBuzeJPzzY8VezA7G91TUOK8+HbOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanho Min <chanho.min@lge.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 084/195] PM: core: Fix handling of devices deleted during system-wide resume
-Date:   Mon, 10 Feb 2020 04:32:22 -0800
-Message-Id: <20200210122313.698514623@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 086/195] dm zoned: support zone sizes smaller than 128MiB
+Date:   Mon, 10 Feb 2020 04:32:24 -0800
+Message-Id: <20200210122313.863366477@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -43,123 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit 0552e05fdfea191a2cf3a0abd33574b5ef9ca818 upstream.
+commit b39962950339912978484cdac50069258545d753 upstream.
 
-If a device is deleted by one of its system-wide resume callbacks
-(for example, because it does not appear to be present or accessible
-any more) along with its children, the resume of the children may
-continue leading to use-after-free errors and other issues
-(potentially).
+dm-zoned is observed to log failed kernel assertions and not work
+correctly when operating against a device with a zone size smaller
+than 128MiB (e.g. 32768 bits per 4K block). The reason is that the
+bitmap size per zone is calculated as zero with such a small zone
+size. Fix this problem and also make the code related to zone bitmap
+management be able to handle per zone bitmaps smaller than a single
+block.
 
-Namely, if the device's children are resumed asynchronously, their
-resume may have been scheduled already before the device's callback
-runs and so the device may be deleted while dpm_wait_for_superior()
-is being executed for them.  The memory taken up by the parent device
-object may be freed then while dpm_wait() is waiting for the parent's
-resume callback to complete, which leads to a use-after-free.
-Moreover, the resume of the children is really not expected to
-continue after they have been unregistered, so it must be terminated
-right away in that case.
+A dm-zoned-tools patch is required to properly format dm-zoned devices
+with zone sizes smaller than 128MiB.
 
-To address this problem, modify dpm_wait_for_superior() to check
-if the target device is still there in the system-wide PM list of
-devices and if so, to increment its parent's reference counter, both
-under dpm_list_mtx which prevents device_del() running for the child
-from dropping the parent's reference counter prematurely.
-
-If the device is not present in the system-wide PM list of devices
-any more, the resume of it cannot continue, so check that again after
-dpm_wait() returns, which means that the parent's callback has been
-completed, and pass the result of that check to the caller of
-dpm_wait_for_superior() to allow it to abort the device's resume
-if it is not there any more.
-
-Link: https://lore.kernel.org/linux-pm/1579568452-27253-1-git-send-email-chanho.min@lge.com
-Reported-by: Chanho Min <chanho.min@lge.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/power/main.c |   42 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 37 insertions(+), 5 deletions(-)
+ drivers/md/dm-zoned-metadata.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -265,10 +265,38 @@ static void dpm_wait_for_suppliers(struc
- 	device_links_read_unlock(idx);
- }
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -132,6 +132,7 @@ struct dmz_metadata {
  
--static void dpm_wait_for_superior(struct device *dev, bool async)
-+static bool dpm_wait_for_superior(struct device *dev, bool async)
- {
--	dpm_wait(dev->parent, async);
-+	struct device *parent;
-+
-+	/*
-+	 * If the device is resumed asynchronously and the parent's callback
-+	 * deletes both the device and the parent itself, the parent object may
-+	 * be freed while this function is running, so avoid that by reference
-+	 * counting the parent once more unless the device has been deleted
-+	 * already (in which case return right away).
-+	 */
-+	mutex_lock(&dpm_list_mtx);
-+
-+	if (!device_pm_initialized(dev)) {
-+		mutex_unlock(&dpm_list_mtx);
-+		return false;
-+	}
-+
-+	parent = get_device(dev->parent);
-+
-+	mutex_unlock(&dpm_list_mtx);
-+
-+	dpm_wait(parent, async);
-+	put_device(parent);
-+
- 	dpm_wait_for_suppliers(dev, async);
-+
-+	/*
-+	 * If the parent's callback has deleted the device, attempting to resume
-+	 * it would be invalid, so avoid doing that then.
-+	 */
-+	return device_pm_initialized(dev);
- }
+ 	sector_t		zone_bitmap_size;
+ 	unsigned int		zone_nr_bitmap_blocks;
++	unsigned int		zone_bits_per_mblk;
  
- static void dpm_wait_for_consumers(struct device *dev, bool async)
-@@ -628,7 +656,8 @@ static int device_resume_noirq(struct de
- 	if (!dev->power.is_noirq_suspended)
- 		goto Out;
+ 	unsigned int		nr_bitmap_blocks;
+ 	unsigned int		nr_map_blocks;
+@@ -1165,7 +1166,10 @@ static int dmz_init_zones(struct dmz_met
  
--	dpm_wait_for_superior(dev, async);
-+	if (!dpm_wait_for_superior(dev, async))
-+		goto Out;
+ 	/* Init */
+ 	zmd->zone_bitmap_size = dev->zone_nr_blocks >> 3;
+-	zmd->zone_nr_bitmap_blocks = zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT;
++	zmd->zone_nr_bitmap_blocks =
++		max_t(sector_t, 1, zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT);
++	zmd->zone_bits_per_mblk = min_t(sector_t, dev->zone_nr_blocks,
++					DMZ_BLOCK_SIZE_BITS);
  
- 	skip_resume = dev_pm_may_skip_resume(dev);
+ 	/* Allocate zone array */
+ 	zmd->zones = kcalloc(dev->nr_zones, sizeof(struct dm_zone), GFP_KERNEL);
+@@ -1982,7 +1986,7 @@ int dmz_copy_valid_blocks(struct dmz_met
+ 		dmz_release_mblock(zmd, to_mblk);
+ 		dmz_release_mblock(zmd, from_mblk);
  
-@@ -829,7 +858,8 @@ static int device_resume_early(struct de
- 	if (!dev->power.is_late_suspended)
- 		goto Out;
- 
--	dpm_wait_for_superior(dev, async);
-+	if (!dpm_wait_for_superior(dev, async))
-+		goto Out;
- 
- 	callback = dpm_subsys_resume_early_cb(dev, state, &info);
- 
-@@ -949,7 +979,9 @@ static int device_resume(struct device *
- 		goto Complete;
+-		chunk_block += DMZ_BLOCK_SIZE_BITS;
++		chunk_block += zmd->zone_bits_per_mblk;
  	}
  
--	dpm_wait_for_superior(dev, async);
-+	if (!dpm_wait_for_superior(dev, async))
-+		goto Complete;
-+
- 	dpm_watchdog_set(&wd, dev);
- 	device_lock(dev);
+ 	to_zone->weight = from_zone->weight;
+@@ -2043,7 +2047,7 @@ int dmz_validate_blocks(struct dmz_metad
  
+ 		/* Set bits */
+ 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
+-		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
++		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
+ 
+ 		count = dmz_set_bits((unsigned long *)mblk->data, bit, nr_bits);
+ 		if (count) {
+@@ -2122,7 +2126,7 @@ int dmz_invalidate_blocks(struct dmz_met
+ 
+ 		/* Clear bits */
+ 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
+-		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
++		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
+ 
+ 		count = dmz_clear_bits((unsigned long *)mblk->data,
+ 				       bit, nr_bits);
+@@ -2182,6 +2186,7 @@ static int dmz_to_next_set_block(struct
+ {
+ 	struct dmz_mblock *mblk;
+ 	unsigned int bit, set_bit, nr_bits;
++	unsigned int zone_bits = zmd->zone_bits_per_mblk;
+ 	unsigned long *bitmap;
+ 	int n = 0;
+ 
+@@ -2196,15 +2201,15 @@ static int dmz_to_next_set_block(struct
+ 		/* Get offset */
+ 		bitmap = (unsigned long *) mblk->data;
+ 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
+-		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
++		nr_bits = min(nr_blocks, zone_bits - bit);
+ 		if (set)
+-			set_bit = find_next_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
++			set_bit = find_next_bit(bitmap, zone_bits, bit);
+ 		else
+-			set_bit = find_next_zero_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
++			set_bit = find_next_zero_bit(bitmap, zone_bits, bit);
+ 		dmz_release_mblock(zmd, mblk);
+ 
+ 		n += set_bit - bit;
+-		if (set_bit < DMZ_BLOCK_SIZE_BITS)
++		if (set_bit < zone_bits)
+ 			break;
+ 
+ 		nr_blocks -= nr_bits;
+@@ -2307,7 +2312,7 @@ static void dmz_get_zone_weight(struct d
+ 		/* Count bits in this block */
+ 		bitmap = mblk->data;
+ 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
+-		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
++		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
+ 		n += dmz_count_bits(bitmap, bit, nr_bits);
+ 
+ 		dmz_release_mblock(zmd, mblk);
 
 
