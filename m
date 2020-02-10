@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3484157A31
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7BB15777F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728820AbgBJNVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:21:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59566 "EHLO mail.kernel.org"
+        id S1728095AbgBJNA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:00:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728248AbgBJMhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:34 -0500
+        id S1729836AbgBJMkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:55 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8615E208C4;
-        Mon, 10 Feb 2020 12:37:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D32102051A;
+        Mon, 10 Feb 2020 12:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338254;
-        bh=eNbSzKnGhFlJ968LROIwRDi3+9NQV0GsMHanD6wDiTo=;
+        s=default; t=1581338454;
+        bh=Ah3y0Faj6m51bO7okuTL13gZstjS4JflCio3GOBle/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NXnifRD257a0s9m7BIHRLyzjOi61vVv+hUIzyAsx+puM+V6ELUETg2vaIImG5Cao8
-         I/wCrtE6QAkuySw5CSRa2I4AHvA2htorG9hj2SseiTh5lJE6eZfPUTUh9gNavV8iT3
-         vd/Yv3T8WIVq0hpuTECoP99hBsx5W3OSHLfhXfGk=
+        b=HDkvZiHtnIL7/uMfLRi3mgoiZZeXQUkPlZJNJcjMjJ1r3YMwAghTi09P2tiYqaUz/
+         9jZvJF3e/NNcqHv2sAADE30xf0A4xxYLo9lI3p9EEP37npfTqsAVKQGlb1ZuUoMiqF
+         vDkjqsi1CB4AReVH88tjhcZsStCls5NxmiXnfPAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 120/309] f2fs: code cleanup for f2fs_statfs_project()
-Date:   Mon, 10 Feb 2020 04:31:16 -0800
-Message-Id: <20200210122418.024104188@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.5 164/367] libbpf: Add missing newline in opts validation macro
+Date:   Mon, 10 Feb 2020 04:31:17 -0800
+Message-Id: <20200210122439.992841802@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit bf2cbd3c57159c2b639ee8797b52ab5af180bf83 upstream.
+commit 12dd14b230b3c742b80272ecb8a83cdf824625ca upstream.
 
-Calling min_not_zero() to simplify complicated prjquota
-limit comparison in f2fs_statfs_project().
+The error log output in the opts validation macro was missing a newline.
 
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 2ce8450ef5a3 ("libbpf: add bpf_object__open_{file, mem} w/ extensible opts")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191219120714.928380-1-toke@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/f2fs/super.c |   16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ tools/lib/bpf/libbpf_internal.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1213,12 +1213,8 @@ static int f2fs_statfs_project(struct su
- 		return PTR_ERR(dquot);
- 	spin_lock(&dquot->dq_dqb_lock);
+--- a/tools/lib/bpf/libbpf_internal.h
++++ b/tools/lib/bpf/libbpf_internal.h
+@@ -76,7 +76,7 @@ static inline bool libbpf_validate_opts(
  
--	limit = 0;
--	if (dquot->dq_dqb.dqb_bsoftlimit)
--		limit = dquot->dq_dqb.dqb_bsoftlimit;
--	if (dquot->dq_dqb.dqb_bhardlimit &&
--			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
--		limit = dquot->dq_dqb.dqb_bhardlimit;
-+	limit = min_not_zero(dquot->dq_dqb.dqb_bsoftlimit,
-+					dquot->dq_dqb.dqb_bhardlimit);
- 	if (limit)
- 		limit >>= sb->s_blocksize_bits;
- 
-@@ -1230,12 +1226,8 @@ static int f2fs_statfs_project(struct su
- 			 (buf->f_blocks - curblock) : 0;
- 	}
- 
--	limit = 0;
--	if (dquot->dq_dqb.dqb_isoftlimit)
--		limit = dquot->dq_dqb.dqb_isoftlimit;
--	if (dquot->dq_dqb.dqb_ihardlimit &&
--			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
--		limit = dquot->dq_dqb.dqb_ihardlimit;
-+	limit = min_not_zero(dquot->dq_dqb.dqb_isoftlimit,
-+					dquot->dq_dqb.dqb_ihardlimit);
- 
- 	if (limit && buf->f_files > limit) {
- 		buf->f_files = limit;
+ 		for (i = opts_sz; i < user_sz; i++) {
+ 			if (opts[i]) {
+-				pr_warn("%s has non-zero extra bytes",
++				pr_warn("%s has non-zero extra bytes\n",
+ 					type_name);
+ 				return false;
+ 			}
 
 
