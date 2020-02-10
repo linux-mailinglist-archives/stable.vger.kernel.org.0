@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C99951574D6
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:36:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EA515764D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728299AbgBJMgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
+        id S1728349AbgBJMuw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:50:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728289AbgBJMgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:13 -0500
+        id S1730137AbgBJMoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:44:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 839422168B;
-        Mon, 10 Feb 2020 12:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77E202080C;
+        Mon, 10 Feb 2020 12:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338172;
-        bh=t1b8BIai9fdlEGOYSa7En/dbPbIjI40xLMeAasFzZKI=;
+        s=default; t=1581338644;
+        bh=PuO13LKVTYDSxri5SOudHC2t0XeLAaovGg0Nb14h168=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5IbeQNCUM8asEm17EdtIDmCoJoBpCc9orQZLYbxG76Ga8Ro7GmmUA2739mbuT5U0
-         tmYekeEkV59w9OlwOJDwq3aq/IX3fPWW1nE1aS4TdvdlfcBIIN5V6Si0oYPeQQJXAV
-         tN6TU2p93GxWWh3igEsLuPv4HmThDQpftm7Jfdjk=
+        b=GGeMSIs1F8jF9VYoxo/WvVBh17QJyM5CoKJJkQjyqC5n+MsfdelcLBp/Q96hX2nyx
+         T5OG741rfow1WrkrQ89G1mrE8ZksYsAKnTq0wPdyrGhXiTyeq24bNo08kDHjyXSEMb
+         hevvPcD711pemuhYU2IP25wA8s6C6pG0MpnKWdZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 130/195] KVM: x86: Protect MSR-based index computations in pmu.h from Spectre-v1/L1TF attacks
+        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Daniel Verkamp <dverkamp@chromium.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: [PATCH 5.5 275/367] virtio-pci: check name when counting MSI-X vectors
 Date:   Mon, 10 Feb 2020 04:33:08 -0800
-Message-Id: <20200210122318.023543505@linuxfoundation.org>
+Message-Id: <20200210122449.575683757@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
 
-commit 13c5183a4e643cc2b03a22d0e582c8e17bb7457d upstream.
+commit 303090b513fd1ee45aa1536b71a3838dc054bc05 upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in the get_gp_pmc() and
-get_fixed_pmc() functions.
-They both contain index computations based on the (attacker-controlled)
-MSR number.
+VQs without a name specified are not valid; they are skipped in the
+later loop that assigns MSI-X vectors to queues, but the per_vq_vectors
+loop above that counts the required number of vectors previously still
+counted any queue with a non-NULL callback as needing a vector.
 
-Fixes: 25462f7f5295 ("KVM: x86/vPMU: Define kvm_pmu_ops to support vPMU function dispatch")
+Add a check to the per_vq_vectors loop so that vectors with no name are
+not counted to make the two loops consistent.  This prevents
+over-counting unnecessary vectors (e.g. for features which were not
+negotiated with the device).
 
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Wang, Wei W <wei.w.wang@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/pmu.h |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_pci_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/pmu.h
-+++ b/arch/x86/kvm/pmu.h
-@@ -2,6 +2,8 @@
- #ifndef __KVM_X86_PMU_H
- #define __KVM_X86_PMU_H
- 
-+#include <linux/nospec.h>
-+
- #define vcpu_to_pmu(vcpu) (&(vcpu)->arch.pmu)
- #define pmu_to_vcpu(pmu)  (container_of((pmu), struct kvm_vcpu, arch.pmu))
- #define pmc_to_pmu(pmc)   (&(pmc)->vcpu->arch.pmu)
-@@ -86,8 +88,12 @@ static inline bool pmc_is_enabled(struct
- static inline struct kvm_pmc *get_gp_pmc(struct kvm_pmu *pmu, u32 msr,
- 					 u32 base)
- {
--	if (msr >= base && msr < base + pmu->nr_arch_gp_counters)
--		return &pmu->gp_counters[msr - base];
-+	if (msr >= base && msr < base + pmu->nr_arch_gp_counters) {
-+		u32 index = array_index_nospec(msr - base,
-+					       pmu->nr_arch_gp_counters);
-+
-+		return &pmu->gp_counters[index];
-+	}
- 
- 	return NULL;
- }
-@@ -97,8 +103,12 @@ static inline struct kvm_pmc *get_fixed_
- {
- 	int base = MSR_CORE_PERF_FIXED_CTR0;
- 
--	if (msr >= base && msr < base + pmu->nr_arch_fixed_counters)
--		return &pmu->fixed_counters[msr - base];
-+	if (msr >= base && msr < base + pmu->nr_arch_fixed_counters) {
-+		u32 index = array_index_nospec(msr - base,
-+					       pmu->nr_arch_fixed_counters);
-+
-+		return &pmu->fixed_counters[index];
-+	}
- 
- 	return NULL;
- }
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virti
+ 		/* Best option: one for change interrupt, one per vq. */
+ 		nvectors = 1;
+ 		for (i = 0; i < nvqs; ++i)
+-			if (callbacks[i])
++			if (names[i] && callbacks[i])
+ 				++nvectors;
+ 	} else {
+ 		/* Second best: one for change, shared for all vqs. */
 
 
