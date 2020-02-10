@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B81157AF5
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D83F157859
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbgBJN0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:26:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56700 "EHLO mail.kernel.org"
+        id S1729509AbgBJMjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728476AbgBJMgm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:42 -0500
+        id S1729503AbgBJMjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:44 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EDDD24671;
-        Mon, 10 Feb 2020 12:36:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A66D24683;
+        Mon, 10 Feb 2020 12:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338202;
-        bh=pg1azpsCiiloSPcxUHew4TYvgj+L96tSqQDNNU7hbeo=;
+        s=default; t=1581338383;
+        bh=w04zKDRhfpscS0qERuuz0M+TT8yN32ujVbARW/VIr00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvbZ3sWbwNDVqxcJ847cAlMNztabvUo7jsXYsTpilJJ9txJDo1w+4HlX3mzS6zpzv
-         qecBT3GVQ4kDYwPUJR1Ldph5z5bvxPDZPqlVpkpf04h8e+UaMQijHp3xNmScO5Hk/P
-         aUxPdxcyaLkG4zYPKNnUu+mtwk5pGOcuHTlbZVZk=
+        b=XqMu7b9/QWW8SjnekWR/yG7kFH9EylQ2gF25oCRAenP8rPFsDDSpRxI4oegyLWSd1
+         ur0TH5eXgBMj8Y0+sYAfkpRQy+flrfdW66NCFWR+5CajsDOcOgjbYEOnNYgbUxKlks
+         s9rnU7VOU5ibzCyV8Y26q+62mXNe/3CLLo1xYK0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 019/309] MAINTAINERS: correct entries for ISDN/mISDN section
-Date:   Mon, 10 Feb 2020 04:29:35 -0800
-Message-Id: <20200210122407.824411612@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 064/367] lib/test_kasan.c: fix memory leak in kmalloc_oob_krealloc_more()
+Date:   Mon, 10 Feb 2020 04:29:37 -0800
+Message-Id: <20200210122430.002358593@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit dff6bc1bfd462b76dc13ec19dedc2c134a62ac59 ]
+commit 3e21d9a501bf99aee2e5835d7f34d8c823f115b5 upstream.
 
-Commit 6d97985072dc ("isdn: move capi drivers to staging") cleaned up the
-isdn drivers and split the MAINTAINERS section for ISDN, but missed to add
-the terminal slash for the two directories mISDN and hardware. Hence, all
-files in those directories were not part of the new ISDN/mISDN SUBSYSTEM,
-but were considered to be part of "THE REST".
+In case memory resources for _ptr2_ were allocated, release them before
+return.
 
-Rectify the situation, and while at it, also complete the section with two
-further build files that belong to that subsystem.
+Notice that in case _ptr1_ happens to be NULL, krealloc() behaves
+exactly like kmalloc().
 
-This was identified with a small script that finds all files belonging to
-"THE REST" according to the current MAINTAINERS file, and I investigated
-upon its output.
-
-Fixes: 6d97985072dc ("isdn: move capi drivers to staging")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Addresses-Coverity-ID: 1490594 ("Resource leak")
+Link: http://lkml.kernel.org/r/20200123160115.GA4202@embeddedor
+Fixes: 3f15801cdc23 ("lib: add kasan test module")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- MAINTAINERS |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8704,8 +8704,10 @@ L:	isdn4linux@listserv.isdn4linux.de (su
- L:	netdev@vger.kernel.org
- W:	http://www.isdn4linux.de
- S:	Maintained
--F:	drivers/isdn/mISDN
--F:	drivers/isdn/hardware
-+F:	drivers/isdn/mISDN/
-+F:	drivers/isdn/hardware/
-+F:	drivers/isdn/Kconfig
-+F:	drivers/isdn/Makefile
+---
+ lib/test_kasan.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -158,6 +158,7 @@ static noinline void __init kmalloc_oob_
+ 	if (!ptr1 || !ptr2) {
+ 		pr_err("Allocation failed\n");
+ 		kfree(ptr1);
++		kfree(ptr2);
+ 		return;
+ 	}
  
- ISDN/CAPI SUBSYSTEM
- M:	Karsten Keil <isdn@linux-pingi.de>
 
 
