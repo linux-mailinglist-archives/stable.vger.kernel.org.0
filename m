@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F92157A10
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D57A11577F4
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:04:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728864AbgBJMhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59920 "EHLO mail.kernel.org"
+        id S1729702AbgBJMkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728854AbgBJMhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:42 -0500
+        id S1729134AbgBJMkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:18 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C869920842;
-        Mon, 10 Feb 2020 12:37:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4119620733;
+        Mon, 10 Feb 2020 12:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338260;
-        bh=WfPj+P3uqS25JQPoo9xldmKwD2K+rYot1kojTkWwG5M=;
+        s=default; t=1581338418;
+        bh=kmQVuxoiX5ikHORHDfl8KXgDzSS6R5KWecgoJhjI3B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mau9styLLlVjaVQxg1x2+QPvKnGjp7o+wPMrT1Ep8+aW2r2ZhaXlMCVbHm6YOVfNL
-         eB82A7U8m83J8k0aOSmx7wmeD9XTbwXdeNc8P3L4A74DiyOMRZN3XygAj4fzFivtFE
-         e9ZQUrYTj5ZO/FH7uwDbRumzg+4BKPCEzzJYE+6M=
+        b=aqzGMY807fPZzTL0BrzC4CQQuyC5IGnxlooLE4b0zB5GE1osnTUGoGXjxOKskqAaj
+         ebKS4VUYLBuUlhOyfAiBcVk/lYav2K7Zs98ZQjSTurAYtU+svMEFG8DmIOuERXt7AX
+         JKIDrGEV7tuAKkP1LxfNCBLQMKqcoKdd0d1P7RXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.4 091/309] fscrypt: dont print name of busy file when removing key
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.5 134/367] f2fs: fix dcache lookup of !casefolded directories
 Date:   Mon, 10 Feb 2020 04:30:47 -0800
-Message-Id: <20200210122414.764048758@linuxfoundation.org>
+Message-Id: <20200210122437.232045429@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +45,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 13a10da94615d81087e718517794f2868a8b3fab upstream.
+commit 5515eae647426169e4b7969271fb207881eba7f6 upstream.
 
-When an encryption key can't be fully removed due to file(s) protected
-by it still being in-use, we shouldn't really print the path to one of
-these files to the kernel log, since parts of this path are likely to be
-encrypted on-disk, and (depending on how the system is set up) the
-confidentiality of this path might be lost by printing it to the log.
+Do the name comparison for non-casefolded directories correctly.
 
-This is a trade-off: a single file path often doesn't matter at all,
-especially if it's a directory; the kernel log might still be protected
-in some way; and I had originally hoped that any "inode(s) still busy"
-bugs (which are security weaknesses in their own right) would be quickly
-fixed and that to do so it would be super helpful to always know the
-file path and not have to run 'find dir -inum $inum' after the fact.
+This is analogous to ext4's commit 66883da1eee8 ("ext4: fix dcache
+lookup of !casefolded directories").
 
-But in practice, these bugs can be hard to fix (e.g. due to asynchronous
-process killing that is difficult to eliminate, for performance
-reasons), and also not tied to specific files, so knowing a file path
-doesn't necessarily help.
-
-So to be safe, for now let's just show the inode number, not the path.
-If someone really wants to know a path they can use 'find -inum'.
-
-Fixes: b1c0ec3599f4 ("fscrypt: add FS_IOC_REMOVE_ENCRYPTION_KEY ioctl")
+Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
 Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://lore.kernel.org/r/20200120060732.390362-1-ebiggers@kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/crypto/keyring.c |   15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+ fs/f2fs/dir.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/crypto/keyring.c
-+++ b/fs/crypto/keyring.c
-@@ -664,9 +664,6 @@ static int check_for_busy_inodes(struct
- 	struct list_head *pos;
- 	size_t busy_count = 0;
- 	unsigned long ino;
--	struct dentry *dentry;
--	char _path[256];
--	char *path = NULL;
- 
- 	spin_lock(&mk->mk_decrypted_inodes_lock);
- 
-@@ -685,22 +682,14 @@ static int check_for_busy_inodes(struct
- 					 struct fscrypt_info,
- 					 ci_master_key_link)->ci_inode;
- 		ino = inode->i_ino;
--		dentry = d_find_alias(inode);
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -1073,7 +1073,7 @@ static int f2fs_d_compare(const struct d
+ 	if (!IS_CASEFOLDED(dentry->d_parent->d_inode)) {
+ 		if (len != name->len)
+ 			return -1;
+-		return memcmp(str, name, len);
++		return memcmp(str, name->name, len);
  	}
- 	spin_unlock(&mk->mk_decrypted_inodes_lock);
  
--	if (dentry) {
--		path = dentry_path(dentry, _path, sizeof(_path));
--		dput(dentry);
--	}
--	if (IS_ERR_OR_NULL(path))
--		path = "(unknown)";
--
- 	fscrypt_warn(NULL,
--		     "%s: %zu inode(s) still busy after removing key with %s %*phN, including ino %lu (%s)",
-+		     "%s: %zu inode(s) still busy after removing key with %s %*phN, including ino %lu",
- 		     sb->s_id, busy_count, master_key_spec_type(&mk->mk_spec),
- 		     master_key_spec_len(&mk->mk_spec), (u8 *)&mk->mk_spec.u,
--		     ino, path);
-+		     ino);
- 	return -EBUSY;
- }
- 
+ 	return f2fs_ci_compare(dentry->d_parent->d_inode, name, &qstr, false);
 
 
