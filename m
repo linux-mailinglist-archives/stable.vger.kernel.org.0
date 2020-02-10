@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3BB157740
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CA3C15750C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728583AbgBJM6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:58:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43130 "EHLO mail.kernel.org"
+        id S1729085AbgBJMiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbgBJMlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:16 -0500
+        id S1729077AbgBJMiP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:15 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71AE920842;
-        Mon, 10 Feb 2020 12:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B88A24650;
+        Mon, 10 Feb 2020 12:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338475;
-        bh=Zf0d7rLzon/jbCHyJZ1Vq1tdCpb0fWLvUNMUfudIzTw=;
+        s=default; t=1581338295;
+        bh=NueGd9dJ1bysrS9Dm8UYVvBW1E+a0DbdBdZSoOAVIRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVNg7q87wyKdzfHAhL3ei3tDdbp+yTyHMv6LkyB9uzsBGOJ7Btr+IAAjzIGH7Q3j7
-         xIavEvsX2yOPKj/GAQnsrEC+1ZIvU0uCFJW9qLisZFNJH9QAUhqBkoXbHTgXU55hlJ
-         gGS9QlQ9hvSzHMA9pDfdGlaQxS8Ly/YISA0wcW84=
+        b=E7Jji7c+BgXLK0kl1EA2B5z968BYTuVxfDtyt69Q2reVUth124kVkJ9a6+tAsw29J
+         FtQfTaVgR3KhooB+VSr8kkR3JWgdlAeAr0hJmPo6CBtxvIotVzw/HVBmCFP7sI2J5N
+         w9SV2yruWFPZYvAl09LKfsKHK3Esn7VvRyJYfuvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 243/367] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM
-Date:   Mon, 10 Feb 2020 04:32:36 -0800
-Message-Id: <20200210122446.611458311@linuxfoundation.org>
+Subject: [PATCH 5.4 201/309] KVM: x86: Protect DR-based index computations from Spectre-v1/L1TF attacks
+Date:   Mon, 10 Feb 2020 04:32:37 -0800
+Message-Id: <20200210122425.866479928@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit e30a7d623dccdb3f880fbcad980b0cb589a1da45 upstream.
+commit ea740059ecb37807ba47b84b33d1447435a8d868 upstream.
 
-Remove the bogus 64-bit only condition from the check that disables MMIO
-spte optimization when the system supports the max PA, i.e. doesn't have
-any reserved PA bits.  32-bit KVM always uses PAE paging for the shadow
-MMU, and per Intel's SDM:
+This fixes a Spectre-v1/L1TF vulnerability in __kvm_set_dr() and
+kvm_get_dr().
+Both kvm_get_dr() and kvm_set_dr() (a wrapper of __kvm_set_dr()) are
+exported symbols so KVM should tream them conservatively from a security
+perspective.
 
-  PAE paging translates 32-bit linear addresses to 52-bit physical
-  addresses.
+Fixes: 020df0794f57 ("KVM: move DR register access handling into generic code")
 
-The kernel's restrictions on max physical addresses are limits on how
-much memory the kernel can reasonably use, not what physical addresses
-are supported by hardware.
-
-Fixes: ce88decffd17 ("KVM: MMU: mmio page fault support")
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -6249,7 +6249,7 @@ static void kvm_set_mmio_spte_mask(void)
- 	 * If reserved bit is not supported, clear the present bit to disable
- 	 * mmio page fault.
- 	 */
--	if (IS_ENABLED(CONFIG_X86_64) && shadow_phys_bits == 52)
-+	if (shadow_phys_bits == 52)
- 		mask &= ~1ull;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1054,9 +1054,11 @@ static u64 kvm_dr6_fixed(struct kvm_vcpu
  
- 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
+ static int __kvm_set_dr(struct kvm_vcpu *vcpu, int dr, unsigned long val)
+ {
++	size_t size = ARRAY_SIZE(vcpu->arch.db);
++
+ 	switch (dr) {
+ 	case 0 ... 3:
+-		vcpu->arch.db[dr] = val;
++		vcpu->arch.db[array_index_nospec(dr, size)] = val;
+ 		if (!(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP))
+ 			vcpu->arch.eff_db[dr] = val;
+ 		break;
+@@ -1093,9 +1095,11 @@ EXPORT_SYMBOL_GPL(kvm_set_dr);
+ 
+ int kvm_get_dr(struct kvm_vcpu *vcpu, int dr, unsigned long *val)
+ {
++	size_t size = ARRAY_SIZE(vcpu->arch.db);
++
+ 	switch (dr) {
+ 	case 0 ... 3:
+-		*val = vcpu->arch.db[dr];
++		*val = vcpu->arch.db[array_index_nospec(dr, size)];
+ 		break;
+ 	case 4:
+ 		/* fall through */
 
 
