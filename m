@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E98915781B
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E90FE157A9F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729634AbgBJNFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:05:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39438 "EHLO mail.kernel.org"
+        id S1731168AbgBJNYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:24:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729623AbgBJMkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:07 -0500
+        id S1728641AbgBJMhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:08 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 104FE24672;
-        Mon, 10 Feb 2020 12:40:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A641520733;
+        Mon, 10 Feb 2020 12:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338407;
-        bh=SuRrPA4tdvUoCTfsC4/L91gX2RFmWCvvWteqkENkFwU=;
+        s=default; t=1581338227;
+        bh=tDLuyFl3W46bidTo3NFVTkAviottUwoEvquJdWmFG5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPmUOgsioKwrIeZFcfoxgs6ktt+UytIwFcjNrbTvOt8ax59x/Fuh1eUog4acLQumv
-         pEwI/oAPPq+kMhzqzo7is0FH13ysoIeQoZBbd5OfyAxNQAohzlrC5X8VY1C9kKrW2n
-         wRAY5TKZBIa6DwVpMnJEw67ZOysklsbRwj2YLJkM=
+        b=s2Ao/1ha/SdeZtneMEZY1Qiq6cVsKuI5qzi6iNWzwcEz29MKU/kLfLOyXXCTNoruX
+         X6qevMU0b/8mILinQA+gBwiabZ5N6l6Hqux3qqO+MIcvmTpZUcP+AOBfY/ByRJgyFZ
+         lwNxRfE/FbmNVx4oKTQLSA3+lA5YsPqHHa/E0cK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 110/367] hv_balloon: Balloon up according to request page number
-Date:   Mon, 10 Feb 2020 04:30:23 -0800
-Message-Id: <20200210122434.627765704@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Alexandru Elisei <alexandru.elisei@arm.com>
+Subject: [PATCH 5.4 068/309] KVM: arm/arm64: Correct AArch32 SPSR on exception entry
+Date:   Mon, 10 Feb 2020 04:30:24 -0800
+Message-Id: <20200210122412.454743855@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit d33c240d47dab4fd15123d9e73fc8810cbc6ed6a upstream.
+commit 1cfbb484de158e378e8971ac40f3082e53ecca55 upstream.
 
-Current code has assumption that balloon request memory size aligns
-with 2MB. But actually Hyper-V doesn't guarantee such alignment. When
-balloon driver receives non-aligned balloon request, it produces warning
-and balloon up more memory than requested in order to keep 2MB alignment.
-Remove the warning and balloon up memory according to actual requested
-memory size.
+Confusingly, there are three SPSR layouts that a kernel may need to deal
+with:
 
-Fixes: f6712238471a ("hv: hv_balloon: avoid memory leak on alloc_error of 2MB memory block")
+(1) An AArch64 SPSR_ELx view of an AArch64 pstate
+(2) An AArch64 SPSR_ELx view of an AArch32 pstate
+(3) An AArch32 SPSR_* view of an AArch32 pstate
+
+When the KVM AArch32 support code deals with SPSR_{EL2,HYP}, it's either
+dealing with #2 or #3 consistently. On arm64 the PSR_AA32_* definitions
+match the AArch64 SPSR_ELx view, and on arm the PSR_AA32_* definitions
+match the AArch32 SPSR_* view.
+
+However, when we inject an exception into an AArch32 guest, we have to
+synthesize the AArch32 SPSR_* that the guest will see. Thus, an AArch64
+host needs to synthesize layout #3 from layout #2.
+
+This patch adds a new host_spsr_to_spsr32() helper for this, and makes
+use of it in the KVM AArch32 support code. For arm64 we need to shuffle
+the DIT bit around, and remove the SS bit, while for arm we can use the
+value as-is.
+
+I've open-coded the bit manipulation for now to avoid having to rework
+the existing PSR_* definitions into PSR64_AA32_* and PSR32_AA32_*
+definitions. I hope to perform a more thorough refactoring in future so
+that we can handle pstate view manipulation more consistently across the
+kernel tree.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20200108134324.46500-4-mark.rutland@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hv/hv_balloon.c |   13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+ arch/arm/include/asm/kvm_emulate.h   |    5 +++++
+ arch/arm64/include/asm/kvm_emulate.h |   32 ++++++++++++++++++++++++++++++++
+ virt/kvm/arm/aarch32.c               |    6 +++---
+ 3 files changed, 40 insertions(+), 3 deletions(-)
 
---- a/drivers/hv/hv_balloon.c
-+++ b/drivers/hv/hv_balloon.c
-@@ -1217,10 +1217,7 @@ static unsigned int alloc_balloon_pages(
- 	unsigned int i, j;
- 	struct page *pg;
- 
--	if (num_pages < alloc_unit)
--		return 0;
--
--	for (i = 0; (i * alloc_unit) < num_pages; i++) {
-+	for (i = 0; i < num_pages / alloc_unit; i++) {
- 		if (bl_resp->hdr.size + sizeof(union dm_mem_page_range) >
- 			HV_HYP_PAGE_SIZE)
- 			return i * alloc_unit;
-@@ -1258,7 +1255,7 @@ static unsigned int alloc_balloon_pages(
- 
- 	}
- 
--	return num_pages;
-+	return i * alloc_unit;
+--- a/arch/arm/include/asm/kvm_emulate.h
++++ b/arch/arm/include/asm/kvm_emulate.h
+@@ -53,6 +53,11 @@ static inline void vcpu_write_spsr(struc
+ 	*__vcpu_spsr(vcpu) = v;
  }
  
- static void balloon_up(struct work_struct *dummy)
-@@ -1273,9 +1270,6 @@ static void balloon_up(struct work_struc
- 	long avail_pages;
- 	unsigned long floor;
++static inline unsigned long host_spsr_to_spsr32(unsigned long spsr)
++{
++	return spsr;
++}
++
+ static inline unsigned long vcpu_get_reg(struct kvm_vcpu *vcpu,
+ 					 u8 reg_num)
+ {
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -204,6 +204,38 @@ static inline void vcpu_write_spsr(struc
+ 		vcpu_gp_regs(vcpu)->spsr[KVM_SPSR_EL1] = v;
+ }
  
--	/* The host balloons pages in 2M granularity. */
--	WARN_ON_ONCE(num_pages % PAGES_IN_2M != 0);
--
- 	/*
- 	 * We will attempt 2M allocations. However, if we fail to
- 	 * allocate 2M chunks, we will go back to PAGE_SIZE allocations.
-@@ -1285,14 +1279,13 @@ static void balloon_up(struct work_struc
- 	avail_pages = si_mem_available();
- 	floor = compute_balloon_floor();
++/*
++ * The layout of SPSR for an AArch32 state is different when observed from an
++ * AArch64 SPSR_ELx or an AArch32 SPSR_*. This function generates the AArch32
++ * view given an AArch64 view.
++ *
++ * In ARM DDI 0487E.a see:
++ *
++ * - The AArch64 view (SPSR_EL2) in section C5.2.18, page C5-426
++ * - The AArch32 view (SPSR_abt) in section G8.2.126, page G8-6256
++ * - The AArch32 view (SPSR_und) in section G8.2.132, page G8-6280
++ *
++ * Which show the following differences:
++ *
++ * | Bit | AA64 | AA32 | Notes                       |
++ * +-----+------+------+-----------------------------|
++ * | 24  | DIT  | J    | J is RES0 in ARMv8          |
++ * | 21  | SS   | DIT  | SS doesn't exist in AArch32 |
++ *
++ * ... and all other bits are (currently) common.
++ */
++static inline unsigned long host_spsr_to_spsr32(unsigned long spsr)
++{
++	const unsigned long overlap = BIT(24) | BIT(21);
++	unsigned long dit = !!(spsr & PSR_AA32_DIT_BIT);
++
++	spsr &= ~overlap;
++
++	spsr |= dit << 21;
++
++	return spsr;
++}
++
+ static inline bool vcpu_mode_priv(const struct kvm_vcpu *vcpu)
+ {
+ 	u32 mode;
+--- a/virt/kvm/arm/aarch32.c
++++ b/virt/kvm/arm/aarch32.c
+@@ -129,15 +129,15 @@ static unsigned long get_except32_cpsr(s
  
--	/* Refuse to balloon below the floor, keep the 2M granularity. */
-+	/* Refuse to balloon below the floor. */
- 	if (avail_pages < num_pages || avail_pages - num_pages < floor) {
- 		pr_warn("Balloon request will be partially fulfilled. %s\n",
- 			avail_pages < num_pages ? "Not enough memory." :
- 			"Balloon floor reached.");
+ static void prepare_fault32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+ {
+-	unsigned long new_spsr_value = *vcpu_cpsr(vcpu);
+-	bool is_thumb = (new_spsr_value & PSR_AA32_T_BIT);
++	unsigned long spsr = *vcpu_cpsr(vcpu);
++	bool is_thumb = (spsr & PSR_AA32_T_BIT);
+ 	u32 return_offset = return_offsets[vect_offset >> 2][is_thumb];
+ 	u32 sctlr = vcpu_cp15(vcpu, c1_SCTLR);
  
- 		num_pages = avail_pages > floor ? (avail_pages - floor) : 0;
--		num_pages -= num_pages % PAGES_IN_2M;
- 	}
+ 	*vcpu_cpsr(vcpu) = get_except32_cpsr(vcpu, mode);
  
- 	while (!done) {
+ 	/* Note: These now point to the banked copies */
+-	vcpu_write_spsr(vcpu, new_spsr_value);
++	vcpu_write_spsr(vcpu, host_spsr_to_spsr32(spsr));
+ 	*vcpu_reg32(vcpu, 14) = *vcpu_pc(vcpu) + return_offset;
+ 
+ 	/* Branch to exception vector */
 
 
