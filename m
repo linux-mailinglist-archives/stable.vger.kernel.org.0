@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF5A1577AB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DD31579A8
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729916AbgBJNBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:01:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
+        id S1728308AbgBJNRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:17:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729129AbgBJMkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:42 -0500
+        id S1729005AbgBJMiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 778F0208C4;
-        Mon, 10 Feb 2020 12:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AF3C2467B;
+        Mon, 10 Feb 2020 12:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338441;
-        bh=/BMH7APUXsLLbFaX6TVrey3pB0ckc88yIgAKwy8OSB8=;
+        s=default; t=1581338283;
+        bh=zFwTXLAAapvhvHXX5fTRrTFBKk4WkgZcYPAfNe+/4Mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1KmOc7w6atzpYDQEQpUs2ivblHk6DuguR6opGJJnrEUKRRGpTtu1SgC1rcRAcO30
-         VJ01sOGdJYUhoJxjC3BGMT4JzAiE4bq/iLXHy85CkU0hbwoflTExZ6P51Esrxcq97d
-         9bfYF5M3A9Fsk12bnKDpDtCt7akCUEFUQm5BrWsA=
+        b=0CUBqTxPuYbnsYka40IunRBkSCAj+68fd1Prsx7jMd7yWY8+cCB1wTxTVQkX/IIqY
+         Az2jBAzTLpmzGvNXbIEWAVwUvgbKYSHp8DbjckRO9+aoMzR7KEQ3Fnq8piLB7afjPM
+         HUHeJn+r8m5r/+wSsIvATZFnsDpkBVuNDXjCI/q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.5 179/367] crypto: hisilicon - Use the offset fields in sqe to avoid need to split scatterlists
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 136/309] ASoC: SOF: core: release resources on errors in probe_continue
 Date:   Mon, 10 Feb 2020 04:31:32 -0800
-Message-Id: <20200210122441.308894706@linuxfoundation.org>
+Message-Id: <20200210122419.431608102@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,239 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 484a897ffa3005f16cd9a31efd747bcf8155826f upstream.
+[ Upstream commit 410e5e55c9c1c9c0d452ac5b9adb37b933a7747e ]
 
-We can configure sgl offset fields in ZIP sqe to let ZIP engine read/write
-sgl data with skipped data. Hence no need to splite the sgl.
+The initial intent of releasing resources in the .remove does not work
+well with HDaudio codecs. If the probe_continue() fails in a work
+queue, e.g. due to missing firmware or authentication issues, we don't
+release any resources, and as a result the kernel oopses during
+suspend operations.
 
-Fixes: 62c455ca853e (crypto: hisilicon - add HiSilicon ZIP accelerator support)
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Zhou Wang <wangzhou1@hisilicon.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The suggested fix is to release all resources during errors in
+probe_continue(), and use fw_state to track resource allocation
+state, so that .remove does not attempt to release the same
+hardware resources twice. PM operations are also modified so that
+no action is done if DSP resources have been freed due to
+an error at probe.
 
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Co-developed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Bugzilla:  http://bugzilla.suse.com/show_bug.cgi?id=1161246
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200124213625.30186-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/Kconfig          |    1 
- drivers/crypto/hisilicon/zip/zip.h        |    4 +
- drivers/crypto/hisilicon/zip/zip_crypto.c |   92 +++++++-----------------------
- 3 files changed, 27 insertions(+), 70 deletions(-)
+ sound/soc/sof/core.c | 32 +++++++++++---------------------
+ sound/soc/sof/pm.c   |  4 ++++
+ 2 files changed, 15 insertions(+), 21 deletions(-)
 
---- a/drivers/crypto/hisilicon/Kconfig
-+++ b/drivers/crypto/hisilicon/Kconfig
-@@ -44,7 +44,6 @@ config CRYPTO_DEV_HISI_ZIP
- 	depends on ARM64 || (COMPILE_TEST && 64BIT)
- 	depends on !CPU_BIG_ENDIAN || COMPILE_TEST
- 	select CRYPTO_DEV_HISI_QM
--	select SG_SPLIT
- 	help
- 	  Support for HiSilicon ZIP Driver
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index f9ebdf2cfc31d..12aec140819a2 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -440,7 +440,6 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
  
---- a/drivers/crypto/hisilicon/zip/zip.h
-+++ b/drivers/crypto/hisilicon/zip/zip.h
-@@ -11,6 +11,10 @@
+ 	return 0;
  
- /* hisi_zip_sqe dw3 */
- #define HZIP_BD_STATUS_M			GENMASK(7, 0)
-+/* hisi_zip_sqe dw7 */
-+#define HZIP_IN_SGE_DATA_OFFSET_M		GENMASK(23, 0)
-+/* hisi_zip_sqe dw8 */
-+#define HZIP_OUT_SGE_DATA_OFFSET_M		GENMASK(23, 0)
- /* hisi_zip_sqe dw9 */
- #define HZIP_REQ_TYPE_M				GENMASK(7, 0)
- #define HZIP_ALG_TYPE_ZLIB			0x02
---- a/drivers/crypto/hisilicon/zip/zip_crypto.c
-+++ b/drivers/crypto/hisilicon/zip/zip_crypto.c
-@@ -46,10 +46,8 @@ enum hisi_zip_alg_type {
- 
- struct hisi_zip_req {
- 	struct acomp_req *req;
--	struct scatterlist *src;
--	struct scatterlist *dst;
--	size_t slen;
--	size_t dlen;
-+	int sskip;
-+	int dskip;
- 	struct hisi_acc_hw_sgl *hw_src;
- 	struct hisi_acc_hw_sgl *hw_dst;
- 	dma_addr_t dma_src;
-@@ -119,13 +117,15 @@ static void hisi_zip_config_tag(struct h
- 
- static void hisi_zip_fill_sqe(struct hisi_zip_sqe *sqe, u8 req_type,
- 			      dma_addr_t s_addr, dma_addr_t d_addr, u32 slen,
--			      u32 dlen)
-+			      u32 dlen, int sskip, int dskip)
- {
- 	memset(sqe, 0, sizeof(struct hisi_zip_sqe));
- 
--	sqe->input_data_length = slen;
-+	sqe->input_data_length = slen - sskip;
-+	sqe->dw7 = FIELD_PREP(HZIP_IN_SGE_DATA_OFFSET_M, sskip);
-+	sqe->dw8 = FIELD_PREP(HZIP_OUT_SGE_DATA_OFFSET_M, dskip);
- 	sqe->dw9 = FIELD_PREP(HZIP_REQ_TYPE_M, req_type);
--	sqe->dest_avail_out = dlen;
-+	sqe->dest_avail_out = dlen - dskip;
- 	sqe->source_addr_l = lower_32_bits(s_addr);
- 	sqe->source_addr_h = upper_32_bits(s_addr);
- 	sqe->dest_addr_l = lower_32_bits(d_addr);
-@@ -327,11 +327,6 @@ static void hisi_zip_remove_req(struct h
- {
- 	struct hisi_zip_req_q *req_q = &qp_ctx->req_q;
- 
--	if (qp_ctx->qp->alg_type == HZIP_ALG_TYPE_COMP)
--		kfree(req->dst);
--	else
--		kfree(req->src);
--
- 	write_lock(&req_q->req_lock);
- 	clear_bit(req->req_id, req_q->req_bitmap);
- 	memset(req, 0, sizeof(struct hisi_zip_req));
-@@ -359,8 +354,8 @@ static void hisi_zip_acomp_cb(struct his
- 	}
- 	dlen = sqe->produced;
- 
--	hisi_acc_sg_buf_unmap(dev, req->src, req->hw_src);
--	hisi_acc_sg_buf_unmap(dev, req->dst, req->hw_dst);
-+	hisi_acc_sg_buf_unmap(dev, acomp_req->src, req->hw_src);
-+	hisi_acc_sg_buf_unmap(dev, acomp_req->dst, req->hw_dst);
- 
- 	head_size = (qp->alg_type == 0) ? TO_HEAD_SIZE(qp->req_type) : 0;
- 	acomp_req->dlen = dlen + head_size;
-@@ -454,20 +449,6 @@ static size_t get_comp_head_size(struct
- 	}
- }
- 
--static int get_sg_skip_bytes(struct scatterlist *sgl, size_t bytes,
--			     size_t remains, struct scatterlist **out)
--{
--#define SPLIT_NUM 2
--	size_t split_sizes[SPLIT_NUM];
--	int out_mapped_nents[SPLIT_NUM];
--
--	split_sizes[0] = bytes;
--	split_sizes[1] = remains;
--
--	return sg_split(sgl, 0, 0, SPLIT_NUM, split_sizes, out,
--			out_mapped_nents, GFP_KERNEL);
--}
--
- static struct hisi_zip_req *hisi_zip_create_req(struct acomp_req *req,
- 						struct hisi_zip_qp_ctx *qp_ctx,
- 						size_t head_size, bool is_comp)
-@@ -475,31 +456,7 @@ static struct hisi_zip_req *hisi_zip_cre
- 	struct hisi_zip_req_q *req_q = &qp_ctx->req_q;
- 	struct hisi_zip_req *q = req_q->q;
- 	struct hisi_zip_req *req_cache;
--	struct scatterlist *out[2];
--	struct scatterlist *sgl;
--	size_t len;
--	int ret, req_id;
+-#if !IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
+ fw_trace_err:
+ 	snd_sof_free_trace(sdev);
+ fw_run_err:
+@@ -451,22 +450,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 	snd_sof_free_debug(sdev);
+ dbg_err:
+ 	snd_sof_remove(sdev);
+-#else
 -
 -	/*
--	 * remove/add zlib/gzip head, as hardware operations do not include
--	 * comp head. so split req->src to get sgl without heads in acomp, or
--	 * add comp head to req->dst ahead of that hardware output compressed
--	 * data in sgl splited from req->dst without comp head.
+-	 * when the probe_continue is handled in a work queue, the
+-	 * probe does not fail so we don't release resources here.
+-	 * They will be released with an explicit call to
+-	 * snd_sof_device_remove() when the PCI/ACPI device is removed
 -	 */
--	if (is_comp) {
--		sgl = req->dst;
--		len = req->dlen - head_size;
--	} else {
--		sgl = req->src;
--		len = req->slen - head_size;
--	}
 -
--	ret = get_sg_skip_bytes(sgl, head_size, len, out);
--	if (ret)
--		return ERR_PTR(ret);
--
--	/* sgl for comp head is useless, so free it now */
--	kfree(out[0]);
-+	int req_id;
+-fw_trace_err:
+-fw_run_err:
+-fw_load_err:
+-ipc_err:
+-dbg_err:
  
- 	write_lock(&req_q->req_lock);
+-#endif
++	/* all resources freed, update state to match */
++	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
++	sdev->first_boot = true;
  
-@@ -507,7 +464,6 @@ static struct hisi_zip_req *hisi_zip_cre
- 	if (req_id >= req_q->size) {
- 		write_unlock(&req_q->req_lock);
- 		dev_dbg(&qp_ctx->qp->qm->pdev->dev, "req cache is full!\n");
--		kfree(out[1]);
- 		return ERR_PTR(-EBUSY);
- 	}
- 	set_bit(req_id, req_q->req_bitmap);
-@@ -515,16 +471,13 @@ static struct hisi_zip_req *hisi_zip_cre
- 	req_cache = q + req_id;
- 	req_cache->req_id = req_id;
- 	req_cache->req = req;
-+
- 	if (is_comp) {
--		req_cache->src = req->src;
--		req_cache->dst = out[1];
--		req_cache->slen = req->slen;
--		req_cache->dlen = req->dlen - head_size;
-+		req_cache->sskip = 0;
-+		req_cache->dskip = head_size;
- 	} else {
--		req_cache->src = out[1];
--		req_cache->dst = req->dst;
--		req_cache->slen = req->slen - head_size;
--		req_cache->dlen = req->dlen;
-+		req_cache->sskip = head_size;
-+		req_cache->dskip = 0;
- 	}
- 
- 	write_unlock(&req_q->req_lock);
-@@ -536,6 +489,7 @@ static int hisi_zip_do_work(struct hisi_
- 			    struct hisi_zip_qp_ctx *qp_ctx)
- {
- 	struct hisi_zip_sqe *zip_sqe = &qp_ctx->zip_sqe;
-+	struct acomp_req *a_req = req->req;
- 	struct hisi_qp *qp = qp_ctx->qp;
- 	struct device *dev = &qp->qm->pdev->dev;
- 	struct hisi_acc_sgl_pool *pool = qp_ctx->sgl_pool;
-@@ -543,16 +497,16 @@ static int hisi_zip_do_work(struct hisi_
- 	dma_addr_t output;
- 	int ret;
- 
--	if (!req->src || !req->slen || !req->dst || !req->dlen)
-+	if (!a_req->src || !a_req->slen || !a_req->dst || !a_req->dlen)
- 		return -EINVAL;
- 
--	req->hw_src = hisi_acc_sg_buf_map_to_hw_sgl(dev, req->src, pool,
-+	req->hw_src = hisi_acc_sg_buf_map_to_hw_sgl(dev, a_req->src, pool,
- 						    req->req_id << 1, &input);
- 	if (IS_ERR(req->hw_src))
- 		return PTR_ERR(req->hw_src);
- 	req->dma_src = input;
- 
--	req->hw_dst = hisi_acc_sg_buf_map_to_hw_sgl(dev, req->dst, pool,
-+	req->hw_dst = hisi_acc_sg_buf_map_to_hw_sgl(dev, a_req->dst, pool,
- 						    (req->req_id << 1) + 1,
- 						    &output);
- 	if (IS_ERR(req->hw_dst)) {
-@@ -561,8 +515,8 @@ static int hisi_zip_do_work(struct hisi_
- 	}
- 	req->dma_dst = output;
- 
--	hisi_zip_fill_sqe(zip_sqe, qp->req_type, input, output, req->slen,
--			  req->dlen);
-+	hisi_zip_fill_sqe(zip_sqe, qp->req_type, input, output, a_req->slen,
-+			  a_req->dlen, req->sskip, req->dskip);
- 	hisi_zip_config_buf_type(zip_sqe, HZIP_SGL);
- 	hisi_zip_config_tag(zip_sqe, req->req_id);
- 
-@@ -574,9 +528,9 @@ static int hisi_zip_do_work(struct hisi_
- 	return -EINPROGRESS;
- 
- err_unmap_output:
--	hisi_acc_sg_buf_unmap(dev, req->dst, req->hw_dst);
-+	hisi_acc_sg_buf_unmap(dev, a_req->dst, req->hw_dst);
- err_unmap_input:
--	hisi_acc_sg_buf_unmap(dev, req->src, req->hw_src);
-+	hisi_acc_sg_buf_unmap(dev, a_req->src, req->hw_src);
  	return ret;
  }
+@@ -545,10 +532,12 @@ int snd_sof_device_remove(struct device *dev)
+ 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+ 		cancel_work_sync(&sdev->probe_work);
  
+-	snd_sof_fw_unload(sdev);
+-	snd_sof_ipc_free(sdev);
+-	snd_sof_free_debug(sdev);
+-	snd_sof_free_trace(sdev);
++	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED) {
++		snd_sof_fw_unload(sdev);
++		snd_sof_ipc_free(sdev);
++		snd_sof_free_debug(sdev);
++		snd_sof_free_trace(sdev);
++	}
+ 
+ 	/*
+ 	 * Unregister machine driver. This will unbind the snd_card which
+@@ -564,7 +553,8 @@ int snd_sof_device_remove(struct device *dev)
+ 	 * scheduled on, when they are unloaded. Therefore, the DSP must be
+ 	 * removed only after the topology has been unloaded.
+ 	 */
+-	snd_sof_remove(sdev);
++	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED)
++		snd_sof_remove(sdev);
+ 
+ 	/* release firmware */
+ 	release_firmware(pdata->fw);
+diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
+index e9fbac38d9238..195af259e78e3 100644
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -269,6 +269,10 @@ static int sof_resume(struct device *dev, bool runtime_resume)
+ 	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
+ 		return 0;
+ 
++	/* DSP was never successfully started, nothing to resume */
++	if (sdev->first_boot)
++		return 0;
++
+ 	/*
+ 	 * if the runtime_resume flag is set, call the runtime_resume routine
+ 	 * or else call the system resume routine
+-- 
+2.20.1
+
 
 
