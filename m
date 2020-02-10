@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D321576BA
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 156DD15758E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:42:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729534AbgBJMy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:54:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45112 "EHLO mail.kernel.org"
+        id S1729483AbgBJMly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730085AbgBJMlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:52 -0500
+        id S1729821AbgBJMlx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:53 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 571C824689;
-        Mon, 10 Feb 2020 12:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F6202085B;
+        Mon, 10 Feb 2020 12:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338512;
-        bh=Cof/ryjipZLZJWwo3NkGu0eHENrK05FEJFK/2jefe8o=;
+        s=default; t=1581338513;
+        bh=QLp1kilJwM9rYN1UD+VjRxyJRyHTKObrmrGVxgyj8pU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Izg4tnh/ARaTho6p9CygZCeO9N9zhfp2AuJrKWQ8Iyf7xJqdSS07JcSKrC39QQtcd
-         eVzKu4I8sWJKZuOAJDHLiA6+cthlJhK6j6JPD59PMWPFPeKcdOQ3gBYyiOqWcl//0y
-         wfJI9rBH63vDXWLxsHsCU+mgP97gZAuzyko6swAU=
+        b=aghBVY2nza8qfKLxP9lKdUfQFFxY2iMHV+WSlQvVPZsVLKk5c1u/CCchJdf4Uw6ow
+         Ly5Ikd7MdZ9yIQWKqeV6XxRSetAvf00r/BEkaUro1PyuMRQinBfqswzGMRalCVbXNJ
+         aOEIzRcgDWppzaCDxiY3vJislhERwOyVic+jlAOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 318/367] dpaa_eth: support all modes with rate adapting PHYs
-Date:   Mon, 10 Feb 2020 04:33:51 -0800
-Message-Id: <20200210122452.470668520@linuxfoundation.org>
+Subject: [PATCH 5.5 319/367] net: dsa: b53: Always use dev->vlan_enabled in b53_configure_vlan()
+Date:   Mon, 10 Feb 2020 04:33:52 -0800
+Message-Id: <20200210122452.539223743@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,62 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@oss.nxp.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 73a21fa817f0cc8022dc6226250a86bca727a56d ]
+[ Upstream commit df373702bc0f8f2d83980ea441e71639fc1efcf8 ]
 
-Stop removing modes that are not supported on the system interface
-when the connected PHY is capable of rate adaptation. This addresses
-an issue with the LS1046ARDB board 10G interface no longer working
-with an 1G link partner after autonegotiation support was added
-for the Aquantia PHY on board in
+b53_configure_vlan() is called by the bcm_sf2 driver upon setup and
+indirectly through resume as well. During the initial setup, we are
+guaranteed that dev->vlan_enabled is false, so there is no change in
+behavior, however during suspend, we may have enabled VLANs before, so we
+do want to restore that setting.
 
-commit 09c4c57f7bc4 ("net: phy: aquantia: add support for auto-negotiation configuration")
-
-Before this commit the values advertised by the PHY were not
-influenced by the dpaa_eth driver removal of system-side unsupported
-modes as the aqr_config_aneg() was basically a no-op. After this
-commit, the modes removed by the dpaa_eth driver were no longer
-advertised thus autonegotiation with 1G link partners failed.
-
-Reported-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: dad8d7c6452b ("net: dsa: b53: Properly account for VLAN filtering")
+Fixes: 967dd82ffc52 ("net: dsa: b53: Add support for Broadcom RoboSwitch")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/dsa/b53/b53_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2453,6 +2453,9 @@ static void dpaa_adjust_link(struct net_
- 	mac_dev->adjust_link(mac_dev);
- }
- 
-+/* The Aquantia PHYs are capable of performing rate adaptation */
-+#define PHY_VEND_AQUANTIA	0x03a1b400
-+
- static int dpaa_phy_init(struct net_device *net_dev)
- {
- 	__ETHTOOL_DECLARE_LINK_MODE_MASK(mask) = { 0, };
-@@ -2471,9 +2474,14 @@ static int dpaa_phy_init(struct net_devi
- 		return -ENODEV;
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -680,7 +680,7 @@ int b53_configure_vlan(struct dsa_switch
+ 		b53_do_vlan_op(dev, VTA_CMD_CLEAR);
  	}
  
--	/* Remove any features not supported by the controller */
--	ethtool_convert_legacy_u32_to_link_mode(mask, mac_dev->if_support);
--	linkmode_and(phy_dev->supported, phy_dev->supported, mask);
-+	/* Unless the PHY is capable of rate adaptation */
-+	if (mac_dev->phy_if != PHY_INTERFACE_MODE_XGMII ||
-+	    ((phy_dev->drv->phy_id & GENMASK(31, 10)) != PHY_VEND_AQUANTIA)) {
-+		/* remove any features not supported by the controller */
-+		ethtool_convert_legacy_u32_to_link_mode(mask,
-+							mac_dev->if_support);
-+		linkmode_and(phy_dev->supported, phy_dev->supported, mask);
-+	}
+-	b53_enable_vlan(dev, false, ds->vlan_filtering);
++	b53_enable_vlan(dev, dev->vlan_enabled, ds->vlan_filtering);
  
- 	phy_support_asym_pause(phy_dev);
- 
+ 	b53_for_each_port(dev, i)
+ 		b53_write16(dev, B53_VLAN_PAGE,
 
 
