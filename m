@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E92B1574DE
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ACB5157663
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728416AbgBJMgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
+        id S1730233AbgBJMmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:42:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728410AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:32 -0500
+        id S1730224AbgBJMmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:20 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3210620842;
-        Mon, 10 Feb 2020 12:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B73D22468B;
+        Mon, 10 Feb 2020 12:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338192;
-        bh=oEM3+nzDqWEevdqdRzE0EAc4DVyMz1ux+ltBjgdHDZc=;
+        s=default; t=1581338539;
+        bh=yMB/+c+LKZHa6UvaiGHTGQPFX4iqK5yWRn+RXtSwtx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LngIwRZspy3C5f2B2hBYP1VYMcaqi81ZPd+0AIx50R0XB1CGwz3fbwRwo/xVqVGnA
-         JXn3UDHPWO6Bs6utrb9YXyGwFn0EyIiDeP60i61UY5gIk+XQ9hULjL3wTly4/DCEko
-         7N8VULTsOwGz8R6XELwmdfQ9OGkeDeNc92yk7G6M=
+        b=dZXkU+/XxhfyMD7RRghDhnduCvDpFyL7oWXTie7yFhx5lxhbdSoHz5M5WmV2+mjwt
+         ub/qHCVG8j6B62RYLyzNUGLKm7MZ9q023cQ27ERy+PuI1vY+t6wXZTQ6bSUjG1t4OR
+         cfWwFy/xBD3nsPr2GMYx20UjyowIaDNBOgxaaBLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Maxim Mikityanskiy <maximmi@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/195] rxrpc: Fix service call disconnection
+        syzbot <syzkaller@googlegroups.com>
+Subject: [PATCH 5.5 340/367] ipv6/addrconf: fix potential NULL deref in inet6_set_link_af()
 Date:   Mon, 10 Feb 2020 04:34:13 -0800
-Message-Id: <20200210122324.215756193@linuxfoundation.org>
+Message-Id: <20200210122454.050462477@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b39a934ec72fa2b5a74123891f25273a38378b90 ]
+[ Upstream commit db3fa271022dacb9f741b96ea4714461a8911bb9 ]
 
-The recent patch that substituted a flag on an rxrpc_call for the
-connection pointer being NULL as an indication that a call was disconnected
-puts the set_bit in the wrong place for service calls.  This is only a
-problem if a call is implicitly terminated by a new call coming in on the
-same connection channel instead of a terminating ACK packet.
+__in6_dev_get(dev) called from inet6_set_link_af() can return NULL.
 
-In such a case, rxrpc_input_implicit_end_call() calls
-__rxrpc_disconnect_call(), which is now (incorrectly) setting the
-disconnection bit, meaning that when rxrpc_release_call() is later called,
-it doesn't call rxrpc_disconnect_call() and so the call isn't removed from
-the peer's error distribution list and the list gets corrupted.
+The needed check has been recently removed, let's add it back.
 
-KASAN finds the issue as an access after release on a call, but the
-position at which it occurs is confusing as it appears to be related to a
-different call (the call site is where the latter call is being removed
-from the error distribution list and either the next or pprev pointer
-points to a previously released call).
+While do_setlink() does call validate_linkmsg() :
+...
+err = validate_linkmsg(dev, tb); /* OK at this point */
+...
 
-Fix this by moving the setting of the flag from __rxrpc_disconnect_call()
-to rxrpc_disconnect_call() in the same place that the connection pointer
-was being cleared.
+It is possible that the following call happening before the
+->set_link_af() removes IPv6 if MTU is less than 1280 :
 
-Fixes: 5273a191dca6 ("rxrpc: Fix NULL pointer deref due to call->conn being cleared on disconnect")
-Signed-off-by: David Howells <dhowells@redhat.com>
+if (tb[IFLA_MTU]) {
+    err = dev_set_mtu_ext(dev, nla_get_u32(tb[IFLA_MTU]), extack);
+    if (err < 0)
+          goto errout;
+    status |= DO_SETLINK_MODIFIED;
+}
+...
+
+if (tb[IFLA_AF_SPEC]) {
+   ...
+   err = af_ops->set_link_af(dev, af);
+      ->inet6_set_link_af() // CRASH because idev is NULL
+
+Please note that IPv4 is immune to the bug since inet_set_link_af() does :
+
+struct in_device *in_dev = __in_dev_get_rcu(dev);
+if (!in_dev)
+    return -EAFNOSUPPORT;
+
+This problem has been mentioned in commit cf7afbfeb8ce ("rtnl: make
+link af-specific updates atomic") changelog :
+
+    This method is not fail proof, while it is currently sufficient
+    to make set_link_af() inerrable and thus 100% atomic, the
+    validation function method will not be able to detect all error
+    scenarios in the future, there will likely always be errors
+    depending on states which are f.e. not protected by rtnl_mutex
+    and thus may change between validation and setting.
+
+IPv6: ADDRCONF(NETDEV_CHANGE): lo: link becomes ready
+general protection fault, probably for non-canonical address 0xdffffc0000000056: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x00000000000002b0-0x00000000000002b7]
+CPU: 0 PID: 9698 Comm: syz-executor712 Not tainted 5.5.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:inet6_set_link_af+0x66e/0xae0 net/ipv6/addrconf.c:5733
+Code: 38 d0 7f 08 84 c0 0f 85 20 03 00 00 48 8d bb b0 02 00 00 45 0f b6 64 24 04 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 1a 03 00 00 44 89 a3 b0 02 00
+RSP: 0018:ffffc90005b06d40 EFLAGS: 00010206
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff86df39a6
+RDX: 0000000000000056 RSI: ffffffff86df3e74 RDI: 00000000000002b0
+RBP: ffffc90005b06e70 R08: ffff8880a2ac0380 R09: ffffc90005b06db0
+R10: fffff52000b60dbe R11: ffffc90005b06df7 R12: 0000000000000000
+R13: 0000000000000000 R14: ffff8880a1fcc424 R15: dffffc0000000000
+FS:  0000000000c46880(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055f0494ca0d0 CR3: 000000009e4ac000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ do_setlink+0x2a9f/0x3720 net/core/rtnetlink.c:2754
+ rtnl_group_changelink net/core/rtnetlink.c:3103 [inline]
+ __rtnl_newlink+0xdd1/0x1790 net/core/rtnetlink.c:3257
+ rtnl_newlink+0x69/0xa0 net/core/rtnetlink.c:3377
+ rtnetlink_rcv_msg+0x45e/0xaf0 net/core/rtnetlink.c:5438
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5456
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x59e/0x7e0 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x91c/0xea0 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:672
+ ____sys_sendmsg+0x753/0x880 net/socket.c:2343
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2397
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2430
+ __do_sys_sendmsg net/socket.c:2439 [inline]
+ __se_sys_sendmsg net/socket.c:2437 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2437
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4402e9
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fffd62fbcf8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 00000000004402e9
+RDX: 0000000000000000 RSI: 0000000020000080 RDI: 0000000000000003
+RBP: 00000000006ca018 R08: 0000000000000008 R09: 00000000004002c8
+R10: 0000000000000005 R11: 0000000000000246 R12: 0000000000401b70
+R13: 0000000000401c00 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+---[ end trace cfa7664b8fdcdff3 ]---
+RIP: 0010:inet6_set_link_af+0x66e/0xae0 net/ipv6/addrconf.c:5733
+Code: 38 d0 7f 08 84 c0 0f 85 20 03 00 00 48 8d bb b0 02 00 00 45 0f b6 64 24 04 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 1a 03 00 00 44 89 a3 b0 02 00
+RSP: 0018:ffffc90005b06d40 EFLAGS: 00010206
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff86df39a6
+RDX: 0000000000000056 RSI: ffffffff86df3e74 RDI: 00000000000002b0
+RBP: ffffc90005b06e70 R08: ffff8880a2ac0380 R09: ffffc90005b06db0
+R10: fffff52000b60dbe R11: ffffc90005b06df7 R12: 0000000000000000
+R13: 0000000000000000 R14: ffff8880a1fcc424 R15: dffffc0000000000
+FS:  0000000000c46880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000004 CR3: 000000009e4ac000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Fixes: 7dc2bccab0ee ("Validate required parameters in inet6_validate_link_af")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Bisected-and-reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Maxim Mikityanskiy <maximmi@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/conn_object.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/ipv6/addrconf.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index a81e64be4a24f..c4c4450891e0f 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -174,8 +174,6 @@ void __rxrpc_disconnect_call(struct rxrpc_connection *conn,
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -5718,6 +5718,9 @@ static int inet6_set_link_af(struct net_
+ 	struct nlattr *tb[IFLA_INET6_MAX + 1];
+ 	int err;
  
- 	_enter("%d,%x", conn->debug_id, call->cid);
++	if (!idev)
++		return -EAFNOSUPPORT;
++
+ 	if (nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
+ 		BUG();
  
--	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
--
- 	if (rcu_access_pointer(chan->call) == call) {
- 		/* Save the result of the call so that we can repeat it if necessary
- 		 * through the channel, whilst disposing of the actual call record.
-@@ -228,6 +226,7 @@ void rxrpc_disconnect_call(struct rxrpc_call *call)
- 	__rxrpc_disconnect_call(conn, call);
- 	spin_unlock(&conn->channel_lock);
- 
-+	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
- 	conn->idle_timestamp = jiffies;
- }
- 
--- 
-2.20.1
-
 
 
