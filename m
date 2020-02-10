@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5681A15765F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD3D157596
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730182AbgBJMmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
+        id S1730186AbgBJMmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:42:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730176AbgBJMmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:11 -0500
+        id S1730178AbgBJMmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 154B924649;
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D9CC2467C;
         Mon, 10 Feb 2020 12:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338531;
-        bh=bs7zV+hgjNQ75C7vmQpMka+XTmvJdnhnoCWjM+jttnk=;
+        bh=z8Bj/ZYhZcXRqYJUSCeKwABFvzo3UDEruzmyOlZ0WVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJab2h2BhRcawG/MEAFlgU1iTecBzIwSMotP9CuGjSb2ASH+fPDqCdppf383outUC
-         a4+3h05WqtGXSunYn3eckEhljD3zJWc4Cs1odk13VhDlOkA+v4uH4q6GgJJJ5JqU2f
-         iGHvjDWk9VNBtWfgY8nt2jT20FIu80Lh6hIDzFIc=
+        b=VpL/Wp2lynV/zFWg+jLpu0SIjlNRagqvSCYBjM8ZtxufMEX44QQBVel4QlDpkneYR
+         xZh4hSnzT/PsxoGKb148MoFowfd0fOAH7a7v4xqcA4s8RvbB2ghOB6C0lt4X3BIJcg
+         3TIegDCoZyMNVa4V4voJwE412TNZBLrctwC12c9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Marios Pomonis <pomonis@google.com>,
+        Nick Finco <nifi@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Andrew Honig <ahonig@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 355/367] io_uring: prevent potential eventfd recursion on poll
-Date:   Mon, 10 Feb 2020 04:34:28 -0800
-Message-Id: <20200210122455.231348976@linuxfoundation.org>
+Subject: [PATCH 5.5 356/367] KVM: x86: Protect exit_reason from being used in Spectre-v1/L1TF attacks
+Date:   Mon, 10 Feb 2020 04:34:29 -0800
+Message-Id: <20200210122455.307475570@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,102 +47,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Marios Pomonis <pomonis@google.com>
 
-[ Upstream commit f0b493e6b9a8959356983f57112229e69c2f7b8c ]
+[ Upstream commit c926f2f7230b1a29e31914b51db680f8cbf3103f ]
 
-If we have nested or circular eventfd wakeups, then we can deadlock if
-we run them inline from our poll waitqueue wakeup handler. It's also
-possible to have very long chains of notifications, to the extent where
-we could risk blowing the stack.
+This fixes a Spectre-v1/L1TF vulnerability in vmx_handle_exit().
+While exit_reason is set by the hardware and therefore should not be
+attacker-influenced, an unknown exit_reason could potentially be used to
+perform such an attack.
 
-Check the eventfd recursion count before calling eventfd_signal(). If
-it's non-zero, then punt the signaling to async context. This is always
-safe, as it takes us out-of-line in terms of stack and locking context.
+Fixes: 55d2375e58a6 ("KVM: nVMX: Move nested code to dedicated files")
 
-Cc: stable@vger.kernel.org # 5.1+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Signed-off-by: Nick Finco <nifi@google.com>
+Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/kvm/vmx/vmx.c | 55 +++++++++++++++++++++++-------------------
+ 1 file changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 131087782bec9..f470fb21467e4 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -738,21 +738,28 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
- 
- static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
- {
-+	if (!ctx->cq_ev_fd)
-+		return false;
- 	if (!ctx->eventfd_async)
- 		return true;
- 	return io_wq_current_is_worker() || in_interrupt();
- }
- 
--static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
-+static void __io_cqring_ev_posted(struct io_ring_ctx *ctx, bool trigger_ev)
- {
- 	if (waitqueue_active(&ctx->wait))
- 		wake_up(&ctx->wait);
- 	if (waitqueue_active(&ctx->sqo_wait))
- 		wake_up(&ctx->sqo_wait);
--	if (ctx->cq_ev_fd && io_should_trigger_evfd(ctx))
-+	if (trigger_ev)
- 		eventfd_signal(ctx->cq_ev_fd, 1);
- }
- 
-+static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
-+{
-+	__io_cqring_ev_posted(ctx, io_should_trigger_evfd(ctx));
-+}
-+
- /* Returns true if there are no backlogged entries after the flush */
- static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- {
-@@ -2645,6 +2652,14 @@ static void io_poll_complete_work(struct io_wq_work **workptr)
- 		io_wq_assign_next(workptr, nxt);
- }
- 
-+static void io_poll_trigger_evfd(struct io_wq_work **workptr)
-+{
-+	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
-+
-+	eventfd_signal(req->ctx->cq_ev_fd, 1);
-+	io_put_req(req);
-+}
-+
- static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 			void *key)
- {
-@@ -2667,13 +2682,21 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 	 * for finalizing the request, mark us as having grabbed that already.
- 	 */
- 	if (mask && spin_trylock_irqsave(&ctx->completion_lock, flags)) {
-+		bool trigger_ev;
-+
- 		hash_del(&req->hash_node);
- 		io_poll_complete(req, mask, 0);
--		req->flags |= REQ_F_COMP_LOCKED;
--		io_put_req(req);
-+		trigger_ev = io_should_trigger_evfd(ctx);
-+		if (trigger_ev && eventfd_signal_count()) {
-+			trigger_ev = false;
-+			req->work.func = io_poll_trigger_evfd;
-+		} else {
-+			req->flags |= REQ_F_COMP_LOCKED;
-+			io_put_req(req);
-+			req = NULL;
-+		}
- 		spin_unlock_irqrestore(&ctx->completion_lock, flags);
--
--		io_cqring_ev_posted(ctx);
-+		__io_cqring_ev_posted(ctx, trigger_ev);
- 	} else {
- 		io_queue_async_work(req);
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 83464a86ac405..78e01e2524bc3 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -5904,34 +5904,39 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu)
+ 		}
  	}
+ 
+-	if (exit_reason < kvm_vmx_max_exit_handlers
+-	    && kvm_vmx_exit_handlers[exit_reason]) {
++	if (exit_reason >= kvm_vmx_max_exit_handlers)
++		goto unexpected_vmexit;
+ #ifdef CONFIG_RETPOLINE
+-		if (exit_reason == EXIT_REASON_MSR_WRITE)
+-			return kvm_emulate_wrmsr(vcpu);
+-		else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
+-			return handle_preemption_timer(vcpu);
+-		else if (exit_reason == EXIT_REASON_PENDING_INTERRUPT)
+-			return handle_interrupt_window(vcpu);
+-		else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
+-			return handle_external_interrupt(vcpu);
+-		else if (exit_reason == EXIT_REASON_HLT)
+-			return kvm_emulate_halt(vcpu);
+-		else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
+-			return handle_ept_misconfig(vcpu);
++	if (exit_reason == EXIT_REASON_MSR_WRITE)
++		return kvm_emulate_wrmsr(vcpu);
++	else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
++		return handle_preemption_timer(vcpu);
++	else if (exit_reason == EXIT_REASON_PENDING_INTERRUPT)
++		return handle_interrupt_window(vcpu);
++	else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
++		return handle_external_interrupt(vcpu);
++	else if (exit_reason == EXIT_REASON_HLT)
++		return kvm_emulate_halt(vcpu);
++	else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
++		return handle_ept_misconfig(vcpu);
+ #endif
+-		return kvm_vmx_exit_handlers[exit_reason](vcpu);
+-	} else {
+-		vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n",
+-				exit_reason);
+-		dump_vmcs();
+-		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+-		vcpu->run->internal.suberror =
++
++	exit_reason = array_index_nospec(exit_reason,
++					 kvm_vmx_max_exit_handlers);
++	if (!kvm_vmx_exit_handlers[exit_reason])
++		goto unexpected_vmexit;
++
++	return kvm_vmx_exit_handlers[exit_reason](vcpu);
++
++unexpected_vmexit:
++	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n", exit_reason);
++	dump_vmcs();
++	vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
++	vcpu->run->internal.suberror =
+ 			KVM_INTERNAL_ERROR_UNEXPECTED_EXIT_REASON;
+-		vcpu->run->internal.ndata = 1;
+-		vcpu->run->internal.data[0] = exit_reason;
+-		return 0;
+-	}
++	vcpu->run->internal.ndata = 1;
++	vcpu->run->internal.data[0] = exit_reason;
++	return 0;
+ }
+ 
+ /*
 -- 
 2.20.1
 
