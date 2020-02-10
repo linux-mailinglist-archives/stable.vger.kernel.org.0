@@ -2,88 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFCEF1581BA
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 18:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D911F1581F2
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 19:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727484AbgBJRvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 12:51:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbgBJRvO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 12:51:14 -0500
-Received: from localhost (unknown [104.132.1.111])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DED520842;
-        Mon, 10 Feb 2020 17:51:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581357073;
-        bh=5huHFuo004r9HYmfzS4hwK/u27DOp2pQbnaBtYJ/lhM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1M7+4YTGaNkf7cMjriFv+1ZXTgj7PPuQdU5oyFHif+mQIAzWMehhb1O/qRQIqFCjH
-         ajq3t/hhnr8EcNy3UNn6vyccOfGvMTrlJ6KVBEVidPXMJbrMzxUwuWUpmfgL3YTAX9
-         te/C5PBfLzV0z1l7fJD410gcHt0wRAa7imyvOA5c=
-Date:   Mon, 10 Feb 2020 09:51:12 -0800
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
-        Basil Eljuse <Basil.Eljuse@arm.com>
-Subject: Re: [PATCH 5.5 284/367] compat: scsi: sg: fix v3 compat read/write
- interface
-Message-ID: <20200210175112.GB1003262@kroah.com>
-References: <20200210122423.695146547@linuxfoundation.org>
- <20200210122450.176337512@linuxfoundation.org>
- <CA+G9fYu4pDFaG-dA2KbVp61HGNzA1R3F_=Z5isC8_ammG4iZkQ@mail.gmail.com>
- <CAK8P3a0iq1fj7iVuYMYczbg2ij-x5b0D5OeKiy_2Pebk+ucMeA@mail.gmail.com>
- <CAEUSe787_LxgSWmo4cxU52Ti3mq3ydtco5J7A87Eec7HeLMCNQ@mail.gmail.com>
+        id S1727516AbgBJSCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 13:02:53 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:35141 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727437AbgBJSCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 13:02:52 -0500
+Received: by mail-ot1-f68.google.com with SMTP id r16so7297580otd.2;
+        Mon, 10 Feb 2020 10:02:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=yQNvgm53xLH5GOW3/l9QmzzClUzION0bcZc79/JOpE8=;
+        b=lh2qP7+TdqUtuWk7IJr2E17NnZSH7Se4VZxOfbE6m+FXVvHYns4wblSHp1SU2BnnQT
+         xjP19UDg35gL2yz3jW+Gpk3i6Nmzhu54XvsFAnooSAhDqKl8od4vc4WJMplredof0gJq
+         StQWYk+rGIzSB0iOEikULAyhAaEYDSA0Ul3K/Dvz+iXLlh3vNEXOR3Bhm6ENRtizhuDB
+         F4LJFjAnGouU6y4IrlYZKJjGb0j6NWoP72GpzM8GOm72BW7LC60SSceOn0RVIsX29Q00
+         fOLaH6Kyhjwys3Y2a38LGsrrhsMdrGT35Son5iP7OxaTwnAxOZIiVHI3Tguqe2ndL18X
+         pRqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=yQNvgm53xLH5GOW3/l9QmzzClUzION0bcZc79/JOpE8=;
+        b=jFf+BS+p5myPUIBG7hCAXtntpWbzvD1meNfGcN+Uw4pdrNkiuLNvz+t6RTj+NfMSts
+         PfbtZqvmjwyQdseMpI/UZ7wgyuMg9v1+JGtKykRhtuBzfhcFl/ZRrNfC8KLJAwPvS0TO
+         Wyyt3rt5q8qoXy1bZZDH5FZv9s8rXGKqgSP7bu5RLXN86/dmzgrcSvA/Jl4HTHZ31Ipk
+         IXucYKO+KvEKqS5GzBu1aE81akDG+w30auV9tyW1eHs/Kh2o+ZgISOsxypm8jVaAR10Y
+         aDFjNmaYVEOvAckFmSjp9oZlYH9/tRPf/YXMx/v2mLXR5zMiHlYJCJNksHbnyXBI//fy
+         BfNQ==
+X-Gm-Message-State: APjAAAVq2Q62WEHHJOklkDxhzK7yv9DsQaZZWx1+2qlDkwa4gz3IPe+a
+        /i8Q3cmZXmaf/t9OEmpV2xY=
+X-Google-Smtp-Source: APXvYqwvFSr6sC8VY/oBSzY7TDiVs6IkW3CNRpoGZmsEUJNFS988f0N/ePJ3ngHcccv00TJeK9aj3g==
+X-Received: by 2002:a9d:7f81:: with SMTP id t1mr1823493otp.95.1581357771634;
+        Mon, 10 Feb 2020 10:02:51 -0800 (PST)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id d131sm313031oia.36.2020.02.10.10.02.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Feb 2020 10:02:51 -0800 (PST)
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     gregkh@linuxfoundation.org
+Cc:     netdev@vger.kernel.org, devel@driverdev.osuosl.org,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Pietro Oliva <pietroliva@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH 1/6] staging: rtl8188eu: Fix potential security hole
+Date:   Mon, 10 Feb 2020 12:02:30 -0600
+Message-Id: <20200210180235.21691-2-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200210180235.21691-1-Larry.Finger@lwfinger.net>
+References: <20200210180235.21691-1-Larry.Finger@lwfinger.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEUSe787_LxgSWmo4cxU52Ti3mq3ydtco5J7A87Eec7HeLMCNQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 10, 2020 at 11:45:58AM -0600, Daniel Díaz wrote:
-> Helo!
-> 
-> On Mon, 10 Feb 2020 at 09:58, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Mon, Feb 10, 2020 at 4:41 PM Naresh Kamboju
-> > <naresh.kamboju@linaro.org> wrote:
-> > >
-> > > The arm64 architecture 64k page size enabled build failed on stable rc 5.5
-> > > CONFIG_ARM64_64K_PAGES=y
-> > > CROSS_COMPILE=aarch64-linux-gnu-
-> > > Toolchain gcc-9
-> > >
-> > > In file included from ../block/scsi_ioctl.c:23:
-> > >  ../include/scsi/sg.h:75:2: error: unknown type name ‘compat_int_t’
-> > >   compat_int_t interface_id; /* [i] 'S' for SCSI generic (required) */
-> > >   ^~~~~~~~~~~~
-> > >  ../include/scsi/sg.h:76:2: error: unknown type name ‘compat_int_t’
-> > >   compat_int_t dxfer_direction; /* [i] data transfer direction  */
-> > >   ^~~~~~~~~~~~
-> > >
-> > > ...
-> > >  ../include/scsi/sg.h:97:2: error: unknown type name ‘compat_uint_t’
-> > >   compat_uint_t info;  /* [o] auxiliary information */
-> >
-> > Hi Naresh,
-> >
-> > Does it work if you backport 071aaa43513a ("compat: ARM64: always include
-> > asm-generic/compat.h")?
-> 
-> Yes, cherry-picking 556d687a4ccd ("compat: ARM64: always include
-> asm-generic/compat.h") gets it back on track.
+In routine rtw_hostapd_ioctl(), the user-controlled p->length is assumed
+to be at least the size of struct ieee_param size, but this assumption is
+never checked. This could result in out-of-bounds read/write on kernel
+heap in case a p->length less than the size of struct ieee_param is
+specified by the user. If p->length is allowed to be greater than the size
+of the struct, then a malicious user could be wasting kernel memory.
+Fixes commit a2c60d42d97c ("Add files for new driver - part 16").
 
-Great, I'll go add that now and push out a -rc2.  Thanks for finding
-this so quickly.
+Reported by: Pietro Oliva <pietroliva@gmail.com>
+Cc: Pietro Oliva <pietroliva@gmail.com>
+Cc: Stable <stable@vger.kernel.org>
+Fixes: a2c60d42d97c ("Add files for new driver - part 16").
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+---
+ drivers/staging/rtl8188eu/os_dep/ioctl_linux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
+index 9b6ea86d1dcf..7d21f5799640 100644
+--- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
+@@ -2796,7 +2796,7 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
+ 		goto out;
+ 	}
+ 
+-	if (!p->pointer) {
++	if (!p->pointer || p->length != sizeof(struct ieee_param)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-- 
+2.25.0
+
