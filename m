@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F017157A94
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A36015780E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728660AbgBJMhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
+        id S1728592AbgBJNEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:04:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728654AbgBJMhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:10 -0500
+        id S1729077AbgBJMkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3786F2467C;
-        Mon, 10 Feb 2020 12:37:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AB072085B;
+        Mon, 10 Feb 2020 12:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338230;
-        bh=NtsZhrgDJIlTF5zSo7Bs2rx2dneDPsrJqbQN4iPbGGg=;
+        s=default; t=1581338412;
+        bh=XLsH/og7nds9+7JWjxVwvyiIrHhkqGnfk/0z9Ma8ezE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5PrMtsyp4+U59ro8f2W8MNfpboQ/UgFnewfhGT9E4Ifcr67/+am2Vp46JgWoTNke
-         YcuQCWQq+AQyCjx3cXs6J3/n4a0bUxq1iO1rcOmEpNrQCJMEwTis9rA1ystP1Gr3Va
-         6QkwgZDqQPFNs8a753XcP59N+YeWX8wwBhspHY7Q=
+        b=kN13iowjcmWPcLJg8fj8Ik8NRqrvBgCNe0ZQbcnVH20vao8g7jPoejSO8mWiNlbAQ
+         OZRV4Xzbi3Dw9u3nANy/N+0U+d7N/ZKZd5lMxyflZLEP77BWzCADy73aPnOLPIc0jd
+         aSsXUQj7iU1H1z8uy3B0C/taCNaZCmvjRCH3YkCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@dlink.ru>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rob Herring <robh@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH 5.4 072/309] MIPS: boot: fix typo in vmlinux.lzma.its target
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 115/367] crypto: ccree - fix backlog memory leak
 Date:   Mon, 10 Feb 2020 04:30:28 -0800
-Message-Id: <20200210122412.806640101@linuxfoundation.org>
+Message-Id: <20200210122435.210203228@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@dlink.ru>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 16202c09577f3d0c533274c0410b7de05fb0d458 upstream.
+commit 4df2ef25b3b3618fd708ab484fe6239abd130fec upstream.
 
-Commit 92b34a976348 ("MIPS: boot: add missing targets for vmlinux.*.its")
-fixed constant rebuild of *.its files on every make invocation, but due
-to typo ("lzmo") it made no sense for vmlinux.lzma.its.
+Fix brown paper bag bug of not releasing backlog list item buffer
+when backlog was consumed causing a memory leak when backlog is
+used.
 
-Fixes: 92b34a976348 ("MIPS: boot: add missing targets for vmlinux.*.its")
-Cc: <stable@vger.kernel.org> # v4.19+
-Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
-[paulburton@kernel.org: s/invokation/invocation/]
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/boot/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_request_mgr.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/boot/Makefile
-+++ b/arch/mips/boot/Makefile
-@@ -123,7 +123,7 @@ $(obj)/vmlinux.its.S: $(addprefix $(srct
- targets += vmlinux.its
- targets += vmlinux.gz.its
- targets += vmlinux.bz2.its
--targets += vmlinux.lzmo.its
-+targets += vmlinux.lzma.its
- targets += vmlinux.lzo.its
+--- a/drivers/crypto/ccree/cc_request_mgr.c
++++ b/drivers/crypto/ccree/cc_request_mgr.c
+@@ -404,6 +404,7 @@ static void cc_proc_backlog(struct cc_dr
+ 		spin_lock(&mgr->bl_lock);
+ 		list_del(&bli->list);
+ 		--mgr->bl_len;
++		kfree(bli);
+ 	}
  
- quiet_cmd_cpp_its_S = ITS     $@
+ 	spin_unlock(&mgr->bl_lock);
 
 
