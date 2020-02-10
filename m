@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A5815753F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C82E81574E5
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729513AbgBJMjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38238 "EHLO mail.kernel.org"
+        id S1728513AbgBJMgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729510AbgBJMjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:44 -0500
+        id S1728510AbgBJMgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:46 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F01124686;
-        Mon, 10 Feb 2020 12:39:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9960420873;
+        Mon, 10 Feb 2020 12:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338384;
-        bh=7bro7edFsBzjTkeA0W+QB+A2B3KAv90QXiYmt5hQbTg=;
+        s=default; t=1581338205;
+        bh=RwhIChhPn61jDVPeD5KKonU/A0ZjFzLZEXd029vpwcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCr37yfsJP+M34s3H4mcB8KgpXFBoZt5ewEnvU/gLXLGhtI+X6BZrSdk3xgzH/EHd
-         rsyk3xUk6wVnF5b7CWMRIx+W3imn+RCYCvoiH5nRVUGo/vBPI7fmHrVpQEdJsVZvKR
-         qXXDd4Wvaw+fegBKa4txyOhk1/tXb4c2nHdJGjDI=
+        b=cfBXsLhY9s62U0jlDTTVbL951fY8LNgUbBemrpfYMgfwPknFpVSpWErPWTtvCQCVb
+         DZQax/Rck3Js76sW4kI6c6fyHrYB7Ey3RiOqg8oA/KqFLKWSde22H/qwxxKVNruzjt
+         feyPJh5WXf/r4MVqN6WJou3q4UT92jK87EmMgIqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Neelima Krishnan <neelima.krishnan@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 5.5 066/367] x86/cpu: Update cached HLE state on write to TSX_CTRL_CPUID_CLEAR
-Date:   Mon, 10 Feb 2020 04:29:39 -0800
-Message-Id: <20200210122430.200492402@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Shuaibing <shuaibinglu@126.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        NeilBrown <neilb@suse.com>, Shaohua Li <shli@fb.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 025/309] ipc/msg.c: consolidate all xxxctl_down() functions
+Date:   Mon, 10 Feb 2020 04:29:41 -0800
+Message-Id: <20200210122408.398703616@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +50,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Lu Shuaibing <shuaibinglu@126.com>
 
-commit 5efc6fa9044c3356d6046c6e1da6d02572dbed6b upstream.
+commit 889b331724c82c11e15ba0a60979cf7bded0a26c upstream.
 
-/proc/cpuinfo currently reports Hardware Lock Elision (HLE) feature to
-be present on boot cpu even if it was disabled during the bootup. This
-is because cpuinfo_x86->x86_capability HLE bit is not updated after TSX
-state is changed via the new MSR IA32_TSX_CTRL.
+A use of uninitialized memory in msgctl_down() because msqid64 in
+ksys_msgctl hasn't been initialized.  The local | msqid64 | is created in
+ksys_msgctl() and then passed into msgctl_down().  Along the way msqid64
+is never initialized before msgctl_down() checks msqid64->msg_qbytes.
 
-Update the cached HLE bit also since it is expected to change after an
-update to CPUID_CLEAR bit in MSR IA32_TSX_CTRL.
+KUMSAN(KernelUninitializedMemorySantizer, a new error detection tool)
+reports:
 
-Fixes: 95c5824f75f3 ("x86/cpu: Add a "tsx=" cmdline option with TSX disabled by default")
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/2529b99546294c893dfa1c89e2b3e46da3369a59.1578685425.git.pawan.kumar.gupta@linux.intel.com
+==================================================================
+BUG: KUMSAN: use of uninitialized memory in msgctl_down+0x94/0x300
+Read of size 8 at addr ffff88806bb97eb8 by task syz-executor707/2022
+
+CPU: 0 PID: 2022 Comm: syz-executor707 Not tainted 5.2.0-rc4+ #63
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+Call Trace:
+ dump_stack+0x75/0xae
+ __kumsan_report+0x17c/0x3e6
+ kumsan_report+0xe/0x20
+ msgctl_down+0x94/0x300
+ ksys_msgctl.constprop.14+0xef/0x260
+ do_syscall_64+0x7e/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x4400e9
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffd869e0598 EFLAGS: 00000246 ORIG_RAX: 0000000000000047
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 00000000004400e9
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 00000000006ca018 R08: 0000000000000000 R09: 0000000000000000
+R10: 00000000ffffffff R11: 0000000000000246 R12: 0000000000401970
+R13: 0000000000401a00 R14: 0000000000000000 R15: 0000000000000000
+
+The buggy address belongs to the page:
+page:ffffea0001aee5c0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0x100000000000000()
+raw: 0100000000000000 0000000000000000 ffffffff01ae0101 0000000000000000
+raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kumsan: bad access detected
+==================================================================
+
+Syzkaller reproducer:
+msgctl$IPC_RMID(0x0, 0x0)
+
+C reproducer:
+// autogenerated by syzkaller (https://github.com/google/syzkaller)
+
+int main(void)
+{
+  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+  syscall(__NR_msgctl, 0, 0, 0);
+  return 0;
+}
+
+[natechancellor@gmail.com: adjust indentation in ksys_msgctl]
+  Link: https://github.com/ClangBuiltLinux/linux/issues/829
+  Link: http://lkml.kernel.org/r/20191218032932.37479-1-natechancellor@gmail.com
+Link: http://lkml.kernel.org/r/20190613014044.24234-1-shuaibinglu@126.com
+Signed-off-by: Lu Shuaibing <shuaibinglu@126.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: NeilBrown <neilb@suse.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 025/309] ipc/msg.c: consolidate all xxxctl_down() functions
+
+Each line here overflows 80 cols by exactly one character.  Delete one tab
+per line to fix.
+
+Cc: Shaohua Li <shli@fb.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/tsx.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ ipc/msg.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -115,11 +115,12 @@ void __init tsx_init(void)
- 		tsx_disable();
+--- a/ipc/msg.c
++++ b/ipc/msg.c
+@@ -377,7 +377,7 @@ copy_msqid_from_user(struct msqid64_ds *
+  * NOTE: no locks must be held, the rwsem is taken inside this function.
+  */
+ static int msgctl_down(struct ipc_namespace *ns, int msqid, int cmd,
+-			struct msqid64_ds *msqid64)
++			struct ipc64_perm *perm, int msg_qbytes)
+ {
+ 	struct kern_ipc_perm *ipcp;
+ 	struct msg_queue *msq;
+@@ -387,7 +387,7 @@ static int msgctl_down(struct ipc_namesp
+ 	rcu_read_lock();
  
- 		/*
--		 * tsx_disable() will change the state of the
--		 * RTM CPUID bit.  Clear it here since it is now
--		 * expected to be not set.
-+		 * tsx_disable() will change the state of the RTM and HLE CPUID
-+		 * bits. Clear them here since they are now expected to be not
-+		 * set.
- 		 */
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
-+		setup_clear_cpu_cap(X86_FEATURE_HLE);
- 	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
+ 	ipcp = ipcctl_obtain_check(ns, &msg_ids(ns), msqid, cmd,
+-				      &msqid64->msg_perm, msqid64->msg_qbytes);
++				      perm, msg_qbytes);
+ 	if (IS_ERR(ipcp)) {
+ 		err = PTR_ERR(ipcp);
+ 		goto out_unlock1;
+@@ -409,18 +409,18 @@ static int msgctl_down(struct ipc_namesp
+ 	{
+ 		DEFINE_WAKE_Q(wake_q);
  
- 		/*
-@@ -131,10 +132,10 @@ void __init tsx_init(void)
- 		tsx_enable();
+-		if (msqid64->msg_qbytes > ns->msg_ctlmnb &&
++		if (msg_qbytes > ns->msg_ctlmnb &&
+ 		    !capable(CAP_SYS_RESOURCE)) {
+ 			err = -EPERM;
+ 			goto out_unlock1;
+ 		}
  
+ 		ipc_lock_object(&msq->q_perm);
+-		err = ipc_update_perm(&msqid64->msg_perm, ipcp);
++		err = ipc_update_perm(perm, ipcp);
+ 		if (err)
+ 			goto out_unlock0;
+ 
+-		msq->q_qbytes = msqid64->msg_qbytes;
++		msq->q_qbytes = msg_qbytes;
+ 
+ 		msq->q_ctime = ktime_get_real_seconds();
  		/*
--		 * tsx_enable() will change the state of the
--		 * RTM CPUID bit.  Force it here since it is now
--		 * expected to be set.
-+		 * tsx_enable() will change the state of the RTM and HLE CPUID
-+		 * bits. Force them here since they are now expected to be set.
- 		 */
- 		setup_force_cpu_cap(X86_FEATURE_RTM);
-+		setup_force_cpu_cap(X86_FEATURE_HLE);
+@@ -601,9 +601,10 @@ static long ksys_msgctl(int msqid, int c
+ 	case IPC_SET:
+ 		if (copy_msqid_from_user(&msqid64, buf, version))
+ 			return -EFAULT;
+-		/* fallthru */
++		return msgctl_down(ns, msqid, cmd, &msqid64.msg_perm,
++				   msqid64.msg_qbytes);
+ 	case IPC_RMID:
+-		return msgctl_down(ns, msqid, cmd, &msqid64);
++		return msgctl_down(ns, msqid, cmd, NULL, 0);
+ 	default:
+ 		return  -EINVAL;
  	}
- }
+@@ -735,9 +736,9 @@ static long compat_ksys_msgctl(int msqid
+ 	case IPC_SET:
+ 		if (copy_compat_msqid_from_user(&msqid64, uptr, version))
+ 			return -EFAULT;
+-		/* fallthru */
++		return msgctl_down(ns, msqid, cmd, &msqid64.msg_perm, msqid64.msg_qbytes);
+ 	case IPC_RMID:
+-		return msgctl_down(ns, msqid, cmd, &msqid64);
++		return msgctl_down(ns, msqid, cmd, NULL, 0);
+ 	default:
+ 		return -EINVAL;
+ 	}
 
 
