@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E53E157C4A
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49588157BDF
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:33:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727931AbgBJNg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:36:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
+        id S1728054AbgBJNdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:33:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727767AbgBJMfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:12 -0500
+        id S1728041AbgBJMfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:39 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C16A8208C3;
-        Mon, 10 Feb 2020 12:35:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72466215A4;
+        Mon, 10 Feb 2020 12:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338111;
-        bh=9Ri+i5cX/V998kOhcG7bZRrMYPjofvjRpnHqyc9ArmM=;
+        s=default; t=1581338138;
+        bh=2ZF+h9JLW6xwj1g9e5dbPom8XU1N9aszxzb91xGMCo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOkdPgQ3WBmJA/3l1y7q1gti4PyickiEp8f7nYeeRwFQHTz7kX4encQqudL4W8HZz
-         BfNZG2NJOF5S9xzpNLgljHsQq7CMvxxQwwI9hzjZ+TTdmDquksQqx5BNtAkm9qBWEx
-         JrEKaZaaP4Kfr/yhJujTlDwriUZjvpPp7HxP+5rM=
+        b=HPagOBbtSSN12g6D0NloAmSWZ/n5fDztSsimR1lA4ufu0C6qyDgSyn8tlaUW1AsEs
+         HPTp5zQyTsRzEz0aGKEpGXCE8ZCoGzPve9jAVxnHY69U3zKEFOu50z+nYSY8KGydkJ
+         poSR92M9ENXn/g5bvbXAoxG3ImPt0ToA+t7TxDs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 037/195] ALSA: dummy: Fix PCM format loop in proc output
-Date:   Mon, 10 Feb 2020 04:31:35 -0800
-Message-Id: <20200210122310.118526242@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 038/195] mm/memory_hotplug: fix remove_memory() lockdep splat
+Date:   Mon, 10 Feb 2020 04:31:36 -0800
+Message-Id: <20200210122310.174718077@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -42,33 +49,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 2acf25f13ebe8beb40e97a1bbe76f36277c64f1e upstream.
+commit f1037ec0cc8ac1a450974ad9754e991f72884f48 upstream.
 
-The loop termination for iterating over all formats should contain
-SNDRV_PCM_FORMAT_LAST, not less than it.
+The daxctl unit test for the dax_kmem driver currently triggers the
+(false positive) lockdep splat below.  It results from the fact that
+remove_memory_block_devices() is invoked under the mem_hotplug_lock()
+causing lockdep entanglements with cpu_hotplug_lock() and sysfs (kernfs
+active state tracking).  It is a false positive because the sysfs
+attribute path triggering the memory remove is not the same attribute
+path associated with memory-block device.
 
-Fixes: 9b151fec139d ("ALSA: dummy - Add debug proc file")
+sysfs_break_active_protection() is not applicable since there is no real
+deadlock conflict, instead move memory-block device removal outside the
+lock.  The mem_hotplug_lock() is not needed to synchronize the
+memory-block device removal vs the page online state, that is already
+handled by lock_device_hotplug().  Specifically, lock_device_hotplug()
+is sufficient to allow try_remove_memory() to check the offline state of
+the memblocks and be assured that any in progress online attempts are
+flushed / blocked by kernfs_drain() / attribute removal.
+
+The add_memory() path safely creates memblock devices under the
+mem_hotplug_lock().  There is no kernfs active state synchronization in
+the memblock device_register() path, so nothing to fix there.
+
+This change is only possible thanks to the recent change that refactored
+memory block device removal out of arch_remove_memory() (commit
+4c4b7f9ba948 "mm/memory_hotplug: remove memory block devices before
+arch_remove_memory()"), and David's due diligence tracking down the
+guarantees afforded by kernfs_drain().  Not flagged for -stable since
+this only impacts ongoing development and lockdep validation, not a
+runtime issue.
+
+    ======================================================
+    WARNING: possible circular locking dependency detected
+    5.5.0-rc3+ #230 Tainted: G           OE
+    ------------------------------------------------------
+    lt-daxctl/6459 is trying to acquire lock:
+    ffff99c7f0003510 (kn->count#241){++++}, at: kernfs_remove_by_name_ns+0x41/0x80
+
+    but task is already holding lock:
+    ffffffffa76a5450 (mem_hotplug_lock.rw_sem){++++}, at: percpu_down_write+0x20/0xe0
+
+    which lock already depends on the new lock.
+
+    the existing dependency chain (in reverse order) is:
+
+    -> #2 (mem_hotplug_lock.rw_sem){++++}:
+           __lock_acquire+0x39c/0x790
+           lock_acquire+0xa2/0x1b0
+           get_online_mems+0x3e/0xb0
+           kmem_cache_create_usercopy+0x2e/0x260
+           kmem_cache_create+0x12/0x20
+           ptlock_cache_init+0x20/0x28
+           start_kernel+0x243/0x547
+           secondary_startup_64+0xb6/0xc0
+
+    -> #1 (cpu_hotplug_lock.rw_sem){++++}:
+           __lock_acquire+0x39c/0x790
+           lock_acquire+0xa2/0x1b0
+           cpus_read_lock+0x3e/0xb0
+           online_pages+0x37/0x300
+           memory_subsys_online+0x17d/0x1c0
+           device_online+0x60/0x80
+           state_store+0x65/0xd0
+           kernfs_fop_write+0xcf/0x1c0
+           vfs_write+0xdb/0x1d0
+           ksys_write+0x65/0xe0
+           do_syscall_64+0x5c/0xa0
+           entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+    -> #0 (kn->count#241){++++}:
+           check_prev_add+0x98/0xa40
+           validate_chain+0x576/0x860
+           __lock_acquire+0x39c/0x790
+           lock_acquire+0xa2/0x1b0
+           __kernfs_remove+0x25f/0x2e0
+           kernfs_remove_by_name_ns+0x41/0x80
+           remove_files.isra.0+0x30/0x70
+           sysfs_remove_group+0x3d/0x80
+           sysfs_remove_groups+0x29/0x40
+           device_remove_attrs+0x39/0x70
+           device_del+0x16a/0x3f0
+           device_unregister+0x16/0x60
+           remove_memory_block_devices+0x82/0xb0
+           try_remove_memory+0xb5/0x130
+           remove_memory+0x26/0x40
+           dev_dax_kmem_remove+0x44/0x6a [kmem]
+           device_release_driver_internal+0xe4/0x1c0
+           unbind_store+0xef/0x120
+           kernfs_fop_write+0xcf/0x1c0
+           vfs_write+0xdb/0x1d0
+           ksys_write+0x65/0xe0
+           do_syscall_64+0x5c/0xa0
+           entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+    other info that might help us debug this:
+
+    Chain exists of:
+      kn->count#241 --> cpu_hotplug_lock.rw_sem --> mem_hotplug_lock.rw_sem
+
+     Possible unsafe locking scenario:
+
+           CPU0                    CPU1
+           ----                    ----
+      lock(mem_hotplug_lock.rw_sem);
+                                   lock(cpu_hotplug_lock.rw_sem);
+                                   lock(mem_hotplug_lock.rw_sem);
+      lock(kn->count#241);
+
+     *** DEADLOCK ***
+
+No fixes tag as this has been a long standing issue that predated the
+addition of kernfs lockdep annotations.
+
+Link: http://lkml.kernel.org/r/157991441887.2763922.4770790047389427325.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200201080530.22390-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/drivers/dummy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/memory_hotplug.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/sound/drivers/dummy.c
-+++ b/sound/drivers/dummy.c
-@@ -929,7 +929,7 @@ static void print_formats(struct snd_dum
- {
- 	int i;
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1902,8 +1902,6 @@ void __ref __remove_memory(int nid, u64
  
--	for (i = 0; i < SNDRV_PCM_FORMAT_LAST; i++) {
-+	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
- 		if (dummy->pcm_hw.formats & (1ULL << i))
- 			snd_iprintf(buffer, " %s", snd_pcm_format_name(i));
- 	}
+ 	BUG_ON(check_hotplug_memory_range(start, size));
+ 
+-	mem_hotplug_begin();
+-
+ 	/*
+ 	 * All memory blocks must be offlined before removing memory.  Check
+ 	 * whether all memory blocks in question are offline and trigger a BUG()
+@@ -1919,9 +1917,14 @@ void __ref __remove_memory(int nid, u64
+ 	memblock_free(start, size);
+ 	memblock_remove(start, size);
+ 
+-	/* remove memory block devices before removing memory */
++	/*
++	 * Memory block device removal under the device_hotplug_lock is
++	 * a barrier against racing online attempts.
++	 */
+ 	remove_memory_block_devices(start, size);
+ 
++	mem_hotplug_begin();
++
+ 	arch_remove_memory(nid, start, size, NULL);
+ 	__release_memory_resource(start, size);
+ 
 
 
