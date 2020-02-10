@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B22C6157A8C
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 821CB157A83
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728740AbgBJNXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:23:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58380 "EHLO mail.kernel.org"
+        id S1728685AbgBJNXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:23:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728111AbgBJMhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:13 -0500
+        id S1728674AbgBJMhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:14 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCD7320838;
-        Mon, 10 Feb 2020 12:37:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 521942168B;
+        Mon, 10 Feb 2020 12:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338232;
-        bh=q22MECh2tbBpJ6O/Km/c9blaEVhuPo3h4WR8kE/HIIo=;
+        s=default; t=1581338233;
+        bh=4TGeChPRyuXFUV3+vhkYhou0tkrHrIcyRXRDdoN1aAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c14hH678yhh9tEGrt80V8mzaWONM07EaXUlAxHi+B5b4fiOT0bPsbn5/zP9B2+TPx
-         4mZj6pM/T4MtcUdryD8ByWy29CnL2nUZHanyz73ntQt1OOAX0ifRSBjczYA74hOJic
-         Sj34XnGp45MLqwmaPfOhJtmLgG5AfldOpnMN7R4o=
+        b=QWhLKmExfy+Pew4auNElnT3mfZr6YZQX26bYh8b45ryT6pVjGNMvUyXbTCN0CS/xH
+         FfHCuMuqSM1mMOTgq1pLvUYmGCU63rzqruBBqlxQh9U93d3+i8SiMN7vQEi5M9s3yp
+         Z2XlflOcb7PSUjjQVYyk+TOMWCZdIfbExGOrLA/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 077/309] powerpc/pseries: Advance pfn if section is not present in lmb_is_removable()
-Date:   Mon, 10 Feb 2020 04:30:33 -0800
-Message-Id: <20200210122413.245865485@linuxfoundation.org>
+Subject: [PATCH 5.4 078/309] powerpc/32s: Fix bad_kuap_fault()
+Date:   Mon, 10 Feb 2020 04:30:34 -0800
+Message-Id: <20200210122413.337153415@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,38 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit fbee6ba2dca30d302efe6bddb3a886f5e964a257 upstream.
+commit 6ec20aa2e510b6297906c45f009aa08b2d97269a upstream.
 
-In lmb_is_removable(), if a section is not present, it should continue
-to test the rest of the sections in the block. But the current code
-fails to do so.
+At the moment, bad_kuap_fault() reports a fault only if a bad access
+to userspace occurred while access to userspace was not granted.
 
-Fixes: 51925fb3c5c9 ("powerpc/pseries: Implement memory hotplug remove in the kernel")
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+But if a fault occurs for a write outside the allowed userspace
+segment(s) that have been unlocked, bad_kuap_fault() fails to
+detect it and the kernel loops forever in do_page_fault().
+
+Fix it by checking that the accessed address is within the allowed
+range.
+
+Fixes: a68c31fc01ef ("powerpc/32s: Implement Kernel Userspace Access Protection")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1578632042-12415-1-git-send-email-kernelfans@gmail.com
+Link: https://lore.kernel.org/r/f48244e9485ada0a304ed33ccbb8da271180c80d.1579866752.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/hotplug-memory.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/32/kup.h       |    9 +++++++--
+ arch/powerpc/include/asm/book3s/64/kup-radix.h |    3 ++-
+ arch/powerpc/include/asm/kup.h                 |    6 +++++-
+ arch/powerpc/include/asm/nohash/32/kup-8xx.h   |    3 ++-
+ arch/powerpc/mm/fault.c                        |    2 +-
+ 5 files changed, 17 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -360,8 +360,10 @@ static bool lmb_is_removable(struct drme
+--- a/arch/powerpc/include/asm/book3s/32/kup.h
++++ b/arch/powerpc/include/asm/book3s/32/kup.h
+@@ -131,12 +131,17 @@ static inline void prevent_user_access(v
+ 	kuap_update_sr(mfsrin(addr) | SR_KS, addr, end);	/* set Ks */
+ }
  
- 	for (i = 0; i < scns_per_block; i++) {
- 		pfn = PFN_DOWN(phys_addr);
--		if (!pfn_present(pfn))
-+		if (!pfn_present(pfn)) {
-+			phys_addr += MIN_MEMORY_BLOCK_SIZE;
- 			continue;
-+		}
+-static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write)
++static inline bool
++bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
+ {
++	unsigned long begin = regs->kuap & 0xf0000000;
++	unsigned long end = regs->kuap << 28;
++
+ 	if (!is_write)
+ 		return false;
  
- 		rc &= is_mem_section_removable(pfn, PAGES_PER_SECTION);
- 		phys_addr += MIN_MEMORY_BLOCK_SIZE;
+-	return WARN(!regs->kuap, "Bug: write fault blocked by segment registers !");
++	return WARN(address < begin || address >= end,
++		    "Bug: write fault blocked by segment registers !");
+ }
+ 
+ #endif /* CONFIG_PPC_KUAP */
+--- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
++++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
+@@ -95,7 +95,8 @@ static inline void prevent_user_access(v
+ 	set_kuap(AMR_KUAP_BLOCKED);
+ }
+ 
+-static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write)
++static inline bool
++bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
+ {
+ 	return WARN(mmu_has_feature(MMU_FTR_RADIX_KUAP) &&
+ 		    (regs->kuap & (is_write ? AMR_KUAP_BLOCK_WRITE : AMR_KUAP_BLOCK_READ)),
+--- a/arch/powerpc/include/asm/kup.h
++++ b/arch/powerpc/include/asm/kup.h
+@@ -45,7 +45,11 @@ static inline void allow_user_access(voi
+ 				     unsigned long size) { }
+ static inline void prevent_user_access(void __user *to, const void __user *from,
+ 				       unsigned long size) { }
+-static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write) { return false; }
++static inline bool
++bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
++{
++	return false;
++}
+ #endif /* CONFIG_PPC_KUAP */
+ 
+ static inline void allow_read_from_user(const void __user *from, unsigned long size)
+--- a/arch/powerpc/include/asm/nohash/32/kup-8xx.h
++++ b/arch/powerpc/include/asm/nohash/32/kup-8xx.h
+@@ -45,7 +45,8 @@ static inline void prevent_user_access(v
+ 	mtspr(SPRN_MD_AP, MD_APG_KUAP);
+ }
+ 
+-static inline bool bad_kuap_fault(struct pt_regs *regs, bool is_write)
++static inline bool
++bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
+ {
+ 	return WARN(!((regs->kuap ^ MD_APG_KUAP) & 0xf0000000),
+ 		    "Bug: fault blocked by AP register !");
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -233,7 +233,7 @@ static bool bad_kernel_fault(struct pt_r
+ 
+ 	// Read/write fault in a valid region (the exception table search passed
+ 	// above), but blocked by KUAP is bad, it can never succeed.
+-	if (bad_kuap_fault(regs, is_write))
++	if (bad_kuap_fault(regs, address, is_write))
+ 		return true;
+ 
+ 	// What's left? Kernel fault on user in well defined regions (extable
 
 
