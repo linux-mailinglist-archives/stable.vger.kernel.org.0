@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D5E315767E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D43D157661
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729401AbgBJMxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:53:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
+        id S1730200AbgBJMmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:42:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730188AbgBJMmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:14 -0500
+        id S1728791AbgBJMmP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:15 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BE0F21739;
+        by mail.kernel.org (Postfix) with ESMTPSA id AC0E724649;
         Mon, 10 Feb 2020 12:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338534;
-        bh=FxDB79vcx4G5QmW2++YxBtmlc+Bcn40MOvGOEo/+95Y=;
+        bh=+E7je+NFtmGn49WxnLROcZktH8h8z2zuomszzMDNbuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpDVDW3GQI4ixAyJEiizdUtrLIF5Es3K+t4+jaSbv9V6of790WqiLkWhku/wmD0eL
-         fZ/lHB3+XS8EGkEvz8nkgjx+buV469nXVbUwOvk8wLYNNVlGA1Sqd1oKap4EQjopcs
-         hhwqSEb//udqJi/uJ8dug9/dLIR2Vq7vq7feZx7s=
+        b=QiiO/ePcI+F9ORfT1UR8s9akTPO6oTO+qH5hTdf5eVgcNLVSriQC3sFTHKpmmqPHf
+         mmmC/2reghecS7t1W/K0/gqSvleV9gOfySwPdujm+ag2GQulOiWxNFCvX3hQKi+ZYv
+         /QImsTuXf6FQScWkitYmpDFlTnfQOM8gBkCT0cdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 361/367] IB/core: Fix build failure without hugepages
-Date:   Mon, 10 Feb 2020 04:34:34 -0800
-Message-Id: <20200210122455.688619849@linuxfoundation.org>
+Subject: [PATCH 5.5 362/367] crypto: atmel-{aes,tdes} - Do not save IV for ECB mode
+Date:   Mon, 10 Feb 2020 04:34:35 -0800
+Message-Id: <20200210122455.765754809@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,45 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit 74f75cda754eb69a77f910ceb5bc85f8e9ba56a5 ]
+[ Upstream commit c65d123742a7bf2a5bc9fa8398e1fd2376eb4c43 ]
 
-HPAGE_SHIFT is only defined on architectures that support hugepages:
+ECB mode does not use IV.
 
-drivers/infiniband/core/umem_odp.c: In function 'ib_umem_odp_get':
-drivers/infiniband/core/umem_odp.c:245:26: error: 'HPAGE_SHIFT' undeclared (first use in this function); did you mean 'PAGE_SHIFT'?
-
-Enclose this in an #ifdef.
-
-Fixes: 9ff1b6466a29 ("IB/core: Fix ODP with IB_ACCESS_HUGETLB handling")
-Link: https://lore.kernel.org/r/20200109084740.2872079-1-arnd@arndb.de
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/umem_odp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/atmel-aes.c  | 9 +++++++--
+ drivers/crypto/atmel-tdes.c | 7 +++++--
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
-index f42fa31c24a29..b9baf7d0a5cb7 100644
---- a/drivers/infiniband/core/umem_odp.c
-+++ b/drivers/infiniband/core/umem_odp.c
-@@ -241,10 +241,11 @@ struct ib_umem_odp *ib_umem_odp_get(struct ib_udata *udata, unsigned long addr,
- 	umem_odp->umem.owning_mm = mm = current->mm;
- 	umem_odp->notifier.ops = ops;
+diff --git a/drivers/crypto/atmel-aes.c b/drivers/crypto/atmel-aes.c
+index 24f1fba6513ef..7b7079db2e860 100644
+--- a/drivers/crypto/atmel-aes.c
++++ b/drivers/crypto/atmel-aes.c
+@@ -515,6 +515,9 @@ static void atmel_aes_set_iv_as_last_ciphertext_block(struct atmel_aes_dev *dd)
  
-+	umem_odp->page_shift = PAGE_SHIFT;
-+#ifdef CONFIG_HUGETLB_PAGE
- 	if (access & IB_ACCESS_HUGETLB)
- 		umem_odp->page_shift = HPAGE_SHIFT;
--	else
--		umem_odp->page_shift = PAGE_SHIFT;
-+#endif
+ static inline int atmel_aes_complete(struct atmel_aes_dev *dd, int err)
+ {
++	struct skcipher_request *req = skcipher_request_cast(dd->areq);
++	struct atmel_aes_reqctx *rctx = skcipher_request_ctx(req);
++
+ #if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
+ 	if (dd->ctx->is_aead)
+ 		atmel_aes_authenc_complete(dd, err);
+@@ -523,7 +526,8 @@ static inline int atmel_aes_complete(struct atmel_aes_dev *dd, int err)
+ 	clk_disable(dd->iclk);
+ 	dd->flags &= ~AES_FLAGS_BUSY;
  
- 	umem_odp->tgid = get_task_pid(current->group_leader, PIDTYPE_PID);
- 	ret = ib_init_umem_odp(umem_odp, ops);
+-	if (!dd->ctx->is_aead)
++	if (!dd->ctx->is_aead &&
++	    (rctx->mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_ECB)
+ 		atmel_aes_set_iv_as_last_ciphertext_block(dd);
+ 
+ 	if (dd->is_async)
+@@ -1121,7 +1125,8 @@ static int atmel_aes_crypt(struct skcipher_request *req, unsigned long mode)
+ 	rctx = skcipher_request_ctx(req);
+ 	rctx->mode = mode;
+ 
+-	if (!(mode & AES_FLAGS_ENCRYPT) && (req->src == req->dst)) {
++	if ((mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_ECB &&
++	    !(mode & AES_FLAGS_ENCRYPT) && req->src == req->dst) {
+ 		unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+ 
+ 		if (req->cryptlen >= ivsize)
+diff --git a/drivers/crypto/atmel-tdes.c b/drivers/crypto/atmel-tdes.c
+index 0c1f79b30fc1b..eaa14a80d40ce 100644
+--- a/drivers/crypto/atmel-tdes.c
++++ b/drivers/crypto/atmel-tdes.c
+@@ -600,12 +600,14 @@ atmel_tdes_set_iv_as_last_ciphertext_block(struct atmel_tdes_dev *dd)
+ static void atmel_tdes_finish_req(struct atmel_tdes_dev *dd, int err)
+ {
+ 	struct skcipher_request *req = dd->req;
++	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(req);
+ 
+ 	clk_disable_unprepare(dd->iclk);
+ 
+ 	dd->flags &= ~TDES_FLAGS_BUSY;
+ 
+-	atmel_tdes_set_iv_as_last_ciphertext_block(dd);
++	if ((rctx->mode & TDES_FLAGS_OPMODE_MASK) != TDES_FLAGS_ECB)
++		atmel_tdes_set_iv_as_last_ciphertext_block(dd);
+ 
+ 	req->base.complete(&req->base, err);
+ }
+@@ -727,7 +729,8 @@ static int atmel_tdes_crypt(struct skcipher_request *req, unsigned long mode)
+ 
+ 	rctx->mode = mode;
+ 
+-	if (!(mode & TDES_FLAGS_ENCRYPT) && req->src == req->dst) {
++	if ((mode & TDES_FLAGS_OPMODE_MASK) != TDES_FLAGS_ECB &&
++	    !(mode & TDES_FLAGS_ENCRYPT) && req->src == req->dst) {
+ 		unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+ 
+ 		if (req->cryptlen >= ivsize)
 -- 
 2.20.1
 
