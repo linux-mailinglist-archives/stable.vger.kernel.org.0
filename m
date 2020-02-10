@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8837157913
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2378C157AF9
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727516AbgBJNMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:12:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
+        id S1727789AbgBJMgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727900AbgBJMiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:52 -0500
+        id S1728422AbgBJMgd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:33 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 107BC24649;
-        Mon, 10 Feb 2020 12:38:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEAFC2080C;
+        Mon, 10 Feb 2020 12:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338332;
-        bh=f4kmDu/JvwbQrWcKHUCplWeVGT/aIKbR1AJbtnX2X9U=;
+        s=default; t=1581338192;
+        bh=fX9ZjtQWma3RQg2YDahH9BoTMewueX9BY7YQbHlDjCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWI9TnEozfD46RiMg/7IzlTNfq5+IQKtu8LCRX5d/ynnHHumZCX3dVn0DRYc8yYxR
-         wEDnCy+086v1QnktksfI1r1Mkk7OqD+sWhf8DogvHa6ukDS1upImiBbinxL+n7c1oq
-         gqSrX/HDLwnHA+jSWm5sb6V0trvZyQ7MzYivZYaM=
+        b=VcNpZ0xkLvCc6icHj+TYGcBEJpbXU+sHXWJbGdh5k+iHNjkYCS/uLixU+pqrD7UcN
+         1fuybKswyOvtpMDdDd62sQD1ZSBP26xXO1SzUazdCQUgBVXBbLTYmObB5JMN0uEH8/
+         ECv4E5Ol46tplCl4e7A3HofhTIEwxrvx07JIaabo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 276/309] net: macb: Limit maximum GEM TX length in TSO
-Date:   Mon, 10 Feb 2020 04:33:52 -0800
-Message-Id: <20200210122433.150724415@linuxfoundation.org>
+Subject: [PATCH 4.19 175/195] net: dsa: b53: Always use dev->vlan_enabled in b53_configure_vlan()
+Date:   Mon, 10 Feb 2020 04:33:53 -0800
+Message-Id: <20200210122322.280265631@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit f822e9c4ffa511a5c681cf866287d9383a3b6f1b ]
+[ Upstream commit df373702bc0f8f2d83980ea441e71639fc1efcf8 ]
 
-GEM_MAX_TX_LEN currently resolves to 0x3FF8 for any IP version supporting
-TSO with full 14bits of length field in payload descriptor. But an IP
-errata causes false amba_error (bit 6 of ISR) when length in payload
-descriptors is specified above 16387. The error occurs because the DMA
-falsely concludes that there is not enough space in SRAM for incoming
-payload. These errors were observed continuously under stress of large
-packets using iperf on a version where SRAM was 16K for each queue. This
-errata will be documented shortly and affects all versions since TSO
-functionality was added. Hence limit the max length to 0x3FC0 (rounded).
+b53_configure_vlan() is called by the bcm_sf2 driver upon setup and
+indirectly through resume as well. During the initial setup, we are
+guaranteed that dev->vlan_enabled is false, so there is no change in
+behavior, however during suspend, we may have enabled VLANs before, so we
+do want to restore that setting.
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Fixes: dad8d7c6452b ("net: dsa: b53: Properly account for VLAN filtering")
+Fixes: 967dd82ffc52 ("net: dsa: b53: Add support for Broadcom RoboSwitch")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/dsa/b53/b53_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -73,7 +73,11 @@ struct sifive_fu540_macb_mgmt {
- /* Max length of transmit frame must be a multiple of 8 bytes */
- #define MACB_TX_LEN_ALIGN	8
- #define MACB_MAX_TX_LEN		((unsigned int)((1 << MACB_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
--#define GEM_MAX_TX_LEN		((unsigned int)((1 << GEM_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
-+/* Limit maximum TX length as per Cadence TSO errata. This is to avoid a
-+ * false amba_error in TX path from the DMA assuming there is not enough
-+ * space in the SRAM (16KB) even when there is.
-+ */
-+#define GEM_MAX_TX_LEN		(unsigned int)(0x3FC0)
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -655,7 +655,7 @@ int b53_configure_vlan(struct dsa_switch
+ 		b53_do_vlan_op(dev, VTA_CMD_CLEAR);
+ 	}
  
- #define GEM_MTU_MIN_SIZE	ETH_MIN_MTU
- #define MACB_NETIF_LSO		NETIF_F_TSO
+-	b53_enable_vlan(dev, false, dev->vlan_filtering_enabled);
++	b53_enable_vlan(dev, dev->vlan_enabled, dev->vlan_filtering_enabled);
+ 
+ 	b53_for_each_port(dev, i)
+ 		b53_write16(dev, B53_VLAN_PAGE,
 
 
