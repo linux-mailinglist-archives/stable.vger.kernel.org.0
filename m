@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2761578E4
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC981578F9
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729285AbgBJMi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:38:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35634 "EHLO mail.kernel.org"
+        id S1729287AbgBJNLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:11:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728215AbgBJMi7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:59 -0500
+        id S1729279AbgBJMi6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:58 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EE4920838;
+        by mail.kernel.org (Postfix) with ESMTPSA id CF2CD2051A;
         Mon, 10 Feb 2020 12:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338337;
-        bh=rpqBsW2C273GIQSxrtliwODH+dwy8vczp+bDi+5vn+8=;
+        bh=0Jo8HbvTbazqaZFAESbEV2UpPh4vDzbFusWlZWJSMYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTxWkGRRNVpDwJqNNZYYPLs9FszYlgCjE2/NtLKyUAH/TKnjk2lOS9SZ/Wg57ZuTk
-         FyQJmjCmo04aVtHiHh7wC2UBTYoTXJfYIBdC2fA+uJwaSA1/fng0AO0PxdimctALip
-         2COtCBidI9G681o/sLijLftan/hYRS28vPqM97Ok=
+        b=KGNq+vjaLLHVgX/Szwg5pE/AbJgbyv0QrnIFXnNEp1YyinQiLIG9HmeAI3UPgdchN
+         KKQ3CZWqBiL8PWAHcn6cCvfZY8I4iQPcNfP2xIU1jB+Cz19pA+EUikuHG5TlzP+3kA
+         fo+fBNMvRBobRTD10wWFAeP1zw1RK2aFObCrrTk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Alaa Hleihel <alaa@mellanox.com>,
-        Mark Bloch <markb@mellanox.com>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 285/309] net/mlx5: Fix deadlock in fs_core
-Date:   Mon, 10 Feb 2020 04:34:01 -0800
-Message-Id: <20200210122434.035343233@linuxfoundation.org>
+Subject: [PATCH 5.4 286/309] net/mlx5: Deprecate usage of generic TLS HW capability bit
+Date:   Mon, 10 Feb 2020 04:34:02 -0800
+Message-Id: <20200210122434.135190142@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -45,225 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Tariq Toukan <tariqt@mellanox.com>
 
-[ Upstream commit c1948390d78b5183ee9b7dd831efd7f6ac496ab0 ]
+[ Upstream commit 61c00cca41aeeaa8e5263c2f81f28534bc1efafb ]
 
-free_match_list could be called when the flow table is already
-locked. We need to pass this notation to tree_put_node.
+Deprecate the generic TLS cap bit, use the new TX-specific
+TLS cap bit instead.
 
-It fixes the following lockdep warnning:
-
-[ 1797.268537] ============================================
-[ 1797.276837] WARNING: possible recursive locking detected
-[ 1797.285101] 5.5.0-rc5+ #10 Not tainted
-[ 1797.291641] --------------------------------------------
-[ 1797.299917] handler10/9296 is trying to acquire lock:
-[ 1797.307885] ffff889ad399a0a0 (&node->lock){++++}, at:
-tree_put_node+0x1d5/0x210 [mlx5_core]
-[ 1797.319694]
-[ 1797.319694] but task is already holding lock:
-[ 1797.330904] ffff889ad399a0a0 (&node->lock){++++}, at:
-nested_down_write_ref_node.part.33+0x1a/0x60 [mlx5_core]
-[ 1797.344707]
-[ 1797.344707] other info that might help us debug this:
-[ 1797.356952]  Possible unsafe locking scenario:
-[ 1797.356952]
-[ 1797.368333]        CPU0
-[ 1797.373357]        ----
-[ 1797.378364]   lock(&node->lock);
-[ 1797.384222]   lock(&node->lock);
-[ 1797.390031]
-[ 1797.390031]  *** DEADLOCK ***
-[ 1797.390031]
-[ 1797.403003]  May be due to missing lock nesting notation
-[ 1797.403003]
-[ 1797.414691] 3 locks held by handler10/9296:
-[ 1797.421465]  #0: ffff889cf2c5a110 (&block->cb_lock){++++}, at:
-tc_setup_cb_add+0x70/0x250
-[ 1797.432810]  #1: ffff88a030081490 (&comp->sem){++++}, at:
-mlx5_devcom_get_peer_data+0x4c/0xb0 [mlx5_core]
-[ 1797.445829]  #2: ffff889ad399a0a0 (&node->lock){++++}, at:
-nested_down_write_ref_node.part.33+0x1a/0x60 [mlx5_core]
-[ 1797.459913]
-[ 1797.459913] stack backtrace:
-[ 1797.469436] CPU: 1 PID: 9296 Comm: handler10 Kdump: loaded Not
-tainted 5.5.0-rc5+ #10
-[ 1797.480643] Hardware name: Dell Inc. PowerEdge R730/072T6D, BIOS
-2.4.3 01/17/2017
-[ 1797.491480] Call Trace:
-[ 1797.496701]  dump_stack+0x96/0xe0
-[ 1797.502864]  __lock_acquire.cold.63+0xf8/0x212
-[ 1797.510301]  ? lockdep_hardirqs_on+0x250/0x250
-[ 1797.517701]  ? mark_held_locks+0x55/0xa0
-[ 1797.524547]  ? quarantine_put+0xb7/0x160
-[ 1797.531422]  ? lockdep_hardirqs_on+0x17d/0x250
-[ 1797.538913]  lock_acquire+0xd6/0x1f0
-[ 1797.545529]  ? tree_put_node+0x1d5/0x210 [mlx5_core]
-[ 1797.553701]  down_write+0x94/0x140
-[ 1797.560206]  ? tree_put_node+0x1d5/0x210 [mlx5_core]
-[ 1797.568464]  ? down_write_killable_nested+0x170/0x170
-[ 1797.576925]  ? del_hw_flow_group+0xde/0x1f0 [mlx5_core]
-[ 1797.585629]  tree_put_node+0x1d5/0x210 [mlx5_core]
-[ 1797.593891]  ? free_match_list.part.25+0x147/0x170 [mlx5_core]
-[ 1797.603389]  free_match_list.part.25+0xe0/0x170 [mlx5_core]
-[ 1797.612654]  _mlx5_add_flow_rules+0x17e2/0x20b0 [mlx5_core]
-[ 1797.621838]  ? lock_acquire+0xd6/0x1f0
-[ 1797.629028]  ? esw_get_prio_table+0xb0/0x3e0 [mlx5_core]
-[ 1797.637981]  ? alloc_insert_flow_group+0x420/0x420 [mlx5_core]
-[ 1797.647459]  ? try_to_wake_up+0x4c7/0xc70
-[ 1797.654881]  ? lock_downgrade+0x350/0x350
-[ 1797.662271]  ? __mutex_unlock_slowpath+0xb1/0x3f0
-[ 1797.670396]  ? find_held_lock+0xac/0xd0
-[ 1797.677540]  ? mlx5_add_flow_rules+0xdc/0x360 [mlx5_core]
-[ 1797.686467]  mlx5_add_flow_rules+0xdc/0x360 [mlx5_core]
-[ 1797.695134]  ? _mlx5_add_flow_rules+0x20b0/0x20b0 [mlx5_core]
-[ 1797.704270]  ? irq_exit+0xa5/0x170
-[ 1797.710764]  ? retint_kernel+0x10/0x10
-[ 1797.717698]  ? mlx5_eswitch_set_rule_source_port.isra.9+0x122/0x230
-[mlx5_core]
-[ 1797.728708]  mlx5_eswitch_add_offloaded_rule+0x465/0x6d0 [mlx5_core]
-[ 1797.738713]  ? mlx5_eswitch_get_prio_range+0x30/0x30 [mlx5_core]
-[ 1797.748384]  ? mlx5_fc_stats_work+0x670/0x670 [mlx5_core]
-[ 1797.757400]  mlx5e_tc_offload_fdb_rules.isra.27+0x24/0x90 [mlx5_core]
-[ 1797.767665]  mlx5e_tc_add_fdb_flow+0xaf8/0xd40 [mlx5_core]
-[ 1797.776886]  ? mlx5e_encap_put+0xd0/0xd0 [mlx5_core]
-[ 1797.785562]  ? mlx5e_alloc_flow.isra.43+0x18c/0x1c0 [mlx5_core]
-[ 1797.795353]  __mlx5e_add_fdb_flow+0x2e2/0x440 [mlx5_core]
-[ 1797.804558]  ? mlx5e_tc_update_neigh_used_value+0x8c0/0x8c0
-[mlx5_core]
-[ 1797.815093]  ? wait_for_completion+0x260/0x260
-[ 1797.823272]  mlx5e_configure_flower+0xe94/0x1620 [mlx5_core]
-[ 1797.832792]  ? __mlx5e_add_fdb_flow+0x440/0x440 [mlx5_core]
-[ 1797.842096]  ? down_read+0x11a/0x2e0
-[ 1797.849090]  ? down_write+0x140/0x140
-[ 1797.856142]  ? mlx5e_rep_indr_setup_block_cb+0xc0/0xc0 [mlx5_core]
-[ 1797.866027]  tc_setup_cb_add+0x11a/0x250
-[ 1797.873339]  fl_hw_replace_filter+0x25e/0x320 [cls_flower]
-[ 1797.882385]  ? fl_hw_destroy_filter+0x1c0/0x1c0 [cls_flower]
-[ 1797.891607]  fl_change+0x1d54/0x1fb6 [cls_flower]
-[ 1797.899772]  ? __rhashtable_insert_fast.constprop.50+0x9f0/0x9f0
-[cls_flower]
-[ 1797.910728]  ? lock_downgrade+0x350/0x350
-[ 1797.918187]  ? __radix_tree_lookup+0xa5/0x130
-[ 1797.926046]  ? fl_set_key+0x1590/0x1590 [cls_flower]
-[ 1797.934611]  ? __rhashtable_insert_fast.constprop.50+0x9f0/0x9f0
-[cls_flower]
-[ 1797.945673]  tc_new_tfilter+0xcd1/0x1240
-[ 1797.953138]  ? tc_del_tfilter+0xb10/0xb10
-[ 1797.960688]  ? avc_has_perm_noaudit+0x92/0x320
-[ 1797.968721]  ? avc_has_perm_noaudit+0x1df/0x320
-[ 1797.976816]  ? avc_has_extended_perms+0x990/0x990
-[ 1797.985090]  ? mark_lock+0xaa/0x9e0
-[ 1797.991988]  ? match_held_lock+0x1b/0x240
-[ 1797.999457]  ? match_held_lock+0x1b/0x240
-[ 1798.006859]  ? find_held_lock+0xac/0xd0
-[ 1798.014045]  ? symbol_put_addr+0x40/0x40
-[ 1798.021317]  ? rcu_read_lock_sched_held+0xd0/0xd0
-[ 1798.029460]  ? tc_del_tfilter+0xb10/0xb10
-[ 1798.036810]  rtnetlink_rcv_msg+0x4d5/0x620
-[ 1798.044236]  ? rtnl_bridge_getlink+0x460/0x460
-[ 1798.052034]  ? lockdep_hardirqs_on+0x250/0x250
-[ 1798.059837]  ? match_held_lock+0x1b/0x240
-[ 1798.067146]  ? find_held_lock+0xac/0xd0
-[ 1798.074246]  netlink_rcv_skb+0xc6/0x1f0
-[ 1798.081339]  ? rtnl_bridge_getlink+0x460/0x460
-[ 1798.089104]  ? netlink_ack+0x440/0x440
-[ 1798.096061]  netlink_unicast+0x2d4/0x3b0
-[ 1798.103189]  ? netlink_attachskb+0x3f0/0x3f0
-[ 1798.110724]  ? _copy_from_iter_full+0xda/0x370
-[ 1798.118415]  netlink_sendmsg+0x3ba/0x6a0
-[ 1798.125478]  ? netlink_unicast+0x3b0/0x3b0
-[ 1798.132705]  ? netlink_unicast+0x3b0/0x3b0
-[ 1798.139880]  sock_sendmsg+0x94/0xa0
-[ 1798.146332]  ____sys_sendmsg+0x36c/0x3f0
-[ 1798.153251]  ? copy_msghdr_from_user+0x165/0x230
-[ 1798.160941]  ? kernel_sendmsg+0x30/0x30
-[ 1798.167738]  ___sys_sendmsg+0xeb/0x150
-[ 1798.174411]  ? sendmsg_copy_msghdr+0x30/0x30
-[ 1798.181649]  ? lock_downgrade+0x350/0x350
-[ 1798.188559]  ? rcu_read_lock_sched_held+0xd0/0xd0
-[ 1798.196239]  ? __fget+0x21d/0x320
-[ 1798.202335]  ? do_dup2+0x2a0/0x2a0
-[ 1798.208499]  ? lock_downgrade+0x350/0x350
-[ 1798.215366]  ? __fget_light+0xd6/0xf0
-[ 1798.221808]  ? syscall_trace_enter+0x369/0x5d0
-[ 1798.229112]  __sys_sendmsg+0xd3/0x160
-[ 1798.235511]  ? __sys_sendmsg_sock+0x60/0x60
-[ 1798.242478]  ? syscall_trace_enter+0x233/0x5d0
-[ 1798.249721]  ? syscall_slow_exit_work+0x280/0x280
-[ 1798.257211]  ? do_syscall_64+0x1e/0x2e0
-[ 1798.263680]  do_syscall_64+0x72/0x2e0
-[ 1798.269950]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: bd71b08ec2ee ("net/mlx5: Support multiple updates of steering rules in parallel")
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Alaa Hleihel <alaa@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
+Fixes: a12ff35e0fb7 ("net/mlx5: Introduce TLS TX offload hardware bits and structures")
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Reviewed-by: Eran Ben Elisha <eranbe@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/accel/tls.h         |    2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/tls_rxtx.c |    2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/fw.c                |    2 +-
+ include/linux/mlx5/mlx5_ifc.h                               |    7 ++++---
+ 4 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -1555,16 +1555,16 @@ struct match_list_head {
- 	struct match_list first;
- };
+--- a/drivers/net/ethernet/mellanox/mlx5/core/accel/tls.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/accel/tls.h
+@@ -45,7 +45,7 @@ void mlx5_ktls_destroy_key(struct mlx5_c
  
--static void free_match_list(struct match_list_head *head)
-+static void free_match_list(struct match_list_head *head, bool ft_locked)
+ static inline bool mlx5_accel_is_ktls_device(struct mlx5_core_dev *mdev)
  {
- 	if (!list_empty(&head->list)) {
- 		struct match_list *iter, *match_tmp;
+-	if (!MLX5_CAP_GEN(mdev, tls))
++	if (!MLX5_CAP_GEN(mdev, tls_tx))
+ 		return false;
  
- 		list_del(&head->first.list);
--		tree_put_node(&head->first.g->node, false);
-+		tree_put_node(&head->first.g->node, ft_locked);
- 		list_for_each_entry_safe(iter, match_tmp, &head->list,
- 					 list) {
--			tree_put_node(&iter->g->node, false);
-+			tree_put_node(&iter->g->node, ft_locked);
- 			list_del(&iter->list);
- 			kfree(iter);
- 		}
-@@ -1573,7 +1573,8 @@ static void free_match_list(struct match
+ 	if (!MLX5_CAP_GEN(mdev, log_max_dek))
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/tls_rxtx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/tls_rxtx.c
+@@ -269,7 +269,7 @@ struct sk_buff *mlx5e_tls_handle_tx_skb(
+ 	int datalen;
+ 	u32 skb_seq;
  
- static int build_match_list(struct match_list_head *match_head,
- 			    struct mlx5_flow_table *ft,
--			    const struct mlx5_flow_spec *spec)
-+			    const struct mlx5_flow_spec *spec,
-+			    bool ft_locked)
- {
- 	struct rhlist_head *tmp, *list;
- 	struct mlx5_flow_group *g;
-@@ -1598,7 +1599,7 @@ static int build_match_list(struct match
+-	if (MLX5_CAP_GEN(sq->channel->mdev, tls)) {
++	if (MLX5_CAP_GEN(sq->channel->mdev, tls_tx)) {
+ 		skb = mlx5e_ktls_handle_tx_skb(netdev, sq, skb, wqe, pi);
+ 		goto out;
+ 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fw.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fw.c
+@@ -239,7 +239,7 @@ int mlx5_query_hca_caps(struct mlx5_core
+ 			return err;
+ 	}
  
- 		curr_match = kmalloc(sizeof(*curr_match), GFP_ATOMIC);
- 		if (!curr_match) {
--			free_match_list(match_head);
-+			free_match_list(match_head, ft_locked);
- 			err = -ENOMEM;
- 			goto out;
- 		}
-@@ -1778,7 +1779,7 @@ search_again_locked:
- 	version = atomic_read(&ft->node.version);
+-	if (MLX5_CAP_GEN(dev, tls)) {
++	if (MLX5_CAP_GEN(dev, tls_tx)) {
+ 		err = mlx5_core_get_caps(dev, MLX5_CAP_TLS);
+ 		if (err)
+ 			return err;
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -1417,14 +1417,15 @@ struct mlx5_ifc_cmd_hca_cap_bits {
  
- 	/* Collect all fgs which has a matching match_criteria */
--	err = build_match_list(&match_head, ft, spec);
-+	err = build_match_list(&match_head, ft, spec, take_write);
- 	if (err) {
- 		if (take_write)
- 			up_write_ref_node(&ft->node, false);
-@@ -1792,7 +1793,7 @@ search_again_locked:
+ 	u8         reserved_at_440[0x20];
  
- 	rule = try_add_to_existing_fg(ft, &match_head.list, spec, flow_act, dest,
- 				      dest_num, version);
--	free_match_list(&match_head);
-+	free_match_list(&match_head, take_write);
- 	if (!IS_ERR(rule) ||
- 	    (PTR_ERR(rule) != -ENOENT && PTR_ERR(rule) != -EAGAIN)) {
- 		if (take_write)
+-	u8         tls[0x1];
+-	u8         reserved_at_461[0x2];
++	u8         reserved_at_460[0x3];
+ 	u8         log_max_uctx[0x5];
+ 	u8         reserved_at_468[0x3];
+ 	u8         log_max_umem[0x5];
+ 	u8         max_num_eqs[0x10];
+ 
+-	u8         reserved_at_480[0x3];
++	u8         reserved_at_480[0x1];
++	u8         tls_tx[0x1];
++	u8         reserved_at_482[0x1];
+ 	u8         log_max_l2_table[0x5];
+ 	u8         reserved_at_488[0x8];
+ 	u8         log_uar_page_sz[0x10];
 
 
