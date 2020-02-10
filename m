@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 834D915750E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 044D815750F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729113AbgBJMiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:38:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
+        id S1729121AbgBJMiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729110AbgBJMiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728185AbgBJMiT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:38:19 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DE8B2465D;
-        Mon, 10 Feb 2020 12:38:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2163E20838;
+        Mon, 10 Feb 2020 12:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338298;
-        bh=u4syaK1k26muVpgB7yUZuhhiC8BPnRluHbUUcVDMsoU=;
+        s=default; t=1581338299;
+        bh=/4PVmad157sdCbn+p9w7YyKSbh/zgAC74+plCMl56+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4stu4tjf4P9rX0O3gle01F4nJzQFUXA/knBCF+Hqc49idg62naUNpijIFqchxHBT
-         H4dp3DoK62/BIY6Yqt8pAsVlPIxTwAoN2h0je6FhZsdhi43vxqN6lgYjhS3XUNXTZs
-         UNE2RFa3iktbST8SckEcr3iqQmCr8+aSYFNCJvDQ=
+        b=ok7Jtuf/B7Q9oTZOJS77hdXgL87baTYW3SxbKiLwo0J/ysld8D00NxTgzk/NXPF/V
+         GFJwApnyOA38WeYNXCNtHPk1rGAZe8o86WCREJ1vTdVu4gg9VmYi79ThxMKq5bmq7M
+         aHIIvu5gpc2De5zyI487KfyujzCA5CCDcJ7FqmDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Honig <ahonig@google.com>,
         Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 207/309] KVM: x86: Protect MSR-based index computations from Spectre-v1/L1TF attacks in x86.c
-Date:   Mon, 10 Feb 2020 04:32:43 -0800
-Message-Id: <20200210122426.439512225@linuxfoundation.org>
+Subject: [PATCH 5.4 208/309] KVM: x86: Protect x86_decode_insn from Spectre-v1/L1TF attacks
+Date:   Mon, 10 Feb 2020 04:32:44 -0800
+Message-Id: <20200210122426.531253648@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -48,14 +48,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marios Pomonis <pomonis@google.com>
 
-commit 6ec4c5eee1750d5d17951c4e1960d953376a0dda upstream.
+commit 3c9053a2cae7ba2ba73766a34cea41baa70f57f7 upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in set_msr_mce() and
-get_msr_mce().
-Both functions contain index computations based on the
-(attacker-controlled) MSR number.
+This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
+kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
+symbol, so KVM should treat it conservatively from a security perspective.
 
-Fixes: 890ca9aefa78 ("KVM: Add MCE support")
+Fixes: 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
 
 Signed-off-by: Nick Finco <nifi@google.com>
 Signed-off-by: Marios Pomonis <pomonis@google.com>
@@ -66,34 +65,29 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2494,7 +2494,10 @@ static int set_msr_mce(struct kvm_vcpu *
- 	default:
- 		if (msr >= MSR_IA32_MC0_CTL &&
- 		    msr < MSR_IA32_MCx_CTL(bank_num)) {
--			u32 offset = msr - MSR_IA32_MC0_CTL;
-+			u32 offset = array_index_nospec(
-+				msr - MSR_IA32_MC0_CTL,
-+				MSR_IA32_MCx_CTL(bank_num) - MSR_IA32_MC0_CTL);
-+
- 			/* only 0 or all 1s can be written to IA32_MCi_CTL
- 			 * some Linux kernels though clear bit 10 in bank 4 to
- 			 * workaround a BIOS/GART TBL issue on AMD K8s, ignore
-@@ -2921,7 +2924,10 @@ static int get_msr_mce(struct kvm_vcpu *
- 	default:
- 		if (msr >= MSR_IA32_MC0_CTL &&
- 		    msr < MSR_IA32_MCx_CTL(bank_num)) {
--			u32 offset = msr - MSR_IA32_MC0_CTL;
-+			u32 offset = array_index_nospec(
-+				msr - MSR_IA32_MC0_CTL,
-+				MSR_IA32_MCx_CTL(bank_num) - MSR_IA32_MC0_CTL);
-+
- 			data = vcpu->arch.mce_banks[offset];
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -5317,10 +5317,15 @@ done_prefixes:
+ 			}
  			break;
- 		}
+ 		case Escape:
+-			if (ctxt->modrm > 0xbf)
+-				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
+-			else
++			if (ctxt->modrm > 0xbf) {
++				size_t size = ARRAY_SIZE(opcode.u.esc->high);
++				u32 index = array_index_nospec(
++					ctxt->modrm - 0xc0, size);
++
++				opcode = opcode.u.esc->high[index];
++			} else {
+ 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
++			}
+ 			break;
+ 		case InstrDual:
+ 			if ((ctxt->modrm >> 6) == 3)
 
 
