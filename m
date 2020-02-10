@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86238157B00
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:27:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4663015786F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:08:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728468AbgBJMgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56504 "EHLO mail.kernel.org"
+        id S1730449AbgBJNHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:07:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728143AbgBJMgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:39 -0500
+        id S1729473AbgBJMjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:39 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D8092051A;
-        Mon, 10 Feb 2020 12:36:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B08A20733;
+        Mon, 10 Feb 2020 12:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338198;
-        bh=DwlVUYRsxY52GqJ7OR6aQKRN9VoxxlU/3g86icYD6mo=;
+        s=default; t=1581338379;
+        bh=DFJPCdROt0qntKgqeVYtKo/8XNbjrfGdpMW3OmgeaXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCbbtRuo1sCpJBNfDgU5aSy1ggPnTnu/xUwSnF+uBMqb+/nPHj4xGi9rjqIujbOto
-         ZCyWARIzH+nLepvDBwdQ/RR8ww8/WRbZo39siPw1mwzgyHuhTF0foWN/HtMkFwDr/F
-         WKJi8h5jmYUG8U1UUQXPde1OqH+s4r1anewvkkuY=
+        b=kwIaIaoZl7FS7y0AsTmGowCT2ujLPW6FVY1JJXq7BkSiaGlEG7xpGaqCaQAWr5rjL
+         x4V0VlFn1bTSvWVVb44goJNHhhPd1lJPhO9+nYTAb2NQM92H2SuMzUGRu+ZEsJdZGq
+         /zhTnCqCURuzCFZ43jps1pyV3bGM4THaJoawdTpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.4 012/309] rxrpc: Fix missing active use pinning of rxrpc_local object
-Date:   Mon, 10 Feb 2020 04:29:28 -0800
-Message-Id: <20200210122407.211171405@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.5 056/367] utimes: Clamp the timestamps in notify_change()
+Date:   Mon, 10 Feb 2020 04:29:29 -0800
+Message-Id: <20200210122429.221280725@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,251 +46,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 04d36d748fac349b068ef621611f454010054c58 ]
+commit eb31e2f63d85d1bec4f7b136f317e03c03db5503 upstream.
 
-The introduction of a split between the reference count on rxrpc_local
-objects and the usage count didn't quite go far enough.  A number of kernel
-work items need to make use of the socket to perform transmission.  These
-also need to get an active count on the local object to prevent the socket
-from being closed.
+Push clamping timestamps into notify_change(), so in-kernel
+callers like nfsd and overlayfs will get similar timestamp
+set behavior as utimes.
 
-Fix this by getting the active count in those places.
+AV: get rid of clamping in ->setattr() instances; we don't need
+to bother with that there, with notify_change() doing normalization
+in all cases now (it already did for implicit case, since current_time()
+clamps).
 
-Also split out the raw active count get/put functions as these places tend
-to hold refs on the rxrpc_local object already, so getting and putting an
-extra object ref is just a waste of time.
-
-The problem can lead to symptoms like:
-
-    BUG: kernel NULL pointer dereference, address: 0000000000000018
-    ..
-    CPU: 2 PID: 818 Comm: kworker/u9:0 Not tainted 5.5.0-fscache+ #51
-    ...
-    RIP: 0010:selinux_socket_sendmsg+0x5/0x13
-    ...
-    Call Trace:
-     security_socket_sendmsg+0x2c/0x3e
-     sock_sendmsg+0x1a/0x46
-     rxrpc_send_keepalive+0x131/0x1ae
-     rxrpc_peer_keepalive_worker+0x219/0x34b
-     process_one_work+0x18e/0x271
-     worker_thread+0x1a3/0x247
-     kthread+0xe6/0xeb
-     ret_from_fork+0x1f/0x30
-
-Fixes: 730c5fd42c1e ("rxrpc: Fix local endpoint refcounting")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Suggested-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 42e729b9ddbb ("utimes: Clamp the timestamps before update")
+Cc: stable@vger.kernel.org # v5.4
+Cc: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rxrpc/af_rxrpc.c     |    2 ++
- net/rxrpc/ar-internal.h  |   10 ++++++++++
- net/rxrpc/conn_event.c   |   30 ++++++++++++++++++++----------
- net/rxrpc/local_object.c |   18 +++++++-----------
- net/rxrpc/peer_event.c   |   40 ++++++++++++++++++++++------------------
- 5 files changed, 61 insertions(+), 39 deletions(-)
 
---- a/net/rxrpc/af_rxrpc.c
-+++ b/net/rxrpc/af_rxrpc.c
-@@ -194,6 +194,7 @@ static int rxrpc_bind(struct socket *soc
- service_in_use:
- 	write_unlock(&local->services_lock);
- 	rxrpc_unuse_local(local);
-+	rxrpc_put_local(local);
- 	ret = -EADDRINUSE;
- error_unlock:
- 	release_sock(&rx->sk);
-@@ -899,6 +900,7 @@ static int rxrpc_release_sock(struct soc
- 	rxrpc_purge_queue(&sk->sk_receive_queue);
+---
+ fs/attr.c           |   23 +++++++++++------------
+ fs/configfs/inode.c |    9 +++------
+ fs/f2fs/file.c      |   18 ++++++------------
+ fs/ntfs/inode.c     |   18 ++++++------------
+ fs/ubifs/file.c     |   18 ++++++------------
+ fs/utimes.c         |    4 ++--
+ 6 files changed, 34 insertions(+), 56 deletions(-)
+
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -183,18 +183,12 @@ void setattr_copy(struct inode *inode, c
+ 		inode->i_uid = attr->ia_uid;
+ 	if (ia_valid & ATTR_GID)
+ 		inode->i_gid = attr->ia_gid;
+-	if (ia_valid & ATTR_ATIME) {
+-		inode->i_atime = timestamp_truncate(attr->ia_atime,
+-						  inode);
+-	}
+-	if (ia_valid & ATTR_MTIME) {
+-		inode->i_mtime = timestamp_truncate(attr->ia_mtime,
+-						  inode);
+-	}
+-	if (ia_valid & ATTR_CTIME) {
+-		inode->i_ctime = timestamp_truncate(attr->ia_ctime,
+-						  inode);
+-	}
++	if (ia_valid & ATTR_ATIME)
++		inode->i_atime = attr->ia_atime;
++	if (ia_valid & ATTR_MTIME)
++		inode->i_mtime = attr->ia_mtime;
++	if (ia_valid & ATTR_CTIME)
++		inode->i_ctime = attr->ia_ctime;
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
  
- 	rxrpc_unuse_local(rx->local);
-+	rxrpc_put_local(rx->local);
- 	rx->local = NULL;
- 	key_put(rx->key);
- 	rx->key = NULL;
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -1021,6 +1021,16 @@ void rxrpc_unuse_local(struct rxrpc_loca
- void rxrpc_queue_local(struct rxrpc_local *);
- void rxrpc_destroy_all_locals(struct rxrpc_net *);
- 
-+static inline bool __rxrpc_unuse_local(struct rxrpc_local *local)
-+{
-+	return atomic_dec_return(&local->active_users) == 0;
-+}
+@@ -268,8 +262,13 @@ int notify_change(struct dentry * dentry
+ 	attr->ia_ctime = now;
+ 	if (!(ia_valid & ATTR_ATIME_SET))
+ 		attr->ia_atime = now;
++	else
++		attr->ia_atime = timestamp_truncate(attr->ia_atime, inode);
+ 	if (!(ia_valid & ATTR_MTIME_SET))
+ 		attr->ia_mtime = now;
++	else
++		attr->ia_mtime = timestamp_truncate(attr->ia_mtime, inode);
 +
-+static inline bool __rxrpc_use_local(struct rxrpc_local *local)
-+{
-+	return atomic_fetch_add_unless(&local->active_users, 1, 0) != 0;
-+}
-+
- /*
-  * misc.c
-  */
---- a/net/rxrpc/conn_event.c
-+++ b/net/rxrpc/conn_event.c
-@@ -438,16 +438,12 @@ again:
- /*
-  * connection-level event processor
-  */
--void rxrpc_process_connection(struct work_struct *work)
-+static void rxrpc_do_process_connection(struct rxrpc_connection *conn)
- {
--	struct rxrpc_connection *conn =
--		container_of(work, struct rxrpc_connection, processor);
- 	struct sk_buff *skb;
- 	u32 abort_code = RX_PROTOCOL_ERROR;
- 	int ret;
+ 	if (ia_valid & ATTR_KILL_PRIV) {
+ 		error = security_inode_need_killpriv(dentry);
+ 		if (error < 0)
+--- a/fs/configfs/inode.c
++++ b/fs/configfs/inode.c
+@@ -76,14 +76,11 @@ int configfs_setattr(struct dentry * den
+ 	if (ia_valid & ATTR_GID)
+ 		sd_iattr->ia_gid = iattr->ia_gid;
+ 	if (ia_valid & ATTR_ATIME)
+-		sd_iattr->ia_atime = timestamp_truncate(iattr->ia_atime,
+-						      inode);
++		sd_iattr->ia_atime = iattr->ia_atime;
+ 	if (ia_valid & ATTR_MTIME)
+-		sd_iattr->ia_mtime = timestamp_truncate(iattr->ia_mtime,
+-						      inode);
++		sd_iattr->ia_mtime = iattr->ia_mtime;
+ 	if (ia_valid & ATTR_CTIME)
+-		sd_iattr->ia_ctime = timestamp_truncate(iattr->ia_ctime,
+-						      inode);
++		sd_iattr->ia_ctime = iattr->ia_ctime;
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = iattr->ia_mode;
  
--	rxrpc_see_connection(conn);
--
- 	if (test_and_clear_bit(RXRPC_CONN_EV_CHALLENGE, &conn->events))
- 		rxrpc_secure_connection(conn);
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -754,18 +754,12 @@ static void __setattr_copy(struct inode
+ 		inode->i_uid = attr->ia_uid;
+ 	if (ia_valid & ATTR_GID)
+ 		inode->i_gid = attr->ia_gid;
+-	if (ia_valid & ATTR_ATIME) {
+-		inode->i_atime = timestamp_truncate(attr->ia_atime,
+-						  inode);
+-	}
+-	if (ia_valid & ATTR_MTIME) {
+-		inode->i_mtime = timestamp_truncate(attr->ia_mtime,
+-						  inode);
+-	}
+-	if (ia_valid & ATTR_CTIME) {
+-		inode->i_ctime = timestamp_truncate(attr->ia_ctime,
+-						  inode);
+-	}
++	if (ia_valid & ATTR_ATIME)
++		inode->i_atime = attr->ia_atime;
++	if (ia_valid & ATTR_MTIME)
++		inode->i_mtime = attr->ia_mtime;
++	if (ia_valid & ATTR_CTIME)
++		inode->i_ctime = attr->ia_ctime;
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
  
-@@ -475,18 +471,32 @@ void rxrpc_process_connection(struct wor
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -2899,18 +2899,12 @@ int ntfs_setattr(struct dentry *dentry,
+ 			ia_valid |= ATTR_MTIME | ATTR_CTIME;
  		}
  	}
+-	if (ia_valid & ATTR_ATIME) {
+-		vi->i_atime = timestamp_truncate(attr->ia_atime,
+-					       vi);
+-	}
+-	if (ia_valid & ATTR_MTIME) {
+-		vi->i_mtime = timestamp_truncate(attr->ia_mtime,
+-					       vi);
+-	}
+-	if (ia_valid & ATTR_CTIME) {
+-		vi->i_ctime = timestamp_truncate(attr->ia_ctime,
+-					       vi);
+-	}
++	if (ia_valid & ATTR_ATIME)
++		vi->i_atime = attr->ia_atime;
++	if (ia_valid & ATTR_MTIME)
++		vi->i_mtime = attr->ia_mtime;
++	if (ia_valid & ATTR_CTIME)
++		vi->i_ctime = attr->ia_ctime;
+ 	mark_inode_dirty(vi);
+ out:
+ 	return err;
+--- a/fs/ubifs/file.c
++++ b/fs/ubifs/file.c
+@@ -1078,18 +1078,12 @@ static void do_attr_changes(struct inode
+ 		inode->i_uid = attr->ia_uid;
+ 	if (attr->ia_valid & ATTR_GID)
+ 		inode->i_gid = attr->ia_gid;
+-	if (attr->ia_valid & ATTR_ATIME) {
+-		inode->i_atime = timestamp_truncate(attr->ia_atime,
+-						  inode);
+-	}
+-	if (attr->ia_valid & ATTR_MTIME) {
+-		inode->i_mtime = timestamp_truncate(attr->ia_mtime,
+-						  inode);
+-	}
+-	if (attr->ia_valid & ATTR_CTIME) {
+-		inode->i_ctime = timestamp_truncate(attr->ia_ctime,
+-						  inode);
+-	}
++	if (attr->ia_valid & ATTR_ATIME)
++		inode->i_atime = attr->ia_atime;
++	if (attr->ia_valid & ATTR_MTIME)
++		inode->i_mtime = attr->ia_mtime;
++	if (attr->ia_valid & ATTR_CTIME)
++		inode->i_ctime = attr->ia_ctime;
+ 	if (attr->ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
  
--out:
--	rxrpc_put_connection(conn);
--	_leave("");
- 	return;
- 
- requeue_and_leave:
- 	skb_queue_head(&conn->rx_queue, skb);
--	goto out;
-+	return;
- 
- protocol_error:
- 	if (rxrpc_abort_connection(conn, ret, abort_code) < 0)
- 		goto requeue_and_leave;
- 	rxrpc_free_skb(skb, rxrpc_skb_freed);
--	goto out;
-+	return;
-+}
-+
-+void rxrpc_process_connection(struct work_struct *work)
-+{
-+	struct rxrpc_connection *conn =
-+		container_of(work, struct rxrpc_connection, processor);
-+
-+	rxrpc_see_connection(conn);
-+
-+	if (__rxrpc_use_local(conn->params.local)) {
-+		rxrpc_do_process_connection(conn);
-+		rxrpc_unuse_local(conn->params.local);
-+	}
-+
-+	rxrpc_put_connection(conn);
-+	_leave("");
-+	return;
- }
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -383,14 +383,11 @@ void rxrpc_put_local(struct rxrpc_local
-  */
- struct rxrpc_local *rxrpc_use_local(struct rxrpc_local *local)
- {
--	unsigned int au;
--
- 	local = rxrpc_get_local_maybe(local);
- 	if (!local)
- 		return NULL;
- 
--	au = atomic_fetch_add_unless(&local->active_users, 1, 0);
--	if (au == 0) {
-+	if (!__rxrpc_use_local(local)) {
- 		rxrpc_put_local(local);
- 		return NULL;
- 	}
-@@ -404,14 +401,11 @@ struct rxrpc_local *rxrpc_use_local(stru
-  */
- void rxrpc_unuse_local(struct rxrpc_local *local)
- {
--	unsigned int au;
--
- 	if (local) {
--		au = atomic_dec_return(&local->active_users);
--		if (au == 0)
-+		if (__rxrpc_unuse_local(local)) {
-+			rxrpc_get_local(local);
- 			rxrpc_queue_local(local);
--		else
--			rxrpc_put_local(local);
-+		}
- 	}
- }
- 
-@@ -468,7 +462,7 @@ static void rxrpc_local_processor(struct
- 
- 	do {
- 		again = false;
--		if (atomic_read(&local->active_users) == 0) {
-+		if (!__rxrpc_use_local(local)) {
- 			rxrpc_local_destroyer(local);
- 			break;
+--- a/fs/utimes.c
++++ b/fs/utimes.c
+@@ -36,14 +36,14 @@ static int utimes_common(const struct pa
+ 		if (times[0].tv_nsec == UTIME_OMIT)
+ 			newattrs.ia_valid &= ~ATTR_ATIME;
+ 		else if (times[0].tv_nsec != UTIME_NOW) {
+-			newattrs.ia_atime = timestamp_truncate(times[0], inode);
++			newattrs.ia_atime = times[0];
+ 			newattrs.ia_valid |= ATTR_ATIME_SET;
  		}
-@@ -482,6 +476,8 @@ static void rxrpc_local_processor(struct
- 			rxrpc_process_local_events(local);
- 			again = true;
+ 
+ 		if (times[1].tv_nsec == UTIME_OMIT)
+ 			newattrs.ia_valid &= ~ATTR_MTIME;
+ 		else if (times[1].tv_nsec != UTIME_NOW) {
+-			newattrs.ia_mtime = timestamp_truncate(times[1], inode);
++			newattrs.ia_mtime = times[1];
+ 			newattrs.ia_valid |= ATTR_MTIME_SET;
  		}
-+
-+		__rxrpc_unuse_local(local);
- 	} while (again);
- 
- 	rxrpc_put_local(local);
---- a/net/rxrpc/peer_event.c
-+++ b/net/rxrpc/peer_event.c
-@@ -364,27 +364,31 @@ static void rxrpc_peer_keepalive_dispatc
- 		if (!rxrpc_get_peer_maybe(peer))
- 			continue;
- 
--		spin_unlock_bh(&rxnet->peer_hash_lock);
-+		if (__rxrpc_use_local(peer->local)) {
-+			spin_unlock_bh(&rxnet->peer_hash_lock);
- 
--		keepalive_at = peer->last_tx_at + RXRPC_KEEPALIVE_TIME;
--		slot = keepalive_at - base;
--		_debug("%02x peer %u t=%d {%pISp}",
--		       cursor, peer->debug_id, slot, &peer->srx.transport);
-+			keepalive_at = peer->last_tx_at + RXRPC_KEEPALIVE_TIME;
-+			slot = keepalive_at - base;
-+			_debug("%02x peer %u t=%d {%pISp}",
-+			       cursor, peer->debug_id, slot, &peer->srx.transport);
- 
--		if (keepalive_at <= base ||
--		    keepalive_at > base + RXRPC_KEEPALIVE_TIME) {
--			rxrpc_send_keepalive(peer);
--			slot = RXRPC_KEEPALIVE_TIME;
--		}
-+			if (keepalive_at <= base ||
-+			    keepalive_at > base + RXRPC_KEEPALIVE_TIME) {
-+				rxrpc_send_keepalive(peer);
-+				slot = RXRPC_KEEPALIVE_TIME;
-+			}
- 
--		/* A transmission to this peer occurred since last we examined
--		 * it so put it into the appropriate future bucket.
--		 */
--		slot += cursor;
--		slot &= mask;
--		spin_lock_bh(&rxnet->peer_hash_lock);
--		list_add_tail(&peer->keepalive_link,
--			      &rxnet->peer_keepalive[slot & mask]);
-+			/* A transmission to this peer occurred since last we
-+			 * examined it so put it into the appropriate future
-+			 * bucket.
-+			 */
-+			slot += cursor;
-+			slot &= mask;
-+			spin_lock_bh(&rxnet->peer_hash_lock);
-+			list_add_tail(&peer->keepalive_link,
-+				      &rxnet->peer_keepalive[slot & mask]);
-+			rxrpc_unuse_local(peer->local);
-+		}
- 		rxrpc_put_peer_locked(peer);
- 	}
- 
+ 		/*
 
 
