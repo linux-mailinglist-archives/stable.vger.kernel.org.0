@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E66F615753E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4181574E2
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbgBJMjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:39:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
+        id S1728490AbgBJMgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727799AbgBJMjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:43 -0500
+        id S1728485AbgBJMgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:43 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE2962051A;
-        Mon, 10 Feb 2020 12:39:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2505E20838;
+        Mon, 10 Feb 2020 12:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338382;
-        bh=Kq8JGJFKANWdp7QqnH8+Z756jLZC/kVghJy8cOuBr54=;
+        s=default; t=1581338203;
+        bh=t+7mj2y7Pg3yWFabejvmCnP1OD8PLDuyovdxaA+8P1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Prl2VTSQeAHDFZKWgptSe/5O73qx0pRyjT4l25lYsQx+EdKUB/Ue9xEFc9NIfjk8
-         X/3YZxl1zAveRAGi2u9R8jduHiri2gBCLbYFU33JwPOS5a379WMHW4MSl/+UdWCmk+
-         ZNa3do6B4S2/Lf3Tzt4/DME+9mjJv1b2mf25oW74=
+        b=S+zfZ0H84K1isIKqjDURTIKaB+RY9HN6LX2Myxiy84ep+JnAVoCksds/7FfbzWkcb
+         D6zwPXb36np0IR6H1qaBXRnL3vye6bJAt+qSHFWd2XVUi9hkhA/e/oZym/nWh9nYWc
+         W3XnPja1ym0b0rFRNHrpmQHeqNh1SsDP3lmGw9fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 062/367] media: v4l2-core: compat: ignore native command codes
-Date:   Mon, 10 Feb 2020 04:29:35 -0800
-Message-Id: <20200210122429.805031553@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Taehee Yoo <ap420073@gmail.com>
+Subject: [PATCH 5.4 020/309] netdevsim: fix stack-out-of-bounds in nsim_dev_debugfs_init()
+Date:   Mon, 10 Feb 2020 04:29:36 -0800
+Message-Id: <20200210122407.921777792@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,328 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 4a873f3fa5d6ca52e446d306dd7194dd86a09422 upstream.
+[ Upstream commit 6fb8852b1298200da39bd85788bc5755d1d56f32 ]
 
-The do_video_ioctl() compat handler converts the compat command
-codes into the native ones before processing further, but this
-causes problems for 32-bit user applications that pass a command
-code that matches a 64-bit native number, which will then be
-handled the same way.
+When netdevsim dev is being created, a debugfs directory is created.
+The variable "dev_ddir_name" is 16bytes device name pointer and device
+name is "netdevsim<dev id>".
+The maximum dev id length is 10.
+So, 16bytes for device name isn't enough.
 
-Specifically, this breaks VIDIOC_DQEVENT_TIME from user space
-applications with 64-bit time_t, as the structure layout is
-the same as the native 64-bit layout on many architectures
-(x86 being the notable exception).
+Test commands:
+    modprobe netdevsim
+    echo "1000000000 0" > /sys/bus/netdevsim/new_device
 
-Change the handler to use the converted command code only for
-passing into the native ioctl handler, not for deciding on the
-conversion, in order to make the compat behavior match the
-native behavior.
+Splat looks like:
+[  249.622710][  T900] BUG: KASAN: stack-out-of-bounds in number+0x824/0x880
+[  249.623658][  T900] Write of size 1 at addr ffff88804c527988 by task bash/900
+[  249.624521][  T900]
+[  249.624830][  T900] CPU: 1 PID: 900 Comm: bash Not tainted 5.5.0+ #322
+[  249.625691][  T900] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  249.626712][  T900] Call Trace:
+[  249.627103][  T900]  dump_stack+0x96/0xdb
+[  249.627639][  T900]  ? number+0x824/0x880
+[  249.628173][  T900]  print_address_description.constprop.5+0x1be/0x360
+[  249.629022][  T900]  ? number+0x824/0x880
+[  249.629569][  T900]  ? number+0x824/0x880
+[  249.630105][  T900]  __kasan_report+0x12a/0x170
+[  249.630717][  T900]  ? number+0x824/0x880
+[  249.631201][  T900]  kasan_report+0xe/0x20
+[  249.631723][  T900]  number+0x824/0x880
+[  249.632235][  T900]  ? put_dec+0xa0/0xa0
+[  249.632716][  T900]  ? rcu_read_lock_sched_held+0x90/0xc0
+[  249.633392][  T900]  vsnprintf+0x63c/0x10b0
+[  249.633983][  T900]  ? pointer+0x5b0/0x5b0
+[  249.634543][  T900]  ? mark_lock+0x11d/0xc40
+[  249.635200][  T900]  sprintf+0x9b/0xd0
+[  249.635750][  T900]  ? scnprintf+0xe0/0xe0
+[  249.636370][  T900]  nsim_dev_probe+0x63c/0xbf0 [netdevsim]
+[ ... ]
 
-Actual support for the 64-bit time_t version of VIDIOC_DQEVENT_TIME
-and other commands still needs to be added in a separate patch.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ab1d0cc004d7 ("netdevsim: change debugfs tree topology")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/media/v4l2-core/v4l2-compat-ioctl32.c |  148 +++++++++++++-------------
- 1 file changed, 75 insertions(+), 73 deletions(-)
+ drivers/net/netdevsim/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-+++ b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-@@ -1183,36 +1183,38 @@ static long do_video_ioctl(struct file *
- 	u32 aux_space;
- 	int compatible_arg = 1;
- 	long err = 0;
-+	unsigned int ncmd;
+--- a/drivers/net/netdevsim/dev.c
++++ b/drivers/net/netdevsim/dev.c
+@@ -73,7 +73,7 @@ static const struct file_operations nsim
  
- 	/*
- 	 * 1. When struct size is different, converts the command.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_G_FMT32: cmd = VIDIOC_G_FMT; break;
--	case VIDIOC_S_FMT32: cmd = VIDIOC_S_FMT; break;
--	case VIDIOC_QUERYBUF32: cmd = VIDIOC_QUERYBUF; break;
--	case VIDIOC_G_FBUF32: cmd = VIDIOC_G_FBUF; break;
--	case VIDIOC_S_FBUF32: cmd = VIDIOC_S_FBUF; break;
--	case VIDIOC_QBUF32: cmd = VIDIOC_QBUF; break;
--	case VIDIOC_DQBUF32: cmd = VIDIOC_DQBUF; break;
--	case VIDIOC_ENUMSTD32: cmd = VIDIOC_ENUMSTD; break;
--	case VIDIOC_ENUMINPUT32: cmd = VIDIOC_ENUMINPUT; break;
--	case VIDIOC_TRY_FMT32: cmd = VIDIOC_TRY_FMT; break;
--	case VIDIOC_G_EXT_CTRLS32: cmd = VIDIOC_G_EXT_CTRLS; break;
--	case VIDIOC_S_EXT_CTRLS32: cmd = VIDIOC_S_EXT_CTRLS; break;
--	case VIDIOC_TRY_EXT_CTRLS32: cmd = VIDIOC_TRY_EXT_CTRLS; break;
--	case VIDIOC_DQEVENT32: cmd = VIDIOC_DQEVENT; break;
--	case VIDIOC_OVERLAY32: cmd = VIDIOC_OVERLAY; break;
--	case VIDIOC_STREAMON32: cmd = VIDIOC_STREAMON; break;
--	case VIDIOC_STREAMOFF32: cmd = VIDIOC_STREAMOFF; break;
--	case VIDIOC_G_INPUT32: cmd = VIDIOC_G_INPUT; break;
--	case VIDIOC_S_INPUT32: cmd = VIDIOC_S_INPUT; break;
--	case VIDIOC_G_OUTPUT32: cmd = VIDIOC_G_OUTPUT; break;
--	case VIDIOC_S_OUTPUT32: cmd = VIDIOC_S_OUTPUT; break;
--	case VIDIOC_CREATE_BUFS32: cmd = VIDIOC_CREATE_BUFS; break;
--	case VIDIOC_PREPARE_BUF32: cmd = VIDIOC_PREPARE_BUF; break;
--	case VIDIOC_G_EDID32: cmd = VIDIOC_G_EDID; break;
--	case VIDIOC_S_EDID32: cmd = VIDIOC_S_EDID; break;
-+	case VIDIOC_G_FMT32: ncmd = VIDIOC_G_FMT; break;
-+	case VIDIOC_S_FMT32: ncmd = VIDIOC_S_FMT; break;
-+	case VIDIOC_QUERYBUF32: ncmd = VIDIOC_QUERYBUF; break;
-+	case VIDIOC_G_FBUF32: ncmd = VIDIOC_G_FBUF; break;
-+	case VIDIOC_S_FBUF32: ncmd = VIDIOC_S_FBUF; break;
-+	case VIDIOC_QBUF32: ncmd = VIDIOC_QBUF; break;
-+	case VIDIOC_DQBUF32: ncmd = VIDIOC_DQBUF; break;
-+	case VIDIOC_ENUMSTD32: ncmd = VIDIOC_ENUMSTD; break;
-+	case VIDIOC_ENUMINPUT32: ncmd = VIDIOC_ENUMINPUT; break;
-+	case VIDIOC_TRY_FMT32: ncmd = VIDIOC_TRY_FMT; break;
-+	case VIDIOC_G_EXT_CTRLS32: ncmd = VIDIOC_G_EXT_CTRLS; break;
-+	case VIDIOC_S_EXT_CTRLS32: ncmd = VIDIOC_S_EXT_CTRLS; break;
-+	case VIDIOC_TRY_EXT_CTRLS32: ncmd = VIDIOC_TRY_EXT_CTRLS; break;
-+	case VIDIOC_DQEVENT32: ncmd = VIDIOC_DQEVENT; break;
-+	case VIDIOC_OVERLAY32: ncmd = VIDIOC_OVERLAY; break;
-+	case VIDIOC_STREAMON32: ncmd = VIDIOC_STREAMON; break;
-+	case VIDIOC_STREAMOFF32: ncmd = VIDIOC_STREAMOFF; break;
-+	case VIDIOC_G_INPUT32: ncmd = VIDIOC_G_INPUT; break;
-+	case VIDIOC_S_INPUT32: ncmd = VIDIOC_S_INPUT; break;
-+	case VIDIOC_G_OUTPUT32: ncmd = VIDIOC_G_OUTPUT; break;
-+	case VIDIOC_S_OUTPUT32: ncmd = VIDIOC_S_OUTPUT; break;
-+	case VIDIOC_CREATE_BUFS32: ncmd = VIDIOC_CREATE_BUFS; break;
-+	case VIDIOC_PREPARE_BUF32: ncmd = VIDIOC_PREPARE_BUF; break;
-+	case VIDIOC_G_EDID32: ncmd = VIDIOC_G_EDID; break;
-+	case VIDIOC_S_EDID32: ncmd = VIDIOC_S_EDID; break;
-+	default: ncmd = cmd; break;
- 	}
+ static int nsim_dev_debugfs_init(struct nsim_dev *nsim_dev)
+ {
+-	char dev_ddir_name[16];
++	char dev_ddir_name[sizeof(DRV_NAME) + 10];
  
- 	/*
-@@ -1221,11 +1223,11 @@ static long do_video_ioctl(struct file *
- 	 * argument into it.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_OVERLAY:
--	case VIDIOC_STREAMON:
--	case VIDIOC_STREAMOFF:
--	case VIDIOC_S_INPUT:
--	case VIDIOC_S_OUTPUT:
-+	case VIDIOC_OVERLAY32:
-+	case VIDIOC_STREAMON32:
-+	case VIDIOC_STREAMOFF32:
-+	case VIDIOC_S_INPUT32:
-+	case VIDIOC_S_OUTPUT32:
- 		err = alloc_userspace(sizeof(unsigned int), 0, &new_p64);
- 		if (!err && assign_in_user((unsigned int __user *)new_p64,
- 					   (compat_uint_t __user *)p32))
-@@ -1233,23 +1235,23 @@ static long do_video_ioctl(struct file *
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_INPUT:
--	case VIDIOC_G_OUTPUT:
-+	case VIDIOC_G_INPUT32:
-+	case VIDIOC_G_OUTPUT32:
- 		err = alloc_userspace(sizeof(unsigned int), 0, &new_p64);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_EDID:
--	case VIDIOC_S_EDID:
-+	case VIDIOC_G_EDID32:
-+	case VIDIOC_S_EDID32:
- 		err = alloc_userspace(sizeof(struct v4l2_edid), 0, &new_p64);
- 		if (!err)
- 			err = get_v4l2_edid32(new_p64, p32);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_FMT:
--	case VIDIOC_S_FMT:
--	case VIDIOC_TRY_FMT:
-+	case VIDIOC_G_FMT32:
-+	case VIDIOC_S_FMT32:
-+	case VIDIOC_TRY_FMT32:
- 		err = bufsize_v4l2_format(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_format),
-@@ -1262,7 +1264,7 @@ static long do_video_ioctl(struct file *
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_CREATE_BUFS:
-+	case VIDIOC_CREATE_BUFS32:
- 		err = bufsize_v4l2_create(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_create_buffers),
-@@ -1275,10 +1277,10 @@ static long do_video_ioctl(struct file *
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_PREPARE_BUF:
--	case VIDIOC_QUERYBUF:
--	case VIDIOC_QBUF:
--	case VIDIOC_DQBUF:
-+	case VIDIOC_PREPARE_BUF32:
-+	case VIDIOC_QUERYBUF32:
-+	case VIDIOC_QBUF32:
-+	case VIDIOC_DQBUF32:
- 		err = bufsize_v4l2_buffer(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_buffer),
-@@ -1291,7 +1293,7 @@ static long do_video_ioctl(struct file *
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_S_FBUF:
-+	case VIDIOC_S_FBUF32:
- 		err = alloc_userspace(sizeof(struct v4l2_framebuffer), 0,
- 				      &new_p64);
- 		if (!err)
-@@ -1299,13 +1301,13 @@ static long do_video_ioctl(struct file *
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_FBUF:
-+	case VIDIOC_G_FBUF32:
- 		err = alloc_userspace(sizeof(struct v4l2_framebuffer), 0,
- 				      &new_p64);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_ENUMSTD:
-+	case VIDIOC_ENUMSTD32:
- 		err = alloc_userspace(sizeof(struct v4l2_standard), 0,
- 				      &new_p64);
- 		if (!err)
-@@ -1313,16 +1315,16 @@ static long do_video_ioctl(struct file *
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_ENUMINPUT:
-+	case VIDIOC_ENUMINPUT32:
- 		err = alloc_userspace(sizeof(struct v4l2_input), 0, &new_p64);
- 		if (!err)
- 			err = get_v4l2_input32(new_p64, p32);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_EXT_CTRLS:
--	case VIDIOC_S_EXT_CTRLS:
--	case VIDIOC_TRY_EXT_CTRLS:
-+	case VIDIOC_G_EXT_CTRLS32:
-+	case VIDIOC_S_EXT_CTRLS32:
-+	case VIDIOC_TRY_EXT_CTRLS32:
- 		err = bufsize_v4l2_ext_controls(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_ext_controls),
-@@ -1334,7 +1336,7 @@ static long do_video_ioctl(struct file *
- 		}
- 		compatible_arg = 0;
- 		break;
--	case VIDIOC_DQEVENT:
-+	case VIDIOC_DQEVENT32:
- 		err = alloc_userspace(sizeof(struct v4l2_event), 0, &new_p64);
- 		compatible_arg = 0;
- 		break;
-@@ -1352,9 +1354,9 @@ static long do_video_ioctl(struct file *
- 	 * Otherwise, it will pass the newly allocated @new_p64 argument.
- 	 */
- 	if (compatible_arg)
--		err = native_ioctl(file, cmd, (unsigned long)p32);
-+		err = native_ioctl(file, ncmd, (unsigned long)p32);
- 	else
--		err = native_ioctl(file, cmd, (unsigned long)new_p64);
-+		err = native_ioctl(file, ncmd, (unsigned long)new_p64);
- 
- 	if (err == -ENOTTY)
- 		return err;
-@@ -1370,13 +1372,13 @@ static long do_video_ioctl(struct file *
- 	 * the blocks to maximum allowed value.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_G_EXT_CTRLS:
--	case VIDIOC_S_EXT_CTRLS:
--	case VIDIOC_TRY_EXT_CTRLS:
-+	case VIDIOC_G_EXT_CTRLS32:
-+	case VIDIOC_S_EXT_CTRLS32:
-+	case VIDIOC_TRY_EXT_CTRLS32:
- 		if (put_v4l2_ext_controls32(file, new_p64, p32))
- 			err = -EFAULT;
- 		break;
--	case VIDIOC_S_EDID:
-+	case VIDIOC_S_EDID32:
- 		if (put_v4l2_edid32(new_p64, p32))
- 			err = -EFAULT;
- 		break;
-@@ -1389,49 +1391,49 @@ static long do_video_ioctl(struct file *
- 	 * the original 32 bits structure.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_S_INPUT:
--	case VIDIOC_S_OUTPUT:
--	case VIDIOC_G_INPUT:
--	case VIDIOC_G_OUTPUT:
-+	case VIDIOC_S_INPUT32:
-+	case VIDIOC_S_OUTPUT32:
-+	case VIDIOC_G_INPUT32:
-+	case VIDIOC_G_OUTPUT32:
- 		if (assign_in_user((compat_uint_t __user *)p32,
- 				   ((unsigned int __user *)new_p64)))
- 			err = -EFAULT;
- 		break;
- 
--	case VIDIOC_G_FBUF:
-+	case VIDIOC_G_FBUF32:
- 		err = put_v4l2_framebuffer32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_DQEVENT:
-+	case VIDIOC_DQEVENT32:
- 		err = put_v4l2_event32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_G_EDID:
-+	case VIDIOC_G_EDID32:
- 		err = put_v4l2_edid32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_G_FMT:
--	case VIDIOC_S_FMT:
--	case VIDIOC_TRY_FMT:
-+	case VIDIOC_G_FMT32:
-+	case VIDIOC_S_FMT32:
-+	case VIDIOC_TRY_FMT32:
- 		err = put_v4l2_format32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_CREATE_BUFS:
-+	case VIDIOC_CREATE_BUFS32:
- 		err = put_v4l2_create32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_PREPARE_BUF:
--	case VIDIOC_QUERYBUF:
--	case VIDIOC_QBUF:
--	case VIDIOC_DQBUF:
-+	case VIDIOC_PREPARE_BUF32:
-+	case VIDIOC_QUERYBUF32:
-+	case VIDIOC_QBUF32:
-+	case VIDIOC_DQBUF32:
- 		err = put_v4l2_buffer32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_ENUMSTD:
-+	case VIDIOC_ENUMSTD32:
- 		err = put_v4l2_standard32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_ENUMINPUT:
-+	case VIDIOC_ENUMINPUT32:
- 		err = put_v4l2_input32(new_p64, p32);
- 		break;
- 	}
+ 	sprintf(dev_ddir_name, DRV_NAME "%u", nsim_dev->nsim_bus_dev->dev.id);
+ 	nsim_dev->ddir = debugfs_create_dir(dev_ddir_name, nsim_dev_ddir);
 
 
