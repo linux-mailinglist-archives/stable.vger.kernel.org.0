@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32252157A89
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB511577D2
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbgBJMhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
+        id S1729747AbgBJNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:02:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728094AbgBJMhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:12 -0500
+        id S1729023AbgBJMka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:30 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B591520661;
-        Mon, 10 Feb 2020 12:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC0B2467A;
+        Mon, 10 Feb 2020 12:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338231;
-        bh=8u5vfo0W6dwew4wkxSb7nqRjuWXE9FNdYdLLyBEAE/Q=;
+        s=default; t=1581338429;
+        bh=4vEfRdlu3oLVPvXQNnaJjWhCEed+ph+icj0JNeghhpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jyu1VzRKK3ndX7scbQLs04EUSl/ZSGe/lO2RCTTQZd/YHn25m7JW9zjfF0NeZ43M2
-         6bAmkBZ29BemFwVuk2poW1akFBV0KFXX8blCQiNOa37FIhAOd01kYkq4vtAywF748o
-         SrIZXlgduh2mL6dV8UFL6u8epyTIehoDUR0InkNs=
+        b=Io/KnEvj+mOZVYD85ThyZRPaFbjutgEMSirHkrwCrMc7zXhgd2yaeElbvSSAkEyzc
+         LqWQkImiRvYJWhNm/6THz59u2SNWmXyG41dnsAN+AxBLKpOrBZ+WSjtHqyn8cx7CMK
+         KoHifgywFpTC+PLOliBARe/vc2Dic+mjp3VWxsio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 075/309] powerpc/ptdump: Fix W+X verification
+        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 118/367] crypto: ccree - fix FDE descriptor sequence
 Date:   Mon, 10 Feb 2020 04:30:31 -0800
-Message-Id: <20200210122413.072268305@linuxfoundation.org>
+Message-Id: <20200210122435.559058062@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Ofir Drang <ofir.drang@arm.com>
 
-commit d80ae83f1f932ab7af47b54d0d3bef4f4dba489f upstream.
+commit 5c83e8ec4d51ac4cc58482ed04297e6882b32a09 upstream.
 
-Verification cannot rely on simple bit checking because on some
-platforms PAGE_RW is 0, checking that a page is not W means
-checking that PAGE_RO is set instead of checking that PAGE_RW
-is not set.
+In FDE mode (xts, essiv and bitlocker) the cryptocell hardware requires
+that the the XEX key will be loaded after Key1.
 
-Use pte helpers instead of checking bits.
-
-Fixes: 453d87f6a8ae ("powerpc/mm: Warn if W+X pages found on boot")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0d894839fdbb19070f0e1e4140363be4f2bb62fc.1578989540.git.christophe.leroy@c-s.fr
+Signed-off-by: Ofir Drang <ofir.drang@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/ptdump/ptdump.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_cipher.c |   48 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 45 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -173,10 +173,12 @@ static void dump_addr(struct pg_state *s
+--- a/drivers/crypto/ccree/cc_cipher.c
++++ b/drivers/crypto/ccree/cc_cipher.c
+@@ -523,6 +523,7 @@ static void cc_setup_readiv_desc(struct
+ 	}
+ }
  
- static void note_prot_wx(struct pg_state *st, unsigned long addr)
- {
-+	pte_t pte = __pte(st->current_flags);
 +
- 	if (!IS_ENABLED(CONFIG_PPC_DEBUG_WX) || !st->check_wx)
- 		return;
+ static void cc_setup_state_desc(struct crypto_tfm *tfm,
+ 				 struct cipher_req_ctx *req_ctx,
+ 				 unsigned int ivsize, unsigned int nbytes,
+@@ -534,8 +535,6 @@ static void cc_setup_state_desc(struct c
+ 	int cipher_mode = ctx_p->cipher_mode;
+ 	int flow_mode = ctx_p->flow_mode;
+ 	int direction = req_ctx->gen_ctx.op_type;
+-	dma_addr_t key_dma_addr = ctx_p->user.key_dma_addr;
+-	unsigned int key_len = ctx_p->keylen;
+ 	dma_addr_t iv_dma_addr = req_ctx->gen_ctx.iv_dma_addr;
+ 	unsigned int du_size = nbytes;
  
--	if (!((st->current_flags & pgprot_val(PAGE_KERNEL_X)) == pgprot_val(PAGE_KERNEL_X)))
-+	if (!pte_write(pte) || !pte_exec(pte))
- 		return;
+@@ -571,6 +570,47 @@ static void cc_setup_state_desc(struct c
+ 	case DRV_CIPHER_XTS:
+ 	case DRV_CIPHER_ESSIV:
+ 	case DRV_CIPHER_BITLOCKER:
++		break;
++	default:
++		dev_err(dev, "Unsupported cipher mode (%d)\n", cipher_mode);
++	}
++}
++
++
++static void cc_setup_xex_state_desc(struct crypto_tfm *tfm,
++				 struct cipher_req_ctx *req_ctx,
++				 unsigned int ivsize, unsigned int nbytes,
++				 struct cc_hw_desc desc[],
++				 unsigned int *seq_size)
++{
++	struct cc_cipher_ctx *ctx_p = crypto_tfm_ctx(tfm);
++	struct device *dev = drvdata_to_dev(ctx_p->drvdata);
++	int cipher_mode = ctx_p->cipher_mode;
++	int flow_mode = ctx_p->flow_mode;
++	int direction = req_ctx->gen_ctx.op_type;
++	dma_addr_t key_dma_addr = ctx_p->user.key_dma_addr;
++	unsigned int key_len = ctx_p->keylen;
++	dma_addr_t iv_dma_addr = req_ctx->gen_ctx.iv_dma_addr;
++	unsigned int du_size = nbytes;
++
++	struct cc_crypto_alg *cc_alg =
++		container_of(tfm->__crt_alg, struct cc_crypto_alg,
++			     skcipher_alg.base);
++
++	if (cc_alg->data_unit)
++		du_size = cc_alg->data_unit;
++
++	switch (cipher_mode) {
++	case DRV_CIPHER_ECB:
++		break;
++	case DRV_CIPHER_CBC:
++	case DRV_CIPHER_CBC_CTS:
++	case DRV_CIPHER_CTR:
++	case DRV_CIPHER_OFB:
++		break;
++	case DRV_CIPHER_XTS:
++	case DRV_CIPHER_ESSIV:
++	case DRV_CIPHER_BITLOCKER:
+ 		/* load XEX key */
+ 		hw_desc_init(&desc[*seq_size]);
+ 		set_cipher_mode(&desc[*seq_size], cipher_mode);
+@@ -881,12 +921,14 @@ static int cc_cipher_process(struct skci
  
- 	WARN_ONCE(1, "powerpc/mm: Found insecure W+X mapping at address %p/%pS\n",
+ 	/* STAT_PHASE_2: Create sequence */
+ 
+-	/* Setup IV and XEX key used */
++	/* Setup state (IV)  */
+ 	cc_setup_state_desc(tfm, req_ctx, ivsize, nbytes, desc, &seq_len);
+ 	/* Setup MLLI line, if needed */
+ 	cc_setup_mlli_desc(tfm, req_ctx, dst, src, nbytes, req, desc, &seq_len);
+ 	/* Setup key */
+ 	cc_setup_key_desc(tfm, req_ctx, nbytes, desc, &seq_len);
++	/* Setup state (IV and XEX key)  */
++	cc_setup_xex_state_desc(tfm, req_ctx, ivsize, nbytes, desc, &seq_len);
+ 	/* Data processing */
+ 	cc_setup_flow_desc(tfm, req_ctx, dst, src, nbytes, desc, &seq_len);
+ 	/* Read next IV */
 
 
