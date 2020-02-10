@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EE1157BC6
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:33:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E61BF157BC1
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728122AbgBJMfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53592 "EHLO mail.kernel.org"
+        id S1729478AbgBJNcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:32:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728116AbgBJMfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:48 -0500
+        id S1728121AbgBJMft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:49 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3352E214DB;
+        by mail.kernel.org (Postfix) with ESMTPSA id AE09E2173E;
         Mon, 10 Feb 2020 12:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338148;
-        bh=SIsmPf3abXu8RlcQgswvaUTqnh7SxIEE2Cc3DW6G/Lc=;
+        bh=haO2gdQoASsX8xuMYS978uHsIAL1MUSq0NOd05uOUfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVvka3is5EjMfA3XVB5jAwMDjlkU19N+oYZhOURwNhtjd0UbUEtej4ZhI0D7fS2U0
-         PU4Nr2VHw5KT9nXdCqWcl5ijr8R5ldGu24yWbrWRhMYJotSmK5R3HRvRYBCljaR1UB
-         Um/wIa7/zehty3wjKV5K9vEWoCAfxHzA7Xl6wMRg=
+        b=p5dXteNyHJKlL/6YTvsK1SFVNskjYdpfLy3hEdma4x31RWLEJZCe7P6M/YsvRwAAD
+         gHKaXbY3trpISi4DDonv1jPzblhAOnjuJOH2SSo8v7GtR9BklhH4b1VDGBoRGLDhIl
+         zM/ilhYlQ+zUDJWU3nVqMuc0EFEc7dq6PovI7HQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
-        Stephen Warren <swarren@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.19 109/195] ARM: tegra: Enable PLLP bypass during Tegra124 LP1
-Date:   Mon, 10 Feb 2020 04:32:47 -0800
-Message-Id: <20200210122316.106249073@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 110/195] iwlwifi: dont throw error when trying to remove IGTK
+Date:   Mon, 10 Feb 2020 04:32:48 -0800
+Message-Id: <20200210122316.265264917@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -44,70 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Warren <swarren@nvidia.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-commit 1a3388d506bf5b45bb283e6a4c4706cfb4897333 upstream.
+commit 197288d5ba8a5289f22d3aeb4fca3824bfd9b4af upstream.
 
-For a little over a year, U-Boot has configured the flow controller to
-perform automatic RAM re-repair on off->on power transitions of the CPU
-rail[1]. This is mandatory for correct operation of Tegra124. However,
-RAM re-repair relies on certain clocks, which the kernel must enable and
-leave running. PLLP is one of those clocks. This clock is shut down
-during LP1 in order to save power. Enable bypass (which I believe routes
-osc_div_clk, essentially the crystal clock, to the PLL output) so that
-this clock signal toggles even though the PLL is not active. This is
-required so that LP1 power mode (system suspend) operates correctly.
+The IGTK keys are only removed by mac80211 after it has already
+removed the AP station.  This causes the driver to throw an error
+because mac80211 is trying to remove the IGTK when the station doesn't
+exist anymore.
 
-The bypass configuration must then be undone when resuming from LP1, so
-that all peripheral clocks run at the expected rate. Without this, many
-peripherals won't work correctly; for example, the UART baud rate would
-be incorrect.
+The firmware is aware that the station has been removed and can deal
+with it the next time we try to add an IGTK for a station, so we
+shouldn't try to remove the key if the station ID is
+IWL_MVM_INVALID_STA.  Do this by removing the check for mvm_sta before
+calling iwl_mvm_send_sta_igtk() and check return from that function
+gracefully if the station ID is invalid.
 
-NVIDIA's downstream kernel code only does this if not compiled for
-Tegra30, so the added code is made conditional upon the chip ID.
-NVIDIA's downstream code makes this change conditional upon the active
-CPU cluster. The upstream kernel currently doesn't support cluster
-switching, so this patch doesn't test the active CPU cluster ID.
-
-[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
-
-Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Cc: stable@vger.kernel.org # 4.12+
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-tegra/sleep-tegra30.S |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/arch/arm/mach-tegra/sleep-tegra30.S
-+++ b/arch/arm/mach-tegra/sleep-tegra30.S
-@@ -382,6 +382,14 @@ _pll_m_c_x_done:
- 	pll_locked r1, r0, CLK_RESET_PLLC_BASE
- 	pll_locked r1, r0, CLK_RESET_PLLX_BASE
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -3045,6 +3045,10 @@ static int iwl_mvm_send_sta_igtk(struct
+ 	igtk_cmd.sta_id = cpu_to_le32(sta_id);
  
-+	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
-+	cmp	r1, #TEGRA30
-+	beq	1f
-+	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
-+	bic	r1, r1, #(1<<31)	@ disable PllP bypass
-+	str	r1, [r0, #CLK_RESET_PLLP_BASE]
-+1:
+ 	if (remove_key) {
++		/* This is a valid situation for IGTK */
++		if (sta_id == IWL_MVM_INVALID_STA)
++			return 0;
 +
- 	mov32	r7, TEGRA_TMRUS_BASE
- 	ldr	r1, [r7]
- 	add	r1, r1, #LOCK_DELAY
-@@ -641,7 +649,10 @@ tegra30_switch_cpu_to_clk32k:
- 	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
+ 		igtk_cmd.ctrl_flags |= cpu_to_le32(STA_KEY_NOT_VALID);
+ 	} else {
+ 		struct ieee80211_key_seq seq;
+@@ -3352,9 +3356,9 @@ int iwl_mvm_remove_sta_key(struct iwl_mv
+ 	IWL_DEBUG_WEP(mvm, "mvm remove dynamic key: idx=%d sta=%d\n",
+ 		      keyconf->keyidx, sta_id);
  
- 	/* disable PLLP, PLLA, PLLC and PLLX */
-+	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
-+	cmp	r1, #TEGRA30
- 	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
-+	orrne	r0, r0, #(1 << 31)	@ enable PllP bypass on fast cluster
- 	bic	r0, r0, #(1 << 30)
- 	str	r0, [r5, #CLK_RESET_PLLP_BASE]
- 	ldr	r0, [r5, #CLK_RESET_PLLA_BASE]
+-	if (mvm_sta && (keyconf->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
+-			keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
+-			keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256))
++	if (keyconf->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
++	    keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
++	    keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256)
+ 		return iwl_mvm_send_sta_igtk(mvm, keyconf, sta_id, true);
+ 
+ 	if (!__test_and_clear_bit(keyconf->hw_key_idx, mvm->fw_key_table)) {
 
 
