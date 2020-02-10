@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 332F8157A8B
+	by mail.lfdr.de (Postfix) with ESMTP id B22C6157A8C
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728673AbgBJMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58096 "EHLO mail.kernel.org"
+        id S1728740AbgBJNXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:23:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728669AbgBJMhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:12 -0500
+        id S1728111AbgBJMhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:13 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A5F720733;
+        by mail.kernel.org (Postfix) with ESMTPSA id CCD7320838;
         Mon, 10 Feb 2020 12:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338232;
-        bh=r6ZSEKAcPOGSCgVBKU4Kqbfz3ie67Rtztmpje+wDHlc=;
+        bh=q22MECh2tbBpJ6O/Km/c9blaEVhuPo3h4WR8kE/HIIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmT6NqYzHVrJ7YaeNxV3hEBW9Pddhp8emq9fqI6YMuGsDqFBu8f8IJI90C/0EYTi9
-         pjusdk7mi+329ByZB4KO1gPx24uDEU7setiFVASuz8lKVtERKtDQH2z0ylmkiguGP1
-         mc65flLBq5PiYUjxdhTfDNGpKCtcabGgb0l+IWJs=
+        b=c14hH678yhh9tEGrt80V8mzaWONM07EaXUlAxHi+B5b4fiOT0bPsbn5/zP9B2+TPx
+         4mZj6pM/T4MtcUdryD8ByWy29CnL2nUZHanyz73ntQt1OOAX0ifRSBjczYA74hOJic
+         Sj34XnGp45MLqwmaPfOhJtmLgG5AfldOpnMN7R4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
+        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 076/309] powerpc/xmon: dont access ASDR in VMs
-Date:   Mon, 10 Feb 2020 04:30:32 -0800
-Message-Id: <20200210122413.155402391@linuxfoundation.org>
+Subject: [PATCH 5.4 077/309] powerpc/pseries: Advance pfn if section is not present in lmb_is_removable()
+Date:   Mon, 10 Feb 2020 04:30:33 -0800
+Message-Id: <20200210122413.245865485@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -45,46 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Pingfan Liu <kernelfans@gmail.com>
 
-commit c2a20711fc181e7f22ee5c16c28cb9578af84729 upstream.
+commit fbee6ba2dca30d302efe6bddb3a886f5e964a257 upstream.
 
-ASDR is HV-privileged and must only be accessed in HV-mode.
-Fixes a Program Check (0x700) when xmon in a VM dumps SPRs.
+In lmb_is_removable(), if a section is not present, it should continue
+to test the rest of the sections in the block. But the current code
+fails to do so.
 
-Fixes: d1e1b351f50f ("powerpc/xmon: Add ISA v3.0 SPRs to SPR dump")
-Cc: stable@vger.kernel.org # v4.14+
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Fixes: 51925fb3c5c9 ("powerpc/pseries: Implement memory hotplug remove in the kernel")
+Cc: stable@vger.kernel.org # v4.1+
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200107021633.GB29843@us.ibm.com
+Link: https://lore.kernel.org/r/1578632042-12415-1-git-send-email-kernelfans@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/xmon/xmon.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/powerpc/platforms/pseries/hotplug-memory.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/xmon/xmon.c
-+++ b/arch/powerpc/xmon/xmon.c
-@@ -1894,15 +1894,14 @@ static void dump_300_sprs(void)
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -360,8 +360,10 @@ static bool lmb_is_removable(struct drme
  
- 	printf("pidr   = %.16lx  tidr  = %.16lx\n",
- 		mfspr(SPRN_PID), mfspr(SPRN_TIDR));
--	printf("asdr   = %.16lx  psscr = %.16lx\n",
--		mfspr(SPRN_ASDR), hv ? mfspr(SPRN_PSSCR)
--					: mfspr(SPRN_PSSCR_PR));
-+	printf("psscr  = %.16lx\n",
-+		hv ? mfspr(SPRN_PSSCR) : mfspr(SPRN_PSSCR_PR));
+ 	for (i = 0; i < scns_per_block; i++) {
+ 		pfn = PFN_DOWN(phys_addr);
+-		if (!pfn_present(pfn))
++		if (!pfn_present(pfn)) {
++			phys_addr += MIN_MEMORY_BLOCK_SIZE;
+ 			continue;
++		}
  
- 	if (!hv)
- 		return;
- 
--	printf("ptcr   = %.16lx\n",
--		mfspr(SPRN_PTCR));
-+	printf("ptcr   = %.16lx  asdr  = %.16lx\n",
-+		mfspr(SPRN_PTCR), mfspr(SPRN_ASDR));
- #endif
- }
- 
+ 		rc &= is_mem_section_removable(pfn, PAGES_PER_SECTION);
+ 		phys_addr += MIN_MEMORY_BLOCK_SIZE;
 
 
