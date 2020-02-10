@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2161C15772E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E21815750D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729939AbgBJMlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43040 "EHLO mail.kernel.org"
+        id S1729089AbgBJMiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729639AbgBJMlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:14 -0500
+        id S1729078AbgBJMiP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:15 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA9FC21569;
-        Mon, 10 Feb 2020 12:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9546B20842;
+        Mon, 10 Feb 2020 12:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338474;
-        bh=ROBgPv5K8IOy3Rm+x9pw+cjWf2B51cdvq0ZBfwoVUJg=;
+        s=default; t=1581338293;
+        bh=CSrHh6ckbplG7cDGcTH5GkDJu+ynBZmL5i67RFtgq/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/H6K2HnDMZs8TY6i6Gxk6c4WdvvZ+geSzd4q1xBTrBCyCqYGxPGjLyKiaLE4h1wl
-         spZtnOPJ/jtNQAy0tu1G1rPqeUJl8nuYxm3gEzCAp1ewjWH/1Us2t1OPGAEz+1ZdXN
-         lNz/YLqOSQU/AoC4siKfQHZNkLGrYO8ph1dwCtW4=
+        b=hn+qoUs49/D/Xs1isYRdlT5rZagjvvNSquUfKKHxxq3rpDoR0hlN14hTTbqg3QygY
+         F+R8K6RyBwpVi3QvVzKOpNBc73yG2sGv8KwDpEIxXOP+PQvNzXN5FtvoG80gL7PGkz
+         0J54/D2ReEsl3J7S0WqTG0+avy2VBHT3ngx1+q9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 241/367] KVM: PPC: Book3S PR: Free shared page if mmu initialization fails
+Subject: [PATCH 5.4 198/309] KVM: x86: Refactor picdev_write() to prevent Spectre-v1/L1TF attacks
 Date:   Mon, 10 Feb 2020 04:32:34 -0800
-Message-Id: <20200210122446.425754469@linuxfoundation.org>
+Message-Id: <20200210122425.578433763@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit cb10bf9194f4d2c5d830eddca861f7ca0fecdbb4 upstream.
+commit 14e32321f3606e4b0970200b6e5e47ee6f1e6410 upstream.
 
-Explicitly free the shared page if kvmppc_mmu_init() fails during
-kvmppc_core_vcpu_create(), as the page is freed only in
-kvmppc_core_vcpu_free(), which is not reached via kvm_vcpu_uninit().
+This fixes a Spectre-v1/L1TF vulnerability in picdev_write().
+It replaces index computations based on the (attacked-controlled) port
+number with constants through a minor refactoring.
 
-Fixes: 96bc451a15329 ("KVM: PPC: Introduce shared page")
+Fixes: 85f455f7ddbe ("KVM: Add support for in-kernel PIC emulation")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
+Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_pr.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/i8259.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_pr.c
-+++ b/arch/powerpc/kvm/book3s_pr.c
-@@ -1806,10 +1806,12 @@ static struct kvm_vcpu *kvmppc_core_vcpu
- 
- 	err = kvmppc_mmu_init(vcpu);
- 	if (err < 0)
--		goto uninit_vcpu;
-+		goto free_shared_page;
- 
- 	return vcpu;
- 
-+free_shared_page:
-+	free_page((unsigned long)vcpu->arch.shared);
- uninit_vcpu:
- 	kvm_vcpu_uninit(vcpu);
- free_shadow_vcpu:
+--- a/arch/x86/kvm/i8259.c
++++ b/arch/x86/kvm/i8259.c
+@@ -460,10 +460,14 @@ static int picdev_write(struct kvm_pic *
+ 	switch (addr) {
+ 	case 0x20:
+ 	case 0x21:
++		pic_lock(s);
++		pic_ioport_write(&s->pics[0], addr, data);
++		pic_unlock(s);
++		break;
+ 	case 0xa0:
+ 	case 0xa1:
+ 		pic_lock(s);
+-		pic_ioport_write(&s->pics[addr >> 7], addr, data);
++		pic_ioport_write(&s->pics[1], addr, data);
+ 		pic_unlock(s);
+ 		break;
+ 	case 0x4d0:
 
 
