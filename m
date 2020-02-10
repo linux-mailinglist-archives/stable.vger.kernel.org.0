@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CECA715778E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC76157790
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729808AbgBJMkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S1729460AbgBJMkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729803AbgBJMkt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:49 -0500
+        id S1729804AbgBJMku (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:50 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEB7320661;
-        Mon, 10 Feb 2020 12:40:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35BBB20733;
+        Mon, 10 Feb 2020 12:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338448;
-        bh=8HSn47iVmVuHK5R6HJ9DPCtyktsjn3EOBpK6AgA2IB0=;
+        s=default; t=1581338449;
+        bh=b4HgXi/kmF73E2ta0DmMNsR3/6Ln/Jv6457b+UhrBsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OF/9f8hHWMkCzGo1FfqkPnbjFvqUyzSCyx5GDoqYaJfyK80vNHGJckrgUWnYsR6cI
-         AqM2DqFuLXhAR5hrVOt0b64+g7n0h3DFDCfMWqFnbL/8evvF6El/e3G8jtJlDQ9Aqj
-         zQfHyB/POSY3RxTWtmziXtSuvdN8ewwkBZvLf/Ns=
+        b=Y32/7GSi4Svb86tndctvyPFzhqj7b2pD78da6f1xZoinsKZmxDd0MHBUSEUOAX1BH
+         SUuadg14DpLM2QjGuboV52EgZjXt9JLMdEVR6h+VT5FwRjT2Ed3GVT950elFV3Qq4v
+         x3/nosTzQyrqwaOBnPPMHDLa3EgmmEnZmgUhdrtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Vasily Averin <vvs@virtuozzo.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.5 192/367] jbd2_seq_info_next should increase position index
-Date:   Mon, 10 Feb 2020 04:31:45 -0800
-Message-Id: <20200210122442.319188014@linuxfoundation.org>
+Subject: [PATCH 5.5 193/367] ext4: fix deadlock allocating crypto bounce page from mempool
+Date:   Mon, 10 Feb 2020 04:31:46 -0800
+Message-Id: <20200210122442.412464697@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,39 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 1a8e9cf40c9a6a2e40b1e924b13ed303aeea4418 upstream.
+commit 547c556f4db7c09447ecf5f833ab6aaae0c5ab58 upstream.
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+ext4_writepages() on an encrypted file has to encrypt the data, but it
+can't modify the pagecache pages in-place, so it encrypts the data into
+bounce pages and writes those instead.  All bounce pages are allocated
+from a mempool using GFP_NOFS.
 
-Script below generates endless output
- $ q=;while read -r r;do echo "$((++q)) $r";done </proc/fs/jbd2/DEV/info
+This is not correct use of a mempool, and it can deadlock.  This is
+because GFP_NOFS includes __GFP_DIRECT_RECLAIM, which enables the "never
+fail" mode for mempool_alloc() where a failed allocation will fall back
+to waiting for one of the preallocated elements in the pool.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
+But since this mode is used for all a bio's pages and not just the
+first, it can deadlock waiting for pages already in the bio to be freed.
 
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-Cc: stable@kernel.org
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/d13805e5-695e-8ac3-b678-26ca2313629f@virtuozzo.com
+This deadlock can be reproduced by patching mempool_alloc() to pretend
+that pool->alloc() always fails (so that it always falls back to the
+preallocations), and then creating an encrypted file of size > 128 KiB.
+
+Fix it by only using GFP_NOFS for the first page in the bio.  For
+subsequent pages just use GFP_NOWAIT, and if any of those fail, just
+submit the bio and start a new one.
+
+This will need to be fixed in f2fs too, but that's less straightforward.
+
+Fixes: c9af28fdd449 ("ext4 crypto: don't let data integrity writebacks fail with ENOMEM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20191231181149.47619-1-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jbd2/journal.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/page-io.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -982,6 +982,7 @@ static void *jbd2_seq_info_start(struct
+--- a/fs/ext4/page-io.c
++++ b/fs/ext4/page-io.c
+@@ -512,17 +512,26 @@ int ext4_bio_write_page(struct ext4_io_s
+ 		gfp_t gfp_flags = GFP_NOFS;
+ 		unsigned int enc_bytes = round_up(len, i_blocksize(inode));
  
- static void *jbd2_seq_info_next(struct seq_file *seq, void *v, loff_t *pos)
- {
-+	(*pos)++;
- 	return NULL;
- }
++		/*
++		 * Since bounce page allocation uses a mempool, we can only use
++		 * a waiting mask (i.e. request guaranteed allocation) on the
++		 * first page of the bio.  Otherwise it can deadlock.
++		 */
++		if (io->io_bio)
++			gfp_flags = GFP_NOWAIT | __GFP_NOWARN;
+ 	retry_encrypt:
+ 		bounce_page = fscrypt_encrypt_pagecache_blocks(page, enc_bytes,
+ 							       0, gfp_flags);
+ 		if (IS_ERR(bounce_page)) {
+ 			ret = PTR_ERR(bounce_page);
+-			if (ret == -ENOMEM && wbc->sync_mode == WB_SYNC_ALL) {
+-				if (io->io_bio) {
++			if (ret == -ENOMEM &&
++			    (io->io_bio || wbc->sync_mode == WB_SYNC_ALL)) {
++				gfp_flags = GFP_NOFS;
++				if (io->io_bio)
+ 					ext4_io_submit(io);
+-					congestion_wait(BLK_RW_ASYNC, HZ/50);
+-				}
+-				gfp_flags |= __GFP_NOFAIL;
++				else
++					gfp_flags |= __GFP_NOFAIL;
++				congestion_wait(BLK_RW_ASYNC, HZ/50);
+ 				goto retry_encrypt;
+ 			}
  
 
 
