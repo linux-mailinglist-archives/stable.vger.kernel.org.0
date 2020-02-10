@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D43D157661
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37CAD157678
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730200AbgBJMmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:42:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
+        id S1729082AbgBJMwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:52:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728791AbgBJMmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:15 -0500
+        id S1730198AbgBJMmQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:16 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC0E724649;
-        Mon, 10 Feb 2020 12:42:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B111020661;
+        Mon, 10 Feb 2020 12:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338534;
-        bh=+E7je+NFtmGn49WxnLROcZktH8h8z2zuomszzMDNbuE=;
+        s=default; t=1581338535;
+        bh=8PhorLcVVruykYZgtpPgsqnyXsagz0RSq9BrUyTTfug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QiiO/ePcI+F9ORfT1UR8s9akTPO6oTO+qH5hTdf5eVgcNLVSriQC3sFTHKpmmqPHf
-         mmmC/2reghecS7t1W/K0/gqSvleV9gOfySwPdujm+ag2GQulOiWxNFCvX3hQKi+ZYv
-         /QImsTuXf6FQScWkitYmpDFlTnfQOM8gBkCT0cdY=
+        b=kIfxDvlY/cGm3lk9yv3+LWuJ8veRgK3GOevDeQYAY1WMNKTryEQqau/QFbL0ivXAD
+         FydypoJ8fX2vZ7+NJIC95cBqydJjiHaXysqVQ/tbaiMI64XSc8oR3i8SChV8DX5YRI
+         1pZWdqvFRK019NZe//GsoI2J1ADLOCOEJEL3L3rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tudor Ambarus <tudor.ambarus@microchip.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 362/367] crypto: atmel-{aes,tdes} - Do not save IV for ECB mode
-Date:   Mon, 10 Feb 2020 04:34:35 -0800
-Message-Id: <20200210122455.765754809@linuxfoundation.org>
+Subject: [PATCH 5.5 363/367] crypto: atmel-aes - Fix saving of IV for CTR mode
+Date:   Mon, 10 Feb 2020 04:34:36 -0800
+Message-Id: <20200210122455.849290023@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -47,82 +47,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit c65d123742a7bf2a5bc9fa8398e1fd2376eb4c43 ]
+[ Upstream commit 371731ec2179d5810683406e7fc284b41b127df7 ]
 
-ECB mode does not use IV.
+The req->iv of the skcipher_request is expected to contain the
+last used IV. Update the req->iv for CTR mode.
 
+Fixes: bd3c7b5c2aba ("crypto: atmel - add Atmel AES driver")
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/atmel-aes.c  | 9 +++++++--
- drivers/crypto/atmel-tdes.c | 7 +++++--
- 2 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/crypto/atmel-aes.c | 43 +++++++++++++++++++++++++++-----------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/crypto/atmel-aes.c b/drivers/crypto/atmel-aes.c
-index 24f1fba6513ef..7b7079db2e860 100644
+index 7b7079db2e860..ea9dcd7ce799b 100644
 --- a/drivers/crypto/atmel-aes.c
 +++ b/drivers/crypto/atmel-aes.c
-@@ -515,6 +515,9 @@ static void atmel_aes_set_iv_as_last_ciphertext_block(struct atmel_aes_dev *dd)
+@@ -121,6 +121,7 @@ struct atmel_aes_ctr_ctx {
+ 	size_t			offset;
+ 	struct scatterlist	src[2];
+ 	struct scatterlist	dst[2];
++	u16			blocks;
+ };
  
+ struct atmel_aes_gcm_ctx {
+@@ -513,6 +514,26 @@ static void atmel_aes_set_iv_as_last_ciphertext_block(struct atmel_aes_dev *dd)
+ 	}
+ }
+ 
++static inline struct atmel_aes_ctr_ctx *
++atmel_aes_ctr_ctx_cast(struct atmel_aes_base_ctx *ctx)
++{
++	return container_of(ctx, struct atmel_aes_ctr_ctx, base);
++}
++
++static void atmel_aes_ctr_update_req_iv(struct atmel_aes_dev *dd)
++{
++	struct atmel_aes_ctr_ctx *ctx = atmel_aes_ctr_ctx_cast(dd->ctx);
++	struct skcipher_request *req = skcipher_request_cast(dd->areq);
++	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
++	unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
++	int i;
++
++	for (i = 0; i < ctx->blocks; i++)
++		crypto_inc((u8 *)ctx->iv, AES_BLOCK_SIZE);
++
++	memcpy(req->iv, ctx->iv, ivsize);
++}
++
  static inline int atmel_aes_complete(struct atmel_aes_dev *dd, int err)
  {
-+	struct skcipher_request *req = skcipher_request_cast(dd->areq);
-+	struct atmel_aes_reqctx *rctx = skcipher_request_ctx(req);
-+
- #if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 	if (dd->ctx->is_aead)
- 		atmel_aes_authenc_complete(dd, err);
-@@ -523,7 +526,8 @@ static inline int atmel_aes_complete(struct atmel_aes_dev *dd, int err)
- 	clk_disable(dd->iclk);
+ 	struct skcipher_request *req = skcipher_request_cast(dd->areq);
+@@ -527,8 +548,12 @@ static inline int atmel_aes_complete(struct atmel_aes_dev *dd, int err)
  	dd->flags &= ~AES_FLAGS_BUSY;
  
--	if (!dd->ctx->is_aead)
-+	if (!dd->ctx->is_aead &&
-+	    (rctx->mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_ECB)
- 		atmel_aes_set_iv_as_last_ciphertext_block(dd);
+ 	if (!dd->ctx->is_aead &&
+-	    (rctx->mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_ECB)
+-		atmel_aes_set_iv_as_last_ciphertext_block(dd);
++	    (rctx->mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_ECB) {
++		if ((rctx->mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_CTR)
++			atmel_aes_set_iv_as_last_ciphertext_block(dd);
++		else
++			atmel_aes_ctr_update_req_iv(dd);
++	}
  
  	if (dd->is_async)
-@@ -1121,7 +1125,8 @@ static int atmel_aes_crypt(struct skcipher_request *req, unsigned long mode)
- 	rctx = skcipher_request_ctx(req);
- 	rctx->mode = mode;
- 
--	if (!(mode & AES_FLAGS_ENCRYPT) && (req->src == req->dst)) {
-+	if ((mode & AES_FLAGS_OPMODE_MASK) != AES_FLAGS_ECB &&
-+	    !(mode & AES_FLAGS_ENCRYPT) && req->src == req->dst) {
- 		unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
- 
- 		if (req->cryptlen >= ivsize)
-diff --git a/drivers/crypto/atmel-tdes.c b/drivers/crypto/atmel-tdes.c
-index 0c1f79b30fc1b..eaa14a80d40ce 100644
---- a/drivers/crypto/atmel-tdes.c
-+++ b/drivers/crypto/atmel-tdes.c
-@@ -600,12 +600,14 @@ atmel_tdes_set_iv_as_last_ciphertext_block(struct atmel_tdes_dev *dd)
- static void atmel_tdes_finish_req(struct atmel_tdes_dev *dd, int err)
- {
- 	struct skcipher_request *req = dd->req;
-+	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(req);
- 
- 	clk_disable_unprepare(dd->iclk);
- 
- 	dd->flags &= ~TDES_FLAGS_BUSY;
- 
--	atmel_tdes_set_iv_as_last_ciphertext_block(dd);
-+	if ((rctx->mode & TDES_FLAGS_OPMODE_MASK) != TDES_FLAGS_ECB)
-+		atmel_tdes_set_iv_as_last_ciphertext_block(dd);
- 
- 	req->base.complete(&req->base, err);
+ 		dd->areq->complete(dd->areq, err);
+@@ -1007,12 +1032,6 @@ static int atmel_aes_start(struct atmel_aes_dev *dd)
+ 				   atmel_aes_transfer_complete);
  }
-@@ -727,7 +729,8 @@ static int atmel_tdes_crypt(struct skcipher_request *req, unsigned long mode)
  
- 	rctx->mode = mode;
+-static inline struct atmel_aes_ctr_ctx *
+-atmel_aes_ctr_ctx_cast(struct atmel_aes_base_ctx *ctx)
+-{
+-	return container_of(ctx, struct atmel_aes_ctr_ctx, base);
+-}
+-
+ static int atmel_aes_ctr_transfer(struct atmel_aes_dev *dd)
+ {
+ 	struct atmel_aes_ctr_ctx *ctx = atmel_aes_ctr_ctx_cast(dd->ctx);
+@@ -1020,7 +1039,7 @@ static int atmel_aes_ctr_transfer(struct atmel_aes_dev *dd)
+ 	struct scatterlist *src, *dst;
+ 	size_t datalen;
+ 	u32 ctr;
+-	u16 blocks, start, end;
++	u16 start, end;
+ 	bool use_dma, fragmented = false;
  
--	if (!(mode & TDES_FLAGS_ENCRYPT) && req->src == req->dst) {
-+	if ((mode & TDES_FLAGS_OPMODE_MASK) != TDES_FLAGS_ECB &&
-+	    !(mode & TDES_FLAGS_ENCRYPT) && req->src == req->dst) {
- 		unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+ 	/* Check for transfer completion. */
+@@ -1030,14 +1049,14 @@ static int atmel_aes_ctr_transfer(struct atmel_aes_dev *dd)
  
- 		if (req->cryptlen >= ivsize)
+ 	/* Compute data length. */
+ 	datalen = req->cryptlen - ctx->offset;
+-	blocks = DIV_ROUND_UP(datalen, AES_BLOCK_SIZE);
++	ctx->blocks = DIV_ROUND_UP(datalen, AES_BLOCK_SIZE);
+ 	ctr = be32_to_cpu(ctx->iv[3]);
+ 
+ 	/* Check 16bit counter overflow. */
+ 	start = ctr & 0xffff;
+-	end = start + blocks - 1;
++	end = start + ctx->blocks - 1;
+ 
+-	if (blocks >> 16 || end < start) {
++	if (ctx->blocks >> 16 || end < start) {
+ 		ctr |= 0xffff;
+ 		datalen = AES_BLOCK_SIZE * (0x10000 - start);
+ 		fragmented = true;
 -- 
 2.20.1
 
