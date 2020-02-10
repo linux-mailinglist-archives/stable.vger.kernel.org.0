@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CC9F15755D
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E129D1574FA
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729736AbgBJMk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40600 "EHLO mail.kernel.org"
+        id S1728779AbgBJMha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729742AbgBJMk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:29 -0500
+        id S1727516AbgBJMha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:30 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE3882051A;
-        Mon, 10 Feb 2020 12:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C23A20661;
+        Mon, 10 Feb 2020 12:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338428;
-        bh=AvajLqGpUfAavsPcZmDIGys8maLrfStkNxpveatiF0E=;
+        s=default; t=1581338249;
+        bh=KM0blz/sPOMcLJ1MQfWiz35/SGyUA2nMXUvLEnE2NGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9eA1cSLol8oEMHqxz00/4MgP0L1SUmobFGBr93YFlnZ0Y436gridvbs1uzJVl6pV
-         doD133L8NdypHtjN0nfZppdvGC8jVAzTWPoxQWPBEAIeOE+0YrUTHbS0wmb/r1bAtE
-         DB+6nYX8ddnnqPLYx3zM7HtxCh8MJuzvW2o1J6jA=
+        b=bcHcXGBpFZbZydPtp/P5cegrO/giijDrz+8sZRJBlE8kHZAzsZxnzM2skfIa4XY85
+         8rtjp3LZlh2gEH3/cCCfBEmLZSWj+iRgzIegAZc1HQmtO0RWTLO0a/ZnyVaNjE5R+D
+         YwW4gW4ZojuIX3S2W+V5lyd1ivtqy9VMlahRCeHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 152/367] ftrace: Add comment to why rcu_dereference_sched() is open coded
-Date:   Mon, 10 Feb 2020 04:31:05 -0800
-Message-Id: <20200210122438.861741278@linuxfoundation.org>
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        Anand Lodnoor <anand.lodnoor@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 111/309] scsi: megaraid_sas: Do not initiate OCR if controller is not in ready state
+Date:   Mon, 10 Feb 2020 04:31:07 -0800
+Message-Id: <20200210122417.279849489@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Anand Lodnoor <anand.lodnoor@broadcom.com>
 
-[ Upstream commit 16052dd5bdfa16dbe18d8c1d4cde2ddab9d23177 ]
+commit 6d7537270e3283b92f9b327da9d58a4de40fe8d0 upstream.
 
-Because the function graph tracer can execute in sections where RCU is not
-"watching", the rcu_dereference_sched() for the has needs to be open coded.
-This is fine because the RCU "flavor" of the ftrace hash is protected by
-its own RCU handling (it does its own little synchronization on every CPU
-and does not rely on RCU sched).
+Driver initiates OCR if a DCMD command times out. But there is a deadlock
+if the driver attempts to invoke another OCR before the mutex lock
+(reset_mutex) is released from the previous session of OCR.
 
-Acked-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch takes care of the above scenario using new flag
+MEGASAS_FUSION_OCR_NOT_POSSIBLE to indicate if OCR is possible.
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1579000882-20246-9-git-send-email-anand.lodnoor@broadcom.com
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Signed-off-by: Anand Lodnoor <anand.lodnoor@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/trace/trace.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/megaraid/megaraid_sas_base.c   |    3 ++-
+ drivers/scsi/megaraid/megaraid_sas_fusion.c |    3 ++-
+ drivers/scsi/megaraid/megaraid_sas_fusion.h |    1 +
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index 497defe9ed264..b769638f005c7 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -961,6 +961,11 @@ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -4392,7 +4392,8 @@ dcmd_timeout_ocr_possible(struct megasas
+ 	if (instance->adapter_type == MFI_SERIES)
+ 		return KILL_ADAPTER;
+ 	else if (instance->unload ||
+-			test_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags))
++			test_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE,
++				 &instance->reset_flags))
+ 		return IGNORE_TIMEOUT;
+ 	else
+ 		return INITIATE_OCR;
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -4847,6 +4847,7 @@ int megasas_reset_fusion(struct Scsi_Hos
+ 	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
+ 		del_timer_sync(&instance->sriov_heartbeat_timer);
+ 	set_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
++	set_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
+ 	atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_POLLING);
+ 	instance->instancet->disable_intr(instance);
+ 	megasas_sync_irqs((unsigned long)instance);
+@@ -5046,7 +5047,7 @@ kill_hba:
+ 	instance->skip_heartbeat_timer_del = 1;
+ 	retval = FAILED;
+ out:
+-	clear_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
++	clear_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
+ 	mutex_unlock(&instance->reset_mutex);
+ 	return retval;
+ }
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+@@ -89,6 +89,7 @@ enum MR_RAID_FLAGS_IO_SUB_TYPE {
  
- 	preempt_disable_notrace();
- 
-+	/*
-+	 * Have to open code "rcu_dereference_sched()" because the
-+	 * function graph tracer can be called when RCU is not
-+	 * "watching".
-+	 */
- 	hash = rcu_dereference_protected(ftrace_graph_hash, !preemptible());
- 
- 	if (ftrace_hash_empty(hash)) {
-@@ -1008,6 +1013,11 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
- 
- 	preempt_disable_notrace();
- 
-+	/*
-+	 * Have to open code "rcu_dereference_sched()" because the
-+	 * function graph tracer can be called when RCU is not
-+	 * "watching".
-+	 */
- 	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
- 						 !preemptible());
- 
--- 
-2.20.1
-
+ #define MEGASAS_FP_CMD_LEN	16
+ #define MEGASAS_FUSION_IN_RESET 0
++#define MEGASAS_FUSION_OCR_NOT_POSSIBLE 1
+ #define RAID_1_PEER_CMDS 2
+ #define JBOD_MAPS_COUNT	2
+ #define MEGASAS_REDUCE_QD_COUNT 64
 
 
