@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F02921577E3
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4067C157A4F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729730AbgBJNDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:03:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
+        id S1728144AbgBJNV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:21:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbgBJMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:26 -0500
+        id S1728763AbgBJMh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:28 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E25B24677;
-        Mon, 10 Feb 2020 12:40:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 844C420873;
+        Mon, 10 Feb 2020 12:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338426;
-        bh=rYgrGdSSeygHR64E0Y7G24YBERnO9bJ3u8RGXgr1y1U=;
+        s=default; t=1581338247;
+        bh=J05NzwZemBlr80XEvaHzlzPsIv40DKlhVAFBil0eImg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s85I23ltxF/Uycc3DtfWdZ0wXI+Ckd06vspIPBrPEpm7gD0h0J+SfVQEM+Gvbjj47
-         ImWG1g5xt7ebP375c9v1bjs8yv1AmrxfYoeLz1pKAzb2f2kggt2kzdS3KCIqxRtovk
-         5uOzTN4Dcw7kCi9InwvXiJRa7Sou1bldeEXzTa1Q=
+        b=ZkHKdoHm6KkqOH3ITnszG7nayyORr7hr/Dv0PvaOn9Mybv0XmvwzLCEwgYfCrOFmW
+         63U/TCJJlof1BaBrXTzt0xbg1HZ94l15v9wQYgqnq+HHBsId9qA9sk2z8WNRgFU4EO
+         HPgtAu20OB1UD4q0ILjvJKVB1gE8v/ETR63md1J0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 149/367] ASoC: SOF: core: release resources on errors in probe_continue
-Date:   Mon, 10 Feb 2020 04:31:02 -0800
-Message-Id: <20200210122438.592413052@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH 5.4 107/309] padata: Remove broken queue flushing
+Date:   Mon, 10 Feb 2020 04:31:03 -0800
+Message-Id: <20200210122416.640349969@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,120 +43,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 410e5e55c9c1c9c0d452ac5b9adb37b933a7747e ]
+commit 07928d9bfc81640bab36f5190e8725894d93b659 upstream.
 
-The initial intent of releasing resources in the .remove does not work
-well with HDaudio codecs. If the probe_continue() fails in a work
-queue, e.g. due to missing firmware or authentication issues, we don't
-release any resources, and as a result the kernel oopses during
-suspend operations.
+The function padata_flush_queues is fundamentally broken because
+it cannot force padata users to complete the request that is
+underway.  IOW padata has to passively wait for the completion
+of any outstanding work.
 
-The suggested fix is to release all resources during errors in
-probe_continue(), and use fw_state to track resource allocation
-state, so that .remove does not attempt to release the same
-hardware resources twice. PM operations are also modified so that
-no action is done if DSP resources have been freed due to
-an error at probe.
+As it stands flushing is used in two places.  Its use in padata_stop
+is simply unnecessary because nothing depends on the queues to
+be flushed afterwards.
 
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Co-developed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Bugzilla:  http://bugzilla.suse.com/show_bug.cgi?id=1161246
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20200124213625.30186-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The other use in padata_replace is more substantial as we depend
+on it to free the old pd structure.  This patch instead uses the
+pd->refcnt to dynamically free the pd structure once all requests
+are complete.
+
+Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/sof/core.c | 32 +++++++++++---------------------
- sound/soc/sof/pm.c   |  4 ++++
- 2 files changed, 15 insertions(+), 21 deletions(-)
+ kernel/padata.c |   43 ++++++++++++-------------------------------
+ 1 file changed, 12 insertions(+), 31 deletions(-)
 
-diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
-index d95026b5f7c60..a06a54f423dd4 100644
---- a/sound/soc/sof/core.c
-+++ b/sound/soc/sof/core.c
-@@ -466,7 +466,6 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -35,6 +35,8 @@
  
- 	return 0;
+ #define MAX_OBJ_NUM 1000
  
--#if !IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
- fw_trace_err:
- 	snd_sof_free_trace(sdev);
- fw_run_err:
-@@ -477,22 +476,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
- 	snd_sof_free_debug(sdev);
- dbg_err:
- 	snd_sof_remove(sdev);
--#else
--
--	/*
--	 * when the probe_continue is handled in a work queue, the
--	 * probe does not fail so we don't release resources here.
--	 * They will be released with an explicit call to
--	 * snd_sof_device_remove() when the PCI/ACPI device is removed
--	 */
--
--fw_trace_err:
--fw_run_err:
--fw_load_err:
--ipc_err:
--dbg_err:
- 
--#endif
-+	/* all resources freed, update state to match */
-+	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
-+	sdev->first_boot = true;
- 
- 	return ret;
- }
-@@ -575,10 +562,12 @@ int snd_sof_device_remove(struct device *dev)
- 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
- 		cancel_work_sync(&sdev->probe_work);
- 
--	snd_sof_fw_unload(sdev);
--	snd_sof_ipc_free(sdev);
--	snd_sof_free_debug(sdev);
--	snd_sof_free_trace(sdev);
-+	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED) {
-+		snd_sof_fw_unload(sdev);
-+		snd_sof_ipc_free(sdev);
-+		snd_sof_free_debug(sdev);
-+		snd_sof_free_trace(sdev);
-+	}
- 
- 	/*
- 	 * Unregister machine driver. This will unbind the snd_card which
-@@ -594,7 +583,8 @@ int snd_sof_device_remove(struct device *dev)
- 	 * scheduled on, when they are unloaded. Therefore, the DSP must be
- 	 * removed only after the topology has been unloaded.
- 	 */
--	snd_sof_remove(sdev);
-+	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED)
-+		snd_sof_remove(sdev);
- 
- 	/* release firmware */
- 	release_firmware(pdata->fw);
-diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
-index ff1ff68e8b26b..bc09cb5f458ba 100644
---- a/sound/soc/sof/pm.c
-+++ b/sound/soc/sof/pm.c
-@@ -269,6 +269,10 @@ static int sof_resume(struct device *dev, bool runtime_resume)
- 	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
- 		return 0;
- 
-+	/* DSP was never successfully started, nothing to resume */
-+	if (sdev->first_boot)
-+		return 0;
++static void padata_free_pd(struct parallel_data *pd);
 +
- 	/*
- 	 * if the runtime_resume flag is set, call the runtime_resume routine
- 	 * or else call the system resume routine
--- 
-2.20.1
-
+ static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
+ {
+ 	int cpu, target_cpu;
+@@ -283,6 +285,7 @@ static void padata_serial_worker(struct
+ 	struct padata_serial_queue *squeue;
+ 	struct parallel_data *pd;
+ 	LIST_HEAD(local_list);
++	int cnt;
+ 
+ 	local_bh_disable();
+ 	squeue = container_of(serial_work, struct padata_serial_queue, work);
+@@ -292,6 +295,8 @@ static void padata_serial_worker(struct
+ 	list_replace_init(&squeue->serial.list, &local_list);
+ 	spin_unlock(&squeue->serial.lock);
+ 
++	cnt = 0;
++
+ 	while (!list_empty(&local_list)) {
+ 		struct padata_priv *padata;
+ 
+@@ -301,9 +306,12 @@ static void padata_serial_worker(struct
+ 		list_del_init(&padata->list);
+ 
+ 		padata->serial(padata);
+-		atomic_dec(&pd->refcnt);
++		cnt++;
+ 	}
+ 	local_bh_enable();
++
++	if (atomic_sub_and_test(cnt, &pd->refcnt))
++		padata_free_pd(pd);
+ }
+ 
+ /**
+@@ -440,7 +448,7 @@ static struct parallel_data *padata_allo
+ 	padata_init_squeues(pd);
+ 	atomic_set(&pd->seq_nr, -1);
+ 	atomic_set(&pd->reorder_objects, 0);
+-	atomic_set(&pd->refcnt, 0);
++	atomic_set(&pd->refcnt, 1);
+ 	spin_lock_init(&pd->lock);
+ 	pd->cpu = cpumask_first(pd->cpumask.pcpu);
+ 	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
+@@ -466,29 +474,6 @@ static void padata_free_pd(struct parall
+ 	kfree(pd);
+ }
+ 
+-/* Flush all objects out of the padata queues. */
+-static void padata_flush_queues(struct parallel_data *pd)
+-{
+-	int cpu;
+-	struct padata_parallel_queue *pqueue;
+-	struct padata_serial_queue *squeue;
+-
+-	for_each_cpu(cpu, pd->cpumask.pcpu) {
+-		pqueue = per_cpu_ptr(pd->pqueue, cpu);
+-		flush_work(&pqueue->work);
+-	}
+-
+-	if (atomic_read(&pd->reorder_objects))
+-		padata_reorder(pd);
+-
+-	for_each_cpu(cpu, pd->cpumask.cbcpu) {
+-		squeue = per_cpu_ptr(pd->squeue, cpu);
+-		flush_work(&squeue->work);
+-	}
+-
+-	BUG_ON(atomic_read(&pd->refcnt) != 0);
+-}
+-
+ static void __padata_start(struct padata_instance *pinst)
+ {
+ 	pinst->flags |= PADATA_INIT;
+@@ -502,10 +487,6 @@ static void __padata_stop(struct padata_
+ 	pinst->flags &= ~PADATA_INIT;
+ 
+ 	synchronize_rcu();
+-
+-	get_online_cpus();
+-	padata_flush_queues(pinst->pd);
+-	put_online_cpus();
+ }
+ 
+ /* Replace the internal control structure with a new one. */
+@@ -526,8 +507,8 @@ static void padata_replace(struct padata
+ 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
+ 		notification_mask |= PADATA_CPU_SERIAL;
+ 
+-	padata_flush_queues(pd_old);
+-	padata_free_pd(pd_old);
++	if (atomic_dec_and_test(&pd_old->refcnt))
++		padata_free_pd(pd_old);
+ 
+ 	if (notification_mask)
+ 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
 
 
