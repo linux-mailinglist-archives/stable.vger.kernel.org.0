@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E61BF157BC1
+	by mail.lfdr.de (Postfix) with ESMTP id 7470D157BC0
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbgBJNcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:32:16 -0500
+        id S1728107AbgBJNcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:32:11 -0500
 Received: from mail.kernel.org ([198.145.29.99]:53642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728121AbgBJMft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:49 -0500
+        id S1728129AbgBJMfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:50 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE09E2173E;
-        Mon, 10 Feb 2020 12:35:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6847215A4;
+        Mon, 10 Feb 2020 12:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338148;
-        bh=haO2gdQoASsX8xuMYS978uHsIAL1MUSq0NOd05uOUfM=;
+        s=default; t=1581338149;
+        bh=7S+nz84V2XBwIG/SFHIOdFnJ93coRYt3lxMrqd/7a2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5dXteNyHJKlL/6YTvsK1SFVNskjYdpfLy3hEdma4x31RWLEJZCe7P6M/YsvRwAAD
-         gHKaXbY3trpISi4DDonv1jPzblhAOnjuJOH2SSo8v7GtR9BklhH4b1VDGBoRGLDhIl
-         zM/ilhYlQ+zUDJWU3nVqMuc0EFEc7dq6PovI7HQA=
+        b=iJySgIVeqG6nE998HDkf4gvxGmrczKdrta6VoK50jELtwg1/YCrzyiSdc7AOx0mnX
+         r6drmITaMCZmOf2kdytqxPmnnEPl/72Orx1PifeJ/hJHYqtASTbCS8z+Q/OL1zgX+G
+         fro740vIzAl15FE1zsMJbdvXkiechByhGzCR64WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 110/195] iwlwifi: dont throw error when trying to remove IGTK
-Date:   Mon, 10 Feb 2020 04:32:48 -0800
-Message-Id: <20200210122316.265264917@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Frank Sorenson <sorenson@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.19 112/195] sunrpc: expiry_time should be seconds not timeval
+Date:   Mon, 10 Feb 2020 04:32:50 -0800
+Message-Id: <20200210122316.459145421@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -43,56 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Roberto Bergantinos Corpas <rbergant@redhat.com>
 
-commit 197288d5ba8a5289f22d3aeb4fca3824bfd9b4af upstream.
+commit 3d96208c30f84d6edf9ab4fac813306ac0d20c10 upstream.
 
-The IGTK keys are only removed by mac80211 after it has already
-removed the AP station.  This causes the driver to throw an error
-because mac80211 is trying to remove the IGTK when the station doesn't
-exist anymore.
+When upcalling gssproxy, cache_head.expiry_time is set as a
+timeval, not seconds since boot. As such, RPC cache expiry
+logic will not clean expired objects created under
+auth.rpcsec.context cache.
 
-The firmware is aware that the station has been removed and can deal
-with it the next time we try to add an IGTK for a station, so we
-shouldn't try to remove the key if the station ID is
-IWL_MVM_INVALID_STA.  Do this by removing the check for mvm_sta before
-calling iwl_mvm_send_sta_igtk() and check return from that function
-gracefully if the station ID is invalid.
+This has proven to cause kernel memory leaks on field. Using
+64 bit variants of getboottime/timespec
 
-Cc: stable@vger.kernel.org # 4.12+
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Expiration times have worked this way since 2010's c5b29f885afe "sunrpc:
+use seconds since boot in expiry cache".  The gssproxy code introduced
+in 2012 added gss_proxy_save_rsc and introduced the bug.  That's a while
+for this to lurk, but it required a bit of an extreme case to make it
+obvious.
+
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 030d794bf498 "SUNRPC: Use gssproxy upcall for server..."
+Tested-By: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -3045,6 +3045,10 @@ static int iwl_mvm_send_sta_igtk(struct
- 	igtk_cmd.sta_id = cpu_to_le32(sta_id);
- 
- 	if (remove_key) {
-+		/* This is a valid situation for IGTK */
-+		if (sta_id == IWL_MVM_INVALID_STA)
-+			return 0;
-+
- 		igtk_cmd.ctrl_flags |= cpu_to_le32(STA_KEY_NOT_VALID);
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1224,6 +1224,7 @@ static int gss_proxy_save_rsc(struct cac
+ 		dprintk("RPC:       No creds found!\n");
+ 		goto out;
  	} else {
- 		struct ieee80211_key_seq seq;
-@@ -3352,9 +3356,9 @@ int iwl_mvm_remove_sta_key(struct iwl_mv
- 	IWL_DEBUG_WEP(mvm, "mvm remove dynamic key: idx=%d sta=%d\n",
- 		      keyconf->keyidx, sta_id);
++		struct timespec64 boot;
  
--	if (mvm_sta && (keyconf->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
--			keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
--			keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256))
-+	if (keyconf->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
-+	    keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
-+	    keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256)
- 		return iwl_mvm_send_sta_igtk(mvm, keyconf, sta_id, true);
+ 		/* steal creds */
+ 		rsci.cred = ud->creds;
+@@ -1244,6 +1245,9 @@ static int gss_proxy_save_rsc(struct cac
+ 						&expiry, GFP_KERNEL);
+ 		if (status)
+ 			goto out;
++
++		getboottime64(&boot);
++		expiry -= boot.tv_sec;
+ 	}
  
- 	if (!__test_and_clear_bit(keyconf->hw_key_idx, mvm->fw_key_table)) {
+ 	rsci.h.expiry_time = expiry;
 
 
