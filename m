@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F22B1577C3
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41743157A41
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728479AbgBJMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40578 "EHLO mail.kernel.org"
+        id S1728776AbgBJMha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728185AbgBJMk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:27 -0500
+        id S1728767AbgBJMh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:29 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 714AB20838;
-        Mon, 10 Feb 2020 12:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0313524649;
+        Mon, 10 Feb 2020 12:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338427;
-        bh=LS6bO+2ivjG44XY+zOXDTWo7bKb8WeGQ05o1WT4qEzk=;
+        s=default; t=1581338248;
+        bh=CpLcdBXpLAY7Mi1THkNhFo1NTC21A9vtFyD/9QcbqPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTNEgAzvJESKZ/cqsdiwc6U+5qT7TSpCEV9t20DfuRAm98wLRpDTpJVFDfwJcELTf
-         Lsh3GRjBuf54e8NtAhb01qoUyQ16wOPBFwYuVxU+tPuqb2ItfoPOdc0eoMU8pkrmUk
-         qIwQn21nrN9xRc1q+ytHL3Gm1RMiHM/MZBtIGVp8=
+        b=Jsh9L2V4qliYADE1icAfxLwyLdrF8/Pccr7S4NMlTw+T75b4l9R1rQpe9lhKRKGly
+         UOZoSGMRrB85CAEQM4MAbpgGIQET4GmkaHrfdAl7bDBTx5lING6M7Hu/lzKiLrjzEc
+         /07bkdq3pgfqdJeangst0fKq1UL9qUsAtnW9vQak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amol Grover <frextrite@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 151/367] tracing: Annotate ftrace_graph_notrace_hash pointer with __rcu
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 108/309] fs: allow deduplication of eof block into the end of the destination file
 Date:   Mon, 10 Feb 2020 04:31:04 -0800
-Message-Id: <20200210122438.777417716@linuxfoundation.org>
+Message-Id: <20200210122416.746170855@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit fd0e6852c407dd9aefc594f54ddcc21d84803d3b ]
+commit a5e6ea18e3d132be4716eb5fdd520c2c234e3003 upstream.
 
-Fix following instances of sparse error
-kernel/trace/ftrace.c:5667:29: error: incompatible types in comparison
-kernel/trace/ftrace.c:5813:21: error: incompatible types in comparison
-kernel/trace/ftrace.c:5868:36: error: incompatible types in comparison
-kernel/trace/ftrace.c:5870:25: error: incompatible types in comparison
+We always round down, to a multiple of the filesystem's block size, the
+length to deduplicate at generic_remap_check_len().  However this is only
+needed if an attempt to deduplicate the last block into the middle of the
+destination file is requested, since that leads into a corruption if the
+length of the source file is not block size aligned.  When an attempt to
+deduplicate the last block into the end of the destination file is
+requested, we should allow it because it is safe to do it - there's no
+stale data exposure and we are prepared to compare the data ranges for
+a length not aligned to the block (or page) size - in fact we even do
+the data compare before adjusting the deduplication length.
 
-Use rcu_dereference_protected to dereference the newly annotated pointer.
+After btrfs was updated to use the generic helpers from VFS (by commit
+34a28e3d77535e ("Btrfs: use generic_remap_file_range_prep() for cloning
+and deduplication")) we started to have user reports of deduplication
+not reflinking the last block anymore, and whence users getting lower
+deduplication scores.  The main use case is deduplication of entire
+files that have a size not aligned to the block size of the filesystem.
 
-Link: http://lkml.kernel.org/r/20200205055701.30195-1-frextrite@gmail.com
+We already allow cloning the last block to the end (and beyond) of the
+destination file, so allow for deduplication as well.
 
-Signed-off-by: Amol Grover <frextrite@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-btrfs/2019-1576167349.500456@svIo.N5dq.dFFD/
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/trace/ftrace.c | 2 +-
- kernel/trace/trace.h  | 8 ++++++--
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ fs/read_write.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 959ded08dc13f..e85668cdd8c73 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5597,7 +5597,7 @@ static const struct file_operations ftrace_notrace_fops = {
- static DEFINE_MUTEX(graph_lock);
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -1777,10 +1777,9 @@ static int remap_verify_area(struct file
+  * else.  Assume that the offsets have already been checked for block
+  * alignment.
+  *
+- * For deduplication we always scale down to the previous block because we
+- * can't meaningfully compare post-EOF contents.
+- *
+- * For clone we only link a partial EOF block above the destination file's EOF.
++ * For clone we only link a partial EOF block above or at the destination file's
++ * EOF.  For deduplication we accept a partial EOF block only if it ends at the
++ * destination file's EOF (can not link it into the middle of a file).
+  *
+  * Shorten the request if possible.
+  */
+@@ -1796,8 +1795,7 @@ static int generic_remap_check_len(struc
+ 	if ((*len & blkmask) == 0)
+ 		return 0;
  
- struct ftrace_hash __rcu *ftrace_graph_hash = EMPTY_HASH;
--struct ftrace_hash *ftrace_graph_notrace_hash = EMPTY_HASH;
-+struct ftrace_hash __rcu *ftrace_graph_notrace_hash = EMPTY_HASH;
+-	if ((remap_flags & REMAP_FILE_DEDUP) ||
+-	    pos_out + *len < i_size_read(inode_out))
++	if (pos_out + *len < i_size_read(inode_out))
+ 		new_len &= ~blkmask;
  
- enum graph_filter_type {
- 	GRAPH_FILTER_NOTRACE	= 0,
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index 97dad33260208..497defe9ed264 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -951,7 +951,7 @@ extern void __trace_graph_return(struct trace_array *tr,
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
- extern struct ftrace_hash __rcu *ftrace_graph_hash;
--extern struct ftrace_hash *ftrace_graph_notrace_hash;
-+extern struct ftrace_hash __rcu *ftrace_graph_notrace_hash;
- 
- static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
- {
-@@ -1004,10 +1004,14 @@ static inline void ftrace_graph_addr_finish(struct ftrace_graph_ret *trace)
- static inline int ftrace_graph_notrace_addr(unsigned long addr)
- {
- 	int ret = 0;
-+	struct ftrace_hash *notrace_hash;
- 
- 	preempt_disable_notrace();
- 
--	if (ftrace_lookup_ip(ftrace_graph_notrace_hash, addr))
-+	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
-+						 !preemptible());
-+
-+	if (ftrace_lookup_ip(notrace_hash, addr))
- 		ret = 1;
- 
- 	preempt_enable_notrace();
--- 
-2.20.1
-
+ 	if (new_len == *len)
 
 
