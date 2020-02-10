@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D46D51579AF
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8131579AA
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727881AbgBJNRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:17:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60954 "EHLO mail.kernel.org"
+        id S1729005AbgBJNRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:17:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728996AbgBJMiD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:03 -0500
+        id S1728143AbgBJMiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1C002168B;
-        Mon, 10 Feb 2020 12:38:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 247942051A;
+        Mon, 10 Feb 2020 12:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338282;
-        bh=/1tLgSXLr2zGncF4c5Qo6ckyM58TYsaf1w+b+Ouk6c4=;
+        s=default; t=1581338283;
+        bh=oZWgGWMTJO4VBuXABYTgRaCWpCOwWoCwPgFYd+YLD7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1kGb1w8kglsJFHuetlnB4iv/aqbs9HpVuc2RogjNlhUNPFojQpOf8BM8Qp6JztBH
-         DyfE95lD7BGONkSQkfutWLK/wZiapwG3FzY7I1xh8qqal4ztkeJGgPfGga6myhJJRj
-         l9SZYfq6m0CdKQLes0TbueNc2MkUMKfud0txXqjg=
+        b=qxT8VjHnxm7P3/SXBfHF7Y/Rz4NmUkME1bQo/9GWZpH69JwAb6C750yTXpRXtY5wN
+         HY89NRYyIndZyhut0WAQJirnnlxmXDl2GLLEdpTFXEuE4EIMYyvj3Ogg1BC5jTAEg/
+         BB8Q4U1HVfQrG6UDLHfeQaPG6/wueeh3zHvnPfr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 134/309] scsi: qla2xxx: Fix stuck login session using prli_pend_timer
-Date:   Mon, 10 Feb 2020 04:31:30 -0800
-Message-Id: <20200210122419.227863408@linuxfoundation.org>
+Subject: [PATCH 5.4 135/309] ASoC: SOF: Introduce state machine for FW boot
+Date:   Mon, 10 Feb 2020 04:31:31 -0800
+Message-Id: <20200210122419.339985648@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -45,139 +48,326 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-[ Upstream commit 8aaac2d7da873aebeba92c666f82c00bbd74aaf9 ]
+[ Upstream commit 6ca5cecbd1c1758666ab79446f19e0e61ed11444 ]
 
-Session is stuck if driver sees FW has received a PRLI. Driver allows FW to
-finish with processing of PRLI by checking back with FW at a later time to
-see if the PRLI has finished. Instead, driver failed to push forward after
-re-checking PRLI completion.
+Add a state machine for FW boot to track the
+different stages of FW boot and replace the boot_complete
+field with fw_state field in struct snd_sof_dev.
+This will be used to determine the actions to be performed
+during system suspend.
 
-Fixes: ce0ba496dccf ("scsi: qla2xxx: Fix stuck login session")
-Cc: stable@vger.kernel.org # 5.3
-Link: https://lore.kernel.org/r/20191217220617.28084-9-hmadhani@marvell.com
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+One of the main motivations for adding this change is the
+fact that errors during the top-level SOF device probe cannot
+be propagated and therefore suspending the SOF device normally
+during system suspend could potentially run into errors.
+For example, with the current flow, if the FW boot failed
+for some reason and the system suspends, the SOF device
+suspend could fail because the CTX_SAVE IPC would be attempted
+even though the FW never really booted successfully causing it
+to time out. Another scenario that the state machine fixes
+is when the runtime suspend for the SOF device fails and
+the DSP is powered down nevertheless, the CTX_SAVE IPC during
+system suspend would timeout because the DSP is already
+powered down.
+
+Reviewed-by: Curtis Malainey <cujomalainey@chromium.org>
+Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191218002616.7652-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h    |  5 +++++
- drivers/scsi/qla2xxx/qla_init.c   | 34 +++++++++++++++++++++++--------
- drivers/scsi/qla2xxx/qla_target.c |  1 +
- 3 files changed, 32 insertions(+), 8 deletions(-)
+ sound/soc/sof/core.c             | 50 +++++++++++++++++++++++++++++++-
+ sound/soc/sof/intel/hda-loader.c |  1 -
+ sound/soc/sof/intel/hda.c        |  4 +--
+ sound/soc/sof/ipc.c              | 17 ++++-------
+ sound/soc/sof/loader.c           | 19 ++++++++----
+ sound/soc/sof/pm.c               | 21 +++++++++++++-
+ sound/soc/sof/sof-priv.h         | 11 ++++++-
+ 7 files changed, 99 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
-index 1eb3fe281cc3c..c57b95a206888 100644
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -2402,6 +2402,7 @@ typedef struct fc_port {
- 	unsigned int scan_needed:1;
- 	unsigned int n2n_flag:1;
- 	unsigned int explicit_logout:1;
-+	unsigned int prli_pend_timer:1;
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index 075b80698477e..f9ebdf2cfc31d 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -288,6 +288,46 @@ static int sof_machine_check(struct snd_sof_dev *sdev)
+ #endif
+ }
  
- 	struct completion nvme_del_done;
- 	uint32_t nvme_prli_service_param;
-@@ -2428,6 +2429,7 @@ typedef struct fc_port {
- 	struct work_struct free_work;
- 	struct work_struct reg_work;
- 	uint64_t jiffies_at_registration;
-+	unsigned long prli_expired;
- 	struct qlt_plogi_ack_t *plogi_link[QLT_PLOGI_LINK_MAX];
- 
- 	uint16_t tgt_id;
-@@ -4821,6 +4823,9 @@ struct sff_8247_a0 {
- 	 ha->current_topology == ISP_CFG_N || \
- 	 !ha->current_topology)
- 
-+#define PRLI_PHASE(_cls) \
-+	((_cls == DSC_LS_PRLI_PEND) || (_cls == DSC_LS_PRLI_COMP))
++/*
++ *			FW Boot State Transition Diagram
++ *
++ *    +-----------------------------------------------------------------------+
++ *    |									      |
++ * ------------------	     ------------------				      |
++ * |		    |	     |		      |				      |
++ * |   BOOT_FAILED  |	     |  READY_FAILED  |-------------------------+     |
++ * |		    |	     |	              |				|     |
++ * ------------------	     ------------------				|     |
++ *	^			    ^					|     |
++ *	|			    |					|     |
++ * (FW Boot Timeout)		(FW_READY FAIL)				|     |
++ *	|			    |					|     |
++ *	|			    |					|     |
++ * ------------------		    |		   ------------------	|     |
++ * |		    |		    |		   |		    |	|     |
++ * |   IN_PROGRESS  |---------------+------------->|    COMPLETE    |	|     |
++ * |		    | (FW Boot OK)   (FW_READY OK) |		    |	|     |
++ * ------------------				   ------------------	|     |
++ *	^						|		|     |
++ *	|						|		|     |
++ * (FW Loading OK)			       (System Suspend/Runtime Suspend)
++ *	|						|		|     |
++ *	|						|		|     |
++ * ------------------		------------------	|		|     |
++ * |		    |		|		 |<-----+		|     |
++ * |   PREPARE	    |		|   NOT_STARTED  |<---------------------+     |
++ * |		    |		|		 |<---------------------------+
++ * ------------------		------------------
++ *    |	    ^			    |	   ^
++ *    |	    |			    |	   |
++ *    |	    +-----------------------+	   |
++ *    |		(DSP Probe OK)		   |
++ *    |					   |
++ *    |					   |
++ *    +------------------------------------+
++ *	(System Suspend/Runtime Suspend)
++ */
 +
- #include "qla_target.h"
- #include "qla_gbl.h"
- #include "qla_dbg.h"
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 9ffaa920fc8f8..ac4c47fc5f4c1 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -686,7 +686,7 @@ static void qla24xx_handle_gnl_done_event(scsi_qla_host_t *vha,
- 	port_id_t id;
- 	u64 wwn;
- 	u16 data[2];
--	u8 current_login_state;
-+	u8 current_login_state, nvme_cls;
+ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ {
+ 	struct snd_sof_pdata *plat_data = sdev->pdata;
+@@ -303,6 +343,8 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 		return ret;
+ 	}
  
- 	fcport = ea->fcport;
- 	ql_dbg(ql_dbg_disc, vha, 0xffff,
-@@ -745,10 +745,17 @@ static void qla24xx_handle_gnl_done_event(scsi_qla_host_t *vha,
- 
- 		loop_id = le16_to_cpu(e->nport_handle);
- 		loop_id = (loop_id & 0x7fff);
--		if  (fcport->fc4f_nvme)
--			current_login_state = e->current_login_state >> 4;
--		else
--			current_login_state = e->current_login_state & 0xf;
-+		nvme_cls = e->current_login_state >> 4;
-+		current_login_state = e->current_login_state & 0xf;
++	sdev->fw_state = SOF_FW_BOOT_PREPARE;
 +
-+		if (PRLI_PHASE(nvme_cls)) {
-+			current_login_state = nvme_cls;
-+			fcport->fc4_type &= ~FS_FC4TYPE_FCP;
-+			fcport->fc4_type |= FS_FC4TYPE_NVME;
-+		} else if (PRLI_PHASE(current_login_state)) {
-+			fcport->fc4_type |= FS_FC4TYPE_FCP;
-+			fcport->fc4_type &= ~FS_FC4TYPE_NVME;
-+		}
+ 	/* check machine info */
+ 	ret = sof_machine_check(sdev);
+ 	if (ret < 0) {
+@@ -342,7 +384,12 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 		goto fw_load_err;
+ 	}
  
+-	/* boot the firmware */
++	sdev->fw_state = SOF_FW_BOOT_IN_PROGRESS;
++
++	/*
++	 * Boot the firmware. The FW boot status will be modified
++	 * in snd_sof_run_firmware() depending on the outcome.
++	 */
+ 	ret = snd_sof_run_firmware(sdev);
+ 	if (ret < 0) {
+ 		dev_err(sdev->dev, "error: failed to boot DSP firmware %d\n",
+@@ -450,6 +497,7 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
  
- 		ql_dbg(ql_dbg_disc, vha, 0x20e2,
-@@ -1219,12 +1226,19 @@ qla24xx_async_prli(struct scsi_qla_host *vha, fc_port_t *fcport)
- 	struct srb_iocb *lio;
- 	int rval = QLA_FUNCTION_FAILED;
+ 	sdev->pdata = plat_data;
+ 	sdev->first_boot = true;
++	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
+ 	dev_set_drvdata(dev, sdev);
  
--	if (!vha->flags.online)
-+	if (!vha->flags.online) {
-+		ql_dbg(ql_dbg_disc, vha, 0xffff, "%s %d %8phC exit\n",
-+		    __func__, __LINE__, fcport->port_name);
- 		return rval;
-+	}
+ 	/* check all mandatory ops */
+diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
+index 65c2af3fcaab7..356bb134ae93a 100644
+--- a/sound/soc/sof/intel/hda-loader.c
++++ b/sound/soc/sof/intel/hda-loader.c
+@@ -278,7 +278,6 @@ int hda_dsp_cl_boot_firmware(struct snd_sof_dev *sdev)
  
--	if (fcport->fw_login_state == DSC_LS_PLOGI_PEND ||
--	    fcport->fw_login_state == DSC_LS_PRLI_PEND)
-+	if ((fcport->fw_login_state == DSC_LS_PLOGI_PEND ||
-+	    fcport->fw_login_state == DSC_LS_PRLI_PEND) &&
-+	    qla_dual_mode_enabled(vha)) {
-+		ql_dbg(ql_dbg_disc, vha, 0xffff, "%s %d %8phC exit\n",
-+		    __func__, __LINE__, fcport->port_name);
- 		return rval;
-+	}
+ 	/* init for booting wait */
+ 	init_waitqueue_head(&sdev->boot_wait);
+-	sdev->boot_complete = false;
  
- 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
- 	if (!sp)
-@@ -1602,6 +1616,10 @@ int qla24xx_fcport_handle_login(struct scsi_qla_host *vha, fc_port_t *fcport)
- 			break;
- 		default:
- 			if (fcport->login_pause) {
-+				ql_dbg(ql_dbg_disc, vha, 0x20d8,
-+				    "%s %d %8phC exit\n",
-+				    __func__, __LINE__,
-+				    fcport->port_name);
- 				fcport->last_rscn_gen = fcport->rscn_gen;
- 				fcport->last_login_gen = fcport->login_gen;
- 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 74a378a91b71e..cb8a892e2d393 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1257,6 +1257,7 @@ void qlt_schedule_sess_for_deletion(struct fc_port *sess)
- 	sess->deleted = QLA_SESS_DELETION_IN_PROGRESS;
- 	spin_unlock_irqrestore(&sess->vha->work_lock, flags);
+ 	/* prepare DMA for code loader stream */
+ 	tag = cl_stream_prepare(sdev, 0x40, stripped_firmware.size,
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index 5a5163eef2ef4..3c4b604412f0e 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -166,7 +166,7 @@ void hda_dsp_dump_skl(struct snd_sof_dev *sdev, u32 flags)
+ 	panic = snd_sof_dsp_read(sdev, HDA_DSP_BAR,
+ 				 HDA_ADSP_ERROR_CODE_SKL + 0x4);
  
-+	sess->prli_pend_timer = 0;
- 	sess->disc_state = DSC_DELETE_PEND;
+-	if (sdev->boot_complete) {
++	if (sdev->fw_state == SOF_FW_BOOT_COMPLETE) {
+ 		hda_dsp_get_registers(sdev, &xoops, &panic_info, stack,
+ 				      HDA_DSP_STACK_DUMP_SIZE);
+ 		snd_sof_get_status(sdev, status, panic, &xoops, &panic_info,
+@@ -193,7 +193,7 @@ void hda_dsp_dump(struct snd_sof_dev *sdev, u32 flags)
+ 				  HDA_DSP_SRAM_REG_FW_STATUS);
+ 	panic = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_SRAM_REG_FW_TRACEP);
  
- 	qla24xx_chk_fcp_state(sess);
+-	if (sdev->boot_complete) {
++	if (sdev->fw_state == SOF_FW_BOOT_COMPLETE) {
+ 		hda_dsp_get_registers(sdev, &xoops, &panic_info, stack,
+ 				      HDA_DSP_STACK_DUMP_SIZE);
+ 		snd_sof_get_status(sdev, status, panic, &xoops, &panic_info,
+diff --git a/sound/soc/sof/ipc.c b/sound/soc/sof/ipc.c
+index 7b6d69783e16a..8984d965037de 100644
+--- a/sound/soc/sof/ipc.c
++++ b/sound/soc/sof/ipc.c
+@@ -348,19 +348,12 @@ void snd_sof_ipc_msgs_rx(struct snd_sof_dev *sdev)
+ 		break;
+ 	case SOF_IPC_FW_READY:
+ 		/* check for FW boot completion */
+-		if (!sdev->boot_complete) {
++		if (sdev->fw_state == SOF_FW_BOOT_IN_PROGRESS) {
+ 			err = sof_ops(sdev)->fw_ready(sdev, cmd);
+-			if (err < 0) {
+-				/*
+-				 * this indicates a mismatch in ABI
+-				 * between the driver and fw
+-				 */
+-				dev_err(sdev->dev, "error: ABI mismatch %d\n",
+-					err);
+-			} else {
+-				/* firmware boot completed OK */
+-				sdev->boot_complete = true;
+-			}
++			if (err < 0)
++				sdev->fw_state = SOF_FW_BOOT_READY_FAILED;
++			else
++				sdev->fw_state = SOF_FW_BOOT_COMPLETE;
+ 
+ 			/* wake up firmware loader */
+ 			wake_up(&sdev->boot_wait);
+diff --git a/sound/soc/sof/loader.c b/sound/soc/sof/loader.c
+index a041adf0669de..ce114df5e4fce 100644
+--- a/sound/soc/sof/loader.c
++++ b/sound/soc/sof/loader.c
+@@ -511,7 +511,6 @@ int snd_sof_run_firmware(struct snd_sof_dev *sdev)
+ 	int init_core_mask;
+ 
+ 	init_waitqueue_head(&sdev->boot_wait);
+-	sdev->boot_complete = false;
+ 
+ 	/* create read-only fw_version debugfs to store boot version info */
+ 	if (sdev->first_boot) {
+@@ -543,19 +542,27 @@ int snd_sof_run_firmware(struct snd_sof_dev *sdev)
+ 
+ 	init_core_mask = ret;
+ 
+-	/* now wait for the DSP to boot */
+-	ret = wait_event_timeout(sdev->boot_wait, sdev->boot_complete,
++	/*
++	 * now wait for the DSP to boot. There are 3 possible outcomes:
++	 * 1. Boot wait times out indicating FW boot failure.
++	 * 2. FW boots successfully and fw_ready op succeeds.
++	 * 3. FW boots but fw_ready op fails.
++	 */
++	ret = wait_event_timeout(sdev->boot_wait,
++				 sdev->fw_state > SOF_FW_BOOT_IN_PROGRESS,
+ 				 msecs_to_jiffies(sdev->boot_timeout));
+ 	if (ret == 0) {
+ 		dev_err(sdev->dev, "error: firmware boot failure\n");
+ 		snd_sof_dsp_dbg_dump(sdev, SOF_DBG_REGS | SOF_DBG_MBOX |
+ 			SOF_DBG_TEXT | SOF_DBG_PCI);
+-		/* after this point FW_READY msg should be ignored */
+-		sdev->boot_complete = true;
++		sdev->fw_state = SOF_FW_BOOT_FAILED;
+ 		return -EIO;
+ 	}
+ 
+-	dev_info(sdev->dev, "firmware boot complete\n");
++	if (sdev->fw_state == SOF_FW_BOOT_COMPLETE)
++		dev_info(sdev->dev, "firmware boot complete\n");
++	else
++		return -EIO; /* FW boots but fw_ready op failed */
+ 
+ 	/* perform post fw run operations */
+ 	ret = snd_sof_dsp_post_fw_run(sdev);
+diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
+index e23beaeefe005..e9fbac38d9238 100644
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -283,6 +283,8 @@ static int sof_resume(struct device *dev, bool runtime_resume)
+ 		return ret;
+ 	}
+ 
++	sdev->fw_state = SOF_FW_BOOT_PREPARE;
++
+ 	/* load the firmware */
+ 	ret = snd_sof_load_firmware(sdev);
+ 	if (ret < 0) {
+@@ -292,7 +294,12 @@ static int sof_resume(struct device *dev, bool runtime_resume)
+ 		return ret;
+ 	}
+ 
+-	/* boot the firmware */
++	sdev->fw_state = SOF_FW_BOOT_IN_PROGRESS;
++
++	/*
++	 * Boot the firmware. The FW boot status will be modified
++	 * in snd_sof_run_firmware() depending on the outcome.
++	 */
+ 	ret = snd_sof_run_firmware(sdev);
+ 	if (ret < 0) {
+ 		dev_err(sdev->dev,
+@@ -338,6 +345,9 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
+ 	if (!sof_ops(sdev)->suspend)
+ 		return 0;
+ 
++	if (sdev->fw_state != SOF_FW_BOOT_COMPLETE)
++		goto power_down;
++
+ 	/* release trace */
+ 	snd_sof_release_trace(sdev);
+ 
+@@ -375,6 +385,12 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
+ 			 ret);
+ 	}
+ 
++power_down:
++
++	/* return if the DSP was not probed successfully */
++	if (sdev->fw_state == SOF_FW_BOOT_NOT_STARTED)
++		return 0;
++
+ 	/* power down all DSP cores */
+ 	if (runtime_suspend)
+ 		ret = snd_sof_dsp_runtime_suspend(sdev);
+@@ -385,6 +401,9 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
+ 			"error: failed to power down DSP during suspend %d\n",
+ 			ret);
+ 
++	/* reset FW state */
++	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
++
+ 	return ret;
+ }
+ 
+diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
+index 730f3259dd027..7b329bd99674f 100644
+--- a/sound/soc/sof/sof-priv.h
++++ b/sound/soc/sof/sof-priv.h
+@@ -356,6 +356,15 @@ struct snd_sof_dai {
+ 	struct list_head list;	/* list in sdev dai list */
+ };
+ 
++enum snd_sof_fw_state {
++	SOF_FW_BOOT_NOT_STARTED = 0,
++	SOF_FW_BOOT_PREPARE,
++	SOF_FW_BOOT_IN_PROGRESS,
++	SOF_FW_BOOT_FAILED,
++	SOF_FW_BOOT_READY_FAILED, /* firmware booted but fw_ready op failed */
++	SOF_FW_BOOT_COMPLETE,
++};
++
+ /*
+  * SOF Device Level.
+  */
+@@ -372,7 +381,7 @@ struct snd_sof_dev {
+ 
+ 	/* DSP firmware boot */
+ 	wait_queue_head_t boot_wait;
+-	u32 boot_complete;
++	enum snd_sof_fw_state fw_state;
+ 	u32 first_boot;
+ 
+ 	/* work queue in case the probe is implemented in two steps */
 -- 
 2.20.1
 
