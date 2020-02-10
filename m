@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF691157C17
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE06157C19
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbgBJMfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
+        id S1728362AbgBJNeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:34:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727363AbgBJMfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:23 -0500
+        id S1727904AbgBJMfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:25 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78B1D24650;
-        Mon, 10 Feb 2020 12:35:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 809DB24683;
+        Mon, 10 Feb 2020 12:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338122;
-        bh=x/XNKUFPLS3neS+LDoNIiq/pjbpPs7OtyRIHTd6zdl0=;
+        s=default; t=1581338123;
+        bh=nMvHdqf3f7WB9WXMouBqwV1kRJsEOuGBB7cOXjHz8Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRN/uB8btRh2Qx9XXFoJplwgT12tb0T1YRXR26wL30Vx0D6jjSpdVNGAo5eRzlAAl
-         mYftd4Q2CGAAHaQOhDjDRWCGksu4NsJagulsGX/FtNmZwxHU406qAyFp4ydkBb0+nC
-         sRCaXzFawyeX5697DFz6qFFNnr+RzCbsidoyivVc=
+        b=rwMLUmjwea5AaUB9uPBUs6PRpU9c///DUbX3f0y7NKqbTiWb2hZS9saWt01LnQFhN
+         5Lwm0sru6SkmMloQLP94+Fo+HPh154Pfo0On49Clb1JBGny88HwfjmqkLO434njixj
+         kpfUBGWu3wgdAHC8yEkLGTYEQFdivE53amyhfM/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 059/195] ACPI: video: Do not export a non working backlight interface on MSI MS-7721 boards
-Date:   Mon, 10 Feb 2020 04:31:57 -0800
-Message-Id: <20200210122311.716296774@linuxfoundation.org>
+Subject: [PATCH 4.19 061/195] ACPI / battery: Use design-cap for capacity calculations if full-cap is not available
+Date:   Mon, 10 Feb 2020 04:31:59 -0800
+Message-Id: <20200210122311.832867027@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -45,57 +45,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit d21a91629f4b8e794fc4c0e0c17c85cedf1d806c upstream.
+commit 5b74d1d16e2f5753fcbdecd6771b2d8370dda414 upstream.
 
-Despite our heuristics to not wrongly export a non working ACPI backlight
-interface on desktop machines, we still end up exporting one on desktops
-using a motherboard from the MSI MS-7721 series.
+The ThunderSoft TS178 tablet's _BIX implementation reports design_capacity
+but not full_charge_capacity.
 
-I've looked at improving the heuristics, but in this case a quirk seems
-to be the only way to solve this.
+Before this commit this would cause us to return -ENODEV for the capacity
+attribute, which userspace does not like. Specifically upower does this:
 
-While at it also add a comment to separate the video_detect_force_none
-entries in the video_detect_dmi_table from other type of entries, as we
-already do for the other entry types.
+        if (sysfs_file_exists (native_path, "capacity")) {
+                percentage = sysfs_get_double (native_path, "capacity");
 
-Cc: All applicable <stable@vger.kernel.org>
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1783786
+Where the sysfs_get_double() helper returns 0 when we return -ENODEV,
+so the battery always reads 0% if we return -ENODEV.
+
+This commit fixes this by using the design-capacity instead of the
+full-charge-capacity when the full-charge-capacity is not available.
+
+Fixes: b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on devices without full_charge_capacity")
+Cc: 4.19+ <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/video_detect.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/acpi/battery.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -328,6 +328,11 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Precision 7510"),
- 		},
- 	},
-+
-+	/*
-+	 * Desktops which falsely report a backlight and which our heuristics
-+	 * for this do not catch.
-+	 */
- 	{
- 	 .callback = video_detect_force_none,
- 	 .ident = "Dell OptiPlex 9020M",
-@@ -336,6 +341,14 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 9020M"),
- 		},
- 	},
-+	{
-+	 .callback = video_detect_force_none,
-+	 .ident = "MSI MS-7721",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "MSI"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "MS-7721"),
-+		},
-+	},
- 	{ },
- };
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -230,7 +230,7 @@ static int acpi_battery_get_property(str
+ 				     enum power_supply_property psp,
+ 				     union power_supply_propval *val)
+ {
+-	int ret = 0;
++	int full_capacity = ACPI_BATTERY_VALUE_UNKNOWN, ret = 0;
+ 	struct acpi_battery *battery = to_acpi_battery(psy);
  
+ 	if (acpi_battery_present(battery)) {
+@@ -299,12 +299,17 @@ static int acpi_battery_get_property(str
+ 			val->intval = battery->capacity_now * 1000;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
++		if (ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity))
++			full_capacity = battery->full_charge_capacity;
++		else if (ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity))
++			full_capacity = battery->design_capacity;
++
+ 		if (battery->capacity_now == ACPI_BATTERY_VALUE_UNKNOWN ||
+-		    !ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity))
++		    full_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
+ 			ret = -ENODEV;
+ 		else
+ 			val->intval = battery->capacity_now * 100/
+-					battery->full_charge_capacity;
++					full_capacity;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
+ 		if (battery->state & ACPI_BATTERY_STATE_CRITICAL)
 
 
