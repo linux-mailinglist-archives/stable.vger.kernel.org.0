@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 626DA1574FB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 853311574A1
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728787AbgBJMhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59340 "EHLO mail.kernel.org"
+        id S1727437AbgBJMe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:34:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728781AbgBJMhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:31 -0500
+        id S1727008AbgBJMe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:34:58 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86EF120842;
-        Mon, 10 Feb 2020 12:37:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 101A3214DB;
+        Mon, 10 Feb 2020 12:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338250;
-        bh=w5A4eA5jMsXvzpUtja3e+W6Wm1p/u6dChInaxePgKbw=;
+        s=default; t=1581338098;
+        bh=Ap75gvM0w7vFuJG6zO9Hyd65zzOM1aOv3HuZI6MF5p8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZlT9adks7Y9kbNi2LIw0vjiFYZFbQpjNL+LXVjQGz69UXsTuIw9Ueib4Ozrp7XB4
-         9EUEteJmIEd0rhN5LC1GLmLrcsxxKpU/dhnyCkBi9825QAK9pazRfz/RbpEINhVA4m
-         dtnHh1VVCwCQtVELktjzZr2SE1Y2nTKZ7OtSxISU=
+        b=EoI2EkTVhfiKyIzM7F17pf4F+rcJ3giaaGRiOQiq9xF9lEOwiiJpo44IURwZTfZLb
+         EQ1NpggxPvOItGRt6bKkJ6xvjN4Il8ogLeMSmgy8YHk1t4RKtfcpqf+LK0cSRpDCkb
+         MrcqxokN69tYF5TmGpLgiibF/jAiiGyJf7WErl6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Renninger <trenn@suse.de>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.4 113/309] cpupower: Revert library ABI changes from commit ae2917093fb60bdc1ed3e
-Date:   Mon, 10 Feb 2020 04:31:09 -0800
-Message-Id: <20200210122417.442063112@linuxfoundation.org>
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 012/195] gtp: use __GFP_NOWARN to avoid memalloc warning
+Date:   Mon, 10 Feb 2020 04:31:10 -0800
+Message-Id: <20200210122306.929921250@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,242 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Renninger <trenn@suse.de>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 41ddb7e1f79693d904502ae9bea609837973eff8 upstream.
+[ Upstream commit bd5cd35b782abf5437fbd01dfaee12437d20e832 ]
 
-Commit ae2917093fb6 ("tools/power/cpupower: Display boost frequency
-separately") modified the library function:
+gtp hashtable size is received by user-space.
+So, this hashtable size could be too large. If so, kmalloc will internally
+print a warning message.
+This warning message is actually not necessary for the gtp module.
+So, this patch adds __GFP_NOWARN to avoid this message.
 
-struct cpufreq_available_frequencies
-*cpufreq_get_available_frequencies(unsigned int cpu)
+Splat looks like:
+[ 2171.200049][ T1860] WARNING: CPU: 1 PID: 1860 at mm/page_alloc.c:4713 __alloc_pages_nodemask+0x2f3/0x740
+[ 2171.238885][ T1860] Modules linked in: gtp veth openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv]
+[ 2171.262680][ T1860] CPU: 1 PID: 1860 Comm: gtp-link Not tainted 5.5.0+ #321
+[ 2171.263567][ T1860] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[ 2171.264681][ T1860] RIP: 0010:__alloc_pages_nodemask+0x2f3/0x740
+[ 2171.265332][ T1860] Code: 64 fe ff ff 65 48 8b 04 25 c0 0f 02 00 48 05 f0 12 00 00 41 be 01 00 00 00 49 89 47 0
+[ 2171.267301][ T1860] RSP: 0018:ffff8880b51af1f0 EFLAGS: 00010246
+[ 2171.268320][ T1860] RAX: ffffed1016a35e43 RBX: 0000000000000000 RCX: 0000000000000000
+[ 2171.269517][ T1860] RDX: 0000000000000000 RSI: 000000000000000b RDI: 0000000000000000
+[ 2171.270305][ T1860] RBP: 0000000000040cc0 R08: ffffed1018893109 R09: dffffc0000000000
+[ 2171.275973][ T1860] R10: 0000000000000001 R11: ffffed1018893108 R12: 1ffff11016a35e43
+[ 2171.291039][ T1860] R13: 000000000000000b R14: 000000000000000b R15: 00000000000f4240
+[ 2171.292328][ T1860] FS:  00007f53cbc83740(0000) GS:ffff8880da000000(0000) knlGS:0000000000000000
+[ 2171.293409][ T1860] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 2171.294586][ T1860] CR2: 000055f540014508 CR3: 00000000b49f2004 CR4: 00000000000606e0
+[ 2171.295424][ T1860] Call Trace:
+[ 2171.295756][ T1860]  ? mark_held_locks+0xa5/0xe0
+[ 2171.296659][ T1860]  ? __alloc_pages_slowpath+0x21b0/0x21b0
+[ 2171.298283][ T1860]  ? gtp_encap_enable_socket+0x13e/0x400 [gtp]
+[ 2171.298962][ T1860]  ? alloc_pages_current+0xc1/0x1a0
+[ 2171.299475][ T1860]  kmalloc_order+0x22/0x80
+[ 2171.299936][ T1860]  kmalloc_order_trace+0x1d/0x140
+[ 2171.300437][ T1860]  __kmalloc+0x302/0x3a0
+[ 2171.300896][ T1860]  gtp_newlink+0x293/0xba0 [gtp]
+[ ... ]
 
-to
-struct cpufreq_frequencies
-*cpufreq_get_frequencies(const char *type, unsigned int cpu)
-
-This patch recovers the old API and implements the new functionality
-in a newly introduce method:
-struct cpufreq_boost_frequencies
-*cpufreq_get_available_frequencies(unsigned int cpu)
-
-This one should get merged into stable kernels back to 5.0 when
-the above had been introduced.
-
-Fixes: ae2917093fb6 ("tools/power/cpupower: Display boost frequency separately")
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Renninger <trenn@suse.de>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- tools/power/cpupower/lib/cpufreq.c        |   78 ++++++++++++++++++++++++++----
- tools/power/cpupower/lib/cpufreq.h        |   20 +++++--
- tools/power/cpupower/utils/cpufreq-info.c |   12 ++--
- 3 files changed, 87 insertions(+), 23 deletions(-)
+ drivers/net/gtp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/power/cpupower/lib/cpufreq.c
-+++ b/tools/power/cpupower/lib/cpufreq.c
-@@ -332,21 +332,74 @@ void cpufreq_put_available_governors(str
- }
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -772,12 +772,12 @@ static int gtp_hashtable_new(struct gtp_
+ 	int i;
  
+ 	gtp->addr_hash = kmalloc_array(hsize, sizeof(struct hlist_head),
+-				       GFP_KERNEL);
++				       GFP_KERNEL | __GFP_NOWARN);
+ 	if (gtp->addr_hash == NULL)
+ 		return -ENOMEM;
  
--struct cpufreq_frequencies
--*cpufreq_get_frequencies(const char *type, unsigned int cpu)
-+struct cpufreq_available_frequencies
-+*cpufreq_get_available_frequencies(unsigned int cpu)
- {
--	struct cpufreq_frequencies *first = NULL;
--	struct cpufreq_frequencies *current = NULL;
-+	struct cpufreq_available_frequencies *first = NULL;
-+	struct cpufreq_available_frequencies *current = NULL;
- 	char one_value[SYSFS_PATH_MAX];
- 	char linebuf[MAX_LINE_LEN];
--	char fname[MAX_LINE_LEN];
- 	unsigned int pos, i;
- 	unsigned int len;
+ 	gtp->tid_hash = kmalloc_array(hsize, sizeof(struct hlist_head),
+-				      GFP_KERNEL);
++				      GFP_KERNEL | __GFP_NOWARN);
+ 	if (gtp->tid_hash == NULL)
+ 		goto err1;
  
--	snprintf(fname, MAX_LINE_LEN, "scaling_%s_frequencies", type);
-+	len = sysfs_cpufreq_read_file(cpu, "scaling_available_frequencies",
-+				      linebuf, sizeof(linebuf));
-+	if (len == 0)
-+		return NULL;
-+
-+	pos = 0;
-+	for (i = 0; i < len; i++) {
-+		if (linebuf[i] == ' ' || linebuf[i] == '\n') {
-+			if (i - pos < 2)
-+				continue;
-+			if (i - pos >= SYSFS_PATH_MAX)
-+				goto error_out;
-+			if (current) {
-+				current->next = malloc(sizeof(*current));
-+				if (!current->next)
-+					goto error_out;
-+				current = current->next;
-+			} else {
-+				first = malloc(sizeof(*first));
-+				if (!first)
-+					goto error_out;
-+				current = first;
-+			}
-+			current->first = first;
-+			current->next = NULL;
-+
-+			memcpy(one_value, linebuf + pos, i - pos);
-+			one_value[i - pos] = '\0';
-+			if (sscanf(one_value, "%lu", &current->frequency) != 1)
-+				goto error_out;
-+
-+			pos = i + 1;
-+		}
-+	}
-+
-+	return first;
-+
-+ error_out:
-+	while (first) {
-+		current = first->next;
-+		free(first);
-+		first = current;
-+	}
-+	return NULL;
-+}
- 
--	len = sysfs_cpufreq_read_file(cpu, fname,
--				linebuf, sizeof(linebuf));
-+struct cpufreq_available_frequencies
-+*cpufreq_get_boost_frequencies(unsigned int cpu)
-+{
-+	struct cpufreq_available_frequencies *first = NULL;
-+	struct cpufreq_available_frequencies *current = NULL;
-+	char one_value[SYSFS_PATH_MAX];
-+	char linebuf[MAX_LINE_LEN];
-+	unsigned int pos, i;
-+	unsigned int len;
-+
-+	len = sysfs_cpufreq_read_file(cpu, "scaling_boost_frequencies",
-+				      linebuf, sizeof(linebuf));
- 	if (len == 0)
- 		return NULL;
- 
-@@ -391,9 +444,9 @@ struct cpufreq_frequencies
- 	return NULL;
- }
- 
--void cpufreq_put_frequencies(struct cpufreq_frequencies *any)
-+void cpufreq_put_available_frequencies(struct cpufreq_available_frequencies *any)
- {
--	struct cpufreq_frequencies *tmp, *next;
-+	struct cpufreq_available_frequencies *tmp, *next;
- 
- 	if (!any)
- 		return;
-@@ -406,6 +459,11 @@ void cpufreq_put_frequencies(struct cpuf
- 	}
- }
- 
-+void cpufreq_put_boost_frequencies(struct cpufreq_available_frequencies *any)
-+{
-+	cpufreq_put_available_frequencies(any);
-+}
-+
- static struct cpufreq_affected_cpus *sysfs_get_cpu_list(unsigned int cpu,
- 							const char *file)
- {
---- a/tools/power/cpupower/lib/cpufreq.h
-+++ b/tools/power/cpupower/lib/cpufreq.h
-@@ -20,10 +20,10 @@ struct cpufreq_available_governors {
- 	struct cpufreq_available_governors *first;
- };
- 
--struct cpufreq_frequencies {
-+struct cpufreq_available_frequencies {
- 	unsigned long frequency;
--	struct cpufreq_frequencies *next;
--	struct cpufreq_frequencies *first;
-+	struct cpufreq_available_frequencies *next;
-+	struct cpufreq_available_frequencies *first;
- };
- 
- 
-@@ -124,11 +124,17 @@ void cpufreq_put_available_governors(
-  * cpufreq_put_frequencies after use.
-  */
- 
--struct cpufreq_frequencies
--*cpufreq_get_frequencies(const char *type, unsigned int cpu);
-+struct cpufreq_available_frequencies
-+*cpufreq_get_available_frequencies(unsigned int cpu);
- 
--void cpufreq_put_frequencies(
--		struct cpufreq_frequencies *first);
-+void cpufreq_put_available_frequencies(
-+		struct cpufreq_available_frequencies *first);
-+
-+struct cpufreq_available_frequencies
-+*cpufreq_get_boost_frequencies(unsigned int cpu);
-+
-+void cpufreq_put_boost_frequencies(
-+		struct cpufreq_available_frequencies *first);
- 
- 
- /* determine affected CPUs
---- a/tools/power/cpupower/utils/cpufreq-info.c
-+++ b/tools/power/cpupower/utils/cpufreq-info.c
-@@ -244,14 +244,14 @@ static int get_boost_mode_x86(unsigned i
- 
- static int get_boost_mode(unsigned int cpu)
- {
--	struct cpufreq_frequencies *freqs;
-+	struct cpufreq_available_frequencies *freqs;
- 
- 	if (cpupower_cpu_info.vendor == X86_VENDOR_AMD ||
- 	    cpupower_cpu_info.vendor == X86_VENDOR_HYGON ||
- 	    cpupower_cpu_info.vendor == X86_VENDOR_INTEL)
- 		return get_boost_mode_x86(cpu);
- 
--	freqs = cpufreq_get_frequencies("boost", cpu);
-+	freqs = cpufreq_get_boost_frequencies(cpu);
- 	if (freqs) {
- 		printf(_("  boost frequency steps: "));
- 		while (freqs->next) {
-@@ -261,7 +261,7 @@ static int get_boost_mode(unsigned int c
- 		}
- 		print_speed(freqs->frequency);
- 		printf("\n");
--		cpufreq_put_frequencies(freqs);
-+		cpufreq_put_available_frequencies(freqs);
- 	}
- 
- 	return 0;
-@@ -475,7 +475,7 @@ static int get_latency(unsigned int cpu,
- 
- static void debug_output_one(unsigned int cpu)
- {
--	struct cpufreq_frequencies *freqs;
-+	struct cpufreq_available_frequencies *freqs;
- 
- 	get_driver(cpu);
- 	get_related_cpus(cpu);
-@@ -483,7 +483,7 @@ static void debug_output_one(unsigned in
- 	get_latency(cpu, 1);
- 	get_hardware_limits(cpu, 1);
- 
--	freqs = cpufreq_get_frequencies("available", cpu);
-+	freqs = cpufreq_get_available_frequencies(cpu);
- 	if (freqs) {
- 		printf(_("  available frequency steps:  "));
- 		while (freqs->next) {
-@@ -493,7 +493,7 @@ static void debug_output_one(unsigned in
- 		}
- 		print_speed(freqs->frequency);
- 		printf("\n");
--		cpufreq_put_frequencies(freqs);
-+		cpufreq_put_available_frequencies(freqs);
- 	}
- 
- 	get_available_governors(cpu);
 
 
