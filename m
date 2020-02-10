@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EED4E1578F5
+	by mail.lfdr.de (Postfix) with ESMTP id 046C81578F3
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728843AbgBJNLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:11:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35748 "EHLO mail.kernel.org"
+        id S1728021AbgBJNLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:11:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729289AbgBJMjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:00 -0500
+        id S1729291AbgBJMjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:01 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F06A2051A;
+        by mail.kernel.org (Postfix) with ESMTPSA id D590D20873;
         Mon, 10 Feb 2020 12:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338340;
-        bh=Ynzsnk8QUj5Vj/aIUo2OTju2PIvYqEEGoNVH/d0/ZXU=;
+        bh=B3mne9+qPVBALFmbCLgPw94rzFHvYr7oAqx4NkE7v2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFlu0aKNkWyPPHpexWVOZY1x+6PQ2PNynVNqFaPiW4dXIfhBnryT/PteqvPrSlek+
-         pLfAg/P+AtF0QncLvkYVT6s+tL7FjU1F6k9nqnIgtBTyzk/9+rUNQlr/xWMqi/uT84
-         TvSB+9tNiPMo1H8O6F5JFPJS/m4c4PwvT/e6c1G0=
+        b=R0seOsjxlZsfVC8zwEPN/X+3xpiH4Lpmb0KCxlVHIkdgUCoFLgH++t7cQ4WI7a9pD
+         hvwXykV6EeU66XYItS0ca+GN4CTcZdcIQ5l1TfpeEwadKyNnuwcjdgsqfL1yV2N0Va
+         GEtcmHy0vaw3+g7E21cugVfCsGvPnivrRqnq8wQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anthony Buckley <tony.buckley000@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Daniel Drake <drake@endlessm.com>
-Subject: [PATCH 5.4 291/309] x86/timer: Dont skip PIT setup when APIC is disabled or in legacy mode
-Date:   Mon, 10 Feb 2020 04:34:07 -0800
-Message-Id: <20200210122434.684413036@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 292/309] btrfs: use bool argument in free_root_pointers()
+Date:   Mon, 10 Feb 2020 04:34:08 -0800
+Message-Id: <20200210122434.815166372@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -46,177 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 979923871f69a4dc926658f9f9a1a4c1bde57552 upstream.
+[ Upstream commit 4273eaff9b8d5e141113a5bdf9628c02acf3afe5 ]
 
-Tony reported a boot regression caused by the recent workaround for systems
-which have a disabled (clock gate off) PIT.
+We don't need int argument bool shall do in free_root_pointers().  And
+rename the argument as it confused two people.
 
-On his machine the kernel fails to initialize the PIT because
-apic_needs_pit() does not take into account whether the local APIC
-interrupt delivery mode will actually allow to setup and use the local
-APIC timer. This should be easy to reproduce with acpi=off on the
-command line which also disables HPET.
-
-Due to the way the PIT/HPET and APIC setup ordering works (APIC setup can
-require working PIT/HPET) the information is not available at the point
-where apic_needs_pit() makes this decision.
-
-To address this, split out the interrupt mode selection from
-apic_intr_mode_init(), invoke the selection before making the decision
-whether PIT is required or not, and add the missing checks into
-apic_needs_pit().
-
-Fixes: c8c4076723da ("x86/timer: Skip PIT initialization on modern chipsets")
-Reported-by: Anthony Buckley <tony.buckley000@gmail.com>
-Tested-by: Anthony Buckley <tony.buckley000@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Daniel Drake <drake@endlessm.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206125
-Link: https://lore.kernel.org/r/87sgk6tmk2.fsf@nanos.tec.linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/apic.h     |    2 ++
- arch/x86/include/asm/x86_init.h |    2 ++
- arch/x86/kernel/apic/apic.c     |   23 ++++++++++++++++++-----
- arch/x86/kernel/time.c          |   12 ++++++++++--
- arch/x86/kernel/x86_init.c      |    1 +
- arch/x86/xen/enlighten_pv.c     |    1 +
- 6 files changed, 34 insertions(+), 7 deletions(-)
+ fs/btrfs/disk-io.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -140,6 +140,7 @@ extern void apic_soft_disable(void);
- extern void lapic_shutdown(void);
- extern void sync_Arb_IDs(void);
- extern void init_bsp_APIC(void);
-+extern void apic_intr_mode_select(void);
- extern void apic_intr_mode_init(void);
- extern void init_apic_mappings(void);
- void register_lapic_address(unsigned long address);
-@@ -188,6 +189,7 @@ static inline void disable_local_APIC(vo
- # define setup_secondary_APIC_clock x86_init_noop
- static inline void lapic_update_tsc_freq(void) { }
- static inline void init_bsp_APIC(void) { }
-+static inline void apic_intr_mode_select(void) { }
- static inline void apic_intr_mode_init(void) { }
- static inline void lapic_assign_system_vectors(void) { }
- static inline void lapic_assign_legacy_vector(unsigned int i, bool r) { }
---- a/arch/x86/include/asm/x86_init.h
-+++ b/arch/x86/include/asm/x86_init.h
-@@ -51,12 +51,14 @@ struct x86_init_resources {
-  *				are set up.
-  * @intr_init:			interrupt init code
-  * @trap_init:			platform specific trap setup
-+ * @intr_mode_select:		interrupt delivery mode selection
-  * @intr_mode_init:		interrupt delivery mode setup
-  */
- struct x86_init_irqs {
- 	void (*pre_vector_init)(void);
- 	void (*intr_init)(void);
- 	void (*trap_init)(void);
-+	void (*intr_mode_select)(void);
- 	void (*intr_mode_init)(void);
- };
- 
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -830,8 +830,17 @@ bool __init apic_needs_pit(void)
- 	if (!tsc_khz || !cpu_khz)
- 		return true;
- 
--	/* Is there an APIC at all? */
--	if (!boot_cpu_has(X86_FEATURE_APIC))
-+	/* Is there an APIC at all or is it disabled? */
-+	if (!boot_cpu_has(X86_FEATURE_APIC) || disable_apic)
-+		return true;
-+
-+	/*
-+	 * If interrupt delivery mode is legacy PIC or virtual wire without
-+	 * configuration, the local APIC timer wont be set up. Make sure
-+	 * that the PIT is initialized.
-+	 */
-+	if (apic_intr_mode == APIC_PIC ||
-+	    apic_intr_mode == APIC_VIRTUAL_WIRE_NO_CONFIG)
- 		return true;
- 
- 	/* Virt guests may lack ARAT, but still have DEADLINE */
-@@ -1322,7 +1331,7 @@ void __init sync_Arb_IDs(void)
- 
- enum apic_intr_mode_id apic_intr_mode __ro_after_init;
- 
--static int __init apic_intr_mode_select(void)
-+static int __init __apic_intr_mode_select(void)
- {
- 	/* Check kernel option */
- 	if (disable_apic) {
-@@ -1384,6 +1393,12 @@ static int __init apic_intr_mode_select(
- 	return APIC_SYMMETRIC_IO;
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 68266928a4aa7..835abaabd67d6 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2016,7 +2016,7 @@ static void free_root_extent_buffers(struct btrfs_root *root)
  }
  
-+/* Select the interrupt delivery mode for the BSP */
-+void __init apic_intr_mode_select(void)
-+{
-+	apic_intr_mode = __apic_intr_mode_select();
-+}
-+
- /*
-  * An initial setup of the virtual wire mode.
-  */
-@@ -1440,8 +1455,6 @@ void __init apic_intr_mode_init(void)
+ /* helper to cleanup tree roots */
+-static void free_root_pointers(struct btrfs_fs_info *info, int chunk_root)
++static void free_root_pointers(struct btrfs_fs_info *info, bool free_chunk_root)
  {
- 	bool upmode = IS_ENABLED(CONFIG_UP_LATE_INIT);
+ 	free_root_extent_buffers(info->tree_root);
  
--	apic_intr_mode = apic_intr_mode_select();
--
- 	switch (apic_intr_mode) {
- 	case APIC_PIC:
- 		pr_info("APIC: Keep in PIC mode(8259)\n");
---- a/arch/x86/kernel/time.c
-+++ b/arch/x86/kernel/time.c
-@@ -91,10 +91,18 @@ void __init hpet_time_init(void)
+@@ -2025,7 +2025,7 @@ static void free_root_pointers(struct btrfs_fs_info *info, int chunk_root)
+ 	free_root_extent_buffers(info->csum_root);
+ 	free_root_extent_buffers(info->quota_root);
+ 	free_root_extent_buffers(info->uuid_root);
+-	if (chunk_root)
++	if (free_chunk_root)
+ 		free_root_extent_buffers(info->chunk_root);
+ 	free_root_extent_buffers(info->free_space_root);
+ }
+@@ -3323,7 +3323,7 @@ int open_ctree(struct super_block *sb,
+ 	btrfs_put_block_group_cache(fs_info);
  
- static __init void x86_late_time_init(void)
- {
-+	/*
-+	 * Before PIT/HPET init, select the interrupt mode. This is required
-+	 * to make the decision whether PIT should be initialized correct.
-+	 */
-+	x86_init.irqs.intr_mode_select();
-+
-+	/* Setup the legacy timers */
- 	x86_init.timers.timer_init();
-+
- 	/*
--	 * After PIT/HPET timers init, select and setup
--	 * the final interrupt mode for delivering IRQs.
-+	 * After PIT/HPET timers init, set up the final interrupt mode for
-+	 * delivering IRQs.
- 	 */
- 	x86_init.irqs.intr_mode_init();
- 	tsc_init();
---- a/arch/x86/kernel/x86_init.c
-+++ b/arch/x86/kernel/x86_init.c
-@@ -58,6 +58,7 @@ struct x86_init_ops x86_init __initdata
- 		.pre_vector_init	= init_ISA_irqs,
- 		.intr_init		= native_init_IRQ,
- 		.trap_init		= x86_init_noop,
-+		.intr_mode_select	= apic_intr_mode_select,
- 		.intr_mode_init		= apic_intr_mode_init
- 	},
+ fail_tree_roots:
+-	free_root_pointers(fs_info, 1);
++	free_root_pointers(fs_info, true);
+ 	invalidate_inode_pages2(fs_info->btree_inode->i_mapping);
  
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1215,6 +1215,7 @@ asmlinkage __visible void __init xen_sta
- 	x86_platform.get_nmi_reason = xen_get_nmi_reason;
+ fail_sb_buffer:
+@@ -3355,7 +3355,7 @@ int open_ctree(struct super_block *sb,
+ 	if (!btrfs_test_opt(fs_info, USEBACKUPROOT))
+ 		goto fail_tree_roots;
  
- 	x86_init.resources.memory_setup = xen_memory_setup;
-+	x86_init.irqs.intr_mode_select	= x86_init_noop;
- 	x86_init.irqs.intr_mode_init	= x86_init_noop;
- 	x86_init.oem.arch_setup = xen_arch_setup;
- 	x86_init.oem.banner = xen_banner;
+-	free_root_pointers(fs_info, 0);
++	free_root_pointers(fs_info, false);
+ 
+ 	/* don't use the log in recovery mode, it won't be valid */
+ 	btrfs_set_super_log_root(disk_super, 0);
+@@ -4049,7 +4049,7 @@ void close_ctree(struct btrfs_fs_info *fs_info)
+ 	btrfs_free_block_groups(fs_info);
+ 
+ 	clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
+-	free_root_pointers(fs_info, 1);
++	free_root_pointers(fs_info, true);
+ 
+ 	iput(fs_info->btree_inode);
+ 
+-- 
+2.20.1
+
 
 
