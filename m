@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A51BF157832
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0172C157829
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729668AbgBJNFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:05:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
+        id S1730492AbgBJNFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:05:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728730AbgBJMj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:58 -0500
+        id S1729587AbgBJMkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:00 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A07924683;
+        by mail.kernel.org (Postfix) with ESMTPSA id D315D24672;
         Mon, 10 Feb 2020 12:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338398;
-        bh=/UYY92hIuxlKCb4IasHxTkK8sZop0UB/Sp72zc2SlF0=;
+        bh=viCN2OLrdVaSy6OC4bX/zxx4udJHBfesir8T4kojJ2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KN0n6HuDl5glrchobofBvZwXp/85nT0ijU7LoArk+c56l/YdbqyVEQGUJjuD51UT
-         0TYsbKW+9zFcAY+7QCu/o/AdkICTQoDaUBSXP6eibvksUGGyGfuBBaIRq0pMgRLhks
-         85IPD1ntWn7TIr+zuVVu9QLiZEIRan4yXCtR+JWo=
+        b=eIPCmxk39kfc31TRniHd0tP/RiB+xWiA40DD6AE/pmxHz3OdBbVZB7LP0FeGn3q4l
+         TnYHETj7FUWtFmp9hT6TIvK7JqLO+Tnx4zsNOcPJyZh+4HHKD4/mLY64cWUsIhyluQ
+         X0qFQgU1371BA4gWYSpR4Wpv/HDPrR+j/RPtwgDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.5 095/367] ACPI: video: Do not export a non working backlight interface on MSI MS-7721 boards
-Date:   Mon, 10 Feb 2020 04:30:08 -0800
-Message-Id: <20200210122433.134091289@linuxfoundation.org>
+Subject: [PATCH 5.5 096/367] ACPI / battery: Deal with design or full capacity being reported as -1
+Date:   Mon, 10 Feb 2020 04:30:09 -0800
+Message-Id: <20200210122433.233401391@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,57 +45,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit d21a91629f4b8e794fc4c0e0c17c85cedf1d806c upstream.
+commit cc99f0ad52467028cb1251160f23ad4bb65baf20 upstream.
 
-Despite our heuristics to not wrongly export a non working ACPI backlight
-interface on desktop machines, we still end up exporting one on desktops
-using a motherboard from the MSI MS-7721 series.
+Commit b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design]
+on devices without full_charge_capacity") added support for some (broken)
+devices which always report 0 for both design- and full_charge-capacity.
 
-I've looked at improving the heuristics, but in this case a quirk seems
-to be the only way to solve this.
+This assumes that if the capacity is not being reported it is 0. The
+ThunderSoft TS178 tablet's _BIX implementation falsifies this assumption.
+It reports ACPI_BATTERY_VALUE_UNKNOWN (-1) as full_charge_capacity, which
+we treat as a valid value which causes several problems.
 
-While at it also add a comment to separate the video_detect_force_none
-entries in the video_detect_dmi_table from other type of entries, as we
-already do for the other entry types.
+This commit fixes this by adding a new ACPI_BATTERY_CAPACITY_VALID() helper
+which checks that the value is not 0 and not -1; and using this whenever we
+need to test if either design_capacity or full_charge_capacity is valid.
 
-Cc: All applicable <stable@vger.kernel.org>
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1783786
+Fixes: b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on devices without full_charge_capacity")
+Cc: 4.19+ <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/video_detect.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/acpi/battery.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -336,6 +336,11 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Precision 7510"),
- 		},
- 	},
-+
-+	/*
-+	 * Desktops which falsely report a backlight and which our heuristics
-+	 * for this do not catch.
-+	 */
- 	{
- 	 .callback = video_detect_force_none,
- 	 .ident = "Dell OptiPlex 9020M",
-@@ -344,6 +349,14 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 9020M"),
- 		},
- 	},
-+	{
-+	 .callback = video_detect_force_none,
-+	 .ident = "MSI MS-7721",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "MSI"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "MS-7721"),
-+		},
-+	},
- 	{ },
- };
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -38,6 +38,8 @@
+ #define PREFIX "ACPI: "
  
+ #define ACPI_BATTERY_VALUE_UNKNOWN 0xFFFFFFFF
++#define ACPI_BATTERY_CAPACITY_VALID(capacity) \
++	((capacity) != 0 && (capacity) != ACPI_BATTERY_VALUE_UNKNOWN)
+ 
+ #define ACPI_BATTERY_DEVICE_NAME	"Battery"
+ 
+@@ -192,7 +194,8 @@ static int acpi_battery_is_charged(struc
+ 
+ static bool acpi_battery_is_degraded(struct acpi_battery *battery)
+ {
+-	return battery->full_charge_capacity && battery->design_capacity &&
++	return ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity) &&
++		ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity) &&
+ 		battery->full_charge_capacity < battery->design_capacity;
+ }
+ 
+@@ -263,14 +266,14 @@ static int acpi_battery_get_property(str
+ 		break;
+ 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
+ 	case POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN:
+-		if (battery->design_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
++		if (!ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity))
+ 			ret = -ENODEV;
+ 		else
+ 			val->intval = battery->design_capacity * 1000;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CHARGE_FULL:
+ 	case POWER_SUPPLY_PROP_ENERGY_FULL:
+-		if (battery->full_charge_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
++		if (!ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity))
+ 			ret = -ENODEV;
+ 		else
+ 			val->intval = battery->full_charge_capacity * 1000;
+@@ -283,11 +286,12 @@ static int acpi_battery_get_property(str
+ 			val->intval = battery->capacity_now * 1000;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		if (battery->capacity_now && battery->full_charge_capacity)
++		if (battery->capacity_now == ACPI_BATTERY_VALUE_UNKNOWN ||
++		    !ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity))
++			ret = -ENODEV;
++		else
+ 			val->intval = battery->capacity_now * 100/
+ 					battery->full_charge_capacity;
+-		else
+-			val->intval = 0;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
+ 		if (battery->state & ACPI_BATTERY_STATE_CRITICAL)
+@@ -799,7 +803,8 @@ static int sysfs_add_battery(struct acpi
+ 		battery->bat_desc.properties = charge_battery_props;
+ 		battery->bat_desc.num_properties =
+ 			ARRAY_SIZE(charge_battery_props);
+-	} else if (battery->full_charge_capacity == 0) {
++	} else if (!ACPI_BATTERY_CAPACITY_VALID(
++					battery->full_charge_capacity)) {
+ 		battery->bat_desc.properties =
+ 			energy_battery_full_cap_broken_props;
+ 		battery->bat_desc.num_properties =
 
 
