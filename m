@@ -2,40 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 046C81578F3
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B642157B1C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:28:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728021AbgBJNLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:11:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35750 "EHLO mail.kernel.org"
+        id S1731320AbgBJN1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:27:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729291AbgBJMjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:01 -0500
+        id S1727801AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:32 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D590D20873;
-        Mon, 10 Feb 2020 12:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 248AD24684;
+        Mon, 10 Feb 2020 12:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338340;
-        bh=B3mne9+qPVBALFmbCLgPw94rzFHvYr7oAqx4NkE7v2U=;
+        s=default; t=1581338189;
+        bh=7o0ocQf6Xc3kIlqtukp9IZ0tyTCBafOpR4Q4oGcICFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0seOsjxlZsfVC8zwEPN/X+3xpiH4Lpmb0KCxlVHIkdgUCoFLgH++t7cQ4WI7a9pD
-         hvwXykV6EeU66XYItS0ca+GN4CTcZdcIQ5l1TfpeEwadKyNnuwcjdgsqfL1yV2N0Va
-         GEtcmHy0vaw3+g7E21cugVfCsGvPnivrRqnq8wQ4=
+        b=Xx8+JqBctTOFmpzJABEXkSNSTH1ocMSBIqSJgBAWb9xqBd1VNwfVpvyzm7tHrgz/J
+         R2HwG8ZO/uaVQOfJ6VGmnQIGtMbEp+UaJKqYVTgtt5sJz8HqwnZYopzdiK6mYt5DRu
+         U2MA+EOT5JlVbP8vu+fowGg71HRhZQD7yGeHchvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Pavel Tatashin <pasha.tatashin@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Steven Sistare <steven.sistare@oracle.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Bob Picco <bob.picco@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 292/309] btrfs: use bool argument in free_root_pointers()
+Subject: [PATCH 4.19 190/195] mm/page_alloc.c: fix uninitialized memmaps on a partially populated last section
 Date:   Mon, 10 Feb 2020 04:34:08 -0800
-Message-Id: <20200210122434.815166372@linuxfoundation.org>
+Message-Id: <20200210122323.763498534@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +56,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 4273eaff9b8d5e141113a5bdf9628c02acf3afe5 ]
+[ Upstream commit e822969cab48b786b64246aad1a3ba2a774f5d23 ]
 
-We don't need int argument bool shall do in free_root_pointers().  And
-rename the argument as it confused two people.
+Patch series "mm: fix max_pfn not falling on section boundary", v2.
 
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Playing with different memory sizes for a x86-64 guest, I discovered that
+some memmaps (highest section if max_mem does not fall on the section
+boundary) are marked as being valid and online, but contain garbage.  We
+have to properly initialize these memmaps.
+
+Looking at /proc/kpageflags and friends, I found some more issues,
+partially related to this.
+
+This patch (of 3):
+
+If max_pfn is not aligned to a section boundary, we can easily run into
+BUGs.  This can e.g., be triggered on x86-64 under QEMU by specifying a
+memory size that is not a multiple of 128MB (e.g., 4097MB, but also
+4160MB).  I was told that on real HW, we can easily have this scenario
+(esp., one of the main reasons sub-section hotadd of devmem was added).
+
+The issue is, that we have a valid memmap (pfn_valid()) for the whole
+section, and the whole section will be marked "online".
+pfn_to_online_page() will succeed, but the memmap contains garbage.
+
+E.g., doing a "./page-types -r -a 0x144001" when QEMU was started with "-m
+4160M" - (see tools/vm/page-types.c):
+
+[  200.476376] BUG: unable to handle page fault for address: fffffffffffffffe
+[  200.477500] #PF: supervisor read access in kernel mode
+[  200.478334] #PF: error_code(0x0000) - not-present page
+[  200.479076] PGD 59614067 P4D 59614067 PUD 59616067 PMD 0
+[  200.479557] Oops: 0000 [#4] SMP NOPTI
+[  200.479875] CPU: 0 PID: 603 Comm: page-types Tainted: G      D W         5.5.0-rc1-next-20191209 #93
+[  200.480646] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
+[  200.481648] RIP: 0010:stable_page_flags+0x4d/0x410
+[  200.482061] Code: f3 ff 41 89 c0 48 b8 00 00 00 00 01 00 00 00 45 84 c0 0f 85 cd 02 00 00 48 8b 53 08 48 8b 2b 48f
+[  200.483644] RSP: 0018:ffffb139401cbe60 EFLAGS: 00010202
+[  200.484091] RAX: fffffffffffffffe RBX: fffffbeec5100040 RCX: 0000000000000000
+[  200.484697] RDX: 0000000000000001 RSI: ffffffff9535c7cd RDI: 0000000000000246
+[  200.485313] RBP: ffffffffffffffff R08: 0000000000000000 R09: 0000000000000000
+[  200.485917] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000144001
+[  200.486523] R13: 00007ffd6ba55f48 R14: 00007ffd6ba55f40 R15: ffffb139401cbf08
+[  200.487130] FS:  00007f68df717580(0000) GS:ffff9ec77fa00000(0000) knlGS:0000000000000000
+[  200.487804] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  200.488295] CR2: fffffffffffffffe CR3: 0000000135d48000 CR4: 00000000000006f0
+[  200.488897] Call Trace:
+[  200.489115]  kpageflags_read+0xe9/0x140
+[  200.489447]  proc_reg_read+0x3c/0x60
+[  200.489755]  vfs_read+0xc2/0x170
+[  200.490037]  ksys_pread64+0x65/0xa0
+[  200.490352]  do_syscall_64+0x5c/0xa0
+[  200.490665]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+But it can be triggered much easier via "cat /proc/kpageflags > /dev/null"
+after cold/hot plugging a DIMM to such a system:
+
+[root@localhost ~]# cat /proc/kpageflags > /dev/null
+[  111.517275] BUG: unable to handle page fault for address: fffffffffffffffe
+[  111.517907] #PF: supervisor read access in kernel mode
+[  111.518333] #PF: error_code(0x0000) - not-present page
+[  111.518771] PGD a240e067 P4D a240e067 PUD a2410067 PMD 0
+
+This patch fixes that by at least zero-ing out that memmap (so e.g.,
+page_to_pfn() will not crash).  Commit 907ec5fca3dc ("mm: zero remaining
+unavailable struct pages") tried to fix a similar issue, but forgot to
+consider this special case.
+
+After this patch, there are still problems to solve.  E.g., not all of
+these pages falling into a memory hole will actually get initialized later
+and set PageReserved - they are only zeroed out - but at least the
+immediate crashes are gone.  A follow-up patch will take care of this.
+
+Link: http://lkml.kernel.org/r/20191211163201.17179-2-david@redhat.com
+Fixes: f7f99100d8d9 ("mm: stop zeroing memory during allocation in vmemmap")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Tested-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Steven Sistare <steven.sistare@oracle.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Bob Picco <bob.picco@oracle.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: <stable@vger.kernel.org>	[4.15+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ mm/page_alloc.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 68266928a4aa7..835abaabd67d6 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -2016,7 +2016,7 @@ static void free_root_extent_buffers(struct btrfs_root *root)
- }
- 
- /* helper to cleanup tree roots */
--static void free_root_pointers(struct btrfs_fs_info *info, int chunk_root)
-+static void free_root_pointers(struct btrfs_fs_info *info, bool free_chunk_root)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 8a00c32191263..e5c610d711f32 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6489,7 +6489,8 @@ static u64 zero_pfn_range(unsigned long spfn, unsigned long epfn)
+  * This function also addresses a similar issue where struct pages are left
+  * uninitialized because the physical address range is not covered by
+  * memblock.memory or memblock.reserved. That could happen when memblock
+- * layout is manually configured via memmap=.
++ * layout is manually configured via memmap=, or when the highest physical
++ * address (max_pfn) does not end on a section boundary.
+  */
+ void __init zero_resv_unavail(void)
  {
- 	free_root_extent_buffers(info->tree_root);
+@@ -6507,7 +6508,16 @@ void __init zero_resv_unavail(void)
+ 			pgcnt += zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
+ 		next = end;
+ 	}
+-	pgcnt += zero_pfn_range(PFN_DOWN(next), max_pfn);
++
++	/*
++	 * Early sections always have a fully populated memmap for the whole
++	 * section - see pfn_valid(). If the last section has holes at the
++	 * end and that section is marked "online", the memmap will be
++	 * considered initialized. Make sure that memmap has a well defined
++	 * state.
++	 */
++	pgcnt += zero_pfn_range(PFN_DOWN(next),
++				round_up(max_pfn, PAGES_PER_SECTION));
  
-@@ -2025,7 +2025,7 @@ static void free_root_pointers(struct btrfs_fs_info *info, int chunk_root)
- 	free_root_extent_buffers(info->csum_root);
- 	free_root_extent_buffers(info->quota_root);
- 	free_root_extent_buffers(info->uuid_root);
--	if (chunk_root)
-+	if (free_chunk_root)
- 		free_root_extent_buffers(info->chunk_root);
- 	free_root_extent_buffers(info->free_space_root);
- }
-@@ -3323,7 +3323,7 @@ int open_ctree(struct super_block *sb,
- 	btrfs_put_block_group_cache(fs_info);
- 
- fail_tree_roots:
--	free_root_pointers(fs_info, 1);
-+	free_root_pointers(fs_info, true);
- 	invalidate_inode_pages2(fs_info->btree_inode->i_mapping);
- 
- fail_sb_buffer:
-@@ -3355,7 +3355,7 @@ int open_ctree(struct super_block *sb,
- 	if (!btrfs_test_opt(fs_info, USEBACKUPROOT))
- 		goto fail_tree_roots;
- 
--	free_root_pointers(fs_info, 0);
-+	free_root_pointers(fs_info, false);
- 
- 	/* don't use the log in recovery mode, it won't be valid */
- 	btrfs_set_super_log_root(disk_super, 0);
-@@ -4049,7 +4049,7 @@ void close_ctree(struct btrfs_fs_info *fs_info)
- 	btrfs_free_block_groups(fs_info);
- 
- 	clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
--	free_root_pointers(fs_info, 1);
-+	free_root_pointers(fs_info, true);
- 
- 	iput(fs_info->btree_inode);
- 
+ 	/*
+ 	 * Struct pages that do not have backing memory. This could be because
 -- 
 2.20.1
 
