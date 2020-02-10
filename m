@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 642F3157A64
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3CF1577EB
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728850AbgBJNWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:22:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58948 "EHLO mail.kernel.org"
+        id S1728098AbgBJNDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:03:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728193AbgBJMhX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:23 -0500
+        id S1729717AbgBJMkX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:23 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01F1020838;
-        Mon, 10 Feb 2020 12:37:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DF7E20733;
+        Mon, 10 Feb 2020 12:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338243;
-        bh=xk2jWWEmwKaCGlqYNJeB/YEGW+4Fo0RAqrQtO9PIooI=;
+        s=default; t=1581338422;
+        bh=gAXkns+sLnDL5n+FubP0AMmmuxWcXtLwL85Bh1X8KQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIN8A0z2js3CxTlwC7vINyd+rNMmA4x5+uvxG/lpXJGs0gn0VcJ7RxL0NGg1T1id8
-         rzzOpFUcrUOUTfrT0WNNaedLJ6MiELzajYcFSRuen88jKBvhH/RmUQF67hmuqSPy3X
-         wUt/vaMO/jGxTYMiJ5l7tA66elDN/HuZ4tbvj1o4=
+        b=aySDzLWTsNmZyAkQK9w1tccFWYXXEaHrUIBolHZ+NNAdCrui3exqHZSmFMGrbeVs/
+         OSFSi/hIgBoF/ZbVaVMU6Y+Q4Dw6DVxoCth3G2oArcB5HoC1a2KYGtwx41M8wG3taQ
+         iInDNgLKoLgxvKSCMH06aMESzpnMEFZDR25Bl8Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.4 099/309] mfd: axp20x: Mark AXP20X_VBUS_IPSOUT_MGMT as volatile
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 142/367] dm writecache: fix incorrect flush sequence when doing SSD mode commit
 Date:   Mon, 10 Feb 2020 04:30:55 -0800
-Message-Id: <20200210122415.704746296@linuxfoundation.org>
+Message-Id: <20200210122437.953047238@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit dc91c3b6fe66a13ac76f6cb3b2100c0779cd3350 upstream.
+commit aa9509209c5ac2f0b35d01a922bf9ae072d0c2fc upstream.
 
-On AXP288 and newer PMICs, bit 7 of AXP20X_VBUS_IPSOUT_MGMT can be set
-to prevent using the VBUS input. However, when the VBUS unplugged and
-plugged back in, the bit automatically resets to zero.
+When committing state, the function writecache_flush does the following:
+1. write metadata (writecache_commit_flushed)
+2. flush disk cache (writecache_commit_flushed)
+3. wait for data writes to complete (writecache_wait_for_ios)
+4. increase superblock seq_count
+5. write the superblock
+6. flush disk cache
 
-We need to set the register as volatile to prevent regmap from caching
-that bit. Otherwise, regcache will think the bit is already set and not
-write the register.
+It may happen that at step 3, when we wait for some write to finish, the
+disk may report the write as finished, but the write only hit the disk
+cache and it is not yet stored in persistent storage. At step 5 we write
+the superblock - it may happen that the superblock is written before the
+write that we waited for in step 3. If the machine crashes, it may result
+in incorrect data being returned after reboot.
 
-Fixes: cd53216625a0 ("mfd: axp20x: Fix axp288 volatile ranges")
-Cc: stable@vger.kernel.org
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+In order to fix the bug, we must swap steps 2 and 3 in the above sequence,
+so that we first wait for writes to complete and then flush the disk
+cache.
+
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mfd/axp20x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-writecache.c |   42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
---- a/drivers/mfd/axp20x.c
-+++ b/drivers/mfd/axp20x.c
-@@ -126,7 +126,7 @@ static const struct regmap_range axp288_
- static const struct regmap_range axp288_volatile_ranges[] = {
- 	regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP288_POWER_REASON),
- 	regmap_reg_range(AXP288_BC_GLOBAL, AXP288_BC_GLOBAL),
--	regmap_reg_range(AXP288_BC_DET_STAT, AXP288_BC_DET_STAT),
-+	regmap_reg_range(AXP288_BC_DET_STAT, AXP20X_VBUS_IPSOUT_MGMT),
- 	regmap_reg_range(AXP20X_CHRG_BAK_CTRL, AXP20X_CHRG_BAK_CTRL),
- 	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
- 	regmap_reg_range(AXP20X_TIMER_CTRL, AXP20X_TIMER_CTRL),
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -442,7 +442,13 @@ static void writecache_notify_io(unsigne
+ 		complete(&endio->c);
+ }
+ 
+-static void ssd_commit_flushed(struct dm_writecache *wc)
++static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
++{
++	wait_event(wc->bio_in_progress_wait[direction],
++		   !atomic_read(&wc->bio_in_progress[direction]));
++}
++
++static void ssd_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	struct dm_io_region region;
+ 	struct dm_io_request req;
+@@ -488,17 +494,20 @@ static void ssd_commit_flushed(struct dm
+ 	writecache_notify_io(0, &endio);
+ 	wait_for_completion_io(&endio.c);
+ 
++	if (wait_for_ios)
++		writecache_wait_for_ios(wc, WRITE);
++
+ 	writecache_disk_flush(wc, wc->ssd_dev);
+ 
+ 	memset(wc->dirty_bitmap, 0, wc->dirty_bitmap_size);
+ }
+ 
+-static void writecache_commit_flushed(struct dm_writecache *wc)
++static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	if (WC_MODE_PMEM(wc))
+ 		wmb();
+ 	else
+-		ssd_commit_flushed(wc);
++		ssd_commit_flushed(wc, wait_for_ios);
+ }
+ 
+ static void writecache_disk_flush(struct dm_writecache *wc, struct dm_dev *dev)
+@@ -522,12 +531,6 @@ static void writecache_disk_flush(struct
+ 		writecache_error(wc, r, "error flushing metadata: %d", r);
+ }
+ 
+-static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
+-{
+-	wait_event(wc->bio_in_progress_wait[direction],
+-		   !atomic_read(&wc->bio_in_progress[direction]));
+-}
+-
+ #define WFE_RETURN_FOLLOWING	1
+ #define WFE_LOWEST_SEQ		2
+ 
+@@ -724,15 +727,12 @@ static void writecache_flush(struct dm_w
+ 		e = e2;
+ 		cond_resched();
+ 	}
+-	writecache_commit_flushed(wc);
+-
+-	if (!WC_MODE_PMEM(wc))
+-		writecache_wait_for_ios(wc, WRITE);
++	writecache_commit_flushed(wc, true);
+ 
+ 	wc->seq_count++;
+ 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(wc->seq_count));
+ 	writecache_flush_region(wc, &sb(wc)->seq_count, sizeof sb(wc)->seq_count);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	wc->overwrote_committed = false;
+ 
+@@ -756,7 +756,7 @@ static void writecache_flush(struct dm_w
+ 	}
+ 
+ 	if (need_flush_after_free)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static void writecache_flush_work(struct work_struct *work)
+@@ -809,7 +809,7 @@ static void writecache_discard(struct dm
+ 	}
+ 
+ 	if (discarded_something)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static bool writecache_wait_for_writeback(struct dm_writecache *wc)
+@@ -958,7 +958,7 @@ erase_this:
+ 
+ 	if (need_flush) {
+ 		writecache_flush_all_metadata(wc);
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 	}
+ 
+ 	wc_unlock(wc);
+@@ -1342,7 +1342,7 @@ static void __writecache_endio_pmem(stru
+ 			wc->writeback_size--;
+ 			n_walked++;
+ 			if (unlikely(n_walked >= ENDIO_LATENCY)) {
+-				writecache_commit_flushed(wc);
++				writecache_commit_flushed(wc, false);
+ 				wc_unlock(wc);
+ 				wc_lock(wc);
+ 				n_walked = 0;
+@@ -1423,7 +1423,7 @@ pop_from_list:
+ 			writecache_wait_for_ios(wc, READ);
+ 		}
+ 
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 
+ 		wc_unlock(wc);
+ 	}
+@@ -1766,10 +1766,10 @@ static int init_memory(struct dm_writeca
+ 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
+ 
+ 	writecache_flush_all_metadata(wc);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 	pmem_assign(sb(wc)->magic, cpu_to_le32(MEMORY_SUPERBLOCK_MAGIC));
+ 	writecache_flush_region(wc, &sb(wc)->magic, sizeof sb(wc)->magic);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	return 0;
+ }
 
 
