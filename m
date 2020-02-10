@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E382F157688
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA18D157527
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbgBJMxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:53:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
+        id S1729306AbgBJMjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730169AbgBJMmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:10 -0500
+        id S1729298AbgBJMjC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:02 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 838BD2051A;
-        Mon, 10 Feb 2020 12:42:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFA3420838;
+        Mon, 10 Feb 2020 12:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338529;
-        bh=vf9KklpbgLZ4lTL2iM6rhbETdK/InDMro2YjI76wTv4=;
+        s=default; t=1581338342;
+        bh=+51Bul/Rp7MUmNmk/saKAE2dcjMvGF5aZwBLo9TwXRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEH/8hoGqNmIrFenXv/QZOym8x1eN9m3e5aqQh5MNGnS7OV2ujL/aRLzz7NP5lQd+
-         I098LFG+CXGL6nozw/3x/Z7a0OrRDgd2RYov8S1gZT8bx3NVeEhZ5Jk8eQ6LbgngYp
-         tqrAoEPtY+iMlfTQcAZkg/h8yp4qfnhuelJ6ukX0=
+        b=i+8lD4v9H9vYYM3EBSuaM6pyvHCB76zU55eYlflkr761D+XsAqO4t5qi2WtuOchwK
+         UE8AJZiTmIxk8wuT/8wzhHL1xTswWmPM9/b1dXgRsC6uvZK2kEs+GsVNFbVIYhLltM
+         uMZeUOdPTtHinrU0Mrpw51tf9UH5NFIyU1kQGNTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po Liu <po.liu@nxp.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 335/367] taprio: Fix enabling offload with wrong number of traffic classes
-Date:   Mon, 10 Feb 2020 04:34:08 -0800
-Message-Id: <20200210122453.686803731@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 293/309] btrfs: free block groups after freeing fs trees
+Date:   Mon, 10 Feb 2020 04:34:09 -0800
+Message-Id: <20200210122434.925991104@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 5652e63df3303c2a702bac25fbf710b9cb64dfba ]
+[ Upstream commit 4e19443da1941050b346f8fc4c368aa68413bc88 ]
 
-If the driver implementing taprio offloading depends on the value of
-the network device number of traffic classes (dev->num_tc) for
-whatever reason, it was going to receive the value zero. The value was
-only set after the offloading function is called.
+Sometimes when running generic/475 we would trip the
+WARN_ON(cache->reserved) check when free'ing the block groups on umount.
+This is because sometimes we don't commit the transaction because of IO
+errors and thus do not cleanup the tree logs until at umount time.
 
-So, moving setting the number of traffic classes to before the
-offloading function is called fixes this issue. This is safe because
-this only happens when taprio is instantiated (we don't allow this
-configuration to be changed without first removing taprio).
+These blocks are still reserved until they are cleaned up, but they
+aren't cleaned up until _after_ we do the free block groups work.  Fix
+this by moving the free after free'ing the fs roots, that way all of the
+tree logs are cleaned up and we have a properly cleaned fs.  A bunch of
+loops of generic/475 confirmed this fixes the problem.
 
-Fixes: 9c66d1564676 ("taprio: Add support for hardware offloading")
-Reported-by: Po Liu <po.liu@nxp.com>
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ fs/btrfs/disk-io.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1444,6 +1444,19 @@ static int taprio_change(struct Qdisc *s
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 835abaabd67d6..7becc5e96f923 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4046,11 +4046,18 @@ void close_ctree(struct btrfs_fs_info *fs_info)
+ 	invalidate_inode_pages2(fs_info->btree_inode->i_mapping);
+ 	btrfs_stop_all_workers(fs_info);
  
- 	taprio_set_picos_per_byte(dev, q);
- 
-+	if (mqprio) {
-+		netdev_set_num_tc(dev, mqprio->num_tc);
-+		for (i = 0; i < mqprio->num_tc; i++)
-+			netdev_set_tc_queue(dev, i,
-+					    mqprio->count[i],
-+					    mqprio->offset[i]);
-+
-+		/* Always use supplied priority mappings */
-+		for (i = 0; i <= TC_BITMASK; i++)
-+			netdev_set_prio_tc_map(dev, i,
-+					       mqprio->prio_tc_map[i]);
-+	}
-+
- 	if (FULL_OFFLOAD_IS_ENABLED(taprio_flags))
- 		err = taprio_enable_offload(dev, mqprio, q, new_admin, extack);
- 	else
-@@ -1471,19 +1484,6 @@ static int taprio_change(struct Qdisc *s
- 		q->advance_timer.function = advance_sched;
- 	}
- 
--	if (mqprio) {
--		netdev_set_num_tc(dev, mqprio->num_tc);
--		for (i = 0; i < mqprio->num_tc; i++)
--			netdev_set_tc_queue(dev, i,
--					    mqprio->count[i],
--					    mqprio->offset[i]);
+-	btrfs_free_block_groups(fs_info);
 -
--		/* Always use supplied priority mappings */
--		for (i = 0; i <= TC_BITMASK; i++)
--			netdev_set_prio_tc_map(dev, i,
--					       mqprio->prio_tc_map[i]);
--	}
--
- 	if (FULL_OFFLOAD_IS_ENABLED(taprio_flags)) {
- 		q->dequeue = taprio_dequeue_offload;
- 		q->peek = taprio_peek_offload;
+ 	clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
+ 	free_root_pointers(fs_info, true);
+ 
++	/*
++	 * We must free the block groups after dropping the fs_roots as we could
++	 * have had an IO error and have left over tree log blocks that aren't
++	 * cleaned up until the fs roots are freed.  This makes the block group
++	 * accounting appear to be wrong because there's pending reserved bytes,
++	 * so make sure we do the block group cleanup afterwards.
++	 */
++	btrfs_free_block_groups(fs_info);
++
+ 	iput(fs_info->btree_inode);
+ 
+ #ifdef CONFIG_BTRFS_FS_CHECK_INTEGRITY
+-- 
+2.20.1
+
 
 
