@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 025A9157557
+	by mail.lfdr.de (Postfix) with ESMTP id 78686157558
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729698AbgBJMkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39978 "EHLO mail.kernel.org"
+        id S1728872AbgBJMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727880AbgBJMkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:18 -0500
+        id S1729700AbgBJMkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:20 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 376782051A;
-        Mon, 10 Feb 2020 12:40:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FCE220838;
+        Mon, 10 Feb 2020 12:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338417;
-        bh=eNbSzKnGhFlJ968LROIwRDi3+9NQV0GsMHanD6wDiTo=;
+        s=default; t=1581338419;
+        bh=48TEUTnydgvfKvfHMu92SI76lcQD60sAxKeahChds5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psiH1FDzqZZ1V8IUtd11WvxpHkX03uFASNW2usPAZ/kWBOpamSOmq6tjm6ytm+wNS
-         hsxvZhraT1+Le7SdFBI6L4jU4c/nP6dlOofH9Ij6GTmj5ku3nJUjld3yoPt6mMb56o
-         R/qaDuHuTzbPwGGOxP2jHIm8g32osBx/yrp55jKc=
+        b=XaLP77e3Fucy3NTtx6KqVe8yvQz/17qfxm2wmhbOhGJQIa1ZrXDHxZQ+yBr+45m2q
+         pgdVzMo9frWHmhKDL6qY7bTdi9YiO5NWUta8zJoDtHkBSMA4IK6egZzfcUFeY//jRo
+         o06BO0Og2UMOs6umR2rbSpLdeXHu8CGWlvmgGjoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.5 133/367] f2fs: code cleanup for f2fs_statfs_project()
-Date:   Mon, 10 Feb 2020 04:30:46 -0800
-Message-Id: <20200210122437.144835011@linuxfoundation.org>
+        stable@vger.kernel.org, Chanho Min <chanho.min@lge.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.5 136/367] PM: core: Fix handling of devices deleted during system-wide resume
+Date:   Mon, 10 Feb 2020 04:30:49 -0800
+Message-Id: <20200210122437.424309269@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,53 +43,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit bf2cbd3c57159c2b639ee8797b52ab5af180bf83 upstream.
+commit 0552e05fdfea191a2cf3a0abd33574b5ef9ca818 upstream.
 
-Calling min_not_zero() to simplify complicated prjquota
-limit comparison in f2fs_statfs_project().
+If a device is deleted by one of its system-wide resume callbacks
+(for example, because it does not appear to be present or accessible
+any more) along with its children, the resume of the children may
+continue leading to use-after-free errors and other issues
+(potentially).
 
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Namely, if the device's children are resumed asynchronously, their
+resume may have been scheduled already before the device's callback
+runs and so the device may be deleted while dpm_wait_for_superior()
+is being executed for them.  The memory taken up by the parent device
+object may be freed then while dpm_wait() is waiting for the parent's
+resume callback to complete, which leads to a use-after-free.
+Moreover, the resume of the children is really not expected to
+continue after they have been unregistered, so it must be terminated
+right away in that case.
+
+To address this problem, modify dpm_wait_for_superior() to check
+if the target device is still there in the system-wide PM list of
+devices and if so, to increment its parent's reference counter, both
+under dpm_list_mtx which prevents device_del() running for the child
+from dropping the parent's reference counter prematurely.
+
+If the device is not present in the system-wide PM list of devices
+any more, the resume of it cannot continue, so check that again after
+dpm_wait() returns, which means that the parent's callback has been
+completed, and pass the result of that check to the caller of
+dpm_wait_for_superior() to allow it to abort the device's resume
+if it is not there any more.
+
+Link: https://lore.kernel.org/linux-pm/1579568452-27253-1-git-send-email-chanho.min@lge.com
+Reported-by: Chanho Min <chanho.min@lge.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/f2fs/super.c |   16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/base/power/main.c |   42 +++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 37 insertions(+), 5 deletions(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1213,12 +1213,8 @@ static int f2fs_statfs_project(struct su
- 		return PTR_ERR(dquot);
- 	spin_lock(&dquot->dq_dqb_lock);
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -273,10 +273,38 @@ static void dpm_wait_for_suppliers(struc
+ 	device_links_read_unlock(idx);
+ }
  
--	limit = 0;
--	if (dquot->dq_dqb.dqb_bsoftlimit)
--		limit = dquot->dq_dqb.dqb_bsoftlimit;
--	if (dquot->dq_dqb.dqb_bhardlimit &&
--			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
--		limit = dquot->dq_dqb.dqb_bhardlimit;
-+	limit = min_not_zero(dquot->dq_dqb.dqb_bsoftlimit,
-+					dquot->dq_dqb.dqb_bhardlimit);
- 	if (limit)
- 		limit >>= sb->s_blocksize_bits;
+-static void dpm_wait_for_superior(struct device *dev, bool async)
++static bool dpm_wait_for_superior(struct device *dev, bool async)
+ {
+-	dpm_wait(dev->parent, async);
++	struct device *parent;
++
++	/*
++	 * If the device is resumed asynchronously and the parent's callback
++	 * deletes both the device and the parent itself, the parent object may
++	 * be freed while this function is running, so avoid that by reference
++	 * counting the parent once more unless the device has been deleted
++	 * already (in which case return right away).
++	 */
++	mutex_lock(&dpm_list_mtx);
++
++	if (!device_pm_initialized(dev)) {
++		mutex_unlock(&dpm_list_mtx);
++		return false;
++	}
++
++	parent = get_device(dev->parent);
++
++	mutex_unlock(&dpm_list_mtx);
++
++	dpm_wait(parent, async);
++	put_device(parent);
++
+ 	dpm_wait_for_suppliers(dev, async);
++
++	/*
++	 * If the parent's callback has deleted the device, attempting to resume
++	 * it would be invalid, so avoid doing that then.
++	 */
++	return device_pm_initialized(dev);
+ }
  
-@@ -1230,12 +1226,8 @@ static int f2fs_statfs_project(struct su
- 			 (buf->f_blocks - curblock) : 0;
+ static void dpm_wait_for_consumers(struct device *dev, bool async)
+@@ -621,7 +649,8 @@ static int device_resume_noirq(struct de
+ 	if (!dev->power.is_noirq_suspended)
+ 		goto Out;
+ 
+-	dpm_wait_for_superior(dev, async);
++	if (!dpm_wait_for_superior(dev, async))
++		goto Out;
+ 
+ 	skip_resume = dev_pm_may_skip_resume(dev);
+ 
+@@ -829,7 +858,8 @@ static int device_resume_early(struct de
+ 	if (!dev->power.is_late_suspended)
+ 		goto Out;
+ 
+-	dpm_wait_for_superior(dev, async);
++	if (!dpm_wait_for_superior(dev, async))
++		goto Out;
+ 
+ 	callback = dpm_subsys_resume_early_cb(dev, state, &info);
+ 
+@@ -944,7 +974,9 @@ static int device_resume(struct device *
+ 		goto Complete;
  	}
  
--	limit = 0;
--	if (dquot->dq_dqb.dqb_isoftlimit)
--		limit = dquot->dq_dqb.dqb_isoftlimit;
--	if (dquot->dq_dqb.dqb_ihardlimit &&
--			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
--		limit = dquot->dq_dqb.dqb_ihardlimit;
-+	limit = min_not_zero(dquot->dq_dqb.dqb_isoftlimit,
-+					dquot->dq_dqb.dqb_ihardlimit);
+-	dpm_wait_for_superior(dev, async);
++	if (!dpm_wait_for_superior(dev, async))
++		goto Complete;
++
+ 	dpm_watchdog_set(&wd, dev);
+ 	device_lock(dev);
  
- 	if (limit && buf->f_files > limit) {
- 		buf->f_files = limit;
 
 
