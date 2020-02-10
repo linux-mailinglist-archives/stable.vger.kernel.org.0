@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E479157791
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4392D15779F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729820AbgBJMkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S1729824AbgBJNBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:01:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729817AbgBJMkv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:51 -0500
+        id S1729818AbgBJMkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:52 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE2622085B;
-        Mon, 10 Feb 2020 12:40:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FE7120661;
+        Mon, 10 Feb 2020 12:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338450;
-        bh=9vvqBPxbltiYH7PyWIzMbj8xY2dYN+f/9a4CZVWzPik=;
+        s=default; t=1581338451;
+        bh=N6y3J6xDI4G6Rv3ZfZ7XKKwjKaRnqtJz6uGMUI0REg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wt+xtydkFx3OvYCYIRP/ajXi2w3RxU5LbzculH2NOE7TqP0MVqFBCwPiMnLq0H8WG
-         Z+l5Gy9EP+6wqxw8irNG2Hj4ilks6RABUOu2Mb6jpqmwSq4yswYonqYyLhL516xMhR
-         3kQxjbOmYG4atAatlQJ4qroxRb9hswCbDAs2IoH0=
+        b=zhdhq6S8IbmfUFJB+kGfs/KmPnD+T2Uj3dNeTLfwiQU8bcfNvD5Wkf4XkgpFJSumV
+         3k2wN8IeUj5CJNkLGyGuT7st/5qJ+05b25YK/uMHoHCAolKHYOZDPiG8oVkrrTrkyx
+         ZbNKFLC4wYAZN220Df985j5dpeSIQ8Sx/CUaOxqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.5 196/367] Btrfs: make deduplication with range including the last block work
-Date:   Mon, 10 Feb 2020 04:31:49 -0800
-Message-Id: <20200210122442.678567317@linuxfoundation.org>
+Subject: [PATCH 5.5 197/367] Btrfs: fix infinite loop during fsync after rename operations
+Date:   Mon, 10 Feb 2020 04:31:50 -0800
+Message-Id: <20200210122442.771729919@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -46,65 +46,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-commit 831d2fa25ab8e27592b1b0268dae6f2dfaf7cc43 upstream.
+commit b5e4ff9d465da1233a2d9a47ebce487c70d8f4ab upstream.
 
-Since btrfs was migrated to use the generic VFS helpers for clone and
-deduplication, it stopped allowing for the last block of a file to be
-deduplicated when the source file size is not sector size aligned (when
-eof is somewhere in the middle of the last block). There are two reasons
-for that:
+Recently fsstress (from fstests) sporadically started to trigger an
+infinite loop during fsync operations. This turned out to be because
+support for the rename exchange and whiteout operations was added to
+fsstress in fstests. These operations, unlike any others in fsstress,
+cause file names to be reused, whence triggering this issue. However
+it's not necessary to use rename exchange and rename whiteout operations
+trigger this issue, simple rename operations and file creations are
+enough to trigger the issue.
 
-1) The generic code always rounds down, to a multiple of the block size,
-   the range's length for deduplications. This means we end up never
-   deduplicating the last block when the eof is not block size aligned,
-   even for the safe case where the destination range's end offset matches
-   the destination file's size. That rounding down operation is done at
-   generic_remap_check_len();
+The issue boils down to when we are logging inodes that conflict (that
+had the name of any inode we need to log during the fsync operation), we
+keep logging them even if they were already logged before, and after
+that we check if there's any other inode that conflicts with them and
+then add it again to the list of inodes to log. Skipping already logged
+inodes fixes the issue.
 
-2) Because of that, the btrfs specific code does not expect anymore any
-   non-aligned range length's for deduplication and therefore does not
-   work if such nona-aligned length is given.
+Consider the following example:
 
-This patch addresses that second part, and it depends on a patch that
-fixes generic_remap_check_len(), in the VFS, which was submitted ealier
-and has the following subject:
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-  "fs: allow deduplication of eof block into the end of the destination file"
+  $ mkdir /mnt/testdir                           # inode 257
 
-These two patches address reports from users that started seeing lower
-deduplication rates due to the last block never being deduplicated when
-the file size is not aligned to the filesystem's block size.
+  $ touch /mnt/testdir/zz                        # inode 258
+  $ ln /mnt/testdir/zz /mnt/testdir/zz_link
 
-Link: https://lore.kernel.org/linux-btrfs/2019-1576167349.500456@svIo.N5dq.dFFD/
+  $ touch /mnt/testdir/a                         # inode 259
+
+  $ sync
+
+  # The following 3 renames achieve the same result as a rename exchange
+  # operation (<rename_exchange> /mnt/testdir/zz_link to /mnt/testdir/a).
+
+  $ mv /mnt/testdir/a /mnt/testdir/a/tmp
+  $ mv /mnt/testdir/zz_link /mnt/testdir/a
+  $ mv /mnt/testdir/a/tmp /mnt/testdir/zz_link
+
+  # The following rename and file creation give the same result as a
+  # rename whiteout operation (<rename_whiteout> zz to a2).
+
+  $ mv /mnt/testdir/zz /mnt/testdir/a2
+  $ touch /mnt/testdir/zz                        # inode 260
+
+  $ xfs_io -c fsync /mnt/testdir/zz
+    --> results in the infinite loop
+
+The following steps happen:
+
+1) When logging inode 260, we find that its reference named "zz" was
+   used by inode 258 in the previous transaction (through the commit
+   root), so inode 258 is added to the list of conflicting indoes that
+   need to be logged;
+
+2) After logging inode 258, we find that its reference named "a" was
+   used by inode 259 in the previous transaction, and therefore we add
+   inode 259 to the list of conflicting inodes to be logged;
+
+3) After logging inode 259, we find that its reference named "zz_link"
+   was used by inode 258 in the previous transaction - we add inode 258
+   to the list of conflicting inodes to log, again - we had already
+   logged it before at step 3. After logging it again, we find again
+   that inode 259 conflicts with him, and we add again 259 to the list,
+   etc - we end up repeating all the previous steps.
+
+So fix this by skipping logging of conflicting inodes that were already
+logged.
+
+Fixes: 6b5fc433a7ad67 ("Btrfs: fix fsync after succession of renames of different files")
 CC: stable@vger.kernel.org # 5.1+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ioctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-log.c |   44 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3243,6 +3243,7 @@ static void btrfs_double_extent_lock(str
- static int btrfs_extent_same_range(struct inode *src, u64 loff, u64 len,
- 				   struct inode *dst, u64 dst_loff)
- {
-+	const u64 bs = BTRFS_I(src)->root->fs_info->sb->s_blocksize;
- 	int ret;
- 
- 	/*
-@@ -3250,7 +3251,7 @@ static int btrfs_extent_same_range(struc
- 	 * source range to serialize with relocation.
- 	 */
- 	btrfs_double_extent_lock(src, loff, dst, dst_loff, len);
--	ret = btrfs_clone(src, dst, loff, len, len, dst_loff, 1);
-+	ret = btrfs_clone(src, dst, loff, len, ALIGN(len, bs), dst_loff, 1);
- 	btrfs_double_extent_unlock(src, loff, dst, dst_loff, len);
- 
- 	return ret;
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4836,6 +4836,50 @@ static int log_conflicting_inodes(struct
+ 			continue;
+ 		}
+ 		/*
++		 * If the inode was already logged skip it - otherwise we can
++		 * hit an infinite loop. Example:
++		 *
++		 * From the commit root (previous transaction) we have the
++		 * following inodes:
++		 *
++		 * inode 257 a directory
++		 * inode 258 with references "zz" and "zz_link" on inode 257
++		 * inode 259 with reference "a" on inode 257
++		 *
++		 * And in the current (uncommitted) transaction we have:
++		 *
++		 * inode 257 a directory, unchanged
++		 * inode 258 with references "a" and "a2" on inode 257
++		 * inode 259 with reference "zz_link" on inode 257
++		 * inode 261 with reference "zz" on inode 257
++		 *
++		 * When logging inode 261 the following infinite loop could
++		 * happen if we don't skip already logged inodes:
++		 *
++		 * - we detect inode 258 as a conflicting inode, with inode 261
++		 *   on reference "zz", and log it;
++		 *
++		 * - we detect inode 259 as a conflicting inode, with inode 258
++		 *   on reference "a", and log it;
++		 *
++		 * - we detect inode 258 as a conflicting inode, with inode 259
++		 *   on reference "zz_link", and log it - again! After this we
++		 *   repeat the above steps forever.
++		 */
++		spin_lock(&BTRFS_I(inode)->lock);
++		/*
++		 * Check the inode's logged_trans only instead of
++		 * btrfs_inode_in_log(). This is because the last_log_commit of
++		 * the inode is not updated when we only log that it exists and
++		 * and it has the full sync bit set (see btrfs_log_inode()).
++		 */
++		if (BTRFS_I(inode)->logged_trans == trans->transid) {
++			spin_unlock(&BTRFS_I(inode)->lock);
++			btrfs_add_delayed_iput(inode);
++			continue;
++		}
++		spin_unlock(&BTRFS_I(inode)->lock);
++		/*
+ 		 * We are safe logging the other inode without acquiring its
+ 		 * lock as long as we log with the LOG_INODE_EXISTS mode. We
+ 		 * are safe against concurrent renames of the other inode as
 
 
