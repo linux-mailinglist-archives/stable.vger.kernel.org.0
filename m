@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBE51579F8
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F937157789
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728901AbgBJMhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
+        id S1729798AbgBJMkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728896AbgBJMhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:46 -0500
+        id S1729792AbgBJMkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:46 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3F8B2168B;
-        Mon, 10 Feb 2020 12:37:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9846224681;
+        Mon, 10 Feb 2020 12:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338266;
-        bh=m+U00sw7e0xmBxIhKSkjHZxP8XgULJD6o0SKO1wayGA=;
+        s=default; t=1581338445;
+        bh=dbT2HJ03wcRgkccWrDwHhvTc/3UAs06v8MHzqQvBWis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qqtp2XM+VAOEIbbPVCsM57pKWoaJZI5q4mWG+Hnq1pIRywJ76BnnPR02jCs6GD+ST
-         dPubQnbW/GSVmrjgmpe7Eubn0XWHulsvyzllG4Re0VY5SqMQ5rd5MSNw5uq+gq3nue
-         NbF7arnmYcVjxGEWkkDFLflb6kSN6rVQom+x6YSM=
+        b=L/kdbbCV4K8oWxxIAbLpOckkqPN1wbNLVX0XcWVhl1egPfguFFdbRd4OuCTpJiWTE
+         VdTjMiSS8OLw4FB4Aj7TNAKx/pfpr24J8i1NPQfKv80W9i1c76iLMd8SSxwWmR/ogx
+         9BZy9p7zJ5bSZOx5fLDZrRDmqQisn1Z/1MlCIDcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.4 144/309] riscv, bpf: Fix broken BPF tail calls
+        syzbot+e808452bad7c375cbee6@syzkaller-ppc64.appspotmail.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: [PATCH 5.5 187/367] powerpc/futex: Fix incorrect user access blocking
 Date:   Mon, 10 Feb 2020 04:31:40 -0800
-Message-Id: <20200210122420.187416896@linuxfoundation.org>
+Message-Id: <20200210122441.913360082@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn.topel@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit f1003b787c00fbaa4b11619c6b23a885bfce8f07 upstream.
+commit 9dc086f1e9ef39dd823bd27954b884b2062f9e70 upstream.
 
-The BPF JIT incorrectly clobbered the a0 register, and did not flag
-usage of s5 register when BPF stack was being used.
+The early versions of our kernel user access prevention (KUAP) were
+written by Russell and Christophe, and didn't have separate
+read/write access.
 
-Fixes: 2353ecc6f91f ("bpf, riscv: add BPF JIT for RV64G")
-Signed-off-by: Björn Töpel <bjorn.topel@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191216091343.23260-2-bjorn.topel@gmail.com
+At some point I picked up the series and added the read/write access,
+but I failed to update the usages in futex.h to correctly allow read
+and write.
+
+However we didn't notice because of another bug which was causing the
+low-level code to always enable read and write. That bug was fixed
+recently in commit 1d8f739b07bd ("powerpc/kuap: Fix set direction in
+allow/prevent_user_access()").
+
+futex_atomic_cmpxchg_inatomic() is passed the user address as %3 and
+does:
+
+  1:     lwarx   %1,  0, %3
+         cmpw    0,  %1, %4
+         bne-    3f
+  2:     stwcx.  %5,  0, %3
+
+Which clearly loads and stores from/to %3. The logic in
+arch_futex_atomic_op_inuser() is similar, so fix both of them to use
+allow_read_write_user().
+
+Without this fix, and with PPC_KUAP_DEBUG=y, we see eg:
+
+  Bug: Read fault blocked by AMR!
+  WARNING: CPU: 94 PID: 149215 at arch/powerpc/include/asm/book3s/64/kup-radix.h:126 __do_page_fault+0x600/0xf30
+  CPU: 94 PID: 149215 Comm: futex_requeue_p Tainted: G        W         5.5.0-rc7-gcc9x-g4c25df5640ae #1
+  ...
+  NIP [c000000000070680] __do_page_fault+0x600/0xf30
+  LR [c00000000007067c] __do_page_fault+0x5fc/0xf30
+  Call Trace:
+  [c00020138e5637e0] [c00000000007067c] __do_page_fault+0x5fc/0xf30 (unreliable)
+  [c00020138e5638c0] [c00000000000ada8] handle_page_fault+0x10/0x30
+  --- interrupt: 301 at cmpxchg_futex_value_locked+0x68/0xd0
+      LR = futex_lock_pi_atomic+0xe0/0x1f0
+  [c00020138e563bc0] [c000000000217b50] futex_lock_pi_atomic+0x80/0x1f0 (unreliable)
+  [c00020138e563c30] [c00000000021b668] futex_requeue+0x438/0xb60
+  [c00020138e563d60] [c00000000021c6cc] do_futex+0x1ec/0x2b0
+  [c00020138e563d90] [c00000000021c8b8] sys_futex+0x128/0x200
+  [c00020138e563e20] [c00000000000b7ac] system_call+0x5c/0x68
+
+Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: syzbot+e808452bad7c375cbee6@syzkaller-ppc64.appspotmail.com
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Link: https://lore.kernel.org/r/20200207122145.11928-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/riscv/net/bpf_jit_comp.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/futex.h |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/arch/riscv/net/bpf_jit_comp.c
-+++ b/arch/riscv/net/bpf_jit_comp.c
-@@ -120,6 +120,11 @@ static bool seen_reg(int reg, struct rv_
- 	return false;
+--- a/arch/powerpc/include/asm/futex.h
++++ b/arch/powerpc/include/asm/futex.h
+@@ -35,7 +35,7 @@ static inline int arch_futex_atomic_op_i
+ {
+ 	int oldval = 0, ret;
+ 
+-	allow_write_to_user(uaddr, sizeof(*uaddr));
++	allow_read_write_user(uaddr, uaddr, sizeof(*uaddr));
+ 	pagefault_disable();
+ 
+ 	switch (op) {
+@@ -62,7 +62,7 @@ static inline int arch_futex_atomic_op_i
+ 
+ 	*oval = oldval;
+ 
+-	prevent_write_to_user(uaddr, sizeof(*uaddr));
++	prevent_read_write_user(uaddr, uaddr, sizeof(*uaddr));
+ 	return ret;
  }
  
-+static void mark_fp(struct rv_jit_context *ctx)
-+{
-+	__set_bit(RV_CTX_F_SEEN_S5, &ctx->flags);
-+}
-+
- static void mark_call(struct rv_jit_context *ctx)
- {
- 	__set_bit(RV_CTX_F_SEEN_CALL, &ctx->flags);
-@@ -596,7 +601,8 @@ static void __build_epilogue(u8 reg, str
+@@ -76,7 +76,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	if (!access_ok(uaddr, sizeof(u32)))
+ 		return -EFAULT;
  
- 	emit(rv_addi(RV_REG_SP, RV_REG_SP, stack_adjust), ctx);
- 	/* Set return value. */
--	emit(rv_addi(RV_REG_A0, RV_REG_A5, 0), ctx);
-+	if (reg == RV_REG_RA)
-+		emit(rv_addi(RV_REG_A0, RV_REG_A5, 0), ctx);
- 	emit(rv_jalr(RV_REG_ZERO, reg, 0), ctx);
+-	allow_write_to_user(uaddr, sizeof(*uaddr));
++	allow_read_write_user(uaddr, uaddr, sizeof(*uaddr));
++
+         __asm__ __volatile__ (
+         PPC_ATOMIC_ENTRY_BARRIER
+ "1:     lwarx   %1,0,%3         # futex_atomic_cmpxchg_inatomic\n\
+@@ -97,7 +98,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+         : "cc", "memory");
+ 
+ 	*uval = prev;
+-	prevent_write_to_user(uaddr, sizeof(*uaddr));
++	prevent_read_write_user(uaddr, uaddr, sizeof(*uaddr));
++
+         return ret;
  }
  
-@@ -1426,6 +1432,10 @@ static void build_prologue(struct rv_jit
- {
- 	int stack_adjust = 0, store_offset, bpf_stack_adjust;
- 
-+	bpf_stack_adjust = round_up(ctx->prog->aux->stack_depth, 16);
-+	if (bpf_stack_adjust)
-+		mark_fp(ctx);
-+
- 	if (seen_reg(RV_REG_RA, ctx))
- 		stack_adjust += 8;
- 	stack_adjust += 8; /* RV_REG_FP */
-@@ -1443,7 +1453,6 @@ static void build_prologue(struct rv_jit
- 		stack_adjust += 8;
- 
- 	stack_adjust = round_up(stack_adjust, 16);
--	bpf_stack_adjust = round_up(ctx->prog->aux->stack_depth, 16);
- 	stack_adjust += bpf_stack_adjust;
- 
- 	store_offset = stack_adjust - 8;
 
 
