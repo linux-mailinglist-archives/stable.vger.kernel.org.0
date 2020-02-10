@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4270715757B
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 425C01576E6
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:56:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729952AbgBJMlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43110 "EHLO mail.kernel.org"
+        id S1729284AbgBJM4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:56:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729945AbgBJMlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:16 -0500
+        id S1728574AbgBJMlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:42 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB0CE2051A;
-        Mon, 10 Feb 2020 12:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 252A420733;
+        Mon, 10 Feb 2020 12:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338476;
-        bh=mc6P79plUE2+NT5yHFbooruDYKFyGwJIhlDwTDoVieI=;
+        s=default; t=1581338501;
+        bh=39WzRQPwvW5XrxKbELBSz19WS+NFf8umOaaiF2Is8OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtNin9NdfoTPCiHdblTOpE3c1QiF54WQHoyRfyBCFv2YHVYSqsTxnFmPT9fzAgEEh
-         qzuHGfyE8lSeIWvA3dVyO0roJPV/nRGKH6zBO+g7DBoKMJcV7pemWNlJPE7VsSGohP
-         ICUHhDLIiJlSWDQy3lWrtR4xnS69iewU/wUiUbwQ=
+        b=lG8NgWcXaVBJb4mqg/bQIIvUVvMLeoG3aQmQ6RW/RTJYk89FmJUaCZJypVfA9soEW
+         wK+uPUId1KLoMnVOXQH8UHTikRWdVainB2ysbJnJSczItTLDivRP2kHHoH6CEokkEo
+         aMAzJd3QLNV/cSZugQgzt4lwiHFC9rlsGehca/yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 244/367] x86/kvm: Be careful not to clear KVM_VCPU_FLUSH_TLB bit
-Date:   Mon, 10 Feb 2020 04:32:37 -0800
-Message-Id: <20200210122446.704452861@linuxfoundation.org>
+Subject: [PATCH 5.5 245/367] KVM: x86: use CPUID to locate host page table reserved bits
+Date:   Mon, 10 Feb 2020 04:32:38 -0800
+Message-Id: <20200210122446.800976612@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,39 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 8c6de56a42e0c657955e12b882a81ef07d1d073e upstream.
+commit 7adacf5eb2d2048045d9fd8fdab861fd9e7e2e96 upstream.
 
-kvm_steal_time_set_preempted() may accidentally clear KVM_VCPU_FLUSH_TLB
-bit if it is called more than once while VCPU is preempted.
+The comment in kvm_get_shadow_phys_bits refers to MKTME, but the same is actually
+true of SME and SEV.  Just use CPUID[0x8000_0008].EAX[7:0] unconditionally if
+available, it is simplest and works even if memory is not encrypted.
 
-This is part of CVE-2019-3016.
-
-(This bug was also independently discovered by Jim Mattson
-<jmattson@google.com>)
-
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
 Cc: stable@vger.kernel.org
+Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/mmu/mmu.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3514,6 +3514,9 @@ static void kvm_steal_time_set_preempted
- 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
- 		return;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -538,16 +538,20 @@ EXPORT_SYMBOL_GPL(kvm_mmu_set_mask_ptes)
+ static u8 kvm_get_shadow_phys_bits(void)
+ {
+ 	/*
+-	 * boot_cpu_data.x86_phys_bits is reduced when MKTME is detected
+-	 * in CPU detection code, but MKTME treats those reduced bits as
+-	 * 'keyID' thus they are not reserved bits. Therefore for MKTME
+-	 * we should still return physical address bits reported by CPUID.
++	 * boot_cpu_data.x86_phys_bits is reduced when MKTME or SME are detected
++	 * in CPU detection code, but the processor treats those reduced bits as
++	 * 'keyID' thus they are not reserved bits. Therefore KVM needs to look at
++	 * the physical address bits reported by CPUID.
+ 	 */
+-	if (!boot_cpu_has(X86_FEATURE_TME) ||
+-	    WARN_ON_ONCE(boot_cpu_data.extended_cpuid_level < 0x80000008))
+-		return boot_cpu_data.x86_phys_bits;
++	if (likely(boot_cpu_data.extended_cpuid_level >= 0x80000008))
++		return cpuid_eax(0x80000008) & 0xff;
  
-+	if (vcpu->arch.st.steal.preempted)
-+		return;
-+
- 	vcpu->arch.st.steal.preempted = KVM_VCPU_PREEMPTED;
+-	return cpuid_eax(0x80000008) & 0xff;
++	/*
++	 * Quite weird to have VMX or SVM but not MAXPHYADDR; probably a VM with
++	 * custom CPUID.  Proceed with whatever the kernel found since these features
++	 * aren't virtualizable (SME/SEV also require CPUIDs higher than 0x80000008).
++	 */
++	return boot_cpu_data.x86_phys_bits;
+ }
  
- 	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
+ static void kvm_mmu_reset_all_pte_masks(void)
 
 
