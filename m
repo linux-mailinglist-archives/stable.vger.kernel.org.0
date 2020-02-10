@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5921577FD
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AA6D157A19
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:20:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbgBJNEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:04:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S1729051AbgBJNUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:20:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729683AbgBJMkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:17 -0500
+        id S1728839AbgBJMhl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:41 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B04F420838;
-        Mon, 10 Feb 2020 12:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5CD62085B;
+        Mon, 10 Feb 2020 12:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338416;
-        bh=c9p7BO+g+O9vu5jRi6Si3qgbX/r1PcAB+5FmIY5Lhy8=;
+        s=default; t=1581338259;
+        bh=tmBSDLVN9TjuA3cwnx4XYoof6ua0qOeDDb97kojFmIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/O7Nmz/1SyuGlFWuXhebJWS24305lp0MAaqwc+pDYWCrZIBnT77y7Wvu+lHXhLJz
-         qsXRUyD3zzGH398aWaWMiDVumFfKOvkIpIB9bemvQ/aySDpRzStb49USLhL5jeueNx
-         fg4kslwv49szqaqWvD/EcJQDGa6bPlmgvB3mv7vU=
+        b=DxH/e3+68bs41tOC0LFo5fwFNgxOigIT/+Mb1Psy2wGaHK5596xUjZUXxnUBdCT3n
+         E52nOrtehPoCEV0R4zZtjHbK3Zxa8FdABtxFNwvpaVARvRsQjAPu6EoBGD59ZUkF4B
+         KaF7ukz9AuiG0BWw69eAYJORpLMg4M6VtpOAVsH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 5.5 132/367] f2fs: fix miscounted block limit in f2fs_statfs_project()
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 089/309] ACPI / battery: Deal better with neither design nor full capacity not being reported
 Date:   Mon, 10 Feb 2020 04:30:45 -0800
-Message-Id: <20200210122437.058285595@linuxfoundation.org>
+Message-Id: <20200210122414.518695904@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit acdf2172172a511f97fa21ed0ee7609a6d3b3a07 upstream.
+commit ff3154d1d89a2343fd5f82e65bc0cf1d4e6659b3 upstream.
 
-statfs calculates Total/Used/Avail disk space in block unit,
-so we should translate soft/hard prjquota limit to block unit
-as well.
+Commit b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on
+devices without full_charge_capacity") added support for some (broken)
+devices which always report 0 for both design_capacity and
+full_charge_capacity.
 
-Below testing result shows the block/inode numbers of
-Total/Used/Avail from df command are all correct afer
-applying this patch.
+Since the device that commit was written as a fix for is not reporting any
+form of "full" capacity we cannot calculate the value for the
+POWER_SUPPLY_PROP_CAPACITY, this is worked around by using an alternative
+array of available properties which does not contain this property.
 
-[root@localhost quota-tools]\# ./repquota -P /dev/sdb1
+This is necessary because userspace (upower) treats us returning -ENODEV
+as 0 and then typically will trigger an emergency shutdown because of that.
+Userspace does not do this if the capacity sysfs attribute is not present
+at all.
+
+There are two potential problems with that commit:
+ 1) It assumes that both full_charge- and design-capacity are broken at the
+    same time and only checks if full_charge- is broken.
+ 2) It assumes that this only ever happens for devices which report energy
+    units rather then charge units.
+
+This commit fixes both issues by only using the alternative
+array of available properties if both full_charge- and design-capacity are
+broken and by also adding an alternative array of available properties for
+devices using mA units.
+
+Fixes: b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on devices without full_charge_capacity")
+Cc: 4.19+ <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/f2fs/super.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/battery.c |   51 +++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 39 insertions(+), 12 deletions(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1219,6 +1219,8 @@ static int f2fs_statfs_project(struct su
- 	if (dquot->dq_dqb.dqb_bhardlimit &&
- 			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
- 		limit = dquot->dq_dqb.dqb_bhardlimit;
-+	if (limit)
-+		limit >>= sb->s_blocksize_bits;
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -342,6 +342,20 @@ static enum power_supply_property charge
+ 	POWER_SUPPLY_PROP_SERIAL_NUMBER,
+ };
  
- 	if (limit && buf->f_blocks > limit) {
- 		curblock = dquot->dq_dqb.dqb_curspace >> sb->s_blocksize_bits;
++static enum power_supply_property charge_battery_full_cap_broken_props[] = {
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_TECHNOLOGY,
++	POWER_SUPPLY_PROP_CYCLE_COUNT,
++	POWER_SUPPLY_PROP_VOLTAGE_MIN_DESIGN,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++	POWER_SUPPLY_PROP_CURRENT_NOW,
++	POWER_SUPPLY_PROP_CHARGE_NOW,
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++	POWER_SUPPLY_PROP_SERIAL_NUMBER,
++};
++
+ static enum power_supply_property energy_battery_props[] = {
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_PRESENT,
+@@ -803,21 +817,34 @@ static void __exit battery_hook_exit(voi
+ static int sysfs_add_battery(struct acpi_battery *battery)
+ {
+ 	struct power_supply_config psy_cfg = { .drv_data = battery, };
++	bool full_cap_broken = false;
++
++	if (!ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity) &&
++	    !ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity))
++		full_cap_broken = true;
+ 
+ 	if (battery->power_unit == ACPI_BATTERY_POWER_UNIT_MA) {
+-		battery->bat_desc.properties = charge_battery_props;
+-		battery->bat_desc.num_properties =
+-			ARRAY_SIZE(charge_battery_props);
+-	} else if (!ACPI_BATTERY_CAPACITY_VALID(
+-					battery->full_charge_capacity)) {
+-		battery->bat_desc.properties =
+-			energy_battery_full_cap_broken_props;
+-		battery->bat_desc.num_properties =
+-			ARRAY_SIZE(energy_battery_full_cap_broken_props);
++		if (full_cap_broken) {
++			battery->bat_desc.properties =
++			    charge_battery_full_cap_broken_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(charge_battery_full_cap_broken_props);
++		} else {
++			battery->bat_desc.properties = charge_battery_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(charge_battery_props);
++		}
+ 	} else {
+-		battery->bat_desc.properties = energy_battery_props;
+-		battery->bat_desc.num_properties =
+-			ARRAY_SIZE(energy_battery_props);
++		if (full_cap_broken) {
++			battery->bat_desc.properties =
++			    energy_battery_full_cap_broken_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(energy_battery_full_cap_broken_props);
++		} else {
++			battery->bat_desc.properties = energy_battery_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(energy_battery_props);
++		}
+ 	}
+ 
+ 	battery->bat_desc.name = acpi_device_bid(battery->device);
 
 
