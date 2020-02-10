@@ -2,484 +2,1835 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD337156D92
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 03:19:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F21A156D95
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 03:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726935AbgBJCTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Feb 2020 21:19:44 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:32948 "EHLO
+        id S1727254AbgBJCUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Feb 2020 21:20:13 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:34833 "EHLO
         mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726915AbgBJCTo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 21:19:44 -0500
-Received: by mail-wr1-f68.google.com with SMTP id u6so5626686wrt.0;
-        Sun, 09 Feb 2020 18:19:39 -0800 (PST)
+        with ESMTP id S1726915AbgBJCUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Feb 2020 21:20:13 -0500
+Received: by mail-wr1-f68.google.com with SMTP id w12so5608277wrt.2
+        for <stable@vger.kernel.org>; Sun, 09 Feb 2020 18:20:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZwngVaNUnsrSnHHLztjdVV6sVUGIb2jQnJfPY4OH8JM=;
-        b=TRXu26x4pqVD5fkaCkjWR365smyfMoWtBuHk/tgvXD//tNGrmiXPx/hhh/8sS72emx
-         LGYHrfdkqIU0ZHGDRdUjd86JWXLt2zi4Zo/OStGmXQr48QuSWJHW/1CRxU787LR111NC
-         5DLmB5WK8WMUDuhOt0AQNkiFdsL2cRiOL1LsGxpv51BMOVieRDvz9LBysSOsP+U0MVEU
-         k5Lk4bXiN5X5bYyHdHw9RtlW7yMze5qBzwtsCxAfMtkmWvAalms6Jj2hPj+1zch4ZG3D
-         dsAJI5a98TjuIiqyEh+OAi1jgayEkm2Qj22asXDrv08kAI2LKfb7aIEORdPZRM73HmfQ
-         k72g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UP3bPm6F3D/i2LuHzS/XLXIAMo3zixzwkSSWyjs+R4g=;
+        b=DNElen6bw7lObZA9HkMcdqyniyUoMOOcWHBxslJ9uzEqgaOwwuyp0EkEyAOXVwH6Aw
+         YnR9sRgXdNWPM/V75bDVV6XK4UhL6HInnii3Tj0o0TZFf1wqwrILl+d9Jt9316hGn29A
+         ttP04eY8RO0izvrudLJ3SxCCqOyKQierCi7yS7VSvl/2akWwRvD7UphkOJx4GBBYiXYt
+         7MqVb23q5JziQYntVi1BTyQ/WaXSSNWeVsm1F20244fK9EihoRsXsPkUpF/Z9qzsp2V0
+         YAE891SYsJlT9jwm/rW/n/CIHkkF4ggAAbWreWBtQojUT9SzEtA2uUaFOQzVfDEzk+Wn
+         +PmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZwngVaNUnsrSnHHLztjdVV6sVUGIb2jQnJfPY4OH8JM=;
-        b=c1PR1bOQddFtQdlSO/bQMj354iGTQgRANEFNjvSHQbaIiHqdmUAm2VVTXrbZhsJs8E
-         jtsfg1hJZGgnh5xEQaArkWd+xgmscqUEGDAhaNtOZkubi4wX/hKjB5mnKut+Rvi0Jetb
-         6RRZrcew5eLo37OeCEndkvj15EPANQCaDKNVZP7uMVbRGpzzXLKJca2qxOddPTvAvg6t
-         jSfqzSt3G2Z0l/5ao5Dnnd2afm+COCcM8ml4f1lm48QQUwHdABcqk4ze3PcB4tttHQin
-         tOG4X/SOLdudogHCiWii5DnNAfPelKQSDV88eq9Gc2jp8SI+ComlArAVmDPCmC04n8db
-         f4tQ==
-X-Gm-Message-State: APjAAAWMgi1i5tS6H7knnMtLJsEDr0MXFDvieO2lHpi6FaLi6ab/Y+c5
-        YqyzWcF0vVXRraPn2DzuEIA8SUzJfs6walgaf40=
-X-Google-Smtp-Source: APXvYqxfKbHrfduT04LJ8ZEY/MN5R4dm47Rcq5U5TUhMryBOdwiQH/0BxXn52C2ZduDv5nxFpBgmwoDqUmABVjxUEcI=
-X-Received: by 2002:adf:db84:: with SMTP id u4mr14078748wri.317.1581301178981;
- Sun, 09 Feb 2020 18:19:38 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UP3bPm6F3D/i2LuHzS/XLXIAMo3zixzwkSSWyjs+R4g=;
+        b=qaGYE4Yvzi0hrQRC6c4cPxRpJCRD5nooRee+FoGfm0uRDM8vzNY8lzc5GuKIIfv2H3
+         kxEDP5cucZ1wnpAiRqmr+FeTTUL1y//8mM/jUNbcUG7LP+yWRMJD163t+e5qKPmkEs2q
+         gsP58E5fq1mGfBASiWoXTfpGtQ2gi5iKXpZEwZQ5lbkh5rIIR1/v0AG5siHYHiWm0bBO
+         L8n/sRvX1Nr4g3Ipo/yGGbSEVmbDpW5d4aM7eYvCI9TeKOSE3C2CPn8aKHwhBLDWVxKT
+         ySQa7kHpJ8AoKr5K1AxvUJybOI2X/Jpk58WRfIlEKcjWZB0rBkq2OsjVqwK/7RBuN2Dv
+         +WDg==
+X-Gm-Message-State: APjAAAWyt+7V2RGUhF0jA67bqTJHSVEhp5SSfZax/egfdVQGuFrMXO1+
+        YlIsZca1XFbSGU2xK2Swk3lAEe+dLSI=
+X-Google-Smtp-Source: APXvYqy6PL6VDgYaSUEtGjRR4nI/GnxNoDs5Nt9Dt52TupZTUMquwwHLCRvAvHuXc5GXe/L7SB37kg==
+X-Received: by 2002:adf:f401:: with SMTP id g1mr13614460wro.129.1581301210532;
+        Sun, 09 Feb 2020 18:20:10 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w22sm12946647wmk.34.2020.02.09.18.20.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 Feb 2020 18:20:10 -0800 (PST)
+Message-ID: <5e40bdda.1c69fb81.1b429.839c@mx.google.com>
+Date:   Sun, 09 Feb 2020 18:20:10 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200206142812.25989-1-jack@suse.cz>
-In-Reply-To: <20200206142812.25989-1-jack@suse.cz>
-From:   Ming Lei <tom.leiming@gmail.com>
-Date:   Mon, 10 Feb 2020 10:19:26 +0800
-Message-ID: <CACVXFVOX-_kySr5FsKr3_0o6-2hXVCjoaNW8Gxnx_JZPY+ugHg@mail.gmail.com>
-Subject: Re: [PATCH] blktrace: Protect q->blk_trace with RCU
-To:     Jan Kara <jack@suse.cz>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        linux-block <linux-block@vger.kernel.org>, tristmd@gmail.com,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.18-307-gdb4707481a60
+Subject: stable-rc/linux-5.4.y build: 119 builds: 79 failed, 40 passed,
+ 91 errors, 131 warnings (v5.4.18-307-gdb4707481a60)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 6, 2020 at 10:29 PM Jan Kara <jack@suse.cz> wrote:
->
-> KASAN is reporting that __blk_add_trace() has a use-after-free issue
-> when accessing q->blk_trace. Indeed the switching of block tracing (and
-> thus eventual freeing of q->blk_trace) is completely unsynchronized with
-> the currently running tracing and thus it can happen that the blk_trace
-> structure is being freed just while __blk_add_trace() works on it.
-> Protect accesses to q->blk_trace by RCU during tracing and make sure we
-> wait for the end of RCU grace period when shutting down tracing. Luckily
-> that is rare enough event that we can afford that. Note that postponing
-> the freeing of blk_trace to an RCU callback should better be avoided as
-> it could have unexpected user visible side-effects as debugfs files
-> would be still existing for a short while block tracing has been shut
-> down.
->
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=205711
-> CC: stable@vger.kernel.org
-> Reported-by: Tristan <tristmd@gmail.com>
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> ---
->  include/linux/blkdev.h       |   2 +-
->  include/linux/blktrace_api.h |  18 +++++--
->  kernel/trace/blktrace.c      | 114 +++++++++++++++++++++++++++++++------------
->  3 files changed, 97 insertions(+), 37 deletions(-)
->
-> diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-> index 4c636c42ad68..1cb5afed5515 100644
-> --- a/include/linux/blkdev.h
-> +++ b/include/linux/blkdev.h
-> @@ -524,7 +524,7 @@ struct request_queue {
->         unsigned int            sg_reserved_size;
->         int                     node;
->  #ifdef CONFIG_BLK_DEV_IO_TRACE
-> -       struct blk_trace        *blk_trace;
-> +       struct blk_trace __rcu  *blk_trace;
->         struct mutex            blk_trace_mutex;
->  #endif
->         /*
-> diff --git a/include/linux/blktrace_api.h b/include/linux/blktrace_api.h
-> index 7bb2d8de9f30..3b6ff5902edc 100644
-> --- a/include/linux/blktrace_api.h
-> +++ b/include/linux/blktrace_api.h
-> @@ -51,9 +51,13 @@ void __trace_note_message(struct blk_trace *, struct blkcg *blkcg, const char *f
->   **/
->  #define blk_add_cgroup_trace_msg(q, cg, fmt, ...)                      \
->         do {                                                            \
-> -               struct blk_trace *bt = (q)->blk_trace;                  \
-> +               struct blk_trace *bt;                                   \
-> +                                                                       \
-> +               rcu_read_lock();                                        \
-> +               bt = rcu_dereference((q)->blk_trace);                   \
->                 if (unlikely(bt))                                       \
->                         __trace_note_message(bt, cg, fmt, ##__VA_ARGS__);\
-> +               rcu_read_unlock();                                      \
->         } while (0)
->  #define blk_add_trace_msg(q, fmt, ...)                                 \
->         blk_add_cgroup_trace_msg(q, NULL, fmt, ##__VA_ARGS__)
-> @@ -61,10 +65,14 @@ void __trace_note_message(struct blk_trace *, struct blkcg *blkcg, const char *f
->
->  static inline bool blk_trace_note_message_enabled(struct request_queue *q)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> -       if (likely(!bt))
-> -               return false;
-> -       return bt->act_mask & BLK_TC_NOTIFY;
-> +       struct blk_trace *bt;
-> +       bool ret;
-> +
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
-> +       ret = bt && (bt->act_mask & BLK_TC_NOTIFY);
-> +       rcu_read_unlock();
-> +       return ret;
->  }
->
->  extern void blk_add_driver_data(struct request_queue *q, struct request *rq,
-> diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-> index 475e29498bca..a6d3016410eb 100644
-> --- a/kernel/trace/blktrace.c
-> +++ b/kernel/trace/blktrace.c
-> @@ -335,6 +335,7 @@ static void put_probe_ref(void)
->
->  static void blk_trace_cleanup(struct blk_trace *bt)
->  {
-> +       synchronize_rcu();
->         blk_trace_free(bt);
->         put_probe_ref();
->  }
-> @@ -629,8 +630,10 @@ static int compat_blk_trace_setup(struct request_queue *q, char *name,
->  static int __blk_trace_startstop(struct request_queue *q, int start)
->  {
->         int ret;
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> +       bt = rcu_dereference_protected(q->blk_trace,
-> +                                      lockdep_is_held(&q->blk_trace_mutex));
->         if (bt == NULL)
->                 return -EINVAL;
->
-> @@ -740,8 +743,8 @@ int blk_trace_ioctl(struct block_device *bdev, unsigned cmd, char __user *arg)
->  void blk_trace_shutdown(struct request_queue *q)
->  {
->         mutex_lock(&q->blk_trace_mutex);
-> -
-> -       if (q->blk_trace) {
-> +       if (rcu_dereference_protected(q->blk_trace,
-> +                                     lockdep_is_held(&q->blk_trace_mutex))) {
->                 __blk_trace_startstop(q, 0);
->                 __blk_trace_remove(q);
->         }
-> @@ -752,8 +755,10 @@ void blk_trace_shutdown(struct request_queue *q)
->  #ifdef CONFIG_BLK_CGROUP
->  static u64 blk_trace_bio_get_cgid(struct request_queue *q, struct bio *bio)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> +       /* We don't use the 'bt' value here except as an optimization... */
-> +       bt = rcu_dereference_protected(q->blk_trace, 1);
->         if (!bt || !(blk_tracer_flags.val & TRACE_BLK_OPT_CGROUP))
->                 return 0;
->
-> @@ -796,10 +801,14 @@ blk_trace_request_get_cgid(struct request_queue *q, struct request *rq)
->  static void blk_add_trace_rq(struct request *rq, int error,
->                              unsigned int nr_bytes, u32 what, u64 cgid)
->  {
-> -       struct blk_trace *bt = rq->q->blk_trace;
-> +       struct blk_trace *bt;
->
-> -       if (likely(!bt))
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(rq->q->blk_trace);
-> +       if (likely(!bt)) {
-> +               rcu_read_unlock();
->                 return;
-> +       }
->
->         if (blk_rq_is_passthrough(rq))
->                 what |= BLK_TC_ACT(BLK_TC_PC);
-> @@ -808,6 +817,7 @@ static void blk_add_trace_rq(struct request *rq, int error,
->
->         __blk_add_trace(bt, blk_rq_trace_sector(rq), nr_bytes, req_op(rq),
->                         rq->cmd_flags, what, error, 0, NULL, cgid);
-> +       rcu_read_unlock();
->  }
->
->  static void blk_add_trace_rq_insert(void *ignore,
-> @@ -853,14 +863,19 @@ static void blk_add_trace_rq_complete(void *ignore, struct request *rq,
->  static void blk_add_trace_bio(struct request_queue *q, struct bio *bio,
->                               u32 what, int error)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> -       if (likely(!bt))
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
-> +       if (likely(!bt)) {
-> +               rcu_read_unlock();
->                 return;
-> +       }
->
->         __blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
->                         bio_op(bio), bio->bi_opf, what, error, 0, NULL,
->                         blk_trace_bio_get_cgid(q, bio));
-> +       rcu_read_unlock();
->  }
->
->  static void blk_add_trace_bio_bounce(void *ignore,
-> @@ -905,11 +920,14 @@ static void blk_add_trace_getrq(void *ignore,
->         if (bio)
->                 blk_add_trace_bio(q, bio, BLK_TA_GETRQ, 0);
->         else {
-> -               struct blk_trace *bt = q->blk_trace;
-> +               struct blk_trace *bt;
->
-> +               rcu_read_lock();
-> +               bt = rcu_dereference(q->blk_trace);
->                 if (bt)
->                         __blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_GETRQ, 0, 0,
->                                         NULL, 0);
-> +               rcu_read_unlock();
->         }
->  }
->
-> @@ -921,27 +939,35 @@ static void blk_add_trace_sleeprq(void *ignore,
->         if (bio)
->                 blk_add_trace_bio(q, bio, BLK_TA_SLEEPRQ, 0);
->         else {
-> -               struct blk_trace *bt = q->blk_trace;
-> +               struct blk_trace *bt;
->
-> +               rcu_read_lock();
-> +               bt = rcu_dereference(q->blk_trace);
->                 if (bt)
->                         __blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_SLEEPRQ,
->                                         0, 0, NULL, 0);
-> +               rcu_read_unlock();
->         }
->  }
->
->  static void blk_add_trace_plug(void *ignore, struct request_queue *q)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
->         if (bt)
->                 __blk_add_trace(bt, 0, 0, 0, 0, BLK_TA_PLUG, 0, 0, NULL, 0);
-> +       rcu_read_unlock();
->  }
->
->  static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
->                                     unsigned int depth, bool explicit)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
->         if (bt) {
->                 __be64 rpdu = cpu_to_be64(depth);
->                 u32 what;
-> @@ -953,14 +979,17 @@ static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
->
->                 __blk_add_trace(bt, 0, 0, 0, 0, what, 0, sizeof(rpdu), &rpdu, 0);
->         }
-> +       rcu_read_unlock();
->  }
->
->  static void blk_add_trace_split(void *ignore,
->                                 struct request_queue *q, struct bio *bio,
->                                 unsigned int pdu)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
->         if (bt) {
->                 __be64 rpdu = cpu_to_be64(pdu);
->
-> @@ -969,6 +998,7 @@ static void blk_add_trace_split(void *ignore,
->                                 BLK_TA_SPLIT, bio->bi_status, sizeof(rpdu),
->                                 &rpdu, blk_trace_bio_get_cgid(q, bio));
->         }
-> +       rcu_read_unlock();
->  }
->
->  /**
-> @@ -988,11 +1018,15 @@ static void blk_add_trace_bio_remap(void *ignore,
->                                     struct request_queue *q, struct bio *bio,
->                                     dev_t dev, sector_t from)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->         struct blk_io_trace_remap r;
->
-> -       if (likely(!bt))
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
-> +       if (likely(!bt)) {
-> +               rcu_read_unlock();
->                 return;
-> +       }
->
->         r.device_from = cpu_to_be32(dev);
->         r.device_to   = cpu_to_be32(bio_dev(bio));
-> @@ -1001,6 +1035,7 @@ static void blk_add_trace_bio_remap(void *ignore,
->         __blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
->                         bio_op(bio), bio->bi_opf, BLK_TA_REMAP, bio->bi_status,
->                         sizeof(r), &r, blk_trace_bio_get_cgid(q, bio));
-> +       rcu_read_unlock();
->  }
->
->  /**
-> @@ -1021,11 +1056,15 @@ static void blk_add_trace_rq_remap(void *ignore,
->                                    struct request *rq, dev_t dev,
->                                    sector_t from)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->         struct blk_io_trace_remap r;
->
-> -       if (likely(!bt))
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
-> +       if (likely(!bt)) {
-> +               rcu_read_unlock();
->                 return;
-> +       }
->
->         r.device_from = cpu_to_be32(dev);
->         r.device_to   = cpu_to_be32(disk_devt(rq->rq_disk));
-> @@ -1034,6 +1073,7 @@ static void blk_add_trace_rq_remap(void *ignore,
->         __blk_add_trace(bt, blk_rq_pos(rq), blk_rq_bytes(rq),
->                         rq_data_dir(rq), 0, BLK_TA_REMAP, 0,
->                         sizeof(r), &r, blk_trace_request_get_cgid(q, rq));
-> +       rcu_read_unlock();
->  }
->
->  /**
-> @@ -1051,14 +1091,19 @@ void blk_add_driver_data(struct request_queue *q,
->                          struct request *rq,
->                          void *data, size_t len)
->  {
-> -       struct blk_trace *bt = q->blk_trace;
-> +       struct blk_trace *bt;
->
-> -       if (likely(!bt))
-> +       rcu_read_lock();
-> +       bt = rcu_dereference(q->blk_trace);
-> +       if (likely(!bt)) {
-> +               rcu_read_unlock();
->                 return;
-> +       }
->
->         __blk_add_trace(bt, blk_rq_trace_sector(rq), blk_rq_bytes(rq), 0, 0,
->                                 BLK_TA_DRV_DATA, 0, len, data,
->                                 blk_trace_request_get_cgid(q, rq));
-> +       rcu_read_unlock();
->  }
->  EXPORT_SYMBOL_GPL(blk_add_driver_data);
->
-> @@ -1597,6 +1642,7 @@ static int blk_trace_remove_queue(struct request_queue *q)
->                 return -EINVAL;
->
->         put_probe_ref();
-> +       synchronize_rcu();
->         blk_trace_free(bt);
->         return 0;
->  }
-> @@ -1758,6 +1804,7 @@ static ssize_t sysfs_blk_trace_attr_show(struct device *dev,
->         struct hd_struct *p = dev_to_part(dev);
->         struct request_queue *q;
->         struct block_device *bdev;
-> +       struct blk_trace *bt;
->         ssize_t ret = -ENXIO;
->
->         bdev = bdget(part_devt(p));
-> @@ -1770,21 +1817,23 @@ static ssize_t sysfs_blk_trace_attr_show(struct device *dev,
->
->         mutex_lock(&q->blk_trace_mutex);
->
-> +       bt = rcu_dereference_protected(q->blk_trace,
-> +                                      lockdep_is_held(&q->blk_trace_mutex));
->         if (attr == &dev_attr_enable) {
-> -               ret = sprintf(buf, "%u\n", !!q->blk_trace);
-> +               ret = sprintf(buf, "%u\n", !!bt);
->                 goto out_unlock_bdev;
->         }
->
-> -       if (q->blk_trace == NULL)
-> +       if (bt == NULL)
->                 ret = sprintf(buf, "disabled\n");
->         else if (attr == &dev_attr_act_mask)
-> -               ret = blk_trace_mask2str(buf, q->blk_trace->act_mask);
-> +               ret = blk_trace_mask2str(buf, bt->act_mask);
->         else if (attr == &dev_attr_pid)
-> -               ret = sprintf(buf, "%u\n", q->blk_trace->pid);
-> +               ret = sprintf(buf, "%u\n", bt->pid);
->         else if (attr == &dev_attr_start_lba)
-> -               ret = sprintf(buf, "%llu\n", q->blk_trace->start_lba);
-> +               ret = sprintf(buf, "%llu\n", bt->start_lba);
->         else if (attr == &dev_attr_end_lba)
-> -               ret = sprintf(buf, "%llu\n", q->blk_trace->end_lba);
-> +               ret = sprintf(buf, "%llu\n", bt->end_lba);
->
->  out_unlock_bdev:
->         mutex_unlock(&q->blk_trace_mutex);
-> @@ -1801,6 +1850,7 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
->         struct block_device *bdev;
->         struct request_queue *q;
->         struct hd_struct *p;
-> +       struct blk_trace *bt;
->         u64 value;
->         ssize_t ret = -EINVAL;
->
-> @@ -1831,8 +1881,10 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
->
->         mutex_lock(&q->blk_trace_mutex);
->
-> +       bt = rcu_dereference_protected(q->blk_trace,
-> +                                      lockdep_is_held(&q->blk_trace_mutex));
->         if (attr == &dev_attr_enable) {
-> -               if (!!value == !!q->blk_trace) {
-> +               if (!!value == !!bt) {
->                         ret = 0;
->                         goto out_unlock_bdev;
->                 }
-> @@ -1844,18 +1896,18 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
->         }
->
->         ret = 0;
-> -       if (q->blk_trace == NULL)
-> +       if (bt == NULL)
->                 ret = blk_trace_setup_queue(q, bdev);
->
->         if (ret == 0) {
->                 if (attr == &dev_attr_act_mask)
-> -                       q->blk_trace->act_mask = value;
-> +                       bt->act_mask = value;
->                 else if (attr == &dev_attr_pid)
-> -                       q->blk_trace->pid = value;
-> +                       bt->pid = value;
->                 else if (attr == &dev_attr_start_lba)
-> -                       q->blk_trace->start_lba = value;
-> +                       bt->start_lba = value;
->                 else if (attr == &dev_attr_end_lba)
-> -                       q->blk_trace->end_lba = value;
-> +                       bt->end_lba = value;
->         }
->
->  out_unlock_bdev:
-> --
-> 2.16.4
->
+stable-rc/linux-5.4.y build: 119 builds: 79 failed, 40 passed, 91 errors, 1=
+31 warnings (v5.4.18-307-gdb4707481a60)
 
-Looks fine:
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.18-307-gdb4707481a60/
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.18-307-gdb4707481a60
+Git Commit: db4707481a6070d76e871be6339139c4af547dec
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
--- 
-Ming Lei
+Build Failures Detected:
+
+arc:
+    allnoconfig: (gcc-8) FAIL
+    axs103_defconfig: (gcc-8) FAIL
+    haps_hs_defconfig: (gcc-8) FAIL
+    nsim_hs_smp_defconfig: (gcc-8) FAIL
+    nsimosci_hs_defconfig: (gcc-8) FAIL
+    nsimosci_hs_smp_defconfig: (gcc-8) FAIL
+    tinyconfig: (gcc-8) FAIL
+    vdk_hs38_defconfig: (gcc-8) FAIL
+    vdk_hs38_smp_defconfig: (gcc-8) FAIL
+
+arm64:
+    tinyconfig: (gcc-8) FAIL
+
+arm:
+    aspeed_g4_defconfig: (gcc-8) FAIL
+    aspeed_g5_defconfig: (gcc-8) FAIL
+    axm55xx_defconfig: (gcc-8) FAIL
+    badge4_defconfig: (gcc-8) FAIL
+    cm_x2xx_defconfig: (gcc-8) FAIL
+    cns3420vb_defconfig: (gcc-8) FAIL
+    colibri_pxa270_defconfig: (gcc-8) FAIL
+    efm32_defconfig: (gcc-8) FAIL
+    ep93xx_defconfig: (gcc-8) FAIL
+    eseries_pxa_defconfig: (gcc-8) FAIL
+    footbridge_defconfig: (gcc-8) FAIL
+    hackkit_defconfig: (gcc-8) FAIL
+    iop32x_defconfig: (gcc-8) FAIL
+    jornada720_defconfig: (gcc-8) FAIL
+    mainstone_defconfig: (gcc-8) FAIL
+    mini2440_defconfig: (gcc-8) FAIL
+    moxart_defconfig: (gcc-8) FAIL
+    mps2_defconfig: (gcc-8) FAIL
+    orion5x_defconfig: (gcc-8) FAIL
+    palmz72_defconfig: (gcc-8) FAIL
+    prima2_defconfig: (gcc-8) FAIL
+    pxa168_defconfig: (gcc-8) FAIL
+    pxa255-idp_defconfig: (gcc-8) FAIL
+    s3c2410_defconfig: (gcc-8) FAIL
+    s3c6400_defconfig: (gcc-8) FAIL
+    simpad_defconfig: (gcc-8) FAIL
+    spear13xx_defconfig: (gcc-8) FAIL
+    spear3xx_defconfig: (gcc-8) FAIL
+    spear6xx_defconfig: (gcc-8) FAIL
+    tct_hammer_defconfig: (gcc-8) FAIL
+    trizeps4_defconfig: (gcc-8) FAIL
+    versatile_defconfig: (gcc-8) FAIL
+    vf610m4_defconfig: (gcc-8) FAIL
+    viper_defconfig: (gcc-8) FAIL
+    xcep_defconfig: (gcc-8) FAIL
+    zx_defconfig: (gcc-8) FAIL
+
+i386:
+    i386_defconfig: (gcc-8) FAIL
+
+mips:
+    32r2el_defconfig: (gcc-8) FAIL
+    allnoconfig: (gcc-8) FAIL
+    ath79_defconfig: (gcc-8) FAIL
+    bmips_be_defconfig: (gcc-8) FAIL
+    bmips_stb_defconfig: (gcc-8) FAIL
+    cavium_octeon_defconfig: (gcc-8) FAIL
+    db1xxx_defconfig: (gcc-8) FAIL
+    fuloong2e_defconfig: (gcc-8) FAIL
+    ip27_defconfig: (gcc-8) FAIL
+    lemote2f_defconfig: (gcc-8) FAIL
+    malta_defconfig: (gcc-8) FAIL
+    malta_kvm_guest_defconfig: (gcc-8) FAIL
+    malta_qemu_32r6_defconfig: (gcc-8) FAIL
+    maltaaprp_defconfig: (gcc-8) FAIL
+    maltasmvp_eva_defconfig: (gcc-8) FAIL
+    maltaup_defconfig: (gcc-8) FAIL
+    maltaup_xpa_defconfig: (gcc-8) FAIL
+    mpc30x_defconfig: (gcc-8) FAIL
+    msp71xx_defconfig: (gcc-8) FAIL
+    nlm_xlp_defconfig: (gcc-8) FAIL
+    omega2p_defconfig: (gcc-8) FAIL
+    rbtx49xx_defconfig: (gcc-8) FAIL
+    rm200_defconfig: (gcc-8) FAIL
+    sb1250_swarm_defconfig: (gcc-8) FAIL
+    tb0226_defconfig: (gcc-8) FAIL
+    tb0287_defconfig: (gcc-8) FAIL
+    vocore2_defconfig: (gcc-8) FAIL
+    xway_defconfig: (gcc-8) FAIL
+
+riscv:
+    allnoconfig: (gcc-8) FAIL
+    defconfig: (gcc-8) FAIL
+    tinyconfig: (gcc-8) FAIL
+
+x86_64:
+    x86_64_defconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-8): 1 error, 2 warnings
+    axs103_defconfig (gcc-8): 1 error, 2 warnings
+    haps_hs_defconfig (gcc-8): 1 error, 2 warnings
+    hsdk_defconfig (gcc-8): 2 warnings
+    nsim_hs_smp_defconfig (gcc-8): 1 error, 2 warnings
+    nsimosci_hs_defconfig (gcc-8): 1 error, 2 warnings
+    nsimosci_hs_smp_defconfig (gcc-8): 1 error, 2 warnings
+    tinyconfig (gcc-8): 1 error, 2 warnings
+    vdk_hs38_defconfig (gcc-8): 1 error, 2 warnings
+    vdk_hs38_smp_defconfig (gcc-8): 3 errors, 4 warnings
+
+arm64:
+    defconfig (gcc-8): 12 warnings
+    tinyconfig (gcc-8): 1 error, 1 warning
+
+arm:
+    aspeed_g4_defconfig (gcc-8): 1 error, 1 warning
+    aspeed_g5_defconfig (gcc-8): 1 error, 1 warning
+    axm55xx_defconfig (gcc-8): 1 error, 1 warning
+    badge4_defconfig (gcc-8): 1 error, 1 warning
+    cm_x2xx_defconfig (gcc-8): 1 error, 1 warning
+    cm_x300_defconfig (gcc-8): 1 warning
+    cns3420vb_defconfig (gcc-8): 2 errors, 2 warnings
+    colibri_pxa270_defconfig (gcc-8): 1 error, 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    efm32_defconfig (gcc-8): 1 error, 1 warning
+    em_x270_defconfig (gcc-8): 1 warning
+    ep93xx_defconfig (gcc-8): 1 error, 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 error, 1 warning
+    footbridge_defconfig (gcc-8): 1 error, 1 warning
+    hackkit_defconfig (gcc-8): 1 error, 1 warning
+    imote2_defconfig (gcc-8): 1 warning
+    imx_v4_v5_defconfig (gcc-8): 1 warning
+    iop32x_defconfig (gcc-8): 1 error, 1 warning
+    jornada720_defconfig (gcc-8): 1 error, 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    mainstone_defconfig (gcc-8): 1 error, 1 warning
+    mini2440_defconfig (gcc-8): 1 error, 1 warning
+    mmp2_defconfig (gcc-8): 1 warning
+    moxart_defconfig (gcc-8): 1 error, 1 warning
+    mps2_defconfig (gcc-8): 1 error, 1 warning
+    mvebu_v5_defconfig (gcc-8): 1 warning
+    neponset_defconfig (gcc-8): 1 warning
+    nhk8815_defconfig (gcc-8): 1 warning
+    omap1_defconfig (gcc-8): 1 warning
+    orion5x_defconfig (gcc-8): 1 error, 1 warning
+    palmz72_defconfig (gcc-8): 1 error, 1 warning
+    prima2_defconfig (gcc-8): 3 errors, 3 warnings
+    pxa168_defconfig (gcc-8): 1 error, 1 warning
+    pxa255-idp_defconfig (gcc-8): 1 error, 1 warning
+    qcom_defconfig (gcc-8): 1 warning
+    s3c2410_defconfig (gcc-8): 2 errors, 2 warnings
+    s3c6400_defconfig (gcc-8): 2 errors, 2 warnings
+    s5pv210_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
+    simpad_defconfig (gcc-8): 1 error, 1 warning
+    spear13xx_defconfig (gcc-8): 1 error, 1 warning
+    spear3xx_defconfig (gcc-8): 1 error, 1 warning
+    spear6xx_defconfig (gcc-8): 1 error, 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+    tct_hammer_defconfig (gcc-8): 1 error, 1 warning
+    tegra_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 1 error, 1 warning
+    versatile_defconfig (gcc-8): 1 error, 1 warning
+    vf610m4_defconfig (gcc-8): 1 error, 1 warning
+    viper_defconfig (gcc-8): 1 error, 1 warning
+    xcep_defconfig (gcc-8): 1 error, 1 warning
+    zx_defconfig (gcc-8): 3 errors, 3 warnings
+
+i386:
+    i386_defconfig (gcc-8): 2 errors, 2 warnings
+
+mips:
+    32r2el_defconfig (gcc-8): 1 error, 1 warning
+    allnoconfig (gcc-8): 1 error, 1 warning
+    ath79_defconfig (gcc-8): 1 error, 1 warning
+    bmips_be_defconfig (gcc-8): 1 error, 1 warning
+    bmips_stb_defconfig (gcc-8): 1 error, 1 warning
+    cavium_octeon_defconfig (gcc-8): 1 error, 1 warning
+    db1xxx_defconfig (gcc-8): 2 errors, 2 warnings
+    fuloong2e_defconfig (gcc-8): 1 error, 1 warning
+    ip27_defconfig (gcc-8): 2 errors, 1 warning
+    lemote2f_defconfig (gcc-8): 1 error, 1 warning
+    malta_defconfig (gcc-8): 1 error, 1 warning
+    malta_kvm_guest_defconfig (gcc-8): 1 error, 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 1 error, 1 warning
+    maltaaprp_defconfig (gcc-8): 1 error, 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 error, 1 warning
+    maltaup_defconfig (gcc-8): 1 error, 1 warning
+    maltaup_xpa_defconfig (gcc-8): 1 error, 1 warning
+    mpc30x_defconfig (gcc-8): 1 error, 1 warning
+    msp71xx_defconfig (gcc-8): 1 error, 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 error, 1 warning
+    omega2p_defconfig (gcc-8): 1 error, 1 warning
+    rbtx49xx_defconfig (gcc-8): 1 error, 1 warning
+    rm200_defconfig (gcc-8): 1 error, 1 warning
+    sb1250_swarm_defconfig (gcc-8): 1 error, 1 warning
+    tb0226_defconfig (gcc-8): 1 error, 1 warning
+    tb0287_defconfig (gcc-8): 1 error, 1 warning
+    vocore2_defconfig (gcc-8): 1 error, 1 warning
+    xway_defconfig (gcc-8): 1 error, 1 warning
+
+riscv:
+    allnoconfig (gcc-8): 1 error, 1 warning
+    defconfig (gcc-8): 1 error, 1 warning
+    tinyconfig (gcc-8): 1 error, 1 warning
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+    x86_64_defconfig (gcc-8): 1 error, 1 warning
+
+Errors summary:
+
+    90   include/linux/regulator/consumer.h:600:1: error: expected identifi=
+er or =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    1    arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=80=98struct bri=
+dge_irq_chip_data=E2=80=99 has no member named =E2=80=98nnasid=E2=80=99; di=
+d you mean =E2=80=98nasid=E2=80=99?
+
+Warnings summary:
+
+    90   include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regula=
+tor_is_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [=
+-Wunused-function]
+    15   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    11   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    2    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+    2    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_=
+format): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address=
+-cells =3D=3D 2, #size-cells =3D=3D 2)
+    1    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_form=
+at): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cel=
+ls =3D=3D 2, #size-cells =3D=3D 2)
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_devi=
+ce_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_devic=
+e_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device=
+_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    .config:1158:warning: override: UNWINDER_GUESS changes choice state
+
+Section mismatches summary:
+
+    2    WARNING: vmlinux.o(.text.unlikely+0x8c4): Section mismatch in refe=
+rence from the function free_memmap() to the function .meminit.text:membloc=
+k_free()
+    1    WARNING: vmlinux.o(.text.unlikely+0x8e4): Section mismatch in refe=
+rence from the function free_memmap() to the function .meminit.text:membloc=
+k_free()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3598): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 section mis=
+matches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
+ section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 se=
+ction mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
+ section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3598): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 12 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_forma=
+t): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cell=
+s =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device_bus_=
+num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_reg): F=
+ailed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_reg): F=
+ailed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_forma=
+t): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cell=
+s =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_device_bus=
+_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_reg): =
+Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_reg): =
+Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_format): =
+/gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cells =
+=3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_device_bu=
+s_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_reg):=
+ Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_reg):=
+ Failed prerequisite 'reg_format'
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+atches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=80=98struct bridge_i=
+rq_chip_data=E2=80=99 has no member named =E2=80=98nnasid=E2=80=99; did you=
+ mean =E2=80=98nasid=E2=80=99?
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning,=
+ 0 section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning,=
+ 0 section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
+ section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x8c4): Section mismatch in reference=
+ from the function free_memmap() to the function .meminit.text:memblock_fre=
+e()
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 s=
+ection mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 s=
+ection mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings,=
+ 0 section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 FAIL, 3 errors, 3 warnings, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x8e4): Section mismatch in reference=
+ from the function free_memmap() to the function .meminit.text:memblock_fre=
+e()
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
+section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x8c4): Section mismatch in reference=
+ from the function free_memmap() to the function .meminit.text:memblock_fre=
+e()
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1158:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 section mism=
+atches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 3 errors, 4 warnings, 0=
+ section mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 3 errors, 3 warnings, 0 section m=
+ismatches
+
+Errors:
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+    include/linux/regulator/consumer.h:600:1: error: expected identifier or=
+ =E2=80=98(=E2=80=99 before =E2=80=98{=E2=80=99 token
+
+Warnings:
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+    include/linux/regulator/consumer.h:599:1: warning: =E2=80=98regulator_i=
+s_equal=E2=80=99 declared =E2=80=98static=E2=80=99 but never defined [-Wunu=
+sed-function]
+
+---
+For more info write to <info@kernelci.org>
