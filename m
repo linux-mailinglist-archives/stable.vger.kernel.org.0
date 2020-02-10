@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86771157AEC
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C92157846
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728631AbgBJN0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:26:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
+        id S1729540AbgBJMjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727922AbgBJMgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:47 -0500
+        id S1729536AbgBJMjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:51 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A83D42173E;
-        Mon, 10 Feb 2020 12:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1974724650;
+        Mon, 10 Feb 2020 12:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338206;
-        bh=V4Vj4iXVZCOwvr/0Kky48M0kWDdquu7/d64KrYgidMQ=;
+        s=default; t=1581338389;
+        bh=WTKaezp5l8WLbMIg1WpM6bi66X754U4aSy/u/odJRFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WVjiRPaUM4KClPvJ5Manv0w0NbiwE4yuhsYUwXfSdInHiCi6ShzqAfh3/HB86GShR
-         Hdsj7JwOk3oaXPz/s1Kat1ayxc3mISvH2eIxUm3fX48ReBpOgJK/1Pqc8xaUlZXpXc
-         VjUBC8xO7IwMtHx+Nr4r2nNRys5NfeBPzr1xdLdI=
+        b=1PzAMnKEiyWHejMRUtqw0IWdy3a/TfEdxxUBSBzdaVfL/R+/o008UceYXF7RbfYsH
+         S6bv0LpzC61Q+j8T2nKUogD9fMCHr4721Hj/EVLUQWPL/r+KPwblKGh+0ooF0F4alX
+         qtD0uySAvnCSIaNBHXQMrhMbJgF+O5IVhX3KeXzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        syzbot+774fddf07b7ab29a1e55@syzkaller.appspotmail.com,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: [PATCH 5.4 027/309] tracing: Fix sched switch start/stop refcount racy updates
+        stable@vger.kernel.org, Yong Zhi <yong.zhi@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 070/367] ALSA: hda: Add JasperLake PCI ID and codec vid
 Date:   Mon, 10 Feb 2020 04:29:43 -0800
-Message-Id: <20200210122408.603857143@linuxfoundation.org>
+Message-Id: <20200210122430.583247755@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,50 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Yong Zhi <yong.zhi@intel.com>
 
-commit 64ae572bc7d0060429e40e1c8d803ce5eb31a0d6 upstream.
+commit 78be2228c15dd45865b102b29d72e721f0ace9b1 upstream.
 
-Reading the sched_cmdline_ref and sched_tgid_ref initial state within
-tracing_start_sched_switch without holding the sched_register_mutex is
-racy against concurrent updates, which can lead to tracepoint probes
-being registered more than once (and thus trigger warnings within
-tracepoint.c).
+Add HD Audio Device PCI ID and codec vendor_id for the Intel JasperLake
+REV2/A0 silicon.
 
-[ May be the fix for this bug ]
-Link: https://lore.kernel.org/r/000000000000ab6f84056c786b93@google.com
-
-Link: http://lkml.kernel.org/r/20190817141208.15226-1-mathieu.desnoyers@efficios.com
-
-Cc: stable@vger.kernel.org
-CC: Steven Rostedt (VMware) <rostedt@goodmis.org>
-CC: Joel Fernandes (Google) <joel@joelfernandes.org>
-CC: Peter Zijlstra <peterz@infradead.org>
-CC: Thomas Gleixner <tglx@linutronix.de>
-CC: Paul E. McKenney <paulmck@linux.ibm.com>
-Reported-by: syzbot+774fddf07b7ab29a1e55@syzkaller.appspotmail.com
-Fixes: d914ba37d7145 ("tracing: Add support for recording tgid of tasks")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Yong Zhi <yong.zhi@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200131204003.10153-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_sched_switch.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c  |    2 ++
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 2 files changed, 3 insertions(+)
 
---- a/kernel/trace/trace_sched_switch.c
-+++ b/kernel/trace/trace_sched_switch.c
-@@ -89,8 +89,10 @@ static void tracing_sched_unregister(voi
- 
- static void tracing_start_sched_switch(int ops)
- {
--	bool sched_register = (!sched_cmdline_ref && !sched_tgid_ref);
-+	bool sched_register;
-+
- 	mutex_lock(&sched_register_mutex);
-+	sched_register = (!sched_cmdline_ref && !sched_tgid_ref);
- 
- 	switch (ops) {
- 	case RECORD_CMDLINE:
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2449,6 +2449,8 @@ static const struct pci_device_id azx_id
+ 	/* Jasperlake */
+ 	{ PCI_DEVICE(0x8086, 0x38c8),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	{ PCI_DEVICE(0x8086, 0x4dc8),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	/* Tigerlake */
+ 	{ PCI_DEVICE(0x8086, 0xa0c8),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -4250,6 +4250,7 @@ HDA_CODEC_ENTRY(0x8086280c, "Cannonlake
+ HDA_CODEC_ENTRY(0x8086280d, "Geminilake HDMI",	patch_i915_glk_hdmi),
+ HDA_CODEC_ENTRY(0x8086280f, "Icelake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x80862812, "Tigerlake HDMI",	patch_i915_tgl_hdmi),
++HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
+ HDA_CODEC_ENTRY(0x80862882, "Valleyview2 HDMI",	patch_i915_byt_hdmi),
+ HDA_CODEC_ENTRY(0x80862883, "Braswell HDMI",	patch_i915_byt_hdmi),
 
 
