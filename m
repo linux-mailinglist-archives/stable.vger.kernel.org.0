@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFAD01574C0
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:35:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F68C157736
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728095AbgBJMfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52932 "EHLO mail.kernel.org"
+        id S1728392AbgBJM60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:58:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727916AbgBJMfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:44 -0500
+        id S1729609AbgBJMlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:20 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91449215A4;
-        Mon, 10 Feb 2020 12:35:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79BB520733;
+        Mon, 10 Feb 2020 12:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338143;
-        bh=xCAhTSJ8+/Xp3f4QKgv7gQoZxl3+Oh0x9XDmQLmg9/g=;
+        s=default; t=1581338479;
+        bh=2ifBn54R1zBhvU4qCO9oQLKUnyRbCbxap7YXovSR+F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8mHUmRZ2IV80T/TYc6zBjnaKFrbcXzbvsdks4vOk1b8ulSC2GyFKjmak6U+1Ry+8
-         YeNCWAnjWcgdIBV7B7x9J+vvJ2vMop1Xd1Z3b8ba2Sa1qYR91EbFdNW8S5+85bZwHu
-         6/mGd1HFDT4svBRPtirm7Iy6BTBhtUPShN5Li8LI=
+        b=W+pE17gTxGlKTatz1a8FNMqOBUKskLSg0emXBmIEwuj784tNhkv3IPglmizrR9Lxy
+         KsrjKdpCYrMHvQUmLfWajvmZM1wqmbm+ORmff9davT5r/HyuP21+jmh0cr9oKKUIl3
+         4GqwE7+XZLiKhsDBi6cyix3Hb9Nb1Rjg5k2+HZvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 101/195] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
+        stable@vger.kernel.org,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 246/367] x86/kvm: Introduce kvm_(un)map_gfn()
 Date:   Mon, 10 Feb 2020 04:32:39 -0800
-Message-Id: <20200210122315.049225238@linuxfoundation.org>
+Message-Id: <20200210122446.896396023@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
-commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
+commit 1eff70a9abd46f175defafd29bc17ad456f398a7 upstream.
 
-Since tasklet is needed to be initialized before registering IRQ
-handler, adjust the position of tasklet_init to fix the wrong order.
+kvm_vcpu_(un)map operates on gfns from any current address space.
+In certain cases we want to make sure we are not mapping SMRAM
+and for that we can use kvm_(un)map_gfn() that we are introducing
+in this patch.
 
-Besides, to fix the missed tasklet_kill, this patch adds a helper
-function and uses devm_add_action to kill the tasklet automatically.
+This is part of CVE-2019-3016.
 
-Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ include/linux/kvm_host.h |    2 ++
+ virt/kvm/kvm_main.c      |   29 ++++++++++++++++++++++++-----
+ 2 files changed, 26 insertions(+), 5 deletions(-)
 
---- a/drivers/crypto/picoxcell_crypto.c
-+++ b/drivers/crypto/picoxcell_crypto.c
-@@ -1616,6 +1616,11 @@ static const struct of_device_id spacc_o
- MODULE_DEVICE_TABLE(of, spacc_of_id_table);
- #endif /* CONFIG_OF */
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -775,8 +775,10 @@ struct kvm_memory_slot *kvm_vcpu_gfn_to_
+ kvm_pfn_t kvm_vcpu_gfn_to_pfn_atomic(struct kvm_vcpu *vcpu, gfn_t gfn);
+ kvm_pfn_t kvm_vcpu_gfn_to_pfn(struct kvm_vcpu *vcpu, gfn_t gfn);
+ int kvm_vcpu_map(struct kvm_vcpu *vcpu, gpa_t gpa, struct kvm_host_map *map);
++int kvm_map_gfn(struct kvm_vcpu *vcpu, gfn_t gfn, struct kvm_host_map *map);
+ struct page *kvm_vcpu_gfn_to_page(struct kvm_vcpu *vcpu, gfn_t gfn);
+ void kvm_vcpu_unmap(struct kvm_vcpu *vcpu, struct kvm_host_map *map, bool dirty);
++int kvm_unmap_gfn(struct kvm_vcpu *vcpu, struct kvm_host_map *map, bool dirty);
+ unsigned long kvm_vcpu_gfn_to_hva(struct kvm_vcpu *vcpu, gfn_t gfn);
+ unsigned long kvm_vcpu_gfn_to_hva_prot(struct kvm_vcpu *vcpu, gfn_t gfn, bool *writable);
+ int kvm_vcpu_read_guest_page(struct kvm_vcpu *vcpu, gfn_t gfn, void *data, int offset,
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1821,12 +1821,13 @@ struct page *gfn_to_page(struct kvm *kvm
+ }
+ EXPORT_SYMBOL_GPL(gfn_to_page);
  
-+static void spacc_tasklet_kill(void *data)
-+{
-+	tasklet_kill(data);
-+}
-+
- static int spacc_probe(struct platform_device *pdev)
+-static int __kvm_map_gfn(struct kvm_memory_slot *slot, gfn_t gfn,
++static int __kvm_map_gfn(struct kvm_memslots *slots, gfn_t gfn,
+ 			 struct kvm_host_map *map)
  {
- 	int i, err, ret;
-@@ -1659,6 +1664,14 @@ static int spacc_probe(struct platform_d
- 		return -ENXIO;
- 	}
+ 	kvm_pfn_t pfn;
+ 	void *hva = NULL;
+ 	struct page *page = KVM_UNMAPPED_PAGE;
++	struct kvm_memory_slot *slot = __gfn_to_memslot(slots, gfn);
  
-+	tasklet_init(&engine->complete, spacc_spacc_complete,
-+		     (unsigned long)engine);
+ 	if (!map)
+ 		return -EINVAL;
+@@ -1855,14 +1856,20 @@ static int __kvm_map_gfn(struct kvm_memo
+ 	return 0;
+ }
+ 
++int kvm_map_gfn(struct kvm_vcpu *vcpu, gfn_t gfn, struct kvm_host_map *map)
++{
++	return __kvm_map_gfn(kvm_memslots(vcpu->kvm), gfn, map);
++}
++EXPORT_SYMBOL_GPL(kvm_map_gfn);
 +
-+	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
-+			      &engine->complete);
-+	if (ret)
-+		return ret;
+ int kvm_vcpu_map(struct kvm_vcpu *vcpu, gfn_t gfn, struct kvm_host_map *map)
+ {
+-	return __kvm_map_gfn(kvm_vcpu_gfn_to_memslot(vcpu, gfn), gfn, map);
++	return __kvm_map_gfn(kvm_vcpu_memslots(vcpu), gfn, map);
+ }
+ EXPORT_SYMBOL_GPL(kvm_vcpu_map);
+ 
+-void kvm_vcpu_unmap(struct kvm_vcpu *vcpu, struct kvm_host_map *map,
+-		    bool dirty)
++static void __kvm_unmap_gfn(struct kvm_memory_slot *memslot,
++			struct kvm_host_map *map, bool dirty)
+ {
+ 	if (!map)
+ 		return;
+@@ -1878,7 +1885,7 @@ void kvm_vcpu_unmap(struct kvm_vcpu *vcp
+ #endif
+ 
+ 	if (dirty) {
+-		kvm_vcpu_mark_page_dirty(vcpu, map->gfn);
++		mark_page_dirty_in_slot(memslot, map->gfn);
+ 		kvm_release_pfn_dirty(map->pfn);
+ 	} else {
+ 		kvm_release_pfn_clean(map->pfn);
+@@ -1887,6 +1894,18 @@ void kvm_vcpu_unmap(struct kvm_vcpu *vcp
+ 	map->hva = NULL;
+ 	map->page = NULL;
+ }
 +
- 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
- 			     engine->name, engine)) {
- 		dev_err(engine->dev, "failed to request IRQ\n");
-@@ -1716,8 +1729,6 @@ static int spacc_probe(struct platform_d
- 	INIT_LIST_HEAD(&engine->completed);
- 	INIT_LIST_HEAD(&engine->in_progress);
- 	engine->in_flight = 0;
--	tasklet_init(&engine->complete, spacc_spacc_complete,
--		     (unsigned long)engine);
++int kvm_unmap_gfn(struct kvm_vcpu *vcpu, struct kvm_host_map *map, bool dirty)
++{
++	__kvm_unmap_gfn(gfn_to_memslot(vcpu->kvm, map->gfn), map, dirty);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(kvm_unmap_gfn);
++
++void kvm_vcpu_unmap(struct kvm_vcpu *vcpu, struct kvm_host_map *map, bool dirty)
++{
++	__kvm_unmap_gfn(kvm_vcpu_gfn_to_memslot(vcpu, map->gfn), map, dirty);
++}
+ EXPORT_SYMBOL_GPL(kvm_vcpu_unmap);
  
- 	platform_set_drvdata(pdev, engine);
- 
+ struct page *kvm_vcpu_gfn_to_page(struct kvm_vcpu *vcpu, gfn_t gfn)
 
 
