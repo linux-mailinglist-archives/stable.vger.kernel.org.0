@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27CC11579C7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF6A1579C6
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728963AbgBJMh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728965AbgBJMh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 07:37:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728956AbgBJMh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728958AbgBJMh4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:37:56 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE47024676;
-        Mon, 10 Feb 2020 12:37:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 335E424680;
+        Mon, 10 Feb 2020 12:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338275;
-        bh=8nb5Kb/aNnx3b2+BuP2kxWHE/LxEWpN7ibvn/DYhSMk=;
+        s=default; t=1581338276;
+        bh=5ffel+uqaGLmRjLQorijdcIDxRctM3kqvSQoBkq/7sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHB6SrAltldp3wpKOnlBMRIDvatht86AG6qru3MD2JRjOzHI+Y8PK8lYai0gsWTpS
-         fKtIcagI+2ZT8ykGmqdRbtkDIe27Z1OKhMSc10mB+ip+ompxdYdoxHYJ2K9XYG7EtJ
-         ggQkEpbSvav7ao+dFhinnw1MLjsyVcxKP04fUn5g=
+        b=H0KzJ87B7bG1LbZa45guejEHfBSQa9Grv7DFntTrrgfxXI8ld1FAg80EhiwGfbY+5
+         CKQYyKkom0NqiCzQJzNRqhwcqudEHpXhmciWcoUz+v2Uw/VQ3mSqwodSWXfDV8kuCL
+         FRcgg4GE+3rocD0wrzrwg+HJyurY7Ca3b7bcOKoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 161/309] crypto: api - Fix race condition in crypto_spawn_alg
-Date:   Mon, 10 Feb 2020 04:31:57 -0800
-Message-Id: <20200210122421.670526712@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 162/309] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
+Date:   Mon, 10 Feb 2020 04:31:58 -0800
+Message-Id: <20200210122421.777359103@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -42,82 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 73669cc556462f4e50376538d77ee312142e8a8a upstream.
+commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
 
-The function crypto_spawn_alg is racy because it drops the lock
-before shooting the dying algorithm.  The algorithm could disappear
-altogether before we shoot it.
+Since tasklet is needed to be initialized before registering IRQ
+handler, adjust the position of tasklet_init to fix the wrong order.
 
-This patch fixes it by moving the shooting into the locked section.
+Besides, to fix the missed tasklet_kill, this patch adds a helper
+function and uses devm_add_action to kill the tasklet automatically.
 
-Fixes: 6bfd48096ff8 ("[CRYPTO] api: Added spawns")
+Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/algapi.c   |   16 +++++-----------
- crypto/api.c      |    3 +--
- crypto/internal.h |    1 -
- 3 files changed, 6 insertions(+), 14 deletions(-)
+ drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/crypto/algapi.c
-+++ b/crypto/algapi.c
-@@ -697,22 +697,16 @@ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
- static struct crypto_alg *crypto_spawn_alg(struct crypto_spawn *spawn)
- {
- 	struct crypto_alg *alg;
--	struct crypto_alg *alg2;
+--- a/drivers/crypto/picoxcell_crypto.c
++++ b/drivers/crypto/picoxcell_crypto.c
+@@ -1613,6 +1613,11 @@ static const struct of_device_id spacc_o
+ MODULE_DEVICE_TABLE(of, spacc_of_id_table);
+ #endif /* CONFIG_OF */
  
- 	down_read(&crypto_alg_sem);
- 	alg = spawn->alg;
--	alg2 = alg;
--	if (alg2)
--		alg2 = crypto_mod_get(alg2);
--	up_read(&crypto_alg_sem);
--
--	if (!alg2) {
--		if (alg)
--			crypto_shoot_alg(alg);
--		return ERR_PTR(-EAGAIN);
-+	if (alg && !crypto_mod_get(alg)) {
-+		alg->cra_flags |= CRYPTO_ALG_DYING;
-+		alg = NULL;
++static void spacc_tasklet_kill(void *data)
++{
++	tasklet_kill(data);
++}
++
+ static int spacc_probe(struct platform_device *pdev)
+ {
+ 	int i, err, ret;
+@@ -1655,6 +1660,14 @@ static int spacc_probe(struct platform_d
+ 		return -ENXIO;
  	}
-+	up_read(&crypto_alg_sem);
  
--	return alg;
-+	return alg ?: ERR_PTR(-EAGAIN);
- }
++	tasklet_init(&engine->complete, spacc_spacc_complete,
++		     (unsigned long)engine);
++
++	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
++			      &engine->complete);
++	if (ret)
++		return ret;
++
+ 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
+ 			     engine->name, engine)) {
+ 		dev_err(engine->dev, "failed to request IRQ\n");
+@@ -1712,8 +1725,6 @@ static int spacc_probe(struct platform_d
+ 	INIT_LIST_HEAD(&engine->completed);
+ 	INIT_LIST_HEAD(&engine->in_progress);
+ 	engine->in_flight = 0;
+-	tasklet_init(&engine->complete, spacc_spacc_complete,
+-		     (unsigned long)engine);
  
- struct crypto_tfm *crypto_spawn_tfm(struct crypto_spawn *spawn, u32 type,
---- a/crypto/api.c
-+++ b/crypto/api.c
-@@ -346,13 +346,12 @@ static unsigned int crypto_ctxsize(struc
- 	return len;
- }
+ 	platform_set_drvdata(pdev, engine);
  
--void crypto_shoot_alg(struct crypto_alg *alg)
-+static void crypto_shoot_alg(struct crypto_alg *alg)
- {
- 	down_write(&crypto_alg_sem);
- 	alg->cra_flags |= CRYPTO_ALG_DYING;
- 	up_write(&crypto_alg_sem);
- }
--EXPORT_SYMBOL_GPL(crypto_shoot_alg);
- 
- struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
- 				      u32 mask)
---- a/crypto/internal.h
-+++ b/crypto/internal.h
-@@ -68,7 +68,6 @@ void crypto_alg_tested(const char *name,
- void crypto_remove_spawns(struct crypto_alg *alg, struct list_head *list,
- 			  struct crypto_alg *nalg);
- void crypto_remove_final(struct list_head *list);
--void crypto_shoot_alg(struct crypto_alg *alg);
- struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
- 				      u32 mask);
- void *crypto_create_tfm(struct crypto_alg *alg,
 
 
