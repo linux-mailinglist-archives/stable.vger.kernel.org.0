@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA1B1574FF
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A20157554
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728871AbgBJMhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60006 "EHLO mail.kernel.org"
+        id S1729682AbgBJMkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728865AbgBJMhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:42 -0500
+        id S1726846AbgBJMkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:16 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5399F20838;
-        Mon, 10 Feb 2020 12:37:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A67E620733;
+        Mon, 10 Feb 2020 12:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338262;
-        bh=u5gjxbGuLQJXByiCbFPs4mdb0PD/2AnCQv8x4gXAxPU=;
+        s=default; t=1581338415;
+        bh=rSh3R8xY6L76Nno7pwqyOzKKxTJ7fEguyZYa2B7n3O0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G97qjJKq9SuagjmwttD14MFPhmey7+B86kOxawIFX4WgY/qmeKH6NV4zXG+rtyEbt
-         EgwBoHu7xBO0eYP05G6R5YiWSA5Uc6td/y0T9GBguebrLGs4mRcFK5e6QvgJhf5BFr
-         fjbQIlNrRx2FK90LvtVDMKg/ejT4U9lYqeTo6BuU=
+        b=o2phL52Sk50eGdJRTgyvMKKlKN0D/5Klx26eWT5nklNBGfm06ZHdI0/qTJ3KdA/Zo
+         cXHuJ2To88NNahIaB6zHUKkWHf0Zqt3wC+tUnDBRwYpXM5UaCLbglo4tMR1yv0O+OS
+         pqglgnTWBHhOPAwXLyDKuurpqzzIl+ZvPC5ykDrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 084/309] PCI: keystone: Fix error handling when "num-viewport" DT property is not populated
-Date:   Mon, 10 Feb 2020 04:30:40 -0800
-Message-Id: <20200210122413.927268328@linuxfoundation.org>
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.5 130/367] ovl: fix wrong WARN_ON() in ovl_cache_update_ino()
+Date:   Mon, 10 Feb 2020 04:30:43 -0800
+Message-Id: <20200210122436.874786793@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit b0de922af53eede340986a2d05b6cd4b6d6efa43 upstream.
+commit 4c37e71b713ecffe81f8e6273c6835e54306d412 upstream.
 
-Fix error handling when "num-viewport" DT property is not populated.
+The WARN_ON() that child entry is always on overlay st_dev became wrong
+when we allowed this function to update d_ino in non-samefs setup with xino
+enabled.
 
-Fixes: 23284ad677a9 ("PCI: keystone: Add support for PCIe EP in AM654x Platforms")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # v5.2+
+It is not true in case of xino bits overflow on a non-dir inode.  Leave the
+WARN_ON() only for directories, where assertion is still true.
+
+Fixes: adbf4f7ea834 ("ovl: consistent d_ino for non-samefs with xino")
+Cc: <stable@vger.kernel.org> # v4.17+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/dwc/pci-keystone.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/overlayfs/readdir.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/dwc/pci-keystone.c
-+++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -1354,7 +1354,7 @@ static int __init ks_pcie_probe(struct p
- 		ret = of_property_read_u32(np, "num-viewport", &num_viewport);
- 		if (ret < 0) {
- 			dev_err(dev, "unable to read *num-viewport* property\n");
--			return ret;
-+			goto err_get_sync;
- 		}
+--- a/fs/overlayfs/readdir.c
++++ b/fs/overlayfs/readdir.c
+@@ -504,7 +504,13 @@ get:
+ 		if (err)
+ 			goto fail;
  
- 		/*
+-		WARN_ON_ONCE(dir->d_sb->s_dev != stat.dev);
++		/*
++		 * Directory inode is always on overlay st_dev.
++		 * Non-dir with ovl_same_dev() could be on pseudo st_dev in case
++		 * of xino bits overflow.
++		 */
++		WARN_ON_ONCE(S_ISDIR(stat.mode) &&
++			     dir->d_sb->s_dev != stat.dev);
+ 		ino = stat.ino;
+ 	} else if (xinobits && !OVL_TYPE_UPPER(type)) {
+ 		ino = ovl_remap_lower_ino(ino, xinobits,
 
 
