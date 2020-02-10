@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6E5157A55
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD3C1577C1
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729375AbgBJNWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:22:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58926 "EHLO mail.kernel.org"
+        id S1728983AbgBJMk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728750AbgBJMh0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:26 -0500
+        id S1729726AbgBJMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:26 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 103BD20838;
-        Mon, 10 Feb 2020 12:37:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69507208C4;
+        Mon, 10 Feb 2020 12:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338246;
-        bh=HoMHbtbOrBm2LgfG24633FywPA+dHpw7bVzGwSr2CFA=;
+        s=default; t=1581338425;
+        bh=MUvRHqvw1MXAN46dHPxr0jy1ZJnmDBFMslFrrHlOOlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WyqS72Z7/vil1UY2YNnTxRhpMabQ7Z6aJTZ7Mm2ty4PQakjTuaIk6ZXcA0r0mI433
-         r/KTxbBEMvicdq3gmGk1IIRtNO9Kn2Ig4vqv3po5O4CKLwAi6R0LKmxUS9aUhIA0vz
-         6b90juBEIIT8IdmfEqqCLo5KS2i0HXUUnWnXwxoY=
+        b=Va8pHE6nbSV5Noz036ubhmTMl6DrIgG8S1ZIe3gttdJVDpKmX4YPAGXltt2PS3ghL
+         ul9nY5xHI7xvBL6Db8rrFvVyS+aXDLJ4LFBgIzohrM6cXChsDaDVYAwDQwgp47GExM
+         Wk4qpLTf55077OCqIPE2Qcv48EJe5xzMIXrUCYLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 104/309] crypto: ccree - fix pm wrongful error reporting
+        stable@vger.kernel.org, Stefan Bader <stefan.bader@canonical.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 147/367] dm: fix potential for q->make_request_fn NULL pointer
 Date:   Mon, 10 Feb 2020 04:31:00 -0800
-Message-Id: <20200210122416.286214405@linuxfoundation.org>
+Message-Id: <20200210122438.426607372@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit cedca59fae5834af8445b403c66c9953754375d7 upstream.
+commit 47ace7e012b9f7ad71d43ac9063d335ea3d6820b upstream.
 
-pm_runtime_get_sync() can return 1 as a valid (none error) return
-code. Treat it as such.
+Move blk_queue_make_request() to dm.c:alloc_dev() so that
+q->make_request_fn is never NULL during the lifetime of a DM device
+(even one that is created without a DM table).
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Otherwise generic_make_request() will crash simply by doing:
+  dmsetup create -n test
+  mount /dev/dm-N /mnt
+
+While at it, move ->congested_data initialization out of
+dm.c:alloc_dev() and into the bio-based specific init method.
+
+Reported-by: Stefan Bader <stefan.bader@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1860231
+Fixes: ff36ab34583a ("dm: remove request-based logic from make_request_fn wrapper")
+Depends-on: c12c9a3c3860c ("dm: various cleanups to md->queue initialization code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_pm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -85,7 +85,7 @@ int cc_pm_get(struct device *dev)
- 	else
- 		pm_runtime_get_noresume(dev);
- 
--	return rc;
-+	return (rc == 1 ? 0 : rc);
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1859,6 +1859,7 @@ static void dm_init_normal_md_queue(stru
+ 	/*
+ 	 * Initialize aspects of queue that aren't relevant for blk-mq
+ 	 */
++	md->queue->backing_dev_info->congested_data = md;
+ 	md->queue->backing_dev_info->congested_fn = dm_any_congested;
  }
  
- int cc_pm_put_suspend(struct device *dev)
+@@ -1949,7 +1950,12 @@ static struct mapped_device *alloc_dev(i
+ 	if (!md->queue)
+ 		goto bad;
+ 	md->queue->queuedata = md;
+-	md->queue->backing_dev_info->congested_data = md;
++	/*
++	 * default to bio-based required ->make_request_fn until DM
++	 * table is loaded and md->type established. If request-based
++	 * table is loaded: blk-mq will override accordingly.
++	 */
++	blk_queue_make_request(md->queue, dm_make_request);
+ 
+ 	md->disk = alloc_disk_node(1, md->numa_node_id);
+ 	if (!md->disk)
+@@ -2264,7 +2270,6 @@ int dm_setup_md_queue(struct mapped_devi
+ 	case DM_TYPE_DAX_BIO_BASED:
+ 	case DM_TYPE_NVME_BIO_BASED:
+ 		dm_init_normal_md_queue(md);
+-		blk_queue_make_request(md->queue, dm_make_request);
+ 		break;
+ 	case DM_TYPE_NONE:
+ 		WARN_ON_ONCE(true);
 
 
