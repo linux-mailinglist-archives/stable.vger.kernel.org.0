@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F421574BC
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D56D215774A
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbgBJMfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53250 "EHLO mail.kernel.org"
+        id S1727422AbgBJM7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:59:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728059AbgBJMfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:40 -0500
+        id S1729926AbgBJMlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 716BB21734;
-        Mon, 10 Feb 2020 12:35:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CBBF208C3;
+        Mon, 10 Feb 2020 12:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338139;
-        bh=edlHq5b5UuMqPC9yVMoxJBMe/EDH/q6DwYKRAChigTk=;
+        s=default; t=1581338472;
+        bh=L1GsdPk/THW9c/zYiE5ibwAz+d1guyHIhB3MHKaRyHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klH7sAEQGgVvQK6XjTmzretxLX+itlFUIXhwSc96ClgcAX4jD7yqWiXkrjbak1fRA
-         fId9+D4g6CTzoReGan4/5N3eb8WMd2m6VaALLvE4Vn0LH5ny9eTeFXJ/318sku6G/v
-         QNS0X2CV2Vcq78HzV3huWy4a0T/a4/UnT7xxN3Pk=
+        b=0fp/SvRLAOigCuo0DFQ/JNQEvZ/C3d7nozZ56uGMrfViEZWNfF/LcPIOq60963/D3
+         R9UFAWzsOeNzNQbt0RWwLnFFOKM6lTQO0NIViunv+xI0+wDqjzVbz7u9PksUSmWHm3
+         vqDDYOlxlvd6K7eXYULmu8sQkizODGoXSlukk+h4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amol Grover <frextrite@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/195] tracing: Annotate ftrace_graph_notrace_hash pointer with __rcu
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 238/367] KVM: x86: Protect MSR-based index computations in fixed_msr_to_seg_unit() from Spectre-v1/L1TF attacks
 Date:   Mon, 10 Feb 2020 04:32:31 -0800
-Message-Id: <20200210122314.366076019@linuxfoundation.org>
+Message-Id: <20200210122446.151419024@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Marios Pomonis <pomonis@google.com>
 
-[ Upstream commit fd0e6852c407dd9aefc594f54ddcc21d84803d3b ]
+commit 25a5edea71b7c154b6a0b8cec14c711cafa31d26 upstream.
 
-Fix following instances of sparse error
-kernel/trace/ftrace.c:5667:29: error: incompatible types in comparison
-kernel/trace/ftrace.c:5813:21: error: incompatible types in comparison
-kernel/trace/ftrace.c:5868:36: error: incompatible types in comparison
-kernel/trace/ftrace.c:5870:25: error: incompatible types in comparison
+This fixes a Spectre-v1/L1TF vulnerability in fixed_msr_to_seg_unit().
+This function contains index computations based on the
+(attacker-controlled) MSR number.
 
-Use rcu_dereference_protected to dereference the newly annotated pointer.
+Fixes: de9aef5e1ad6 ("KVM: MTRR: introduce fixed_mtrr_segment table")
 
-Link: http://lkml.kernel.org/r/20200205055701.30195-1-frextrite@gmail.com
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Amol Grover <frextrite@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 2 +-
- kernel/trace/trace.h  | 8 ++++++--
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/kvm/mtrr.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 00d987d9bd4a6..09c69ad8439ef 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5073,7 +5073,7 @@ static const struct file_operations ftrace_notrace_fops = {
- static DEFINE_MUTEX(graph_lock);
- 
- struct ftrace_hash __rcu *ftrace_graph_hash = EMPTY_HASH;
--struct ftrace_hash *ftrace_graph_notrace_hash = EMPTY_HASH;
-+struct ftrace_hash __rcu *ftrace_graph_notrace_hash = EMPTY_HASH;
- 
- enum graph_filter_type {
- 	GRAPH_FILTER_NOTRACE	= 0,
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index 70806f2f89bab..cf1a7d1f35109 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -873,7 +873,7 @@ extern void __trace_graph_return(struct trace_array *tr,
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
- extern struct ftrace_hash __rcu *ftrace_graph_hash;
--extern struct ftrace_hash *ftrace_graph_notrace_hash;
-+extern struct ftrace_hash __rcu *ftrace_graph_notrace_hash;
- 
- static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
- {
-@@ -926,10 +926,14 @@ static inline void ftrace_graph_addr_finish(struct ftrace_graph_ret *trace)
- static inline int ftrace_graph_notrace_addr(unsigned long addr)
- {
- 	int ret = 0;
-+	struct ftrace_hash *notrace_hash;
- 
- 	preempt_disable_notrace();
- 
--	if (ftrace_lookup_ip(ftrace_graph_notrace_hash, addr))
-+	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
-+						 !preemptible());
-+
-+	if (ftrace_lookup_ip(notrace_hash, addr))
- 		ret = 1;
- 
- 	preempt_enable_notrace();
--- 
-2.20.1
-
+--- a/arch/x86/kvm/mtrr.c
++++ b/arch/x86/kvm/mtrr.c
+@@ -192,11 +192,15 @@ static bool fixed_msr_to_seg_unit(u32 ms
+ 		break;
+ 	case MSR_MTRRfix16K_80000 ... MSR_MTRRfix16K_A0000:
+ 		*seg = 1;
+-		*unit = msr - MSR_MTRRfix16K_80000;
++		*unit = array_index_nospec(
++			msr - MSR_MTRRfix16K_80000,
++			MSR_MTRRfix16K_A0000 - MSR_MTRRfix16K_80000 + 1);
+ 		break;
+ 	case MSR_MTRRfix4K_C0000 ... MSR_MTRRfix4K_F8000:
+ 		*seg = 2;
+-		*unit = msr - MSR_MTRRfix4K_C0000;
++		*unit = array_index_nospec(
++			msr - MSR_MTRRfix4K_C0000,
++			MSR_MTRRfix4K_F8000 - MSR_MTRRfix4K_C0000 + 1);
+ 		break;
+ 	default:
+ 		return false;
 
 
