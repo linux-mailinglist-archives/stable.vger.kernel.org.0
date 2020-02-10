@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 304AB157738
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33DC8157505
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbgBJM60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:58:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43296 "EHLO mail.kernel.org"
+        id S1727857AbgBJMiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729959AbgBJMlT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:19 -0500
+        id S1728987AbgBJMiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:00 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7498E2051A;
-        Mon, 10 Feb 2020 12:41:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23EF12051A;
+        Mon, 10 Feb 2020 12:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338478;
-        bh=zbDSL2IRCRq63JOrJgxVy1SNSOhSXsvo8WExnJj+SEY=;
+        s=default; t=1581338280;
+        bh=Ial11gi604GsKZUXpsSpOKyvdqSRa3cQispkX2G8Iyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obv0MC9RvldaMxhnas/PcQpBAp1G/81QI9rRoaY+i5wgKAGutgnYVKuGCI9KTYgkW
-         Fe/eEyMPYRiq++XMFB0/eQR+0fKQifiZFkoCusEVo3A1g+xXhkOarIP3Ux10+KmIag
-         8z1XNv87cLbudkD4mwDhdzW0flxBDdvJh6R08xL8=
+        b=wDHC+zPxqEpXloyuLzAmmufX6DNQD6Kxo4lixD1Sk/3TH74/c3NiIUuyZmtMnmUrm
+         2kS0/Ldv6blyyUsqle745Cum05ucUSM4xQkiOoVRY843BFik7QZ8W0UrB4t+8SO05V
+         J44n257MsDwswSsySqikNsU5xRT+TsRsgb88alPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.5 211/367] gfs2: fix O_SYNC write handling
-Date:   Mon, 10 Feb 2020 04:32:04 -0800
-Message-Id: <20200210122443.808503014@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 169/309] ext4: fix deadlock allocating crypto bounce page from mempool
+Date:   Mon, 10 Feb 2020 04:32:05 -0800
+Message-Id: <20200210122422.581642466@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 6e5e41e2dc4e4413296d5a4af54ac92d7cd52317 upstream.
+commit 547c556f4db7c09447ecf5f833ab6aaae0c5ab58 upstream.
 
-In gfs2_file_write_iter, for direct writes, the error checking in the buffered
-write fallback case is incomplete.  This can cause inode write errors to go
-undetected.  Fix and clean up gfs2_file_write_iter along the way.
+ext4_writepages() on an encrypted file has to encrypt the data, but it
+can't modify the pagecache pages in-place, so it encrypts the data into
+bounce pages and writes those instead.  All bounce pages are allocated
+from a mempool using GFP_NOFS.
 
-Based on a proposed fix by Christoph Hellwig <hch@lst.de>.
+This is not correct use of a mempool, and it can deadlock.  This is
+because GFP_NOFS includes __GFP_DIRECT_RECLAIM, which enables the "never
+fail" mode for mempool_alloc() where a failed allocation will fall back
+to waiting for one of the preallocated elements in the pool.
 
-Fixes: 967bcc91b044 ("gfs2: iomap direct I/O support")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+But since this mode is used for all a bio's pages and not just the
+first, it can deadlock waiting for pages already in the bio to be freed.
+
+This deadlock can be reproduced by patching mempool_alloc() to pretend
+that pool->alloc() always fails (so that it always falls back to the
+preallocations), and then creating an encrypted file of size > 128 KiB.
+
+Fix it by only using GFP_NOFS for the first page in the bio.  For
+subsequent pages just use GFP_NOWAIT, and if any of those fail, just
+submit the bio and start a new one.
+
+This will need to be fixed in f2fs too, but that's less straightforward.
+
+Fixes: c9af28fdd449 ("ext4 crypto: don't let data integrity writebacks fail with ENOMEM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20191231181149.47619-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/file.c |   51 +++++++++++++++++++++------------------------------
- 1 file changed, 21 insertions(+), 30 deletions(-)
+ fs/ext4/page-io.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -847,7 +847,7 @@ static ssize_t gfs2_file_write_iter(stru
- 	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file_inode(file);
- 	struct gfs2_inode *ip = GFS2_I(inode);
--	ssize_t written = 0, ret;
-+	ssize_t ret;
+--- a/fs/ext4/page-io.c
++++ b/fs/ext4/page-io.c
+@@ -478,17 +478,26 @@ int ext4_bio_write_page(struct ext4_io_s
+ 		gfp_t gfp_flags = GFP_NOFS;
+ 		unsigned int enc_bytes = round_up(len, i_blocksize(inode));
  
- 	ret = gfs2_rsqa_alloc(ip);
- 	if (ret)
-@@ -879,55 +879,46 @@ static ssize_t gfs2_file_write_iter(stru
- 
- 	if (iocb->ki_flags & IOCB_DIRECT) {
- 		struct address_space *mapping = file->f_mapping;
--		loff_t pos, endbyte;
--		ssize_t buffered;
-+		ssize_t buffered, ret2;
- 
--		written = gfs2_file_direct_write(iocb, from);
--		if (written < 0 || !iov_iter_count(from))
-+		ret = gfs2_file_direct_write(iocb, from);
-+		if (ret < 0 || !iov_iter_count(from))
- 			goto out_unlock;
- 
-+		iocb->ki_flags |= IOCB_DSYNC;
- 		current->backing_dev_info = inode_to_bdi(inode);
--		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
-+		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (unlikely(ret < 0))
-+		if (unlikely(buffered <= 0))
- 			goto out_unlock;
--		buffered = ret;
- 
- 		/*
- 		 * We need to ensure that the page cache pages are written to
- 		 * disk and invalidated to preserve the expected O_DIRECT
--		 * semantics.
-+		 * semantics.  If the writeback or invalidate fails, only report
-+		 * the direct I/O range as we don't know if the buffered pages
-+		 * made it to disk.
- 		 */
--		pos = iocb->ki_pos;
--		endbyte = pos + buffered - 1;
--		ret = filemap_write_and_wait_range(mapping, pos, endbyte);
--		if (!ret) {
--			iocb->ki_pos += buffered;
--			written += buffered;
--			invalidate_mapping_pages(mapping,
--						 pos >> PAGE_SHIFT,
--						 endbyte >> PAGE_SHIFT);
--		} else {
--			/*
--			 * We don't know how much we wrote, so just return
--			 * the number of bytes which were direct-written
--			 */
--		}
-+		iocb->ki_pos += buffered;
-+		ret2 = generic_write_sync(iocb, buffered);
-+		invalidate_mapping_pages(mapping,
-+				(iocb->ki_pos - buffered) >> PAGE_SHIFT,
-+				(iocb->ki_pos - 1) >> PAGE_SHIFT);
-+		if (!ret || ret2 > 0)
-+			ret += ret2;
- 	} else {
- 		current->backing_dev_info = inode_to_bdi(inode);
- 		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (likely(ret > 0))
-+		if (likely(ret > 0)) {
- 			iocb->ki_pos += ret;
-+			ret = generic_write_sync(iocb, ret);
-+		}
- 	}
- 
- out_unlock:
- 	inode_unlock(inode);
--	if (likely(ret > 0)) {
--		/* Handle various SYNC-type writes */
--		ret = generic_write_sync(iocb, ret);
--	}
--	return written ? written : ret;
-+	return ret;
- }
- 
- static int fallocate_chunk(struct inode *inode, loff_t offset, loff_t len,
++		/*
++		 * Since bounce page allocation uses a mempool, we can only use
++		 * a waiting mask (i.e. request guaranteed allocation) on the
++		 * first page of the bio.  Otherwise it can deadlock.
++		 */
++		if (io->io_bio)
++			gfp_flags = GFP_NOWAIT | __GFP_NOWARN;
+ 	retry_encrypt:
+ 		bounce_page = fscrypt_encrypt_pagecache_blocks(page, enc_bytes,
+ 							       0, gfp_flags);
+ 		if (IS_ERR(bounce_page)) {
+ 			ret = PTR_ERR(bounce_page);
+-			if (ret == -ENOMEM && wbc->sync_mode == WB_SYNC_ALL) {
+-				if (io->io_bio) {
++			if (ret == -ENOMEM &&
++			    (io->io_bio || wbc->sync_mode == WB_SYNC_ALL)) {
++				gfp_flags = GFP_NOFS;
++				if (io->io_bio)
+ 					ext4_io_submit(io);
+-					congestion_wait(BLK_RW_ASYNC, HZ/50);
+-				}
+-				gfp_flags |= __GFP_NOFAIL;
++				else
++					gfp_flags |= __GFP_NOFAIL;
++				congestion_wait(BLK_RW_ASYNC, HZ/50);
+ 				goto retry_encrypt;
+ 			}
+ 			bounce_page = NULL;
 
 
