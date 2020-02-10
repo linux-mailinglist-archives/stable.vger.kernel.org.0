@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7492157987
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:16:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB8C157982
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728286AbgBJNQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:16:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33348 "EHLO mail.kernel.org"
+        id S1729900AbgBJNPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:15:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728506AbgBJMiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:15 -0500
+        id S1729083AbgBJMiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:16 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94ED424671;
-        Mon, 10 Feb 2020 12:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 967F02465D;
+        Mon, 10 Feb 2020 12:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338294;
-        bh=wFKYufJb6eDOay36krZ+elYPoz492z2JgNes9PyWLKA=;
+        s=default; t=1581338295;
+        bh=AjspYWqleizMigaH28YmNobPm+8RoRmj0O+KorGTsyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gNoABFvs/QQ/gZ6EBguPCh4AaPRc254tyOvqoBULe99kvsjW/mJd9itpHBD3JfN5
-         xPP2OWMN5UkAjZF/bJvBoaqsClgauqqLxGW7WWsSrs4KDfXALnEBx0JRu5dIvrjEMx
-         Qe2UROFyKel4xqfFA23ZUclyMzpcKkfEXvQuOuxk=
+        b=mgckW5HgdOK+b0pgPXaszAde8gVvRb+0LzhLslmJWF2TlimXgfC38vSuc9vMPjk8M
+         fzosIfGKSl5D61jmw5QtDn2FOvd/PpTgIeHe8QfCzh9EkWRxRyVencns6h1qRStRHl
+         VgNR052706SOLLscbkzdsYA3oNtVdAIHG+Smt4p0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Honig <ahonig@google.com>,
         Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 200/309] KVM: x86: Protect pmu_intel.c from Spectre-v1/L1TF attacks
-Date:   Mon, 10 Feb 2020 04:32:36 -0800
-Message-Id: <20200210122425.771780249@linuxfoundation.org>
+Subject: [PATCH 5.4 202/309] KVM: x86: Protect kvm_lapic_reg_write() from Spectre-v1/L1TF attacks
+Date:   Mon, 10 Feb 2020 04:32:38 -0800
+Message-Id: <20200210122425.965646357@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -48,16 +48,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marios Pomonis <pomonis@google.com>
 
-commit 66061740f1a487f4ed54fde75e724709f805da53 upstream.
+commit 4bf79cb089f6b1c6c632492c0271054ce52ad766 upstream.
 
-This fixes Spectre-v1/L1TF vulnerabilities in intel_find_fixed_event()
-and intel_rdpmc_ecx_to_pmc().
-kvm_rdpmc() (ancestor of intel_find_fixed_event()) and
-reprogram_fixed_counter() (ancestor of intel_rdpmc_ecx_to_pmc()) are
-exported symbols so KVM should treat them conservatively from a security
-perspective.
+This fixes a Spectre-v1/L1TF vulnerability in kvm_lapic_reg_write().
+This function contains index computations based on the
+(attacker-controlled) MSR number.
 
-Fixes: 25462f7f5295 ("KVM: x86/vPMU: Define kvm_pmu_ops to support vPMU function dispatch")
+Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
 
 Signed-off-by: Nick Finco <nifi@google.com>
 Signed-off-by: Marios Pomonis <pomonis@google.com>
@@ -68,54 +65,35 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/pmu_intel.c |   24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ arch/x86/kvm/lapic.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/vmx/pmu_intel.c
-+++ b/arch/x86/kvm/vmx/pmu_intel.c
-@@ -84,10 +84,14 @@ static unsigned intel_find_arch_event(st
- 
- static unsigned intel_find_fixed_event(int idx)
- {
--	if (idx >= ARRAY_SIZE(fixed_pmc_events))
-+	u32 event;
-+	size_t size = ARRAY_SIZE(fixed_pmc_events);
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1926,15 +1926,20 @@ int kvm_lapic_reg_write(struct kvm_lapic
+ 	case APIC_LVTTHMR:
+ 	case APIC_LVTPC:
+ 	case APIC_LVT1:
+-	case APIC_LVTERR:
++	case APIC_LVTERR: {
+ 		/* TODO: Check vector */
++		size_t size;
++		u32 index;
 +
-+	if (idx >= size)
- 		return PERF_COUNT_HW_MAX;
- 
--	return intel_arch_events[fixed_pmc_events[idx]].event_type;
-+	event = fixed_pmc_events[array_index_nospec(idx, size)];
-+	return intel_arch_events[event].event_type;
- }
- 
- /* check if a PMC is enabled by comparing it with globl_ctrl bits. */
-@@ -128,16 +132,20 @@ static struct kvm_pmc *intel_msr_idx_to_
- 	struct kvm_pmu *pmu = vcpu_to_pmu(vcpu);
- 	bool fixed = idx & (1u << 30);
- 	struct kvm_pmc *counters;
-+	unsigned int num_counters;
- 
- 	idx &= ~(3u << 30);
--	if (!fixed && idx >= pmu->nr_arch_gp_counters)
--		return NULL;
--	if (fixed && idx >= pmu->nr_arch_fixed_counters)
-+	if (fixed) {
-+		counters = pmu->fixed_counters;
-+		num_counters = pmu->nr_arch_fixed_counters;
-+	} else {
-+		counters = pmu->gp_counters;
-+		num_counters = pmu->nr_arch_gp_counters;
-+	}
-+	if (idx >= num_counters)
- 		return NULL;
--	counters = fixed ? pmu->fixed_counters : pmu->gp_counters;
- 	*mask &= pmu->counter_bitmask[fixed ? KVM_PMC_FIXED : KVM_PMC_GP];
+ 		if (!kvm_apic_sw_enabled(apic))
+ 			val |= APIC_LVT_MASKED;
 -
--	return &counters[idx];
-+	return &counters[array_index_nospec(idx, num_counters)];
- }
+-		val &= apic_lvt_mask[(reg - APIC_LVTT) >> 4];
++		size = ARRAY_SIZE(apic_lvt_mask);
++		index = array_index_nospec(
++				(reg - APIC_LVTT) >> 4, size);
++		val &= apic_lvt_mask[index];
+ 		kvm_lapic_set_reg(apic, reg, val);
+-
+ 		break;
++	}
  
- static bool intel_is_valid_msr(struct kvm_vcpu *vcpu, u32 msr)
+ 	case APIC_LVTT:
+ 		if (!kvm_apic_sw_enabled(apic))
 
 
