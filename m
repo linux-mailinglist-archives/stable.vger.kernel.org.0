@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 413F4157A51
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F02921577E3
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728763AbgBJNV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:21:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
+        id S1729730AbgBJNDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:03:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728761AbgBJMh1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:27 -0500
+        id S1728335AbgBJMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:26 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A7B92085B;
-        Mon, 10 Feb 2020 12:37:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E25B24677;
+        Mon, 10 Feb 2020 12:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338247;
-        bh=xJiTp7SfDQcMCMYrTI4hviBQffLK0N0zA/adBHR1Z/w=;
+        s=default; t=1581338426;
+        bh=rYgrGdSSeygHR64E0Y7G24YBERnO9bJ3u8RGXgr1y1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NTP6nF2PyU+cVnpDrI9RlzzQIJNGCJqNf4Tsll4F4WcIjf3mmgqo49jNWoK+qP96+
-         00TqiRsPsDmWm1XOnOPLRJc62TKDaD7KsvghXFohPt14AkWOlx3jCh2p7lP4Tnd4PA
-         nkJKvY5kqYlRzd7GoKaUxKvyQi15EkFNX/uylxU8=
+        b=s85I23ltxF/Uycc3DtfWdZ0wXI+Ckd06vspIPBrPEpm7gD0h0J+SfVQEM+Gvbjj47
+         ImWG1g5xt7ebP375c9v1bjs8yv1AmrxfYoeLz1pKAzb2f2kggt2kzdS3KCIqxRtovk
+         5uOzTN4Dcw7kCi9InwvXiJRa7Sou1bldeEXzTa1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
-Subject: [PATCH 5.4 106/309] crypto: ccree - fix PM race condition
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 149/367] ASoC: SOF: core: release resources on errors in probe_continue
 Date:   Mon, 10 Feb 2020 04:31:02 -0800
-Message-Id: <20200210122416.522081180@linuxfoundation.org>
+Message-Id: <20200210122438.592413052@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,195 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 15fd2566bf54ee4d4781d8f170acfc9472a1541f upstream.
+[ Upstream commit 410e5e55c9c1c9c0d452ac5b9adb37b933a7747e ]
 
-The PM code was racy, possibly causing the driver to submit
-requests to a powered down device. Fix the race and while
-at it simplify the PM code.
+The initial intent of releasing resources in the .remove does not work
+well with HDaudio codecs. If the probe_continue() fails in a work
+queue, e.g. due to missing firmware or authentication issues, we don't
+release any resources, and as a result the kernel oopses during
+suspend operations.
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Fixes: 1358c13a48c4 ("crypto: ccree - fix resume race condition on init")
-Cc: stable@kernel.org # v4.20
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The suggested fix is to release all resources during errors in
+probe_continue(), and use fw_state to track resource allocation
+state, so that .remove does not attempt to release the same
+hardware resources twice. PM operations are also modified so that
+no action is done if DSP resources have been freed due to
+an error at probe.
 
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Co-developed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Bugzilla:  http://bugzilla.suse.com/show_bug.cgi?id=1161246
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200124213625.30186-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_driver.h      |    1 
- drivers/crypto/ccree/cc_pm.c          |   28 ++++---------------
- drivers/crypto/ccree/cc_request_mgr.c |   50 ----------------------------------
- drivers/crypto/ccree/cc_request_mgr.h |    8 -----
- 4 files changed, 7 insertions(+), 80 deletions(-)
+ sound/soc/sof/core.c | 32 +++++++++++---------------------
+ sound/soc/sof/pm.c   |  4 ++++
+ 2 files changed, 15 insertions(+), 21 deletions(-)
 
---- a/drivers/crypto/ccree/cc_driver.h
-+++ b/drivers/crypto/ccree/cc_driver.h
-@@ -161,6 +161,7 @@ struct cc_drvdata {
- 	int std_bodies;
- 	bool sec_disabled;
- 	u32 comp_mask;
-+	bool pm_on;
- };
- 
- struct cc_crypto_alg {
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -22,14 +22,8 @@ const struct dev_pm_ops ccree_pm = {
- int cc_pm_suspend(struct device *dev)
- {
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
--	int rc;
- 
- 	dev_dbg(dev, "set HOST_POWER_DOWN_EN\n");
--	rc = cc_suspend_req_queue(drvdata);
--	if (rc) {
--		dev_err(dev, "cc_suspend_req_queue (%x)\n", rc);
--		return rc;
--	}
- 	fini_cc_regs(drvdata);
- 	cc_iowrite(drvdata, CC_REG(HOST_POWER_DOWN_EN), POWER_DOWN_ENABLE);
- 	cc_clk_off(drvdata);
-@@ -63,13 +57,6 @@ int cc_pm_resume(struct device *dev)
- 	/* check if tee fips error occurred during power down */
- 	cc_tee_handle_fips_error(drvdata);
- 
--	rc = cc_resume_req_queue(drvdata);
--	if (rc) {
--		dev_err(dev, "cc_resume_req_queue (%x)\n", rc);
--		return rc;
--	}
--
--	/* must be after the queue resuming as it uses the HW queue*/
- 	cc_init_hash_sram(drvdata);
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index d95026b5f7c60..a06a54f423dd4 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -466,7 +466,6 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
  
  	return 0;
-@@ -80,10 +67,8 @@ int cc_pm_get(struct device *dev)
- 	int rc = 0;
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
  
--	if (cc_req_queue_suspended(drvdata))
-+	if (drvdata->pm_on)
- 		rc = pm_runtime_get_sync(dev);
--	else
--		pm_runtime_get_noresume(dev);
+-#if !IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
+ fw_trace_err:
+ 	snd_sof_free_trace(sdev);
+ fw_run_err:
+@@ -477,22 +476,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 	snd_sof_free_debug(sdev);
+ dbg_err:
+ 	snd_sof_remove(sdev);
+-#else
+-
+-	/*
+-	 * when the probe_continue is handled in a work queue, the
+-	 * probe does not fail so we don't release resources here.
+-	 * They will be released with an explicit call to
+-	 * snd_sof_device_remove() when the PCI/ACPI device is removed
+-	 */
+-
+-fw_trace_err:
+-fw_run_err:
+-fw_load_err:
+-ipc_err:
+-dbg_err:
  
- 	return (rc == 1 ? 0 : rc);
+-#endif
++	/* all resources freed, update state to match */
++	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
++	sdev->first_boot = true;
+ 
+ 	return ret;
  }
-@@ -93,14 +78,11 @@ int cc_pm_put_suspend(struct device *dev
- 	int rc = 0;
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
+@@ -575,10 +562,12 @@ int snd_sof_device_remove(struct device *dev)
+ 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+ 		cancel_work_sync(&sdev->probe_work);
  
--	if (!cc_req_queue_suspended(drvdata)) {
-+	if (drvdata->pm_on) {
- 		pm_runtime_mark_last_busy(dev);
- 		rc = pm_runtime_put_autosuspend(dev);
--	} else {
--		/* Something wrong happens*/
--		dev_err(dev, "request to suspend already suspended queue");
--		rc = -EBUSY;
- 	}
+-	snd_sof_fw_unload(sdev);
+-	snd_sof_ipc_free(sdev);
+-	snd_sof_free_debug(sdev);
+-	snd_sof_free_trace(sdev);
++	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED) {
++		snd_sof_fw_unload(sdev);
++		snd_sof_ipc_free(sdev);
++		snd_sof_free_debug(sdev);
++		snd_sof_free_trace(sdev);
++	}
+ 
+ 	/*
+ 	 * Unregister machine driver. This will unbind the snd_card which
+@@ -594,7 +583,8 @@ int snd_sof_device_remove(struct device *dev)
+ 	 * scheduled on, when they are unloaded. Therefore, the DSP must be
+ 	 * removed only after the topology has been unloaded.
+ 	 */
+-	snd_sof_remove(sdev);
++	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED)
++		snd_sof_remove(sdev);
+ 
+ 	/* release firmware */
+ 	release_firmware(pdata->fw);
+diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
+index ff1ff68e8b26b..bc09cb5f458ba 100644
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -269,6 +269,10 @@ static int sof_resume(struct device *dev, bool runtime_resume)
+ 	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
+ 		return 0;
+ 
++	/* DSP was never successfully started, nothing to resume */
++	if (sdev->first_boot)
++		return 0;
 +
- 	return rc;
- }
- 
-@@ -117,7 +99,7 @@ int cc_pm_init(struct cc_drvdata *drvdat
- 	/* must be before the enabling to avoid resdundent suspending */
- 	pm_runtime_set_autosuspend_delay(dev, CC_SUSPEND_TIMEOUT);
- 	pm_runtime_use_autosuspend(dev);
--	/* activate the PM module */
-+	/* set us as active - note we won't do PM ops until cc_pm_go()! */
- 	return pm_runtime_set_active(dev);
- }
- 
-@@ -125,9 +107,11 @@ int cc_pm_init(struct cc_drvdata *drvdat
- void cc_pm_go(struct cc_drvdata *drvdata)
- {
- 	pm_runtime_enable(drvdata_to_dev(drvdata));
-+	drvdata->pm_on = true;
- }
- 
- void cc_pm_fini(struct cc_drvdata *drvdata)
- {
- 	pm_runtime_disable(drvdata_to_dev(drvdata));
-+	drvdata->pm_on = false;
- }
---- a/drivers/crypto/ccree/cc_request_mgr.c
-+++ b/drivers/crypto/ccree/cc_request_mgr.c
-@@ -41,7 +41,6 @@ struct cc_req_mgr_handle {
- #else
- 	struct tasklet_struct comptask;
- #endif
--	bool is_runtime_suspended;
- };
- 
- struct cc_bl_item {
-@@ -678,52 +677,3 @@ static void comp_handler(unsigned long d
- 	cc_proc_backlog(drvdata);
- 	dev_dbg(dev, "Comp. handler done.\n");
- }
--
--/*
-- * resume the queue configuration - no need to take the lock as this happens
-- * inside the spin lock protection
-- */
--#if defined(CONFIG_PM)
--int cc_resume_req_queue(struct cc_drvdata *drvdata)
--{
--	struct cc_req_mgr_handle *request_mgr_handle =
--		drvdata->request_mgr_handle;
--
--	spin_lock_bh(&request_mgr_handle->hw_lock);
--	request_mgr_handle->is_runtime_suspended = false;
--	spin_unlock_bh(&request_mgr_handle->hw_lock);
--
--	return 0;
--}
--
--/*
-- * suspend the queue configuration. Since it is used for the runtime suspend
-- * only verify that the queue can be suspended.
-- */
--int cc_suspend_req_queue(struct cc_drvdata *drvdata)
--{
--	struct cc_req_mgr_handle *request_mgr_handle =
--						drvdata->request_mgr_handle;
--
--	/* lock the send_request */
--	spin_lock_bh(&request_mgr_handle->hw_lock);
--	if (request_mgr_handle->req_queue_head !=
--	    request_mgr_handle->req_queue_tail) {
--		spin_unlock_bh(&request_mgr_handle->hw_lock);
--		return -EBUSY;
--	}
--	request_mgr_handle->is_runtime_suspended = true;
--	spin_unlock_bh(&request_mgr_handle->hw_lock);
--
--	return 0;
--}
--
--bool cc_req_queue_suspended(struct cc_drvdata *drvdata)
--{
--	struct cc_req_mgr_handle *request_mgr_handle =
--						drvdata->request_mgr_handle;
--
--	return	request_mgr_handle->is_runtime_suspended;
--}
--
--#endif
---- a/drivers/crypto/ccree/cc_request_mgr.h
-+++ b/drivers/crypto/ccree/cc_request_mgr.h
-@@ -40,12 +40,4 @@ void complete_request(struct cc_drvdata
- 
- void cc_req_mgr_fini(struct cc_drvdata *drvdata);
- 
--#if defined(CONFIG_PM)
--int cc_resume_req_queue(struct cc_drvdata *drvdata);
--
--int cc_suspend_req_queue(struct cc_drvdata *drvdata);
--
--bool cc_req_queue_suspended(struct cc_drvdata *drvdata);
--#endif
--
- #endif /*__REQUEST_MGR_H__*/
+ 	/*
+ 	 * if the runtime_resume flag is set, call the runtime_resume routine
+ 	 * or else call the system resume routine
+-- 
+2.20.1
+
 
 
