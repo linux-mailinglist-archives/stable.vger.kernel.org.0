@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A431157937
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:14:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33693157935
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:14:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728595AbgBJNNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:13:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34676 "EHLO mail.kernel.org"
+        id S1729197AbgBJNNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:13:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729196AbgBJMil (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729195AbgBJMil (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:38:41 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C7E820733;
+        by mail.kernel.org (Postfix) with ESMTPSA id 922332080C;
         Mon, 10 Feb 2020 12:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338320;
-        bh=E+MTVgFWNIcvf+fhiuKRguXt/m4kjJSHKqQwsK/ytv4=;
+        bh=W6R6/H9LJYmDqr1OCcfQ0aOFtqfURjgqrU8o3+YAPoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLeAthjtwEdib+DAziSnozjP8gAf1wCr3TdCNnpk9nAb3nYm/68oIlnW839awHuFk
-         yABEAypz4T5x+QFuPzyF/XmZpnQiZ0J5KDWWBmcvr8qpDNK5V0ExCYriw8wu2KxfKH
-         DH9WJ2xOKMVNtkv1HtIFKRSFES3K+rDNoZF9ro+0=
+        b=n//iwMoWpWU3SRnQ5hr+8+SQlYtSGMW+FR9jeVSZAymF/RhEsSpowwEtg6yx67Rof
+         urNcCEXoVD7T6YHm9SbVblpXLoOPZHDL2oMkbty6ujZS7cIM0p7LljvkqvmQZ+kxRi
+         Gxj3sqKy6D+cptlgwWJWXMUICjO6w0KwhODsCLTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 250/309] net: tulip: Adjust indentation in {dmfe, uli526x}_init_module
-Date:   Mon, 10 Feb 2020 04:33:26 -0800
-Message-Id: <20200210122430.519660914@linuxfoundation.org>
+        Prabhath Sajeepa <psajeepa@purestorage.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 251/309] IB/mlx5: Fix outstanding_pi index for GSI qps
+Date:   Mon, 10 Feb 2020 04:33:27 -0800
+Message-Id: <20200210122430.633901238@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -44,87 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Prabhath Sajeepa <psajeepa@purestorage.com>
 
-commit fe06bf3d83ef0d92f35a24e03297172e92ce9ce3 upstream.
+commit b5671afe5e39ed71e94eae788bacdcceec69db09 upstream.
 
-Clang warns:
+Commit b0ffeb537f3a ("IB/mlx5: Fix iteration overrun in GSI qps") changed
+the way outstanding WRs are tracked for the GSI QP. But the fix did not
+cover the case when a call to ib_post_send() fails and updates index to
+track outstanding.
 
-../drivers/net/ethernet/dec/tulip/uli526x.c:1812:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-        switch (mode) {
-        ^
-../drivers/net/ethernet/dec/tulip/uli526x.c:1809:2: note: previous
-statement is here
-        if (cr6set)
-        ^
-1 warning generated.
+Since the prior commmit outstanding_pi should not be bounded otherwise the
+loop generate_completions() will fail.
 
-../drivers/net/ethernet/dec/tulip/dmfe.c:2217:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-        switch(mode) {
-        ^
-../drivers/net/ethernet/dec/tulip/dmfe.c:2214:2: note: previous
-statement is here
-        if (cr6set)
-        ^
-1 warning generated.
-
-This warning occurs because there is a space before the tab on these
-lines. Remove them so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
-
-While we are here, adjust the default block in dmfe_init_module to have
-a proper break between the label and assignment and add a space between
-the switch and opening parentheses to avoid a checkpatch warning.
-
-Fixes: e1c3e5014040 ("[PATCH] initialisation cleanup for ULI526x-net-driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/795
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b0ffeb537f3a ("IB/mlx5: Fix iteration overrun in GSI qps")
+Link: https://lore.kernel.org/r/1576195889-23527-1-git-send-email-psajeepa@purestorage.com
+Signed-off-by: Prabhath Sajeepa <psajeepa@purestorage.com>
+Acked-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/dec/tulip/dmfe.c    |    7 ++++---
- drivers/net/ethernet/dec/tulip/uli526x.c |    4 ++--
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/mlx5/gsi.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/dec/tulip/dmfe.c
-+++ b/drivers/net/ethernet/dec/tulip/dmfe.c
-@@ -2214,15 +2214,16 @@ static int __init dmfe_init_module(void)
- 	if (cr6set)
- 		dmfe_cr6_user_set = cr6set;
- 
-- 	switch(mode) {
--   	case DMFE_10MHF:
-+	switch (mode) {
-+	case DMFE_10MHF:
- 	case DMFE_100MHF:
- 	case DMFE_10MFD:
- 	case DMFE_100MFD:
- 	case DMFE_1M_HPNA:
- 		dmfe_media_mode = mode;
- 		break;
--	default:dmfe_media_mode = DMFE_AUTO;
-+	default:
-+		dmfe_media_mode = DMFE_AUTO;
- 		break;
- 	}
- 
---- a/drivers/net/ethernet/dec/tulip/uli526x.c
-+++ b/drivers/net/ethernet/dec/tulip/uli526x.c
-@@ -1809,8 +1809,8 @@ static int __init uli526x_init_module(vo
- 	if (cr6set)
- 		uli526x_cr6_user_set = cr6set;
- 
-- 	switch (mode) {
--   	case ULI526X_10MHF:
-+	switch (mode) {
-+	case ULI526X_10MHF:
- 	case ULI526X_100MHF:
- 	case ULI526X_10MFD:
- 	case ULI526X_100MFD:
+--- a/drivers/infiniband/hw/mlx5/gsi.c
++++ b/drivers/infiniband/hw/mlx5/gsi.c
+@@ -507,8 +507,7 @@ int mlx5_ib_gsi_post_send(struct ib_qp *
+ 		ret = ib_post_send(tx_qp, &cur_wr.wr, bad_wr);
+ 		if (ret) {
+ 			/* Undo the effect of adding the outstanding wr */
+-			gsi->outstanding_pi = (gsi->outstanding_pi - 1) %
+-					      gsi->cap.max_send_wr;
++			gsi->outstanding_pi--;
+ 			goto err;
+ 		}
+ 		spin_unlock_irqrestore(&gsi->lock, flags);
 
 
