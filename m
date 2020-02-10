@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5532A1577F1
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:04:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC400157A71
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729675AbgBJMkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39876 "EHLO mail.kernel.org"
+        id S1728714AbgBJMhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:37:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729670AbgBJMkP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:15 -0500
+        id S1728711AbgBJMhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:20 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 968A92051A;
-        Mon, 10 Feb 2020 12:40:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F405520838;
+        Mon, 10 Feb 2020 12:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338414;
-        bh=MMy5b1V1IL5uHCq9NfdoFe3WHzgaxpAqJCJ80qPZUTM=;
+        s=default; t=1581338240;
+        bh=HRQkpN1Mvq7ucN4kQwhBOlr26goTcPiQ9hquQc7J3I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wk/scjW6gbEt2lt6DqydYlGn1OspQ1UlWhhecWqQOfqEU9sP7nXpHjN2/esyyK4Ge
-         JXxr1xOzMYCjHdWNOsJHCl9fIyYACt0XTvQQTEn0l20eAZ1TQo/JWrL5oDw/hNxvR5
-         3Nu79DfhXae98LBP/vVCXw7AsE419crgnsMLrbGE=
+        b=Pc5EY4Bt+tKe+BlApPFAUCyyo/LW1ROzNfDhkCaRD4TSX2PutiYjyFNVRzHNGGZKh
+         HU3NT1LFahubSQwOvUt25u44hv+mCHvkLGOgtGX3R5lvGprlcBbF1m9Nb6GU20pChM
+         zd8lQtzEIjVZC1oPgsb7E/v3CmVh6y1cW+JNUGPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.5 128/367] power: supply: axp20x_ac_power: Fix reporting online status
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        Mark Brown <broonie@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 085/309] mmc: spi: Toggle SPI polarity, do not hardcode it
 Date:   Mon, 10 Feb 2020 04:30:41 -0800
-Message-Id: <20200210122436.676761953@linuxfoundation.org>
+Message-Id: <20200210122414.039001849@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 1c51aad8475d670ad58ae60adc9d32342381df8d upstream.
+commit af3ed119329cf9690598c5a562d95dfd128e91d6 upstream.
 
-AXP803/AXP813 have a flag that enables/disables the AC power supply
-input. This flag does not affect the status bits in PWR_INPUT_STATUS.
-Its effect can be verified by checking the battery charge/discharge
-state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
-the AC input.
+The code in mmc_spi_initsequence() tries to send a burst with
+high chipselect and for this reason hardcodes the device into
+SPI_CS_HIGH.
 
-Take this flag into account when getting the ONLINE property of the AC
-input, on PMICs where this flag is present.
+This is not good because the SPI_CS_HIGH flag indicates
+logical "asserted" CS not always the physical level. In
+some cases the signal is inverted in the GPIO library and
+in that case SPI_CS_HIGH is already set, and enforcing
+SPI_CS_HIGH again will actually drive it low.
 
-Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
+Instead of hard-coding this, toggle the polarity so if the
+default is LOW it goes high to assert chipselect but if it
+is already high then toggle it low instead.
+
+Cc: Phil Elwell <phil@raspberrypi.org>
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20191204152749.12652-1-linus.walleij@linaro.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/axp20x_ac_power.c |   31 +++++++++++++++++++++++++------
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ drivers/mmc/host/mmc_spi.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/power/supply/axp20x_ac_power.c
-+++ b/drivers/power/supply/axp20x_ac_power.c
-@@ -23,6 +23,8 @@
- #define AXP20X_PWR_STATUS_ACIN_PRESENT	BIT(7)
- #define AXP20X_PWR_STATUS_ACIN_AVAIL	BIT(6)
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -1134,17 +1134,22 @@ static void mmc_spi_initsequence(struct
+ 	 * SPI protocol.  Another is that when chipselect is released while
+ 	 * the card returns BUSY status, the clock must issue several cycles
+ 	 * with chipselect high before the card will stop driving its output.
++	 *
++	 * SPI_CS_HIGH means "asserted" here. In some cases like when using
++	 * GPIOs for chip select, SPI_CS_HIGH is set but this will be logically
++	 * inverted by gpiolib, so if we want to ascertain to drive it high
++	 * we should toggle the default with an XOR as we do here.
+ 	 */
+-	host->spi->mode |= SPI_CS_HIGH;
++	host->spi->mode ^= SPI_CS_HIGH;
+ 	if (spi_setup(host->spi) != 0) {
+ 		/* Just warn; most cards work without it. */
+ 		dev_warn(&host->spi->dev,
+ 				"can't change chip-select polarity\n");
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 	} else {
+ 		mmc_spi_readbytes(host, 18);
  
-+#define AXP813_ACIN_PATH_SEL		BIT(7)
-+
- #define AXP813_VHOLD_MASK		GENMASK(5, 3)
- #define AXP813_VHOLD_UV_TO_BIT(x)	((((x) / 100000) - 40) << 3)
- #define AXP813_VHOLD_REG_TO_UV(x)	\
-@@ -40,6 +42,7 @@ struct axp20x_ac_power {
- 	struct power_supply *supply;
- 	struct iio_channel *acin_v;
- 	struct iio_channel *acin_i;
-+	bool has_acin_path_sel;
- };
- 
- static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
-@@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(
- 			return ret;
- 
- 		val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
-+
-+		/* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
-+		if (val->intval && power->has_acin_path_sel) {
-+			ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
-+					  &reg);
-+			if (ret)
-+				return ret;
-+
-+			val->intval = !!(reg & AXP813_ACIN_PATH_SEL);
-+		}
-+
- 		return 0;
- 
- 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-@@ -224,21 +238,25 @@ static const struct power_supply_desc ax
- struct axp_data {
- 	const struct power_supply_desc	*power_desc;
- 	bool				acin_adc;
-+	bool				acin_path_sel;
- };
- 
- static const struct axp_data axp20x_data = {
--	.power_desc = &axp20x_ac_power_desc,
--	.acin_adc = true,
-+	.power_desc	= &axp20x_ac_power_desc,
-+	.acin_adc	= true,
-+	.acin_path_sel	= false,
- };
- 
- static const struct axp_data axp22x_data = {
--	.power_desc = &axp22x_ac_power_desc,
--	.acin_adc = false,
-+	.power_desc	= &axp22x_ac_power_desc,
-+	.acin_adc	= false,
-+	.acin_path_sel	= false,
- };
- 
- static const struct axp_data axp813_data = {
--	.power_desc = &axp813_ac_power_desc,
--	.acin_adc = false,
-+	.power_desc	= &axp813_ac_power_desc,
-+	.acin_adc	= false,
-+	.acin_path_sel	= true,
- };
- 
- static int axp20x_ac_power_probe(struct platform_device *pdev)
-@@ -282,6 +300,7 @@ static int axp20x_ac_power_probe(struct
- 	}
- 
- 	power->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	power->has_acin_path_sel = axp_data->acin_path_sel;
- 
- 	platform_set_drvdata(pdev, power);
- 
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 		if (spi_setup(host->spi) != 0) {
+ 			/* Wot, we can't get the same setup we had before? */
+ 			dev_err(&host->spi->dev,
 
 
