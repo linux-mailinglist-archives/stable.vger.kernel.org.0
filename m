@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A5B1574EE
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3465115754B
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728619AbgBJMhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
+        id S1729612AbgBJMkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728229AbgBJMhE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:04 -0500
+        id S1729606AbgBJMkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96C2D20838;
-        Mon, 10 Feb 2020 12:37:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE25C2467A;
+        Mon, 10 Feb 2020 12:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338223;
-        bh=7bro7edFsBzjTkeA0W+QB+A2B3KAv90QXiYmt5hQbTg=;
+        s=default; t=1581338403;
+        bh=9sL3KvbCb2vGm3OP5jNO94CpgQ5x9Mz8ykRB6AKRlLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFNYZQQt37ys2XiuChmCRN+gcgwus2J0k3dtDm+yN+iHxd3EpiSRjoerG5sToXaE+
-         gQnUnYE1W3jU8MPUyOR2NIcd8GdPtAmX+YrfzwFNRcwWJmsongujB6wBA7e59sShmR
-         vyKXtUfmgV553M0TmKarMFBDD4Pif6IJqG9/U43Y=
+        b=M91AsGPO6NjJbnQDFWYmC0HVDdYwmAwAkiuox9W03UeHjAnwqfVQ8URW0Zbk89yy/
+         GK8dECAl+2lRnE2uzHNef3zp/bEehpmnC4y1GBjy7NigfTJUnK5Ht6VSsd/NGpYBhh
+         jRTnqf6wEpNjRuemaRHGPcdhgO7+o4/P9ZpacWec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Neelima Krishnan <neelima.krishnan@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 5.4 060/309] x86/cpu: Update cached HLE state on write to TSX_CTRL_CPUID_CLEAR
+        Naga Sureshkumar Relli <nagasure@xilinx.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.5 103/367] ubifs: Fix wrong memory allocation
 Date:   Mon, 10 Feb 2020 04:30:16 -0800
-Message-Id: <20200210122411.717497217@linuxfoundation.org>
+Message-Id: <20200210122433.887802292@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit 5efc6fa9044c3356d6046c6e1da6d02572dbed6b upstream.
+commit edec51374bce779f37fc209a228139c55d90ec8d upstream.
 
-/proc/cpuinfo currently reports Hardware Lock Elision (HLE) feature to
-be present on boot cpu even if it was disabled during the bootup. This
-is because cpuinfo_x86->x86_capability HLE bit is not updated after TSX
-state is changed via the new MSR IA32_TSX_CTRL.
+In create_default_filesystem() when we allocate the idx node we must use
+the idx_node_size we calculated just one line before, not tmp, which
+contains completely other data.
 
-Update the cached HLE bit also since it is expected to change after an
-update to CPUID_CLEAR bit in MSR IA32_TSX_CTRL.
-
-Fixes: 95c5824f75f3 ("x86/cpu: Add a "tsx=" cmdline option with TSX disabled by default")
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/2529b99546294c893dfa1c89e2b3e46da3369a59.1578685425.git.pawan.kumar.gupta@linux.intel.com
+Fixes: c4de6d7e4319 ("ubifs: Refactor create_default_filesystem()")
+Cc: stable@vger.kernel.org # v4.20+
+Reported-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
+Tested-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/tsx.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/ubifs/sb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -115,11 +115,12 @@ void __init tsx_init(void)
- 		tsx_disable();
+--- a/fs/ubifs/sb.c
++++ b/fs/ubifs/sb.c
+@@ -161,7 +161,7 @@ static int create_default_filesystem(str
+ 	sup = kzalloc(ALIGN(UBIFS_SB_NODE_SZ, c->min_io_size), GFP_KERNEL);
+ 	mst = kzalloc(c->mst_node_alsz, GFP_KERNEL);
+ 	idx_node_size = ubifs_idx_node_sz(c, 1);
+-	idx = kzalloc(ALIGN(tmp, c->min_io_size), GFP_KERNEL);
++	idx = kzalloc(ALIGN(idx_node_size, c->min_io_size), GFP_KERNEL);
+ 	ino = kzalloc(ALIGN(UBIFS_INO_NODE_SZ, c->min_io_size), GFP_KERNEL);
+ 	cs = kzalloc(ALIGN(UBIFS_CS_NODE_SZ, c->min_io_size), GFP_KERNEL);
  
- 		/*
--		 * tsx_disable() will change the state of the
--		 * RTM CPUID bit.  Clear it here since it is now
--		 * expected to be not set.
-+		 * tsx_disable() will change the state of the RTM and HLE CPUID
-+		 * bits. Clear them here since they are now expected to be not
-+		 * set.
- 		 */
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
-+		setup_clear_cpu_cap(X86_FEATURE_HLE);
- 	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
- 
- 		/*
-@@ -131,10 +132,10 @@ void __init tsx_init(void)
- 		tsx_enable();
- 
- 		/*
--		 * tsx_enable() will change the state of the
--		 * RTM CPUID bit.  Force it here since it is now
--		 * expected to be set.
-+		 * tsx_enable() will change the state of the RTM and HLE CPUID
-+		 * bits. Force them here since they are now expected to be set.
- 		 */
- 		setup_force_cpu_cap(X86_FEATURE_RTM);
-+		setup_force_cpu_cap(X86_FEATURE_HLE);
- 	}
- }
 
 
