@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5757D157ADB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0DC157886
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:08:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbgBJNZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:25:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57312 "EHLO mail.kernel.org"
+        id S1729348AbgBJNIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:08:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728556AbgBJMgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:53 -0500
+        id S1729441AbgBJMje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:34 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52F9C2051A;
-        Mon, 10 Feb 2020 12:36:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15C3F20842;
+        Mon, 10 Feb 2020 12:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338213;
-        bh=i1mSUe6A6LJ4dPfQYfV2aON2tGIaHSNAxEvXsdyOTdA=;
+        s=default; t=1581338374;
+        bh=ZgdRohyeoqyTe+zFijsGSWH8xU5n9mO1FJu1F/BIhj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdUVcb8VyL7DGQbE5kgOS91CfCVvtWHSFhKWAx5DifY/rUVRVAMNF9vVEoFPI65w1
-         35rRE4u6uE6IvuTn759f71hnKDe4/TTCgCcE3joelOx+xD6ptulEZZb2gE8917SaSA
-         I9Dt30PVH0LjMgsp1H7z8aV6Kf+qagL0UbuPJOdI=
+        b=UVy8k0+WwvNCWuR2J4ZP7GT/fhXneKnH8yguFhJwjxqlhh/Y6o2CUnggAnXo2BaLW
+         BKMEwBDPHrO8cPSbr7zoLQMSl4eTMPFvBSvo/QWdYJ5ulnhr/dVpgkf1ec0gAdCvo7
+         l5In4osbZE1CQ6LjKUA/jh2Ff5WehQgfSFAdA7M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 004/309] gtp: use __GFP_NOWARN to avoid memalloc warning
+        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.5 047/367] usb: gadget: f_fs: set req->num_sgs as 0 for non-sg transfer
 Date:   Mon, 10 Feb 2020 04:29:20 -0800
-Message-Id: <20200210122406.497915642@linuxfoundation.org>
+Message-Id: <20200210122428.383827294@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit bd5cd35b782abf5437fbd01dfaee12437d20e832 ]
+commit d2450c6937018d40d4111fe830fa48d4ddceb8d0 upstream.
 
-gtp hashtable size is received by user-space.
-So, this hashtable size could be too large. If so, kmalloc will internally
-print a warning message.
-This warning message is actually not necessary for the gtp module.
-So, this patch adds __GFP_NOWARN to avoid this message.
+The UDC core uses req->num_sgs to judge if scatter buffer list is used.
+Eg: usb_gadget_map_request_by_dev. For f_fs sync io mode, the request
+is re-used for each request, so if the 1st request->length > PAGE_SIZE,
+and the 2nd request->length is <= PAGE_SIZE, the f_fs uses the 1st
+req->num_sgs for the 2nd request, it causes the UDC core get the wrong
+req->num_sgs value (The 2nd request doesn't use sg). For f_fs async
+io mode, it is not harm to initialize req->num_sgs as 0 either, in case,
+the UDC driver doesn't zeroed request structure.
 
-Splat looks like:
-[ 2171.200049][ T1860] WARNING: CPU: 1 PID: 1860 at mm/page_alloc.c:4713 __alloc_pages_nodemask+0x2f3/0x740
-[ 2171.238885][ T1860] Modules linked in: gtp veth openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv]
-[ 2171.262680][ T1860] CPU: 1 PID: 1860 Comm: gtp-link Not tainted 5.5.0+ #321
-[ 2171.263567][ T1860] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[ 2171.264681][ T1860] RIP: 0010:__alloc_pages_nodemask+0x2f3/0x740
-[ 2171.265332][ T1860] Code: 64 fe ff ff 65 48 8b 04 25 c0 0f 02 00 48 05 f0 12 00 00 41 be 01 00 00 00 49 89 47 0
-[ 2171.267301][ T1860] RSP: 0018:ffff8880b51af1f0 EFLAGS: 00010246
-[ 2171.268320][ T1860] RAX: ffffed1016a35e43 RBX: 0000000000000000 RCX: 0000000000000000
-[ 2171.269517][ T1860] RDX: 0000000000000000 RSI: 000000000000000b RDI: 0000000000000000
-[ 2171.270305][ T1860] RBP: 0000000000040cc0 R08: ffffed1018893109 R09: dffffc0000000000
-[ 2171.275973][ T1860] R10: 0000000000000001 R11: ffffed1018893108 R12: 1ffff11016a35e43
-[ 2171.291039][ T1860] R13: 000000000000000b R14: 000000000000000b R15: 00000000000f4240
-[ 2171.292328][ T1860] FS:  00007f53cbc83740(0000) GS:ffff8880da000000(0000) knlGS:0000000000000000
-[ 2171.293409][ T1860] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2171.294586][ T1860] CR2: 000055f540014508 CR3: 00000000b49f2004 CR4: 00000000000606e0
-[ 2171.295424][ T1860] Call Trace:
-[ 2171.295756][ T1860]  ? mark_held_locks+0xa5/0xe0
-[ 2171.296659][ T1860]  ? __alloc_pages_slowpath+0x21b0/0x21b0
-[ 2171.298283][ T1860]  ? gtp_encap_enable_socket+0x13e/0x400 [gtp]
-[ 2171.298962][ T1860]  ? alloc_pages_current+0xc1/0x1a0
-[ 2171.299475][ T1860]  kmalloc_order+0x22/0x80
-[ 2171.299936][ T1860]  kmalloc_order_trace+0x1d/0x140
-[ 2171.300437][ T1860]  __kmalloc+0x302/0x3a0
-[ 2171.300896][ T1860]  gtp_newlink+0x293/0xba0 [gtp]
-[ ... ]
-
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Jun Li <jun.li@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather buffers")
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/gtp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -767,12 +767,12 @@ static int gtp_hashtable_new(struct gtp_
- 	int i;
+---
+ drivers/usb/gadget/function/f_fs.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1062,6 +1062,7 @@ static ssize_t ffs_epfile_io(struct file
+ 			req->num_sgs = io_data->sgt.nents;
+ 		} else {
+ 			req->buf = data;
++			req->num_sgs = 0;
+ 		}
+ 		req->length = data_len;
  
- 	gtp->addr_hash = kmalloc_array(hsize, sizeof(struct hlist_head),
--				       GFP_KERNEL);
-+				       GFP_KERNEL | __GFP_NOWARN);
- 	if (gtp->addr_hash == NULL)
- 		return -ENOMEM;
- 
- 	gtp->tid_hash = kmalloc_array(hsize, sizeof(struct hlist_head),
--				      GFP_KERNEL);
-+				      GFP_KERNEL | __GFP_NOWARN);
- 	if (gtp->tid_hash == NULL)
- 		goto err1;
+@@ -1105,6 +1106,7 @@ static ssize_t ffs_epfile_io(struct file
+ 			req->num_sgs = io_data->sgt.nents;
+ 		} else {
+ 			req->buf = data;
++			req->num_sgs = 0;
+ 		}
+ 		req->length = data_len;
  
 
 
