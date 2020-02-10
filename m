@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E09157B3B
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:29:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5C93157907
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728466AbgBJN2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:28:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
+        id S1729244AbgBJMiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728365AbgBJMgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:24 -0500
+        id S1729240AbgBJMiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:52 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42CD120838;
-        Mon, 10 Feb 2020 12:36:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8422D20873;
+        Mon, 10 Feb 2020 12:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338184;
-        bh=0hJvxlpKEClRtqfzkKKPJrpazecwg1Hs12lim4zNnzY=;
+        s=default; t=1581338331;
+        bh=lUGMPVwglRWAlieNZ5OqxlF4gbbFWvhR6+24MzY3r+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4mXmrzSdCveDnrAVaMMBu0X/OgW+hhksb80UQ2qzQ6xtIh3R25iCHkZF51KuMV0m
-         ul+n9quaLh5gThpcmY4FnpKwa+kDUWpY8RxOT6OIaOSA1CPkm+D4lyhECn6DJPU5Lw
-         nhzKtEADbQKxH5c+tPbn60ddry9yYiPtSmKnZQrQ=
+        b=TuQZDbrNREbhAuIjwqyp/8a2wWwl7Xbfg9Y7oPeqDCLBTjzG9bohmwqZMNMOkg640
+         Uio/Sv//7oHsnLkMxjSjzwpi6Gd4kkPjhY3qkMK4xAUNjjXcoyVNaJyYSvu4by9uaJ
+         xaBY0gpuNlswW3+Y+XCT2UgNJ+XEPjSIsq7cKc/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 173/195] net: macb: Remove unnecessary alignment check for TSO
+Subject: [PATCH 5.4 275/309] net: macb: Remove unnecessary alignment check for TSO
 Date:   Mon, 10 Feb 2020 04:33:51 -0800
-Message-Id: <20200210122322.115440692@linuxfoundation.org>
+Message-Id: <20200210122433.059511653@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,7 +65,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/cadence/macb_main.c
 +++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1654,16 +1654,14 @@ static netdev_features_t macb_features_c
+@@ -1664,16 +1664,14 @@ static netdev_features_t macb_features_c
  
  	/* Validate LSO compatibility */
  
