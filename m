@@ -2,147 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9344F1571D5
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 10:36:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 203761571D0
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 10:35:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727540AbgBJJgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 04:36:52 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:39610 "EHLO
+        id S1727051AbgBJJfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 04:35:05 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:42582 "EHLO
         mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726118AbgBJJgw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 04:36:52 -0500
-Received: by mail-lj1-f194.google.com with SMTP id o15so6315297ljg.6
-        for <stable@vger.kernel.org>; Mon, 10 Feb 2020 01:36:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=5PgeW19XRiY2U6cJ7SIIC8yWYuGaodH5j8A5zm8r+RI=;
-        b=MWTK1nQvvHMG8FI9w3d3mFARNXbfYHxZJlhX0AfAhsSC0d0Aif3dh+COvZxGp2v+QW
-         i56w/WgajszMeWuR5kxn6i96onU+F7qIDV4mvpfsgBaQ/EGdq08rp17JR/jOW0uZiK99
-         u0cZjGSh5ONOuc2o4zxJm8Y5x+PcdJ5JsHwzoXSAhMdeMcwTJFvpVyl7e/AeZJEUPibd
-         q2fpaWLqK5/jlEoW+5NU0QvR70Vzj7BAj9T+qBjdmqf9qI9o997WKtYp4b0gplnhffsE
-         V14qw6fY3SZzWgVu+IhNGzrdvdYgzxxB+P/T8hG91vxbo0ibvVHa19FPwaEsAaMpojJW
-         0ANA==
+        with ESMTP id S1726796AbgBJJfF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 04:35:05 -0500
+Received: by mail-lj1-f194.google.com with SMTP id d10so6301087ljl.9;
+        Mon, 10 Feb 2020 01:35:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=5PgeW19XRiY2U6cJ7SIIC8yWYuGaodH5j8A5zm8r+RI=;
-        b=igEE8ASD7cD+/aNjDA78zT5Rwa5rrBoJmgOLLn9QAPGN3+43mjJyH6F+3hfqZRqhcm
-         tllDWiL4yj6x2zx7q+5E5BT5WgF+nYxNi3iRBaa9iz03V3YWX1MV/Z157SI1sPC54sYW
-         cOOTzz3DaUt2BJ3V72hWkCYSfvbq7f132RgZ/TKlKW51ZkBNVXO0QA3M3fIApVPo2a8h
-         V+1dfRJwKMw4elSnucVOGRfumbqbwYHmITir0q2IWDsBoXbT6SjxM/d+4OtBSYc20faz
-         PVvXGbqcUVzGpK20zIqq6WrJFYEsoa6eMW7ao9fuP6CXOf0//pzAuuNurLK5vN2mWdth
-         19vA==
-X-Gm-Message-State: APjAAAXpRVhnEEdAo+0Z6SoTAnJp0yo+gkojmcB9v4l7R/5fuS0FMNWQ
-        2edCt80ZsFv0mhRfSi+hTDff6FJ3JRU=
-X-Google-Smtp-Source: APXvYqwBHBv4xIaDAWCngEGPvagvzXNZP7OcVvD5uu7PdYuSNTonPAGoeyjMeMwN2YSKbR1tSNc6Pg==
-X-Received: by 2002:a5d:4a0f:: with SMTP id m15mr837718wrq.415.1581326947454;
-        Mon, 10 Feb 2020 01:29:07 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s22sm14285512wmh.4.2020.02.10.01.29.06
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=2dMtmeDRnp4IqIYHT+2e2+AiEKEG+n4IbCtoKAc5Vi0=;
+        b=YMSk8Ba68rYzrYiuDUSRTkVrcxSAzMpeePY9x9yPBGYxQgeqakpvQSSKhjCslh0c5G
+         Y3QiLFp93kbbrm0SmlYUPdn9BsMlgaOPdO1yzX29KFx8OuVcejNWfor605TBWot9EVTH
+         Z0Cr9HuOfq42VJ5xEgNT5yt2t8jEJbfZw5kI+xieaDHNPSdSNhM+e5See4pvDw37C6j5
+         fk2xcChRfnSeyfOrifHAlErFR9RT61WsSUaljdGCIfp1N07nGsuO2iBlGF8IHHX5+NGC
+         mmMeuuEoBRjpAhiSnGiugYEZddgpC/MB2fmfv74nap9NzpJt9dJpG8Ku6NDgsLL9oo1r
+         Bfng==
+X-Gm-Message-State: APjAAAXTLuiFy+Ig8ORiQJ8LKVJNU/ntTmSs9WMmwh2LkH+Kb9eaSq3y
+        vi33BN8gtZ6xtnOGP1XbJZA=
+X-Google-Smtp-Source: APXvYqxKy4brjEUxzjMG+gW2v+H+fGRjyDf1ySMlmY1e+JOpQOVWfLrGV9FmXnjkf5WDmP3pAYjLzg==
+X-Received: by 2002:a2e:5357:: with SMTP id t23mr302326ljd.227.1581327303258;
+        Mon, 10 Feb 2020 01:35:03 -0800 (PST)
+Received: from xi.terra (c-12aae455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.170.18])
+        by smtp.gmail.com with ESMTPSA id 5sm6000098lju.69.2020.02.10.01.35.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Feb 2020 01:29:07 -0800 (PST)
-Message-ID: <5e412263.1c69fb81.d4595.de8c@mx.google.com>
-Date:   Mon, 10 Feb 2020 01:29:07 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 10 Feb 2020 01:35:02 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1j15T2-00045d-7f; Mon, 10 Feb 2020 10:35:00 +0100
+Date:   Mon, 10 Feb 2020 10:35:00 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Johan Hovold <johan@kernel.org>, Jakub Nantl <jn@forever.cz>,
+        Jonathan Olds <jontio@i4free.co.nz>,
+        Michael Dreher <michael@5dot1.de>, linux-usb@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] USB: serial: ch341: fix receiver regression
+Message-ID: <20200210093500.GA3539@localhost>
+References: <20200206111819.20829-1-johan@kernel.org>
+ <20200206114546.GA3275679@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.18-310-g0b7e0557aabf
-Subject: stable-rc/linux-5.4.y boot: 137 boots: 3 failed,
- 130 passed with 4 offline (v5.4.18-310-g0b7e0557aabf)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200206114546.GA3275679@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 137 boots: 3 failed, 130 passed with 4 offline =
-(v5.4.18-310-g0b7e0557aabf)
+On Thu, Feb 06, 2020 at 11:45:46AM +0000, Greg Kroah-Hartman wrote:
+> On Thu, Feb 06, 2020 at 12:18:19PM +0100, Johan Hovold wrote:
+> > While assumed not to make a difference, not using the factor 2 prescaler
+> > makes the receiver more susceptible to errors.
+> > 
+> > Specifically, there have been reports of problems with devices that
+> > cannot generate a 115200 rate with a smaller error than 2.1% (e.g.
+> > 117647 bps). But this can also be reproduced with a low-speed RS232
+> > tranceiver at 115200 when the input rate is close to nominal.
+> > 
+> > So whenever possible, enable the factor 2 prescaler and halve the
+> > divisor in order to use settings closer to that of the previous
+> > algorithm.
+> > 
+> > Fixes: 35714565089e ("USB: serial: ch341: reimplement line-speed handling")
+> > Cc: stable <stable@vger.kernel.org>	# 5.5
+> > Reported-by: Jakub Nantl <jn@forever.cz>
+> > Tested-by: Jakub Nantl <jn@forever.cz>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> 
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.18-310-g0b7e0557aabf/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.18-310-g0b7e0557aabf/
+Thanks for reviewing. Now applied.
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.18-310-g0b7e0557aabf
-Git Commit: 0b7e0557aabf00c5080165d454fd6081e869b968
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 95 unique boards, 26 SoC families, 19 builds out of 167
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 1 day (last pass: v5.4.17=
--99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.18-307-gdb=
-4707481a60)
-          meson-gxl-s805x-libretech-ac:
-              lab-baylibre: failing since 1 day (last pass: v5.4.18-307-gdb=
-4707481a60 - first fail: v5.4.18-309-ga4a7eef3f918)
-
-x86_64:
-
-    x86_64_defconfig:
-        gcc-8:
-          qemu_x86_64:
-              lab-baylibre: new failure (last pass: v5.4.18-309-ga4a7eef3f9=
-18)
-
-Boot Failures Detected:
-
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            qemu_x86_64: 1 failed lab
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxl-s805x-libretech-ac: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Johan
