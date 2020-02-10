@@ -2,47 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCF515791E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65798157906
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729228AbgBJNMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:12:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35102 "EHLO mail.kernel.org"
+        id S1729229AbgBJMit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728387AbgBJMit (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728657AbgBJMit (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:38:49 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9044E2468C;
-        Mon, 10 Feb 2020 12:38:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C96720838;
+        Mon, 10 Feb 2020 12:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338328;
-        bh=ABjSrGWPNmcnFS1fr9i3f2IiWVuVuyUEImN3ZxgdkVQ=;
+        s=default; t=1581338329;
+        bh=nKPESEBBVbq7QRV44lN6GvJzwPK+HexaFyj4+anZu6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpufVvVxhV0wi/lwpq0YFwmYkIgz3e+DYXSQIg5FXO5tJI4iznbW2VriOdsITndtk
-         uJ92RKXyIDo24lTPKE/nVO6mIkI4pK4IY/r0doDzkMsGNe7ArXG4fDKeNXGhD4SyFv
-         yIlGnBHsvQF7Ip9fCMKutRXbrd+GP5fsRPrds1sU=
+        b=H15gL98U2SiHMijiRwGW72Sng2ox8+FLmrIrp2cW4mtla1MlJB0DTH91w3AxPrURJ
+         RwytkQletN2EYDtHUZJ4J1Eu8DHgPkmbX1aflUbGz0gBHqvip9lxCkIDDznMaOJea+
+         1KShuv6jFi3pAjMwLlUI+3SwFBeS+gW6xAlNXKAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Pavel Tatashin <pasha.tatashin@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Steven Sistare <steven.sistare@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Bob Picco <bob.picco@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 227/309] mm/page_alloc.c: fix uninitialized memmaps on a partially populated last section
-Date:   Mon, 10 Feb 2020 04:33:03 -0800
-Message-Id: <20200210122428.351216337@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 228/309] arm64: dts: qcom: qcs404-evb: Set vdd_apc regulator in high power mode
+Date:   Mon, 10 Feb 2020 04:33:04 -0800
+Message-Id: <20200210122428.445697373@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -55,134 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Niklas Cassel <niklas.cassel@linaro.org>
 
-commit e822969cab48b786b64246aad1a3ba2a774f5d23 upstream.
+commit eac8ce86cb90ba96cb4bcbf2549d7a8b6938aa30 upstream.
 
-Patch series "mm: fix max_pfn not falling on section boundary", v2.
+vdd_apc is the regulator that supplies the main CPU cluster.
 
-Playing with different memory sizes for a x86-64 guest, I discovered that
-some memmaps (highest section if max_mem does not fall on the section
-boundary) are marked as being valid and online, but contain garbage.  We
-have to properly initialize these memmaps.
+At sudden CPU load changes, we have noticed invalid page faults on
+addresses with all bits shifted, as well as on addresses with individual
+bits flipped.
 
-Looking at /proc/kpageflags and friends, I found some more issues,
-partially related to this.
+By putting the vdd_apc regulator in high power mode, the voltage drops
+during sudden load changes will be less severe, and we have not been able
+to reproduce the invalid page faults with the regulator in this mode.
 
-This patch (of 3):
-
-If max_pfn is not aligned to a section boundary, we can easily run into
-BUGs.  This can e.g., be triggered on x86-64 under QEMU by specifying a
-memory size that is not a multiple of 128MB (e.g., 4097MB, but also
-4160MB).  I was told that on real HW, we can easily have this scenario
-(esp., one of the main reasons sub-section hotadd of devmem was added).
-
-The issue is, that we have a valid memmap (pfn_valid()) for the whole
-section, and the whole section will be marked "online".
-pfn_to_online_page() will succeed, but the memmap contains garbage.
-
-E.g., doing a "./page-types -r -a 0x144001" when QEMU was started with "-m
-4160M" - (see tools/vm/page-types.c):
-
-[  200.476376] BUG: unable to handle page fault for address: fffffffffffffffe
-[  200.477500] #PF: supervisor read access in kernel mode
-[  200.478334] #PF: error_code(0x0000) - not-present page
-[  200.479076] PGD 59614067 P4D 59614067 PUD 59616067 PMD 0
-[  200.479557] Oops: 0000 [#4] SMP NOPTI
-[  200.479875] CPU: 0 PID: 603 Comm: page-types Tainted: G      D W         5.5.0-rc1-next-20191209 #93
-[  200.480646] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
-[  200.481648] RIP: 0010:stable_page_flags+0x4d/0x410
-[  200.482061] Code: f3 ff 41 89 c0 48 b8 00 00 00 00 01 00 00 00 45 84 c0 0f 85 cd 02 00 00 48 8b 53 08 48 8b 2b 48f
-[  200.483644] RSP: 0018:ffffb139401cbe60 EFLAGS: 00010202
-[  200.484091] RAX: fffffffffffffffe RBX: fffffbeec5100040 RCX: 0000000000000000
-[  200.484697] RDX: 0000000000000001 RSI: ffffffff9535c7cd RDI: 0000000000000246
-[  200.485313] RBP: ffffffffffffffff R08: 0000000000000000 R09: 0000000000000000
-[  200.485917] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000144001
-[  200.486523] R13: 00007ffd6ba55f48 R14: 00007ffd6ba55f40 R15: ffffb139401cbf08
-[  200.487130] FS:  00007f68df717580(0000) GS:ffff9ec77fa00000(0000) knlGS:0000000000000000
-[  200.487804] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  200.488295] CR2: fffffffffffffffe CR3: 0000000135d48000 CR4: 00000000000006f0
-[  200.488897] Call Trace:
-[  200.489115]  kpageflags_read+0xe9/0x140
-[  200.489447]  proc_reg_read+0x3c/0x60
-[  200.489755]  vfs_read+0xc2/0x170
-[  200.490037]  ksys_pread64+0x65/0xa0
-[  200.490352]  do_syscall_64+0x5c/0xa0
-[  200.490665]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-But it can be triggered much easier via "cat /proc/kpageflags > /dev/null"
-after cold/hot plugging a DIMM to such a system:
-
-[root@localhost ~]# cat /proc/kpageflags > /dev/null
-[  111.517275] BUG: unable to handle page fault for address: fffffffffffffffe
-[  111.517907] #PF: supervisor read access in kernel mode
-[  111.518333] #PF: error_code(0x0000) - not-present page
-[  111.518771] PGD a240e067 P4D a240e067 PUD a2410067 PMD 0
-
-This patch fixes that by at least zero-ing out that memmap (so e.g.,
-page_to_pfn() will not crash).  Commit 907ec5fca3dc ("mm: zero remaining
-unavailable struct pages") tried to fix a similar issue, but forgot to
-consider this special case.
-
-After this patch, there are still problems to solve.  E.g., not all of
-these pages falling into a memory hole will actually get initialized later
-and set PageReserved - they are only zeroed out - but at least the
-immediate crashes are gone.  A follow-up patch will take care of this.
-
-Link: http://lkml.kernel.org/r/20191211163201.17179-2-david@redhat.com
-Fixes: f7f99100d8d9 ("mm: stop zeroing memory during allocation in vmemmap")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Tested-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Steven Sistare <steven.sistare@oracle.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Bob Picco <bob.picco@oracle.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: <stable@vger.kernel.org>	[4.15+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 8faea8edbb35 ("arm64: dts: qcom: qcs404-evb: add spmi regulators")
+Cc: stable@vger.kernel.org
+Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20191014120920.12691-1-niklas.cassel@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page_alloc.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/qcs404-evb.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6933,7 +6933,8 @@ static u64 zero_pfn_range(unsigned long
-  * This function also addresses a similar issue where struct pages are left
-  * uninitialized because the physical address range is not covered by
-  * memblock.memory or memblock.reserved. That could happen when memblock
-- * layout is manually configured via memmap=.
-+ * layout is manually configured via memmap=, or when the highest physical
-+ * address (max_pfn) does not end on a section boundary.
-  */
- void __init zero_resv_unavail(void)
- {
-@@ -6951,7 +6952,16 @@ void __init zero_resv_unavail(void)
- 			pgcnt += zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
- 		next = end;
- 	}
--	pgcnt += zero_pfn_range(PFN_DOWN(next), max_pfn);
-+
-+	/*
-+	 * Early sections always have a fully populated memmap for the whole
-+	 * section - see pfn_valid(). If the last section has holes at the
-+	 * end and that section is marked "online", the memmap will be
-+	 * considered initialized. Make sure that memmap has a well defined
-+	 * state.
-+	 */
-+	pgcnt += zero_pfn_range(PFN_DOWN(next),
-+				round_up(max_pfn, PAGES_PER_SECTION));
- 
- 	/*
- 	 * Struct pages that do not have backing memory. This could be because
+--- a/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
+@@ -73,6 +73,7 @@
+ 		regulator-always-on;
+ 		regulator-boot-on;
+ 		regulator-name = "vdd_apc";
++		regulator-initial-mode = <1>;
+ 		regulator-min-microvolt = <1048000>;
+ 		regulator-max-microvolt = <1384000>;
+ 	};
 
 
