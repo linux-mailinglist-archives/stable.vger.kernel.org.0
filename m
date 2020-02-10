@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E90FE157A9F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42AF1157A96
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731168AbgBJNYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:24:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58118 "EHLO mail.kernel.org"
+        id S1728713AbgBJNXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:23:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728641AbgBJMhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:08 -0500
+        id S1728647AbgBJMhJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:09 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A641520733;
-        Mon, 10 Feb 2020 12:37:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6B5624680;
+        Mon, 10 Feb 2020 12:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338227;
-        bh=tDLuyFl3W46bidTo3NFVTkAviottUwoEvquJdWmFG5s=;
+        s=default; t=1581338228;
+        bh=0hUqVKT7/W0yjEgpVt1a7FXsMlToeWZgxqCMyLt2ZmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2Ao/1ha/SdeZtneMEZY1Qiq6cVsKuI5qzi6iNWzwcEz29MKU/kLfLOyXXCTNoruX
-         X6qevMU0b/8mILinQA+gBwiabZ5N6l6Hqux3qqO+MIcvmTpZUcP+AOBfY/ByRJgyFZ
-         lwNxRfE/FbmNVx4oKTQLSA3+lA5YsPqHHa/E0cK0=
+        b=VRg44rM4CgG5p4wPhOZ6elEHZ0NqXW1RTxlBLX0cxaGn/B4o5TkyMzNWsKCw5UXPv
+         la7LZJ5oqEhu9TdsNJ5R1ipZbEzx/JQglBwO9+JRsSjEI8sdY2whIiuHHkI97SAKse
+         k5PHXIsAKdR44HYPK+kZnRMZkQfhg3QKJ0Lftiss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Alexandru Elisei <alexandru.elisei@arm.com>
-Subject: [PATCH 5.4 068/309] KVM: arm/arm64: Correct AArch32 SPSR on exception entry
-Date:   Mon, 10 Feb 2020 04:30:24 -0800
-Message-Id: <20200210122412.454743855@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christoffer Dall <christoffer.dall@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 069/309] KVM: arm64: Only sign-extend MMIO up to register width
+Date:   Mon, 10 Feb 2020 04:30:25 -0800
+Message-Id: <20200210122412.532185578@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -44,125 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Christoffer Dall <christoffer.dall@arm.com>
 
-commit 1cfbb484de158e378e8971ac40f3082e53ecca55 upstream.
+commit b6ae256afd32f96bec0117175b329d0dd617655e upstream.
 
-Confusingly, there are three SPSR layouts that a kernel may need to deal
-with:
+On AArch64 you can do a sign-extended load to either a 32-bit or 64-bit
+register, and we should only sign extend the register up to the width of
+the register as specified in the operation (by using the 32-bit Wn or
+64-bit Xn register specifier).
 
-(1) An AArch64 SPSR_ELx view of an AArch64 pstate
-(2) An AArch64 SPSR_ELx view of an AArch32 pstate
-(3) An AArch32 SPSR_* view of an AArch32 pstate
+As it turns out, the architecture provides this decoding information in
+the SF ("Sixty-Four" -- how cute...) bit.
 
-When the KVM AArch32 support code deals with SPSR_{EL2,HYP}, it's either
-dealing with #2 or #3 consistently. On arm64 the PSR_AA32_* definitions
-match the AArch64 SPSR_ELx view, and on arm the PSR_AA32_* definitions
-match the AArch32 SPSR_* view.
+Let's take advantage of this with the usual 32-bit/64-bit header file
+dance and do the right thing on AArch64 hosts.
 
-However, when we inject an exception into an AArch32 guest, we have to
-synthesize the AArch32 SPSR_* that the guest will see. Thus, an AArch64
-host needs to synthesize layout #3 from layout #2.
-
-This patch adds a new host_spsr_to_spsr32() helper for this, and makes
-use of it in the KVM AArch32 support code. For arm64 we need to shuffle
-the DIT bit around, and remove the SS bit, while for arm we can use the
-value as-is.
-
-I've open-coded the bit manipulation for now to avoid having to rework
-the existing PSR_* definitions into PSR64_AA32_* and PSR32_AA32_*
-definitions. I hope to perform a more thorough refactoring in future so
-that we can handle pstate view manipulation more consistently across the
-kernel tree.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Christoffer Dall <christoffer.dall@arm.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200108134324.46500-4-mark.rutland@arm.com
+Link: https://lore.kernel.org/r/20191212195055.5541-1-christoffer.dall@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
  arch/arm/include/asm/kvm_emulate.h   |    5 +++++
- arch/arm64/include/asm/kvm_emulate.h |   32 ++++++++++++++++++++++++++++++++
- virt/kvm/arm/aarch32.c               |    6 +++---
- 3 files changed, 40 insertions(+), 3 deletions(-)
+ arch/arm/include/asm/kvm_mmio.h      |    2 ++
+ arch/arm64/include/asm/kvm_emulate.h |    5 +++++
+ arch/arm64/include/asm/kvm_mmio.h    |    6 ++----
+ virt/kvm/arm/mmio.c                  |    6 ++++++
+ 5 files changed, 20 insertions(+), 4 deletions(-)
 
 --- a/arch/arm/include/asm/kvm_emulate.h
 +++ b/arch/arm/include/asm/kvm_emulate.h
-@@ -53,6 +53,11 @@ static inline void vcpu_write_spsr(struc
- 	*__vcpu_spsr(vcpu) = v;
+@@ -194,6 +194,11 @@ static inline bool kvm_vcpu_dabt_issext(
+ 	return kvm_vcpu_get_hsr(vcpu) & HSR_SSE;
  }
  
-+static inline unsigned long host_spsr_to_spsr32(unsigned long spsr)
++static inline bool kvm_vcpu_dabt_issf(const struct kvm_vcpu *vcpu)
 +{
-+	return spsr;
++	return false;
 +}
 +
- static inline unsigned long vcpu_get_reg(struct kvm_vcpu *vcpu,
- 					 u8 reg_num)
+ static inline int kvm_vcpu_dabt_get_rd(struct kvm_vcpu *vcpu)
  {
+ 	return (kvm_vcpu_get_hsr(vcpu) & HSR_SRT_MASK) >> HSR_SRT_SHIFT;
+--- a/arch/arm/include/asm/kvm_mmio.h
++++ b/arch/arm/include/asm/kvm_mmio.h
+@@ -14,6 +14,8 @@
+ struct kvm_decode {
+ 	unsigned long rt;
+ 	bool sign_extend;
++	/* Not used on 32-bit arm */
++	bool sixty_four;
+ };
+ 
+ void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
 --- a/arch/arm64/include/asm/kvm_emulate.h
 +++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -204,6 +204,38 @@ static inline void vcpu_write_spsr(struc
- 		vcpu_gp_regs(vcpu)->spsr[KVM_SPSR_EL1] = v;
+@@ -295,6 +295,11 @@ static inline bool kvm_vcpu_dabt_issext(
+ 	return !!(kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SSE);
  }
  
-+/*
-+ * The layout of SPSR for an AArch32 state is different when observed from an
-+ * AArch64 SPSR_ELx or an AArch32 SPSR_*. This function generates the AArch32
-+ * view given an AArch64 view.
-+ *
-+ * In ARM DDI 0487E.a see:
-+ *
-+ * - The AArch64 view (SPSR_EL2) in section C5.2.18, page C5-426
-+ * - The AArch32 view (SPSR_abt) in section G8.2.126, page G8-6256
-+ * - The AArch32 view (SPSR_und) in section G8.2.132, page G8-6280
-+ *
-+ * Which show the following differences:
-+ *
-+ * | Bit | AA64 | AA32 | Notes                       |
-+ * +-----+------+------+-----------------------------|
-+ * | 24  | DIT  | J    | J is RES0 in ARMv8          |
-+ * | 21  | SS   | DIT  | SS doesn't exist in AArch32 |
-+ *
-+ * ... and all other bits are (currently) common.
-+ */
-+static inline unsigned long host_spsr_to_spsr32(unsigned long spsr)
++static inline bool kvm_vcpu_dabt_issf(const struct kvm_vcpu *vcpu)
 +{
-+	const unsigned long overlap = BIT(24) | BIT(21);
-+	unsigned long dit = !!(spsr & PSR_AA32_DIT_BIT);
-+
-+	spsr &= ~overlap;
-+
-+	spsr |= dit << 21;
-+
-+	return spsr;
++	return !!(kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SF);
 +}
 +
- static inline bool vcpu_mode_priv(const struct kvm_vcpu *vcpu)
+ static inline int kvm_vcpu_dabt_get_rd(const struct kvm_vcpu *vcpu)
  {
- 	u32 mode;
---- a/virt/kvm/arm/aarch32.c
-+++ b/virt/kvm/arm/aarch32.c
-@@ -129,15 +129,15 @@ static unsigned long get_except32_cpsr(s
+ 	return (kvm_vcpu_get_hsr(vcpu) & ESR_ELx_SRT_MASK) >> ESR_ELx_SRT_SHIFT;
+--- a/arch/arm64/include/asm/kvm_mmio.h
++++ b/arch/arm64/include/asm/kvm_mmio.h
+@@ -10,13 +10,11 @@
+ #include <linux/kvm_host.h>
+ #include <asm/kvm_arm.h>
  
- static void prepare_fault32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
- {
--	unsigned long new_spsr_value = *vcpu_cpsr(vcpu);
--	bool is_thumb = (new_spsr_value & PSR_AA32_T_BIT);
-+	unsigned long spsr = *vcpu_cpsr(vcpu);
-+	bool is_thumb = (spsr & PSR_AA32_T_BIT);
- 	u32 return_offset = return_offsets[vect_offset >> 2][is_thumb];
- 	u32 sctlr = vcpu_cp15(vcpu, c1_SCTLR);
+-/*
+- * This is annoying. The mmio code requires this, even if we don't
+- * need any decoding. To be fixed.
+- */
+ struct kvm_decode {
+ 	unsigned long rt;
+ 	bool sign_extend;
++	/* Witdth of the register accessed by the faulting instruction is 64-bits */
++	bool sixty_four;
+ };
  
- 	*vcpu_cpsr(vcpu) = get_except32_cpsr(vcpu, mode);
+ void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
+--- a/virt/kvm/arm/mmio.c
++++ b/virt/kvm/arm/mmio.c
+@@ -105,6 +105,9 @@ int kvm_handle_mmio_return(struct kvm_vc
+ 			data = (data ^ mask) - mask;
+ 		}
  
- 	/* Note: These now point to the banked copies */
--	vcpu_write_spsr(vcpu, new_spsr_value);
-+	vcpu_write_spsr(vcpu, host_spsr_to_spsr32(spsr));
- 	*vcpu_reg32(vcpu, 14) = *vcpu_pc(vcpu) + return_offset;
++		if (!vcpu->arch.mmio_decode.sixty_four)
++			data = data & 0xffffffff;
++
+ 		trace_kvm_mmio(KVM_TRACE_MMIO_READ, len, run->mmio.phys_addr,
+ 			       &data);
+ 		data = vcpu_data_host_to_guest(vcpu, data, len);
+@@ -125,6 +128,7 @@ static int decode_hsr(struct kvm_vcpu *v
+ 	unsigned long rt;
+ 	int access_size;
+ 	bool sign_extend;
++	bool sixty_four;
  
- 	/* Branch to exception vector */
+ 	if (kvm_vcpu_dabt_iss1tw(vcpu)) {
+ 		/* page table accesses IO mem: tell guest to fix its TTBR */
+@@ -138,11 +142,13 @@ static int decode_hsr(struct kvm_vcpu *v
+ 
+ 	*is_write = kvm_vcpu_dabt_iswrite(vcpu);
+ 	sign_extend = kvm_vcpu_dabt_issext(vcpu);
++	sixty_four = kvm_vcpu_dabt_issf(vcpu);
+ 	rt = kvm_vcpu_dabt_get_rd(vcpu);
+ 
+ 	*len = access_size;
+ 	vcpu->arch.mmio_decode.sign_extend = sign_extend;
+ 	vcpu->arch.mmio_decode.rt = rt;
++	vcpu->arch.mmio_decode.sixty_four = sixty_four;
+ 
+ 	return 0;
+ }
 
 
