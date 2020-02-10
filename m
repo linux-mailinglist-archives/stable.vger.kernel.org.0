@@ -2,48 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B642157B1C
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2022157AF8
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731320AbgBJN1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:27:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        id S1728412AbgBJMgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727801AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728401AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:36:32 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 248AD24684;
+        by mail.kernel.org (Postfix) with ESMTPSA id A153924685;
         Mon, 10 Feb 2020 12:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338189;
-        bh=7o0ocQf6Xc3kIlqtukp9IZ0tyTCBafOpR4Q4oGcICFY=;
+        bh=fPYA9iZh0knoFad8y2l7noRjOs/GzUiskumfG34ijnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xx8+JqBctTOFmpzJABEXkSNSTH1ocMSBIqSJgBAWb9xqBd1VNwfVpvyzm7tHrgz/J
-         R2HwG8ZO/uaVQOfJ6VGmnQIGtMbEp+UaJKqYVTgtt5sJz8HqwnZYopzdiK6mYt5DRu
-         U2MA+EOT5JlVbP8vu+fowGg71HRhZQD7yGeHchvI=
+        b=aRehB9VbAFSzovhVs/156iGc0Vmo0WJjOToawqYMYK9SfAreo8C9fu/wmV/yVuUFZ
+         hRX9QTFPia+7sT3o+DJYqYvxayyGrLDQJS+VEtf0wUg6HvA3nKXp8x2SKeMU1O957U
+         rGSwsGEnuJNvviyBaEIqHvX4ZDeNznRRZlFPZXnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Pavel Tatashin <pasha.tatashin@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Steven Sistare <steven.sistare@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Bob Picco <bob.picco@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 190/195] mm/page_alloc.c: fix uninitialized memmaps on a partially populated last section
-Date:   Mon, 10 Feb 2020 04:34:08 -0800
-Message-Id: <20200210122323.763498534@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 191/195] cifs: fail i/o on soft mounts if sessionsetup errors out
+Date:   Mon, 10 Feb 2020 04:34:09 -0800
+Message-Id: <20200210122323.850262101@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -56,138 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit e822969cab48b786b64246aad1a3ba2a774f5d23 ]
+commit b0dd940e582b6a60296b9847a54012a4b080dc72 upstream.
 
-Patch series "mm: fix max_pfn not falling on section boundary", v2.
+RHBZ: 1579050
 
-Playing with different memory sizes for a x86-64 guest, I discovered that
-some memmaps (highest section if max_mem does not fall on the section
-boundary) are marked as being valid and online, but contain garbage.  We
-have to properly initialize these memmaps.
+If we have a soft mount we should fail commands for session-setup
+failures (such as the password having changed/ account being deleted/ ...)
+and return an error back to the application.
 
-Looking at /proc/kpageflags and friends, I found some more issues,
-partially related to this.
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This patch (of 3):
-
-If max_pfn is not aligned to a section boundary, we can easily run into
-BUGs.  This can e.g., be triggered on x86-64 under QEMU by specifying a
-memory size that is not a multiple of 128MB (e.g., 4097MB, but also
-4160MB).  I was told that on real HW, we can easily have this scenario
-(esp., one of the main reasons sub-section hotadd of devmem was added).
-
-The issue is, that we have a valid memmap (pfn_valid()) for the whole
-section, and the whole section will be marked "online".
-pfn_to_online_page() will succeed, but the memmap contains garbage.
-
-E.g., doing a "./page-types -r -a 0x144001" when QEMU was started with "-m
-4160M" - (see tools/vm/page-types.c):
-
-[  200.476376] BUG: unable to handle page fault for address: fffffffffffffffe
-[  200.477500] #PF: supervisor read access in kernel mode
-[  200.478334] #PF: error_code(0x0000) - not-present page
-[  200.479076] PGD 59614067 P4D 59614067 PUD 59616067 PMD 0
-[  200.479557] Oops: 0000 [#4] SMP NOPTI
-[  200.479875] CPU: 0 PID: 603 Comm: page-types Tainted: G      D W         5.5.0-rc1-next-20191209 #93
-[  200.480646] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
-[  200.481648] RIP: 0010:stable_page_flags+0x4d/0x410
-[  200.482061] Code: f3 ff 41 89 c0 48 b8 00 00 00 00 01 00 00 00 45 84 c0 0f 85 cd 02 00 00 48 8b 53 08 48 8b 2b 48f
-[  200.483644] RSP: 0018:ffffb139401cbe60 EFLAGS: 00010202
-[  200.484091] RAX: fffffffffffffffe RBX: fffffbeec5100040 RCX: 0000000000000000
-[  200.484697] RDX: 0000000000000001 RSI: ffffffff9535c7cd RDI: 0000000000000246
-[  200.485313] RBP: ffffffffffffffff R08: 0000000000000000 R09: 0000000000000000
-[  200.485917] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000144001
-[  200.486523] R13: 00007ffd6ba55f48 R14: 00007ffd6ba55f40 R15: ffffb139401cbf08
-[  200.487130] FS:  00007f68df717580(0000) GS:ffff9ec77fa00000(0000) knlGS:0000000000000000
-[  200.487804] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  200.488295] CR2: fffffffffffffffe CR3: 0000000135d48000 CR4: 00000000000006f0
-[  200.488897] Call Trace:
-[  200.489115]  kpageflags_read+0xe9/0x140
-[  200.489447]  proc_reg_read+0x3c/0x60
-[  200.489755]  vfs_read+0xc2/0x170
-[  200.490037]  ksys_pread64+0x65/0xa0
-[  200.490352]  do_syscall_64+0x5c/0xa0
-[  200.490665]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-But it can be triggered much easier via "cat /proc/kpageflags > /dev/null"
-after cold/hot plugging a DIMM to such a system:
-
-[root@localhost ~]# cat /proc/kpageflags > /dev/null
-[  111.517275] BUG: unable to handle page fault for address: fffffffffffffffe
-[  111.517907] #PF: supervisor read access in kernel mode
-[  111.518333] #PF: error_code(0x0000) - not-present page
-[  111.518771] PGD a240e067 P4D a240e067 PUD a2410067 PMD 0
-
-This patch fixes that by at least zero-ing out that memmap (so e.g.,
-page_to_pfn() will not crash).  Commit 907ec5fca3dc ("mm: zero remaining
-unavailable struct pages") tried to fix a similar issue, but forgot to
-consider this special case.
-
-After this patch, there are still problems to solve.  E.g., not all of
-these pages falling into a memory hole will actually get initialized later
-and set PageReserved - they are only zeroed out - but at least the
-immediate crashes are gone.  A follow-up patch will take care of this.
-
-Link: http://lkml.kernel.org/r/20191211163201.17179-2-david@redhat.com
-Fixes: f7f99100d8d9 ("mm: stop zeroing memory during allocation in vmemmap")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Tested-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Steven Sistare <steven.sistare@oracle.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Bob Picco <bob.picco@oracle.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: <stable@vger.kernel.org>	[4.15+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/cifs/smb2pdu.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 8a00c32191263..e5c610d711f32 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6489,7 +6489,8 @@ static u64 zero_pfn_range(unsigned long spfn, unsigned long epfn)
-  * This function also addresses a similar issue where struct pages are left
-  * uninitialized because the physical address range is not covered by
-  * memblock.memory or memblock.reserved. That could happen when memblock
-- * layout is manually configured via memmap=.
-+ * layout is manually configured via memmap=, or when the highest physical
-+ * address (max_pfn) does not end on a section boundary.
-  */
- void __init zero_resv_unavail(void)
- {
-@@ -6507,7 +6508,16 @@ void __init zero_resv_unavail(void)
- 			pgcnt += zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
- 		next = end;
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -259,9 +259,14 @@ smb2_reconnect(__le16 smb2_command, stru
  	}
--	pgcnt += zero_pfn_range(PFN_DOWN(next), max_pfn);
-+
-+	/*
-+	 * Early sections always have a fully populated memmap for the whole
-+	 * section - see pfn_valid(). If the last section has holes at the
-+	 * end and that section is marked "online", the memmap will be
-+	 * considered initialized. Make sure that memmap has a well defined
-+	 * state.
-+	 */
-+	pgcnt += zero_pfn_range(PFN_DOWN(next),
-+				round_up(max_pfn, PAGES_PER_SECTION));
  
- 	/*
- 	 * Struct pages that do not have backing memory. This could be because
--- 
-2.20.1
-
+ 	rc = cifs_negotiate_protocol(0, tcon->ses);
+-	if (!rc && tcon->ses->need_reconnect)
++	if (!rc && tcon->ses->need_reconnect) {
+ 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
+-
++		if ((rc == -EACCES) && !tcon->retry) {
++			rc = -EHOSTDOWN;
++			mutex_unlock(&tcon->ses->session_mutex);
++			goto failed;
++		}
++	}
+ 	if (rc || !tcon->need_reconnect) {
+ 		mutex_unlock(&tcon->ses->session_mutex);
+ 		goto out;
+@@ -306,6 +311,7 @@ out:
+ 	case SMB2_SET_INFO:
+ 		rc = -EAGAIN;
+ 	}
++failed:
+ 	unload_nls(nls_codepage);
+ 	return rc;
+ }
 
 
