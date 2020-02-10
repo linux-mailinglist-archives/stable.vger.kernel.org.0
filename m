@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E026157C62
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:37:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CE7157C5D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728088AbgBJNhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:37:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
+        id S1727705AbgBJMfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:35:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbgBJMfF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:05 -0500
+        id S1727691AbgBJMfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:06 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87EA121569;
-        Mon, 10 Feb 2020 12:35:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 995BC208C3;
+        Mon, 10 Feb 2020 12:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338104;
-        bh=jI7MjWhQllPyPlm39G92C0neHC349NelkAHnFo6rT9k=;
+        s=default; t=1581338105;
+        bh=jBnEcK7Mkscr5zmj8xpuN/b9LbbwG3SZghvcu6u5uFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DtbMOOf5G+ihh/PJn6iNOdv4mEZf88KYIWyrGnQ+EGD9iXgNn2LS1rlkVg6Q1NwFU
-         tb1RqXf4L6I86naOvYlIjTi9BWaFPmZ430brvVlG+Rw+sDb0lQKacOCRNCRLTIkQ1r
-         j4aK8zqN5eRq/37gjYpU7NY6Ejzn3WiydkrVW2Eo=
+        b=MVI2lOYvDneEdpDqKqq4BY7sCy8R/J++EEOF1HZqNjihW0/vSJU/bbDKW/4Nq+rEX
+         Qqy+CJLuJGH1wQd4nuCBSO0DW1aPD0dRpVEthzUm3DcjQf9GKIp2E9PYoGvJ47Zy/1
+         jfvEOijJzUFT4sEFl0MufRF9bNkIz70Ae2nAyGJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 4.19 024/195] rxrpc: Fix missing active use pinning of rxrpc_local object
-Date:   Mon, 10 Feb 2020 04:31:22 -0800
-Message-Id: <20200210122308.296551724@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Will Deacon <will@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 026/195] media: uvcvideo: Avoid cyclic entity chains due to malformed USB descriptors
+Date:   Mon, 10 Feb 2020 04:31:24 -0800
+Message-Id: <20200210122308.672210669@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -42,252 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 04d36d748fac349b068ef621611f454010054c58 ]
+commit 68035c80e129c4cfec659aac4180354530b26527 upstream.
 
-The introduction of a split between the reference count on rxrpc_local
-objects and the usage count didn't quite go far enough.  A number of kernel
-work items need to make use of the socket to perform transmission.  These
-also need to get an active count on the local object to prevent the socket
-from being closed.
+Way back in 2017, fuzzing the 4.14-rc2 USB stack with syzkaller kicked
+up the following WARNING from the UVC chain scanning code:
 
-Fix this by getting the active count in those places.
+  | list_add double add: new=ffff880069084010, prev=ffff880069084010,
+  | next=ffff880067d22298.
+  | ------------[ cut here ]------------
+  | WARNING: CPU: 1 PID: 1846 at lib/list_debug.c:31 __list_add_valid+0xbd/0xf0
+  | Modules linked in:
+  | CPU: 1 PID: 1846 Comm: kworker/1:2 Not tainted
+  | 4.14.0-rc2-42613-g1488251d1a98 #238
+  | Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+  | Workqueue: usb_hub_wq hub_event
+  | task: ffff88006b01ca40 task.stack: ffff880064358000
+  | RIP: 0010:__list_add_valid+0xbd/0xf0 lib/list_debug.c:29
+  | RSP: 0018:ffff88006435ddd0 EFLAGS: 00010286
+  | RAX: 0000000000000058 RBX: ffff880067d22298 RCX: 0000000000000000
+  | RDX: 0000000000000058 RSI: ffffffff85a58800 RDI: ffffed000c86bbac
+  | RBP: ffff88006435dde8 R08: 1ffff1000c86ba52 R09: 0000000000000000
+  | R10: 0000000000000002 R11: 0000000000000000 R12: ffff880069084010
+  | R13: ffff880067d22298 R14: ffff880069084010 R15: ffff880067d222a0
+  | FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
+  | CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  | CR2: 0000000020004ff2 CR3: 000000006b447000 CR4: 00000000000006e0
+  | Call Trace:
+  |  __list_add ./include/linux/list.h:59
+  |  list_add_tail+0x8c/0x1b0 ./include/linux/list.h:92
+  |  uvc_scan_chain_forward.isra.8+0x373/0x416
+  | drivers/media/usb/uvc/uvc_driver.c:1471
+  |  uvc_scan_chain drivers/media/usb/uvc/uvc_driver.c:1585
+  |  uvc_scan_device drivers/media/usb/uvc/uvc_driver.c:1769
+  |  uvc_probe+0x77f2/0x8f00 drivers/media/usb/uvc/uvc_driver.c:2104
 
-Also split out the raw active count get/put functions as these places tend
-to hold refs on the rxrpc_local object already, so getting and putting an
-extra object ref is just a waste of time.
+Looking into the output from usbmon, the interesting part is the
+following data packet:
 
-The problem can lead to symptoms like:
+  ffff880069c63e00 30710169 C Ci:1:002:0 0 143 = 09028f00 01030080
+  00090403 00000e01 00000924 03000103 7c003328 010204db
 
-    BUG: kernel NULL pointer dereference, address: 0000000000000018
-    ..
-    CPU: 2 PID: 818 Comm: kworker/u9:0 Not tainted 5.5.0-fscache+ #51
-    ...
-    RIP: 0010:selinux_socket_sendmsg+0x5/0x13
-    ...
-    Call Trace:
-     security_socket_sendmsg+0x2c/0x3e
-     sock_sendmsg+0x1a/0x46
-     rxrpc_send_keepalive+0x131/0x1ae
-     rxrpc_peer_keepalive_worker+0x219/0x34b
-     process_one_work+0x18e/0x271
-     worker_thread+0x1a3/0x247
-     kthread+0xe6/0xeb
-     ret_from_fork+0x1f/0x30
+If we drop the lead configuration and interface descriptors, we're left
+with an output terminal descriptor describing a generic display:
 
-Fixes: 730c5fd42c1e ("rxrpc: Fix local endpoint refcounting")
-Signed-off-by: David Howells <dhowells@redhat.com>
+  /* Output terminal descriptor */
+  buf[0]	09
+  buf[1]	24
+  buf[2]	03	/* UVC_VC_OUTPUT_TERMINAL */
+  buf[3]	00	/* ID */
+  buf[4]	01	/* type == 0x0301 (UVC_OTT_DISPLAY) */
+  buf[5]	03
+  buf[6]	7c
+  buf[7]	00	/* source ID refers to self! */
+  buf[8]	33
+
+The problem with this descriptor is that it is self-referential: the
+source ID of 0 matches itself! This causes the 'struct uvc_entity'
+representing the display to be added to its chain list twice during
+'uvc_scan_chain()': once via 'uvc_scan_chain_entity()' when it is
+processed directly from the 'dev->entities' list and then again
+immediately afterwards when trying to follow the source ID in
+'uvc_scan_chain_forward()'
+
+Add a check before adding an entity to a chain list to ensure that the
+entity is not already part of a chain.
+
+Link: https://lore.kernel.org/linux-media/CAAeHK+z+Si69jUR+N-SjN9q4O+o5KFiNManqEa-PjUta7EOb7A@mail.gmail.com/
+
+Cc: <stable@vger.kernel.org>
+Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rxrpc/af_rxrpc.c     |    2 ++
- net/rxrpc/ar-internal.h  |   10 ++++++++++
- net/rxrpc/conn_event.c   |   31 +++++++++++++++++++++----------
- net/rxrpc/local_object.c |   18 +++++++-----------
- net/rxrpc/peer_event.c   |   40 ++++++++++++++++++++++------------------
- 5 files changed, 62 insertions(+), 39 deletions(-)
 
---- a/net/rxrpc/af_rxrpc.c
-+++ b/net/rxrpc/af_rxrpc.c
-@@ -196,6 +196,7 @@ static int rxrpc_bind(struct socket *soc
- service_in_use:
- 	write_unlock(&local->services_lock);
- 	rxrpc_unuse_local(local);
-+	rxrpc_put_local(local);
- 	ret = -EADDRINUSE;
- error_unlock:
- 	release_sock(&rx->sk);
-@@ -906,6 +907,7 @@ static int rxrpc_release_sock(struct soc
- 	rxrpc_purge_queue(&sk->sk_receive_queue);
- 
- 	rxrpc_unuse_local(rx->local);
-+	rxrpc_put_local(rx->local);
- 	rx->local = NULL;
- 	key_put(rx->key);
- 	rx->key = NULL;
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -1006,6 +1006,16 @@ void rxrpc_unuse_local(struct rxrpc_loca
- void rxrpc_queue_local(struct rxrpc_local *);
- void rxrpc_destroy_all_locals(struct rxrpc_net *);
- 
-+static inline bool __rxrpc_unuse_local(struct rxrpc_local *local)
-+{
-+	return atomic_dec_return(&local->active_users) == 0;
-+}
-+
-+static inline bool __rxrpc_use_local(struct rxrpc_local *local)
-+{
-+	return atomic_fetch_add_unless(&local->active_users, 1, 0) != 0;
-+}
-+
- /*
-  * misc.c
-  */
---- a/net/rxrpc/conn_event.c
-+++ b/net/rxrpc/conn_event.c
-@@ -453,16 +453,12 @@ again:
- /*
-  * connection-level event processor
-  */
--void rxrpc_process_connection(struct work_struct *work)
-+static void rxrpc_do_process_connection(struct rxrpc_connection *conn)
- {
--	struct rxrpc_connection *conn =
--		container_of(work, struct rxrpc_connection, processor);
- 	struct sk_buff *skb;
- 	u32 abort_code = RX_PROTOCOL_ERROR;
- 	int ret;
- 
--	rxrpc_see_connection(conn);
--
- 	if (test_and_clear_bit(RXRPC_CONN_EV_CHALLENGE, &conn->events))
- 		rxrpc_secure_connection(conn);
- 
-@@ -490,18 +486,33 @@ void rxrpc_process_connection(struct wor
- 		}
- 	}
- 
--out:
--	rxrpc_put_connection(conn);
--	_leave("");
- 	return;
- 
- requeue_and_leave:
- 	skb_queue_head(&conn->rx_queue, skb);
--	goto out;
-+	return;
- 
- protocol_error:
- 	if (rxrpc_abort_connection(conn, ret, abort_code) < 0)
- 		goto requeue_and_leave;
- 	rxrpc_free_skb(skb, rxrpc_skb_rx_freed);
--	goto out;
-+	return;
-+}
-+
-+void rxrpc_process_connection(struct work_struct *work)
-+{
-+	struct rxrpc_connection *conn =
-+		container_of(work, struct rxrpc_connection, processor);
-+
-+	rxrpc_see_connection(conn);
-+
-+	if (__rxrpc_use_local(conn->params.local)) {
-+		rxrpc_do_process_connection(conn);
-+		rxrpc_unuse_local(conn->params.local);
-+	}
-+
-+	rxrpc_put_connection(conn);
-+	_leave("");
-+	return;
- }
-+
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -387,14 +387,11 @@ void rxrpc_put_local(struct rxrpc_local
-  */
- struct rxrpc_local *rxrpc_use_local(struct rxrpc_local *local)
- {
--	unsigned int au;
--
- 	local = rxrpc_get_local_maybe(local);
- 	if (!local)
- 		return NULL;
- 
--	au = atomic_fetch_add_unless(&local->active_users, 1, 0);
--	if (au == 0) {
-+	if (!__rxrpc_use_local(local)) {
- 		rxrpc_put_local(local);
- 		return NULL;
- 	}
-@@ -408,14 +405,11 @@ struct rxrpc_local *rxrpc_use_local(stru
-  */
- void rxrpc_unuse_local(struct rxrpc_local *local)
- {
--	unsigned int au;
--
- 	if (local) {
--		au = atomic_dec_return(&local->active_users);
--		if (au == 0)
-+		if (__rxrpc_unuse_local(local)) {
-+			rxrpc_get_local(local);
- 			rxrpc_queue_local(local);
--		else
--			rxrpc_put_local(local);
-+		}
- 	}
- }
- 
-@@ -472,7 +466,7 @@ static void rxrpc_local_processor(struct
- 
- 	do {
- 		again = false;
--		if (atomic_read(&local->active_users) == 0) {
-+		if (!__rxrpc_use_local(local)) {
- 			rxrpc_local_destroyer(local);
+---
+ drivers/media/usb/uvc/uvc_driver.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -1482,6 +1482,11 @@ static int uvc_scan_chain_forward(struct
  			break;
- 		}
-@@ -486,6 +480,8 @@ static void rxrpc_local_processor(struct
- 			rxrpc_process_local_events(local);
- 			again = true;
- 		}
-+
-+		__rxrpc_unuse_local(local);
- 	} while (again);
- 
- 	rxrpc_put_local(local);
---- a/net/rxrpc/peer_event.c
-+++ b/net/rxrpc/peer_event.c
-@@ -357,27 +357,31 @@ static void rxrpc_peer_keepalive_dispatc
- 		if (!rxrpc_get_peer_maybe(peer))
+ 		if (forward == prev)
  			continue;
- 
--		spin_unlock_bh(&rxnet->peer_hash_lock);
-+		if (__rxrpc_use_local(peer->local)) {
-+			spin_unlock_bh(&rxnet->peer_hash_lock);
- 
--		keepalive_at = peer->last_tx_at + RXRPC_KEEPALIVE_TIME;
--		slot = keepalive_at - base;
--		_debug("%02x peer %u t=%d {%pISp}",
--		       cursor, peer->debug_id, slot, &peer->srx.transport);
-+			keepalive_at = peer->last_tx_at + RXRPC_KEEPALIVE_TIME;
-+			slot = keepalive_at - base;
-+			_debug("%02x peer %u t=%d {%pISp}",
-+			       cursor, peer->debug_id, slot, &peer->srx.transport);
- 
--		if (keepalive_at <= base ||
--		    keepalive_at > base + RXRPC_KEEPALIVE_TIME) {
--			rxrpc_send_keepalive(peer);
--			slot = RXRPC_KEEPALIVE_TIME;
--		}
-+			if (keepalive_at <= base ||
-+			    keepalive_at > base + RXRPC_KEEPALIVE_TIME) {
-+				rxrpc_send_keepalive(peer);
-+				slot = RXRPC_KEEPALIVE_TIME;
-+			}
- 
--		/* A transmission to this peer occurred since last we examined
--		 * it so put it into the appropriate future bucket.
--		 */
--		slot += cursor;
--		slot &= mask;
--		spin_lock_bh(&rxnet->peer_hash_lock);
--		list_add_tail(&peer->keepalive_link,
--			      &rxnet->peer_keepalive[slot & mask]);
-+			/* A transmission to this peer occurred since last we
-+			 * examined it so put it into the appropriate future
-+			 * bucket.
-+			 */
-+			slot += cursor;
-+			slot &= mask;
-+			spin_lock_bh(&rxnet->peer_hash_lock);
-+			list_add_tail(&peer->keepalive_link,
-+				      &rxnet->peer_keepalive[slot & mask]);
-+			rxrpc_unuse_local(peer->local);
++		if (forward->chain.next || forward->chain.prev) {
++			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++				"entity %d already in chain.\n", forward->id);
++			return -EINVAL;
 +		}
- 		rxrpc_put_peer_locked(peer);
- 	}
+ 
+ 		switch (UVC_ENTITY_TYPE(forward)) {
+ 		case UVC_VC_EXTENSION_UNIT:
+@@ -1563,6 +1568,13 @@ static int uvc_scan_chain_backward(struc
+ 				return -1;
+ 			}
+ 
++			if (term->chain.next || term->chain.prev) {
++				uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++					"entity %d already in chain.\n",
++					term->id);
++				return -EINVAL;
++			}
++
+ 			if (uvc_trace_param & UVC_TRACE_PROBE)
+ 				printk(KERN_CONT " %d", term->id);
  
 
 
