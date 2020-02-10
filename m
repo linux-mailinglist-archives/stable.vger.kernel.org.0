@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D130D1578D7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E677157B6E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729332AbgBJMjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:39:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36172 "EHLO mail.kernel.org"
+        id S1728322AbgBJN37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:29:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgBJMjI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:08 -0500
+        id S1728092AbgBJMgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:17 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE48520842;
-        Mon, 10 Feb 2020 12:39:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2230620842;
+        Mon, 10 Feb 2020 12:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338347;
-        bh=t6b3cf5dVcO7i53kHMkoUtfy5mf7eRqbnoiTklD04cs=;
+        s=default; t=1581338177;
+        bh=MrJiRdv9r/LUUwNsVWVmc/rZcoTAG34gs6aj4hF9sl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yu96l9tUXB1m/MSEHHQ9hSefONuTPLZ7aCg3mLb3odraFYbvLpzoL3hU/wOxPflU
-         51AwzyQ+xXTlh9UmqPexgCM6cgnwhyx2GJV4tTO+2T2Tes5CgU436tKn3HvS7/atAw
-         QoVeHEQhNgeHrcdoHgKsIOkIt73jQLWCWuFLZpFg=
+        b=RuPm3aB2M+hbH5Lg6BMMUCjyWHqgru5X57dOXs1kAEZdBalhNEf+iQm7iiecpU2n0
+         buqkObMlTbcyEvkgCphl69BD02lNEKp4Aramxy1hLW+x7bU2TLdsd4Yo8K750boqcf
+         YXz1MOMttokOu6ROFGraO5oLFgQCJ115E1NKP94E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 267/309] net: dsa: bcm_sf2: Only 7278 supports 2Gb/sec IMP port
+        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.19 165/195] mfd: rn5t618: Mark ADC control register volatile
 Date:   Mon, 10 Feb 2020 04:33:43 -0800
-Message-Id: <20200210122432.326228849@linuxfoundation.org>
+Message-Id: <20200210122321.372873407@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-[ Upstream commit de34d7084edd069dac5aa010cfe32bd8c4619fa6 ]
+commit 2f3dc25c0118de03a00ddc88b61f7216854f534d upstream.
 
-The 7445 switch clocking profiles do not allow us to run the IMP port at
-2Gb/sec in a way that it is reliable and consistent. Make sure that the
-setting is only applied to the 7278 family.
+There is a bit which gets cleared after conversion.
 
-Fixes: 8f1880cbe8d0 ("net: dsa: bcm_sf2: Configure IMP port for 2Gb/sec")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9bb9e29c78f8 ("mfd: Add Ricoh RN5T618 PMIC core driver")
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/bcm_sf2.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -68,7 +68,9 @@ static void bcm_sf2_imp_setup(struct dsa
- 
- 		/* Force link status for IMP port */
- 		reg = core_readl(priv, offset);
--		reg |= (MII_SW_OR | LINK_STS | GMII_SPEED_UP_2G);
-+		reg |= (MII_SW_OR | LINK_STS);
-+		if (priv->type == BCM7278_DEVICE_ID)
-+			reg |= GMII_SPEED_UP_2G;
- 		core_writel(priv, reg, offset);
- 
- 		/* Enable Broadcast, Multicast, Unicast forwarding to IMP port */
+---
+ drivers/mfd/rn5t618.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/mfd/rn5t618.c
++++ b/drivers/mfd/rn5t618.c
+@@ -32,6 +32,7 @@ static bool rn5t618_volatile_reg(struct
+ 	case RN5T618_WATCHDOGCNT:
+ 	case RN5T618_DCIRQ:
+ 	case RN5T618_ILIMDATAH ... RN5T618_AIN0DATAL:
++	case RN5T618_ADCCNT3:
+ 	case RN5T618_IR_ADC1 ... RN5T618_IR_ADC3:
+ 	case RN5T618_IR_GPR:
+ 	case RN5T618_IR_GPF:
 
 
