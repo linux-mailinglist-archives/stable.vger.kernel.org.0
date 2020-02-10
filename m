@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3CF1577EB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 632B3157A62
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728098AbgBJNDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40276 "EHLO mail.kernel.org"
+        id S1728150AbgBJNW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729717AbgBJMkX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:23 -0500
+        id S1728734AbgBJMhY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:24 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DF7E20733;
-        Mon, 10 Feb 2020 12:40:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A6E220873;
+        Mon, 10 Feb 2020 12:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338422;
-        bh=gAXkns+sLnDL5n+FubP0AMmmuxWcXtLwL85Bh1X8KQ4=;
+        s=default; t=1581338243;
+        bh=FOWCnvMdmttpPQGv2QmFi2SRVhZQ1BniZ8ZkWcVRhNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aySDzLWTsNmZyAkQK9w1tccFWYXXEaHrUIBolHZ+NNAdCrui3exqHZSmFMGrbeVs/
-         OSFSi/hIgBoF/ZbVaVMU6Y+Q4Dw6DVxoCth3G2oArcB5HoC1a2KYGtwx41M8wG3taQ
-         iInDNgLKoLgxvKSCMH06aMESzpnMEFZDR25Bl8Mo=
+        b=ToOq7aMPG0yNzGXV1o/DVmlrwpXuVkPM9GcKrJ2LBfZnb6XtfNUgSp7K5tki+RdGX
+         3z5ayFcouLdyk/aOueR/enw8N1beWMjH9ifJ9oA7bMrafu6gw4DdrHsu0eTMkD8cj3
+         6+Tct4QLt1rayG6OhNJp46YsNjdSl3nxqvgSkm44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.5 142/367] dm writecache: fix incorrect flush sequence when doing SSD mode commit
-Date:   Mon, 10 Feb 2020 04:30:55 -0800
-Message-Id: <20200210122437.953047238@linuxfoundation.org>
+        stable@vger.kernel.org, Bitan Biswas <bbiswas@nvidia.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.4 100/309] nvmem: core: fix memory abort in cleanup path
+Date:   Mon, 10 Feb 2020 04:30:56 -0800
+Message-Id: <20200210122415.813230105@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,167 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Bitan Biswas <bbiswas@nvidia.com>
 
-commit aa9509209c5ac2f0b35d01a922bf9ae072d0c2fc upstream.
+commit 16bb7abc4a6b9defffa294e4dc28383e62a1dbcf upstream.
 
-When committing state, the function writecache_flush does the following:
-1. write metadata (writecache_commit_flushed)
-2. flush disk cache (writecache_commit_flushed)
-3. wait for data writes to complete (writecache_wait_for_ios)
-4. increase superblock seq_count
-5. write the superblock
-6. flush disk cache
+nvmem_cell_info_to_nvmem_cell implementation has static
+allocation of name. nvmem_add_cells_from_of() call may
+return error and kfree name results in memory abort. Use
+kstrdup_const() and kfree_const calls for name alloc and free.
 
-It may happen that at step 3, when we wait for some write to finish, the
-disk may report the write as finished, but the write only hit the disk
-cache and it is not yet stored in persistent storage. At step 5 we write
-the superblock - it may happen that the superblock is written before the
-write that we waited for in step 3. If the machine crashes, it may result
-in incorrect data being returned after reboot.
+Unable to handle kernel paging request at virtual address ffffffffffe44888
+Mem abort info:
+  ESR = 0x96000006
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+Data abort info:
+  ISV = 0, ISS = 0x00000006
+  CM = 0, WnR = 0
+swapper pgtable: 64k pages, 48-bit VAs, pgdp=00000000815d0000
+[ffffffffffe44888] pgd=0000000081d30803, pud=0000000081d30803,
+pmd=0000000000000000
+Internal error: Oops: 96000006 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 2 PID: 43 Comm: kworker/2:1 Tainted
+Hardware name: quill (DT)
+Workqueue: events deferred_probe_work_func
+pstate: a0000005 (NzCv daif -PAN -UAO)
+pc : kfree+0x38/0x278
+lr : nvmem_cell_drop+0x68/0x80
+sp : ffff80001284f9d0
+x29: ffff80001284f9d0 x28: ffff0001f677e830
+x27: ffff800011b0b000 x26: ffff0001c36e1008
+x25: ffff8000112ad000 x24: ffff8000112c9000
+x23: ffffffffffffffea x22: ffff800010adc7f0
+x21: ffffffffffe44880 x20: ffff800011b0b068
+x19: ffff80001122d380 x18: ffffffffffffffff
+x17: 00000000d5cb4756 x16: 0000000070b193b8
+x15: ffff8000119538c8 x14: 0720072007200720
+x13: 07200720076e0772 x12: 07750762072d0765
+x11: 0773077507660765 x10: 072f073007300730
+x9 : 0730073207380733 x8 : 0000000000000151
+x7 : 07660765072f0720 x6 : ffff0001c00e0f00
+x5 : 0000000000000000 x4 : ffff0001c0b43800
+x3 : ffff800011b0b068 x2 : 0000000000000000
+x1 : 0000000000000000 x0 : ffffffdfffe00000
+Call trace:
+ kfree+0x38/0x278
+ nvmem_cell_drop+0x68/0x80
+ nvmem_device_remove_all_cells+0x2c/0x50
+ nvmem_register.part.9+0x520/0x628
+ devm_nvmem_register+0x48/0xa0
+ tegra_fuse_probe+0x140/0x1f0
+ platform_drv_probe+0x50/0xa0
+ really_probe+0x108/0x348
+ driver_probe_device+0x58/0x100
+ __device_attach_driver+0x90/0xb0
+ bus_for_each_drv+0x64/0xc8
+ __device_attach+0xd8/0x138
+ device_initial_probe+0x10/0x18
+ bus_probe_device+0x90/0x98
+ deferred_probe_work_func+0x74/0xb0
+ process_one_work+0x1e0/0x358
+ worker_thread+0x208/0x488
+ kthread+0x118/0x120
+ ret_from_fork+0x10/0x18
+Code: d350feb5 f2dffbe0 aa1e03f6 8b151815 (f94006a0)
+---[ end trace 49b1303c6b83198e ]---
 
-In order to fix the bug, we must swap steps 2 and 3 in the above sequence,
-so that we first wait for writes to complete and then flush the disk
-cache.
-
-Fixes: 48debafe4f2f ("dm: add writecache target")
-Cc: stable@vger.kernel.org # 4.18+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: badcdff107cbf ("nvmem: Convert to using %pOFn instead of device_node.name")
+Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200109104017.6249-5-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-writecache.c |   42 +++++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ drivers/nvmem/core.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -442,7 +442,13 @@ static void writecache_notify_io(unsigne
- 		complete(&endio->c);
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -110,7 +110,7 @@ static void nvmem_cell_drop(struct nvmem
+ 	list_del(&cell->node);
+ 	mutex_unlock(&nvmem_mutex);
+ 	of_node_put(cell->np);
+-	kfree(cell->name);
++	kfree_const(cell->name);
+ 	kfree(cell);
  }
  
--static void ssd_commit_flushed(struct dm_writecache *wc)
-+static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
-+{
-+	wait_event(wc->bio_in_progress_wait[direction],
-+		   !atomic_read(&wc->bio_in_progress[direction]));
-+}
-+
-+static void ssd_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
- {
- 	struct dm_io_region region;
- 	struct dm_io_request req;
-@@ -488,17 +494,20 @@ static void ssd_commit_flushed(struct dm
- 	writecache_notify_io(0, &endio);
- 	wait_for_completion_io(&endio.c);
+@@ -137,7 +137,9 @@ static int nvmem_cell_info_to_nvmem_cell
+ 	cell->nvmem = nvmem;
+ 	cell->offset = info->offset;
+ 	cell->bytes = info->bytes;
+-	cell->name = info->name;
++	cell->name = kstrdup_const(info->name, GFP_KERNEL);
++	if (!cell->name)
++		return -ENOMEM;
  
-+	if (wait_for_ios)
-+		writecache_wait_for_ios(wc, WRITE);
-+
- 	writecache_disk_flush(wc, wc->ssd_dev);
- 
- 	memset(wc->dirty_bitmap, 0, wc->dirty_bitmap_size);
- }
- 
--static void writecache_commit_flushed(struct dm_writecache *wc)
-+static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
- {
- 	if (WC_MODE_PMEM(wc))
- 		wmb();
- 	else
--		ssd_commit_flushed(wc);
-+		ssd_commit_flushed(wc, wait_for_ios);
- }
- 
- static void writecache_disk_flush(struct dm_writecache *wc, struct dm_dev *dev)
-@@ -522,12 +531,6 @@ static void writecache_disk_flush(struct
- 		writecache_error(wc, r, "error flushing metadata: %d", r);
- }
- 
--static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
--{
--	wait_event(wc->bio_in_progress_wait[direction],
--		   !atomic_read(&wc->bio_in_progress[direction]));
--}
--
- #define WFE_RETURN_FOLLOWING	1
- #define WFE_LOWEST_SEQ		2
- 
-@@ -724,15 +727,12 @@ static void writecache_flush(struct dm_w
- 		e = e2;
- 		cond_resched();
- 	}
--	writecache_commit_flushed(wc);
--
--	if (!WC_MODE_PMEM(wc))
--		writecache_wait_for_ios(wc, WRITE);
-+	writecache_commit_flushed(wc, true);
- 
- 	wc->seq_count++;
- 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(wc->seq_count));
- 	writecache_flush_region(wc, &sb(wc)->seq_count, sizeof sb(wc)->seq_count);
--	writecache_commit_flushed(wc);
-+	writecache_commit_flushed(wc, false);
- 
- 	wc->overwrote_committed = false;
- 
-@@ -756,7 +756,7 @@ static void writecache_flush(struct dm_w
- 	}
- 
- 	if (need_flush_after_free)
--		writecache_commit_flushed(wc);
-+		writecache_commit_flushed(wc, false);
- }
- 
- static void writecache_flush_work(struct work_struct *work)
-@@ -809,7 +809,7 @@ static void writecache_discard(struct dm
- 	}
- 
- 	if (discarded_something)
--		writecache_commit_flushed(wc);
-+		writecache_commit_flushed(wc, false);
- }
- 
- static bool writecache_wait_for_writeback(struct dm_writecache *wc)
-@@ -958,7 +958,7 @@ erase_this:
- 
- 	if (need_flush) {
- 		writecache_flush_all_metadata(wc);
--		writecache_commit_flushed(wc);
-+		writecache_commit_flushed(wc, false);
- 	}
- 
- 	wc_unlock(wc);
-@@ -1342,7 +1342,7 @@ static void __writecache_endio_pmem(stru
- 			wc->writeback_size--;
- 			n_walked++;
- 			if (unlikely(n_walked >= ENDIO_LATENCY)) {
--				writecache_commit_flushed(wc);
-+				writecache_commit_flushed(wc, false);
- 				wc_unlock(wc);
- 				wc_lock(wc);
- 				n_walked = 0;
-@@ -1423,7 +1423,7 @@ pop_from_list:
- 			writecache_wait_for_ios(wc, READ);
+ 	cell->bit_offset = info->bit_offset;
+ 	cell->nbits = info->nbits;
+@@ -327,7 +329,7 @@ static int nvmem_add_cells_from_of(struc
+ 			dev_err(dev, "cell %s unaligned to nvmem stride %d\n",
+ 				cell->name, nvmem->stride);
+ 			/* Cells already added will be freed later. */
+-			kfree(cell->name);
++			kfree_const(cell->name);
+ 			kfree(cell);
+ 			return -EINVAL;
  		}
- 
--		writecache_commit_flushed(wc);
-+		writecache_commit_flushed(wc, false);
- 
- 		wc_unlock(wc);
- 	}
-@@ -1766,10 +1766,10 @@ static int init_memory(struct dm_writeca
- 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
- 
- 	writecache_flush_all_metadata(wc);
--	writecache_commit_flushed(wc);
-+	writecache_commit_flushed(wc, false);
- 	pmem_assign(sb(wc)->magic, cpu_to_le32(MEMORY_SUPERBLOCK_MAGIC));
- 	writecache_flush_region(wc, &sb(wc)->magic, sizeof sb(wc)->magic);
--	writecache_commit_flushed(wc);
-+	writecache_commit_flushed(wc, false);
- 
- 	return 0;
- }
 
 
