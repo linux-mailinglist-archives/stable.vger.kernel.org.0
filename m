@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 144F71579E1
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC22515779C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731023AbgBJNSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:18:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
+        id S1730307AbgBJNBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:01:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728934AbgBJMhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:52 -0500
+        id S1729824AbgBJMkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:53 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F33320838;
-        Mon, 10 Feb 2020 12:37:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C027E20873;
+        Mon, 10 Feb 2020 12:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338272;
-        bh=J/lmHUViGli8bjSqncoe3JiPGp6T358jYaUDRNV9w+k=;
+        s=default; t=1581338452;
+        bh=K1efC3JBk6ObqZnm+LOvXza1vx34qmzuI/GLeOdilYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPj+Wj4keBcxM2nK40QKRD8R24s+GmFMbu+SGDHV/CPqEWlJWXudN+CgLFwpJoPM/
-         u03K2M3fcXWETgGqIMCVioT5YhXak7Ww4CF4nLVcpxnRY68UXDCm9XP9Z2lZ93ULDm
-         /G4aol5fOn3DwbJZfVegXJMRT8ChyZnSZUrjI2zw=
+        b=M/M/JOAf2HEF2FW97be3JSR3M0EohFlT9fCryRlusgl027aGVc21TbTTUKym9nZTU
+         I0M6YR6pWSC9/Et4gF1VQQ1Z5C+yJtp4MWxTT14XnJO2fylA2PtQl7tIi79YVXTlvD
+         ArK9c6G4fSNvg2NfgM1o+pXEk4rOp3m4pp6F5k2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 155/309] crypto: api - fix unexpectedly getting generic implementation
-Date:   Mon, 10 Feb 2020 04:31:51 -0800
-Message-Id: <20200210122421.126373787@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 199/367] btrfs: drop log root for dropped roots
+Date:   Mon, 10 Feb 2020 04:31:52 -0800
+Message-Id: <20200210122442.934140062@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,110 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 2bbb3375d967155bccc86a5887d4a6e29c56b683 upstream.
+commit 889bfa39086e86b52fcfaa04d72c95eaeb12f9a5 upstream.
 
-When CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y, the first lookup of an
-algorithm that needs to be instantiated using a template will always get
-the generic implementation, even when an accelerated one is available.
+If we fsync on a subvolume and create a log root for that volume, and
+then later delete that subvolume we'll never clean up its log root.  Fix
+this by making switch_commit_roots free the log for any dropped roots we
+encounter.  The extra churn is because we need a btrfs_trans_handle, not
+the btrfs_transaction.
 
-This happens because the extra self-tests for the accelerated
-implementation allocate the generic implementation for comparison
-purposes, and then crypto_alg_tested() for the generic implementation
-"fulfills" the original request (i.e. sets crypto_larval::adult).
-
-This patch fixes this by only fulfilling the original request if
-we are currently the best outstanding larval as judged by the
-priority.  If we're not the best then we will ask all waiters on
-that larval request to retry the lookup.
-
-Note that this patch introduces a behaviour change when the module
-providing the new algorithm is unregistered during the process.
-Previously we would have failed with ENOENT, after the patch we
-will instead redo the lookup.
-
-Fixes: 9a8a6b3f0950 ("crypto: testmgr - fuzz hashes against...")
-Fixes: d435e10e67be ("crypto: testmgr - fuzz skciphers against...")
-Fixes: 40153b10d91c ("crypto: testmgr - fuzz AEADs against...")
-Reported-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/algapi.c |   24 +++++++++++++++++++++---
- crypto/api.c    |    4 +++-
- 2 files changed, 24 insertions(+), 4 deletions(-)
+ fs/btrfs/transaction.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/crypto/algapi.c
-+++ b/crypto/algapi.c
-@@ -257,6 +257,7 @@ void crypto_alg_tested(const char *name,
- 	struct crypto_alg *alg;
- 	struct crypto_alg *q;
- 	LIST_HEAD(list);
-+	bool best;
- 
- 	down_write(&crypto_alg_sem);
- 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
-@@ -280,6 +281,21 @@ found:
- 
- 	alg->cra_flags |= CRYPTO_ALG_TESTED;
- 
-+	/* Only satisfy larval waiters if we are the best. */
-+	best = true;
-+	list_for_each_entry(q, &crypto_alg_list, cra_list) {
-+		if (crypto_is_moribund(q) || !crypto_is_larval(q))
-+			continue;
-+
-+		if (strcmp(alg->cra_name, q->cra_name))
-+			continue;
-+
-+		if (q->cra_priority > alg->cra_priority) {
-+			best = false;
-+			break;
-+		}
-+	}
-+
- 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
- 		if (q == alg)
- 			continue;
-@@ -303,10 +319,12 @@ found:
- 				continue;
- 			if ((q->cra_flags ^ alg->cra_flags) & larval->mask)
- 				continue;
--			if (!crypto_mod_get(alg))
--				continue;
- 
--			larval->adult = alg;
-+			if (best && crypto_mod_get(alg))
-+				larval->adult = alg;
-+			else
-+				larval->adult = ERR_PTR(-EAGAIN);
-+
- 			continue;
- 		}
- 
---- a/crypto/api.c
-+++ b/crypto/api.c
-@@ -97,7 +97,7 @@ static void crypto_larval_destroy(struct
- 	struct crypto_larval *larval = (void *)alg;
- 
- 	BUG_ON(!crypto_is_larval(alg));
--	if (larval->adult)
-+	if (!IS_ERR_OR_NULL(larval->adult))
- 		crypto_mod_put(larval->adult);
- 	kfree(larval);
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -147,13 +147,14 @@ void btrfs_put_transaction(struct btrfs_
+ 	}
  }
-@@ -178,6 +178,8 @@ static struct crypto_alg *crypto_larval_
- 		alg = ERR_PTR(-ETIMEDOUT);
- 	else if (!alg)
- 		alg = ERR_PTR(-ENOENT);
-+	else if (IS_ERR(alg))
-+		;
- 	else if (crypto_is_test_larval(larval) &&
- 		 !(alg->cra_flags & CRYPTO_ALG_TESTED))
- 		alg = ERR_PTR(-EAGAIN);
+ 
+-static noinline void switch_commit_roots(struct btrfs_transaction *trans)
++static noinline void switch_commit_roots(struct btrfs_trans_handle *trans)
+ {
++	struct btrfs_transaction *cur_trans = trans->transaction;
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_root *root, *tmp;
+ 
+ 	down_write(&fs_info->commit_root_sem);
+-	list_for_each_entry_safe(root, tmp, &trans->switch_commits,
++	list_for_each_entry_safe(root, tmp, &cur_trans->switch_commits,
+ 				 dirty_list) {
+ 		list_del_init(&root->dirty_list);
+ 		free_extent_buffer(root->commit_root);
+@@ -165,16 +166,17 @@ static noinline void switch_commit_roots
+ 	}
+ 
+ 	/* We can free old roots now. */
+-	spin_lock(&trans->dropped_roots_lock);
+-	while (!list_empty(&trans->dropped_roots)) {
+-		root = list_first_entry(&trans->dropped_roots,
++	spin_lock(&cur_trans->dropped_roots_lock);
++	while (!list_empty(&cur_trans->dropped_roots)) {
++		root = list_first_entry(&cur_trans->dropped_roots,
+ 					struct btrfs_root, root_list);
+ 		list_del_init(&root->root_list);
+-		spin_unlock(&trans->dropped_roots_lock);
++		spin_unlock(&cur_trans->dropped_roots_lock);
++		btrfs_free_log(trans, root);
+ 		btrfs_drop_and_free_fs_root(fs_info, root);
+-		spin_lock(&trans->dropped_roots_lock);
++		spin_lock(&cur_trans->dropped_roots_lock);
+ 	}
+-	spin_unlock(&trans->dropped_roots_lock);
++	spin_unlock(&cur_trans->dropped_roots_lock);
+ 	up_write(&fs_info->commit_root_sem);
+ }
+ 
+@@ -1421,7 +1423,7 @@ static int qgroup_account_snapshot(struc
+ 	ret = commit_cowonly_roots(trans);
+ 	if (ret)
+ 		goto out;
+-	switch_commit_roots(trans->transaction);
++	switch_commit_roots(trans);
+ 	ret = btrfs_write_and_wait_transaction(trans);
+ 	if (ret)
+ 		btrfs_handle_fs_error(fs_info, ret,
+@@ -2309,7 +2311,7 @@ int btrfs_commit_transaction(struct btrf
+ 	list_add_tail(&fs_info->chunk_root->dirty_list,
+ 		      &cur_trans->switch_commits);
+ 
+-	switch_commit_roots(cur_trans);
++	switch_commit_roots(trans);
+ 
+ 	ASSERT(list_empty(&cur_trans->dirty_bgs));
+ 	ASSERT(list_empty(&cur_trans->io_bgs));
 
 
