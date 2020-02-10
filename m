@@ -2,149 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BEE01582B8
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 19:38:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F91158301
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 19:52:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727540AbgBJShz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 13:37:55 -0500
-Received: from mail-il1-f195.google.com ([209.85.166.195]:45066 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728070AbgBJShx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 13:37:53 -0500
-Received: by mail-il1-f195.google.com with SMTP id p8so1090039iln.12;
-        Mon, 10 Feb 2020 10:37:52 -0800 (PST)
+        id S1727573AbgBJSwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 13:52:21 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:36501 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727056AbgBJSwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 13:52:21 -0500
+Received: by mail-lj1-f196.google.com with SMTP id r19so8538018ljg.3
+        for <stable@vger.kernel.org>; Mon, 10 Feb 2020 10:52:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=end8yQlEP+B+YiWzV6pVioijLvJsH98AVHTgTqHE2kc=;
-        b=XZHa3/Kefvs1a7y+DrOpFR01u/nc7ENmeFyOZwYa+dxAyTyaNmZhE4+48stmc7Lp2g
-         sZ2ZQ8lH0RLjLmIwXF+vzuO417RWk7xZEUkzZ2D36fpoRMGOLXOGQaa12Z+N4NqRm0//
-         jlul/DGf1EGDsWOLwj17OQ2WkWBBc7YMHvcHm97qONiA4+6QHq242AWf3ttBdVa+E9El
-         88fxseLxZXwfQssIe7/89uzd2zWdo3lGc6Ii8MtnKRG0k0ET1N4x7bnt5B7DyTZ2Yq3/
-         t6BgEK+QnmPW3j2/QeFSnEzb3zLaeG8qErzsvLf6YuCe69EjeJBAcYFJOaUuLUilYkFn
-         2YOA==
+         :cc:content-transfer-encoding;
+        bh=TQnnriRE8hfXL28O7IPHDyR6WZy0RczXyOOEFd6qQRg=;
+        b=syhLQK94xQBnzcQdB5vKv2q9vw2GA1RQI+O/AKB29sWu2b1C6QJuOra8rrYlzWE0lm
+         YFnkVfquxu22gexAsO1VLOfvdo5YozqOXQKTWACSM+j+KxkXS+yl6YHtTxkxGU5ANiOB
+         25UuQyEmKVN0e2MXTRaZZgvrG4Rg8FtFZupCW7dW4Kg5VEzT8rmm+VHFhhvUu/TT0hWp
+         WGcR76BLLSmvTQ3h6IpoVQsRyJ+WmjiXeKNx4e7U8dYCaMwQJxKHFXla5ZSz8A9hvzpj
+         DtNz0BhMPRLdCmswuqZtc/LMJxjUmOL3Mk5kWewvdcNZyCjb+Y/l96mdKAgylVcSsxoa
+         gXmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=end8yQlEP+B+YiWzV6pVioijLvJsH98AVHTgTqHE2kc=;
-        b=PicTzWWAQF/FTfRf2ndUubSaiAbJ6ofTIpd9ZguMVXXyTO7WIkkuRdnUZsZzVWLrvO
-         2eba5Nw3ApK9Be54q37fFf83IfHBxHle2vyB2V9r1T3RPJSMao4uPFuyVsywSYC1VIW6
-         49QvtbxufsAGOz1Ref2jBQLEjBPZwDGPpsHmA9pNVVr8LsjUgKbLzv0cOREDUOMlMwMA
-         xMWxjQ34BjaOCLn3VbDDY1UFrwznE31qSxKCMzTJAKfYmJENaeSbsH7bSrrShjjcMKey
-         lOoo/JtMRhOEwR2mTAb2be2AOLTUUNRKWfeIqP8SR0KpWVa+3+NZTDjxo9mYvR+TAcxe
-         ZvAQ==
-X-Gm-Message-State: APjAAAWlzqV/OUhe8FmQFLvxNf5OINaEEyG/EnjgYw0hFtbLcZ+Ogopb
-        Rm+Uw0MZKZwza8qowXOJcL/Zaye5eh3FPDXjNhk=
-X-Google-Smtp-Source: APXvYqyyIm5NVOjTGMlBfZ6A5Wqhqs+7RIihpBDifKBjldx7jBtkBHh+TkD1stcz4b47z6uzE3prk+r+g1uDrLXkwho=
-X-Received: by 2002:a92:3991:: with SMTP id h17mr2826498ilf.131.1581359872312;
- Mon, 10 Feb 2020 10:37:52 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=TQnnriRE8hfXL28O7IPHDyR6WZy0RczXyOOEFd6qQRg=;
+        b=rkoUTMBlOr5WRkVgOV7AdApcMDuv4aTDlTdWPgRl7XaBr1iddjNjKCBlQP49vxQfwP
+         ziachIM1vG2EiCH2BrKvueS+5T1+GaOr3igIdmVuVKh3zFrWmp/hleRz2s1vy/nq/VDZ
+         Dm1D5kS9pPC1VeNjo+3szROW8x+kh74yKu6iin1MKq9nOlcYhsWKRoxj2/IUMbbHmUvw
+         TCz95WFUel4h7XdVJbibkQ+GG2JtMOShw5Hu/mIsoRhp0RUxd4LDp4KKnIoBLTEcnz6M
+         EdF4UAj+KfMK2DheSFrK2KHuTzayarVw/A2pPcT8VtFVGdkyIRsA9Rpmpbhw6YJ92yFL
+         Wz/Q==
+X-Gm-Message-State: APjAAAVwt5J98L2I7lzW9LdvQcEioE5tG3+KEbOn40VBlWIoAA6BJ+va
+        puO6Zh3lFAFTZqNb7H2FxXcIc91BNW8956El/VbLqQ==
+X-Google-Smtp-Source: APXvYqzSZ/VnJuUeM9+63vQQUwQqQGphQoE1fpA+4VUpABlouJjRtre4X7yLtQSVJh3tLAjdTQb/GntPGqSpC05wXfI=
+X-Received: by 2002:a2e:e12:: with SMTP id 18mr1789678ljo.123.1581360738381;
+ Mon, 10 Feb 2020 10:52:18 -0800 (PST)
 MIME-Version: 1.0
-References: <20200205192414.GA27345@suse.com> <20200206103842.14936-1-lhenriques@suse.com>
-In-Reply-To: <20200206103842.14936-1-lhenriques@suse.com>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Mon, 10 Feb 2020 19:38:10 +0100
-Message-ID: <CAOi1vP_fTwCnUtN6GfpF0ATBSEygzd+waH8qJ1H3ioWmc-xS6A@mail.gmail.com>
-Subject: Re: [PATCH v2] ceph: fix copy_file_range error path in short copies
-To:     Luis Henriques <lhenriques@suse.com>
-Cc:     Jeff Layton <jlayton@kernel.org>, Sage Weil <sage@redhat.com>,
-        "Yan, Zheng" <zyan@redhat.com>,
-        Gregory Farnum <gfarnum@redhat.com>,
-        Ceph Development <ceph-devel@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 11 Feb 2020 00:22:07 +0530
+Message-ID: <CA+G9fYs8tMCHvCmKBFsZZkXJvnhdFkbop8haLYU6r=k86X9rCw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/195] 4.19.103-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 6, 2020 at 11:38 AM Luis Henriques <lhenriques@suse.com> wrote:
+On Mon, 10 Feb 2020 at 18:06, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> When there's an error in the copying loop but some bytes have already been
-> copied into the destination file, it is necessary to dirty the caps and
-> eventually update the MDS with the file metadata (timestamps, size).  This
-> patch fixes this error path.
+> This is the start of the stable review cycle for the 4.19.103 release.
+> There are 195 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Another issue this patch fixes is the destination file size being reported
-> to the MDS.  If we're on the error path but the amount of bytes written
-> has already changed the destination file size, the offset to use is
-> dst_off and not endoff.
+> Responses should be made by Wed, 12 Feb 2020 12:18:57 +0000.
+> Anything received after that time might be too late.
 >
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Luis Henriques <lhenriques@suse.com>
-> ---
->  fs/ceph/file.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.103-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
 >
-> diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-> index 11929d2bb594..f7f8cb6c243f 100644
-> --- a/fs/ceph/file.c
-> +++ b/fs/ceph/file.c
-> @@ -2104,9 +2104,16 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
->                         CEPH_OSD_OP_FLAG_FADVISE_DONTNEED, 0);
->                 if (err) {
->                         dout("ceph_osdc_copy_from returned %d\n", err);
-> -                       if (!ret)
-> +                       /*
-> +                        * If we haven't done any copy yet, just exit with the
-> +                        * error code; otherwise, return the number of bytes
-> +                        * already copied, update metadata and dirty caps.
-> +                        */
-> +                       if (!ret) {
->                                 ret = err;
-> -                       goto out_caps;
-> +                               goto out_caps;
-> +                       }
-> +                       goto update_dst_inode;
->                 }
->                 len -= object_size;
->                 src_off += object_size;
-> @@ -2118,16 +2125,17 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
->                 /* We still need one final local copy */
->                 do_final_copy = true;
+> thanks,
 >
-> +update_dst_inode:
->         file_update_time(dst_file);
->         inode_inc_iversion_raw(dst_inode);
->
-> -       if (endoff > size) {
-> +       if (dst_off > size) {
->                 int caps_flags = 0;
->
->                 /* Let the MDS know about dst file size change */
-> -               if (ceph_quota_is_max_bytes_approaching(dst_inode, endoff))
-> +               if (ceph_quota_is_max_bytes_approaching(dst_inode, dst_off))
->                         caps_flags |= CHECK_CAPS_NODELAY;
-> -               if (ceph_inode_set_size(dst_inode, endoff))
-> +               if (ceph_inode_set_size(dst_inode, dst_off))
->                         caps_flags |= CHECK_CAPS_AUTHONLY;
->                 if (caps_flags)
->                         ceph_check_caps(dst_ci, caps_flags, NULL);
+> greg k-h
 
-Hi Luis,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I think this function still has short copy and file size issues:
+Summary
+------------------------------------------------------------------------
 
-- do_splice_direct() may write fewer bytes than requested, including
-  nothing at all (i.e. return 0).  While we don't care about the second
-  call much, handling the first call is crucial because proceeding to
-  the copy-from loop with src/dst_off not at the object boundary will
-  corrupt the destination file.
+kernel: 4.19.103-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: f03ffd764aed19a09925f1d0e2df9241fdafbcc4
+git describe: v4.19.102-196-gf03ffd764aed
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.102-196-gf03ffd764aed
 
-- size is set after caps are acquired for the first time and never
-  updated.  But caps are dropped before do_splice_direct(), so by the
-  time we get to dst_off > size check, it may be stale.  Again, data
-  loss if e.g. old-size < dst_off < new-size because the destination
-  file will get truncated...
 
-Also, src/dst_oloc need to be freed with ceph_oloc_destroy() to avoid
-leaking memory on namespace layouts.
+No regressions (compared to build v4.19.102)
 
-It seems clear that this function needs to be split, with the new
-loop around do_splice_direct() and the copy-from loop each going into
-a separate functions with clear pre- and post-conditions.
 
-Thanks,
+No fixes (compared to build v4.19.102)
 
-                Ilya
+Ran 24769 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-fs-tests
+* ltp-io-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
