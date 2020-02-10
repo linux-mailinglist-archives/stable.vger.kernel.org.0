@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 578EE157A25
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6167A1577C7
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728902AbgBJNUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:20:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
+        id S1729905AbgBJNC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:02:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728826AbgBJMhi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:38 -0500
+        id S1729763AbgBJMkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:35 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B419224671;
-        Mon, 10 Feb 2020 12:37:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 449D524676;
+        Mon, 10 Feb 2020 12:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338257;
-        bh=q6RfRI2Da5N6sKz+w/bqWrhy+2LqPArLwBJdvXFQ430=;
+        s=default; t=1581338435;
+        bh=860PfVHuVvVmnE/uxN+52Ty0cY9gG8ZaYg2GcEvQW/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSjnacx+zTtlYKmT0xZMB1wX1fXSNCb7eYH5EUG/TzmRRynQ78M3naYgXGw4sktMY
-         WPiN4TH3IJ98xJ9kOfa05Y/oPQ+pSNOXRLc4wWNMnz/so4fQffxsboolMTEQJCwL82
-         G8hifeO4BFs5dE41Jbto9Bx4/KZqeQUOi0fdrk44=
+        b=cC4TUljoqo618JXMLocmreau6U9asmSSMNIUiYETsUPVWzyF9fOl0npzTQPskPGm5
+         Zp/bBOrX5/dZPH8xzjNxkwgp+LNmbxVxRWWqd6oi/+7pENHXf0ScJAFxNOdEiRAS6x
+         GCk8fQ5SalFF20FS+/V9NUxNtmL2a52pgIfzKU2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Zigotzky <chzigotzky@xenosoft.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 125/309] of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>
+Subject: [PATCH 5.5 168/367] samples/bpf: Xdp_redirect_cpu fix missing tracepoint attach
 Date:   Mon, 10 Feb 2020 04:31:21 -0800
-Message-Id: <20200210122418.442247463@linuxfoundation.org>
+Message-Id: <20200210122440.403356701@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,80 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-commit dabf6b36b83a18d57e3d4b9d50544ed040d86255 upstream.
+commit f9e6bfdbaf0cf304d72c70a05d81acac01a04f48 upstream.
 
-There's an OF helper called of_dma_is_coherent(), which checks if a
-device has a "dma-coherent" property to see if the device is coherent
-for DMA.
+When sample xdp_redirect_cpu was converted to use libbpf, the
+tracepoints used by this sample were not getting attached automatically
+like with bpf_load.c. The BPF-maps was still getting loaded, thus
+nobody notice that the tracepoints were not updating these maps.
 
-But on some platforms devices are coherent by default, and on some
-platforms it's not possible to update existing device trees to add the
-"dma-coherent" property.
+This fix doesn't use the new skeleton code, as this bug was introduced
+in v5.1 and stable might want to backport this. E.g. Red Hat QA uses
+this sample as part of their testing.
 
-So add a Kconfig symbol to allow arch code to tell
-of_dma_is_coherent() that devices are coherent by default, regardless
-of the presence of the property.
-
-Select that symbol on powerpc when NOT_COHERENT_CACHE is not set, ie.
-when the system has a coherent cache.
-
-Fixes: 92ea637edea3 ("of: introduce of_dma_is_coherent() helper")
-Cc: stable@vger.kernel.org # v3.16+
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Tested-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: bbaf6029c49c ("samples/bpf: Convert XDP samples to libbpf usage")
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/157685877642.26195.2798780195186786841.stgit@firesoul
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/Kconfig |    1 +
- drivers/of/Kconfig   |    4 ++++
- drivers/of/address.c |    6 +++++-
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ samples/bpf/xdp_redirect_cpu_user.c |   59 +++++++++++++++++++++++++++++++++---
+ 1 file changed, 55 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -237,6 +237,7 @@ config PPC
- 	select NEED_DMA_MAP_STATE		if PPC64 || NOT_COHERENT_CACHE
- 	select NEED_SG_DMA_LENGTH
- 	select OF
-+	select OF_DMA_DEFAULT_COHERENT		if !NOT_COHERENT_CACHE
- 	select OF_EARLY_FLATTREE
- 	select OLD_SIGACTION			if PPC32
- 	select OLD_SIGSUSPEND
---- a/drivers/of/Kconfig
-+++ b/drivers/of/Kconfig
-@@ -103,4 +103,8 @@ config OF_OVERLAY
- config OF_NUMA
- 	bool
- 
-+config OF_DMA_DEFAULT_COHERENT
-+	# arches should select this if DMA is coherent by default for OF devices
-+	bool
+--- a/samples/bpf/xdp_redirect_cpu_user.c
++++ b/samples/bpf/xdp_redirect_cpu_user.c
+@@ -16,6 +16,10 @@ static const char *__doc__ =
+ #include <getopt.h>
+ #include <net/if.h>
+ #include <time.h>
++#include <linux/limits.h>
 +
- endif # OF
---- a/drivers/of/address.c
-+++ b/drivers/of/address.c
-@@ -998,12 +998,16 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
-  * @np:	device node
-  *
-  * It returns true if "dma-coherent" property was found
-- * for this device in DT.
-+ * for this device in the DT, or if DMA is coherent by
-+ * default for OF devices on the current platform.
-  */
- bool of_dma_is_coherent(struct device_node *np)
++#define __must_check
++#include <linux/err.h>
+ 
+ #include <arpa/inet.h>
+ #include <linux/if_link.h>
+@@ -46,6 +50,10 @@ static int cpus_count_map_fd;
+ static int cpus_iterator_map_fd;
+ static int exception_cnt_map_fd;
+ 
++#define NUM_TP 5
++struct bpf_link *tp_links[NUM_TP] = { 0 };
++static int tp_cnt = 0;
++
+ /* Exit return codes */
+ #define EXIT_OK		0
+ #define EXIT_FAIL		1
+@@ -88,6 +96,10 @@ static void int_exit(int sig)
+ 			printf("program on interface changed, not removing\n");
+ 		}
+ 	}
++	/* Detach tracepoints */
++	while (tp_cnt)
++		bpf_link__destroy(tp_links[--tp_cnt]);
++
+ 	exit(EXIT_OK);
+ }
+ 
+@@ -588,23 +600,61 @@ static void stats_poll(int interval, boo
+ 	free_stats_record(prev);
+ }
+ 
++static struct bpf_link * attach_tp(struct bpf_object *obj,
++				   const char *tp_category,
++				   const char* tp_name)
++{
++	struct bpf_program *prog;
++	struct bpf_link *link;
++	char sec_name[PATH_MAX];
++	int len;
++
++	len = snprintf(sec_name, PATH_MAX, "tracepoint/%s/%s",
++		       tp_category, tp_name);
++	if (len < 0)
++		exit(EXIT_FAIL);
++
++	prog = bpf_object__find_program_by_title(obj, sec_name);
++	if (!prog) {
++		fprintf(stderr, "ERR: finding progsec: %s\n", sec_name);
++		exit(EXIT_FAIL_BPF);
++	}
++
++	link = bpf_program__attach_tracepoint(prog, tp_category, tp_name);
++	if (IS_ERR(link))
++		exit(EXIT_FAIL_BPF);
++
++	return link;
++}
++
++static void init_tracepoints(struct bpf_object *obj) {
++	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_redirect_err");
++	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_redirect_map_err");
++	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_exception");
++	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_cpumap_enqueue");
++	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_cpumap_kthread");
++}
++
+ static int init_map_fds(struct bpf_object *obj)
  {
- 	struct device_node *node = of_node_get(np);
- 
-+	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
-+		return true;
+-	cpu_map_fd = bpf_object__find_map_fd_by_name(obj, "cpu_map");
+-	rx_cnt_map_fd = bpf_object__find_map_fd_by_name(obj, "rx_cnt");
++	/* Maps updated by tracepoints */
+ 	redirect_err_cnt_map_fd =
+ 		bpf_object__find_map_fd_by_name(obj, "redirect_err_cnt");
++	exception_cnt_map_fd =
++		bpf_object__find_map_fd_by_name(obj, "exception_cnt");
+ 	cpumap_enqueue_cnt_map_fd =
+ 		bpf_object__find_map_fd_by_name(obj, "cpumap_enqueue_cnt");
+ 	cpumap_kthread_cnt_map_fd =
+ 		bpf_object__find_map_fd_by_name(obj, "cpumap_kthread_cnt");
 +
- 	while (node) {
- 		if (of_property_read_bool(node, "dma-coherent")) {
- 			of_node_put(node);
++	/* Maps used by XDP */
++	rx_cnt_map_fd = bpf_object__find_map_fd_by_name(obj, "rx_cnt");
++	cpu_map_fd = bpf_object__find_map_fd_by_name(obj, "cpu_map");
+ 	cpus_available_map_fd =
+ 		bpf_object__find_map_fd_by_name(obj, "cpus_available");
+ 	cpus_count_map_fd = bpf_object__find_map_fd_by_name(obj, "cpus_count");
+ 	cpus_iterator_map_fd =
+ 		bpf_object__find_map_fd_by_name(obj, "cpus_iterator");
+-	exception_cnt_map_fd =
+-		bpf_object__find_map_fd_by_name(obj, "exception_cnt");
+ 
+ 	if (cpu_map_fd < 0 || rx_cnt_map_fd < 0 ||
+ 	    redirect_err_cnt_map_fd < 0 || cpumap_enqueue_cnt_map_fd < 0 ||
+@@ -662,6 +712,7 @@ int main(int argc, char **argv)
+ 			strerror(errno));
+ 		return EXIT_FAIL;
+ 	}
++	init_tracepoints(obj);
+ 	if (init_map_fds(obj) < 0) {
+ 		fprintf(stderr, "bpf_object__find_map_fd_by_name failed\n");
+ 		return EXIT_FAIL;
 
 
