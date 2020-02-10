@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9FF157900
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5505415792D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbgBJMio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:38:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
+        id S1729667AbgBJNNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:13:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728336AbgBJMin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:43 -0500
+        id S1728644AbgBJMim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:42 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1418020733;
+        by mail.kernel.org (Postfix) with ESMTPSA id 873B220838;
         Mon, 10 Feb 2020 12:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338322;
-        bh=bHaMhX1tvxA/60def+nunnvadde+KFgA86uUNS53eCc=;
+        bh=mOBlwavlbau8vB+rE6PQapruNs+NJ/+2dgZdrnVFrF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3a0dz10x7MQw0Op2XXBn0eK6vQnOkv5hqgkfLtTxiFG5qbrDWYvo7zPibuIftAX6
-         bNgtQj+/9MtwaHff1+QS1VYaIY0mnyJlu+qwILQs4h+O6i/eM6oEVHY86JejhQMMeD
-         /tXgi6gggCKZRv0qYaqem2l8dhmSHY8CxVumXrsM=
+        b=rvH8De426HWXAFkVFqqyIfH5pGh1T3mydF5Y6bHWKqrr/VkCBq6M5OSxbBSvdS0A2
+         zsgy+a069LJvcF5Vp+lmNbhT2uwNy2iClbKyAQ2anN5kXEQzyXSkJol/ip65UU2Tic
+         3qAZT9tzw+VdZkkS6VxLKzwqi2IXK2WXPkL8fHbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.4 254/309] nfsd: fix jiffies/time_t mixup in LRU list
-Date:   Mon, 10 Feb 2020 04:33:30 -0800
-Message-Id: <20200210122430.960560410@linuxfoundation.org>
+Subject: [PATCH 5.4 255/309] nfsd: Return the correct number of bytes written to the file
+Date:   Mon, 10 Feb 2020 04:33:31 -0800
+Message-Id: <20200210122431.068233998@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,53 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit 9594497f2c78993cb66b696122f7c65528ace985 upstream.
+commit 09a80f2aef06b7c86143f5c14efd3485e0d2c139 upstream.
 
-The nfsd4_blocked_lock->nbl_time timestamp is recorded in jiffies,
-but then compared to a CLOCK_REALTIME timestamp later on, which makes
-no sense.
+We must allow for the fact that iov_iter_write() could have returned
+a short write (e.g. if there was an ENOSPC issue).
 
-For consistency with the other timestamps, change this to use a time_t.
-
-This is a change in behavior, which may cause regressions, but the
-current code is not sensible. On a system with CONFIG_HZ=1000,
-the 'time_after((unsigned long)nbl->nbl_time, (unsigned long)cutoff))'
-check is false for roughly the first 18 days of uptime and then true
-for the next 49 days.
-
-Fixes: 7919d0a27f1e ("nfsd: add a LRU list for blocked locks")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: d890be159a71 "nfsd: Add I/O trace points in the NFSv4 write path"
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/nfs4state.c |    2 +-
- fs/nfsd/state.h     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/nfsd/vfs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -6550,7 +6550,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struc
- 	}
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -975,6 +975,7 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 	host_err = vfs_iter_write(file, &iter, &pos, flags);
+ 	if (host_err < 0)
+ 		goto out_nfserr;
++	*cnt = host_err;
+ 	nfsdstats.io_write += *cnt;
+ 	fsnotify_modify(file);
  
- 	if (fl_flags & FL_SLEEP) {
--		nbl->nbl_time = jiffies;
-+		nbl->nbl_time = get_seconds();
- 		spin_lock(&nn->blocked_locks_lock);
- 		list_add_tail(&nbl->nbl_list, &lock_sop->lo_blocked);
- 		list_add_tail(&nbl->nbl_lru, &nn->blocked_locks_lru);
---- a/fs/nfsd/state.h
-+++ b/fs/nfsd/state.h
-@@ -605,7 +605,7 @@ static inline bool nfsd4_stateid_generat
- struct nfsd4_blocked_lock {
- 	struct list_head	nbl_list;
- 	struct list_head	nbl_lru;
--	unsigned long		nbl_time;
-+	time_t			nbl_time;
- 	struct file_lock	nbl_lock;
- 	struct knfsd_fh		nbl_fh;
- 	struct nfsd4_callback	nbl_cb;
 
 
