@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C62571574B4
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D94F15773C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727919AbgBJMf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52554 "EHLO mail.kernel.org"
+        id S1728517AbgBJM6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:58:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727910AbgBJMfZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:25 -0500
+        id S1729957AbgBJMlS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:18 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09C7724680;
-        Mon, 10 Feb 2020 12:35:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7D8B21739;
+        Mon, 10 Feb 2020 12:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338125;
-        bh=+67AOZnVfdIJWZiAg1xe49VtFLE3pLReAXONsLs8af4=;
+        s=default; t=1581338478;
+        bh=u4ilCjELg5OtwY1xaVFUG0Hdgjxy9XdEEzxrekWujKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBqLQ7G0HuXVhOVt0DMl6VCjyjNUZPBUHTbT4SNdh9wu7e38V4npRKoC50daiAEWh
-         KwtuSaO7w6xq0XLRVZ/tudzZU9RBtiu3Tx61rh+AhoYeUOWBW43M95C5B3PNjXRFTa
-         WeoyN5nCwC1gxTO5Y3WDdRpMKRfjLz/7a1bQzQrM=
+        b=aL8BP5RJwxUxqjaRjHZY6WMuuSZ4HSvYC5gbCjCNScdKAbg29oHD3thqTH7g7x2FK
+         GORwnU2QMTtu7bRh+CV8HBpG4FZh8COBgKLPWUiCFAYSU5yzuNjGgVXWsnCtf5SWlE
+         08IcJDU/5TmBbaLEFAbxx0hhyT07T/GG5aM0FcUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.19 064/195] ubifs: Reject unsupported ioctl flags explicitly
-Date:   Mon, 10 Feb 2020 04:32:02 -0800
-Message-Id: <20200210122312.110055682@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.5 210/367] gfs2: move setting current->backing_dev_info
+Date:   Mon, 10 Feb 2020 04:32:03 -0800
+Message-Id: <20200210122443.741061602@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 2fe8b2d5578d7d142982e3bf62e4c0caf8b8fe02 upstream.
+commit 4c0e8dda608a51855225c611b5c6b442f95fbc56 upstream.
 
-Reject unsupported ioctl flags explicitly, so the following command
-on a regular ubifs file will fail:
-	chattr +d ubifs_file
+Set current->backing_dev_info just around the buffered write calls to
+prepare for the next fix.
 
-And xfstests generic/424 will pass.
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 967bcc91b044 ("gfs2: iomap direct I/O support")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/ioctl.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/gfs2/file.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/fs/ubifs/ioctl.c
-+++ b/fs/ubifs/ioctl.c
-@@ -28,6 +28,11 @@
- #include <linux/mount.h>
- #include "ubifs.h"
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -867,18 +867,15 @@ static ssize_t gfs2_file_write_iter(stru
+ 	inode_lock(inode);
+ 	ret = generic_write_checks(iocb, from);
+ 	if (ret <= 0)
+-		goto out;
+-
+-	/* We can write back this queue in page reclaim */
+-	current->backing_dev_info = inode_to_bdi(inode);
++		goto out_unlock;
  
-+/* Need to be kept consistent with checked flags in ioctl2ubifs() */
-+#define UBIFS_SUPPORTED_IOCTL_FLAGS \
-+	(FS_COMPR_FL | FS_SYNC_FL | FS_APPEND_FL | \
-+	 FS_IMMUTABLE_FL | FS_DIRSYNC_FL)
-+
- /**
-  * ubifs_set_inode_flags - set VFS inode flags.
-  * @inode: VFS inode to set flags for
-@@ -169,6 +174,9 @@ long ubifs_ioctl(struct file *file, unsi
- 		if (get_user(flags, (int __user *) arg))
- 			return -EFAULT;
+ 	ret = file_remove_privs(file);
+ 	if (ret)
+-		goto out2;
++		goto out_unlock;
  
-+		if (flags & ~UBIFS_SUPPORTED_IOCTL_FLAGS)
-+			return -EOPNOTSUPP;
-+
- 		if (!S_ISDIR(inode->i_mode))
- 			flags &= ~FS_DIRSYNC_FL;
+ 	ret = file_update_time(file);
+ 	if (ret)
+-		goto out2;
++		goto out_unlock;
  
+ 	if (iocb->ki_flags & IOCB_DIRECT) {
+ 		struct address_space *mapping = file->f_mapping;
+@@ -887,11 +884,13 @@ static ssize_t gfs2_file_write_iter(stru
+ 
+ 		written = gfs2_file_direct_write(iocb, from);
+ 		if (written < 0 || !iov_iter_count(from))
+-			goto out2;
++			goto out_unlock;
+ 
++		current->backing_dev_info = inode_to_bdi(inode);
+ 		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
++		current->backing_dev_info = NULL;
+ 		if (unlikely(ret < 0))
+-			goto out2;
++			goto out_unlock;
+ 		buffered = ret;
+ 
+ 		/*
+@@ -915,14 +914,14 @@ static ssize_t gfs2_file_write_iter(stru
+ 			 */
+ 		}
+ 	} else {
++		current->backing_dev_info = inode_to_bdi(inode);
+ 		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
++		current->backing_dev_info = NULL;
+ 		if (likely(ret > 0))
+ 			iocb->ki_pos += ret;
+ 	}
+ 
+-out2:
+-	current->backing_dev_info = NULL;
+-out:
++out_unlock:
+ 	inode_unlock(inode);
+ 	if (likely(ret > 0)) {
+ 		/* Handle various SYNC-type writes */
 
 
