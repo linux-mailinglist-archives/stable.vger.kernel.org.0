@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B41C157572
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F33E1157762
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbgBJMlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42422 "EHLO mail.kernel.org"
+        id S1728324AbgBJM74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:59:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729872AbgBJMlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:03 -0500
+        id S1729187AbgBJMlE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A40CE24649;
-        Mon, 10 Feb 2020 12:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE25924650;
+        Mon, 10 Feb 2020 12:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338462;
-        bh=yz9eW0sU2vXVPRFnpOA8YHrcXbg2TZwqL9Ttoogt0XA=;
+        s=default; t=1581338463;
+        bh=Tvf4txON6eeUtHEOdVEOOBvXVy6B/tu1BYD/Xx9UAUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIH9acPT+mE77UsHKRY3PHw969Al7gVci4Seah+sLuo0SzbLraKFHPQnXW0A+32q9
-         0Wo032LmIyBt4Yatk6HUn348w2mhaorCKfZ/Qi9sN+8BTx20J9WC4G+Y7ZiheqWiy6
-         voiqlrNc2b91XBWRwdbig3gFvaFXj+sbrlM+RkJw=
+        b=TdpWC0eTTMqHmvLYkJ+G8hDseq9mOvD6J/KbvdN+GZupfEIio5PgSyX2O/ARbCO5c
+         eAmd0sbvT/D8UQ3ghKLa/gCvwkzw0A3biR6K+1tqb79GMmJFV1ZC2xr9dXBKaby41s
+         YqkmbiHQoGGX4ql5D4LEkgXwUUU0DNKhqtooehTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.5 221/367] watchdog: fix UAF in reboot notifier handling in watchdog core code
-Date:   Mon, 10 Feb 2020 04:32:14 -0800
-Message-Id: <20200210122444.492526627@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Eric Wheeler <bcache@linux.ewheeler.net>,
+        Michael Lyle <mlyle@lyle.org>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.5 222/367] bcache: add readahead cache policy options via sysfs interface
+Date:   Mon, 10 Feb 2020 04:32:15 -0800
+Message-Id: <20200210122444.562098668@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,197 +44,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladis Dronov <vdronov@redhat.com>
+From: Coly Li <colyli@suse.de>
 
-commit 69503e585192fdd84b240f18a0873d20e18a2e0a upstream.
+commit 038ba8cc1bffc51250add4a9b9249d4331576d8f upstream.
 
-After the commit 44ea39420fc9 ("drivers/watchdog: make use of
-devm_register_reboot_notifier()") the struct notifier_block reboot_nb in
-the struct watchdog_device is removed from the reboot notifiers chain at
-the time watchdog's chardev is closed. But at least in i6300esb.c case
-reboot_nb is embedded in the struct esb_dev which can be freed on its
-device removal and before the chardev is closed, thus UAF at reboot:
+In year 2007 high performance SSD was still expensive, in order to
+save more space for real workload or meta data, the readahead I/Os
+for non-meta data was bypassed and not cached on SSD.
 
-[    7.728581] esb_probe: esb_dev.watchdog_device ffff91316f91ab28
-ts# uname -r                            note the address ^^^
-5.5.0-rc5-ae6088-wdog
-ts# ./openwdog0 &
-[1] 696
-ts# opened /dev/watchdog0, sleeping 10s...
-ts# echo 1 > /sys/devices/pci0000\:00/0000\:00\:09.0/remove
-[  178.086079] devres:rel_nodes: dev ffff91317668a0b0 data ffff91316f91ab28
-           esb_dev.watchdog_device.reboot_nb memory is freed here ^^^
-ts# ...woken up
-[  181.459010] devres:rel_nodes: dev ffff913171781000 data ffff913174a1dae8
-[  181.460195] devm_unreg_reboot_notifier: res ffff913174a1dae8 nb ffff91316f91ab78
-                                     attempt to use memory already freed ^^^
-[  181.461063] devm_unreg_reboot_notifier: nb->call 6b6b6b6b6b6b6b6b
-[  181.461243] devm_unreg_reboot_notifier: nb->next 6b6b6b6b6b6b6b6b
-                freed memory is filled with a slub poison ^^^
-[1]+  Done                    ./openwdog0
-ts# reboot
-[  229.921862] systemd-shutdown[1]: Rebooting.
-[  229.939265] notifier_call_chain: nb ffffffff9c6c2f20 nb->next ffffffff9c6d50c0
-[  229.943080] notifier_call_chain: nb ffffffff9c6d50c0 nb->next 6b6b6b6b6b6b6b6b
-[  229.946054] notifier_call_chain: nb 6b6b6b6b6b6b6b6b INVAL
-[  229.957584] general protection fault: 0000 [#1] SMP
-[  229.958770] CPU: 0 PID: 1 Comm: systemd-shutdow Not tainted 5.5.0-rc5-ae6088-wdog
-[  229.960224] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ...
-[  229.963288] RIP: 0010:notifier_call_chain+0x66/0xd0
-[  229.969082] RSP: 0018:ffffb20dc0013d88 EFLAGS: 00010246
-[  229.970812] RAX: 000000000000002e RBX: 6b6b6b6b6b6b6b6b RCX: 00000000000008b3
-[  229.972929] RDX: 0000000000000000 RSI: 0000000000000096 RDI: ffffffff9ccc46ac
-[  229.975028] RBP: 0000000000000001 R08: 0000000000000000 R09: 00000000000008b3
-[  229.977039] R10: 0000000000000001 R11: ffffffff9c26c740 R12: 0000000000000000
-[  229.979155] R13: 6b6b6b6b6b6b6b6b R14: 0000000000000000 R15: 00000000fffffffa
-...   slub_debug=FZP poison ^^^
-[  229.989089] Call Trace:
-[  229.990157]  blocking_notifier_call_chain+0x43/0x59
-[  229.991401]  kernel_restart_prepare+0x14/0x30
-[  229.992607]  kernel_restart+0x9/0x30
-[  229.993800]  __do_sys_reboot+0x1d2/0x210
-[  230.000149]  do_syscall_64+0x3d/0x130
-[  230.001277]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  230.002639] RIP: 0033:0x7f5461bdd177
-[  230.016402] Modules linked in: i6300esb
-[  230.050261] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+In now days, SSD price drops a lot and people can find larger size
+SSD with more comfortable price. It is unncessary to alway bypass
+normal readahead I/Os to save SSD space for now.
 
-Fix the crash by reverting 44ea39420fc9 so unregister_reboot_notifier()
-is called when watchdog device is removed. This also makes handling of
-the reboot notifier unified with the handling of the restart handler,
-which is freed with unregister_restart_handler() in the same place.
+This patch adds options for readahead data cache policies via sysfs
+file /sys/block/bcache<N>/readahead_cache_policy, the options are,
+- "all": cache all readahead data I/Os.
+- "meta-only": only cache meta data, and bypass other regular I/Os.
 
-Fixes: 44ea39420fc9 ("drivers/watchdog: make use of devm_register_reboot_notifier()")
-Cc: stable@vger.kernel.org # v4.15+
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200108125347.6067-1-vdronov@redhat.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+If users want to make bcache continue to only cache readahead request
+for metadata and bypass regular data readahead, please set "meta-only"
+to this sysfs file. By default, bcache will back to cache all read-
+ahead requests now.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Eric Wheeler <bcache@linux.ewheeler.net>
+Cc: Michael Lyle <mlyle@lyle.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/watchdog_core.c |   35 +++++++++++++++++++++++++++++++++++
- drivers/watchdog/watchdog_dev.c  |   36 +-----------------------------------
- 2 files changed, 36 insertions(+), 35 deletions(-)
+ drivers/md/bcache/bcache.h  |    3 +++
+ drivers/md/bcache/request.c |   17 ++++++++++++-----
+ drivers/md/bcache/sysfs.c   |   22 ++++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 5 deletions(-)
 
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -147,6 +147,25 @@ int watchdog_init_timeout(struct watchdo
- }
- EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+--- a/drivers/md/bcache/bcache.h
++++ b/drivers/md/bcache/bcache.h
+@@ -329,6 +329,9 @@ struct cached_dev {
+ 	 */
+ 	atomic_t		has_dirty;
  
-+static int watchdog_reboot_notifier(struct notifier_block *nb,
-+				    unsigned long code, void *data)
-+{
-+	struct watchdog_device *wdd;
-+
-+	wdd = container_of(nb, struct watchdog_device, reboot_nb);
-+	if (code == SYS_DOWN || code == SYS_HALT) {
-+		if (watchdog_active(wdd)) {
-+			int ret;
-+
-+			ret = wdd->ops->stop(wdd);
-+			if (ret)
-+				return NOTIFY_BAD;
-+		}
++#define BCH_CACHE_READA_ALL		0
++#define BCH_CACHE_READA_META_ONLY	1
++	unsigned int		cache_readahead_policy;
+ 	struct bch_ratelimit	writeback_rate;
+ 	struct delayed_work	writeback_rate_update;
+ 
+--- a/drivers/md/bcache/request.c
++++ b/drivers/md/bcache/request.c
+@@ -379,13 +379,20 @@ static bool check_should_bypass(struct c
+ 		goto skip;
+ 
+ 	/*
+-	 * Flag for bypass if the IO is for read-ahead or background,
+-	 * unless the read-ahead request is for metadata
++	 * If the bio is for read-ahead or background IO, bypass it or
++	 * not depends on the following situations,
++	 * - If the IO is for meta data, always cache it and no bypass
++	 * - If the IO is not meta data, check dc->cache_reada_policy,
++	 *      BCH_CACHE_READA_ALL: cache it and not bypass
++	 *      BCH_CACHE_READA_META_ONLY: not cache it and bypass
++	 * That is, read-ahead request for metadata always get cached
+ 	 * (eg, for gfs2 or xfs).
+ 	 */
+-	if (bio->bi_opf & (REQ_RAHEAD|REQ_BACKGROUND) &&
+-	    !(bio->bi_opf & (REQ_META|REQ_PRIO)))
+-		goto skip;
++	if ((bio->bi_opf & (REQ_RAHEAD|REQ_BACKGROUND))) {
++		if (!(bio->bi_opf & (REQ_META|REQ_PRIO)) &&
++		    (dc->cache_readahead_policy != BCH_CACHE_READA_ALL))
++			goto skip;
 +	}
+ 
+ 	if (bio->bi_iter.bi_sector & (c->sb.block_size - 1) ||
+ 	    bio_sectors(bio) & (c->sb.block_size - 1)) {
+--- a/drivers/md/bcache/sysfs.c
++++ b/drivers/md/bcache/sysfs.c
+@@ -27,6 +27,12 @@ static const char * const bch_cache_mode
+ 	NULL
+ };
+ 
++static const char * const bch_reada_cache_policies[] = {
++	"all",
++	"meta-only",
++	NULL
++};
 +
-+	return NOTIFY_DONE;
-+}
+ /* Default is 0 ("auto") */
+ static const char * const bch_stop_on_failure_modes[] = {
+ 	"auto",
+@@ -100,6 +106,7 @@ rw_attribute(congested_write_threshold_u
+ rw_attribute(sequential_cutoff);
+ rw_attribute(data_csum);
+ rw_attribute(cache_mode);
++rw_attribute(readahead_cache_policy);
+ rw_attribute(stop_when_cache_set_failed);
+ rw_attribute(writeback_metadata);
+ rw_attribute(writeback_running);
+@@ -168,6 +175,11 @@ SHOW(__bch_cached_dev)
+ 					       bch_cache_modes,
+ 					       BDEV_CACHE_MODE(&dc->sb));
+ 
++	if (attr == &sysfs_readahead_cache_policy)
++		return bch_snprint_string_list(buf, PAGE_SIZE,
++					      bch_reada_cache_policies,
++					      dc->cache_readahead_policy);
 +
- static int watchdog_restart_notifier(struct notifier_block *nb,
- 				     unsigned long action, void *data)
- {
-@@ -235,6 +254,19 @@ static int __watchdog_register_device(st
+ 	if (attr == &sysfs_stop_when_cache_set_failed)
+ 		return bch_snprint_string_list(buf, PAGE_SIZE,
+ 					       bch_stop_on_failure_modes,
+@@ -353,6 +365,15 @@ STORE(__cached_dev)
  		}
  	}
  
-+	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
-+		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
++	if (attr == &sysfs_readahead_cache_policy) {
++		v = __sysfs_match_string(bch_reada_cache_policies, -1, buf);
++		if (v < 0)
++			return v;
 +
-+		ret = register_reboot_notifier(&wdd->reboot_nb);
-+		if (ret) {
-+			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
-+			       wdd->id, ret);
-+			watchdog_dev_unregister(wdd);
-+			ida_simple_remove(&watchdog_ida, id);
-+			return ret;
-+		}
++		if ((unsigned int) v != dc->cache_readahead_policy)
++			dc->cache_readahead_policy = v;
 +	}
 +
- 	if (wdd->ops->restart) {
- 		wdd->restart_nb.notifier_call = watchdog_restart_notifier;
- 
-@@ -289,6 +321,9 @@ static void __watchdog_unregister_device
- 	if (wdd->ops->restart)
- 		unregister_restart_handler(&wdd->restart_nb);
- 
-+	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
-+		unregister_reboot_notifier(&wdd->reboot_nb);
-+
- 	watchdog_dev_unregister(wdd);
- 	ida_simple_remove(&watchdog_ida, wdd->id);
- }
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -38,7 +38,6 @@
- #include <linux/miscdevice.h>	/* For handling misc devices */
- #include <linux/module.h>	/* For module stuff/... */
- #include <linux/mutex.h>	/* For mutexes */
--#include <linux/reboot.h>	/* For reboot notifier */
- #include <linux/slab.h>		/* For memory functions */
- #include <linux/types.h>	/* For standard types (like size_t) */
- #include <linux/watchdog.h>	/* For watchdog specific items */
-@@ -1097,25 +1096,6 @@ static void watchdog_cdev_unregister(str
- 	put_device(&wd_data->dev);
- }
- 
--static int watchdog_reboot_notifier(struct notifier_block *nb,
--				    unsigned long code, void *data)
--{
--	struct watchdog_device *wdd;
--
--	wdd = container_of(nb, struct watchdog_device, reboot_nb);
--	if (code == SYS_DOWN || code == SYS_HALT) {
--		if (watchdog_active(wdd)) {
--			int ret;
--
--			ret = wdd->ops->stop(wdd);
--			if (ret)
--				return NOTIFY_BAD;
--		}
--	}
--
--	return NOTIFY_DONE;
--}
--
- /*
-  *	watchdog_dev_register: register a watchdog device
-  *	@wdd: watchdog device
-@@ -1134,22 +1114,8 @@ int watchdog_dev_register(struct watchdo
- 		return ret;
- 
- 	ret = watchdog_register_pretimeout(wdd);
--	if (ret) {
-+	if (ret)
- 		watchdog_cdev_unregister(wdd);
--		return ret;
--	}
--
--	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
--		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
--
--		ret = devm_register_reboot_notifier(&wdd->wd_data->dev,
--						    &wdd->reboot_nb);
--		if (ret) {
--			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
--			       wdd->id, ret);
--			watchdog_dev_unregister(wdd);
--		}
--	}
- 
- 	return ret;
- }
+ 	if (attr == &sysfs_stop_when_cache_set_failed) {
+ 		v = __sysfs_match_string(bch_stop_on_failure_modes, -1, buf);
+ 		if (v < 0)
+@@ -467,6 +488,7 @@ static struct attribute *bch_cached_dev_
+ 	&sysfs_data_csum,
+ #endif
+ 	&sysfs_cache_mode,
++	&sysfs_readahead_cache_policy,
+ 	&sysfs_stop_when_cache_set_failed,
+ 	&sysfs_writeback_metadata,
+ 	&sysfs_writeback_running,
 
 
