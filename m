@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69ED2157A9E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5841215784A
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728889AbgBJNYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:24:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57962 "EHLO mail.kernel.org"
+        id S1729638AbgBJNGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:06:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728645AbgBJMhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:08 -0500
+        id S1729548AbgBJMjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:53 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2894324676;
-        Mon, 10 Feb 2020 12:37:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98DBE24650;
+        Mon, 10 Feb 2020 12:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338228;
-        bh=jS83w47p1mXqjnFe6p2467wdGU/BA9mLrI7pCQeZL54=;
+        s=default; t=1581338392;
+        bh=gxm2KvSy24vJVM6qJ96MO74XGzXAu3rlYDpEdI9euoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/hAM2HP4KhVLVsi1k3t0Fsa7v9G+RuV8f4nBYVFCQEv7CNk/7hV5dFIqNjkEKEiR
-         B2542DA+G7IzVyHt/WydM8aBsqRig6nsXJ96igj3EOyqplCedRsE6CuvEA2mV+AMyE
-         5EJvdtZ2UhvGmQqnLlRirNLb226AUM0osdyPrN5o=
+        b=zytNYzjkgLPrtcQkxT0RGmke9YHzgf5pL3TZOITqCQssu91zFycKX2k4YolmA97z/
+         rOkmfBxRaoGGRzBRYow6vFf0wSEsV/k0mazbyi9Q4uLVyPhZFKpLi69TG3gvQFqknC
+         d3lc4k0YwHJua6V/iO5DhT33EvmP7gSFEIuSeOkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 042/309] usb: gadget: legacy: set max_speed to super-speed
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 085/367] powerpc/xmon: dont access ASDR in VMs
 Date:   Mon, 10 Feb 2020 04:29:58 -0800
-Message-Id: <20200210122410.118014406@linuxfoundation.org>
+Message-Id: <20200210122432.199926067@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit 463f67aec2837f981b0a0ce8617721ff59685c00 upstream.
+commit c2a20711fc181e7f22ee5c16c28cb9578af84729 upstream.
 
-These interfaces do support super-speed so let's not
-limit maximum speed to high-speed.
+ASDR is HV-privileged and must only be accessed in HV-mode.
+Fixes a Program Check (0x700) when xmon in a VM dumps SPRs.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: d1e1b351f50f ("powerpc/xmon: Add ISA v3.0 SPRs to SPR dump")
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200107021633.GB29843@us.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/cdc2.c  |    2 +-
- drivers/usb/gadget/legacy/g_ffs.c |    2 +-
- drivers/usb/gadget/legacy/multi.c |    2 +-
- drivers/usb/gadget/legacy/ncm.c   |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/xmon/xmon.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/gadget/legacy/cdc2.c
-+++ b/drivers/usb/gadget/legacy/cdc2.c
-@@ -225,7 +225,7 @@ static struct usb_composite_driver cdc_d
- 	.name		= "g_cdc",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= cdc_bind,
- 	.unbind		= cdc_unbind,
- };
---- a/drivers/usb/gadget/legacy/g_ffs.c
-+++ b/drivers/usb/gadget/legacy/g_ffs.c
-@@ -149,7 +149,7 @@ static struct usb_composite_driver gfs_d
- 	.name		= DRIVER_NAME,
- 	.dev		= &gfs_dev_desc,
- 	.strings	= gfs_dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= gfs_bind,
- 	.unbind		= gfs_unbind,
- };
---- a/drivers/usb/gadget/legacy/multi.c
-+++ b/drivers/usb/gadget/legacy/multi.c
-@@ -482,7 +482,7 @@ static struct usb_composite_driver multi
- 	.name		= "g_multi",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= multi_bind,
- 	.unbind		= multi_unbind,
- 	.needs_serial	= 1,
---- a/drivers/usb/gadget/legacy/ncm.c
-+++ b/drivers/usb/gadget/legacy/ncm.c
-@@ -197,7 +197,7 @@ static struct usb_composite_driver ncm_d
- 	.name		= "g_ncm",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= gncm_bind,
- 	.unbind		= gncm_unbind,
- };
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -1949,15 +1949,14 @@ static void dump_300_sprs(void)
+ 
+ 	printf("pidr   = %.16lx  tidr  = %.16lx\n",
+ 		mfspr(SPRN_PID), mfspr(SPRN_TIDR));
+-	printf("asdr   = %.16lx  psscr = %.16lx\n",
+-		mfspr(SPRN_ASDR), hv ? mfspr(SPRN_PSSCR)
+-					: mfspr(SPRN_PSSCR_PR));
++	printf("psscr  = %.16lx\n",
++		hv ? mfspr(SPRN_PSSCR) : mfspr(SPRN_PSSCR_PR));
+ 
+ 	if (!hv)
+ 		return;
+ 
+-	printf("ptcr   = %.16lx\n",
+-		mfspr(SPRN_PTCR));
++	printf("ptcr   = %.16lx  asdr  = %.16lx\n",
++		mfspr(SPRN_PTCR), mfspr(SPRN_ASDR));
+ #endif
+ }
+ 
 
 
