@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B736A157A42
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:21:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 522891577CF
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728279AbgBJNVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:21:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58926 "EHLO mail.kernel.org"
+        id S1729760AbgBJNCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:02:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbgBJMhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:31 -0500
+        id S1729001AbgBJMkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:31 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 814CC24671;
-        Mon, 10 Feb 2020 12:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3852C208C4;
+        Mon, 10 Feb 2020 12:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338251;
-        bh=MMy5b1V1IL5uHCq9NfdoFe3WHzgaxpAqJCJ80qPZUTM=;
+        s=default; t=1581338431;
+        bh=m+U00sw7e0xmBxIhKSkjHZxP8XgULJD6o0SKO1wayGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tl0Sv4JL7wowTEDZoRATx9grl1au8H8q0ztB5m8CRzgS8q0qJAFRlaD68uoWDhef8
-         25J2Zek1rzqgNXdzPuCC93l3MlNfK68U0prYIC+mgQaHn0qd9wNZIu7Mlo8Sr+iAIK
-         2l7nxt0fDLc3cfBXb4ksyzZKUaNziRwhUiIVpjqU=
+        b=F3SmhTtIrhaBpVnzr2KK9b6Cc64Nq71uv87HPb3LTcx0aMmGpCc4leML9Xl0hfgZY
+         wPlmnmkxM7337q+DiwIFfAgLi8y1T1vPbba4lZZgfJqCxgux0GQu90eGthRI6eH/+u
+         m4fbSNpdF3pBWOz6o9kryQdnJMf5KV2fLETWzx+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.4 114/309] power: supply: axp20x_ac_power: Fix reporting online status
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.5 157/367] riscv, bpf: Fix broken BPF tail calls
 Date:   Mon, 10 Feb 2020 04:31:10 -0800
-Message-Id: <20200210122417.526922108@linuxfoundation.org>
+Message-Id: <20200210122439.322516249@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Björn Töpel <bjorn.topel@gmail.com>
 
-commit 1c51aad8475d670ad58ae60adc9d32342381df8d upstream.
+commit f1003b787c00fbaa4b11619c6b23a885bfce8f07 upstream.
 
-AXP803/AXP813 have a flag that enables/disables the AC power supply
-input. This flag does not affect the status bits in PWR_INPUT_STATUS.
-Its effect can be verified by checking the battery charge/discharge
-state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
-the AC input.
+The BPF JIT incorrectly clobbered the a0 register, and did not flag
+usage of s5 register when BPF stack was being used.
 
-Take this flag into account when getting the ONLINE property of the AC
-input, on PMICs where this flag is present.
-
-Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
-Cc: stable@vger.kernel.org
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 2353ecc6f91f ("bpf, riscv: add BPF JIT for RV64G")
+Signed-off-by: Björn Töpel <bjorn.topel@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191216091343.23260-2-bjorn.topel@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/axp20x_ac_power.c |   31 +++++++++++++++++++++++++------
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ arch/riscv/net/bpf_jit_comp.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/axp20x_ac_power.c
-+++ b/drivers/power/supply/axp20x_ac_power.c
-@@ -23,6 +23,8 @@
- #define AXP20X_PWR_STATUS_ACIN_PRESENT	BIT(7)
- #define AXP20X_PWR_STATUS_ACIN_AVAIL	BIT(6)
+--- a/arch/riscv/net/bpf_jit_comp.c
++++ b/arch/riscv/net/bpf_jit_comp.c
+@@ -120,6 +120,11 @@ static bool seen_reg(int reg, struct rv_
+ 	return false;
+ }
  
-+#define AXP813_ACIN_PATH_SEL		BIT(7)
++static void mark_fp(struct rv_jit_context *ctx)
++{
++	__set_bit(RV_CTX_F_SEEN_S5, &ctx->flags);
++}
 +
- #define AXP813_VHOLD_MASK		GENMASK(5, 3)
- #define AXP813_VHOLD_UV_TO_BIT(x)	((((x) / 100000) - 40) << 3)
- #define AXP813_VHOLD_REG_TO_UV(x)	\
-@@ -40,6 +42,7 @@ struct axp20x_ac_power {
- 	struct power_supply *supply;
- 	struct iio_channel *acin_v;
- 	struct iio_channel *acin_i;
-+	bool has_acin_path_sel;
- };
+ static void mark_call(struct rv_jit_context *ctx)
+ {
+ 	__set_bit(RV_CTX_F_SEEN_CALL, &ctx->flags);
+@@ -596,7 +601,8 @@ static void __build_epilogue(u8 reg, str
  
- static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
-@@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(
- 			return ret;
+ 	emit(rv_addi(RV_REG_SP, RV_REG_SP, stack_adjust), ctx);
+ 	/* Set return value. */
+-	emit(rv_addi(RV_REG_A0, RV_REG_A5, 0), ctx);
++	if (reg == RV_REG_RA)
++		emit(rv_addi(RV_REG_A0, RV_REG_A5, 0), ctx);
+ 	emit(rv_jalr(RV_REG_ZERO, reg, 0), ctx);
+ }
  
- 		val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
+@@ -1426,6 +1432,10 @@ static void build_prologue(struct rv_jit
+ {
+ 	int stack_adjust = 0, store_offset, bpf_stack_adjust;
+ 
++	bpf_stack_adjust = round_up(ctx->prog->aux->stack_depth, 16);
++	if (bpf_stack_adjust)
++		mark_fp(ctx);
 +
-+		/* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
-+		if (val->intval && power->has_acin_path_sel) {
-+			ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
-+					  &reg);
-+			if (ret)
-+				return ret;
-+
-+			val->intval = !!(reg & AXP813_ACIN_PATH_SEL);
-+		}
-+
- 		return 0;
+ 	if (seen_reg(RV_REG_RA, ctx))
+ 		stack_adjust += 8;
+ 	stack_adjust += 8; /* RV_REG_FP */
+@@ -1443,7 +1453,6 @@ static void build_prologue(struct rv_jit
+ 		stack_adjust += 8;
  
- 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-@@ -224,21 +238,25 @@ static const struct power_supply_desc ax
- struct axp_data {
- 	const struct power_supply_desc	*power_desc;
- 	bool				acin_adc;
-+	bool				acin_path_sel;
- };
+ 	stack_adjust = round_up(stack_adjust, 16);
+-	bpf_stack_adjust = round_up(ctx->prog->aux->stack_depth, 16);
+ 	stack_adjust += bpf_stack_adjust;
  
- static const struct axp_data axp20x_data = {
--	.power_desc = &axp20x_ac_power_desc,
--	.acin_adc = true,
-+	.power_desc	= &axp20x_ac_power_desc,
-+	.acin_adc	= true,
-+	.acin_path_sel	= false,
- };
- 
- static const struct axp_data axp22x_data = {
--	.power_desc = &axp22x_ac_power_desc,
--	.acin_adc = false,
-+	.power_desc	= &axp22x_ac_power_desc,
-+	.acin_adc	= false,
-+	.acin_path_sel	= false,
- };
- 
- static const struct axp_data axp813_data = {
--	.power_desc = &axp813_ac_power_desc,
--	.acin_adc = false,
-+	.power_desc	= &axp813_ac_power_desc,
-+	.acin_adc	= false,
-+	.acin_path_sel	= true,
- };
- 
- static int axp20x_ac_power_probe(struct platform_device *pdev)
-@@ -282,6 +300,7 @@ static int axp20x_ac_power_probe(struct
- 	}
- 
- 	power->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	power->has_acin_path_sel = axp_data->acin_path_sel;
- 
- 	platform_set_drvdata(pdev, power);
- 
+ 	store_offset = stack_adjust - 8;
 
 
