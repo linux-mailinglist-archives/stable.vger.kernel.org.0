@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD3D157596
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:42:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80607157683
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730186AbgBJMmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:42:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
+        id S1728651AbgBJMxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:53:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730178AbgBJMmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730183AbgBJMmM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:42:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D9CC2467C;
-        Mon, 10 Feb 2020 12:42:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C81320838;
+        Mon, 10 Feb 2020 12:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338531;
-        bh=z8Bj/ZYhZcXRqYJUSCeKwABFvzo3UDEruzmyOlZ0WVU=;
+        s=default; t=1581338532;
+        bh=mUM/kUTuheMEU5s0EMgtV8p8tBKS0IMx5NwaDt9nmXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpL/Wp2lynV/zFWg+jLpu0SIjlNRagqvSCYBjM8ZtxufMEX44QQBVel4QlDpkneYR
-         xZh4hSnzT/PsxoGKb148MoFowfd0fOAH7a7v4xqcA4s8RvbB2ghOB6C0lt4X3BIJcg
-         3TIegDCoZyMNVa4V4voJwE412TNZBLrctwC12c9Q=
+        b=GiYALMHRhz8wGg+8hfN1al48md5+Xt3iqLMexxhPHkPQK0z1Q9rg8rTkD2rHjhFuI
+         RXOB9vX54iPgb6oeqjxXMBmo3Kt+XvUKN2wXHpuHZGojyetVeCqIWpCjAPpkyg4WlM
+         RPdXogvZsz9/EyUCZbpCWU7Fvr4WqU1ScRvNNHLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marios Pomonis <pomonis@google.com>,
-        Nick Finco <nifi@google.com>,
+        stable@vger.kernel.org, Liran Alon <liran.alon@oracle.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
-        Andrew Honig <ahonig@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 356/367] KVM: x86: Protect exit_reason from being used in Spectre-v1/L1TF attacks
-Date:   Mon, 10 Feb 2020 04:34:29 -0800
-Message-Id: <20200210122455.307475570@linuxfoundation.org>
+Subject: [PATCH 5.5 357/367] KVM: nVMX: vmread should not set rflags to specify success in case of #PF
+Date:   Mon, 10 Feb 2020 04:34:30 -0800
+Message-Id: <20200210122455.380067506@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -47,97 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit c926f2f7230b1a29e31914b51db680f8cbf3103f ]
+[ Upstream commit a4d956b9390418623ae5d07933e2679c68b6f83c ]
 
-This fixes a Spectre-v1/L1TF vulnerability in vmx_handle_exit().
-While exit_reason is set by the hardware and therefore should not be
-attacker-influenced, an unknown exit_reason could potentially be used to
-perform such an attack.
+In case writing to vmread destination operand result in a #PF, vmread
+should not call nested_vmx_succeed() to set rflags to specify success.
+Similar to as done in VMPTRST (See handle_vmptrst()).
 
-Fixes: 55d2375e58a6 ("KVM: nVMX: Move nested code to dedicated files")
-
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Signed-off-by: Nick Finco <nifi@google.com>
-Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 55 +++++++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 83464a86ac405..78e01e2524bc3 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -5904,34 +5904,39 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu)
- 		}
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 4aea7d304bebd..5bfa8228f0c74 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4807,8 +4807,10 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
+ 				vmx_instruction_info, true, len, &gva))
+ 			return 1;
+ 		/* _system ok, nested_vmx_check_permission has verified cpl=0 */
+-		if (kvm_write_guest_virt_system(vcpu, gva, &field_value, len, &e))
++		if (kvm_write_guest_virt_system(vcpu, gva, &field_value, len, &e)) {
+ 			kvm_inject_page_fault(vcpu, &e);
++			return 1;
++		}
  	}
  
--	if (exit_reason < kvm_vmx_max_exit_handlers
--	    && kvm_vmx_exit_handlers[exit_reason]) {
-+	if (exit_reason >= kvm_vmx_max_exit_handlers)
-+		goto unexpected_vmexit;
- #ifdef CONFIG_RETPOLINE
--		if (exit_reason == EXIT_REASON_MSR_WRITE)
--			return kvm_emulate_wrmsr(vcpu);
--		else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
--			return handle_preemption_timer(vcpu);
--		else if (exit_reason == EXIT_REASON_PENDING_INTERRUPT)
--			return handle_interrupt_window(vcpu);
--		else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
--			return handle_external_interrupt(vcpu);
--		else if (exit_reason == EXIT_REASON_HLT)
--			return kvm_emulate_halt(vcpu);
--		else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
--			return handle_ept_misconfig(vcpu);
-+	if (exit_reason == EXIT_REASON_MSR_WRITE)
-+		return kvm_emulate_wrmsr(vcpu);
-+	else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
-+		return handle_preemption_timer(vcpu);
-+	else if (exit_reason == EXIT_REASON_PENDING_INTERRUPT)
-+		return handle_interrupt_window(vcpu);
-+	else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
-+		return handle_external_interrupt(vcpu);
-+	else if (exit_reason == EXIT_REASON_HLT)
-+		return kvm_emulate_halt(vcpu);
-+	else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
-+		return handle_ept_misconfig(vcpu);
- #endif
--		return kvm_vmx_exit_handlers[exit_reason](vcpu);
--	} else {
--		vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n",
--				exit_reason);
--		dump_vmcs();
--		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
--		vcpu->run->internal.suberror =
-+
-+	exit_reason = array_index_nospec(exit_reason,
-+					 kvm_vmx_max_exit_handlers);
-+	if (!kvm_vmx_exit_handlers[exit_reason])
-+		goto unexpected_vmexit;
-+
-+	return kvm_vmx_exit_handlers[exit_reason](vcpu);
-+
-+unexpected_vmexit:
-+	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n", exit_reason);
-+	dump_vmcs();
-+	vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
-+	vcpu->run->internal.suberror =
- 			KVM_INTERNAL_ERROR_UNEXPECTED_EXIT_REASON;
--		vcpu->run->internal.ndata = 1;
--		vcpu->run->internal.data[0] = exit_reason;
--		return 0;
--	}
-+	vcpu->run->internal.ndata = 1;
-+	vcpu->run->internal.data[0] = exit_reason;
-+	return 0;
- }
- 
- /*
+ 	return nested_vmx_succeed(vcpu);
 -- 
 2.20.1
 
