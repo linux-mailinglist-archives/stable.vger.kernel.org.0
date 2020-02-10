@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 089591574F4
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FA1B1574FF
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728686AbgBJMhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58470 "EHLO mail.kernel.org"
+        id S1728871AbgBJMhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:37:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728106AbgBJMhO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:14 -0500
+        id S1728865AbgBJMhm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:42 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5666420661;
-        Mon, 10 Feb 2020 12:37:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5399F20838;
+        Mon, 10 Feb 2020 12:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338234;
-        bh=irbCVC1di7wloz/cOEiX1QG9QpnE2bzNzLB4e3lEqtw=;
+        s=default; t=1581338262;
+        bh=u5gjxbGuLQJXByiCbFPs4mdb0PD/2AnCQv8x4gXAxPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7T59SVTUJjhez7gSzvgIkWJS1c9QGifrZKr8JrLND+pvtr2grBaJJGU72uc0claJ
-         2dVtBf/1jIji3jKErNC7GShH3GzFy+wY6Eljn2bnBZK5psasf/okrKzNYq8BGSn/jY
-         aBV5eiX1B6MWx7oBhCOgz8m1e//ouxSh9Y5hHMFk=
+        b=G97qjJKq9SuagjmwttD14MFPhmey7+B86kOxawIFX4WgY/qmeKH6NV4zXG+rtyEbt
+         EgwBoHu7xBO0eYP05G6R5YiWSA5Uc6td/y0T9GBguebrLGs4mRcFK5e6QvgJhf5BFr
+         fjbQIlNrRx2FK90LvtVDMKg/ejT4U9lYqeTo6BuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 079/309] powerpc/32s: Fix CPU wake-up from sleep mode
-Date:   Mon, 10 Feb 2020 04:30:35 -0800
-Message-Id: <20200210122413.425085590@linuxfoundation.org>
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 084/309] PCI: keystone: Fix error handling when "num-viewport" DT property is not populated
+Date:   Mon, 10 Feb 2020 04:30:40 -0800
+Message-Id: <20200210122413.927268328@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,60 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 9933819099c4600b41a042f27a074470a43cf6b9 upstream.
+commit b0de922af53eede340986a2d05b6cd4b6d6efa43 upstream.
 
-Commit f7354ccac844 ("powerpc/32: Remove CURRENT_THREAD_INFO and
-rename TI_CPU") broke the CPU wake-up from sleep mode (i.e. when
-_TLF_SLEEPING is set) by delaying the tovirt(r2, r2).
+Fix error handling when "num-viewport" DT property is not populated.
 
-This is because r2 is not restored by fast_exception_return. It used
-to work (by chance ?) because CPU wake-up interrupt never comes from
-user, so r2 is expected to point to 'current' on return.
-
-Commit e2fb9f544431 ("powerpc/32: Prepare for Kernel Userspace Access
-Protection") broke it even more by clobbering r0 which is not
-restored by fast_exception_return either.
-
-Use r6 instead of r0. This is possible because r3-r6 are restored by
-fast_exception_return and only r3-r5 are used for exception arguments.
-
-For r2 it could be converted back to virtual address, but stay on the
-safe side and restore it from the stack instead. It should be live
-in the cache at that moment, so loading from the stack should make
-no difference compared to converting it from phys to virt.
-
-Fixes: f7354ccac844 ("powerpc/32: Remove CURRENT_THREAD_INFO and rename TI_CPU")
-Fixes: e2fb9f544431 ("powerpc/32: Prepare for Kernel Userspace Access Protection")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/6d02c3ae6ad77af34392e98117e44c2bf6d13ba1.1580121710.git.christophe.leroy@c-s.fr
+Fixes: 23284ad677a9 ("PCI: keystone: Add support for PCIe EP in AM654x Platforms")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v5.2+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/entry_32.S |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pci-keystone.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/entry_32.S
-+++ b/arch/powerpc/kernel/entry_32.S
-@@ -179,7 +179,7 @@ transfer_to_handler:
- 2:	/* if from kernel, check interrupted DOZE/NAP mode and
-          * check for stack overflow
-          */
--	kuap_save_and_lock r11, r12, r9, r2, r0
-+	kuap_save_and_lock r11, r12, r9, r2, r6
- 	addi	r2, r12, -THREAD
- 	lwz	r9,KSP_LIMIT(r12)
- 	cmplw	r1,r9			/* if r1 <= ksp_limit */
-@@ -284,6 +284,7 @@ reenable_mmu:
- 	rlwinm	r9,r9,0,~MSR_EE
- 	lwz	r12,_LINK(r11)		/* and return to address in LR */
- 	kuap_restore r11, r2, r3, r4, r5
-+	lwz	r2, GPR2(r11)
- 	b	fast_exception_return
- #endif
+--- a/drivers/pci/controller/dwc/pci-keystone.c
++++ b/drivers/pci/controller/dwc/pci-keystone.c
+@@ -1354,7 +1354,7 @@ static int __init ks_pcie_probe(struct p
+ 		ret = of_property_read_u32(np, "num-viewport", &num_viewport);
+ 		if (ret < 0) {
+ 			dev_err(dev, "unable to read *num-viewport* property\n");
+-			return ret;
++			goto err_get_sync;
+ 		}
  
+ 		/*
 
 
