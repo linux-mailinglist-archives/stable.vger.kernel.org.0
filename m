@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D24E6157AA9
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2698F157821
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728659AbgBJNY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:24:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
+        id S1730539AbgBJNFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728621AbgBJMhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:05 -0500
+        id S1729184AbgBJMkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BCC02051A;
-        Mon, 10 Feb 2020 12:37:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0B712051A;
+        Mon, 10 Feb 2020 12:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338224;
-        bh=Cii59v+tE1D5Tcds59Ldt4r2lnGyvOzYXC1dTbz939M=;
+        s=default; t=1581338404;
+        bh=/glp9sSdbLe3epTTSCqFRgpTWpPljAzDuqmKyRFBIH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDzWT/Nz0M6CQx8phgxFxGso7SpL0cGlmshWngtohztnMmnSzSRvklHeYwsFlPX7r
-         Q2f3t2GoFFN8CUBtXfWKdwqDn0iVHIdlnwUUJhS5ZTvhR+cttdiYBFE9UNQ5IeZ2GG
-         8cPml7VKgYaw5N8jS2CnR1+emQ/FJYgaI15cD2uM=
+        b=y6PSWcRj1D8daXsFeMyWhngvonIn6754Qc0NCAiCTe5mZQwFmE/kZYwkyYvzw/QeP
+         ggdDEIrMkoaQG5ac/8BSw3VyuT8fhgpWbEe0KTOFdsJnuls+CEyuEoimyLwj32MX1k
+         kEnpIt1k3/nhfU9iBb3n88u4nDXdZYeBrV7No9GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 061/309] platform/x86: intel_scu_ipc: Fix interrupt support
-Date:   Mon, 10 Feb 2020 04:30:17 -0800
-Message-Id: <20200210122411.814933888@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        "zhangyi (F)" <yi.zhang@huawei.com>, Stable@vger.kernel.org,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.5 105/367] ubifs: Fix deadlock in concurrent bulk-read and writepage
+Date:   Mon, 10 Feb 2020 04:30:18 -0800
+Message-Id: <20200210122434.083181923@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit e48b72a568bbd641c91dad354138d3c17d03ee6f upstream.
+commit f5de5b83303e61b1f3fb09bd77ce3ac2d7a475f2 upstream.
 
-Currently the driver has disabled interrupt support for Tangier but
-actually interrupt works just fine if the command is not written twice
-in a row. Also we need to ack the interrupt in the handler.
+In ubifs, concurrent execution of writepage and bulk read on the same file
+may cause ABBA deadlock, for example (Reproduce method see Link):
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Process A(Bulk-read starts from page4)         Process B(write page4 back)
+  vfs_read                                       wb_workfn or fsync
+  ...                                            ...
+  generic_file_buffered_read                     write_cache_pages
+    ubifs_readpage                                 LOCK(page4)
+
+      ubifs_bulk_read                              ubifs_writepage
+        LOCK(ui->ui_mutex)                           ubifs_write_inode
+
+	  ubifs_do_bulk_read                           LOCK(ui->ui_mutex)
+	    find_or_create_page(alloc page4)                  ↑
+	      LOCK(page4)                   <--     ABBA deadlock occurs!
+
+In order to ensure the serialization execution of bulk read, we can't
+remove the big lock 'ui->ui_mutex' in ubifs_bulk_read(). Instead, we
+allow ubifs_do_bulk_read() to lock page failed by replacing
+find_or_create_page(FGP_LOCK) with
+pagecache_get_page(FGP_LOCK | FGP_NOWAIT).
+
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Suggested-by: zhangyi (F) <yi.zhang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Fixes: 4793e7c5e1c ("UBIFS: add bulk-read facility")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206153
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel_scu_ipc.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ fs/ubifs/file.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/platform/x86/intel_scu_ipc.c
-+++ b/drivers/platform/x86/intel_scu_ipc.c
-@@ -67,26 +67,22 @@
- struct intel_scu_ipc_pdata_t {
- 	u32 i2c_base;
- 	u32 i2c_len;
--	u8 irq_mode;
- };
+--- a/fs/ubifs/file.c
++++ b/fs/ubifs/file.c
+@@ -786,7 +786,9 @@ static int ubifs_do_bulk_read(struct ubi
  
- static const struct intel_scu_ipc_pdata_t intel_scu_ipc_lincroft_pdata = {
- 	.i2c_base = 0xff12b000,
- 	.i2c_len = 0x10,
--	.irq_mode = 0,
- };
- 
- /* Penwell and Cloverview */
- static const struct intel_scu_ipc_pdata_t intel_scu_ipc_penwell_pdata = {
- 	.i2c_base = 0xff12b000,
- 	.i2c_len = 0x10,
--	.irq_mode = 1,
- };
- 
- static const struct intel_scu_ipc_pdata_t intel_scu_ipc_tangier_pdata = {
- 	.i2c_base  = 0xff00d000,
- 	.i2c_len = 0x10,
--	.irq_mode = 0,
- };
- 
- struct intel_scu_ipc_dev {
-@@ -99,6 +95,9 @@ struct intel_scu_ipc_dev {
- 
- static struct intel_scu_ipc_dev  ipcdev; /* Only one for now */
- 
-+#define IPC_STATUS		0x04
-+#define IPC_STATUS_IRQ		BIT(2)
-+
- /*
-  * IPC Read Buffer (Read Only):
-  * 16 byte buffer for receiving data from SCU, if IPC command
-@@ -120,11 +119,8 @@ static DEFINE_MUTEX(ipclock); /* lock us
-  */
- static inline void ipc_command(struct intel_scu_ipc_dev *scu, u32 cmd)
- {
--	if (scu->irq_mode) {
--		reinit_completion(&scu->cmd_complete);
--		writel(cmd | IPC_IOC, scu->ipc_base);
--	}
--	writel(cmd, scu->ipc_base);
-+	reinit_completion(&scu->cmd_complete);
-+	writel(cmd | IPC_IOC, scu->ipc_base);
- }
- 
- /*
-@@ -610,9 +606,10 @@ EXPORT_SYMBOL(intel_scu_ipc_i2c_cntrl);
- static irqreturn_t ioc(int irq, void *dev_id)
- {
- 	struct intel_scu_ipc_dev *scu = dev_id;
-+	int status = ipc_read_status(scu);
- 
--	if (scu->irq_mode)
--		complete(&scu->cmd_complete);
-+	writel(status | IPC_STATUS_IRQ, scu->ipc_base + IPC_STATUS);
-+	complete(&scu->cmd_complete);
- 
- 	return IRQ_HANDLED;
- }
-@@ -638,8 +635,6 @@ static int ipc_probe(struct pci_dev *pde
- 	if (!pdata)
- 		return -ENODEV;
- 
--	scu->irq_mode = pdata->irq_mode;
--
- 	err = pcim_enable_device(pdev);
- 	if (err)
- 		return err;
+ 		if (page_offset > end_index)
+ 			break;
+-		page = find_or_create_page(mapping, page_offset, ra_gfp_mask);
++		page = pagecache_get_page(mapping, page_offset,
++				 FGP_LOCK|FGP_ACCESSED|FGP_CREAT|FGP_NOWAIT,
++				 ra_gfp_mask);
+ 		if (!page)
+ 			break;
+ 		if (!PageUptodate(page))
 
 
