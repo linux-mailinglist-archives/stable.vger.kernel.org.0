@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3AD915751B
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 855261576F6
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729166AbgBJMih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:38:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34208 "EHLO mail.kernel.org"
+        id S1730030AbgBJM4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:56:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727121AbgBJMig (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:36 -0500
+        id S1728854AbgBJMlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:37 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 871B020842;
-        Mon, 10 Feb 2020 12:38:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 946A22085B;
+        Mon, 10 Feb 2020 12:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338315;
-        bh=e8f82DKQz4aJ43AsBrbD5bXPKYAC3BZSH2xaPsaR6n4=;
+        s=default; t=1581338496;
+        bh=kzcWBAzn3Ck2D384MPoUCXUGQQBdOU+MwAGkn6NkYNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kpIthwMoz+u17Oa5zWxITCTCbwScP16ImUHyFmaL1vj2DlQclPjZ+KIY6OdE28Nt
-         wozozFDsD27e0NgCE1+tpR5kaxRvYsBTP1DnAGIhiCQy7qosPVa0kvUvDXb5J26hXr
-         R4aKyC8KLcpDq4lp87v/2lxChR7KmXi7vhENndaw=
+        b=Tj4B0le/fIqoR87sY2bQSU2wF+ukrBnFMKKywEHootye3g7pauuHjCZ7WdkSb0tyE
+         W5hyrGnily0JzKk835lX+UgwMIopCcKO+dj3YrY1g5oYniH13IySdOgl63I2GE+X4d
+         IhN+AxzdnYlrU5LhQbIZjwoyGK/jeNIhAiOmvoso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
         Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 5.4 242/309] mtd: spi-nor: Split mt25qu512a (n25q512a) entry into two
+Subject: [PATCH 5.5 285/367] mtd: spi-nor: Split mt25qu512a (n25q512a) entry into two
 Date:   Mon, 10 Feb 2020 04:33:18 -0800
-Message-Id: <20200210122429.755070185@linuxfoundation.org>
+Message-Id: <20200210122450.244209204@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,7 +65,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mtd/spi-nor/spi-nor.c
 +++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -2310,15 +2310,16 @@ static const struct flash_info spi_nor_i
+@@ -2461,15 +2461,16 @@ static const struct flash_info spi_nor_i
  	{ "n25q256a",    INFO(0x20ba19, 0, 64 * 1024,  512, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
  	{ "n25q256ax1",  INFO(0x20bb19, 0, 64 * 1024,  512, SECT_4K | SPI_NOR_QUAD_READ) },
  	{ "n25q512ax3",  INFO(0x20ba20, 0, 64 * 1024, 1024, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ) },
