@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DD31579A8
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 688F01579AB
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728308AbgBJNRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:17:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32770 "EHLO mail.kernel.org"
+        id S1730945AbgBJNRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:17:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729005AbgBJMiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727881AbgBJMiE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:38:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AF3C2467B;
-        Mon, 10 Feb 2020 12:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2195E21739;
+        Mon, 10 Feb 2020 12:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338283;
-        bh=zFwTXLAAapvhvHXX5fTRrTFBKk4WkgZcYPAfNe+/4Mo=;
+        s=default; t=1581338284;
+        bh=vxbJSE48AtOSQeHdAWv3a1D0R3dzmxtEgd7rqvKjSc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CUBqTxPuYbnsYka40IunRBkSCAj+68fd1Prsx7jMd7yWY8+cCB1wTxTVQkX/IIqY
-         Az2jBAzTLpmzGvNXbIEWAVwUvgbKYSHp8DbjckRO9+aoMzR7KEQ3Fnq8piLB7afjPM
-         HUHeJn+r8m5r/+wSsIvATZFnsDpkBVuNDXjCI/q8=
+        b=HHWZO5yIqwRZx+mwPLD3dj526dcxK4/WoC37mUNIBZyMuxgjpBcUmaYf6SrcUOmxy
+         VMNSGNa0+Lri5nIRCjcAuDrzShYCepl+tWFitzlfyyZD+bImg6PhU4v0em9J/hOz8Z
+         ilZeHgdxlLsCNMnV4Z46GCI4bTM6APQVMvqhFV34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Amol Grover <frextrite@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 136/309] ASoC: SOF: core: release resources on errors in probe_continue
-Date:   Mon, 10 Feb 2020 04:31:32 -0800
-Message-Id: <20200210122419.431608102@linuxfoundation.org>
+Subject: [PATCH 5.4 137/309] tracing: Annotate ftrace_graph_hash pointer with __rcu
+Date:   Mon, 10 Feb 2020 04:31:33 -0800
+Message-Id: <20200210122419.524095400@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -46,118 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Amol Grover <frextrite@gmail.com>
 
-[ Upstream commit 410e5e55c9c1c9c0d452ac5b9adb37b933a7747e ]
+[ Upstream commit 24a9729f831462b1d9d61dc85ecc91c59037243f ]
 
-The initial intent of releasing resources in the .remove does not work
-well with HDaudio codecs. If the probe_continue() fails in a work
-queue, e.g. due to missing firmware or authentication issues, we don't
-release any resources, and as a result the kernel oopses during
-suspend operations.
+Fix following instances of sparse error
+kernel/trace/ftrace.c:5664:29: error: incompatible types in comparison
+kernel/trace/ftrace.c:5785:21: error: incompatible types in comparison
+kernel/trace/ftrace.c:5864:36: error: incompatible types in comparison
+kernel/trace/ftrace.c:5866:25: error: incompatible types in comparison
 
-The suggested fix is to release all resources during errors in
-probe_continue(), and use fw_state to track resource allocation
-state, so that .remove does not attempt to release the same
-hardware resources twice. PM operations are also modified so that
-no action is done if DSP resources have been freed due to
-an error at probe.
+Use rcu_dereference_protected to access the __rcu annotated pointer.
 
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Co-developed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Bugzilla:  http://bugzilla.suse.com/show_bug.cgi?id=1161246
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20200124213625.30186-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Link: http://lkml.kernel.org/r/20200201072703.17330-1-frextrite@gmail.com
+
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Amol Grover <frextrite@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/core.c | 32 +++++++++++---------------------
- sound/soc/sof/pm.c   |  4 ++++
- 2 files changed, 15 insertions(+), 21 deletions(-)
+ kernel/trace/ftrace.c | 2 +-
+ kernel/trace/trace.h  | 9 ++++++---
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
-index f9ebdf2cfc31d..12aec140819a2 100644
---- a/sound/soc/sof/core.c
-+++ b/sound/soc/sof/core.c
-@@ -440,7 +440,6 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 0708a41cfe2de..b38c6af10da5b 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5102,7 +5102,7 @@ static const struct file_operations ftrace_notrace_fops = {
  
- 	return 0;
+ static DEFINE_MUTEX(graph_lock);
  
--#if !IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE)
- fw_trace_err:
- 	snd_sof_free_trace(sdev);
- fw_run_err:
-@@ -451,22 +450,10 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
- 	snd_sof_free_debug(sdev);
- dbg_err:
- 	snd_sof_remove(sdev);
--#else
--
--	/*
--	 * when the probe_continue is handled in a work queue, the
--	 * probe does not fail so we don't release resources here.
--	 * They will be released with an explicit call to
--	 * snd_sof_device_remove() when the PCI/ACPI device is removed
--	 */
--
--fw_trace_err:
--fw_run_err:
--fw_load_err:
--ipc_err:
--dbg_err:
+-struct ftrace_hash *ftrace_graph_hash = EMPTY_HASH;
++struct ftrace_hash __rcu *ftrace_graph_hash = EMPTY_HASH;
+ struct ftrace_hash *ftrace_graph_notrace_hash = EMPTY_HASH;
  
--#endif
-+	/* all resources freed, update state to match */
-+	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
-+	sdev->first_boot = true;
+ enum graph_filter_type {
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index d685c61085c0d..f8fb3786af72a 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -932,22 +932,25 @@ extern void __trace_graph_return(struct trace_array *tr,
+ 				 unsigned long flags, int pc);
  
- 	return ret;
- }
-@@ -545,10 +532,12 @@ int snd_sof_device_remove(struct device *dev)
- 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
- 		cancel_work_sync(&sdev->probe_work);
+ #ifdef CONFIG_DYNAMIC_FTRACE
+-extern struct ftrace_hash *ftrace_graph_hash;
++extern struct ftrace_hash __rcu *ftrace_graph_hash;
+ extern struct ftrace_hash *ftrace_graph_notrace_hash;
  
--	snd_sof_fw_unload(sdev);
--	snd_sof_ipc_free(sdev);
--	snd_sof_free_debug(sdev);
--	snd_sof_free_trace(sdev);
-+	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED) {
-+		snd_sof_fw_unload(sdev);
-+		snd_sof_ipc_free(sdev);
-+		snd_sof_free_debug(sdev);
-+		snd_sof_free_trace(sdev);
-+	}
+ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+ {
+ 	unsigned long addr = trace->func;
+ 	int ret = 0;
++	struct ftrace_hash *hash;
  
- 	/*
- 	 * Unregister machine driver. This will unbind the snd_card which
-@@ -564,7 +553,8 @@ int snd_sof_device_remove(struct device *dev)
- 	 * scheduled on, when they are unloaded. Therefore, the DSP must be
- 	 * removed only after the topology has been unloaded.
- 	 */
--	snd_sof_remove(sdev);
-+	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED)
-+		snd_sof_remove(sdev);
+ 	preempt_disable_notrace();
  
- 	/* release firmware */
- 	release_firmware(pdata->fw);
-diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
-index e9fbac38d9238..195af259e78e3 100644
---- a/sound/soc/sof/pm.c
-+++ b/sound/soc/sof/pm.c
-@@ -269,6 +269,10 @@ static int sof_resume(struct device *dev, bool runtime_resume)
- 	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
- 		return 0;
- 
-+	/* DSP was never successfully started, nothing to resume */
-+	if (sdev->first_boot)
-+		return 0;
+-	if (ftrace_hash_empty(ftrace_graph_hash)) {
++	hash = rcu_dereference_protected(ftrace_graph_hash, !preemptible());
 +
- 	/*
- 	 * if the runtime_resume flag is set, call the runtime_resume routine
- 	 * or else call the system resume routine
++	if (ftrace_hash_empty(hash)) {
+ 		ret = 1;
+ 		goto out;
+ 	}
+ 
+-	if (ftrace_lookup_ip(ftrace_graph_hash, addr)) {
++	if (ftrace_lookup_ip(hash, addr)) {
+ 
+ 		/*
+ 		 * This needs to be cleared on the return functions
 -- 
 2.20.1
 
