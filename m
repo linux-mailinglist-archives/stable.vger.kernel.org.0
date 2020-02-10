@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A920157B65
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6C31578C7
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:10:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728346AbgBJN3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:29:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55482 "EHLO mail.kernel.org"
+        id S1730513AbgBJNKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:10:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbgBJMgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:20 -0500
+        id S1729359AbgBJMjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F04624650;
-        Mon, 10 Feb 2020 12:36:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26BC520838;
+        Mon, 10 Feb 2020 12:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338180;
-        bh=S9ow9gO52GfcGXXYRjY0xVKGdteFBx5MlxN/YjnS9Y0=;
+        s=default; t=1581338352;
+        bh=Uf/P5d/5TrksL8ea7MV227yLCwb075Ldl4o4O86/dTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qp/1+nNGNtD+DTjtnc+1ExEiCtRw/06Oy2jYdb+XVliNTkKrgUVGBVHwkasXacSEb
-         TxMs0dhUMvuMeFoDrQdwM3jNKwCOJ7qSVZ10SJi9dfYbWnCWzmtHkPJDLMv8s/fCUJ
-         0240rVqQzIwEjwzm07vaboMkhVyjq7FYrGWC/kR0=
+        b=1rLMCpoyfaJWW6R984SpOJPVvnhYvz7GJ2jzesghGND+1tdbTgNjgJh6fFRj6w+LH
+         GJZ/iGuzb+lceuVHJJFrGNuYz0EWzrTAdKrmXQZPlyqSdVvkm4MhA3YZDHH7hLecVS
+         y5TkqAZk+vpZiKAHWLfJNHE8yYAqz94K6b+Gtopo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 170/195] net: systemport: Avoid RBUF stuck in Wake-on-LAN mode
+Subject: [PATCH 5.4 272/309] net: systemport: Avoid RBUF stuck in Wake-on-LAN mode
 Date:   Mon, 10 Feb 2020 04:33:48 -0800
-Message-Id: <20200210122321.809578408@linuxfoundation.org>
+Message-Id: <20200210122432.789383038@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,7 +65,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/broadcom/bcmsysport.c
 +++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2716,6 +2716,9 @@ static int __maybe_unused bcm_sysport_re
+@@ -2728,6 +2728,9 @@ static int __maybe_unused bcm_sysport_re
  
  	umac_reset(priv);
  
