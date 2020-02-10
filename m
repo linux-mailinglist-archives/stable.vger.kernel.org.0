@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD0115794F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 731DD157942
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729635AbgBJNOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:14:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34308 "EHLO mail.kernel.org"
+        id S1728620AbgBJMih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:38:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728443AbgBJMif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:35 -0500
+        id S1728593AbgBJMih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:37 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05C4324650;
-        Mon, 10 Feb 2020 12:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1050B20838;
+        Mon, 10 Feb 2020 12:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338315;
-        bh=bsjo9ACvB7iO0PMfSLRDDBfCN2w9FOAxmPKsKFvA4fI=;
+        s=default; t=1581338316;
+        bh=GfY0bmBiqh0NqfU7FYMqZtKu8Wg4/HCjFIo9gPncUJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZH1IVPT4i1m4aCtYAOXJP1mYf/EInkvHhNFekZEkIQpvR4tEcC+B7CvlogU55SGlM
-         qu2JpvX85VLZtSno5igOrhYuPaw0Nz4g5fwUu4Z9lqLkV5+O1gwtCIX9xr5vhbLQKf
-         4u1X4bi/90LktEKYw0x3eybX64azLWOrq3mGiFK0=
+        b=MQkDwvlOheMaRq8jp/xVbEXBvbXD2nfx4+PfKrED8azWMqDt94V++kT5mCAWeh+mQ
+         gVcn9Zcoo3L1euTWKTzyVresssBvhO0WmlJR5yzTBLKF69X/OdYcIgQk+o6VKGqFY0
+         6U2TVcdVuZDOKdoSKCdZxpWHIwFP4jw6RpitCH0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 241/309] scsi: ufs: Recheck bkops level if bkops is disabled
-Date:   Mon, 10 Feb 2020 04:33:17 -0800
-Message-Id: <20200210122429.657334182@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.4 243/309] phy: qualcomm: Adjust indentation in read_poll_timeout
+Date:   Mon, 10 Feb 2020 04:33:19 -0800
+Message-Id: <20200210122429.853110610@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -46,55 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asutosh Das <asutoshd@codeaurora.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 24366c2afbb0539fb14eff330d4e3a5db5c0a3ef upstream.
+commit a89806c998ee123bb9c0f18526e55afd12c0c0ab upstream.
 
-bkops level should be rechecked upon receiving an exception.  Currently the
-level is being cached and never updated.
+Clang warns:
 
-Update bkops each time the level is checked.  Also do not use the cached
-bkops level value if it is disabled and then enabled.
+../drivers/phy/qualcomm/phy-qcom-apq8064-sata.c:83:4: warning:
+misleading indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+                 usleep_range(DELAY_INTERVAL_US, DELAY_INTERVAL_US + 50);
+                 ^
+../drivers/phy/qualcomm/phy-qcom-apq8064-sata.c:80:3: note: previous
+statement is here
+                if (readl_relaxed(addr) & mask)
+                ^
+1 warning generated.
 
-Fixes: afdfff59a0e0 (scsi: ufs: handle non spec compliant bkops behaviour by device)
-Link: https://lore.kernel.org/r/1574751214-8321-2-git-send-email-cang@qti.qualcomm.com
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This warning occurs because there is a space after the tab on this line.
+Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
+
+Fixes: 1de990d8a169 ("phy: qcom: Add driver for QCOM APQ8064 SATA PHY")
+Link: https://github.com/ClangBuiltLinux/linux/issues/816
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/ufs/ufshcd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/phy/qualcomm/phy-qcom-apq8064-sata.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5023,6 +5023,7 @@ static int ufshcd_disable_auto_bkops(str
+--- a/drivers/phy/qualcomm/phy-qcom-apq8064-sata.c
++++ b/drivers/phy/qualcomm/phy-qcom-apq8064-sata.c
+@@ -80,7 +80,7 @@ static int read_poll_timeout(void __iome
+ 		if (readl_relaxed(addr) & mask)
+ 			return 0;
  
- 	hba->auto_bkops_enabled = false;
- 	trace_ufshcd_auto_bkops_state(dev_name(hba->dev), "Disabled");
-+	hba->is_urgent_bkops_lvl_checked = false;
- out:
- 	return err;
- }
-@@ -5047,6 +5048,7 @@ static void ufshcd_force_reset_auto_bkop
- 		hba->ee_ctrl_mask &= ~MASK_EE_URGENT_BKOPS;
- 		ufshcd_disable_auto_bkops(hba);
- 	}
-+	hba->is_urgent_bkops_lvl_checked = false;
- }
+-		 usleep_range(DELAY_INTERVAL_US, DELAY_INTERVAL_US + 50);
++		usleep_range(DELAY_INTERVAL_US, DELAY_INTERVAL_US + 50);
+ 	} while (!time_after(jiffies, timeout));
  
- static inline int ufshcd_get_bkops_status(struct ufs_hba *hba, u32 *status)
-@@ -5093,6 +5095,7 @@ static int ufshcd_bkops_ctrl(struct ufs_
- 		err = ufshcd_enable_auto_bkops(hba);
- 	else
- 		err = ufshcd_disable_auto_bkops(hba);
-+	hba->urgent_bkops_lvl = curr_status;
- out:
- 	return err;
- }
+ 	return (readl_relaxed(addr) & mask) ? 0 : -ETIMEDOUT;
 
 
