@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33118157B24
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8837157913
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727801AbgBJN1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:27:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55878 "EHLO mail.kernel.org"
+        id S1727516AbgBJNMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:12:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728398AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:32 -0500
+        id S1727900AbgBJMiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:52 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24D052467C;
-        Mon, 10 Feb 2020 12:36:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 107BC24649;
+        Mon, 10 Feb 2020 12:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338190;
-        bh=xSKy0VUYvuRtdZfsXdTP62/aEzxuc94wctJhZJ9qRQ8=;
+        s=default; t=1581338332;
+        bh=f4kmDu/JvwbQrWcKHUCplWeVGT/aIKbR1AJbtnX2X9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXHJwrQrZVomnwJy2hz9acvR8NE959TtGGt/06joTt72lOpNjl4EmN0mISRj/a1EI
-         R79IVAT4HS48No37E42O9ua+Lx1Ou0m0gNl2umXqkB6QNFByNvSFiZ2EDU9Ij99ZCU
-         xQe+Melqp4jbIGl2UgFqvJKf0SzbQPPKID92Ovco=
+        b=mWI9TnEozfD46RiMg/7IzlTNfq5+IQKtu8LCRX5d/ynnHHumZCX3dVn0DRYc8yYxR
+         wEDnCy+086v1QnktksfI1r1Mkk7OqD+sWhf8DogvHa6ukDS1upImiBbinxL+n7c1oq
+         gqSrX/HDLwnHA+jSWm5sb6V0trvZyQ7MzYivZYaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 174/195] net: macb: Limit maximum GEM TX length in TSO
+Subject: [PATCH 5.4 276/309] net: macb: Limit maximum GEM TX length in TSO
 Date:   Mon, 10 Feb 2020 04:33:52 -0800
-Message-Id: <20200210122322.199856256@linuxfoundation.org>
+Message-Id: <20200210122433.150724415@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/cadence/macb_main.c
 +++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -66,7 +66,11 @@
+@@ -73,7 +73,11 @@ struct sifive_fu540_macb_mgmt {
  /* Max length of transmit frame must be a multiple of 8 bytes */
  #define MACB_TX_LEN_ALIGN	8
  #define MACB_MAX_TX_LEN		((unsigned int)((1 << MACB_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
