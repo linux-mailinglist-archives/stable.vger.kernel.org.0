@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBC311579A0
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E4A157768
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728320AbgBJNQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:16:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32860 "EHLO mail.kernel.org"
+        id S1729868AbgBJMlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728428AbgBJMiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:06 -0500
+        id S1729862AbgBJMlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:01 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9219C2080C;
-        Mon, 10 Feb 2020 12:38:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2905621739;
+        Mon, 10 Feb 2020 12:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338285;
-        bh=YVThjQpsf9l33qhOjJ0BlF8aWW2+kSz21nSIDEyouM4=;
+        s=default; t=1581338461;
+        bh=TjPCIGx70c/xuK9ZFkx8nMSD4QHZZjnp9Dt2xOdRpRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQuUw8JCH01yv41S2PMuxUPGhmU30Gi1Hw/NC+PG82HH0ul/nHJ2uIo9xDr/bUC5W
-         ZJ3udvIOsy0ReCsmnOdrzHldUfWb6WXi1fW1Us63vbVQkl1BWS/JD6Lz9YNMbjnlS4
-         JXYTSuN4W655nFHnhUX58Mk/eXADSP3TPenQ6NwI=
+        b=zEfSocdiHeyoCWGxc6lN4CZWqp+3rcr6AQKYSUxj3+XY2TfqfVPo34cLa7rGhbf86
+         oU87qIVK2EqCc/IUAJpMMd12AJuJSnaQ/qiW1HYELhig7kJfLeFc8j+ptTj9SdTL0c
+         ejH1leDbXhizJ6IHt5SD9cwWLz6wsDcoC3RkCK/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 175/309] btrfs: drop log root for dropped roots
+        stable@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
+        Gavin Shan <gshan@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 218/367] tools/kvm_stat: Fix kvm_exit filter name
 Date:   Mon, 10 Feb 2020 04:32:11 -0800
-Message-Id: <20200210122423.241644538@linuxfoundation.org>
+Message-Id: <20200210122444.287159578@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Gavin Shan <gshan@redhat.com>
 
-commit 889bfa39086e86b52fcfaa04d72c95eaeb12f9a5 upstream.
+commit 5fcf3a55a62afb0760ccb6f391d62f20bce4a42f upstream.
 
-If we fsync on a subvolume and create a log root for that volume, and
-then later delete that subvolume we'll never clean up its log root.  Fix
-this by making switch_commit_roots free the log for any dropped roots we
-encounter.  The extra churn is because we need a btrfs_trans_handle, not
-the btrfs_transaction.
+The filter name is fixed to "exit_reason" for some kvm_exit events, no
+matter what architect we have. Actually, the filter name ("exit_reason")
+is only applicable to x86, meaning it's broken on other architects
+including aarch64.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This fixes the issue by providing various kvm_exit filter names, depending
+on architect we're on. Afterwards, the variable filter name is picked and
+applied through ioctl(fd, SET_FILTER).
+
+Reported-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/transaction.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ tools/kvm/kvm_stat/kvm_stat |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -77,13 +77,14 @@ void btrfs_put_transaction(struct btrfs_
- 	}
- }
+--- a/tools/kvm/kvm_stat/kvm_stat
++++ b/tools/kvm/kvm_stat/kvm_stat
+@@ -270,6 +270,7 @@ class ArchX86(Arch):
+     def __init__(self, exit_reasons):
+         self.sc_perf_evt_open = 298
+         self.ioctl_numbers = IOCTL_NUMBERS
++        self.exit_reason_field = 'exit_reason'
+         self.exit_reasons = exit_reasons
  
--static noinline void switch_commit_roots(struct btrfs_transaction *trans)
-+static noinline void switch_commit_roots(struct btrfs_trans_handle *trans)
- {
-+	struct btrfs_transaction *cur_trans = trans->transaction;
- 	struct btrfs_fs_info *fs_info = trans->fs_info;
- 	struct btrfs_root *root, *tmp;
+     def debugfs_is_child(self, field):
+@@ -289,6 +290,7 @@ class ArchPPC(Arch):
+         # numbers depend on the wordsize.
+         char_ptr_size = ctypes.sizeof(ctypes.c_char_p)
+         self.ioctl_numbers['SET_FILTER'] = 0x80002406 | char_ptr_size << 16
++        self.exit_reason_field = 'exit_nr'
+         self.exit_reasons = {}
  
- 	down_write(&fs_info->commit_root_sem);
--	list_for_each_entry_safe(root, tmp, &trans->switch_commits,
-+	list_for_each_entry_safe(root, tmp, &cur_trans->switch_commits,
- 				 dirty_list) {
- 		list_del_init(&root->dirty_list);
- 		free_extent_buffer(root->commit_root);
-@@ -95,16 +96,17 @@ static noinline void switch_commit_roots
- 	}
+     def debugfs_is_child(self, field):
+@@ -300,6 +302,7 @@ class ArchA64(Arch):
+     def __init__(self):
+         self.sc_perf_evt_open = 241
+         self.ioctl_numbers = IOCTL_NUMBERS
++        self.exit_reason_field = 'esr_ec'
+         self.exit_reasons = AARCH64_EXIT_REASONS
  
- 	/* We can free old roots now. */
--	spin_lock(&trans->dropped_roots_lock);
--	while (!list_empty(&trans->dropped_roots)) {
--		root = list_first_entry(&trans->dropped_roots,
-+	spin_lock(&cur_trans->dropped_roots_lock);
-+	while (!list_empty(&cur_trans->dropped_roots)) {
-+		root = list_first_entry(&cur_trans->dropped_roots,
- 					struct btrfs_root, root_list);
- 		list_del_init(&root->root_list);
--		spin_unlock(&trans->dropped_roots_lock);
-+		spin_unlock(&cur_trans->dropped_roots_lock);
-+		btrfs_free_log(trans, root);
- 		btrfs_drop_and_free_fs_root(fs_info, root);
--		spin_lock(&trans->dropped_roots_lock);
-+		spin_lock(&cur_trans->dropped_roots_lock);
- 	}
--	spin_unlock(&trans->dropped_roots_lock);
-+	spin_unlock(&cur_trans->dropped_roots_lock);
- 	up_write(&fs_info->commit_root_sem);
- }
+     def debugfs_is_child(self, field):
+@@ -311,6 +314,7 @@ class ArchS390(Arch):
+     def __init__(self):
+         self.sc_perf_evt_open = 331
+         self.ioctl_numbers = IOCTL_NUMBERS
++        self.exit_reason_field = None
+         self.exit_reasons = None
  
-@@ -1359,7 +1361,7 @@ static int qgroup_account_snapshot(struc
- 	ret = commit_cowonly_roots(trans);
- 	if (ret)
- 		goto out;
--	switch_commit_roots(trans->transaction);
-+	switch_commit_roots(trans);
- 	ret = btrfs_write_and_wait_transaction(trans);
- 	if (ret)
- 		btrfs_handle_fs_error(fs_info, ret,
-@@ -2245,7 +2247,7 @@ int btrfs_commit_transaction(struct btrf
- 	list_add_tail(&fs_info->chunk_root->dirty_list,
- 		      &cur_trans->switch_commits);
+     def debugfs_is_child(self, field):
+@@ -541,8 +545,8 @@ class TracepointProvider(Provider):
+         """
+         filters = {}
+         filters['kvm_userspace_exit'] = ('reason', USERSPACE_EXIT_REASONS)
+-        if ARCH.exit_reasons:
+-            filters['kvm_exit'] = ('exit_reason', ARCH.exit_reasons)
++        if ARCH.exit_reason_field and ARCH.exit_reasons:
++            filters['kvm_exit'] = (ARCH.exit_reason_field, ARCH.exit_reasons)
+         return filters
  
--	switch_commit_roots(cur_trans);
-+	switch_commit_roots(trans);
- 
- 	ASSERT(list_empty(&cur_trans->dirty_bgs));
- 	ASSERT(list_empty(&cur_trans->io_bgs));
+     def _get_available_fields(self):
 
 
