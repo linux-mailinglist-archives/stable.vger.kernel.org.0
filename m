@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42BE9157B5B
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD3D157B5D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728363AbgBJMgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
+        id S1728365AbgBJN3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:29:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727769AbgBJMgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728107AbgBJMgX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:36:23 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD7C92080C;
-        Mon, 10 Feb 2020 12:36:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C50C2085B;
+        Mon, 10 Feb 2020 12:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338182;
-        bh=YlEwDFrSKq8OvMo9BNx/RNxgZBIVfezjeTaSa91GO+Y=;
+        s=default; t=1581338183;
+        bh=ifPQq6qPzA1afBGRSANabC2dz5dlK4Aib9d3hKQxbgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUPwmew/TEaZVhs3SaEE/pxHu3hcXtTgnKmVvvMXm309vqnukBmDL8TSEx1+8Mr+3
-         GM61KGZjJJotxIJmcWRjFBDqf/9td4J1YBCe3jJyLLAngxJY6Fjtp5zfG6Y4YxdUSN
-         hswN8V0ui2/WprNp7siBycIlExSE9sF5QTNDZJQ8=
+        b=wR1zdKLhW9q/O/nCSuiOAhvHvUMOmm7qOVYb1ZmF/17YITt+71hT9uPWKotDe9wKC
+         KzeKAd/hcaiTTU/vCyV47/51YyBNzodmZ9vYvvvxYcbd41CkHVsCrrZ+1Q0a3ZjpR5
+         9cHI36Wctreuk7+dTnlNnxzU/WJgiXCiGbrM0Y/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 135/195] KVM: x86: Fix potential put_fpu() w/o load_fpu() on MPX platform
-Date:   Mon, 10 Feb 2020 04:33:13 -0800
-Message-Id: <20200210122318.545731552@linuxfoundation.org>
+Subject: [PATCH 4.19 136/195] KVM: PPC: Book3S HV: Uninit vCPU if vcore creation fails
+Date:   Mon, 10 Feb 2020 04:33:14 -0800
+Message-Id: <20200210122318.634462883@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -46,53 +47,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit f958bd2314d117f8c29f4821401bc1925bc2e5ef upstream.
+commit 1a978d9d3e72ddfa40ac60d26301b154247ee0bc upstream.
 
-Unlike most state managed by XSAVE, MPX is initialized to zero on INIT.
-Because INITs are usually recognized in the context of a VCPU_RUN call,
-kvm_vcpu_reset() puts the guest's FPU so that the FPU state is resident
-in memory, zeros the MPX state, and reloads FPU state to hardware.  But,
-in the unlikely event that an INIT is recognized during
-kvm_arch_vcpu_ioctl_get_mpstate() via kvm_apic_accept_events(),
-kvm_vcpu_reset() will call kvm_put_guest_fpu() without a preceding
-kvm_load_guest_fpu() and corrupt the guest's FPU state (and possibly
-userspace's FPU state as well).
+Call kvm_vcpu_uninit() if vcore creation fails to avoid leaking any
+resources allocated by kvm_vcpu_init(), i.e. the vcpu->run page.
 
-Given that MPX is being removed from the kernel[*], fix the bug with the
-simple-but-ugly approach of loading the guest's FPU during
-KVM_GET_MP_STATE.
-
-[*] See commit f240652b6032b ("x86/mpx: Remove MPX APIs").
-
-Fixes: f775b13eedee2 ("x86,kvm: move qemu/guest FPU switching out to vcpu_run")
+Fixes: 371fefd6f2dc4 ("KVM: PPC: Allow book3s_hv guests to use SMT processor modes")
 Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kurz <groug@kaod.org>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Acked-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/kvm/book3s_hv.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8235,6 +8235,8 @@ int kvm_arch_vcpu_ioctl_get_mpstate(stru
- 				    struct kvm_mp_state *mp_state)
- {
- 	vcpu_load(vcpu);
-+	if (kvm_mpx_supported())
-+		kvm_load_guest_fpu(vcpu);
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2065,7 +2065,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+ 	mutex_unlock(&kvm->lock);
  
- 	kvm_apic_accept_events(vcpu);
- 	if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
-@@ -8243,6 +8245,8 @@ int kvm_arch_vcpu_ioctl_get_mpstate(stru
- 	else
- 		mp_state->mp_state = vcpu->arch.mp_state;
+ 	if (!vcore)
+-		goto free_vcpu;
++		goto uninit_vcpu;
  
-+	if (kvm_mpx_supported())
-+		kvm_put_guest_fpu(vcpu);
- 	vcpu_put(vcpu);
- 	return 0;
- }
+ 	spin_lock(&vcore->lock);
+ 	++vcore->num_threads;
+@@ -2082,6 +2082,8 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+ 
+ 	return vcpu;
+ 
++uninit_vcpu:
++	kvm_vcpu_uninit(vcpu);
+ free_vcpu:
+ 	kmem_cache_free(kvm_vcpu_cache, vcpu);
+ out:
 
 
