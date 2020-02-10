@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7BB15777F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A97157781
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728095AbgBJNA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:00:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S1730245AbgBJNBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:01:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729836AbgBJMkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729843AbgBJMkz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:40:55 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D32102051A;
-        Mon, 10 Feb 2020 12:40:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E77820661;
+        Mon, 10 Feb 2020 12:40:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338454;
-        bh=Ah3y0Faj6m51bO7okuTL13gZstjS4JflCio3GOBle/o=;
+        s=default; t=1581338455;
+        bh=C1+/RlnZs2Nk2K1ETRDZAwhJ4JS4GCmzt4qAEf3KLtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HDkvZiHtnIL7/uMfLRi3mgoiZZeXQUkPlZJNJcjMjJ1r3YMwAghTi09P2tiYqaUz/
-         9jZvJF3e/NNcqHv2sAADE30xf0A4xxYLo9lI3p9EEP37npfTqsAVKQGlb1ZuUoMiqF
-         vDkjqsi1CB4AReVH88tjhcZsStCls5NxmiXnfPAU=
+        b=ohnt3e5ABLf30wvrLoJL1BFAWAze1vKU2lFy/88DN9Y8mTvb4dQv99Z3mcPjBex/Y
+         NaeMQgQNzfwqZ/CtfA1TjY6/or39rsR4MFUEvXYYvZCqYV1bD6VBTglODhHFOkNnlj
+         OdmnimwRA+dV+Vat8ek2QfCxp0HHclbCxd2JePeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.5 164/367] libbpf: Add missing newline in opts validation macro
-Date:   Mon, 10 Feb 2020 04:31:17 -0800
-Message-Id: <20200210122439.992841802@linuxfoundation.org>
+        stable@vger.kernel.org, William Smith <williampsmith@fb.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>
+Subject: [PATCH 5.5 165/367] libbpf: Fix realloc usage in bpf_core_find_cands
+Date:   Mon, 10 Feb 2020 04:31:18 -0800
+Message-Id: <20200210122440.102702050@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,32 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-commit 12dd14b230b3c742b80272ecb8a83cdf824625ca upstream.
+commit 35b9211c0a2427e8f39e534f442f43804fc8d5ca upstream.
 
-The error log output in the opts validation macro was missing a newline.
+Fix bug requesting invalid size of reallocated array when constructing CO-RE
+relocation candidate list. This can cause problems if there are many potential
+candidates and a very fine-grained memory allocator bucket sizes are used.
 
-Fixes: 2ce8450ef5a3 ("libbpf: add bpf_object__open_{file, mem} w/ extensible opts")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Fixes: ddc7c3042614 ("libbpf: implement BPF CO-RE offset relocation algorithm")
+Reported-by: William Smith <williampsmith@fb.com>
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191219120714.928380-1-toke@redhat.com
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20200124201847.212528-1-andriin@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/lib/bpf/libbpf_internal.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/tools/lib/bpf/libbpf_internal.h
-+++ b/tools/lib/bpf/libbpf_internal.h
-@@ -76,7 +76,7 @@ static inline bool libbpf_validate_opts(
- 
- 		for (i = opts_sz; i < user_sz; i++) {
- 			if (opts[i]) {
--				pr_warn("%s has non-zero extra bytes",
-+				pr_warn("%s has non-zero extra bytes\n",
- 					type_name);
- 				return false;
- 			}
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -2744,7 +2744,9 @@ static struct ids_vec *bpf_core_find_can
+ 		if (strncmp(local_name, targ_name, local_essent_len) == 0) {
+ 			pr_debug("[%d] %s: found candidate [%d] %s\n",
+ 				 local_type_id, local_name, i, targ_name);
+-			new_ids = realloc(cand_ids->data, cand_ids->len + 1);
++			new_ids = reallocarray(cand_ids->data,
++					       cand_ids->len + 1,
++					       sizeof(*cand_ids->data));
+ 			if (!new_ids) {
+ 				err = -ENOMEM;
+ 				goto err_out;
 
 
