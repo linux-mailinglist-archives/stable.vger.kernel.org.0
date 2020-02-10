@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E530A157B9C
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC54157B96
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:31:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728354AbgBJNbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:31:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54644 "EHLO mail.kernel.org"
+        id S1728239AbgBJMgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727499AbgBJMgE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:04 -0500
+        id S1728232AbgBJMgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:05 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8E1D21734;
-        Mon, 10 Feb 2020 12:36:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DB3624672;
+        Mon, 10 Feb 2020 12:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338164;
-        bh=vcUR9wmEAtO2FBYQAV8RjznwaKODr29zqAbwMg+KLFE=;
+        bh=QLrCYCMToR/tJeTQ6ZWq5DMRRf6mp+uEOJQngrRT4OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfIIELoES62vseRDAWAC5HXJ/FfAOUKk8rKHewoYqqeQxsxcweY+WGOuUCemeG22u
-         /BA+XlrHDWQc6jtiwUgCRSzz5PW9Sa/roQ/NzlVt1N0gqtu6yAcVRCi5/LAqvXK1fR
-         tj3ZAdXNzEAPAwYwy9DVHaHMdo8Ce0Oqfw0u+z/o=
+        b=qTfiyQVYvOpjm2aVuy58Zi2N8NDSlTey3YodybStDJ/WwS3mR2gp0WQ8LtNhun/SJ
+         ++CeuUDvKP5XAq3cygAtjDEU8ZegyH95BUdgZ0Z5R/maLY1vwonQyrhXeOCFlHkZDp
+         aCt90Czf+3uY4RtPO2A5HNYnx6dXUDTtmIGHd/vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH 4.19 141/195] KVM: s390: do not clobber registers during guest reset/store status
-Date:   Mon, 10 Feb 2020 04:33:19 -0800
-Message-Id: <20200210122319.052019628@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.19 142/195] clk: tegra: Mark fuse clock as critical
+Date:   Mon, 10 Feb 2020 04:33:20 -0800
+Message-Id: <20200210122319.147338980@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -46,51 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Stephen Warren <swarren@nvidia.com>
 
-commit 55680890ea78be0df5e1384989f1be835043c084 upstream.
+commit bf83b96f87ae2abb1e535306ea53608e8de5dfbb upstream.
 
-The initial CPU reset clobbers the userspace fpc and the store status
-ioctl clobbers the guest acrs + fpr.  As these calls are only done via
-ioctl (and not via vcpu_run), no CPU context is loaded, so we can (and
-must) act directly on the sync regs, not on the thread context.
+For a little over a year, U-Boot on Tegra124 has configured the flow
+controller to perform automatic RAM re-repair on off->on power
+transitions of the CPU rail[1]. This is mandatory for correct operation
+of Tegra124. However, RAM re-repair relies on certain clocks, which the
+kernel must enable and leave running. The fuse clock is one of those
+clocks. Mark this clock as critical so that LP1 power mode (system
+suspend) operates correctly.
 
-Cc: stable@kernel.org
-Fixes: e1788bb995be ("KVM: s390: handle floating point registers in the run ioctl not in vcpu_put/load")
-Fixes: 31d8b8d41a7e ("KVM: s390: handle access registers in the run ioctl not in vcpu_put/load")
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200131100205.74720-2-frankja@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
+
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/kvm-s390.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/clk/tegra/clk-tegra-periph.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2564,9 +2564,7 @@ static void kvm_s390_vcpu_initial_reset(
- 	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
- 					CR14_UNUSED_33 |
- 					CR14_EXTERNAL_DAMAGE_SUBMASK;
--	/* make sure the new fpc will be lazily loaded */
--	save_fpu_regs();
--	current->thread.fpu.fpc = 0;
-+	vcpu->run->s.regs.fpc = 0;
- 	vcpu->arch.sie_block->gbea = 1;
- 	vcpu->arch.sie_block->pp = 0;
- 	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
-@@ -3994,7 +3992,7 @@ long kvm_arch_vcpu_ioctl(struct file *fi
- 	switch (ioctl) {
- 	case KVM_S390_STORE_STATUS:
- 		idx = srcu_read_lock(&vcpu->kvm->srcu);
--		r = kvm_s390_vcpu_store_status(vcpu, arg);
-+		r = kvm_s390_store_status_unloaded(vcpu, arg);
- 		srcu_read_unlock(&vcpu->kvm->srcu, idx);
- 		break;
- 	case KVM_S390_SET_INITIAL_PSW: {
+--- a/drivers/clk/tegra/clk-tegra-periph.c
++++ b/drivers/clk/tegra/clk-tegra-periph.c
+@@ -799,7 +799,11 @@ static struct tegra_periph_init_data gat
+ 	GATE("ahbdma", "hclk", 33, 0, tegra_clk_ahbdma, 0),
+ 	GATE("apbdma", "pclk", 34, 0, tegra_clk_apbdma, 0),
+ 	GATE("kbc", "clk_32k", 36, TEGRA_PERIPH_ON_APB | TEGRA_PERIPH_NO_RESET, tegra_clk_kbc, 0),
+-	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, 0),
++	/*
++	 * Critical for RAM re-repair operation, which must occur on resume
++	 * from LP1 system suspend and as part of CCPLEX cluster switching.
++	 */
++	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, CLK_IS_CRITICAL),
+ 	GATE("fuse_burn", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse_burn, 0),
+ 	GATE("kfuse", "clk_m", 40, TEGRA_PERIPH_ON_APB, tegra_clk_kfuse, 0),
+ 	GATE("apbif", "clk_m", 107, TEGRA_PERIPH_ON_APB, tegra_clk_apbif, 0),
 
 
