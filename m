@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6167A1577C7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC6F157A21
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729905AbgBJNC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:02:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
+        id S1727911AbgBJNUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:20:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729763AbgBJMkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:35 -0500
+        id S1728829AbgBJMhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:38 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 449D524676;
-        Mon, 10 Feb 2020 12:40:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3638620661;
+        Mon, 10 Feb 2020 12:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338435;
-        bh=860PfVHuVvVmnE/uxN+52Ty0cY9gG8ZaYg2GcEvQW/o=;
+        s=default; t=1581338258;
+        bh=8ZdGH4cViKER73J86CwWEW5+ohT/R9M7TtH64Uwyo78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cC4TUljoqo618JXMLocmreau6U9asmSSMNIUiYETsUPVWzyF9fOl0npzTQPskPGm5
-         Zp/bBOrX5/dZPH8xzjNxkwgp+LNmbxVxRWWqd6oi/+7pENHXf0ScJAFxNOdEiRAS6x
-         GCk8fQ5SalFF20FS+/V9NUxNtmL2a52pgIfzKU2U=
+        b=2UOLpxVHYYq4jiEjtsZsQPkM6AnhdRnoXxJPnW72kPavIJyxIL57NmPlCxlrMS/5o
+         M8H4LUtHjxFfZfeI1UMwQVF4ksdModgcmexy5Gxkywu6tNR721kghYrQSr8QTTfqVE
+         RdM8U4/x/BPtA7+ae8vP7+6TV6aZSExjEONy12hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>
-Subject: [PATCH 5.5 168/367] samples/bpf: Xdp_redirect_cpu fix missing tracepoint attach
-Date:   Mon, 10 Feb 2020 04:31:21 -0800
-Message-Id: <20200210122440.403356701@linuxfoundation.org>
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 126/309] ARM: dma-api: fix max_pfn off-by-one error in __dma_supported()
+Date:   Mon, 10 Feb 2020 04:31:22 -0800
+Message-Id: <20200210122418.528957067@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,138 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit f9e6bfdbaf0cf304d72c70a05d81acac01a04f48 upstream.
+commit f3cc4e1d44a813a0685f2e558b78ace3db559722 upstream.
 
-When sample xdp_redirect_cpu was converted to use libbpf, the
-tracepoints used by this sample were not getting attached automatically
-like with bpf_load.c. The BPF-maps was still getting loaded, thus
-nobody notice that the tracepoints were not updating these maps.
+max_pfn, as set in arch/arm/mm/init.c:
 
-This fix doesn't use the new skeleton code, as this bug was introduced
-in v5.1 and stable might want to backport this. E.g. Red Hat QA uses
-this sample as part of their testing.
+    static void __init find_limits(unsigned long *min,
+				   unsigned long *max_low,
+				   unsigned long *max_high)
+    {
+	    *max_low = PFN_DOWN(memblock_get_current_limit());
+	    *min = PFN_UP(memblock_start_of_DRAM());
+	    *max_high = PFN_DOWN(memblock_end_of_DRAM());
+    }
 
-Fixes: bbaf6029c49c ("samples/bpf: Convert XDP samples to libbpf usage")
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/157685877642.26195.2798780195186786841.stgit@firesoul
+with memblock_end_of_DRAM() pointing to the next byte after DRAM.  As
+such, max_pfn points to the PFN after the end of DRAM.
+
+Thus when using max_pfn to check DMA masks, we should subtract one when
+checking DMA ranges against it.
+
+Commit 8bf1268f48ad ("ARM: dma-api: fix off-by-one error in
+__dma_supported()") fixed the same issue, but missed this spot.
+
+This issue was found while working on the sun4i-csi v4l2 driver on the
+Allwinner R40 SoC.  On Allwinner SoCs, DRAM is offset at 0x40000000, and
+we are starting to use of_dma_configure() with the "dma-ranges" property
+in the device tree to have the DMA API handle the offset.
+
+In this particular instance, dma-ranges was set to the same range as the
+actual available (2 GiB) DRAM.  The following error appeared when the
+driver attempted to allocate a buffer:
+
+    sun4i-csi 1c09000.csi: Coherent DMA mask 0x7fffffff (pfn 0x40000-0xc0000)
+    covers a smaller range of system memory than the DMA zone pfn 0x0-0xc0001
+    sun4i-csi 1c09000.csi: dma_alloc_coherent of size 307200 failed
+
+Fixing the off-by-one error makes things work.
+
+Link: http://lkml.kernel.org/r/20191224030239.5656-1-wens@kernel.org
+Fixes: 11a5aa32562e ("ARM: dma-mapping: check DMA mask against available memory")
+Fixes: 9f28cde0bc64 ("ARM: another fix for the DMA mapping checks")
+Fixes: ab746573c405 ("ARM: dma-mapping: allow larger DMA mask than supported")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- samples/bpf/xdp_redirect_cpu_user.c |   59 +++++++++++++++++++++++++++++++++---
- 1 file changed, 55 insertions(+), 4 deletions(-)
+ arch/arm/mm/dma-mapping.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/samples/bpf/xdp_redirect_cpu_user.c
-+++ b/samples/bpf/xdp_redirect_cpu_user.c
-@@ -16,6 +16,10 @@ static const char *__doc__ =
- #include <getopt.h>
- #include <net/if.h>
- #include <time.h>
-+#include <linux/limits.h>
-+
-+#define __must_check
-+#include <linux/err.h>
+--- a/arch/arm/mm/dma-mapping.c
++++ b/arch/arm/mm/dma-mapping.c
+@@ -221,7 +221,7 @@ EXPORT_SYMBOL(arm_coherent_dma_ops);
  
- #include <arpa/inet.h>
- #include <linux/if_link.h>
-@@ -46,6 +50,10 @@ static int cpus_count_map_fd;
- static int cpus_iterator_map_fd;
- static int exception_cnt_map_fd;
- 
-+#define NUM_TP 5
-+struct bpf_link *tp_links[NUM_TP] = { 0 };
-+static int tp_cnt = 0;
-+
- /* Exit return codes */
- #define EXIT_OK		0
- #define EXIT_FAIL		1
-@@ -88,6 +96,10 @@ static void int_exit(int sig)
- 			printf("program on interface changed, not removing\n");
- 		}
- 	}
-+	/* Detach tracepoints */
-+	while (tp_cnt)
-+		bpf_link__destroy(tp_links[--tp_cnt]);
-+
- 	exit(EXIT_OK);
- }
- 
-@@ -588,23 +600,61 @@ static void stats_poll(int interval, boo
- 	free_stats_record(prev);
- }
- 
-+static struct bpf_link * attach_tp(struct bpf_object *obj,
-+				   const char *tp_category,
-+				   const char* tp_name)
-+{
-+	struct bpf_program *prog;
-+	struct bpf_link *link;
-+	char sec_name[PATH_MAX];
-+	int len;
-+
-+	len = snprintf(sec_name, PATH_MAX, "tracepoint/%s/%s",
-+		       tp_category, tp_name);
-+	if (len < 0)
-+		exit(EXIT_FAIL);
-+
-+	prog = bpf_object__find_program_by_title(obj, sec_name);
-+	if (!prog) {
-+		fprintf(stderr, "ERR: finding progsec: %s\n", sec_name);
-+		exit(EXIT_FAIL_BPF);
-+	}
-+
-+	link = bpf_program__attach_tracepoint(prog, tp_category, tp_name);
-+	if (IS_ERR(link))
-+		exit(EXIT_FAIL_BPF);
-+
-+	return link;
-+}
-+
-+static void init_tracepoints(struct bpf_object *obj) {
-+	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_redirect_err");
-+	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_redirect_map_err");
-+	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_exception");
-+	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_cpumap_enqueue");
-+	tp_links[tp_cnt++] = attach_tp(obj, "xdp", "xdp_cpumap_kthread");
-+}
-+
- static int init_map_fds(struct bpf_object *obj)
+ static int __dma_supported(struct device *dev, u64 mask, bool warn)
  {
--	cpu_map_fd = bpf_object__find_map_fd_by_name(obj, "cpu_map");
--	rx_cnt_map_fd = bpf_object__find_map_fd_by_name(obj, "rx_cnt");
-+	/* Maps updated by tracepoints */
- 	redirect_err_cnt_map_fd =
- 		bpf_object__find_map_fd_by_name(obj, "redirect_err_cnt");
-+	exception_cnt_map_fd =
-+		bpf_object__find_map_fd_by_name(obj, "exception_cnt");
- 	cpumap_enqueue_cnt_map_fd =
- 		bpf_object__find_map_fd_by_name(obj, "cpumap_enqueue_cnt");
- 	cpumap_kthread_cnt_map_fd =
- 		bpf_object__find_map_fd_by_name(obj, "cpumap_kthread_cnt");
-+
-+	/* Maps used by XDP */
-+	rx_cnt_map_fd = bpf_object__find_map_fd_by_name(obj, "rx_cnt");
-+	cpu_map_fd = bpf_object__find_map_fd_by_name(obj, "cpu_map");
- 	cpus_available_map_fd =
- 		bpf_object__find_map_fd_by_name(obj, "cpus_available");
- 	cpus_count_map_fd = bpf_object__find_map_fd_by_name(obj, "cpus_count");
- 	cpus_iterator_map_fd =
- 		bpf_object__find_map_fd_by_name(obj, "cpus_iterator");
--	exception_cnt_map_fd =
--		bpf_object__find_map_fd_by_name(obj, "exception_cnt");
+-	unsigned long max_dma_pfn = min(max_pfn, arm_dma_pfn_limit);
++	unsigned long max_dma_pfn = min(max_pfn - 1, arm_dma_pfn_limit);
  
- 	if (cpu_map_fd < 0 || rx_cnt_map_fd < 0 ||
- 	    redirect_err_cnt_map_fd < 0 || cpumap_enqueue_cnt_map_fd < 0 ||
-@@ -662,6 +712,7 @@ int main(int argc, char **argv)
- 			strerror(errno));
- 		return EXIT_FAIL;
- 	}
-+	init_tracepoints(obj);
- 	if (init_map_fds(obj) < 0) {
- 		fprintf(stderr, "bpf_object__find_map_fd_by_name failed\n");
- 		return EXIT_FAIL;
+ 	/*
+ 	 * Translate the device's DMA mask to a PFN limit.  This
 
 
