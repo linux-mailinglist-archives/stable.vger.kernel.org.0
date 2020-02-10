@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51853157AA8
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B559157AA4
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728639AbgBJNYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728703AbgBJNYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 08:24:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728629AbgBJMhG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728633AbgBJMhG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:37:06 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BBAB24671;
-        Mon, 10 Feb 2020 12:37:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23A8E2051A;
+        Mon, 10 Feb 2020 12:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338225;
-        bh=4IQ5zJE4sySLZcYqiaJgyRjIxTmR+KHTVtfdhSk4Ubo=;
+        s=default; t=1581338226;
+        bh=J5DLvdB6gBroYHWGrAiyydWfzx0oanCDBY7mMDZ58fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jC4G8TTG3Y8Yufd9Qf0a+5pWiOnx+l8Wfd5RiCk/Pj+/QwcPZo2kvOJs243djQv3Z
-         0iJPpmLX7u8SdjwPDVUMqhIbop5U9IL0GzOPPMS1cVg3ysYy28kpMo/ZtFG2vh/XT/
-         oIVcTRO9wzdZCW+xjDIbmhcfdcSLPJogU8K+v8QU=
+        b=h2U4s15aIPTqx5Z2ed4ROB2lqsc98JxmA+PVISVDhjf3WlTtO9/RvQkc/sQkBIE79
+         O8S6RAjb0ZYrqrqSQ8+SoOVKiPla5DvB+Dan3o+AMVe+YPNBWeKPXQjxNfe+6muz9w
+         mj7xOzvVWdrQpw5mL63QBmlzRl/IThKMncAnFn8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Zhi <yong.zhi@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 064/309] ALSA: hda: Add JasperLake PCI ID and codec vid
-Date:   Mon, 10 Feb 2020 04:30:20 -0800
-Message-Id: <20200210122412.087485940@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 065/309] arm64: acpi: fix DAIF manipulation with pNMI
+Date:   Mon, 10 Feb 2020 04:30:21 -0800
+Message-Id: <20200210122412.185333033@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -44,45 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Zhi <yong.zhi@intel.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 78be2228c15dd45865b102b29d72e721f0ace9b1 upstream.
+commit e533dbe9dcb199bb637a2c465f3a6e70564994fe upstream.
 
-Add HD Audio Device PCI ID and codec vendor_id for the Intel JasperLake
-REV2/A0 silicon.
+Since commit:
 
-Signed-off-by: Yong Zhi <yong.zhi@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+  d44f1b8dd7e66d80 ("arm64: KVM/mm: Move SEA handling behind a single 'claim' interface")
+
+... the top-level APEI SEA handler has the shape:
+
+1. current_flags = arch_local_save_flags()
+2. local_daif_restore(DAIF_ERRCTX)
+3. <GHES handler>
+4. local_daif_restore(current_flags)
+
+However, since commit:
+
+  4a503217ce37e1f4 ("arm64: irqflags: Use ICC_PMR_EL1 for interrupt masking")
+
+... when pseudo-NMIs (pNMIs) are in use, arch_local_save_flags() will save
+the PMR value rather than the DAIF flags.
+
+The combination of these two commits means that the APEI SEA handler will
+erroneously attempt to restore the PMR value into DAIF. Fix this by
+factoring local_daif_save_flags() out of local_daif_save(), so that we
+can consistently save DAIF in step #1, regardless of whether pNMIs are in
+use.
+
+Both commits were introduced concurrently in v5.0.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200131204003.10153-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 4a503217ce37e1f4 ("arm64: irqflags: Use ICC_PMR_EL1 for interrupt masking")
+Fixes: d44f1b8dd7e66d80 ("arm64: KVM/mm: Move SEA handling behind a single 'claim' interface")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
+Cc: Will Deacon <will@kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c  |    2 ++
- sound/pci/hda/patch_hdmi.c |    1 +
- 2 files changed, 3 insertions(+)
+ arch/arm64/include/asm/daifflags.h |   11 ++++++++++-
+ arch/arm64/kernel/acpi.c           |    2 +-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2417,6 +2417,8 @@ static const struct pci_device_id azx_id
- 	/* Jasperlake */
- 	{ PCI_DEVICE(0x8086, 0x38c8),
- 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
-+	{ PCI_DEVICE(0x8086, 0x4dc8),
-+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
- 	/* Tigerlake */
- 	{ PCI_DEVICE(0x8086, 0xa0c8),
- 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -4153,6 +4153,7 @@ HDA_CODEC_ENTRY(0x8086280c, "Cannonlake
- HDA_CODEC_ENTRY(0x8086280d, "Geminilake HDMI",	patch_i915_glk_hdmi),
- HDA_CODEC_ENTRY(0x8086280f, "Icelake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x80862812, "Tigerlake HDMI",	patch_i915_tgl_hdmi),
-+HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
- HDA_CODEC_ENTRY(0x80862882, "Valleyview2 HDMI",	patch_i915_byt_hdmi),
- HDA_CODEC_ENTRY(0x80862883, "Braswell HDMI",	patch_i915_byt_hdmi),
+--- a/arch/arm64/include/asm/daifflags.h
++++ b/arch/arm64/include/asm/daifflags.h
+@@ -36,7 +36,7 @@ static inline void local_daif_mask(void)
+ 	trace_hardirqs_off();
+ }
+ 
+-static inline unsigned long local_daif_save(void)
++static inline unsigned long local_daif_save_flags(void)
+ {
+ 	unsigned long flags;
+ 
+@@ -48,6 +48,15 @@ static inline unsigned long local_daif_s
+ 			flags |= PSR_I_BIT;
+ 	}
+ 
++	return flags;
++}
++
++static inline unsigned long local_daif_save(void)
++{
++	unsigned long flags;
++
++	flags = local_daif_save_flags();
++
+ 	local_daif_mask();
+ 
+ 	return flags;
+--- a/arch/arm64/kernel/acpi.c
++++ b/arch/arm64/kernel/acpi.c
+@@ -274,7 +274,7 @@ int apei_claim_sea(struct pt_regs *regs)
+ 	if (!IS_ENABLED(CONFIG_ACPI_APEI_GHES))
+ 		return err;
+ 
+-	current_flags = arch_local_save_flags();
++	current_flags = local_daif_save_flags();
+ 
+ 	/*
+ 	 * SEA can interrupt SError, mask it and describe this as an NMI so
 
 
