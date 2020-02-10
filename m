@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7470D157BC0
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26448157BB9
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728107AbgBJNcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:32:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53642 "EHLO mail.kernel.org"
+        id S1728157AbgBJMfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728129AbgBJMfu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:50 -0500
+        id S1728143AbgBJMfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:52 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6847215A4;
-        Mon, 10 Feb 2020 12:35:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 426912173E;
+        Mon, 10 Feb 2020 12:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338149;
-        bh=7S+nz84V2XBwIG/SFHIOdFnJ93coRYt3lxMrqd/7a2U=;
+        s=default; t=1581338151;
+        bh=LRQoC9yuuyD4WWDvDZl85Iz9E1DsKg88NcmVKwZTNXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJySgIVeqG6nE998HDkf4gvxGmrczKdrta6VoK50jELtwg1/YCrzyiSdc7AOx0mnX
-         r6drmITaMCZmOf2kdytqxPmnnEPl/72Orx1PifeJ/hJHYqtASTbCS8z+Q/OL1zgX+G
-         fro740vIzAl15FE1zsMJbdvXkiechByhGzCR64WQ=
+        b=KVkDMKx0vExX2HmblZZCqLkXLZaFTroTcZRNQGm3vMI3FzuoG78arJfQoitwD43lR
+         ZEKzJC5Wl0lXGSq1L7eshNI7WRbeJvNnXdUjLNMj0YFRDMwDetvE3SEvbpJhB/38v8
+         +BUZAgs3rxQBQnSGTLFcTnKQQU9v1G/c07Ol2tKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Frank Sorenson <sorenson@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.19 112/195] sunrpc: expiry_time should be seconds not timeval
-Date:   Mon, 10 Feb 2020 04:32:50 -0800
-Message-Id: <20200210122316.459145421@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.19 114/195] gfs2: fix O_SYNC write handling
+Date:   Mon, 10 Feb 2020 04:32:52 -0800
+Message-Id: <20200210122316.597539430@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -45,54 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Bergantinos Corpas <rbergant@redhat.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 3d96208c30f84d6edf9ab4fac813306ac0d20c10 upstream.
+commit 6e5e41e2dc4e4413296d5a4af54ac92d7cd52317 upstream.
 
-When upcalling gssproxy, cache_head.expiry_time is set as a
-timeval, not seconds since boot. As such, RPC cache expiry
-logic will not clean expired objects created under
-auth.rpcsec.context cache.
+In gfs2_file_write_iter, for direct writes, the error checking in the buffered
+write fallback case is incomplete.  This can cause inode write errors to go
+undetected.  Fix and clean up gfs2_file_write_iter along the way.
 
-This has proven to cause kernel memory leaks on field. Using
-64 bit variants of getboottime/timespec
+Based on a proposed fix by Christoph Hellwig <hch@lst.de>.
 
-Expiration times have worked this way since 2010's c5b29f885afe "sunrpc:
-use seconds since boot in expiry cache".  The gssproxy code introduced
-in 2012 added gss_proxy_save_rsc and introduced the bug.  That's a while
-for this to lurk, but it required a bit of an extreme case to make it
-obvious.
-
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 030d794bf498 "SUNRPC: Use gssproxy upcall for server..."
-Tested-By: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 967bcc91b044 ("gfs2: iomap direct I/O support")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/auth_gss/svcauth_gss.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/gfs2/file.c |   51 +++++++++++++++++++++------------------------------
+ 1 file changed, 21 insertions(+), 30 deletions(-)
 
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1224,6 +1224,7 @@ static int gss_proxy_save_rsc(struct cac
- 		dprintk("RPC:       No creds found!\n");
- 		goto out;
- 	} else {
-+		struct timespec64 boot;
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -780,7 +780,7 @@ static ssize_t gfs2_file_write_iter(stru
+ 	struct file *file = iocb->ki_filp;
+ 	struct inode *inode = file_inode(file);
+ 	struct gfs2_inode *ip = GFS2_I(inode);
+-	ssize_t written = 0, ret;
++	ssize_t ret;
  
- 		/* steal creds */
- 		rsci.cred = ud->creds;
-@@ -1244,6 +1245,9 @@ static int gss_proxy_save_rsc(struct cac
- 						&expiry, GFP_KERNEL);
- 		if (status)
- 			goto out;
-+
-+		getboottime64(&boot);
-+		expiry -= boot.tv_sec;
+ 	ret = gfs2_rsqa_alloc(ip);
+ 	if (ret)
+@@ -812,55 +812,46 @@ static ssize_t gfs2_file_write_iter(stru
+ 
+ 	if (iocb->ki_flags & IOCB_DIRECT) {
+ 		struct address_space *mapping = file->f_mapping;
+-		loff_t pos, endbyte;
+-		ssize_t buffered;
++		ssize_t buffered, ret2;
+ 
+-		written = gfs2_file_direct_write(iocb, from);
+-		if (written < 0 || !iov_iter_count(from))
++		ret = gfs2_file_direct_write(iocb, from);
++		if (ret < 0 || !iov_iter_count(from))
+ 			goto out_unlock;
+ 
++		iocb->ki_flags |= IOCB_DSYNC;
+ 		current->backing_dev_info = inode_to_bdi(inode);
+-		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
++		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+ 		current->backing_dev_info = NULL;
+-		if (unlikely(ret < 0))
++		if (unlikely(buffered <= 0))
+ 			goto out_unlock;
+-		buffered = ret;
+ 
+ 		/*
+ 		 * We need to ensure that the page cache pages are written to
+ 		 * disk and invalidated to preserve the expected O_DIRECT
+-		 * semantics.
++		 * semantics.  If the writeback or invalidate fails, only report
++		 * the direct I/O range as we don't know if the buffered pages
++		 * made it to disk.
+ 		 */
+-		pos = iocb->ki_pos;
+-		endbyte = pos + buffered - 1;
+-		ret = filemap_write_and_wait_range(mapping, pos, endbyte);
+-		if (!ret) {
+-			iocb->ki_pos += buffered;
+-			written += buffered;
+-			invalidate_mapping_pages(mapping,
+-						 pos >> PAGE_SHIFT,
+-						 endbyte >> PAGE_SHIFT);
+-		} else {
+-			/*
+-			 * We don't know how much we wrote, so just return
+-			 * the number of bytes which were direct-written
+-			 */
+-		}
++		iocb->ki_pos += buffered;
++		ret2 = generic_write_sync(iocb, buffered);
++		invalidate_mapping_pages(mapping,
++				(iocb->ki_pos - buffered) >> PAGE_SHIFT,
++				(iocb->ki_pos - 1) >> PAGE_SHIFT);
++		if (!ret || ret2 > 0)
++			ret += ret2;
+ 	} else {
+ 		current->backing_dev_info = inode_to_bdi(inode);
+ 		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+ 		current->backing_dev_info = NULL;
+-		if (likely(ret > 0))
++		if (likely(ret > 0)) {
+ 			iocb->ki_pos += ret;
++			ret = generic_write_sync(iocb, ret);
++		}
  	}
  
- 	rsci.h.expiry_time = expiry;
+ out_unlock:
+ 	inode_unlock(inode);
+-	if (likely(ret > 0)) {
+-		/* Handle various SYNC-type writes */
+-		ret = generic_write_sync(iocb, ret);
+-	}
+-	return written ? written : ret;
++	return ret;
+ }
+ 
+ static int fallocate_chunk(struct inode *inode, loff_t offset, loff_t len,
 
 
