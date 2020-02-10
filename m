@@ -2,55 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF535157AAF
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E62D15782D
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728604AbgBJMhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57706 "EHLO mail.kernel.org"
+        id S1728907AbgBJNFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:05:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728596AbgBJMhB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:01 -0500
+        id S1729592AbgBJMkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:00 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76B692465D;
-        Mon, 10 Feb 2020 12:37:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6C512465D;
+        Mon, 10 Feb 2020 12:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338220;
-        bh=A95hlQ6AVMm6kpXa44K/lEBxP2TWcW8AepWKW9AqfRc=;
+        s=default; t=1581338399;
+        bh=tmBSDLVN9TjuA3cwnx4XYoof6ua0qOeDDb97kojFmIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtFFwoJP5t0TL5Xqwltr2x0rD7zf2N2NK1Q3ut4JC4YgVJRgfQ78/2taJBkmd6Jo+
-         RP3k1Znok9R54jD68hOiVkNEUS8yvsOv03W8UR+MiP0I2nV5mAcLPnNy71LX7lqcts
-         bdYZGpKuyYTrEAxYLMUaHxiBnA4+tc1u73hYrnHY=
+        b=we6d2d3ZXYmAe2xv/h0g15HviGBefJkHsyWimCrSdoNkq0h3GkRYARys5MLBIK9vl
+         ejY9HjEicFDF2+fed5fosIjdJ5wpSx22ezCF/ZvahPevMEig1BIsxBEK/NMAeP069r
+         mPGNIn3J6Asg5DNwHmyuLtD4ItoCwLM6ie6Zi9FQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 055/309] media/v4l2-core: set pages dirty upon releasing DMA buffers
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.5 098/367] ACPI / battery: Deal better with neither design nor full capacity not being reported
 Date:   Mon, 10 Feb 2020 04:30:11 -0800
-Message-Id: <20200210122411.262099029@linuxfoundation.org>
+Message-Id: <20200210122433.425050841@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,61 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 3c7470b6f68434acae459482ab920d1e3fabd1c7 upstream.
+commit ff3154d1d89a2343fd5f82e65bc0cf1d4e6659b3 upstream.
 
-After DMA is complete, and the device and CPU caches are synchronized,
-it's still required to mark the CPU pages as dirty, if the data was
-coming from the device.  However, this driver was just issuing a bare
-put_page() call, without any set_page_dirty*() call.
+Commit b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on
+devices without full_charge_capacity") added support for some (broken)
+devices which always report 0 for both design_capacity and
+full_charge_capacity.
 
-Fix the problem, by calling set_page_dirty_lock() if the CPU pages were
-potentially receiving data from the device.
+Since the device that commit was written as a fix for is not reporting any
+form of "full" capacity we cannot calculate the value for the
+POWER_SUPPLY_PROP_CAPACITY, this is worked around by using an alternative
+array of available properties which does not contain this property.
 
-Link: http://lkml.kernel.org/r/20200107224558.2362728-11-jhubbard@nvidia.com
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Björn Töpel <bjorn.topel@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This is necessary because userspace (upower) treats us returning -ENODEV
+as 0 and then typically will trigger an emergency shutdown because of that.
+Userspace does not do this if the capacity sysfs attribute is not present
+at all.
+
+There are two potential problems with that commit:
+ 1) It assumes that both full_charge- and design-capacity are broken at the
+    same time and only checks if full_charge- is broken.
+ 2) It assumes that this only ever happens for devices which report energy
+    units rather then charge units.
+
+This commit fixes both issues by only using the alternative
+array of available properties if both full_charge- and design-capacity are
+broken and by also adding an alternative array of available properties for
+devices using mA units.
+
+Fixes: b41901a2cf06 ("ACPI / battery: Do not export energy_full[_design] on devices without full_charge_capacity")
+Cc: 4.19+ <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/v4l2-core/videobuf-dma-sg.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/acpi/battery.c |   51 +++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 39 insertions(+), 12 deletions(-)
 
---- a/drivers/media/v4l2-core/videobuf-dma-sg.c
-+++ b/drivers/media/v4l2-core/videobuf-dma-sg.c
-@@ -349,8 +349,11 @@ int videobuf_dma_free(struct videobuf_dm
- 	BUG_ON(dma->sglen);
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -342,6 +342,20 @@ static enum power_supply_property charge
+ 	POWER_SUPPLY_PROP_SERIAL_NUMBER,
+ };
  
- 	if (dma->pages) {
--		for (i = 0; i < dma->nr_pages; i++)
-+		for (i = 0; i < dma->nr_pages; i++) {
-+			if (dma->direction == DMA_FROM_DEVICE)
-+				set_page_dirty_lock(dma->pages[i]);
- 			put_page(dma->pages[i]);
++static enum power_supply_property charge_battery_full_cap_broken_props[] = {
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_TECHNOLOGY,
++	POWER_SUPPLY_PROP_CYCLE_COUNT,
++	POWER_SUPPLY_PROP_VOLTAGE_MIN_DESIGN,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++	POWER_SUPPLY_PROP_CURRENT_NOW,
++	POWER_SUPPLY_PROP_CHARGE_NOW,
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++	POWER_SUPPLY_PROP_SERIAL_NUMBER,
++};
++
+ static enum power_supply_property energy_battery_props[] = {
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_PRESENT,
+@@ -803,21 +817,34 @@ static void __exit battery_hook_exit(voi
+ static int sysfs_add_battery(struct acpi_battery *battery)
+ {
+ 	struct power_supply_config psy_cfg = { .drv_data = battery, };
++	bool full_cap_broken = false;
++
++	if (!ACPI_BATTERY_CAPACITY_VALID(battery->full_charge_capacity) &&
++	    !ACPI_BATTERY_CAPACITY_VALID(battery->design_capacity))
++		full_cap_broken = true;
+ 
+ 	if (battery->power_unit == ACPI_BATTERY_POWER_UNIT_MA) {
+-		battery->bat_desc.properties = charge_battery_props;
+-		battery->bat_desc.num_properties =
+-			ARRAY_SIZE(charge_battery_props);
+-	} else if (!ACPI_BATTERY_CAPACITY_VALID(
+-					battery->full_charge_capacity)) {
+-		battery->bat_desc.properties =
+-			energy_battery_full_cap_broken_props;
+-		battery->bat_desc.num_properties =
+-			ARRAY_SIZE(energy_battery_full_cap_broken_props);
++		if (full_cap_broken) {
++			battery->bat_desc.properties =
++			    charge_battery_full_cap_broken_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(charge_battery_full_cap_broken_props);
++		} else {
++			battery->bat_desc.properties = charge_battery_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(charge_battery_props);
 +		}
- 		kfree(dma->pages);
- 		dma->pages = NULL;
+ 	} else {
+-		battery->bat_desc.properties = energy_battery_props;
+-		battery->bat_desc.num_properties =
+-			ARRAY_SIZE(energy_battery_props);
++		if (full_cap_broken) {
++			battery->bat_desc.properties =
++			    energy_battery_full_cap_broken_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(energy_battery_full_cap_broken_props);
++		} else {
++			battery->bat_desc.properties = energy_battery_props;
++			battery->bat_desc.num_properties =
++			    ARRAY_SIZE(energy_battery_props);
++		}
  	}
+ 
+ 	battery->bat_desc.name = acpi_device_bid(battery->device);
 
 
