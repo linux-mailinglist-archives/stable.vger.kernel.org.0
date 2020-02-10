@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EAE1157531
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD5015753C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728959AbgBJMjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:39:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37008 "EHLO mail.kernel.org"
+        id S1728896AbgBJMjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729408AbgBJMjW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:22 -0500
+        id S1729060AbgBJMjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:43 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD64C24650;
-        Mon, 10 Feb 2020 12:39:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE07724682;
+        Mon, 10 Feb 2020 12:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338361;
-        bh=VOS8l+8h754/Kct7mPhTe9ZEIvqJpnlDf+dQg/7zPl0=;
+        s=default; t=1581338383;
+        bh=17MaOto3qGiNDsjCGWj6Y/lMgIC4o3kD41TiSnZ/HA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jr7YqQPx6HE3moq5AK738uJnYl96eCIRWFNktm42+t+Ppm3oJMC6B20BxoYxI4i+
-         6x6ff4VAjtggCiOowl/8+i0Hj+hiGdeh4Pt6KL8JsFocq0nqkaTqz55vLLulohf0Pa
-         kMSuEMKgcOWUEFW/Qa2VYgganW4MoyxL2g4BhA3w=
+        b=GU79WdWNvNMxVoCoAkaB22oTxGS28JEiXelAJcCDttlb32m+YLlfxViV1lWON3CZK
+         wfiFtvFxz+iCoUcSIPFCllZutqTWXJyJlcngYRa//2WQfK5zWisIzLGwrUQsm5aeTB
+         0HcP5/oZMjeQRJ0+tNEhiksHOmgBvF966LtZX9T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.5 023/367] ionic: fix rxq comp packet type mask
-Date:   Mon, 10 Feb 2020 04:28:56 -0800
-Message-Id: <20200210122426.020386717@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
+Subject: [PATCH 5.5 028/367] mfd: dln2: More sanity checking for endpoints
+Date:   Mon, 10 Feb 2020 04:29:01 -0800
+Message-Id: <20200210122426.499313249@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,30 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit b5ce31b5e11b768b7d685b2bab7db09ad5549493 ]
+commit 2b8bd606b1e60ca28c765f69c1eedd7d2a2e9dca upstream.
 
-Be sure to include all the packet type bits in the mask.
+It is not enough to check for the number of endpoints.
+The types must also be correct.
 
-Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-and-tested-by: syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/pensando/ionic/ionic_if.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/pensando/ionic/ionic_if.h
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_if.h
-@@ -862,7 +862,7 @@ struct ionic_rxq_comp {
- #define IONIC_RXQ_COMP_CSUM_F_VLAN	0x40
- #define IONIC_RXQ_COMP_CSUM_F_CALC	0x80
- 	u8     pkt_type_color;
--#define IONIC_RXQ_COMP_PKT_TYPE_MASK	0x0f
-+#define IONIC_RXQ_COMP_PKT_TYPE_MASK	0x7f
- };
+---
+ drivers/mfd/dln2.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -722,6 +722,8 @@ static int dln2_probe(struct usb_interfa
+ 		      const struct usb_device_id *usb_id)
+ {
+ 	struct usb_host_interface *hostif = interface->cur_altsetting;
++	struct usb_endpoint_descriptor *epin;
++	struct usb_endpoint_descriptor *epout;
+ 	struct device *dev = &interface->dev;
+ 	struct dln2_dev *dln2;
+ 	int ret;
+@@ -731,12 +733,19 @@ static int dln2_probe(struct usb_interfa
+ 	    hostif->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
  
- enum ionic_pkt_type {
++	epin = &hostif->endpoint[0].desc;
++	epout = &hostif->endpoint[1].desc;
++	if (!usb_endpoint_is_bulk_out(epout))
++		return -ENODEV;
++	if (!usb_endpoint_is_bulk_in(epin))
++		return -ENODEV;
++
+ 	dln2 = kzalloc(sizeof(*dln2), GFP_KERNEL);
+ 	if (!dln2)
+ 		return -ENOMEM;
+ 
+-	dln2->ep_out = hostif->endpoint[0].desc.bEndpointAddress;
+-	dln2->ep_in = hostif->endpoint[1].desc.bEndpointAddress;
++	dln2->ep_out = epout->bEndpointAddress;
++	dln2->ep_in = epin->bEndpointAddress;
+ 	dln2->usb_dev = usb_get_dev(interface_to_usbdev(interface));
+ 	dln2->interface = interface;
+ 	usb_set_intfdata(interface, dln2);
 
 
