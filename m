@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75784157C6D
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3CF4157C69
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727604AbgBJMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727636AbgBJMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 07:35:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51156 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727594AbgBJMfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:01 -0500
+        id S1727008AbgBJMfC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:02 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFB1208C4;
+        by mail.kernel.org (Postfix) with ESMTPSA id 867A421739;
         Mon, 10 Feb 2020 12:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338100;
-        bh=VGnV3/lfouC4/jrWkmn86cxsPGl55+xsY7xkBTgO0Xw=;
+        bh=Afi39Ezz4cCJYHNt/Z/SU5kCcz10+KEkk/WfmbdU3rE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNuggxqxKu0VPGYFcY8EApGxHDdPgaazl7boOxSeitzBLVhoKS3O3ABzKk/gIzqAi
-         5tUwFaoCErRuSsQaGOvPjU9019MIaSVYdasXmDB5upA7EUEfLOE0zcC36FYM1Nd6CL
-         qhLSFTQ7oAyVOhkihPXxuH4u1PCEntqLf+4Od7Nc=
+        b=J0kwCx+rGzg4V7wMKgoWHJZErcJqjnaF8ServdzRFYAyRvKujgNTiTpJwxH5IJQSD
+         KlOGHtSmZo2xNPAGzqaf180KLyEjzdzSz+OFumwu5pJTIqGPMJzkeUDTQ1ruRmqfY6
+         iWYLlHkXoW5yPXTk9c7/NMWY76vTTxTy5fyasEMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 016/195] net: stmmac: Delete txtimer in suspend()
-Date:   Mon, 10 Feb 2020 04:31:14 -0800
-Message-Id: <20200210122307.262390222@linuxfoundation.org>
+Subject: [PATCH 4.19 017/195] bnxt_en: Fix TC queue mapping.
+Date:   Mon, 10 Feb 2020 04:31:15 -0800
+Message-Id: <20200210122307.467637576@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -43,72 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolin Chen <nicoleotsuka@gmail.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 14b41a2959fbaa50932699d32ceefd6643abacc6 ]
+[ Upstream commit 18e4960c18f484ac288f41b43d0e6c4c88e6ea78 ]
 
-When running v5.5 with a rootfs on NFS, memory abort may happen in
-the system resume stage:
- Unable to handle kernel paging request at virtual address dead00000000012a
- [dead00000000012a] address between user and kernel address ranges
- pc : run_timer_softirq+0x334/0x3d8
- lr : run_timer_softirq+0x244/0x3d8
- x1 : ffff800011cafe80 x0 : dead000000000122
- Call trace:
-  run_timer_softirq+0x334/0x3d8
-  efi_header_end+0x114/0x234
-  irq_exit+0xd0/0xd8
-  __handle_domain_irq+0x60/0xb0
-  gic_handle_irq+0x58/0xa8
-  el1_irq+0xb8/0x180
-  arch_cpu_idle+0x10/0x18
-  do_idle+0x1d8/0x2b0
-  cpu_startup_entry+0x24/0x40
-  secondary_start_kernel+0x1b4/0x208
- Code: f9000693 a9400660 f9000020 b4000040 (f9000401)
- ---[ end trace bb83ceeb4c482071 ]---
- Kernel panic - not syncing: Fatal exception in interrupt
- SMP: stopping secondary CPUs
- SMP: failed to stop secondary CPUs 2-3
- Kernel Offset: disabled
- CPU features: 0x00002,2300aa30
- Memory Limit: none
- ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+The driver currently only calls netdev_set_tc_queue when the number of
+TCs is greater than 1.  Instead, the comparison should be greater than
+or equal to 1.  Even with 1 TC, we need to set the queue mapping.
 
-It's found that stmmac_xmit() and stmmac_resume() sometimes might
-run concurrently, possibly resulting in a race condition between
-mod_timer() and setup_timer(), being called by stmmac_xmit() and
-stmmac_resume() respectively.
+This bug can cause warnings when the number of TCs is changed back to 1.
 
-Since the resume() runs setup_timer() every time, it'd be safer to
-have del_timer_sync() in the suspend() as the counterpart.
-
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Fixes: 7809592d3e2e ("bnxt_en: Enable MSIX early in bnxt_init_one().")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4513,6 +4513,7 @@ int stmmac_suspend(struct device *dev)
- {
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct stmmac_priv *priv = netdev_priv(ndev);
-+	u32 chan;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -5861,7 +5861,7 @@ static void bnxt_setup_msix(struct bnxt
+ 	int tcs, i;
  
- 	if (!ndev || !netif_running(ndev))
- 		return 0;
-@@ -4527,6 +4528,9 @@ int stmmac_suspend(struct device *dev)
+ 	tcs = netdev_get_num_tc(dev);
+-	if (tcs > 1) {
++	if (tcs) {
+ 		int i, off, count;
  
- 	stmmac_disable_all_queues(priv);
- 
-+	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
-+		del_timer_sync(&priv->tx_queue[chan].txtimer);
-+
- 	/* Stop TX/RX DMA */
- 	stmmac_stop_all_dma(priv);
- 
+ 		for (i = 0; i < tcs; i++) {
 
 
