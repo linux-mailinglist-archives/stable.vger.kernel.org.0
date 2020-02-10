@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3414A157589
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 380F4157732
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730052AbgBJMlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44324 "EHLO mail.kernel.org"
+        id S1729677AbgBJMlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730046AbgBJMll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:41 -0500
+        id S1728336AbgBJMlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:20 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F6A820838;
-        Mon, 10 Feb 2020 12:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06A7920842;
+        Mon, 10 Feb 2020 12:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338500;
-        bh=mvnVJV3p3/i8WhR2AKqQjf6C6rLK0nHmBp7089fRAX4=;
+        s=default; t=1581338480;
+        bh=rANDrOgXbYxPRIcctAMUipvFcg2f5rSxJKS9mHD7wEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFp7nOFtPF+8ttiuEbxE9M4YPX9NnABkfHV498Vpo6/SNdL4bWcS99/xI+pT+tkVJ
-         Krjfsu1nKt4wtG5hC0C99X1+7ER6206lkHghgIwqLXAmcOZPilH6Q4QHgf7Ljerft/
-         yeVpJ4LYSJY8UJQCBtw1t3TRVfQaszJDC+BHgTQ8=
+        b=x9/iTGBp4fX3UJBQbnoPpeBHwcrw1ld0hP/5nGIbAmmAaLYZrUKWHzwyD758Y5Lkh
+         hcJ4PIYL/xM5OAI0T9tuDbbAM3X0aoNGZLL3rglwtLtcNaYzWbKgzmUUXWpjxDRr6x
+         uGuBuMLURE4rzNKqfdFfpC/f94es9RYxHylw9QMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 254/367] KVM: x86: fix overlap between SPTE_MMIO_MASK and generation
-Date:   Mon, 10 Feb 2020 04:32:47 -0800
-Message-Id: <20200210122447.865741331@linuxfoundation.org>
+Subject: [PATCH 5.5 255/367] KVM: x86: Handle TIF_NEED_FPU_LOAD in kvm_{load,put}_guest_fpu()
+Date:   Mon, 10 Feb 2020 04:32:48 -0800
+Message-Id: <20200210122447.978478212@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,68 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 56871d444bc4d7ea66708775e62e2e0926384dbc upstream.
+commit c9aef3b85f425d1f6635382ec210ee5a7ef55d7d upstream.
 
-The SPTE_MMIO_MASK overlaps with the bits used to track MMIO
-generation number.  A high enough generation number would overwrite the
-SPTE_SPECIAL_MASK region and cause the MMIO SPTE to be misinterpreted.
+Handle TIF_NEED_FPU_LOAD similar to how fpu__copy() handles the flag
+when duplicating FPU state to a new task struct.  TIF_NEED_FPU_LOAD can
+be set any time control is transferred out of KVM, be it voluntarily,
+e.g. if I/O is triggered during a KVM call to get_user_pages, or
+involuntarily, e.g. if softirq runs after an IRQ occurs.  Therefore,
+KVM must account for TIF_NEED_FPU_LOAD whenever it is (potentially)
+accessing CPU FPU state.
 
-Likewise, setting bits 52 and 53 would also cause an incorrect generation
-number to be read from the PTE, though this was partially mitigated by the
-(useless if it weren't for the bug) removal of SPTE_SPECIAL_MASK from
-the spte in get_mmio_spte_generation.  Drop that removal, and replace
-it with a compile-time assertion.
-
-Fixes: 6eeb4ef049e7 ("KVM: x86: assign two bits to track SPTE kinds")
-Reported-by: Ben Gardon <bgardon@google.com>
+Fixes: 5f409e20b7945 ("x86/fpu: Defer FPU state load until return to userspace")
 Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/mmu.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/x86/kvm/x86.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -418,22 +418,24 @@ static inline bool is_access_track_spte(
-  * requires a full MMU zap).  The flag is instead explicitly queried when
-  * checking for MMIO spte cache hits.
-  */
--#define MMIO_SPTE_GEN_MASK		GENMASK_ULL(18, 0)
-+#define MMIO_SPTE_GEN_MASK		GENMASK_ULL(17, 0)
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8517,12 +8517,26 @@ static int complete_emulated_mmio(struct
+ 	return 0;
+ }
  
- #define MMIO_SPTE_GEN_LOW_START		3
- #define MMIO_SPTE_GEN_LOW_END		11
- #define MMIO_SPTE_GEN_LOW_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_END, \
- 						    MMIO_SPTE_GEN_LOW_START)
- 
--#define MMIO_SPTE_GEN_HIGH_START	52
--#define MMIO_SPTE_GEN_HIGH_END		61
-+#define MMIO_SPTE_GEN_HIGH_START	PT64_SECOND_AVAIL_BITS_SHIFT
-+#define MMIO_SPTE_GEN_HIGH_END		62
- #define MMIO_SPTE_GEN_HIGH_MASK		GENMASK_ULL(MMIO_SPTE_GEN_HIGH_END, \
- 						    MMIO_SPTE_GEN_HIGH_START)
++static void kvm_save_current_fpu(struct fpu *fpu)
++{
++	/*
++	 * If the target FPU state is not resident in the CPU registers, just
++	 * memcpy() from current, else save CPU state directly to the target.
++	 */
++	if (test_thread_flag(TIF_NEED_FPU_LOAD))
++		memcpy(&fpu->state, &current->thread.fpu.state,
++		       fpu_kernel_xstate_size);
++	else
++		copy_fpregs_to_fpstate(fpu);
++}
 +
- static u64 generation_mmio_spte_mask(u64 gen)
+ /* Swap (qemu) user FPU context for the guest FPU context. */
+ static void kvm_load_guest_fpu(struct kvm_vcpu *vcpu)
  {
- 	u64 mask;
+ 	fpregs_lock();
  
- 	WARN_ON(gen & ~MMIO_SPTE_GEN_MASK);
-+	BUILD_BUG_ON((MMIO_SPTE_GEN_HIGH_MASK | MMIO_SPTE_GEN_LOW_MASK) & SPTE_SPECIAL_MASK);
- 
- 	mask = (gen << MMIO_SPTE_GEN_LOW_START) & MMIO_SPTE_GEN_LOW_MASK;
- 	mask |= (gen << MMIO_SPTE_GEN_HIGH_START) & MMIO_SPTE_GEN_HIGH_MASK;
-@@ -444,8 +446,6 @@ static u64 get_mmio_spte_generation(u64
+-	copy_fpregs_to_fpstate(vcpu->arch.user_fpu);
++	kvm_save_current_fpu(vcpu->arch.user_fpu);
++
+ 	/* PKRU is separately restored in kvm_x86_ops->run.  */
+ 	__copy_kernel_to_fpregs(&vcpu->arch.guest_fpu->state,
+ 				~XFEATURE_MASK_PKRU);
+@@ -8538,7 +8552,8 @@ static void kvm_put_guest_fpu(struct kvm
  {
- 	u64 gen;
+ 	fpregs_lock();
  
--	spte &= ~shadow_mmio_mask;
--
- 	gen = (spte & MMIO_SPTE_GEN_LOW_MASK) >> MMIO_SPTE_GEN_LOW_START;
- 	gen |= (spte & MMIO_SPTE_GEN_HIGH_MASK) >> MMIO_SPTE_GEN_HIGH_START;
- 	return gen;
+-	copy_fpregs_to_fpstate(vcpu->arch.guest_fpu);
++	kvm_save_current_fpu(vcpu->arch.guest_fpu);
++
+ 	copy_kernel_to_fpregs(&vcpu->arch.user_fpu->state);
+ 
+ 	fpregs_mark_activate();
 
 
