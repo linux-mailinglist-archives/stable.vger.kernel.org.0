@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A5E1576E0
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:56:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE49D1576EC
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730053AbgBJMlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44390 "EHLO mail.kernel.org"
+        id S1729505AbgBJM4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:56:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729774AbgBJMll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:41 -0500
+        id S1729789AbgBJMlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:40 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A3D920873;
-        Mon, 10 Feb 2020 12:41:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2450221569;
+        Mon, 10 Feb 2020 12:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338499;
-        bh=Tb2jPBPSRqUAgGFfFZZEU3pNq6LWTLvg9mFA+YbC4kg=;
+        s=default; t=1581338500;
+        bh=/UNktRbk87m+V+wMTtkT9feL2kPy7uUqzkdgbTNAHvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dN4+wIxDhDu6jr2u/hgdUoW9IVrZzwPt7/FslLZ3gXAlp94cYM/zd6Nk8w0OlO4UK
-         hk4OCujjMaEVbnw3ZbEbTO+9ZJk6KdDfIu4b1BLVhAft47A20NpMfkq/ElsF+2XJSk
-         PzHCvT/NcCcWuqQ+61nhO8YIfOckTbdcfd6o6uuo=
+        b=B7RI8IB/2LtXM0745N57mphL8gK7nSv31d94VRxg7NZis8HCJvQfYMqxrwGMVfMHN
+         c1zdthBagIeMKuT5iPsGxAOOkP7UGVk2nBfB3lDneEES5mVnZGNhw+VmPrG0+pcbgz
+         KddbVR39tLl0YQsCGmWCWcxAq0ZbmFks/EnZyU20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Nakajima <jun.nakajima@intel.com>,
+        stable@vger.kernel.org,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 252/367] KVM: x86: Dont let userspace set host-reserved cr4 bits
-Date:   Mon, 10 Feb 2020 04:32:45 -0800
-Message-Id: <20200210122447.613164170@linuxfoundation.org>
+Subject: [PATCH 5.5 253/367] KVM: x86: Free wbinvd_dirty_mask if vCPU creation fails
+Date:   Mon, 10 Feb 2020 04:32:46 -0800
+Message-Id: <20200210122447.739561684@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -46,120 +46,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit b11306b53b2540c6ba068c4deddb6a17d9f8d95b upstream.
+commit 16be9ddea268ad841457a59109963fff8c9de38d upstream.
 
-Calculate the host-reserved cr4 bits at runtime based on the system's
-capabilities (using logic similar to __do_cpuid_func()), and use the
-dynamically generated mask for the reserved bit check in kvm_set_cr4()
-instead using of the static CR4_RESERVED_BITS define.  This prevents
-userspace from "enabling" features in cr4 that are not supported by the
-system, e.g. by ignoring KVM_GET_SUPPORTED_CPUID and specifying a bogus
-CPUID for the vCPU.
+Free the vCPU's wbinvd_dirty_mask if vCPU creation fails after
+kvm_arch_vcpu_init(), e.g. when installing the vCPU's file descriptor.
+Do the freeing by calling kvm_arch_vcpu_free() instead of open coding
+the freeing.  This adds a likely superfluous, but ultimately harmless,
+call to kvmclock_reset(), which only clears vcpu->arch.pv_time_enabled.
+Using kvm_arch_vcpu_free() allows for additional cleanup in the future.
 
-Allowing userspace to set unsupported bits in cr4 can lead to a variety
-of undesirable behavior, e.g. failed VM-Enter, and in general increases
-KVM's attack surface.  A crafty userspace can even abuse CR4.LA57 to
-induce an unchecked #GP on a WRMSR.
-
-On a platform without LA57 support:
-
-  KVM_SET_CPUID2 // CPUID_7_0_ECX.LA57 = 1
-  KVM_SET_SREGS  // CR4.LA57 = 1
-  KVM_SET_MSRS   // KERNEL_GS_BASE = 0x0004000000000000
-  KVM_RUN
-
-leads to a #GP when writing KERNEL_GS_BASE into hardware:
-
-  unchecked MSR access error: WRMSR to 0xc0000102 (tried to write 0x0004000000000000)
-  at rIP: 0xffffffffa00f239a (vmx_prepare_switch_to_guest+0x10a/0x1d0 [kvm_intel])
-  Call Trace:
-   kvm_arch_vcpu_ioctl_run+0x671/0x1c70 [kvm]
-   kvm_vcpu_ioctl+0x36b/0x5d0 [kvm]
-   do_vfs_ioctl+0xa1/0x620
-   ksys_ioctl+0x66/0x70
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x170
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7fc08133bf47
-
-Note, the above sequence fails VM-Enter due to invalid guest state.
-Userspace can allow VM-Enter to succeed (after the WRMSR #GP) by adding
-a KVM_SET_SREGS w/ CR4.LA57=0 after KVM_SET_MSRS, in which case KVM will
-technically leak the host's KERNEL_GS_BASE into the guest.  But, as
-KERNEL_GS_BASE is a userspace-defined value/address, the leak is largely
-benign as a malicious userspace would simply be exposing its own data to
-the guest, and attacking a benevolent userspace would require multiple
-bugs in the userspace VMM.
-
+Fixes: f5f48ee15c2ee ("KVM: VMX: Execute WBINVD to keep data consistency with assigned devices")
 Cc: stable@vger.kernel.org
-Cc: Jun Nakajima <jun.nakajima@intel.com>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |   35 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -93,6 +93,8 @@ u64 __read_mostly efer_reserved_bits = ~
- static u64 __read_mostly efer_reserved_bits = ~((u64)EFER_SCE);
- #endif
+@@ -9208,7 +9208,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
+ 	kvm_mmu_unload(vcpu);
+ 	vcpu_put(vcpu);
  
-+static u64 __read_mostly cr4_reserved_bits = CR4_RESERVED_BITS;
-+
- #define VM_STAT(x, ...) offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__
- #define VCPU_STAT(x, ...) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__
- 
-@@ -879,9 +881,38 @@ int kvm_set_xcr(struct kvm_vcpu *vcpu, u
+-	kvm_x86_ops->vcpu_free(vcpu);
++	kvm_arch_vcpu_free(vcpu);
  }
- EXPORT_SYMBOL_GPL(kvm_set_xcr);
  
-+static u64 kvm_host_cr4_reserved_bits(struct cpuinfo_x86 *c)
-+{
-+	u64 reserved_bits = CR4_RESERVED_BITS;
-+
-+	if (!cpu_has(c, X86_FEATURE_XSAVE))
-+		reserved_bits |= X86_CR4_OSXSAVE;
-+
-+	if (!cpu_has(c, X86_FEATURE_SMEP))
-+		reserved_bits |= X86_CR4_SMEP;
-+
-+	if (!cpu_has(c, X86_FEATURE_SMAP))
-+		reserved_bits |= X86_CR4_SMAP;
-+
-+	if (!cpu_has(c, X86_FEATURE_FSGSBASE))
-+		reserved_bits |= X86_CR4_FSGSBASE;
-+
-+	if (!cpu_has(c, X86_FEATURE_PKU))
-+		reserved_bits |= X86_CR4_PKE;
-+
-+	if (!cpu_has(c, X86_FEATURE_LA57) &&
-+	    !(cpuid_ecx(0x7) & bit(X86_FEATURE_LA57)))
-+		reserved_bits |= X86_CR4_LA57;
-+
-+	if (!cpu_has(c, X86_FEATURE_UMIP) && !kvm_x86_ops->umip_emulated())
-+		reserved_bits |= X86_CR4_UMIP;
-+
-+	return reserved_bits;
-+}
-+
- static int kvm_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- {
--	if (cr4 & CR4_RESERVED_BITS)
-+	if (cr4 & cr4_reserved_bits)
- 		return -EINVAL;
- 
- 	if (!guest_cpuid_has(vcpu, X86_FEATURE_XSAVE) && (cr4 & X86_CR4_OSXSAVE))
-@@ -9369,6 +9400,8 @@ int kvm_arch_hardware_setup(void)
- 	if (r != 0)
- 		return r;
- 
-+	cr4_reserved_bits = kvm_host_cr4_reserved_bits(&boot_cpu_data);
-+
- 	if (kvm_has_tsc_control) {
- 		/*
- 		 * Make sure the user can only configure tsc_khz values that
+ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 
