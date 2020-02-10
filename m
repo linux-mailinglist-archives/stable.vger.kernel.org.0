@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D851577BA
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1F91579A1
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729878AbgBJNCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:02:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41070 "EHLO mail.kernel.org"
+        id S1728624AbgBJNQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729768AbgBJMki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:38 -0500
+        id S1729015AbgBJMiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:05 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53E8E20842;
-        Mon, 10 Feb 2020 12:40:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AFAE2168B;
+        Mon, 10 Feb 2020 12:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338437;
-        bh=2KSZvAr+IyHAjeIc+3VTcq72D6D4Tk/d4gs9sP8MKEk=;
+        s=default; t=1581338285;
+        bh=gAXkns+sLnDL5n+FubP0AMmmuxWcXtLwL85Bh1X8KQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlLF0PdA9LXbr++l8F8hPFfGgL7rOoeeNo2aR6OaNZRWAM3dR9EKgtwtJ/sb/UyJv
-         ovNK3h4G87Pyf7ocJ6xZN0h40/FsNnfADlnOpzy/I5seB1P2MGJ4bR8f60tVSHgCMA
-         YKm/Va9GijyRuXEcXccdQvm1rytlUvHq69/44+EM=
+        b=qBQGlkS1aH30apnbUBk5XqPf0HYV02fuKwNo1em+AEBaPyaFHD6eDrzDr3VI1t0JJ
+         EyzP+aoaq7MqzQwSmbGj43KtQ7cVfurxg99PZVikcwg8OzIYqei8+k7eVAYAtFXgGl
+         mz41Hc5w29w9SsjjuAocQdHjx/gI7+K5U60IJuz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.5 172/367] selftests: bpf: Use a temporary file in test_sockmap
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 129/309] dm writecache: fix incorrect flush sequence when doing SSD mode commit
 Date:   Mon, 10 Feb 2020 04:31:25 -0800
-Message-Id: <20200210122440.744162726@linuxfoundation.org>
+Message-Id: <20200210122418.780162925@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit c31dbb1e41d1857b403f9bf58c87f5898519a0bc upstream.
+commit aa9509209c5ac2f0b35d01a922bf9ae072d0c2fc upstream.
 
-Use a proper temporary file for sendpage tests. This means that running
-the tests doesn't clutter the working directory, and allows running the
-test on read-only filesystems.
+When committing state, the function writecache_flush does the following:
+1. write metadata (writecache_commit_flushed)
+2. flush disk cache (writecache_commit_flushed)
+3. wait for data writes to complete (writecache_wait_for_ios)
+4. increase superblock seq_count
+5. write the superblock
+6. flush disk cache
 
-Fixes: 16962b2404ac ("bpf: sockmap, add selftests")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20200124112754.19664-2-lmb@cloudflare.com
+It may happen that at step 3, when we wait for some write to finish, the
+disk may report the write as finished, but the write only hit the disk
+cache and it is not yet stored in persistent storage. At step 5 we write
+the superblock - it may happen that the superblock is written before the
+write that we waited for in step 3. If the machine crashes, it may result
+in incorrect data being returned after reboot.
+
+In order to fix the bug, we must swap steps 2 and 3 in the above sequence,
+so that we first wait for writes to complete and then flush the disk
+cache.
+
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/bpf/test_sockmap.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/md/dm-writecache.c |   42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
---- a/tools/testing/selftests/bpf/test_sockmap.c
-+++ b/tools/testing/selftests/bpf/test_sockmap.c
-@@ -331,7 +331,7 @@ static int msg_loop_sendpage(int fd, int
- 	FILE *file;
- 	int i, fp;
- 
--	file = fopen(".sendpage_tst.tmp", "w+");
-+	file = tmpfile();
- 	if (!file) {
- 		perror("create file for sendpage");
- 		return 1;
-@@ -340,13 +340,8 @@ static int msg_loop_sendpage(int fd, int
- 		fwrite(&k, sizeof(char), 1, file);
- 	fflush(file);
- 	fseek(file, 0, SEEK_SET);
--	fclose(file);
- 
--	fp = open(".sendpage_tst.tmp", O_RDONLY);
--	if (fp < 0) {
--		perror("reopen file for sendpage");
--		return 1;
--	}
-+	fp = fileno(file);
- 
- 	clock_gettime(CLOCK_MONOTONIC, &s->start);
- 	for (i = 0; i < cnt; i++) {
-@@ -354,11 +349,11 @@ static int msg_loop_sendpage(int fd, int
- 
- 		if (!drop && sent < 0) {
- 			perror("send loop error");
--			close(fp);
-+			fclose(file);
- 			return sent;
- 		} else if (drop && sent >= 0) {
- 			printf("sendpage loop error expected: %i\n", sent);
--			close(fp);
-+			fclose(file);
- 			return -EIO;
- 		}
- 
-@@ -366,7 +361,7 @@ static int msg_loop_sendpage(int fd, int
- 			s->bytes_sent += sent;
- 	}
- 	clock_gettime(CLOCK_MONOTONIC, &s->end);
--	close(fp);
-+	fclose(file);
- 	return 0;
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -442,7 +442,13 @@ static void writecache_notify_io(unsigne
+ 		complete(&endio->c);
  }
  
+-static void ssd_commit_flushed(struct dm_writecache *wc)
++static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
++{
++	wait_event(wc->bio_in_progress_wait[direction],
++		   !atomic_read(&wc->bio_in_progress[direction]));
++}
++
++static void ssd_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	struct dm_io_region region;
+ 	struct dm_io_request req;
+@@ -488,17 +494,20 @@ static void ssd_commit_flushed(struct dm
+ 	writecache_notify_io(0, &endio);
+ 	wait_for_completion_io(&endio.c);
+ 
++	if (wait_for_ios)
++		writecache_wait_for_ios(wc, WRITE);
++
+ 	writecache_disk_flush(wc, wc->ssd_dev);
+ 
+ 	memset(wc->dirty_bitmap, 0, wc->dirty_bitmap_size);
+ }
+ 
+-static void writecache_commit_flushed(struct dm_writecache *wc)
++static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	if (WC_MODE_PMEM(wc))
+ 		wmb();
+ 	else
+-		ssd_commit_flushed(wc);
++		ssd_commit_flushed(wc, wait_for_ios);
+ }
+ 
+ static void writecache_disk_flush(struct dm_writecache *wc, struct dm_dev *dev)
+@@ -522,12 +531,6 @@ static void writecache_disk_flush(struct
+ 		writecache_error(wc, r, "error flushing metadata: %d", r);
+ }
+ 
+-static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
+-{
+-	wait_event(wc->bio_in_progress_wait[direction],
+-		   !atomic_read(&wc->bio_in_progress[direction]));
+-}
+-
+ #define WFE_RETURN_FOLLOWING	1
+ #define WFE_LOWEST_SEQ		2
+ 
+@@ -724,15 +727,12 @@ static void writecache_flush(struct dm_w
+ 		e = e2;
+ 		cond_resched();
+ 	}
+-	writecache_commit_flushed(wc);
+-
+-	if (!WC_MODE_PMEM(wc))
+-		writecache_wait_for_ios(wc, WRITE);
++	writecache_commit_flushed(wc, true);
+ 
+ 	wc->seq_count++;
+ 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(wc->seq_count));
+ 	writecache_flush_region(wc, &sb(wc)->seq_count, sizeof sb(wc)->seq_count);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	wc->overwrote_committed = false;
+ 
+@@ -756,7 +756,7 @@ static void writecache_flush(struct dm_w
+ 	}
+ 
+ 	if (need_flush_after_free)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static void writecache_flush_work(struct work_struct *work)
+@@ -809,7 +809,7 @@ static void writecache_discard(struct dm
+ 	}
+ 
+ 	if (discarded_something)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static bool writecache_wait_for_writeback(struct dm_writecache *wc)
+@@ -958,7 +958,7 @@ erase_this:
+ 
+ 	if (need_flush) {
+ 		writecache_flush_all_metadata(wc);
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 	}
+ 
+ 	wc_unlock(wc);
+@@ -1342,7 +1342,7 @@ static void __writecache_endio_pmem(stru
+ 			wc->writeback_size--;
+ 			n_walked++;
+ 			if (unlikely(n_walked >= ENDIO_LATENCY)) {
+-				writecache_commit_flushed(wc);
++				writecache_commit_flushed(wc, false);
+ 				wc_unlock(wc);
+ 				wc_lock(wc);
+ 				n_walked = 0;
+@@ -1423,7 +1423,7 @@ pop_from_list:
+ 			writecache_wait_for_ios(wc, READ);
+ 		}
+ 
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 
+ 		wc_unlock(wc);
+ 	}
+@@ -1766,10 +1766,10 @@ static int init_memory(struct dm_writeca
+ 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
+ 
+ 	writecache_flush_all_metadata(wc);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 	pmem_assign(sb(wc)->magic, cpu_to_le32(MEMORY_SUPERBLOCK_MAGIC));
+ 	writecache_flush_region(wc, &sb(wc)->magic, sizeof sb(wc)->magic);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	return 0;
+ }
 
 
