@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A45157794
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DFA1579D8
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729837AbgBJMkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S1730627AbgBJNS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:18:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729830AbgBJMky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:54 -0500
+        id S1728938AbgBJMhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:53 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D161208C3;
-        Mon, 10 Feb 2020 12:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F69A2085B;
+        Mon, 10 Feb 2020 12:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338453;
-        bh=Z1y4n+3wknrIgxXE+LAJc0Sz2YlFYPXTSwCitbBiRVY=;
+        s=default; t=1581338273;
+        bh=UrvypBgypcPzAr+C9fAiejRCLfVDQOskhpqRCz/HBgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4T4MQ+0M7PiJOuzCExP/tsCdapQJA4CUZKKo/MrzcbfLR3v0g2p0sdEUwMyuQgRn
-         ya8Cj4oN1SAO8OALSQ2upge2FRMebZ+Jh3cVUFWfCTtWyFLgDi39NOM+bATONz0yrj
-         La7BWzsYS4TN/dx2b6gKEReu95zFFKOM0Gur8Bwc=
+        b=h001m6v8rzZ4PfHTa0PeM4tNQEFitr6kR3MVPokdBa5+QQ9QYj0bldlteffdNXwlU
+         Z4988xm0FjPhTjizDzG8F+XnPJ4t2A5/fSZeBMZj4JZjEeC9aNVlxOQKfg8gE9qte0
+         MIRfs92FvXoPqO+wM398pvIegf9S+rOMFQt2zd68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.5 200/367] btrfs: free block groups after freeing fs trees
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 157/309] crypto: ccp - set max RSA modulus size for v3 platform devices as well
 Date:   Mon, 10 Feb 2020 04:31:53 -0800
-Message-Id: <20200210122443.012853267@linuxfoundation.org>
+Message-Id: <20200210122421.313285838@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 4e19443da1941050b346f8fc4c368aa68413bc88 upstream.
+commit 11548f5a5747813ff84bed6f2ea01100053b0d8d upstream.
 
-Sometimes when running generic/475 we would trip the
-WARN_ON(cache->reserved) check when free'ing the block groups on umount.
-This is because sometimes we don't commit the transaction because of IO
-errors and thus do not cleanup the tree logs until at umount time.
+AMD Seattle incorporates a non-PCI version of the v3 CCP crypto
+accelerator, and this version was left behind when the maximum
+RSA modulus size was parameterized in order to support v5 hardware
+which supports larger moduli than v3 hardware does. Due to this
+oversight, RSA acceleration no longer works at all on these systems.
 
-These blocks are still reserved until they are cleaned up, but they
-aren't cleaned up until _after_ we do the free block groups work.  Fix
-this by moving the free after free'ing the fs roots, that way all of the
-tree logs are cleaned up and we have a properly cleaned fs.  A bunch of
-loops of generic/475 confirmed this fixes the problem.
+Fix this by setting the .rsamax property to the appropriate value
+for v3 platform hardware.
 
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e28c190db66830c0 ("csrypto: ccp - Expand RSA support for a v5 ccp")
+Cc: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/disk-io.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/crypto/ccp/ccp-dev-v3.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -4026,11 +4026,18 @@ void __cold close_ctree(struct btrfs_fs_
- 	invalidate_inode_pages2(fs_info->btree_inode->i_mapping);
- 	btrfs_stop_all_workers(fs_info);
+--- a/drivers/crypto/ccp/ccp-dev-v3.c
++++ b/drivers/crypto/ccp/ccp-dev-v3.c
+@@ -586,6 +586,7 @@ const struct ccp_vdata ccpv3_platform =
+ 	.setup = NULL,
+ 	.perform = &ccp3_actions,
+ 	.offset = 0,
++	.rsamax = CCP_RSA_MAX_WIDTH,
+ };
  
--	btrfs_free_block_groups(fs_info);
--
- 	clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
- 	free_root_pointers(fs_info, true);
- 
-+	/*
-+	 * We must free the block groups after dropping the fs_roots as we could
-+	 * have had an IO error and have left over tree log blocks that aren't
-+	 * cleaned up until the fs roots are freed.  This makes the block group
-+	 * accounting appear to be wrong because there's pending reserved bytes,
-+	 * so make sure we do the block group cleanup afterwards.
-+	 */
-+	btrfs_free_block_groups(fs_info);
-+
- 	iput(fs_info->btree_inode);
- 
- #ifdef CONFIG_BTRFS_FS_CHECK_INTEGRITY
+ const struct ccp_vdata ccpv3 = {
 
 
