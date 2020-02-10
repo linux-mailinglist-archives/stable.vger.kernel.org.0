@@ -2,39 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E88BD1574C8
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4514C15771B
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728167AbgBJMfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54012 "EHLO mail.kernel.org"
+        id S1729298AbgBJM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:57:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728151AbgBJMfx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:53 -0500
+        id S1728628AbgBJMlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:24 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48FB420863;
-        Mon, 10 Feb 2020 12:35:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 819EB20842;
+        Mon, 10 Feb 2020 12:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338152;
-        bh=Ltz2oaLXq2xBQOHBKtR5CK4Djns+UnmIlRNTfkRE6U4=;
+        s=default; t=1581338483;
+        bh=+6M0whtMs1JtkAZ7QRwNN3/TXf12/bR58W9iz7r++88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xj6ZJecdDt4vXtoKiyTCtwHTNe+RQkh7vFBaUlIhLp7lQjOHzPnjptUKSET1oXL28
-         b7DwPnCldYY2FPCXYcOi//LdlyZfomZ4y1c9tPKm1S1QaPfi/aeEarZ9ijieq8FPOA
-         Lqm/wZNxPse2mlotYgxNPb/Y0+BIt3ABIEITCDvY=
+        b=aQBBpWex/qRuiQVlNqRS0e6OtGJ8J8eLL+lVvak0Ng+CKfawoMpdP5c02JuyOuriC
+         apJMqLjwM/vYVCxNzBqaEo+2GQvL1HaVUyFpfbBd1utH378F1DmkNBKSowMifCqkr6
+         P93Ww2OolRGqREo9ZsZx+yuZBOB+PoIARTo78fCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick French <nickfrench@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 116/195] media: rc: ensure lirc is initialized before registering input device
-Date:   Mon, 10 Feb 2020 04:32:54 -0800
-Message-Id: <20200210122316.748790034@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Pavel Tatashin <pasha.tatashin@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Steven Sistare <steven.sistare@oracle.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Bob Picco <bob.picco@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 262/367] mm/page_alloc.c: fix uninitialized memmaps on a partially populated last section
+Date:   Mon, 10 Feb 2020 04:32:55 -0800
+Message-Id: <20200210122448.720046262@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,145 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit 080d89f522e2baddb4fbbd1af4b67b5f92537ef8 upstream.
+commit e822969cab48b786b64246aad1a3ba2a774f5d23 upstream.
 
-Once rc_open is called on the input device, lirc events can be delivered.
-Ensure lirc is ready to do so else we might get this:
+Patch series "mm: fix max_pfn not falling on section boundary", v2.
 
-Registered IR keymap rc-hauppauge
-rc rc0: Hauppauge WinTV PVR-350 as
-/devices/pci0000:00/0000:00:1e.0/0000:04:00.0/i2c-0/0-0018/rc/rc0
-input: Hauppauge WinTV PVR-350 as
-/devices/pci0000:00/0000:00:1e.0/0000:04:00.0/i2c-0/0-0018/rc/rc0/input9
-BUG: kernel NULL pointer dereference, address: 0000000000000038
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-CPU: 1 PID: 17 Comm: kworker/1:0 Not tainted 5.3.11-300.fc31.x86_64 #1
-Hardware name:  /DG43NB, BIOS NBG4310H.86A.0096.2009.0903.1845 09/03/2009
-Workqueue: events ir_work [ir_kbd_i2c]
-RIP: 0010:ir_lirc_scancode_event+0x3d/0xb0
-Code: a6 b4 07 00 00 49 81 c6 b8 07 00 00 55 53 e8 ba a7 9d ff 4c 89
-e7 49 89 45 00 e8 5e 7a 25 00 49 8b 1e 48 89 c5 4c 39 f3 74 58 <8b> 43
-38 8b 53 40 89 c1 2b 4b 3c 39 ca 72 41 21 d0 49 8b 7d 00 49
-RSP: 0018:ffffaae2000b3d88 EFLAGS: 00010017
-RAX: 0000000000000002 RBX: 0000000000000000 RCX: 0000000000000019
-RDX: 0000000000000001 RSI: 006e801b1f26ce6a RDI: ffff9e39797c37b4
-RBP: 0000000000000002 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000001 R11: 0000000000000001 R12: ffff9e39797c37b4
-R13: ffffaae2000b3db8 R14: ffff9e39797c37b8 R15: ffff9e39797c33d8
-FS:  0000000000000000(0000) GS:ffff9e397b680000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000038 CR3: 0000000035844000 CR4: 00000000000006e0
-Call Trace:
-ir_do_keydown+0x8e/0x2b0
-rc_keydown+0x52/0xc0
-ir_work+0xb8/0x130 [ir_kbd_i2c]
-process_one_work+0x19d/0x340
-worker_thread+0x50/0x3b0
-kthread+0xfb/0x130
-? process_one_work+0x340/0x340
-? kthread_park+0x80/0x80
-ret_from_fork+0x35/0x40
-Modules linked in: rc_hauppauge tuner msp3400 saa7127 saa7115 ivtv(+)
-tveeprom cx2341x v4l2_common videodev mc i2c_algo_bit ir_kbd_i2c
-ip_tables firewire_ohci e1000e serio_raw firewire_core ata_generic
-crc_itu_t pata_acpi pata_jmicron fuse
-CR2: 0000000000000038
----[ end trace c67c2697a99fa74b ]---
-RIP: 0010:ir_lirc_scancode_event+0x3d/0xb0
-Code: a6 b4 07 00 00 49 81 c6 b8 07 00 00 55 53 e8 ba a7 9d ff 4c 89
-e7 49 89 45 00 e8 5e 7a 25 00 49 8b 1e 48 89 c5 4c 39 f3 74 58 <8b> 43
-38 8b 53 40 89 c1 2b 4b 3c 39 ca 72 41 21 d0 49 8b 7d 00 49
-RSP: 0018:ffffaae2000b3d88 EFLAGS: 00010017
-RAX: 0000000000000002 RBX: 0000000000000000 RCX: 0000000000000019
-RDX: 0000000000000001 RSI: 006e801b1f26ce6a RDI: ffff9e39797c37b4
-RBP: 0000000000000002 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000001 R11: 0000000000000001 R12: ffff9e39797c37b4
-R13: ffffaae2000b3db8 R14: ffff9e39797c37b8 R15: ffff9e39797c33d8
-FS:  0000000000000000(0000) GS:ffff9e397b680000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000038 CR3: 0000000035844000 CR4: 00000000000006e0
-rc rc0: lirc_dev: driver ir_kbd_i2c registered at minor = 0, scancode
-receiver, no transmitter
-tuner-simple 0-0061: creating new instance
-tuner-simple 0-0061: type set to 2 (Philips NTSC (FI1236,FM1236 and
-compatibles))
-ivtv0: Registered device video0 for encoder MPG (4096 kB)
-ivtv0: Registered device video32 for encoder YUV (2048 kB)
-ivtv0: Registered device vbi0 for encoder VBI (1024 kB)
-ivtv0: Registered device video24 for encoder PCM (320 kB)
-ivtv0: Registered device radio0 for encoder radio
-ivtv0: Registered device video16 for decoder MPG (1024 kB)
-ivtv0: Registered device vbi8 for decoder VBI (64 kB)
-ivtv0: Registered device vbi16 for decoder VOUT
-ivtv0: Registered device video48 for decoder YUV (1024 kB)
+Playing with different memory sizes for a x86-64 guest, I discovered that
+some memmaps (highest section if max_mem does not fall on the section
+boundary) are marked as being valid and online, but contain garbage.  We
+have to properly initialize these memmaps.
 
-Cc: stable@vger.kernel.org
-Tested-by: Nick French <nickfrench@gmail.com>
-Reported-by: Nick French <nickfrench@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Looking at /proc/kpageflags and friends, I found some more issues,
+partially related to this.
+
+This patch (of 3):
+
+If max_pfn is not aligned to a section boundary, we can easily run into
+BUGs.  This can e.g., be triggered on x86-64 under QEMU by specifying a
+memory size that is not a multiple of 128MB (e.g., 4097MB, but also
+4160MB).  I was told that on real HW, we can easily have this scenario
+(esp., one of the main reasons sub-section hotadd of devmem was added).
+
+The issue is, that we have a valid memmap (pfn_valid()) for the whole
+section, and the whole section will be marked "online".
+pfn_to_online_page() will succeed, but the memmap contains garbage.
+
+E.g., doing a "./page-types -r -a 0x144001" when QEMU was started with "-m
+4160M" - (see tools/vm/page-types.c):
+
+[  200.476376] BUG: unable to handle page fault for address: fffffffffffffffe
+[  200.477500] #PF: supervisor read access in kernel mode
+[  200.478334] #PF: error_code(0x0000) - not-present page
+[  200.479076] PGD 59614067 P4D 59614067 PUD 59616067 PMD 0
+[  200.479557] Oops: 0000 [#4] SMP NOPTI
+[  200.479875] CPU: 0 PID: 603 Comm: page-types Tainted: G      D W         5.5.0-rc1-next-20191209 #93
+[  200.480646] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
+[  200.481648] RIP: 0010:stable_page_flags+0x4d/0x410
+[  200.482061] Code: f3 ff 41 89 c0 48 b8 00 00 00 00 01 00 00 00 45 84 c0 0f 85 cd 02 00 00 48 8b 53 08 48 8b 2b 48f
+[  200.483644] RSP: 0018:ffffb139401cbe60 EFLAGS: 00010202
+[  200.484091] RAX: fffffffffffffffe RBX: fffffbeec5100040 RCX: 0000000000000000
+[  200.484697] RDX: 0000000000000001 RSI: ffffffff9535c7cd RDI: 0000000000000246
+[  200.485313] RBP: ffffffffffffffff R08: 0000000000000000 R09: 0000000000000000
+[  200.485917] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000144001
+[  200.486523] R13: 00007ffd6ba55f48 R14: 00007ffd6ba55f40 R15: ffffb139401cbf08
+[  200.487130] FS:  00007f68df717580(0000) GS:ffff9ec77fa00000(0000) knlGS:0000000000000000
+[  200.487804] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  200.488295] CR2: fffffffffffffffe CR3: 0000000135d48000 CR4: 00000000000006f0
+[  200.488897] Call Trace:
+[  200.489115]  kpageflags_read+0xe9/0x140
+[  200.489447]  proc_reg_read+0x3c/0x60
+[  200.489755]  vfs_read+0xc2/0x170
+[  200.490037]  ksys_pread64+0x65/0xa0
+[  200.490352]  do_syscall_64+0x5c/0xa0
+[  200.490665]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+But it can be triggered much easier via "cat /proc/kpageflags > /dev/null"
+after cold/hot plugging a DIMM to such a system:
+
+[root@localhost ~]# cat /proc/kpageflags > /dev/null
+[  111.517275] BUG: unable to handle page fault for address: fffffffffffffffe
+[  111.517907] #PF: supervisor read access in kernel mode
+[  111.518333] #PF: error_code(0x0000) - not-present page
+[  111.518771] PGD a240e067 P4D a240e067 PUD a2410067 PMD 0
+
+This patch fixes that by at least zero-ing out that memmap (so e.g.,
+page_to_pfn() will not crash).  Commit 907ec5fca3dc ("mm: zero remaining
+unavailable struct pages") tried to fix a similar issue, but forgot to
+consider this special case.
+
+After this patch, there are still problems to solve.  E.g., not all of
+these pages falling into a memory hole will actually get initialized later
+and set PageReserved - they are only zeroed out - but at least the
+immediate crashes are gone.  A follow-up patch will take care of this.
+
+Link: http://lkml.kernel.org/r/20191211163201.17179-2-david@redhat.com
+Fixes: f7f99100d8d9 ("mm: stop zeroing memory during allocation in vmemmap")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Tested-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Steven Sistare <steven.sistare@oracle.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Bob Picco <bob.picco@oracle.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: <stable@vger.kernel.org>	[4.15+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/rc-main.c |   27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ mm/page_alloc.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -1874,23 +1874,28 @@ int rc_register_device(struct rc_dev *de
- 
- 	dev->registered = true;
- 
--	if (dev->driver_type != RC_DRIVER_IR_RAW_TX) {
--		rc = rc_setup_rx_device(dev);
--		if (rc)
--			goto out_dev;
--	}
--
--	/* Ensure that the lirc kfifo is setup before we start the thread */
-+	/*
-+	 * once the the input device is registered in rc_setup_rx_device,
-+	 * userspace can open the input device and rc_open() will be called
-+	 * as a result. This results in driver code being allowed to submit
-+	 * keycodes with rc_keydown, so lirc must be registered first.
-+	 */
- 	if (dev->allowed_protocols != RC_PROTO_BIT_CEC) {
- 		rc = ir_lirc_register(dev);
- 		if (rc < 0)
--			goto out_rx;
-+			goto out_dev;
-+	}
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6921,7 +6921,8 @@ static u64 zero_pfn_range(unsigned long
+  * This function also addresses a similar issue where struct pages are left
+  * uninitialized because the physical address range is not covered by
+  * memblock.memory or memblock.reserved. That could happen when memblock
+- * layout is manually configured via memmap=.
++ * layout is manually configured via memmap=, or when the highest physical
++ * address (max_pfn) does not end on a section boundary.
+  */
+ void __init zero_resv_unavail(void)
+ {
+@@ -6939,7 +6940,16 @@ void __init zero_resv_unavail(void)
+ 			pgcnt += zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
+ 		next = end;
+ 	}
+-	pgcnt += zero_pfn_range(PFN_DOWN(next), max_pfn);
 +
-+	if (dev->driver_type != RC_DRIVER_IR_RAW_TX) {
-+		rc = rc_setup_rx_device(dev);
-+		if (rc)
-+			goto out_lirc;
- 	}
++	/*
++	 * Early sections always have a fully populated memmap for the whole
++	 * section - see pfn_valid(). If the last section has holes at the
++	 * end and that section is marked "online", the memmap will be
++	 * considered initialized. Make sure that memmap has a well defined
++	 * state.
++	 */
++	pgcnt += zero_pfn_range(PFN_DOWN(next),
++				round_up(max_pfn, PAGES_PER_SECTION));
  
- 	if (dev->driver_type == RC_DRIVER_IR_RAW) {
- 		rc = ir_raw_event_register(dev);
- 		if (rc < 0)
--			goto out_lirc;
-+			goto out_rx;
- 	}
- 
- 	dev_dbg(&dev->dev, "Registered rc%u (driver: %s)\n", dev->minor,
-@@ -1898,11 +1903,11 @@ int rc_register_device(struct rc_dev *de
- 
- 	return 0;
- 
-+out_rx:
-+	rc_free_rx_device(dev);
- out_lirc:
- 	if (dev->allowed_protocols != RC_PROTO_BIT_CEC)
- 		ir_lirc_unregister(dev);
--out_rx:
--	rc_free_rx_device(dev);
- out_dev:
- 	device_del(&dev->dev);
- out_rx_free:
+ 	/*
+ 	 * Struct pages that do not have backing memory. This could be because
 
 
