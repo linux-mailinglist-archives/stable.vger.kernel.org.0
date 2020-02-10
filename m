@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F323C157568
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B51157569
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727581AbgBJMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41448 "EHLO mail.kernel.org"
+        id S1729795AbgBJMkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729788AbgBJMkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728299AbgBJMkp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:40:45 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 144B92465D;
-        Mon, 10 Feb 2020 12:40:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 180862467D;
+        Mon, 10 Feb 2020 12:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338444;
-        bh=woxeyLAkwlgmJvJtTrHq6llJqKOshHaPE8L5XUAZeeM=;
+        s=default; t=1581338445;
+        bh=0kGnIQmYHLHLyFnEWBAylLFxR0+B2VN0YAnNjlZp0IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPaZgdKLePTyHElxVrMOqO4eUQhBiqmA52vhwt8XiHdVKNUz0kZat0F5DnX1GQ1e2
-         KCVHRKOGtmlF4cG5T1oddURXVIIVQUl+nBQqN/EQMc5VSyVMn5MhTEQv+evb8YTWIs
-         dL98lFysEKX5t+KnIgVadLftzACbQUbu/InzBbdI=
+        b=GzElSbxd5x3YMDS5phrGTxOY48tvQdZ11uBSsLlf1DB5POY9KFLftlJxIl48vDIRc
+         UZQgs7NOg22hyiQVm28AsETYQn97FHfUYE6T1zrIv/LWtORoFGIuqBkvUudcznVpHf
+         uXr3Pt6ZLgAtJg8HrWQQlUN8n7UTV4wmoY/DonCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.5 184/367] crypto: atmel-aes - Fix counter overflow in CTR mode
-Date:   Mon, 10 Feb 2020 04:31:37 -0800
-Message-Id: <20200210122441.685289605@linuxfoundation.org>
+Subject: [PATCH 5.5 186/367] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
+Date:   Mon, 10 Feb 2020 04:31:39 -0800
+Message-Id: <20200210122441.826444883@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,104 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 781a08d9740afa73357f1a60d45d7c93d7cca2dd upstream.
+commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
 
-32 bit counter is not supported by neither of our AES IPs, all implement
-a 16 bit block counter. Drop the 32 bit block counter logic.
+Since tasklet is needed to be initialized before registering IRQ
+handler, adjust the position of tasklet_init to fix the wrong order.
 
-Fixes: fcac83656a3e ("crypto: atmel-aes - fix the counter overflow in CTR mode")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Besides, to fix the missed tasklet_kill, this patch adds a helper
+function and uses devm_add_action to kill the tasklet automatically.
+
+Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/atmel-aes.c |   37 ++++++++++++-------------------------
- 1 file changed, 12 insertions(+), 25 deletions(-)
+ drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/atmel-aes.c
-+++ b/drivers/crypto/atmel-aes.c
-@@ -89,7 +89,6 @@
- struct atmel_aes_caps {
- 	bool			has_dualbuff;
- 	bool			has_cfb64;
--	bool			has_ctr32;
- 	bool			has_gcm;
- 	bool			has_xts;
- 	bool			has_authenc;
-@@ -1015,8 +1014,9 @@ static int atmel_aes_ctr_transfer(struct
- 	struct atmel_aes_ctr_ctx *ctx = atmel_aes_ctr_ctx_cast(dd->ctx);
- 	struct skcipher_request *req = skcipher_request_cast(dd->areq);
- 	struct scatterlist *src, *dst;
--	u32 ctr, blocks;
- 	size_t datalen;
-+	u32 ctr;
-+	u16 blocks, start, end;
- 	bool use_dma, fragmented = false;
+--- a/drivers/crypto/picoxcell_crypto.c
++++ b/drivers/crypto/picoxcell_crypto.c
+@@ -1595,6 +1595,11 @@ static const struct of_device_id spacc_o
+ MODULE_DEVICE_TABLE(of, spacc_of_id_table);
+ #endif /* CONFIG_OF */
  
- 	/* Check for transfer completion. */
-@@ -1028,27 +1028,17 @@ static int atmel_aes_ctr_transfer(struct
- 	datalen = req->cryptlen - ctx->offset;
- 	blocks = DIV_ROUND_UP(datalen, AES_BLOCK_SIZE);
- 	ctr = be32_to_cpu(ctx->iv[3]);
--	if (dd->caps.has_ctr32) {
--		/* Check 32bit counter overflow. */
--		u32 start = ctr;
--		u32 end = start + blocks - 1;
--
--		if (end < start) {
--			ctr |= 0xffffffff;
--			datalen = AES_BLOCK_SIZE * -start;
--			fragmented = true;
--		}
--	} else {
--		/* Check 16bit counter overflow. */
--		u16 start = ctr & 0xffff;
--		u16 end = start + (u16)blocks - 1;
--
--		if (blocks >> 16 || end < start) {
--			ctr |= 0xffff;
--			datalen = AES_BLOCK_SIZE * (0x10000-start);
--			fragmented = true;
--		}
++static void spacc_tasklet_kill(void *data)
++{
++	tasklet_kill(data);
++}
 +
-+	/* Check 16bit counter overflow. */
-+	start = ctr & 0xffff;
-+	end = start + blocks - 1;
-+
-+	if (blocks >> 16 || end < start) {
-+		ctr |= 0xffff;
-+		datalen = AES_BLOCK_SIZE * (0x10000 - start);
-+		fragmented = true;
- 	}
-+
- 	use_dma = (datalen >= ATMEL_AES_DMA_THRESHOLD);
- 
- 	/* Jump to offset. */
-@@ -2533,7 +2523,6 @@ static void atmel_aes_get_cap(struct atm
+ static int spacc_probe(struct platform_device *pdev)
  {
- 	dd->caps.has_dualbuff = 0;
- 	dd->caps.has_cfb64 = 0;
--	dd->caps.has_ctr32 = 0;
- 	dd->caps.has_gcm = 0;
- 	dd->caps.has_xts = 0;
- 	dd->caps.has_authenc = 0;
-@@ -2544,7 +2533,6 @@ static void atmel_aes_get_cap(struct atm
- 	case 0x500:
- 		dd->caps.has_dualbuff = 1;
- 		dd->caps.has_cfb64 = 1;
--		dd->caps.has_ctr32 = 1;
- 		dd->caps.has_gcm = 1;
- 		dd->caps.has_xts = 1;
- 		dd->caps.has_authenc = 1;
-@@ -2553,7 +2541,6 @@ static void atmel_aes_get_cap(struct atm
- 	case 0x200:
- 		dd->caps.has_dualbuff = 1;
- 		dd->caps.has_cfb64 = 1;
--		dd->caps.has_ctr32 = 1;
- 		dd->caps.has_gcm = 1;
- 		dd->caps.max_burst_size = 4;
- 		break;
+ 	int i, err, ret;
+@@ -1637,6 +1642,14 @@ static int spacc_probe(struct platform_d
+ 		return -ENXIO;
+ 	}
+ 
++	tasklet_init(&engine->complete, spacc_spacc_complete,
++		     (unsigned long)engine);
++
++	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
++			      &engine->complete);
++	if (ret)
++		return ret;
++
+ 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
+ 			     engine->name, engine)) {
+ 		dev_err(engine->dev, "failed to request IRQ\n");
+@@ -1694,8 +1707,6 @@ static int spacc_probe(struct platform_d
+ 	INIT_LIST_HEAD(&engine->completed);
+ 	INIT_LIST_HEAD(&engine->in_progress);
+ 	engine->in_flight = 0;
+-	tasklet_init(&engine->complete, spacc_spacc_complete,
+-		     (unsigned long)engine);
+ 
+ 	platform_set_drvdata(pdev, engine);
+ 
 
 
