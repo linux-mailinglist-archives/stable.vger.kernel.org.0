@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0F4157878
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:08:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77921157ACB
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730170AbgBJNIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:08:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37728 "EHLO mail.kernel.org"
+        id S1728800AbgBJNZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:25:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729453AbgBJMjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:36 -0500
+        id S1728565AbgBJMgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:55 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FD8A20661;
-        Mon, 10 Feb 2020 12:39:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 557E520873;
+        Mon, 10 Feb 2020 12:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338376;
-        bh=QQIPvfVxsHQ0Kg/jbhKAMrFoi+8fum2mpB8s9nGUJJE=;
+        s=default; t=1581338215;
+        bh=+HSqdxYkaYNIfkfUg/Sub3ZQxnf+zFmHQsRtSt8ybzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+h+Nl7G7IUxDgPeHDQmKjmxiGiMsLVtTZDyMI3ngr4by9k6Op//ec0OKu1UhOvbq
-         h0wSOPJMWalXCH23/HSnBQKK7yt0p2EsoxNP6dSo+PHoAXAW1KZhFtzA01lEW/nIIM
-         dpspk5BWh0YhMnjzqXtF4YMwVec5PwFAEhd1qpoU=
+        b=bmgEKAYDVF8nWu59dyLk3oa1sWtO4sc9hwcvSoKCs5R2WAwu9qusV7yhsAEQulncs
+         W49halBkq8n8oaTXecfSYymcZlUaU0l4g1YI263Ne2Rj29dms6CQCFgf9luruT3r1U
+         wA9lZpuFKLXT8/R8pXQlYJJAAZVC7UAUWp8T5dEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 051/367] ALSA: usb-audio: Fix endianess in descriptor validation
+        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 008/309] net: stmmac: Delete txtimer in suspend()
 Date:   Mon, 10 Feb 2020 04:29:24 -0800
-Message-Id: <20200210122428.752926995@linuxfoundation.org>
+Message-Id: <20200210122406.866683986@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-commit f8e5f90b3a53bb75f05124ed19156388379a337d upstream.
+[ Upstream commit 14b41a2959fbaa50932699d32ceefd6643abacc6 ]
 
-I overlooked that some fields are words and need the converts from
-LE in the recently added USB descriptor validation code.
-This patch fixes those with the proper macro usages.
+When running v5.5 with a rootfs on NFS, memory abort may happen in
+the system resume stage:
+ Unable to handle kernel paging request at virtual address dead00000000012a
+ [dead00000000012a] address between user and kernel address ranges
+ pc : run_timer_softirq+0x334/0x3d8
+ lr : run_timer_softirq+0x244/0x3d8
+ x1 : ffff800011cafe80 x0 : dead000000000122
+ Call trace:
+  run_timer_softirq+0x334/0x3d8
+  efi_header_end+0x114/0x234
+  irq_exit+0xd0/0xd8
+  __handle_domain_irq+0x60/0xb0
+  gic_handle_irq+0x58/0xa8
+  el1_irq+0xb8/0x180
+  arch_cpu_idle+0x10/0x18
+  do_idle+0x1d8/0x2b0
+  cpu_startup_entry+0x24/0x40
+  secondary_start_kernel+0x1b4/0x208
+ Code: f9000693 a9400660 f9000020 b4000040 (f9000401)
+ ---[ end trace bb83ceeb4c482071 ]---
+ Kernel panic - not syncing: Fatal exception in interrupt
+ SMP: stopping secondary CPUs
+ SMP: failed to stop secondary CPUs 2-3
+ Kernel Offset: disabled
+ CPU features: 0x00002,2300aa30
+ Memory Limit: none
+ ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
 
-Fixes: 57f8770620e9 ("ALSA: usb-audio: More validations of descriptor units")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200201080530.22390-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It's found that stmmac_xmit() and stmmac_resume() sometimes might
+run concurrently, possibly resulting in a race condition between
+mod_timer() and setup_timer(), being called by stmmac_xmit() and
+stmmac_resume() respectively.
+
+Since the resume() runs setup_timer() every time, it'd be safer to
+have del_timer_sync() in the suspend() as the counterpart.
+
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/usb/validate.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/usb/validate.c
-+++ b/sound/usb/validate.c
-@@ -110,7 +110,7 @@ static bool validate_processing_unit(con
- 	default:
- 		if (v->type == UAC1_EXTENSION_UNIT)
- 			return true; /* OK */
--		switch (d->wProcessType) {
-+		switch (le16_to_cpu(d->wProcessType)) {
- 		case UAC_PROCESS_UP_DOWNMIX:
- 		case UAC_PROCESS_DOLBY_PROLOGIC:
- 			if (d->bLength < len + 1) /* bNrModes */
-@@ -125,7 +125,7 @@ static bool validate_processing_unit(con
- 	case UAC_VERSION_2:
- 		if (v->type == UAC2_EXTENSION_UNIT_V2)
- 			return true; /* OK */
--		switch (d->wProcessType) {
-+		switch (le16_to_cpu(d->wProcessType)) {
- 		case UAC2_PROCESS_UP_DOWNMIX:
- 		case UAC2_PROCESS_DOLBY_PROLOCIC: /* SiC! */
- 			if (d->bLength < len + 1) /* bNrModes */
-@@ -142,7 +142,7 @@ static bool validate_processing_unit(con
- 			len += 2; /* wClusterDescrID */
- 			break;
- 		}
--		switch (d->wProcessType) {
-+		switch (le16_to_cpu(d->wProcessType)) {
- 		case UAC3_PROCESS_UP_DOWNMIX:
- 			if (d->bLength < len + 1) /* bNrModes */
- 				return false;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4763,6 +4763,7 @@ int stmmac_suspend(struct device *dev)
+ {
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct stmmac_priv *priv = netdev_priv(ndev);
++	u32 chan;
+ 
+ 	if (!ndev || !netif_running(ndev))
+ 		return 0;
+@@ -4776,6 +4777,9 @@ int stmmac_suspend(struct device *dev)
+ 
+ 	stmmac_disable_all_queues(priv);
+ 
++	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
++		del_timer_sync(&priv->tx_queue[chan].txtimer);
++
+ 	/* Stop TX/RX DMA */
+ 	stmmac_stop_all_dma(priv);
+ 
 
 
