@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DA4157517
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3991157574
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729143AbgBJMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:38:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34006 "EHLO mail.kernel.org"
+        id S1729596AbgBJMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729140AbgBJMi1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:27 -0500
+        id S1729885AbgBJMlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:06 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A63D220842;
-        Mon, 10 Feb 2020 12:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAF0320661;
+        Mon, 10 Feb 2020 12:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338306;
-        bh=9xJq2LuK/RBf4oCOlu8d3g2JQ7gqtgWNy59BruoXJZA=;
+        s=default; t=1581338465;
+        bh=u5iY+zUkAwoQvPV4FOjhEXet1A340J2ouQeqEjKVdEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYQXLh1dGCNEJPhhCne3gpzEuQgiz3rdzX2c0jFjrYyI3HtxY0tlKas6A3sn2yZBh
-         7oDBP+qfgD4wu1YN/1j1oXpzAKWsvdtgQQ44o6da94WScLvWRcAzjC1cS7D7ThejhW
-         0ZD9Uh0w5MWChtVYaGRj0YGuLFnSOTVGOw7cU7cY=
+        b=uOqjpd2DnEWWwEInlM5wXRhqSHyRkB4uEZHZG9itztrMXL9uiumDDdrALGpolCCbp
+         gfZwt71NEHOL9lhM41MepjwsXKjzn1bOF1HvjeBVtNBj9ZZnviFuF8tywreIqXEQ3p
+         klz5XU4UL0rqpry5GMbHS9EYnz4XHS/vi//zmVq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Frank Sorenson <sorenson@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.4 182/309] sunrpc: expiry_time should be seconds not timeval
-Date:   Mon, 10 Feb 2020 04:32:18 -0800
-Message-Id: <20200210122424.022071254@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.5 226/367] aio: prevent potential eventfd recursion on poll
+Date:   Mon, 10 Feb 2020 04:32:19 -0800
+Message-Id: <20200210122445.299858467@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Bergantinos Corpas <rbergant@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 3d96208c30f84d6edf9ab4fac813306ac0d20c10 upstream.
+commit 01d7a356872eec22ef34a33a5f9cfa917d145468 upstream.
 
-When upcalling gssproxy, cache_head.expiry_time is set as a
-timeval, not seconds since boot. As such, RPC cache expiry
-logic will not clean expired objects created under
-auth.rpcsec.context cache.
+If we have nested or circular eventfd wakeups, then we can deadlock if
+we run them inline from our poll waitqueue wakeup handler. It's also
+possible to have very long chains of notifications, to the extent where
+we could risk blowing the stack.
 
-This has proven to cause kernel memory leaks on field. Using
-64 bit variants of getboottime/timespec
+Check the eventfd recursion count before calling eventfd_signal(). If
+it's non-zero, then punt the signaling to async context. This is always
+safe, as it takes us out-of-line in terms of stack and locking context.
 
-Expiration times have worked this way since 2010's c5b29f885afe "sunrpc:
-use seconds since boot in expiry cache".  The gssproxy code introduced
-in 2012 added gss_proxy_save_rsc and introduced the bug.  That's a while
-for this to lurk, but it required a bit of an extreme case to make it
-obvious.
-
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 030d794bf498 "SUNRPC: Use gssproxy upcall for server..."
-Tested-By: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Cc: stable@vger.kernel.org # 4.19+
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/auth_gss/svcauth_gss.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/aio.c |   20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1245,6 +1245,7 @@ static int gss_proxy_save_rsc(struct cac
- 		dprintk("RPC:       No creds found!\n");
- 		goto out;
- 	} else {
-+		struct timespec64 boot;
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -1610,6 +1610,14 @@ static int aio_fsync(struct fsync_iocb *
+ 	return 0;
+ }
  
- 		/* steal creds */
- 		rsci.cred = ud->creds;
-@@ -1265,6 +1266,9 @@ static int gss_proxy_save_rsc(struct cac
- 						&expiry, GFP_KERNEL);
- 		if (status)
- 			goto out;
++static void aio_poll_put_work(struct work_struct *work)
++{
++	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
++	struct aio_kiocb *iocb = container_of(req, struct aio_kiocb, poll);
 +
-+		getboottime64(&boot);
-+		expiry -= boot.tv_sec;
- 	}
++	iocb_put(iocb);
++}
++
+ static void aio_poll_complete_work(struct work_struct *work)
+ {
+ 	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
+@@ -1674,6 +1682,8 @@ static int aio_poll_wake(struct wait_que
+ 	list_del_init(&req->wait.entry);
  
- 	rsci.h.expiry_time = expiry;
+ 	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
++		struct kioctx *ctx = iocb->ki_ctx;
++
+ 		/*
+ 		 * Try to complete the iocb inline if we can. Use
+ 		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
+@@ -1683,8 +1693,14 @@ static int aio_poll_wake(struct wait_que
+ 		list_del(&iocb->ki_list);
+ 		iocb->ki_res.res = mangle_poll(mask);
+ 		req->done = true;
+-		spin_unlock_irqrestore(&iocb->ki_ctx->ctx_lock, flags);
+-		iocb_put(iocb);
++		if (iocb->ki_eventfd && eventfd_signal_count()) {
++			iocb = NULL;
++			INIT_WORK(&req->work, aio_poll_put_work);
++			schedule_work(&req->work);
++		}
++		spin_unlock_irqrestore(&ctx->ctx_lock, flags);
++		if (iocb)
++			iocb_put(iocb);
+ 	} else {
+ 		schedule_work(&req->work);
+ 	}
 
 
