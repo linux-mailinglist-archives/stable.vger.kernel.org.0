@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C251577CB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B736A157A42
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730612AbgBJNCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:02:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40578 "EHLO mail.kernel.org"
+        id S1728279AbgBJNVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:21:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729749AbgBJMkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:31 -0500
+        id S1728788AbgBJMhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:31 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A91BD20873;
-        Mon, 10 Feb 2020 12:40:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 814CC24671;
+        Mon, 10 Feb 2020 12:37:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338430;
-        bh=KV0NiS2aOHN6RwhExLIB01bPY4Iwsa8czE2TsEoKgXM=;
+        s=default; t=1581338251;
+        bh=MMy5b1V1IL5uHCq9NfdoFe3WHzgaxpAqJCJ80qPZUTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5U1rnqFqfOHkqhEKTa/fiamQuB1G3rKPGusMrik1ACug8v3BC5BdKViA+nVuujFz
-         2KB9DX0vf39pP7JFfChYrbk1gSpOnxLI/DF4Reb2utGB9ZiFp5s/B2x3+ud/cTMM5m
-         qYy8Q8k3IARuLw5DP2Uwkh9NKIrDDMczcvUnjNeU=
+        b=tl0Sv4JL7wowTEDZoRATx9grl1au8H8q0ztB5m8CRzgS8q0qJAFRlaD68uoWDhef8
+         25J2Zek1rzqgNXdzPuCC93l3MlNfK68U0prYIC+mgQaHn0qd9wNZIu7Mlo8Sr+iAIK
+         2l7nxt0fDLc3cfBXb4ksyzZKUaNziRwhUiIVpjqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Su Yue <Damenly_Su@gmx.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.5 156/367] btrfs: Handle another split brain scenario with metadata uuid feature
-Date:   Mon, 10 Feb 2020 04:31:09 -0800
-Message-Id: <20200210122439.222143017@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 5.4 114/309] power: supply: axp20x_ac_power: Fix reporting online status
+Date:   Mon, 10 Feb 2020 04:31:10 -0800
+Message-Id: <20200210122417.526922108@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 05840710149c7d1a78ea85a2db5723f706e97d8f upstream.
+commit 1c51aad8475d670ad58ae60adc9d32342381df8d upstream.
 
-There is one more cases which isn't handled by the original metadata
-uuid work. Namely, when a filesystem has METADATA_UUID incompat bit and
-the user decides to change the FSID to the original one e.g. have
-metadata_uuid and fsid match. In case of power failure while this
-operation is in progress we could end up in a situation where some of
-the disks have the incompat bit removed and the other half have both
-METADATA_UUID_INCOMPAT and FSID_CHANGING_IN_PROGRESS flags.
+AXP803/AXP813 have a flag that enables/disables the AC power supply
+input. This flag does not affect the status bits in PWR_INPUT_STATUS.
+Its effect can be verified by checking the battery charge/discharge
+state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
+the AC input.
 
-This patch handles the case where a disk that has successfully changed
-its FSID such that it equals METADATA_UUID is scanned first.
-Subsequently when a disk with both
-METADATA_UUID_INCOMPAT/FSID_CHANGING_IN_PROGRESS flags is scanned
-find_fsid_changed won't be able to find an appropriate btrfs_fs_devices.
-This is done by extending find_fsid_changed to correctly find
-btrfs_fs_devices whose metadata_uuid/fsid are the same and they match
-the metadata_uuid of the currently scanned device.
+Take this flag into account when getting the ONLINE property of the AC
+input, on PMICs where this flag is present.
 
-Fixes: cc5de4e70256 ("btrfs: Handle final split-brain possibility during fsid change")
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Reported-by: Su Yue <Damenly_Su@gmx.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
+Cc: stable@vger.kernel.org
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/power/supply/axp20x_ac_power.c |   31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -697,17 +697,28 @@ static struct btrfs_fs_devices *find_fsi
- 	/*
- 	 * Handles the case where scanned device is part of an fs that had
- 	 * multiple successful changes of FSID but curently device didn't
--	 * observe it. Meaning our fsid will be different than theirs.
-+	 * observe it. Meaning our fsid will be different than theirs. We need
-+	 * to handle two subcases :
-+	 *  1 - The fs still continues to have different METADATA/FSID uuids.
-+	 *  2 - The fs is switched back to its original FSID (METADATA/FSID
-+	 *  are equal).
- 	 */
- 	list_for_each_entry(fs_devices, &fs_uuids, fs_list) {
-+		/* Changed UUIDs */
- 		if (memcmp(fs_devices->metadata_uuid, fs_devices->fsid,
- 			   BTRFS_FSID_SIZE) != 0 &&
- 		    memcmp(fs_devices->metadata_uuid, disk_super->metadata_uuid,
- 			   BTRFS_FSID_SIZE) == 0 &&
- 		    memcmp(fs_devices->fsid, disk_super->fsid,
--			   BTRFS_FSID_SIZE) != 0) {
-+			   BTRFS_FSID_SIZE) != 0)
-+			return fs_devices;
+--- a/drivers/power/supply/axp20x_ac_power.c
++++ b/drivers/power/supply/axp20x_ac_power.c
+@@ -23,6 +23,8 @@
+ #define AXP20X_PWR_STATUS_ACIN_PRESENT	BIT(7)
+ #define AXP20X_PWR_STATUS_ACIN_AVAIL	BIT(6)
+ 
++#define AXP813_ACIN_PATH_SEL		BIT(7)
 +
-+		/* Unchanged UUIDs */
-+		if (memcmp(fs_devices->metadata_uuid, fs_devices->fsid,
-+			   BTRFS_FSID_SIZE) == 0 &&
-+		    memcmp(fs_devices->fsid, disk_super->metadata_uuid,
-+			   BTRFS_FSID_SIZE) == 0)
- 			return fs_devices;
--		}
+ #define AXP813_VHOLD_MASK		GENMASK(5, 3)
+ #define AXP813_VHOLD_UV_TO_BIT(x)	((((x) / 100000) - 40) << 3)
+ #define AXP813_VHOLD_REG_TO_UV(x)	\
+@@ -40,6 +42,7 @@ struct axp20x_ac_power {
+ 	struct power_supply *supply;
+ 	struct iio_channel *acin_v;
+ 	struct iio_channel *acin_i;
++	bool has_acin_path_sel;
+ };
+ 
+ static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
+@@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(
+ 			return ret;
+ 
+ 		val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
++
++		/* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
++		if (val->intval && power->has_acin_path_sel) {
++			ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
++					  &reg);
++			if (ret)
++				return ret;
++
++			val->intval = !!(reg & AXP813_ACIN_PATH_SEL);
++		}
++
+ 		return 0;
+ 
+ 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+@@ -224,21 +238,25 @@ static const struct power_supply_desc ax
+ struct axp_data {
+ 	const struct power_supply_desc	*power_desc;
+ 	bool				acin_adc;
++	bool				acin_path_sel;
+ };
+ 
+ static const struct axp_data axp20x_data = {
+-	.power_desc = &axp20x_ac_power_desc,
+-	.acin_adc = true,
++	.power_desc	= &axp20x_ac_power_desc,
++	.acin_adc	= true,
++	.acin_path_sel	= false,
+ };
+ 
+ static const struct axp_data axp22x_data = {
+-	.power_desc = &axp22x_ac_power_desc,
+-	.acin_adc = false,
++	.power_desc	= &axp22x_ac_power_desc,
++	.acin_adc	= false,
++	.acin_path_sel	= false,
+ };
+ 
+ static const struct axp_data axp813_data = {
+-	.power_desc = &axp813_ac_power_desc,
+-	.acin_adc = false,
++	.power_desc	= &axp813_ac_power_desc,
++	.acin_adc	= false,
++	.acin_path_sel	= true,
+ };
+ 
+ static int axp20x_ac_power_probe(struct platform_device *pdev)
+@@ -282,6 +300,7 @@ static int axp20x_ac_power_probe(struct
  	}
  
- 	return NULL;
+ 	power->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	power->has_acin_path_sel = axp_data->acin_path_sel;
+ 
+ 	platform_set_drvdata(pdev, power);
+ 
 
 
