@@ -2,68 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4376E157F50
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 17:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A6C158028
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 17:51:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727646AbgBJQAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 11:00:23 -0500
-Received: from mga02.intel.com ([134.134.136.20]:17025 "EHLO mga02.intel.com"
+        id S1727558AbgBJQv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 11:51:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727143AbgBJQAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 11:00:23 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Feb 2020 08:00:22 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,425,1574150400"; 
-   d="scan'208";a="380144630"
-Received: from dvolkov-mobl1.ccr.corp.intel.com (HELO localhost) ([10.252.14.103])
-  by orsmga004.jf.intel.com with ESMTP; 10 Feb 2020 08:00:20 -0800
-Date:   Mon, 10 Feb 2020 18:00:19 +0200
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>
-Cc:     zohar@linux.ibm.com, James.Bottomley@HansenPartnership.com,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        id S1727499AbgBJQv1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 11:51:27 -0500
+Received: from localhost (unknown [104.132.1.111])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B6C920661;
+        Mon, 10 Feb 2020 16:51:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581353487;
+        bh=3bx4vKMugMTzGtCPOMAKlu9xu4XVOOInnzDgwSz1Nu8=;
+        h=Subject:To:From:Date:From;
+        b=gJFRfbRAL+K188ZwgOnIZbmKeINXJ2euaYInAGK59/skRoVVnjbzqij08F+r6Do4W
+         bB6OhtMOZhb34oSil/nQh1YjwTNkpIEiHddq+ToQn/ldwl95pdrZSmFyE+IRvAy5YJ
+         HXzNViDnVgUahJSiBu1UcPgKn81Wg9SpU6O1NEIg=
+Subject: patch "staging: vt6656: fix sign of rx_dbm to bb_pre_ed_rssi." added to staging-linus
+To:     tvboxspy@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/8] tpm: Initialize crypto_id of allocated_banks to
- HASH_ALGO__LAST
-Message-ID: <20200210160019.GA8146@linux.intel.com>
-References: <20200210100048.21448-1-roberto.sassu@huawei.com>
- <20200210100048.21448-2-roberto.sassu@huawei.com>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 10 Feb 2020 08:51:26 -0800
+Message-ID: <15813534869045@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200210100048.21448-2-roberto.sassu@huawei.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 10, 2020 at 11:00:41AM +0100, Roberto Sassu wrote:
-> chip->allocated_banks, an array of tpm_bank_info structures, contains the
-> list of TPM algorithm IDs of allocated PCR banks. It also contains the
-> corresponding ID of the crypto subsystem, so that users of the TPM driver
-> can calculate a digest for a PCR extend operation.
-> 
-> However, if there is no mapping between TPM algorithm ID and crypto ID, the
-> crypto_id field of tpm_bank_info remains set to zero (the array is
-> allocated and initialized with kcalloc() in tpm2_get_pcr_allocation()).
-> Zero should not be used as value for unknown mappings, as it is a valid
-> crypto ID (HASH_ALGO_MD4).
-> 
-> Thus, initialize crypto_id to HASH_ALGO__LAST.
-> 
-> Cc: stable@vger.kernel.org # 5.1.x
-> Fixes: 879b589210a9 ("tpm: retrieve digest size of unknown algorithms with PCR read")
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> Reviewed-by: Petr Vorel <pvorel@suse.cz>
 
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+This is a note to let you know that I've just added the patch titled
 
-/Jarkko
+    staging: vt6656: fix sign of rx_dbm to bb_pre_ed_rssi.
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 93134df520f23f4e9998c425b8987edca7016817 Mon Sep 17 00:00:00 2001
+From: Malcolm Priestley <tvboxspy@gmail.com>
+Date: Tue, 4 Feb 2020 19:34:02 +0000
+Subject: staging: vt6656: fix sign of rx_dbm to bb_pre_ed_rssi.
+
+bb_pre_ed_rssi is an u8 rx_dm always returns negative signed
+values add minus operator to always yield positive.
+
+fixes issue where rx sensitivity is always set to maximum because
+the unsigned numbers were always greater then 100.
+
+Fixes: 63b9907f58f1 ("staging: vt6656: mac80211 conversion: create rx function.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/aceac98c-6e69-3ce1-dfec-2bf27b980221@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/vt6656/dpc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/vt6656/dpc.c b/drivers/staging/vt6656/dpc.c
+index 821aae8ca402..a0b60e7d1086 100644
+--- a/drivers/staging/vt6656/dpc.c
++++ b/drivers/staging/vt6656/dpc.c
+@@ -98,7 +98,7 @@ int vnt_rx_data(struct vnt_private *priv, struct vnt_rcb *ptr_rcb,
+ 
+ 	vnt_rf_rssi_to_dbm(priv, tail->rssi, &rx_dbm);
+ 
+-	priv->bb_pre_ed_rssi = (u8)rx_dbm + 1;
++	priv->bb_pre_ed_rssi = (u8)-rx_dbm + 1;
+ 	priv->current_rssi = priv->bb_pre_ed_rssi;
+ 
+ 	skb_pull(skb, sizeof(*head));
+-- 
+2.25.0
+
+
