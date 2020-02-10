@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E533D1578F7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB9F157B32
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:29:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbgBJNLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:11:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35770 "EHLO mail.kernel.org"
+        id S1728972AbgBJN1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:27:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729287AbgBJMjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:00 -0500
+        id S1728394AbgBJMg3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:29 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D32582080C;
-        Mon, 10 Feb 2020 12:38:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0B4620838;
+        Mon, 10 Feb 2020 12:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338339;
-        bh=EoklstDWNnn2rWz0l7oezB9IjLDwq59jnrNWLRfUkFg=;
+        s=default; t=1581338188;
+        bh=8ZzzrsQnJJ0TULN/Xqd/x3Y2vrdR9yMH4ESJCqx+HcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLcz46Xofb1OzTHd2O7eDQAF1wLPjrCzY+AcZViF+OdM/CPNE8JZJ3rI4tmJOUJOa
-         ziC/ZbAmrjvsGTywKJMrV2JNQKdEYPjzP7ZuBQiVPwotr1YpbW4RM7ZgxU8oUXidQ5
-         b0qpxYw8TGIJ4fpejMTltpPJNt8Caitd9hd5K8ng=
+        b=AiA2az5zDWUEMCPNLvCg6W7jK74dGSWEOpz6i7Kw6rwb8VnNXCL0qgSHpMrUbT2Cj
+         AauSPG64BdxB0zmxkCMK5QDI5mUmmPRPt+U50p5ZX+AD5bqzUwcvGSlzxGSXWdJIeA
+         rAuL0wEIdRmYQmF95qy6+PKn621cB27F6sVhzJ9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.4 290/309] mfd: bd70528: Fix hour register mask
-Date:   Mon, 10 Feb 2020 04:34:06 -0800
-Message-Id: <20200210122434.575666509@linuxfoundation.org>
+        Pavel Tatashin <pavel.tatashin@microsoft.com>,
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 189/195] mm: return zero_resv_unavail optimization
+Date:   Mon, 10 Feb 2020 04:34:07 -0800
+Message-Id: <20200210122323.673345339@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +52,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+From: Pavel Tatashin <pavel.tatashin@microsoft.com>
 
-commit 6c883472e1c11cb05561b6dd0c28bb037c2bf2de upstream.
+[ Upstream commit ec393a0f014eaf688a3dbe8c8a4cbb52d7f535f9 ]
 
-When RTC is used in 24H mode (and it is by this driver) the maximum
-hour value is 24 in BCD. This occupies bits [5:0] - which means
-correct mask for HOUR register is 0x3f not 0x1f. Fix the mask
+When checking for valid pfns in zero_resv_unavail(), it is not necessary
+to verify that pfns within pageblock_nr_pages ranges are valid, only the
+first one needs to be checked.  This is because memory for pages are
+allocated in contiguous chunks that contain pageblock_nr_pages struct
+pages.
 
-Fixes: 32a4a4ebf768 ("rtc: bd70528: Initial support for ROHM bd70528 RTC")
-
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/20181002143821.5112-3-msys.mizuma@gmail.com
+Signed-off-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Signed-off-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Reviewed-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mfd/rohm-bd70528.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/page_alloc.c | 46 ++++++++++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
---- a/include/linux/mfd/rohm-bd70528.h
-+++ b/include/linux/mfd/rohm-bd70528.h
-@@ -317,7 +317,7 @@ enum {
- #define BD70528_MASK_RTC_MINUTE		0x7f
- #define BD70528_MASK_RTC_HOUR_24H	0x80
- #define BD70528_MASK_RTC_HOUR_PM	0x20
--#define BD70528_MASK_RTC_HOUR		0x1f
-+#define BD70528_MASK_RTC_HOUR		0x3f
- #define BD70528_MASK_RTC_DAY		0x3f
- #define BD70528_MASK_RTC_WEEK		0x07
- #define BD70528_MASK_RTC_MONTH		0x1f
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 19f2e77d1c50b..8a00c32191263 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6456,6 +6456,29 @@ void __init free_area_init_node(int nid, unsigned long *zones_size,
+ }
+ 
+ #if defined(CONFIG_HAVE_MEMBLOCK) && !defined(CONFIG_FLAT_NODE_MEM_MAP)
++
++/*
++ * Zero all valid struct pages in range [spfn, epfn), return number of struct
++ * pages zeroed
++ */
++static u64 zero_pfn_range(unsigned long spfn, unsigned long epfn)
++{
++	unsigned long pfn;
++	u64 pgcnt = 0;
++
++	for (pfn = spfn; pfn < epfn; pfn++) {
++		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
++			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
++				+ pageblock_nr_pages - 1;
++			continue;
++		}
++		mm_zero_struct_page(pfn_to_page(pfn));
++		pgcnt++;
++	}
++
++	return pgcnt;
++}
++
+ /*
+  * Only struct pages that are backed by physical memory are zeroed and
+  * initialized by going through __init_single_page(). But, there are some
+@@ -6471,7 +6494,6 @@ void __init free_area_init_node(int nid, unsigned long *zones_size,
+ void __init zero_resv_unavail(void)
+ {
+ 	phys_addr_t start, end;
+-	unsigned long pfn;
+ 	u64 i, pgcnt;
+ 	phys_addr_t next = 0;
+ 
+@@ -6481,34 +6503,18 @@ void __init zero_resv_unavail(void)
+ 	pgcnt = 0;
+ 	for_each_mem_range(i, &memblock.memory, NULL,
+ 			NUMA_NO_NODE, MEMBLOCK_NONE, &start, &end, NULL) {
+-		if (next < start) {
+-			for (pfn = PFN_DOWN(next); pfn < PFN_UP(start); pfn++) {
+-				if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages)))
+-					continue;
+-				mm_zero_struct_page(pfn_to_page(pfn));
+-				pgcnt++;
+-			}
+-		}
++		if (next < start)
++			pgcnt += zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
+ 		next = end;
+ 	}
+-	for (pfn = PFN_DOWN(next); pfn < max_pfn; pfn++) {
+-		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages)))
+-			continue;
+-		mm_zero_struct_page(pfn_to_page(pfn));
+-		pgcnt++;
+-	}
+-
++	pgcnt += zero_pfn_range(PFN_DOWN(next), max_pfn);
+ 
+ 	/*
+ 	 * Struct pages that do not have backing memory. This could be because
+ 	 * firmware is using some of this memory, or for some other reasons.
+-	 * Once memblock is changed so such behaviour is not allowed: i.e.
+-	 * list of "reserved" memory must be a subset of list of "memory", then
+-	 * this code can be removed.
+ 	 */
+ 	if (pgcnt)
+ 		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
+-
+ }
+ #endif /* CONFIG_HAVE_MEMBLOCK && !CONFIG_FLAT_NODE_MEM_MAP */
+ 
+-- 
+2.20.1
+
 
 
