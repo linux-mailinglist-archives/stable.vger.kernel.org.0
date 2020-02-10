@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD251157ADC
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56EC3157848
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729585AbgBJNZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:25:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57242 "EHLO mail.kernel.org"
+        id S1729546AbgBJMjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728550AbgBJMgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:53 -0500
+        id S1728958AbgBJMjw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:52 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F48E20838;
-        Mon, 10 Feb 2020 12:36:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 123B62467A;
+        Mon, 10 Feb 2020 12:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338212;
-        bh=w16WrdxQwte7W7Dx1UrCfaCKoSIdMxp1Z6eyuv/J3IQ=;
+        s=default; t=1581338390;
+        bh=c18dsmejcPXvDGKtlQTp7E0bFEvu+bOeNIWByPWdY5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DM86AXdBPXXEH/Ui04atfibY403UT2jWk7Df9Hed6QWem/Px8kqz340KB32PUmg9E
-         6QlEd3odmRNoTDgGuQe7iNE0/sgk6AGyP7btOFyu4WwarxQMOgdCC+T0CrzwQiT8t4
-         vUSvq0BV2FmyuLl+NCucuytFpHY5M8/6T6WE7C1Y=
+        b=TbaW2vB2lwiMbt4Ce2tQz88zt9fFKHj8ohesrcqYdC1XeftaZDbZ0HpH4/Wsq98hd
+         LWc+tCSks0OU4ecguK0UYEukHdgKelhfqGy8ln30RbmgndEVVWUn9erjqHmMvGExc2
+         VZSYh8KVRO8A3UeyHhREHhntxftgcA4c9H38gX5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 037/309] usb: dwc3: gadget: Check END_TRANSFER completion
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH 5.5 080/367] MIPS: SGI-IP30: Check for valid pointer before using it
 Date:   Mon, 10 Feb 2020 04:29:53 -0800
-Message-Id: <20200210122409.659401423@linuxfoundation.org>
+Message-Id: <20200210122431.680229459@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-commit c58d8bfc77a2c7f6ff6339b58c9fca7ae6f57e70 upstream.
+commit c0e79fd89749b0cda1c72049e2772dd2eeada86f upstream.
 
-While the END_TRANSFER command is sent but not completed, any request
-dequeue during this time will cause the driver to issue the END_TRANSFER
-command. The driver needs to submit the command only once to stop the
-controller from processing further. The controller may take more time to
-process the same command multiple times unnecessarily. Let's add a flag
-DWC3_EP_END_TRANSFER_PENDING to check for this condition.
+Fix issue detected by Smatch:
 
-Fixes: 3aec99154db3 ("usb: dwc3: gadget: remove DWC3_EP_END_TRANSFER_PENDING")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+    ./arch/mips/sgi-ip30/ip30-irq.c:236 heart_domain_free()
+     warn: variable dereferenced before check 'irqd' (see line 235)
+
+Fixes: 7505576d1c1a ("MIPS: add support for SGI Octane (IP30)")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v5.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/core.h   |    1 +
- drivers/usb/dwc3/ep0.c    |    4 +++-
- drivers/usb/dwc3/gadget.c |    6 +++++-
- 3 files changed, 9 insertions(+), 2 deletions(-)
+ arch/mips/sgi-ip30/ip30-irq.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -688,6 +688,7 @@ struct dwc3_ep {
- #define DWC3_EP_STALL		BIT(1)
- #define DWC3_EP_WEDGE		BIT(2)
- #define DWC3_EP_TRANSFER_STARTED BIT(3)
-+#define DWC3_EP_END_TRANSFER_PENDING BIT(4)
- #define DWC3_EP_PENDING_REQUEST	BIT(5)
- 
- 	/* This last one is specific to EP0 */
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -1136,8 +1136,10 @@ void dwc3_ep0_interrupt(struct dwc3 *dwc
- 	case DWC3_DEPEVT_EPCMDCMPLT:
- 		cmd = DEPEVT_PARAMETER_CMD(event->parameters);
- 
--		if (cmd == DWC3_DEPCMD_ENDTRANSFER)
-+		if (cmd == DWC3_DEPCMD_ENDTRANSFER) {
-+			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
- 			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
-+		}
- 		break;
- 	}
- }
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2625,6 +2625,7 @@ static void dwc3_endpoint_interrupt(stru
- 		cmd = DEPEVT_PARAMETER_CMD(event->parameters);
- 
- 		if (cmd == DWC3_DEPCMD_ENDTRANSFER) {
-+			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
- 			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
- 			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
- 		}
-@@ -2683,7 +2684,8 @@ static void dwc3_stop_active_transfer(st
- 	u32 cmd;
- 	int ret;
- 
--	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED))
-+	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED) ||
-+	    (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
+--- a/arch/mips/sgi-ip30/ip30-irq.c
++++ b/arch/mips/sgi-ip30/ip30-irq.c
+@@ -232,9 +232,10 @@ static void heart_domain_free(struct irq
  		return;
  
- 	/*
-@@ -2728,6 +2730,8 @@ static void dwc3_stop_active_transfer(st
+ 	irqd = irq_domain_get_irq_data(domain, virq);
+-	clear_bit(irqd->hwirq, heart_irq_map);
+-	if (irqd && irqd->chip_data)
++	if (irqd) {
++		clear_bit(irqd->hwirq, heart_irq_map);
+ 		kfree(irqd->chip_data);
++	}
+ }
  
- 	if (!interrupt)
- 		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
-+	else
-+		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
- 
- 	if (dwc3_is_usb31(dwc) || dwc->revision < DWC3_REVISION_310A)
- 		udelay(100);
+ static const struct irq_domain_ops heart_domain_ops = {
 
 
