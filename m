@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2022157AF8
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94DA61578EE
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728412AbgBJMgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
+        id S1729010AbgBJNLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:11:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728401AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:32 -0500
+        id S1728217AbgBJMjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:03 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A153924685;
-        Mon, 10 Feb 2020 12:36:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 620D920842;
+        Mon, 10 Feb 2020 12:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338189;
-        bh=fPYA9iZh0knoFad8y2l7noRjOs/GzUiskumfG34ijnw=;
+        s=default; t=1581338342;
+        bh=exXNXzf1cHvVwikGX3IV1idHH8PFG+HFa1qNwutgC1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRehB9VbAFSzovhVs/156iGc0Vmo0WJjOToawqYMYK9SfAreo8C9fu/wmV/yVuUFZ
-         hRX9QTFPia+7sT3o+DJYqYvxayyGrLDQJS+VEtf0wUg6HvA3nKXp8x2SKeMU1O957U
-         rGSwsGEnuJNvviyBaEIqHvX4ZDeNznRRZlFPZXnY=
+        b=nCc/yC5iVlybK9UmJXbuia791jGSFGLNeS/71NVhCkwj8tJY/QZQsWjnrN5NyMv16
+         PyxE6E1zv51XmB0TX4RQs22Wq3KDkpUnIQ1kqb4nnHDKci0ESV/jPLXwXK3eyNWsbG
+         mIMGBoprMHuBXT8yTT6B0XzCb9Jpu9F44kHmYEXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 191/195] cifs: fail i/o on soft mounts if sessionsetup errors out
-Date:   Mon, 10 Feb 2020 04:34:09 -0800
-Message-Id: <20200210122323.850262101@linuxfoundation.org>
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 294/309] drm/dp_mst: Remove VCPI while disabling topology mgr
+Date:   Mon, 10 Feb 2020 04:34:10 -0800
+Message-Id: <20200210122435.037704314@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-commit b0dd940e582b6a60296b9847a54012a4b080dc72 upstream.
+[ Upstream commit 64e62bdf04ab8529f45ed0a85122c703035dec3a ]
 
-RHBZ: 1579050
+[Why]
 
-If we have a soft mount we should fail commands for session-setup
-failures (such as the password having changed/ account being deleted/ ...)
-and return an error back to the application.
+This patch is trying to address the issue observed when hotplug DP
+daisy chain monitors.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+e.g.
+src-mstb-mstb-sst -> src (unplug) mstb-mstb-sst -> src-mstb-mstb-sst
+(plug in again)
 
+Once unplug a DP MST capable device, driver will call
+drm_dp_mst_topology_mgr_set_mst() to disable MST. In this function,
+it cleans data of topology manager while disabling mst_state. However,
+it doesn't clean up the proposed_vcpis of topology manager.
+If proposed_vcpi is not reset, once plug in MST daisy chain monitors
+later, code will fail at checking port validation while trying to
+allocate payloads.
+
+When MST capable device is plugged in again and try to allocate
+payloads by calling drm_dp_update_payload_part1(), this
+function will iterate over all proposed virtual channels to see if
+any proposed VCPI's num_slots is greater than 0. If any proposed
+VCPI's num_slots is greater than 0 and the port which the
+specific virtual channel directed to is not in the topology, code then
+fails at the port validation. Since there are stale VCPI allocations
+from the previous topology enablement in proposed_vcpi[], code will fail
+at port validation and reurn EINVAL.
+
+[How]
+
+Clean up the data of stale proposed_vcpi[] and reset mgr->proposed_vcpis
+to NULL while disabling mst in drm_dp_mst_topology_mgr_set_mst().
+
+Changes since v1:
+*Add on more details in commit message to describe the issue which the
+patch is trying to fix
+
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+[added cc to stable]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191205090043.7580-1-Wayne.Lin@amd.com
+Cc: <stable@vger.kernel.org> # v3.17+
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -259,9 +259,14 @@ smb2_reconnect(__le16 smb2_command, stru
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index a48a4c21b1b38..c5e9e2305fffc 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2694,6 +2694,7 @@ static bool drm_dp_get_vc_payload_bw(int dp_link_bw,
+ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state)
+ {
+ 	int ret = 0;
++	int i = 0;
+ 	struct drm_dp_mst_branch *mstb = NULL;
+ 
+ 	mutex_lock(&mgr->lock);
+@@ -2754,10 +2755,21 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 		/* this can fail if the device is gone */
+ 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
+ 		ret = 0;
++		mutex_lock(&mgr->payload_lock);
+ 		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
+ 		mgr->payload_mask = 0;
+ 		set_bit(0, &mgr->payload_mask);
++		for (i = 0; i < mgr->max_payloads; i++) {
++			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
++
++			if (vcpi) {
++				vcpi->vcpi = 0;
++				vcpi->num_slots = 0;
++			}
++			mgr->proposed_vcpis[i] = NULL;
++		}
+ 		mgr->vcpi_mask = 0;
++		mutex_unlock(&mgr->payload_lock);
  	}
  
- 	rc = cifs_negotiate_protocol(0, tcon->ses);
--	if (!rc && tcon->ses->need_reconnect)
-+	if (!rc && tcon->ses->need_reconnect) {
- 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
--
-+		if ((rc == -EACCES) && !tcon->retry) {
-+			rc = -EHOSTDOWN;
-+			mutex_unlock(&tcon->ses->session_mutex);
-+			goto failed;
-+		}
-+	}
- 	if (rc || !tcon->need_reconnect) {
- 		mutex_unlock(&tcon->ses->session_mutex);
- 		goto out;
-@@ -306,6 +311,7 @@ out:
- 	case SMB2_SET_INFO:
- 		rc = -EAGAIN;
- 	}
-+failed:
- 	unload_nls(nls_codepage);
- 	return rc;
- }
+ out_unlock:
+-- 
+2.20.1
+
 
 
