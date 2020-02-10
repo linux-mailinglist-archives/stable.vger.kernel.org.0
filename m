@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D558B15765E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5681A15765F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730179AbgBJMmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:42:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
+        id S1730182AbgBJMmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:42:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730175AbgBJMmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730176AbgBJMmL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:42:11 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DC7821739;
-        Mon, 10 Feb 2020 12:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 154B924649;
+        Mon, 10 Feb 2020 12:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338530;
-        bh=AyQSEYvegNu1Fb7bnvoK/WzAV6v/dvNilSNKqB61r44=;
+        s=default; t=1581338531;
+        bh=bs7zV+hgjNQ75C7vmQpMka+XTmvJdnhnoCWjM+jttnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UupmilbBJkXFkjshMj9XL+uvSFQA3gSD630F1WGVAgxVwiJPmL038nLvYdVYMysga
-         0P0CX9ua3JHO1Eb3ZH0E6ALv1vL345jhXblAVbl01ct9gSa23w6PAQCJjZpaL2XlBQ
-         VxPqdtxPmc2MqzBECib+EgiN1aifNMGYScMPd4vc=
+        b=EJab2h2BhRcawG/MEAFlgU1iTecBzIwSMotP9CuGjSb2ASH+fPDqCdppf383outUC
+         a4+3h05WqtGXSunYn3eckEhljD3zJWc4Cs1odk13VhDlOkA+v4uH4q6GgJJJ5JqU2f
+         iGHvjDWk9VNBtWfgY8nt2jT20FIu80Lh6hIDzFIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Papadakis <markuspapadakis@icloud.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 354/367] io_uring: enable option to only trigger eventfd for async completions
-Date:   Mon, 10 Feb 2020 04:34:27 -0800
-Message-Id: <20200210122455.155382765@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 355/367] io_uring: prevent potential eventfd recursion on poll
+Date:   Mon, 10 Feb 2020 04:34:28 -0800
+Message-Id: <20200210122455.231348976@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,91 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f2842ab5b72d7ee5f7f8385c2d4f32c133f5837b ]
+From: Jens Axboe <axboe@kernel.dk>
 
-If an application is using eventfd notifications with poll to know when
-new SQEs can be issued, it's expecting the following read/writes to
-complete inline. And with that, it knows that there are events available,
-and don't want spurious wakeups on the eventfd for those requests.
+[ Upstream commit f0b493e6b9a8959356983f57112229e69c2f7b8c ]
 
-This adds IORING_REGISTER_EVENTFD_ASYNC, which works just like
-IORING_REGISTER_EVENTFD, except it only triggers notifications for events
-that happen from async completions (IRQ, or io-wq worker completions).
-Any completions inline from the submission itself will not trigger
-notifications.
+If we have nested or circular eventfd wakeups, then we can deadlock if
+we run them inline from our poll waitqueue wakeup handler. It's also
+possible to have very long chains of notifications, to the extent where
+we could risk blowing the stack.
 
-Suggested-by: Mark Papadakis <markuspapadakis@icloud.com>
+Check the eventfd recursion count before calling eventfd_signal(). If
+it's non-zero, then punt the signaling to async context. This is always
+safe, as it takes us out-of-line in terms of stack and locking context.
+
+Cc: stable@vger.kernel.org # 5.1+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c                 | 17 ++++++++++++++++-
- include/uapi/linux/io_uring.h |  1 +
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 95fc5c5a85968..131087782bec9 100644
+index 131087782bec9..f470fb21467e4 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -188,6 +188,7 @@ struct io_ring_ctx {
- 		bool			account_mem;
- 		bool			cq_overflow_flushed;
- 		bool			drain_next;
-+		bool			eventfd_async;
+@@ -738,21 +738,28 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
  
- 		/*
- 		 * Ring buffer of indices into array of io_uring_sqe, which is
-@@ -735,13 +736,20 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
- 	return &rings->cqes[tail & ctx->cq_mask];
+ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
+ {
++	if (!ctx->cq_ev_fd)
++		return false;
+ 	if (!ctx->eventfd_async)
+ 		return true;
+ 	return io_wq_current_is_worker() || in_interrupt();
  }
  
-+static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
-+{
-+	if (!ctx->eventfd_async)
-+		return true;
-+	return io_wq_current_is_worker() || in_interrupt();
-+}
-+
- static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+-static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
++static void __io_cqring_ev_posted(struct io_ring_ctx *ctx, bool trigger_ev)
  {
  	if (waitqueue_active(&ctx->wait))
  		wake_up(&ctx->wait);
  	if (waitqueue_active(&ctx->sqo_wait))
  		wake_up(&ctx->sqo_wait);
--	if (ctx->cq_ev_fd)
-+	if (ctx->cq_ev_fd && io_should_trigger_evfd(ctx))
+-	if (ctx->cq_ev_fd && io_should_trigger_evfd(ctx))
++	if (trigger_ev)
  		eventfd_signal(ctx->cq_ev_fd, 1);
  }
  
-@@ -5486,10 +5494,17 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 		ret = io_sqe_files_update(ctx, arg, nr_args);
- 		break;
- 	case IORING_REGISTER_EVENTFD:
-+	case IORING_REGISTER_EVENTFD_ASYNC:
- 		ret = -EINVAL;
- 		if (nr_args != 1)
- 			break;
- 		ret = io_eventfd_register(ctx, arg);
-+		if (ret)
-+			break;
-+		if (opcode == IORING_REGISTER_EVENTFD_ASYNC)
-+			ctx->eventfd_async = 1;
-+		else
-+			ctx->eventfd_async = 0;
- 		break;
- 	case IORING_UNREGISTER_EVENTFD:
- 		ret = -EINVAL;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 55cfcb71606db..88693fed2c4b4 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -175,6 +175,7 @@ struct io_uring_params {
- #define IORING_REGISTER_EVENTFD		4
- #define IORING_UNREGISTER_EVENTFD	5
- #define IORING_REGISTER_FILES_UPDATE	6
-+#define IORING_REGISTER_EVENTFD_ASYNC	7
++static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
++{
++	__io_cqring_ev_posted(ctx, io_should_trigger_evfd(ctx));
++}
++
+ /* Returns true if there are no backlogged entries after the flush */
+ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ {
+@@ -2645,6 +2652,14 @@ static void io_poll_complete_work(struct io_wq_work **workptr)
+ 		io_wq_assign_next(workptr, nxt);
+ }
  
- struct io_uring_files_update {
- 	__u32 offset;
++static void io_poll_trigger_evfd(struct io_wq_work **workptr)
++{
++	struct io_kiocb *req = container_of(*workptr, struct io_kiocb, work);
++
++	eventfd_signal(req->ctx->cq_ev_fd, 1);
++	io_put_req(req);
++}
++
+ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 			void *key)
+ {
+@@ -2667,13 +2682,21 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 	 * for finalizing the request, mark us as having grabbed that already.
+ 	 */
+ 	if (mask && spin_trylock_irqsave(&ctx->completion_lock, flags)) {
++		bool trigger_ev;
++
+ 		hash_del(&req->hash_node);
+ 		io_poll_complete(req, mask, 0);
+-		req->flags |= REQ_F_COMP_LOCKED;
+-		io_put_req(req);
++		trigger_ev = io_should_trigger_evfd(ctx);
++		if (trigger_ev && eventfd_signal_count()) {
++			trigger_ev = false;
++			req->work.func = io_poll_trigger_evfd;
++		} else {
++			req->flags |= REQ_F_COMP_LOCKED;
++			io_put_req(req);
++			req = NULL;
++		}
+ 		spin_unlock_irqrestore(&ctx->completion_lock, flags);
+-
+-		io_cqring_ev_posted(ctx);
++		__io_cqring_ev_posted(ctx, trigger_ev);
+ 	} else {
+ 		io_queue_async_work(req);
+ 	}
 -- 
 2.20.1
 
