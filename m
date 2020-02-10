@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84638157836
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7047157A7A
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:23:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729570AbgBJMj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:39:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38826 "EHLO mail.kernel.org"
+        id S1729295AbgBJNXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:23:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729565AbgBJMjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:55 -0500
+        id S1728703AbgBJMhS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:18 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 273DC24687;
-        Mon, 10 Feb 2020 12:39:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7238D2085B;
+        Mon, 10 Feb 2020 12:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338395;
-        bh=YXX6cR3x+e3G80K+lLm7f6Fy3Ra2rdoWEb/mknS6CgM=;
+        s=default; t=1581338238;
+        bh=Yy6UWJQu8MySBSM/VdGtaMO5OFD9fUR1Tqy1Y26egAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6P37LGgJR45pzglWA4rBDOeeb4+Ee4KUGCkxDoPP5uqx+EyTqdszpA1JQA1puOI8
-         K0LaL7DJ3yo0Tat62s32XrsJE5TTyiS1FQEoiN/zQV4FFerqvtFVxauhSpoNx3xigq
-         qNTSLY7SmybVDMSs5XmRIVhyOLw/cpn5jGfezhY0=
+        b=SVxPOH9G1WVLHmoLvHD1DJeEIfY0szGDlffGvdd0OShfiJlfZ2aK0zqRO6qWbp4zW
+         8/ZhqJZuOxSJK9pICAFMqLsxvkgHZ71+McVvg/0JVCQys+7cNuUx7BjCofiv2pkAT1
+         8+h9KQWJHrPD/IcZ9/CsNQ0123nhpLHiHYfpD86o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.5 089/367] PCI/ATS: Use PF PASID for VFs
-Date:   Mon, 10 Feb 2020 04:30:02 -0800
-Message-Id: <20200210122432.584539528@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 047/309] ALSA: dummy: Fix PCM format loop in proc output
+Date:   Mon, 10 Feb 2020 04:30:03 -0800
+Message-Id: <20200210122410.562689913@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2e34673be0bd6bb0c6c496a861cbc3f7431e7ce3 upstream.
+commit 2acf25f13ebe8beb40e97a1bbe76f36277c64f1e upstream.
 
-Per PCIe r5.0, sec 9.3.7.14, if a PF implements the PASID Capability, the
-PF PASID configuration is shared by its VFs, and VFs must not implement
-their own PASID Capability.  But commit 751035b8dc06 ("PCI/ATS: Cache PASID
-Capability offset") changed pci_max_pasids() and pci_pasid_features() to
-use the PASID Capability of the VF device instead of the associated PF
-device.  This leads to IOMMU bind failures when pci_max_pasids() and
-pci_pasid_features() are called for VFs.
+The loop termination for iterating over all formats should contain
+SNDRV_PCM_FORMAT_LAST, not less than it.
 
-In pci_max_pasids() and pci_pasid_features(), always use the PF PASID
-Capability.
-
-Fixes: 751035b8dc06 ("PCI/ATS: Cache PASID Capability offset")
-Link: https://lore.kernel.org/r/fe891f9755cb18349389609e7fed9940fc5b081a.1580325170.git.sathyanarayanan.kuppuswamy@linux.intel.com
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v5.5+
+Fixes: 9b151fec139d ("ALSA: dummy - Add debug proc file")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200201080530.22390-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/ats.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/drivers/dummy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/ats.c
-+++ b/drivers/pci/ats.c
-@@ -424,11 +424,12 @@ void pci_restore_pasid_state(struct pci_
- int pci_pasid_features(struct pci_dev *pdev)
+--- a/sound/drivers/dummy.c
++++ b/sound/drivers/dummy.c
+@@ -915,7 +915,7 @@ static void print_formats(struct snd_dum
  {
- 	u16 supported;
--	int pasid = pdev->pasid_cap;
-+	int pasid;
+ 	int i;
  
- 	if (pdev->is_virtfn)
- 		pdev = pci_physfn(pdev);
- 
-+	pasid = pdev->pasid_cap;
- 	if (!pasid)
- 		return -EINVAL;
- 
-@@ -451,11 +452,12 @@ int pci_pasid_features(struct pci_dev *p
- int pci_max_pasids(struct pci_dev *pdev)
- {
- 	u16 supported;
--	int pasid = pdev->pasid_cap;
-+	int pasid;
- 
- 	if (pdev->is_virtfn)
- 		pdev = pci_physfn(pdev);
- 
-+	pasid = pdev->pasid_cap;
- 	if (!pasid)
- 		return -EINVAL;
- 
+-	for (i = 0; i < SNDRV_PCM_FORMAT_LAST; i++) {
++	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
+ 		if (dummy->pcm_hw.formats & (1ULL << i))
+ 			snd_iprintf(buffer, " %s", snd_pcm_format_name(i));
+ 	}
 
 
