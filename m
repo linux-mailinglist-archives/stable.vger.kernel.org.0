@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A647157827
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C0D157AD6
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728759AbgBJNFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:05:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39086 "EHLO mail.kernel.org"
+        id S1728182AbgBJMgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729593AbgBJMkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:01 -0500
+        id S1728527AbgBJMgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:49 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BFF420873;
-        Mon, 10 Feb 2020 12:40:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C51E7208C4;
+        Mon, 10 Feb 2020 12:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338400;
-        bh=tqudFgJQF68WZGOzqx9JHGYkd5LrLvCgMybrR5I8n4U=;
+        s=default; t=1581338208;
+        bh=Jq4Jre2q6+Goe1YtcWIF0yCjvk5dbcstp82dam4pzgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/tkY4Pl3zErLuHnSBpZb2jGwUTye7r155UYh4AMjMbIyO0VKtvRVE1lSpVCp7heA
-         H3tejf0VuA8k9gmTBPpSwUuFZHrJ72QlenIsu8oNtl9sqLe9HcAli5vymRtqf5JBew
-         0/jnoW/nenmcOX3s7Q3vTtJ9oTcFxvPvX7SqOno0=
+        b=TSVXHEWg3SOKbuAf/RDQJQLQidBZ9Vq3U0CRaN1S06ZZp8NR2F/r35vmQii3wHnaw
+         gwMqxoyk/3s0ZjRtyaFH3/tJx7qlxsWWnISvs2hYma2bqicUxY2oJPVEIsK7Z7Ju5L
+         yuJjrWVEq9xW6SEsKaMNX2qXaWfUo+imV1CIifAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.5 072/367] arm64: acpi: fix DAIF manipulation with pNMI
-Date:   Mon, 10 Feb 2020 04:29:45 -0800
-Message-Id: <20200210122430.817611509@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+08f3e9d26e5541e1ecf2@syzkaller.appspotmail.com,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.4 030/309] srcu: Apply *_ONCE() to ->srcu_last_gp_end
+Date:   Mon, 10 Feb 2020 04:29:46 -0800
+Message-Id: <20200210122408.925381039@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,89 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-commit e533dbe9dcb199bb637a2c465f3a6e70564994fe upstream.
+commit 844a378de3372c923909681706d62336d702531e upstream.
 
-Since commit:
+The ->srcu_last_gp_end field is accessed from any CPU at any time
+by synchronize_srcu(), so non-initialization references need to use
+READ_ONCE() and WRITE_ONCE().  This commit therefore makes that change.
 
-  d44f1b8dd7e66d80 ("arm64: KVM/mm: Move SEA handling behind a single 'claim' interface")
-
-... the top-level APEI SEA handler has the shape:
-
-1. current_flags = arch_local_save_flags()
-2. local_daif_restore(DAIF_ERRCTX)
-3. <GHES handler>
-4. local_daif_restore(current_flags)
-
-However, since commit:
-
-  4a503217ce37e1f4 ("arm64: irqflags: Use ICC_PMR_EL1 for interrupt masking")
-
-... when pseudo-NMIs (pNMIs) are in use, arch_local_save_flags() will save
-the PMR value rather than the DAIF flags.
-
-The combination of these two commits means that the APEI SEA handler will
-erroneously attempt to restore the PMR value into DAIF. Fix this by
-factoring local_daif_save_flags() out of local_daif_save(), so that we
-can consistently save DAIF in step #1, regardless of whether pNMIs are in
-use.
-
-Both commits were introduced concurrently in v5.0.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 4a503217ce37e1f4 ("arm64: irqflags: Use ICC_PMR_EL1 for interrupt masking")
-Fixes: d44f1b8dd7e66d80 ("arm64: KVM/mm: Move SEA handling behind a single 'claim' interface")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: syzbot+08f3e9d26e5541e1ecf2@syzkaller.appspotmail.com
+Acked-by: Marco Elver <elver@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/daifflags.h |   11 ++++++++++-
- arch/arm64/kernel/acpi.c           |    2 +-
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ kernel/rcu/srcutree.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/include/asm/daifflags.h
-+++ b/arch/arm64/include/asm/daifflags.h
-@@ -38,7 +38,7 @@ static inline void local_daif_mask(void)
- 	trace_hardirqs_off();
- }
- 
--static inline unsigned long local_daif_save(void)
-+static inline unsigned long local_daif_save_flags(void)
- {
+--- a/kernel/rcu/srcutree.c
++++ b/kernel/rcu/srcutree.c
+@@ -530,7 +530,7 @@ static void srcu_gp_end(struct srcu_stru
+ 	idx = rcu_seq_state(ssp->srcu_gp_seq);
+ 	WARN_ON_ONCE(idx != SRCU_STATE_SCAN2);
+ 	cbdelay = srcu_get_delay(ssp);
+-	ssp->srcu_last_gp_end = ktime_get_mono_fast_ns();
++	WRITE_ONCE(ssp->srcu_last_gp_end, ktime_get_mono_fast_ns());
+ 	rcu_seq_end(&ssp->srcu_gp_seq);
+ 	gpseq = rcu_seq_current(&ssp->srcu_gp_seq);
+ 	if (ULONG_CMP_LT(ssp->srcu_gp_seq_needed_exp, gpseq))
+@@ -762,6 +762,7 @@ static bool srcu_might_be_idle(struct sr
  	unsigned long flags;
+ 	struct srcu_data *sdp;
+ 	unsigned long t;
++	unsigned long tlast;
  
-@@ -50,6 +50,15 @@ static inline unsigned long local_daif_s
- 			flags |= PSR_I_BIT;
- 	}
+ 	/* If the local srcu_data structure has callbacks, not idle.  */
+ 	local_irq_save(flags);
+@@ -780,9 +781,9 @@ static bool srcu_might_be_idle(struct sr
  
-+	return flags;
-+}
-+
-+static inline unsigned long local_daif_save(void)
-+{
-+	unsigned long flags;
-+
-+	flags = local_daif_save_flags();
-+
- 	local_daif_mask();
+ 	/* First, see if enough time has passed since the last GP. */
+ 	t = ktime_get_mono_fast_ns();
++	tlast = READ_ONCE(ssp->srcu_last_gp_end);
+ 	if (exp_holdoff == 0 ||
+-	    time_in_range_open(t, ssp->srcu_last_gp_end,
+-			       ssp->srcu_last_gp_end + exp_holdoff))
++	    time_in_range_open(t, tlast, tlast + exp_holdoff))
+ 		return false; /* Too soon after last GP. */
  
- 	return flags;
---- a/arch/arm64/kernel/acpi.c
-+++ b/arch/arm64/kernel/acpi.c
-@@ -274,7 +274,7 @@ int apei_claim_sea(struct pt_regs *regs)
- 	if (!IS_ENABLED(CONFIG_ACPI_APEI_GHES))
- 		return err;
- 
--	current_flags = arch_local_save_flags();
-+	current_flags = local_daif_save_flags();
- 
- 	/*
- 	 * SEA can interrupt SError, mask it and describe this as an NMI so
+ 	/* Next, check for probable idleness. */
 
 
