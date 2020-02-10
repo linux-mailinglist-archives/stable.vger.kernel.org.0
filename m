@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA61815795E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3321D157B57
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbgBJNOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:14:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34024 "EHLO mail.kernel.org"
+        id S1728332AbgBJMgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729144AbgBJMia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:30 -0500
+        id S1728325AbgBJMgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:18 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 218A820838;
-        Mon, 10 Feb 2020 12:38:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D49421739;
+        Mon, 10 Feb 2020 12:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338310;
-        bh=FKv/ghy2biD146H3NV7opmkiC50/3oFRJmG39cpgdm8=;
+        s=default; t=1581338178;
+        bh=eB2Vfxzy40Fy+N44RFewYjT/kwul7/E9Ps4PQCgdhMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjPyN6BRJsLsOVw03/jgbe9WM4kF1DCVt8v0TfJNHpSQM8RxcIR5Y+dFCC/wzeVaG
-         dTugOQe4BW7//SlFwyndhAk46SHZj4868o+ckK+2EcAfJQaPIUHEYDSWmsvT8QXmLH
-         sU97H1bU5xMLynxKszpUAQDNJMrsNqMTA3QMCQVk=
+        b=F4vo316ZJNWItaOM5buuFYeLjrNZhLSDsaoRcAjo1p26RW+j83RIRZavyzX9plBOk
+         3UMIC4O2AGmSNxCEbqZF+po8zkm2MsDzeAgEXOHXIyXw7V22jyLc/ZfdYuNBdS/YL+
+         jkn2xI5D6swvIogYLipvW8lpy3YP9yRpgZ/Negyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        Daniel Verkamp <dverkamp@chromium.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.4 232/309] virtio-balloon: initialize all vq callbacks
-Date:   Mon, 10 Feb 2020 04:33:08 -0800
-Message-Id: <20200210122428.810778179@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 131/195] KVM: x86: Protect ioapic_read_indirect() from Spectre-v1/L1TF attacks
+Date:   Mon, 10 Feb 2020 04:33:09 -0800
+Message-Id: <20200210122318.140850578@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Verkamp <dverkamp@chromium.org>
+From: Marios Pomonis <pomonis@google.com>
 
-commit 5790b53390e18fdd21e70776e46d058c05eda2f2 upstream.
+commit 8c86405f606ca8508b8d9280680166ca26723695 upstream.
 
-Ensure that elements of the callbacks array that correspond to
-unavailable features are set to NULL; previously, they would be left
-uninitialized.
+This fixes a Spectre-v1/L1TF vulnerability in ioapic_read_indirect().
+This function contains index computations based on the
+(attacker-controlled) IOREGSEL register.
 
-Since the corresponding names array elements were explicitly set to
-NULL, the uninitialized callback pointers would not actually be
-dereferenced; however, the uninitialized callbacks elements would still
-be read in vp_find_vqs_msix() and used to calculate the number of MSI-X
-vectors required.
+Fixes: a2c118bfab8b ("KVM: Fix bounds checking in ioapic indirect register reads (CVE-2013-1798)")
 
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/virtio/virtio_balloon.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/ioapic.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -474,7 +474,9 @@ static int init_vqs(struct virtio_balloo
- 	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
- 	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
- 	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
-+	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
- 	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-+	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
- 	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -36,6 +36,7 @@
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
++#include <linux/nospec.h>
+ #include <asm/processor.h>
+ #include <asm/page.h>
+ #include <asm/current.h>
+@@ -73,13 +74,14 @@ static unsigned long ioapic_read_indirec
+ 	default:
+ 		{
+ 			u32 redir_index = (ioapic->ioregsel - 0x10) >> 1;
+-			u64 redir_content;
++			u64 redir_content = ~0ULL;
  
- 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+-			if (redir_index < IOAPIC_NUM_PINS)
+-				redir_content =
+-					ioapic->redirtbl[redir_index].bits;
+-			else
+-				redir_content = ~0ULL;
++			if (redir_index < IOAPIC_NUM_PINS) {
++				u32 index = array_index_nospec(
++					redir_index, IOAPIC_NUM_PINS);
++
++				redir_content = ioapic->redirtbl[index].bits;
++			}
+ 
+ 			result = (ioapic->ioregsel & 0x1) ?
+ 			    (redir_content >> 32) & 0xffffffff :
 
 
