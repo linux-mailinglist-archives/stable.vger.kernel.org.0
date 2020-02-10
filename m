@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E451157719
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:58:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C222157703
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbgBJM5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:57:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43688 "EHLO mail.kernel.org"
+        id S1730001AbgBJMl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729992AbgBJMl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:26 -0500
+        id S1729377AbgBJMl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:27 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84C5120838;
-        Mon, 10 Feb 2020 12:41:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 098E42085B;
+        Mon, 10 Feb 2020 12:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338485;
-        bh=D8T5l3V0maCFMeitKZCGYeNSDO5fmBSPYUdrG64FH/Q=;
+        s=default; t=1581338486;
+        bh=cdy64Llt2CrnoRpFvT7GY/FOrx64tSVcA0GA/+o72Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqhVp2WFtxHyY3N6mNopyDz4P4tLSPlrwwYH0sVBGSa5+8053XWPGfnwQZ3bSCtgM
-         mWsuYJl6O1S5jNeIPRCHdI28UJIHjTXuIZwnY0bFO//JiCBlnIDV47i/clRqpcvNBA
-         hf5w2sgUxjFb88o3rXsIswRHNWzJlDddOO1Zglwo=
+        b=kcFD6tGXYBLxGk2raDsNEIKh0Q3HWO6qZ7fsD2FnqaqT7IJkcXwCxzyWWdKpE+4D1
+         p+GEnJN3JUwHb36cFtmVTabm3u5deHcgFapdCOT5PCkVusj2fNjuuus6X4JSll8vnW
+         kPo7STI3jrYCVZT/z3MG11WHo+HFzWcWyYc6J88o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
-        Stephen Warren <swarren@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.5 265/367] clk: tegra: Mark fuse clock as critical
-Date:   Mon, 10 Feb 2020 04:32:58 -0800
-Message-Id: <20200210122448.913715830@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.5 266/367] drm/amdgpu/navi: fix index for OD MCLK
+Date:   Mon, 10 Feb 2020 04:32:59 -0800
+Message-Id: <20200210122448.989069154@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,44 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Warren <swarren@nvidia.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit bf83b96f87ae2abb1e535306ea53608e8de5dfbb upstream.
+commit 45826e9c4e9e952db43053f4fbed58ec602a410f upstream.
 
-For a little over a year, U-Boot on Tegra124 has configured the flow
-controller to perform automatic RAM re-repair on off->on power
-transitions of the CPU rail[1]. This is mandatory for correct operation
-of Tegra124. However, RAM re-repair relies on certain clocks, which the
-kernel must enable and leave running. The fuse clock is one of those
-clocks. Mark this clock as critical so that LP1 power mode (system
-suspend) operates correctly.
+You can only adjust the max mclk, not the min.
 
-[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
-
-Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/issues/1020
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.5.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/tegra/clk-tegra-periph.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/powerplay/navi10_ppt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/clk/tegra/clk-tegra-periph.c
-+++ b/drivers/clk/tegra/clk-tegra-periph.c
-@@ -777,7 +777,11 @@ static struct tegra_periph_init_data gat
- 	GATE("ahbdma", "hclk", 33, 0, tegra_clk_ahbdma, 0),
- 	GATE("apbdma", "pclk", 34, 0, tegra_clk_apbdma, 0),
- 	GATE("kbc", "clk_32k", 36, TEGRA_PERIPH_ON_APB | TEGRA_PERIPH_NO_RESET, tegra_clk_kbc, 0),
--	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, 0),
-+	/*
-+	 * Critical for RAM re-repair operation, which must occur on resume
-+	 * from LP1 system suspend and as part of CCPLEX cluster switching.
-+	 */
-+	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, CLK_IS_CRITICAL),
- 	GATE("fuse_burn", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse_burn, 0),
- 	GATE("kfuse", "clk_m", 40, TEGRA_PERIPH_ON_APB, tegra_clk_kfuse, 0),
- 	GATE("apbif", "clk_m", 107, TEGRA_PERIPH_ON_APB, tegra_clk_apbif, 0),
+--- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
+@@ -812,7 +812,7 @@ static int navi10_print_clk_levels(struc
+ 		if (!navi10_od_feature_is_supported(od_settings, SMU_11_0_ODFEATURE_UCLK_MAX))
+ 			break;
+ 		size += sprintf(buf + size, "OD_MCLK:\n");
+-		size += sprintf(buf + size, "0: %uMHz\n", od_table->UclkFmax);
++		size += sprintf(buf + size, "1: %uMHz\n", od_table->UclkFmax);
+ 		break;
+ 	case SMU_OD_VDDC_CURVE:
+ 		if (!smu->od_enabled || !od_table || !od_settings)
 
 
