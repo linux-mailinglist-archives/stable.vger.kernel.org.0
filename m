@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA15E15766F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6407C157693
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727799AbgBJMwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:52:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46392 "EHLO mail.kernel.org"
+        id S1729787AbgBJMxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:53:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730230AbgBJMmV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:21 -0500
+        id S1730145AbgBJMmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:05 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD71320838;
-        Mon, 10 Feb 2020 12:42:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F1032080C;
+        Mon, 10 Feb 2020 12:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338540;
-        bh=pBNVe5B5TuxLtTBe56iYx6Q7FVo7ZnEtWgxBdzTyK7M=;
+        s=default; t=1581338524;
+        bh=rpqBsW2C273GIQSxrtliwODH+dwy8vczp+bDi+5vn+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fl/t4HiOQaELbQg9q+M119a6BtNMYyjIh+0pL54mwqnUh7m7XEwoJmg1ksxMARtFX
-         gZ8cXGtnbT11602+Q8yjQziFsKThx/HNcUxQ5HmTWgMUV5Kz1BvDVjGZJ810vYplPc
-         63iqE1QXnmvXeY+cQn4oXkWBm1/DprnVYCT216X8=
+        b=Ngb2LKEMOkvCwWdus1Wu/xLVQvRWygNcIf/yzjRygNPH/s0EHPFj2GELkpbnj2kEV
+         7L23WwlioEd41nuZAVmuUWHVirT0qu24exJxEfIBY+7Ww9cAxpmWQQ19oCJQKyZIU7
+         wx9cQF5RbGI5G7eA+jITQWttRsOfyooMxHE32YaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 342/367] drop_monitor: Do not cancel uninitialized work item
-Date:   Mon, 10 Feb 2020 04:34:15 -0800
-Message-Id: <20200210122454.202227499@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
+        Alaa Hleihel <alaa@mellanox.com>,
+        Mark Bloch <markb@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.5 343/367] net/mlx5: Fix deadlock in fs_core
+Date:   Mon, 10 Feb 2020 04:34:16 -0800
+Message-Id: <20200210122454.278302368@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,64 +45,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Maor Gottlieb <maorg@mellanox.com>
 
-[ Upstream commit dfa7f709596be5ca46c070d4f8acbb344322056a ]
+[ Upstream commit c1948390d78b5183ee9b7dd831efd7f6ac496ab0 ]
 
-Drop monitor uses a work item that takes care of constructing and
-sending netlink notifications to user space. In case drop monitor never
-started to monitor, then the work item is uninitialized and not
-associated with a function.
+free_match_list could be called when the flow table is already
+locked. We need to pass this notation to tree_put_node.
 
-Therefore, a stop command from user space results in canceling an
-uninitialized work item which leads to the following warning [1].
+It fixes the following lockdep warnning:
 
-Fix this by not processing a stop command if drop monitor is not
-currently monitoring.
+[ 1797.268537] ============================================
+[ 1797.276837] WARNING: possible recursive locking detected
+[ 1797.285101] 5.5.0-rc5+ #10 Not tainted
+[ 1797.291641] --------------------------------------------
+[ 1797.299917] handler10/9296 is trying to acquire lock:
+[ 1797.307885] ffff889ad399a0a0 (&node->lock){++++}, at:
+tree_put_node+0x1d5/0x210 [mlx5_core]
+[ 1797.319694]
+[ 1797.319694] but task is already holding lock:
+[ 1797.330904] ffff889ad399a0a0 (&node->lock){++++}, at:
+nested_down_write_ref_node.part.33+0x1a/0x60 [mlx5_core]
+[ 1797.344707]
+[ 1797.344707] other info that might help us debug this:
+[ 1797.356952]  Possible unsafe locking scenario:
+[ 1797.356952]
+[ 1797.368333]        CPU0
+[ 1797.373357]        ----
+[ 1797.378364]   lock(&node->lock);
+[ 1797.384222]   lock(&node->lock);
+[ 1797.390031]
+[ 1797.390031]  *** DEADLOCK ***
+[ 1797.390031]
+[ 1797.403003]  May be due to missing lock nesting notation
+[ 1797.403003]
+[ 1797.414691] 3 locks held by handler10/9296:
+[ 1797.421465]  #0: ffff889cf2c5a110 (&block->cb_lock){++++}, at:
+tc_setup_cb_add+0x70/0x250
+[ 1797.432810]  #1: ffff88a030081490 (&comp->sem){++++}, at:
+mlx5_devcom_get_peer_data+0x4c/0xb0 [mlx5_core]
+[ 1797.445829]  #2: ffff889ad399a0a0 (&node->lock){++++}, at:
+nested_down_write_ref_node.part.33+0x1a/0x60 [mlx5_core]
+[ 1797.459913]
+[ 1797.459913] stack backtrace:
+[ 1797.469436] CPU: 1 PID: 9296 Comm: handler10 Kdump: loaded Not
+tainted 5.5.0-rc5+ #10
+[ 1797.480643] Hardware name: Dell Inc. PowerEdge R730/072T6D, BIOS
+2.4.3 01/17/2017
+[ 1797.491480] Call Trace:
+[ 1797.496701]  dump_stack+0x96/0xe0
+[ 1797.502864]  __lock_acquire.cold.63+0xf8/0x212
+[ 1797.510301]  ? lockdep_hardirqs_on+0x250/0x250
+[ 1797.517701]  ? mark_held_locks+0x55/0xa0
+[ 1797.524547]  ? quarantine_put+0xb7/0x160
+[ 1797.531422]  ? lockdep_hardirqs_on+0x17d/0x250
+[ 1797.538913]  lock_acquire+0xd6/0x1f0
+[ 1797.545529]  ? tree_put_node+0x1d5/0x210 [mlx5_core]
+[ 1797.553701]  down_write+0x94/0x140
+[ 1797.560206]  ? tree_put_node+0x1d5/0x210 [mlx5_core]
+[ 1797.568464]  ? down_write_killable_nested+0x170/0x170
+[ 1797.576925]  ? del_hw_flow_group+0xde/0x1f0 [mlx5_core]
+[ 1797.585629]  tree_put_node+0x1d5/0x210 [mlx5_core]
+[ 1797.593891]  ? free_match_list.part.25+0x147/0x170 [mlx5_core]
+[ 1797.603389]  free_match_list.part.25+0xe0/0x170 [mlx5_core]
+[ 1797.612654]  _mlx5_add_flow_rules+0x17e2/0x20b0 [mlx5_core]
+[ 1797.621838]  ? lock_acquire+0xd6/0x1f0
+[ 1797.629028]  ? esw_get_prio_table+0xb0/0x3e0 [mlx5_core]
+[ 1797.637981]  ? alloc_insert_flow_group+0x420/0x420 [mlx5_core]
+[ 1797.647459]  ? try_to_wake_up+0x4c7/0xc70
+[ 1797.654881]  ? lock_downgrade+0x350/0x350
+[ 1797.662271]  ? __mutex_unlock_slowpath+0xb1/0x3f0
+[ 1797.670396]  ? find_held_lock+0xac/0xd0
+[ 1797.677540]  ? mlx5_add_flow_rules+0xdc/0x360 [mlx5_core]
+[ 1797.686467]  mlx5_add_flow_rules+0xdc/0x360 [mlx5_core]
+[ 1797.695134]  ? _mlx5_add_flow_rules+0x20b0/0x20b0 [mlx5_core]
+[ 1797.704270]  ? irq_exit+0xa5/0x170
+[ 1797.710764]  ? retint_kernel+0x10/0x10
+[ 1797.717698]  ? mlx5_eswitch_set_rule_source_port.isra.9+0x122/0x230
+[mlx5_core]
+[ 1797.728708]  mlx5_eswitch_add_offloaded_rule+0x465/0x6d0 [mlx5_core]
+[ 1797.738713]  ? mlx5_eswitch_get_prio_range+0x30/0x30 [mlx5_core]
+[ 1797.748384]  ? mlx5_fc_stats_work+0x670/0x670 [mlx5_core]
+[ 1797.757400]  mlx5e_tc_offload_fdb_rules.isra.27+0x24/0x90 [mlx5_core]
+[ 1797.767665]  mlx5e_tc_add_fdb_flow+0xaf8/0xd40 [mlx5_core]
+[ 1797.776886]  ? mlx5e_encap_put+0xd0/0xd0 [mlx5_core]
+[ 1797.785562]  ? mlx5e_alloc_flow.isra.43+0x18c/0x1c0 [mlx5_core]
+[ 1797.795353]  __mlx5e_add_fdb_flow+0x2e2/0x440 [mlx5_core]
+[ 1797.804558]  ? mlx5e_tc_update_neigh_used_value+0x8c0/0x8c0
+[mlx5_core]
+[ 1797.815093]  ? wait_for_completion+0x260/0x260
+[ 1797.823272]  mlx5e_configure_flower+0xe94/0x1620 [mlx5_core]
+[ 1797.832792]  ? __mlx5e_add_fdb_flow+0x440/0x440 [mlx5_core]
+[ 1797.842096]  ? down_read+0x11a/0x2e0
+[ 1797.849090]  ? down_write+0x140/0x140
+[ 1797.856142]  ? mlx5e_rep_indr_setup_block_cb+0xc0/0xc0 [mlx5_core]
+[ 1797.866027]  tc_setup_cb_add+0x11a/0x250
+[ 1797.873339]  fl_hw_replace_filter+0x25e/0x320 [cls_flower]
+[ 1797.882385]  ? fl_hw_destroy_filter+0x1c0/0x1c0 [cls_flower]
+[ 1797.891607]  fl_change+0x1d54/0x1fb6 [cls_flower]
+[ 1797.899772]  ? __rhashtable_insert_fast.constprop.50+0x9f0/0x9f0
+[cls_flower]
+[ 1797.910728]  ? lock_downgrade+0x350/0x350
+[ 1797.918187]  ? __radix_tree_lookup+0xa5/0x130
+[ 1797.926046]  ? fl_set_key+0x1590/0x1590 [cls_flower]
+[ 1797.934611]  ? __rhashtable_insert_fast.constprop.50+0x9f0/0x9f0
+[cls_flower]
+[ 1797.945673]  tc_new_tfilter+0xcd1/0x1240
+[ 1797.953138]  ? tc_del_tfilter+0xb10/0xb10
+[ 1797.960688]  ? avc_has_perm_noaudit+0x92/0x320
+[ 1797.968721]  ? avc_has_perm_noaudit+0x1df/0x320
+[ 1797.976816]  ? avc_has_extended_perms+0x990/0x990
+[ 1797.985090]  ? mark_lock+0xaa/0x9e0
+[ 1797.991988]  ? match_held_lock+0x1b/0x240
+[ 1797.999457]  ? match_held_lock+0x1b/0x240
+[ 1798.006859]  ? find_held_lock+0xac/0xd0
+[ 1798.014045]  ? symbol_put_addr+0x40/0x40
+[ 1798.021317]  ? rcu_read_lock_sched_held+0xd0/0xd0
+[ 1798.029460]  ? tc_del_tfilter+0xb10/0xb10
+[ 1798.036810]  rtnetlink_rcv_msg+0x4d5/0x620
+[ 1798.044236]  ? rtnl_bridge_getlink+0x460/0x460
+[ 1798.052034]  ? lockdep_hardirqs_on+0x250/0x250
+[ 1798.059837]  ? match_held_lock+0x1b/0x240
+[ 1798.067146]  ? find_held_lock+0xac/0xd0
+[ 1798.074246]  netlink_rcv_skb+0xc6/0x1f0
+[ 1798.081339]  ? rtnl_bridge_getlink+0x460/0x460
+[ 1798.089104]  ? netlink_ack+0x440/0x440
+[ 1798.096061]  netlink_unicast+0x2d4/0x3b0
+[ 1798.103189]  ? netlink_attachskb+0x3f0/0x3f0
+[ 1798.110724]  ? _copy_from_iter_full+0xda/0x370
+[ 1798.118415]  netlink_sendmsg+0x3ba/0x6a0
+[ 1798.125478]  ? netlink_unicast+0x3b0/0x3b0
+[ 1798.132705]  ? netlink_unicast+0x3b0/0x3b0
+[ 1798.139880]  sock_sendmsg+0x94/0xa0
+[ 1798.146332]  ____sys_sendmsg+0x36c/0x3f0
+[ 1798.153251]  ? copy_msghdr_from_user+0x165/0x230
+[ 1798.160941]  ? kernel_sendmsg+0x30/0x30
+[ 1798.167738]  ___sys_sendmsg+0xeb/0x150
+[ 1798.174411]  ? sendmsg_copy_msghdr+0x30/0x30
+[ 1798.181649]  ? lock_downgrade+0x350/0x350
+[ 1798.188559]  ? rcu_read_lock_sched_held+0xd0/0xd0
+[ 1798.196239]  ? __fget+0x21d/0x320
+[ 1798.202335]  ? do_dup2+0x2a0/0x2a0
+[ 1798.208499]  ? lock_downgrade+0x350/0x350
+[ 1798.215366]  ? __fget_light+0xd6/0xf0
+[ 1798.221808]  ? syscall_trace_enter+0x369/0x5d0
+[ 1798.229112]  __sys_sendmsg+0xd3/0x160
+[ 1798.235511]  ? __sys_sendmsg_sock+0x60/0x60
+[ 1798.242478]  ? syscall_trace_enter+0x233/0x5d0
+[ 1798.249721]  ? syscall_slow_exit_work+0x280/0x280
+[ 1798.257211]  ? do_syscall_64+0x1e/0x2e0
+[ 1798.263680]  do_syscall_64+0x72/0x2e0
+[ 1798.269950]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-[1]
-[   31.735402] ------------[ cut here ]------------
-[   31.736470] WARNING: CPU: 0 PID: 143 at kernel/workqueue.c:3032 __flush_work+0x89f/0x9f0
-...
-[   31.738120] CPU: 0 PID: 143 Comm: dwdump Not tainted 5.5.0-custom-09491-g16d4077796b8 #727
-[   31.741968] RIP: 0010:__flush_work+0x89f/0x9f0
-...
-[   31.760526] Call Trace:
-[   31.771689]  __cancel_work_timer+0x2a6/0x3b0
-[   31.776809]  net_dm_cmd_trace+0x300/0xef0
-[   31.777549]  genl_rcv_msg+0x5c6/0xd50
-[   31.781005]  netlink_rcv_skb+0x13b/0x3a0
-[   31.784114]  genl_rcv+0x29/0x40
-[   31.784720]  netlink_unicast+0x49f/0x6a0
-[   31.787148]  netlink_sendmsg+0x7cf/0xc80
-[   31.790426]  ____sys_sendmsg+0x620/0x770
-[   31.793458]  ___sys_sendmsg+0xfd/0x170
-[   31.802216]  __sys_sendmsg+0xdf/0x1a0
-[   31.806195]  do_syscall_64+0xa0/0x540
-[   31.806885]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 8e94c3bc922e ("drop_monitor: Allow user to start monitoring hardware drops")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bd71b08ec2ee ("net/mlx5: Support multiple updates of steering rules in parallel")
+Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Alaa Hleihel <alaa@mellanox.com>
+Reviewed-by: Mark Bloch <markb@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/drop_monitor.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/net/core/drop_monitor.c
-+++ b/net/core/drop_monitor.c
-@@ -1004,8 +1004,10 @@ static void net_dm_hw_monitor_stop(struc
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1555,16 +1555,16 @@ struct match_list_head {
+ 	struct match_list first;
+ };
+ 
+-static void free_match_list(struct match_list_head *head)
++static void free_match_list(struct match_list_head *head, bool ft_locked)
  {
- 	int cpu;
+ 	if (!list_empty(&head->list)) {
+ 		struct match_list *iter, *match_tmp;
  
--	if (!monitor_hw)
-+	if (!monitor_hw) {
- 		NL_SET_ERR_MSG_MOD(extack, "Hardware monitoring already disabled");
-+		return;
-+	}
+ 		list_del(&head->first.list);
+-		tree_put_node(&head->first.g->node, false);
++		tree_put_node(&head->first.g->node, ft_locked);
+ 		list_for_each_entry_safe(iter, match_tmp, &head->list,
+ 					 list) {
+-			tree_put_node(&iter->g->node, false);
++			tree_put_node(&iter->g->node, ft_locked);
+ 			list_del(&iter->list);
+ 			kfree(iter);
+ 		}
+@@ -1573,7 +1573,8 @@ static void free_match_list(struct match
  
- 	monitor_hw = false;
+ static int build_match_list(struct match_list_head *match_head,
+ 			    struct mlx5_flow_table *ft,
+-			    const struct mlx5_flow_spec *spec)
++			    const struct mlx5_flow_spec *spec,
++			    bool ft_locked)
+ {
+ 	struct rhlist_head *tmp, *list;
+ 	struct mlx5_flow_group *g;
+@@ -1598,7 +1599,7 @@ static int build_match_list(struct match
  
+ 		curr_match = kmalloc(sizeof(*curr_match), GFP_ATOMIC);
+ 		if (!curr_match) {
+-			free_match_list(match_head);
++			free_match_list(match_head, ft_locked);
+ 			err = -ENOMEM;
+ 			goto out;
+ 		}
+@@ -1778,7 +1779,7 @@ search_again_locked:
+ 	version = atomic_read(&ft->node.version);
+ 
+ 	/* Collect all fgs which has a matching match_criteria */
+-	err = build_match_list(&match_head, ft, spec);
++	err = build_match_list(&match_head, ft, spec, take_write);
+ 	if (err) {
+ 		if (take_write)
+ 			up_write_ref_node(&ft->node, false);
+@@ -1792,7 +1793,7 @@ search_again_locked:
+ 
+ 	rule = try_add_to_existing_fg(ft, &match_head.list, spec, flow_act, dest,
+ 				      dest_num, version);
+-	free_match_list(&match_head);
++	free_match_list(&match_head, take_write);
+ 	if (!IS_ERR(rule) ||
+ 	    (PTR_ERR(rule) != -ENOENT && PTR_ERR(rule) != -EAGAIN)) {
+ 		if (take_write)
 
 
