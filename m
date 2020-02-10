@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 522891577CF
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C900D15777E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:01:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729760AbgBJNCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:02:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40726 "EHLO mail.kernel.org"
+        id S1729882AbgBJNAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:00:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729001AbgBJMkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:31 -0500
+        id S1729847AbgBJMk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:57 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3852C208C4;
-        Mon, 10 Feb 2020 12:40:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 012FF20873;
+        Mon, 10 Feb 2020 12:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338431;
-        bh=m+U00sw7e0xmBxIhKSkjHZxP8XgULJD6o0SKO1wayGA=;
+        s=default; t=1581338457;
+        bh=u2iqX7hdT43KFEBOlVlHugjmufyzlK2o8rbH+aHviW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3SmhTtIrhaBpVnzr2KK9b6Cc64Nq71uv87HPb3LTcx0aMmGpCc4leML9Xl0hfgZY
-         wPlmnmkxM7337q+DiwIFfAgLi8y1T1vPbba4lZZgfJqCxgux0GQu90eGthRI6eH/+u
-         m4fbSNpdF3pBWOz6o9kryQdnJMf5KV2fLETWzx+M=
+        b=srOWarnixEb74fKvobbGyrG1UZ7X7QO06ZrYuCbdPlC9kWR5Fi6FyW9WYkS8fJ1LR
+         OralLZnjZ5wAUkH96ORfTGnS29ozCw+tfxPBFe+vZlWFKJWWZtxowSvIlHbXbOBKIC
+         XNZnWpHBiWiVGchye3bXP2QX9fPDxkXCIYrzRKA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.5 157/367] riscv, bpf: Fix broken BPF tail calls
-Date:   Mon, 10 Feb 2020 04:31:10 -0800
-Message-Id: <20200210122439.322516249@linuxfoundation.org>
+        stable@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Aurelien Jarno <aurelien@aurel32.net>
+Subject: [PATCH 5.5 158/367] libbpf: Fix readelf output parsing for Fedora
+Date:   Mon, 10 Feb 2020 04:31:11 -0800
+Message-Id: <20200210122439.406936935@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -44,65 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn.topel@gmail.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit f1003b787c00fbaa4b11619c6b23a885bfce8f07 upstream.
+commit aa915931ac3e53ccf371308e6750da510e3591dd upstream.
 
-The BPF JIT incorrectly clobbered the a0 register, and did not flag
-usage of s5 register when BPF stack was being used.
+Fedora binutils has been patched to show "other info" for a symbol at the
+end of the line. This was done in order to support unmaintained scripts
+that would break with the extra info. [1]
 
-Fixes: 2353ecc6f91f ("bpf, riscv: add BPF JIT for RV64G")
-Signed-off-by: Björn Töpel <bjorn.topel@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191216091343.23260-2-bjorn.topel@gmail.com
+[1] https://src.fedoraproject.org/rpms/binutils/c/b8265c46f7ddae23a792ee8306fbaaeacba83bf8
+
+This in turn has been done to fix the build of ruby, because of checksec.
+[2] Thanks Michael Ellerman for the pointer.
+
+[2] https://bugzilla.redhat.com/show_bug.cgi?id=1479302
+
+As libbpf Makefile is not unmaintained, we can simply deal with either
+output format, by just removing the "other info" field, as it always comes
+inside brackets.
+
+Fixes: 3464afdf11f9 (libbpf: Fix readelf output parsing on powerpc with recent binutils)
+Reported-by: Justin Forbes <jmforbes@linuxtx.org>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Cc: Aurelien Jarno <aurelien@aurel32.net>
+Link: https://lore.kernel.org/bpf/20191213101114.GA3986@calabresa
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/riscv/net/bpf_jit_comp.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ tools/lib/bpf/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/riscv/net/bpf_jit_comp.c
-+++ b/arch/riscv/net/bpf_jit_comp.c
-@@ -120,6 +120,11 @@ static bool seen_reg(int reg, struct rv_
- 	return false;
- }
+--- a/tools/lib/bpf/Makefile
++++ b/tools/lib/bpf/Makefile
+@@ -148,6 +148,7 @@ TAGS_PROG := $(if $(shell which etags 2>
  
-+static void mark_fp(struct rv_jit_context *ctx)
-+{
-+	__set_bit(RV_CTX_F_SEEN_S5, &ctx->flags);
-+}
-+
- static void mark_call(struct rv_jit_context *ctx)
- {
- 	__set_bit(RV_CTX_F_SEEN_CALL, &ctx->flags);
-@@ -596,7 +601,8 @@ static void __build_epilogue(u8 reg, str
- 
- 	emit(rv_addi(RV_REG_SP, RV_REG_SP, stack_adjust), ctx);
- 	/* Set return value. */
--	emit(rv_addi(RV_REG_A0, RV_REG_A5, 0), ctx);
-+	if (reg == RV_REG_RA)
-+		emit(rv_addi(RV_REG_A0, RV_REG_A5, 0), ctx);
- 	emit(rv_jalr(RV_REG_ZERO, reg, 0), ctx);
- }
- 
-@@ -1426,6 +1432,10 @@ static void build_prologue(struct rv_jit
- {
- 	int stack_adjust = 0, store_offset, bpf_stack_adjust;
- 
-+	bpf_stack_adjust = round_up(ctx->prog->aux->stack_depth, 16);
-+	if (bpf_stack_adjust)
-+		mark_fp(ctx);
-+
- 	if (seen_reg(RV_REG_RA, ctx))
- 		stack_adjust += 8;
- 	stack_adjust += 8; /* RV_REG_FP */
-@@ -1443,7 +1453,6 @@ static void build_prologue(struct rv_jit
- 		stack_adjust += 8;
- 
- 	stack_adjust = round_up(stack_adjust, 16);
--	bpf_stack_adjust = round_up(ctx->prog->aux->stack_depth, 16);
- 	stack_adjust += bpf_stack_adjust;
- 
- 	store_offset = stack_adjust - 8;
+ GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
+ 			   cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
++			   sed 's/\[.*\]//' | \
+ 			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
+ 			   sort -u | wc -l)
+ VERSIONED_SYM_COUNT = $(shell readelf -s --wide $(OUTPUT)libbpf.so | \
+@@ -214,6 +215,7 @@ check_abi: $(OUTPUT)libbpf.so
+ 		     "versioned in $(VERSION_SCRIPT)." >&2;		 \
+ 		readelf -s --wide $(BPF_IN_SHARED) |			 \
+ 		    cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |	 \
++		    sed 's/\[.*\]//' |					 \
+ 		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+ 		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
+ 		readelf -s --wide $(OUTPUT)libbpf.so |			 \
 
 
