@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5CC15770F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:58:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 944B0157614
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727484AbgBJM5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:57:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43970 "EHLO mail.kernel.org"
+        id S1730558AbgBJMoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:44:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728654AbgBJMlb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:31 -0500
+        id S1728871AbgBJMoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:44:04 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6044620838;
-        Mon, 10 Feb 2020 12:41:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA87320661;
+        Mon, 10 Feb 2020 12:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338491;
-        bh=t8k9Q5kSvPI0BJMlh67Q6NDygDBgDn1hjsy20lgJwd0=;
+        s=default; t=1581338644;
+        bh=PuO13LKVTYDSxri5SOudHC2t0XeLAaovGg0Nb14h168=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FgFN02/oxT+7knIIEFZokAmwYiVK7WGoxDlbyNCVpNaSelHBrDkQ3B3WFpL12TmpM
-         F0tllP7ymaFyLqXr0xXxsM45nKPet0SbAGRMwZDSJtpbOTC4Ev0qeXPmKTM3hpYvfU
-         MGAnoGsbu5nHiKY7NsZvs1mbN32dB7iPDnUwjHo4=
+        b=Sne7dLRAaBsoZI3WULlqepa5qhEZj1g2Z32QGRvj9Tscc0UZVygGz8j1K7cjBkERV
+         HcGxuuWNKWkEsNlAmrA832U4zTGCncKBxsLpQHjLPgQ0zTtLvZjZZaHH6MWDiE7IKb
+         rMvvK88Ovs1S7ahSnfnavvamIntZbjbo14Bi/emY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Geis <pgwipeout@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.5 276/367] fix up iter on short count in fuse_direct_io()
+        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Daniel Verkamp <dverkamp@chromium.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: [PATCH 5.4 233/309] virtio-pci: check name when counting MSI-X vectors
 Date:   Mon, 10 Feb 2020 04:33:09 -0800
-Message-Id: <20200210122449.640311198@linuxfoundation.org>
+Message-Id: <20200210122428.904368123@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
 
-commit f658adeea45e430a24c7a157c3d5448925ac2038 upstream.
+commit 303090b513fd1ee45aa1536b71a3838dc054bc05 upstream.
 
-fuse_direct_io() can end up advancing the iterator by more than the amount
-of data read or written.  This case is handled by the generic code if going
-through ->direct_IO(), but not in the FOPEN_DIRECT_IO case.
+VQs without a name specified are not valid; they are skipped in the
+later loop that assigns MSI-X vectors to queues, but the per_vq_vectors
+loop above that counts the required number of vectors previously still
+counted any queue with a non-NULL callback as needing a vector.
 
-Fix by reverting the extra bytes from the iterator in case of error or a
-short count.
+Add a check to the per_vq_vectors loop so that vectors with no name are
+not counted to make the two loops consistent.  This prevents
+over-counting unnecessary vectors (e.g. for features which were not
+negotiated with the device).
 
-To test: install lxcfs, then the following testcase
-  int fd = open("/var/lib/lxcfs/proc/uptime", O_RDONLY);
-  sendfile(1, fd, NULL, 16777216);
-  sendfile(1, fd, NULL, 16777216);
-will spew WARN_ON() in iov_iter_pipe().
-
-Reported-by: Peter Geis <pgwipeout@gmail.com>
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Fixes: 3c3db095b68c ("fuse: use iov_iter based generic splice helpers")
-Cc: <stable@vger.kernel.org> # v5.1
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Wang, Wei W <wei.w.wang@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_pci_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1465,6 +1465,7 @@ ssize_t fuse_direct_io(struct fuse_io_pr
- 		}
- 		ia = NULL;
- 		if (nres < 0) {
-+			iov_iter_revert(iter, nbytes);
- 			err = nres;
- 			break;
- 		}
-@@ -1473,8 +1474,10 @@ ssize_t fuse_direct_io(struct fuse_io_pr
- 		count -= nres;
- 		res += nres;
- 		pos += nres;
--		if (nres != nbytes)
-+		if (nres != nbytes) {
-+			iov_iter_revert(iter, nbytes - nres);
- 			break;
-+		}
- 		if (count) {
- 			max_pages = iov_iter_npages(iter, fc->max_pages);
- 			ia = fuse_io_alloc(io, max_pages);
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virti
+ 		/* Best option: one for change interrupt, one per vq. */
+ 		nvectors = 1;
+ 		for (i = 0; i < nvqs; ++i)
+-			if (callbacks[i])
++			if (names[i] && callbacks[i])
+ 				++nvectors;
+ 	} else {
+ 		/* Second best: one for change, shared for all vqs. */
 
 
