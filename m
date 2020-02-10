@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85CD5157966
+	by mail.lfdr.de (Postfix) with ESMTP id 1039B157965
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729019AbgBJNPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:15:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33936 "EHLO mail.kernel.org"
+        id S1729355AbgBJNPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:15:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbgBJMi0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728553AbgBJMi0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:38:26 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6B7324649;
-        Mon, 10 Feb 2020 12:38:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E88120838;
+        Mon, 10 Feb 2020 12:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338305;
-        bh=ZJ61T8RWA55/xTMH6Jw79selneBAbKSPYcz00xOnp5Q=;
+        s=default; t=1581338306;
+        bh=L4r5YMKdPeOtPohxU0GhCvCY682DwqDYJCwck78rRGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxQ8culQIycv8LP2/Bfc8Aa+pv/SHTX2UjhLWajoJ3i8Q3G05SxO5dtOEAEGDfS5K
-         rN3g26RNQ31o9upcF9K3j0JKIpWE1vBVs1Ah9y44Pk+BzpE44CPmp/PrEkBiFA8mXF
-         VL8v+9j9k8omd1tee+XazIOQ6d6ckKX+DJDJhe8o=
+        b=Ksxovjk2dderoQrzxvJq6cQYEkm06xmaLnKqfL40Ye3HxX7OFE9SUbG1m/tJgvCOi
+         M4n9ZtlBkJcH9o2UjB6W1mrdJ81Le7IeTVYrIXxNcqOpFllO7DuiyNNlirNYIeecNx
+         NToDRqEB+XtjNjlI0KtDRQGfjF+C0+VHoR3lgVRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 180/309] iwlwifi: dont throw error when trying to remove IGTK
-Date:   Mon, 10 Feb 2020 04:32:16 -0800
-Message-Id: <20200210122423.793964027@linuxfoundation.org>
+Subject: [PATCH 5.4 181/309] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
+Date:   Mon, 10 Feb 2020 04:32:17 -0800
+Message-Id: <20200210122423.899697749@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,56 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 197288d5ba8a5289f22d3aeb4fca3824bfd9b4af upstream.
+commit 65b1aae0d9d5962faccc06bdb8e91a2a0b09451c upstream.
 
-The IGTK keys are only removed by mac80211 after it has already
-removed the AP station.  This causes the driver to throw an error
-because mac80211 is trying to remove the IGTK when the station doesn't
-exist anymore.
+We called rcu_read_lock(), so we need to call rcu_read_unlock() before
+we return.
 
-The firmware is aware that the station has been removed and can deal
-with it the next time we try to add an IGTK for a station, so we
-shouldn't try to remove the key if the station ID is
-IWL_MVM_INVALID_STA.  Do this by removing the check for mvm_sta before
-calling iwl_mvm_send_sta_igtk() and check return from that function
-gracefully if the station ID is invalid.
-
-Cc: stable@vger.kernel.org # 4.12+
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+Cc: stable@vger.kernel.org
+Cc: huangwen <huangwenabc@gmail.com>
+Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -3321,6 +3321,10 @@ static int iwl_mvm_send_sta_igtk(struct
- 	igtk_cmd.sta_id = cpu_to_le32(sta_id);
+--- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
+@@ -232,6 +232,7 @@ static int mwifiex_process_country_ie(st
  
- 	if (remove_key) {
-+		/* This is a valid situation for IGTK */
-+		if (sta_id == IWL_MVM_INVALID_STA)
-+			return 0;
-+
- 		igtk_cmd.ctrl_flags |= cpu_to_le32(STA_KEY_NOT_VALID);
- 	} else {
- 		struct ieee80211_key_seq seq;
-@@ -3575,9 +3579,9 @@ int iwl_mvm_remove_sta_key(struct iwl_mv
- 	IWL_DEBUG_WEP(mvm, "mvm remove dynamic key: idx=%d sta=%d\n",
- 		      keyconf->keyidx, sta_id);
- 
--	if (mvm_sta && (keyconf->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
--			keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
--			keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256))
-+	if (keyconf->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
-+	    keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
-+	    keyconf->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256)
- 		return iwl_mvm_send_sta_igtk(mvm, keyconf, sta_id, true);
- 
- 	if (!__test_and_clear_bit(keyconf->hw_key_idx, mvm->fw_key_table)) {
+ 	if (country_ie_len >
+ 	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
++		rcu_read_unlock();
+ 		mwifiex_dbg(priv->adapter, ERROR,
+ 			    "11D: country_ie_len overflow!, deauth AP\n");
+ 		return -EINVAL;
 
 
