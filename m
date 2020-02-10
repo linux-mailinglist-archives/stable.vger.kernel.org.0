@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E417F15785E
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07BCE157AED
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:26:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728315AbgBJNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:07:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
+        id S1729606AbgBJN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:26:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728135AbgBJMjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:45 -0500
+        id S1728171AbgBJMgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:45 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA5A820733;
-        Mon, 10 Feb 2020 12:39:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2705D2051A;
+        Mon, 10 Feb 2020 12:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338385;
-        bh=Cii59v+tE1D5Tcds59Ldt4r2lnGyvOzYXC1dTbz939M=;
+        s=default; t=1581338205;
+        bh=Pc8XaB47gADrFMI9/mbODYIk60bOy2wSiw2J88lHDuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVuhtMo4vkw9A1ixUEYx0+/8tF34hp+4tpKROyQePewvruW/zAf0xLT5u4PQ4oQ2o
-         eKH7UMcHo/5sBIMTrmHNgbNEreC+tAwb9B/SBxdr58QvHwwZ8YKGJ8bdEVnnjOuZUV
-         rN9yuwpt4gVwHse09NvT8Krki2Q7kBq7cp4xeaTs=
+        b=rLL7QjaZgi9fBi++vwz4mu7tsQrBV+E+oFxVBlyJmhHsZOEwz1eOoZ/ketA2bdtJ3
+         FFV/syYBRj8LNK5Ck8xOSs0vrke+KJs0INFLkypQHkeySrYT2kP0wp7+jFMWCcI7QV
+         dGyRxOgxUiWsur0ITEXHmOXVcM5U9Q8miLSPgxVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.5 067/367] platform/x86: intel_scu_ipc: Fix interrupt support
+        syzbot+fc69d7cb21258ab4ae4d@syzkaller.appspotmail.com,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 024/309] netfilter: ipset: fix suspicious RCU usage in find_set_and_id
 Date:   Mon, 10 Feb 2020 04:29:40 -0800
-Message-Id: <20200210122430.296784279@linuxfoundation.org>
+Message-Id: <20200210122408.310860575@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Kadlecsik József <kadlec@blackhole.kfki.hu>
 
-commit e48b72a568bbd641c91dad354138d3c17d03ee6f upstream.
+commit 5038517119d50ed0240059b1d7fc2faa92371c08 upstream.
 
-Currently the driver has disabled interrupt support for Tangier but
-actually interrupt works just fine if the command is not written twice
-in a row. Also we need to ack the interrupt in the handler.
+find_set_and_id() is called when the NFNL_SUBSYS_IPSET mutex is held.
+However, in the error path there can be a follow-up recvmsg() without
+the mutex held. Use the start() function of struct netlink_dump_control
+instead of dump() to verify and report if the specified set does not
+exist.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Thanks to Pablo Neira Ayuso for helping me to understand the subleties
+of the netlink protocol.
+
+Reported-by: syzbot+fc69d7cb21258ab4ae4d@syzkaller.appspotmail.com
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel_scu_ipc.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ net/netfilter/ipset/ip_set_core.c |   41 +++++++++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
---- a/drivers/platform/x86/intel_scu_ipc.c
-+++ b/drivers/platform/x86/intel_scu_ipc.c
-@@ -67,26 +67,22 @@
- struct intel_scu_ipc_pdata_t {
- 	u32 i2c_base;
- 	u32 i2c_len;
--	u8 irq_mode;
+--- a/net/netfilter/ipset/ip_set_core.c
++++ b/net/netfilter/ipset/ip_set_core.c
+@@ -1293,31 +1293,34 @@ ip_set_dump_policy[IPSET_ATTR_CMD_MAX +
  };
  
- static const struct intel_scu_ipc_pdata_t intel_scu_ipc_lincroft_pdata = {
- 	.i2c_base = 0xff12b000,
- 	.i2c_len = 0x10,
--	.irq_mode = 0,
- };
- 
- /* Penwell and Cloverview */
- static const struct intel_scu_ipc_pdata_t intel_scu_ipc_penwell_pdata = {
- 	.i2c_base = 0xff12b000,
- 	.i2c_len = 0x10,
--	.irq_mode = 1,
- };
- 
- static const struct intel_scu_ipc_pdata_t intel_scu_ipc_tangier_pdata = {
- 	.i2c_base  = 0xff00d000,
- 	.i2c_len = 0x10,
--	.irq_mode = 0,
- };
- 
- struct intel_scu_ipc_dev {
-@@ -99,6 +95,9 @@ struct intel_scu_ipc_dev {
- 
- static struct intel_scu_ipc_dev  ipcdev; /* Only one for now */
- 
-+#define IPC_STATUS		0x04
-+#define IPC_STATUS_IRQ		BIT(2)
-+
- /*
-  * IPC Read Buffer (Read Only):
-  * 16 byte buffer for receiving data from SCU, if IPC command
-@@ -120,11 +119,8 @@ static DEFINE_MUTEX(ipclock); /* lock us
-  */
- static inline void ipc_command(struct intel_scu_ipc_dev *scu, u32 cmd)
+ static int
+-dump_init(struct netlink_callback *cb, struct ip_set_net *inst)
++ip_set_dump_start(struct netlink_callback *cb)
  {
--	if (scu->irq_mode) {
--		reinit_completion(&scu->cmd_complete);
--		writel(cmd | IPC_IOC, scu->ipc_base);
--	}
--	writel(cmd, scu->ipc_base);
-+	reinit_completion(&scu->cmd_complete);
-+	writel(cmd | IPC_IOC, scu->ipc_base);
- }
+ 	struct nlmsghdr *nlh = nlmsg_hdr(cb->skb);
+ 	int min_len = nlmsg_total_size(sizeof(struct nfgenmsg));
+ 	struct nlattr *cda[IPSET_ATTR_CMD_MAX + 1];
+ 	struct nlattr *attr = (void *)nlh + min_len;
++	struct sk_buff *skb = cb->skb;
++	struct ip_set_net *inst = ip_set_pernet(sock_net(skb->sk));
+ 	u32 dump_type;
+-	ip_set_id_t index;
+ 	int ret;
  
- /*
-@@ -610,9 +606,10 @@ EXPORT_SYMBOL(intel_scu_ipc_i2c_cntrl);
- static irqreturn_t ioc(int irq, void *dev_id)
- {
- 	struct intel_scu_ipc_dev *scu = dev_id;
-+	int status = ipc_read_status(scu);
+ 	ret = nla_parse(cda, IPSET_ATTR_CMD_MAX, attr,
+ 			nlh->nlmsg_len - min_len,
+ 			ip_set_dump_policy, NULL);
+ 	if (ret)
+-		return ret;
++		goto error;
  
--	if (scu->irq_mode)
--		complete(&scu->cmd_complete);
-+	writel(status | IPC_STATUS_IRQ, scu->ipc_base + IPC_STATUS);
-+	complete(&scu->cmd_complete);
+ 	cb->args[IPSET_CB_PROTO] = nla_get_u8(cda[IPSET_ATTR_PROTOCOL]);
+ 	if (cda[IPSET_ATTR_SETNAME]) {
++		ip_set_id_t index;
+ 		struct ip_set *set;
  
- 	return IRQ_HANDLED;
- }
-@@ -638,8 +635,6 @@ static int ipc_probe(struct pci_dev *pde
- 	if (!pdata)
- 		return -ENODEV;
- 
--	scu->irq_mode = pdata->irq_mode;
+ 		set = find_set_and_id(inst, nla_data(cda[IPSET_ATTR_SETNAME]),
+ 				      &index);
+-		if (!set)
+-			return -ENOENT;
 -
- 	err = pcim_enable_device(pdev);
- 	if (err)
- 		return err;
++		if (!set) {
++			ret = -ENOENT;
++			goto error;
++		}
+ 		dump_type = DUMP_ONE;
+ 		cb->args[IPSET_CB_INDEX] = index;
+ 	} else {
+@@ -1333,10 +1336,17 @@ dump_init(struct netlink_callback *cb, s
+ 	cb->args[IPSET_CB_DUMP] = dump_type;
+ 
+ 	return 0;
++
++error:
++	/* We have to create and send the error message manually :-( */
++	if (nlh->nlmsg_flags & NLM_F_ACK) {
++		netlink_ack(cb->skb, nlh, ret, NULL);
++	}
++	return ret;
+ }
+ 
+ static int
+-ip_set_dump_start(struct sk_buff *skb, struct netlink_callback *cb)
++ip_set_dump_do(struct sk_buff *skb, struct netlink_callback *cb)
+ {
+ 	ip_set_id_t index = IPSET_INVALID_ID, max;
+ 	struct ip_set *set = NULL;
+@@ -1347,18 +1357,8 @@ ip_set_dump_start(struct sk_buff *skb, s
+ 	bool is_destroyed;
+ 	int ret = 0;
+ 
+-	if (!cb->args[IPSET_CB_DUMP]) {
+-		ret = dump_init(cb, inst);
+-		if (ret < 0) {
+-			nlh = nlmsg_hdr(cb->skb);
+-			/* We have to create and send the error message
+-			 * manually :-(
+-			 */
+-			if (nlh->nlmsg_flags & NLM_F_ACK)
+-				netlink_ack(cb->skb, nlh, ret, NULL);
+-			return ret;
+-		}
+-	}
++	if (!cb->args[IPSET_CB_DUMP])
++		return -EINVAL;
+ 
+ 	if (cb->args[IPSET_CB_INDEX] >= inst->ip_set_max)
+ 		goto out;
+@@ -1494,7 +1494,8 @@ static int ip_set_dump(struct net *net,
+ 
+ 	{
+ 		struct netlink_dump_control c = {
+-			.dump = ip_set_dump_start,
++			.start = ip_set_dump_start,
++			.dump = ip_set_dump_do,
+ 			.done = ip_set_dump_done,
+ 		};
+ 		return netlink_dump_start(ctnl, skb, nlh, &c);
 
 
