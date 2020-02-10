@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B55115791D
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CCF515791E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729354AbgBJNMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729228AbgBJNMm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 08:12:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729226AbgBJMis (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:48 -0500
+        id S1728387AbgBJMit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:49 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A3DD2051A;
+        by mail.kernel.org (Postfix) with ESMTPSA id 9044E2468C;
         Mon, 10 Feb 2020 12:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338328;
-        bh=7sMWQDAzRleLr9dEoJVWItMajMIRfGXWNDV+dhEDopE=;
+        bh=ABjSrGWPNmcnFS1fr9i3f2IiWVuVuyUEImN3ZxgdkVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsuIcTzy5nz/6dqlxLKeUOHaok3Cn/4BXcv/crHYpZPtq12BaCR6U5GsD/yZr6OnC
-         hWeFzIJdBEbXRak00UI3lxq294lJC+N03S288RvIuoeRdaDfzu3e020vPKNx8GX47t
-         NKyPYKfuJ3Fpd0Z1+KcbsWs7IgZGxihbEcb6mYGw=
+        b=IpufVvVxhV0wi/lwpq0YFwmYkIgz3e+DYXSQIg5FXO5tJI4iznbW2VriOdsITndtk
+         uJ92RKXyIDo24lTPKE/nVO6mIkI4pK4IY/r0doDzkMsGNe7ArXG4fDKeNXGhD4SyFv
+         yIlGnBHsvQF7Ip9fCMKutRXbrd+GP5fsRPrds1sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gang He <ghe@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>,
-        Jun Piao <piaojun@huawei.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Pavel Tatashin <pasha.tatashin@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Steven Sistare <steven.sistare@oracle.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Bob Picco <bob.picco@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 226/309] ocfs2: fix oops when writing cloned file
-Date:   Mon, 10 Feb 2020 04:33:02 -0800
-Message-Id: <20200210122428.260253259@linuxfoundation.org>
+Subject: [PATCH 5.4 227/309] mm/page_alloc.c: fix uninitialized memmaps on a partially populated last section
+Date:   Mon, 10 Feb 2020 04:33:03 -0800
+Message-Id: <20200210122428.351216337@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -50,139 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gang He <GHe@suse.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 2d797e9ff95ecbcf0a83d657928ed20579444857 upstream.
+commit e822969cab48b786b64246aad1a3ba2a774f5d23 upstream.
 
-Writing a cloned file triggers a kernel oops and the user-space command
-process is also killed by the system.  The bug can be reproduced stably
-via:
+Patch series "mm: fix max_pfn not falling on section boundary", v2.
 
-1) create a file under ocfs2 file system directory.
+Playing with different memory sizes for a x86-64 guest, I discovered that
+some memmaps (highest section if max_mem does not fall on the section
+boundary) are marked as being valid and online, but contain garbage.  We
+have to properly initialize these memmaps.
 
-  journalctl -b > aa.txt
+Looking at /proc/kpageflags and friends, I found some more issues,
+partially related to this.
 
-2) create a cloned file for this file.
+This patch (of 3):
 
-  reflink aa.txt bb.txt
+If max_pfn is not aligned to a section boundary, we can easily run into
+BUGs.  This can e.g., be triggered on x86-64 under QEMU by specifying a
+memory size that is not a multiple of 128MB (e.g., 4097MB, but also
+4160MB).  I was told that on real HW, we can easily have this scenario
+(esp., one of the main reasons sub-section hotadd of devmem was added).
 
-3) write the cloned file with dd command.
+The issue is, that we have a valid memmap (pfn_valid()) for the whole
+section, and the whole section will be marked "online".
+pfn_to_online_page() will succeed, but the memmap contains garbage.
 
-  dd if=/dev/zero of=bb.txt bs=512 count=1 conv=notrunc
+E.g., doing a "./page-types -r -a 0x144001" when QEMU was started with "-m
+4160M" - (see tools/vm/page-types.c):
 
-The dd command is killed by the kernel, then you can see the oops message
-via dmesg command.
+[  200.476376] BUG: unable to handle page fault for address: fffffffffffffffe
+[  200.477500] #PF: supervisor read access in kernel mode
+[  200.478334] #PF: error_code(0x0000) - not-present page
+[  200.479076] PGD 59614067 P4D 59614067 PUD 59616067 PMD 0
+[  200.479557] Oops: 0000 [#4] SMP NOPTI
+[  200.479875] CPU: 0 PID: 603 Comm: page-types Tainted: G      D W         5.5.0-rc1-next-20191209 #93
+[  200.480646] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
+[  200.481648] RIP: 0010:stable_page_flags+0x4d/0x410
+[  200.482061] Code: f3 ff 41 89 c0 48 b8 00 00 00 00 01 00 00 00 45 84 c0 0f 85 cd 02 00 00 48 8b 53 08 48 8b 2b 48f
+[  200.483644] RSP: 0018:ffffb139401cbe60 EFLAGS: 00010202
+[  200.484091] RAX: fffffffffffffffe RBX: fffffbeec5100040 RCX: 0000000000000000
+[  200.484697] RDX: 0000000000000001 RSI: ffffffff9535c7cd RDI: 0000000000000246
+[  200.485313] RBP: ffffffffffffffff R08: 0000000000000000 R09: 0000000000000000
+[  200.485917] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000144001
+[  200.486523] R13: 00007ffd6ba55f48 R14: 00007ffd6ba55f40 R15: ffffb139401cbf08
+[  200.487130] FS:  00007f68df717580(0000) GS:ffff9ec77fa00000(0000) knlGS:0000000000000000
+[  200.487804] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  200.488295] CR2: fffffffffffffffe CR3: 0000000135d48000 CR4: 00000000000006f0
+[  200.488897] Call Trace:
+[  200.489115]  kpageflags_read+0xe9/0x140
+[  200.489447]  proc_reg_read+0x3c/0x60
+[  200.489755]  vfs_read+0xc2/0x170
+[  200.490037]  ksys_pread64+0x65/0xa0
+[  200.490352]  do_syscall_64+0x5c/0xa0
+[  200.490665]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-[  463.875404] BUG: kernel NULL pointer dereference, address: 0000000000000028
-[  463.875413] #PF: supervisor read access in kernel mode
-[  463.875416] #PF: error_code(0x0000) - not-present page
-[  463.875418] PGD 0 P4D 0
-[  463.875425] Oops: 0000 [#1] SMP PTI
-[  463.875431] CPU: 1 PID: 2291 Comm: dd Tainted: G           OE     5.3.16-2-default
-[  463.875433] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-[  463.875500] RIP: 0010:ocfs2_refcount_cow+0xa4/0x5d0 [ocfs2]
-[  463.875505] Code: 06 89 6c 24 38 89 eb f6 44 24 3c 02 74 be 49 8b 47 28
-[  463.875508] RSP: 0018:ffffa2cb409dfce8 EFLAGS: 00010202
-[  463.875512] RAX: ffff8b1ebdca8000 RBX: 0000000000000001 RCX: ffff8b1eb73a9df0
-[  463.875515] RDX: 0000000000056a01 RSI: 0000000000000000 RDI: 0000000000000000
-[  463.875517] RBP: 0000000000000001 R08: ffff8b1eb73a9de0 R09: 0000000000000000
-[  463.875520] R10: 0000000000000001 R11: 0000000000000000 R12: 0000000000000000
-[  463.875522] R13: ffff8b1eb922f048 R14: 0000000000000000 R15: ffff8b1eb922f048
-[  463.875526] FS:  00007f8f44d15540(0000) GS:ffff8b1ebeb00000(0000) knlGS:0000000000000000
-[  463.875529] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  463.875532] CR2: 0000000000000028 CR3: 000000003c17a000 CR4: 00000000000006e0
-[  463.875546] Call Trace:
-[  463.875596]  ? ocfs2_inode_lock_full_nested+0x18b/0x960 [ocfs2]
-[  463.875648]  ocfs2_file_write_iter+0xaf8/0xc70 [ocfs2]
-[  463.875672]  new_sync_write+0x12d/0x1d0
-[  463.875688]  vfs_write+0xad/0x1a0
-[  463.875697]  ksys_write+0xa1/0xe0
-[  463.875710]  do_syscall_64+0x60/0x1f0
-[  463.875743]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[  463.875758] RIP: 0033:0x7f8f4482ed44
-[  463.875762] Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 80 00 00 00
-[  463.875765] RSP: 002b:00007fff300a79d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[  463.875769] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f8f4482ed44
-[  463.875771] RDX: 0000000000000200 RSI: 000055f771b5c000 RDI: 0000000000000001
-[  463.875774] RBP: 0000000000000200 R08: 00007f8f44af9c78 R09: 0000000000000003
-[  463.875776] R10: 000000000000089f R11: 0000000000000246 R12: 000055f771b5c000
-[  463.875779] R13: 0000000000000200 R14: 0000000000000000 R15: 000055f771b5c000
+But it can be triggered much easier via "cat /proc/kpageflags > /dev/null"
+after cold/hot plugging a DIMM to such a system:
 
-This regression problem was introduced by commit e74540b28556 ("ocfs2:
-protect extent tree in ocfs2_prepare_inode_for_write()").
+[root@localhost ~]# cat /proc/kpageflags > /dev/null
+[  111.517275] BUG: unable to handle page fault for address: fffffffffffffffe
+[  111.517907] #PF: supervisor read access in kernel mode
+[  111.518333] #PF: error_code(0x0000) - not-present page
+[  111.518771] PGD a240e067 P4D a240e067 PUD a2410067 PMD 0
 
-Link: http://lkml.kernel.org/r/20200121050153.13290-1-ghe@suse.com
-Fixes: e74540b28556 ("ocfs2: protect extent tree in ocfs2_prepare_inode_for_write()").
-Signed-off-by: Gang He <ghe@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
+This patch fixes that by at least zero-ing out that memmap (so e.g.,
+page_to_pfn() will not crash).  Commit 907ec5fca3dc ("mm: zero remaining
+unavailable struct pages") tried to fix a similar issue, but forgot to
+consider this special case.
+
+After this patch, there are still problems to solve.  E.g., not all of
+these pages falling into a memory hole will actually get initialized later
+and set PageReserved - they are only zeroed out - but at least the
+immediate crashes are gone.  A follow-up patch will take care of this.
+
+Link: http://lkml.kernel.org/r/20191211163201.17179-2-david@redhat.com
+Fixes: f7f99100d8d9 ("mm: stop zeroing memory during allocation in vmemmap")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Tested-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Steven Sistare <steven.sistare@oracle.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Bob Picco <bob.picco@oracle.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: <stable@vger.kernel.org>	[4.15+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/file.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ mm/page_alloc.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -2101,17 +2101,15 @@ static int ocfs2_is_io_unaligned(struct
- static int ocfs2_inode_lock_for_extent_tree(struct inode *inode,
- 					    struct buffer_head **di_bh,
- 					    int meta_level,
--					    int overwrite_io,
- 					    int write_sem,
- 					    int wait)
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6933,7 +6933,8 @@ static u64 zero_pfn_range(unsigned long
+  * This function also addresses a similar issue where struct pages are left
+  * uninitialized because the physical address range is not covered by
+  * memblock.memory or memblock.reserved. That could happen when memblock
+- * layout is manually configured via memmap=.
++ * layout is manually configured via memmap=, or when the highest physical
++ * address (max_pfn) does not end on a section boundary.
+  */
+ void __init zero_resv_unavail(void)
  {
- 	int ret = 0;
+@@ -6951,7 +6952,16 @@ void __init zero_resv_unavail(void)
+ 			pgcnt += zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
+ 		next = end;
+ 	}
+-	pgcnt += zero_pfn_range(PFN_DOWN(next), max_pfn);
++
++	/*
++	 * Early sections always have a fully populated memmap for the whole
++	 * section - see pfn_valid(). If the last section has holes at the
++	 * end and that section is marked "online", the memmap will be
++	 * considered initialized. Make sure that memmap has a well defined
++	 * state.
++	 */
++	pgcnt += zero_pfn_range(PFN_DOWN(next),
++				round_up(max_pfn, PAGES_PER_SECTION));
  
- 	if (wait)
--		ret = ocfs2_inode_lock(inode, NULL, meta_level);
-+		ret = ocfs2_inode_lock(inode, di_bh, meta_level);
- 	else
--		ret = ocfs2_try_inode_lock(inode,
--			overwrite_io ? NULL : di_bh, meta_level);
-+		ret = ocfs2_try_inode_lock(inode, di_bh, meta_level);
- 	if (ret < 0)
- 		goto out;
- 
-@@ -2136,6 +2134,7 @@ static int ocfs2_inode_lock_for_extent_t
- 
- out_unlock:
- 	brelse(*di_bh);
-+	*di_bh = NULL;
- 	ocfs2_inode_unlock(inode, meta_level);
- out:
- 	return ret;
-@@ -2177,7 +2176,6 @@ static int ocfs2_prepare_inode_for_write
- 		ret = ocfs2_inode_lock_for_extent_tree(inode,
- 						       &di_bh,
- 						       meta_level,
--						       overwrite_io,
- 						       write_sem,
- 						       wait);
- 		if (ret < 0) {
-@@ -2233,13 +2231,13 @@ static int ocfs2_prepare_inode_for_write
- 							   &di_bh,
- 							   meta_level,
- 							   write_sem);
-+			meta_level = 1;
-+			write_sem = 1;
- 			ret = ocfs2_inode_lock_for_extent_tree(inode,
- 							       &di_bh,
- 							       meta_level,
--							       overwrite_io,
--							       1,
-+							       write_sem,
- 							       wait);
--			write_sem = 1;
- 			if (ret < 0) {
- 				if (ret != -EAGAIN)
- 					mlog_errno(ret);
+ 	/*
+ 	 * Struct pages that do not have backing memory. This could be because
 
 
