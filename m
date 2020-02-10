@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 944B0157614
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 846B715770B
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730558AbgBJMoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:44:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47946 "EHLO mail.kernel.org"
+        id S1729877AbgBJM5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:57:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728871AbgBJMoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:44:04 -0500
+        id S1730009AbgBJMlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:32 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA87320661;
-        Mon, 10 Feb 2020 12:44:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD48E20733;
+        Mon, 10 Feb 2020 12:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338644;
-        bh=PuO13LKVTYDSxri5SOudHC2t0XeLAaovGg0Nb14h168=;
+        s=default; t=1581338492;
+        bh=MwVZA0bWr2W2YVauC7MtLgdZAa1xZxjPpV7KNM14dlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sne7dLRAaBsoZI3WULlqepa5qhEZj1g2Z32QGRvj9Tscc0UZVygGz8j1K7cjBkERV
-         HcGxuuWNKWkEsNlAmrA832U4zTGCncKBxsLpQHjLPgQ0zTtLvZjZZaHH6MWDiE7IKb
-         rMvvK88Ovs1S7ahSnfnavvamIntZbjbo14Bi/emY=
+        b=MIQJqyu2iLek3hhlrDYfM1HG0UujkW612ojfAyiF9ieQUSTTux9O8+G+l1//m0cEv
+         lLYZdfgxf368BkopRdmsDEb/kjNPN1PvScaPt4grYLCou2ym13o3C1RRTzNGiK8jCd
+         toqSS/cxzNgu353t08GduO7l9DXAvXdW8T9ZoTGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        Daniel Verkamp <dverkamp@chromium.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: [PATCH 5.4 233/309] virtio-pci: check name when counting MSI-X vectors
-Date:   Mon, 10 Feb 2020 04:33:09 -0800
-Message-Id: <20200210122428.904368123@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 5.5 277/367] broken ping to ipv6 linklocal addresses on debian buster
+Date:   Mon, 10 Feb 2020 04:33:10 -0800
+Message-Id: <20200210122449.705929325@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Verkamp <dverkamp@chromium.org>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-commit 303090b513fd1ee45aa1536b71a3838dc054bc05 upstream.
+commit 87fbfffcc89b92a4281b0aa53bd06af714087889 upstream.
 
-VQs without a name specified are not valid; they are skipped in the
-later loop that assigns MSI-X vectors to queues, but the per_vq_vectors
-loop above that counts the required number of vectors previously still
-counted any queue with a non-NULL callback as needing a vector.
+I am seeing ping failures to IPv6 linklocal addresses with Debian
+buster. Easiest example to reproduce is:
 
-Add a check to the per_vq_vectors loop so that vectors with no name are
-not counted to make the two loops consistent.  This prevents
-over-counting unnecessary vectors (e.g. for features which were not
-negotiated with the device).
+$ ping -c1 -w1 ff02::1%eth1
+connect: Invalid argument
+
+$ ping -c1 -w1 ff02::1%eth1
+PING ff02::01%eth1(ff02::1%eth1) 56 data bytes
+64 bytes from fe80::e0:f9ff:fe0c:37%eth1: icmp_seq=1 ttl=64 time=0.059 ms
+
+git bisect traced the failure to
+commit b9ef5513c99b ("smack: Check address length before reading address family")
+
+Arguably ping is being stupid since the buster version is not setting
+the address family properly (ping on stretch for example does):
+
+$ strace -e connect ping6 -c1 -w1 ff02::1%eth1
+connect(5, {sa_family=AF_UNSPEC,
+sa_data="\4\1\0\0\0\0\377\2\0\0\0\0\0\0\0\0\0\0\0\0\0\1\3\0\0\0"}, 28)
+= -1 EINVAL (Invalid argument)
+
+but the command works fine on kernels prior to this commit, so this is
+breakage which goes against the Linux paradigm of "don't break userspace"
 
 Cc: stable@vger.kernel.org
-Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Wang, Wei W <wei.w.wang@intel.com>
+Reported-by: David Ahern <dsahern@gmail.com>
+Suggested-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/virtio/virtio_pci_common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/smack/smack_lsm.c | 41 +++++++++++++++++++----------------------
+ security/smack/smack_lsm.c |   41 +++++++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virti
- 		/* Best option: one for change interrupt, one per vq. */
- 		nvectors = 1;
- 		for (i = 0; i < nvqs; ++i)
--			if (callbacks[i])
-+			if (names[i] && callbacks[i])
- 				++nvectors;
- 	} else {
- 		/* Second best: one for change, shared for all vqs. */
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2831,42 +2831,39 @@ static int smack_socket_connect(struct s
+ 				int addrlen)
+ {
+ 	int rc = 0;
+-#if IS_ENABLED(CONFIG_IPV6)
+-	struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+-#endif
+-#ifdef SMACK_IPV6_SECMARK_LABELING
+-	struct smack_known *rsp;
+-	struct socket_smack *ssp;
+-#endif
+ 
+ 	if (sock->sk == NULL)
+ 		return 0;
+-
++	if (sock->sk->sk_family != PF_INET &&
++	    (!IS_ENABLED(CONFIG_IPV6) || sock->sk->sk_family != PF_INET6))
++		return 0;
++	if (addrlen < offsetofend(struct sockaddr, sa_family))
++		return 0;
++	if (IS_ENABLED(CONFIG_IPV6) && sap->sa_family == AF_INET6) {
++		struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+ #ifdef SMACK_IPV6_SECMARK_LABELING
+-	ssp = sock->sk->sk_security;
++		struct smack_known *rsp;
+ #endif
+ 
+-	switch (sock->sk->sk_family) {
+-	case PF_INET:
+-		if (addrlen < sizeof(struct sockaddr_in) ||
+-		    sap->sa_family != AF_INET)
+-			return -EINVAL;
+-		rc = smack_netlabel_send(sock->sk, (struct sockaddr_in *)sap);
+-		break;
+-	case PF_INET6:
+-		if (addrlen < SIN6_LEN_RFC2133 || sap->sa_family != AF_INET6)
+-			return -EINVAL;
++		if (addrlen < SIN6_LEN_RFC2133)
++			return 0;
+ #ifdef SMACK_IPV6_SECMARK_LABELING
+ 		rsp = smack_ipv6host_label(sip);
+-		if (rsp != NULL)
++		if (rsp != NULL) {
++			struct socket_smack *ssp = sock->sk->sk_security;
++
+ 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
+-						SMK_CONNECTING);
++					    SMK_CONNECTING);
++		}
+ #endif
+ #ifdef SMACK_IPV6_PORT_LABELING
+ 		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
+ #endif
+-		break;
++		return rc;
+ 	}
++	if (sap->sa_family != AF_INET || addrlen < sizeof(struct sockaddr_in))
++		return 0;
++	rc = smack_netlabel_send(sock->sk, (struct sockaddr_in *)sap);
+ 	return rc;
+ }
+ 
 
 
