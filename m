@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 425C01576E6
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:56:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFAD01574C0
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729284AbgBJM4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:56:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
+        id S1728095AbgBJMfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:35:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728574AbgBJMlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:42 -0500
+        id S1727916AbgBJMfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:44 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 252A420733;
-        Mon, 10 Feb 2020 12:41:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91449215A4;
+        Mon, 10 Feb 2020 12:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338501;
-        bh=39WzRQPwvW5XrxKbELBSz19WS+NFf8umOaaiF2Is8OY=;
+        s=default; t=1581338143;
+        bh=xCAhTSJ8+/Xp3f4QKgv7gQoZxl3+Oh0x9XDmQLmg9/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lG8NgWcXaVBJb4mqg/bQIIvUVvMLeoG3aQmQ6RW/RTJYk89FmJUaCZJypVfA9soEW
-         wK+uPUId1KLoMnVOXQH8UHTikRWdVainB2ysbJnJSczItTLDivRP2kHHoH6CEokkEo
-         aMAzJd3QLNV/cSZugQgzt4lwiHFC9rlsGehca/yY=
+        b=e8mHUmRZ2IV80T/TYc6zBjnaKFrbcXzbvsdks4vOk1b8ulSC2GyFKjmak6U+1Ry+8
+         YeNCWAnjWcgdIBV7B7x9J+vvJ2vMop1Xd1Z3b8ba2Sa1qYR91EbFdNW8S5+85bZwHu
+         6/mGd1HFDT4svBRPtirm7Iy6BTBhtUPShN5Li8LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 245/367] KVM: x86: use CPUID to locate host page table reserved bits
-Date:   Mon, 10 Feb 2020 04:32:38 -0800
-Message-Id: <20200210122446.800976612@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 101/195] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
+Date:   Mon, 10 Feb 2020 04:32:39 -0800
+Message-Id: <20200210122315.049225238@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 7adacf5eb2d2048045d9fd8fdab861fd9e7e2e96 upstream.
+commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
 
-The comment in kvm_get_shadow_phys_bits refers to MKTME, but the same is actually
-true of SME and SEV.  Just use CPUID[0x8000_0008].EAX[7:0] unconditionally if
-available, it is simplest and works even if memory is not encrypted.
+Since tasklet is needed to be initialized before registering IRQ
+handler, adjust the position of tasklet_init to fix the wrong order.
 
-Cc: stable@vger.kernel.org
-Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Besides, to fix the missed tasklet_kill, this patch adds a helper
+function and uses devm_add_action to kill the tasklet automatically.
+
+Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/mmu.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -538,16 +538,20 @@ EXPORT_SYMBOL_GPL(kvm_mmu_set_mask_ptes)
- static u8 kvm_get_shadow_phys_bits(void)
+--- a/drivers/crypto/picoxcell_crypto.c
++++ b/drivers/crypto/picoxcell_crypto.c
+@@ -1616,6 +1616,11 @@ static const struct of_device_id spacc_o
+ MODULE_DEVICE_TABLE(of, spacc_of_id_table);
+ #endif /* CONFIG_OF */
+ 
++static void spacc_tasklet_kill(void *data)
++{
++	tasklet_kill(data);
++}
++
+ static int spacc_probe(struct platform_device *pdev)
  {
- 	/*
--	 * boot_cpu_data.x86_phys_bits is reduced when MKTME is detected
--	 * in CPU detection code, but MKTME treats those reduced bits as
--	 * 'keyID' thus they are not reserved bits. Therefore for MKTME
--	 * we should still return physical address bits reported by CPUID.
-+	 * boot_cpu_data.x86_phys_bits is reduced when MKTME or SME are detected
-+	 * in CPU detection code, but the processor treats those reduced bits as
-+	 * 'keyID' thus they are not reserved bits. Therefore KVM needs to look at
-+	 * the physical address bits reported by CPUID.
- 	 */
--	if (!boot_cpu_has(X86_FEATURE_TME) ||
--	    WARN_ON_ONCE(boot_cpu_data.extended_cpuid_level < 0x80000008))
--		return boot_cpu_data.x86_phys_bits;
-+	if (likely(boot_cpu_data.extended_cpuid_level >= 0x80000008))
-+		return cpuid_eax(0x80000008) & 0xff;
+ 	int i, err, ret;
+@@ -1659,6 +1664,14 @@ static int spacc_probe(struct platform_d
+ 		return -ENXIO;
+ 	}
  
--	return cpuid_eax(0x80000008) & 0xff;
-+	/*
-+	 * Quite weird to have VMX or SVM but not MAXPHYADDR; probably a VM with
-+	 * custom CPUID.  Proceed with whatever the kernel found since these features
-+	 * aren't virtualizable (SME/SEV also require CPUIDs higher than 0x80000008).
-+	 */
-+	return boot_cpu_data.x86_phys_bits;
- }
++	tasklet_init(&engine->complete, spacc_spacc_complete,
++		     (unsigned long)engine);
++
++	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
++			      &engine->complete);
++	if (ret)
++		return ret;
++
+ 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
+ 			     engine->name, engine)) {
+ 		dev_err(engine->dev, "failed to request IRQ\n");
+@@ -1716,8 +1729,6 @@ static int spacc_probe(struct platform_d
+ 	INIT_LIST_HEAD(&engine->completed);
+ 	INIT_LIST_HEAD(&engine->in_progress);
+ 	engine->in_flight = 0;
+-	tasklet_init(&engine->complete, spacc_spacc_complete,
+-		     (unsigned long)engine);
  
- static void kvm_mmu_reset_all_pte_masks(void)
+ 	platform_set_drvdata(pdev, engine);
+ 
 
 
