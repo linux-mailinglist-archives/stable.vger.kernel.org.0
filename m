@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E47A41579E5
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:18:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E479157791
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730927AbgBJNSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:18:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60232 "EHLO mail.kernel.org"
+        id S1729820AbgBJMkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728422AbgBJMhv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:51 -0500
+        id S1729817AbgBJMkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:51 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15E6F20733;
-        Mon, 10 Feb 2020 12:37:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE2622085B;
+        Mon, 10 Feb 2020 12:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338271;
-        bh=2KSZvAr+IyHAjeIc+3VTcq72D6D4Tk/d4gs9sP8MKEk=;
+        s=default; t=1581338450;
+        bh=9vvqBPxbltiYH7PyWIzMbj8xY2dYN+f/9a4CZVWzPik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Emr7JFqKnV06eyG9jxux1y8iehEP/yBbZ4MIOijYvFpYiv+748S9ax+IyCYunWeMZ
-         RzR9JM00mzrUzvgMYdLra6VnA8CyIMq0GpEhb7dtIqzWoDaMeOd1oZVCYSC2a92OcB
-         1d+3wp3BDorVIOkp/vS1CrV5Hn6vGDnaAgbdevxo=
+        b=wt+xtydkFx3OvYCYIRP/ajXi2w3RxU5LbzculH2NOE7TqP0MVqFBCwPiMnLq0H8WG
+         Z+l5Gy9EP+6wqxw8irNG2Hj4ilks6RABUOu2Mb6jpqmwSq4yswYonqYyLhL516xMhR
+         3kQxjbOmYG4atAatlQJ4qroxRb9hswCbDAs2IoH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.4 153/309] selftests: bpf: Use a temporary file in test_sockmap
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 196/367] Btrfs: make deduplication with range including the last block work
 Date:   Mon, 10 Feb 2020 04:31:49 -0800
-Message-Id: <20200210122420.952731282@linuxfoundation.org>
+Message-Id: <20200210122442.678567317@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit c31dbb1e41d1857b403f9bf58c87f5898519a0bc upstream.
+commit 831d2fa25ab8e27592b1b0268dae6f2dfaf7cc43 upstream.
 
-Use a proper temporary file for sendpage tests. This means that running
-the tests doesn't clutter the working directory, and allows running the
-test on read-only filesystems.
+Since btrfs was migrated to use the generic VFS helpers for clone and
+deduplication, it stopped allowing for the last block of a file to be
+deduplicated when the source file size is not sector size aligned (when
+eof is somewhere in the middle of the last block). There are two reasons
+for that:
 
-Fixes: 16962b2404ac ("bpf: sockmap, add selftests")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20200124112754.19664-2-lmb@cloudflare.com
+1) The generic code always rounds down, to a multiple of the block size,
+   the range's length for deduplications. This means we end up never
+   deduplicating the last block when the eof is not block size aligned,
+   even for the safe case where the destination range's end offset matches
+   the destination file's size. That rounding down operation is done at
+   generic_remap_check_len();
+
+2) Because of that, the btrfs specific code does not expect anymore any
+   non-aligned range length's for deduplication and therefore does not
+   work if such nona-aligned length is given.
+
+This patch addresses that second part, and it depends on a patch that
+fixes generic_remap_check_len(), in the VFS, which was submitted ealier
+and has the following subject:
+
+  "fs: allow deduplication of eof block into the end of the destination file"
+
+These two patches address reports from users that started seeing lower
+deduplication rates due to the last block never being deduplicated when
+the file size is not aligned to the filesystem's block size.
+
+Link: https://lore.kernel.org/linux-btrfs/2019-1576167349.500456@svIo.N5dq.dFFD/
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/bpf/test_sockmap.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ fs/btrfs/ioctl.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/test_sockmap.c
-+++ b/tools/testing/selftests/bpf/test_sockmap.c
-@@ -331,7 +331,7 @@ static int msg_loop_sendpage(int fd, int
- 	FILE *file;
- 	int i, fp;
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3243,6 +3243,7 @@ static void btrfs_double_extent_lock(str
+ static int btrfs_extent_same_range(struct inode *src, u64 loff, u64 len,
+ 				   struct inode *dst, u64 dst_loff)
+ {
++	const u64 bs = BTRFS_I(src)->root->fs_info->sb->s_blocksize;
+ 	int ret;
  
--	file = fopen(".sendpage_tst.tmp", "w+");
-+	file = tmpfile();
- 	if (!file) {
- 		perror("create file for sendpage");
- 		return 1;
-@@ -340,13 +340,8 @@ static int msg_loop_sendpage(int fd, int
- 		fwrite(&k, sizeof(char), 1, file);
- 	fflush(file);
- 	fseek(file, 0, SEEK_SET);
--	fclose(file);
+ 	/*
+@@ -3250,7 +3251,7 @@ static int btrfs_extent_same_range(struc
+ 	 * source range to serialize with relocation.
+ 	 */
+ 	btrfs_double_extent_lock(src, loff, dst, dst_loff, len);
+-	ret = btrfs_clone(src, dst, loff, len, len, dst_loff, 1);
++	ret = btrfs_clone(src, dst, loff, len, ALIGN(len, bs), dst_loff, 1);
+ 	btrfs_double_extent_unlock(src, loff, dst, dst_loff, len);
  
--	fp = open(".sendpage_tst.tmp", O_RDONLY);
--	if (fp < 0) {
--		perror("reopen file for sendpage");
--		return 1;
--	}
-+	fp = fileno(file);
- 
- 	clock_gettime(CLOCK_MONOTONIC, &s->start);
- 	for (i = 0; i < cnt; i++) {
-@@ -354,11 +349,11 @@ static int msg_loop_sendpage(int fd, int
- 
- 		if (!drop && sent < 0) {
- 			perror("send loop error");
--			close(fp);
-+			fclose(file);
- 			return sent;
- 		} else if (drop && sent >= 0) {
- 			printf("sendpage loop error expected: %i\n", sent);
--			close(fp);
-+			fclose(file);
- 			return -EIO;
- 		}
- 
-@@ -366,7 +361,7 @@ static int msg_loop_sendpage(int fd, int
- 			s->bytes_sent += sent;
- 	}
- 	clock_gettime(CLOCK_MONOTONIC, &s->end);
--	close(fp);
-+	fclose(file);
- 	return 0;
- }
- 
+ 	return ret;
 
 
