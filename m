@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD6E157BAB
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6BF7157BA9
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728198AbgBJNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:31:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54348 "EHLO mail.kernel.org"
+        id S1730781AbgBJNbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:31:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728195AbgBJMf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:58 -0500
+        id S1728198AbgBJMgA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:00 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57E8D24650;
-        Mon, 10 Feb 2020 12:35:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F5B24672;
+        Mon, 10 Feb 2020 12:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338158;
-        bh=CCRdGqX/qGm69ug+v9Y5SR8BnRz4DNknCK4V/Tw2TAU=;
+        s=default; t=1581338159;
+        bh=42VBH1B1ZQWlunEn568D+fE+UMHh4mj7PObaRMREYEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRXWU+gTH/3WVv2i2j3AYws5aAS+jxbC/SESadO7rHP0+k+Qgh9ScmIlrWX53qPcd
-         U2TSGjmXa1ulmBeXXWZxQjl0twjNYJ/KNI3qa8856pHHb9CRB4T3+lFSjQu/pDxp9R
-         v1kcDysJfKUczFiRvC+LT0XGDqa7bfzkfoACyTTk=
+        b=LCBml2MSluVbYu7tRRzuTP2dSqE/GhyC6iz8xkxF7rp0Mlz6NDbr9ZdAHVraAIrMX
+         PjIhnaegX3tSL6KEBLWmpbChbK4pBNoJPXubwYq26BD1BP01ZZEh/tuEyNYveU6Dg4
+         lmP3OQxkI8R/ryb17BfVyKLzR6g5ASJFNlTndGAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerad Simpson <jbsimpson@gmail.com>,
-        Milan Broz <gmazyland@gmail.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 088/195] dm crypt: fix benbi IV constructor crash if used in authenticated mode
-Date:   Mon, 10 Feb 2020 04:32:26 -0800
-Message-Id: <20200210122313.980830180@linuxfoundation.org>
+Subject: [PATCH 4.19 090/195] dm writecache: fix incorrect flush sequence when doing SSD mode commit
+Date:   Mon, 10 Feb 2020 04:32:28 -0800
+Message-Id: <20200210122314.137077319@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -44,54 +43,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Milan Broz <gmazyland@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 4ea9471fbd1addb25a4d269991dc724e200ca5b5 upstream.
+commit aa9509209c5ac2f0b35d01a922bf9ae072d0c2fc upstream.
 
-If benbi IV is used in AEAD construction, for example:
-  cryptsetup luksFormat <device> --cipher twofish-xts-benbi --key-size 512 --integrity=hmac-sha256
-the constructor uses wrong skcipher function and crashes:
+When committing state, the function writecache_flush does the following:
+1. write metadata (writecache_commit_flushed)
+2. flush disk cache (writecache_commit_flushed)
+3. wait for data writes to complete (writecache_wait_for_ios)
+4. increase superblock seq_count
+5. write the superblock
+6. flush disk cache
 
- BUG: kernel NULL pointer dereference, address: 00000014
- ...
- EIP: crypt_iv_benbi_ctr+0x15/0x70 [dm_crypt]
- Call Trace:
-  ? crypt_subkey_size+0x20/0x20 [dm_crypt]
-  crypt_ctr+0x567/0xfc0 [dm_crypt]
-  dm_table_add_target+0x15f/0x340 [dm_mod]
+It may happen that at step 3, when we wait for some write to finish, the
+disk may report the write as finished, but the write only hit the disk
+cache and it is not yet stored in persistent storage. At step 5 we write
+the superblock - it may happen that the superblock is written before the
+write that we waited for in step 3. If the machine crashes, it may result
+in incorrect data being returned after reboot.
 
-Fix this by properly using crypt_aead_blocksize() in this case.
+In order to fix the bug, we must swap steps 2 and 3 in the above sequence,
+so that we first wait for writes to complete and then flush the disk
+cache.
 
-Fixes: ef43aa38063a6 ("dm crypt: add cryptographic data integrity protection (authenticated encryption)")
-Cc: stable@vger.kernel.org # v4.12+
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=941051
-Reported-by: Jerad Simpson <jbsimpson@gmail.com>
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-crypt.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/md/dm-writecache.c |   41 +++++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -482,8 +482,14 @@ static int crypt_iv_essiv_gen(struct cry
- static int crypt_iv_benbi_ctr(struct crypt_config *cc, struct dm_target *ti,
- 			      const char *opts)
- {
--	unsigned bs = crypto_skcipher_blocksize(any_tfm(cc));
--	int log = ilog2(bs);
-+	unsigned bs;
-+	int log;
-+
-+	if (test_bit(CRYPT_MODE_INTEGRITY_AEAD, &cc->cipher_flags))
-+		bs = crypto_aead_blocksize(any_tfm_aead(cc));
-+	else
-+		bs = crypto_skcipher_blocksize(any_tfm(cc));
-+	log = ilog2(bs);
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -447,7 +447,13 @@ static void writecache_notify_io(unsigne
+ 		complete(&endio->c);
+ }
  
- 	/* we need to calculate how far we must shift the sector count
- 	 * to get the cipher block count, we use this shift in _gen */
+-static void ssd_commit_flushed(struct dm_writecache *wc)
++static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
++{
++	wait_event(wc->bio_in_progress_wait[direction],
++		   !atomic_read(&wc->bio_in_progress[direction]));
++}
++
++static void ssd_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	struct dm_io_region region;
+ 	struct dm_io_request req;
+@@ -493,17 +499,20 @@ static void ssd_commit_flushed(struct dm
+ 	writecache_notify_io(0, &endio);
+ 	wait_for_completion_io(&endio.c);
+ 
++	if (wait_for_ios)
++		writecache_wait_for_ios(wc, WRITE);
++
+ 	writecache_disk_flush(wc, wc->ssd_dev);
+ 
+ 	memset(wc->dirty_bitmap, 0, wc->dirty_bitmap_size);
+ }
+ 
+-static void writecache_commit_flushed(struct dm_writecache *wc)
++static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+ {
+ 	if (WC_MODE_PMEM(wc))
+ 		wmb();
+ 	else
+-		ssd_commit_flushed(wc);
++		ssd_commit_flushed(wc, wait_for_ios);
+ }
+ 
+ static void writecache_disk_flush(struct dm_writecache *wc, struct dm_dev *dev)
+@@ -527,12 +536,6 @@ static void writecache_disk_flush(struct
+ 		writecache_error(wc, r, "error flushing metadata: %d", r);
+ }
+ 
+-static void writecache_wait_for_ios(struct dm_writecache *wc, int direction)
+-{
+-	wait_event(wc->bio_in_progress_wait[direction],
+-		   !atomic_read(&wc->bio_in_progress[direction]));
+-}
+-
+ #define WFE_RETURN_FOLLOWING	1
+ #define WFE_LOWEST_SEQ		2
+ 
+@@ -730,14 +733,12 @@ static void writecache_flush(struct dm_w
+ 		e = e2;
+ 		cond_resched();
+ 	}
+-	writecache_commit_flushed(wc);
+-
+-	writecache_wait_for_ios(wc, WRITE);
++	writecache_commit_flushed(wc, true);
+ 
+ 	wc->seq_count++;
+ 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(wc->seq_count));
+ 	writecache_flush_region(wc, &sb(wc)->seq_count, sizeof sb(wc)->seq_count);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	wc->overwrote_committed = false;
+ 
+@@ -761,7 +762,7 @@ static void writecache_flush(struct dm_w
+ 	}
+ 
+ 	if (need_flush_after_free)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static void writecache_flush_work(struct work_struct *work)
+@@ -814,7 +815,7 @@ static void writecache_discard(struct dm
+ 	}
+ 
+ 	if (discarded_something)
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ }
+ 
+ static bool writecache_wait_for_writeback(struct dm_writecache *wc)
+@@ -963,7 +964,7 @@ erase_this:
+ 
+ 	if (need_flush) {
+ 		writecache_flush_all_metadata(wc);
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 	}
+ 
+ 	wc_unlock(wc);
+@@ -1347,7 +1348,7 @@ static void __writecache_endio_pmem(stru
+ 			wc->writeback_size--;
+ 			n_walked++;
+ 			if (unlikely(n_walked >= ENDIO_LATENCY)) {
+-				writecache_commit_flushed(wc);
++				writecache_commit_flushed(wc, false);
+ 				wc_unlock(wc);
+ 				wc_lock(wc);
+ 				n_walked = 0;
+@@ -1428,7 +1429,7 @@ pop_from_list:
+ 			writecache_wait_for_ios(wc, READ);
+ 		}
+ 
+-		writecache_commit_flushed(wc);
++		writecache_commit_flushed(wc, false);
+ 
+ 		wc_unlock(wc);
+ 	}
+@@ -1759,10 +1760,10 @@ static int init_memory(struct dm_writeca
+ 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
+ 
+ 	writecache_flush_all_metadata(wc);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 	pmem_assign(sb(wc)->magic, cpu_to_le32(MEMORY_SUPERBLOCK_MAGIC));
+ 	writecache_flush_region(wc, &sb(wc)->magic, sizeof sb(wc)->magic);
+-	writecache_commit_flushed(wc);
++	writecache_commit_flushed(wc, false);
+ 
+ 	return 0;
+ }
 
 
