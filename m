@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B1B157B73
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72A29157923
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728301AbgBJMgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
+        id S1728435AbgBJNMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:12:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728295AbgBJMgO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:14 -0500
+        id S1729213AbgBJMiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:46 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86C0320838;
-        Mon, 10 Feb 2020 12:36:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 140B520838;
+        Mon, 10 Feb 2020 12:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338173;
-        bh=FyjLd0bfP3udBnbEKiliQ/efII4PRQzuJrrCZukU70Y=;
+        s=default; t=1581338326;
+        bh=kIFTEBfA3dx7yd2p+vy1SVGpsCsAblpfc3uwi/4hlZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8N1l7SJ5IqOAvOKpDaek8M/3efuaonM26GkPBiLt1ezB/KJhp31a762NzBX2zasL
-         gchvI1sAj6Chfo5Z8mQYsBjB8i5e5YN/RuoCeqqj1JYXjOhFHpp5NWb+u3423c0CM2
-         CytDt8gDBy7i8o9DuXvL7Wmc2duyHnGvYIkboc4w=
+        b=TWuXXOHJtOtd4offod/FghRdKRLpqkPIj4s9qrsGTNJdQ6PBeZUd43czLZgpy9fCH
+         aXXCoxr8Cx6W/zXMbLgJ/MaREcsSsPTRR6QNfYy/N29/4c3KMS7kV/CTjoEBBWUR2g
+         QHWlMTERozzjOMdq1NKcahvvzTtiVnD5w8Xiatbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
-        Artemy Kovalyov <artemyko@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 4.19 158/195] IB/core: Fix ODP get user pages flow
-Date:   Mon, 10 Feb 2020 04:33:36 -0800
-Message-Id: <20200210122320.775633184@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Mark Brown <broonie@kernel.org>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Subject: [PATCH 5.4 261/309] regulator: core: Add regulator_is_equal() helper
+Date:   Mon, 10 Feb 2020 04:33:37 -0800
+Message-Id: <20200210122431.731980081@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +48,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yishai Hadas <yishaih@mellanox.com>
+From: Marek Vasut <marex@denx.de>
 
-commit d07de8bd1709a80a282963ad7b2535148678a9e4 upstream.
+commit b059b7e0ec3208ff1e17cff6387d75a9fbab4e02 upstream.
 
-The nr_pages argument of get_user_pages_remote() should always be in terms
-of the system page size, not the MR page size. Use PAGE_SIZE instead of
-umem_odp->page_shift.
+Add regulator_is_equal() helper to compare whether two regulators are
+the same. This is useful for checking whether two separate regulators
+in a driver are actually the same supply.
 
-Fixes: 403cd12e2cf7 ("IB/umem: Add contiguous ODP support")
-Link: https://lore.kernel.org/r/20191222124649.52300-3-leon@kernel.org
-Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Igor Opaniuk <igor.opaniuk@toradex.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Link: https://lore.kernel.org/r/20191220164450.1395038-1-marex@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/umem_odp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/helpers.c        |   14 ++++++++++++++
+ include/linux/regulator/consumer.h |    7 +++++++
+ 2 files changed, 21 insertions(+)
 
---- a/drivers/infiniband/core/umem_odp.c
-+++ b/drivers/infiniband/core/umem_odp.c
-@@ -689,7 +689,7 @@ int ib_umem_odp_map_dma_pages(struct ib_
+--- a/drivers/regulator/helpers.c
++++ b/drivers/regulator/helpers.c
+@@ -13,6 +13,8 @@
+ #include <linux/regulator/driver.h>
+ #include <linux/module.h>
  
- 	while (bcnt > 0) {
- 		const size_t gup_num_pages = min_t(size_t,
--				(bcnt + BIT(page_shift) - 1) >> page_shift,
-+				ALIGN(bcnt, PAGE_SIZE) / PAGE_SIZE,
- 				PAGE_SIZE / sizeof(struct page *));
++#include "internal.h"
++
+ /**
+  * regulator_is_enabled_regmap - standard is_enabled() for regmap users
+  *
+@@ -881,3 +883,15 @@ void regulator_bulk_set_supply_names(str
+ 		consumers[i].supply = supply_names[i];
+ }
+ EXPORT_SYMBOL_GPL(regulator_bulk_set_supply_names);
++
++/**
++ * regulator_is_equal - test whether two regulators are the same
++ *
++ * @reg1: first regulator to operate on
++ * @reg2: second regulator to operate on
++ */
++bool regulator_is_equal(struct regulator *reg1, struct regulator *reg2)
++{
++	return reg1->rdev == reg2->rdev;
++}
++EXPORT_SYMBOL_GPL(regulator_is_equal);
+--- a/include/linux/regulator/consumer.h
++++ b/include/linux/regulator/consumer.h
+@@ -287,6 +287,8 @@ void regulator_bulk_set_supply_names(str
+ 				     const char *const *supply_names,
+ 				     unsigned int num_supplies);
  
- 		down_read(&owning_mm->mmap_sem);
++bool regulator_is_equal(struct regulator *reg1, struct regulator *reg2);
++
+ #else
+ 
+ /*
+@@ -593,6 +595,11 @@ regulator_bulk_set_supply_names(struct r
+ {
+ }
+ 
++static inline bool
++regulator_is_equal(struct regulator *reg1, struct regulator *reg2);
++{
++	return false;
++}
+ #endif
+ 
+ static inline int regulator_set_voltage_triplet(struct regulator *regulator,
 
 
