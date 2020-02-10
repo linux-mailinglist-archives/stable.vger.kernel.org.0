@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73CD8157A1F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07627157A1C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:20:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728838AbgBJMhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
+        id S1729092AbgBJNUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:20:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728834AbgBJMhj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:39 -0500
+        id S1727911AbgBJMhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:40 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B481E20733;
-        Mon, 10 Feb 2020 12:37:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48FA22051A;
+        Mon, 10 Feb 2020 12:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338258;
-        bh=YouNCeNRR7PhMolICMgZpwhNMWiJklpJo7hkHPuiq50=;
+        s=default; t=1581338259;
+        bh=/i6l/U5Vb1wmXbSl/H8EJrzujIaF09aGsl8Hfcv7yBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8EmIGZ2iHd2p7wnB3NphQijW5phu/+t5N5o9PYOBqgC9A056DT87HpFDWYimwcPD
-         hEvfGpRW39AxGzAa7FSbJ/UOf03OaT58HLvWC1NgwN22oKnl3KLdZ5ivlegzT5DToY
-         F3beVvXICRqdMuAuWsNE3/0JMIFyvpWpzPTBEtlM=
+        b=tXZ/9vpvoNtLBQobgmLOzQlieQiGYpu9OfaXMy5NSSimS/U9a0MmqDhzQzwqs6kOP
+         aA5Hm5r4LpNAgzF4adiSCtyN3a7pLlITFYT6c35ryqA87ZCN+XIcvZriY1FqlUL28f
+         u/wivJCQH/wo8IVoADifHsLn0hL6r9LcXVv/G5pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org, Eric Wheeler <dm-devel@lists.ewheeler.net>,
+        Joe Thornber <ejt@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 127/309] dm zoned: support zone sizes smaller than 128MiB
-Date:   Mon, 10 Feb 2020 04:31:23 -0800
-Message-Id: <20200210122418.612720750@linuxfoundation.org>
+Subject: [PATCH 5.4 128/309] dm space map common: fix to ensure new block isnt already in use
+Date:   Mon, 10 Feb 2020 04:31:24 -0800
+Message-Id: <20200210122418.694760922@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -44,117 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+From: Joe Thornber <ejt@redhat.com>
 
-commit b39962950339912978484cdac50069258545d753 upstream.
+commit 4feaef830de7ffdd8352e1fe14ad3bf13c9688f8 upstream.
 
-dm-zoned is observed to log failed kernel assertions and not work
-correctly when operating against a device with a zone size smaller
-than 128MiB (e.g. 32768 bits per 4K block). The reason is that the
-bitmap size per zone is calculated as zero with such a small zone
-size. Fix this problem and also make the code related to zone bitmap
-management be able to handle per zone bitmaps smaller than a single
-block.
+The space-maps track the reference counts for disk blocks allocated by
+both the thin-provisioning and cache targets.  There are variants for
+tracking metadata blocks and data blocks.
 
-A dm-zoned-tools patch is required to properly format dm-zoned devices
-with zone sizes smaller than 128MiB.
+Transactionality is implemented by never touching blocks from the
+previous transaction, so we can rollback in the event of a crash.
 
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+When allocating a new block we need to ensure the block is free (has
+reference count of 0) in both the current and previous transaction.
+Prior to this fix we were doing this by searching for a free block in
+the previous transaction, and relying on a 'begin' counter to track
+where the last allocation in the current transaction was.  This
+'begin' field was not being updated in all code paths (eg, increment
+of a data block reference count due to breaking sharing of a neighbour
+block in the same btree leaf).
+
+This fix keeps the 'begin' field, but now it's just a hint to speed up
+the search.  Instead the current transaction is searched for a free
+block, and then the old transaction is double checked to ensure it's
+free.  Much simpler.
+
+This fixes reports of sm_disk_new_block()'s BUG_ON() triggering when
+DM thin-provisioning's snapshots are heavily used.
+
+Reported-by: Eric Wheeler <dm-devel@lists.ewheeler.net>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Joe Thornber <ejt@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/md/persistent-data/dm-space-map-common.c   |   27 +++++++++++++++++++++
+ drivers/md/persistent-data/dm-space-map-common.h   |    2 +
+ drivers/md/persistent-data/dm-space-map-disk.c     |    6 +++-
+ drivers/md/persistent-data/dm-space-map-metadata.c |    5 +++
+ 4 files changed, 37 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -134,6 +134,7 @@ struct dmz_metadata {
+--- a/drivers/md/persistent-data/dm-space-map-common.c
++++ b/drivers/md/persistent-data/dm-space-map-common.c
+@@ -380,6 +380,33 @@ int sm_ll_find_free_block(struct ll_disk
+ 	return -ENOSPC;
+ }
  
- 	sector_t		zone_bitmap_size;
- 	unsigned int		zone_nr_bitmap_blocks;
-+	unsigned int		zone_bits_per_mblk;
++int sm_ll_find_common_free_block(struct ll_disk *old_ll, struct ll_disk *new_ll,
++	                         dm_block_t begin, dm_block_t end, dm_block_t *b)
++{
++	int r;
++	uint32_t count;
++
++	do {
++		r = sm_ll_find_free_block(new_ll, begin, new_ll->nr_blocks, b);
++		if (r)
++			break;
++
++		/* double check this block wasn't used in the old transaction */
++		if (*b >= old_ll->nr_blocks)
++			count = 0;
++		else {
++			r = sm_ll_lookup(old_ll, *b, &count);
++			if (r)
++				break;
++
++			if (count)
++				begin = *b + 1;
++		}
++	} while (count);
++
++	return r;
++}
++
+ static int sm_ll_mutate(struct ll_disk *ll, dm_block_t b,
+ 			int (*mutator)(void *context, uint32_t old, uint32_t *new),
+ 			void *context, enum allocation_event *ev)
+--- a/drivers/md/persistent-data/dm-space-map-common.h
++++ b/drivers/md/persistent-data/dm-space-map-common.h
+@@ -109,6 +109,8 @@ int sm_ll_lookup_bitmap(struct ll_disk *
+ int sm_ll_lookup(struct ll_disk *ll, dm_block_t b, uint32_t *result);
+ int sm_ll_find_free_block(struct ll_disk *ll, dm_block_t begin,
+ 			  dm_block_t end, dm_block_t *result);
++int sm_ll_find_common_free_block(struct ll_disk *old_ll, struct ll_disk *new_ll,
++	                         dm_block_t begin, dm_block_t end, dm_block_t *result);
+ int sm_ll_insert(struct ll_disk *ll, dm_block_t b, uint32_t ref_count, enum allocation_event *ev);
+ int sm_ll_inc(struct ll_disk *ll, dm_block_t b, enum allocation_event *ev);
+ int sm_ll_dec(struct ll_disk *ll, dm_block_t b, enum allocation_event *ev);
+--- a/drivers/md/persistent-data/dm-space-map-disk.c
++++ b/drivers/md/persistent-data/dm-space-map-disk.c
+@@ -167,8 +167,10 @@ static int sm_disk_new_block(struct dm_s
+ 	enum allocation_event ev;
+ 	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
  
- 	unsigned int		nr_bitmap_blocks;
- 	unsigned int		nr_map_blocks;
-@@ -1167,7 +1168,10 @@ static int dmz_init_zones(struct dmz_met
+-	/* FIXME: we should loop round a couple of times */
+-	r = sm_ll_find_free_block(&smd->old_ll, smd->begin, smd->old_ll.nr_blocks, b);
++	/*
++	 * Any block we allocate has to be free in both the old and current ll.
++	 */
++	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
+ 	if (r)
+ 		return r;
  
- 	/* Init */
- 	zmd->zone_bitmap_size = dev->zone_nr_blocks >> 3;
--	zmd->zone_nr_bitmap_blocks = zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT;
-+	zmd->zone_nr_bitmap_blocks =
-+		max_t(sector_t, 1, zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT);
-+	zmd->zone_bits_per_mblk = min_t(sector_t, dev->zone_nr_blocks,
-+					DMZ_BLOCK_SIZE_BITS);
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -448,7 +448,10 @@ static int sm_metadata_new_block_(struct
+ 	enum allocation_event ev;
+ 	struct sm_metadata *smm = container_of(sm, struct sm_metadata, sm);
  
- 	/* Allocate zone array */
- 	zmd->zones = kcalloc(dev->nr_zones, sizeof(struct dm_zone), GFP_KERNEL);
-@@ -1991,7 +1995,7 @@ int dmz_copy_valid_blocks(struct dmz_met
- 		dmz_release_mblock(zmd, to_mblk);
- 		dmz_release_mblock(zmd, from_mblk);
+-	r = sm_ll_find_free_block(&smm->old_ll, smm->begin, smm->old_ll.nr_blocks, b);
++	/*
++	 * Any block we allocate has to be free in both the old and current ll.
++	 */
++	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
+ 	if (r)
+ 		return r;
  
--		chunk_block += DMZ_BLOCK_SIZE_BITS;
-+		chunk_block += zmd->zone_bits_per_mblk;
- 	}
- 
- 	to_zone->weight = from_zone->weight;
-@@ -2052,7 +2056,7 @@ int dmz_validate_blocks(struct dmz_metad
- 
- 		/* Set bits */
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 
- 		count = dmz_set_bits((unsigned long *)mblk->data, bit, nr_bits);
- 		if (count) {
-@@ -2131,7 +2135,7 @@ int dmz_invalidate_blocks(struct dmz_met
- 
- 		/* Clear bits */
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 
- 		count = dmz_clear_bits((unsigned long *)mblk->data,
- 				       bit, nr_bits);
-@@ -2191,6 +2195,7 @@ static int dmz_to_next_set_block(struct
- {
- 	struct dmz_mblock *mblk;
- 	unsigned int bit, set_bit, nr_bits;
-+	unsigned int zone_bits = zmd->zone_bits_per_mblk;
- 	unsigned long *bitmap;
- 	int n = 0;
- 
-@@ -2205,15 +2210,15 @@ static int dmz_to_next_set_block(struct
- 		/* Get offset */
- 		bitmap = (unsigned long *) mblk->data;
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zone_bits - bit);
- 		if (set)
--			set_bit = find_next_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
-+			set_bit = find_next_bit(bitmap, zone_bits, bit);
- 		else
--			set_bit = find_next_zero_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
-+			set_bit = find_next_zero_bit(bitmap, zone_bits, bit);
- 		dmz_release_mblock(zmd, mblk);
- 
- 		n += set_bit - bit;
--		if (set_bit < DMZ_BLOCK_SIZE_BITS)
-+		if (set_bit < zone_bits)
- 			break;
- 
- 		nr_blocks -= nr_bits;
-@@ -2316,7 +2321,7 @@ static void dmz_get_zone_weight(struct d
- 		/* Count bits in this block */
- 		bitmap = mblk->data;
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 		n += dmz_count_bits(bitmap, bit, nr_bits);
- 
- 		dmz_release_mblock(zmd, mblk);
 
 
