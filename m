@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C15D15756C
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5C815756D
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729849AbgBJMk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42044 "EHLO mail.kernel.org"
+        id S1729851AbgBJMk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbgBJMk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:56 -0500
+        id S1728510AbgBJMk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:57 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE6BF20733;
-        Mon, 10 Feb 2020 12:40:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72AA42080C;
+        Mon, 10 Feb 2020 12:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338456;
-        bh=StvTK6+608Rc+mF19RXGksdZ5Delha5xSdGRrD8cACo=;
+        bh=cUIYCtFWKGJvtPYj/tLz2e0nFzbYARfaNKSPNYKWe4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjjvaEEG+BP6bpaze8T9kfEw7gcf0s+AdV4v/alsI1xOmMvtsvDWd/9Z0Eajt0bVZ
-         nTNWb+J9bbxQ9n44rAMX4TGl73MBahVf3A33n7hlAaewCM3ngfVw9fcy2TiHkM2Hn0
-         L9KIi+yFj7PG63Fas4e5ut+xgzuYegtjPC9iYGUI=
+        b=AET66hlsC7bdqrOJansa4RSmz86qIXgFsseFQpn1pFboVDVTfuKkDefdgRAuVyC/D
+         cvzcDep1eS6V2OCpBz46CVCwE2s5mV6qRmOlLOVJrlOHFEKbk/hy27UMuPAgFZOWNB
+         8qbQ5cquc+C/X7fyn0bUMh6oYNGq8klsUyUkYarI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 166/367] tc-testing: fix eBPF tests failure on linux fresh clones
-Date:   Mon, 10 Feb 2020 04:31:19 -0800
-Message-Id: <20200210122440.202590269@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: [PATCH 5.5 167/367] samples/bpf: Dont try to remove users homedir on clean
+Date:   Mon, 10 Feb 2020 04:31:20 -0800
+Message-Id: <20200210122440.293842798@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,38 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 7145fcfffef1fad4266aaf5ca96727696916edb7 upstream.
+commit b2e5e93ae8af6a34bca536cdc4b453ab1e707b8b upstream.
 
-when the following command is done on a fresh clone of the kernel tree,
+The 'clean' rule in the samples/bpf Makefile tries to remove backup
+files (ending in ~). However, if no such files exist, it will instead try
+to remove the user's home directory. While the attempt is mostly harmless,
+it does lead to a somewhat scary warning like this:
 
- [root@f31 tc-testing]# ./tdc.py -c bpf
+rm: cannot remove '~': Is a directory
 
-test cases that need to build the eBPF sample program fail systematically,
-because 'buildebpfPlugin' is unable to install the kernel headers (i.e, the
-'khdr' target fails). Pass the correct environment to 'make', in place of
-ENVIR, to allow running these tests.
+Fix this by using find instead of shell expansion to locate any actual
+backup files that need to be removed.
 
-Fixes: 4c2d39bd40c1 ("tc-testing: use a plugin to build eBPF program")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b62a796c109c ("samples/bpf: allow make to be run from samples/bpf/ directory")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Link: https://lore.kernel.org/bpf/157952560126.1683545.7273054725976032511.stgit@toke.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/tc-testing/plugin-lib/buildebpfPlugin.py |    2 +-
+ samples/bpf/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/tc-testing/plugin-lib/buildebpfPlugin.py
-+++ b/tools/testing/selftests/tc-testing/plugin-lib/buildebpfPlugin.py
-@@ -54,7 +54,7 @@ class SubPlugin(TdcPlugin):
-             shell=True,
-             stdout=subprocess.PIPE,
-             stderr=subprocess.PIPE,
--            env=ENVIR)
-+            env=os.environ.copy())
-         (rawout, serr) = proc.communicate()
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -251,7 +251,7 @@ all:
  
-         if proc.returncode != 0 and len(serr) > 0:
+ clean:
+ 	$(MAKE) -C ../../ M=$(CURDIR) clean
+-	@rm -f *~
++	@find $(CURDIR) -type f -name '*~' -delete
+ 
+ $(LIBBPF): FORCE
+ # Fix up variables inherited from Kbuild that tools/ build system won't like
 
 
