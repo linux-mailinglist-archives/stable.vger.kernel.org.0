@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 554301577B5
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8252C1579C0
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:17:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729778AbgBJMkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41150 "EHLO mail.kernel.org"
+        id S1729032AbgBJNRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:17:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728154AbgBJMkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:39 -0500
+        id S1728985AbgBJMiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:00 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4AB52173E;
-        Mon, 10 Feb 2020 12:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A14392168B;
+        Mon, 10 Feb 2020 12:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338439;
-        bh=5QD9YOC95JGAUEOA86RzolZ5SR5kMSDUR274K8u+1o4=;
+        s=default; t=1581338279;
+        bh=woM3PMBWwUdJx8WTEP//uCHcppYcOoWpqRR4NxRAsbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNnAzbckLb5K3bCMF5kRSVYhjWUnLT/SfT3VJLlCW4ByOC59BytdQEiN6CJh3uNay
-         bt0e2VhUqQeUG/1oO+cCTyf25pbnGsFyWO0BcnNwIVn61YIORpO8k5periSDLhUs6x
-         GoCxgQz0Ymbycc55+II3KT50NRK0lkjvqYwLBMfU=
+        b=XGHfgOiwiRfsPKLdgWj+I1r+amCQTrJ0ZSE+Um8NuDRdnX3Ovm2pw3jytGYqS7On5
+         setLnQcBNQ/I5xDZyXpS0GbrsnDcVdpYmLMHwEqMb2sZewWISFQMIm4t+6Os2J9bsi
+         iZ1GRYM7qEofOdUZ7/JRegnLOIXAHlpCCzNZDCL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.5 175/367] crypto: amlogic - fix removal of module
-Date:   Mon, 10 Feb 2020 04:31:28 -0800
-Message-Id: <20200210122440.982219829@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Bader <stefan.bader@canonical.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 133/309] dm: fix potential for q->make_request_fn NULL pointer
+Date:   Mon, 10 Feb 2020 04:31:29 -0800
+Message-Id: <20200210122419.135802708@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit 24775ac2fe68132d3e0e7cd3a0521ccb1a5d7243 upstream.
+commit 47ace7e012b9f7ad71d43ac9063d335ea3d6820b upstream.
 
-Removing the driver cause an oops due to the fact we clean an extra
-channel.
-Let's give the right index to the cleaning function.
-Fixes: 48fe583fe541 ("crypto: amlogic - Add crypto accelerator for amlogic GXL")
+Move blk_queue_make_request() to dm.c:alloc_dev() so that
+q->make_request_fn is never NULL during the lifetime of a DM device
+(even one that is created without a DM table).
 
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Otherwise generic_make_request() will crash simply by doing:
+  dmsetup create -n test
+  mount /dev/dm-N /mnt
+
+While at it, move ->congested_data initialization out of
+dm.c:alloc_dev() and into the bio-based specific init method.
+
+Reported-by: Stefan Bader <stefan.bader@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1860231
+Fixes: ff36ab34583a ("dm: remove request-based logic from make_request_fn wrapper")
+Depends-on: c12c9a3c3860c ("dm: various cleanups to md->queue initialization code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/amlogic/amlogic-gxl-core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/amlogic/amlogic-gxl-core.c
-+++ b/drivers/crypto/amlogic/amlogic-gxl-core.c
-@@ -289,7 +289,7 @@ static int meson_crypto_probe(struct pla
- error_alg:
- 	meson_unregister_algs(mc);
- error_flow:
--	meson_free_chanlist(mc, MAXFLOW);
-+	meson_free_chanlist(mc, MAXFLOW - 1);
- 	clk_disable_unprepare(mc->busclk);
- 	return err;
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1880,6 +1880,7 @@ static void dm_init_normal_md_queue(stru
+ 	/*
+ 	 * Initialize aspects of queue that aren't relevant for blk-mq
+ 	 */
++	md->queue->backing_dev_info->congested_data = md;
+ 	md->queue->backing_dev_info->congested_fn = dm_any_congested;
  }
-@@ -304,7 +304,7 @@ static int meson_crypto_remove(struct pl
  
- 	meson_unregister_algs(mc);
+@@ -1970,7 +1971,12 @@ static struct mapped_device *alloc_dev(i
+ 	if (!md->queue)
+ 		goto bad;
+ 	md->queue->queuedata = md;
+-	md->queue->backing_dev_info->congested_data = md;
++	/*
++	 * default to bio-based required ->make_request_fn until DM
++	 * table is loaded and md->type established. If request-based
++	 * table is loaded: blk-mq will override accordingly.
++	 */
++	blk_queue_make_request(md->queue, dm_make_request);
  
--	meson_free_chanlist(mc, MAXFLOW);
-+	meson_free_chanlist(mc, MAXFLOW - 1);
- 
- 	clk_disable_unprepare(mc->busclk);
- 	return 0;
+ 	md->disk = alloc_disk_node(1, md->numa_node_id);
+ 	if (!md->disk)
+@@ -2285,7 +2291,6 @@ int dm_setup_md_queue(struct mapped_devi
+ 	case DM_TYPE_DAX_BIO_BASED:
+ 	case DM_TYPE_NVME_BIO_BASED:
+ 		dm_init_normal_md_queue(md);
+-		blk_queue_make_request(md->queue, dm_make_request);
+ 		break;
+ 	case DM_TYPE_NONE:
+ 		WARN_ON_ONCE(true);
 
 
