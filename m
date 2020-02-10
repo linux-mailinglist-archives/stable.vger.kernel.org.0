@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA8D157840
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:06:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05171157AAD
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729847AbgBJNGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:06:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38534 "EHLO mail.kernel.org"
+        id S1728615AbgBJMhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:37:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729554AbgBJMjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:53 -0500
+        id S1728045AbgBJMhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:03 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C17B208C4;
-        Mon, 10 Feb 2020 12:39:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BBFC20661;
+        Mon, 10 Feb 2020 12:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338392;
-        bh=8u5vfo0W6dwew4wkxSb7nqRjuWXE9FNdYdLLyBEAE/Q=;
+        s=default; t=1581338222;
+        bh=ZgdRohyeoqyTe+zFijsGSWH8xU5n9mO1FJu1F/BIhj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdYmF6REsu87ZdFwirY0MaiYf5Ertsfb6A1aDtLNs/yKoWkZKgl7DuUSK64RAMzBg
-         0dnH0E6Fcw3raSHVSEIuAdPOH3BCBE4iqnKKI3V0P/UxZxf5n/12bD2VtJrLlJo/2J
-         KT3yWGTg93iS/HCJjnpte2G6l/3QqcVmeB/wb4sQ=
+        b=QezNxEL2jc/xs3lXsFYxPdPh/rFZu0xKoUD2ne/VYeVjfIwVN2JXq+xkVYxrcDtfa
+         d8LI+SQnDoXPXkaHTmsFcQv+Q+qFeJJ0hEXiG2Xgc48/JHWKpDfmd2P1844yQAN8OV
+         OlYWiaLSIGJVdlxjTexWxpcFUOOXNhENVUlufYTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.5 084/367] powerpc/ptdump: Fix W+X verification
+        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 041/309] usb: gadget: f_fs: set req->num_sgs as 0 for non-sg transfer
 Date:   Mon, 10 Feb 2020 04:29:57 -0800
-Message-Id: <20200210122432.102362739@linuxfoundation.org>
+Message-Id: <20200210122410.032100371@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Peter Chen <peter.chen@nxp.com>
 
-commit d80ae83f1f932ab7af47b54d0d3bef4f4dba489f upstream.
+commit d2450c6937018d40d4111fe830fa48d4ddceb8d0 upstream.
 
-Verification cannot rely on simple bit checking because on some
-platforms PAGE_RW is 0, checking that a page is not W means
-checking that PAGE_RO is set instead of checking that PAGE_RW
-is not set.
+The UDC core uses req->num_sgs to judge if scatter buffer list is used.
+Eg: usb_gadget_map_request_by_dev. For f_fs sync io mode, the request
+is re-used for each request, so if the 1st request->length > PAGE_SIZE,
+and the 2nd request->length is <= PAGE_SIZE, the f_fs uses the 1st
+req->num_sgs for the 2nd request, it causes the UDC core get the wrong
+req->num_sgs value (The 2nd request doesn't use sg). For f_fs async
+io mode, it is not harm to initialize req->num_sgs as 0 either, in case,
+the UDC driver doesn't zeroed request structure.
 
-Use pte helpers instead of checking bits.
-
-Fixes: 453d87f6a8ae ("powerpc/mm: Warn if W+X pages found on boot")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0d894839fdbb19070f0e1e4140363be4f2bb62fc.1578989540.git.christophe.leroy@c-s.fr
+Cc: Jun Li <jun.li@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather buffers")
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/ptdump/ptdump.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_fs.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -173,10 +173,12 @@ static void dump_addr(struct pg_state *s
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1062,6 +1062,7 @@ static ssize_t ffs_epfile_io(struct file
+ 			req->num_sgs = io_data->sgt.nents;
+ 		} else {
+ 			req->buf = data;
++			req->num_sgs = 0;
+ 		}
+ 		req->length = data_len;
  
- static void note_prot_wx(struct pg_state *st, unsigned long addr)
- {
-+	pte_t pte = __pte(st->current_flags);
-+
- 	if (!IS_ENABLED(CONFIG_PPC_DEBUG_WX) || !st->check_wx)
- 		return;
+@@ -1105,6 +1106,7 @@ static ssize_t ffs_epfile_io(struct file
+ 			req->num_sgs = io_data->sgt.nents;
+ 		} else {
+ 			req->buf = data;
++			req->num_sgs = 0;
+ 		}
+ 		req->length = data_len;
  
--	if (!((st->current_flags & pgprot_val(PAGE_KERNEL_X)) == pgprot_val(PAGE_KERNEL_X)))
-+	if (!pte_write(pte) || !pte_exec(pte))
- 		return;
- 
- 	WARN_ONCE(1, "powerpc/mm: Found insecure W+X mapping at address %p/%pS\n",
 
 
