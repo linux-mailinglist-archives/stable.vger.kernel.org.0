@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B94C1157B1F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2565C1578E8
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728407AbgBJN1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:27:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55906 "EHLO mail.kernel.org"
+        id S1730480AbgBJNLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:11:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728406AbgBJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:32 -0500
+        id S1729304AbgBJMjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:03 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEB5F2085B;
-        Mon, 10 Feb 2020 12:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58E9821739;
+        Mon, 10 Feb 2020 12:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338191;
-        bh=ubRE2SZEaEGCR094AMb1RNGp86l3lXPp5PS9AdISMv4=;
+        s=default; t=1581338343;
+        bh=4mGwWxzEYh40tjmh+lT3PHS0E4bny4D4na8h31TGSHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWZRCfHUsAbfm3id9EeZpaulpRVznxIUIzdhpJIKQPQEJ4yb/co2en2JTy7GFjMqd
-         G1mY4XDiyRp4UjIuwAu7WeYbSsMcCxiHYTiA+avF6KqWgmzWPeDkO14JJVyXltDyfq
-         0cAPbGnQmN4FAu7auIYKqC5E9DoNKSfUugwkHmy4=
+        b=uOXyqoNo4Hyt2iob3HQHMHLOuqBSTRqg1MIm8RyYWaiy0jv9bjdu2Pj4IwIi+eF5O
+         Hb+11q0GpTDCinni/xAa71q4zs9C1aMRzXjYHAKv2KyVSutACasqRDdnxDl5ojPDMq
+         mqlHR8cH/gPze2z2FPXtdSi45siHBNmG4jB/aQvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 194/195] perf/core: Fix mlock accounting in perf_mmap()
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 296/309] KVM: x86: use CPUID to locate host page table reserved bits
 Date:   Mon, 10 Feb 2020 04:34:12 -0800
-Message-Id: <20200210122324.124825345@linuxfoundation.org>
+Message-Id: <20200210122435.244391679@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
-References: <20200210122305.731206734@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 003461559ef7a9bd0239bae35a22ad8924d6e9ad upstream.
+[ Upstream commit 7adacf5eb2d2048045d9fd8fdab861fd9e7e2e96 ]
 
-Decreasing sysctl_perf_event_mlock between two consecutive perf_mmap()s of
-a perf ring buffer may lead to an integer underflow in locked memory
-accounting. This may lead to the undesired behaviors, such as failures in
-BPF map creation.
+The comment in kvm_get_shadow_phys_bits refers to MKTME, but the same is actually
+true of SME and SEV.  Just use CPUID[0x8000_0008].EAX[7:0] unconditionally if
+available, it is simplest and works even if memory is not encrypted.
 
-Address this by adjusting the accounting logic to take into account the
-possibility that the amount of already locked memory may exceed the
-current limit.
-
-Fixes: c4b75479741c ("perf/core: Make the mlock accounting simple again")
-Suggested-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
-Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lkml.kernel.org/r/20200123181146.2238074-1-songliubraving@fb.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5709,7 +5709,15 @@ accounting:
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index 3644ac215567b..d05c10651398f 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -538,16 +538,20 @@ EXPORT_SYMBOL_GPL(kvm_mmu_set_mask_ptes);
+ static u8 kvm_get_shadow_phys_bits(void)
+ {
+ 	/*
+-	 * boot_cpu_data.x86_phys_bits is reduced when MKTME is detected
+-	 * in CPU detection code, but MKTME treats those reduced bits as
+-	 * 'keyID' thus they are not reserved bits. Therefore for MKTME
+-	 * we should still return physical address bits reported by CPUID.
++	 * boot_cpu_data.x86_phys_bits is reduced when MKTME or SME are detected
++	 * in CPU detection code, but the processor treats those reduced bits as
++	 * 'keyID' thus they are not reserved bits. Therefore KVM needs to look at
++	 * the physical address bits reported by CPUID.
  	 */
- 	user_lock_limit *= num_online_cpus();
+-	if (!boot_cpu_has(X86_FEATURE_TME) ||
+-	    WARN_ON_ONCE(boot_cpu_data.extended_cpuid_level < 0x80000008))
+-		return boot_cpu_data.x86_phys_bits;
++	if (likely(boot_cpu_data.extended_cpuid_level >= 0x80000008))
++		return cpuid_eax(0x80000008) & 0xff;
  
--	user_locked = atomic_long_read(&user->locked_vm) + user_extra;
-+	user_locked = atomic_long_read(&user->locked_vm);
-+
+-	return cpuid_eax(0x80000008) & 0xff;
 +	/*
-+	 * sysctl_perf_event_mlock may have changed, so that
-+	 *     user->locked_vm > user_lock_limit
++	 * Quite weird to have VMX or SVM but not MAXPHYADDR; probably a VM with
++	 * custom CPUID.  Proceed with whatever the kernel found since these features
++	 * aren't virtualizable (SME/SEV also require CPUIDs higher than 0x80000008).
 +	 */
-+	if (user_locked > user_lock_limit)
-+		user_locked = user_lock_limit;
-+	user_locked += user_extra;
++	return boot_cpu_data.x86_phys_bits;
+ }
  
- 	if (user_locked > user_lock_limit)
- 		extra = user_locked - user_lock_limit;
+ static void kvm_mmu_reset_all_pte_masks(void)
+-- 
+2.20.1
+
 
 
