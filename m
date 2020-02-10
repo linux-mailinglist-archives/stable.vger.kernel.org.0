@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82813157A01
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:19:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6544F157787
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbgBJNTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:19:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
+        id S1729794AbgBJMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728338AbgBJMhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:45 -0500
+        id S1729414AbgBJMkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:45 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7E6820838;
-        Mon, 10 Feb 2020 12:37:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 924DB24672;
+        Mon, 10 Feb 2020 12:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338265;
-        bh=eTMGfSCQDEQhcUO/BxXhoJsgYKekYZbw0osjgQ0ZV+I=;
+        s=default; t=1581338444;
+        bh=8nb5Kb/aNnx3b2+BuP2kxWHE/LxEWpN7ibvn/DYhSMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DjJ3gy/F1lvt08Es4qYkTJmA21bYloz4qWlRIWEBezyMj0V3D/u8GJrXw9iBhYIbu
-         AtyCaAPXiVLI28E9WUWmFTlFtTTcnrlwQfV0DFvTZV9c7S+kwnsDbg60JOyWV0Oe4e
-         TZya5Zh3+FJO37nrBaSQtEnj+kkB381vj2ukk+sk=
+        b=dGwHW4Fby6rx1cXstj+36BYNsZo5Cc8FU3ty19jmewY+vfRC6zY9OOjoD6JIdaGpe
+         rO1CaruOF3YoJEeozr2Wak+ojDdkNSACYJduN8i6IGvrR+0PAuQ39Un45wdAA1lNpp
+         DqhtP6I2CcDg9X7e6awIaK+1bDkvIhNZ00W6w7h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 142/309] btrfs: fix improper setting of scanned for range cyclic write cache pages
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 185/367] crypto: api - Fix race condition in crypto_spawn_alg
 Date:   Mon, 10 Feb 2020 04:31:38 -0800
-Message-Id: <20200210122419.986841458@linuxfoundation.org>
+Message-Id: <20200210122441.754434395@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 556755a8a99be8ca3cd9fbe36aaf9b3b0339a00d upstream.
+commit 73669cc556462f4e50376538d77ee312142e8a8a upstream.
 
-We noticed that we were having regular CG OOM kills in cases where there
-was still enough dirty pages to avoid OOM'ing.  It turned out there's
-this corner case in btrfs's handling of range_cyclic where files that
-were being redirtied were not getting fully written out because of how
-we do range_cyclic writeback.
+The function crypto_spawn_alg is racy because it drops the lock
+before shooting the dying algorithm.  The algorithm could disappear
+altogether before we shoot it.
 
-We unconditionally were setting scanned = 1; the first time we found any
-pages in the inode.  This isn't actually what we want, we want it to be
-set if we've scanned the entire file.  For range_cyclic we could be
-starting in the middle or towards the end of the file, so we could write
-one page and then not write any of the other dirty pages in the file
-because we set scanned = 1.
+This patch fixes it by moving the shooting into the locked section.
 
-Fix this by not setting scanned = 1 if we find pages.  The rules for
-setting scanned should be
-
-1) !range_cyclic.  In this case we have a specified range to write out.
-2) range_cyclic && index == 0.  In this case we've started at the
-   beginning and there is no need to loop around a second time.
-3) range_cyclic && we started at index > 0 and we've reached the end of
-   the file without satisfying our nr_to_write.
-
-This patch fixes both of our writepages implementations to make sure
-these rules hold true.  This fixed our over zealous CG OOMs in
-production.
-
-Fixes: d1310b2e0cd9 ("Btrfs: Split the extent_map code into two parts")
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add comment ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 6bfd48096ff8 ("[CRYPTO] api: Added spawns")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ crypto/algapi.c   |   16 +++++-----------
+ crypto/api.c      |    3 +--
+ crypto/internal.h |    1 -
+ 3 files changed, 6 insertions(+), 14 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3938,6 +3938,11 @@ int btree_write_cache_pages(struct addre
- 	if (wbc->range_cyclic) {
- 		index = mapping->writeback_index; /* Start from prev offset */
- 		end = -1;
-+		/*
-+		 * Start from the beginning does not need to cycle over the
-+		 * range, mark it as scanned.
-+		 */
-+		scanned = (index == 0);
- 	} else {
- 		index = wbc->range_start >> PAGE_SHIFT;
- 		end = wbc->range_end >> PAGE_SHIFT;
-@@ -3955,7 +3960,6 @@ retry:
- 			tag))) {
- 		unsigned i;
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -697,22 +697,16 @@ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
+ static struct crypto_alg *crypto_spawn_alg(struct crypto_spawn *spawn)
+ {
+ 	struct crypto_alg *alg;
+-	struct crypto_alg *alg2;
  
--		scanned = 1;
- 		for (i = 0; i < nr_pages; i++) {
- 			struct page *page = pvec.pages[i];
+ 	down_read(&crypto_alg_sem);
+ 	alg = spawn->alg;
+-	alg2 = alg;
+-	if (alg2)
+-		alg2 = crypto_mod_get(alg2);
+-	up_read(&crypto_alg_sem);
+-
+-	if (!alg2) {
+-		if (alg)
+-			crypto_shoot_alg(alg);
+-		return ERR_PTR(-EAGAIN);
++	if (alg && !crypto_mod_get(alg)) {
++		alg->cra_flags |= CRYPTO_ALG_DYING;
++		alg = NULL;
+ 	}
++	up_read(&crypto_alg_sem);
  
-@@ -4084,6 +4088,11 @@ static int extent_write_cache_pages(stru
- 	if (wbc->range_cyclic) {
- 		index = mapping->writeback_index; /* Start from prev offset */
- 		end = -1;
-+		/*
-+		 * Start from the beginning does not need to cycle over the
-+		 * range, mark it as scanned.
-+		 */
-+		scanned = (index == 0);
- 	} else {
- 		index = wbc->range_start >> PAGE_SHIFT;
- 		end = wbc->range_end >> PAGE_SHIFT;
-@@ -4117,7 +4126,6 @@ retry:
- 						&index, end, tag))) {
- 		unsigned i;
+-	return alg;
++	return alg ?: ERR_PTR(-EAGAIN);
+ }
  
--		scanned = 1;
- 		for (i = 0; i < nr_pages; i++) {
- 			struct page *page = pvec.pages[i];
+ struct crypto_tfm *crypto_spawn_tfm(struct crypto_spawn *spawn, u32 type,
+--- a/crypto/api.c
++++ b/crypto/api.c
+@@ -346,13 +346,12 @@ static unsigned int crypto_ctxsize(struc
+ 	return len;
+ }
  
+-void crypto_shoot_alg(struct crypto_alg *alg)
++static void crypto_shoot_alg(struct crypto_alg *alg)
+ {
+ 	down_write(&crypto_alg_sem);
+ 	alg->cra_flags |= CRYPTO_ALG_DYING;
+ 	up_write(&crypto_alg_sem);
+ }
+-EXPORT_SYMBOL_GPL(crypto_shoot_alg);
+ 
+ struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
+ 				      u32 mask)
+--- a/crypto/internal.h
++++ b/crypto/internal.h
+@@ -68,7 +68,6 @@ void crypto_alg_tested(const char *name,
+ void crypto_remove_spawns(struct crypto_alg *alg, struct list_head *list,
+ 			  struct crypto_alg *nalg);
+ void crypto_remove_final(struct list_head *list);
+-void crypto_shoot_alg(struct crypto_alg *alg);
+ struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
+ 				      u32 mask);
+ void *crypto_create_tfm(struct crypto_alg *alg,
 
 
