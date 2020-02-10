@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD3C1577C1
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:03:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD46D157A54
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:22:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728983AbgBJMk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:40:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S1729094AbgBJNWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:22:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729726AbgBJMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:26 -0500
+        id S1728756AbgBJMh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:27 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69507208C4;
-        Mon, 10 Feb 2020 12:40:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8932C208C4;
+        Mon, 10 Feb 2020 12:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338425;
-        bh=MUvRHqvw1MXAN46dHPxr0jy1ZJnmDBFMslFrrHlOOlw=;
+        s=default; t=1581338246;
+        bh=4vEfRdlu3oLVPvXQNnaJjWhCEed+ph+icj0JNeghhpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Va8pHE6nbSV5Noz036ubhmTMl6DrIgG8S1ZIe3gttdJVDpKmX4YPAGXltt2PS3ghL
-         ul9nY5xHI7xvBL6Db8rrFvVyS+aXDLJ4LFBgIzohrM6cXChsDaDVYAwDQwgp47GExM
-         Wk4qpLTf55077OCqIPE2Qcv48EJe5xzMIXrUCYLA=
+        b=Yb4Hn90Cm7/FCvnwpjE4xl7kNq9Xtx5foEdUa6DXCtKYLutmuLIhFoSggm45/uJVb
+         EaW4PUyAN4pR0OtfvuYYUyFp4Uh6Ea3tRsRVAUUyOCo1Wiinx9onwz/skPyHsK1mvG
+         lzt7pDlTDsqwTtlEVY3OlOumKo8dafIdOAVB/P1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Bader <stefan.bader@canonical.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.5 147/367] dm: fix potential for q->make_request_fn NULL pointer
-Date:   Mon, 10 Feb 2020 04:31:00 -0800
-Message-Id: <20200210122438.426607372@linuxfoundation.org>
+        stable@vger.kernel.org, Ofir Drang <ofir.drang@arm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 105/309] crypto: ccree - fix FDE descriptor sequence
+Date:   Mon, 10 Feb 2020 04:31:01 -0800
+Message-Id: <20200210122416.399141849@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
+References: <20200210122406.106356946@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Ofir Drang <ofir.drang@arm.com>
 
-commit 47ace7e012b9f7ad71d43ac9063d335ea3d6820b upstream.
+commit 5c83e8ec4d51ac4cc58482ed04297e6882b32a09 upstream.
 
-Move blk_queue_make_request() to dm.c:alloc_dev() so that
-q->make_request_fn is never NULL during the lifetime of a DM device
-(even one that is created without a DM table).
+In FDE mode (xts, essiv and bitlocker) the cryptocell hardware requires
+that the the XEX key will be loaded after Key1.
 
-Otherwise generic_make_request() will crash simply by doing:
-  dmsetup create -n test
-  mount /dev/dm-N /mnt
-
-While at it, move ->congested_data initialization out of
-dm.c:alloc_dev() and into the bio-based specific init method.
-
-Reported-by: Stefan Bader <stefan.bader@canonical.com>
-BugLink: https://bugs.launchpad.net/bugs/1860231
-Fixes: ff36ab34583a ("dm: remove request-based logic from make_request_fn wrapper")
-Depends-on: c12c9a3c3860c ("dm: various cleanups to md->queue initialization code")
+Signed-off-by: Ofir Drang <ofir.drang@arm.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/crypto/ccree/cc_cipher.c |   48 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 45 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1859,6 +1859,7 @@ static void dm_init_normal_md_queue(stru
- 	/*
- 	 * Initialize aspects of queue that aren't relevant for blk-mq
- 	 */
-+	md->queue->backing_dev_info->congested_data = md;
- 	md->queue->backing_dev_info->congested_fn = dm_any_congested;
+--- a/drivers/crypto/ccree/cc_cipher.c
++++ b/drivers/crypto/ccree/cc_cipher.c
+@@ -523,6 +523,7 @@ static void cc_setup_readiv_desc(struct
+ 	}
  }
  
-@@ -1949,7 +1950,12 @@ static struct mapped_device *alloc_dev(i
- 	if (!md->queue)
- 		goto bad;
- 	md->queue->queuedata = md;
--	md->queue->backing_dev_info->congested_data = md;
-+	/*
-+	 * default to bio-based required ->make_request_fn until DM
-+	 * table is loaded and md->type established. If request-based
-+	 * table is loaded: blk-mq will override accordingly.
-+	 */
-+	blk_queue_make_request(md->queue, dm_make_request);
++
+ static void cc_setup_state_desc(struct crypto_tfm *tfm,
+ 				 struct cipher_req_ctx *req_ctx,
+ 				 unsigned int ivsize, unsigned int nbytes,
+@@ -534,8 +535,6 @@ static void cc_setup_state_desc(struct c
+ 	int cipher_mode = ctx_p->cipher_mode;
+ 	int flow_mode = ctx_p->flow_mode;
+ 	int direction = req_ctx->gen_ctx.op_type;
+-	dma_addr_t key_dma_addr = ctx_p->user.key_dma_addr;
+-	unsigned int key_len = ctx_p->keylen;
+ 	dma_addr_t iv_dma_addr = req_ctx->gen_ctx.iv_dma_addr;
+ 	unsigned int du_size = nbytes;
  
- 	md->disk = alloc_disk_node(1, md->numa_node_id);
- 	if (!md->disk)
-@@ -2264,7 +2270,6 @@ int dm_setup_md_queue(struct mapped_devi
- 	case DM_TYPE_DAX_BIO_BASED:
- 	case DM_TYPE_NVME_BIO_BASED:
- 		dm_init_normal_md_queue(md);
--		blk_queue_make_request(md->queue, dm_make_request);
- 		break;
- 	case DM_TYPE_NONE:
- 		WARN_ON_ONCE(true);
+@@ -571,6 +570,47 @@ static void cc_setup_state_desc(struct c
+ 	case DRV_CIPHER_XTS:
+ 	case DRV_CIPHER_ESSIV:
+ 	case DRV_CIPHER_BITLOCKER:
++		break;
++	default:
++		dev_err(dev, "Unsupported cipher mode (%d)\n", cipher_mode);
++	}
++}
++
++
++static void cc_setup_xex_state_desc(struct crypto_tfm *tfm,
++				 struct cipher_req_ctx *req_ctx,
++				 unsigned int ivsize, unsigned int nbytes,
++				 struct cc_hw_desc desc[],
++				 unsigned int *seq_size)
++{
++	struct cc_cipher_ctx *ctx_p = crypto_tfm_ctx(tfm);
++	struct device *dev = drvdata_to_dev(ctx_p->drvdata);
++	int cipher_mode = ctx_p->cipher_mode;
++	int flow_mode = ctx_p->flow_mode;
++	int direction = req_ctx->gen_ctx.op_type;
++	dma_addr_t key_dma_addr = ctx_p->user.key_dma_addr;
++	unsigned int key_len = ctx_p->keylen;
++	dma_addr_t iv_dma_addr = req_ctx->gen_ctx.iv_dma_addr;
++	unsigned int du_size = nbytes;
++
++	struct cc_crypto_alg *cc_alg =
++		container_of(tfm->__crt_alg, struct cc_crypto_alg,
++			     skcipher_alg.base);
++
++	if (cc_alg->data_unit)
++		du_size = cc_alg->data_unit;
++
++	switch (cipher_mode) {
++	case DRV_CIPHER_ECB:
++		break;
++	case DRV_CIPHER_CBC:
++	case DRV_CIPHER_CBC_CTS:
++	case DRV_CIPHER_CTR:
++	case DRV_CIPHER_OFB:
++		break;
++	case DRV_CIPHER_XTS:
++	case DRV_CIPHER_ESSIV:
++	case DRV_CIPHER_BITLOCKER:
+ 		/* load XEX key */
+ 		hw_desc_init(&desc[*seq_size]);
+ 		set_cipher_mode(&desc[*seq_size], cipher_mode);
+@@ -881,12 +921,14 @@ static int cc_cipher_process(struct skci
+ 
+ 	/* STAT_PHASE_2: Create sequence */
+ 
+-	/* Setup IV and XEX key used */
++	/* Setup state (IV)  */
+ 	cc_setup_state_desc(tfm, req_ctx, ivsize, nbytes, desc, &seq_len);
+ 	/* Setup MLLI line, if needed */
+ 	cc_setup_mlli_desc(tfm, req_ctx, dst, src, nbytes, req, desc, &seq_len);
+ 	/* Setup key */
+ 	cc_setup_key_desc(tfm, req_ctx, nbytes, desc, &seq_len);
++	/* Setup state (IV and XEX key)  */
++	cc_setup_xex_state_desc(tfm, req_ctx, ivsize, nbytes, desc, &seq_len);
+ 	/* Data processing */
+ 	cc_setup_flow_desc(tfm, req_ctx, dst, src, nbytes, desc, &seq_len);
+ 	/* Read next IV */
 
 
