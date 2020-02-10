@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 563871579EF
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 631C815778B
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729201AbgBJNTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:19:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
+        id S1729425AbgBJMks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:40:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbgBJMhs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:48 -0500
+        id S1729797AbgBJMkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:47 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0668824686;
-        Mon, 10 Feb 2020 12:37:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B2C620873;
+        Mon, 10 Feb 2020 12:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338267;
-        bh=Rb4+5OZy8/cgfkqgiWf+evdbzazPvvSkiaJPEhlwwHA=;
+        s=default; t=1581338447;
+        bh=1iLSJo26RCT4stMBqRTZAFylN/S4Au55QZXe5a9TujI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tjl4jSQppIE7pUXx+nNbeHPlWa4VkgVKuciUty+WL07G3aEXw3nkdKQ5aOoUW70Hx
-         zXwyd78VTJ8WKxctR1jCQEguY1xiUB1veQ8lvT49mJFdgq2Sx3wNEUS4WWq7eTCuQC
-         2UyCHIMke2NODYogPx4o4foXaef35TD3QvgK0R5g=
+        b=K9HD628270EkpxLCEojoBn9Ev1ibPBqu2PMJqHqjR/CoOUnIsqGHbTbTMSOn1l2dG
+         Y3gJL2lVpIBwLhrmOX5Zhjj5HFC5SHFoBEdf0OIKutuqvonBx+BQvPQcf67kTuHJOE
+         uYq+CoVDLXAo4d+OHQMmtSGCag4LMsdRPkA+kbK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amol Grover <frextrite@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
-Subject: [PATCH 5.4 146/309] bpf, devmap: Pass lockdep expression to RCU lists
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.5 189/367] NFS: Fix memory leaks and corruption in readdir
 Date:   Mon, 10 Feb 2020 04:31:42 -0800
-Message-Id: <20200210122420.363422717@linuxfoundation.org>
+Message-Id: <20200210122442.076982365@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit 485ec2ea9cf556e9c120e07961b7b459d776a115 upstream.
+commit 4b310319c6a8ce708f1033d57145e2aa027a883c upstream.
 
-head is traversed using hlist_for_each_entry_rcu outside an RCU
-read-side critical section but under the protection of dtab->index_lock.
+nfs_readdir_xdr_to_array() must not exit without having initialised
+the array, so that the page cache deletion routines can safely
+call nfs_readdir_clear_array().
+Furthermore, we should ensure that if we exit nfs_readdir_filler()
+with an error, we free up any page contents to prevent a leak
+if we try to fill the page again.
 
-Hence, add corresponding lockdep expression to silence false-positive
-lockdep warnings, and harden RCU lists.
-
-Fixes: 6f9d451ab1a3 ("xdp: Add devmap_hash map type for looking up devices by hashed index")
-Signed-off-by: Amol Grover <frextrite@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/bpf/20200123120437.26506-1-frextrite@gmail.com
+Fixes: 11de3b11e08c ("NFS: Fix a memory leak in nfs_readdir")
+Cc: stable@vger.kernel.org # v2.6.37+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/devmap.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/dir.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -293,7 +293,8 @@ struct bpf_dtab_netdev *__dev_map_hash_l
- 	struct hlist_head *head = dev_map_index_hash(dtab, key);
- 	struct bpf_dtab_netdev *dev;
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -162,6 +162,17 @@ typedef struct {
+ 	bool eof;
+ } nfs_readdir_descriptor_t;
  
--	hlist_for_each_entry_rcu(dev, head, index_hlist)
-+	hlist_for_each_entry_rcu(dev, head, index_hlist,
-+				 lockdep_is_held(&dtab->index_lock))
- 		if (dev->idx == key)
- 			return dev;
++static
++void nfs_readdir_init_array(struct page *page)
++{
++	struct nfs_cache_array *array;
++
++	array = kmap_atomic(page);
++	memset(array, 0, sizeof(struct nfs_cache_array));
++	array->eof_index = -1;
++	kunmap_atomic(array);
++}
++
+ /*
+  * we are freeing strings created by nfs_add_to_readdir_array()
+  */
+@@ -174,6 +185,7 @@ void nfs_readdir_clear_array(struct page
+ 	array = kmap_atomic(page);
+ 	for (i = 0; i < array->size; i++)
+ 		kfree(array->array[i].string.name);
++	array->size = 0;
+ 	kunmap_atomic(array);
+ }
  
+@@ -610,6 +622,8 @@ int nfs_readdir_xdr_to_array(nfs_readdir
+ 	int status = -ENOMEM;
+ 	unsigned int array_size = ARRAY_SIZE(pages);
+ 
++	nfs_readdir_init_array(page);
++
+ 	entry.prev_cookie = 0;
+ 	entry.cookie = desc->last_cookie;
+ 	entry.eof = 0;
+@@ -626,8 +640,6 @@ int nfs_readdir_xdr_to_array(nfs_readdir
+ 	}
+ 
+ 	array = kmap(page);
+-	memset(array, 0, sizeof(struct nfs_cache_array));
+-	array->eof_index = -1;
+ 
+ 	status = nfs_readdir_alloc_pages(pages, array_size);
+ 	if (status < 0)
+@@ -682,6 +694,7 @@ int nfs_readdir_filler(void *data, struc
+ 	unlock_page(page);
+ 	return 0;
+  error:
++	nfs_readdir_clear_array(page);
+ 	unlock_page(page);
+ 	return ret;
+ }
 
 
