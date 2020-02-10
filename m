@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3991157574
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0495157758
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729596AbgBJMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729894AbgBJMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 07:41:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42580 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729885AbgBJMlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729158AbgBJMlG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:41:06 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAF0320661;
-        Mon, 10 Feb 2020 12:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451CD2080C;
+        Mon, 10 Feb 2020 12:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338465;
-        bh=u5iY+zUkAwoQvPV4FOjhEXet1A340J2ouQeqEjKVdEQ=;
+        s=default; t=1581338466;
+        bh=CSrHh6ckbplG7cDGcTH5GkDJu+ynBZmL5i67RFtgq/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOqjpd2DnEWWwEInlM5wXRhqSHyRkB4uEZHZG9itztrMXL9uiumDDdrALGpolCCbp
-         gfZwt71NEHOL9lhM41MepjwsXKjzn1bOF1HvjeBVtNBj9ZZnviFuF8tywreIqXEQ3p
-         klz5XU4UL0rqpry5GMbHS9EYnz4XHS/vi//zmVq4=
+        b=MrMmqqAJn92yI5I6kFOgPKNA306xtSnZvvjp5tY57AR8yemWst35dskEgPLloeSgO
+         dzLopFCMrvYqusyNxyL4nfgsjj2Q9sHEYfq3asm6VGnhnFcQEf0przw+jj1ZfpVKqz
+         BVRwIf+XmM/VQts2Qa4INrMfQKOBAyBu/uwm7gD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.5 226/367] aio: prevent potential eventfd recursion on poll
-Date:   Mon, 10 Feb 2020 04:32:19 -0800
-Message-Id: <20200210122445.299858467@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 227/367] KVM: x86: Refactor picdev_write() to prevent Spectre-v1/L1TF attacks
+Date:   Mon, 10 Feb 2020 04:32:20 -0800
+Message-Id: <20200210122445.362052027@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,70 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Marios Pomonis <pomonis@google.com>
 
-commit 01d7a356872eec22ef34a33a5f9cfa917d145468 upstream.
+commit 14e32321f3606e4b0970200b6e5e47ee6f1e6410 upstream.
 
-If we have nested or circular eventfd wakeups, then we can deadlock if
-we run them inline from our poll waitqueue wakeup handler. It's also
-possible to have very long chains of notifications, to the extent where
-we could risk blowing the stack.
+This fixes a Spectre-v1/L1TF vulnerability in picdev_write().
+It replaces index computations based on the (attacked-controlled) port
+number with constants through a minor refactoring.
 
-Check the eventfd recursion count before calling eventfd_signal(). If
-it's non-zero, then punt the signaling to async context. This is always
-safe, as it takes us out-of-line in terms of stack and locking context.
+Fixes: 85f455f7ddbe ("KVM: Add support for in-kernel PIC emulation")
 
-Cc: stable@vger.kernel.org # 4.19+
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/aio.c |   20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ arch/x86/kvm/i8259.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1610,6 +1610,14 @@ static int aio_fsync(struct fsync_iocb *
- 	return 0;
- }
- 
-+static void aio_poll_put_work(struct work_struct *work)
-+{
-+	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
-+	struct aio_kiocb *iocb = container_of(req, struct aio_kiocb, poll);
-+
-+	iocb_put(iocb);
-+}
-+
- static void aio_poll_complete_work(struct work_struct *work)
- {
- 	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
-@@ -1674,6 +1682,8 @@ static int aio_poll_wake(struct wait_que
- 	list_del_init(&req->wait.entry);
- 
- 	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
-+		struct kioctx *ctx = iocb->ki_ctx;
-+
- 		/*
- 		 * Try to complete the iocb inline if we can. Use
- 		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
-@@ -1683,8 +1693,14 @@ static int aio_poll_wake(struct wait_que
- 		list_del(&iocb->ki_list);
- 		iocb->ki_res.res = mangle_poll(mask);
- 		req->done = true;
--		spin_unlock_irqrestore(&iocb->ki_ctx->ctx_lock, flags);
--		iocb_put(iocb);
-+		if (iocb->ki_eventfd && eventfd_signal_count()) {
-+			iocb = NULL;
-+			INIT_WORK(&req->work, aio_poll_put_work);
-+			schedule_work(&req->work);
-+		}
-+		spin_unlock_irqrestore(&ctx->ctx_lock, flags);
-+		if (iocb)
-+			iocb_put(iocb);
- 	} else {
- 		schedule_work(&req->work);
- 	}
+--- a/arch/x86/kvm/i8259.c
++++ b/arch/x86/kvm/i8259.c
+@@ -460,10 +460,14 @@ static int picdev_write(struct kvm_pic *
+ 	switch (addr) {
+ 	case 0x20:
+ 	case 0x21:
++		pic_lock(s);
++		pic_ioport_write(&s->pics[0], addr, data);
++		pic_unlock(s);
++		break;
+ 	case 0xa0:
+ 	case 0xa1:
+ 		pic_lock(s);
+-		pic_ioport_write(&s->pics[addr >> 7], addr, data);
++		pic_ioport_write(&s->pics[1], addr, data);
+ 		pic_unlock(s);
+ 		break;
+ 	case 0x4d0:
 
 
