@@ -2,166 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B57158307
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 19:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EF115834B
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 20:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727538AbgBJSym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 13:54:42 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:37478 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727477AbgBJSym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 13:54:42 -0500
-Received: by mail-lj1-f196.google.com with SMTP id v17so8522373ljg.4
-        for <stable@vger.kernel.org>; Mon, 10 Feb 2020 10:54:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Ngh4wdnpF1Cx1oQG7VgSpvLbPvkRbaYoX2AHFYUBti0=;
-        b=W9z/jdyEHX20NItRoC07h7Zt8u4FYBOKsgFXbiIEHkRC7rkNfm9xG0pO8sdlZaTsaB
-         VVpzzWqCkxrYqkaUvqkJV3LX20Hhob5HjJHZqlRABPjbb8MXhSL83vFg9Rq93FBgvFID
-         slGHZcEjoCwYiKw+U69sijtcKeqFLJ0fJC88w6BX2UeqBisj0yp86OrK5cApFtAgP3Zl
-         ceBIGfsb6esLHXtFXd1DR6jLP0pJzfOLSTPtYNjDRfiq6JS48IjLNGaMMz42djoj7tWS
-         LIl9ESCIKgNHbH5LxmAI2sWZA5ZQPHhzx7cuZKbPFTx8Wj5GENLE9h6us4SkU8MT6osg
-         LsqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Ngh4wdnpF1Cx1oQG7VgSpvLbPvkRbaYoX2AHFYUBti0=;
-        b=ppBsbSnOJ3Zcz+7z5w2HVMIjr5mlCc0JeJiahBdABr0y37OeV5AzjuVwAHP5ywpHIc
-         dLVfUv2DYr6D8xUra0CmOIxi5zyTsyc9zQeAzLPbuPHI+nmjskXcVBHNqforT/Jvnot1
-         gwSHr6fASW+bQTh6XcOh5TdyQOShxqggWP1fvusavmvTBQf/gsgFW33UeonlB1uq8bkX
-         QKgd7eUF1xoQT25/3DE/rsAUicaIuPtbPMB3gQVavIG8KoQ9+VZck0aiVEhgsRXSe6bi
-         phxtiG459NaSFlb0MsuU1hLleoZ7GuZdXIXaRwCBG17EidwJ0OLO62pLJ0RuhAisTROD
-         01jw==
-X-Gm-Message-State: APjAAAVj7Bo1zZQSHkcbyxvYtSPbkdIUdF10rV2ZpaikYah6wG12GYNw
-        o6PMboZgOARRPO0KBmDu5+T9dUzjWfMnWb0JhkHMRor6b9Y=
-X-Google-Smtp-Source: APXvYqyt2GMPK0khC/g9gLasGmxWoeQvc05qWaltYZ/9S8lxU/dOWvMzIuNCcYpMv/JgJ5PoTmyhXkvER7tvfFG3bNI=
-X-Received: by 2002:a2e:8e70:: with SMTP id t16mr1780333ljk.73.1581360880521;
- Mon, 10 Feb 2020 10:54:40 -0800 (PST)
+        id S1727079AbgBJTJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 14:09:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41702 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727003AbgBJTJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 14:09:18 -0500
+Received: from localhost (unknown [104.132.1.111])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D1902051A;
+        Mon, 10 Feb 2020 19:09:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581361756;
+        bh=kC4ga1DgMVTf4MXoajjis+Bm2loWhLnCJMkSF6r25Fw=;
+        h=Subject:To:From:Date:From;
+        b=FW/CECOQn6eoJV+vYs07DBNwcO5Z6CvzVkgO+TO3i2iydCJ+2WpP+17cYkSLcP1Tn
+         dfzzvMZzAaC6xaMNy692Q0zavH1u3NSOTXnYRtZGcbcipl6ufKzh2M0jk6QCIUUzgC
+         YN3ylefoKF2twsypOf0a1nLlPZfPWc2TdBqZ5p9Y=
+Subject: patch "USB: hub: Fix the broken detection of USB3 device in SMSC hub" added to usb-linus
+To:     hgajjar@de.adit-jv.com, erosca@de.adit-jv.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 10 Feb 2020 11:09:16 -0800
+Message-ID: <1581361756138134@kroah.com>
 MIME-Version: 1.0
-References: <20200210122406.106356946@linuxfoundation.org>
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 11 Feb 2020 00:24:29 +0530
-Message-ID: <CA+G9fYs+M4aw4Q6-3Mcm-8JQct=eWiMEWtOAN0dba2MwQWhyRg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/309] 5.4.19-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 Feb 2020 at 18:09, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.19 release.
-> There are 309 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 12 Feb 2020 12:18:57 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.19-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a note to let you know that I've just added the patch titled
 
-Summary
-------------------------------------------------------------------------
+    USB: hub: Fix the broken detection of USB3 device in SMSC hub
 
-kernel: 5.4.19-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: a28430b8529be97d763450b3af54c3958cf9308c
-git describe: v5.4.18-310-ga28430b8529b
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.18-310-ga28430b8529b
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-No regressions (compared to build v5.4.17-404-gdb4707481a60)
+From 1208f9e1d758c991b0a46a1bd60c616b906bbe27 Mon Sep 17 00:00:00 2001
+From: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Date: Thu, 6 Feb 2020 12:49:23 +0100
+Subject: USB: hub: Fix the broken detection of USB3 device in SMSC hub
+
+Renesas R-Car H3ULCB + Kingfisher Infotainment Board is either not able
+to detect the USB3.0 mass storage devices or is detecting those as
+USB2.0 high speed devices.
+
+The explanation given by Renesas is that, due to a HW issue, the XHCI
+driver does not wake up after going to sleep on connecting a USB3.0
+device.
+
+In order to mitigate that, disable the auto-suspend feature
+specifically for SMSC hubs from hub_probe() function, as a quirk.
+
+Renesas Kingfisher Infotainment Board has two USB3.0 ports (CN2) which
+are connected via USB5534B 4-port SuperSpeed/Hi-Speed, low-power,
+configurable hub controller.
+
+[1] SanDisk USB 3.0 device detected as USB-2.0 before the patch
+ [   74.036390] usb 5-1.1: new high-speed USB device number 4 using xhci-hcd
+ [   74.061598] usb 5-1.1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+ [   74.069976] usb 5-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ [   74.077303] usb 5-1.1: Product: Ultra
+ [   74.080980] usb 5-1.1: Manufacturer: SanDisk
+ [   74.085263] usb 5-1.1: SerialNumber: 4C530001110208116550
+
+[2] SanDisk USB 3.0 device detected as USB-3.0 after the patch
+ [   34.565078] usb 6-1.1: new SuperSpeed Gen 1 USB device number 3 using xhci-hcd
+ [   34.588719] usb 6-1.1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+ [   34.597098] usb 6-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ [   34.604430] usb 6-1.1: Product: Ultra
+ [   34.608110] usb 6-1.1: Manufacturer: SanDisk
+ [   34.612397] usb 6-1.1: SerialNumber: 4C530001110208116550
+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1580989763-32291-1-git-send-email-hgajjar@de.adit-jv.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/hub.c | 15 +++++++++++++++
+ drivers/usb/core/hub.h |  1 +
+ 2 files changed, 16 insertions(+)
+
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 3405b146edc9..de94fa4a4ca7 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -38,7 +38,9 @@
+ #include "otg_whitelist.h"
+ 
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
++#define USB_VENDOR_SMSC				0x0424
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
++#define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
+ 
+ #define USB_TP_TRANSMISSION_DELAY	40	/* ns */
+ #define USB_TP_TRANSMISSION_DELAY_MAX	65535	/* ns */
+@@ -1731,6 +1733,10 @@ static void hub_disconnect(struct usb_interface *intf)
+ 	kfree(hub->buffer);
+ 
+ 	pm_suspend_ignore_children(&intf->dev, false);
++
++	if (hub->quirk_disable_autosuspend)
++		usb_autopm_put_interface(intf);
++
+ 	kref_put(&hub->kref, hub_release);
+ }
+ 
+@@ -1863,6 +1869,11 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
+ 		hub->quirk_check_port_auto_suspend = 1;
+ 
++	if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
++		hub->quirk_disable_autosuspend = 1;
++		usb_autopm_get_interface(intf);
++	}
++
+ 	if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
+ 		return 0;
+ 
+@@ -5599,6 +5610,10 @@ static void hub_event(struct work_struct *work)
+ }
+ 
+ static const struct usb_device_id hub_id_table[] = {
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
++      .idVendor = USB_VENDOR_SMSC,
++      .bInterfaceClass = USB_CLASS_HUB,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+ 			| USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+diff --git a/drivers/usb/core/hub.h b/drivers/usb/core/hub.h
+index a9e24e4b8df1..a97dd1ba964e 100644
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -61,6 +61,7 @@ struct usb_hub {
+ 	unsigned		quiescing:1;
+ 	unsigned		disconnected:1;
+ 	unsigned		in_reset:1;
++	unsigned		quirk_disable_autosuspend:1;
+ 
+ 	unsigned		quirk_check_port_auto_suspend:1;
+ 
+-- 
+2.25.0
 
 
-No fixes (compared to build v5.4.17-404-gdb4707481a60)
-
-Ran 21744 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-math-tests
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* perf
-* kvm-unit-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
