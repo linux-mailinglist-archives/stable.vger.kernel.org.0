@@ -2,134 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B173156F74
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 07:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B155156FBD
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 08:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbgBJG1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 01:27:12 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:56015 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726118AbgBJG1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 01:27:12 -0500
-Received: by mail-wm1-f65.google.com with SMTP id q9so8456365wmj.5
-        for <stable@vger.kernel.org>; Sun, 09 Feb 2020 22:27:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uRBUJjJSrIUJDTrQyBGkSN0RI0bgKP1dWI+1FVHML2Q=;
-        b=S3jDgtKEg6xg30wCuDrQT2ufJihyEH9Inq8unbmQ91oi+tLZ4/dheJLR0QOkdRFL/w
-         6G3QfHqO0v26Hsvkc4ytFxeuIUTqicxyAbFsHK83mcpCjXVcWXUxxfpT1smi9OkAgKL/
-         xMGXEyEgVLN3MPVK378LQOYlnV++SStlzr4/5OKc0Pxl8s6G3lzKDyhdyqnnvFEGedV1
-         7QcwDVWwEiLyT/qjHGOdgysMrdnWbjw3K0xQzsWY5IyYHFVKHGJBFL0GHvvgF/L4vc8i
-         WbSyP/OczVXRPGrjQWpGmS5Ug68rSB1e7dme6gfKzdYJqKVLfsmjRtTBFB8SRvryaXGm
-         iydA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uRBUJjJSrIUJDTrQyBGkSN0RI0bgKP1dWI+1FVHML2Q=;
-        b=eb8cdx9bovMOJuxfLjdDKOEC22KiZdZw082Af5d+uaG5+lmUW5vdaNTBjUy1iCT+kw
-         L8NtRUuOuTrlsk6mqrdv152IvcOQdbRQK0ihJ9i71remq9tBhNTVSqBG+4dmJwXdhVhJ
-         hIIupXEbibUyTFDjWAnhyDmb+Em5ExdiqnbXYjWReOXYzvNJH+xqqCqob9Vfh9cPGLk3
-         9ZlPT/cojyFvtHw6Kb5gL+lIE3+/RQ2QlF54ckpjtB47s1EBSEyC5QGhIet+dsc/MlCX
-         NI3nmzPl01RzKpyFuZZE+ocG2v6Z4ywfXkRe2L7PUmiwqfDw6VctZRCABTTTSydPIWEZ
-         vbPw==
-X-Gm-Message-State: APjAAAXHB+Qr20d8R7cHLR71PKLR9zv2aHCgrgBzsNDpfQwS9jwETGJ0
-        HE8VxDR3cLaoY7vLXTB/wdW/rT1u5K4=
-X-Google-Smtp-Source: APXvYqxu1aL86anX9TpkUrDGRoGphWqjPoFjeOwvKKIfTqVnK08euk9NwfLVMRF9MjPbgaWecltsmA==
-X-Received: by 2002:a1c:dfd6:: with SMTP id w205mr13797707wmg.151.1581316030644;
-        Sun, 09 Feb 2020 22:27:10 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c9sm14034946wmc.47.2020.02.09.22.27.10
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Feb 2020 22:27:10 -0800 (PST)
-Message-ID: <5e40f7be.1c69fb81.58d87.bcec@mx.google.com>
-Date:   Sun, 09 Feb 2020 22:27:10 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726231AbgBJHCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 02:02:21 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:10605 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726061AbgBJHCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 02:02:21 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 950C45A910F7BD655A9D;
+        Mon, 10 Feb 2020 15:02:14 +0800 (CST)
+Received: from szvp000203569.huawei.com (10.120.216.130) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.439.0; Mon, 10 Feb 2020 15:02:04 +0800
+From:   Chao Yu <yuchao0@huawei.com>
+To:     <jaegeuk@kernel.org>
+CC:     <linux-f2fs-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>, <chao@kernel.org>,
+        Chao Yu <yuchao0@huawei.com>, <stable@vger.kernel.org>
+Subject: [PATCH] f2fs: fix to add swap extent correctly
+Date:   Mon, 10 Feb 2020 15:01:08 +0800
+Message-ID: <20200210070108.8963-1-yuchao0@huawei.com>
+X-Mailer: git-send-email 2.18.0.rc1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.102-195-g27aadf011414
-Subject: stable-rc/linux-4.19.y boot: 57 boots: 2 failed,
- 53 passed with 2 offline (v4.19.102-195-g27aadf011414)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-Originating-IP: [10.120.216.130]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 57 boots: 2 failed, 53 passed with 2 offline (=
-v4.19.102-195-g27aadf011414)
+As Youling reported in mailing list:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.102-195-g27aadf011414/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.102-195-g27aadf011414/
+https://www.linuxquestions.org/questions/linux-newbie-8/the-file-system-f2fs-is-broken-4175666043/
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.102-195-g27aadf011414
-Git Commit: 27aadf01141497774aece9bde2d44ff437f6fbb5
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 15 SoC families, 11 builds out of 136
+https://www.linux.org/threads/the-file-system-f2fs-is-broken.26490/
 
-Boot Regressions Detected:
+There is a test case can corrupt f2fs image:
+- dd if=/dev/zero of=/swapfile bs=1M count=4096
+- chmod 600 /swapfile
+- mkswap /swapfile
+- swapon --discard /swapfile
 
-arm:
+The root cause is f2fs_swap_activate() intends to return zero value
+to setup_swap_extents() to enable SWP_FS mode (swap file goes through
+fs), in this flow, setup_swap_extents() setups swap extent with wrong
+block address range, result in discard_swap() erasing incorrect address.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.1=
-01 - first fail: v4.19.102-96-g0632821fe218)
+Because f2fs_swap_activate() has pinned swapfile, its data block
+address will not change, it's safe to let swap to handle IO through
+raw device, so we can get rid of SWAP_FS mode and initial swap extents
+inside f2fs_swap_activate(), by this way, later discard_swap() can trim
+in right address range.
 
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v4.19.102-102-g=
-77b07d6abbd2)
-
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: new failure (last pass: v4.19.102-102-g77b07d6a=
-bbd2)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
+Fixes: 4969c06a0d83 ("f2fs: support swap file w/ DIO")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ fs/f2fs/data.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
+
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 98c946dfee13..b56437d4973d 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -3627,7 +3627,8 @@ int f2fs_migrate_page(struct address_space *mapping,
+ 
+ #ifdef CONFIG_SWAP
+ /* Copied from generic_swapfile_activate() to check any holes */
+-static int check_swap_activate(struct file *swap_file, unsigned int max)
++static int check_swap_activate(struct swap_info_struct *sis,
++				struct file *swap_file, sector_t *span)
+ {
+ 	struct address_space *mapping = swap_file->f_mapping;
+ 	struct inode *inode = mapping->host;
+@@ -3638,6 +3639,8 @@ static int check_swap_activate(struct file *swap_file, unsigned int max)
+ 	sector_t last_block;
+ 	sector_t lowest_block = -1;
+ 	sector_t highest_block = 0;
++	int nr_extents = 0;
++	int ret;
+ 
+ 	blkbits = inode->i_blkbits;
+ 	blocks_per_page = PAGE_SIZE >> blkbits;
+@@ -3649,7 +3652,8 @@ static int check_swap_activate(struct file *swap_file, unsigned int max)
+ 	probe_block = 0;
+ 	page_no = 0;
+ 	last_block = i_size_read(inode) >> blkbits;
+-	while ((probe_block + blocks_per_page) <= last_block && page_no < max) {
++	while ((probe_block + blocks_per_page) <= last_block &&
++			page_no < sis->max) {
+ 		unsigned block_in_page;
+ 		sector_t first_block;
+ 
+@@ -3689,13 +3693,27 @@ static int check_swap_activate(struct file *swap_file, unsigned int max)
+ 				highest_block = first_block;
+ 		}
+ 
++		/*
++		 * We found a PAGE_SIZE-length, PAGE_SIZE-aligned run of blocks
++		 */
++		ret = add_swap_extent(sis, page_no, 1, first_block);
++		if (ret < 0)
++			goto out;
++		nr_extents += ret;
+ 		page_no++;
+ 		probe_block += blocks_per_page;
+ reprobe:
+ 		continue;
+ 	}
+-	return 0;
+-
++	ret = nr_extents;
++	*span = 1 + highest_block - lowest_block;
++	if (page_no == 0)
++		page_no = 1;	/* force Empty message */
++	sis->max = page_no;
++	sis->pages = page_no - 1;
++	sis->highest_bit = page_no - 1;
++out:
++	return ret;
+ bad_bmap:
+ 	pr_err("swapon: swapfile has holes\n");
+ 	return -EINVAL;
+@@ -3720,14 +3738,14 @@ static int f2fs_swap_activate(struct swap_info_struct *sis, struct file *file,
+ 	if (f2fs_disable_compressed_file(inode))
+ 		return -EINVAL;
+ 
+-	ret = check_swap_activate(file, sis->max);
+-	if (ret)
++	ret = check_swap_activate(sis, file, span);
++	if (ret < 0)
+ 		return ret;
+ 
+ 	set_inode_flag(inode, FI_PIN_FILE);
+ 	f2fs_precache_extents(inode);
+ 	f2fs_update_time(F2FS_I_SB(inode), REQ_TIME);
+-	return 0;
++	return ret;
+ }
+ 
+ static void f2fs_swap_deactivate(struct file *file)
+-- 
+2.18.0.rc1
+
