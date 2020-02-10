@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F937157789
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC7F157788
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbgBJMkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729800AbgBJMkr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 07:40:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729792AbgBJMkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:40:46 -0500
+        id S1729255AbgBJMkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:40:47 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9846224681;
-        Mon, 10 Feb 2020 12:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A4DB2468C;
+        Mon, 10 Feb 2020 12:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338445;
-        bh=dbT2HJ03wcRgkccWrDwHhvTc/3UAs06v8MHzqQvBWis=;
+        s=default; t=1581338446;
+        bh=YuC1EuvkqP1crUOeP+W/sOrbmT6vDH2ontQwxi980VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/kdbbCV4K8oWxxIAbLpOckkqPN1wbNLVX0XcWVhl1egPfguFFdbRd4OuCTpJiWTE
-         VdTjMiSS8OLw4FB4Aj7TNAKx/pfpr24J8i1NPQfKv80W9i1c76iLMd8SSxwWmR/ogx
-         9BZy9p7zJ5bSZOx5fLDZrRDmqQisn1Z/1MlCIDcY=
+        b=gSnFJjZLB0E3W7VbA8Ek8O1eX31jo7tqgOONjFQT/ei2YKtcvMirrl92Y0hjsqRcd
+         b1F1trPqbeIYNX2nR7qy8ykZXR8ao0Gu5A/IqPgiCYOCgibvsMDxQgSmZE8IuOp8Jh
+         qDzra3FuXdzdvZ6CU5927LYZdvEQGK7k+yCz08jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e808452bad7c375cbee6@syzkaller-ppc64.appspotmail.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: [PATCH 5.5 187/367] powerpc/futex: Fix incorrect user access blocking
-Date:   Mon, 10 Feb 2020 04:31:40 -0800
-Message-Id: <20200210122441.913360082@linuxfoundation.org>
+        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.5 188/367] scsi: qla2xxx: Fix unbound NVME response length
+Date:   Mon, 10 Feb 2020 04:31:41 -0800
+Message-Id: <20200210122441.989530082@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,105 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 9dc086f1e9ef39dd823bd27954b884b2062f9e70 upstream.
+commit 00fe717ee1ea3c2979db4f94b1533c57aed8dea9 upstream.
 
-The early versions of our kernel user access prevention (KUAP) were
-written by Russell and Christophe, and didn't have separate
-read/write access.
+On certain cases when response length is less than 32, NVME response data
+is supplied inline in IOCB. This is indicated by some combination of state
+flags. There was an instance when a high, and incorrect, response length
+was indicated causing driver to overrun buffers. Fix this by checking and
+limiting the response payload length.
 
-At some point I picked up the series and added the read/write access,
-but I failed to update the usages in futex.h to correctly allow read
-and write.
-
-However we didn't notice because of another bug which was causing the
-low-level code to always enable read and write. That bug was fixed
-recently in commit 1d8f739b07bd ("powerpc/kuap: Fix set direction in
-allow/prevent_user_access()").
-
-futex_atomic_cmpxchg_inatomic() is passed the user address as %3 and
-does:
-
-  1:     lwarx   %1,  0, %3
-         cmpw    0,  %1, %4
-         bne-    3f
-  2:     stwcx.  %5,  0, %3
-
-Which clearly loads and stores from/to %3. The logic in
-arch_futex_atomic_op_inuser() is similar, so fix both of them to use
-allow_read_write_user().
-
-Without this fix, and with PPC_KUAP_DEBUG=y, we see eg:
-
-  Bug: Read fault blocked by AMR!
-  WARNING: CPU: 94 PID: 149215 at arch/powerpc/include/asm/book3s/64/kup-radix.h:126 __do_page_fault+0x600/0xf30
-  CPU: 94 PID: 149215 Comm: futex_requeue_p Tainted: G        W         5.5.0-rc7-gcc9x-g4c25df5640ae #1
-  ...
-  NIP [c000000000070680] __do_page_fault+0x600/0xf30
-  LR [c00000000007067c] __do_page_fault+0x5fc/0xf30
-  Call Trace:
-  [c00020138e5637e0] [c00000000007067c] __do_page_fault+0x5fc/0xf30 (unreliable)
-  [c00020138e5638c0] [c00000000000ada8] handle_page_fault+0x10/0x30
-  --- interrupt: 301 at cmpxchg_futex_value_locked+0x68/0xd0
-      LR = futex_lock_pi_atomic+0xe0/0x1f0
-  [c00020138e563bc0] [c000000000217b50] futex_lock_pi_atomic+0x80/0x1f0 (unreliable)
-  [c00020138e563c30] [c00000000021b668] futex_requeue+0x438/0xb60
-  [c00020138e563d60] [c00000000021c6cc] do_futex+0x1ec/0x2b0
-  [c00020138e563d90] [c00000000021c8b8] sys_futex+0x128/0x200
-  [c00020138e563e20] [c00000000000b7ac] system_call+0x5c/0x68
-
-Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
-Cc: stable@vger.kernel.org # v5.2+
-Reported-by: syzbot+e808452bad7c375cbee6@syzkaller-ppc64.appspotmail.com
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Link: https://lore.kernel.org/r/20200207122145.11928-1-mpe@ellerman.id.au
+Fixes: 7401bc18d1ee3 ("scsi: qla2xxx: Add FC-NVMe command handling")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200124045014.23554-1-hmadhani@marvell.com
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/futex.h |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_dbg.c |    6 ------
+ drivers/scsi/qla2xxx/qla_dbg.h |    6 ++++++
+ drivers/scsi/qla2xxx/qla_isr.c |   12 ++++++++++++
+ 3 files changed, 18 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/include/asm/futex.h
-+++ b/arch/powerpc/include/asm/futex.h
-@@ -35,7 +35,7 @@ static inline int arch_futex_atomic_op_i
- {
- 	int oldval = 0, ret;
+--- a/drivers/scsi/qla2xxx/qla_dbg.c
++++ b/drivers/scsi/qla2xxx/qla_dbg.c
+@@ -2519,12 +2519,6 @@ qla83xx_fw_dump_failed:
+ /*                         Driver Debug Functions.                          */
+ /****************************************************************************/
  
--	allow_write_to_user(uaddr, sizeof(*uaddr));
-+	allow_read_write_user(uaddr, uaddr, sizeof(*uaddr));
- 	pagefault_disable();
- 
- 	switch (op) {
-@@ -62,7 +62,7 @@ static inline int arch_futex_atomic_op_i
- 
- 	*oval = oldval;
- 
--	prevent_write_to_user(uaddr, sizeof(*uaddr));
-+	prevent_read_write_user(uaddr, uaddr, sizeof(*uaddr));
- 	return ret;
- }
- 
-@@ -76,7 +76,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
- 	if (!access_ok(uaddr, sizeof(u32)))
- 		return -EFAULT;
- 
--	allow_write_to_user(uaddr, sizeof(*uaddr));
-+	allow_read_write_user(uaddr, uaddr, sizeof(*uaddr));
+-static inline int
+-ql_mask_match(uint level)
+-{
+-	return (level & ql2xextended_error_logging) == level;
+-}
+-
+ /*
+  * This function is for formatting and logging debug information.
+  * It is to be used when vha is available. It formats the message
+--- a/drivers/scsi/qla2xxx/qla_dbg.h
++++ b/drivers/scsi/qla2xxx/qla_dbg.h
+@@ -374,3 +374,9 @@ extern int qla24xx_dump_ram(struct qla_h
+ extern void qla24xx_pause_risc(struct device_reg_24xx __iomem *,
+ 	struct qla_hw_data *);
+ extern int qla24xx_soft_reset(struct qla_hw_data *);
 +
-         __asm__ __volatile__ (
-         PPC_ATOMIC_ENTRY_BARRIER
- "1:     lwarx   %1,0,%3         # futex_atomic_cmpxchg_inatomic\n\
-@@ -97,7 +98,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
-         : "cc", "memory");
- 
- 	*uval = prev;
--	prevent_write_to_user(uaddr, sizeof(*uaddr));
-+	prevent_read_write_user(uaddr, uaddr, sizeof(*uaddr));
-+
-         return ret;
- }
- 
++static inline int
++ql_mask_match(uint level)
++{
++	return (level & ql2xextended_error_logging) == level;
++}
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -1918,6 +1918,18 @@ static void qla24xx_nvme_iocb_entry(scsi
+ 		inbuf = (uint32_t *)&sts->nvme_ersp_data;
+ 		outbuf = (uint32_t *)fd->rspaddr;
+ 		iocb->u.nvme.rsp_pyld_len = le16_to_cpu(sts->nvme_rsp_pyld_len);
++		if (unlikely(iocb->u.nvme.rsp_pyld_len >
++		    sizeof(struct nvme_fc_ersp_iu))) {
++			if (ql_mask_match(ql_dbg_io)) {
++				WARN_ONCE(1, "Unexpected response payload length %u.\n",
++				    iocb->u.nvme.rsp_pyld_len);
++				ql_log(ql_log_warn, fcport->vha, 0x5100,
++				    "Unexpected response payload length %u.\n",
++				    iocb->u.nvme.rsp_pyld_len);
++			}
++			iocb->u.nvme.rsp_pyld_len =
++			    sizeof(struct nvme_fc_ersp_iu);
++		}
+ 		iter = iocb->u.nvme.rsp_pyld_len >> 2;
+ 		for (; iter; iter--)
+ 			*outbuf++ = swab32(*inbuf++);
 
 
