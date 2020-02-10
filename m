@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BED191574E7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE3A1574E8
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728528AbgBJMgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728532AbgBJMgt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 Feb 2020 07:36:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56976 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728168AbgBJMgs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727927AbgBJMgs (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:36:48 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30AD320661;
+        by mail.kernel.org (Postfix) with ESMTPSA id AFA8320838;
         Mon, 10 Feb 2020 12:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338207;
-        bh=ywE+2FJ+PAiUzazmZl6NKJX4wW8Rj4CDmFjwrtQ+9mE=;
+        bh=rCb0NwyL1p9Uocevjv00ZUTfYRghQggB8rhVLSmFtjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5gSFNMir9zKQ/0d+rjwudqpGdoD2dKjcgJjDKi8/yzLRBFzPXTksbT1Ar4g1WJkw
-         PMFZw62860ZHrla7IkmdladUptl9DjBQpcERqpcDVnEhy51zGUDE75XQ0XWKGcT+5R
-         m4bkSv0B4K0Um0kf+YXJqM2HqPv2MsbufVQA57ZQ=
+        b=iDVsoUO9iw0/ewpzZv+UJSdz4yMpqegT8ack5X81PjP0cfH5xKKVr+bMAkMXiyDKs
+         C+jMi04TOzyu+ZO9BS4mZqiKdgwzvlaRZStborNB5A3Ux9eNEhCydfD305BD9vB83x
+         m9OSdPiINkYiR/B9zOwTgjR9ltdzHqM14CPW5JmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+134336b86f728d6e55a0@syzkaller.appspotmail.com,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Marco Elver <elver@google.com>
-Subject: [PATCH 5.4 028/309] rcu: Use *_ONCE() to protect lockless ->expmask accesses
-Date:   Mon, 10 Feb 2020 04:29:44 -0800
-Message-Id: <20200210122408.714844035@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.4 029/309] rcu: Avoid data-race in rcu_gp_fqs_check_wake()
+Date:   Mon, 10 Feb 2020 04:29:45 -0800
+Message-Id: <20200210122408.832816354@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -45,106 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 15c7c972cd26d89a26788e609c53b5a465324a6c upstream.
+commit 6935c3983b246d5fbfebd3b891c825e65c118f2d upstream.
 
-The rcu_node structure's ->expmask field is accessed locklessly when
-starting a new expedited grace period and when reporting an expedited
-RCU CPU stall warning.  This commit therefore handles the former by
-taking a snapshot of ->expmask while the lock is held and the latter
-by applying READ_ONCE() to lockless reads and WRITE_ONCE() to the
-corresponding updates.
+The rcu_gp_fqs_check_wake() function uses rcu_preempt_blocked_readers_cgp()
+to read ->gp_tasks while other cpus might overwrite this field.
 
-Link: https://lore.kernel.org/lkml/CANpmjNNmSOagbTpffHr4=Yedckx9Rm2NuGqC9UqE+AOz5f1-ZQ@mail.gmail.com
-Reported-by: syzbot+134336b86f728d6e55a0@syzkaller.appspotmail.com
+We need READ_ONCE()/WRITE_ONCE() pairs to avoid compiler
+tricks and KCSAN splats like the following :
+
+BUG: KCSAN: data-race in rcu_gp_fqs_check_wake / rcu_preempt_deferred_qs_irqrestore
+
+write to 0xffffffff85a7f190 of 8 bytes by task 7317 on cpu 0:
+ rcu_preempt_deferred_qs_irqrestore+0x43d/0x580 kernel/rcu/tree_plugin.h:507
+ rcu_read_unlock_special+0xec/0x370 kernel/rcu/tree_plugin.h:659
+ __rcu_read_unlock+0xcf/0xe0 kernel/rcu/tree_plugin.h:394
+ rcu_read_unlock include/linux/rcupdate.h:645 [inline]
+ __ip_queue_xmit+0x3b0/0xa40 net/ipv4/ip_output.c:533
+ ip_queue_xmit+0x45/0x60 include/net/ip.h:236
+ __tcp_transmit_skb+0xdeb/0x1cd0 net/ipv4/tcp_output.c:1158
+ __tcp_send_ack+0x246/0x300 net/ipv4/tcp_output.c:3685
+ tcp_send_ack+0x34/0x40 net/ipv4/tcp_output.c:3691
+ tcp_cleanup_rbuf+0x130/0x360 net/ipv4/tcp.c:1575
+ tcp_recvmsg+0x633/0x1a30 net/ipv4/tcp.c:2179
+ inet_recvmsg+0xbb/0x250 net/ipv4/af_inet.c:838
+ sock_recvmsg_nosec net/socket.c:871 [inline]
+ sock_recvmsg net/socket.c:889 [inline]
+ sock_recvmsg+0x92/0xb0 net/socket.c:885
+ sock_read_iter+0x15f/0x1e0 net/socket.c:967
+ call_read_iter include/linux/fs.h:1864 [inline]
+ new_sync_read+0x389/0x4f0 fs/read_write.c:414
+
+read to 0xffffffff85a7f190 of 8 bytes by task 10 on cpu 1:
+ rcu_gp_fqs_check_wake kernel/rcu/tree.c:1556 [inline]
+ rcu_gp_fqs_check_wake+0x93/0xd0 kernel/rcu/tree.c:1546
+ rcu_gp_fqs_loop+0x36c/0x580 kernel/rcu/tree.c:1611
+ rcu_gp_kthread+0x143/0x220 kernel/rcu/tree.c:1768
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 10 Comm: rcu_preempt Not tainted 5.3.0+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+[ paulmck:  Added another READ_ONCE() for RCU CPU stall warnings. ]
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Acked-by: Marco Elver <elver@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/rcu/tree_exp.h |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ kernel/rcu/tree_plugin.h |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -134,7 +134,7 @@ static void __maybe_unused sync_exp_rese
- 	rcu_for_each_node_breadth_first(rnp) {
- 		raw_spin_lock_irqsave_rcu_node(rnp, flags);
- 		WARN_ON_ONCE(rnp->expmask);
--		rnp->expmask = rnp->expmaskinit;
-+		WRITE_ONCE(rnp->expmask, rnp->expmaskinit);
- 		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -220,7 +220,7 @@ static void rcu_preempt_ctxt_queue(struc
+ 	 * blocked tasks.
+ 	 */
+ 	if (!rnp->gp_tasks && (blkd_state & RCU_GP_BLKD)) {
+-		rnp->gp_tasks = &t->rcu_node_entry;
++		WRITE_ONCE(rnp->gp_tasks, &t->rcu_node_entry);
+ 		WARN_ON_ONCE(rnp->completedqs == rnp->gp_seq);
  	}
- }
-@@ -211,7 +211,7 @@ static void __rcu_report_exp_rnp(struct
- 		rnp = rnp->parent;
- 		raw_spin_lock_rcu_node(rnp); /* irqs already disabled */
- 		WARN_ON_ONCE(!(rnp->expmask & mask));
--		rnp->expmask &= ~mask;
-+		WRITE_ONCE(rnp->expmask, rnp->expmask & ~mask);
- 	}
- }
- 
-@@ -241,7 +241,7 @@ static void rcu_report_exp_cpu_mult(stru
- 		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 		return;
- 	}
--	rnp->expmask &= ~mask;
-+	WRITE_ONCE(rnp->expmask, rnp->expmask & ~mask);
- 	__rcu_report_exp_rnp(rnp, wake, flags); /* Releases rnp->lock. */
+ 	if (!rnp->exp_tasks && (blkd_state & RCU_EXP_BLKD))
+@@ -340,7 +340,7 @@ EXPORT_SYMBOL_GPL(rcu_note_context_switc
+  */
+ static int rcu_preempt_blocked_readers_cgp(struct rcu_node *rnp)
+ {
+-	return rnp->gp_tasks != NULL;
++	return READ_ONCE(rnp->gp_tasks) != NULL;
  }
  
-@@ -372,12 +372,10 @@ static void sync_rcu_exp_select_node_cpu
- 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 
- 	/* IPI the remaining CPUs for expedited quiescent state. */
--	for_each_leaf_node_cpu_mask(rnp, cpu, rnp->expmask) {
-+	for_each_leaf_node_cpu_mask(rnp, cpu, mask_ofl_ipi) {
- 		unsigned long mask = leaf_node_cpu_bit(rnp, cpu);
- 		struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
- 
--		if (!(mask_ofl_ipi & mask))
--			continue;
- retry_ipi:
- 		if (rcu_dynticks_in_eqs_since(rdp, rdp->exp_dynticks_snap)) {
- 			mask_ofl_test |= mask;
-@@ -491,7 +489,7 @@ static void synchronize_sched_expedited_
- 				struct rcu_data *rdp;
- 
- 				mask = leaf_node_cpu_bit(rnp, cpu);
--				if (!(rnp->expmask & mask))
-+				if (!(READ_ONCE(rnp->expmask) & mask))
- 					continue;
- 				ndetected++;
- 				rdp = per_cpu_ptr(&rcu_data, cpu);
-@@ -503,7 +501,8 @@ static void synchronize_sched_expedited_
- 		}
- 		pr_cont(" } %lu jiffies s: %lu root: %#lx/%c\n",
- 			jiffies - jiffies_start, rcu_state.expedited_sequence,
--			rnp_root->expmask, ".T"[!!rnp_root->exp_tasks]);
-+			READ_ONCE(rnp_root->expmask),
-+			".T"[!!rnp_root->exp_tasks]);
- 		if (ndetected) {
- 			pr_err("blocking rcu_node structures:");
- 			rcu_for_each_node_breadth_first(rnp) {
-@@ -513,7 +512,7 @@ static void synchronize_sched_expedited_
- 					continue;
- 				pr_cont(" l=%u:%d-%d:%#lx/%c",
- 					rnp->level, rnp->grplo, rnp->grphi,
--					rnp->expmask,
-+					READ_ONCE(rnp->expmask),
- 					".T"[!!rnp->exp_tasks]);
- 			}
- 			pr_cont("\n");
-@@ -521,7 +520,7 @@ static void synchronize_sched_expedited_
- 		rcu_for_each_leaf_node(rnp) {
- 			for_each_leaf_node_possible_cpu(rnp, cpu) {
- 				mask = leaf_node_cpu_bit(rnp, cpu);
--				if (!(rnp->expmask & mask))
-+				if (!(READ_ONCE(rnp->expmask) & mask))
- 					continue;
- 				dump_cpu_task(cpu);
- 			}
+ /* Bias and limit values for ->rcu_read_lock_nesting. */
+@@ -493,7 +493,7 @@ rcu_preempt_deferred_qs_irqrestore(struc
+ 		trace_rcu_unlock_preempted_task(TPS("rcu_preempt"),
+ 						rnp->gp_seq, t->pid);
+ 		if (&t->rcu_node_entry == rnp->gp_tasks)
+-			rnp->gp_tasks = np;
++			WRITE_ONCE(rnp->gp_tasks, np);
+ 		if (&t->rcu_node_entry == rnp->exp_tasks)
+ 			rnp->exp_tasks = np;
+ 		if (IS_ENABLED(CONFIG_RCU_BOOST)) {
+@@ -663,7 +663,7 @@ static void rcu_preempt_check_blocked_ta
+ 		dump_blkd_tasks(rnp, 10);
+ 	if (rcu_preempt_has_tasks(rnp) &&
+ 	    (rnp->qsmaskinit || rnp->wait_blkd_tasks)) {
+-		rnp->gp_tasks = rnp->blkd_tasks.next;
++		WRITE_ONCE(rnp->gp_tasks, rnp->blkd_tasks.next);
+ 		t = container_of(rnp->gp_tasks, struct task_struct,
+ 				 rcu_node_entry);
+ 		trace_rcu_unlock_preempted_task(TPS("rcu_preempt-GPS"),
+@@ -757,7 +757,8 @@ dump_blkd_tasks(struct rcu_node *rnp, in
+ 		pr_info("%s: %d:%d ->qsmask %#lx ->qsmaskinit %#lx ->qsmaskinitnext %#lx\n",
+ 			__func__, rnp1->grplo, rnp1->grphi, rnp1->qsmask, rnp1->qsmaskinit, rnp1->qsmaskinitnext);
+ 	pr_info("%s: ->gp_tasks %p ->boost_tasks %p ->exp_tasks %p\n",
+-		__func__, rnp->gp_tasks, rnp->boost_tasks, rnp->exp_tasks);
++		__func__, READ_ONCE(rnp->gp_tasks), rnp->boost_tasks,
++		rnp->exp_tasks);
+ 	pr_info("%s: ->blkd_tasks", __func__);
+ 	i = 0;
+ 	list_for_each(lhp, &rnp->blkd_tasks) {
 
 
