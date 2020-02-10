@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34AD1157575
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A04CE1574D0
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:36:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729899AbgBJMlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42618 "EHLO mail.kernel.org"
+        id S1728217AbgBJMgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729892AbgBJMlH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:07 -0500
+        id S1728209AbgBJMgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:01 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE1DE2085B;
-        Mon, 10 Feb 2020 12:41:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDBBA20863;
+        Mon, 10 Feb 2020 12:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338466;
-        bh=ZB7sIyLLF5dzwWVS/9ZihNmuzaaoQdbJSZEp8Y5qgkg=;
+        s=default; t=1581338161;
+        bh=9Vtt4RMkJOeOyK/O7Mi2scBa7KdVJ9YUq0t/z0Gh2mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PumI1SKe8m0+m369P4vLSbYt74CKHYzxcMQIvtg5oUWzY/B+VR7EyUM2Kgw6lS9yP
-         4CszyMpUznaHvhpxQ0ir9xD8pue9Fz4MRMeRCr0xY3/9bKL/QOETgchnmjTvT6P/tN
-         YCasfJJmoXx6ZaYB6loofPz7/5YGnQmXBZBNch48=
+        b=nn81+oT8T7Kll39LA+oSNB+0qGkMn8OUZRMl2vfa5yckSuNkH0/GKoVkFa8CypXGJ
+         BkvwETaiDH5zZTsDZT5g2XxvjrjwTC1gP++3UEqSXeYbRrHeu5ygNjP5r/cYhS7m/9
+         /pQREgUFgbP7KBUnvzZ9ksvJXhiQvmvO6ugXFAg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 228/367] KVM: x86: Refactor prefix decoding to prevent Spectre-v1/L1TF attacks
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 4.19 083/195] f2fs: code cleanup for f2fs_statfs_project()
 Date:   Mon, 10 Feb 2020 04:32:21 -0800
-Message-Id: <20200210122445.417308332@linuxfoundation.org>
+Message-Id: <20200210122313.632723451@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-commit 125ffc5e0a56a3eded608dc51e09d5ebf72cf652 upstream.
+commit bf2cbd3c57159c2b639ee8797b52ab5af180bf83 upstream.
 
-This fixes Spectre-v1/L1TF vulnerabilities in
-vmx_read_guest_seg_selector(), vmx_read_guest_seg_base(),
-vmx_read_guest_seg_limit() and vmx_read_guest_seg_ar().  When
-invoked from emulation, these functions contain index computations
-based on the (attacker-influenced) segment value.  Using constants
-prevents the attack.
+Calling min_not_zero() to simplify complicated prjquota
+limit comparison in f2fs_statfs_project().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ fs/f2fs/super.c |   16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5210,16 +5210,28 @@ int x86_decode_insn(struct x86_emulate_c
- 				ctxt->ad_bytes = def_ad_bytes ^ 6;
- 			break;
- 		case 0x26:	/* ES override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_ES;
-+			break;
- 		case 0x2e:	/* CS override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_CS;
-+			break;
- 		case 0x36:	/* SS override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_SS;
-+			break;
- 		case 0x3e:	/* DS override */
- 			has_seg_override = true;
--			ctxt->seg_override = (ctxt->b >> 3) & 3;
-+			ctxt->seg_override = VCPU_SREG_DS;
- 			break;
- 		case 0x64:	/* FS override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_FS;
-+			break;
- 		case 0x65:	/* GS override */
- 			has_seg_override = true;
--			ctxt->seg_override = ctxt->b & 7;
-+			ctxt->seg_override = VCPU_SREG_GS;
- 			break;
- 		case 0x40 ... 0x4f: /* REX */
- 			if (mode != X86EMUL_MODE_PROT64)
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1148,12 +1148,8 @@ static int f2fs_statfs_project(struct su
+ 		return PTR_ERR(dquot);
+ 	spin_lock(&dquot->dq_dqb_lock);
+ 
+-	limit = 0;
+-	if (dquot->dq_dqb.dqb_bsoftlimit)
+-		limit = dquot->dq_dqb.dqb_bsoftlimit;
+-	if (dquot->dq_dqb.dqb_bhardlimit &&
+-			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
+-		limit = dquot->dq_dqb.dqb_bhardlimit;
++	limit = min_not_zero(dquot->dq_dqb.dqb_bsoftlimit,
++					dquot->dq_dqb.dqb_bhardlimit);
+ 	if (limit)
+ 		limit >>= sb->s_blocksize_bits;
+ 
+@@ -1165,12 +1161,8 @@ static int f2fs_statfs_project(struct su
+ 			 (buf->f_blocks - curblock) : 0;
+ 	}
+ 
+-	limit = 0;
+-	if (dquot->dq_dqb.dqb_isoftlimit)
+-		limit = dquot->dq_dqb.dqb_isoftlimit;
+-	if (dquot->dq_dqb.dqb_ihardlimit &&
+-			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
+-		limit = dquot->dq_dqb.dqb_ihardlimit;
++	limit = min_not_zero(dquot->dq_dqb.dqb_isoftlimit,
++					dquot->dq_dqb.dqb_ihardlimit);
+ 
+ 	if (limit && buf->f_files > limit) {
+ 		buf->f_files = limit;
 
 
