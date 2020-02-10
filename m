@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C7215772F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE77715757C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729955AbgBJMlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43130 "EHLO mail.kernel.org"
+        id S1729956AbgBJMlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729656AbgBJMlR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729950AbgBJMlR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:41:17 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F70E208C4;
+        by mail.kernel.org (Postfix) with ESMTPSA id E7DD6208C3;
         Mon, 10 Feb 2020 12:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338476;
-        bh=L4r5YMKdPeOtPohxU0GhCvCY682DwqDYJCwck78rRGY=;
+        s=default; t=1581338477;
+        bh=8Jb3WF7J4RzRLBfrdqdB0TvnGiKJLDBYl2f04hpF+DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjD7esXjl1vu/cqtLZi5aKjt97w3y2zQ32s6R0x/v+2URtljbz/ntl6VwmQ7hpKcr
-         Ll8ycZL/jgzve4UutVzgW+mVSbn3IOY5A1wTH87kAYVzZZyFiX50JgXs2zqOUexHVQ
-         Flx+xQLzpbs4o/rQ65j1mVkgzXB9nfxREWpGo0fQ=
+        b=Bjf3RIzfNe07UtpckfWNmz+YBx1bemUTzlJcKfGpfCFOm/Dg1bMoueFqdIxEfzW4O
+         D40viClQu/PQ4uno58UkTq0cdVCeJOPOdgtNIUvsJkzbzZQcwTrV1QGsFAAV8uiTzk
+         OgafcaTNlYezbUoAIhndNBOE073raVI7XiiBPbA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.5 207/367] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
-Date:   Mon, 10 Feb 2020 04:32:00 -0800
-Message-Id: <20200210122443.530864100@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Frank Sorenson <sorenson@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 5.5 208/367] sunrpc: expiry_time should be seconds not timeval
+Date:   Mon, 10 Feb 2020 04:32:01 -0800
+Message-Id: <20200210122443.600771045@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,35 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Roberto Bergantinos Corpas <rbergant@redhat.com>
 
-commit 65b1aae0d9d5962faccc06bdb8e91a2a0b09451c upstream.
+commit 3d96208c30f84d6edf9ab4fac813306ac0d20c10 upstream.
 
-We called rcu_read_lock(), so we need to call rcu_read_unlock() before
-we return.
+When upcalling gssproxy, cache_head.expiry_time is set as a
+timeval, not seconds since boot. As such, RPC cache expiry
+logic will not clean expired objects created under
+auth.rpcsec.context cache.
 
-Fixes: 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+This has proven to cause kernel memory leaks on field. Using
+64 bit variants of getboottime/timespec
+
+Expiration times have worked this way since 2010's c5b29f885afe "sunrpc:
+use seconds since boot in expiry cache".  The gssproxy code introduced
+in 2012 added gss_proxy_save_rsc and introduced the bug.  That's a while
+for this to lurk, but it required a bit of an extreme case to make it
+obvious.
+
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
 Cc: stable@vger.kernel.org
-Cc: huangwen <huangwenabc@gmail.com>
-Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 030d794bf498 "SUNRPC: Use gssproxy upcall for server..."
+Tested-By: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/auth_gss/svcauth_gss.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-@@ -232,6 +232,7 @@ static int mwifiex_process_country_ie(st
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1248,6 +1248,7 @@ static int gss_proxy_save_rsc(struct cac
+ 		dprintk("RPC:       No creds found!\n");
+ 		goto out;
+ 	} else {
++		struct timespec64 boot;
  
- 	if (country_ie_len >
- 	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
-+		rcu_read_unlock();
- 		mwifiex_dbg(priv->adapter, ERROR,
- 			    "11D: country_ie_len overflow!, deauth AP\n");
- 		return -EINVAL;
+ 		/* steal creds */
+ 		rsci.cred = ud->creds;
+@@ -1268,6 +1269,9 @@ static int gss_proxy_save_rsc(struct cac
+ 						&expiry, GFP_KERNEL);
+ 		if (status)
+ 			goto out;
++
++		getboottime64(&boot);
++		expiry -= boot.tv_sec;
+ 	}
+ 
+ 	rsci.h.expiry_time = expiry;
 
 
