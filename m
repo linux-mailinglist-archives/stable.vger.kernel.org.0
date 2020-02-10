@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8009157746
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2161C15772E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728791AbgBJM7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:59:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
+        id S1729939AbgBJMlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:41:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729931AbgBJMlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:13 -0500
+        id S1729639AbgBJMlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:14 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D7F62085B;
+        by mail.kernel.org (Postfix) with ESMTPSA id DA9FC21569;
         Mon, 10 Feb 2020 12:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338473;
-        bh=1Ei60fEKFvv3S+7A5CpLfwgwVCQjFqc67jAR7LXOVuY=;
+        s=default; t=1581338474;
+        bh=ROBgPv5K8IOy3Rm+x9pw+cjWf2B51cdvq0ZBfwoVUJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifIgqkf91p2potdShoau28BCb5LLY2kTEC1dXRTrAcN3xbUjzCGOsWbK+TG1f5OJJ
-         fqzcoQwiGAU5Z17YDJR8S8SfL9JnfyCqCtiGD/BZyT9EsftVPFjlwGgcZ2dOC5+VqN
-         0OO2F1OJPe42A/Zf0TJ1n5mq2L5YeY16A5O4HVHs=
+        b=O/H6K2HnDMZs8TY6i6Gxk6c4WdvvZ+geSzd4q1xBTrBCyCqYGxPGjLyKiaLE4h1wl
+         spZtnOPJ/jtNQAy0tu1G1rPqeUJl8nuYxm3gEzCAp1ewjWH/1Us2t1OPGAEz+1ZdXN
+         lNz/YLqOSQU/AoC4siKfQHZNkLGrYO8ph1dwCtW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paul Mackerras <paulus@ozlabs.org>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 240/367] KVM: PPC: Book3S HV: Uninit vCPU if vcore creation fails
-Date:   Mon, 10 Feb 2020 04:32:33 -0800
-Message-Id: <20200210122446.331830979@linuxfoundation.org>
+Subject: [PATCH 5.5 241/367] KVM: PPC: Book3S PR: Free shared page if mmu initialization fails
+Date:   Mon, 10 Feb 2020 04:32:34 -0800
+Message-Id: <20200210122446.425754469@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -47,12 +47,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 1a978d9d3e72ddfa40ac60d26301b154247ee0bc upstream.
+commit cb10bf9194f4d2c5d830eddca861f7ca0fecdbb4 upstream.
 
-Call kvm_vcpu_uninit() if vcore creation fails to avoid leaking any
-resources allocated by kvm_vcpu_init(), i.e. the vcpu->run page.
+Explicitly free the shared page if kvmppc_mmu_init() fails during
+kvmppc_core_vcpu_create(), as the page is freed only in
+kvmppc_core_vcpu_free(), which is not reached via kvm_vcpu_uninit().
 
-Fixes: 371fefd6f2dc4 ("KVM: PPC: Allow book3s_hv guests to use SMT processor modes")
+Fixes: 96bc451a15329 ("KVM: PPC: Introduce shared page")
 Cc: stable@vger.kernel.org
 Reviewed-by: Greg Kurz <groug@kaod.org>
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
@@ -61,28 +62,24 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv.c |    4 +++-
+ arch/powerpc/kvm/book3s_pr.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2368,7 +2368,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu
- 	mutex_unlock(&kvm->lock);
+--- a/arch/powerpc/kvm/book3s_pr.c
++++ b/arch/powerpc/kvm/book3s_pr.c
+@@ -1806,10 +1806,12 @@ static struct kvm_vcpu *kvmppc_core_vcpu
  
- 	if (!vcore)
--		goto free_vcpu;
-+		goto uninit_vcpu;
- 
- 	spin_lock(&vcore->lock);
- 	++vcore->num_threads;
-@@ -2385,6 +2385,8 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+ 	err = kvmppc_mmu_init(vcpu);
+ 	if (err < 0)
+-		goto uninit_vcpu;
++		goto free_shared_page;
  
  	return vcpu;
  
-+uninit_vcpu:
-+	kvm_vcpu_uninit(vcpu);
- free_vcpu:
- 	kmem_cache_free(kvm_vcpu_cache, vcpu);
- out:
++free_shared_page:
++	free_page((unsigned long)vcpu->arch.shared);
+ uninit_vcpu:
+ 	kvm_vcpu_uninit(vcpu);
+ free_shadow_vcpu:
 
 
