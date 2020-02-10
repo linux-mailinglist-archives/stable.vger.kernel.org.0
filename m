@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4F9157C48
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38663157C4E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:36:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728190AbgBJNgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:36:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51458 "EHLO mail.kernel.org"
+        id S1727941AbgBJNgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:36:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727691AbgBJMfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:12 -0500
+        id S1727756AbgBJMfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:11 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6C5D215A4;
-        Mon, 10 Feb 2020 12:35:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 422D62085B;
+        Mon, 10 Feb 2020 12:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338110;
-        bh=rv+mI0w3hDpCkcgcs2ovUWMg5x7dJNDtrZDs+5eGnoQ=;
+        s=default; t=1581338111;
+        bh=QQIPvfVxsHQ0Kg/jbhKAMrFoi+8fum2mpB8s9nGUJJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUC4+wSaTjDtHKOYXrKrglRmQqUoFcpN2edjquC40cghx56TqC0QM9eHtEpX8M6Vq
-         NxrgW5GMbfRM40X+ljwB9g6tK+lld4TGUfaX7FVAzQb3aTykfree3Wo8h1QlkM4xg3
-         GEKU2IQ8vFZmvpklsHEWg7ok22EB40hu5zc6DLY8=
+        b=JDXpzpttT1oytB2H8Mflrm10gehwa4p92qo9JsYP2snJheUh8ST5nn1Yku1Tc46e+
+         Jh5d1SwKGqLGq3WPVmF6F40XuLDk6wyNJn50cqT29zxKj2pA8rulZHaEDa8fVTL74o
+         7xF7V3idI956oDBeW4sufo0QtCk6H7wduYMSfpXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.19 035/195] usb: gadget: f_ecm: Use atomic_t to track in-flight request
-Date:   Mon, 10 Feb 2020 04:31:33 -0800
-Message-Id: <20200210122309.994950758@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 036/195] ALSA: usb-audio: Fix endianess in descriptor validation
+Date:   Mon, 10 Feb 2020 04:31:34 -0800
+Message-Id: <20200210122310.061054163@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -44,91 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d710562e01c48d59be3f60d58b7a85958b39aeda upstream.
+commit f8e5f90b3a53bb75f05124ed19156388379a337d upstream.
 
-Currently ecm->notify_req is used to flag when a request is in-flight.
-ecm->notify_req is set to NULL and when a request completes it is
-subsequently reset.
+I overlooked that some fields are words and need the converts from
+LE in the recently added USB descriptor validation code.
+This patch fixes those with the proper macro usages.
 
-This is fundamentally buggy in that the unbind logic of the ECM driver will
-unconditionally free ecm->notify_req leading to a NULL pointer dereference.
-
-Fixes: da741b8c56d6 ("usb ethernet gadget: split CDC Ethernet function")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 57f8770620e9 ("ALSA: usb-audio: More validations of descriptor units")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200201080530.22390-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_ecm.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ sound/usb/validate.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -52,6 +52,7 @@ struct f_ecm {
- 	struct usb_ep			*notify;
- 	struct usb_request		*notify_req;
- 	u8				notify_state;
-+	atomic_t			notify_count;
- 	bool				is_open;
- 
- 	/* FIXME is_open needs some irq-ish locking
-@@ -380,7 +381,7 @@ static void ecm_do_notify(struct f_ecm *
- 	int				status;
- 
- 	/* notification already in flight? */
--	if (!req)
-+	if (atomic_read(&ecm->notify_count))
- 		return;
- 
- 	event = req->buf;
-@@ -420,10 +421,10 @@ static void ecm_do_notify(struct f_ecm *
- 	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ecm->ctrl_id);
- 
--	ecm->notify_req = NULL;
-+	atomic_inc(&ecm->notify_count);
- 	status = usb_ep_queue(ecm->notify, req, GFP_ATOMIC);
- 	if (status < 0) {
--		ecm->notify_req = req;
-+		atomic_dec(&ecm->notify_count);
- 		DBG(cdev, "notify --> %d\n", status);
- 	}
- }
-@@ -448,17 +449,19 @@ static void ecm_notify_complete(struct u
- 	switch (req->status) {
- 	case 0:
- 		/* no fault */
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
-+		atomic_set(&ecm->notify_count, 0);
- 		ecm->notify_state = ECM_NOTIFY_NONE;
- 		break;
+--- a/sound/usb/validate.c
++++ b/sound/usb/validate.c
+@@ -110,7 +110,7 @@ static bool validate_processing_unit(con
  	default:
- 		DBG(cdev, "event %02x --> %d\n",
- 			event->bNotificationType, req->status);
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	}
--	ecm->notify_req = req;
- 	ecm_do_notify(ecm);
- }
- 
-@@ -907,6 +910,11 @@ static void ecm_unbind(struct usb_config
- 
- 	usb_free_all_descriptors(f);
- 
-+	if (atomic_read(&ecm->notify_count)) {
-+		usb_ep_dequeue(ecm->notify, ecm->notify_req);
-+		atomic_set(&ecm->notify_count, 0);
-+	}
-+
- 	kfree(ecm->notify_req->buf);
- 	usb_ep_free_request(ecm->notify, ecm->notify_req);
- }
+ 		if (v->type == UAC1_EXTENSION_UNIT)
+ 			return true; /* OK */
+-		switch (d->wProcessType) {
++		switch (le16_to_cpu(d->wProcessType)) {
+ 		case UAC_PROCESS_UP_DOWNMIX:
+ 		case UAC_PROCESS_DOLBY_PROLOGIC:
+ 			if (d->bLength < len + 1) /* bNrModes */
+@@ -125,7 +125,7 @@ static bool validate_processing_unit(con
+ 	case UAC_VERSION_2:
+ 		if (v->type == UAC2_EXTENSION_UNIT_V2)
+ 			return true; /* OK */
+-		switch (d->wProcessType) {
++		switch (le16_to_cpu(d->wProcessType)) {
+ 		case UAC2_PROCESS_UP_DOWNMIX:
+ 		case UAC2_PROCESS_DOLBY_PROLOCIC: /* SiC! */
+ 			if (d->bLength < len + 1) /* bNrModes */
+@@ -142,7 +142,7 @@ static bool validate_processing_unit(con
+ 			len += 2; /* wClusterDescrID */
+ 			break;
+ 		}
+-		switch (d->wProcessType) {
++		switch (le16_to_cpu(d->wProcessType)) {
+ 		case UAC3_PROCESS_UP_DOWNMIX:
+ 			if (d->bLength < len + 1) /* bNrModes */
+ 				return false;
 
 
