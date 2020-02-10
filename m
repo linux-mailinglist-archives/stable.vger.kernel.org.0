@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F4515785A
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97485157854
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728538AbgBJNHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:07:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38376 "EHLO mail.kernel.org"
+        id S1729529AbgBJMjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729517AbgBJMjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:48 -0500
+        id S1729524AbgBJMjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:49 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06FBD208C4;
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BEAF24676;
         Mon, 10 Feb 2020 12:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338387;
-        bh=KUfvPmV3aJve2tYxhJisWXtYBzA1Ba5K0Yz7t7b/o9M=;
+        bh=54VNu45w/vLNKLZ2cxJsWNJgFLn0bNvrtrd9wtIlbaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zLetHsgCSOCFgrmpA+bY8SrnAA6d/dvzkRJpMGuYmP6koSCHLKvikWCJv1oFqQrS
-         hCOoeRjapGjLPkngzBx6hDSleJWAawzLUPXZV5wRD8hqaESqn4Ky9B+ruAUQklyu1W
-         z/wL4w7pnXwItqckp2Wy+xaM1JpV3EFOGqom7+do=
+        b=1qb6oV0rZM31qVlGlY4skjn1H9GyfmHXM0AFxX2DJXAlvSSPOhkUtrdbYmo6Sk2pR
+         WBPGq7YeZdGSBDEymfo4aLYZgJhRbj6Zd3hnodFzDUtLlOsnuWTaMe21uTLpPlsT9F
+         q8PNmu5H84SHSNwrJ423JCqlklKmrgS08QO/ZvXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Shuaibing <shuaibinglu@126.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        NeilBrown <neilb@suse.com>, Shaohua Li <shli@fb.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 031/367] ipc/msg.c: consolidate all xxxctl_down() functions
-Date:   Mon, 10 Feb 2020 04:29:04 -0800
-Message-Id: <20200210122426.791907582@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.5 032/367] tracing/kprobes: Have uname use __get_str() in print_fmt
+Date:   Mon, 10 Feb 2020 04:29:05 -0800
+Message-Id: <20200210122426.895258454@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -50,154 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Shuaibing <shuaibinglu@126.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 889b331724c82c11e15ba0a60979cf7bded0a26c upstream.
+commit 20279420ae3a8ef4c5d9fedc360a2c37a1dbdf1b upstream.
 
-A use of uninitialized memory in msgctl_down() because msqid64 in
-ksys_msgctl hasn't been initialized.  The local | msqid64 | is created in
-ksys_msgctl() and then passed into msgctl_down().  Along the way msqid64
-is never initialized before msgctl_down() checks msqid64->msg_qbytes.
+Thomas Richter reported:
 
-KUMSAN(KernelUninitializedMemorySantizer, a new error detection tool)
-reports:
+> Test case 66 'Use vfs_getname probe to get syscall args filenames'
+> is broken on s390, but works on x86. The test case fails with:
+>
+>  [root@m35lp76 perf]# perf test -F 66
+>  66: Use vfs_getname probe to get syscall args filenames
+>            :Recording open file:
+>  [ perf record: Woken up 1 times to write data ]
+>  [ perf record: Captured and wrote 0.004 MB /tmp/__perf_test.perf.data.TCdYj\
+> 	 (20 samples) ]
+>  Looking at perf.data file for vfs_getname records for the file we touched:
+>   FAILED!
+>   [root@m35lp76 perf]#
 
-==================================================================
-BUG: KUMSAN: use of uninitialized memory in msgctl_down+0x94/0x300
-Read of size 8 at addr ffff88806bb97eb8 by task syz-executor707/2022
+The root cause was the print_fmt of the kprobe event that referenced the
+"ustring"
 
-CPU: 0 PID: 2022 Comm: syz-executor707 Not tainted 5.2.0-rc4+ #63
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack+0x75/0xae
- __kumsan_report+0x17c/0x3e6
- kumsan_report+0xe/0x20
- msgctl_down+0x94/0x300
- ksys_msgctl.constprop.14+0xef/0x260
- do_syscall_64+0x7e/0x1f0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x4400e9
-Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffd869e0598 EFLAGS: 00000246 ORIG_RAX: 0000000000000047
-RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 00000000004400e9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 00000000006ca018 R08: 0000000000000000 R09: 0000000000000000
-R10: 00000000ffffffff R11: 0000000000000246 R12: 0000000000401970
-R13: 0000000000401a00 R14: 0000000000000000 R15: 0000000000000000
+> Setting up the kprobe event using perf command:
+>
+>  # ./perf probe "vfs_getname=getname_flags:72 pathname=filename:ustring"
+>
+> generates this format file:
+>   [root@m35lp76 perf]# cat /sys/kernel/debug/tracing/events/probe/\
+> 	  vfs_getname/format
+>   name: vfs_getname
+>   ID: 1172
+>   format:
+>     field:unsigned short common_type; offset:0; size:2; signed:0;
+>     field:unsigned char common_flags; offset:2; size:1; signed:0;
+>     field:unsigned char common_preempt_count; offset:3; size:1; signed:0;
+>     field:int common_pid; offset:4; size:4; signed:1;
+>
+>     field:unsigned long __probe_ip; offset:8; size:8; signed:0;
+>     field:__data_loc char[] pathname; offset:16; size:4; signed:1;
+>
+>     print fmt: "(%lx) pathname=\"%s\"", REC->__probe_ip, REC->pathname
 
-The buggy address belongs to the page:
-page:ffffea0001aee5c0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0
-flags: 0x100000000000000()
-raw: 0100000000000000 0000000000000000 ffffffff01ae0101 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kumsan: bad access detected
-==================================================================
+Instead of using "__get_str(pathname)" it referenced it directly.
 
-Syzkaller reproducer:
-msgctl$IPC_RMID(0x0, 0x0)
+Link: http://lkml.kernel.org/r/20200124100742.4050c15e@gandalf.local.home
 
-C reproducer:
-// autogenerated by syzkaller (https://github.com/google/syzkaller)
-
-int main(void)
-{
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  syscall(__NR_msgctl, 0, 0, 0);
-  return 0;
-}
-
-[natechancellor@gmail.com: adjust indentation in ksys_msgctl]
-  Link: https://github.com/ClangBuiltLinux/linux/issues/829
-  Link: http://lkml.kernel.org/r/20191218032932.37479-1-natechancellor@gmail.com
-Link: http://lkml.kernel.org/r/20190613014044.24234-1-shuaibinglu@126.com
-Signed-off-by: Lu Shuaibing <shuaibinglu@126.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: NeilBrown <neilb@suse.com>
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.5 031/367] ipc/msg.c: consolidate all xxxctl_down() functions
-
-Each line here overflows 80 cols by exactly one character.  Delete one tab
-per line to fix.
-
-Cc: Shaohua Li <shli@fb.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 88903c464321 ("tracing/probe: Add ustring type for user-space string")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reported-by: Thomas Richter <tmricht@linux.ibm.com>
+Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- ipc/msg.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ kernel/trace/trace_probe.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/ipc/msg.c
-+++ b/ipc/msg.c
-@@ -377,7 +377,7 @@ copy_msqid_from_user(struct msqid64_ds *
-  * NOTE: no locks must be held, the rwsem is taken inside this function.
-  */
- static int msgctl_down(struct ipc_namespace *ns, int msqid, int cmd,
--			struct msqid64_ds *msqid64)
-+			struct ipc64_perm *perm, int msg_qbytes)
- {
- 	struct kern_ipc_perm *ipcp;
- 	struct msg_queue *msq;
-@@ -387,7 +387,7 @@ static int msgctl_down(struct ipc_namesp
- 	rcu_read_lock();
- 
- 	ipcp = ipcctl_obtain_check(ns, &msg_ids(ns), msqid, cmd,
--				      &msqid64->msg_perm, msqid64->msg_qbytes);
-+				      perm, msg_qbytes);
- 	if (IS_ERR(ipcp)) {
- 		err = PTR_ERR(ipcp);
- 		goto out_unlock1;
-@@ -409,18 +409,18 @@ static int msgctl_down(struct ipc_namesp
- 	{
- 		DEFINE_WAKE_Q(wake_q);
- 
--		if (msqid64->msg_qbytes > ns->msg_ctlmnb &&
-+		if (msg_qbytes > ns->msg_ctlmnb &&
- 		    !capable(CAP_SYS_RESOURCE)) {
- 			err = -EPERM;
- 			goto out_unlock1;
- 		}
- 
- 		ipc_lock_object(&msq->q_perm);
--		err = ipc_update_perm(&msqid64->msg_perm, ipcp);
-+		err = ipc_update_perm(perm, ipcp);
- 		if (err)
- 			goto out_unlock0;
- 
--		msq->q_qbytes = msqid64->msg_qbytes;
-+		msq->q_qbytes = msg_qbytes;
- 
- 		msq->q_ctime = ktime_get_real_seconds();
- 		/*
-@@ -601,9 +601,10 @@ static long ksys_msgctl(int msqid, int c
- 	case IPC_SET:
- 		if (copy_msqid_from_user(&msqid64, buf, version))
- 			return -EFAULT;
--		/* fallthru */
-+		return msgctl_down(ns, msqid, cmd, &msqid64.msg_perm,
-+				   msqid64.msg_qbytes);
- 	case IPC_RMID:
--		return msgctl_down(ns, msqid, cmd, &msqid64);
-+		return msgctl_down(ns, msqid, cmd, NULL, 0);
- 	default:
- 		return  -EINVAL;
- 	}
-@@ -735,9 +736,9 @@ static long compat_ksys_msgctl(int msqid
- 	case IPC_SET:
- 		if (copy_compat_msqid_from_user(&msqid64, uptr, version))
- 			return -EFAULT;
--		/* fallthru */
-+		return msgctl_down(ns, msqid, cmd, &msqid64.msg_perm, msqid64.msg_qbytes);
- 	case IPC_RMID:
--		return msgctl_down(ns, msqid, cmd, &msqid64);
-+		return msgctl_down(ns, msqid, cmd, NULL, 0);
- 	default:
- 		return -EINVAL;
- 	}
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -876,7 +876,8 @@ static int __set_print_fmt(struct trace_
+ 	for (i = 0; i < tp->nr_args; i++) {
+ 		parg = tp->args + i;
+ 		if (parg->count) {
+-			if (strcmp(parg->type->name, "string") == 0)
++			if ((strcmp(parg->type->name, "string") == 0) ||
++			    (strcmp(parg->type->name, "ustring") == 0))
+ 				fmt = ", __get_str(%s[%d])";
+ 			else
+ 				fmt = ", REC->%s[%d]";
+@@ -884,7 +885,8 @@ static int __set_print_fmt(struct trace_
+ 				pos += snprintf(buf + pos, LEN_OR_ZERO,
+ 						fmt, parg->name, j);
+ 		} else {
+-			if (strcmp(parg->type->name, "string") == 0)
++			if ((strcmp(parg->type->name, "string") == 0) ||
++			    (strcmp(parg->type->name, "ustring") == 0))
+ 				fmt = ", __get_str(%s)";
+ 			else
+ 				fmt = ", REC->%s";
 
 
