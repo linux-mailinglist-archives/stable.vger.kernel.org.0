@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 601031579F7
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 563871579EF
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728948AbgBJNT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:19:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
+        id S1729201AbgBJNTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:19:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728898AbgBJMhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:47 -0500
+        id S1728903AbgBJMhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:37:48 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ACC82085B;
-        Mon, 10 Feb 2020 12:37:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0668824686;
+        Mon, 10 Feb 2020 12:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338266;
-        bh=MIdrN4eNMf+qGiOgzxhA4qnCELEF867GZBySwRbQpQ4=;
+        s=default; t=1581338267;
+        bh=Rb4+5OZy8/cgfkqgiWf+evdbzazPvvSkiaJPEhlwwHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KoSDQFYQ+EhhBl+A61qTxaJTKTy3lz9I9dfBZIa/XMTXu2EE+/c7+wVc1TMr/iBxB
-         wAYBV0QnAtla68JqJYQNOKI0SAQNpG53fZ0WxnQpNFTjizW7uvBuG1jRQRmho74rXW
-         32/F1ZtyVAHhsB+Nms1pUNJDXvgdQlDeSsfsXH6s=
+        b=Tjl4jSQppIE7pUXx+nNbeHPlWa4VkgVKuciUty+WL07G3aEXw3nkdKQ5aOoUW70Hx
+         zXwyd78VTJ8WKxctR1jCQEguY1xiUB1veQ8lvT49mJFdgq2Sx3wNEUS4WWq7eTCuQC
+         2UyCHIMke2NODYogPx4o4foXaef35TD3QvgK0R5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 145/309] selftests/bpf: Fix perf_buffer test on systems w/ offline CPUs
-Date:   Mon, 10 Feb 2020 04:31:41 -0800
-Message-Id: <20200210122420.277511774@linuxfoundation.org>
+        stable@vger.kernel.org, Amol Grover <frextrite@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
+Subject: [PATCH 5.4 146/309] bpf, devmap: Pass lockdep expression to RCU lists
+Date:   Mon, 10 Feb 2020 04:31:42 -0800
+Message-Id: <20200210122420.363422717@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -43,99 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Amol Grover <frextrite@gmail.com>
 
-commit 91cbdf740a476cf2c744169bf407de2e3ac1f3cf upstream.
+commit 485ec2ea9cf556e9c120e07961b7b459d776a115 upstream.
 
-Fix up perf_buffer.c selftest to take into account offline/missing CPUs.
+head is traversed using hlist_for_each_entry_rcu outside an RCU
+read-side critical section but under the protection of dtab->index_lock.
 
-Fixes: ee5cf82ce04a ("selftests/bpf: test perf buffer API")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20191212013621.1691858-1-andriin@fb.com
+Hence, add corresponding lockdep expression to silence false-positive
+lockdep warnings, and harden RCU lists.
+
+Fixes: 6f9d451ab1a3 ("xdp: Add devmap_hash map type for looking up devices by hashed index")
+Signed-off-by: Amol Grover <frextrite@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/bpf/20200123120437.26506-1-frextrite@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/bpf/prog_tests/perf_buffer.c |   29 +++++++++++++++----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ kernel/bpf/devmap.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/prog_tests/perf_buffer.c
-+++ b/tools/testing/selftests/bpf/prog_tests/perf_buffer.c
-@@ -4,6 +4,7 @@
- #include <sched.h>
- #include <sys/socket.h>
- #include <test_progs.h>
-+#include "libbpf_internal.h"
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -293,7 +293,8 @@ struct bpf_dtab_netdev *__dev_map_hash_l
+ 	struct hlist_head *head = dev_map_index_hash(dtab, key);
+ 	struct bpf_dtab_netdev *dev;
  
- static void on_sample(void *ctx, int cpu, void *data, __u32 size)
- {
-@@ -19,7 +20,7 @@ static void on_sample(void *ctx, int cpu
+-	hlist_for_each_entry_rcu(dev, head, index_hlist)
++	hlist_for_each_entry_rcu(dev, head, index_hlist,
++				 lockdep_is_held(&dtab->index_lock))
+ 		if (dev->idx == key)
+ 			return dev;
  
- void test_perf_buffer(void)
- {
--	int err, prog_fd, nr_cpus, i, duration = 0;
-+	int err, prog_fd, on_len, nr_on_cpus = 0,  nr_cpus, i, duration = 0;
- 	const char *prog_name = "kprobe/sys_nanosleep";
- 	const char *file = "./test_perf_buffer.o";
- 	struct perf_buffer_opts pb_opts = {};
-@@ -29,15 +30,27 @@ void test_perf_buffer(void)
- 	struct bpf_object *obj;
- 	struct perf_buffer *pb;
- 	struct bpf_link *link;
-+	bool *online;
- 
- 	nr_cpus = libbpf_num_possible_cpus();
- 	if (CHECK(nr_cpus < 0, "nr_cpus", "err %d\n", nr_cpus))
- 		return;
- 
-+	err = parse_cpu_mask_file("/sys/devices/system/cpu/online",
-+				  &online, &on_len);
-+	if (CHECK(err, "nr_on_cpus", "err %d\n", err))
-+		return;
-+
-+	for (i = 0; i < on_len; i++)
-+		if (online[i])
-+			nr_on_cpus++;
-+
- 	/* load program */
- 	err = bpf_prog_load(file, BPF_PROG_TYPE_KPROBE, &obj, &prog_fd);
--	if (CHECK(err, "obj_load", "err %d errno %d\n", err, errno))
--		return;
-+	if (CHECK(err, "obj_load", "err %d errno %d\n", err, errno)) {
-+		obj = NULL;
-+		goto out_close;
-+	}
- 
- 	prog = bpf_object__find_program_by_title(obj, prog_name);
- 	if (CHECK(!prog, "find_probe", "prog '%s' not found\n", prog_name))
-@@ -64,6 +77,11 @@ void test_perf_buffer(void)
- 	/* trigger kprobe on every CPU */
- 	CPU_ZERO(&cpu_seen);
- 	for (i = 0; i < nr_cpus; i++) {
-+		if (i >= on_len || !online[i]) {
-+			printf("skipping offline CPU #%d\n", i);
-+			continue;
-+		}
-+
- 		CPU_ZERO(&cpu_set);
- 		CPU_SET(i, &cpu_set);
- 
-@@ -81,8 +99,8 @@ void test_perf_buffer(void)
- 	if (CHECK(err < 0, "perf_buffer__poll", "err %d\n", err))
- 		goto out_free_pb;
- 
--	if (CHECK(CPU_COUNT(&cpu_seen) != nr_cpus, "seen_cpu_cnt",
--		  "expect %d, seen %d\n", nr_cpus, CPU_COUNT(&cpu_seen)))
-+	if (CHECK(CPU_COUNT(&cpu_seen) != nr_on_cpus, "seen_cpu_cnt",
-+		  "expect %d, seen %d\n", nr_on_cpus, CPU_COUNT(&cpu_seen)))
- 		goto out_free_pb;
- 
- out_free_pb:
-@@ -91,4 +109,5 @@ out_detach:
- 	bpf_link__destroy(link);
- out_close:
- 	bpf_object__close(obj);
-+	free(online);
- }
 
 
