@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD96F157989
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA9B157981
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728506AbgBJNQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:16:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33178 "EHLO mail.kernel.org"
+        id S1729340AbgBJNPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:15:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729058AbgBJMiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:38:12 -0500
+        id S1729081AbgBJMiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:38:16 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1670620733;
+        by mail.kernel.org (Postfix) with ESMTPSA id 90A5F2173E;
         Mon, 10 Feb 2020 12:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338292;
-        bh=fNsfi5Nz4UDoAno/GsvfQIo/eIIBQA6rNmDtAkzqfOk=;
+        bh=mcTEQcb3T5LI506dQtDxxSNtl3YZszq0YvZdKEWc2+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHApylvhnhVCFp4+n/KkxEjGdpj+wj3aHVliLf/Zj9/lgN79ShMmsHCNCr9eg9UPs
-         RB1qIr/33GjqARLklA/UKcBUv5iObR3TfUZsdBhny0LjbcahDuIbQmmlehxrGjOaQD
-         LqGB5ruGs0uYAlEWwdn0aivnp1VyTIvciJQ4gt5Q=
+        b=DrWOa88fvS2QAPAopy+JxBHk4HEZNUOJKizr4AAkriggw3I2qW1TcUuHTyruXJ5O6
+         nhpsz35W7U9hsCuHMesGbZ03Er0/AIjEzqNfNg07J8Sf0MMAF1kd/PWEcl6L8Xw7D2
+         Ipi3fx5XNG06WZrS6UUtg39SfWSC8tuKZ95/+KMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Eric Wheeler <bcache@linux.ewheeler.net>,
-        Michael Lyle <mlyle@lyle.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 195/309] bcache: add readahead cache policy options via sysfs interface
-Date:   Mon, 10 Feb 2020 04:32:31 -0800
-Message-Id: <20200210122425.292428812@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 196/309] eventfd: track eventfd_signal() recursion depth
+Date:   Mon, 10 Feb 2020 04:32:32 -0800
+Message-Id: <20200210122425.393382774@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -44,139 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 038ba8cc1bffc51250add4a9b9249d4331576d8f upstream.
+commit b5e683d5cab8cd433b06ae178621f083cabd4f63 upstream.
 
-In year 2007 high performance SSD was still expensive, in order to
-save more space for real workload or meta data, the readahead I/Os
-for non-meta data was bypassed and not cached on SSD.
+eventfd use cases from aio and io_uring can deadlock due to circular
+or resursive calling, when eventfd_signal() tries to grab the waitqueue
+lock. On top of that, it's also possible to construct notification
+chains that are deep enough that we could blow the stack.
 
-In now days, SSD price drops a lot and people can find larger size
-SSD with more comfortable price. It is unncessary to alway bypass
-normal readahead I/Os to save SSD space for now.
+Add a percpu counter that tracks the percpu recursion depth, warn if we
+exceed it. The counter is also exposed so that users of eventfd_signal()
+can do the right thing if it's non-zero in the context where it is
+called.
 
-This patch adds options for readahead data cache policies via sysfs
-file /sys/block/bcache<N>/readahead_cache_policy, the options are,
-- "all": cache all readahead data I/Os.
-- "meta-only": only cache meta data, and bypass other regular I/Os.
-
-If users want to make bcache continue to only cache readahead request
-for metadata and bypass regular data readahead, please set "meta-only"
-to this sysfs file. By default, bcache will back to cache all read-
-ahead requests now.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Coly Li <colyli@suse.de>
-Acked-by: Eric Wheeler <bcache@linux.ewheeler.net>
-Cc: Michael Lyle <mlyle@lyle.org>
+Cc: stable@vger.kernel.org # 4.19+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/bcache.h  |    3 +++
- drivers/md/bcache/request.c |   17 ++++++++++++-----
- drivers/md/bcache/sysfs.c   |   22 ++++++++++++++++++++++
- 3 files changed, 37 insertions(+), 5 deletions(-)
+ fs/eventfd.c            |   15 +++++++++++++++
+ include/linux/eventfd.h |   14 ++++++++++++++
+ 2 files changed, 29 insertions(+)
 
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -329,6 +329,9 @@ struct cached_dev {
- 	 */
- 	atomic_t		has_dirty;
+--- a/fs/eventfd.c
++++ b/fs/eventfd.c
+@@ -24,6 +24,8 @@
+ #include <linux/seq_file.h>
+ #include <linux/idr.h>
  
-+#define BCH_CACHE_READA_ALL		0
-+#define BCH_CACHE_READA_META_ONLY	1
-+	unsigned int		cache_readahead_policy;
- 	struct bch_ratelimit	writeback_rate;
- 	struct delayed_work	writeback_rate_update;
- 
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -391,13 +391,20 @@ static bool check_should_bypass(struct c
- 		goto skip;
- 
- 	/*
--	 * Flag for bypass if the IO is for read-ahead or background,
--	 * unless the read-ahead request is for metadata
-+	 * If the bio is for read-ahead or background IO, bypass it or
-+	 * not depends on the following situations,
-+	 * - If the IO is for meta data, always cache it and no bypass
-+	 * - If the IO is not meta data, check dc->cache_reada_policy,
-+	 *      BCH_CACHE_READA_ALL: cache it and not bypass
-+	 *      BCH_CACHE_READA_META_ONLY: not cache it and bypass
-+	 * That is, read-ahead request for metadata always get cached
- 	 * (eg, for gfs2 or xfs).
- 	 */
--	if (bio->bi_opf & (REQ_RAHEAD|REQ_BACKGROUND) &&
--	    !(bio->bi_opf & (REQ_META|REQ_PRIO)))
--		goto skip;
-+	if ((bio->bi_opf & (REQ_RAHEAD|REQ_BACKGROUND))) {
-+		if (!(bio->bi_opf & (REQ_META|REQ_PRIO)) &&
-+		    (dc->cache_readahead_policy != BCH_CACHE_READA_ALL))
-+			goto skip;
-+	}
- 
- 	if (bio->bi_iter.bi_sector & (c->sb.block_size - 1) ||
- 	    bio_sectors(bio) & (c->sb.block_size - 1)) {
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -27,6 +27,12 @@ static const char * const bch_cache_mode
- 	NULL
- };
- 
-+static const char * const bch_reada_cache_policies[] = {
-+	"all",
-+	"meta-only",
-+	NULL
-+};
++DEFINE_PER_CPU(int, eventfd_wake_count);
 +
- /* Default is 0 ("auto") */
- static const char * const bch_stop_on_failure_modes[] = {
- 	"auto",
-@@ -100,6 +106,7 @@ rw_attribute(congested_write_threshold_u
- rw_attribute(sequential_cutoff);
- rw_attribute(data_csum);
- rw_attribute(cache_mode);
-+rw_attribute(readahead_cache_policy);
- rw_attribute(stop_when_cache_set_failed);
- rw_attribute(writeback_metadata);
- rw_attribute(writeback_running);
-@@ -167,6 +174,11 @@ SHOW(__bch_cached_dev)
- 					       bch_cache_modes,
- 					       BDEV_CACHE_MODE(&dc->sb));
+ static DEFINE_IDA(eventfd_ida);
  
-+	if (attr == &sysfs_readahead_cache_policy)
-+		return bch_snprint_string_list(buf, PAGE_SIZE,
-+					      bch_reada_cache_policies,
-+					      dc->cache_readahead_policy);
-+
- 	if (attr == &sysfs_stop_when_cache_set_failed)
- 		return bch_snprint_string_list(buf, PAGE_SIZE,
- 					       bch_stop_on_failure_modes,
-@@ -352,6 +364,15 @@ STORE(__cached_dev)
- 		}
- 	}
+ struct eventfd_ctx {
+@@ -60,12 +62,25 @@ __u64 eventfd_signal(struct eventfd_ctx
+ {
+ 	unsigned long flags;
  
-+	if (attr == &sysfs_readahead_cache_policy) {
-+		v = __sysfs_match_string(bch_reada_cache_policies, -1, buf);
-+		if (v < 0)
-+			return v;
++	/*
++	 * Deadlock or stack overflow issues can happen if we recurse here
++	 * through waitqueue wakeup handlers. If the caller users potentially
++	 * nested waitqueues with custom wakeup handlers, then it should
++	 * check eventfd_signal_count() before calling this function. If
++	 * it returns true, the eventfd_signal() call should be deferred to a
++	 * safe context.
++	 */
++	if (WARN_ON_ONCE(this_cpu_read(eventfd_wake_count)))
++		return 0;
 +
-+		if ((unsigned int) v != dc->cache_readahead_policy)
-+			dc->cache_readahead_policy = v;
-+	}
+ 	spin_lock_irqsave(&ctx->wqh.lock, flags);
++	this_cpu_inc(eventfd_wake_count);
+ 	if (ULLONG_MAX - ctx->count < n)
+ 		n = ULLONG_MAX - ctx->count;
+ 	ctx->count += n;
+ 	if (waitqueue_active(&ctx->wqh))
+ 		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
++	this_cpu_dec(eventfd_wake_count);
+ 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
+ 
+ 	return n;
+--- a/include/linux/eventfd.h
++++ b/include/linux/eventfd.h
+@@ -12,6 +12,8 @@
+ #include <linux/fcntl.h>
+ #include <linux/wait.h>
+ #include <linux/err.h>
++#include <linux/percpu-defs.h>
++#include <linux/percpu.h>
+ 
+ /*
+  * CAREFUL: Check include/uapi/asm-generic/fcntl.h when defining
+@@ -40,6 +42,13 @@ __u64 eventfd_signal(struct eventfd_ctx
+ int eventfd_ctx_remove_wait_queue(struct eventfd_ctx *ctx, wait_queue_entry_t *wait,
+ 				  __u64 *cnt);
+ 
++DECLARE_PER_CPU(int, eventfd_wake_count);
 +
- 	if (attr == &sysfs_stop_when_cache_set_failed) {
- 		v = __sysfs_match_string(bch_stop_on_failure_modes, -1, buf);
- 		if (v < 0)
-@@ -466,6 +487,7 @@ static struct attribute *bch_cached_dev_
- 	&sysfs_data_csum,
++static inline bool eventfd_signal_count(void)
++{
++	return this_cpu_read(eventfd_wake_count);
++}
++
+ #else /* CONFIG_EVENTFD */
+ 
+ /*
+@@ -68,6 +77,11 @@ static inline int eventfd_ctx_remove_wai
+ 	return -ENOSYS;
+ }
+ 
++static inline bool eventfd_signal_count(void)
++{
++	return false;
++}
++
  #endif
- 	&sysfs_cache_mode,
-+	&sysfs_readahead_cache_policy,
- 	&sysfs_stop_when_cache_set_failed,
- 	&sysfs_writeback_metadata,
- 	&sysfs_writeback_running,
+ 
+ #endif /* _LINUX_EVENTFD_H */
 
 
