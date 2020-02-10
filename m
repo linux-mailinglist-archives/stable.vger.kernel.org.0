@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A03715769F
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:55:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF381574D4
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:36:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730119AbgBJMmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:42:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
+        id S1728272AbgBJMgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:36:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730116AbgBJMl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:59 -0500
+        id S1728268AbgBJMgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:36:09 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84D3C2051A;
-        Mon, 10 Feb 2020 12:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72F3020842;
+        Mon, 10 Feb 2020 12:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338518;
-        bh=E+MTVgFWNIcvf+fhiuKRguXt/m4kjJSHKqQwsK/ytv4=;
+        s=default; t=1581338168;
+        bh=/jv1ZXq8Zj4eDdVZ2I8QdmuuudjD7LfalAizUJphtBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwZw11J75sRCiIQV1uUruKPPf5F3Fihb2RtrPuxxxd6EXdfDmfga4XqwkTPgAZ/e+
-         Shhah7CZxbRbbmVjU3wc9rHLS7j/vBzm/qOdHowiKKVD3KVkDgF5mN9PUmI8qIVClX
-         7rfwGQapxG66sDjOfXyS/9BmFDhdjddxNpNpSbWg=
+        b=vGgLZCb9MzjE05cdmFXiI6bWqCEOLKdMRaFgV7+bWw5TGsoXU8Aj+D22B71vu4toj
+         sXAKX1OINPl7Pn6Ry82w6t+Bnnsgvg7hU4dnjWD3j2wFhqvx21OZHGVBATiP0CHl9S
+         WEcqj6mPBJcT3hc0UNPuHsXAu1C3oY6Vn62KHysk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 293/367] net: tulip: Adjust indentation in {dmfe, uli526x}_init_module
-Date:   Mon, 10 Feb 2020 04:33:26 -0800
-Message-Id: <20200210122450.801336395@linuxfoundation.org>
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 4.19 149/195] phy: qualcomm: Adjust indentation in read_poll_timeout
+Date:   Mon, 10 Feb 2020 04:33:27 -0800
+Message-Id: <20200210122319.809856245@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
-References: <20200210122423.695146547@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +47,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit fe06bf3d83ef0d92f35a24e03297172e92ce9ce3 upstream.
+commit a89806c998ee123bb9c0f18526e55afd12c0c0ab upstream.
 
 Clang warns:
 
-../drivers/net/ethernet/dec/tulip/uli526x.c:1812:3: warning: misleading
-indentation; statement is not part of the previous 'if'
+../drivers/phy/qualcomm/phy-qcom-apq8064-sata.c:83:4: warning:
+misleading indentation; statement is not part of the previous 'if'
 [-Wmisleading-indentation]
-        switch (mode) {
-        ^
-../drivers/net/ethernet/dec/tulip/uli526x.c:1809:2: note: previous
+                 usleep_range(DELAY_INTERVAL_US, DELAY_INTERVAL_US + 50);
+                 ^
+../drivers/phy/qualcomm/phy-qcom-apq8064-sata.c:80:3: note: previous
 statement is here
-        if (cr6set)
-        ^
+                if (readl_relaxed(addr) & mask)
+                ^
 1 warning generated.
 
-../drivers/net/ethernet/dec/tulip/dmfe.c:2217:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-        switch(mode) {
-        ^
-../drivers/net/ethernet/dec/tulip/dmfe.c:2214:2: note: previous
-statement is here
-        if (cr6set)
-        ^
-1 warning generated.
+This warning occurs because there is a space after the tab on this line.
+Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
 
-This warning occurs because there is a space before the tab on these
-lines. Remove them so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
-
-While we are here, adjust the default block in dmfe_init_module to have
-a proper break between the label and assignment and add a space between
-the switch and opening parentheses to avoid a checkpatch warning.
-
-Fixes: e1c3e5014040 ("[PATCH] initialisation cleanup for ULI526x-net-driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/795
+Fixes: 1de990d8a169 ("phy: qcom: Add driver for QCOM APQ8064 SATA PHY")
+Link: https://github.com/ClangBuiltLinux/linux/issues/816
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/dec/tulip/dmfe.c    |    7 ++++---
- drivers/net/ethernet/dec/tulip/uli526x.c |    4 ++--
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-apq8064-sata.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/dec/tulip/dmfe.c
-+++ b/drivers/net/ethernet/dec/tulip/dmfe.c
-@@ -2214,15 +2214,16 @@ static int __init dmfe_init_module(void)
- 	if (cr6set)
- 		dmfe_cr6_user_set = cr6set;
+--- a/drivers/phy/qualcomm/phy-qcom-apq8064-sata.c
++++ b/drivers/phy/qualcomm/phy-qcom-apq8064-sata.c
+@@ -88,7 +88,7 @@ static int read_poll_timeout(void __iome
+ 		if (readl_relaxed(addr) & mask)
+ 			return 0;
  
-- 	switch(mode) {
--   	case DMFE_10MHF:
-+	switch (mode) {
-+	case DMFE_10MHF:
- 	case DMFE_100MHF:
- 	case DMFE_10MFD:
- 	case DMFE_100MFD:
- 	case DMFE_1M_HPNA:
- 		dmfe_media_mode = mode;
- 		break;
--	default:dmfe_media_mode = DMFE_AUTO;
-+	default:
-+		dmfe_media_mode = DMFE_AUTO;
- 		break;
- 	}
+-		 usleep_range(DELAY_INTERVAL_US, DELAY_INTERVAL_US + 50);
++		usleep_range(DELAY_INTERVAL_US, DELAY_INTERVAL_US + 50);
+ 	} while (!time_after(jiffies, timeout));
  
---- a/drivers/net/ethernet/dec/tulip/uli526x.c
-+++ b/drivers/net/ethernet/dec/tulip/uli526x.c
-@@ -1809,8 +1809,8 @@ static int __init uli526x_init_module(vo
- 	if (cr6set)
- 		uli526x_cr6_user_set = cr6set;
- 
-- 	switch (mode) {
--   	case ULI526X_10MHF:
-+	switch (mode) {
-+	case ULI526X_10MHF:
- 	case ULI526X_100MHF:
- 	case ULI526X_10MFD:
- 	case ULI526X_100MFD:
+ 	return (readl_relaxed(addr) & mask) ? 0 : -ETIMEDOUT;
 
 
