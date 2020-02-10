@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C82E81574E5
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 600A1157541
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728513AbgBJMgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:36:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
+        id S1727738AbgBJMjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728510AbgBJMgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:36:46 -0500
+        id S1729512AbgBJMjq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:46 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9960420873;
-        Mon, 10 Feb 2020 12:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 764922465D;
+        Mon, 10 Feb 2020 12:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338205;
-        bh=RwhIChhPn61jDVPeD5KKonU/A0ZjFzLZEXd029vpwcA=;
+        s=default; t=1581338385;
+        bh=nWYtyob+OlXyt0+FZ+agtsBloZfYAOYUudSesyQvxp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfBXsLhY9s62U0jlDTTVbL951fY8LNgUbBemrpfYMgfwPknFpVSpWErPWTtvCQCVb
-         DZQax/Rck3Js76sW4kI6c6fyHrYB7Ey3RiOqg8oA/KqFLKWSde22H/qwxxKVNruzjt
-         feyPJh5WXf/r4MVqN6WJou3q4UT92jK87EmMgIqw=
+        b=n5VWjP8nvjvRMViBn9GfPW8kKZEyK8QIchMXkYwPeHBSU6Qsd3iw+OZEE3xpg/UWv
+         eaq7XI06PQgoX9xeOh5n7fXr21znYxM497osbTrPdHuS5tQK+sDPHnmk/twRcTxmTN
+         sZgO7QF8XIfihp0h4WjHhd/INafILwO17tdr10cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Shuaibing <shuaibinglu@126.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        NeilBrown <neilb@suse.com>, Shaohua Li <shli@fb.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 025/309] ipc/msg.c: consolidate all xxxctl_down() functions
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 068/367] ALSA: hda: Apply aligned MMIO access only conditionally
 Date:   Mon, 10 Feb 2020 04:29:41 -0800
-Message-Id: <20200210122408.398703616@linuxfoundation.org>
+Message-Id: <20200210122430.392602027@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
+References: <20200210122423.695146547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,154 +42,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Shuaibing <shuaibinglu@126.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 889b331724c82c11e15ba0a60979cf7bded0a26c upstream.
+commit 4d024fe8f806e20e577cc934204c5784c7063293 upstream.
 
-A use of uninitialized memory in msgctl_down() because msqid64 in
-ksys_msgctl hasn't been initialized.  The local | msqid64 | is created in
-ksys_msgctl() and then passed into msgctl_down().  Along the way msqid64
-is never initialized before msgctl_down() checks msqid64->msg_qbytes.
+It turned out that the recent simplification of HD-audio bus access
+helpers caused a regression on the virtual HD-audio device on QEMU
+with ARM platforms.  The driver got a CORB/RIRB timeout and couldn't
+probe any codecs.
 
-KUMSAN(KernelUninitializedMemorySantizer, a new error detection tool)
-reports:
+The essential difference that caused a problem was the enforced
+aligned MMIO accesses by simplification.  Since snd-hda-tegra driver
+is enabled on ARM, it enables CONFIG_SND_HDA_ALIGNED_MMIO, which makes
+the all HD-audio drivers using the aligned MMIO accesses.  While this
+is mandatory for snd-hda-tegra, it seems that snd-hda-intel on ARM
+gets broken by this access pattern.
 
-==================================================================
-BUG: KUMSAN: use of uninitialized memory in msgctl_down+0x94/0x300
-Read of size 8 at addr ffff88806bb97eb8 by task syz-executor707/2022
+For addressing the regression, this patch introduces a new flag,
+aligned_mmio, to hdac_bus object, and applies the aligned MMIO only
+when this flag is set.  This change affects only platforms with
+CONFIG_SND_HDA_ALIGNED_MMIO set, i.e. mostly only for ARM platforms.
 
-CPU: 0 PID: 2022 Comm: syz-executor707 Not tainted 5.2.0-rc4+ #63
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack+0x75/0xae
- __kumsan_report+0x17c/0x3e6
- kumsan_report+0xe/0x20
- msgctl_down+0x94/0x300
- ksys_msgctl.constprop.14+0xef/0x260
- do_syscall_64+0x7e/0x1f0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x4400e9
-Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffd869e0598 EFLAGS: 00000246 ORIG_RAX: 0000000000000047
-RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 00000000004400e9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 00000000006ca018 R08: 0000000000000000 R09: 0000000000000000
-R10: 00000000ffffffff R11: 0000000000000246 R12: 0000000000401970
-R13: 0000000000401a00 R14: 0000000000000000 R15: 0000000000000000
+Unfortunately the patch became a big bigger than it should be, just
+because the former calls didn't take hdac_bus object in the argument,
+hence we had to extend the call patterns.
 
-The buggy address belongs to the page:
-page:ffffea0001aee5c0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0
-flags: 0x100000000000000()
-raw: 0100000000000000 0000000000000000 ffffffff01ae0101 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kumsan: bad access detected
-==================================================================
-
-Syzkaller reproducer:
-msgctl$IPC_RMID(0x0, 0x0)
-
-C reproducer:
-// autogenerated by syzkaller (https://github.com/google/syzkaller)
-
-int main(void)
-{
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  syscall(__NR_msgctl, 0, 0, 0);
-  return 0;
-}
-
-[natechancellor@gmail.com: adjust indentation in ksys_msgctl]
-  Link: https://github.com/ClangBuiltLinux/linux/issues/829
-  Link: http://lkml.kernel.org/r/20191218032932.37479-1-natechancellor@gmail.com
-Link: http://lkml.kernel.org/r/20190613014044.24234-1-shuaibinglu@126.com
-Signed-off-by: Lu Shuaibing <shuaibinglu@126.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: NeilBrown <neilb@suse.com>
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 025/309] ipc/msg.c: consolidate all xxxctl_down() functions
-
-Each line here overflows 80 cols by exactly one character.  Delete one tab
-per line to fix.
-
-Cc: Shaohua Li <shli@fb.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 19abfefd4c76 ("ALSA: hda: Direct MMIO accesses")
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1161152
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200120104127.28985-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- ipc/msg.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ include/sound/hdaudio.h   |   77 +++++++++++++++++++++++++++++++---------------
+ sound/pci/hda/hda_tegra.c |    1 
+ 2 files changed, 54 insertions(+), 24 deletions(-)
 
---- a/ipc/msg.c
-+++ b/ipc/msg.c
-@@ -377,7 +377,7 @@ copy_msqid_from_user(struct msqid64_ds *
-  * NOTE: no locks must be held, the rwsem is taken inside this function.
+--- a/include/sound/hdaudio.h
++++ b/include/sound/hdaudio.h
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/interrupt.h>
++#include <linux/io.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/timecounter.h>
+ #include <sound/core.h>
+@@ -330,6 +331,7 @@ struct hdac_bus {
+ 	bool chip_init:1;		/* h/w initialized */
+ 
+ 	/* behavior flags */
++	bool aligned_mmio:1;		/* aligned MMIO access */
+ 	bool sync_write:1;		/* sync after verb write */
+ 	bool use_posbuf:1;		/* use position buffer */
+ 	bool snoop:1;			/* enable snooping */
+@@ -405,34 +407,61 @@ void snd_hdac_bus_free_stream_pages(stru
+ unsigned int snd_hdac_aligned_read(void __iomem *addr, unsigned int mask);
+ void snd_hdac_aligned_write(unsigned int val, void __iomem *addr,
+ 			    unsigned int mask);
+-#define snd_hdac_reg_writeb(v, addr)	snd_hdac_aligned_write(v, addr, 0xff)
+-#define snd_hdac_reg_writew(v, addr)	snd_hdac_aligned_write(v, addr, 0xffff)
+-#define snd_hdac_reg_readb(addr)	snd_hdac_aligned_read(addr, 0xff)
+-#define snd_hdac_reg_readw(addr)	snd_hdac_aligned_read(addr, 0xffff)
+-#else /* CONFIG_SND_HDA_ALIGNED_MMIO */
+-#define snd_hdac_reg_writeb(val, addr)	writeb(val, addr)
+-#define snd_hdac_reg_writew(val, addr)	writew(val, addr)
+-#define snd_hdac_reg_readb(addr)	readb(addr)
+-#define snd_hdac_reg_readw(addr)	readw(addr)
+-#endif /* CONFIG_SND_HDA_ALIGNED_MMIO */
+-#define snd_hdac_reg_writel(val, addr)	writel(val, addr)
+-#define snd_hdac_reg_readl(addr)	readl(addr)
++#define snd_hdac_aligned_mmio(bus)	(bus)->aligned_mmio
++#else
++#define snd_hdac_aligned_mmio(bus)	false
++#define snd_hdac_aligned_read(addr, mask)	0
++#define snd_hdac_aligned_write(val, addr, mask) do {} while (0)
++#endif
++
++static inline void snd_hdac_reg_writeb(struct hdac_bus *bus, void __iomem *addr,
++				       u8 val)
++{
++	if (snd_hdac_aligned_mmio(bus))
++		snd_hdac_aligned_write(val, addr, 0xff);
++	else
++		writeb(val, addr);
++}
++
++static inline void snd_hdac_reg_writew(struct hdac_bus *bus, void __iomem *addr,
++				       u16 val)
++{
++	if (snd_hdac_aligned_mmio(bus))
++		snd_hdac_aligned_write(val, addr, 0xffff);
++	else
++		writew(val, addr);
++}
++
++static inline u8 snd_hdac_reg_readb(struct hdac_bus *bus, void __iomem *addr)
++{
++	return snd_hdac_aligned_mmio(bus) ?
++		snd_hdac_aligned_read(addr, 0xff) : readb(addr);
++}
++
++static inline u16 snd_hdac_reg_readw(struct hdac_bus *bus, void __iomem *addr)
++{
++	return snd_hdac_aligned_mmio(bus) ?
++		snd_hdac_aligned_read(addr, 0xffff) : readw(addr);
++}
++
++#define snd_hdac_reg_writel(bus, addr, val)	writel(val, addr)
++#define snd_hdac_reg_readl(bus, addr)	readl(addr)
+ 
+ /*
+  * macros for easy use
   */
- static int msgctl_down(struct ipc_namespace *ns, int msqid, int cmd,
--			struct msqid64_ds *msqid64)
-+			struct ipc64_perm *perm, int msg_qbytes)
- {
- 	struct kern_ipc_perm *ipcp;
- 	struct msg_queue *msq;
-@@ -387,7 +387,7 @@ static int msgctl_down(struct ipc_namesp
- 	rcu_read_lock();
+ #define _snd_hdac_chip_writeb(chip, reg, value) \
+-	snd_hdac_reg_writeb(value, (chip)->remap_addr + (reg))
++	snd_hdac_reg_writeb(chip, (chip)->remap_addr + (reg), value)
+ #define _snd_hdac_chip_readb(chip, reg) \
+-	snd_hdac_reg_readb((chip)->remap_addr + (reg))
++	snd_hdac_reg_readb(chip, (chip)->remap_addr + (reg))
+ #define _snd_hdac_chip_writew(chip, reg, value) \
+-	snd_hdac_reg_writew(value, (chip)->remap_addr + (reg))
++	snd_hdac_reg_writew(chip, (chip)->remap_addr + (reg), value)
+ #define _snd_hdac_chip_readw(chip, reg) \
+-	snd_hdac_reg_readw((chip)->remap_addr + (reg))
++	snd_hdac_reg_readw(chip, (chip)->remap_addr + (reg))
+ #define _snd_hdac_chip_writel(chip, reg, value) \
+-	snd_hdac_reg_writel(value, (chip)->remap_addr + (reg))
++	snd_hdac_reg_writel(chip, (chip)->remap_addr + (reg), value)
+ #define _snd_hdac_chip_readl(chip, reg) \
+-	snd_hdac_reg_readl((chip)->remap_addr + (reg))
++	snd_hdac_reg_readl(chip, (chip)->remap_addr + (reg))
  
- 	ipcp = ipcctl_obtain_check(ns, &msg_ids(ns), msqid, cmd,
--				      &msqid64->msg_perm, msqid64->msg_qbytes);
-+				      perm, msg_qbytes);
- 	if (IS_ERR(ipcp)) {
- 		err = PTR_ERR(ipcp);
- 		goto out_unlock1;
-@@ -409,18 +409,18 @@ static int msgctl_down(struct ipc_namesp
- 	{
- 		DEFINE_WAKE_Q(wake_q);
+ /* read/write a register, pass without AZX_REG_ prefix */
+ #define snd_hdac_chip_writel(chip, reg, value) \
+@@ -540,17 +569,17 @@ int snd_hdac_get_stream_stripe_ctl(struc
+  */
+ /* read/write a register, pass without AZX_REG_ prefix */
+ #define snd_hdac_stream_writel(dev, reg, value) \
+-	snd_hdac_reg_writel(value, (dev)->sd_addr + AZX_REG_ ## reg)
++	snd_hdac_reg_writel((dev)->bus, (dev)->sd_addr + AZX_REG_ ## reg, value)
+ #define snd_hdac_stream_writew(dev, reg, value) \
+-	snd_hdac_reg_writew(value, (dev)->sd_addr + AZX_REG_ ## reg)
++	snd_hdac_reg_writew((dev)->bus, (dev)->sd_addr + AZX_REG_ ## reg, value)
+ #define snd_hdac_stream_writeb(dev, reg, value) \
+-	snd_hdac_reg_writeb(value, (dev)->sd_addr + AZX_REG_ ## reg)
++	snd_hdac_reg_writeb((dev)->bus, (dev)->sd_addr + AZX_REG_ ## reg, value)
+ #define snd_hdac_stream_readl(dev, reg) \
+-	snd_hdac_reg_readl((dev)->sd_addr + AZX_REG_ ## reg)
++	snd_hdac_reg_readl((dev)->bus, (dev)->sd_addr + AZX_REG_ ## reg)
+ #define snd_hdac_stream_readw(dev, reg) \
+-	snd_hdac_reg_readw((dev)->sd_addr + AZX_REG_ ## reg)
++	snd_hdac_reg_readw((dev)->bus, (dev)->sd_addr + AZX_REG_ ## reg)
+ #define snd_hdac_stream_readb(dev, reg) \
+-	snd_hdac_reg_readb((dev)->sd_addr + AZX_REG_ ## reg)
++	snd_hdac_reg_readb((dev)->bus, (dev)->sd_addr + AZX_REG_ ## reg)
  
--		if (msqid64->msg_qbytes > ns->msg_ctlmnb &&
-+		if (msg_qbytes > ns->msg_ctlmnb &&
- 		    !capable(CAP_SYS_RESOURCE)) {
- 			err = -EPERM;
- 			goto out_unlock1;
- 		}
+ /* update a register, pass without AZX_REG_ prefix */
+ #define snd_hdac_stream_updatel(dev, reg, mask, val) \
+--- a/sound/pci/hda/hda_tegra.c
++++ b/sound/pci/hda/hda_tegra.c
+@@ -398,6 +398,7 @@ static int hda_tegra_create(struct snd_c
+ 		return err;
  
- 		ipc_lock_object(&msq->q_perm);
--		err = ipc_update_perm(&msqid64->msg_perm, ipcp);
-+		err = ipc_update_perm(perm, ipcp);
- 		if (err)
- 			goto out_unlock0;
+ 	chip->bus.needs_damn_long_delay = 1;
++	chip->bus.core.aligned_mmio = 1;
  
--		msq->q_qbytes = msqid64->msg_qbytes;
-+		msq->q_qbytes = msg_qbytes;
- 
- 		msq->q_ctime = ktime_get_real_seconds();
- 		/*
-@@ -601,9 +601,10 @@ static long ksys_msgctl(int msqid, int c
- 	case IPC_SET:
- 		if (copy_msqid_from_user(&msqid64, buf, version))
- 			return -EFAULT;
--		/* fallthru */
-+		return msgctl_down(ns, msqid, cmd, &msqid64.msg_perm,
-+				   msqid64.msg_qbytes);
- 	case IPC_RMID:
--		return msgctl_down(ns, msqid, cmd, &msqid64);
-+		return msgctl_down(ns, msqid, cmd, NULL, 0);
- 	default:
- 		return  -EINVAL;
- 	}
-@@ -735,9 +736,9 @@ static long compat_ksys_msgctl(int msqid
- 	case IPC_SET:
- 		if (copy_compat_msqid_from_user(&msqid64, uptr, version))
- 			return -EFAULT;
--		/* fallthru */
-+		return msgctl_down(ns, msqid, cmd, &msqid64.msg_perm, msqid64.msg_qbytes);
- 	case IPC_RMID:
--		return msgctl_down(ns, msqid, cmd, &msqid64);
-+		return msgctl_down(ns, msqid, cmd, NULL, 0);
- 	default:
- 		return -EINVAL;
- 	}
+ 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
+ 	if (err < 0) {
 
 
