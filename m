@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C5615769D
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 237E015764C
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729580AbgBJMl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:41:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45456 "EHLO mail.kernel.org"
+        id S1727121AbgBJMuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:50:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728053AbgBJMl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:59 -0500
+        id S1730559AbgBJMoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:44:05 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 039ED2085B;
-        Mon, 10 Feb 2020 12:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0E4B20838;
+        Mon, 10 Feb 2020 12:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338519;
-        bh=f4kmDu/JvwbQrWcKHUCplWeVGT/aIKbR1AJbtnX2X9U=;
+        s=default; t=1581338645;
+        bh=4RxWrXFSQdTkrR1juUCh6siioEpSe+Z6z4xFwcI79j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSaxWGuQGvuGHGkccFuchpKP6LjfWWpk8bzM3917BfpLy678G2HiqEqq0JyyKDWOF
-         veZtcVK1W2r9RHZuaoxvCkoBjcJZ28QA82Gu7veotByTBJO3Ae+gz/RIc0U13SQyTC
-         9shANLkXx4TaW5HUEc1So1GYbuTLvZhgkePHHBnc=
+        b=ps6U8YtNpbq0iQI0yxc+JMkh0jJ5jZH5xOjUWc/jYdQ6ljg3n+B660MsL/PT+N+OD
+         wcqK7ygMTAGO3rZIGN0TF8Gl0+Edl+7YsHv9eB89TRx43VRG+nByOtg+cqzKK6zROt
+         eydd2zmmgMFyyFb1y33jBNRQHmbDzHQlzNqRghfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
+        stable@vger.kernel.org, "Tan, Tee Min" <tee.min.tan@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 329/367] net: macb: Limit maximum GEM TX length in TSO
-Date:   Mon, 10 Feb 2020 04:34:02 -0800
-Message-Id: <20200210122453.260145919@linuxfoundation.org>
+Subject: [PATCH 5.5 330/367] net: stmmac: fix incorrect GMAC_VLAN_TAG register writting in GMAC4+
+Date:   Mon, 10 Feb 2020 04:34:03 -0800
+Message-Id: <20200210122453.332494552@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,41 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: "Tan, Tee Min" <tee.min.tan@intel.com>
 
-[ Upstream commit f822e9c4ffa511a5c681cf866287d9383a3b6f1b ]
+[ Upstream commit 9eeeb3c9de4e3aeaa2bec097162f09305dd9f4c3 ]
 
-GEM_MAX_TX_LEN currently resolves to 0x3FF8 for any IP version supporting
-TSO with full 14bits of length field in payload descriptor. But an IP
-errata causes false amba_error (bit 6 of ISR) when length in payload
-descriptors is specified above 16387. The error occurs because the DMA
-falsely concludes that there is not enough space in SRAM for incoming
-payload. These errors were observed continuously under stress of large
-packets using iperf on a version where SRAM was 16K for each queue. This
-errata will be documented shortly and affects all versions since TSO
-functionality was added. Hence limit the max length to 0x3FC0 (rounded).
+It should always do a read of current value of GMAC_VLAN_TAG instead of
+directly overwriting the register value.
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Fixes: c1be0022df0d ("net: stmmac: Add VLAN HASH filtering support in GMAC4+")
+Signed-off-by: Tan, Tee Min <tee.min.tan@intel.com>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -73,7 +73,11 @@ struct sifive_fu540_macb_mgmt {
- /* Max length of transmit frame must be a multiple of 8 bytes */
- #define MACB_TX_LEN_ALIGN	8
- #define MACB_MAX_TX_LEN		((unsigned int)((1 << MACB_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
--#define GEM_MAX_TX_LEN		((unsigned int)((1 << GEM_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
-+/* Limit maximum TX length as per Cadence TSO errata. This is to avoid a
-+ * false amba_error in TX path from the DMA assuming there is not enough
-+ * space in the SRAM (16KB) even when there is.
-+ */
-+#define GEM_MAX_TX_LEN		(unsigned int)(0x3FC0)
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -736,11 +736,14 @@ static void dwmac4_update_vlan_hash(stru
+ 				    __le16 perfect_match, bool is_double)
+ {
+ 	void __iomem *ioaddr = hw->pcsr;
++	u32 value;
  
- #define GEM_MTU_MIN_SIZE	ETH_MIN_MTU
- #define MACB_NETIF_LSO		NETIF_F_TSO
+ 	writel(hash, ioaddr + GMAC_VLAN_HASH_TABLE);
+ 
++	value = readl(ioaddr + GMAC_VLAN_TAG);
++
+ 	if (hash) {
+-		u32 value = GMAC_VLAN_VTHM | GMAC_VLAN_ETV;
++		value |= GMAC_VLAN_VTHM | GMAC_VLAN_ETV;
+ 		if (is_double) {
+ 			value |= GMAC_VLAN_EDVLP;
+ 			value |= GMAC_VLAN_ESVL;
+@@ -759,8 +762,6 @@ static void dwmac4_update_vlan_hash(stru
+ 
+ 		writel(value | perfect_match, ioaddr + GMAC_VLAN_TAG);
+ 	} else {
+-		u32 value = readl(ioaddr + GMAC_VLAN_TAG);
+-
+ 		value &= ~(GMAC_VLAN_VTHM | GMAC_VLAN_ETV);
+ 		value &= ~(GMAC_VLAN_EDVLP | GMAC_VLAN_ESVL);
+ 		value &= ~GMAC_VLAN_DOVLTC;
 
 
