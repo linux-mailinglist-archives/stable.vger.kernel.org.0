@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8408515775E
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAFA15775D
 	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729275AbgBJM7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:59:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42486 "EHLO mail.kernel.org"
+        id S1727692AbgBJM7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:59:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729563AbgBJMlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:41:04 -0500
+        id S1729880AbgBJMlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:41:05 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EB342467C;
+        by mail.kernel.org (Postfix) with ESMTPSA id BA1842085B;
         Mon, 10 Feb 2020 12:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338464;
-        bh=1mBv9FsT65fiq4XZwUJQkTx18vF+a9/p+GVNey9Umcg=;
+        bh=L+PzT9YJZaZwtj3+DF+bJ0Zd41C5zLO0reoHroKwm3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6y7gla/l62X0XQ1lD8QmQa2iSM1DDpp/SfhVfaXufwiaH1LU7gXUAXTZJIE8sOCb
-         E/kXk0CzQ81+LfSnPSLgOt2f9fYFX4fO5xH867wPQXFYSlkHE14/9hQhrP9rnkGiwk
-         jllEXNQ0ExRIr4PUVI+4rtNimuR9irpEon32OVIM=
+        b=uH7UnWdaqpEbT4QTvJTFgg+lw7kzFEyj7kKyYWTAdPD7Qn0llTxcwvHPaXS5/ZvFg
+         2hcFhEVmM8ox1SOcFNt18qaR26NtwMVuL1qpXz4Hc+9l4g0Ab/AzQIWQ4/+96t3DC5
+         zSowwOeW68lUR7TM8Zyer5GsSAWO6Jsma5H9RPGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Melnic <dmm@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.5 223/367] io_uring: dont map read/write iovec potentially twice
-Date:   Mon, 10 Feb 2020 04:32:16 -0800
-Message-Id: <20200210122444.634072021@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.5 224/367] io_uring: spin for sq thread to idle on shutdown
+Date:   Mon, 10 Feb 2020 04:32:17 -0800
+Message-Id: <20200210122444.705287041@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,40 +44,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 5d204bcfa09330972ad3428a8f81c23f371d3e6d upstream.
+commit df069d80c8e38c19531c392322e9a16617475c44 upstream.
 
-If we have a read/write that is deferred, we already setup the async IO
-context for that request, and mapped it. When we later try and execute
-the request and we get -EAGAIN, we don't want to attempt to re-map it.
-If we do, we end up with garbage in the iovec, which typically leads
-to an -EFAULT or -EINVAL completion.
+As part of io_uring shutdown, we cancel work that is pending and won't
+necessarily complete on its own. That includes requests like poll
+commands and timeouts.
 
-Cc: stable@vger.kernel.org # 5.5
-Reported-by: Dan Melnic <dmm@fb.com>
+If we're using SQPOLL for kernel side submission and we shutdown the
+ring immediately after queueing such work, we can race with the sqthread
+doing the submission. This means we may miss cancelling some work, which
+results in the io_uring shutdown hanging forever.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/io_uring.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1789,10 +1789,12 @@ static int io_setup_async_rw(struct io_k
- 	if (req->opcode == IORING_OP_READ_FIXED ||
- 	    req->opcode == IORING_OP_WRITE_FIXED)
- 		return 0;
--	if (!req->io && io_alloc_async_ctx(req))
--		return -ENOMEM;
-+	if (!req->io) {
-+		if (io_alloc_async_ctx(req))
-+			return -ENOMEM;
+@@ -3902,7 +3902,8 @@ static int io_sq_thread(void *data)
+ 			 * reap events and wake us up.
+ 			 */
+ 			if (inflight ||
+-			    (!time_after(jiffies, timeout) && ret != -EBUSY)) {
++			    (!time_after(jiffies, timeout) && ret != -EBUSY &&
++			    !percpu_ref_is_dying(&ctx->refs))) {
+ 				cond_resched();
+ 				continue;
+ 			}
+@@ -4983,6 +4984,16 @@ static void io_ring_ctx_wait_and_kill(st
+ 	percpu_ref_kill(&ctx->refs);
+ 	mutex_unlock(&ctx->uring_lock);
  
--	io_req_map_rw(req, io_size, iovec, fast_iov, iter);
-+		io_req_map_rw(req, io_size, iovec, fast_iov, iter);
-+	}
- 	req->work.func = io_rw_async;
- 	return 0;
- }
++	/*
++	 * Wait for sq thread to idle, if we have one. It won't spin on new
++	 * work after we've killed the ctx ref above. This is important to do
++	 * before we cancel existing commands, as the thread could otherwise
++	 * be queueing new work post that. If that's work we need to cancel,
++	 * it could cause shutdown to hang.
++	 */
++	while (ctx->sqo_thread && !wq_has_sleeper(&ctx->sqo_wait))
++		cpu_relax();
++
+ 	io_kill_timeouts(ctx);
+ 	io_poll_remove_all(ctx);
+ 
 
 
