@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D19015793C
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:14:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4E7157940
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:14:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbgBJMij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:38:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34332 "EHLO mail.kernel.org"
+        id S1729579AbgBJNNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729174AbgBJMij (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729176AbgBJMij (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 Feb 2020 07:38:39 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A1BC20838;
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BAC22051A;
         Mon, 10 Feb 2020 12:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338318;
-        bh=+vlZxH7/7WspdQ5tkO7amYkhKFFU+mFcdbP1wpj3Nhk=;
+        bh=mpQr1aTIBLMCAZBmrzdcHGTPJq0LbkIE15rTxYRWisI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNI6TMJLXzLBRzXEB1OYog4km+KBeBaFrEIiZrmYPP8G7YYNWCzyTtOh8hb8XP1de
-         RMMkV++g1JxCN1kacYqKEh7zT5QlX4HoeijpNU4fl+UYXJKCpcqWx1OlZisz/118BH
-         edinwGzFN5HYmclWeEm1Mbq0zFUwvX5EAHoOW1WE=
+        b=U0sfTrBm/Fzr/UtFD/5sq00FTCqo1rWdewa71G+VhykB7JwszJNT+m9PmTeyzjzFb
+         s3Y2a1CfTQbr8EzB/xAjbHfO610/O33sKRYSyhBiQmov/mrQkLHT3PDc1OmxkjjgZQ
+         lNQGj/cY4kgyqcubHcBNdfZ9KsPNVGKaYOk3UlzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 247/309] NFC: pn544: Adjust indentation in pn544_hci_check_presence
-Date:   Mon, 10 Feb 2020 04:33:23 -0800
-Message-Id: <20200210122430.240762189@linuxfoundation.org>
+Subject: [PATCH 5.4 248/309] ppp: Adjust indentation into ppp_async_input
+Date:   Mon, 10 Feb 2020 04:33:24 -0800
+Message-Id: <20200210122430.336063007@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
 References: <20200210122406.106356946@linuxfoundation.org>
@@ -46,43 +46,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 5080832627b65e3772a35d1dced68c64e2b24442 upstream.
+commit 08cbc75f96029d3092664213a844a5e25523aa35 upstream.
 
-Clang warns
+Clang warns:
 
-../drivers/nfc/pn544/pn544.c:696:4: warning: misleading indentation;
+../drivers/net/ppp/ppp_async.c:877:6: warning: misleading indentation;
 statement is not part of the previous 'if' [-Wmisleading-indentation]
-                 return nfc_hci_send_cmd(hdev, NFC_HCI_RF_READER_A_GATE,
-                 ^
-../drivers/nfc/pn544/pn544.c:692:3: note: previous statement is here
-                if (target->nfcid1_len != 4 && target->nfcid1_len != 7 &&
-                ^
+                                ap->rpkt = skb;
+                                ^
+../drivers/net/ppp/ppp_async.c:875:5: note: previous statement is here
+                                if (!skb)
+                                ^
 1 warning generated.
 
-This warning occurs because there is a space after the tab on this line.
-Remove it so that the indentation is consistent with the Linux kernel
-coding style and clang no longer warns.
+This warning occurs because there is a space before the tab on this
+line. Clean up this entire block's indentation so that it is consistent
+with the Linux kernel coding style and clang no longer warns.
 
-Fixes: da052850b911 ("NFC: Add pn544 presence check for different targets")
-Link: https://github.com/ClangBuiltLinux/linux/issues/814
+Fixes: 6722e78c9005 ("[PPP]: handle misaligned accesses")
+Link: https://github.com/ClangBuiltLinux/linux/issues/800
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nfc/pn544/pn544.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ppp/ppp_async.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/nfc/pn544/pn544.c
-+++ b/drivers/nfc/pn544/pn544.c
-@@ -693,7 +693,7 @@ static int pn544_hci_check_presence(stru
- 		    target->nfcid1_len != 10)
- 			return -EOPNOTSUPP;
- 
--		 return nfc_hci_send_cmd(hdev, NFC_HCI_RF_READER_A_GATE,
-+		return nfc_hci_send_cmd(hdev, NFC_HCI_RF_READER_A_GATE,
- 				     PN544_RF_READER_CMD_ACTIVATE_NEXT,
- 				     target->nfcid1, target->nfcid1_len, NULL);
- 	} else if (target->supported_protocols & (NFC_PROTO_JEWEL_MASK |
+--- a/drivers/net/ppp/ppp_async.c
++++ b/drivers/net/ppp/ppp_async.c
+@@ -874,15 +874,15 @@ ppp_async_input(struct asyncppp *ap, con
+ 				skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2);
+ 				if (!skb)
+ 					goto nomem;
+- 				ap->rpkt = skb;
+- 			}
+- 			if (skb->len == 0) {
+- 				/* Try to get the payload 4-byte aligned.
+- 				 * This should match the
+- 				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
+- 				 * process_input_packet, but we do not have
+- 				 * enough chars here to test buf[1] and buf[2].
+- 				 */
++				ap->rpkt = skb;
++			}
++			if (skb->len == 0) {
++				/* Try to get the payload 4-byte aligned.
++				 * This should match the
++				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
++				 * process_input_packet, but we do not have
++				 * enough chars here to test buf[1] and buf[2].
++				 */
+ 				if (buf[0] != PPP_ALLSTATIONS)
+ 					skb_reserve(skb, 2 + (buf[0] & 1));
+ 			}
 
 
