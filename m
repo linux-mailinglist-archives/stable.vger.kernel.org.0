@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC90C157686
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D558B15765E
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:53:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727617AbgBJMx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:53:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
+        id S1730179AbgBJMmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:42:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730171AbgBJMmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:42:10 -0500
+        id S1730175AbgBJMmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:42:11 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 116342085B;
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DC7821739;
         Mon, 10 Feb 2020 12:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338530;
-        bh=Drbo6a1X3mI+Wro5yjOiwbCA8BdT4bd7sTVT9DP2btc=;
+        bh=AyQSEYvegNu1Fb7bnvoK/WzAV6v/dvNilSNKqB61r44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jdkx0dI8RyeKH84uVMmqxaPK2aFtQks61YhqwpDhn/HZqC9pu1t2Mp1mml0mRTiet
-         y+wxfNSL3n7iQExQ4V5Fch+580dMPR4AdsaJlZaftlj6HRtzXbeFDi8MZJ0xOm766O
-         Mw2Pwj0GDglmxT8qQ8c7SiNHFAdNnyHISJGfY0Tg=
+        b=UupmilbBJkXFkjshMj9XL+uvSFQA3gSD630F1WGVAgxVwiJPmL038nLvYdVYMysga
+         0P0CX9ua3JHO1Eb3ZH0E6ALv1vL345jhXblAVbl01ct9gSa23w6PAQCJjZpaL2XlBQ
+         VxPqdtxPmc2MqzBECib+EgiN1aifNMGYScMPd4vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 353/367] drm/dp_mst: Remove VCPI while disabling topology mgr
-Date:   Mon, 10 Feb 2020 04:34:26 -0800
-Message-Id: <20200210122455.077108892@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mark Papadakis <markuspapadakis@icloud.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 354/367] io_uring: enable option to only trigger eventfd for async completions
+Date:   Mon, 10 Feb 2020 04:34:27 -0800
+Message-Id: <20200210122455.155382765@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -43,90 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+[ Upstream commit f2842ab5b72d7ee5f7f8385c2d4f32c133f5837b ]
 
-[ Upstream commit 64e62bdf04ab8529f45ed0a85122c703035dec3a ]
+If an application is using eventfd notifications with poll to know when
+new SQEs can be issued, it's expecting the following read/writes to
+complete inline. And with that, it knows that there are events available,
+and don't want spurious wakeups on the eventfd for those requests.
 
-[Why]
+This adds IORING_REGISTER_EVENTFD_ASYNC, which works just like
+IORING_REGISTER_EVENTFD, except it only triggers notifications for events
+that happen from async completions (IRQ, or io-wq worker completions).
+Any completions inline from the submission itself will not trigger
+notifications.
 
-This patch is trying to address the issue observed when hotplug DP
-daisy chain monitors.
-
-e.g.
-src-mstb-mstb-sst -> src (unplug) mstb-mstb-sst -> src-mstb-mstb-sst
-(plug in again)
-
-Once unplug a DP MST capable device, driver will call
-drm_dp_mst_topology_mgr_set_mst() to disable MST. In this function,
-it cleans data of topology manager while disabling mst_state. However,
-it doesn't clean up the proposed_vcpis of topology manager.
-If proposed_vcpi is not reset, once plug in MST daisy chain monitors
-later, code will fail at checking port validation while trying to
-allocate payloads.
-
-When MST capable device is plugged in again and try to allocate
-payloads by calling drm_dp_update_payload_part1(), this
-function will iterate over all proposed virtual channels to see if
-any proposed VCPI's num_slots is greater than 0. If any proposed
-VCPI's num_slots is greater than 0 and the port which the
-specific virtual channel directed to is not in the topology, code then
-fails at the port validation. Since there are stale VCPI allocations
-from the previous topology enablement in proposed_vcpi[], code will fail
-at port validation and reurn EINVAL.
-
-[How]
-
-Clean up the data of stale proposed_vcpi[] and reset mgr->proposed_vcpis
-to NULL while disabling mst in drm_dp_mst_topology_mgr_set_mst().
-
-Changes since v1:
-*Add on more details in commit message to describe the issue which the
-patch is trying to fix
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-[added cc to stable]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191205090043.7580-1-Wayne.Lin@amd.com
-Cc: <stable@vger.kernel.org> # v3.17+
+Suggested-by: Mark Papadakis <markuspapadakis@icloud.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ fs/io_uring.c                 | 17 ++++++++++++++++-
+ include/uapi/linux/io_uring.h |  1 +
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index e6afe4faeca6d..141ba31cf5486 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -3435,6 +3435,7 @@ static int drm_dp_get_vc_payload_bw(u8 dp_link_bw, u8  dp_link_count)
- int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state)
- {
- 	int ret = 0;
-+	int i = 0;
- 	struct drm_dp_mst_branch *mstb = NULL;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 95fc5c5a85968..131087782bec9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -188,6 +188,7 @@ struct io_ring_ctx {
+ 		bool			account_mem;
+ 		bool			cq_overflow_flushed;
+ 		bool			drain_next;
++		bool			eventfd_async;
  
- 	mutex_lock(&mgr->lock);
-@@ -3495,10 +3496,21 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
-+		mutex_lock(&mgr->payload_lock);
- 		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
- 		mgr->payload_mask = 0;
- 		set_bit(0, &mgr->payload_mask);
-+		for (i = 0; i < mgr->max_payloads; i++) {
-+			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
+ 		/*
+ 		 * Ring buffer of indices into array of io_uring_sqe, which is
+@@ -735,13 +736,20 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+ 	return &rings->cqes[tail & ctx->cq_mask];
+ }
+ 
++static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
++{
++	if (!ctx->eventfd_async)
++		return true;
++	return io_wq_current_is_worker() || in_interrupt();
++}
 +
-+			if (vcpi) {
-+				vcpi->vcpi = 0;
-+				vcpi->num_slots = 0;
-+			}
-+			mgr->proposed_vcpis[i] = NULL;
-+		}
- 		mgr->vcpi_mask = 0;
-+		mutex_unlock(&mgr->payload_lock);
- 	}
+ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
+ {
+ 	if (waitqueue_active(&ctx->wait))
+ 		wake_up(&ctx->wait);
+ 	if (waitqueue_active(&ctx->sqo_wait))
+ 		wake_up(&ctx->sqo_wait);
+-	if (ctx->cq_ev_fd)
++	if (ctx->cq_ev_fd && io_should_trigger_evfd(ctx))
+ 		eventfd_signal(ctx->cq_ev_fd, 1);
+ }
  
- out_unlock:
+@@ -5486,10 +5494,17 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 		ret = io_sqe_files_update(ctx, arg, nr_args);
+ 		break;
+ 	case IORING_REGISTER_EVENTFD:
++	case IORING_REGISTER_EVENTFD_ASYNC:
+ 		ret = -EINVAL;
+ 		if (nr_args != 1)
+ 			break;
+ 		ret = io_eventfd_register(ctx, arg);
++		if (ret)
++			break;
++		if (opcode == IORING_REGISTER_EVENTFD_ASYNC)
++			ctx->eventfd_async = 1;
++		else
++			ctx->eventfd_async = 0;
+ 		break;
+ 	case IORING_UNREGISTER_EVENTFD:
+ 		ret = -EINVAL;
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 55cfcb71606db..88693fed2c4b4 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -175,6 +175,7 @@ struct io_uring_params {
+ #define IORING_REGISTER_EVENTFD		4
+ #define IORING_UNREGISTER_EVENTFD	5
+ #define IORING_REGISTER_FILES_UPDATE	6
++#define IORING_REGISTER_EVENTFD_ASYNC	7
+ 
+ struct io_uring_files_update {
+ 	__u32 offset;
 -- 
 2.20.1
 
