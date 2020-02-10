@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 832C7157BBE
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD6E157BAB
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728146AbgBJMfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:35:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
+        id S1728198AbgBJNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:31:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728138AbgBJMfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:51 -0500
+        id S1728195AbgBJMf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:58 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42EDC2168B;
-        Mon, 10 Feb 2020 12:35:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E8D24650;
+        Mon, 10 Feb 2020 12:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338150;
-        bh=MwYhGUE+jYWpjZsa+15g3hupFybA4O768IPBJA8Bcy0=;
+        s=default; t=1581338158;
+        bh=CCRdGqX/qGm69ug+v9Y5SR8BnRz4DNknCK4V/Tw2TAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hbvv8KwAVH6pTGb3a6LqZpiBI8wEc97kWfNFUSNLy39yLVqS5rNxpOsiVv80oLkSp
-         EzfbdHWhNZHTNZPTTtFomP93BzZeqJ1FJ5ZFEfgwtS0/+/TrXUcqxDf+txiZXQzhY4
-         bfdvu27lpC2bBuzeJPzzY8VezA7G91TUOK8+HbOI=
+        b=hRXWU+gTH/3WVv2i2j3AYws5aAS+jxbC/SESadO7rHP0+k+Qgh9ScmIlrWX53qPcd
+         U2TSGjmXa1ulmBeXXWZxQjl0twjNYJ/KNI3qa8856pHHb9CRB4T3+lFSjQu/pDxp9R
+         v1kcDysJfKUczFiRvC+LT0XGDqa7bfzkfoACyTTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org, Jerad Simpson <jbsimpson@gmail.com>,
+        Milan Broz <gmazyland@gmail.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 086/195] dm zoned: support zone sizes smaller than 128MiB
-Date:   Mon, 10 Feb 2020 04:32:24 -0800
-Message-Id: <20200210122313.863366477@linuxfoundation.org>
+Subject: [PATCH 4.19 088/195] dm crypt: fix benbi IV constructor crash if used in authenticated mode
+Date:   Mon, 10 Feb 2020 04:32:26 -0800
+Message-Id: <20200210122313.980830180@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -44,117 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+From: Milan Broz <gmazyland@gmail.com>
 
-commit b39962950339912978484cdac50069258545d753 upstream.
+commit 4ea9471fbd1addb25a4d269991dc724e200ca5b5 upstream.
 
-dm-zoned is observed to log failed kernel assertions and not work
-correctly when operating against a device with a zone size smaller
-than 128MiB (e.g. 32768 bits per 4K block). The reason is that the
-bitmap size per zone is calculated as zero with such a small zone
-size. Fix this problem and also make the code related to zone bitmap
-management be able to handle per zone bitmaps smaller than a single
-block.
+If benbi IV is used in AEAD construction, for example:
+  cryptsetup luksFormat <device> --cipher twofish-xts-benbi --key-size 512 --integrity=hmac-sha256
+the constructor uses wrong skcipher function and crashes:
 
-A dm-zoned-tools patch is required to properly format dm-zoned devices
-with zone sizes smaller than 128MiB.
+ BUG: kernel NULL pointer dereference, address: 00000014
+ ...
+ EIP: crypt_iv_benbi_ctr+0x15/0x70 [dm_crypt]
+ Call Trace:
+  ? crypt_subkey_size+0x20/0x20 [dm_crypt]
+  crypt_ctr+0x567/0xfc0 [dm_crypt]
+  dm_table_add_target+0x15f/0x340 [dm_mod]
 
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Fix this by properly using crypt_aead_blocksize() in this case.
+
+Fixes: ef43aa38063a6 ("dm crypt: add cryptographic data integrity protection (authenticated encryption)")
+Cc: stable@vger.kernel.org # v4.12+
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=941051
+Reported-by: Jerad Simpson <jbsimpson@gmail.com>
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/md/dm-crypt.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -132,6 +132,7 @@ struct dmz_metadata {
- 
- 	sector_t		zone_bitmap_size;
- 	unsigned int		zone_nr_bitmap_blocks;
-+	unsigned int		zone_bits_per_mblk;
- 
- 	unsigned int		nr_bitmap_blocks;
- 	unsigned int		nr_map_blocks;
-@@ -1165,7 +1166,10 @@ static int dmz_init_zones(struct dmz_met
- 
- 	/* Init */
- 	zmd->zone_bitmap_size = dev->zone_nr_blocks >> 3;
--	zmd->zone_nr_bitmap_blocks = zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT;
-+	zmd->zone_nr_bitmap_blocks =
-+		max_t(sector_t, 1, zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT);
-+	zmd->zone_bits_per_mblk = min_t(sector_t, dev->zone_nr_blocks,
-+					DMZ_BLOCK_SIZE_BITS);
- 
- 	/* Allocate zone array */
- 	zmd->zones = kcalloc(dev->nr_zones, sizeof(struct dm_zone), GFP_KERNEL);
-@@ -1982,7 +1986,7 @@ int dmz_copy_valid_blocks(struct dmz_met
- 		dmz_release_mblock(zmd, to_mblk);
- 		dmz_release_mblock(zmd, from_mblk);
- 
--		chunk_block += DMZ_BLOCK_SIZE_BITS;
-+		chunk_block += zmd->zone_bits_per_mblk;
- 	}
- 
- 	to_zone->weight = from_zone->weight;
-@@ -2043,7 +2047,7 @@ int dmz_validate_blocks(struct dmz_metad
- 
- 		/* Set bits */
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 
- 		count = dmz_set_bits((unsigned long *)mblk->data, bit, nr_bits);
- 		if (count) {
-@@ -2122,7 +2126,7 @@ int dmz_invalidate_blocks(struct dmz_met
- 
- 		/* Clear bits */
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 
- 		count = dmz_clear_bits((unsigned long *)mblk->data,
- 				       bit, nr_bits);
-@@ -2182,6 +2186,7 @@ static int dmz_to_next_set_block(struct
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -482,8 +482,14 @@ static int crypt_iv_essiv_gen(struct cry
+ static int crypt_iv_benbi_ctr(struct crypt_config *cc, struct dm_target *ti,
+ 			      const char *opts)
  {
- 	struct dmz_mblock *mblk;
- 	unsigned int bit, set_bit, nr_bits;
-+	unsigned int zone_bits = zmd->zone_bits_per_mblk;
- 	unsigned long *bitmap;
- 	int n = 0;
+-	unsigned bs = crypto_skcipher_blocksize(any_tfm(cc));
+-	int log = ilog2(bs);
++	unsigned bs;
++	int log;
++
++	if (test_bit(CRYPT_MODE_INTEGRITY_AEAD, &cc->cipher_flags))
++		bs = crypto_aead_blocksize(any_tfm_aead(cc));
++	else
++		bs = crypto_skcipher_blocksize(any_tfm(cc));
++	log = ilog2(bs);
  
-@@ -2196,15 +2201,15 @@ static int dmz_to_next_set_block(struct
- 		/* Get offset */
- 		bitmap = (unsigned long *) mblk->data;
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zone_bits - bit);
- 		if (set)
--			set_bit = find_next_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
-+			set_bit = find_next_bit(bitmap, zone_bits, bit);
- 		else
--			set_bit = find_next_zero_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
-+			set_bit = find_next_zero_bit(bitmap, zone_bits, bit);
- 		dmz_release_mblock(zmd, mblk);
- 
- 		n += set_bit - bit;
--		if (set_bit < DMZ_BLOCK_SIZE_BITS)
-+		if (set_bit < zone_bits)
- 			break;
- 
- 		nr_blocks -= nr_bits;
-@@ -2307,7 +2312,7 @@ static void dmz_get_zone_weight(struct d
- 		/* Count bits in this block */
- 		bitmap = mblk->data;
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 		n += dmz_count_bits(bitmap, bit, nr_bits);
- 
- 		dmz_release_mblock(zmd, mblk);
+ 	/* we need to calculate how far we must shift the sector count
+ 	 * to get the cipher block count, we use this shift in _gen */
 
 
