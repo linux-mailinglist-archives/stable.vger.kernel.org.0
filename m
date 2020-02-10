@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B004515752D
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A66EC15752F
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729390AbgBJMjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:39:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36740 "EHLO mail.kernel.org"
+        id S1729401AbgBJMjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:39:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728261AbgBJMjS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:39:18 -0500
+        id S1728767AbgBJMjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:39:19 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45C8C2173E;
-        Mon, 10 Feb 2020 12:39:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3DA22051A;
+        Mon, 10 Feb 2020 12:39:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338357;
-        bh=xyi1BokZh6flgpInBanUV5C40kryavWStzwihmuMg/k=;
+        s=default; t=1581338358;
+        bh=DwlVUYRsxY52GqJ7OR6aQKRN9VoxxlU/3g86icYD6mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5Y2UXQ7HcbIxnX8y2dRL3anhR/8ExExFwi3OX2bSjBOdHddX/R0rM0X4RnsbETSF
-         EQARIlpDlWt3S+GSv/garQI2dD1emIDLdf3PD7RsKoq8w9NeKeHVNwr710ZfbIQ+dI
-         93eyXvpvrO2KgIv1qacXW/+h2n0EUgqxmDSyejFo=
+        b=AwGDwC48w/ZhJMQ7VA6/qZQMAqmvEoTsYEuW5XPT4sWynjcD93eyOzc5gSUcI8iuQ
+         V317Gn1NUlXwrdQk/61aXpPI2VBEqaMnp4bPlXbi9sxU2ZxhjNf2k6lMZ1RZC0wpbm
+         LNW8lKscL1/gDWMrulCFVD8vSyIWuaXHVCOhAi7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.5 015/367] cls_rsvp: fix rsvp_policy
-Date:   Mon, 10 Feb 2020 04:28:48 -0800
-Message-Id: <20200210122425.268265683@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.5 018/367] rxrpc: Fix missing active use pinning of rxrpc_local object
+Date:   Mon, 10 Feb 2020 04:28:51 -0800
+Message-Id: <20200210122425.550447748@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122423.695146547@linuxfoundation.org>
 References: <20200210122423.695146547@linuxfoundation.org>
@@ -45,101 +42,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit cb3c0e6bdf64d0d124e94ce43cbe4ccbb9b37f51 ]
+[ Upstream commit 04d36d748fac349b068ef621611f454010054c58 ]
 
-NLA_BINARY can be confusing, since .len value represents
-the max size of the blob.
+The introduction of a split between the reference count on rxrpc_local
+objects and the usage count didn't quite go far enough.  A number of kernel
+work items need to make use of the socket to perform transmission.  These
+also need to get an active count on the local object to prevent the socket
+from being closed.
 
-cls_rsvp really wants user space to provide long enough data
-for TCA_RSVP_DST and TCA_RSVP_SRC attributes.
+Fix this by getting the active count in those places.
 
-BUG: KMSAN: uninit-value in rsvp_get net/sched/cls_rsvp.h:258 [inline]
-BUG: KMSAN: uninit-value in gen_handle net/sched/cls_rsvp.h:402 [inline]
-BUG: KMSAN: uninit-value in rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
-CPU: 1 PID: 13228 Comm: syz-executor.1 Not tainted 5.5.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- rsvp_get net/sched/cls_rsvp.h:258 [inline]
- gen_handle net/sched/cls_rsvp.h:402 [inline]
- rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
- tc_new_tfilter+0x31fe/0x5010 net/sched/cls_api.c:2104
- rtnetlink_rcv_msg+0xcb7/0x1570 net/core/rtnetlink.c:5415
- netlink_rcv_skb+0x451/0x650 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5442
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0xf9e/0x1100 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x1248/0x14d0 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg net/socket.c:659 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
- ___sys_sendmsg net/socket.c:2384 [inline]
- __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45b349
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f269d43dc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f269d43e6d4 RCX: 000000000045b349
-RDX: 0000000000000000 RSI: 00000000200001c0 RDI: 0000000000000003
-RBP: 000000000075bfc8 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00000000000009c2 R14: 00000000004cb338 R15: 000000000075bfd4
+Also split out the raw active count get/put functions as these places tend
+to hold refs on the rxrpc_local object already, so getting and putting an
+extra object ref is just a waste of time.
 
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2774 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4382
- __kmalloc_reserve net/core/skbuff.c:141 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:209
- alloc_skb include/linux/skbuff.h:1049 [inline]
- netlink_alloc_large_skb net/netlink/af_netlink.c:1174 [inline]
- netlink_sendmsg+0x7d3/0x14d0 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg net/socket.c:659 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
- ___sys_sendmsg net/socket.c:2384 [inline]
- __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The problem can lead to symptoms like:
 
-Fixes: 6fa8c0144b77 ("[NET_SCHED]: Use nla_policy for attribute validation in classifiers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+    BUG: kernel NULL pointer dereference, address: 0000000000000018
+    ..
+    CPU: 2 PID: 818 Comm: kworker/u9:0 Not tainted 5.5.0-fscache+ #51
+    ...
+    RIP: 0010:selinux_socket_sendmsg+0x5/0x13
+    ...
+    Call Trace:
+     security_socket_sendmsg+0x2c/0x3e
+     sock_sendmsg+0x1a/0x46
+     rxrpc_send_keepalive+0x131/0x1ae
+     rxrpc_peer_keepalive_worker+0x219/0x34b
+     process_one_work+0x18e/0x271
+     worker_thread+0x1a3/0x247
+     kthread+0xe6/0xeb
+     ret_from_fork+0x1f/0x30
+
+Fixes: 730c5fd42c1e ("rxrpc: Fix local endpoint refcounting")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_rsvp.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/rxrpc/af_rxrpc.c     |    2 ++
+ net/rxrpc/ar-internal.h  |   10 ++++++++++
+ net/rxrpc/conn_event.c   |   30 ++++++++++++++++++++----------
+ net/rxrpc/local_object.c |   18 +++++++-----------
+ net/rxrpc/peer_event.c   |   40 ++++++++++++++++++++++------------------
+ 5 files changed, 61 insertions(+), 39 deletions(-)
 
---- a/net/sched/cls_rsvp.h
-+++ b/net/sched/cls_rsvp.h
-@@ -463,10 +463,8 @@ static u32 gen_tunnel(struct rsvp_head *
+--- a/net/rxrpc/af_rxrpc.c
++++ b/net/rxrpc/af_rxrpc.c
+@@ -194,6 +194,7 @@ static int rxrpc_bind(struct socket *soc
+ service_in_use:
+ 	write_unlock(&local->services_lock);
+ 	rxrpc_unuse_local(local);
++	rxrpc_put_local(local);
+ 	ret = -EADDRINUSE;
+ error_unlock:
+ 	release_sock(&rx->sk);
+@@ -899,6 +900,7 @@ static int rxrpc_release_sock(struct soc
+ 	rxrpc_purge_queue(&sk->sk_receive_queue);
  
- static const struct nla_policy rsvp_policy[TCA_RSVP_MAX + 1] = {
- 	[TCA_RSVP_CLASSID]	= { .type = NLA_U32 },
--	[TCA_RSVP_DST]		= { .type = NLA_BINARY,
--				    .len = RSVP_DST_LEN * sizeof(u32) },
--	[TCA_RSVP_SRC]		= { .type = NLA_BINARY,
--				    .len = RSVP_DST_LEN * sizeof(u32) },
-+	[TCA_RSVP_DST]		= { .len = RSVP_DST_LEN * sizeof(u32) },
-+	[TCA_RSVP_SRC]		= { .len = RSVP_DST_LEN * sizeof(u32) },
- 	[TCA_RSVP_PINFO]	= { .len = sizeof(struct tc_rsvp_pinfo) },
- };
+ 	rxrpc_unuse_local(rx->local);
++	rxrpc_put_local(rx->local);
+ 	rx->local = NULL;
+ 	key_put(rx->key);
+ 	rx->key = NULL;
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -1021,6 +1021,16 @@ void rxrpc_unuse_local(struct rxrpc_loca
+ void rxrpc_queue_local(struct rxrpc_local *);
+ void rxrpc_destroy_all_locals(struct rxrpc_net *);
+ 
++static inline bool __rxrpc_unuse_local(struct rxrpc_local *local)
++{
++	return atomic_dec_return(&local->active_users) == 0;
++}
++
++static inline bool __rxrpc_use_local(struct rxrpc_local *local)
++{
++	return atomic_fetch_add_unless(&local->active_users, 1, 0) != 0;
++}
++
+ /*
+  * misc.c
+  */
+--- a/net/rxrpc/conn_event.c
++++ b/net/rxrpc/conn_event.c
+@@ -438,16 +438,12 @@ again:
+ /*
+  * connection-level event processor
+  */
+-void rxrpc_process_connection(struct work_struct *work)
++static void rxrpc_do_process_connection(struct rxrpc_connection *conn)
+ {
+-	struct rxrpc_connection *conn =
+-		container_of(work, struct rxrpc_connection, processor);
+ 	struct sk_buff *skb;
+ 	u32 abort_code = RX_PROTOCOL_ERROR;
+ 	int ret;
+ 
+-	rxrpc_see_connection(conn);
+-
+ 	if (test_and_clear_bit(RXRPC_CONN_EV_CHALLENGE, &conn->events))
+ 		rxrpc_secure_connection(conn);
+ 
+@@ -475,18 +471,32 @@ void rxrpc_process_connection(struct wor
+ 		}
+ 	}
+ 
+-out:
+-	rxrpc_put_connection(conn);
+-	_leave("");
+ 	return;
+ 
+ requeue_and_leave:
+ 	skb_queue_head(&conn->rx_queue, skb);
+-	goto out;
++	return;
+ 
+ protocol_error:
+ 	if (rxrpc_abort_connection(conn, ret, abort_code) < 0)
+ 		goto requeue_and_leave;
+ 	rxrpc_free_skb(skb, rxrpc_skb_freed);
+-	goto out;
++	return;
++}
++
++void rxrpc_process_connection(struct work_struct *work)
++{
++	struct rxrpc_connection *conn =
++		container_of(work, struct rxrpc_connection, processor);
++
++	rxrpc_see_connection(conn);
++
++	if (__rxrpc_use_local(conn->params.local)) {
++		rxrpc_do_process_connection(conn);
++		rxrpc_unuse_local(conn->params.local);
++	}
++
++	rxrpc_put_connection(conn);
++	_leave("");
++	return;
+ }
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -383,14 +383,11 @@ void rxrpc_put_local(struct rxrpc_local
+  */
+ struct rxrpc_local *rxrpc_use_local(struct rxrpc_local *local)
+ {
+-	unsigned int au;
+-
+ 	local = rxrpc_get_local_maybe(local);
+ 	if (!local)
+ 		return NULL;
+ 
+-	au = atomic_fetch_add_unless(&local->active_users, 1, 0);
+-	if (au == 0) {
++	if (!__rxrpc_use_local(local)) {
+ 		rxrpc_put_local(local);
+ 		return NULL;
+ 	}
+@@ -404,14 +401,11 @@ struct rxrpc_local *rxrpc_use_local(stru
+  */
+ void rxrpc_unuse_local(struct rxrpc_local *local)
+ {
+-	unsigned int au;
+-
+ 	if (local) {
+-		au = atomic_dec_return(&local->active_users);
+-		if (au == 0)
++		if (__rxrpc_unuse_local(local)) {
++			rxrpc_get_local(local);
+ 			rxrpc_queue_local(local);
+-		else
+-			rxrpc_put_local(local);
++		}
+ 	}
+ }
+ 
+@@ -468,7 +462,7 @@ static void rxrpc_local_processor(struct
+ 
+ 	do {
+ 		again = false;
+-		if (atomic_read(&local->active_users) == 0) {
++		if (!__rxrpc_use_local(local)) {
+ 			rxrpc_local_destroyer(local);
+ 			break;
+ 		}
+@@ -482,6 +476,8 @@ static void rxrpc_local_processor(struct
+ 			rxrpc_process_local_events(local);
+ 			again = true;
+ 		}
++
++		__rxrpc_unuse_local(local);
+ 	} while (again);
+ 
+ 	rxrpc_put_local(local);
+--- a/net/rxrpc/peer_event.c
++++ b/net/rxrpc/peer_event.c
+@@ -364,27 +364,31 @@ static void rxrpc_peer_keepalive_dispatc
+ 		if (!rxrpc_get_peer_maybe(peer))
+ 			continue;
+ 
+-		spin_unlock_bh(&rxnet->peer_hash_lock);
++		if (__rxrpc_use_local(peer->local)) {
++			spin_unlock_bh(&rxnet->peer_hash_lock);
+ 
+-		keepalive_at = peer->last_tx_at + RXRPC_KEEPALIVE_TIME;
+-		slot = keepalive_at - base;
+-		_debug("%02x peer %u t=%d {%pISp}",
+-		       cursor, peer->debug_id, slot, &peer->srx.transport);
++			keepalive_at = peer->last_tx_at + RXRPC_KEEPALIVE_TIME;
++			slot = keepalive_at - base;
++			_debug("%02x peer %u t=%d {%pISp}",
++			       cursor, peer->debug_id, slot, &peer->srx.transport);
+ 
+-		if (keepalive_at <= base ||
+-		    keepalive_at > base + RXRPC_KEEPALIVE_TIME) {
+-			rxrpc_send_keepalive(peer);
+-			slot = RXRPC_KEEPALIVE_TIME;
+-		}
++			if (keepalive_at <= base ||
++			    keepalive_at > base + RXRPC_KEEPALIVE_TIME) {
++				rxrpc_send_keepalive(peer);
++				slot = RXRPC_KEEPALIVE_TIME;
++			}
+ 
+-		/* A transmission to this peer occurred since last we examined
+-		 * it so put it into the appropriate future bucket.
+-		 */
+-		slot += cursor;
+-		slot &= mask;
+-		spin_lock_bh(&rxnet->peer_hash_lock);
+-		list_add_tail(&peer->keepalive_link,
+-			      &rxnet->peer_keepalive[slot & mask]);
++			/* A transmission to this peer occurred since last we
++			 * examined it so put it into the appropriate future
++			 * bucket.
++			 */
++			slot += cursor;
++			slot &= mask;
++			spin_lock_bh(&rxnet->peer_hash_lock);
++			list_add_tail(&peer->keepalive_link,
++				      &rxnet->peer_keepalive[slot & mask]);
++			rxrpc_unuse_local(peer->local);
++		}
+ 		rxrpc_put_peer_locked(peer);
+ 	}
  
 
 
