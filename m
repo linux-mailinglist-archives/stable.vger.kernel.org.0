@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF57157C50
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:36:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4F9157C48
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 14:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731641AbgBJNgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 08:36:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
+        id S1728190AbgBJNgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 08:36:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727743AbgBJMfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:35:10 -0500
+        id S1727691AbgBJMfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:35:12 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36E052085B;
+        by mail.kernel.org (Postfix) with ESMTPSA id B6C5D215A4;
         Mon, 10 Feb 2020 12:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581338110;
-        bh=/BZ3prPuLKHWUTlgF7WTgOa+7ZLuVuNTgcGzsp9DO4c=;
+        bh=rv+mI0w3hDpCkcgcs2ovUWMg5x7dJNDtrZDs+5eGnoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Afb+rqHr8o8AnKyREyWiB6hO8dAfMt9e+5mojK7elTyrwd7QsilTCXFQ5HYxO/Jb9
-         GjFaYTDtFGgxq52xMR9qpF2bfgoj544RLVD37f6Vp9j3T1K3f4VM47KRLbuvcpZ6gU
-         6nJZ59uobZxn4XnyVrfWkfMU8BKOb/9i9GccTr2Y=
+        b=GUC4+wSaTjDtHKOYXrKrglRmQqUoFcpN2edjquC40cghx56TqC0QM9eHtEpX8M6Vq
+         NxrgW5GMbfRM40X+ljwB9g6tK+lld4TGUfaX7FVAzQb3aTykfree3Wo8h1QlkM4xg3
+         GEKU2IQ8vFZmvpklsHEWg7ok22EB40hu5zc6DLY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.19 034/195] usb: gadget: f_ncm: Use atomic_t to track in-flight request
-Date:   Mon, 10 Feb 2020 04:31:32 -0800
-Message-Id: <20200210122309.907856053@linuxfoundation.org>
+Subject: [PATCH 4.19 035/195] usb: gadget: f_ecm: Use atomic_t to track in-flight request
+Date:   Mon, 10 Feb 2020 04:31:33 -0800
+Message-Id: <20200210122309.994950758@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
 References: <20200210122305.731206734@linuxfoundation.org>
@@ -46,95 +46,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 5b24c28cfe136597dc3913e1c00b119307a20c7e upstream.
+commit d710562e01c48d59be3f60d58b7a85958b39aeda upstream.
 
-Currently ncm->notify_req is used to flag when a request is in-flight.
-ncm->notify_req is set to NULL and when a request completes it is
+Currently ecm->notify_req is used to flag when a request is in-flight.
+ecm->notify_req is set to NULL and when a request completes it is
 subsequently reset.
 
-This is fundamentally buggy in that the unbind logic of the NCM driver will
-unconditionally free ncm->notify_req leading to a NULL pointer dereference.
+This is fundamentally buggy in that the unbind logic of the ECM driver will
+unconditionally free ecm->notify_req leading to a NULL pointer dereference.
 
-Fixes: 40d133d7f542 ("usb: gadget: f_ncm: convert to new function interface with backward compatibility")
+Fixes: da741b8c56d6 ("usb ethernet gadget: split CDC Ethernet function")
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_ncm.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/function/f_ecm.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -54,6 +54,7 @@ struct f_ncm {
+--- a/drivers/usb/gadget/function/f_ecm.c
++++ b/drivers/usb/gadget/function/f_ecm.c
+@@ -52,6 +52,7 @@ struct f_ecm {
  	struct usb_ep			*notify;
  	struct usb_request		*notify_req;
  	u8				notify_state;
 +	atomic_t			notify_count;
  	bool				is_open;
  
- 	const struct ndp_parser_opts	*parser_opts;
-@@ -547,7 +548,7 @@ static void ncm_do_notify(struct f_ncm *
+ 	/* FIXME is_open needs some irq-ish locking
+@@ -380,7 +381,7 @@ static void ecm_do_notify(struct f_ecm *
  	int				status;
  
  	/* notification already in flight? */
 -	if (!req)
-+	if (atomic_read(&ncm->notify_count))
++	if (atomic_read(&ecm->notify_count))
  		return;
  
  	event = req->buf;
-@@ -587,7 +588,8 @@ static void ncm_do_notify(struct f_ncm *
+@@ -420,10 +421,10 @@ static void ecm_do_notify(struct f_ecm *
  	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ncm->ctrl_id);
+ 	event->wIndex = cpu_to_le16(ecm->ctrl_id);
  
--	ncm->notify_req = NULL;
-+	atomic_inc(&ncm->notify_count);
-+
- 	/*
- 	 * In double buffering if there is a space in FIFO,
- 	 * completion callback can be called right after the call,
-@@ -597,7 +599,7 @@ static void ncm_do_notify(struct f_ncm *
- 	status = usb_ep_queue(ncm->notify, req, GFP_ATOMIC);
- 	spin_lock(&ncm->lock);
+-	ecm->notify_req = NULL;
++	atomic_inc(&ecm->notify_count);
+ 	status = usb_ep_queue(ecm->notify, req, GFP_ATOMIC);
  	if (status < 0) {
--		ncm->notify_req = req;
-+		atomic_dec(&ncm->notify_count);
+-		ecm->notify_req = req;
++		atomic_dec(&ecm->notify_count);
  		DBG(cdev, "notify --> %d\n", status);
  	}
  }
-@@ -632,17 +634,19 @@ static void ncm_notify_complete(struct u
+@@ -448,17 +449,19 @@ static void ecm_notify_complete(struct u
+ 	switch (req->status) {
  	case 0:
- 		VDBG(cdev, "Notification %02x sent\n",
- 		     event->bNotificationType);
-+		atomic_dec(&ncm->notify_count);
+ 		/* no fault */
++		atomic_dec(&ecm->notify_count);
  		break;
  	case -ECONNRESET:
  	case -ESHUTDOWN:
-+		atomic_set(&ncm->notify_count, 0);
- 		ncm->notify_state = NCM_NOTIFY_NONE;
++		atomic_set(&ecm->notify_count, 0);
+ 		ecm->notify_state = ECM_NOTIFY_NONE;
  		break;
  	default:
  		DBG(cdev, "event %02x --> %d\n",
  			event->bNotificationType, req->status);
-+		atomic_dec(&ncm->notify_count);
++		atomic_dec(&ecm->notify_count);
  		break;
  	}
--	ncm->notify_req = req;
- 	ncm_do_notify(ncm);
- 	spin_unlock(&ncm->lock);
+-	ecm->notify_req = req;
+ 	ecm_do_notify(ecm);
  }
-@@ -1612,6 +1616,11 @@ static void ncm_unbind(struct usb_config
- 	ncm_string_defs[0].id = 0;
+ 
+@@ -907,6 +910,11 @@ static void ecm_unbind(struct usb_config
+ 
  	usb_free_all_descriptors(f);
  
-+	if (atomic_read(&ncm->notify_count)) {
-+		usb_ep_dequeue(ncm->notify, ncm->notify_req);
-+		atomic_set(&ncm->notify_count, 0);
++	if (atomic_read(&ecm->notify_count)) {
++		usb_ep_dequeue(ecm->notify, ecm->notify_req);
++		atomic_set(&ecm->notify_count, 0);
 +	}
 +
- 	kfree(ncm->notify_req->buf);
- 	usb_ep_free_request(ncm->notify, ncm->notify_req);
+ 	kfree(ecm->notify_req->buf);
+ 	usb_ep_free_request(ecm->notify, ecm->notify_req);
  }
 
 
