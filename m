@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E129D1574FA
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFA31574A0
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 13:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728779AbgBJMha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Feb 2020 07:37:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
+        id S1727079AbgBJMe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 07:34:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727516AbgBJMha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:37:30 -0500
+        id S1726796AbgBJMe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 07:34:58 -0500
 Received: from localhost (unknown [209.37.97.194])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C23A20661;
-        Mon, 10 Feb 2020 12:37:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A2F1208C3;
+        Mon, 10 Feb 2020 12:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581338249;
-        bh=KM0blz/sPOMcLJ1MQfWiz35/SGyUA2nMXUvLEnE2NGE=;
+        s=default; t=1581338097;
+        bh=zI3FjhTKtppzFs/Jqwl5BCcFUovYZrWJ5RyzsJUbedY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcHcXGBpFZbZydPtp/P5cegrO/giijDrz+8sZRJBlE8kHZAzsZxnzM2skfIa4XY85
-         8rtjp3LZlh2gEH3/cCCfBEmLZSWj+iRgzIegAZc1HQmtO0RWTLO0a/ZnyVaNjE5R+D
-         YwW4gW4ZojuIX3S2W+V5lyd1ivtqy9VMlahRCeHw=
+        b=oLFGtq1x3FQXcoq9u4sW43hAeKyZAFafGzcwMbo+SU6pCtEm1wvC+KUvxC9kM/ir3
+         DqgwJ4eCy7k606IdATcGI3i1JXbp5erze5Nv6Nh04W+o9iTE/Tj+3ZDjDRL8zpr+7F
+         OI9wn7aDMxWaISxYnHh4bdZX4K/t/5oepije291A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        Anand Lodnoor <anand.lodnoor@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 111/309] scsi: megaraid_sas: Do not initiate OCR if controller is not in ready state
-Date:   Mon, 10 Feb 2020 04:31:07 -0800
-Message-Id: <20200210122417.279849489@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 011/195] cls_rsvp: fix rsvp_policy
+Date:   Mon, 10 Feb 2020 04:31:09 -0800
+Message-Id: <20200210122306.847147829@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200210122406.106356946@linuxfoundation.org>
-References: <20200210122406.106356946@linuxfoundation.org>
+In-Reply-To: <20200210122305.731206734@linuxfoundation.org>
+References: <20200210122305.731206734@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Lodnoor <anand.lodnoor@broadcom.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 6d7537270e3283b92f9b327da9d58a4de40fe8d0 upstream.
+[ Upstream commit cb3c0e6bdf64d0d124e94ce43cbe4ccbb9b37f51 ]
 
-Driver initiates OCR if a DCMD command times out. But there is a deadlock
-if the driver attempts to invoke another OCR before the mutex lock
-(reset_mutex) is released from the previous session of OCR.
+NLA_BINARY can be confusing, since .len value represents
+the max size of the blob.
 
-This patch takes care of the above scenario using new flag
-MEGASAS_FUSION_OCR_NOT_POSSIBLE to indicate if OCR is possible.
+cls_rsvp really wants user space to provide long enough data
+for TCA_RSVP_DST and TCA_RSVP_SRC attributes.
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1579000882-20246-9-git-send-email-anand.lodnoor@broadcom.com
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-Signed-off-by: Anand Lodnoor <anand.lodnoor@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+BUG: KMSAN: uninit-value in rsvp_get net/sched/cls_rsvp.h:258 [inline]
+BUG: KMSAN: uninit-value in gen_handle net/sched/cls_rsvp.h:402 [inline]
+BUG: KMSAN: uninit-value in rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
+CPU: 1 PID: 13228 Comm: syz-executor.1 Not tainted 5.5.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ rsvp_get net/sched/cls_rsvp.h:258 [inline]
+ gen_handle net/sched/cls_rsvp.h:402 [inline]
+ rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
+ tc_new_tfilter+0x31fe/0x5010 net/sched/cls_api.c:2104
+ rtnetlink_rcv_msg+0xcb7/0x1570 net/core/rtnetlink.c:5415
+ netlink_rcv_skb+0x451/0x650 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5442
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0xf9e/0x1100 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x1248/0x14d0 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:639 [inline]
+ sock_sendmsg net/socket.c:659 [inline]
+ ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
+ ___sys_sendmsg net/socket.c:2384 [inline]
+ __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
+ __do_sys_sendmsg net/socket.c:2426 [inline]
+ __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
+ __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45b349
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f269d43dc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f269d43e6d4 RCX: 000000000045b349
+RDX: 0000000000000000 RSI: 00000000200001c0 RDI: 0000000000000003
+RBP: 000000000075bfc8 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 00000000000009c2 R14: 00000000004cb338 R15: 000000000075bfd4
+
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
+ kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
+ slab_alloc_node mm/slub.c:2774 [inline]
+ __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4382
+ __kmalloc_reserve net/core/skbuff.c:141 [inline]
+ __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:209
+ alloc_skb include/linux/skbuff.h:1049 [inline]
+ netlink_alloc_large_skb net/netlink/af_netlink.c:1174 [inline]
+ netlink_sendmsg+0x7d3/0x14d0 net/netlink/af_netlink.c:1892
+ sock_sendmsg_nosec net/socket.c:639 [inline]
+ sock_sendmsg net/socket.c:659 [inline]
+ ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
+ ___sys_sendmsg net/socket.c:2384 [inline]
+ __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
+ __do_sys_sendmsg net/socket.c:2426 [inline]
+ __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
+ __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 6fa8c0144b77 ("[NET_SCHED]: Use nla_policy for attribute validation in classifiers")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c   |    3 ++-
- drivers/scsi/megaraid/megaraid_sas_fusion.c |    3 ++-
- drivers/scsi/megaraid/megaraid_sas_fusion.h |    1 +
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ net/sched/cls_rsvp.h |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -4392,7 +4392,8 @@ dcmd_timeout_ocr_possible(struct megasas
- 	if (instance->adapter_type == MFI_SERIES)
- 		return KILL_ADAPTER;
- 	else if (instance->unload ||
--			test_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags))
-+			test_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE,
-+				 &instance->reset_flags))
- 		return IGNORE_TIMEOUT;
- 	else
- 		return INITIATE_OCR;
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -4847,6 +4847,7 @@ int megasas_reset_fusion(struct Scsi_Hos
- 	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
- 		del_timer_sync(&instance->sriov_heartbeat_timer);
- 	set_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
-+	set_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
- 	atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_POLLING);
- 	instance->instancet->disable_intr(instance);
- 	megasas_sync_irqs((unsigned long)instance);
-@@ -5046,7 +5047,7 @@ kill_hba:
- 	instance->skip_heartbeat_timer_del = 1;
- 	retval = FAILED;
- out:
--	clear_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
-+	clear_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
- 	mutex_unlock(&instance->reset_mutex);
- 	return retval;
- }
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
-@@ -89,6 +89,7 @@ enum MR_RAID_FLAGS_IO_SUB_TYPE {
+--- a/net/sched/cls_rsvp.h
++++ b/net/sched/cls_rsvp.h
+@@ -466,10 +466,8 @@ static u32 gen_tunnel(struct rsvp_head *
  
- #define MEGASAS_FP_CMD_LEN	16
- #define MEGASAS_FUSION_IN_RESET 0
-+#define MEGASAS_FUSION_OCR_NOT_POSSIBLE 1
- #define RAID_1_PEER_CMDS 2
- #define JBOD_MAPS_COUNT	2
- #define MEGASAS_REDUCE_QD_COUNT 64
+ static const struct nla_policy rsvp_policy[TCA_RSVP_MAX + 1] = {
+ 	[TCA_RSVP_CLASSID]	= { .type = NLA_U32 },
+-	[TCA_RSVP_DST]		= { .type = NLA_BINARY,
+-				    .len = RSVP_DST_LEN * sizeof(u32) },
+-	[TCA_RSVP_SRC]		= { .type = NLA_BINARY,
+-				    .len = RSVP_DST_LEN * sizeof(u32) },
++	[TCA_RSVP_DST]		= { .len = RSVP_DST_LEN * sizeof(u32) },
++	[TCA_RSVP_SRC]		= { .len = RSVP_DST_LEN * sizeof(u32) },
+ 	[TCA_RSVP_PINFO]	= { .len = sizeof(struct tc_rsvp_pinfo) },
+ };
+ 
 
 
