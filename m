@@ -2,89 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6A8157F48
-	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 16:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4376E157F50
+	for <lists+stable@lfdr.de>; Mon, 10 Feb 2020 17:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727628AbgBJP6O convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 10 Feb 2020 10:58:14 -0500
-Received: from mout.kundenserver.de ([212.227.126.130]:58053 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727143AbgBJP6O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Feb 2020 10:58:14 -0500
-Received: from mail-qv1-f52.google.com ([209.85.219.52]) by
- mrelayeu.kundenserver.de (mreue011 [212.227.15.129]) with ESMTPSA (Nemesis)
- id 1MuDHR-1jLrUv1q8L-00uZVr; Mon, 10 Feb 2020 16:58:12 +0100
-Received: by mail-qv1-f52.google.com with SMTP id p2so3379198qvo.10;
-        Mon, 10 Feb 2020 07:58:12 -0800 (PST)
-X-Gm-Message-State: APjAAAVsGZhZgoqiU0ziU8zxPyF/yTQiR6mYsSoMVgwWFsb8I+mBLRNy
-        ex+wqK10oke2GToGOroa50hEH4KWBzF56op4XrQ=
-X-Google-Smtp-Source: APXvYqwi4ZoFbnmw3nnhT4tDEWiydL4SiSFiHWpc+aE+XIZm51wr8kiVnmFwCTxhyqi/oKG97txows3MEsUheDXr6f8=
-X-Received: by 2002:a0c:bd20:: with SMTP id m32mr10404841qvg.197.1581350291243;
- Mon, 10 Feb 2020 07:58:11 -0800 (PST)
+        id S1727646AbgBJQAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Feb 2020 11:00:23 -0500
+Received: from mga02.intel.com ([134.134.136.20]:17025 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727143AbgBJQAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Feb 2020 11:00:23 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Feb 2020 08:00:22 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,425,1574150400"; 
+   d="scan'208";a="380144630"
+Received: from dvolkov-mobl1.ccr.corp.intel.com (HELO localhost) ([10.252.14.103])
+  by orsmga004.jf.intel.com with ESMTP; 10 Feb 2020 08:00:20 -0800
+Date:   Mon, 10 Feb 2020 18:00:19 +0200
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>
+Cc:     zohar@linux.ibm.com, James.Bottomley@HansenPartnership.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/8] tpm: Initialize crypto_id of allocated_banks to
+ HASH_ALGO__LAST
+Message-ID: <20200210160019.GA8146@linux.intel.com>
+References: <20200210100048.21448-1-roberto.sassu@huawei.com>
+ <20200210100048.21448-2-roberto.sassu@huawei.com>
 MIME-Version: 1.0
-References: <20200210122423.695146547@linuxfoundation.org> <20200210122450.176337512@linuxfoundation.org>
- <CA+G9fYu4pDFaG-dA2KbVp61HGNzA1R3F_=Z5isC8_ammG4iZkQ@mail.gmail.com>
-In-Reply-To: <CA+G9fYu4pDFaG-dA2KbVp61HGNzA1R3F_=Z5isC8_ammG4iZkQ@mail.gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 10 Feb 2020 16:57:55 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a0iq1fj7iVuYMYczbg2ij-x5b0D5OeKiy_2Pebk+ucMeA@mail.gmail.com>
-Message-ID: <CAK8P3a0iq1fj7iVuYMYczbg2ij-x5b0D5OeKiy_2Pebk+ucMeA@mail.gmail.com>
-Subject: Re: [PATCH 5.5 284/367] compat: scsi: sg: fix v3 compat read/write interface
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
-        Basil Eljuse <Basil.Eljuse@arm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: V03:K1:n9FNCikSD1JPbf7vQvz+QGtPowt3ouI5/nf1kp2EavgnD/55aBS
- mwulyxH8vMjUYmKlpFnKj99XwL8aaakFqfql/Y+u7/CKPlaviO9A3dti++Llppwcfsq/3LR
- bw6DTLJqv46FP6tt3zlvDFBLDNKUqYrvN2hwBW4bjAYOXB7487b2g/iqZtxtxyCEH+BOg9k
- HYWfUCweoqL+XmwF89CqA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:0W626MdKfhA=:56mFn6I/g/VKZRQ4Y+EitX
- oNHzDxBi+s3OfxRFxhKe5Rz2RfB54xgaKFqb1lCihwNWWIuQ8seP6XDoLDQUKQzVvG85vZVxI
- i7XhtqHMGzvKJdBrQGIhAaEQ86jbyFhQhXwexI3Io9zEI8Ec8wW+ws70KygJI2SHQrFoTSc1I
- 0Uhj8rO7V0ry1NQEzabyPrQi+t5jaoIGBOMfX/nSxWSheBEZX3mtqnBJKkgBiOubiSg8Qj12R
- lhDr1c0d5vhZLsnxp470bYAWRbP5c1KSeEWmOVK4tZ7f3wVCutNUSe7e92hIHKFSdwt4NtziW
- BnDpsH4hbkLgWqfH/bTsOqiCryLLcM57n1qu1U+FNc/GZKZ0t+YrFmN8v7Yy0WAANHZRdP58q
- OU3M778mu+nakzYqxoeudrabOKqC7QgKozRt3kLkGR1LguTaukgbnIhPlkym5DI3PN2u2ATv5
- aouvWcR4cznxgtwDdbLE7C0CNrnfcjh7cZFEXgG/4StZCk1aC3GqNl9QiYoH5RFPZGyv/iE1L
- 17L6U9cWqXbOwVEe+1j2rLfJCx3XSJy1g56Lfdq1Q5WdSk7d+ROFDwU5PaPL8nChhZ99gCrzZ
- B1II2chgIxRfFGNa6RQoz2tAHV+WqaObS3j6JtqBfkJogQsoEAzw/VcwIWzgdBzcJbKvhOBY+
- VUFfUTVbg+oQy5JsUpfOWAWBFyWzC67PuBDv6WowjJV/QeAJLf2Ck4yZ/UMw/7jvVTEF+WJ6Z
- jutxe/Ghi+nNYCTAhZqQSvGhE6br/YJCj1WR6JoU7/EgeRDXh2BgDTWSyJFtHsr5nvNh+EFKE
- AxMkW7Nfy5qdt9ANJF6xElDjutia/6T5Bbb7GX0vcJkzSXczHE=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200210100048.21448-2-roberto.sassu@huawei.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 10, 2020 at 4:41 PM Naresh Kamboju
-<naresh.kamboju@linaro.org> wrote:
->
-> The arm64 architecture 64k page size enabled build failed on stable rc 5.5
-> CONFIG_ARM64_64K_PAGES=y
-> CROSS_COMPILE=aarch64-linux-gnu-
-> Toolchain gcc-9
->
-> In file included from ../block/scsi_ioctl.c:23:
->  ../include/scsi/sg.h:75:2: error: unknown type name ‘compat_int_t’
->   compat_int_t interface_id; /* [i] 'S' for SCSI generic (required) */
->   ^~~~~~~~~~~~
->  ../include/scsi/sg.h:76:2: error: unknown type name ‘compat_int_t’
->   compat_int_t dxfer_direction; /* [i] data transfer direction  */
->   ^~~~~~~~~~~~
->
-> ...
->  ../include/scsi/sg.h:97:2: error: unknown type name ‘compat_uint_t’
->   compat_uint_t info;  /* [o] auxiliary information */
+On Mon, Feb 10, 2020 at 11:00:41AM +0100, Roberto Sassu wrote:
+> chip->allocated_banks, an array of tpm_bank_info structures, contains the
+> list of TPM algorithm IDs of allocated PCR banks. It also contains the
+> corresponding ID of the crypto subsystem, so that users of the TPM driver
+> can calculate a digest for a PCR extend operation.
+> 
+> However, if there is no mapping between TPM algorithm ID and crypto ID, the
+> crypto_id field of tpm_bank_info remains set to zero (the array is
+> allocated and initialized with kcalloc() in tpm2_get_pcr_allocation()).
+> Zero should not be used as value for unknown mappings, as it is a valid
+> crypto ID (HASH_ALGO_MD4).
+> 
+> Thus, initialize crypto_id to HASH_ALGO__LAST.
+> 
+> Cc: stable@vger.kernel.org # 5.1.x
+> Fixes: 879b589210a9 ("tpm: retrieve digest size of unknown algorithms with PCR read")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Petr Vorel <pvorel@suse.cz>
 
-Hi Naresh,
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-Does it work if you backport 071aaa43513a ("compat: ARM64: always include
-asm-generic/compat.h")?
-
-        Arnd
+/Jarkko
