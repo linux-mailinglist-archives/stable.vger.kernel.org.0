@@ -2,98 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AAB159A16
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 20:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 622A9159A57
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 21:14:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730038AbgBKTzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 14:55:10 -0500
-Received: from chill.innovation.ch ([216.218.245.220]:53738 "EHLO
-        chill.innovation.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730021AbgBKTzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 14:55:09 -0500
-X-Greylist: delayed 448 seconds by postgrey-1.27 at vger.kernel.org; Tue, 11 Feb 2020 14:55:09 EST
-Received: from localhost (localhost [127.0.0.1])
-        by chill.innovation.ch (Postfix) with ESMTP id DB6556412AE;
-        Tue, 11 Feb 2020 11:47:35 -0800 (PST)
-X-Virus-Scanned: amavisd-new at 
-Received: from chill.innovation.ch ([127.0.0.1])
-        by localhost (chill.innovation.ch [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id Yt8Xyz8cUtTD; Tue, 11 Feb 2020 11:47:29 -0800 (PST)
-From:   =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-DKIM-Filter: OpenDKIM Filter v2.10.3 chill.innovation.ch 0617D64012B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=innovation.ch;
-        s=default; t=1581450449;
-        bh=pKyDgEF01POMD1o+SCeOkRD2KX+9ORpUNRhOfljEE+0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=l/8+zDjee0rYEua1qQlF3fSjIbLgjPn0NgFtJMojTap23v8RAHOGYXrnm+FtZ2mvv
-         uOCYbXQJGj4nePDyrz3k2Wh+ENIPX5UHIMo8522dI/n39cm28++TI8WrPPMGSMJtWO
-         PwJ+LYuUzZx35AWGHkYMfWb/F+GThXBG4nRF9MYNMa7TMxqHsrG31n1ZG7WPPNjE+u
-         ZnruWK2T+tuB5lToiSsJnavxSQahY+shWsbjklUvi4wL2vRKeUr295OKXosxvphcxC
-         gXR225rqTAaFaZUZYIzw08ucNyFhckoNmoKRlJJU/k1YuZLaCzDxQ+9OrX8Z8XfmqW
-         lBE10xCUJXO/Q==
-To:     Rob Herring <robh@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>
-Cc:     linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] serdev: Fix detection of UART devices on Apple machines.
-Date:   Tue, 11 Feb 2020 11:47:23 -0800
-Message-Id: <20200211194723.486217-1-ronald@innovation.ch>
-X-Mailer: git-send-email 2.24.1
+        id S1731764AbgBKUOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 15:14:01 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40966 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728946AbgBKUOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 15:14:01 -0500
+Received: by mail-pg1-f193.google.com with SMTP id 70so4190054pgf.8
+        for <stable@vger.kernel.org>; Tue, 11 Feb 2020 12:14:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=iWBJ9etiBm/hh818InyCY7sxm3rRSJTmMlNUHIhyA9c=;
+        b=hqtt4zhSR0Bgkfx0qb9rqzVmiG4uWiqwqK0D7Z1aOlhtQvRn94kRxpXd6qVZPpmkBh
+         0Z50P0ojYkcK7RI0jLFKs7MWVV+Ms1riG/JlfcOY3hLPPXqj1WgyiGxONWUSn+EudpWy
+         gJVeEu3zshdAW0TjNmml5pXEXuVVivGHkA8VZgUrnmffpz54hMIjrNBmE6qwyzcQ6s0+
+         HQH6MuVtFkGUzXIqmJwf9s3PX3fFZEA6zX38Gb53ahMz5OPd5fYdiVWBe/iJ5H/6NYSB
+         61fENdBiFmmuB1ac37sFW9K260ydNvbn4ka5AF2AGtRp04az19wGjPkBDVbG+JiITbxq
+         0M6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=iWBJ9etiBm/hh818InyCY7sxm3rRSJTmMlNUHIhyA9c=;
+        b=ll5d1+cbUhnHSaChjfh0yNG68CT1o2i6+QmkFsPRjRLqrZ4BmY/v4qqNwjdOWDFaVu
+         QSykAZQOpKEmVS2eyix+O+svBJbsGkEvHkCYtPZx6wmnLE2xqKdFEdyLRyufdPCSflGE
+         IY3QRbKoagTVcfpOBwjKeGegAnR+6xfO2KGbgig5hTFvK1d9ObJSGqmEmKXIKWW8etgQ
+         BcXJDclq2crhtfSJBVgmL/dNvHTmbm8LOAwZRIcqsARObpu2gqonB5kt/iQNzdO8Lc7A
+         LmtdgmPGtlQdFc5dhRPkNGYzHzj/+XyCG6fhyG9QMQ48k+wvdS29z+++RoPim1NzAeyG
+         rgOA==
+X-Gm-Message-State: APjAAAWuJttR6gn0ELUVDoUfuc49b1BYpLll1D8OVAJGIwUieAbQbsGA
+        lqPDLaZ+KGzma/N+/o6FouuXhUqZb04IwvZqOCE=
+X-Google-Smtp-Source: APXvYqxHB1SDzaEhmzAmi+qunaMWb83l39rKSMnC5vKMzF6i3IUVCxKIWmImFURc6TbGIe4FqKIgNpl26ZsJnxEaoHs=
+X-Received: by 2002:a63:7053:: with SMTP id a19mr4571192pgn.377.1581452040059;
+ Tue, 11 Feb 2020 12:14:00 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:90a:9318:0:0:0:0 with HTTP; Tue, 11 Feb 2020 12:13:59
+ -0800 (PST)
+Reply-To: cfffdfd8brahim4@yandex.com
+From:   Dr Salah Ibrahim <mr.moussa.ahmed888@gmail.com>
+Date:   Tue, 11 Feb 2020 12:13:59 -0800
+Message-ID: <CAK56hSJMAX0280_rZSvSAtrv+XaD2T0VOZ06_Ru8-Wx=2cARoA@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Apple devices the _CRS method returns an empty resource template, and
-the resource settings are instead provided by the _DSM method. But
-commit 33364d63c75d6182fa369cea80315cf1bb0ee38e (serdev: Add ACPI
-devices by ResourceSource field) changed the search for serdev devices
-to require valid, non-empty resource template, thereby breaking Apple
-devices and causing bluetooth devices to not be found.
-
-This expands the check so that if we don't find a valid template, and
-we're on an Apple machine, then just check for the device being an
-immediate child of the controller and having a "baud" property.
-
-Cc: <stable@vger.kernel.org> # 5.5
-Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
----
- drivers/tty/serdev/core.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/tty/serdev/core.c b/drivers/tty/serdev/core.c
-index ce5309d00280..0f64a10ba51f 100644
---- a/drivers/tty/serdev/core.c
-+++ b/drivers/tty/serdev/core.c
-@@ -18,6 +18,7 @@
- #include <linux/sched.h>
- #include <linux/serdev.h>
- #include <linux/slab.h>
-+#include <linux/platform_data/x86/apple.h>
- 
- static bool is_registered;
- static DEFINE_IDA(ctrl_ida);
-@@ -630,6 +631,15 @@ static int acpi_serdev_check_resources(struct serdev_controller *ctrl,
- 	if (ret)
- 		return ret;
- 
-+	/*
-+	 * Apple machines provide an empty resource template, so on those
-+	 * machines just look for immediate children with a "baud" property
-+	 * (from the _DSM method) instead.
-+	 */
-+	if (!lookup.controller_handle && x86_apple_machine &&
-+	    !acpi_dev_get_property(adev, "baud", ACPI_TYPE_BUFFER, NULL))
-+		acpi_get_parent(adev->handle, &lookup.controller_handle);
-+
- 	/* Make sure controller and ResourceSource handle match */
- 	if (ACPI_HANDLE(ctrl->dev.parent) != lookup.controller_handle)
- 		return -ENODEV;
--- 
-2.24.1
-
+Dear Friend. I have a business proposal of  $35 Million USD which i want to
+transact with you  get back for more details.Best Regards From Salah Ibrahim
