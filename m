@@ -2,89 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 010D6159918
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 19:47:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10AAB159A16
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 20:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729508AbgBKSr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 13:47:57 -0500
-Received: from mail-qv1-f66.google.com ([209.85.219.66]:40168 "EHLO
-        mail-qv1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727958AbgBKSr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 13:47:56 -0500
-Received: by mail-qv1-f66.google.com with SMTP id dp13so5476006qvb.7
-        for <stable@vger.kernel.org>; Tue, 11 Feb 2020 10:47:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=WW6skYTkWTR1YRkvvQUrNrT8hjiq0jQHnJpZVkMjaaQ=;
-        b=hpCIi6+1ayP+tW2keaENP2APYj2FgrMZs5NVPprFOi/KWNw3+iHpZznL6c4BKJS922
-         QZTVndXoo2l4xwVYHZP/hZjd39pQ88POjJzpBdcJW24MO2ZbCyR+e8+lcyyOoVb/Ja42
-         DQ4yp3DT+vmCNBRzO8/kmw99D6rXNF4LITIwo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=WW6skYTkWTR1YRkvvQUrNrT8hjiq0jQHnJpZVkMjaaQ=;
-        b=EGiqcrtWVCCeH1S2ctTtrBG70zdtCF7kt7LokpSEFVK8+kMHZz/FNu9vU7hxdXm46D
-         IwEqECF4QJdpkuy8btDtRyy9S296GPKHpmcR/LuKK9BxxQcdQ6WjA+MFkKozWQBRXn9a
-         3ozcXQaCouvS7rgxGKyIY74YcBpSOtsJpug8wDmHFrRcqQ2vYWllfpYKgWxj1/0PntQu
-         GQEASL/H5T+Qyd9aRoiGqNhbzUBWJTV5tEV4MKthg4HbW330YK8wI9v4aocXc7XSKiCa
-         ffObaamKNpLQVBTv42P0wgnR6hIvI1ThGdBNONJPp5hsbkmdplV/HXwcivI0cztzwEkC
-         Sf9g==
-X-Gm-Message-State: APjAAAUCp9D1yUyRYm44/F1srgamPT9opuxHa+Nf3J9LUFgEw7T4/n3Y
-        r1lFRWKvtXASWoWX3pPmbCVJTQ==
-X-Google-Smtp-Source: APXvYqxuKhGzwecOKVakvuorhqFT/Msgz+GyKOBCyFJL/qjlp+QOBsZ+S9qe87XSTYwmivq7/TLuPw==
-X-Received: by 2002:ad4:4a14:: with SMTP id m20mr4226356qvz.100.1581446875885;
-        Tue, 11 Feb 2020 10:47:55 -0800 (PST)
-Received: from localhost ([2620:15c:6:12:9c46:e0da:efbf:69cc])
-        by smtp.gmail.com with ESMTPSA id m95sm2586112qte.41.2020.02.11.10.47.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2020 10:47:55 -0800 (PST)
-Date:   Tue, 11 Feb 2020 13:47:51 -0500
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Amol Grover <frextrite@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
+        id S1730038AbgBKTzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 14:55:10 -0500
+Received: from chill.innovation.ch ([216.218.245.220]:53738 "EHLO
+        chill.innovation.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730021AbgBKTzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 14:55:09 -0500
+X-Greylist: delayed 448 seconds by postgrey-1.27 at vger.kernel.org; Tue, 11 Feb 2020 14:55:09 EST
+Received: from localhost (localhost [127.0.0.1])
+        by chill.innovation.ch (Postfix) with ESMTP id DB6556412AE;
+        Tue, 11 Feb 2020 11:47:35 -0800 (PST)
+X-Virus-Scanned: amavisd-new at 
+Received: from chill.innovation.ch ([127.0.0.1])
+        by localhost (chill.innovation.ch [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id Yt8Xyz8cUtTD; Tue, 11 Feb 2020 11:47:29 -0800 (PST)
+From:   =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
+DKIM-Filter: OpenDKIM Filter v2.10.3 chill.innovation.ch 0617D64012B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=innovation.ch;
+        s=default; t=1581450449;
+        bh=pKyDgEF01POMD1o+SCeOkRD2KX+9ORpUNRhOfljEE+0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=l/8+zDjee0rYEua1qQlF3fSjIbLgjPn0NgFtJMojTap23v8RAHOGYXrnm+FtZ2mvv
+         uOCYbXQJGj4nePDyrz3k2Wh+ENIPX5UHIMo8522dI/n39cm28++TI8WrPPMGSMJtWO
+         PwJ+LYuUzZx35AWGHkYMfWb/F+GThXBG4nRF9MYNMa7TMxqHsrG31n1ZG7WPPNjE+u
+         ZnruWK2T+tuB5lToiSsJnavxSQahY+shWsbjklUvi4wL2vRKeUr295OKXosxvphcxC
+         gXR225rqTAaFaZUZYIzw08ucNyFhckoNmoKRlJJU/k1YuZLaCzDxQ+9OrX8Z8XfmqW
+         lBE10xCUJXO/Q==
+To:     Rob Herring <robh@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: Re: [PATCH 5.5 150/367] tracing: Annotate ftrace_graph_hash pointer
- with __rcu
-Message-ID: <20200211184751.GB250925@google.com>
-References: <20200210122423.695146547@linuxfoundation.org>
- <20200210122438.674498788@linuxfoundation.org>
- <CAEXW_YSPDHcuLiM4B8uXvw-0ei2Gj0x=QE1h+NMqzRiBph1oNw@mail.gmail.com>
- <20200211012638.GB13097@sasha-vm>
+        Jiri Slaby <jslaby@suse.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>
+Cc:     linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] serdev: Fix detection of UART devices on Apple machines.
+Date:   Tue, 11 Feb 2020 11:47:23 -0800
+Message-Id: <20200211194723.486217-1-ronald@innovation.ch>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200211012638.GB13097@sasha-vm>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 10, 2020 at 08:26:38PM -0500, Sasha Levin wrote:
-> On Mon, Feb 10, 2020 at 06:36:20AM -0800, Joel Fernandes wrote:
-> > On Mon, Feb 10, 2020 at 4:40 AM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > > 
-> > > From: Amol Grover <frextrite@gmail.com>
-> > > 
-> > > [ Upstream commit 24a9729f831462b1d9d61dc85ecc91c59037243f ]
-> > 
-> > Amol, can you send a follow-up patch to annotate
-> > ftrace_graph_notrace_hash as well?
-> 
-> Note that I took this to make later stable tagged patch apply cleanly. I
-> don't expect these annotation changes to be picked up for stable on
-> their own.
+On Apple devices the _CRS method returns an empty resource template, and
+the resource settings are instead provided by the _DSM method. But
+commit 33364d63c75d6182fa369cea80315cf1bb0ee38e (serdev: Add ACPI
+devices by ResourceSource field) changed the search for serdev devices
+to require valid, non-empty resource template, thereby breaking Apple
+devices and causing bluetooth devices to not be found.
 
-Yes, that should be fine.
+This expands the check so that if we don't find a valid template, and
+we're on an Apple machine, then just check for the device being an
+immediate child of the controller and having a "baud" property.
 
-thanks,
+Cc: <stable@vger.kernel.org> # 5.5
+Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+---
+ drivers/tty/serdev/core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
- - Joel
+diff --git a/drivers/tty/serdev/core.c b/drivers/tty/serdev/core.c
+index ce5309d00280..0f64a10ba51f 100644
+--- a/drivers/tty/serdev/core.c
++++ b/drivers/tty/serdev/core.c
+@@ -18,6 +18,7 @@
+ #include <linux/sched.h>
+ #include <linux/serdev.h>
+ #include <linux/slab.h>
++#include <linux/platform_data/x86/apple.h>
+ 
+ static bool is_registered;
+ static DEFINE_IDA(ctrl_ida);
+@@ -630,6 +631,15 @@ static int acpi_serdev_check_resources(struct serdev_controller *ctrl,
+ 	if (ret)
+ 		return ret;
+ 
++	/*
++	 * Apple machines provide an empty resource template, so on those
++	 * machines just look for immediate children with a "baud" property
++	 * (from the _DSM method) instead.
++	 */
++	if (!lookup.controller_handle && x86_apple_machine &&
++	    !acpi_dev_get_property(adev, "baud", ACPI_TYPE_BUFFER, NULL))
++		acpi_get_parent(adev->handle, &lookup.controller_handle);
++
+ 	/* Make sure controller and ResourceSource handle match */
+ 	if (ACPI_HANDLE(ctrl->dev.parent) != lookup.controller_handle)
+ 		return -ENODEV;
+-- 
+2.24.1
 
