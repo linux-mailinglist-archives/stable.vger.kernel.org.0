@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 071F9158A67
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 08:29:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06870158A5F
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 08:29:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727598AbgBKH3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 02:29:13 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60291 "EHLO
+        id S1727608AbgBKH3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 02:29:03 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:48331 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727041AbgBKH3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 02:29:03 -0500
+        by vger.kernel.org with ESMTP id S1727606AbgBKH3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 02:29:02 -0500
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 8405C5BD;
+        by mailout.west.internal (Postfix) with ESMTP id 840095A5;
         Tue, 11 Feb 2020 02:29:01 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
   by compute5.internal (MEProxy); Tue, 11 Feb 2020 02:29:02 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=xNUtUsfuH4Ly9
-        iDTvm5saY9gUrnZ7LMYvcmrJ/q0E6s=; b=bfnYxy9F7N64LwBxzVC3DS449tbj5
-        Jwf3KQNviW2ODLRY8W5dHdOXEbjCafBP90cctCDrKAtXidFW/G+qovNeMFdcdgjw
-        oYc3vYfi50KEIyBfdsEiowxqdJvD6Mw0QPWguHwRXuaQ5f5CKLkyd97DYdgSkn4h
-        ljuxGzL+r4DT+dIXCngBQ/Uw9k8e2npyZhzFjJpfYcgpL/UpRax50Lfexf9BO96v
-        BBv9OXF/2wDIEukZV9gOrg6AEvnSCCm/s2MiIdw+nBElnCV1Uf2ehYB/LPHDa1Bs
-        /Xoay+RzvgjS2mozyXX3RQXJoQyUeiNjaohJbgRdWU2N8lKCMsaMD8+DQ==
+        :mime-version:content-transfer-encoding; s=fm1; bh=GtHTk2RJu6ujK
+        xGwOZdHmLSPh4ENhg+lM6RYpGuUwsI=; b=EeFeyeCnNikgZ/mwO8W3XIA7IFkP6
+        0il+viaFu+mjgVlBJMH0mPyqXKGWHSeYP491tV4QusuLUlgDzSPS4tmIdg6kvEHU
+        K7513JqSaXdQQEDbqfJ9VRCLkrz9xCTRpJ3HKh7+ZPkl5iun3leNYj06Y+JJFZbv
+        9Hg+OOq+UqF+qotIGJC4XN0WfBVWLE0XStd4zGkh8szxHZ9aV7ONDVTG8MNbTymp
+        p4cOAHeHyLyLS5SzHmArs8kB2s4cLxkuJ+lmIlG8CXEV1BO0MIaP2lb2ajANANEK
+        f/yu1tAwx3tNNoQI10M2C2iVO7pKodUH0aNUgmfZQP2twGPjFS9B42k9g==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
         :in-reply-to:message-id:mime-version:references:subject:to
         :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; bh=xNUtUsfuH4Ly9iDTvm5saY9gUrnZ7LMYvcmrJ/q0E6s=; b=pVPi4DQo
-        skN3idrvv1MplozuyLT9cK8AFlkvx3ikvm55mNJQxMi6DXge8yzy5p+3mPqhlNhd
-        J0CHbMNGmYlce2ABoBarh96c//bGpOM5j6I22j3VVKftGtILSej8gdMaALnKjgsR
-        nogYSMPgfWxvpl2Q5zj/shJLYK/+FPVB8apY88O2ZBOKDA2DphjuzSRwSZl7G53U
-        7ZEHsF7Nuxm2QaqqD2VdduO8eSsO2J8jAM/7Z5VNoTnoPFh8l4d39nWDlpPuA0Vw
-        2WtuGROLdXr5Z+XsON82bjiQ6ERTl1KsZIniFXTbQTy47B8Ww5fJnRXQicivHot9
-        3rlPPzXXzqwcxg==
-X-ME-Sender: <xms:u1dCXry3XWNFpDLa_PUxG9meBIKjk60AXRTXH0jDLVmKaH9xeX_9iA>
+        fm2; bh=GtHTk2RJu6ujKxGwOZdHmLSPh4ENhg+lM6RYpGuUwsI=; b=D7gI5VkL
+        iX6ikPA39rL8UMUdHIcNhFRRHEnQ8jRhXTB4xdLbt2wvBphLtEzt57TH3XGLW4+V
+        6tTrLk0M/iiSJtlBk/Z+m7JqZINKl1mq4qNKSmieA2jkYfQaToATdYOCpgpnwoR4
+        an1uBJ9NsYdizF3C07n/AEFs/7iflafPwNA3H4WKhe3vKrTXLx2saw6ydbJg9r5t
+        B8g+DGPk9bmaij6WKYGdAxcnirvH6k6HSUunDjXQZ+DA4zhXO8eE+3T38X+4W0Gv
+        yN8HqP6SN9yEugY8K3gW19A6klWsYeRrPM18yQWnw3VIJ6wAssSiEzuqS/zFe1Y9
+        cDVOYQtjCuPhfw==
+X-ME-Sender: <xms:vFdCXiPFNc07AZQ1Ir4o_IuV-azfo0LybARY5sHnen_yNgBnZXun_Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedriedvgddutdejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
@@ -44,12 +44,12 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedriedvgddutdejucetufdoteggod
     lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkph
     epjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghr
     rghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:vFdCXtmdn2RREsi470vECnjucS2d6Zi8yC5PDufhWvoxI9YsXWZpiA>
-    <xmx:vFdCXtikszpPq6QlKZ-Ru7Qcy3JWx__cUMgCuR_KLxyaV3ZbvBCeLg>
-    <xmx:vFdCXgdcp3dlXnr5dyWVQNpI2xwfOvNAy7Cbqv9M8RBS2DCsfhMF9A>
-    <xmx:vVdCXg2NVFBE1Y2L9WHZrXDHiot55XXzfLBgzU4TA4a0A_AR_-pEEQ>
+X-ME-Proxy: <xmx:vFdCXgaGreCNiS0kIMFQbEOeApwj09b-46AxLGPfYS06PziZeBDnPQ>
+    <xmx:vFdCXqV5_uVly2AXVUFETcPjtBOAQJa9GugC7GYvK4qrUfQQyDYJlA>
+    <xmx:vFdCXnB8avwbuLkHGy46NX44NteUkCgrrcwifDnffpWBvdExu4jowQ>
+    <xmx:vVdCXhH9HksXZb-NMta0O8VFbg7NkCPZR3-iGXK0ZT3RlGUS8kPHtw>
 Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9002C3060840;
+        by mail.messagingengine.com (Postfix) with ESMTPA id F1C583060940;
         Tue, 11 Feb 2020 02:28:59 -0500 (EST)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
@@ -58,9 +58,9 @@ To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
         dri-devel@lists.freedesktop.org
 Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>
-Subject: [PATCH 2/4] drm/sun4i: dsi: Use NULL to signify "no panel"
-Date:   Tue, 11 Feb 2020 01:28:56 -0600
-Message-Id: <20200211072858.30784-2-samuel@sholland.org>
+Subject: [PATCH 3/4] drm/sun4i: dsi: Allow binding the host without a panel
+Date:   Tue, 11 Feb 2020 01:28:57 -0600
+Message-Id: <20200211072858.30784-3-samuel@sholland.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200211072858.30784-1-samuel@sholland.org>
 References: <20200211072858.30784-1-samuel@sholland.org>
@@ -71,67 +71,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The continued use of an ERR_PTR to signify "no panel" outside of
-sun6i_dsi_attach is confusing because it is a double negative. Because
-the connector always reports itself as connected, there is also the
-possibility of sending an ERR_PTR to drm_panel_get_modes(), which would
-crash.
+Currently, the DSI host blocks binding the display pipeline until the
+panel is available. This unnecessarily prevents other display outpus
+from working, and adds logspam to dmesg when the panel driver is built
+as a module (the component master is unsuccessfully brought up several
+times during boot).
 
-Solve both of these by only storing the panel pointer if it is valid.
+Flip the dependency, instead requiring the host to be bound before the
+panel is attached. The panel driver provides no functionality outside of
+the display pipeline anyway.
+
+Since the panel is now probed after the DRM connector, we need a hotplug
+event to turn on the connector after the panel is attached.
+
+This has the added benefit of fixing panel module removal/insertion.
+Previously, the panel would be turned off when its module was removed.
+But because the connector state was hardcoded, nothing knew to turn the
+panel back on when it was re-attached. Now, with hotplug events
+available, the connector state will follow the panel module state, and
+the panel will be re-enabled properly.
 
 Fixes: 133add5b5ad4 ("drm/sun4i: Add Allwinner A31 MIPI-DSI controller support")
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 22 ++++++++++++++++------
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h |  1 +
+ 2 files changed, 17 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index c07290541fff..019fdf4ec274 100644
+index 019fdf4ec274..ef35ce5a9bb0 100644
 --- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
 +++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -748,7 +748,7 @@ static void sun6i_dsi_encoder_enable(struct drm_encoder *encoder)
- 	phy_configure(dsi->dphy, &opts);
- 	phy_power_on(dsi->dphy);
+@@ -804,7 +804,10 @@ static struct drm_connector_helper_funcs sun6i_dsi_connector_helper_funcs = {
+ static enum drm_connector_status
+ sun6i_dsi_connector_detect(struct drm_connector *connector, bool force)
+ {
+-	return connector_status_connected;
++	struct sun6i_dsi *dsi = connector_to_sun6i_dsi(connector);
++
++	return dsi->panel ? connector_status_connected :
++			    connector_status_disconnected;
+ }
  
--	if (!IS_ERR(dsi->panel))
-+	if (dsi->panel)
- 		drm_panel_prepare(dsi->panel);
+ static const struct drm_connector_funcs sun6i_dsi_connector_funcs = {
+@@ -945,10 +948,15 @@ static int sun6i_dsi_attach(struct mipi_dsi_host *host,
  
- 	/*
-@@ -763,7 +763,7 @@ static void sun6i_dsi_encoder_enable(struct drm_encoder *encoder)
- 	 * ordering on the panels I've tested it with, so I guess this
- 	 * will do for now, until that IP is better understood.
- 	 */
--	if (!IS_ERR(dsi->panel))
-+	if (dsi->panel)
- 		drm_panel_enable(dsi->panel);
+ 	if (IS_ERR(panel))
+ 		return PTR_ERR(panel);
++	if (!dsi->drm)
++		return -EPROBE_DEFER;
  
- 	sun6i_dsi_start(dsi, DSI_START_HSC);
-@@ -779,7 +779,7 @@ static void sun6i_dsi_encoder_disable(struct drm_encoder *encoder)
+ 	dsi->panel = panel;
+ 	dsi->device = device;
  
- 	DRM_DEBUG_DRIVER("Disabling DSI output\n");
++	drm_panel_attach(dsi->panel, &dsi->connector);
++	drm_kms_helper_hotplug_event(dsi->drm);
++
+ 	dev_info(host->dev, "Attached device %s\n", device->name);
  
--	if (!IS_ERR(dsi->panel)) {
-+	if (dsi->panel) {
- 		drm_panel_disable(dsi->panel);
- 		drm_panel_unprepare(dsi->panel);
- 	}
-@@ -941,11 +941,13 @@ static int sun6i_dsi_attach(struct mipi_dsi_host *host,
+ 	return 0;
+@@ -958,10 +966,14 @@ static int sun6i_dsi_detach(struct mipi_dsi_host *host,
  			    struct mipi_dsi_device *device)
  {
  	struct sun6i_dsi *dsi = host_to_sun6i_dsi(host);
-+	struct drm_panel *panel = of_drm_find_panel(device->dev.of_node);
++	struct drm_panel *panel = dsi->panel;
  
-+	if (IS_ERR(panel))
-+		return PTR_ERR(panel);
+ 	dsi->panel = NULL;
+ 	dsi->device = NULL;
+ 
++	drm_panel_detach(panel);
++	drm_kms_helper_hotplug_event(dsi->drm);
 +
-+	dsi->panel = panel;
- 	dsi->device = device;
--	dsi->panel = of_drm_find_panel(device->dev.of_node);
--	if (IS_ERR(dsi->panel))
--		return PTR_ERR(dsi->panel);
+ 	return 0;
+ }
  
- 	dev_info(host->dev, "Attached device %s\n", device->name);
+@@ -1026,9 +1038,6 @@ static int sun6i_dsi_bind(struct device *dev, struct device *master,
+ 	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	if (!dsi->panel)
+-		return -EPROBE_DEFER;
+-
+ 	drm_encoder_helper_add(&dsi->encoder,
+ 			       &sun6i_dsi_enc_helper_funcs);
+ 	ret = drm_encoder_init(drm,
+@@ -1054,7 +1063,8 @@ static int sun6i_dsi_bind(struct device *dev, struct device *master,
+ 	}
+ 
+ 	drm_connector_attach_encoder(&dsi->connector, &dsi->encoder);
+-	drm_panel_attach(dsi->panel, &dsi->connector);
++
++	dsi->drm = drm;
+ 
+ 	return 0;
+ 
+@@ -1068,7 +1078,7 @@ static void sun6i_dsi_unbind(struct device *dev, struct device *master,
+ {
+ 	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
+ 
+-	drm_panel_detach(dsi->panel);
++	dsi->drm = NULL;
+ }
+ 
+ static const struct component_ops sun6i_dsi_ops = {
+diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+index 61e88ea6044d..c863900ae3b4 100644
+--- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
++++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+@@ -29,6 +29,7 @@ struct sun6i_dsi {
+ 
+ 	struct device		*dev;
+ 	struct mipi_dsi_device	*device;
++	struct drm_device	*drm;
+ 	struct drm_panel	*panel;
+ };
  
 -- 
 2.24.1
