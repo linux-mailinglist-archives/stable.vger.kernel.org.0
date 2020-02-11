@@ -2,382 +2,258 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD0F15929C
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 16:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00150159358
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 16:39:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728892AbgBKPMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 10:12:44 -0500
-Received: from mailout1.w1.samsung.com ([210.118.77.11]:57375 "EHLO
-        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728656AbgBKPMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 10:12:44 -0500
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20200211151242euoutp01bf7b7b03b54379f403121d294c785aa9~yYc9RgwhY1073810738euoutp01l
-        for <stable@vger.kernel.org>; Tue, 11 Feb 2020 15:12:42 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20200211151242euoutp01bf7b7b03b54379f403121d294c785aa9~yYc9RgwhY1073810738euoutp01l
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1581433962;
-        bh=XOqiAj+KxXTOiFdPG5aON9T8QQbbeYYHqs5pA0A7o0w=;
-        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
-        b=oJA397X9cS2KOwfklhPfnrXyX9KiLbCzgrgJSFcfJkXspcTeN7pOSPpJVKFScSjG6
-         UNU5wU4hc/VIvJ4C+5/3lExk/YTDM/8NJ17Ux2KYt5h2ZrAGeMul2t63Q1IZ4+5fxb
-         dBi5rxymOSyqc9CKrPVcVLoJs13Qn53KETGLF8NM=
-Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20200211151242eucas1p29d0b4ae6d04b51b0619dd28e91a14189~yYc9GOkis3000230002eucas1p2s;
-        Tue, 11 Feb 2020 15:12:42 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-        eusmges2new.samsung.com (EUCPMTA) with SMTP id 34.BB.60679.964C24E5; Tue, 11
-        Feb 2020 15:12:42 +0000 (GMT)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20200211151241eucas1p1a6afe8c8330f532f3d4115a4b61165c3~yYc83Qo681163111631eucas1p1e;
-        Tue, 11 Feb 2020 15:12:41 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20200211151241eusmtrp29199c38ffbc064cbd0617ed28f3a5f83~yYc82lCcd1658116581eusmtrp2U;
-        Tue, 11 Feb 2020 15:12:41 +0000 (GMT)
-X-AuditID: cbfec7f4-0e5ff7000001ed07-54-5e42c469de25
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id 0F.B1.07950.964C24E5; Tue, 11
-        Feb 2020 15:12:41 +0000 (GMT)
-Received: from [106.120.51.15] (unknown [106.120.51.15]) by
-        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20200211151241eusmtip2457e2ca943f8db33e3c514d99c06acba~yYc8dQ8DE2983129831eusmtip2X;
-        Tue, 11 Feb 2020 15:12:41 +0000 (GMT)
-Subject: Re: [RFT PATCH v2] xhci: Fix memory leak when caching protocol
- extended capability PSI tables
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        gregkh@linuxfoundation.org
-Cc:     pmenzel@molgen.mpg.de, mika.westerberg@linux.intel.com,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, krzk@kernel.org,
-        stable <stable@vger.kernel.org>
-From:   Marek Szyprowski <m.szyprowski@samsung.com>
-Message-ID: <da2d0387-47f8-e047-0ff8-d971072f9f89@samsung.com>
-Date:   Tue, 11 Feb 2020 16:12:40 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
-        Thunderbird/68.4.2
+        id S1728485AbgBKPj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 10:39:57 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:59831 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727962AbgBKPj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 10:39:56 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 13D336CB;
+        Tue, 11 Feb 2020 10:39:55 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Tue, 11 Feb 2020 10:39:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        subject:to:cc:references:from:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm1; bh=g
+        eOJVgUznMXc04Wg5cWpEzjCkLi35gMNLg6tLpVl2JQ=; b=dtD67+0w7k2n6Ifut
+        fTEwMUcRfu2ruL/W8mqk50jMfzG76FOePwgLsjcRUEMAOFIgFZnz9GOZAvr0rqpl
+        cVZLWYqEgILBU4dN6A3cn4gkhpb6gnk9n/wMpGbUTem/Hmh3Zmt9obngPdT2iWiD
+        ueSSVFbhPbZ/5Zcapo2Fl1d+LV6KtI2KA7Oukvo5wnH/7Ea0YHJRoIav1yzutZE5
+        eLH0bhERLu3QqhB5TkrZU9uwS6Wnw4JoTAC/sHlY8pF24hD37ND2OyOj0umnNmiv
+        lpORI6xsHTxX0cNJqvG+OVnF0RjKfOaxLBPlX6uADnDB1bup3PnAGyS7xW2yAeSM
+        LpGMg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=geOJVgUznMXc04Wg5cWpEzjCkLi35gMNLg6tLpVl2
+        JQ=; b=bfklLuCuPajZRlDO2jvNxRuM0XFstbC6QBUGi1yNQ/1nnjZ7T/+Cosuq9
+        +/922FLVgTbSO7P3xjzBLukL+k2yZGl8LI4WBGWdldn1PGux6IkHAL3zrXcKMsfR
+        g+t1+PkhrVB2+G6BJ9NxnRYc906GvPQFPo4zGsPilL5Q94/72zYzjfjVZ+3cpav5
+        kNJExTW5MPSUKosoVzhD1IUV1omjTmLC86C7UlLZtFsTYWnsxQsd12iK2dR1ZGaT
+        OVDQ2BUaUnK6XX9zofA5jVa4r8gCh15piMrMe0UntpIBos5Dw4J38K1n+kiDpZv/
+        VJJS8/V6C4cBlBVo3FYC67T1MKvpw==
+X-ME-Sender: <xms:ycpCXnn_miu7inm3Z75aEdLFmAnJ2EF4yQF1rszpL3UnwAbrWWpOnw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrieefgdejiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefuvfhfhffkffgfgggjtgfgsehtjeertddtfeejnecuhfhrohhmpefurghmuhgv
+    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkph
+    epjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghr
+    rghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:ycpCXrByWnj5nQzYhoEHSryBys9wmCYqvpmT4xiL3ShXrlFaKWpzYw>
+    <xmx:ycpCXvc9pwO6rOiUbJgFBH3ppZvSg4j7iLF3vdU1ddgiZIoH53e72A>
+    <xmx:ycpCXuLJWwt-2kgJmTCGZVDv0_Q5xAySJ9k7O-rXhd5PlE1eBNr51g>
+    <xmx:yspCXjgH-UyExNVLm87VXJMVzk453H17EjGMAC8TtMjPQ4xjv5NkZQ>
+Received: from [192.168.50.169] (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4FF5E3060840;
+        Tue, 11 Feb 2020 10:39:53 -0500 (EST)
+Subject: Re: [PATCH 4/4] drm/sun4i: dsi: Remove incorrect use of runtime PM
+To:     Maxime Ripard <maxime@cerno.tech>
+Cc:     Chen-Yu Tsai <wens@csie.org>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200211072858.30784-1-samuel@sholland.org>
+ <20200211072858.30784-4-samuel@sholland.org>
+ <20200211082627.nolf6npspw2a2rxs@gilmour.lan>
+From:   Samuel Holland <samuel@sholland.org>
+Message-ID: <dd5869d5-abbc-32e5-4f5c-cfad1fa35e0d@sholland.org>
+Date:   Tue, 11 Feb 2020 09:39:52 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20200211150158.14475-1-mathias.nyman@linux.intel.com>
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200211082627.nolf6npspw2a2rxs@gilmour.lan>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrAKsWRmVeSWpSXmKPExsWy7djPc7pZR5ziDM4LWjQvXs9mcf78BnaL
-        y7vmsFnMOL+PyWLRslZmi9cfmlgspmw/wm7xclaaxYKNjxgdOD02repk85h3MtBj/9w17B5P
-        zk1g9vi8SS6ANYrLJiU1J7MstUjfLoEr48/hCywFbwMrbrS0MzYwPrDvYuTkkBAwkVi06iMj
-        iC0ksIJR4tP/9C5GLiD7C6PEsWn/mCESnxkl7t/n7WLkAGu4dkoVomY5o8TtVyvZIJy3jBJ3
-        125iBWkQFsiQmP1lNjuILSLgL9H0YQcrSBGzwDlGicmdZ1hAEmwChhJdb7vYQKbyCthJXHqU
-        DRJmEVCV+HvrEFiJqECsxJlj38Fm8goISpyc+QQszingLPGp+TxYnFlAXqJ562xmCFtc4taT
-        +UwguyQEDrFLPDw5kwXiTReJ1WdvskLYwhKvjm9hh7BlJP7vhGloZpR4eG4tO4TTwyhxuWkG
-        I0SVtcSdc7/ALmUW0JRYv0sfIuwosfvqWlZIsPBJ3HgrCHEEn8SkbdOZIcK8Eh1tQhDVahKz
-        jq+DW3vwwiXmCYxKs5C8NgvJO7OQvDMLYe8CRpZVjOKppcW56anFRnmp5XrFibnFpXnpesn5
-        uZsYgeno9L/jX3Yw7vqTdIhRgINRiYfXYbpTnBBrYllxZe4hRgkOZiURXktpxzgh3pTEyqrU
-        ovz4otKc1OJDjNIcLErivMaLXsYKCaQnlqRmp6YWpBbBZJk4OKUaGJedSDd7kzHxpe9OOfWa
-        pY+dJ55s/39oygs9ca782bevPo6oWPDPTWGtktN9OZ6GS4VsFY/OXpho0nNFWUo64lFEm5rH
-        Ua38LaV2kl7cx3UtDBe/ThFJnLr3jwBL14Ksq70Prn9d3LDVb9FFv3Rua5az7Ymz3pkusWLi
-        CdefM80vIlH07EruaiWW4oxEQy3mouJEAAmSs75DAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrKIsWRmVeSWpSXmKPExsVy+t/xe7qZR5ziDE7s07FoXryezeL8+Q3s
-        Fpd3zWGzmHF+H5PFomWtzBavPzSxWEzZfoTd4uWsNIsFGx8xOnB6bFrVyeYx72Sgx/65a9g9
-        npybwOzxeZNcAGuUnk1RfmlJqkJGfnGJrVK0oYWRnqGlhZ6RiaWeobF5rJWRqZK+nU1Kak5m
-        WWqRvl2CXsafwxdYCt4GVtxoaWdsYHxg38XIwSEhYCJx7ZRqFyMXh5DAUkaJ1n332boYOYHi
-        MhInpzWwQtjCEn+udbFBFL1mlHj7qRusSFggQ2L2l9nsILaIgK/EhXlfmECKmAXOMUo8v7iK
-        BaLjPKPE5UfHWECq2AQMJbregozi4OAVsJO49CgbJMwioCrx99YhsBJRgViJY9vbwIbyCghK
-        nJz5BCzOKeAs8an5PNhFzAJmEvM2P2SGsOUlmrfOhrLFJW49mc80gVFoFpL2WUhaZiFpmYWk
-        ZQEjyypGkdTS4tz03GIjveLE3OLSvHS95PzcTYzAKNx27OeWHYxd74IPMQpwMCrx8DpMd4oT
-        Yk0sK67MPcQowcGsJMJrKe0YJ8SbklhZlVqUH19UmpNafIjRFOi5icxSosn5wASRVxJvaGpo
-        bmFpaG5sbmxmoSTO2yFwMEZIID2xJDU7NbUgtQimj4mDU6qBcVv2txONklWcr9g4NyzSZ33c
-        4lsvqbJg2YKESYdrLt2XsPru9OJv7oqw3dz/9dtkD3dPuOhi8PiKb3XMG3WXXa88MrInqtbw
-        ZnkbzlAN93zAsqFIw6hg+oWXP14YP7aZFMQnf9C1bbGWx9cdH7mepW2YPt/0EpdDXs79u1yv
-        c6eyLtquxWM3TYmlOCPRUIu5qDgRAFOrmX3YAgAA
-X-CMS-MailID: 20200211151241eucas1p1a6afe8c8330f532f3d4115a4b61165c3
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20200211150022eucas1p1774275707908e4ee455291a793da308a
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20200211150022eucas1p1774275707908e4ee455291a793da308a
-References: <20d0559f-8d0f-42f5-5ebf-7f658a172161@linux.intel.com>
-        <CGME20200211150022eucas1p1774275707908e4ee455291a793da308a@eucas1p1.samsung.com>
-        <20200211150158.14475-1-mathias.nyman@linux.intel.com>
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mathias,
+Hi Maxime,
 
-On 11.02.2020 16:01, Mathias Nyman wrote:
-> xhci driver assumed that xHC controllers have at most one custom
-> supported speed table (PSI) for all usb 3.x ports.
-> Memory was allocated for one PSI table under the xhci hub structure.
->
-> Turns out this is not the case, some controllers have a separate
-> "supported protocol capability" entry with a PSI table for each port.
-> This means each usb3 roothub port can in theory support different custom
-> speeds.
->
-> To solve this, cache all supported protocol capabilities with their PSI
-> tables in an array, and add pointers to the xhci port structure so that
-> every port points to its capability entry in the array.
->
-> When creating the SuperSpeedPlus USB Device Capability BOS descriptor
-> for the xhci USB 3.1 roothub we for now will use only data from the
-> first USB 3.1 capable protocol capability entry in the array.
-> This could be improved later, this patch focuses resolving
-> the memory leak.
->
-> Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-> Reported-by: Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>
-> Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
-> Cc: stable <stable@vger.kernel.org> # v4.4+
-> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+On 2/11/20 2:26 AM, Maxime Ripard wrote:
+> On Tue, Feb 11, 2020 at 01:28:58AM -0600, Samuel Holland wrote:
+>> The driver currently uses runtime PM to perform some of the module
+>> initialization and cleanup. This has three problems:
+>>
+>> 1) There is no Kconfig dependency on CONFIG_PM, so if runtime PM is
+>>    disabled, the driver will not work at all, since the module will
+>>    never be initialized.
+> 
+> That's fairly easy to fix.
+> 
+>> 2) The driver does not ensure that the device is suspended when
+>>    sun6i_dsi_probe() fails or when sun6i_dsi_remove() is called. It
+>>    simply disables runtime PM. From the docs of pm_runtime_disable():
+>>
+>>       The device can be either active or suspended after its runtime PM
+>>       has been disabled.
+>>
+>>    And indeed, the device will likely still be active if sun6i_dsi_probe
+>>    fails. For example, if the panel driver is not yet loaded, we have
+>>    the following sequence:
+>>
+>>    sun6i_dsi_probe()
+>>       pm_runtime_enable()
+>>       mipi_dsi_host_register()
+>>          of_mipi_dsi_device_add(child)
+>>             ...device_add()...
+>>                __device_attach()
+>>                  pm_runtime_get_sync(dev->parent) -> Causes resume
+>>                  bus_for_each_drv()
+>>                     __device_attach_driver() -> No match for panel
+>>                  pm_runtime_put(dev->parent) -> Async idle request
+>>       component_add()
+>>          __component_add()
+>>             try_to_bring_up_masters()
+>>                try_to_bring_up_master()
+>>                   sun4i_drv_bind()
+>>                      component_bind_all()
+>>                         component_bind()
+>>                            sun6i_dsi_bind() -> Fails with -EPROBE_DEFER
+>>       mipi_dsi_host_unregister()
+>>       pm_runtime_disable()
+>>          __pm_runtime_disable()
+>>             __pm_runtime_barrier() -> Idle request is still pending
+>>                cancel_work_sync()  -> DSI host is *not* suspended!
+>>
+>>    Since the device is not suspended, the clock and regulator are never
+>>    disabled. The imbalance causes a WARN at devres free time.
+> 
+> That's interesting. I guess this is shown when you have the panel as a
+> module?
 
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+That's the easiest way to get sun6i_dsi_probe() to fail, yes. Even if the panel
+was built-in `modprobe sun6i_dsi; rmmod sun6i_dsi` would likely trigger the
+issue, since sun6i_dsi_remove() has the same problem.
 
-> ---
->
-> Changes since v1:
->
-> - Clear xhci->num_port_caps in xhci_mem_cleanup()
->    Otherwise we fail to add new ports and cause NULL pointer dereference at
->    manual xhci re-initialization. This can happen at resume if host lost power
->    during suspend.
-> ---
->   drivers/usb/host/xhci-hub.c | 25 +++++++++++-----
->   drivers/usb/host/xhci-mem.c | 59 +++++++++++++++++++++++--------------
->   drivers/usb/host/xhci.h     | 14 +++++++--
->   3 files changed, 65 insertions(+), 33 deletions(-)
->
-> diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-> index 7a3a29e5e9d2..af92b2576fe9 100644
-> --- a/drivers/usb/host/xhci-hub.c
-> +++ b/drivers/usb/host/xhci-hub.c
-> @@ -55,6 +55,7 @@ static u8 usb_bos_descriptor [] = {
->   static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
->   				     u16 wLength)
->   {
-> +	struct xhci_port_cap *port_cap = NULL;
->   	int i, ssa_count;
->   	u32 temp;
->   	u16 desc_size, ssp_cap_size, ssa_size = 0;
-> @@ -64,16 +65,24 @@ static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
->   	ssp_cap_size = sizeof(usb_bos_descriptor) - desc_size;
->   
->   	/* does xhci support USB 3.1 Enhanced SuperSpeed */
-> -	if (xhci->usb3_rhub.min_rev >= 0x01) {
-> +	for (i = 0; i < xhci->num_port_caps; i++) {
-> +		if (xhci->port_caps[i].maj_rev == 0x03 &&
-> +		    xhci->port_caps[i].min_rev >= 0x01) {
-> +			usb3_1 = true;
-> +			port_cap = &xhci->port_caps[i];
-> +			break;
-> +		}
-> +	}
-> +
-> +	if (usb3_1) {
->   		/* does xhci provide a PSI table for SSA speed attributes? */
-> -		if (xhci->usb3_rhub.psi_count) {
-> +		if (port_cap->psi_count) {
->   			/* two SSA entries for each unique PSI ID, RX and TX */
-> -			ssa_count = xhci->usb3_rhub.psi_uid_count * 2;
-> +			ssa_count = port_cap->psi_uid_count * 2;
->   			ssa_size = ssa_count * sizeof(u32);
->   			ssp_cap_size -= 16; /* skip copying the default SSA */
->   		}
->   		desc_size += ssp_cap_size;
-> -		usb3_1 = true;
->   	}
->   	memcpy(buf, &usb_bos_descriptor, min(desc_size, wLength));
->   
-> @@ -99,7 +108,7 @@ static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
->   	}
->   
->   	/* If PSI table exists, add the custom speed attributes from it */
-> -	if (usb3_1 && xhci->usb3_rhub.psi_count) {
-> +	if (usb3_1 && port_cap->psi_count) {
->   		u32 ssp_cap_base, bm_attrib, psi, psi_mant, psi_exp;
->   		int offset;
->   
-> @@ -111,7 +120,7 @@ static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
->   
->   		/* attribute count SSAC bits 4:0 and ID count SSIC bits 8:5 */
->   		bm_attrib = (ssa_count - 1) & 0x1f;
-> -		bm_attrib |= (xhci->usb3_rhub.psi_uid_count - 1) << 5;
-> +		bm_attrib |= (port_cap->psi_uid_count - 1) << 5;
->   		put_unaligned_le32(bm_attrib, &buf[ssp_cap_base + 4]);
->   
->   		if (wLength < desc_size + ssa_size)
-> @@ -124,8 +133,8 @@ static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
->   		 * USB 3.1 requires two SSA entries (RX and TX) for every link
->   		 */
->   		offset = desc_size;
-> -		for (i = 0; i < xhci->usb3_rhub.psi_count; i++) {
-> -			psi = xhci->usb3_rhub.psi[i];
-> +		for (i = 0; i < port_cap->psi_count; i++) {
-> +			psi = port_cap->psi[i];
->   			psi &= ~USB_SSP_SUBLINK_SPEED_RSVD;
->   			psi_exp = XHCI_EXT_PORT_PSIE(psi);
->   			psi_mant = XHCI_EXT_PORT_PSIM(psi);
-> diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-> index 0e2701649369..884c601bfa15 100644
-> --- a/drivers/usb/host/xhci-mem.c
-> +++ b/drivers/usb/host/xhci-mem.c
-> @@ -1915,17 +1915,17 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
->   	xhci->usb3_rhub.num_ports = 0;
->   	xhci->num_active_eps = 0;
->   	kfree(xhci->usb2_rhub.ports);
-> -	kfree(xhci->usb2_rhub.psi);
->   	kfree(xhci->usb3_rhub.ports);
-> -	kfree(xhci->usb3_rhub.psi);
->   	kfree(xhci->hw_ports);
->   	kfree(xhci->rh_bw);
->   	kfree(xhci->ext_caps);
-> +	for (i = 0; i < xhci->num_port_caps; i++)
-> +		kfree(xhci->port_caps[i].psi);
-> +	kfree(xhci->port_caps);
-> +	xhci->num_port_caps = 0;
->   
->   	xhci->usb2_rhub.ports = NULL;
-> -	xhci->usb2_rhub.psi = NULL;
->   	xhci->usb3_rhub.ports = NULL;
-> -	xhci->usb3_rhub.psi = NULL;
->   	xhci->hw_ports = NULL;
->   	xhci->rh_bw = NULL;
->   	xhci->ext_caps = NULL;
-> @@ -2126,6 +2126,7 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
->   	u8 major_revision, minor_revision;
->   	struct xhci_hub *rhub;
->   	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
-> +	struct xhci_port_cap *port_cap;
->   
->   	temp = readl(addr);
->   	major_revision = XHCI_EXT_PORT_MAJOR(temp);
-> @@ -2160,31 +2161,39 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
->   		/* WTF? "Valid values are ‘1’ to MaxPorts" */
->   		return;
->   
-> -	rhub->psi_count = XHCI_EXT_PORT_PSIC(temp);
-> -	if (rhub->psi_count) {
-> -		rhub->psi = kcalloc_node(rhub->psi_count, sizeof(*rhub->psi),
-> -				    GFP_KERNEL, dev_to_node(dev));
-> -		if (!rhub->psi)
-> -			rhub->psi_count = 0;
-> +	port_cap = &xhci->port_caps[xhci->num_port_caps++];
-> +	if (xhci->num_port_caps > max_caps)
-> +		return;
-> +
-> +	port_cap->maj_rev = major_revision;
-> +	port_cap->min_rev = minor_revision;
-> +	port_cap->psi_count = XHCI_EXT_PORT_PSIC(temp);
-> +
-> +	if (port_cap->psi_count) {
-> +		port_cap->psi = kcalloc_node(port_cap->psi_count,
-> +					     sizeof(*port_cap->psi),
-> +					     GFP_KERNEL, dev_to_node(dev));
-> +		if (!port_cap->psi)
-> +			port_cap->psi_count = 0;
->   
-> -		rhub->psi_uid_count++;
-> -		for (i = 0; i < rhub->psi_count; i++) {
-> -			rhub->psi[i] = readl(addr + 4 + i);
-> +		port_cap->psi_uid_count++;
-> +		for (i = 0; i < port_cap->psi_count; i++) {
-> +			port_cap->psi[i] = readl(addr + 4 + i);
->   
->   			/* count unique ID values, two consecutive entries can
->   			 * have the same ID if link is assymetric
->   			 */
-> -			if (i && (XHCI_EXT_PORT_PSIV(rhub->psi[i]) !=
-> -				  XHCI_EXT_PORT_PSIV(rhub->psi[i - 1])))
-> -				rhub->psi_uid_count++;
-> +			if (i && (XHCI_EXT_PORT_PSIV(port_cap->psi[i]) !=
-> +				  XHCI_EXT_PORT_PSIV(port_cap->psi[i - 1])))
-> +				port_cap->psi_uid_count++;
->   
->   			xhci_dbg(xhci, "PSIV:%d PSIE:%d PLT:%d PFD:%d LP:%d PSIM:%d\n",
-> -				  XHCI_EXT_PORT_PSIV(rhub->psi[i]),
-> -				  XHCI_EXT_PORT_PSIE(rhub->psi[i]),
-> -				  XHCI_EXT_PORT_PLT(rhub->psi[i]),
-> -				  XHCI_EXT_PORT_PFD(rhub->psi[i]),
-> -				  XHCI_EXT_PORT_LP(rhub->psi[i]),
-> -				  XHCI_EXT_PORT_PSIM(rhub->psi[i]));
-> +				  XHCI_EXT_PORT_PSIV(port_cap->psi[i]),
-> +				  XHCI_EXT_PORT_PSIE(port_cap->psi[i]),
-> +				  XHCI_EXT_PORT_PLT(port_cap->psi[i]),
-> +				  XHCI_EXT_PORT_PFD(port_cap->psi[i]),
-> +				  XHCI_EXT_PORT_LP(port_cap->psi[i]),
-> +				  XHCI_EXT_PORT_PSIM(port_cap->psi[i]));
->   		}
->   	}
->   	/* cache usb2 port capabilities */
-> @@ -2219,6 +2228,7 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
->   			continue;
->   		}
->   		hw_port->rhub = rhub;
-> +		hw_port->port_cap = port_cap;
->   		rhub->num_ports++;
->   	}
->   	/* FIXME: Should we disable ports not in the Extended Capabilities? */
-> @@ -2309,6 +2319,11 @@ static int xhci_setup_port_arrays(struct xhci_hcd *xhci, gfp_t flags)
->   	if (!xhci->ext_caps)
->   		return -ENOMEM;
->   
-> +	xhci->port_caps = kcalloc_node(cap_count, sizeof(*xhci->port_caps),
-> +				flags, dev_to_node(dev));
-> +	if (!xhci->port_caps)
-> +		return -ENOMEM;
-> +
->   	offset = cap_start;
->   
->   	while (offset) {
-> diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-> index 13d8838cd552..3ecee10fdcdc 100644
-> --- a/drivers/usb/host/xhci.h
-> +++ b/drivers/usb/host/xhci.h
-> @@ -1702,12 +1702,20 @@ struct xhci_bus_state {
->    * Intel Lynx Point LP xHCI host.
->    */
->   #define	XHCI_MAX_REXIT_TIMEOUT_MS	20
-> +struct xhci_port_cap {
-> +	u32			*psi;	/* array of protocol speed ID entries */
-> +	u8			psi_count;
-> +	u8			psi_uid_count;
-> +	u8			maj_rev;
-> +	u8			min_rev;
-> +};
->   
->   struct xhci_port {
->   	__le32 __iomem		*addr;
->   	int			hw_portnum;
->   	int			hcd_portnum;
->   	struct xhci_hub		*rhub;
-> +	struct xhci_port_cap	*port_cap;
->   };
->   
->   struct xhci_hub {
-> @@ -1719,9 +1727,6 @@ struct xhci_hub {
->   	/* supported prococol extended capabiliy values */
->   	u8			maj_rev;
->   	u8			min_rev;
-> -	u32			*psi;	/* array of protocol speed ID entries */
-> -	u8			psi_count;
-> -	u8			psi_uid_count;
->   };
->   
->   /* There is one xhci_hcd structure per controller */
-> @@ -1880,6 +1885,9 @@ struct xhci_hcd {
->   	/* cached usb2 extened protocol capabilites */
->   	u32                     *ext_caps;
->   	unsigned int            num_ext_caps;
-> +	/* cached extended protocol port capabilities */
-> +	struct xhci_port_cap	*port_caps;
-> +	unsigned int		num_port_caps;
->   	/* Compliance Mode Recovery Data */
->   	struct timer_list	comp_mode_recovery_timer;
->   	u32			port_status_u0;
+> There's something pretty weird though. The comment in
+> __pm_runtime_disable states that it will "wait for all operations in
+> progress to complete" so at the end of __pm_runtime_disable call, the
+> DSI host will be suspended and we shouldn't have a WARN at all.
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+No, that's not what "operations in progress" means. That only waits for a
+callback that is *already running* on another CPU to complete, in other words
+`dev->power.runtime_status == RPM_SUSPENDING`.
 
+Here the callback does not get run at all. At the time __pm_runtime_disable() is
+called:
+
+dev->power.runtime_status == RPM_ACTIVE
+dev->power.request == RPM_REQ_IDLE
+dev->power.request_pending == true
+
+because pm_runtime_put() calls rpm_idle() with the RPM_ASYNC flag.
+
+And as I mentioned, that request is thrown away by __pm_runtime_barrier(). So
+the device PM core is working as documented.
+
+>> 3) The driver relies on being suspended when sun6i_dsi_encoder_enable()
+>>    is called. The resume callback has a comment that says:
+>>
+>>       Some part of it can only be done once we get a number of
+>>       lanes, see sun6i_dsi_inst_init
+>>
+>>    And then part of the resume callback only runs if dsi->device is not
+>>    NULL (that is, if sun6i_dsi_attach() has been called). However, as
+>>    the above call graph shows, the resume callback is guaranteed to be
+>>    called before sun6i_dsi_attach(); it is called before child devices
+>>    get their drivers attached.
+> 
+> Isn't it something that has been changed by your previous patch though?
+
+No. Before the previous patch, sun6i_dsi_bind() requires sun6i_dsi_attach() to
+have been called first. So either the panel driver is not loaded, and issue #2
+happens, or the panel driver is loaded, and you get the following modification
+to the above call graph:
+
+   mipi_dsi_host_register()
+      ...
+         __device_attach()
+            pm_runtime_get_sync(dev->parent) -> Causes resume
+            bus_for_each_drv()
+               __device_attach_driver()
+                  [panel probe function]
+                     mipi_dsi_attach()
+                        sun6i_dsi_attach()
+            pm_runtime_put(dev->parent) -> Async idle request
+   component_add()
+      ...
+         sun6i_dsi_bind()
+      ...
+         sun6i_dsi_encoder_enable()
+            pm_runtime_get_sync() -> Cancels idle request
+
+And because `dev->power.runtime_status == RPM_ACTIVE` still, the callback is
+*not* run. Either way you have the same problem.
+
+>>    Therefore, part of the controller initialization will only run if the
+>>    device is suspended between the calls to mipi_dsi_host_register() and
+>>    component_add() (which ends up calling sun6i_dsi_encoder_enable()).
+>>    Again, as shown by the above call graph, this is not the case. It
+>>    appears that the controller happens to work because it is still
+>>    initialized by the bootloader.
+> 
+> We don't have any bootloader support for MIPI-DSI, so no, that's not it.
+> 
+>>    Because the connector is hardcoded to always be connected, the
+>>    device's runtime PM reference is not dropped until system suspend,
+>>    when sun4i_drv_drm_sys_suspend() ends up calling
+>>    sun6i_dsi_encoder_disable(). However, that is done as a system sleep
+>>    PM hook, and at that point the system PM core has already taken
+>>    another runtime PM reference, so sun6i_dsi_runtime_suspend() is
+>>    not called. Likewise, by the time the PM core releases its reference,
+>>    sun4i_drv_drm_sys_resume() has already re-enabled the encoder.
+>>
+>>    So after system suspend and resume, we have *still never called*
+>>    sun6i_dsi_inst_init(), and now that the rest of the display pipeline
+>>    has been reset, the DSI host is unable to communicate with the panel,
+>>    causing VBLANK timeouts.
+> 
+> Either way, I guess just moving the pm_runtime_enable call to
+> sun6i_dsi_attach will fix this, right? We don't really need to have
+> the DSI controller powered up before that time anyway.
+
+Sorry, but no again. It would solve issue #2 (only if the previous patch is
+applied), but not issue #3.
+
+Regardless of when runtime PM is enabled, sun6i_dsi_runtime_suspend() will not
+be called until the device's usage count drops to 0. And as long as a panel is
+bound, the controller's usage count will be >0, *even during system suspend*
+while the encoder is turned off.
+
+Before the previous patch, the usage count would never drop to 0 under *any*
+circumstance.
+
+>> Fix all of these issues by inlining the runtime PM hooks into the
+>> encoder enable/disable functions, which are guaranteed to run after a
+>> panel is attached. This allows sun6i_dsi_inst_init() to be called
+>> unconditionally. Furthermore, this causes the hardware to be turned off
+>> during system suspend and reinitialized on resume, which was not
+>> happening before.
+> 
+> That's not something we should do really. We're really lacking any
+> power management, so we should be having more of runtime_pm, not less.
+
+This *is* adding more power management! The current runtime_pm hooks never
+actually suspend the device, as described above. And even if they did work, this
+would not extend the lifetime during which the device is active! I'm calling the
+power-up/power-down routines at exactly the same point they were previously
+getting called, except for two changes:
+
+1) The device does not get powered up during mipi_dsi_host_register(), which you
+just said was unnecessary.
+
+2) The code in the PM hooks actually gets run when it was intended to be run.
+
+> Maxime
+
+Samuel
