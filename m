@@ -2,167 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A17B158B26
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 09:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF730158B37
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 09:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727688AbgBKIQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 03:16:31 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:48454 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727738AbgBKIQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Feb 2020 03:16:31 -0500
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 3FF45F537B8F9E7CD320;
-        Tue, 11 Feb 2020 16:16:24 +0800 (CST)
-Received: from huawei.com (10.175.124.28) by DGGEMS406-HUB.china.huawei.com
- (10.3.19.206) with Microsoft SMTP Server id 14.3.439.0; Tue, 11 Feb 2020
- 16:16:16 +0800
-From:   Ye Bin <yebin10@huawei.com>
-To:     <yanaijie@huawei.com>
-CC:     <yebin10@huawei.com>, Bart Van Assche <bvanassche@acm.org>,
-        "Christoph Hellwig" <hch@lst.de>,
-        Keith Busch <keith.busch@intel.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        <stable@vger.kernel.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH hulk-4.4-next 4/6] scsi: iscsi: Fix a potential deadlock in the timeout handler
-Date:   Tue, 11 Feb 2020 16:15:14 +0800
-Message-ID: <20200211081516.28195-5-yebin10@huawei.com>
-X-Mailer: git-send-email 2.17.2
-In-Reply-To: <20200211081516.28195-1-yebin10@huawei.com>
-References: <20200211081516.28195-1-yebin10@huawei.com>
+        id S1727613AbgBKI0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 03:26:37 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:59369 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727578AbgBKI0h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 03:26:37 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 8EE26217FC;
+        Tue, 11 Feb 2020 03:26:33 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Tue, 11 Feb 2020 03:26:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=aJFuuqSI2HhjxwelhEtc0Ez5YPf
+        0KrosR/wT6D9AufM=; b=SNpkHcj8DpzU9/RJO4Dx7NW+qlKd91YZZI1QJXfYz/r
+        mjM6R+IwGn5lZEYn3UCPb5Qju528nBi/21tUOY/rEuvzmK8wnSnACdnG29mYio4t
+        udEXGLB+eBK6xQn7/HDoPcBvcmfsKnO2ckqZcjmiDLx+m296E1rOHeap+Vi/Ry3n
+        NhW4axLlOqzvys1Ul7u7Jq9MYLR2rlc1WTcwDpPJdOIGZzKzhhd1QXn3/0H8p365
+        8FvXCm0Wd28Tn3ycvgY9T/vMjdZOhf0yXRjjwi5IUT3Me4n23mMvT+qO3qoIizFL
+        LSBnlo+dwPvRen5j179JPXmPAhSs41TvHkXt38svVPQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=aJFuuq
+        SI2HhjxwelhEtc0Ez5YPf0KrosR/wT6D9AufM=; b=Wml2BvHI6FDEY4f5OH7zsZ
+        nYzr6x37E8Ztk9Hqxr4Yn2iacvL+KNSKkgrbzvsQkulIZUumb2iL2yLppIwQ2p6b
+        bHs4jnVn2qMCF0CY/JyebH2oWKn1w1HyewQ8WGkPtZ28yZxOWw0J3uOOCdBunMhc
+        xZwSIvsphbzbGHF048UA1zyi6cbAlmVJ3DHMdFGqGaRPfQue2Nyn8eckBihTpYqp
+        eGiAsh+h6QgACz9ELwizRbuEBla1yg4CU6RnmiBcN4xBtfGd1eXfV/Ax5opKnJCJ
+        02DchwvpAAWoO+fXDSxIn53Vw/9zCmAcqtZad5bgNPKbmtP0u15jmhsjOnYVxkLA
+        ==
+X-ME-Sender: <xms:NWVCXtyBNsa7zJ6-4S4NZ5g5IwIr29AdqnvZnAFWIbQ9O_ggJAybag>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedriedvgdduudelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehgtderredttddvnecuhfhrohhmpeforgigihhm
+    vgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecukfhppeeltd
+    drkeelrdeikedrjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghi
+    lhhfrhhomhepmhgrgihimhgvsegtvghrnhhordhtvggthh
+X-ME-Proxy: <xmx:NWVCXmso8okp7MHQWlJU0Ryben_orT0c0mClRSczluznL_7UQdqHiA>
+    <xmx:NWVCXm6lpacM8pWcwl2hSenwQtEBBBTKC0dmupVJxxF7gpgUahwV-A>
+    <xmx:NWVCXlRXe6Fq4qqTmT5AcSBgjyOwfoTKYrkdR7Xv-7GWfr_AK_ZmIA>
+    <xmx:OWVCXiQq_WypclKpll63jsqtz_c_x-n2-UynCFHnSLxcIZQ766gZyQ>
+Received: from localhost (lfbn-tou-1-1502-76.w90-89.abo.wanadoo.fr [90.89.68.76])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C7872328005A;
+        Tue, 11 Feb 2020 03:26:28 -0500 (EST)
+Date:   Tue, 11 Feb 2020 09:26:27 +0100
+From:   Maxime Ripard <maxime@cerno.tech>
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     Chen-Yu Tsai <wens@csie.org>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4/4] drm/sun4i: dsi: Remove incorrect use of runtime PM
+Message-ID: <20200211082627.nolf6npspw2a2rxs@gilmour.lan>
+References: <20200211072858.30784-1-samuel@sholland.org>
+ <20200211072858.30784-4-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.124.28]
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kwpruo3coc5fkck7"
+Content-Disposition: inline
+In-Reply-To: <20200211072858.30784-4-samuel@sholland.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
 
-mainline inclusion
-from mainline-v5.5-rc2~6^2~1
-commit 5480e299b5ae57956af01d4839c9fc88a465eeab
-category: bugfix
-bugzilla: 27543
-DTS: NA
-CVE: NA
+--kwpruo3coc5fkck7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--------------------------------------------------
+Hi,
 
-Some time ago the block layer was modified such that timeout handlers are
-called from thread context instead of interrupt context. Make it safe to
-run the iSCSI timeout handler in thread context. This patch fixes the
-following lockdep complaint:
+On Tue, Feb 11, 2020 at 01:28:58AM -0600, Samuel Holland wrote:
+> The driver currently uses runtime PM to perform some of the module
+> initialization and cleanup. This has three problems:
+>
+> 1) There is no Kconfig dependency on CONFIG_PM, so if runtime PM is
+>    disabled, the driver will not work at all, since the module will
+>    never be initialized.
 
-================================
-WARNING: inconsistent lock state
-5.5.1-dbg+ #11 Not tainted
---------------------------------
-inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
-kworker/7:1H/206 [HC0[0]:SC0[0]:HE1:SE1] takes:
-ffff88802d9827e8 (&(&session->frwd_lock)->rlock){+.?.}, at: iscsi_eh_cmd_timed_out+0xa6/0x6d0 [libiscsi]
-{IN-SOFTIRQ-W} state was registered at:
-  lock_acquire+0x106/0x240
-  _raw_spin_lock+0x38/0x50
-  iscsi_check_transport_timeouts+0x3e/0x210 [libiscsi]
-  call_timer_fn+0x132/0x470
-  __run_timers.part.0+0x39f/0x5b0
-  run_timer_softirq+0x63/0xc0
-  __do_softirq+0x12d/0x5fd
-  irq_exit+0xb3/0x110
-  smp_apic_timer_interrupt+0x131/0x3d0
-  apic_timer_interrupt+0xf/0x20
-  default_idle+0x31/0x230
-  arch_cpu_idle+0x13/0x20
-  default_idle_call+0x53/0x60
-  do_idle+0x38a/0x3f0
-  cpu_startup_entry+0x24/0x30
-  start_secondary+0x222/0x290
-  secondary_startup_64+0xa4/0xb0
-irq event stamp: 1383705
-hardirqs last  enabled at (1383705): [<ffffffff81aace5c>] _raw_spin_unlock_irq+0x2c/0x50
-hardirqs last disabled at (1383704): [<ffffffff81aacb98>] _raw_spin_lock_irq+0x18/0x50
-softirqs last  enabled at (1383690): [<ffffffffa0e2efea>] iscsi_queuecommand+0x76a/0xa20 [libiscsi]
-softirqs last disabled at (1383682): [<ffffffffa0e2e998>] iscsi_queuecommand+0x118/0xa20 [libiscsi]
+That's fairly easy to fix.
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
+> 2) The driver does not ensure that the device is suspended when
+>    sun6i_dsi_probe() fails or when sun6i_dsi_remove() is called. It
+>    simply disables runtime PM. From the docs of pm_runtime_disable():
+>
+>       The device can be either active or suspended after its runtime PM
+>       has been disabled.
+>
+>    And indeed, the device will likely still be active if sun6i_dsi_probe
+>    fails. For example, if the panel driver is not yet loaded, we have
+>    the following sequence:
+>
+>    sun6i_dsi_probe()
+>       pm_runtime_enable()
+>       mipi_dsi_host_register()
+>          of_mipi_dsi_device_add(child)
+>             ...device_add()...
+>                __device_attach()
+>                  pm_runtime_get_sync(dev->parent) -> Causes resume
+>                  bus_for_each_drv()
+>                     __device_attach_driver() -> No match for panel
+>                  pm_runtime_put(dev->parent) -> Async idle request
+>       component_add()
+>          __component_add()
+>             try_to_bring_up_masters()
+>                try_to_bring_up_master()
+>                   sun4i_drv_bind()
+>                      component_bind_all()
+>                         component_bind()
+>                            sun6i_dsi_bind() -> Fails with -EPROBE_DEFER
+>       mipi_dsi_host_unregister()
+>       pm_runtime_disable()
+>          __pm_runtime_disable()
+>             __pm_runtime_barrier() -> Idle request is still pending
+>                cancel_work_sync()  -> DSI host is *not* suspended!
+>
+>    Since the device is not suspended, the clock and regulator are never
+>    disabled. The imbalance causes a WARN at devres free time.
 
-       CPU0
-       ----
-  lock(&(&session->frwd_lock)->rlock);
-  <Interrupt>
-    lock(&(&session->frwd_lock)->rlock);
+That's interesting. I guess this is shown when you have the panel as a
+module?
 
- *** DEADLOCK ***
+There's something pretty weird though. The comment in
+__pm_runtime_disable states that it will "wait for all operations in
+progress to complete" so at the end of __pm_runtime_disable call, the
+DSI host will be suspended and we shouldn't have a WARN at all.
 
-2 locks held by kworker/7:1H/206:
- #0: ffff8880d57bf928 ((wq_completion)kblockd){+.+.}, at: process_one_work+0x472/0xab0
- #1: ffff88802b9c7de8 ((work_completion)(&q->timeout_work)){+.+.}, at: process_one_work+0x476/0xab0
+> 3) The driver relies on being suspended when sun6i_dsi_encoder_enable()
+>    is called. The resume callback has a comment that says:
+>
+>       Some part of it can only be done once we get a number of
+>       lanes, see sun6i_dsi_inst_init
+>
+>    And then part of the resume callback only runs if dsi->device is not
+>    NULL (that is, if sun6i_dsi_attach() has been called). However, as
+>    the above call graph shows, the resume callback is guaranteed to be
+>    called before sun6i_dsi_attach(); it is called before child devices
+>    get their drivers attached.
 
-stack backtrace:
-CPU: 7 PID: 206 Comm: kworker/7:1H Not tainted 5.5.1-dbg+ #11
-Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-Workqueue: kblockd blk_mq_timeout_work
-Call Trace:
- dump_stack+0xa5/0xe6
- print_usage_bug.cold+0x232/0x23b
- mark_lock+0x8dc/0xa70
- __lock_acquire+0xcea/0x2af0
- lock_acquire+0x106/0x240
- _raw_spin_lock+0x38/0x50
- iscsi_eh_cmd_timed_out+0xa6/0x6d0 [libiscsi]
- scsi_times_out+0xf4/0x440 [scsi_mod]
- scsi_timeout+0x1d/0x20 [scsi_mod]
- blk_mq_check_expired+0x365/0x3a0
- bt_iter+0xd6/0xf0
- blk_mq_queue_tag_busy_iter+0x3de/0x650
- blk_mq_timeout_work+0x1af/0x380
- process_one_work+0x56d/0xab0
- worker_thread+0x7a/0x5d0
- kthread+0x1bc/0x210
- ret_from_fork+0x24/0x30
+Isn't it something that has been changed by your previous patch though?
 
-Fixes: 287922eb0b18 ("block: defer timeouts to a workqueue")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Keith Busch <keith.busch@intel.com>
-Cc: Lee Duncan <lduncan@suse.com>
-Cc: Chris Leech <cleech@redhat.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191209173457.187370-1-bvanassche@acm.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
----
- drivers/scsi/libiscsi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>    Therefore, part of the controller initialization will only run if the
+>    device is suspended between the calls to mipi_dsi_host_register() and
+>    component_add() (which ends up calling sun6i_dsi_encoder_enable()).
+>    Again, as shown by the above call graph, this is not the case. It
+>    appears that the controller happens to work because it is still
+>    initialized by the bootloader.
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 0fdc8c417035..b4fbcf4cade8 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -1982,7 +1982,7 @@ static enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
- 
- 	ISCSI_DBG_EH(session, "scsi cmd %p timedout\n", sc);
- 
--	spin_lock(&session->frwd_lock);
-+	spin_lock_bh(&session->frwd_lock);
- 	task = (struct iscsi_task *)sc->SCp.ptr;
- 	if (!task) {
- 		/*
-@@ -2109,7 +2109,7 @@ static enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
- done:
- 	if (task)
- 		task->last_timeout = jiffies;
--	spin_unlock(&session->frwd_lock);
-+	spin_unlock_bh(&session->frwd_lock);
- 	ISCSI_DBG_EH(session, "return %s\n", rc == BLK_EH_RESET_TIMER ?
- 		     "timer reset" : "shutdown or nh");
- 	return rc;
--- 
-2.17.2
+We don't have any bootloader support for MIPI-DSI, so no, that's not it.
 
+>    Because the connector is hardcoded to always be connected, the
+>    device's runtime PM reference is not dropped until system suspend,
+>    when sun4i_drv_drm_sys_suspend() ends up calling
+>    sun6i_dsi_encoder_disable(). However, that is done as a system sleep
+>    PM hook, and at that point the system PM core has already taken
+>    another runtime PM reference, so sun6i_dsi_runtime_suspend() is
+>    not called. Likewise, by the time the PM core releases its reference,
+>    sun4i_drv_drm_sys_resume() has already re-enabled the encoder.
+>
+>    So after system suspend and resume, we have *still never called*
+>    sun6i_dsi_inst_init(), and now that the rest of the display pipeline
+>    has been reset, the DSI host is unable to communicate with the panel,
+>    causing VBLANK timeouts.
+
+Either way, I guess just moving the pm_runtime_enable call to
+sun6i_dsi_attach will fix this, right? We don't really need to have
+the DSI controller powered up before that time anyway.
+
+> Fix all of these issues by inlining the runtime PM hooks into the
+> encoder enable/disable functions, which are guaranteed to run after a
+> panel is attached. This allows sun6i_dsi_inst_init() to be called
+> unconditionally. Furthermore, this causes the hardware to be turned off
+> during system suspend and reinitialized on resume, which was not
+> happening before.
+
+That's not something we should do really. We're really lacking any
+power management, so we should be having more of runtime_pm, not less.
+
+Maxime
+
+--kwpruo3coc5fkck7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXkJlMwAKCRDj7w1vZxhR
+xYOyAP4i7bV29YYxSgA7p6SjdiD9FeE7lQtf60arSA++ez4MuQD/bU6dsgSPYiwK
+hMZXytraIuKsW3QZc8GHvc91c2y+dAQ=
+=fkj2
+-----END PGP SIGNATURE-----
+
+--kwpruo3coc5fkck7--
