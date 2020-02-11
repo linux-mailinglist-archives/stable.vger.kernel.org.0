@@ -2,103 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57590159485
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 17:12:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6798B159489
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 17:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728421AbgBKQMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 11:12:31 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:56019 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728112AbgBKQMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 11:12:31 -0500
-Received: by mail-wm1-f68.google.com with SMTP id q9so4254327wmj.5
-        for <stable@vger.kernel.org>; Tue, 11 Feb 2020 08:12:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=cucSq+WIuD5CmwCFHJoUNQHqXoQedS4p2N8loyiWKWE=;
-        b=EGDAH5kLc8lAZgz7/neG/4/dP6OM/POpDzTNnM7PCAFg3MdXVzRIb/YVUiln0pm2Lx
-         9zbWxFThEVCshksVIMFB6k+1t+sK1cW/SiO5tbb+rtHxJg2RDiEli4G3Tmbor8Wf5Ut7
-         jJ7ByL/B9ygks0A2ufTEh6aAjWnOA2nNIzBTnzqZ8PVvRPheRl829E5mTsTnj+pFZ19Q
-         WcZNMqm3ln/Gcvm2wEDoli+QqMs3SU3FovM2cNhH6K/v1RfNlOlzLQcMdmjaAUJuOSjo
-         Xtq4hyW9FudJdU6TMGI0zu0aKGbl4xxXzAbi5yLfutNDkv/bgBwjVTYPDWLtEzcNBc06
-         fBKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=cucSq+WIuD5CmwCFHJoUNQHqXoQedS4p2N8loyiWKWE=;
-        b=DQcCCgGWIW02bgPXG6kA7crxPl8aoI5tXKUgUFwI42PlmlZir12r53OKp5p1bkbR7U
-         MXzfH37mjkI6fGKdUuQ1tMKJXCxSRozyLy9CZAosxXmLv/YjMInDXLqKIeI/EWM23KzY
-         0HfcI6H1MRXouM8hg3JKGakzqVRo1JebAHsxgoOJDZght77quGVI0hbtUEZtG2ayb7A5
-         h752hbomRkkGATwro9qshHZsslQAX2wvL8dKEbssRpq2193imCDqi+Aru3rJ50X1uBsx
-         ETWRyDTMmSwQSfLdU8g1SKJz2wGKpkIVCosEP3WmBSya0k8Jc1qhlboscJYaSAFhmmMo
-         t7sA==
-X-Gm-Message-State: APjAAAVT1CzyKkqDvh1G8P81Q4H3tQ2YAOuPZJrvYAtp+iJfNmhroOF8
-        3ghwnbhofNoWMKwaA1vsmsRbSxzIkcp2gA==
-X-Google-Smtp-Source: APXvYqxhrdVF575OIrgtPrruwp6cFeRQDUhZ96HIL640DH2+csBIeK5zSaSs1fsJfsSQgZIXGc/a2g==
-X-Received: by 2002:a1c:ba83:: with SMTP id k125mr6378187wmf.106.1581437549765;
-        Tue, 11 Feb 2020 08:12:29 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id l15sm5790855wrv.39.2020.02.11.08.12.28
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2020 08:12:29 -0800 (PST)
-Message-ID: <5e42d26d.1c69fb81.ca0ef.c4f4@mx.google.com>
-Date:   Tue, 11 Feb 2020 08:12:29 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1729711AbgBKQNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 11:13:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729390AbgBKQNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Feb 2020 11:13:18 -0500
+Received: from localhost (unknown [104.133.9.100])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BE232070A;
+        Tue, 11 Feb 2020 16:13:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581437597;
+        bh=mpthMPkNTmBrSE6fyhf8FwsYXxQ+Fb0JRMAAkISpmgU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jWiiqI+7RyyCw3hJoQhHNZTg2/M9zQnl8+zLXrDAe1n2XkHIKE5YO/a8mQGkpMhu5
+         KCScjHxyJHCCgMF0uw8fDyTmr9OOpQtdCrbZx5GL2ySWQun19bECNPXzreriYToGS2
+         zqVoav8R35mGJ7cw9diNyL4HDwYgvZITLVdbLaco=
+Date:   Tue, 11 Feb 2020 08:13:16 -0800
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Marek Szyprowski <m.szyprowski@samsung.com>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        pmenzel@molgen.mpg.de, mika.westerberg@linux.intel.com,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, krzk@kernel.org,
+        stable <stable@vger.kernel.org>
+Subject: Re: [RFT PATCH v2] xhci: Fix memory leak when caching protocol
+ extended capability PSI tables
+Message-ID: <20200211161316.GA1914687@kroah.com>
+References: <20d0559f-8d0f-42f5-5ebf-7f658a172161@linux.intel.com>
+ <CGME20200211150022eucas1p1774275707908e4ee455291a793da308a@eucas1p1.samsung.com>
+ <20200211150158.14475-1-mathias.nyman@linux.intel.com>
+ <da2d0387-47f8-e047-0ff8-d971072f9f89@samsung.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.213-80-gc93242186b91
-Subject: stable-rc/linux-4.4.y boot: 8 boots: 2 failed,
- 6 passed (v4.4.213-80-gc93242186b91)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <da2d0387-47f8-e047-0ff8-d971072f9f89@samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 8 boots: 2 failed, 6 passed (v4.4.213-80-gc9324=
-2186b91)
+On Tue, Feb 11, 2020 at 04:12:40PM +0100, Marek Szyprowski wrote:
+> Hi Mathias,
+> 
+> On 11.02.2020 16:01, Mathias Nyman wrote:
+> > xhci driver assumed that xHC controllers have at most one custom
+> > supported speed table (PSI) for all usb 3.x ports.
+> > Memory was allocated for one PSI table under the xhci hub structure.
+> >
+> > Turns out this is not the case, some controllers have a separate
+> > "supported protocol capability" entry with a PSI table for each port.
+> > This means each usb3 roothub port can in theory support different custom
+> > speeds.
+> >
+> > To solve this, cache all supported protocol capabilities with their PSI
+> > tables in an array, and add pointers to the xhci port structure so that
+> > every port points to its capability entry in the array.
+> >
+> > When creating the SuperSpeedPlus USB Device Capability BOS descriptor
+> > for the xhci USB 3.1 roothub we for now will use only data from the
+> > first USB 3.1 capable protocol capability entry in the array.
+> > This could be improved later, this patch focuses resolving
+> > the memory leak.
+> >
+> > Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+> > Reported-by: Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>
+> > Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
+> > Cc: stable <stable@vger.kernel.org> # v4.4+
+> > Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> 
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.213-80-gc93242186b91/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.213-80-gc93242186b91/
+Nice!
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.213-80-gc93242186b91
-Git Commit: c93242186b9196ca754dda98aca7edb1b734dfd9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 7 unique boards, 6 SoC families, 6 builds out of 117
+Should I revert the first and then apply this?
 
-Boot Regressions Detected:
+thanks,
 
-arm:
-
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: new failure (last pass: v4.4.213-80-g5e=
-b5593c7143)
-
-Boot Failures Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
