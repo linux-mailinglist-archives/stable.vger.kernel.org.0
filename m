@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E97A159508
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 17:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F734159536
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 17:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730866AbgBKQfh convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 Feb 2020 11:35:37 -0500
-Received: from skedge03.snt-world.com ([91.208.41.68]:55224 "EHLO
-        skedge03.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728295AbgBKQfh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 11:35:37 -0500
-Received: from sntmail12r.snt-is.com (unknown [10.203.32.182])
+        id S1728723AbgBKQmJ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 Feb 2020 11:42:09 -0500
+Received: from skedge04.snt-world.com ([91.208.41.69]:36162 "EHLO
+        skedge04.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728049AbgBKQmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 11:42:09 -0500
+X-Greylist: delayed 371 seconds by postgrey-1.27 at vger.kernel.org; Tue, 11 Feb 2020 11:42:06 EST
+Received: from sntmail14r.snt-is.com (unknown [10.203.32.184])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by skedge03.snt-world.com (Postfix) with ESMTPS id 27DA467A6F1;
-        Tue, 11 Feb 2020 17:35:34 +0100 (CET)
-Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail12r.snt-is.com
- (10.203.32.182) with Microsoft SMTP Server (version=TLS1_2,
+        by skedge04.snt-world.com (Postfix) with ESMTPS id 384DA67A894;
+        Tue, 11 Feb 2020 17:35:54 +0100 (CET)
+Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail14r.snt-is.com
+ (10.203.32.184) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Tue, 11 Feb
- 2020 17:35:33 +0100
+ 2020 17:35:53 +0100
 Received: from sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305]) by
  sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305%3]) with mapi id
- 15.01.1913.005; Tue, 11 Feb 2020 17:35:33 +0100
+ 15.01.1913.005; Tue, 11 Feb 2020 17:35:53 +0100
 From:   Schrempf Frieder <frieder.schrempf@kontron.de>
 To:     Boris Brezillon <bbrezillon@kernel.org>,
         Schrempf Frieder <frieder.schrempf@kontron.de>,
@@ -34,13 +35,13 @@ CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
         "Richard Weinberger" <richard@nod.at>
-Subject: [PATCH 1/3] mtd: spinand: Stop using spinand->oobbuf for buffering
- bad block markers
-Thread-Topic: [PATCH 1/3] mtd: spinand: Stop using spinand->oobbuf for
- buffering bad block markers
-Thread-Index: AQHV4PlH+VPeFWBm8k+U84JJEiFI4w==
-Date:   Tue, 11 Feb 2020 16:35:33 +0000
-Message-ID: <20200211163452.25442-2-frieder.schrempf@kontron.de>
+Subject: [PATCH 3/3] mtd: spinand: Wait for the erase op to finish before
+ writing a bad block marker
+Thread-Topic: [PATCH 3/3] mtd: spinand: Wait for the erase op to finish before
+ writing a bad block marker
+Thread-Index: AQHV4PlTblnHiLQcV0asTsn4OWAZ0A==
+Date:   Tue, 11 Feb 2020 16:35:53 +0000
+Message-ID: <20200211163452.25442-4-frieder.schrempf@kontron.de>
 References: <20200211163452.25442-1-frieder.schrempf@kontron.de>
 In-Reply-To: <20200211163452.25442-1-frieder.schrempf@kontron.de>
 Accept-Language: de-DE, en-US
@@ -54,7 +55,7 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 X-SnT-MailScanner-Information: Please contact the ISP for more information
-X-SnT-MailScanner-ID: 27DA467A6F1.AFC22
+X-SnT-MailScanner-ID: 384DA67A894.AE793
 X-SnT-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
 X-SnT-MailScanner-SpamCheck: 
 X-SnT-MailScanner-From: frieder.schrempf@kontron.de
@@ -70,76 +71,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-For reading and writing the bad block markers, spinand->oobbuf is
-currently used as a buffer for the marker bytes. During the
-underlying read and write operations to actually get/set the content
-of the OOB area, the content of spinand->oobbuf is reused and changed
-by accessing it through spinand->oobbuf and/or spinand->databuf.
+Currently when marking a block, we use spinand_erase_op() to erase
+the block before writing the marker to the OOB area without waiting
+for the operation to succeed. This can lead to the marking failing
+silently and no bad block marker being written to the flash.
 
-This is a flaw in the original design of the SPI MEM core and at the
-latest from 13c15e07eedf ("mtd: spinand: Handle the case where
-PROGRAM LOAD does not reset the cache") on, it results in not having
-the bad block marker written at all, as the spinand->oobbuf is
-cleared to 0xff after setting the marker bytes to zero.
-
-To fix it, we now just store the two bytes for the marker on the
-stack and let the read/write operations copy it from/to the page
-buffer later.
+To fix this we reuse the spinand_erase() function, that already does
+everything we need to do before actually writing the marker.
 
 Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
 Cc: stable@vger.kernel.org
 Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 ---
- drivers/mtd/nand/spi/core.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mtd/nand/spi/core.c | 56 ++++++++++++++++++-------------------
+ 1 file changed, 28 insertions(+), 28 deletions(-)
 
 diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 89f6beefb01c..5d267a67a5f7 100644
+index 925db6269861..8a69d13639e2 100644
 --- a/drivers/mtd/nand/spi/core.c
 +++ b/drivers/mtd/nand/spi/core.c
-@@ -568,18 +568,18 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
- static bool spinand_isbad(struct nand_device *nand, const struct nand_pos *pos)
- {
- 	struct spinand_device *spinand = nand_to_spinand(nand);
-+	u8 marker[] = { 0, 0 };
- 	struct nand_page_io_req req = {
- 		.pos = *pos,
- 		.ooblen = 2,
- 		.ooboffs = 0,
--		.oobbuf.in = spinand->oobbuf,
-+		.oobbuf.in = marker,
- 		.mode = MTD_OPS_RAW,
- 	};
+@@ -600,6 +600,32 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
+ 	return ret;
+ }
  
--	memset(spinand->oobbuf, 0, 2);
- 	spinand_select_target(spinand, pos->target);
- 	spinand_read_page(spinand, &req, false);
--	if (spinand->oobbuf[0] != 0xff || spinand->oobbuf[1] != 0xff)
-+	if (marker[0] != 0xff || marker[1] != 0xff)
- 		return true;
- 
- 	return false;
-@@ -603,11 +603,12 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
++static int __spinand_erase(struct nand_device *nand, const struct nand_pos *pos,
++			   bool hard_fail)
++{
++	struct spinand_device *spinand = nand_to_spinand(nand);
++	u8 status;
++	int ret;
++
++	ret = spinand_select_target(spinand, pos->target);
++	if (ret)
++		return ret;
++
++	ret = spinand_write_enable_op(spinand);
++	if (ret)
++		return ret;
++
++	ret = spinand_erase_op(spinand, pos);
++	if (ret && hard_fail)
++		return ret;
++
++	ret = spinand_wait(spinand, &status);
++	if (!ret && (status & STATUS_ERASE_FAILED))
++		ret = -EIO;
++
++	return ret;
++}
++
  static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
  {
  	struct spinand_device *spinand = nand_to_spinand(nand);
-+	u8 marker[] = { 0, 0 };
- 	struct nand_page_io_req req = {
- 		.pos = *pos,
- 		.ooboffs = 0,
- 		.ooblen = 2,
--		.oobbuf.out = spinand->oobbuf,
-+		.oobbuf.out = marker,
- 	};
+@@ -614,16 +640,10 @@ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
  	int ret;
  
-@@ -622,7 +623,6 @@ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
+ 	/* Erase block before marking it bad. */
+-	ret = spinand_select_target(spinand, pos->target);
+-	if (ret)
+-		return ret;
+-
+-	ret = spinand_write_enable_op(spinand);
++	ret = __spinand_erase(nand, pos, false);
+ 	if (ret)
+ 		return ret;
  
- 	spinand_erase_op(spinand, pos);
- 
--	memset(spinand->oobbuf, 0, 2);
+-	spinand_erase_op(spinand, pos);
+-
  	return spinand_write_page(spinand, &req);
  }
  
+@@ -644,27 +664,7 @@ static int spinand_mtd_block_markbad(struct mtd_info *mtd, loff_t offs)
+ 
+ static int spinand_erase(struct nand_device *nand, const struct nand_pos *pos)
+ {
+-	struct spinand_device *spinand = nand_to_spinand(nand);
+-	u8 status;
+-	int ret;
+-
+-	ret = spinand_select_target(spinand, pos->target);
+-	if (ret)
+-		return ret;
+-
+-	ret = spinand_write_enable_op(spinand);
+-	if (ret)
+-		return ret;
+-
+-	ret = spinand_erase_op(spinand, pos);
+-	if (ret)
+-		return ret;
+-
+-	ret = spinand_wait(spinand, &status);
+-	if (!ret && (status & STATUS_ERASE_FAILED))
+-		ret = -EIO;
+-
+-	return ret;
++	return __spinand_erase(nand, pos, true);
+ }
+ 
+ static int spinand_mtd_erase(struct mtd_info *mtd,
 -- 
 2.17.1
