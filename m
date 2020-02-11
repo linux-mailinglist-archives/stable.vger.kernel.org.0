@@ -2,319 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A44158A60
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 08:29:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A17B158B26
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 09:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727602AbgBKH3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 02:29:04 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:42621 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727598AbgBKH3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 02:29:03 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 86D025CD;
-        Tue, 11 Feb 2020 02:29:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Tue, 11 Feb 2020 02:29:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=inRBZpzpbTD6f
-        jfknPVk10JEJf4UDm5Ly/qGqhXtJW4=; b=ScYCF6HT+v9qfHS5L1G+j82YxZ0WR
-        EHGs9RkdFL5wR7sweYm6CrTlmb2cyZxC212HLwEh5S/MoxLAyKOw/1lwJ65oYfkc
-        hCJ2QkuoHpWkzQ4W9J96QGWJusTsAFRR7/gurIzuC36k+J180bP8GBQy0EKNWnEe
-        z8ePPj8v55a+iHk3uQoTEIip/woHMp3KwM204dG+cW0SG11+dbOH4QFhRRJGb6Qe
-        cn5BPrwP2xNk7SLaIbJvUe3OcGjmu2Fg3L/o+M864xxwbjZ5CRXzyNxjcoAs33Fm
-        2ADJTMABp3Jt54P11J7H/4tS2HN1MyezuSNumPpkJzvyPFaNoyFuj6eQA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; bh=inRBZpzpbTD6fjfknPVk10JEJf4UDm5Ly/qGqhXtJW4=; b=XwouBwJm
-        ZPLYCkvq4yGSUXxPluRlazQe69Wr106V8BrSr2yi+/T1R1lXHFuJKOKdZNLskHAB
-        +NrqzHkOxWdFBcFVWHApdLoV8hD0ypFYSQOW68Bkk17LAPzRG0ZRQ48Kg9AnDRs2
-        VA0v+XwYjEtrcdZpZRmnkuHNbx0CrkizcYqJUwQ/4p688tT2YJCL16t6tvfiJ8av
-        N+SI/AizK8RW5PpeSPcxeoKq0dYhFHgKHfiD+lBZ9fR4nyCaieftH2LPox4mQp4B
-        J7DBK37u9d6OU7hDnqxwUTNn8vSQsQ+t1AICQ0YUPQtxA127KweHjogkLb93zFw1
-        THpwEloemXqY4w==
-X-ME-Sender: <xms:vFdCXq4QDqaEACUIoNMuKp6ZK-JSVT6MrE_ie4kIE94gjZW5zmkXhw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedriedvgddutdejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
-    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkph
-    epjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghr
-    rghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:vFdCXoJjhjw_bcpRun4rxiXd9mDPpSaZoosneXu5KUx82btSGtIXTA>
-    <xmx:vFdCXkcXIrxioWT86XI4ZpdtS3Jrmqp7BonFTXVjjdoABv_05C3C1Q>
-    <xmx:vFdCXre84NH8qoiQ1dUG_pSXkK3mncPiu7_SveX--rPDTRXScRwD5w>
-    <xmx:vVdCXij-QXB6zYnxqRRD83C6psx18L4h45NbmzYT5XpVhkW4lPQhlQ>
-Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6063D30600DC;
-        Tue, 11 Feb 2020 02:29:00 -0500 (EST)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>
-Subject: [PATCH 4/4] drm/sun4i: dsi: Remove incorrect use of runtime PM
-Date:   Tue, 11 Feb 2020 01:28:58 -0600
-Message-Id: <20200211072858.30784-4-samuel@sholland.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200211072858.30784-1-samuel@sholland.org>
-References: <20200211072858.30784-1-samuel@sholland.org>
+        id S1727688AbgBKIQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 03:16:31 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:48454 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727738AbgBKIQb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Feb 2020 03:16:31 -0500
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 3FF45F537B8F9E7CD320;
+        Tue, 11 Feb 2020 16:16:24 +0800 (CST)
+Received: from huawei.com (10.175.124.28) by DGGEMS406-HUB.china.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server id 14.3.439.0; Tue, 11 Feb 2020
+ 16:16:16 +0800
+From:   Ye Bin <yebin10@huawei.com>
+To:     <yanaijie@huawei.com>
+CC:     <yebin10@huawei.com>, Bart Van Assche <bvanassche@acm.org>,
+        "Christoph Hellwig" <hch@lst.de>,
+        Keith Busch <keith.busch@intel.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        <stable@vger.kernel.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH hulk-4.4-next 4/6] scsi: iscsi: Fix a potential deadlock in the timeout handler
+Date:   Tue, 11 Feb 2020 16:15:14 +0800
+Message-ID: <20200211081516.28195-5-yebin10@huawei.com>
+X-Mailer: git-send-email 2.17.2
+In-Reply-To: <20200211081516.28195-1-yebin10@huawei.com>
+References: <20200211081516.28195-1-yebin10@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.175.124.28]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver currently uses runtime PM to perform some of the module
-initialization and cleanup. This has three problems:
+From: Bart Van Assche <bvanassche@acm.org>
 
-1) There is no Kconfig dependency on CONFIG_PM, so if runtime PM is
-   disabled, the driver will not work at all, since the module will
-   never be initialized.
+mainline inclusion
+from mainline-v5.5-rc2~6^2~1
+commit 5480e299b5ae57956af01d4839c9fc88a465eeab
+category: bugfix
+bugzilla: 27543
+DTS: NA
+CVE: NA
 
-2) The driver does not ensure that the device is suspended when
-   sun6i_dsi_probe() fails or when sun6i_dsi_remove() is called. It
-   simply disables runtime PM. From the docs of pm_runtime_disable():
+-------------------------------------------------
 
-      The device can be either active or suspended after its runtime PM
-      has been disabled.
+Some time ago the block layer was modified such that timeout handlers are
+called from thread context instead of interrupt context. Make it safe to
+run the iSCSI timeout handler in thread context. This patch fixes the
+following lockdep complaint:
 
-   And indeed, the device will likely still be active if sun6i_dsi_probe
-   fails. For example, if the panel driver is not yet loaded, we have
-   the following sequence:
+================================
+WARNING: inconsistent lock state
+5.5.1-dbg+ #11 Not tainted
+--------------------------------
+inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
+kworker/7:1H/206 [HC0[0]:SC0[0]:HE1:SE1] takes:
+ffff88802d9827e8 (&(&session->frwd_lock)->rlock){+.?.}, at: iscsi_eh_cmd_timed_out+0xa6/0x6d0 [libiscsi]
+{IN-SOFTIRQ-W} state was registered at:
+  lock_acquire+0x106/0x240
+  _raw_spin_lock+0x38/0x50
+  iscsi_check_transport_timeouts+0x3e/0x210 [libiscsi]
+  call_timer_fn+0x132/0x470
+  __run_timers.part.0+0x39f/0x5b0
+  run_timer_softirq+0x63/0xc0
+  __do_softirq+0x12d/0x5fd
+  irq_exit+0xb3/0x110
+  smp_apic_timer_interrupt+0x131/0x3d0
+  apic_timer_interrupt+0xf/0x20
+  default_idle+0x31/0x230
+  arch_cpu_idle+0x13/0x20
+  default_idle_call+0x53/0x60
+  do_idle+0x38a/0x3f0
+  cpu_startup_entry+0x24/0x30
+  start_secondary+0x222/0x290
+  secondary_startup_64+0xa4/0xb0
+irq event stamp: 1383705
+hardirqs last  enabled at (1383705): [<ffffffff81aace5c>] _raw_spin_unlock_irq+0x2c/0x50
+hardirqs last disabled at (1383704): [<ffffffff81aacb98>] _raw_spin_lock_irq+0x18/0x50
+softirqs last  enabled at (1383690): [<ffffffffa0e2efea>] iscsi_queuecommand+0x76a/0xa20 [libiscsi]
+softirqs last disabled at (1383682): [<ffffffffa0e2e998>] iscsi_queuecommand+0x118/0xa20 [libiscsi]
 
-   sun6i_dsi_probe()
-      pm_runtime_enable()
-      mipi_dsi_host_register()
-         of_mipi_dsi_device_add(child)
-            ...device_add()...
-               __device_attach()
-                 pm_runtime_get_sync(dev->parent) -> Causes resume
-                 bus_for_each_drv()
-                    __device_attach_driver() -> No match for panel
-                 pm_runtime_put(dev->parent) -> Async idle request
-      component_add()
-         __component_add()
-            try_to_bring_up_masters()
-               try_to_bring_up_master()
-                  sun4i_drv_bind()
-                     component_bind_all()
-                        component_bind()
-                           sun6i_dsi_bind() -> Fails with -EPROBE_DEFER
-      mipi_dsi_host_unregister()
-      pm_runtime_disable()
-         __pm_runtime_disable()
-            __pm_runtime_barrier() -> Idle request is still pending
-               cancel_work_sync()  -> DSI host is *not* suspended!
+other info that might help us debug this:
+ Possible unsafe locking scenario:
 
-   Since the device is not suspended, the clock and regulator are never
-   disabled. The imbalance causes a WARN at devres free time.
+       CPU0
+       ----
+  lock(&(&session->frwd_lock)->rlock);
+  <Interrupt>
+    lock(&(&session->frwd_lock)->rlock);
 
-3) The driver relies on being suspended when sun6i_dsi_encoder_enable()
-   is called. The resume callback has a comment that says:
+ *** DEADLOCK ***
 
-      Some part of it can only be done once we get a number of
-      lanes, see sun6i_dsi_inst_init
+2 locks held by kworker/7:1H/206:
+ #0: ffff8880d57bf928 ((wq_completion)kblockd){+.+.}, at: process_one_work+0x472/0xab0
+ #1: ffff88802b9c7de8 ((work_completion)(&q->timeout_work)){+.+.}, at: process_one_work+0x476/0xab0
 
-   And then part of the resume callback only runs if dsi->device is not
-   NULL (that is, if sun6i_dsi_attach() has been called). However, as
-   the above call graph shows, the resume callback is guaranteed to be
-   called before sun6i_dsi_attach(); it is called before child devices
-   get their drivers attached.
+stack backtrace:
+CPU: 7 PID: 206 Comm: kworker/7:1H Not tainted 5.5.1-dbg+ #11
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Workqueue: kblockd blk_mq_timeout_work
+Call Trace:
+ dump_stack+0xa5/0xe6
+ print_usage_bug.cold+0x232/0x23b
+ mark_lock+0x8dc/0xa70
+ __lock_acquire+0xcea/0x2af0
+ lock_acquire+0x106/0x240
+ _raw_spin_lock+0x38/0x50
+ iscsi_eh_cmd_timed_out+0xa6/0x6d0 [libiscsi]
+ scsi_times_out+0xf4/0x440 [scsi_mod]
+ scsi_timeout+0x1d/0x20 [scsi_mod]
+ blk_mq_check_expired+0x365/0x3a0
+ bt_iter+0xd6/0xf0
+ blk_mq_queue_tag_busy_iter+0x3de/0x650
+ blk_mq_timeout_work+0x1af/0x380
+ process_one_work+0x56d/0xab0
+ worker_thread+0x7a/0x5d0
+ kthread+0x1bc/0x210
+ ret_from_fork+0x24/0x30
 
-   Therefore, part of the controller initialization will only run if the
-   device is suspended between the calls to mipi_dsi_host_register() and
-   component_add() (which ends up calling sun6i_dsi_encoder_enable()).
-   Again, as shown by the above call graph, this is not the case. It
-   appears that the controller happens to work because it is still
-   initialized by the bootloader.
-
-   Because the connector is hardcoded to always be connected, the
-   device's runtime PM reference is not dropped until system suspend,
-   when sun4i_drv_drm_sys_suspend() ends up calling
-   sun6i_dsi_encoder_disable(). However, that is done as a system sleep
-   PM hook, and at that point the system PM core has already taken
-   another runtime PM reference, so sun6i_dsi_runtime_suspend() is
-   not called. Likewise, by the time the PM core releases its reference,
-   sun4i_drv_drm_sys_resume() has already re-enabled the encoder.
-
-   So after system suspend and resume, we have *still never called*
-   sun6i_dsi_inst_init(), and now that the rest of the display pipeline
-   has been reset, the DSI host is unable to communicate with the panel,
-   causing VBLANK timeouts.
-
-Fix all of these issues by inlining the runtime PM hooks into the
-encoder enable/disable functions, which are guaranteed to run after a
-panel is attached. This allows sun6i_dsi_inst_init() to be called
-unconditionally. Furthermore, this causes the hardware to be turned off
-during system suspend and reinitialized on resume, which was not
-happening before.
-
-Fixes: 133add5b5ad4 ("drm/sun4i: Add Allwinner A31 MIPI-DSI controller support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
+Fixes: 287922eb0b18 ("block: defer timeouts to a workqueue")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Lee Duncan <lduncan@suse.com>
+Cc: Chris Leech <cleech@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191209173457.187370-1-bvanassche@acm.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 89 ++++++++------------------
- 1 file changed, 26 insertions(+), 63 deletions(-)
+ drivers/scsi/libiscsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index ef35ce5a9bb0..8c2e326d8e16 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -14,7 +14,6 @@
- #include <linux/phy/phy-mipi-dphy.h>
- #include <linux/phy/phy.h>
- #include <linux/platform_device.h>
--#include <linux/pm_runtime.h>
- #include <linux/regmap.h>
- #include <linux/regulator/consumer.h>
- #include <linux/reset.h>
-@@ -721,10 +720,31 @@ static void sun6i_dsi_encoder_enable(struct drm_encoder *encoder)
- 	union phy_configure_opts opts = { 0 };
- 	struct phy_configure_opts_mipi_dphy *cfg = &opts.mipi_dphy;
- 	u16 delay;
-+	int err;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 0fdc8c417035..b4fbcf4cade8 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1982,7 +1982,7 @@ static enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
  
- 	DRM_DEBUG_DRIVER("Enabling DSI output\n");
+ 	ISCSI_DBG_EH(session, "scsi cmd %p timedout\n", sc);
  
--	pm_runtime_get_sync(dsi->dev);
-+	err = regulator_enable(dsi->regulator);
-+	if (err)
-+		dev_warn(dsi->dev, "failed to enable VCC-DSI supply: %d\n", err);
-+
-+	reset_control_deassert(dsi->reset);
-+	clk_prepare_enable(dsi->mod_clk);
-+
-+	/*
-+	 * Enable the DSI block.
-+	 */
-+	regmap_write(dsi->regs, SUN6I_DSI_CTL_REG, SUN6I_DSI_CTL_EN);
-+
-+	regmap_write(dsi->regs, SUN6I_DSI_BASIC_CTL0_REG,
-+		     SUN6I_DSI_BASIC_CTL0_ECC_EN | SUN6I_DSI_BASIC_CTL0_CRC_EN);
-+
-+	regmap_write(dsi->regs, SUN6I_DSI_TRANS_START_REG, 10);
-+	regmap_write(dsi->regs, SUN6I_DSI_TRANS_ZERO_REG, 0);
-+
-+	sun6i_dsi_inst_init(dsi, dsi->device);
-+
-+	regmap_write(dsi->regs, SUN6I_DSI_DEBUG_DATA_REG, 0xff);
- 
- 	delay = sun6i_dsi_get_video_start_delay(dsi, mode);
- 	regmap_write(dsi->regs, SUN6I_DSI_BASIC_CTL1_REG,
-@@ -787,7 +807,9 @@ static void sun6i_dsi_encoder_disable(struct drm_encoder *encoder)
- 	phy_power_off(dsi->dphy);
- 	phy_exit(dsi->dphy);
- 
--	pm_runtime_put(dsi->dev);
-+	clk_disable_unprepare(dsi->mod_clk);
-+	reset_control_assert(dsi->reset);
-+	regulator_disable(dsi->regulator);
- }
- 
- static int sun6i_dsi_get_modes(struct drm_connector *connector)
-@@ -1147,12 +1169,10 @@ static int sun6i_dsi_probe(struct platform_device *pdev)
- 		goto err_unprotect_clk;
- 	}
- 
--	pm_runtime_enable(dev);
--
- 	ret = mipi_dsi_host_register(&dsi->host);
- 	if (ret) {
- 		dev_err(dev, "Couldn't register MIPI-DSI host\n");
--		goto err_pm_disable;
-+		goto err_unprotect_clk;
- 	}
- 
- 	ret = component_add(&pdev->dev, &sun6i_dsi_ops);
-@@ -1165,8 +1185,6 @@ static int sun6i_dsi_probe(struct platform_device *pdev)
- 
- err_remove_dsi_host:
- 	mipi_dsi_host_unregister(&dsi->host);
--err_pm_disable:
--	pm_runtime_disable(dev);
- err_unprotect_clk:
- 	clk_rate_exclusive_put(dsi->mod_clk);
- 	return ret;
-@@ -1179,65 +1197,11 @@ static int sun6i_dsi_remove(struct platform_device *pdev)
- 
- 	component_del(&pdev->dev, &sun6i_dsi_ops);
- 	mipi_dsi_host_unregister(&dsi->host);
--	pm_runtime_disable(dev);
- 	clk_rate_exclusive_put(dsi->mod_clk);
- 
- 	return 0;
- }
- 
--static int __maybe_unused sun6i_dsi_runtime_resume(struct device *dev)
--{
--	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
--	int err;
--
--	err = regulator_enable(dsi->regulator);
--	if (err) {
--		dev_err(dsi->dev, "failed to enable VCC-DSI supply: %d\n", err);
--		return err;
--	}
--
--	reset_control_deassert(dsi->reset);
--	clk_prepare_enable(dsi->mod_clk);
--
--	/*
--	 * Enable the DSI block.
--	 *
--	 * Some part of it can only be done once we get a number of
--	 * lanes, see sun6i_dsi_inst_init
--	 */
--	regmap_write(dsi->regs, SUN6I_DSI_CTL_REG, SUN6I_DSI_CTL_EN);
--
--	regmap_write(dsi->regs, SUN6I_DSI_BASIC_CTL0_REG,
--		     SUN6I_DSI_BASIC_CTL0_ECC_EN | SUN6I_DSI_BASIC_CTL0_CRC_EN);
--
--	regmap_write(dsi->regs, SUN6I_DSI_TRANS_START_REG, 10);
--	regmap_write(dsi->regs, SUN6I_DSI_TRANS_ZERO_REG, 0);
--
--	if (dsi->device)
--		sun6i_dsi_inst_init(dsi, dsi->device);
--
--	regmap_write(dsi->regs, SUN6I_DSI_DEBUG_DATA_REG, 0xff);
--
--	return 0;
--}
--
--static int __maybe_unused sun6i_dsi_runtime_suspend(struct device *dev)
--{
--	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
--
--	clk_disable_unprepare(dsi->mod_clk);
--	reset_control_assert(dsi->reset);
--	regulator_disable(dsi->regulator);
--
--	return 0;
--}
--
--static const struct dev_pm_ops sun6i_dsi_pm_ops = {
--	SET_RUNTIME_PM_OPS(sun6i_dsi_runtime_suspend,
--			   sun6i_dsi_runtime_resume,
--			   NULL)
--};
--
- static const struct of_device_id sun6i_dsi_of_table[] = {
- 	{ .compatible = "allwinner,sun6i-a31-mipi-dsi" },
- 	{ }
-@@ -1250,7 +1214,6 @@ static struct platform_driver sun6i_dsi_platform_driver = {
- 	.driver		= {
- 		.name		= "sun6i-mipi-dsi",
- 		.of_match_table	= sun6i_dsi_of_table,
--		.pm		= &sun6i_dsi_pm_ops,
- 	},
- };
- module_platform_driver(sun6i_dsi_platform_driver);
+-	spin_lock(&session->frwd_lock);
++	spin_lock_bh(&session->frwd_lock);
+ 	task = (struct iscsi_task *)sc->SCp.ptr;
+ 	if (!task) {
+ 		/*
+@@ -2109,7 +2109,7 @@ static enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
+ done:
+ 	if (task)
+ 		task->last_timeout = jiffies;
+-	spin_unlock(&session->frwd_lock);
++	spin_unlock_bh(&session->frwd_lock);
+ 	ISCSI_DBG_EH(session, "return %s\n", rc == BLK_EH_RESET_TIMER ?
+ 		     "timer reset" : "shutdown or nh");
+ 	return rc;
 -- 
-2.24.1
+2.17.2
 
