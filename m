@@ -2,118 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF00C158A01
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 07:21:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10695158A65
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 08:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726219AbgBKGVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Feb 2020 01:21:55 -0500
-Received: from esa1.microchip.iphmx.com ([68.232.147.91]:33669 "EHLO
-        esa1.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725817AbgBKGVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 01:21:55 -0500
-Received-SPF: Pass (esa1.microchip.iphmx.com: domain of
-  Ludovic.Desroches@microchip.com designates 198.175.253.82 as
-  permitted sender) identity=mailfrom;
-  client-ip=198.175.253.82; receiver=esa1.microchip.iphmx.com;
-  envelope-from="Ludovic.Desroches@microchip.com";
-  x-sender="Ludovic.Desroches@microchip.com";
-  x-conformance=spf_only; x-record-type="v=spf1";
-  x-record-text="v=spf1 mx a:ushub1.microchip.com
-  a:smtpout.microchip.com -exists:%{i}.spf.microchip.iphmx.com
-  include:servers.mcsv.net include:mktomail.com
-  include:spf.protection.outlook.com ~all"
-Received-SPF: None (esa1.microchip.iphmx.com: no sender
-  authenticity information available from domain of
-  postmaster@email.microchip.com) identity=helo;
-  client-ip=198.175.253.82; receiver=esa1.microchip.iphmx.com;
-  envelope-from="Ludovic.Desroches@microchip.com";
-  x-sender="postmaster@email.microchip.com";
-  x-conformance=spf_only
-Authentication-Results: esa1.microchip.iphmx.com; spf=Pass smtp.mailfrom=Ludovic.Desroches@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dmarc=pass (p=none dis=none) d=microchip.com
-IronPort-SDR: wG36oiB/OxVFObksGXivIw08QOwDsF+gJPYSS/Cu06WeeOcAXoMazAd+BR9zIfhGhUhJFzckMN
- Hvi55kE9PAYirPEZ2nXcr1M/PNBxSSyBXp6a877Yj2T03HcjPHsFWqm9dxYEBNj2QXYXKQ5qeE
- XOHvCdNa8VeuzLC4AEblqRO1bFdyueweVtTsji7+maStfsjOdETsQQWpbhpPARVd+0J3WIEHA/
- lNmuPeddyCFgjw9l/geZHrbhhXHl15Gsda18PlK+CGkhz9Bd1zcL5H22n8e0EQXLMQG8vKB1Y6
- BkQ=
-X-IronPort-AV: E=Sophos;i="5.70,427,1574146800"; 
-   d="scan'208";a="67997978"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 10 Feb 2020 23:21:54 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Mon, 10 Feb 2020 23:21:53 -0700
-Received: from localhost (10.10.85.251) by chn-vm-ex02.mchp-main.com
- (10.10.85.144) with Microsoft SMTP Server id 15.1.1713.5 via Frontend
- Transport; Mon, 10 Feb 2020 23:21:51 -0700
-Date:   Tue, 11 Feb 2020 07:21:20 +0100
-From:   Ludovic Desroches <ludovic.desroches@microchip.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     <gregkh@linuxfoundation.org>, <mirq-linux@rere.qmqm.pl>,
-        <adrian.hunter@intel.com>, <stable@vger.kernel.org>,
-        <ulf.hansson@linaro.org>
-Subject: Re: FAILED: patch "[PATCH] mmc: sdhci-of-at91: fix memleak on
- clk_get failure" failed to apply to 5.5-stable tree
-Message-ID: <20200211062120.nbjph2nsfknzbuld@M43218.corp.atmel.com>
-References: <1581016127158142@kroah.com>
- <20200207010950.GQ31482@sasha-vm>
+        id S1727658AbgBKH3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 02:29:03 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58925 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727602AbgBKH3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 02:29:03 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 855A55CA;
+        Tue, 11 Feb 2020 02:29:01 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Tue, 11 Feb 2020 02:29:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm1; bh=2XAzinolYfeXzXbbLu5Jf1/tN3
+        a6jZF/BQkbt3wshz0=; b=VkPf1VuvLgWPnZUZw6fX9LXSuDM9h+0Pt1b8hzsmRd
+        GZZb5mTMCqeax3Ow+tRMtpQnr6/6pnsdYq4Hc/2Sq3//RAkety/bzDhYL0lZQLz5
+        OW5Pq5t3NLFYh9FJndlfu9bJKRGmqJ8vRBZZisncXe1O0qxZLUmeXoWrpInsr0tK
+        e5oRlJTRw83G4+c7cDse0q9Ae1pFQhJ2ft0+yt/Scgf0YL0Tn1Zzca3eXvO71rTC
+        6MZGxiRFVBZ0ctGrOt9djhzLaHuCCFGxrAa8DMWUNhjslyeDRivf4RIJ4igjeTT/
+        3UHCFZ1D9RS/xfQRw0BdjP03O1kadeL948agO/ays8Ow==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2XAzinolYfeXzXbbL
+        u5Jf1/tN3a6jZF/BQkbt3wshz0=; b=qbHkvXgEe0KcB+QSs2nj7VG5eJ5tyPHWi
+        JWdyTt+3hLCstxAqKgUdXrHA7APggTjdpPi1PnNxluZM8OB1bZC+fZ6aPv5bu6K1
+        uoqPa4eVfw5fhlsjKPWyEhLx/tOiQLEJ4QH9fVr5zJtIj9atIJAwWp67/e7aHh4n
+        KFdW5b2l07rWvnXJHY9TCqnZH2iOQhoh5ti/GEi5EzT4SkiqLsnYLV8tVU7R3LMa
+        wSJw81pvGM+4TixAO3l8PNR8vS7f6nvmd2SravACpxlJtGGyIhEHAFaY+b940saq
+        cWB3rYhBDtmrpgrFU342uiGKO/jrDGFlUKBrGNzC/DBs4/oqEFlFw==
+X-ME-Sender: <xms:u1dCXmNGxulksOtPjq7ptNU-t0wdnoWA3WIK4_dXcBSgw-mowbt8Qw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedriedvgddutdejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgvlhcu
+    jfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkphepje
+    dtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghm
+    pehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:u1dCXpPfEQsTN8KeDot1R3zoTqbY3LyJQfJRe2gg7sT_bZuzp7RCgA>
+    <xmx:u1dCXoQwqRzffF3krcN6pcSD132qpXBRObH9cB0UiMfGE149YhCEXQ>
+    <xmx:u1dCXrBJT3YkMotWYc_MSPRZjRuYGf5Cf60UiRkBaStkGW_LVRT6Vw>
+    <xmx:vVdCXtFJbQrffTeuoif7Lg7EwI8DMgBHtEGzU2pW0IYPBivNUaT4AA>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2C13030606E9;
+        Tue, 11 Feb 2020 02:28:59 -0500 (EST)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>
+Subject: [PATCH 1/4] drm/sun4i: dsi: Remove unused drv from driver context
+Date:   Tue, 11 Feb 2020 01:28:55 -0600
+Message-Id: <20200211072858.30784-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200207010950.GQ31482@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 06, 2020 at 08:09:50PM -0500, Sasha Levin wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> 
-> On Thu, Feb 06, 2020 at 08:08:47PM +0100, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.5-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > From a04184ce777b46e92c2b3c93c6dcb2754cb005e1 Mon Sep 17 00:00:00 2001
-> > From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-> > Date: Thu, 2 Jan 2020 11:42:16 +0100
-> > Subject: [PATCH] mmc: sdhci-of-at91: fix memleak on clk_get failure
-> > MIME-Version: 1.0
-> > Content-Type: text/plain; charset=UTF-8
-> > Content-Transfer-Encoding: 8bit
-> > 
-> > sdhci_alloc_host() does its work not using managed infrastructure, so
-> > needs explicit free on error path. Add it where needed.
-> > 
-> > Cc: <stable@vger.kernel.org>
-> > Fixes: bb5f8ea4d514 ("mmc: sdhci-of-at91: introduce driver for the Atmel SDMMC")
-> > Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> > Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-> > Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-> > Link: https://lore.kernel.org/r/b2a44d5be2e06ff075f32477e466598bb0f07b36.1577961679.git.mirq-linux@rere.qmqm.pl
-> > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> 
-> We're missing 3976656d67c1 ("mmc: sdhci-of-at91: rework clocks
-> management to support SAM9x60 device") on older kernels. I've fixed it
-> up and queued for 5.5-4.14. I don't think it applies to older kernels,
-> but happy to be proven otherwise.
+This member is never used, so remove it.
 
-Thanks Sasha for taking care of this.
+Fixes: 133add5b5ad4 ("drm/sun4i: Add Allwinner A31 MIPI-DSI controller support")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 4 ----
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h | 1 -
+ 2 files changed, 5 deletions(-)
 
-Regards
+diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+index c958ca9bae63..c07290541fff 100644
+--- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
++++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+@@ -27,7 +27,6 @@
+ #include <drm/drm_probe_helper.h>
+ 
+ #include "sun4i_crtc.h"
+-#include "sun4i_drv.h"
+ #include "sun4i_tcon.h"
+ #include "sun6i_mipi_dsi.h"
+ 
+@@ -1022,15 +1021,12 @@ static int sun6i_dsi_bind(struct device *dev, struct device *master,
+ 			 void *data)
+ {
+ 	struct drm_device *drm = data;
+-	struct sun4i_drv *drv = drm->dev_private;
+ 	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
+ 	int ret;
+ 
+ 	if (!dsi->panel)
+ 		return -EPROBE_DEFER;
+ 
+-	dsi->drv = drv;
+-
+ 	drm_encoder_helper_add(&dsi->encoder,
+ 			       &sun6i_dsi_enc_helper_funcs);
+ 	ret = drm_encoder_init(drm,
+diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+index 3f4846f581ef..61e88ea6044d 100644
+--- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
++++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+@@ -28,7 +28,6 @@ struct sun6i_dsi {
+ 	struct phy		*dphy;
+ 
+ 	struct device		*dev;
+-	struct sun4i_drv	*drv;
+ 	struct mipi_dsi_device	*device;
+ 	struct drm_panel	*panel;
+ };
+-- 
+2.24.1
 
-Ludovic
-
-> 
-> --
-> Thanks,
-> Sasha
