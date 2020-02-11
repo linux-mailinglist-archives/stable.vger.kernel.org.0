@@ -2,173 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F734159536
-	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 17:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2755159558
+	for <lists+stable@lfdr.de>; Tue, 11 Feb 2020 17:49:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728723AbgBKQmJ convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 Feb 2020 11:42:09 -0500
-Received: from skedge04.snt-world.com ([91.208.41.69]:36162 "EHLO
-        skedge04.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728049AbgBKQmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 11:42:09 -0500
-X-Greylist: delayed 371 seconds by postgrey-1.27 at vger.kernel.org; Tue, 11 Feb 2020 11:42:06 EST
-Received: from sntmail14r.snt-is.com (unknown [10.203.32.184])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by skedge04.snt-world.com (Postfix) with ESMTPS id 384DA67A894;
-        Tue, 11 Feb 2020 17:35:54 +0100 (CET)
-Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail14r.snt-is.com
- (10.203.32.184) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Tue, 11 Feb
- 2020 17:35:53 +0100
-Received: from sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305]) by
- sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305%3]) with mapi id
- 15.01.1913.005; Tue, 11 Feb 2020 17:35:53 +0100
-From:   Schrempf Frieder <frieder.schrempf@kontron.de>
-To:     Boris Brezillon <bbrezillon@kernel.org>,
-        Schrempf Frieder <frieder.schrempf@kontron.de>,
-        Jeff Kletsky <git-commits@allycomm.com>,
-        liaoweixiong <liaoweixiong@allwinnertech.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Peter Pan <peterpandong@micron.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
-        "Richard Weinberger" <richard@nod.at>
-Subject: [PATCH 3/3] mtd: spinand: Wait for the erase op to finish before
- writing a bad block marker
-Thread-Topic: [PATCH 3/3] mtd: spinand: Wait for the erase op to finish before
- writing a bad block marker
-Thread-Index: AQHV4PlTblnHiLQcV0asTsn4OWAZ0A==
-Date:   Tue, 11 Feb 2020 16:35:53 +0000
-Message-ID: <20200211163452.25442-4-frieder.schrempf@kontron.de>
-References: <20200211163452.25442-1-frieder.schrempf@kontron.de>
-In-Reply-To: <20200211163452.25442-1-frieder.schrempf@kontron.de>
-Accept-Language: de-DE, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.17.1
-x-originating-ip: [172.25.9.193]
-x-c2processedorg: 51b406b7-48a2-4d03-b652-521f56ac89f3
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        id S1729501AbgBKQtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Feb 2020 11:49:13 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:52352 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728188AbgBKQtM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Feb 2020 11:49:12 -0500
+Received: by mail-wm1-f66.google.com with SMTP id p9so4450776wmc.2
+        for <stable@vger.kernel.org>; Tue, 11 Feb 2020 08:49:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jF1GdTgffiRsLbQJf8GzT5DZGuv/lpMo4/69aotPJM0=;
+        b=O+MC+beDYP84P1ZPezXW1YGgFd7Ff0kdd2hB1Og4TafVFAcfKdOFe+O442Wrvxl57P
+         iYdDPL2tv5mIndr6X5+e9jxVdw4FvXZ9140jwQTdkoSGkK7mLWYps6Prd0lKYFut61Fm
+         3n0grly9JNhUb+M17j0AcWgSMjTb4iwlQWEfJSceUmB9RzRs5hLFdrUTvMqzKuzEqaS/
+         21IllSSDTzjrdXB+N9BcXfLOttfdeQoBNTijqSE6+Ioo4ocCQ4bsiUWNFR8Qk7mGez7i
+         Nnc0x/aGjSKty4AektninvJ1XEViGtRGn22jZSV5byrF/p4MmdZZBVBni71mcIxV0E8N
+         JlxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jF1GdTgffiRsLbQJf8GzT5DZGuv/lpMo4/69aotPJM0=;
+        b=L9XHwYqOwOHo1g8I451Hxwpj0205CMnERGmRoZGhb6bmL7icOmco3XGgwSfNzoSoVt
+         A4NVFwcO6tIL6eaN7DZ2PcCUQjO5cUEM0p6SDWMSOmrUgyjpRXDucV/JQvXtcHnxhiny
+         /ZtdiiZ9gy/kbVPR6wAFz4DNUxqRpat+D+IbyZyWcVyuzvCB0okn6gKgF5pFarr9VONV
+         +NW8eT10VWca2FMditZHsa9DgOdSIeCHuSEsthO/xTBk4JoW9UOR3si5IfuxYqFAuT+I
+         G5ivXRWYw5Rpr8hitq7iXFiCKzaO1M8ZpeRX0MCXevNG9SbxO0Zx5UkHX4jBU2xbQFTb
+         4PEg==
+X-Gm-Message-State: APjAAAWOmbj+IQZi7kaG9ZnoJ9OAkXHx7TorvV3Mjwa3VWWNz0sSTm+5
+        IwgYbKHlEmFVEuzs36lvFoaT7UABSYKZ/w==
+X-Google-Smtp-Source: APXvYqxMuQdlHqBPoOP7g8WF5sJDKZqv2E92OnnRD0skt7UOCDOgPN/bDzuSt+I3mskIP9poo0PWIA==
+X-Received: by 2002:a1c:9854:: with SMTP id a81mr7355wme.1.1581439750227;
+        Tue, 11 Feb 2020 08:49:10 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w15sm6220436wrs.80.2020.02.11.08.49.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Feb 2020 08:49:09 -0800 (PST)
+Message-ID: <5e42db05.1c69fb81.c7e32.e2fd@mx.google.com>
+Date:   Tue, 11 Feb 2020 08:49:09 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-SnT-MailScanner-Information: Please contact the ISP for more information
-X-SnT-MailScanner-ID: 384DA67A894.AE793
-X-SnT-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-SnT-MailScanner-SpamCheck: 
-X-SnT-MailScanner-From: frieder.schrempf@kontron.de
-X-SnT-MailScanner-To: bbrezillon@kernel.org, git-commits@allycomm.com,
-        liaoweixiong@allwinnertech.com, linux-kernel@vger.kernel.org,
-        linux-mtd@lists.infradead.org, miquel.raynal@bootlin.com,
-        peterpandong@micron.com, richard@nod.at, stable@vger.kernel.org
-X-Spam-Status: No
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.213-97-g7cabedfff38a
+Subject: stable-rc/linux-4.9.y boot: 72 boots: 1 failed,
+ 65 passed with 4 offline, 2 untried/unknown (v4.9.213-97-g7cabedfff38a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+stable-rc/linux-4.9.y boot: 72 boots: 1 failed, 65 passed with 4 offline, 2=
+ untried/unknown (v4.9.213-97-g7cabedfff38a)
 
-Currently when marking a block, we use spinand_erase_op() to erase
-the block before writing the marker to the OOB area without waiting
-for the operation to succeed. This can lead to the marking failing
-silently and no bad block marker being written to the flash.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.213-97-g7cabedfff38a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.213-97-g7cabedfff38a/
 
-To fix this we reuse the spinand_erase() function, that already does
-everything we need to do before actually writing the marker.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.213-97-g7cabedfff38a
+Git Commit: 7cabedfff38a71e90e1bd9f85efdbdf827c3ea86
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 18 SoC families, 11 builds out of 129
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          am335x-boneblack:
+              lab-baylibre: new failure (last pass: v4.9.212)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 3 days (last pass: v4.9.2=
+13 - first fail: v4.9.213-37-g860ec95da9ad)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            imx6dl-wandboard_dual: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
 ---
- drivers/mtd/nand/spi/core.c | 56 ++++++++++++++++++-------------------
- 1 file changed, 28 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 925db6269861..8a69d13639e2 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -600,6 +600,32 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
- 	return ret;
- }
- 
-+static int __spinand_erase(struct nand_device *nand, const struct nand_pos *pos,
-+			   bool hard_fail)
-+{
-+	struct spinand_device *spinand = nand_to_spinand(nand);
-+	u8 status;
-+	int ret;
-+
-+	ret = spinand_select_target(spinand, pos->target);
-+	if (ret)
-+		return ret;
-+
-+	ret = spinand_write_enable_op(spinand);
-+	if (ret)
-+		return ret;
-+
-+	ret = spinand_erase_op(spinand, pos);
-+	if (ret && hard_fail)
-+		return ret;
-+
-+	ret = spinand_wait(spinand, &status);
-+	if (!ret && (status & STATUS_ERASE_FAILED))
-+		ret = -EIO;
-+
-+	return ret;
-+}
-+
- static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
- {
- 	struct spinand_device *spinand = nand_to_spinand(nand);
-@@ -614,16 +640,10 @@ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
- 	int ret;
- 
- 	/* Erase block before marking it bad. */
--	ret = spinand_select_target(spinand, pos->target);
--	if (ret)
--		return ret;
--
--	ret = spinand_write_enable_op(spinand);
-+	ret = __spinand_erase(nand, pos, false);
- 	if (ret)
- 		return ret;
- 
--	spinand_erase_op(spinand, pos);
--
- 	return spinand_write_page(spinand, &req);
- }
- 
-@@ -644,27 +664,7 @@ static int spinand_mtd_block_markbad(struct mtd_info *mtd, loff_t offs)
- 
- static int spinand_erase(struct nand_device *nand, const struct nand_pos *pos)
- {
--	struct spinand_device *spinand = nand_to_spinand(nand);
--	u8 status;
--	int ret;
--
--	ret = spinand_select_target(spinand, pos->target);
--	if (ret)
--		return ret;
--
--	ret = spinand_write_enable_op(spinand);
--	if (ret)
--		return ret;
--
--	ret = spinand_erase_op(spinand, pos);
--	if (ret)
--		return ret;
--
--	ret = spinand_wait(spinand, &status);
--	if (!ret && (status & STATUS_ERASE_FAILED))
--		ret = -EIO;
--
--	return ret;
-+	return __spinand_erase(nand, pos, true);
- }
- 
- static int spinand_mtd_erase(struct mtd_info *mtd,
--- 
-2.17.1
+For more info write to <info@kernelci.org>
