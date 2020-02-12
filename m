@@ -2,128 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 785F115AF66
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 19:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9815E15B181
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 21:02:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728872AbgBLSEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 13:04:33 -0500
-Received: from mail-eopbgr1390072.outbound.protection.outlook.com ([40.107.139.72]:39424
-        "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727054AbgBLSEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Feb 2020 13:04:33 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bmTL0+HIA2ulfEoolg9Rpqx8UL+eZ2CmSknDXFqULxwHmKALIVbJKawbaPfU5mF0TfWD4YzOVeDVZVGCu4Rkue8bIm0BUUTiEhmwOgk6g9ujCtFpuxkWu0Na9JYCJpvsiTHoEbFps2NinU8v5IWp0B4S2zGReGfVhf2mu31P5mFOzL9ak1t33KnNBC+NZ8rCCWVuyScMcOlqHSdS1TtTBdvKsDvhNJv20/xccmtUah9bBhPujKClUfJYtw3dyUMh5JTLXuXZOwGYk4qdZPw6dYlmiJ34QQHljByg+z8dNXXr8C4db2jhiCtp/Yz1azJU3SFqownXII9Wsb2STvdmmg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HyAnrDBqx/v6JoR/Xs8Wvxt1Dn9NwP1miAM0oGLj6ys=;
- b=dJLFQFICqUbKdv8zJQQ0LG5XUjC7ZdbF6QYVqledQnPf0b1sbRqVJEdAZ2TY4kELTSW1SndykxBnXIT8Rjyenp/Sa0FFxP8RMyxdpgHPS25P0Bjxz2UcjLkiB3KJ5bJ3/RvDXbOB5q0abu7WQMooaz0L+PkzFofssqCvVNMQdi1/HPDadkXxgNBvTYlNfeq8zZuZ/oqjscmfA3sooPDFeNC8BGB4iycwpwVLGtOr6gPRO6Y5cdIDZblznlnABC9sxMwNkhCJbntdeL6FnnLaYG6L6R8kpx0ntpibH4pwlUhaN88CtUwHI8sguqF9esrY2guTc3c4c5CHImT2E/Fcmw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=worlddigitalprodata.com; dmarc=pass action=none
- header.from=worlddigitalprodata.com; dkim=pass
- header.d=worlddigitalprodata.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=NETORGFT5578867.onmicrosoft.com;
- s=selector1-NETORGFT5578867-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HyAnrDBqx/v6JoR/Xs8Wvxt1Dn9NwP1miAM0oGLj6ys=;
- b=bYdXB0gxfHwspLykbq+SQDt9E5WYWXaoREBno4Xeyti+Ec2ut1L1LbXpFPSarnHTZqv+yHczdBSUmivpbz9rg1vvUbo7YEPpvMzAsSmZ7IV6qKhlucw2uEmd0Z93kkIMDjCW6O3W/ek5JF5MOUaM/fSkY0Fnp9bRWe3hbl4RizQ=
-Received: from MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM (10.255.215.19) by
- MA1PR01MB2332.INDPRD01.PROD.OUTLOOK.COM (52.134.149.18) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2707.21; Wed, 12 Feb 2020 18:04:29 +0000
-Received: from MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::24b5:96f9:da47:f395]) by MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::24b5:96f9:da47:f395%3]) with mapi id 15.20.2707.030; Wed, 12 Feb 2020
- 18:04:29 +0000
-Received: from admin132PC (106.51.30.28) by MAXPR01CA0105.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a00:5d::23) with Microsoft SMTP Server (version=TLS1_0, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA) id 15.20.2707.21 via Frontend Transport; Wed, 12 Feb 2020 18:04:29 +0000
-From:   Ara Gates <ara.gates@worlddigitalprodata.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: EVENT IN SPAIN MWC 2020
-Thread-Topic: EVENT IN SPAIN MWC 2020
-Thread-Index: AdXhzt3YmRm1zM6NQ2eLYnbe2b3MUw==
-Importance: high
-X-Priority: 1
-Sensitivity: private
-Date:   Wed, 12 Feb 2020 18:04:29 +0000
-Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAAwcKHcddElNkhudO5gi/sHCgAAAEAAAAMq+DM/RZrRFo1+Fa4JW+AYBAAAAAA==@worlddigitalprodata.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: MAXPR01CA0105.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a00:5d::23) To MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a00:82::19)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=ara.gates@worlddigitalprodata.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: Microsoft Outlook 15.0
-x-originating-ip: [106.51.30.28]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 9eb424bc-8935-4f31-1de7-08d7afe60163
-x-ms-traffictypediagnostic: MA1PR01MB2332:
-x-microsoft-antispam-prvs: <MA1PR01MB2332EC3311E137C360738E01E81B0@MA1PR01MB2332.INDPRD01.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0311124FA9
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(366004)(136003)(376002)(396003)(39850400004)(189003)(199004)(66476007)(66946007)(956004)(316002)(2616005)(1006002)(6486002)(86362001)(6916009)(5660300002)(186003)(66556008)(55236004)(26005)(36756003)(16526019)(44832011)(64756008)(66446008)(81166006)(81156014)(8936002)(8676002)(71200400001)(52116002)(2906002)(6496006)(508600001)(32040200004)(130950200001);DIR:OUT;SFP:1101;SCL:1;SRVR:MA1PR01MB2332;H:MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: worlddigitalprodata.com does not
- designate permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Khvxomm6vjauaVj/HmElDw+zEx751x4vaAf+zW1921zwDjic0Wr1MgOq1u/oO3Ol4GHYjSET3sT3t6foa0g5k/1ihuS7LbBV2/BH4IqLiNq9n1SvSS6Rckz1s5Zp5kSpxfE5DB7Y6KFUmKqPawWKY9QrrYSMN+hmLm8//NQsR2q9/8b5yFGMKTJY+04zRJeItx7NbE/1MU3uZRYWi9U/7HNRyfqyww3G2piH0gBo+G2G5+JjRUwprXSzYgjVg1ewvVovAom4SBsCWmCSBQeGTuwaUqVa2oZPkDJh+ctfc+8Dy2/hG7uH2AObVvTlS5CvCr/ErjM3h2OQoWcwVmD317K6Ui7xKmiKB98zYBR9OhA5uYSQwIAoWaTDqRSQfj13nhFzauRgZN5+MIyFtKRwdKeMUrABIkFWhKZkFNdjmovDCTbenXwdcMPyMFefJkdgO07XXukubW2OdiVa/4aSqx5GTc+F6pq+ZrcOAn6VayssPviUKkNVf3rJLMSkXTDvbb9+Cm74dKaUohlkdtbFpzxSeITg++FMR6tU+z1iUCg=
-x-ms-exchange-antispam-messagedata: 6fUqAxe+4oAc+It4v22HcXT0HQwNkXwn+UNda/7ALhw7YPNqbO9bC3YKxMloCs338pHqu4UlFH6aHxeGZeCNHG1B95Rn0YJv/WlCrkFaVKNBi8A0RJ5QP4E5OwXbRXxrX6Yg2DhFsl54m1OPeHG1XQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A40AD127FEC5AA44A23FFC784D6B06A4@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: quoted-printable
+        id S1728984AbgBLUCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 15:02:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727923AbgBLUCd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Feb 2020 15:02:33 -0500
+Received: from localhost (unknown [104.132.1.104])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F890217F4;
+        Wed, 12 Feb 2020 20:02:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581537752;
+        bh=2H0NCznr3RbSQUcLBF7+uxu48lu7AcCgqXYRyvsxwbY=;
+        h=Subject:To:From:Date:From;
+        b=IZFWoEFySSbf1fhllA8lKanrKN4Sn8tCjN06P+folQ68yC5YNkX2EbFkjq687fK3i
+         ZsmekF/s6O7dY5hph3R3rxS/e+ycTrwydU0zgfEQ3WyOxpoFKSb7LRu/mV50/qRCgC
+         WK1a33HRgfAseRDrcxSaa3BC9Q9SH9ELOIY/vasg=
+Subject: patch "tty: serial: imx: setup the correct sg entry for tx dma" added to tty-linus
+To:     fugang.duan@nxp.com, eagle.zhou@nxp.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        u.kleine-koenig@pengutronix.de
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 12 Feb 2020 12:02:32 -0800
+Message-ID: <158153775210147@kroah.com>
 MIME-Version: 1.0
-X-OriginatorOrg: worlddigitalprodata.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9eb424bc-8935-4f31-1de7-08d7afe60163
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Feb 2020 18:04:29.8125
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 65343f07-34ec-4516-bb20-6348adb7960c
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: AJTOvh5ynGard1qSu7/eHoQyxeh2ErTnNARj2LatgNfWIrP9eG/HdDB8FaJW9/TS4VxSIHYb18PSFqh8TdLgbhReKZsdIMPiWi6CmttUv8Zew8iLBYo3rQUYgh5dqQl8
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA1PR01MB2332
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-It is a pleasure to be in touch with you.
+This is a note to let you know that I've just added the patch titled
 
-We came across that you are exhibiting at MWC 2020 (International Trade Sho=
-w
-for Technology, Communication Technology, Telecommunication, Communication,
-Mobile Communication, Mobility, Mobile Phones and Gsm) and was curious to
-know if you would be interested in purchasing the attendee list for your
-business needs.
+    tty: serial: imx: setup the correct sg entry for tx dma
 
-Venue: Barcelona, Spain
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
-We have recently updated records of past/current Attendee Companies who are
-participating in this event.=20
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Information provided: company name, url, contact name, job title, business
-contact, fax number, physical address, company size, email address etc..!
-Our list is the best source for awareness and can be used for booth invites=
--
-product launch - brand awareness - increase in revenue etc..!=20
-Look forward to work with you soon!
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-Kindly confirm and let me know if I can share Proposal for your approval.
-Also, if there is any interest in buying B2B data for your Campaigns, we ca=
-n
-drive in records according to your request.
+If you have any questions about this process, please let me know.
 
-Kind Regards,=20
-Ara Gates
-B2B Tradeshow Specialist
-=09
-If you don't want to hear again the mail regard MWC 2020 kindly replay back
-to us for "Opt-Out"
+
+From f76707831829530ffdd3888bebc108aecefccaa0 Mon Sep 17 00:00:00 2001
+From: Fugang Duan <fugang.duan@nxp.com>
+Date: Tue, 11 Feb 2020 14:16:01 +0800
+Subject: tty: serial: imx: setup the correct sg entry for tx dma
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+There has oops as below happen on i.MX8MP EVK platform that has
+6G bytes DDR memory.
+
+when (xmit->tail < xmit->head) && (xmit->head == 0),
+it setups one sg entry with sg->length is zero:
+	sg_set_buf(sgl + 1, xmit->buf, xmit->head);
+
+if xmit->buf is allocated from >4G address space, and SDMA only
+support <4G address space, then dma_map_sg() will call swiotlb_map()
+to do bounce buffer copying and mapping.
+
+But swiotlb_map() don't allow sg entry's length is zero, otherwise
+report BUG_ON().
+
+So the patch is to correct the tx DMA scatter list.
+
+Oops:
+[  287.675715] kernel BUG at kernel/dma/swiotlb.c:497!
+[  287.680592] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[  287.686075] Modules linked in:
+[  287.689133] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.3-00016-g3fdc4e0-dirty #10
+[  287.696872] Hardware name: FSL i.MX8MP EVK (DT)
+[  287.701402] pstate: 80000085 (Nzcv daIf -PAN -UAO)
+[  287.706199] pc : swiotlb_tbl_map_single+0x1fc/0x310
+[  287.711076] lr : swiotlb_map+0x60/0x148
+[  287.714909] sp : ffff800010003c00
+[  287.718221] x29: ffff800010003c00 x28: 0000000000000000
+[  287.723533] x27: 0000000000000040 x26: ffff800011ae0000
+[  287.728844] x25: ffff800011ae09f8 x24: 0000000000000000
+[  287.734155] x23: 00000001b7af9000 x22: 0000000000000000
+[  287.739465] x21: ffff000176409c10 x20: 00000000001f7ffe
+[  287.744776] x19: ffff000176409c10 x18: 000000000000002e
+[  287.750087] x17: 0000000000000000 x16: 0000000000000000
+[  287.755397] x15: 0000000000000000 x14: 0000000000000000
+[  287.760707] x13: ffff00017f334000 x12: 0000000000000001
+[  287.766018] x11: 00000000001fffff x10: 0000000000000000
+[  287.771328] x9 : 0000000000000003 x8 : 0000000000000000
+[  287.776638] x7 : 0000000000000000 x6 : 0000000000000000
+[  287.781949] x5 : 0000000000200000 x4 : 0000000000000000
+[  287.787259] x3 : 0000000000000001 x2 : 00000001b7af9000
+[  287.792570] x1 : 00000000fbfff000 x0 : 0000000000000000
+[  287.797881] Call trace:
+[  287.800328]  swiotlb_tbl_map_single+0x1fc/0x310
+[  287.804859]  swiotlb_map+0x60/0x148
+[  287.808347]  dma_direct_map_page+0xf0/0x130
+[  287.812530]  dma_direct_map_sg+0x78/0xe0
+[  287.816453]  imx_uart_dma_tx+0x134/0x2f8
+[  287.820374]  imx_uart_dma_tx_callback+0xd8/0x168
+[  287.824992]  vchan_complete+0x194/0x200
+[  287.828828]  tasklet_action_common.isra.0+0x154/0x1a0
+[  287.833879]  tasklet_action+0x24/0x30
+[  287.837540]  __do_softirq+0x120/0x23c
+[  287.841202]  irq_exit+0xb8/0xd8
+[  287.844343]  __handle_domain_irq+0x64/0xb8
+[  287.848438]  gic_handle_irq+0x5c/0x148
+[  287.852185]  el1_irq+0xb8/0x180
+[  287.855327]  cpuidle_enter_state+0x84/0x360
+[  287.859508]  cpuidle_enter+0x34/0x48
+[  287.863083]  call_cpuidle+0x18/0x38
+[  287.866571]  do_idle+0x1e0/0x280
+[  287.869798]  cpu_startup_entry+0x20/0x40
+[  287.873721]  rest_init+0xd4/0xe0
+[  287.876949]  arch_call_rest_init+0xc/0x14
+[  287.880958]  start_kernel+0x420/0x44c
+[  287.884622] Code: 9124c021 9417aff8 a94363f7 17ffffd5 (d4210000)
+[  287.890718] ---[ end trace 5bc44c4ab6b009ce ]---
+[  287.895334] Kernel panic - not syncing: Fatal exception in interrupt
+[  287.901686] SMP: stopping secondary CPUs
+[  288.905607] SMP: failed to stop secondary CPUs 0-1
+[  288.910395] Kernel Offset: disabled
+[  288.913882] CPU features: 0x0002,2000200c
+[  288.917888] Memory Limit: none
+[  288.920944] ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+
+Reported-by: Eagle Zhou <eagle.zhou@nxp.com>
+Tested-by: Eagle Zhou <eagle.zhou@nxp.com>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 7942f8577f2a ("serial: imx: TX DMA: clean up sg initialization")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/1581401761-6378-1-git-send-email-fugang.duan@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 0c6c63166250..d337782b3648 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -599,7 +599,7 @@ static void imx_uart_dma_tx(struct imx_port *sport)
+ 
+ 	sport->tx_bytes = uart_circ_chars_pending(xmit);
+ 
+-	if (xmit->tail < xmit->head) {
++	if (xmit->tail < xmit->head || xmit->head == 0) {
+ 		sport->dma_tx_nents = 1;
+ 		sg_init_one(sgl, xmit->buf + xmit->tail, sport->tx_bytes);
+ 	} else {
+-- 
+2.25.0
+
 
