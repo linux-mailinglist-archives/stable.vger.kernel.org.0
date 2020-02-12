@@ -2,125 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7B715B182
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 21:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6898615B1E5
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 21:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbgBLUCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 15:02:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34216 "EHLO mail.kernel.org"
+        id S1727923AbgBLUc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 15:32:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727923AbgBLUCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Feb 2020 15:02:42 -0500
-Received: from localhost (unknown [104.132.1.104])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727111AbgBLUc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Feb 2020 15:32:58 -0500
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47A0C217F4;
-        Wed, 12 Feb 2020 20:02:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A647924671
+        for <stable@vger.kernel.org>; Wed, 12 Feb 2020 20:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581537761;
-        bh=h/9n1guqwk1bSlfNzVZ32bMihpPxz5jlfqQ1bgGdiOo=;
-        h=Subject:To:From:Date:From;
-        b=Ql8fCexte1Wynd8Ihy2js6jr6JT2MpgfJXOeLmm+0g+EVng8t/Prmqk/6rthoW8A6
-         Plc2Dq16jPSLPvC9ynHCtBv/3xafHw8Em3A3kcCy0HI/tDssEJI+UhkDn4HUqKYc5b
-         8cW2jigs1VyB4acK0AbdZC4gf8XjF5Z3hubsfS1Y=
-Subject: patch "tty: serial: qcom_geni_serial: Fix RX cancel command failure" added to tty-linus
-To:     skakit@codeaurora.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 Feb 2020 12:02:32 -0800
-Message-ID: <1581537752120200@kroah.com>
+        s=default; t=1581539577;
+        bh=V9VyxKzfYIKf9VtsnordIWaam8t73E49S8DNnAueIq0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=vT1e2f7TUdqvh664uuU8BB+7xkT6nw9k5xvJ8hLssM4n2EmNS3w2G46Ual5aE2SvB
+         dJbOe8X58FwRb2Cvdvc5m08vtxQAsjUhzDrnM5NnPmCNv5/tsIT/ETOWJ5QNdNEth3
+         K1G72GJdYfy72D3u8euOZJPNmkvudVBiwDdo41/Q=
+Received: by mail-qt1-f170.google.com with SMTP id w47so2666762qtk.4
+        for <stable@vger.kernel.org>; Wed, 12 Feb 2020 12:32:57 -0800 (PST)
+X-Gm-Message-State: APjAAAXxIa9Qg8Y+/2zTJkkRoxoDOwlZPtIuprDRH/kyVnOr7Cf03W/5
+        VWt6E2StSMfU05tkXbQmqA2KWhT4+Uuki48SEg==
+X-Google-Smtp-Source: APXvYqz0go2FPjNTnDnmXjjdtP1WbfxbUtV3PkQip537yESGdY4MxxAo1/ie4PEdRuXCxmYV4nfdfyuy9cz4Qvvh7Z0=
+X-Received: by 2002:ac8:59:: with SMTP id i25mr21097269qtg.110.1581539576653;
+ Wed, 12 Feb 2020 12:32:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20200206141327.446127-1-boris.brezillon@collabora.com>
+In-Reply-To: <20200206141327.446127-1-boris.brezillon@collabora.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Wed, 12 Feb 2020 14:32:45 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqKLcZ=R0kYX+Bqw=NqoqsL6En21t_gPMCHEOBkK-xN7vg@mail.gmail.com>
+Message-ID: <CAL_JsqKLcZ=R0kYX+Bqw=NqoqsL6En21t_gPMCHEOBkK-xN7vg@mail.gmail.com>
+Subject: Re: [PATCH] drm/panfrost: perfcnt: Reserve/use the AS attached to the
+ perfcnt MMU context
+To:     Boris Brezillon <boris.brezillon@collabora.com>
+Cc:     Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Antonio Caggiano <antonio.caggiano@collabora.com>,
+        Icecream95 <ixn@keemail.me>, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 6, 2020 at 8:13 AM Boris Brezillon
+<boris.brezillon@collabora.com> wrote:
+>
+> We need to use the AS attached to the opened FD when dumping counters.
+>
+> Reported-by: Antonio Caggiano <antonio.caggiano@collabora.com>
+> Fixes: 7282f7645d06 ("drm/panfrost: Implement per FD address spaces")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> ---
+>  drivers/gpu/drm/panfrost/panfrost_mmu.c     |  7 ++++++-
+>  drivers/gpu/drm/panfrost/panfrost_perfcnt.c | 11 ++++-------
+>  2 files changed, 10 insertions(+), 8 deletions(-)
 
-This is a note to let you know that I've just added the patch titled
+Applied to drm-misc-fixes.
 
-    tty: serial: qcom_geni_serial: Fix RX cancel command failure
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 679aac5ead2f18d223554a52b543e1195e181811 Mon Sep 17 00:00:00 2001
-From: satya priya <skakit@codeaurora.org>
-Date: Tue, 11 Feb 2020 15:43:02 +0530
-Subject: tty: serial: qcom_geni_serial: Fix RX cancel command failure
-
-RX cancel command fails when BT is switched on and off multiple times.
-
-To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
-instead of SE_GENI_S_CMD_CTRL_REG.
-
-As per the HPG update, handle the RX last bit after cancel command
-and flush out the RX FIFO buffer.
-
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/qcom_geni_serial.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-index 191abb18fc2a..0bd1684cabb3 100644
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -129,6 +129,7 @@ static int handle_rx_console(struct uart_port *uport, u32 bytes, bool drop);
- static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
- static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
- static void qcom_geni_serial_stop_rx(struct uart_port *uport);
-+static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
- 
- static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
- 					32000000, 48000000, 64000000, 80000000,
-@@ -599,7 +600,7 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
- 	u32 irq_en;
- 	u32 status;
- 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
--	u32 irq_clear = S_CMD_DONE_EN;
-+	u32 s_irq_status;
- 
- 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
- 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
-@@ -615,10 +616,19 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
- 		return;
- 
- 	geni_se_cancel_s_cmd(&port->se);
--	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
--					S_GENI_CMD_CANCEL, false);
-+	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
-+					S_CMD_CANCEL_EN, true);
-+	/*
-+	 * If timeout occurs secondary engine remains active
-+	 * and Abort sequence is executed.
-+	 */
-+	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
-+	/* Flush the Rx buffer */
-+	if (s_irq_status & S_RX_FIFO_LAST_EN)
-+		qcom_geni_serial_handle_rx(uport, true);
-+	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
-+
- 	status = readl(uport->membase + SE_GENI_STATUS);
--	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
- 	if (status & S_GENI_CMD_ACTIVE)
- 		qcom_geni_serial_abort_rx(uport);
- }
--- 
-2.25.0
-
-
+Rob
