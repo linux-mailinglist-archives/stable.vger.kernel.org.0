@@ -2,96 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0DF15ACC3
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 17:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B201F15AD41
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 17:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728226AbgBLQEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 11:04:48 -0500
-Received: from mga17.intel.com ([192.55.52.151]:59844 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727519AbgBLQEs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Feb 2020 11:04:48 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Feb 2020 08:04:47 -0800
-X-IronPort-AV: E=Sophos;i="5.70,433,1574150400"; 
-   d="scan'208";a="222327100"
-Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.161])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Feb 2020 08:04:45 -0800
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     jani.nikula@intel.com, stable@vger.kernel.org
-Subject: [PATCH 2/2] drm/i915: Update drm/i915 bug filing URL
-Date:   Wed, 12 Feb 2020 18:04:34 +0200
-Message-Id: <20200212160434.6437-2-jani.nikula@intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200212160434.6437-1-jani.nikula@intel.com>
-References: <20200212160434.6437-1-jani.nikula@intel.com>
+        id S1728728AbgBLQW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 11:22:27 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:45487 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728708AbgBLQW1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 11:22:27 -0500
+Received: by mail-pf1-f196.google.com with SMTP id 2so1461151pfg.12;
+        Wed, 12 Feb 2020 08:22:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=i/S/gu5ls056hur5YDfXFsWlqa/VXA1YVt8W07oi8A0=;
+        b=t4Q/rqVY5SzGQA3770fHEw4TUpO31savs1Ccvpjf9zd84waVs3yJM9pfnejClHR1UE
+         Lkp0sns0cE09dZfQRmq0oBofdY/9iVWCF74zdbMQWdFJsibQaCR/Wkpk7VSi5NCMrOTn
+         FesMXEcb+2UEfy27+9j8iysokL7EZwdF07767X/5FXrobZfLI+8TCaTcIPe70Um0JggX
+         qSAcy19J5mp5d1/lU2nLrFTadHzRHzD3f4cQ18i84bdKvjuTVxHi5uvrNXN+xyysxxE3
+         ZpdgdexrOcsf6Xy54p3acue3hOABe+IBI5+5XfOCRiOmULIb1TFF6cTljQJOB3NDRPp0
+         ixNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=i/S/gu5ls056hur5YDfXFsWlqa/VXA1YVt8W07oi8A0=;
+        b=iXiImyetsOCpIi7UdS+AzadsCa22PyGGlZPe8/eErvuSqkDhDuqrhpArfNmSoJVrR+
+         zmaKaWXJzyZdxt6iS+g++Qfob/8MlcTCI6ILTM2fyrgoroJl9u4UaXbXtkS+/MgTgv8b
+         HuYgmUBecjXFpcFLQoUg0mXmsJy62mGNv2tB6fViMp1fv9aYHydGRDIuf69SLbumfxVM
+         46oR4V/paCEvfNtrPmW9yoBs+9bOdTDPQJtpfHy8Pkq706gGcFaAcZ1uVnE5ZrexQye2
+         6uoUdipD4vKRsHj5vUYaFrEGkOLQaYJr3oEGxK9hsBYCBYoTp5ithy5i5UIG5KA9bRBw
+         lCuw==
+X-Gm-Message-State: APjAAAVOOmOERCT0jiqddL9ujbTky35kidzTGRXAe4OUEFK9DHfRZ+Tq
+        f1WG8PxxMJth3Kv7TxWj2wk/OVwSIH8V+VNbqfk=
+X-Google-Smtp-Source: APXvYqyxHKklmuKov1yA4Urj79T+gfbmYj+Vp5gE+wLeOgEhYafxRpjw4Lg5cY3ZnSZXyB3yPILql+1nG6BAZerDyog=
+X-Received: by 2002:a63:583:: with SMTP id 125mr9258604pgf.100.1581524546569;
+ Wed, 12 Feb 2020 08:22:26 -0800 (PST)
 MIME-Version: 1.0
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Transfer-Encoding: 8bit
+References: <20200128110102.11522-1-martin@kaiser.cx> <20200128110102.11522-2-martin@kaiser.cx>
+In-Reply-To: <20200128110102.11522-2-martin@kaiser.cx>
+From:   PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
+Date:   Wed, 12 Feb 2020 21:52:15 +0530
+Message-ID: <CANc+2y4Suv0iZ38uxC97U0x73RcKnKiRnjcC-xNh9gNZYn3aUQ@mail.gmail.com>
+Subject: Re: [PATCH 1/6] hwrng: imx-rngc - fix an error path
+To:     Martin Kaiser <martin@kaiser.cx>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We've moved from bugzilla to gitlab.
+Hi Martin,
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
----
- drivers/gpu/drm/i915/Kconfig          | 5 ++---
- drivers/gpu/drm/i915/i915_gpu_error.c | 3 ++-
- drivers/gpu/drm/i915/i915_utils.c     | 5 ++---
- 3 files changed, 6 insertions(+), 7 deletions(-)
+On Tue, 28 Jan 2020 at 16:31, Martin Kaiser <martin@kaiser.cx> wrote:
+>
+> Make sure that the rngc interrupt is masked if the rngc self test fails.
+> Self test failure means that probe fails as well. Interrupts should be
+> masked in this case, regardless of the error.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 1d5449445bd0 ("hwrng: mx-rngc - add a driver for Freescale RNGC")
+> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+> ---
+>  drivers/char/hw_random/imx-rngc.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/char/hw_random/imx-rngc.c b/drivers/char/hw_random/imx-rngc.c
+> index 30cf00f8e9a0..0576801944fd 100644
+> --- a/drivers/char/hw_random/imx-rngc.c
+> +++ b/drivers/char/hw_random/imx-rngc.c
+> @@ -105,8 +105,10 @@ static int imx_rngc_self_test(struct imx_rngc *rngc)
+>                 return -ETIMEDOUT;
+>         }
+>
+> -       if (rngc->err_reg != 0)
+> +       if (rngc->err_reg != 0) {
+> +               imx_rngc_irq_mask_clear(rngc);
+>                 return -EIO;
+> +       }
+>
+>         return 0;
+>  }
+> --
+> 2.20.1
+>
 
-diff --git a/drivers/gpu/drm/i915/Kconfig b/drivers/gpu/drm/i915/Kconfig
-index 023206136d6d..9afa5c4a6bf0 100644
---- a/drivers/gpu/drm/i915/Kconfig
-+++ b/drivers/gpu/drm/i915/Kconfig
-@@ -68,9 +68,8 @@ config DRM_I915_CAPTURE_ERROR
- 	help
- 	  This option enables capturing the GPU state when a hang is detected.
- 	  This information is vital for triaging hangs and assists in debugging.
--	  Please report any hang to
--	    https://bugs.freedesktop.org/enter_bug.cgi?product=DRI
--	  for triaging.
-+	  Please report any hang for triaging according to:
-+	    https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs
- 
- 	  If in doubt, say "Y".
- 
-diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
-index 5a1517d0bf3b..2417c211e1b6 100644
---- a/drivers/gpu/drm/i915/i915_gpu_error.c
-+++ b/drivers/gpu/drm/i915/i915_gpu_error.c
-@@ -1862,7 +1862,8 @@ void i915_error_state_store(struct i915_gpu_coredump *error)
- 	if (!xchg(&warned, true) &&
- 	    ktime_get_real_seconds() - DRIVER_TIMESTAMP < DAY_AS_SECONDS(180)) {
- 		pr_info("GPU hangs can indicate a bug anywhere in the entire gfx stack, including userspace.\n");
--		pr_info("Please file a _new_ bug report on bugs.freedesktop.org against DRI -> DRM/Intel\n");
-+		pr_info("Please file a _new_ bug report at https://gitlab.freedesktop.org/drm/intel/issues/new.\n");
-+		pr_info("Please see https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs for details.\n");
- 		pr_info("drm/i915 developers can then reassign to the right component if it's not a kernel issue.\n");
- 		pr_info("The GPU crash dump is required to analyze GPU hangs, so please always attach it.\n");
- 		pr_info("GPU crash dump saved to /sys/class/drm/card%d/error\n",
-diff --git a/drivers/gpu/drm/i915/i915_utils.c b/drivers/gpu/drm/i915/i915_utils.c
-index c47261ae86ea..632d6953c78d 100644
---- a/drivers/gpu/drm/i915/i915_utils.c
-+++ b/drivers/gpu/drm/i915/i915_utils.c
-@@ -8,9 +8,8 @@
- #include "i915_drv.h"
- #include "i915_utils.h"
- 
--#define FDO_BUG_URL "https://bugs.freedesktop.org/enter_bug.cgi?product=DRI"
--#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL " against DRM/Intel " \
--		    "providing the dmesg log by booting with drm.debug=0xf"
-+#define FDO_BUG_URL "https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs"
-+#define FDO_BUG_MSG "Please file a bug on drm/i915; see " FDO_BUG_URL " for details."
- 
- void
- __i915_printk(struct drm_i915_private *dev_priv, const char *level,
--- 
-2.20.1
+Looks good to me. You can add
+Reviewed-by: PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
 
+Regards,
+PrasannaKumar
