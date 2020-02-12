@@ -2,131 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A3415AF27
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 18:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3203015AF53
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 19:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728794AbgBLRyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 12:54:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44118 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727054AbgBLRyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Feb 2020 12:54:54 -0500
-Received: from localhost (unknown [104.132.1.104])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 650ED21569;
-        Wed, 12 Feb 2020 17:54:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581530093;
-        bh=WkJhzxIV5lbtO/qGh+/OBS6fLW7yOpH0U3+Cleth/9o=;
-        h=Subject:To:From:Date:From;
-        b=DtBRl93gbMJkPZm2RJL2/J5quOLSl9pGP7agX6pGuEguU6SutTzZP685v1ogoA0Dk
-         Sz2YMjc2S3xK2g7R54CoCE2DBx6XWaipxayc1kwiqrsfiWX+EFFOgZhNa7/MLrmTqc
-         wLmOOzfBKlS7ZZGf3nja3+Sj7hFhREQcaVGabuMI=
-Subject: patch "USB: misc: iowarrior: add support for the 28 and 28L devices" added to usb-linus
-To:     gregkh@linuxfoundation.org, jung@codemercs.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 Feb 2020 09:54:44 -0800
-Message-ID: <1581530084112137@kroah.com>
+        id S1727054AbgBLSAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 13:00:23 -0500
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2418 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726728AbgBLSAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Feb 2020 13:00:23 -0500
+Received: from LHREML714-CAH.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id C0F5658CB99D5FE7F742;
+        Wed, 12 Feb 2020 18:00:20 +0000 (GMT)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ LHREML714-CAH.china.huawei.com (10.201.108.37) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Wed, 12 Feb 2020 18:00:20 +0000
+Received: from [127.0.0.1] (10.202.226.45) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 12 Feb
+ 2020 18:00:20 +0000
+Subject: Re: [PATCH v2] mtd: spi-nor: Fixup page size for S25FS-S
+To:     Vignesh Raghavendra <vigneshr@ti.com>,
+        Alexander A Sverdlin <alexander.sverdlin@nokia.com>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
+CC:     Boris Brezillon <bbrezillon@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Brian Norris <computersforpeace@gmail.com>,
+        "David Woodhouse" <dwmw2@infradead.org>,
+        chenxiang <chenxiang66@hisilicon.com>
+References: <20200205165736.4964-1-alexander.sverdlin@nokia.com>
+ <62a35797-4e78-f6b0-de86-50004bc636ca@huawei.com>
+ <385c743e-0d8d-bcdc-7dd8-a1a619380b0a@ti.com>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <0c894f19-6e19-c90a-afe7-e7f2a086b436@huawei.com>
+Date:   Wed, 12 Feb 2020 18:00:19 +0000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <385c743e-0d8d-bcdc-7dd8-a1a619380b0a@ti.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.202.226.45]
+X-ClientProxiedBy: lhreml720-chm.china.huawei.com (10.201.108.71) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 07/02/2020 05:03, Vignesh Raghavendra wrote:
+> Hi Alexander,
+> 
+> On 06/02/20 5:08 pm, John Garry wrote:
+>> On 05/02/2020 16:57, Alexander A Sverdlin wrote:
+>>> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+>>>
+> [...]
+>>> +static int s25fs_s_post_bfpt_fixups(struct spi_nor *nor,
+>>> +    const struct sfdp_parameter_header *bfpt_header,
+>>> +    const struct sfdp_bfpt *bfpt,
+>>> +    struct spi_nor_flash_parameter *params)
+>>> +{
+>>> +    const struct flash_info *info = nor->info;
+>>> +    u8 read_opcode, buf;
+>>> +    int ret;
+>>> +
+>>> +    /* Default is safe */
+>>> +    params->page_size = info->page_size;
+>>> +
+>>> +    /*
+>>> +     * But is the chip configured for more performant 512 bytes write
+>>> page
+>>> +     * size?
+>>> +     */
+>>> +    read_opcode = nor->read_opcode;
+>>> +
+>>> +    nor->read_opcode = SPINOR_OP_RDAR;
+>>> +    ret = nor->read(nor, SPINOR_REG_CR3V, 1, &buf);
+>>
+>> The read method is now gone from struct spi_nor, moved into
+>> spi_nor.controller_ops. And we also support spi_mem ops now.
+>>
+> 
+> Yes, please rebase patch on top of latest spi-nor/next or linux-next tree at:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git spi-nor/next
+> 
+> Regards
+> Vignesh
+> 
 
-This is a note to let you know that I've just added the patch titled
+I don't mean to hijack this thread, but I have tried to enable QUAD mode 
+for part s25fl129p1, and it fails in spi_nor_write_16bit_cr_and_check():
 
-    USB: misc: iowarrior: add support for the 28 and 28L devices
+[ 47.263365] spi-nor spi-PRP0001:00: CR: read back test failed
+[ 47.306567] spi-nor spi-PRP0001:00: quad mode not supported
+[ 47.322413] spi-nor: probe of spi-PRP0001:00 failed with error -5
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Hacking the flags to set SNOR_F_NO_READ_CR, and at least I can 
+successfully probe the driver.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Does anyone know if this part does not support reading the config 
+register. The limited datasheet here doesn't mention it, AFAICT:
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+https://www.cypress.com/file/196851/download
 
-If you have any questions about this process, please let me know.
+Thanks,
+John
 
-
-From 5f6f8da2d7b5a431d3f391d0d73ace8edfb42af7 Mon Sep 17 00:00:00 2001
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Tue, 11 Feb 2020 20:04:22 -0800
-Subject: USB: misc: iowarrior: add support for the 28 and 28L devices
-
-Add new device ids for the 28 and 28L devices.  These have 4 interfaces
-instead of 2, but the driver binds the same, so the driver changes are
-minimal.
-
-Cc: Christoph Jung <jung@codemercs.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200212040422.2991-2-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/misc/iowarrior.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/misc/iowarrior.c b/drivers/usb/misc/iowarrior.c
-index 990acbe14852..d20b60acfe8a 100644
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -33,6 +33,9 @@
- #define USB_DEVICE_ID_CODEMERCS_IOWPV2	0x1512
- /* full speed iowarrior */
- #define USB_DEVICE_ID_CODEMERCS_IOW56	0x1503
-+/* fuller speed iowarrior */
-+#define USB_DEVICE_ID_CODEMERCS_IOW28	0x1504
-+#define USB_DEVICE_ID_CODEMERCS_IOW28L	0x1505
- 
- /* OEMed devices */
- #define USB_DEVICE_ID_CODEMERCS_IOW24SAG	0x158a
-@@ -139,6 +142,8 @@ static const struct usb_device_id iowarrior_ids[] = {
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56)},
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW24SAG)},
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56AM)},
-+	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28)},
-+	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28L)},
- 	{}			/* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, iowarrior_ids);
-@@ -379,6 +384,8 @@ static ssize_t iowarrior_write(struct file *file,
- 		break;
- 	case USB_DEVICE_ID_CODEMERCS_IOW56:
- 	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
-+	case USB_DEVICE_ID_CODEMERCS_IOW28:
-+	case USB_DEVICE_ID_CODEMERCS_IOW28L:
- 		/* The IOW56 uses asynchronous IO and more urbs */
- 		if (atomic_read(&dev->write_busy) == MAX_WRITES_IN_FLIGHT) {
- 			/* Wait until we are below the limit for submitted urbs */
-@@ -777,7 +784,9 @@ static int iowarrior_probe(struct usb_interface *interface,
- 	}
- 
- 	if ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
--	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM)) {
-+	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
-+	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
-+	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)) {
- 		res = usb_find_last_int_out_endpoint(iface_desc,
- 				&dev->int_out_endpoint);
- 		if (res) {
-@@ -791,7 +800,9 @@ static int iowarrior_probe(struct usb_interface *interface,
- 	dev->report_size = usb_endpoint_maxp(dev->int_in_endpoint);
- 	if ((dev->interface->cur_altsetting->desc.bInterfaceNumber == 0) &&
- 	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
--	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM)))
-+	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
-+	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
-+	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)))
- 		/* IOWarrior56 has wMaxPacketSize different from report size */
- 		dev->report_size = 7;
- 
--- 
-2.25.0
-
+> 
+>>
+>>> +    if (!ret && (buf & CR3V_02H_V))
+>>> +        params->page_size = 512;
+>>> +
+>>> +    nor->read_opcode = read_opcode;
+>>> +
+>>> +    return ret;
+>>> +}
+>>> +
+>>> +static const struct spi_nor_fixups s25fs_s_fixups = {
+>>> +    .post_bfpt = s25fs_s_post_bfpt_fixups,
+>>> +};
+>>> +
+>>>    /* NOTE: double check command sets and memory organization when you add
+>>>     * more nor chips.  This current list focusses on newer chips, which
+>>>     * have been converging on command sets which including JEDEC ID.
+>>> @@ -2536,7 +2569,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>>                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>>        { "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
+>>>                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>> -    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR) },
+>>> +    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR)
+>>> +            .fixups = &s25fs_s_fixups, },
+>>>        { "s25fl256s1", INFO(0x010219, 0x4d01,  64 * 1024, 512,
+>>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>>        { "s25fl512s",  INFO6(0x010220, 0x4d0080, 256 * 1024, 256,
+>>>                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+>>> @@ -2546,7 +2580,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>>        { "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
+>>>        { "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
+>>>        { "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64,
+>>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>> -    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256,
+>>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>>> +    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256,
+>>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
+>>> +            .fixups = &s25fs_s_fixups, },
+>>>        { "s25sl004a",  INFO(0x010212,      0,  64 * 1024,   8, 0) },
+>>>        { "s25sl008a",  INFO(0x010213,      0,  64 * 1024,  16, 0) },
+>>>        { "s25sl016a",  INFO(0x010214,      0,  64 * 1024,  32, 0) },
+>>> diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
+>>> index 5abd91c..7ce3e79 100644
+>>> --- a/include/linux/mtd/spi-nor.h
+>>> +++ b/include/linux/mtd/spi-nor.h
+>>> @@ -116,6 +116,7 @@
+>>>    /* Used for Spansion flashes only. */
+>>>    #define SPINOR_OP_BRWR        0x17    /* Bank register write */
+>>>    #define SPINOR_OP_CLSR        0x30    /* Clear status register 1 */
+>>> +#define SPINOR_OP_RDAR        0x65    /* Read Any Register */
+>>>      /* Used for Micron flashes only. */
+>>>    #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
+>>> @@ -150,6 +151,10 @@
+>>>    #define SR2_QUAD_EN_BIT1    BIT(1)
+>>>    #define SR2_QUAD_EN_BIT7    BIT(7)
+>>>    +/* Used for Spansion flashes RDAR command only. */
+>>> +#define SPINOR_REG_CR3V        0x800004
+>>> +#define CR3V_02H_V        BIT(4)    /* Page Buffer Wrap */
+>>> +
+>>>    /* Supported SPI protocols */
+>>>    #define SNOR_PROTO_INST_MASK    GENMASK(23, 16)
+>>>    #define SNOR_PROTO_INST_SHIFT    16
+>>>
+>>
+>>
+>> ______________________________________________________
+>> Linux MTD discussion mailing list
+>> http://lists.infradead.org/mailman/listinfo/linux-mtd/
+> 
 
