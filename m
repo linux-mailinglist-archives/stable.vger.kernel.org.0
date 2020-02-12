@@ -2,186 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3203015AF53
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 19:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 785F115AF66
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 19:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727054AbgBLSAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 13:00:23 -0500
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2418 "EHLO huawei.com"
+        id S1728872AbgBLSEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 13:04:33 -0500
+Received: from mail-eopbgr1390072.outbound.protection.outlook.com ([40.107.139.72]:39424
+        "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726728AbgBLSAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Feb 2020 13:00:23 -0500
-Received: from LHREML714-CAH.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id C0F5658CB99D5FE7F742;
-        Wed, 12 Feb 2020 18:00:20 +0000 (GMT)
-Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
- LHREML714-CAH.china.huawei.com (10.201.108.37) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Wed, 12 Feb 2020 18:00:20 +0000
-Received: from [127.0.0.1] (10.202.226.45) by lhreml724-chm.china.huawei.com
- (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Wed, 12 Feb
- 2020 18:00:20 +0000
-Subject: Re: [PATCH v2] mtd: spi-nor: Fixup page size for S25FS-S
-To:     Vignesh Raghavendra <vigneshr@ti.com>,
-        Alexander A Sverdlin <alexander.sverdlin@nokia.com>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
-CC:     Boris Brezillon <bbrezillon@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        "David Woodhouse" <dwmw2@infradead.org>,
-        chenxiang <chenxiang66@hisilicon.com>
-References: <20200205165736.4964-1-alexander.sverdlin@nokia.com>
- <62a35797-4e78-f6b0-de86-50004bc636ca@huawei.com>
- <385c743e-0d8d-bcdc-7dd8-a1a619380b0a@ti.com>
-From:   John Garry <john.garry@huawei.com>
-Message-ID: <0c894f19-6e19-c90a-afe7-e7f2a086b436@huawei.com>
-Date:   Wed, 12 Feb 2020 18:00:19 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.2
-MIME-Version: 1.0
-In-Reply-To: <385c743e-0d8d-bcdc-7dd8-a1a619380b0a@ti.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+        id S1727054AbgBLSEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Feb 2020 13:04:33 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bmTL0+HIA2ulfEoolg9Rpqx8UL+eZ2CmSknDXFqULxwHmKALIVbJKawbaPfU5mF0TfWD4YzOVeDVZVGCu4Rkue8bIm0BUUTiEhmwOgk6g9ujCtFpuxkWu0Na9JYCJpvsiTHoEbFps2NinU8v5IWp0B4S2zGReGfVhf2mu31P5mFOzL9ak1t33KnNBC+NZ8rCCWVuyScMcOlqHSdS1TtTBdvKsDvhNJv20/xccmtUah9bBhPujKClUfJYtw3dyUMh5JTLXuXZOwGYk4qdZPw6dYlmiJ34QQHljByg+z8dNXXr8C4db2jhiCtp/Yz1azJU3SFqownXII9Wsb2STvdmmg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HyAnrDBqx/v6JoR/Xs8Wvxt1Dn9NwP1miAM0oGLj6ys=;
+ b=dJLFQFICqUbKdv8zJQQ0LG5XUjC7ZdbF6QYVqledQnPf0b1sbRqVJEdAZ2TY4kELTSW1SndykxBnXIT8Rjyenp/Sa0FFxP8RMyxdpgHPS25P0Bjxz2UcjLkiB3KJ5bJ3/RvDXbOB5q0abu7WQMooaz0L+PkzFofssqCvVNMQdi1/HPDadkXxgNBvTYlNfeq8zZuZ/oqjscmfA3sooPDFeNC8BGB4iycwpwVLGtOr6gPRO6Y5cdIDZblznlnABC9sxMwNkhCJbntdeL6FnnLaYG6L6R8kpx0ntpibH4pwlUhaN88CtUwHI8sguqF9esrY2guTc3c4c5CHImT2E/Fcmw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=worlddigitalprodata.com; dmarc=pass action=none
+ header.from=worlddigitalprodata.com; dkim=pass
+ header.d=worlddigitalprodata.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=NETORGFT5578867.onmicrosoft.com;
+ s=selector1-NETORGFT5578867-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HyAnrDBqx/v6JoR/Xs8Wvxt1Dn9NwP1miAM0oGLj6ys=;
+ b=bYdXB0gxfHwspLykbq+SQDt9E5WYWXaoREBno4Xeyti+Ec2ut1L1LbXpFPSarnHTZqv+yHczdBSUmivpbz9rg1vvUbo7YEPpvMzAsSmZ7IV6qKhlucw2uEmd0Z93kkIMDjCW6O3W/ek5JF5MOUaM/fSkY0Fnp9bRWe3hbl4RizQ=
+Received: from MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM (10.255.215.19) by
+ MA1PR01MB2332.INDPRD01.PROD.OUTLOOK.COM (52.134.149.18) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2707.21; Wed, 12 Feb 2020 18:04:29 +0000
+Received: from MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::24b5:96f9:da47:f395]) by MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::24b5:96f9:da47:f395%3]) with mapi id 15.20.2707.030; Wed, 12 Feb 2020
+ 18:04:29 +0000
+Received: from admin132PC (106.51.30.28) by MAXPR01CA0105.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a00:5d::23) with Microsoft SMTP Server (version=TLS1_0, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA) id 15.20.2707.21 via Frontend Transport; Wed, 12 Feb 2020 18:04:29 +0000
+From:   Ara Gates <ara.gates@worlddigitalprodata.com>
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: EVENT IN SPAIN MWC 2020
+Thread-Topic: EVENT IN SPAIN MWC 2020
+Thread-Index: AdXhzt3YmRm1zM6NQ2eLYnbe2b3MUw==
+Importance: high
+X-Priority: 1
+Sensitivity: private
+Date:   Wed, 12 Feb 2020 18:04:29 +0000
+Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAAwcKHcddElNkhudO5gi/sHCgAAAEAAAAMq+DM/RZrRFo1+Fa4JW+AYBAAAAAA==@worlddigitalprodata.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.202.226.45]
-X-ClientProxiedBy: lhreml720-chm.china.huawei.com (10.201.108.71) To
- lhreml724-chm.china.huawei.com (10.201.108.75)
-X-CFilter-Loop: Reflected
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: MAXPR01CA0105.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:5d::23) To MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:82::19)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=ara.gates@worlddigitalprodata.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-mailer: Microsoft Outlook 15.0
+x-originating-ip: [106.51.30.28]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 9eb424bc-8935-4f31-1de7-08d7afe60163
+x-ms-traffictypediagnostic: MA1PR01MB2332:
+x-microsoft-antispam-prvs: <MA1PR01MB2332EC3311E137C360738E01E81B0@MA1PR01MB2332.INDPRD01.PROD.OUTLOOK.COM>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0311124FA9
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(366004)(136003)(376002)(396003)(39850400004)(189003)(199004)(66476007)(66946007)(956004)(316002)(2616005)(1006002)(6486002)(86362001)(6916009)(5660300002)(186003)(66556008)(55236004)(26005)(36756003)(16526019)(44832011)(64756008)(66446008)(81166006)(81156014)(8936002)(8676002)(71200400001)(52116002)(2906002)(6496006)(508600001)(32040200004)(130950200001);DIR:OUT;SFP:1101;SCL:1;SRVR:MA1PR01MB2332;H:MA1PR01MB3836.INDPRD01.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: worlddigitalprodata.com does not
+ designate permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: Khvxomm6vjauaVj/HmElDw+zEx751x4vaAf+zW1921zwDjic0Wr1MgOq1u/oO3Ol4GHYjSET3sT3t6foa0g5k/1ihuS7LbBV2/BH4IqLiNq9n1SvSS6Rckz1s5Zp5kSpxfE5DB7Y6KFUmKqPawWKY9QrrYSMN+hmLm8//NQsR2q9/8b5yFGMKTJY+04zRJeItx7NbE/1MU3uZRYWi9U/7HNRyfqyww3G2piH0gBo+G2G5+JjRUwprXSzYgjVg1ewvVovAom4SBsCWmCSBQeGTuwaUqVa2oZPkDJh+ctfc+8Dy2/hG7uH2AObVvTlS5CvCr/ErjM3h2OQoWcwVmD317K6Ui7xKmiKB98zYBR9OhA5uYSQwIAoWaTDqRSQfj13nhFzauRgZN5+MIyFtKRwdKeMUrABIkFWhKZkFNdjmovDCTbenXwdcMPyMFefJkdgO07XXukubW2OdiVa/4aSqx5GTc+F6pq+ZrcOAn6VayssPviUKkNVf3rJLMSkXTDvbb9+Cm74dKaUohlkdtbFpzxSeITg++FMR6tU+z1iUCg=
+x-ms-exchange-antispam-messagedata: 6fUqAxe+4oAc+It4v22HcXT0HQwNkXwn+UNda/7ALhw7YPNqbO9bC3YKxMloCs338pHqu4UlFH6aHxeGZeCNHG1B95Rn0YJv/WlCrkFaVKNBi8A0RJ5QP4E5OwXbRXxrX6Yg2DhFsl54m1OPeHG1XQ==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <A40AD127FEC5AA44A23FFC784D6B06A4@INDPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: worlddigitalprodata.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9eb424bc-8935-4f31-1de7-08d7afe60163
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Feb 2020 18:04:29.8125
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 65343f07-34ec-4516-bb20-6348adb7960c
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: AJTOvh5ynGard1qSu7/eHoQyxeh2ErTnNARj2LatgNfWIrP9eG/HdDB8FaJW9/TS4VxSIHYb18PSFqh8TdLgbhReKZsdIMPiWi6CmttUv8Zew8iLBYo3rQUYgh5dqQl8
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA1PR01MB2332
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/02/2020 05:03, Vignesh Raghavendra wrote:
-> Hi Alexander,
-> 
-> On 06/02/20 5:08 pm, John Garry wrote:
->> On 05/02/2020 16:57, Alexander A Sverdlin wrote:
->>> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
->>>
-> [...]
->>> +static int s25fs_s_post_bfpt_fixups(struct spi_nor *nor,
->>> +    const struct sfdp_parameter_header *bfpt_header,
->>> +    const struct sfdp_bfpt *bfpt,
->>> +    struct spi_nor_flash_parameter *params)
->>> +{
->>> +    const struct flash_info *info = nor->info;
->>> +    u8 read_opcode, buf;
->>> +    int ret;
->>> +
->>> +    /* Default is safe */
->>> +    params->page_size = info->page_size;
->>> +
->>> +    /*
->>> +     * But is the chip configured for more performant 512 bytes write
->>> page
->>> +     * size?
->>> +     */
->>> +    read_opcode = nor->read_opcode;
->>> +
->>> +    nor->read_opcode = SPINOR_OP_RDAR;
->>> +    ret = nor->read(nor, SPINOR_REG_CR3V, 1, &buf);
->>
->> The read method is now gone from struct spi_nor, moved into
->> spi_nor.controller_ops. And we also support spi_mem ops now.
->>
-> 
-> Yes, please rebase patch on top of latest spi-nor/next or linux-next tree at:
-> 
-> git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git spi-nor/next
-> 
-> Regards
-> Vignesh
-> 
+Hello,
 
-I don't mean to hijack this thread, but I have tried to enable QUAD mode 
-for part s25fl129p1, and it fails in spi_nor_write_16bit_cr_and_check():
+It is a pleasure to be in touch with you.
 
-[ 47.263365] spi-nor spi-PRP0001:00: CR: read back test failed
-[ 47.306567] spi-nor spi-PRP0001:00: quad mode not supported
-[ 47.322413] spi-nor: probe of spi-PRP0001:00 failed with error -5
+We came across that you are exhibiting at MWC 2020 (International Trade Sho=
+w
+for Technology, Communication Technology, Telecommunication, Communication,
+Mobile Communication, Mobility, Mobile Phones and Gsm) and was curious to
+know if you would be interested in purchasing the attendee list for your
+business needs.
 
-Hacking the flags to set SNOR_F_NO_READ_CR, and at least I can 
-successfully probe the driver.
+Venue: Barcelona, Spain
 
-Does anyone know if this part does not support reading the config 
-register. The limited datasheet here doesn't mention it, AFAICT:
+We have recently updated records of past/current Attendee Companies who are
+participating in this event.=20
 
-https://www.cypress.com/file/196851/download
+Information provided: company name, url, contact name, job title, business
+contact, fax number, physical address, company size, email address etc..!
+Our list is the best source for awareness and can be used for booth invites=
+-
+product launch - brand awareness - increase in revenue etc..!=20
+Look forward to work with you soon!
 
-Thanks,
-John
+Kindly confirm and let me know if I can share Proposal for your approval.
+Also, if there is any interest in buying B2B data for your Campaigns, we ca=
+n
+drive in records according to your request.
 
-> 
->>
->>> +    if (!ret && (buf & CR3V_02H_V))
->>> +        params->page_size = 512;
->>> +
->>> +    nor->read_opcode = read_opcode;
->>> +
->>> +    return ret;
->>> +}
->>> +
->>> +static const struct spi_nor_fixups s25fs_s_fixups = {
->>> +    .post_bfpt = s25fs_s_post_bfpt_fixups,
->>> +};
->>> +
->>>    /* NOTE: double check command sets and memory organization when you add
->>>     * more nor chips.  This current list focusses on newer chips, which
->>>     * have been converging on command sets which including JEDEC ID.
->>> @@ -2536,7 +2569,8 @@ static const struct flash_info spi_nor_ids[] = {
->>>                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->>>        { "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
->>>                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->>> -    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR) },
->>> +    { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR)
->>> +            .fixups = &s25fs_s_fixups, },
->>>        { "s25fl256s1", INFO(0x010219, 0x4d01,  64 * 1024, 512,
->>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->>>        { "s25fl512s",  INFO6(0x010220, 0x4d0080, 256 * 1024, 256,
->>>                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
->>> @@ -2546,7 +2580,8 @@ static const struct flash_info spi_nor_ids[] = {
->>>        { "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
->>>        { "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
->>>        { "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64,
->>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->>> -    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256,
->>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->>> +    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256,
->>> SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
->>> +            .fixups = &s25fs_s_fixups, },
->>>        { "s25sl004a",  INFO(0x010212,      0,  64 * 1024,   8, 0) },
->>>        { "s25sl008a",  INFO(0x010213,      0,  64 * 1024,  16, 0) },
->>>        { "s25sl016a",  INFO(0x010214,      0,  64 * 1024,  32, 0) },
->>> diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
->>> index 5abd91c..7ce3e79 100644
->>> --- a/include/linux/mtd/spi-nor.h
->>> +++ b/include/linux/mtd/spi-nor.h
->>> @@ -116,6 +116,7 @@
->>>    /* Used for Spansion flashes only. */
->>>    #define SPINOR_OP_BRWR        0x17    /* Bank register write */
->>>    #define SPINOR_OP_CLSR        0x30    /* Clear status register 1 */
->>> +#define SPINOR_OP_RDAR        0x65    /* Read Any Register */
->>>      /* Used for Micron flashes only. */
->>>    #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
->>> @@ -150,6 +151,10 @@
->>>    #define SR2_QUAD_EN_BIT1    BIT(1)
->>>    #define SR2_QUAD_EN_BIT7    BIT(7)
->>>    +/* Used for Spansion flashes RDAR command only. */
->>> +#define SPINOR_REG_CR3V        0x800004
->>> +#define CR3V_02H_V        BIT(4)    /* Page Buffer Wrap */
->>> +
->>>    /* Supported SPI protocols */
->>>    #define SNOR_PROTO_INST_MASK    GENMASK(23, 16)
->>>    #define SNOR_PROTO_INST_SHIFT    16
->>>
->>
->>
->> ______________________________________________________
->> Linux MTD discussion mailing list
->> http://lists.infradead.org/mailman/listinfo/linux-mtd/
-> 
+Kind Regards,=20
+Ara Gates
+B2B Tradeshow Specialist
+=09
+If you don't want to hear again the mail regard MWC 2020 kindly replay back
+to us for "Opt-Out"
 
