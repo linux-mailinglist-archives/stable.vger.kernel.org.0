@@ -2,103 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05FD115B2A2
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 22:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4DCA15B43C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 00:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727564AbgBLVRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 16:17:40 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:35965 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727420AbgBLVRj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 16:17:39 -0500
-Received: by mail-pl1-f193.google.com with SMTP id a6so1434659plm.3
-        for <stable@vger.kernel.org>; Wed, 12 Feb 2020 13:17:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=MK5SxGz0zRKTkZ22e5kVA3DOZ9q0nFCfNa4gxsGnCQE=;
-        b=BybYr6OwRkevGXDa58RRkYPnSQJfnsxtjzQ8PRMBdjuoH6oIQGDwTpKps2Rfik9ORZ
-         VD/FxMuAF+Mfn/d9TP++HBiHu0JXsxYx1eRjqEPcecgAvu3l2tCLiwBzcewBQkc1Y0TP
-         MfST43KQXD4fF7THk0na8Uxta0AJBN4R7sf/sW104783E4bbbMEd3uIM5h1jtVJlaqzH
-         7rtLCCbmYYL5YhxA7nk3i1rk8NFM/zA52rmiyj1ziqmMXN7fOf2ab2DcB9IcF3SZhSgY
-         49AyszXaL0KrUyAHSYfKc2L+Jj2ZZvNWjGsVKRyKTpOfmj5lpS97s2XLgpZG3wb2Y/q0
-         kNzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=MK5SxGz0zRKTkZ22e5kVA3DOZ9q0nFCfNa4gxsGnCQE=;
-        b=udQpthsUhEz91jDR5usHcMsTu0Xm4j5+ZQJVf4e8/KlL9kfyDHk0VpixWHWJapcI2S
-         bvuf+ZotKCNX4SLn5lLmi6fsCLNMozHcJstr44qZQS8tmHz5rc8ZBUJejBezKPIg6Qaq
-         A6+nM+bs8L1xl3dmrdIqDP2T8sHPWe+x0R0wjyeOs2V5QOXEtjbkYd2tAXTmNsYtt+IP
-         xWP+NEegfK6k0t4Y+LKgeXH8uRsFkCX/IKGJcbuKbxMEmZ1mBOxnE6OFCwiloRmGCp8+
-         ud+GnQ/CvLXhUqqhjx4mEOMLesKU3fyETmG8dggXQm2d2fPYi0F664t4Rc17GQcQrwlt
-         wKEA==
-X-Gm-Message-State: APjAAAVJ/BR4ijOvLH1OWymEfGxvnAjDS9D+zTLJdWy0HLw+Li4XMWNi
-        QmTAFoTL+B7nBezGs1PE54m2ew==
-X-Google-Smtp-Source: APXvYqzigz4EM0OaOIYfqAWucMj8jZnoisCQPum3T3EjTXHzETVL43sXIpYMlZK8r7W5iP9FMqh+Rg==
-X-Received: by 2002:a17:90a:cb11:: with SMTP id z17mr1158574pjt.122.1581542259114;
-        Wed, 12 Feb 2020 13:17:39 -0800 (PST)
-Received: from debian ([27.57.24.230])
-        by smtp.gmail.com with ESMTPSA id l69sm64890pgd.1.2020.02.12.13.17.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Feb 2020 13:17:38 -0800 (PST)
-Date:   Thu, 13 Feb 2020 02:47:30 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 000/309] 5.4.19-stable review
-Message-ID: <20200212211730.GA36144@debian>
-References: <20200210122406.106356946@linuxfoundation.org>
- <20200212073531.GA5184@debian>
- <20200212133037.GA1791775@kroah.com>
+        id S1729256AbgBLXBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 18:01:07 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:58533 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729225AbgBLXBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 18:01:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1581548466;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=T7ssd3WUg57xOpsdw6H7Y8SPEq2D0xhwPC+MXaKd81Y=;
+        b=f02/7MQusYBrbvu24ihhaqbAWazCuK06FY1o49KZ943sw4dw5AtIcfwgFtilaLrrkFu6MO
+        zeVAUsn1GQqXhsn7PfVOx/g+ps6InQXEljLLskeQnisyNiC0th2GZs6wmGu5vwx7lRCzNl
+        eirmb1wEeURdgnH0/seNMSo9V0IXny0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-147-KAfS8exQMqun0Pn3GMSzMg-1; Wed, 12 Feb 2020 18:00:52 -0500
+X-MC-Unique: KAfS8exQMqun0Pn3GMSzMg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D8117800D48;
+        Wed, 12 Feb 2020 23:00:50 +0000 (UTC)
+Received: from Ruby.bss.redhat.com (dhcp-10-20-1-196.bss.redhat.com [10.20.1.196])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9E6A15C109;
+        Wed, 12 Feb 2020 23:00:49 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     nouveau@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sean Paul <seanpaul@chromium.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] drm/nouveau/kms/nv50-: Probe SOR caps for DP interlacing support
+Date:   Wed, 12 Feb 2020 18:00:35 -0500
+Message-Id: <20200212230043.170477-2-lyude@redhat.com>
+In-Reply-To: <20200212230043.170477-1-lyude@redhat.com>
+References: <20200212230043.170477-1-lyude@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200212133037.GA1791775@kroah.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 12, 2020 at 05:30:37AM -0800, Greg Kroah-Hartman wrote:
-> On Wed, Feb 12, 2020 at 01:05:31PM +0530, Jeffrin Jose wrote:
-> > On Mon, Feb 10, 2020 at 04:29:16AM -0800, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.4.19 release.
-> > > There are 309 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Wed, 12 Feb 2020 12:18:57 +0000.
-> > > Anything received after that time might be too late.
-> > > 
-> > > The whole patch series can be found in one patch at:
-> > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.19-rc1.gz
-> > > or in the git tree and branch at:
-> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > > and the diffstat can be found below.
-> > 
-> > hello ,
-> > 
-> > compiled and booted 5.4.19-rc1+ . No new error according to "sudo dmesg -l err"
-> 
-> Thanks for testing, there shouldn't be a need to run 'sudo' for that
-> dmesg command :)
-> 
-> greg k-h
+Right now, we make the mistake of allowing interlacing on all
+connectors. Nvidia hardware does not always support interlacing with DP
+though, so we need to make sure that we don't allow interlaced modes to
+be set in such situations as otherwise we'll end up accidentally hanging
+the display HW.
 
-hello,
+This fixes some hangs with Turing, which would be caused by attempting
+to set an interlaced mode on hardware that doesn't support it. This
+patch likely fixes other hardware hanging in the same way as well.
 
-   thanks for helping me improve.
-   i had "CONFIG_SECURITY_DMESG_RESTRICT=y"
-   i did related to "sudo sysctl kernel.dmesg_restrict=0"
-   now dmesg without sudo is working.
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/nouveau/dispnv50/disp.c     | 21 ++++++++++++++-------
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 10 +++++++++-
+ drivers/gpu/drm/nouveau/nouveau_encoder.h   |  3 +++
+ 3 files changed, 26 insertions(+), 8 deletions(-)
 
---
-software engineer
-rajagiri school of engineering and technology
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/no=
+uveau/dispnv50/disp.c
+index a3dc2ba19fb2..32a1c4221f1e 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -1714,6 +1714,9 @@ nv50_sor_create(struct drm_connector *connector, st=
+ruct dcb_output *dcbe)
+ 		struct nv50_disp *disp =3D nv50_disp(encoder->dev);
+ 		struct nvkm_i2c_aux *aux =3D
+ 			nvkm_i2c_aux_find(i2c, dcbe->i2c_index);
++		u32 caps =3D nvif_rd32(&disp->disp->object,
++				     0x00640144 + (nv_encoder->or * 8));
++
+ 		if (aux) {
+ 			if (disp->disp->object.oclass < GF110_DISP) {
+ 				/* HW has no support for address-only
+@@ -1727,13 +1730,17 @@ nv50_sor_create(struct drm_connector *connector, =
+struct dcb_output *dcbe)
+ 			nv_encoder->aux =3D aux;
+ 		}
+=20
+-		if (nv_connector->type !=3D DCB_CONNECTOR_eDP &&
+-		    nv50_has_mst(drm)) {
+-			ret =3D nv50_mstm_new(nv_encoder, &nv_connector->aux,
+-					    16, nv_connector->base.base.id,
+-					    &nv_encoder->dp.mstm);
+-			if (ret)
+-				return ret;
++		if (nv_connector->type !=3D DCB_CONNECTOR_eDP) {
++			if (nv50_has_mst(drm)) {
++				ret =3D nv50_mstm_new(nv_encoder,
++						    &nv_connector->aux,
++						    16,
++						    connector->base.id,
++						    &nv_encoder->dp.mstm);
++				if (ret)
++					return ret;
++			}
++			nv_encoder->dp.caps.interlace =3D !!(caps & 0x04000000);
+ 		}
+ 	} else {
+ 		struct nvkm_i2c_bus *bus =3D
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/dr=
+m/nouveau/nouveau_connector.c
+index 9a9a7f5003d3..97a84daf8eab 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -509,7 +509,11 @@ nouveau_connector_set_encoder(struct drm_connector *=
+connector,
+ 	nv_connector->detected_encoder =3D nv_encoder;
+=20
+ 	if (drm->client.device.info.family >=3D NV_DEVICE_INFO_V0_TESLA) {
+-		connector->interlace_allowed =3D true;
++		if (nv_encoder->dcb->type =3D=3D DCB_OUTPUT_DP)
++			connector->interlace_allowed =3D
++				nv_encoder->dp.caps.interlace;
++		else
++			connector->interlace_allowed =3D true;
+ 		connector->doublescan_allowed =3D true;
+ 	} else
+ 	if (nv_encoder->dcb->type =3D=3D DCB_OUTPUT_LVDS ||
+@@ -1060,6 +1064,10 @@ nouveau_connector_mode_valid(struct drm_connector =
+*connector,
+ 	case DCB_OUTPUT_TV:
+ 		return get_slave_funcs(encoder)->mode_valid(encoder, mode);
+ 	case DCB_OUTPUT_DP:
++		if (mode->flags & DRM_MODE_FLAG_INTERLACE &&
++		    !nv_encoder->dp.caps.interlace)
++			return MODE_NO_INTERLACE;
++
+ 		max_clock  =3D nv_encoder->dp.link_nr;
+ 		max_clock *=3D nv_encoder->dp.link_bw;
+ 		clock =3D clock * (connector->display_info.bpc * 3) / 10;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_encoder.h b/drivers/gpu/drm/=
+nouveau/nouveau_encoder.h
+index 3517f920bf89..2a8a7aec48c4 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_encoder.h
++++ b/drivers/gpu/drm/nouveau/nouveau_encoder.h
+@@ -63,6 +63,9 @@ struct nouveau_encoder {
+ 			struct nv50_mstm *mstm;
+ 			int link_nr;
+ 			int link_bw;
++			struct {
++				bool interlace : 1;
++			} caps;
+ 		} dp;
+ 	};
+=20
+--=20
+2.24.1
+
