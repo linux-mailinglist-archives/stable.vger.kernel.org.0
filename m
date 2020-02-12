@@ -2,165 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA3515A741
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 12:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B79C915A764
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 12:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727669AbgBLLBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 06:01:47 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:54586 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727007AbgBLLBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 06:01:46 -0500
-Received: from lelv0266.itg.ti.com ([10.180.67.225])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 01CB1bdO061311;
-        Wed, 12 Feb 2020 05:01:37 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1581505297;
-        bh=V0cNRr6nMfebDwQ1Gji0eIn7moZlgt46XRlYG9hjkd4=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=Vco7dHicYxB7mfj5Soxbrl92Azfqsz+llyU8Jba5IXt81AyX7xYDshilWIgfKvqi9
-         mN05xnujwaQJlCgCcSKdS+U3op8nRvNMAqCYSYH3zDVfwQyyeGfyJlWp7qGH41nrUD
-         VBfAW2CB3RNEsR/dvTL7N6mCvWm62qkgcuNggLj0=
-Received: from DLEE107.ent.ti.com (dlee107.ent.ti.com [157.170.170.37])
-        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 01CB1bkv031866
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 12 Feb 2020 05:01:37 -0600
-Received: from DLEE109.ent.ti.com (157.170.170.41) by DLEE107.ent.ti.com
- (157.170.170.37) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 12
- Feb 2020 05:01:35 -0600
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE109.ent.ti.com
- (157.170.170.41) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Wed, 12 Feb 2020 05:01:35 -0600
-Received: from [192.168.2.14] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01CB1WXq116272;
-        Wed, 12 Feb 2020 05:01:33 -0600
-Subject: Re: [PATCH] ata: ahci_platform: add 32-bit quirk for dwc-ahci
-To:     Hans de Goede <hdegoede@redhat.com>, <axboe@kernel.dk>
-CC:     <vigneshr@ti.com>, <nsekhar@ti.com>, <linux-ide@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        =?UTF-8?Q?P=c3=a9ter_Ujfalusi?= <peter.ujfalusi@ti.com>
-References: <20200206111728.6703-1-rogerq@ti.com>
- <d3a80407-a40a-c9e4-830f-138cfe9b163c@redhat.com>
-From:   Roger Quadros <rogerq@ti.com>
-Message-ID: <1c3ec10c-8505-a067-d51d-667f47d8d55b@ti.com>
-Date:   Wed, 12 Feb 2020 13:01:32 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1725887AbgBLLLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 06:11:11 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:34880 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725781AbgBLLLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 06:11:11 -0500
+Received: by mail-wr1-f66.google.com with SMTP id w12so1754181wrt.2
+        for <stable@vger.kernel.org>; Wed, 12 Feb 2020 03:11:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Lfg2rL0PWzfBufqhPQNBRJwvbqxvDijbN65HosNMZBs=;
+        b=FmZlBDTkjdyi/EfNAkPeKgGN5/pfUAWzu+9nwKN3x60t028fxSKWgnQrOHwi+kd7Qv
+         E7ePl7uX8JTNjgypWRKqEU+vTjyukZfEFRUcj72enPExftO7N1XaYvtt1vnZF/OGlOmd
+         LITC9vYoIHyvnL7dFs//14NtuR2VghVzTUTlSy1G/wkw/Vi+Tu+s6wG/5DPvA3pD3Wxv
+         h+/JE5VUgE51fUVg2vyfmK9Ydcxg8vYtEXFprUfQs/eUVny6Za6TVCRhG/YWAwcb1ekb
+         7jcdkYxNCo5R3BtQyOf1znx+coO0MqREkGq6LP/CYqEOJlGCUXcHBD6IRFkCxHIveBbq
+         afZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Lfg2rL0PWzfBufqhPQNBRJwvbqxvDijbN65HosNMZBs=;
+        b=to+kEh0ZTL9AuPcml/UaQUMLq9s/745B3n0kFg+AUT1yHdARAwsfL13jWA7OUiLGTJ
+         6KaLPzptCFzTvgP6yKju1yKJgaw3QZVpfQdteByo9TJBgb4T+Kaxt7+RvXTsKSz5au5V
+         NW9vXzEFa0ZxgpP0N8xnB0J56ZBnv4t8an7ft3sH1NjbrYo0y1N9ZW1rd29JxDlLiYqu
+         ymbOjzGm9WDKj/26kkmdPC1tLQYNQCQxUDLvm+UJ4SHxdOsjO+4VWJPAFiFdR3ZtDV6k
+         e/uEeXMcXkhkIkmNzIKc47lakVjeXlbOxlJOuyJ71lpfvB0I5oWrqIyweUiUI5pP7ZJf
+         cv0g==
+X-Gm-Message-State: APjAAAU97lm1ajYW3cb7j0y43jK8nOBt9XJ1/JLFdFGxPWAdYr3vvEYq
+        iMuqefZlPWMe58fS6LqJKy1k77pF5iOZUg==
+X-Google-Smtp-Source: APXvYqyw9Fe+km6NCoRDW06BYPkqgaq9W79iaZgcCaNRoLll7mGvEOPLXOUrwCfMQBLacvuTzWPsRA==
+X-Received: by 2002:adf:d0c1:: with SMTP id z1mr15618787wrh.371.1581505867449;
+        Wed, 12 Feb 2020 03:11:07 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y1sm245666wrq.16.2020.02.12.03.11.06
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Feb 2020 03:11:06 -0800 (PST)
+Message-ID: <5e43dd4a.1c69fb81.98225.1791@mx.google.com>
+Date:   Wed, 12 Feb 2020 03:11:06 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <d3a80407-a40a-c9e4-830f-138cfe9b163c@redhat.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.213
+Subject: stable-rc/linux-4.4.y boot: 27 boots: 1 failed,
+ 25 passed with 1 untried/unknown (v4.4.213)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.4.y boot: 27 boots: 1 failed, 25 passed with 1 untried/un=
+known (v4.4.213)
 
-On 06/02/2020 13:50, Hans de Goede wrote:
-> Hi,
-> 
-> On 2/6/20 12:17 PM, Roger Quadros wrote:
->> On TI Platforms using LPAE, SATA breaks with 64-bit DMA.
->> Restrict it to 32-bit.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Roger Quadros <rogerq@ti.com>
->> ---
->>   drivers/ata/ahci_platform.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/ata/ahci_platform.c b/drivers/ata/ahci_platform.c
->> index 3aab2e3d57f3..b925dc54cfa5 100644
->> --- a/drivers/ata/ahci_platform.c
->> +++ b/drivers/ata/ahci_platform.c
->> @@ -62,6 +62,9 @@ static int ahci_probe(struct platform_device *pdev)
->>       if (of_device_is_compatible(dev->of_node, "hisilicon,hisi-ahci"))
->>           hpriv->flags |= AHCI_HFLAG_NO_FBS | AHCI_HFLAG_NO_NCQ;
->> +    if (of_device_is_compatible(dev->of_node, "snps,dwc-ahci"))
->> +        hpriv->flags |= AHCI_HFLAG_32BIT_ONLY;
->> +
-> 
-> The "snps,dwc-ahci" is a generic (non TI specific) compatible which
-> is e.g. also used on some exynos devices. So using that to key the
-> setting of the 32 bit flag seems wrong to me.
-> 
-> IMHO it would be better to introduce a TI specific compatible
-> and use that to match on instead (and also adjust the dts files
-> accordingly).
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.213/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.213/
 
-Thinking further on this I think it is a bad idea to add a special
-binding because the IP is not different. It is just that it is
-wired differently on the TI SoC so DMA range is limited.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.213
+Git Commit: d6ccbff9be43dbb6113a6a3f107c3d066052097e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 22 unique boards, 11 SoC families, 5 builds out of 146
 
-IMO the proper solution is to have the right dma-ranges property in the
-device tree. However, SATA platform driver is doing the wrong thing
-by overriding the dma masks.
-i.e. in ahci_platform_init_host() in libahci_platform.c
+Boot Regressions Detected:
 
-         if (hpriv->cap & HOST_CAP_64) {
-                 rc = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(64));
-                 if (rc) {
-                         rc = dma_coerce_mask_and_coherent(dev,
-                                                           DMA_BIT_MASK(32));
-                         if (rc) {
-                                 dev_err(dev, "Failed to enable 64-bit DMA.\n");
-                                 return rc;
-                         }
-                         dev_warn(dev, "Enable 32-bit DMA instead of 64-bit.\n");
-                 }
-         }
+arm:
 
-This should be removed. Do you agree?
+    multi_v7_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.4.213-31-g79b2eedaa4=
+6f)
 
-You can also see a similar in ahci_configure_dma_masks() with the XXX disclaimer
-explaining that it is wrong.
+Boot Failure Detected:
 
-static int ahci_configure_dma_masks(struct pci_dev *pdev, int using_dac)
-{
-         const int dma_bits = using_dac ? 64 : 32;
-         int rc;
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-         /*
-          * If the device fixup already set the dma_mask to some non-standard
-          * value, don't extend it here. This happens on STA2X11, for example.
-          *
-          * XXX: manipulating the DMA mask from platform code is completely
-          * bogus, platform code should use dev->bus_dma_limit instead..
-          */
-         if (pdev->dma_mask && pdev->dma_mask < DMA_BIT_MASK(32))
-                 return 0;
-
-         rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(dma_bits));
-         if (rc)
-                 dev_err(&pdev->dev, "DMA enable failed\n");
-         return rc;
-}
-
-
-> 
-> Regards,
-> 
-> Hans
-> 
-> 
-> 
->>       port = acpi_device_get_match_data(dev);
->>       if (!port)
->>           port = &ahci_port_info;
->>
-> 
-
--- 
-cheers,
--roger
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+---
+For more info write to <info@kernelci.org>
