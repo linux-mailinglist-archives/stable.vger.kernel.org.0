@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9815E15B181
-	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 21:02:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7B715B182
+	for <lists+stable@lfdr.de>; Wed, 12 Feb 2020 21:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728984AbgBLUCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 15:02:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        id S1728911AbgBLUCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 15:02:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727923AbgBLUCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Feb 2020 15:02:33 -0500
+        id S1727923AbgBLUCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Feb 2020 15:02:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F890217F4;
-        Wed, 12 Feb 2020 20:02:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47A0C217F4;
+        Wed, 12 Feb 2020 20:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581537752;
-        bh=2H0NCznr3RbSQUcLBF7+uxu48lu7AcCgqXYRyvsxwbY=;
+        s=default; t=1581537761;
+        bh=h/9n1guqwk1bSlfNzVZ32bMihpPxz5jlfqQ1bgGdiOo=;
         h=Subject:To:From:Date:From;
-        b=IZFWoEFySSbf1fhllA8lKanrKN4Sn8tCjN06P+folQ68yC5YNkX2EbFkjq687fK3i
-         ZsmekF/s6O7dY5hph3R3rxS/e+ycTrwydU0zgfEQ3WyOxpoFKSb7LRu/mV50/qRCgC
-         WK1a33HRgfAseRDrcxSaa3BC9Q9SH9ELOIY/vasg=
-Subject: patch "tty: serial: imx: setup the correct sg entry for tx dma" added to tty-linus
-To:     fugang.duan@nxp.com, eagle.zhou@nxp.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        u.kleine-koenig@pengutronix.de
+        b=Ql8fCexte1Wynd8Ihy2js6jr6JT2MpgfJXOeLmm+0g+EVng8t/Prmqk/6rthoW8A6
+         Plc2Dq16jPSLPvC9ynHCtBv/3xafHw8Em3A3kcCy0HI/tDssEJI+UhkDn4HUqKYc5b
+         8cW2jigs1VyB4acK0AbdZC4gf8XjF5Z3hubsfS1Y=
+Subject: patch "tty: serial: qcom_geni_serial: Fix RX cancel command failure" added to tty-linus
+To:     skakit@codeaurora.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 Feb 2020 12:02:32 -0800
-Message-ID: <158153775210147@kroah.com>
+Message-ID: <1581537752120200@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    tty: serial: imx: setup the correct sg entry for tx dma
+    tty: serial: qcom_geni_serial: Fix RX cancel command failure
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -56,113 +55,71 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From f76707831829530ffdd3888bebc108aecefccaa0 Mon Sep 17 00:00:00 2001
-From: Fugang Duan <fugang.duan@nxp.com>
-Date: Tue, 11 Feb 2020 14:16:01 +0800
-Subject: tty: serial: imx: setup the correct sg entry for tx dma
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 679aac5ead2f18d223554a52b543e1195e181811 Mon Sep 17 00:00:00 2001
+From: satya priya <skakit@codeaurora.org>
+Date: Tue, 11 Feb 2020 15:43:02 +0530
+Subject: tty: serial: qcom_geni_serial: Fix RX cancel command failure
 
-There has oops as below happen on i.MX8MP EVK platform that has
-6G bytes DDR memory.
+RX cancel command fails when BT is switched on and off multiple times.
 
-when (xmit->tail < xmit->head) && (xmit->head == 0),
-it setups one sg entry with sg->length is zero:
-	sg_set_buf(sgl + 1, xmit->buf, xmit->head);
+To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
+instead of SE_GENI_S_CMD_CTRL_REG.
 
-if xmit->buf is allocated from >4G address space, and SDMA only
-support <4G address space, then dma_map_sg() will call swiotlb_map()
-to do bounce buffer copying and mapping.
+As per the HPG update, handle the RX last bit after cancel command
+and flush out the RX FIFO buffer.
 
-But swiotlb_map() don't allow sg entry's length is zero, otherwise
-report BUG_ON().
-
-So the patch is to correct the tx DMA scatter list.
-
-Oops:
-[  287.675715] kernel BUG at kernel/dma/swiotlb.c:497!
-[  287.680592] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[  287.686075] Modules linked in:
-[  287.689133] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.3-00016-g3fdc4e0-dirty #10
-[  287.696872] Hardware name: FSL i.MX8MP EVK (DT)
-[  287.701402] pstate: 80000085 (Nzcv daIf -PAN -UAO)
-[  287.706199] pc : swiotlb_tbl_map_single+0x1fc/0x310
-[  287.711076] lr : swiotlb_map+0x60/0x148
-[  287.714909] sp : ffff800010003c00
-[  287.718221] x29: ffff800010003c00 x28: 0000000000000000
-[  287.723533] x27: 0000000000000040 x26: ffff800011ae0000
-[  287.728844] x25: ffff800011ae09f8 x24: 0000000000000000
-[  287.734155] x23: 00000001b7af9000 x22: 0000000000000000
-[  287.739465] x21: ffff000176409c10 x20: 00000000001f7ffe
-[  287.744776] x19: ffff000176409c10 x18: 000000000000002e
-[  287.750087] x17: 0000000000000000 x16: 0000000000000000
-[  287.755397] x15: 0000000000000000 x14: 0000000000000000
-[  287.760707] x13: ffff00017f334000 x12: 0000000000000001
-[  287.766018] x11: 00000000001fffff x10: 0000000000000000
-[  287.771328] x9 : 0000000000000003 x8 : 0000000000000000
-[  287.776638] x7 : 0000000000000000 x6 : 0000000000000000
-[  287.781949] x5 : 0000000000200000 x4 : 0000000000000000
-[  287.787259] x3 : 0000000000000001 x2 : 00000001b7af9000
-[  287.792570] x1 : 00000000fbfff000 x0 : 0000000000000000
-[  287.797881] Call trace:
-[  287.800328]  swiotlb_tbl_map_single+0x1fc/0x310
-[  287.804859]  swiotlb_map+0x60/0x148
-[  287.808347]  dma_direct_map_page+0xf0/0x130
-[  287.812530]  dma_direct_map_sg+0x78/0xe0
-[  287.816453]  imx_uart_dma_tx+0x134/0x2f8
-[  287.820374]  imx_uart_dma_tx_callback+0xd8/0x168
-[  287.824992]  vchan_complete+0x194/0x200
-[  287.828828]  tasklet_action_common.isra.0+0x154/0x1a0
-[  287.833879]  tasklet_action+0x24/0x30
-[  287.837540]  __do_softirq+0x120/0x23c
-[  287.841202]  irq_exit+0xb8/0xd8
-[  287.844343]  __handle_domain_irq+0x64/0xb8
-[  287.848438]  gic_handle_irq+0x5c/0x148
-[  287.852185]  el1_irq+0xb8/0x180
-[  287.855327]  cpuidle_enter_state+0x84/0x360
-[  287.859508]  cpuidle_enter+0x34/0x48
-[  287.863083]  call_cpuidle+0x18/0x38
-[  287.866571]  do_idle+0x1e0/0x280
-[  287.869798]  cpu_startup_entry+0x20/0x40
-[  287.873721]  rest_init+0xd4/0xe0
-[  287.876949]  arch_call_rest_init+0xc/0x14
-[  287.880958]  start_kernel+0x420/0x44c
-[  287.884622] Code: 9124c021 9417aff8 a94363f7 17ffffd5 (d4210000)
-[  287.890718] ---[ end trace 5bc44c4ab6b009ce ]---
-[  287.895334] Kernel panic - not syncing: Fatal exception in interrupt
-[  287.901686] SMP: stopping secondary CPUs
-[  288.905607] SMP: failed to stop secondary CPUs 0-1
-[  288.910395] Kernel Offset: disabled
-[  288.913882] CPU features: 0x0002,2000200c
-[  288.917888] Memory Limit: none
-[  288.920944] ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
-
-Reported-by: Eagle Zhou <eagle.zhou@nxp.com>
-Tested-by: Eagle Zhou <eagle.zhou@nxp.com>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: satya priya <skakit@codeaurora.org>
 Cc: stable <stable@vger.kernel.org>
-Fixes: 7942f8577f2a ("serial: imx: TX DMA: clean up sg initialization")
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/1581401761-6378-1-git-send-email-fugang.duan@nxp.com
+Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/qcom_geni_serial.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 0c6c63166250..d337782b3648 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -599,7 +599,7 @@ static void imx_uart_dma_tx(struct imx_port *sport)
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index 191abb18fc2a..0bd1684cabb3 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -129,6 +129,7 @@ static int handle_rx_console(struct uart_port *uport, u32 bytes, bool drop);
+ static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
+ static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
+ static void qcom_geni_serial_stop_rx(struct uart_port *uport);
++static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
  
- 	sport->tx_bytes = uart_circ_chars_pending(xmit);
+ static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
+ 					32000000, 48000000, 64000000, 80000000,
+@@ -599,7 +600,7 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 	u32 irq_en;
+ 	u32 status;
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+-	u32 irq_clear = S_CMD_DONE_EN;
++	u32 s_irq_status;
  
--	if (xmit->tail < xmit->head) {
-+	if (xmit->tail < xmit->head || xmit->head == 0) {
- 		sport->dma_tx_nents = 1;
- 		sg_init_one(sgl, xmit->buf + xmit->tail, sport->tx_bytes);
- 	} else {
+ 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
+ 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
+@@ -615,10 +616,19 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 		return;
+ 
+ 	geni_se_cancel_s_cmd(&port->se);
+-	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
+-					S_GENI_CMD_CANCEL, false);
++	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
++					S_CMD_CANCEL_EN, true);
++	/*
++	 * If timeout occurs secondary engine remains active
++	 * and Abort sequence is executed.
++	 */
++	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
++	/* Flush the Rx buffer */
++	if (s_irq_status & S_RX_FIFO_LAST_EN)
++		qcom_geni_serial_handle_rx(uport, true);
++	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
++
+ 	status = readl(uport->membase + SE_GENI_STATUS);
+-	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
+ 	if (status & S_GENI_CMD_ACTIVE)
+ 		qcom_geni_serial_abort_rx(uport);
+ }
 -- 
 2.25.0
 
