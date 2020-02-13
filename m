@@ -2,129 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F4915C840
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BEB315C864
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727916AbgBMQbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:31:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35694 "EHLO mail.kernel.org"
+        id S1728002AbgBMQi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:38:26 -0500
+Received: from frisell.zx2c4.com ([192.95.5.64]:38055 "EHLO frisell.zx2c4.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727511AbgBMQbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 11:31:39 -0500
-Received: from localhost (unknown [104.132.1.104])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE5812082F;
-        Thu, 13 Feb 2020 16:31:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581611499;
-        bh=Tod5NLHzzx9e+bpKgjkbb6MEjQ3Gx+HBHVo+zKPOdNI=;
-        h=Subject:To:From:Date:From;
-        b=Me7cJSfXwDnGTHqFsSXbEsUglsmqX3ydw72FE703xlWd6z1Ls8QGabDV4IrfV0XMf
-         U/kMswA3b6a+5QrvFSREaoZrj1mVL+5o8f1lJQxXLbDyZieVtAxnnZ3qxfoNKYKtVt
-         QZLI/r/63aD70zqvt2DI7y2PRgGXBWfr37QGw7LI=
-Subject: patch "usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields" added to usb-linus
-To:     anurag.kumar.vulisha@xilinx.com, andrzej.p@collabora.com,
-        balbi@kernel.org, fei.yang@intel.com, gregkh@linuxfoundation.org,
-        jackp@codeaurora.org, john.stultz@linaro.org,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        tejas.joglekar@synopsys.com, thinhn@synopsys.com, tkjos@google.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Feb 2020 08:31:38 -0800
-Message-ID: <1581611498166148@kroah.com>
+        id S1727778AbgBMQi0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 11:38:26 -0500
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id a4256e13;
+        Thu, 13 Feb 2020 16:36:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=from:to:cc
+        :subject:date:message-id:in-reply-to:references:mime-version
+        :content-transfer-encoding; s=mail; bh=UIUcVigLyhuwbihDTXLa/xFiI
+        A4=; b=mR8M3+tFggkWNkyaj50+0PSDdURdniICmfP9TwV24o9rcc79j4XE0dbf+
+        mcpwdoT1FpsfQmtfW9hUMd/s3ye5OBwx+3NHfSOaFIT0gJOVX1CFJctVg5A/iU0r
+        zAHbB+QrYxXBY/8SO03DSeiQmH3Y7QAzzCwWrYXsA8iwVuUUtjcUXXfIFXAHL1VA
+        j588D9HDIAJQ2q0wRJc50+fZjg14aOdp3wU4ObtmLzNLsjov/l2bGsPkpI0Kqjy8
+        iMXK3U26BlNye9VEoZQeIVt+lCQziEtREXe9tQoZxfGfX76A/GVQbJ2ORFDHlJc5
+        HQkef458NmcADTG8FRdFJRcP3TKJA==
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 88524b21 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Thu, 13 Feb 2020 16:36:25 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-crypto@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] crypto: chacha20poly1305 - prevent integer overflow on large input
+Date:   Thu, 13 Feb 2020 17:38:13 +0100
+Message-Id: <20200213163813.3210-1-Jason@zx2c4.com>
+In-Reply-To: <20200213114647.cupaio6zmodix3fq@gondor.apana.org.au>
+References: <20200213114647.cupaio6zmodix3fq@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This code assigns src_len (size_t) to sl (int), which causes problems
+when src_len is very large. Probably nobody in the kernel should be
+passing this much data to chacha20poly1305 all in one go anyway, so I
+don't think we need to change the algorithm or introduce larger types
+or anything. But we should at least error out early in this case and
+print a warning so that we get reports if this does happen and can look
+into why anybody is possibly passing it that much data or if they're
+accidently passing -1 or similar.
 
-This is a note to let you know that I've just added the patch titled
-
-    usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 5ee858975b13a9b40db00f456989a689fdbb296c Mon Sep 17 00:00:00 2001
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-Date: Mon, 27 Jan 2020 19:30:46 +0000
-Subject: usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
-
-The current code in dwc3_gadget_ep_reclaim_completed_trb() will
-check for IOC/LST bit in the event->status and returns if
-IOC/LST bit is set. This logic doesn't work if multiple TRBs
-are queued per request and the IOC/LST bit is set on the last
-TRB of that request.
-
-Consider an example where a queued request has multiple queued
-TRBs and IOC/LST bit is set only for the last TRB. In this case,
-the core generates XferComplete/XferInProgress events only for
-the last TRB (since IOC/LST are set only for the last TRB). As
-per the logic in dwc3_gadget_ep_reclaim_completed_trb()
-event->status is checked for IOC/LST bit and returns on the
-first TRB. This leaves the remaining TRBs left unhandled.
-
-Similarly, if the gadget function enqueues an unaligned request
-with sglist already in it, it should fail the same way, since we
-will append another TRB to something that already uses more than
-one TRB.
-
-To aviod this, this patch changes the code to check for IOC/LST
-bits in TRB->ctrl instead.
-
-At a practical level, this patch resolves USB transfer stalls seen
-with adb on dwc3 based HiKey960 after functionfs gadget added
-scatter-gather support around v4.20.
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Linux USB List <linux-usb@vger.kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-[jstultz: forward ported to mainline, reworded commit log, reworked
- to only check trb->ctrl as suggested by Felipe]
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: d95312a3ccc0 ("crypto: lib/chacha20poly1305 - reimplement crypt_from_sg() routine")
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: stable@vger.kernel.org # 5.5+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Due to the "stable" in the subject line prior, this patch missed
+Herbert's filters. So, I'm simply resending it here so that they can get
+picked up. Note that this is intended for the crypto-2.6.git tree rather
+than cryptodev-2.6.git.
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 1b8014ab0b25..1b7d2f9cb673 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2429,7 +2429,8 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
- 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
- 		return 1;
+ lib/crypto/chacha20poly1305.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/lib/crypto/chacha20poly1305.c b/lib/crypto/chacha20poly1305.c
+index 6d83cafebc69..ad0699ce702f 100644
+--- a/lib/crypto/chacha20poly1305.c
++++ b/lib/crypto/chacha20poly1305.c
+@@ -235,6 +235,9 @@ bool chacha20poly1305_crypt_sg_inplace(struct scatterlist *src,
+ 		__le64 lens[2];
+ 	} b __aligned(16);
  
--	if (event->status & DEPEVT_STATUS_IOC)
-+	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-+	    (trb->ctrl & DWC3_TRB_CTRL_LST))
- 		return 1;
++	if (WARN_ON(src_len > INT_MAX))
++		return false;
++
+ 	chacha_load_key(b.k, key);
  
- 	return 0;
+ 	b.iv[0] = 0;
 -- 
 2.25.0
-
 
