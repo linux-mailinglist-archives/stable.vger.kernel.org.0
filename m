@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C74A215C170
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A980F15C169
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728320AbgBMPXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34022 "EHLO mail.kernel.org"
+        id S1728265AbgBMPXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728311AbgBMPXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:15 -0500
+        id S1728259AbgBMPXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:07 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9AEE2469A;
-        Thu, 13 Feb 2020 15:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67EC7246AD;
+        Thu, 13 Feb 2020 15:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607394;
-        bh=ElxmrueDo6pLBFZlf+2NhsDNIQikV09F+er9cIAjL9A=;
+        s=default; t=1581607386;
+        bh=8kYutW9+41XF0O/3w4uBAxEow1/LGdc52OsXTqnh5vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GubOgsVNJRrkkG1Nz1CQFhO/qRZ3SLLnIMfEAzVVQlE4EIaJkOLDh6GHc/ZzIkKdd
-         n3v8vwZAX95DwgyMkb6NMn09ghVU+rbgxOkuYoMjLmaPtO/VECtAkOIoiMcNxudvd/
-         af9/1VZn3fikTLu9VmhZ0P8wsS15FfQv9yl5lyY0=
+        b=N1i/QjVfwtMPvws2NgxY9Bb0NpzFInPD2HYD94GvpAbs0lomxZ12KSNMsdbQh6Wqd
+         F08QfcwuskhV35JIzw3YRTHBk2GoFPXEqv3yQd3xplfOLyXDvF2dhTn0808JWepUq2
+         QUMheTXm9H4r+tvJOgFHDYbTC+qgzw9kEw8gFNfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 85/91] powerpc/pseries: Allow not having ibm, hypertas-functions::hcall-multi-tce for DDW
-Date:   Thu, 13 Feb 2020 07:20:42 -0800
-Message-Id: <20200213151855.731834682@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 4.4 86/91] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
+Date:   Thu, 13 Feb 2020 07:20:43 -0800
+Message-Id: <20200213151856.055258250@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
 References: <20200213151821.384445454@linuxfoundation.org>
@@ -44,155 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 7559d3d295f3365ea7ac0c0274c05e633fe4f594 upstream.
+commit 805f635703b2562b5ddd822c62fc9124087e5dd5 upstream.
 
-By default a pseries guest supports a H_PUT_TCE hypercall which maps
-a single IOMMU page in a DMA window. Additionally the hypervisor may
-support H_PUT_TCE_INDIRECT/H_STUFF_TCE which update multiple TCEs at once;
-this is advertised via the device tree /rtas/ibm,hypertas-functions
-property which Linux converts to FW_FEATURE_MULTITCE.
+The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
+one set of users must be wrong.  Replace them by the correct enum IDs.
 
-FW_FEATURE_MULTITCE is checked when dma_iommu_ops is used; however
-the code managing the huge DMA window (DDW) ignores it and calls
-H_PUT_TCE_INDIRECT even if it is explicitly disabled via
-the "multitce=off" kernel command line parameter.
-
-This adds FW_FEATURE_MULTITCE checking to the DDW code path.
-
-This changes tce_build_pSeriesLP to take liobn and page size as
-the huge window does not have iommu_table descriptor which usually
-the place to store these numbers.
-
-Fixes: 4e8b0cf46b25 ("powerpc/pseries: Add support for dynamic dma windows")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Tested-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191216041924.42318-3-aik@ozlabs.ru
+Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/iommu.c |   43 ++++++++++++++++++++++-----------
- 1 file changed, 29 insertions(+), 14 deletions(-)
+ drivers/pinctrl/sh-pfc/pfc-r8a7778.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/iommu.c
-+++ b/arch/powerpc/platforms/pseries/iommu.c
-@@ -202,10 +202,10 @@ static unsigned long tce_get_pseries(str
- 	return be64_to_cpu(*tcep);
- }
- 
--static void tce_free_pSeriesLP(struct iommu_table*, long, long);
-+static void tce_free_pSeriesLP(unsigned long liobn, long, long);
- static void tce_freemulti_pSeriesLP(struct iommu_table*, long, long);
- 
--static int tce_build_pSeriesLP(struct iommu_table *tbl, long tcenum,
-+static int tce_build_pSeriesLP(unsigned long liobn, long tcenum, long tceshift,
- 				long npages, unsigned long uaddr,
- 				enum dma_data_direction direction,
- 				struct dma_attrs *attrs)
-@@ -216,25 +216,25 @@ static int tce_build_pSeriesLP(struct io
- 	int ret = 0;
- 	long tcenum_start = tcenum, npages_start = npages;
- 
--	rpn = __pa(uaddr) >> TCE_SHIFT;
-+	rpn = __pa(uaddr) >> tceshift;
- 	proto_tce = TCE_PCI_READ;
- 	if (direction != DMA_TO_DEVICE)
- 		proto_tce |= TCE_PCI_WRITE;
- 
- 	while (npages--) {
--		tce = proto_tce | (rpn & TCE_RPN_MASK) << TCE_RPN_SHIFT;
--		rc = plpar_tce_put((u64)tbl->it_index, (u64)tcenum << 12, tce);
-+		tce = proto_tce | (rpn & TCE_RPN_MASK) << tceshift;
-+		rc = plpar_tce_put((u64)liobn, (u64)tcenum << tceshift, tce);
- 
- 		if (unlikely(rc == H_NOT_ENOUGH_RESOURCES)) {
- 			ret = (int)rc;
--			tce_free_pSeriesLP(tbl, tcenum_start,
-+			tce_free_pSeriesLP(liobn, tcenum_start,
- 			                   (npages_start - (npages + 1)));
- 			break;
- 		}
- 
- 		if (rc && printk_ratelimit()) {
- 			printk("tce_build_pSeriesLP: plpar_tce_put failed. rc=%lld\n", rc);
--			printk("\tindex   = 0x%llx\n", (u64)tbl->it_index);
-+			printk("\tindex   = 0x%llx\n", (u64)liobn);
- 			printk("\ttcenum  = 0x%llx\n", (u64)tcenum);
- 			printk("\ttce val = 0x%llx\n", tce );
- 			dump_stack();
-@@ -263,7 +263,8 @@ static int tce_buildmulti_pSeriesLP(stru
- 	unsigned long flags;
- 
- 	if ((npages == 1) || !firmware_has_feature(FW_FEATURE_MULTITCE)) {
--		return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
-+		return tce_build_pSeriesLP(tbl->it_index, tcenum,
-+					   tbl->it_page_shift, npages, uaddr,
- 		                           direction, attrs);
- 	}
- 
-@@ -279,8 +280,9 @@ static int tce_buildmulti_pSeriesLP(stru
- 		/* If allocation fails, fall back to the loop implementation */
- 		if (!tcep) {
- 			local_irq_restore(flags);
--			return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
--					    direction, attrs);
-+			return tce_build_pSeriesLP(tbl->it_index, tcenum,
-+					tbl->it_page_shift,
-+					npages, uaddr, direction, attrs);
- 		}
- 		__this_cpu_write(tce_page, tcep);
- 	}
-@@ -331,16 +333,16 @@ static int tce_buildmulti_pSeriesLP(stru
- 	return ret;
- }
- 
--static void tce_free_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages)
-+static void tce_free_pSeriesLP(unsigned long liobn, long tcenum, long npages)
- {
- 	u64 rc;
- 
- 	while (npages--) {
--		rc = plpar_tce_put((u64)tbl->it_index, (u64)tcenum << 12, 0);
-+		rc = plpar_tce_put((u64)liobn, (u64)tcenum << 12, 0);
- 
- 		if (rc && printk_ratelimit()) {
- 			printk("tce_free_pSeriesLP: plpar_tce_put failed. rc=%lld\n", rc);
--			printk("\tindex   = 0x%llx\n", (u64)tbl->it_index);
-+			printk("\tindex   = 0x%llx\n", (u64)liobn);
- 			printk("\ttcenum  = 0x%llx\n", (u64)tcenum);
- 			dump_stack();
- 		}
-@@ -355,7 +357,7 @@ static void tce_freemulti_pSeriesLP(stru
- 	u64 rc;
- 
- 	if (!firmware_has_feature(FW_FEATURE_MULTITCE))
--		return tce_free_pSeriesLP(tbl, tcenum, npages);
-+		return tce_free_pSeriesLP(tbl->it_index, tcenum, npages);
- 
- 	rc = plpar_tce_stuff((u64)tbl->it_index, (u64)tcenum << 12, 0, npages);
- 
-@@ -470,6 +472,19 @@ static int tce_setrange_multi_pSeriesLP(
- 	u64 rc = 0;
- 	long l, limit;
- 
-+	if (!firmware_has_feature(FW_FEATURE_MULTITCE)) {
-+		unsigned long tceshift = be32_to_cpu(maprange->tce_shift);
-+		unsigned long dmastart = (start_pfn << PAGE_SHIFT) +
-+				be64_to_cpu(maprange->dma_base);
-+		unsigned long tcenum = dmastart >> tceshift;
-+		unsigned long npages = num_pfn << PAGE_SHIFT >> tceshift;
-+		void *uaddr = __va(start_pfn << PAGE_SHIFT);
-+
-+		return tce_build_pSeriesLP(be32_to_cpu(maprange->liobn),
-+				tcenum, tceshift, npages, (unsigned long) uaddr,
-+				DMA_BIDIRECTIONAL, 0);
-+	}
-+
- 	local_irq_disable();	/* to protect tcep and the page behind it */
- 	tcep = __this_cpu_read(tce_page);
- 
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
+@@ -2324,7 +2324,7 @@ static const struct pinmux_cfg_reg pinmu
+ 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
+ 		/* IP0_11_8 [4] */
+ 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
+-		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
++		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
+ 		FN_PWM4_B,	0,		0,		0,
+ 		0,		0,		0,		0,
+ 		/* IP0_7_5 [3] */
+@@ -2366,7 +2366,7 @@ static const struct pinmux_cfg_reg pinmu
+ 		FN_TS_SDAT0_A,	0,		0,		0,
+ 		0,		0,		0,		0,
+ 		/* IP1_10_8 [3] */
+-		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
++		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
+ 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
+ 		/* IP1_7_5 [3] */
+ 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
 
 
