@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFD415C5AE
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 148C715C73D
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbgBMPX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
+        id S1728242AbgBMQIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:08:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728549AbgBMPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:59 -0500
+        id S1728223AbgBMPXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:03 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1558124691;
-        Thu, 13 Feb 2020 15:23:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 890A9246A3;
+        Thu, 13 Feb 2020 15:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607438;
-        bh=TmD2bJfVghIxBgeQMl8W9YvpnhUUlp0KThkHrdEJluQ=;
+        s=default; t=1581607382;
+        bh=zAjKoPHcC8yws9lUCGARkObdwCjfoIfDcYEYIfznGO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F/sNudoUU9Ritzm4FraiLLPJ0PdreBVSpfx0F8IhDRESVECEp3cI8UO7IdZIbM0Uv
-         Fd5cq7bU/RNxcBLuzsgMqOqc5KhFFWXclmz5hNtbkEBznRmQzc8V0eks2tpqR6QaO3
-         kcu6lt8gr9oCC2Jtbx2PtbZqO+ryYORoIDXfIqlI=
+        b=tdPs+nwI+s0dc4odgFiOTOyCEX7608ni44XrlW3BjBKSjuBPEgOagxIwHf10hDjvx
+         5bx4VpM/Pthts/7KC87MoPnxGnnlINw86C3UqIaO5GZvFcZzE0I7aNhLG2Ooe6zStc
+         YYnnHsu1tmGNYieylLqVaK1sFnPq04ACIUwij7Hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 075/116] bonding/alb: properly access headers in bond_alb_xmit()
-Date:   Thu, 13 Feb 2020 07:20:19 -0800
-Message-Id: <20200213151912.013945504@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 63/91] Btrfs: fix assertion failure on fsync with NO_HOLES enabled
+Date:   Thu, 13 Feb 2020 07:20:20 -0800
+Message-Id: <20200213151846.639832993@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,161 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 38f88c45404293bbc027b956def6c10cbd45c616 ]
+[ Upstream commit 0ccc3876e4b2a1559a4dbe3126dda4459d38a83b ]
 
-syzbot managed to send an IPX packet through bond_alb_xmit()
-and af_packet and triggered a use-after-free.
+Back in commit a89ca6f24ffe4 ("Btrfs: fix fsync after truncate when
+no_holes feature is enabled") I added an assertion that is triggered when
+an inline extent is found to assert that the length of the (uncompressed)
+data the extent represents is the same as the i_size of the inode, since
+that is true most of the time I couldn't find or didn't remembered about
+any exception at that time. Later on the assertion was expanded twice to
+deal with a case of a compressed inline extent representing a range that
+matches the sector size followed by an expanding truncate, and another
+case where fallocate can update the i_size of the inode without adding
+or updating existing extents (if the fallocate range falls entirely within
+the first block of the file). These two expansion/fixes of the assertion
+were done by commit 7ed586d0a8241 ("Btrfs: fix assertion on fsync of
+regular file when using no-holes feature") and commit 6399fb5a0b69a
+("Btrfs: fix assertion failure during fsync in no-holes mode").
+These however missed the case where an falloc expands the i_size of an
+inode to exactly the sector size and inline extent exists, for example:
 
-First, bond_alb_xmit() was using ipx_hdr() helper to reach
-the IPX header, but ipx_hdr() was using the transport offset
-instead of the network offset. In the particular syzbot
-report transport offset was 0xFFFF
+ $ mkfs.btrfs -f -O no-holes /dev/sdc
+ $ mount /dev/sdc /mnt
 
-This patch removes ipx_hdr() since it was only (mis)used from bonding.
+ $ xfs_io -f -c "pwrite -S 0xab 0 1096" /mnt/foobar
+ wrote 1096/1096 bytes at offset 0
+ 1 KiB, 1 ops; 0.0002 sec (4.448 MiB/sec and 4255.3191 ops/sec)
 
-Then we need to make sure IPv4/IPv6/IPX headers are pulled
-in skb->head before dereferencing anything.
+ $ xfs_io -c "falloc 1096 3000" /mnt/foobar
+ $ xfs_io -c "fsync" /mnt/foobar
+ Segmentation fault
 
-BUG: KASAN: use-after-free in bond_alb_xmit+0x153a/0x1590 drivers/net/bonding/bond_alb.c:1452
-Read of size 2 at addr ffff8801ce56dfff by task syz-executor.2/18108
- (if (ipx_hdr(skb)->ipx_checksum != IPX_NO_CHECKSUM) ...)
+ $ dmesg
+ [701253.602385] assertion failed: len == i_size || (len == fs_info->sectorsize && btrfs_file_extent_compression(leaf, extent) != BTRFS_COMPRESS_NONE) || (len < i_size && i_size < fs_info->sectorsize), file: fs/btrfs/tree-log.c, line: 4727
+ [701253.602962] ------------[ cut here ]------------
+ [701253.603224] kernel BUG at fs/btrfs/ctree.h:3533!
+ [701253.603503] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
+ [701253.603774] CPU: 2 PID: 7192 Comm: xfs_io Tainted: G        W         5.0.0-rc8-btrfs-next-45 #1
+ [701253.604054] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
+ [701253.604650] RIP: 0010:assfail.constprop.23+0x18/0x1a [btrfs]
+ (...)
+ [701253.605591] RSP: 0018:ffffbb48c186bc48 EFLAGS: 00010286
+ [701253.605914] RAX: 00000000000000de RBX: ffff921d0a7afc08 RCX: 0000000000000000
+ [701253.606244] RDX: 0000000000000000 RSI: ffff921d36b16868 RDI: ffff921d36b16868
+ [701253.606580] RBP: ffffbb48c186bcf0 R08: 0000000000000000 R09: 0000000000000000
+ [701253.606913] R10: 0000000000000003 R11: 0000000000000000 R12: ffff921d05d2de18
+ [701253.607247] R13: ffff921d03b54000 R14: 0000000000000448 R15: ffff921d059ecf80
+ [701253.607769] FS:  00007f14da906700(0000) GS:ffff921d36b00000(0000) knlGS:0000000000000000
+ [701253.608163] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [701253.608516] CR2: 000056087ea9f278 CR3: 00000002268e8001 CR4: 00000000003606e0
+ [701253.608880] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ [701253.609250] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ [701253.609608] Call Trace:
+ [701253.609994]  btrfs_log_inode+0xdfb/0xe40 [btrfs]
+ [701253.610383]  btrfs_log_inode_parent+0x2be/0xa60 [btrfs]
+ [701253.610770]  ? do_raw_spin_unlock+0x49/0xc0
+ [701253.611150]  btrfs_log_dentry_safe+0x4a/0x70 [btrfs]
+ [701253.611537]  btrfs_sync_file+0x3b2/0x440 [btrfs]
+ [701253.612010]  ? do_sysinfo+0xb0/0xf0
+ [701253.612552]  do_fsync+0x38/0x60
+ [701253.612988]  __x64_sys_fsync+0x10/0x20
+ [701253.613360]  do_syscall_64+0x60/0x1b0
+ [701253.613733]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ [701253.614103] RIP: 0033:0x7f14da4e66d0
+ (...)
+ [701253.615250] RSP: 002b:00007fffa670fdb8 EFLAGS: 00000246 ORIG_RAX: 000000000000004a
+ [701253.615647] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f14da4e66d0
+ [701253.616047] RDX: 000056087ea9c260 RSI: 000056087ea9c260 RDI: 0000000000000003
+ [701253.616450] RBP: 0000000000000001 R08: 0000000000000020 R09: 0000000000000010
+ [701253.616854] R10: 000000000000009b R11: 0000000000000246 R12: 000056087ea9c260
+ [701253.617257] R13: 000056087ea9c240 R14: 0000000000000000 R15: 000056087ea9dd10
+ (...)
+ [701253.619941] ---[ end trace e088d74f132b6da5 ]---
 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- [<ffffffff8441fc42>] __dump_stack lib/dump_stack.c:17 [inline]
- [<ffffffff8441fc42>] dump_stack+0x14d/0x20b lib/dump_stack.c:53
- [<ffffffff81a7dec4>] print_address_description+0x6f/0x20b mm/kasan/report.c:282
- [<ffffffff81a7e0ec>] kasan_report_error mm/kasan/report.c:380 [inline]
- [<ffffffff81a7e0ec>] kasan_report mm/kasan/report.c:438 [inline]
- [<ffffffff81a7e0ec>] kasan_report.cold+0x8c/0x2a0 mm/kasan/report.c:422
- [<ffffffff81a7dc4f>] __asan_report_load_n_noabort+0xf/0x20 mm/kasan/report.c:469
- [<ffffffff82c8c00a>] bond_alb_xmit+0x153a/0x1590 drivers/net/bonding/bond_alb.c:1452
- [<ffffffff82c60c74>] __bond_start_xmit drivers/net/bonding/bond_main.c:4199 [inline]
- [<ffffffff82c60c74>] bond_start_xmit+0x4f4/0x1570 drivers/net/bonding/bond_main.c:4224
- [<ffffffff83baa558>] __netdev_start_xmit include/linux/netdevice.h:4525 [inline]
- [<ffffffff83baa558>] netdev_start_xmit include/linux/netdevice.h:4539 [inline]
- [<ffffffff83baa558>] xmit_one net/core/dev.c:3611 [inline]
- [<ffffffff83baa558>] dev_hard_start_xmit+0x168/0x910 net/core/dev.c:3627
- [<ffffffff83bacf35>] __dev_queue_xmit+0x1f55/0x33b0 net/core/dev.c:4238
- [<ffffffff83bae3a8>] dev_queue_xmit+0x18/0x20 net/core/dev.c:4278
- [<ffffffff84339189>] packet_snd net/packet/af_packet.c:3226 [inline]
- [<ffffffff84339189>] packet_sendmsg+0x4919/0x70b0 net/packet/af_packet.c:3252
- [<ffffffff83b1ac0c>] sock_sendmsg_nosec net/socket.c:673 [inline]
- [<ffffffff83b1ac0c>] sock_sendmsg+0x12c/0x160 net/socket.c:684
- [<ffffffff83b1f5a2>] __sys_sendto+0x262/0x380 net/socket.c:1996
- [<ffffffff83b1f700>] SYSC_sendto net/socket.c:2008 [inline]
- [<ffffffff83b1f700>] SyS_sendto+0x40/0x60 net/socket.c:2004
+Updating the assertion again to allow for this particular case would result
+in a meaningless assertion, plus there is currently no risk of logging
+content that would result in any corruption after a log replay if the size
+of the data encoded in an inline extent is greater than the inode's i_size
+(which is not currently possibe either with or without compression),
+therefore just remove the assertion.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
-Cc: Veaceslav Falico <vfalico@gmail.com>
-Cc: Andy Gospodarek <andy@greyhouse.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_alb.c |   44 +++++++++++++++++++++++++++++------------
- 1 file changed, 32 insertions(+), 12 deletions(-)
+ fs/btrfs/tree-log.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/drivers/net/bonding/bond_alb.c
-+++ b/drivers/net/bonding/bond_alb.c
-@@ -1371,26 +1371,31 @@ int bond_alb_xmit(struct sk_buff *skb, s
- 	bool do_tx_balance = true;
- 	u32 hash_index = 0;
- 	const u8 *hash_start = NULL;
--	struct ipv6hdr *ip6hdr;
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index f9c3907bf1591..4320f346b0b98 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4404,13 +4404,8 @@ static int btrfs_log_trailing_hole(struct btrfs_trans_handle *trans,
+ 					struct btrfs_file_extent_item);
  
- 	skb_reset_mac_header(skb);
- 	eth_data = eth_hdr(skb);
+ 		if (btrfs_file_extent_type(leaf, extent) ==
+-		    BTRFS_FILE_EXTENT_INLINE) {
+-			len = btrfs_file_extent_inline_len(leaf,
+-							   path->slots[0],
+-							   extent);
+-			ASSERT(len == i_size);
++		    BTRFS_FILE_EXTENT_INLINE)
+ 			return 0;
+-		}
  
- 	switch (ntohs(skb->protocol)) {
- 	case ETH_P_IP: {
--		const struct iphdr *iph = ip_hdr(skb);
-+		const struct iphdr *iph;
- 
- 		if (ether_addr_equal_64bits(eth_data->h_dest, mac_bcast) ||
--		    (iph->daddr == ip_bcast) ||
--		    (iph->protocol == IPPROTO_IGMP)) {
-+		    (!pskb_network_may_pull(skb, sizeof(*iph)))) {
-+			do_tx_balance = false;
-+			break;
-+		}
-+		iph = ip_hdr(skb);
-+		if (iph->daddr == ip_bcast || iph->protocol == IPPROTO_IGMP) {
- 			do_tx_balance = false;
- 			break;
- 		}
- 		hash_start = (char *)&(iph->daddr);
- 		hash_size = sizeof(iph->daddr);
--	}
- 		break;
--	case ETH_P_IPV6:
-+	}
-+	case ETH_P_IPV6: {
-+		const struct ipv6hdr *ip6hdr;
-+
- 		/* IPv6 doesn't really use broadcast mac address, but leave
- 		 * that here just in case.
- 		 */
-@@ -1407,7 +1412,11 @@ int bond_alb_xmit(struct sk_buff *skb, s
- 			break;
- 		}
- 
--		/* Additianally, DAD probes should not be tx-balanced as that
-+		if (!pskb_network_may_pull(skb, sizeof(*ip6hdr))) {
-+			do_tx_balance = false;
-+			break;
-+		}
-+		/* Additionally, DAD probes should not be tx-balanced as that
- 		 * will lead to false positives for duplicate addresses and
- 		 * prevent address configuration from working.
- 		 */
-@@ -1417,17 +1426,26 @@ int bond_alb_xmit(struct sk_buff *skb, s
- 			break;
- 		}
- 
--		hash_start = (char *)&(ipv6_hdr(skb)->daddr);
--		hash_size = sizeof(ipv6_hdr(skb)->daddr);
-+		hash_start = (char *)&ip6hdr->daddr;
-+		hash_size = sizeof(ip6hdr->daddr);
- 		break;
--	case ETH_P_IPX:
--		if (ipx_hdr(skb)->ipx_checksum != IPX_NO_CHECKSUM) {
-+	}
-+	case ETH_P_IPX: {
-+		const struct ipxhdr *ipxhdr;
-+
-+		if (pskb_network_may_pull(skb, sizeof(*ipxhdr))) {
-+			do_tx_balance = false;
-+			break;
-+		}
-+		ipxhdr = (struct ipxhdr *)skb_network_header(skb);
-+
-+		if (ipxhdr->ipx_checksum != IPX_NO_CHECKSUM) {
- 			/* something is wrong with this packet */
- 			do_tx_balance = false;
- 			break;
- 		}
- 
--		if (ipx_hdr(skb)->ipx_type != IPX_TYPE_NCP) {
-+		if (ipxhdr->ipx_type != IPX_TYPE_NCP) {
- 			/* The only protocol worth balancing in
- 			 * this family since it has an "ARP" like
- 			 * mechanism
-@@ -1436,9 +1454,11 @@ int bond_alb_xmit(struct sk_buff *skb, s
- 			break;
- 		}
- 
-+		eth_data = eth_hdr(skb);
- 		hash_start = (char *)eth_data->h_dest;
- 		hash_size = ETH_ALEN;
- 		break;
-+	}
- 	case ETH_P_ARP:
- 		do_tx_balance = false;
- 		if (bond_info->rlb_enabled)
+ 		len = btrfs_file_extent_num_bytes(leaf, extent);
+ 		/* Last extent goes beyond i_size, no need to log a hole. */
+-- 
+2.20.1
+
 
 
