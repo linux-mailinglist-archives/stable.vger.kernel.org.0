@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BF915C626
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F0415C790
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbgBMP5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:57:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40428 "EHLO mail.kernel.org"
+        id S1728142AbgBMQLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:11:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbgBMPZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:16 -0500
+        id S1727806AbgBMPWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:21 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26AD324691;
-        Thu, 13 Feb 2020 15:25:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0009F24690;
+        Thu, 13 Feb 2020 15:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607515;
-        bh=LJIIXpG0yztFs+lg1DZ8AtU8Ue+MNAUkltEdUFQXn5s=;
+        s=default; t=1581607341;
+        bh=lbxSGU59kmdmmuKS911zLdpcn6ZObIXNyQT2hHgEQDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcxzAGp17iffSpFO65Ld+cgGFUEJNzreHQSaMrzhh85AOf3R3yv84wOekJxsartqv
-         w/5FtHT3EQ+YwuxqDJFTYaCZorgczpTPvZKQiafdmUK0nOFCDK3g+b56PKBANWAOZT
-         cLyKwZ8EBEbGWCQgb402/UFLQ6VbLMyw+TlR8Fv8=
+        b=Xe+/inha0bc/25NTZpUtMigTioMQOkNdEKZLEQqQ4QVvxMm/YfPfg1ikak1egQHig
+         WaUCy0p5RlaIrzwQ9/NLvuQDUAW9XmHgJPEYVvT+LNz53vG5476B7MRhvRqR/hqfcw
+         lsO2xkXsyO27mS83c+7KDjpzHr+L8Sl5uA47xURs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.14 070/173] NFS: Directory page cache pages need to be locked when read
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 16/91] ALSA: dummy: Fix PCM format loop in proc output
 Date:   Thu, 13 Feb 2020 07:19:33 -0800
-Message-Id: <20200213151951.265733926@linuxfoundation.org>
+Message-Id: <20200213151828.104272373@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,112 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 114de38225d9b300f027e2aec9afbb6e0def154b upstream.
+commit 2acf25f13ebe8beb40e97a1bbe76f36277c64f1e upstream.
 
-When a NFS directory page cache page is removed from the page cache,
-its contents are freed through a call to nfs_readdir_clear_array().
-To prevent the removal of the page cache entry until after we've
-finished reading it, we must take the page lock.
+The loop termination for iterating over all formats should contain
+SNDRV_PCM_FORMAT_LAST, not less than it.
 
-Fixes: 11de3b11e08c ("NFS: Fix a memory leak in nfs_readdir")
-Cc: stable@vger.kernel.org # v2.6.37+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 9b151fec139d ("ALSA: dummy - Add debug proc file")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200201080530.22390-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/dir.c |   30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ sound/drivers/dummy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -708,8 +708,6 @@ int nfs_readdir_filler(nfs_readdir_descr
- static
- void cache_page_release(nfs_readdir_descriptor_t *desc)
+--- a/sound/drivers/dummy.c
++++ b/sound/drivers/dummy.c
+@@ -925,7 +925,7 @@ static void print_formats(struct snd_dum
  {
--	if (!desc->page->mapping)
--		nfs_readdir_clear_array(desc->page);
- 	put_page(desc->page);
- 	desc->page = NULL;
- }
-@@ -723,19 +721,28 @@ struct page *get_cache_page(nfs_readdir_
+ 	int i;
  
- /*
-  * Returns 0 if desc->dir_cookie was found on page desc->page_index
-+ * and locks the page to prevent removal from the page cache.
-  */
- static
--int find_cache_page(nfs_readdir_descriptor_t *desc)
-+int find_and_lock_cache_page(nfs_readdir_descriptor_t *desc)
- {
- 	int res;
- 
- 	desc->page = get_cache_page(desc);
- 	if (IS_ERR(desc->page))
- 		return PTR_ERR(desc->page);
--
--	res = nfs_readdir_search_array(desc);
-+	res = lock_page_killable(desc->page);
- 	if (res != 0)
--		cache_page_release(desc);
-+		goto error;
-+	res = -EAGAIN;
-+	if (desc->page->mapping != NULL) {
-+		res = nfs_readdir_search_array(desc);
-+		if (res == 0)
-+			return 0;
-+	}
-+	unlock_page(desc->page);
-+error:
-+	cache_page_release(desc);
- 	return res;
- }
- 
-@@ -750,7 +757,7 @@ int readdir_search_pagecache(nfs_readdir
- 		desc->last_cookie = 0;
+-	for (i = 0; i < SNDRV_PCM_FORMAT_LAST; i++) {
++	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
+ 		if (dummy->pcm_hw.formats & (1ULL << i))
+ 			snd_iprintf(buffer, " %s", snd_pcm_format_name(i));
  	}
- 	do {
--		res = find_cache_page(desc);
-+		res = find_and_lock_cache_page(desc);
- 	} while (res == -EAGAIN);
- 	return res;
- }
-@@ -789,7 +796,6 @@ int nfs_do_filldir(nfs_readdir_descripto
- 		desc->eof = 1;
- 
- 	kunmap(desc->page);
--	cache_page_release(desc);
- 	dfprintk(DIRCACHE, "NFS: nfs_do_filldir() filling ended @ cookie %Lu; returning = %d\n",
- 			(unsigned long long)*desc->dir_cookie, res);
- 	return res;
-@@ -835,13 +841,13 @@ int uncached_readdir(nfs_readdir_descrip
- 
- 	status = nfs_do_filldir(desc);
- 
-+ out_release:
-+	nfs_readdir_clear_array(desc->page);
-+	cache_page_release(desc);
-  out:
- 	dfprintk(DIRCACHE, "NFS: %s: returns %d\n",
- 			__func__, status);
- 	return status;
-- out_release:
--	cache_page_release(desc);
--	goto out;
- }
- 
- /* The file offset position represents the dirent entry number.  A
-@@ -906,6 +912,8 @@ static int nfs_readdir(struct file *file
- 			break;
- 
- 		res = nfs_do_filldir(desc);
-+		unlock_page(desc->page);
-+		cache_page_release(desc);
- 		if (res < 0)
- 			break;
- 	} while (!desc->eof);
 
 
