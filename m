@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0071D15C5FE
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A788D15C57C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728601AbgBMP4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:56:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41318 "EHLO mail.kernel.org"
+        id S1728083AbgBMPWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729028AbgBMPZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:30 -0500
+        id S1728066AbgBMPWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D544324689;
-        Thu, 13 Feb 2020 15:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A816E246A4;
+        Thu, 13 Feb 2020 15:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607530;
-        bh=wgQjZs1ddBRdFqlffXn/FGMRtYF9eRuUuRtsGAyWpRA=;
+        s=default; t=1581607361;
+        bh=xp5AfYsg5Lg7c8CdywzoLdQcyf/BrBlzYmWCtroqw9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JL4XUPy4caXk4AWI4Sc90zRtRE77BwqPDAKX9m9Q3hp95Qg9kbbBUakFTtnPQJOg3
-         VdZTu+VB35qTt9Hw4U65mR/NdZ8CpkhreeqBXvl2oAgcmGSz2sdvU7OfYFo9PB0eV1
-         g+fOmkknFZbOJzk5d5frdt79KvgcRghB2PZTAtw4=
+        b=aLE2SJpTMMjfCekGlGs0ht7VCQjqQPaws2JBUqvpbn7/VHazhXlh6SKnGVdWa6hLB
+         DNhaCaCAMa+SgHPVRMNW787Dh7zhwMXD1/NGA7CAycvLHhDLL5w8dS2C4Xyjd1vr6B
+         Hbv3raVAIV3XUnUhRnh7STxDQTYiXKgi75GcxnS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 101/173] ppp: Adjust indentation into ppp_async_input
-Date:   Thu, 13 Feb 2020 07:20:04 -0800
-Message-Id: <20200213151958.259769711@linuxfoundation.org>
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 48/91] scsi: csiostor: Adjust indentation in csio_device_reset
+Date:   Thu, 13 Feb 2020 07:20:05 -0800
+Message-Id: <20200213151840.304812250@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +46,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 08cbc75f96029d3092664213a844a5e25523aa35 upstream.
+commit a808a04c861782e31fc30e342a619c144aaee14a upstream.
 
 Clang warns:
 
-../drivers/net/ppp/ppp_async.c:877:6: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-                                ap->rpkt = skb;
-                                ^
-../drivers/net/ppp/ppp_async.c:875:5: note: previous statement is here
-                                if (!skb)
-                                ^
+../drivers/scsi/csiostor/csio_scsi.c:1386:3: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+         csio_lnodes_exit(hw, 1);
+         ^
+../drivers/scsi/csiostor/csio_scsi.c:1382:2: note: previous statement is
+here
+        if (*buf != '1')
+        ^
 1 warning generated.
 
-This warning occurs because there is a space before the tab on this
-line. Clean up this entire block's indentation so that it is consistent
-with the Linux kernel coding style and clang no longer warns.
+This warning occurs because there is a space after the tab on this
+line.  Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
 
-Fixes: 6722e78c9005 ("[PPP]: handle misaligned accesses")
-Link: https://github.com/ClangBuiltLinux/linux/issues/800
+Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/818
+Link: https://lore.kernel.org/r/20191218014726.8455-1-natechancellor@gmail.com
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ppp/ppp_async.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/scsi/csiostor/csio_scsi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ppp/ppp_async.c
-+++ b/drivers/net/ppp/ppp_async.c
-@@ -878,15 +878,15 @@ ppp_async_input(struct asyncppp *ap, con
- 				skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2);
- 				if (!skb)
- 					goto nomem;
-- 				ap->rpkt = skb;
-- 			}
-- 			if (skb->len == 0) {
-- 				/* Try to get the payload 4-byte aligned.
-- 				 * This should match the
-- 				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
-- 				 * process_input_packet, but we do not have
-- 				 * enough chars here to test buf[1] and buf[2].
-- 				 */
-+				ap->rpkt = skb;
-+			}
-+			if (skb->len == 0) {
-+				/* Try to get the payload 4-byte aligned.
-+				 * This should match the
-+				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
-+				 * process_input_packet, but we do not have
-+				 * enough chars here to test buf[1] and buf[2].
-+				 */
- 				if (buf[0] != PPP_ALLSTATIONS)
- 					skb_reserve(skb, 2 + (buf[0] & 1));
- 			}
+--- a/drivers/scsi/csiostor/csio_scsi.c
++++ b/drivers/scsi/csiostor/csio_scsi.c
+@@ -1383,7 +1383,7 @@ csio_device_reset(struct device *dev,
+ 		return -EINVAL;
+ 
+ 	/* Delete NPIV lnodes */
+-	 csio_lnodes_exit(hw, 1);
++	csio_lnodes_exit(hw, 1);
+ 
+ 	/* Block upper IOs */
+ 	csio_lnodes_block_request(hw);
 
 
