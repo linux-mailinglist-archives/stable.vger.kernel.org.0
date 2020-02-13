@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE8115C6BC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00EBC15C5BC
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729052AbgBMQDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:03:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37484 "EHLO mail.kernel.org"
+        id S1728657AbgBMPYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:24:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387415AbgBMPYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:19 -0500
+        id S1728651AbgBMPYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:20 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7CC024689;
-        Thu, 13 Feb 2020 15:24:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76A7024690;
+        Thu, 13 Feb 2020 15:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607458;
-        bh=vK0jvBmRKwQvyHXa/EMemD0TVUS1+x9d8R924du5diM=;
+        s=default; t=1581607459;
+        bh=YWwsiAPRyvw4xteGMCEmiUmKRJ6fxQY1oH9OoFfKU2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXN7HM7vPthoVo9dgfPL3DcudyfA3xWmk2OUqkVBpn84w9Y2zpCMz6hJ2AiScYDlW
-         QmonbODc8zTsNT57ruOqEU0tZdohKn74fMcc9VottHq0EryetarTB3DWjjzDiTHnYS
-         FtZWQDqIfye79xgJZ+F6pPMHgtIvuIF6sPdPrvD8=
+        b=O0oPFy+zMy6a8bLqrQAvfGBm5cp2SveK03FzoZHBC+paz1g/1KEnuiz+/zD611S3j
+         oVZKrsKs2450hnHq6x/kvwi9elx1qK3nCmZUywj1+qRW6aEACJBi+kPZphHDTnuxQj
+         GR+jltXJCIR48rHXgVg/Q0MLtYKgKDpClhDT44Xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Karl=20Rudb=C3=A6k=20Olsen?= <karl@micro-technic.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.9 107/116] ARM: dts: at91: sama5d3: define clock rate range for tcb1
-Date:   Thu, 13 Feb 2020 07:20:51 -0800
-Message-Id: <20200213151923.797070234@linuxfoundation.org>
+        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@kylinos.cn>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 108/116] tools/power/acpi: fix compilation error
+Date:   Thu, 13 Feb 2020 07:20:52 -0800
+Message-Id: <20200213151924.000331679@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
 References: <20200213151842.259660170@linuxfoundation.org>
@@ -44,32 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
 
-commit a7e0f3fc01df4b1b7077df777c37feae8c9e8b6d upstream.
+commit 1985f8c7f9a42a651a9750d6fcadc74336d182df upstream.
 
-The clock rate range for the TCB1 clock is missing. define it in the device
-tree.
+If we compile tools/acpi target in the top source directory, we'd get a
+compilation error showing as bellow:
 
-Reported-by: Karl Rudbæk Olsen <karl@micro-technic.com>
-Fixes: d2e8190b7916 ("ARM: at91/dt: define sama5d3 clocks")
-Link: https://lore.kernel.org/r/20200110172007.1253659-2-alexandre.belloni@bootlin.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+	# make tools/acpi
+	  DESCEND  power/acpi
+	  DESCEND  tools/acpidbg
+	  CC       tools/acpidbg/acpidbg.o
+	Assembler messages:
+	Fatal error: can't create /home/lzy/kernel-upstream/power/acpi/\
+			tools/acpidbg/acpidbg.o: No such file or directory
+	../../Makefile.rules:26: recipe for target '/home/lzy/kernel-upstream/\
+			power/acpi/tools/acpidbg/acpidbg.o' failed
+	make[3]: *** [/home/lzy/kernel-upstream//power/acpi/tools/acpidbg/\
+			acpidbg.o] Error 1
+	Makefile:19: recipe for target 'acpidbg' failed
+	make[2]: *** [acpidbg] Error 2
+	Makefile:54: recipe for target 'acpi' failed
+	make[1]: *** [acpi] Error 2
+	Makefile:1607: recipe for target 'tools/acpi' failed
+	make: *** [tools/acpi] Error 2
+
+Fixes: d5a4b1a540b8 ("tools/power/acpi: Remove direct kernel source include reference")
+Signed-off-by: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/sama5d3_tcb1.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ tools/power/acpi/Makefile.config |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/sama5d3_tcb1.dtsi
-+++ b/arch/arm/boot/dts/sama5d3_tcb1.dtsi
-@@ -23,6 +23,7 @@
- 					tcb1_clk: tcb1_clk {
- 						#clock-cells = <0>;
- 						reg = <27>;
-+						atmel,clk-output-range = <0 166000000>;
- 					};
- 				};
- 			};
+--- a/tools/power/acpi/Makefile.config
++++ b/tools/power/acpi/Makefile.config
+@@ -18,7 +18,7 @@ include $(srctree)/../../scripts/Makefil
+ 
+ OUTPUT=$(srctree)/
+ ifeq ("$(origin O)", "command line")
+-	OUTPUT := $(O)/power/acpi/
++	OUTPUT := $(O)/tools/power/acpi/
+ endif
+ #$(info Determined 'OUTPUT' to be $(OUTPUT))
+ 
 
 
