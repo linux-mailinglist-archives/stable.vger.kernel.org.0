@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D54215C1E1
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F25215C160
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbgBMP1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:27:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
+        id S1728190AbgBMPWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729368AbgBMP1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:20 -0500
+        id S1728186AbgBMPWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:55 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42D3C24681;
-        Thu, 13 Feb 2020 15:27:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A26142469C;
+        Thu, 13 Feb 2020 15:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607639;
-        bh=bTaM9z7UZIreCdFbopgJgFvaS0Ot1vVV2fi3Qq0RXyQ=;
+        s=default; t=1581607374;
+        bh=dpTkv8HVSAVvf6QfxVo1vDlo0mkFLI2SdHbCz0UscQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIuIRVq4GN1YNsJQr54pZ0snxBd+eNrGEPQ/mNPEEPtgmiu9mEZzJoMGaLDl3O/z+
-         pjfVVrwUgLCsW2Y0Y7u9uleQGKGPa+zABoVwUysvInM81eOeymEbspFQrTzPcuo27N
-         I4wDxlhFBucW7WC57Ztf6NAZVUZL5SfNSA0O0xeU=
+        b=0BERZPEVGFZOxaubFkW1IqlyO+YE/Pwm/THPMfQu+qEDPSwMnWnQxPYqzfNvzDa1G
+         KA5Omtr5PLD/M7Q3TLR/QThdSfiLxCOyjCihrMkyBWEuss7Zg9b251tcZoiTNw7k13
+         6b81Bwsb2ACKXIgMyGM3R/vt+VTSJ+DUu8qgW2HY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Ziswiler <marcel@ziswiler.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 17/96] PCI: tegra: Fix afi_pex2_ctrl reg offset for Tegra30
-Date:   Thu, 13 Feb 2020 07:20:24 -0800
-Message-Id: <20200213151846.153218983@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 68/91] KVM: x86: drop picdev_in_range()
+Date:   Thu, 13 Feb 2020 07:20:25 -0800
+Message-Id: <20200213151848.473052412@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel@ziswiler.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 21a92676e1fe292acb077b13106b08c22ed36b14 upstream.
+[ Upstream commit 9fecaa9e32ae7370878e5967d8874b6f58360b10 ]
 
-Fix AFI_PEX2_CTRL reg offset for Tegra30 by moving it from the Tegra20
-SoC struct where it erroneously got added. This fixes the AFI_PEX2_CTRL
-reg offset being uninitialised subsequently failing to bring up the
-third PCIe port.
+We already have the exact same checks a couple of lines below.
 
-Fixes: adb2653b3d2e ("PCI: tegra: Add AFI_PEX2_CTRL reg offset as part of SoC struct")
-Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-tegra.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/i8259.c | 35 ++++++++++++-----------------------
+ 1 file changed, 12 insertions(+), 23 deletions(-)
 
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -2499,7 +2499,6 @@ static const struct tegra_pcie_soc tegra
- 	.num_ports = 2,
- 	.ports = tegra20_pcie_ports,
- 	.msi_base_shift = 0,
--	.afi_pex2_ctrl = 0x128,
- 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA20,
- 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_DIV10,
- 	.pads_refclk_cfg0 = 0xfa5cfa5c,
-@@ -2528,6 +2527,7 @@ static const struct tegra_pcie_soc tegra
- 	.num_ports = 3,
- 	.ports = tegra30_pcie_ports,
- 	.msi_base_shift = 8,
-+	.afi_pex2_ctrl = 0x128,
- 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
- 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
- 	.pads_refclk_cfg0 = 0xfa5cfa5c,
+diff --git a/arch/x86/kvm/i8259.c b/arch/x86/kvm/i8259.c
+index 7cc2360f1848e..ce0f29e5d7c43 100644
+--- a/arch/x86/kvm/i8259.c
++++ b/arch/x86/kvm/i8259.c
+@@ -456,46 +456,33 @@ static u32 elcr_ioport_read(void *opaque, u32 addr1)
+ 	return s->elcr;
+ }
+ 
+-static int picdev_in_range(gpa_t addr)
+-{
+-	switch (addr) {
+-	case 0x20:
+-	case 0x21:
+-	case 0xa0:
+-	case 0xa1:
+-	case 0x4d0:
+-	case 0x4d1:
+-		return 1;
+-	default:
+-		return 0;
+-	}
+-}
+-
+ static int picdev_write(struct kvm_pic *s,
+ 			 gpa_t addr, int len, const void *val)
+ {
+ 	unsigned char data = *(unsigned char *)val;
+-	if (!picdev_in_range(addr))
+-		return -EOPNOTSUPP;
+ 
+ 	if (len != 1) {
+ 		pr_pic_unimpl("non byte write\n");
+ 		return 0;
+ 	}
+-	pic_lock(s);
+ 	switch (addr) {
+ 	case 0x20:
+ 	case 0x21:
+ 	case 0xa0:
+ 	case 0xa1:
++		pic_lock(s);
+ 		pic_ioport_write(&s->pics[addr >> 7], addr, data);
++		pic_unlock(s);
+ 		break;
+ 	case 0x4d0:
+ 	case 0x4d1:
++		pic_lock(s);
+ 		elcr_ioport_write(&s->pics[addr & 1], addr, data);
++		pic_unlock(s);
+ 		break;
++	default:
++		return -EOPNOTSUPP;
+ 	}
+-	pic_unlock(s);
+ 	return 0;
+ }
+ 
+@@ -503,29 +490,31 @@ static int picdev_read(struct kvm_pic *s,
+ 		       gpa_t addr, int len, void *val)
+ {
+ 	unsigned char data = 0;
+-	if (!picdev_in_range(addr))
+-		return -EOPNOTSUPP;
+ 
+ 	if (len != 1) {
+ 		memset(val, 0, len);
+ 		pr_pic_unimpl("non byte read\n");
+ 		return 0;
+ 	}
+-	pic_lock(s);
+ 	switch (addr) {
+ 	case 0x20:
+ 	case 0x21:
+ 	case 0xa0:
+ 	case 0xa1:
++		pic_lock(s);
+ 		data = pic_ioport_read(&s->pics[addr >> 7], addr);
++		pic_unlock(s);
+ 		break;
+ 	case 0x4d0:
+ 	case 0x4d1:
++		pic_lock(s);
+ 		data = elcr_ioport_read(&s->pics[addr & 1], addr);
++		pic_unlock(s);
+ 		break;
++	default:
++		return -EOPNOTSUPP;
+ 	}
+ 	*(unsigned char *)val = data;
+-	pic_unlock(s);
+ 	return 0;
+ }
+ 
+-- 
+2.20.1
+
 
 
