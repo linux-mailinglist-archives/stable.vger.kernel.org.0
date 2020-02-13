@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEA715C6A5
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6286E15C58E
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388278AbgBMQCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:02:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37932 "EHLO mail.kernel.org"
+        id S1728305AbgBMPXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728712AbgBMPY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:29 -0500
+        id S1728300AbgBMPXN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:13 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F97320848;
-        Thu, 13 Feb 2020 15:24:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E12CC2469C;
+        Thu, 13 Feb 2020 15:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607468;
-        bh=RMReYjdA9/i3pOfo+iSra+wq7cF9yY/9YLA/qmUXf4Q=;
+        s=default; t=1581607393;
+        bh=EA1bzA5FCHK3bM0TRVKO52p7ylLSGuwB1mz7f6eT8qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOgFnQ/ufnaYfk4ENk7ckkbnu+GRaG6FF4CceM+UtRaZP+MsD8nYhpfdONsA1DhE1
-         DRdefAgmPaBSUrwZxDOTE1ghZpP+5x2aRLBS6znj0m7GkuOGxMVbSSZPs1/Ekh5DNI
-         QgAdOIQfqdRqiBrZ6kY5CB59wkb3zUtLfvC8+jGE=
+        b=YYah6QmKZPMRYAtFjGyDMu2CiCuYdy1TjCNFm12qYRxwjaKkkcdNljIYxCu4G5NMd
+         HOA8h4RVX65iuZ3xU4gsQv+z4irxgcbsOVs38N2rxK2jkbKc0443SOGHOrL0Kpy4Tv
+         R+0/m0oiKnGXR66it9gYxRw4G3IpO57df/zkLAlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 095/116] perf/core: Fix mlock accounting in perf_mmap()
+        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
+        Jose Abreu <Jose.Abreu@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.4 82/91] ARC: [plat-axs10x]: Add missing multicast filter number to GMAC node
 Date:   Thu, 13 Feb 2020 07:20:39 -0800
-Message-Id: <20200213151919.786366171@linuxfoundation.org>
+Message-Id: <20200213151854.636489849@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-commit 003461559ef7a9bd0239bae35a22ad8924d6e9ad upstream.
+commit 7980dff398f86a618f502378fa27cf7e77449afa upstream.
 
-Decreasing sysctl_perf_event_mlock between two consecutive perf_mmap()s of
-a perf ring buffer may lead to an integer underflow in locked memory
-accounting. This may lead to the undesired behaviors, such as failures in
-BPF map creation.
+Add a missing property to GMAC node so that multicast filtering works
+correctly.
 
-Address this by adjusting the accounting logic to take into account the
-possibility that the amount of already locked memory may exceed the
-current limit.
-
-Fixes: c4b75479741c ("perf/core: Make the mlock accounting simple again")
-Suggested-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
-Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lkml.kernel.org/r/20200123181146.2238074-1-songliubraving@fb.com
+Fixes: 556cc1c5f528 ("ARC: [axs101] Add support for AXS101 SDP (software development platform)")
+Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/events/core.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/arc/boot/dts/axs10x_mb.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5303,7 +5303,15 @@ accounting:
- 	 */
- 	user_lock_limit *= num_online_cpus();
- 
--	user_locked = atomic_long_read(&user->locked_vm) + user_extra;
-+	user_locked = atomic_long_read(&user->locked_vm);
-+
-+	/*
-+	 * sysctl_perf_event_mlock may have changed, so that
-+	 *     user->locked_vm > user_lock_limit
-+	 */
-+	if (user_locked > user_lock_limit)
-+		user_locked = user_lock_limit;
-+	user_locked += user_extra;
- 
- 	if (user_locked > user_lock_limit)
- 		extra = user_locked - user_lock_limit;
+--- a/arch/arc/boot/dts/axs10x_mb.dtsi
++++ b/arch/arc/boot/dts/axs10x_mb.dtsi
+@@ -44,6 +44,7 @@
+ 			interrupt-names = "macirq";
+ 			phy-mode = "rgmii";
+ 			snps,pbl = < 32 >;
++			snps,multicast-filter-bins = <256>;
+ 			clocks = <&apbclk>;
+ 			clock-names = "stmmaceth";
+ 			max-speed = <100>;
 
 
