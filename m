@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C255915C200
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6DE15C168
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729067AbgBMP2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54524 "EHLO mail.kernel.org"
+        id S1728247AbgBMPXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729570AbgBMP2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:09 -0500
+        id S1728238AbgBMPXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:04 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95D352168B;
-        Thu, 13 Feb 2020 15:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7116E20848;
+        Thu, 13 Feb 2020 15:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607688;
-        bh=vy9wzLAXtpu/XTVoeNZRrmp6y35QIRVEViTmeL54EUI=;
+        s=default; t=1581607384;
+        bh=V9alDqZ+AcO4QoL3jF1+D3StTeMsB4mNPAmScspuygE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeiHVwuTi9yAQQjVFLdKANevmisHzTYEOjf6464lIZYKHwAR+vgypEH9S6Mqy76fw
-         p6UxUTCwwJyI1hNaKNvt910fbM+0M8Djt0YmWs0x6aGop8Isa/VsI/uSQSdthr3gCN
-         7o2FmVJhSeXSKw1McqZYA0kzze6TknS7vDP7HWcs=
+        b=eYvnKJ1HtLG2PbWiOzQG/NW7rW0ch+aFr0sYboF+mwtRuVOxTPEQUqIkDOtTPezLB
+         qwVKSvGZyYd5l4aeANQMbxUIOhJ3fix7Ac1eCY4ZH3NzTBWamjlTMtgdvqBIsyrMSl
+         66egia4BO0yCIJ+HHqFGkM5gqVBsTs+nYlQ1xLZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@mellanox.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.5 025/120] netfilter: flowtable: Fix hardware flush order on nf_flow_table_cleanup
-Date:   Thu, 13 Feb 2020 07:20:21 -0800
-Message-Id: <20200213151910.704317780@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Boris Brezillon <boris.brezillon@free-electrons.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 66/91] drm: atmel-hlcdc: enable clock before configuring timing engine
+Date:   Thu, 13 Feb 2020 07:20:23 -0800
+Message-Id: <20200213151847.759705229@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@mellanox.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 91bfaa15a379e9af24f71fb4ee08d8019b6e8ec7 upstream.
+[ Upstream commit 2c1fb9d86f6820abbfaa38a6836157c76ccb4e7b ]
 
-On netdev down event, nf_flow_table_cleanup() is called for the relevant
-device and it cleans all the tables that are on that device.
-If one of those tables has hardware offload flag,
-nf_flow_table_iterate_cleanup flushes hardware and then runs the gc.
-But the gc can queue more hardware work, which will take time to execute.
+Changing pixel clock source without having this clock source enabled
+will block the timing engine and the next operations after (in this case
+setting ATMEL_HLCDC_CFG(5) settings in atmel_hlcdc_crtc_mode_set_nofb()
+will fail). It is recomended (although in datasheet this is not present)
+to actually enabled pixel clock source before doing any changes on timing
+enginge (only SAM9X60 datasheet specifies that the peripheral clock and
+pixel clock must be enabled before using LCD controller).
 
-Instead first add the work, then flush it, to execute it now.
-
-Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
-Signed-off-by: Paul Blakey <paulb@mellanox.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1a396789f65a ("drm: add Atmel HLCDC Display Controller support")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: <stable@vger.kernel.org> # v4.0+
+Link: https://patchwork.freedesktop.org/patch/msgid/1576672109-22707-3-git-send-email-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -529,9 +529,9 @@ static void nf_flow_table_do_cleanup(str
- static void nf_flow_table_iterate_cleanup(struct nf_flowtable *flowtable,
- 					  struct net_device *dev)
- {
--	nf_flow_table_offload_flush(flowtable);
- 	nf_flow_table_iterate(flowtable, nf_flow_table_do_cleanup, dev);
- 	flush_delayed_work(&flowtable->gc_work);
-+	nf_flow_table_offload_flush(flowtable);
+diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+index 9f6e234e70296..eae9370225dfd 100644
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+@@ -63,7 +63,11 @@ static void atmel_hlcdc_crtc_mode_set_nofb(struct drm_crtc *c)
+ 	struct videomode vm;
+ 	unsigned long prate;
+ 	unsigned int cfg;
+-	int div;
++	int div, ret;
++
++	ret = clk_prepare_enable(crtc->dc->hlcdc->sys_clk);
++	if (ret)
++		return;
+ 
+ 	vm.vfront_porch = adj->crtc_vsync_start - adj->crtc_vdisplay;
+ 	vm.vback_porch = adj->crtc_vtotal - adj->crtc_vsync_end;
+@@ -119,6 +123,8 @@ static void atmel_hlcdc_crtc_mode_set_nofb(struct drm_crtc *c)
+ 			   ATMEL_HLCDC_VSPSU | ATMEL_HLCDC_VSPHO |
+ 			   ATMEL_HLCDC_GUARDTIME_MASK,
+ 			   cfg);
++
++	clk_disable_unprepare(crtc->dc->hlcdc->sys_clk);
  }
  
- void nf_flow_table_cleanup(struct net_device *dev)
+ static bool atmel_hlcdc_crtc_mode_fixup(struct drm_crtc *crtc,
+-- 
+2.20.1
+
 
 
