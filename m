@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D866E15C600
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D220315C583
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728375AbgBMP4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:56:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
+        id S1728168AbgBMPWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729021AbgBMPZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:29 -0500
+        id S1728162AbgBMPWv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:51 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9198924690;
-        Thu, 13 Feb 2020 15:25:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF13724689;
+        Thu, 13 Feb 2020 15:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607528;
-        bh=bBRNU/XhX8hgq6uIAe2ranG1Tg5vXviudg/xQk03MkI=;
+        s=default; t=1581607371;
+        bh=kanQ/mCG5wDkKu+r5IT/E563GzDRLbbAXBk1dBOccZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+ZNu+7igQqL2eQYvPPrmHhPotWSjibpi5zq6HsLDC+isElF7KW4mnXulgJpLrq/M
-         6oNyRDGuAi1dXH9ySWtjY3YvdPK8//7URuyYng973jwlOpTy6javlH+A2jXxvc2+Yi
-         yqnSe8yYHLl6zc2qQNtKaTt8a2BSIoqG3HpRLeJE=
+        b=u+r6z/VYqaRmtyLpaTWcYNSVIKNBqnyKmh1xurWYYWcQER//SEWMz02AP5yJWR3Uu
+         6oj/PYnVDkLZ69nB5Pg620J6pc7u4ZiQlp6K2eVvvKXrpQL68TwncyJVMx0MSCovrz
+         LNmLd94WFVWLRd/B4MpK9t6fabC+QOS3WTxbkPZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 099/173] powerpc/44x: Adjust indentation in ibm4xx_denali_fixup_memsize
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 45/91] KVM: PPC: Book3S PR: Free shared page if mmu initialization fails
 Date:   Thu, 13 Feb 2020 07:20:02 -0800
-Message-Id: <20200213151957.797753162@linuxfoundation.org>
+Message-Id: <20200213151839.034371359@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit c3aae14e5d468d18dbb5d7c0c8c7e2968cc14aad upstream.
+commit cb10bf9194f4d2c5d830eddca861f7ca0fecdbb4 upstream.
 
-Clang warns:
+Explicitly free the shared page if kvmppc_mmu_init() fails during
+kvmppc_core_vcpu_create(), as the page is freed only in
+kvmppc_core_vcpu_free(), which is not reached via kvm_vcpu_uninit().
 
-../arch/powerpc/boot/4xx.c:231:3: warning: misleading indentation;
-statement is not part of the previous 'else' [-Wmisleading-indentation]
-        val = SDRAM0_READ(DDR0_42);
-        ^
-../arch/powerpc/boot/4xx.c:227:2: note: previous statement is here
-        else
-        ^
-
-This is because there is a space at the beginning of this line; remove
-it so that the indentation is consistent according to the Linux kernel
-coding style and clang no longer warns.
-
-Fixes: d23f5099297c ("[POWERPC] 4xx: Adds decoding of 440SPE memory size to boot wrapper library")
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/780
-Link: https://lore.kernel.org/r/20191209200338.12546-1-natechancellor@gmail.com
+Fixes: 96bc451a15329 ("KVM: PPC: Introduce shared page")
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Acked-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/boot/4xx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_pr.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/boot/4xx.c
-+++ b/arch/powerpc/boot/4xx.c
-@@ -232,7 +232,7 @@ void ibm4xx_denali_fixup_memsize(void)
- 		dpath = 8; /* 64 bits */
+--- a/arch/powerpc/kvm/book3s_pr.c
++++ b/arch/powerpc/kvm/book3s_pr.c
+@@ -1434,10 +1434,12 @@ static struct kvm_vcpu *kvmppc_core_vcpu
  
- 	/* get address pins (rows) */
-- 	val = SDRAM0_READ(DDR0_42);
-+	val = SDRAM0_READ(DDR0_42);
+ 	err = kvmppc_mmu_init(vcpu);
+ 	if (err < 0)
+-		goto uninit_vcpu;
++		goto free_shared_page;
  
- 	row = DDR_GET_VAL(val, DDR_APIN, DDR_APIN_SHIFT);
- 	if (row > max_row)
+ 	return vcpu;
+ 
++free_shared_page:
++	free_page((unsigned long)vcpu->arch.shared);
+ uninit_vcpu:
+ 	kvm_vcpu_uninit(vcpu);
+ free_shadow_vcpu:
 
 
