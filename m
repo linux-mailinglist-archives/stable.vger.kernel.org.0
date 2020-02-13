@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8625515C554
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4754015C424
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387416AbgBMPy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41758 "EHLO mail.kernel.org"
+        id S2387684AbgBMP1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729052AbgBMPZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:44 -0500
+        id S2387671AbgBMP1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:08 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAC1F20848;
-        Thu, 13 Feb 2020 15:25:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B49392465D;
+        Thu, 13 Feb 2020 15:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607542;
-        bh=Gg3IujLPJ7f3abVScVpcI7fIElYBYDr1QcNXy55pP8k=;
+        s=default; t=1581607627;
+        bh=5c5HxMqvkuSCxF9rj1sG0dTkvaPN9Q5K7ejTic2O88c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwTD/RLzvb6HstuCXEcIZ5pErP+jPY9sDvmsKTYSQLWw1ydjRYaUgZyxFTFadD2d8
-         tj+tilBZTi5HjCvEhHhfNozd8wbcYh3VYeL+yA+eodHc7l5DHzPTW2Q7dRVdngu6mC
-         5DgJOcT09Lru/EiXuxvFW1mvydZyz1mXbAxhQgRI=
+        b=FNtQ7qxhHY9lFqCknKr4dyRzRgMq12vncyMvoNmSGQrHtYcl9jMmSGofLm318RWLX
+         64IsA1bq7OBMuXfV2qN6angmtHIk+hBsV4OjBkWzkx7YEGcrJexAXXNi+GeWlHqxFr
+         hyRLUXEV1ilG9vqSd2OHaqfCwFCs4yDBBw6l9Tls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 121/173] Btrfs: fix missing hole after hole punching and fsync when using NO_HOLES
-Date:   Thu, 13 Feb 2020 07:20:24 -0800
-Message-Id: <20200213152002.870748756@linuxfoundation.org>
+        stable@vger.kernel.org, Kit Chow <kchow@gigaio.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 18/96] PCI: Dont disable bridge BARs when assigning bus resources
+Date:   Thu, 13 Feb 2020 07:20:25 -0800
+Message-Id: <20200213151846.486334533@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,697 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 0e56315ca147b3e60c7bf240233a301d3c7fb508 ]
+commit 9db8dc6d0785225c42a37be7b44d1b07b31b8957 upstream.
 
-When using the NO_HOLES feature, if we punch a hole into a file and then
-fsync it, there are cases where a subsequent fsync will miss the fact that
-a hole was punched, resulting in the holes not existing after replaying
-the log tree.
+Some PCI bridges implement BARs in addition to bridge windows.  For
+example, here's a PLX switch:
 
-Essentially these cases all imply that, tree-log.c:copy_items(), is not
-invoked for the leafs that delimit holes, because nothing changed those
-leafs in the current transaction. And it's precisely copy_items() where
-we currenly detect and log holes, which works as long as the holes are
-between file extent items in the input leaf or between the beginning of
-input leaf and the previous leaf or between the last item in the leaf
-and the next leaf.
+  04:00.0 PCI bridge: PLX Technology, Inc. PEX 8724 24-Lane, 6-Port PCI
+            Express Gen 3 (8 GT/s) Switch, 19 x 19mm FCBGA (rev ca)
+	    (prog-if 00 [Normal decode])
+      Flags: bus master, fast devsel, latency 0, IRQ 30, NUMA node 0
+      Memory at 90a00000 (32-bit, non-prefetchable) [size=256K]
+      Bus: primary=04, secondary=05, subordinate=0a, sec-latency=0
+      I/O behind bridge: 00002000-00003fff
+      Memory behind bridge: 90000000-909fffff
+      Prefetchable memory behind bridge: 0000380000800000-0000380000bfffff
 
-First example where we miss a hole:
+Previously, when the kernel assigned resource addresses (with the
+pci=realloc command line parameter, for example) it could clear the struct
+resource corresponding to the BAR.  When this happened, lspci would report
+this BAR as "ignored":
 
-  *) The extent items of the inode span multiple leafs;
+   Region 0: Memory at <ignored> (32-bit, non-prefetchable) [size=256K]
 
-  *) The punched hole covers a range that affects only the extent items of
-     the first leaf;
+This is because the kernel reports a zero start address and zero flags
+in the corresponding sysfs resource file and in /proc/bus/pci/devices.
+Investigation with 'lspci -x', however, shows the BIOS-assigned address
+will still be programmed in the device's BAR registers.
 
-  *) The fsync operation is done in full mode (BTRFS_INODE_NEEDS_FULL_SYNC
-     is set in the inode's runtime flags).
+It's clearly a bug that the kernel lost track of the BAR value, but in most
+cases, this still won't result in a visible issue because nothing uses the
+memory, so nothing is affected.  However, when an IOMMU is in use, it will
+not reserve this space in the IOVA because the kernel no longer thinks the
+range is valid.  (See dmar_init_reserved_ranges() for the Intel
+implementation of this.)
 
-  That results in the hole not existing after replaying the log tree.
+Without the proper reserved range, a DMA mapping may allocate an IOVA that
+matches a bridge BAR, which results in DMA accesses going to the BAR
+instead of the intended RAM.
 
-  For example, if the fs/subvolume tree has the following layout for a
-  particular inode:
+The problem was in pci_assign_unassigned_root_bus_resources().  When any
+resource from a bridge device fails to get assigned, the code set the
+resource's flags to zero.  This makes sense for bridge windows, as they
+will be re-enabled later, but for regular BARs, it makes the kernel
+permanently lose track of the fact that they decode address space.
 
-      Leaf N, generation 10:
+Change pci_assign_unassigned_root_bus_resources() and
+pci_assign_unassigned_bridge_resources() so they only clear "res->flags"
+for bridge *windows*, not bridge BARs.
 
-      [ ... INODE_ITEM INODE_REF EXTENT_ITEM (0 64K) EXTENT_ITEM (64K 128K) ]
+Fixes: da7822e5ad71 ("PCI: update bridge resources to get more big ranges when allocating space (again)")
+Link: https://lore.kernel.org/r/20200108213208.4612-1-logang@deltatee.com
+[bhelgaas: commit log, check for pci_is_bridge()]
+Reported-by: Kit Chow <kchow@gigaio.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-      Leaf N + 1, generation 10:
-
-      [ EXTENT_ITEM (128K 64K) ... ]
-
-  If at transaction 11 we punch a hole coverting the range [0, 128K[, we end
-  up dropping the two extent items from leaf N, but we don't touch the other
-  leaf, so we end up in the following state:
-
-      Leaf N, generation 11:
-
-      [ ... INODE_ITEM INODE_REF ]
-
-      Leaf N + 1, generation 10:
-
-      [ EXTENT_ITEM (128K 64K) ... ]
-
-  A full fsync after punching the hole will only process leaf N because it
-  was modified in the current transaction, but not leaf N + 1, since it
-  was not modified in the current transaction (generation 10 and not 11).
-  As a result the fsync will not log any holes, because it didn't process
-  any leaf with extent items.
-
-Second example where we will miss a hole:
-
-  *) An inode as its items spanning 5 (or more) leafs;
-
-  *) A hole is punched and it covers only the extents items of the 3rd
-     leaf. This resulsts in deleting the entire leaf and not touching any
-     of the other leafs.
-
-  So the only leaf that is modified in the current transaction, when
-  punching the hole, is the first leaf, which contains the inode item.
-  During the full fsync, the only leaf that is passed to copy_items()
-  is that first leaf, and that's not enough for the hole detection
-  code in copy_items() to determine there's a hole between the last
-  file extent item in the 2nd leaf and the first file extent item in
-  the 3rd leaf (which was the 4th leaf before punching the hole).
-
-Fix this by scanning all leafs and punch holes as necessary when doing a
-full fsync (less common than a non-full fsync) when the NO_HOLES feature
-is enabled. The lack of explicit file extent items to mark holes makes it
-necessary to scan existing extents to determine if holes exist.
-
-A test case for fstests follows soon.
-
-Fixes: 16e7549f045d33 ("Btrfs: incompatible format change to remove hole extents")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 388 ++++++++++++--------------------------------
- 1 file changed, 100 insertions(+), 288 deletions(-)
+ drivers/pci/setup-bus.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 3558697e4c042..0b62c8080af06 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3758,7 +3758,7 @@ static int log_inode_item(struct btrfs_trans_handle *trans,
- static noinline int copy_items(struct btrfs_trans_handle *trans,
- 			       struct btrfs_inode *inode,
- 			       struct btrfs_path *dst_path,
--			       struct btrfs_path *src_path, u64 *last_extent,
-+			       struct btrfs_path *src_path,
- 			       int start_slot, int nr, int inode_only,
- 			       u64 logged_isize)
- {
-@@ -3769,7 +3769,6 @@ static noinline int copy_items(struct btrfs_trans_handle *trans,
- 	struct btrfs_file_extent_item *extent;
- 	struct btrfs_inode_item *inode_item;
- 	struct extent_buffer *src = src_path->nodes[0];
--	struct btrfs_key first_key, last_key, key;
- 	int ret;
- 	struct btrfs_key *ins_keys;
- 	u32 *ins_sizes;
-@@ -3777,9 +3776,6 @@ static noinline int copy_items(struct btrfs_trans_handle *trans,
- 	int i;
- 	struct list_head ordered_sums;
- 	int skip_csum = inode->flags & BTRFS_INODE_NODATASUM;
--	bool has_extents = false;
--	bool need_find_last_extent = true;
--	bool done = false;
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -1785,12 +1785,18 @@ again:
+ 	/* Restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
  
- 	INIT_LIST_HEAD(&ordered_sums);
- 
-@@ -3788,8 +3784,6 @@ static noinline int copy_items(struct btrfs_trans_handle *trans,
- 	if (!ins_data)
- 		return -ENOMEM;
- 
--	first_key.objectid = (u64)-1;
--
- 	ins_sizes = (u32 *)ins_data;
- 	ins_keys = (struct btrfs_key *)(ins_data + nr * sizeof(u32));
- 
-@@ -3810,9 +3804,6 @@ static noinline int copy_items(struct btrfs_trans_handle *trans,
- 
- 		src_offset = btrfs_item_ptr_offset(src, start_slot + i);
- 
--		if (i == nr - 1)
--			last_key = ins_keys[i];
--
- 		if (ins_keys[i].type == BTRFS_INODE_ITEM_KEY) {
- 			inode_item = btrfs_item_ptr(dst_path->nodes[0],
- 						    dst_path->slots[0],
-@@ -3826,20 +3817,6 @@ static noinline int copy_items(struct btrfs_trans_handle *trans,
- 					   src_offset, ins_sizes[i]);
- 		}
- 
--		/*
--		 * We set need_find_last_extent here in case we know we were
--		 * processing other items and then walk into the first extent in
--		 * the inode.  If we don't hit an extent then nothing changes,
--		 * we'll do the last search the next time around.
--		 */
--		if (ins_keys[i].type == BTRFS_EXTENT_DATA_KEY) {
--			has_extents = true;
--			if (first_key.objectid == (u64)-1)
--				first_key = ins_keys[i];
--		} else {
--			need_find_last_extent = false;
--		}
--
- 		/* take a reference on file data extents so that truncates
- 		 * or deletes of this inode don't have to relog the inode
- 		 * again
-@@ -3905,167 +3882,6 @@ static noinline int copy_items(struct btrfs_trans_handle *trans,
- 		kfree(sums);
- 	}
- 
--	if (!has_extents)
--		return ret;
--
--	if (need_find_last_extent && *last_extent == first_key.offset) {
--		/*
--		 * We don't have any leafs between our current one and the one
--		 * we processed before that can have file extent items for our
--		 * inode (and have a generation number smaller than our current
--		 * transaction id).
--		 */
--		need_find_last_extent = false;
--	}
--
--	/*
--	 * Because we use btrfs_search_forward we could skip leaves that were
--	 * not modified and then assume *last_extent is valid when it really
--	 * isn't.  So back up to the previous leaf and read the end of the last
--	 * extent before we go and fill in holes.
--	 */
--	if (need_find_last_extent) {
--		u64 len;
--
--		ret = btrfs_prev_leaf(inode->root, src_path);
--		if (ret < 0)
--			return ret;
--		if (ret)
--			goto fill_holes;
--		if (src_path->slots[0])
--			src_path->slots[0]--;
--		src = src_path->nodes[0];
--		btrfs_item_key_to_cpu(src, &key, src_path->slots[0]);
--		if (key.objectid != btrfs_ino(inode) ||
--		    key.type != BTRFS_EXTENT_DATA_KEY)
--			goto fill_holes;
--		extent = btrfs_item_ptr(src, src_path->slots[0],
--					struct btrfs_file_extent_item);
--		if (btrfs_file_extent_type(src, extent) ==
--		    BTRFS_FILE_EXTENT_INLINE) {
--			len = btrfs_file_extent_ram_bytes(src, extent);
--			*last_extent = ALIGN(key.offset + len,
--					     fs_info->sectorsize);
--		} else {
--			len = btrfs_file_extent_num_bytes(src, extent);
--			*last_extent = key.offset + len;
--		}
--	}
--fill_holes:
--	/* So we did prev_leaf, now we need to move to the next leaf, but a few
--	 * things could have happened
--	 *
--	 * 1) A merge could have happened, so we could currently be on a leaf
--	 * that holds what we were copying in the first place.
--	 * 2) A split could have happened, and now not all of the items we want
--	 * are on the same leaf.
--	 *
--	 * So we need to adjust how we search for holes, we need to drop the
--	 * path and re-search for the first extent key we found, and then walk
--	 * forward until we hit the last one we copied.
--	 */
--	if (need_find_last_extent) {
--		/* btrfs_prev_leaf could return 1 without releasing the path */
--		btrfs_release_path(src_path);
--		ret = btrfs_search_slot(NULL, inode->root, &first_key,
--				src_path, 0, 0);
--		if (ret < 0)
--			return ret;
--		ASSERT(ret == 0);
--		src = src_path->nodes[0];
--		i = src_path->slots[0];
--	} else {
--		i = start_slot;
--	}
--
--	/*
--	 * Ok so here we need to go through and fill in any holes we may have
--	 * to make sure that holes are punched for those areas in case they had
--	 * extents previously.
--	 */
--	while (!done) {
--		u64 offset, len;
--		u64 extent_end;
--
--		if (i >= btrfs_header_nritems(src_path->nodes[0])) {
--			ret = btrfs_next_leaf(inode->root, src_path);
--			if (ret < 0)
--				return ret;
--			ASSERT(ret == 0);
--			src = src_path->nodes[0];
--			i = 0;
--			need_find_last_extent = true;
--		}
--
--		btrfs_item_key_to_cpu(src, &key, i);
--		if (!btrfs_comp_cpu_keys(&key, &last_key))
--			done = true;
--		if (key.objectid != btrfs_ino(inode) ||
--		    key.type != BTRFS_EXTENT_DATA_KEY) {
--			i++;
--			continue;
--		}
--		extent = btrfs_item_ptr(src, i, struct btrfs_file_extent_item);
--		if (btrfs_file_extent_type(src, extent) ==
--		    BTRFS_FILE_EXTENT_INLINE) {
--			len = btrfs_file_extent_ram_bytes(src, extent);
--			extent_end = ALIGN(key.offset + len,
--					   fs_info->sectorsize);
--		} else {
--			len = btrfs_file_extent_num_bytes(src, extent);
--			extent_end = key.offset + len;
--		}
--		i++;
--
--		if (*last_extent == key.offset) {
--			*last_extent = extent_end;
--			continue;
--		}
--		offset = *last_extent;
--		len = key.offset - *last_extent;
--		ret = btrfs_insert_file_extent(trans, log, btrfs_ino(inode),
--				offset, 0, 0, len, 0, len, 0, 0, 0);
--		if (ret)
--			break;
--		*last_extent = extent_end;
--	}
--
--	/*
--	 * Check if there is a hole between the last extent found in our leaf
--	 * and the first extent in the next leaf. If there is one, we need to
--	 * log an explicit hole so that at replay time we can punch the hole.
--	 */
--	if (ret == 0 &&
--	    key.objectid == btrfs_ino(inode) &&
--	    key.type == BTRFS_EXTENT_DATA_KEY &&
--	    i == btrfs_header_nritems(src_path->nodes[0])) {
--		ret = btrfs_next_leaf(inode->root, src_path);
--		need_find_last_extent = true;
--		if (ret > 0) {
--			ret = 0;
--		} else if (ret == 0) {
--			btrfs_item_key_to_cpu(src_path->nodes[0], &key,
--					      src_path->slots[0]);
--			if (key.objectid == btrfs_ino(inode) &&
--			    key.type == BTRFS_EXTENT_DATA_KEY &&
--			    *last_extent < key.offset) {
--				const u64 len = key.offset - *last_extent;
--
--				ret = btrfs_insert_file_extent(trans, log,
--							       btrfs_ino(inode),
--							       *last_extent, 0,
--							       0, len, 0, len,
--							       0, 0, 0);
--				*last_extent += len;
--			}
--		}
--	}
--	/*
--	 * Need to let the callers know we dropped the path so they should
--	 * re-search.
--	 */
--	if (!ret && need_find_last_extent)
--		ret = 1;
- 	return ret;
- }
- 
-@@ -4338,7 +4154,7 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
- 	const u64 i_size = i_size_read(&inode->vfs_inode);
- 	const u64 ino = btrfs_ino(inode);
- 	struct btrfs_path *dst_path = NULL;
--	u64 last_extent = (u64)-1;
-+	bool dropped_extents = false;
- 	int ins_nr = 0;
- 	int start_slot;
- 	int ret;
-@@ -4360,8 +4176,7 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
- 		if (slot >= btrfs_header_nritems(leaf)) {
- 			if (ins_nr > 0) {
- 				ret = copy_items(trans, inode, dst_path, path,
--						 &last_extent, start_slot,
--						 ins_nr, 1, 0);
-+						 start_slot, ins_nr, 1, 0);
- 				if (ret < 0)
- 					goto out;
- 				ins_nr = 0;
-@@ -4385,8 +4200,7 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
- 			path->slots[0]++;
- 			continue;
- 		}
--		if (last_extent == (u64)-1) {
--			last_extent = key.offset;
-+		if (!dropped_extents) {
- 			/*
- 			 * Avoid logging extent items logged in past fsync calls
- 			 * and leading to duplicate keys in the log tree.
-@@ -4400,6 +4214,7 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
- 			} while (ret == -EAGAIN);
- 			if (ret)
- 				goto out;
-+			dropped_extents = true;
- 		}
- 		if (ins_nr == 0)
- 			start_slot = slot;
-@@ -4414,7 +4229,7 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
- 		}
- 	}
- 	if (ins_nr > 0) {
--		ret = copy_items(trans, inode, dst_path, path, &last_extent,
-+		ret = copy_items(trans, inode, dst_path, path,
- 				 start_slot, ins_nr, 1, 0);
- 		if (ret > 0)
- 			ret = 0;
-@@ -4608,13 +4423,8 @@ static int btrfs_log_all_xattrs(struct btrfs_trans_handle *trans,
- 
- 		if (slot >= nritems) {
- 			if (ins_nr > 0) {
--				u64 last_extent = 0;
--
- 				ret = copy_items(trans, inode, dst_path, path,
--						 &last_extent, start_slot,
--						 ins_nr, 1, 0);
--				/* can't be 1, extent items aren't processed */
--				ASSERT(ret <= 0);
-+						 start_slot, ins_nr, 1, 0);
- 				if (ret < 0)
- 					return ret;
- 				ins_nr = 0;
-@@ -4638,13 +4448,8 @@ static int btrfs_log_all_xattrs(struct btrfs_trans_handle *trans,
- 		cond_resched();
- 	}
- 	if (ins_nr > 0) {
--		u64 last_extent = 0;
--
- 		ret = copy_items(trans, inode, dst_path, path,
--				 &last_extent, start_slot,
--				 ins_nr, 1, 0);
--		/* can't be 1, extent items aren't processed */
--		ASSERT(ret <= 0);
-+				 start_slot, ins_nr, 1, 0);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -4653,100 +4458,119 @@ static int btrfs_log_all_xattrs(struct btrfs_trans_handle *trans,
- }
- 
- /*
-- * If the no holes feature is enabled we need to make sure any hole between the
-- * last extent and the i_size of our inode is explicitly marked in the log. This
-- * is to make sure that doing something like:
-- *
-- *      1) create file with 128Kb of data
-- *      2) truncate file to 64Kb
-- *      3) truncate file to 256Kb
-- *      4) fsync file
-- *      5) <crash/power failure>
-- *      6) mount fs and trigger log replay
-- *
-- * Will give us a file with a size of 256Kb, the first 64Kb of data match what
-- * the file had in its first 64Kb of data at step 1 and the last 192Kb of the
-- * file correspond to a hole. The presence of explicit holes in a log tree is
-- * what guarantees that log replay will remove/adjust file extent items in the
-- * fs/subvol tree.
-- *
-- * Here we do not need to care about holes between extents, that is already done
-- * by copy_items(). We also only need to do this in the full sync path, where we
-- * lookup for extents from the fs/subvol tree only. In the fast path case, we
-- * lookup the list of modified extent maps and if any represents a hole, we
-- * insert a corresponding extent representing a hole in the log tree.
-+ * When using the NO_HOLES feature if we punched a hole that causes the
-+ * deletion of entire leafs or all the extent items of the first leaf (the one
-+ * that contains the inode item and references) we may end up not processing
-+ * any extents, because there are no leafs with a generation matching the
-+ * current transaction that have extent items for our inode. So we need to find
-+ * if any holes exist and then log them. We also need to log holes after any
-+ * truncate operation that changes the inode's size.
-  */
--static int btrfs_log_trailing_hole(struct btrfs_trans_handle *trans,
--				   struct btrfs_root *root,
--				   struct btrfs_inode *inode,
--				   struct btrfs_path *path)
-+static int btrfs_log_holes(struct btrfs_trans_handle *trans,
-+			   struct btrfs_root *root,
-+			   struct btrfs_inode *inode,
-+			   struct btrfs_path *path)
- {
- 	struct btrfs_fs_info *fs_info = root->fs_info;
--	int ret;
- 	struct btrfs_key key;
--	u64 hole_start;
--	u64 hole_size;
--	struct extent_buffer *leaf;
--	struct btrfs_root *log = root->log_root;
- 	const u64 ino = btrfs_ino(inode);
- 	const u64 i_size = i_size_read(&inode->vfs_inode);
-+	u64 prev_extent_end = 0;
-+	int ret;
- 
--	if (!btrfs_fs_incompat(fs_info, NO_HOLES))
-+	if (!btrfs_fs_incompat(fs_info, NO_HOLES) || i_size == 0)
- 		return 0;
- 
- 	key.objectid = ino;
- 	key.type = BTRFS_EXTENT_DATA_KEY;
--	key.offset = (u64)-1;
-+	key.offset = 0;
- 
- 	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
--	ASSERT(ret != 0);
- 	if (ret < 0)
- 		return ret;
- 
--	ASSERT(path->slots[0] > 0);
--	path->slots[0]--;
--	leaf = path->nodes[0];
--	btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
--
--	if (key.objectid != ino || key.type != BTRFS_EXTENT_DATA_KEY) {
--		/* inode does not have any extents */
--		hole_start = 0;
--		hole_size = i_size;
--	} else {
-+	while (true) {
- 		struct btrfs_file_extent_item *extent;
-+		struct extent_buffer *leaf = path->nodes[0];
- 		u64 len;
- 
--		/*
--		 * If there's an extent beyond i_size, an explicit hole was
--		 * already inserted by copy_items().
--		 */
--		if (key.offset >= i_size)
--			return 0;
-+		if (path->slots[0] >= btrfs_header_nritems(path->nodes[0])) {
-+			ret = btrfs_next_leaf(root, path);
-+			if (ret < 0)
-+				return ret;
-+			if (ret > 0) {
-+				ret = 0;
-+				break;
-+			}
-+			leaf = path->nodes[0];
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
++
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
 +		}
+ 	}
+ 	free_list(&fail_head);
+ 
+@@ -2037,12 +2043,18 @@ again:
+ 	/* Restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
+ 
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
 +
-+		btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
-+		if (key.objectid != ino || key.type != BTRFS_EXTENT_DATA_KEY)
-+			break;
-+
-+		/* We have a hole, log it. */
-+		if (prev_extent_end < key.offset) {
-+			const u64 hole_len = key.offset - prev_extent_end;
-+
-+			/*
-+			 * Release the path to avoid deadlocks with other code
-+			 * paths that search the root while holding locks on
-+			 * leafs from the log root.
-+			 */
-+			btrfs_release_path(path);
-+			ret = btrfs_insert_file_extent(trans, root->log_root,
-+						       ino, prev_extent_end, 0,
-+						       0, hole_len, 0, hole_len,
-+						       0, 0, 0);
-+			if (ret < 0)
-+				return ret;
-+
-+			/*
-+			 * Search for the same key again in the root. Since it's
-+			 * an extent item and we are holding the inode lock, the
-+			 * key must still exist. If it doesn't just emit warning
-+			 * and return an error to fall back to a transaction
-+			 * commit.
-+			 */
-+			ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
-+			if (ret < 0)
-+				return ret;
-+			if (WARN_ON(ret > 0))
-+				return -ENOENT;
-+			leaf = path->nodes[0];
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
 +		}
- 
- 		extent = btrfs_item_ptr(leaf, path->slots[0],
- 					struct btrfs_file_extent_item);
--
- 		if (btrfs_file_extent_type(leaf, extent) ==
--		    BTRFS_FILE_EXTENT_INLINE)
--			return 0;
-+		    BTRFS_FILE_EXTENT_INLINE) {
-+			len = btrfs_file_extent_ram_bytes(leaf, extent);
-+			prev_extent_end = ALIGN(key.offset + len,
-+						fs_info->sectorsize);
-+		} else {
-+			len = btrfs_file_extent_num_bytes(leaf, extent);
-+			prev_extent_end = key.offset + len;
-+		}
- 
--		len = btrfs_file_extent_num_bytes(leaf, extent);
--		/* Last extent goes beyond i_size, no need to log a hole. */
--		if (key.offset + len > i_size)
--			return 0;
--		hole_start = key.offset + len;
--		hole_size = i_size - hole_start;
-+		path->slots[0]++;
-+		cond_resched();
  	}
--	btrfs_release_path(path);
+ 	free_list(&fail_head);
  
--	/* Last extent ends at i_size. */
--	if (hole_size == 0)
--		return 0;
-+	if (prev_extent_end < i_size) {
-+		u64 hole_len;
- 
--	hole_size = ALIGN(hole_size, fs_info->sectorsize);
--	ret = btrfs_insert_file_extent(trans, log, ino, hole_start, 0, 0,
--				       hole_size, 0, hole_size, 0, 0, 0);
--	return ret;
-+		btrfs_release_path(path);
-+		hole_len = ALIGN(i_size - prev_extent_end, fs_info->sectorsize);
-+		ret = btrfs_insert_file_extent(trans, root->log_root,
-+					       ino, prev_extent_end, 0, 0,
-+					       hole_len, 0, hole_len,
-+					       0, 0, 0);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	return 0;
- }
- 
- /*
-@@ -4914,7 +4738,6 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 	struct btrfs_root *log = root->log_root;
- 	struct extent_buffer *src = NULL;
- 	LIST_HEAD(logged_list);
--	u64 last_extent = 0;
- 	int err = 0;
- 	int ret;
- 	int nritems;
-@@ -5088,7 +4911,7 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 					ins_start_slot = path->slots[0];
- 				}
- 				ret = copy_items(trans, inode, dst_path, path,
--						 &last_extent, ins_start_slot,
-+						 ins_start_slot,
- 						 ins_nr, inode_only,
- 						 logged_isize);
- 				if (ret < 0) {
-@@ -5142,17 +4965,13 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 			if (ins_nr == 0)
- 				goto next_slot;
- 			ret = copy_items(trans, inode, dst_path, path,
--					 &last_extent, ins_start_slot,
-+					 ins_start_slot,
- 					 ins_nr, inode_only, logged_isize);
- 			if (ret < 0) {
- 				err = ret;
- 				goto out_unlock;
- 			}
- 			ins_nr = 0;
--			if (ret) {
--				btrfs_release_path(path);
--				continue;
--			}
- 			goto next_slot;
- 		}
- 
-@@ -5166,18 +4985,13 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 			goto next_slot;
- 		}
- 
--		ret = copy_items(trans, inode, dst_path, path, &last_extent,
-+		ret = copy_items(trans, inode, dst_path, path,
- 				 ins_start_slot, ins_nr, inode_only,
- 				 logged_isize);
- 		if (ret < 0) {
- 			err = ret;
- 			goto out_unlock;
- 		}
--		if (ret) {
--			ins_nr = 0;
--			btrfs_release_path(path);
--			continue;
--		}
- 		ins_nr = 1;
- 		ins_start_slot = path->slots[0];
- next_slot:
-@@ -5191,13 +5005,12 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 		}
- 		if (ins_nr) {
- 			ret = copy_items(trans, inode, dst_path, path,
--					 &last_extent, ins_start_slot,
-+					 ins_start_slot,
- 					 ins_nr, inode_only, logged_isize);
- 			if (ret < 0) {
- 				err = ret;
- 				goto out_unlock;
- 			}
--			ret = 0;
- 			ins_nr = 0;
- 		}
- 		btrfs_release_path(path);
-@@ -5212,14 +5025,13 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 		}
- 	}
- 	if (ins_nr) {
--		ret = copy_items(trans, inode, dst_path, path, &last_extent,
-+		ret = copy_items(trans, inode, dst_path, path,
- 				 ins_start_slot, ins_nr, inode_only,
- 				 logged_isize);
- 		if (ret < 0) {
- 			err = ret;
- 			goto out_unlock;
- 		}
--		ret = 0;
- 		ins_nr = 0;
- 	}
- 
-@@ -5232,7 +5044,7 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 	if (max_key.type >= BTRFS_EXTENT_DATA_KEY && !fast_search) {
- 		btrfs_release_path(path);
- 		btrfs_release_path(dst_path);
--		err = btrfs_log_trailing_hole(trans, root, inode, path);
-+		err = btrfs_log_holes(trans, root, inode, path);
- 		if (err)
- 			goto out_unlock;
- 	}
--- 
-2.20.1
-
 
 
