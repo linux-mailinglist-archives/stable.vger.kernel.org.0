@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F12D415C718
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BF315C75E
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729380AbgBMQG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:06:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34480 "EHLO mail.kernel.org"
+        id S1728319AbgBMQJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:09:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728402AbgBMPXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:30 -0500
+        id S1728063AbgBMPWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1362F24699;
-        Thu, 13 Feb 2020 15:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51D18246A3;
+        Thu, 13 Feb 2020 15:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607410;
-        bh=pUOzBp2bH5rI+hRFPHJijPyCh9l9Pl+a1O5ZuDRj4j8=;
+        s=default; t=1581607360;
+        bh=00hycvRWbvcfPEzeSB7Pad5lAyiMKp3N+PVa35w2HL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHW4kmHNmBizxK4ARGv30oL9UD2m+JG+2LvuCyIjvhnI8zvCdtzmVnkZ4Ly+76e0C
-         kFRcrwhvgMGbZ1aakQLsMDNPf222G5c+EYt8AUzgW4lCPxkH+iHdJDQpqMf58wv3OU
-         2WDsszZ0rV464bin8m1pv/ihQHVEZx5UEfCoZMhY=
+        b=p27w8odo4alMFITMNyFXixzXTvE90Dt+plVLnYHbalEMI0aullOYcRxlU4FfYZnsN
+         AFOQr0rFOsii46N00oliScyYOc8XBwFTUl73QV/GZ8i15rPvJvWwwkCRTyGTQxnEng
+         lZOGhqaNW3i1U2K6YoW4vzD5MCHz3prhM8EWmzP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 031/116] scsi: qla2xxx: Fix mtcp dump collection failure
-Date:   Thu, 13 Feb 2020 07:19:35 -0800
-Message-Id: <20200213151855.096378209@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        Mark Brown <broonie@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.4 19/91] mmc: spi: Toggle SPI polarity, do not hardcode it
+Date:   Thu, 13 Feb 2020 07:19:36 -0800
+Message-Id: <20200213151829.134508209@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 641e0efddcbde52461e017136acd3ce7f2ef0c14 upstream.
+commit af3ed119329cf9690598c5a562d95dfd128e91d6 upstream.
 
-MTCP dump failed due to MB Reg 10 was picking garbage data from stack
-memory.
+The code in mmc_spi_initsequence() tries to send a burst with
+high chipselect and for this reason hardcodes the device into
+SPI_CS_HIGH.
 
-Fixes: 81178772b636a ("[SCSI] qla2xxx: Implemetation of mctp.")
+This is not good because the SPI_CS_HIGH flag indicates
+logical "asserted" CS not always the physical level. In
+some cases the signal is inverted in the GPIO library and
+in that case SPI_CS_HIGH is already set, and enforcing
+SPI_CS_HIGH again will actually drive it low.
+
+Instead of hard-coding this, toggle the polarity so if the
+default is LOW it goes high to assert chipselect but if it
+is already high then toggle it low instead.
+
+Cc: Phil Elwell <phil@raspberrypi.org>
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20191204152749.12652-1-linus.walleij@linaro.org
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191217220617.28084-14-hmadhani@marvell.com
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_mbx.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mmc/host/mmc_spi.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -5723,9 +5723,8 @@ qla2x00_dump_mctp_data(scsi_qla_host_t *
- 	mcp->mb[7] = LSW(MSD(req_dma));
- 	mcp->mb[8] = MSW(addr);
- 	/* Setting RAM ID to valid */
--	mcp->mb[10] |= BIT_7;
- 	/* For MCTP RAM ID is 0x40 */
--	mcp->mb[10] |= 0x40;
-+	mcp->mb[10] = BIT_7 | 0x40;
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -1153,17 +1153,22 @@ static void mmc_spi_initsequence(struct
+ 	 * SPI protocol.  Another is that when chipselect is released while
+ 	 * the card returns BUSY status, the clock must issue several cycles
+ 	 * with chipselect high before the card will stop driving its output.
++	 *
++	 * SPI_CS_HIGH means "asserted" here. In some cases like when using
++	 * GPIOs for chip select, SPI_CS_HIGH is set but this will be logically
++	 * inverted by gpiolib, so if we want to ascertain to drive it high
++	 * we should toggle the default with an XOR as we do here.
+ 	 */
+-	host->spi->mode |= SPI_CS_HIGH;
++	host->spi->mode ^= SPI_CS_HIGH;
+ 	if (spi_setup(host->spi) != 0) {
+ 		/* Just warn; most cards work without it. */
+ 		dev_warn(&host->spi->dev,
+ 				"can't change chip-select polarity\n");
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 	} else {
+ 		mmc_spi_readbytes(host, 18);
  
- 	mcp->out_mb |= MBX_10|MBX_8|MBX_7|MBX_6|MBX_5|MBX_4|MBX_3|MBX_2|MBX_1|
- 	    MBX_0;
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 		if (spi_setup(host->spi) != 0) {
+ 			/* Wot, we can't get the same setup we had before? */
+ 			dev_err(&host->spi->dev,
 
 
