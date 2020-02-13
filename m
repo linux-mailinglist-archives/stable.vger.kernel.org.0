@@ -2,181 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7564015B5FC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 01:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CBB15B85A
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729185AbgBMAk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 19:40:27 -0500
-Received: from esa3.microchip.iphmx.com ([68.232.153.233]:57544 "EHLO
-        esa3.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729103AbgBMAk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 19:40:27 -0500
-Received-SPF: Pass (esa3.microchip.iphmx.com: domain of
-  Sagar.Biradar@microchip.com designates 198.175.253.82 as
-  permitted sender) identity=mailfrom;
-  client-ip=198.175.253.82; receiver=esa3.microchip.iphmx.com;
-  envelope-from="Sagar.Biradar@microchip.com";
-  x-sender="Sagar.Biradar@microchip.com";
-  x-conformance=spf_only; x-record-type="v=spf1";
-  x-record-text="v=spf1 mx a:ushub1.microchip.com
-  a:smtpout.microchip.com -exists:%{i}.spf.microchip.iphmx.com
-  include:servers.mcsv.net include:mktomail.com
-  include:spf.protection.outlook.com ~all"
-Received-SPF: None (esa3.microchip.iphmx.com: no sender
-  authenticity information available from domain of
-  postmaster@email.microchip.com) identity=helo;
-  client-ip=198.175.253.82; receiver=esa3.microchip.iphmx.com;
-  envelope-from="Sagar.Biradar@microchip.com";
-  x-sender="postmaster@email.microchip.com";
-  x-conformance=spf_only
-Authentication-Results: esa3.microchip.iphmx.com; spf=Pass smtp.mailfrom=Sagar.Biradar@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dmarc=pass (p=none dis=none) d=microchip.com
-IronPort-SDR: VshFThL2DK1SpMOzQEMXVIlZGFqCdWQ5q3ePvjPM6idNCPfvKBzXIuk/GC2RezyZ+B2jLPFlkm
- jK+z+gtbnINRTc6YU64vLQIjLOg+w5S5SiS1m3O9ZvGySPtLt4feYaE655URccwBwz4Z365mU7
- h+GLWxLKyZlZYExq7V/3K5PLnDmWs8V+jGN571l+K7fQz3pd5lBuLAZKnUhp+OuaJA0YCSsOKU
- Q8p2iGgb6MUicO2X2u61duSDSzG2aWVtlIAvab5XQ0bEn3ilK1P9NBsUcmyoEwqs/aFKYZY2LQ
- 4pE=
-X-IronPort-AV: E=Sophos;i="5.70,434,1574146800"; 
-   d="scan'208";a="66509747"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 12 Feb 2020 17:40:26 -0700
-Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 12 Feb 2020 17:40:25 -0700
-Received: from LinuxBuild.microsemi.net (10.10.85.251) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
- 15.1.1713.5 via Frontend Transport; Wed, 12 Feb 2020 17:40:26 -0700
-From:   Sagar Biradar <Sagar.Biradar@microchip.com>
-To:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        James Bottomley <jejb@linux.vnet.ibm.com>
-CC:     Sagar Biradar <Sagar.Biradar@microchip.com>,
-        linux-scsi <linux-scsi@vger.kernel.org>, <aacraid@microsemi.com>,
-        Scott Benesh <scott.benesh@microsemi.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        <stable@vger.kernel.org>, Balsundar P <balsundar.p@microsemi.com>
-Subject: [PATCH] aacraid: Disabling TM path and only processing IOP reset
-Date:   Wed, 12 Feb 2020 16:29:31 -0800
-Message-ID: <1581553771-25796-1-git-send-email-Sagar.Biradar@microchip.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1729555AbgBMENO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 23:13:14 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:40239 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729440AbgBMENO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:13:14 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 1BE4D21F34;
+        Wed, 12 Feb 2020 23:13:13 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:13:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=554X9g
+        3uwvUphRKnhJ+ZDY2FC0H/f2QBgjRZSfWfRXE=; b=kspPRB65RdPqo+VNM1jI4i
+        6TGM4wzzxovnjR9r/1D6AaPJmMvXHKjEdPcn9s1EyY1psOM+qRKmB3xmJhnB2SaB
+        W12YwieGxU2tdiGG7wNFltDh9595jBZNqsEqTiDSrE4Wi5hZpLUgHXezxf8uiMBH
+        Qag+D3Yhhbbfs/oAXbX51TE6C2+uFu/98nkYVxw1k6ASsirkyE1rALCIZ6dzLpNO
+        FBhrQEqsXjCcTB6Dr7UCi7JldPDe/7xhmtYrLipwFfaTZVppzMMbbdE22SdaRcfo
+        khn7xSU0zOG3TThN0UvY9ht8uvnbbDb1MWabOgeB4IcgFXmbq1k9uG35kGQP1Ejw
+        ==
+X-ME-Sender: <xms:2MxEXvxFeoIUOK9AG-IdYXXyH-jt8aQOKbPgLPgTQ87NIjS3McjHJA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrieejgdejtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepvddtledrfeejrdeljedrudelgeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:2MxEXn-i7wP_TIrR-W3mcahlgUK67Bf70nYP-TnGq8tTZeefZR-dDw>
+    <xmx:2MxEXngezy8Pt_uiMPNPRPXrbqPk43Sse6QaQ9hCqear0YFlS4rf-w>
+    <xmx:2MxEXuEofelD3ixra1XdaDYxhihlHXROPbuBI4MHbm-gY2Iy7P-haA>
+    <xmx:2cxEXg3kKEajJMULZLSy2B-NEpl-A7_porXDMrlwotA7RnMM5XeqfQ>
+Received: from localhost (unknown [209.37.97.194])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AB495328005A;
+        Wed, 12 Feb 2020 23:13:12 -0500 (EST)
+Subject: FAILED: patch "[PATCH] arm64: cpufeature: Set the FP/SIMD compat HWCAP bits properly" failed to apply to 4.19-stable tree
+To:     suzuki.poulose@arm.com, ardb@kernel.org, catalin.marinas@arm.com,
+        mark.rutland@arm.com, will@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 12 Feb 2020 20:13:11 -0800
+Message-ID: <15815671911912@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fixes the occasional adapter panic when sg_reset is 
-issued with -d, -t, -b and -H flags.
-Removal of command type HBA_IU_TYPE_SCSI_TM_REQ in aac_hba_send since 
-iu_type, request_id and fib_flags are not populated.
-Device and target reset handlers made to send TMF commands only when 
-reset_state is 0.
 
-Signed-off-by: Balsundar P <balsundar.p@microsemi.com>
-Signed-off-by: Sagar Biradar <Sagar.Biradar@microchip.com>
-Reviewed-by: Sagar Biradar <Sagar.Biradar@microchip.com>
----
- drivers/scsi/aacraid/commsup.c |  2 +-
- drivers/scsi/aacraid/linit.c   | 34 +++++++++++++++++++++++++---------
- 2 files changed, 26 insertions(+), 10 deletions(-)
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/drivers/scsi/aacraid/commsup.c b/drivers/scsi/aacraid/commsup.c
-index 5a8a999..5118bee 100644
---- a/drivers/scsi/aacraid/commsup.c
-+++ b/drivers/scsi/aacraid/commsup.c
-@@ -729,7 +729,7 @@ int aac_hba_send(u8 command, struct fib *fibptr, fib_callback callback,
- 		hbacmd->request_id =
- 			cpu_to_le32((((u32)(fibptr - dev->fibs)) << 2) + 1);
- 		fibptr->flags |= FIB_CONTEXT_FLAG_SCSI_CMD;
--	} else if (command != HBA_IU_TYPE_SCSI_TM_REQ)
-+	} else
- 		return -EINVAL;
- 
- 
-diff --git a/drivers/scsi/aacraid/linit.c b/drivers/scsi/aacraid/linit.c
-index ee6bc2f..9130e03 100644
---- a/drivers/scsi/aacraid/linit.c
-+++ b/drivers/scsi/aacraid/linit.c
-@@ -731,7 +731,11 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
- 		status = aac_hba_send(HBA_IU_TYPE_SCSI_TM_REQ, fib,
- 				  (fib_callback) aac_hba_callback,
- 				  (void *) cmd);
--
-+		if (status != -EINPROGRESS) {
-+			aac_fib_complete(fib);
-+			aac_fib_free(fib);
-+			return ret;
-+		}
- 		/* Wait up to 15 secs for completion */
- 		for (count = 0; count < 15; ++count) {
- 			if (cmd->SCp.sent_command) {
-@@ -910,11 +914,11 @@ static int aac_eh_dev_reset(struct scsi_cmnd *cmd)
- 
- 	info = &aac->hba_map[bus][cid];
- 
--	if (info->devtype != AAC_DEVTYPE_NATIVE_RAW &&
--	    info->reset_state > 0)
-+	if (!(info->devtype == AAC_DEVTYPE_NATIVE_RAW &&
-+	 !(info->reset_state > 0)))
- 		return FAILED;
- 
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n",
-+	pr_err("%s: Host device reset request. SCSI hang ?\n",
- 	       AAC_DRIVERNAME);
- 
- 	fib = aac_fib_alloc(aac);
-@@ -929,7 +933,12 @@ static int aac_eh_dev_reset(struct scsi_cmnd *cmd)
- 	status = aac_hba_send(command, fib,
- 			      (fib_callback) aac_tmf_callback,
- 			      (void *) info);
--
-+	if (status != -EINPROGRESS) {
-+		info->reset_state = 0;
-+		aac_fib_complete(fib);
-+		aac_fib_free(fib);
-+		return ret;
-+	}
- 	/* Wait up to 15 seconds for completion */
- 	for (count = 0; count < 15; ++count) {
- 		if (info->reset_state == 0) {
-@@ -968,11 +977,11 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
- 
- 	info = &aac->hba_map[bus][cid];
- 
--	if (info->devtype != AAC_DEVTYPE_NATIVE_RAW &&
--	    info->reset_state > 0)
-+	if (!(info->devtype == AAC_DEVTYPE_NATIVE_RAW &&
-+	 !(info->reset_state > 0)))
- 		return FAILED;
- 
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n",
-+	pr_err("%s: Host target reset request. SCSI hang ?\n",
- 	       AAC_DRIVERNAME);
- 
- 	fib = aac_fib_alloc(aac);
-@@ -989,6 +998,13 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
- 			      (fib_callback) aac_tmf_callback,
- 			      (void *) info);
- 
-+	if (status != -EINPROGRESS) {
-+		info->reset_state = 0;
-+		aac_fib_complete(fib);
-+		aac_fib_free(fib);
-+		return ret;
-+	}
-+
- 	/* Wait up to 15 seconds for completion */
- 	for (count = 0; count < 15; ++count) {
- 		if (info->reset_state <= 0) {
-@@ -1041,7 +1057,7 @@ static int aac_eh_bus_reset(struct scsi_cmnd* cmd)
- 		}
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 7559950aef1ab8792c50797c6c5c7c5150a02460 Mon Sep 17 00:00:00 2001
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Date: Mon, 13 Jan 2020 23:30:20 +0000
+Subject: [PATCH] arm64: cpufeature: Set the FP/SIMD compat HWCAP bits properly
+
+We set the compat_elf_hwcap bits unconditionally on arm64 to
+include the VFP and NEON support. However, the FP/SIMD unit
+is optional on Arm v8 and thus could be missing. We already
+handle this properly in the kernel, but still advertise to
+the COMPAT applications that the VFP is available. Fix this
+to make sure we only advertise when we really have them.
+
+Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 2fc9f18e2d2d..c008164b0848 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -32,9 +32,7 @@ static unsigned long elf_hwcap __read_mostly;
+ #define COMPAT_ELF_HWCAP_DEFAULT	\
+ 				(COMPAT_HWCAP_HALF|COMPAT_HWCAP_THUMB|\
+ 				 COMPAT_HWCAP_FAST_MULT|COMPAT_HWCAP_EDSP|\
+-				 COMPAT_HWCAP_TLS|COMPAT_HWCAP_VFP|\
+-				 COMPAT_HWCAP_VFPv3|COMPAT_HWCAP_VFPv4|\
+-				 COMPAT_HWCAP_NEON|COMPAT_HWCAP_IDIV|\
++				 COMPAT_HWCAP_TLS|COMPAT_HWCAP_IDIV|\
+ 				 COMPAT_HWCAP_LPAE)
+ unsigned int compat_elf_hwcap __read_mostly = COMPAT_ELF_HWCAP_DEFAULT;
+ unsigned int compat_elf_hwcap2 __read_mostly;
+@@ -1597,6 +1595,12 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 		.match_list = list,						\
  	}
  
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n", AAC_DRIVERNAME);
-+	pr_err("%s: Host bus reset request. SCSI hang ?\n", AAC_DRIVERNAME);
++#define HWCAP_CAP_MATCH(match, cap_type, cap)					\
++	{									\
++		__HWCAP_CAP(#cap, cap_type, cap)				\
++		.matches = match,						\
++	}
++
+ #ifdef CONFIG_ARM64_PTR_AUTH
+ static const struct arm64_cpu_capabilities ptr_auth_hwcap_addr_matches[] = {
+ 	{
+@@ -1670,8 +1674,35 @@ static const struct arm64_cpu_capabilities arm64_elf_hwcaps[] = {
+ 	{},
+ };
  
- 	/*
- 	 * Check the health of the controller
--- 
-1.8.3.1
++#ifdef CONFIG_COMPAT
++static bool compat_has_neon(const struct arm64_cpu_capabilities *cap, int scope)
++{
++	/*
++	 * Check that all of MVFR1_EL1.{SIMDSP, SIMDInt, SIMDLS} are available,
++	 * in line with that of arm32 as in vfp_init(). We make sure that the
++	 * check is future proof, by making sure value is non-zero.
++	 */
++	u32 mvfr1;
++
++	WARN_ON(scope == SCOPE_LOCAL_CPU && preemptible());
++	if (scope == SCOPE_SYSTEM)
++		mvfr1 = read_sanitised_ftr_reg(SYS_MVFR1_EL1);
++	else
++		mvfr1 = read_sysreg_s(SYS_MVFR1_EL1);
++
++	return cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDSP_SHIFT) &&
++		cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDINT_SHIFT) &&
++		cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDLS_SHIFT);
++}
++#endif
++
+ static const struct arm64_cpu_capabilities compat_elf_hwcaps[] = {
+ #ifdef CONFIG_COMPAT
++	HWCAP_CAP_MATCH(compat_has_neon, CAP_COMPAT_HWCAP, COMPAT_HWCAP_NEON),
++	HWCAP_CAP(SYS_MVFR1_EL1, MVFR1_SIMDFMAC_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFPv4),
++	/* Arm v8 mandates MVFR0.FPDP == {0, 2}. So, piggy back on this for the presence of VFP support */
++	HWCAP_CAP(SYS_MVFR0_EL1, MVFR0_FPDP_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFP),
++	HWCAP_CAP(SYS_MVFR0_EL1, MVFR0_FPDP_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFPv3),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_PMULL),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_AES),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_SHA1_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_SHA1),
 
