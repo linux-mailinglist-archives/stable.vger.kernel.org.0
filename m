@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0BD15C6CC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B30C515C585
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730069AbgBMQDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:03:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37116 "EHLO mail.kernel.org"
+        id S1728193AbgBMPW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728627AbgBMPYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:13 -0500
+        id S1728182AbgBMPWy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:54 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6952024691;
-        Thu, 13 Feb 2020 15:24:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B23D246B1;
+        Thu, 13 Feb 2020 15:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607452;
-        bh=O6ewSjpdqXaXHXN1T6gYNrn5uIY08E3PEni/mjKuYKI=;
+        s=default; t=1581607374;
+        bh=S5HqjWvlJ1BjikblLI2DO3Yk64GnfgaNZSfTn5M1I8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQKGmneAVXGkxaGaNczN/YOnfV6qxJIx2QQPSDQQgAYQKGyF3NDxQMKW50ksXEXq4
-         9N1Oi2xV1yChmzn/g7coet6MkRtrothRBo7CS5Pp4CXf8BJSQL4lHpOQUyin1Mtau2
-         2Pdl+h1fdCjBVo4WPfhoi4Pk6l9D+azO2d988Weg=
+        b=EH5u4d1oVXOZ0N4xqcC5K64Y2+5ZgVs3mELQLm3V1uk3a0tqCqJq0VqOkGHCuig7u
+         SU8hn4PuxZJaZzJOmSjT7xPfrK1z1jLzaKcpjOi+6+b+bzC/HAOzLqqeJETzNhM60V
+         lVNZ+/Gr70VTubwjYICFGaoYFgLDxHmKPl09BiFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 080/116] ext4: fix deadlock allocating crypto bounce page from mempool
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 67/91] drm/dp_mst: Remove VCPI while disabling topology mgr
 Date:   Thu, 13 Feb 2020 07:20:24 -0800
-Message-Id: <20200213151913.930182058@linuxfoundation.org>
+Message-Id: <20200213151848.025622435@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit 547c556f4db7c09447ecf5f833ab6aaae0c5ab58 ]
+[ Upstream commit 64e62bdf04ab8529f45ed0a85122c703035dec3a ]
 
-ext4_writepages() on an encrypted file has to encrypt the data, but it
-can't modify the pagecache pages in-place, so it encrypts the data into
-bounce pages and writes those instead.  All bounce pages are allocated
-from a mempool using GFP_NOFS.
+[Why]
 
-This is not correct use of a mempool, and it can deadlock.  This is
-because GFP_NOFS includes __GFP_DIRECT_RECLAIM, which enables the "never
-fail" mode for mempool_alloc() where a failed allocation will fall back
-to waiting for one of the preallocated elements in the pool.
+This patch is trying to address the issue observed when hotplug DP
+daisy chain monitors.
 
-But since this mode is used for all a bio's pages and not just the
-first, it can deadlock waiting for pages already in the bio to be freed.
+e.g.
+src-mstb-mstb-sst -> src (unplug) mstb-mstb-sst -> src-mstb-mstb-sst
+(plug in again)
 
-This deadlock can be reproduced by patching mempool_alloc() to pretend
-that pool->alloc() always fails (so that it always falls back to the
-preallocations), and then creating an encrypted file of size > 128 KiB.
+Once unplug a DP MST capable device, driver will call
+drm_dp_mst_topology_mgr_set_mst() to disable MST. In this function,
+it cleans data of topology manager while disabling mst_state. However,
+it doesn't clean up the proposed_vcpis of topology manager.
+If proposed_vcpi is not reset, once plug in MST daisy chain monitors
+later, code will fail at checking port validation while trying to
+allocate payloads.
 
-Fix it by only using GFP_NOFS for the first page in the bio.  For
-subsequent pages just use GFP_NOWAIT, and if any of those fail, just
-submit the bio and start a new one.
+When MST capable device is plugged in again and try to allocate
+payloads by calling drm_dp_update_payload_part1(), this
+function will iterate over all proposed virtual channels to see if
+any proposed VCPI's num_slots is greater than 0. If any proposed
+VCPI's num_slots is greater than 0 and the port which the
+specific virtual channel directed to is not in the topology, code then
+fails at the port validation. Since there are stale VCPI allocations
+from the previous topology enablement in proposed_vcpi[], code will fail
+at port validation and reurn EINVAL.
 
-This will need to be fixed in f2fs too, but that's less straightforward.
+[How]
 
-Fixes: c9af28fdd449 ("ext4 crypto: don't let data integrity writebacks fail with ENOMEM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20191231181149.47619-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Clean up the data of stale proposed_vcpi[] and reset mgr->proposed_vcpis
+to NULL while disabling mst in drm_dp_mst_topology_mgr_set_mst().
+
+Changes since v1:
+*Add on more details in commit message to describe the issue which the
+patch is trying to fix
+
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+[added cc to stable]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191205090043.7580-1-Wayne.Lin@amd.com
+Cc: <stable@vger.kernel.org> # v3.17+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/page-io.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
-index 0094923e5ebf5..94f60f9d57fd1 100644
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -469,16 +469,25 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
- 	    nr_to_submit) {
- 		gfp_t gfp_flags = GFP_NOFS;
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index 4d0f77f0edad1..d4f1a40f6fc5e 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2039,6 +2039,7 @@ static bool drm_dp_get_vc_payload_bw(int dp_link_bw,
+ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state)
+ {
+ 	int ret = 0;
++	int i = 0;
+ 	struct drm_dp_mst_branch *mstb = NULL;
  
-+		/*
-+		 * Since bounce page allocation uses a mempool, we can only use
-+		 * a waiting mask (i.e. request guaranteed allocation) on the
-+		 * first page of the bio.  Otherwise it can deadlock.
-+		 */
-+		if (io->io_bio)
-+			gfp_flags = GFP_NOWAIT | __GFP_NOWARN;
- 	retry_encrypt:
- 		data_page = fscrypt_encrypt_page(inode, page, gfp_flags);
- 		if (IS_ERR(data_page)) {
- 			ret = PTR_ERR(data_page);
--			if (ret == -ENOMEM && wbc->sync_mode == WB_SYNC_ALL) {
--				if (io->io_bio) {
-+			if (ret == -ENOMEM &&
-+			    (io->io_bio || wbc->sync_mode == WB_SYNC_ALL)) {
-+				gfp_flags = GFP_NOFS;
-+				if (io->io_bio)
- 					ext4_io_submit(io);
--					congestion_wait(BLK_RW_ASYNC, HZ/50);
--				}
--				gfp_flags |= __GFP_NOFAIL;
-+				else
-+					gfp_flags |= __GFP_NOFAIL;
-+				congestion_wait(BLK_RW_ASYNC, HZ/50);
- 				goto retry_encrypt;
- 			}
- 			data_page = NULL;
+ 	mutex_lock(&mgr->lock);
+@@ -2103,10 +2104,21 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 		/* this can fail if the device is gone */
+ 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
+ 		ret = 0;
++		mutex_lock(&mgr->payload_lock);
+ 		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
+ 		mgr->payload_mask = 0;
+ 		set_bit(0, &mgr->payload_mask);
++		for (i = 0; i < mgr->max_payloads; i++) {
++			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
++
++			if (vcpi) {
++				vcpi->vcpi = 0;
++				vcpi->num_slots = 0;
++			}
++			mgr->proposed_vcpis[i] = NULL;
++		}
+ 		mgr->vcpi_mask = 0;
++		mutex_unlock(&mgr->payload_lock);
+ 	}
+ 
+ out_unlock:
 -- 
 2.20.1
 
