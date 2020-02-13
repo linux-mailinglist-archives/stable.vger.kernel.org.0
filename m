@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 460E815C3B8
+	by mail.lfdr.de (Postfix) with ESMTP id B0FA115C3B9
 	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387523AbgBMP1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:27:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52594 "EHLO mail.kernel.org"
+        id S1729294AbgBMPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:43:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387501AbgBMP1r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:47 -0500
+        id S2387706AbgBMP1s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:48 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE53C24671;
-        Thu, 13 Feb 2020 15:27:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65A2A20661;
+        Thu, 13 Feb 2020 15:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607666;
-        bh=EF33hMLRm9aEOjhSrov18S2T0L95ZdTPRofYkUOn6qQ=;
+        s=default; t=1581607667;
+        bh=MRdGMjutinYGYiS4uueb/cSnR9n8EX3kqsC1u8p/7kI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MoqG7iAeTe8sD8M/koACeB/EFULJJLTGP9Ys5J2uJm9omXTmvGDEhRXy8i4zEoi+d
-         NQd+a0UUsqEHyeW4UYNlV7xtWBz9RmMuFVZ2bt7M1b17MqQItCJV7/nZevxxeCk3FR
-         f7GHPYq3hDL+hGZ/Mp+HZ12wJnKsH1eCS97OB/Cc=
+        b=fQQ0LdSPn+6DjfaKxEHplbBccfLzGFSvFuQi/+Wqmq1k+6khh2slPO3NiY0al2VsW
+         b+czQSkOidNq10P3TiEiwVeZkO3YqRDCHxuZSZyuqFeTuSDm8ssOiS9gzfTAkcVdN1
+         WqmijvOfGcfvtoCgp0l1OwOSx0r3j+r0YhqQsUX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 5.4 88/96] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
-Date:   Thu, 13 Feb 2020 07:21:35 -0800
-Message-Id: <20200213151912.119664555@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Whitten <ben.whitten@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 89/96] regmap: fix writes to non incrementing registers
+Date:   Thu, 13 Feb 2020 07:21:36 -0800
+Message-Id: <20200213151912.406961661@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
 References: <20200213151839.156309910@linuxfoundation.org>
@@ -43,41 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Ben Whitten <ben.whitten@gmail.com>
 
-commit 805f635703b2562b5ddd822c62fc9124087e5dd5 upstream.
+commit 2e31aab08bad0d4ee3d3d890a7b74cb6293e0a41 upstream.
 
-The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
-one set of users must be wrong.  Replace them by the correct enum IDs.
+When checking if a register block is writable we must ensure that the
+block does not start with or contain a non incrementing register.
 
-Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
+Fixes: 8b9f9d4dc511 ("regmap: verify if register is writeable before writing operations")
+Signed-off-by: Ben Whitten <ben.whitten@gmail.com>
+Link: https://lore.kernel.org/r/20200118205625.14532-1-ben.whitten@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a7778.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/regmap/regmap.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-@@ -2305,7 +2305,7 @@ static const struct pinmux_cfg_reg pinmu
- 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
- 		/* IP0_11_8 [4] */
- 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
--		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
-+		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
- 		FN_PWM4_B,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP0_7_5 [3] */
-@@ -2349,7 +2349,7 @@ static const struct pinmux_cfg_reg pinmu
- 		FN_TS_SDAT0_A,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP1_10_8 [3] */
--		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
-+		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
- 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
- 		/* IP1_7_5 [3] */
- 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1488,11 +1488,18 @@ static int _regmap_raw_write_impl(struct
+ 
+ 	WARN_ON(!map->bus);
+ 
+-	/* Check for unwritable registers before we start */
+-	for (i = 0; i < val_len / map->format.val_bytes; i++)
+-		if (!regmap_writeable(map,
+-				     reg + regmap_get_offset(map, i)))
+-			return -EINVAL;
++	/* Check for unwritable or noinc registers in range
++	 * before we start
++	 */
++	if (!regmap_writeable_noinc(map, reg)) {
++		for (i = 0; i < val_len / map->format.val_bytes; i++) {
++			unsigned int element =
++				reg + regmap_get_offset(map, i);
++			if (!regmap_writeable(map, element) ||
++				regmap_writeable_noinc(map, element))
++				return -EINVAL;
++		}
++	}
+ 
+ 	if (!map->cache_bypass && map->format.parse_val) {
+ 		unsigned int ival;
 
 
