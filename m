@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4E515C792
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C52B15C63C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbgBMQLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:11:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59280 "EHLO mail.kernel.org"
+        id S1728610AbgBMP6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:58:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727789AbgBMPWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:19 -0500
+        id S1728190AbgBMPZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:08 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F738246A3;
-        Thu, 13 Feb 2020 15:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B80E246C1;
+        Thu, 13 Feb 2020 15:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607339;
-        bh=SVhXEM5ip6DL8l6Fd0jQhEMKOcT/fCDb5xo5D0hWBBU=;
+        s=default; t=1581607508;
+        bh=H0mPSkaFOF7J4fHrknf39KG7tqcuvpubEYUOXQTbNcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiloAt/fa9anROYdz/2Jn5L8sqBmb5laogo686JGOIjhxyfjH4jgstPPCdhWoiP7v
-         wTRm0KcSjPELml3ZVKvIV+rkHqRpKd8+hTXyfKR1kB23ZT6hoSaxnHAsvwfdFSb4Pw
-         O8MsGrtM1Xtj4u0e8ttcB8KkbG/KJfAYomrQLDx8=
+        b=ZdBpGYZ4xa0OHsp2g/HUnS7XMONDqEJC1oWs9jaLRhqyo02ECJuiooVBs0iMLe3j3
+         1CIdSmxCOt6vbX35jh9tCQ2G9rta+5iWQY9GRVCmcEtqk1TBf/FOij68SdVHlS2NHt
+         zCsHyAcacMwLSG245iJk3mRIfuvDirHfnT86U9DY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.4 13/91] usb: gadget: legacy: set max_speed to super-speed
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 067/173] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
 Date:   Thu, 13 Feb 2020 07:19:30 -0800
-Message-Id: <20200213151826.814603529@linuxfoundation.org>
+Message-Id: <20200213151950.616419334@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 463f67aec2837f981b0a0ce8617721ff59685c00 upstream.
+commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
 
-These interfaces do support super-speed so let's not
-limit maximum speed to high-speed.
+Since tasklet is needed to be initialized before registering IRQ
+handler, adjust the position of tasklet_init to fix the wrong order.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Besides, to fix the missed tasklet_kill, this patch adds a helper
+function and uses devm_add_action to kill the tasklet automatically.
+
+Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/cdc2.c  |    2 +-
- drivers/usb/gadget/legacy/g_ffs.c |    2 +-
- drivers/usb/gadget/legacy/multi.c |    2 +-
- drivers/usb/gadget/legacy/ncm.c   |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/legacy/cdc2.c
-+++ b/drivers/usb/gadget/legacy/cdc2.c
-@@ -229,7 +229,7 @@ static struct usb_composite_driver cdc_d
- 	.name		= "g_cdc",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= cdc_bind,
- 	.unbind		= cdc_unbind,
- };
---- a/drivers/usb/gadget/legacy/g_ffs.c
-+++ b/drivers/usb/gadget/legacy/g_ffs.c
-@@ -153,7 +153,7 @@ static struct usb_composite_driver gfs_d
- 	.name		= DRIVER_NAME,
- 	.dev		= &gfs_dev_desc,
- 	.strings	= gfs_dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= gfs_bind,
- 	.unbind		= gfs_unbind,
- };
---- a/drivers/usb/gadget/legacy/multi.c
-+++ b/drivers/usb/gadget/legacy/multi.c
-@@ -486,7 +486,7 @@ static struct usb_composite_driver multi
- 	.name		= "g_multi",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= multi_bind,
- 	.unbind		= multi_unbind,
- 	.needs_serial	= 1,
---- a/drivers/usb/gadget/legacy/ncm.c
-+++ b/drivers/usb/gadget/legacy/ncm.c
-@@ -203,7 +203,7 @@ static struct usb_composite_driver ncm_d
- 	.name		= "g_ncm",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= gncm_bind,
- 	.unbind		= gncm_unbind,
- };
+--- a/drivers/crypto/picoxcell_crypto.c
++++ b/drivers/crypto/picoxcell_crypto.c
+@@ -1616,6 +1616,11 @@ static const struct of_device_id spacc_o
+ MODULE_DEVICE_TABLE(of, spacc_of_id_table);
+ #endif /* CONFIG_OF */
+ 
++static void spacc_tasklet_kill(void *data)
++{
++	tasklet_kill(data);
++}
++
+ static int spacc_probe(struct platform_device *pdev)
+ {
+ 	int i, err, ret = -EINVAL;
+@@ -1659,6 +1664,14 @@ static int spacc_probe(struct platform_d
+ 		return -ENXIO;
+ 	}
+ 
++	tasklet_init(&engine->complete, spacc_spacc_complete,
++		     (unsigned long)engine);
++
++	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
++			      &engine->complete);
++	if (ret)
++		return ret;
++
+ 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
+ 			     engine->name, engine)) {
+ 		dev_err(engine->dev, "failed to request IRQ\n");
+@@ -1721,8 +1734,6 @@ static int spacc_probe(struct platform_d
+ 	INIT_LIST_HEAD(&engine->completed);
+ 	INIT_LIST_HEAD(&engine->in_progress);
+ 	engine->in_flight = 0;
+-	tasklet_init(&engine->complete, spacc_spacc_complete,
+-		     (unsigned long)engine);
+ 
+ 	platform_set_drvdata(pdev, engine);
+ 
 
 
