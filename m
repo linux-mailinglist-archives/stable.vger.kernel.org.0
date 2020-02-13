@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1461315C533
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A57C15C4C7
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387604AbgBMPyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42992 "EHLO mail.kernel.org"
+        id S2387560AbgBMPuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:50:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbgBMPZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:57 -0500
+        id S1728714AbgBMP01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:27 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33FD7246A3;
-        Thu, 13 Feb 2020 15:25:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9A00222C2;
+        Thu, 13 Feb 2020 15:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607557;
-        bh=a1Tf/gwbOK8EFr26g537xvn8PZhTMLo3dmN8kTrzzik=;
+        s=default; t=1581607587;
+        bh=qnfJISG4sE6UeBhnpy91mZ1qa5kFlD3IbMeRsqcOW5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8hDhLoHWtL6v1KIm0lsLEBPFjWpeH4V1d3uJVngf1LOcc13gu8EgxypEME/dscAE
-         WkUfRuddga80shVmHA4Ah/3pBveeEFrkKVM3bDekINQ8kXOFi/TJF+U+WE5DJgV1gk
-         ZZ6SqmNaHHBUbuN802O/N4dTQHWg/pmprZFUDhOM=
+        b=jVQ4q9YvSLPHlLd+ng5fHvDZV6Za5m9QbJSmTsBTNOhfzrAkzC8fLJYLcr+XxranW
+         CTft4YCHSpgeFBTo5r/TgDJOcYHM6jISjT3tYoSnnfl9GUfK5TOWRdjc835mwNHWrj
+         U9ATrUOLBGdgSq9RHpPaNI12Lbn0BVRKlyTBRke0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Haywood <mark.haywood@oracle.com>,
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
         =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 143/173] RDMA/netlink: Do not always generate an ACK for some netlink operations
+Subject: [PATCH 4.19 05/52] RDMA/core: Fix locking in ib_uverbs_event_read
 Date:   Thu, 13 Feb 2020 07:20:46 -0800
-Message-Id: <20200213152007.740150707@linuxfoundation.org>
+Message-Id: <20200213151812.906346096@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit a242c36951ecd24bc16086940dbe6b522205c461 upstream.
+commit 14e23bd6d22123f6f3b2747701fa6cd4c6d05873 upstream.
 
-In rdma_nl_rcv_skb(), the local variable err is assigned the return value
-of the supplied callback function, which could be one of
-ib_nl_handle_resolve_resp(), ib_nl_handle_set_timeout(), or
-ib_nl_handle_ip_res_resp(). These three functions all return skb->len on
-success.
+This should not be using ib_dev to test for disassociation, during
+disassociation is_closed is set under lock and the waitq is triggered.
 
-rdma_nl_rcv_skb() is merely a copy of netlink_rcv_skb(). The callback
-functions used by the latter have the convention: "Returns 0 on success or
-a negative error code".
+Instead check is_closed and be sure to re-obtain the lock to test the
+value after the wait_event returns.
 
-In particular, the statement (equal for both functions):
-
-   if (nlh->nlmsg_flags & NLM_F_ACK || err)
-
-implies that rdma_nl_rcv_skb() always will ack a message, independent of
-the NLM_F_ACK being set in nlmsg_flags or not.
-
-The fix could be to change the above statement, but it is better to keep
-the two *_rcv_skb() functions equal in this respect and instead change the
-three callback functions in the rdma subsystem to the correct convention.
-
-Fixes: 2ca546b92a02 ("IB/sa: Route SA pathrecord query through netlink")
-Fixes: ae43f8286730 ("IB/core: Add IP to GID netlink offload")
-Link: https://lore.kernel.org/r/20191216120436.3204814-1-haakon.bugge@oracle.com
-Suggested-by: Mark Haywood <mark.haywood@oracle.com>
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Tested-by: Mark Haywood <mark.haywood@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 036b10635739 ("IB/uverbs: Enable device removal when there are active user space applications")
+Link: https://lore.kernel.org/r/1578504126-9400-12-git-send-email-yishaih@mellanox.com
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/addr.c     |    2 +-
- drivers/infiniband/core/sa_query.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/uverbs_main.c |   32 ++++++++++++++------------------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -140,7 +140,7 @@ int ib_nl_handle_ip_res_resp(struct sk_b
- 	if (ib_nl_is_good_ip_resp(nlh))
- 		ib_nl_process_good_ip_rsep(nlh);
- 
--	return skb->len;
-+	return 0;
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -273,7 +273,6 @@ void ib_uverbs_release_file(struct kref
  }
  
- static int ib_nl_ip_send_msg(struct rdma_dev_addr *dev_addr,
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -1078,7 +1078,7 @@ int ib_nl_handle_set_timeout(struct sk_b
+ static ssize_t ib_uverbs_event_read(struct ib_uverbs_event_queue *ev_queue,
+-				    struct ib_uverbs_file *uverbs_file,
+ 				    struct file *filp, char __user *buf,
+ 				    size_t count, loff_t *pos,
+ 				    size_t eventsz)
+@@ -291,19 +290,16 @@ static ssize_t ib_uverbs_event_read(stru
+ 
+ 		if (wait_event_interruptible(ev_queue->poll_wait,
+ 					     (!list_empty(&ev_queue->event_list) ||
+-			/* The barriers built into wait_event_interruptible()
+-			 * and wake_up() guarentee this will see the null set
+-			 * without using RCU
+-			 */
+-					     !uverbs_file->device->ib_dev)))
++					      ev_queue->is_closed)))
+ 			return -ERESTARTSYS;
+ 
++		spin_lock_irq(&ev_queue->lock);
++
+ 		/* If device was disassociated and no event exists set an error */
+-		if (list_empty(&ev_queue->event_list) &&
+-		    !uverbs_file->device->ib_dev)
++		if (list_empty(&ev_queue->event_list) && ev_queue->is_closed) {
++			spin_unlock_irq(&ev_queue->lock);
+ 			return -EIO;
+-
+-		spin_lock_irq(&ev_queue->lock);
++		}
  	}
  
- settimeout_out:
--	return skb->len;
-+	return 0;
+ 	event = list_entry(ev_queue->event_list.next, struct ib_uverbs_event, list);
+@@ -338,8 +334,7 @@ static ssize_t ib_uverbs_async_event_rea
+ {
+ 	struct ib_uverbs_async_event_file *file = filp->private_data;
+ 
+-	return ib_uverbs_event_read(&file->ev_queue, file->uverbs_file, filp,
+-				    buf, count, pos,
++	return ib_uverbs_event_read(&file->ev_queue, filp, buf, count, pos,
+ 				    sizeof(struct ib_uverbs_async_event_desc));
  }
  
- static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
-@@ -1149,7 +1149,7 @@ int ib_nl_handle_resolve_resp(struct sk_
- 	}
+@@ -349,9 +344,8 @@ static ssize_t ib_uverbs_comp_event_read
+ 	struct ib_uverbs_completion_event_file *comp_ev_file =
+ 		filp->private_data;
  
- resp_out:
--	return skb->len;
-+	return 0;
+-	return ib_uverbs_event_read(&comp_ev_file->ev_queue,
+-				    comp_ev_file->uobj.ufile, filp,
+-				    buf, count, pos,
++	return ib_uverbs_event_read(&comp_ev_file->ev_queue, filp, buf, count,
++				    pos,
+ 				    sizeof(struct ib_uverbs_comp_event_desc));
  }
  
- static void free_sm_ah(struct kref *kref)
+@@ -374,7 +368,9 @@ static __poll_t ib_uverbs_event_poll(str
+ static __poll_t ib_uverbs_async_event_poll(struct file *filp,
+ 					       struct poll_table_struct *wait)
+ {
+-	return ib_uverbs_event_poll(filp->private_data, filp, wait);
++	struct ib_uverbs_async_event_file *file = filp->private_data;
++
++	return ib_uverbs_event_poll(&file->ev_queue, filp, wait);
+ }
+ 
+ static __poll_t ib_uverbs_comp_event_poll(struct file *filp,
+@@ -388,9 +384,9 @@ static __poll_t ib_uverbs_comp_event_pol
+ 
+ static int ib_uverbs_async_event_fasync(int fd, struct file *filp, int on)
+ {
+-	struct ib_uverbs_event_queue *ev_queue = filp->private_data;
++	struct ib_uverbs_async_event_file *file = filp->private_data;
+ 
+-	return fasync_helper(fd, filp, on, &ev_queue->async_queue);
++	return fasync_helper(fd, filp, on, &file->ev_queue.async_queue);
+ }
+ 
+ static int ib_uverbs_comp_event_fasync(int fd, struct file *filp, int on)
 
 
