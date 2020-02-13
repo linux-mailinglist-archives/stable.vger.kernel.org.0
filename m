@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE84215C5EF
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8705915C580
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728579AbgBMPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41726 "EHLO mail.kernel.org"
+        id S1728135AbgBMPWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387474AbgBMPZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:37 -0500
+        id S1728122AbgBMPWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:48 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A7E224689;
-        Thu, 13 Feb 2020 15:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79C1B24689;
+        Thu, 13 Feb 2020 15:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607536;
-        bh=xp5AfYsg5Lg7c8CdywzoLdQcyf/BrBlzYmWCtroqw9A=;
+        s=default; t=1581607367;
+        bh=wp6DlfLy2ZTgy4xURGFu8rOf9ZQEUYuUErnKGeDGjD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gq13jm/ZY2ZZ4kkCWaG5/oLzFm7gkHUjrjLS/X4vql7gaSvH/uP3Pz1WQ8GzrNrp
-         ge6Xw3gfv9mUL3hHqEq7rLPWnjjsqaA3peX3bsSCWrRSkQ+BHAAP1XLd+w87fPW5XY
-         jbc4GWgjp5hw2jBwQLCpzUm5/tDvUTxOuBlaOMBw=
+        b=R44F5IEPkMirMtfXlTHS1lS6at7epN8mdDDIJSmtt55qFN44i3M+2PTstRKOV7Iu0
+         YKVMVYuNLk+2daNnK1+JW7WYG1IU9pLbzPIS67dfshtnkDiaRk4f93XeO6OW4qahlt
+         7jS7pYToi/c0fTVSpoYrh8rSQtEF2YLCNiWGLhIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 094/173] scsi: csiostor: Adjust indentation in csio_device_reset
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 40/91] KVM: x86: Protect ioapic_read_indirect() from Spectre-v1/L1TF attacks
 Date:   Thu, 13 Feb 2020 07:19:57 -0800
-Message-Id: <20200213151956.750581256@linuxfoundation.org>
+Message-Id: <20200213151837.086387403@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit a808a04c861782e31fc30e342a619c144aaee14a upstream.
+commit 8c86405f606ca8508b8d9280680166ca26723695 upstream.
 
-Clang warns:
+This fixes a Spectre-v1/L1TF vulnerability in ioapic_read_indirect().
+This function contains index computations based on the
+(attacker-controlled) IOREGSEL register.
 
-../drivers/scsi/csiostor/csio_scsi.c:1386:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-         csio_lnodes_exit(hw, 1);
-         ^
-../drivers/scsi/csiostor/csio_scsi.c:1382:2: note: previous statement is
-here
-        if (*buf != '1')
-        ^
-1 warning generated.
+Fixes: a2c118bfab8b ("KVM: Fix bounds checking in ioapic indirect register reads (CVE-2013-1798)")
 
-This warning occurs because there is a space after the tab on this
-line.  Remove it so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
-
-Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/818
-Link: https://lore.kernel.org/r/20191218014726.8455-1-natechancellor@gmail.com
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/csiostor/csio_scsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/ioapic.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/csiostor/csio_scsi.c
-+++ b/drivers/scsi/csiostor/csio_scsi.c
-@@ -1383,7 +1383,7 @@ csio_device_reset(struct device *dev,
- 		return -EINVAL;
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -74,13 +74,14 @@ static unsigned long ioapic_read_indirec
+ 	default:
+ 		{
+ 			u32 redir_index = (ioapic->ioregsel - 0x10) >> 1;
+-			u64 redir_content;
++			u64 redir_content = ~0ULL;
  
- 	/* Delete NPIV lnodes */
--	 csio_lnodes_exit(hw, 1);
-+	csio_lnodes_exit(hw, 1);
+-			if (redir_index < IOAPIC_NUM_PINS)
+-				redir_content =
+-					ioapic->redirtbl[redir_index].bits;
+-			else
+-				redir_content = ~0ULL;
++			if (redir_index < IOAPIC_NUM_PINS) {
++				u32 index = array_index_nospec(
++					redir_index, IOAPIC_NUM_PINS);
++
++				redir_content = ioapic->redirtbl[index].bits;
++			}
  
- 	/* Block upper IOs */
- 	csio_lnodes_block_request(hw);
+ 			result = (ioapic->ioregsel & 0x1) ?
+ 			    (redir_content >> 32) & 0xffffffff :
 
 
