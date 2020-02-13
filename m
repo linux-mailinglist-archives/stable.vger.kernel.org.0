@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C9A15C54C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4EC15C547
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729102AbgBMPyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42106 "EHLO mail.kernel.org"
+        id S1729092AbgBMPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728601AbgBMPZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:49 -0500
+        id S1729085AbgBMPZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:50 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B28A620848;
-        Thu, 13 Feb 2020 15:25:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6681F246A4;
+        Thu, 13 Feb 2020 15:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607548;
-        bh=2IxQKgMwkp6kqKujbIj3ytnQTTCdHJONx8Zpa1knna4=;
+        s=default; t=1581607549;
+        bh=O3oZLyCuVKLL3FWyeWMtNWGpc20/w24QAc8Xrgu7c3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nicNUWYl+fo7uMohmkgwORhITPQQRwCrbJesC0vEPnWv2ghHeW7J/yW4XmOsQmijK
-         DfD7CtZRvJJwKBZbQEnEkPuAAWQ8fX4TfFm1hhl8PoHmpmclCCD/0OK9tNyrnwcsAq
-         fjftnBT2n8iBWrFGdFuBJSSkEc67TReFziLW/BKo=
+        b=1siTjFjzzZiosLFz5DAQI9X4mSWtCtZx/g9zeePsWQNivIStJVLklwn6uicP37rmW
+         dtKAFN/GL8tZbV0kSk9Pbx/vWdqHLu+xo/7R38o9Yl3fOE3yZXU+uAn2pQAMKmmDsq
+         gjYyLbK0d+Vw3ha5pBTZrxXsyVMTLm1LjuUkfzZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 112/173] net: dsa: bcm_sf2: Only 7278 supports 2Gb/sec IMP port
-Date:   Thu, 13 Feb 2020 07:20:15 -0800
-Message-Id: <20200213152000.754463274@linuxfoundation.org>
+Subject: [PATCH 4.14 113/173] net_sched: fix a resource leak in tcindex_set_parms()
+Date:   Thu, 13 Feb 2020 07:20:16 -0800
+Message-Id: <20200213152000.984520595@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -43,34 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit de34d7084edd069dac5aa010cfe32bd8c4619fa6 ]
+[ Upstream commit 52b5ae501c045010aeeb1d5ac0373ff161a88291 ]
 
-The 7445 switch clocking profiles do not allow us to run the IMP port at
-2Gb/sec in a way that it is reliable and consistent. Make sure that the
-setting is only applied to the 7278 family.
+Jakub noticed there is a potential resource leak in
+tcindex_set_parms(): when tcindex_filter_result_init() fails
+and it jumps to 'errout1' which doesn't release the memory
+and resources allocated by tcindex_alloc_perfect_hash().
 
-Fixes: 8f1880cbe8d0 ("net: dsa: bcm_sf2: Configure IMP port for 2Gb/sec")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+We should just jump to 'errout_alloc' which calls
+tcindex_free_perfect_hash().
+
+Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/cls_tcindex.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -137,7 +137,9 @@ static void bcm_sf2_imp_setup(struct dsa
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -383,7 +383,7 @@ tcindex_set_parms(struct net *net, struc
  
- 		/* Force link status for IMP port */
- 		reg = core_readl(priv, offset);
--		reg |= (MII_SW_OR | LINK_STS | GMII_SPEED_UP_2G);
-+		reg |= (MII_SW_OR | LINK_STS);
-+		if (priv->type == BCM7278_DEVICE_ID)
-+			reg |= GMII_SPEED_UP_2G;
- 		core_writel(priv, reg, offset);
+ 	err = tcindex_filter_result_init(&new_filter_result);
+ 	if (err < 0)
+-		goto errout1;
++		goto errout_alloc;
+ 	if (old_r)
+ 		cr = r->res;
  
- 		/* Enable Broadcast, Multicast, Unicast forwarding to IMP port */
+@@ -502,7 +502,6 @@ errout_alloc:
+ 		tcindex_free_perfect_hash(cp);
+ 	else if (balloc == 2)
+ 		kfree(cp->h);
+-errout1:
+ 	tcf_exts_destroy(&new_filter_result.exts);
+ errout:
+ 	kfree(cp);
 
 
