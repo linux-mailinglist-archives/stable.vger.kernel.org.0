@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB4EC15C547
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9BC15C326
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729092AbgBMPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42540 "EHLO mail.kernel.org"
+        id S1729607AbgBMP2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729085AbgBMPZu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:50 -0500
+        id S1729603AbgBMP2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:16 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6681F246A4;
-        Thu, 13 Feb 2020 15:25:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D80A24670;
+        Thu, 13 Feb 2020 15:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607549;
-        bh=O3oZLyCuVKLL3FWyeWMtNWGpc20/w24QAc8Xrgu7c3E=;
+        s=default; t=1581607696;
+        bh=NP6AoYlELGfUFoRjR5wWantuWYyunVPz11smvM2VwE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1siTjFjzzZiosLFz5DAQI9X4mSWtCtZx/g9zeePsWQNivIStJVLklwn6uicP37rmW
-         dtKAFN/GL8tZbV0kSk9Pbx/vWdqHLu+xo/7R38o9Yl3fOE3yZXU+uAn2pQAMKmmDsq
-         gjYyLbK0d+Vw3ha5pBTZrxXsyVMTLm1LjuUkfzZE=
+        b=rgURrOadyeLoNwA8gjaQjigWj66wkillDYUSp9D7AV8r4Kfl66TQJVv88+KrGeV9j
+         8/QFrjHyUfKHvorKMIUVB+8ErXR0/Zq8LoGjfDHOFCFWoVmpuzZk5qZ1MfSy+uBBvY
+         hKwSjAwf7hwbF2aoQi3s8Vkowtukk3i2EAzY6pNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 113/173] net_sched: fix a resource leak in tcindex_set_parms()
+        stable@vger.kernel.org, Dongdong Liu <liudongdong3@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.5 020/120] PCI/AER: Initialize aer_fifo
 Date:   Thu, 13 Feb 2020 07:20:16 -0800
-Message-Id: <20200213152000.984520595@linuxfoundation.org>
+Message-Id: <20200213151909.046374640@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Dongdong Liu <liudongdong3@huawei.com>
 
-[ Upstream commit 52b5ae501c045010aeeb1d5ac0373ff161a88291 ]
+commit d95f20c4f07020ebc605f3b46af4b6db9eb5fc99 upstream.
 
-Jakub noticed there is a potential resource leak in
-tcindex_set_parms(): when tcindex_filter_result_init() fails
-and it jumps to 'errout1' which doesn't release the memory
-and resources allocated by tcindex_alloc_perfect_hash().
+Previously we did not call INIT_KFIFO() for aer_fifo.  This leads to
+kfifo_put() sometimes returning 0 (queue full) when in fact it is not.
 
-We should just jump to 'errout_alloc' which calls
-tcindex_free_perfect_hash().
+It is easy to reproduce the problem by using aer-inject:
 
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  $ aer-inject -s :82:00.0 multiple-corr-nonfatal
+
+The content of the multiple-corr-nonfatal file is as below:
+
+  AER
+  COR RCVR
+  HL 0 1 2 3
+  AER
+  UNCOR POISON_TLP
+  HL 4 5 6 7
+
+Fixes: 27c1ce8bbed7 ("PCI/AER: Use kfifo for tracking events instead of reimplementing it")
+Link: https://lore.kernel.org/r/1579767991-103898-1-git-send-email-liudongdong3@huawei.com
+Signed-off-by: Dongdong Liu <liudongdong3@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_tcindex.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -383,7 +383,7 @@ tcindex_set_parms(struct net *net, struc
+---
+ drivers/pci/pcie/aer.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -1445,6 +1445,7 @@ static int aer_probe(struct pcie_device
+ 		return -ENOMEM;
  
- 	err = tcindex_filter_result_init(&new_filter_result);
- 	if (err < 0)
--		goto errout1;
-+		goto errout_alloc;
- 	if (old_r)
- 		cr = r->res;
+ 	rpc->rpd = port;
++	INIT_KFIFO(rpc->aer_fifo);
+ 	set_service_data(dev, rpc);
  
-@@ -502,7 +502,6 @@ errout_alloc:
- 		tcindex_free_perfect_hash(cp);
- 	else if (balloc == 2)
- 		kfree(cp->h);
--errout1:
- 	tcf_exts_destroy(&new_filter_result.exts);
- errout:
- 	kfree(cp);
+ 	status = devm_request_threaded_irq(device, dev->irq, aer_irq, aer_isr,
 
 
