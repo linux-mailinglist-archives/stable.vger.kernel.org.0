@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC2D15C452
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 846FA15C352
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729670AbgBMPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:46:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S1728493AbgBMPkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:40:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729380AbgBMP1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:20 -0500
+        id S2387789AbgBMP2r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:47 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BDBE24689;
-        Thu, 13 Feb 2020 15:27:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50742206DB;
+        Thu, 13 Feb 2020 15:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607640;
-        bh=EZnF+QuJO+sub9/aDn4PIsMh2MpwJZKmxruzUZa2+uc=;
+        s=default; t=1581607727;
+        bh=c6sN0RjKAHXORAEcOzdJvGezCrM7RSfLgAmj2j+lqOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1+0E1GXDRmLGyJeXn9T/mheE0Q3X7U6uxq9YK88JcnUrTOZU761FvEOR3dYYtthG
-         I1HOjDWXZZNyrNo3BE435Pm6Q6bc+G4twb80Gt+n0npGvH1IW5WYZebu0WWHuOOuDf
-         839Hp6MbndPVhsjQUgw6Mxznx6JbioeDe21mXGzk=
+        b=dbYjraoecTugTPmPJb+/ZelelQvxcvHmN9oOmK47CLRLFV/ySg5c7PKmpeQq39tlQ
+         El88PgxENEcTWL6mYvMOPbvwKv5Lr/YdU+/LHqvpbUZCwB94j7di0UWlR69fnpm/Hv
+         3NpS3pCL+3gjBdfuKYMXJByOQz42Qa3sWcdl09Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Denis Odintsov <d.odintsov@traviangames.com>,
-        Baruch Siach <baruch@tkos.co.il>, Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH 5.4 46/96] arm64: dts: marvell: clearfog-gt-8k: fix switch cpu port node
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Subject: [PATCH 5.5 057/120] arm64: dts: qcom: msm8998-mtp: Add alias for blsp1_uart3
 Date:   Thu, 13 Feb 2020 07:20:53 -0800
-Message-Id: <20200213151857.106084033@linuxfoundation.org>
+Message-Id: <20200213151921.158176607@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit 62bba54d99407aedfe9b0a02e72e23c06e2b0116 upstream.
+commit c9ec155b5962233aff3df65210bd6a4788dee21c upstream.
 
-Explicitly set the switch cpu (upstream) port phy-mode and managed
-properties. This fixes the Marvell 88E6141 switch serdes configuration
-with the recently enabled phylink layer.
+The msm_serial driver has a predefined set of uart ports defined, which
+is allocated either by reading aliases or if no match is found a simple
+counter, starting at index 0. But there's no logic in place to prevent
+these two allocation mechanism from colliding. As a result either none
+or all of the active msm_serial instances must be listed as aliases.
 
-Fixes: a6120833272c ("arm64: dts: add support for SolidRun Clearfog GT 8K")
-Reported-by: Denis Odintsov <d.odintsov@traviangames.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Define blsp1_uart3 as "serial1" to mitigate this problem.
+
+Fixes: 4cffb9f2c700 ("arm64: dts: qcom: msm8998-mtp: Enable bluetooth")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Link: https://lore.kernel.org/r/20191119011823.379100-1-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
-@@ -408,6 +408,8 @@
- 				reg = <5>;
- 				label = "cpu";
- 				ethernet = <&cp1_eth2>;
-+				phy-mode = "2500base-x";
-+				managed = "in-band-status";
- 			};
- 		};
+--- a/arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi
+@@ -9,6 +9,7 @@
+ / {
+ 	aliases {
+ 		serial0 = &blsp2_uart1;
++		serial1 = &blsp1_uart3;
+ 	};
  
+ 	chosen {
 
 
