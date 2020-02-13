@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C167E15BCF8
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 11:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB52E15BCFC
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 11:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729466AbgBMKlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 05:41:06 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:43620 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729428AbgBMKlG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 05:41:06 -0500
-Received: by mail-wr1-f66.google.com with SMTP id r11so5992555wrq.10
-        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 02:41:04 -0800 (PST)
+        id S1729526AbgBMKmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 05:42:22 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:41441 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729428AbgBMKmW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 05:42:22 -0500
+Received: by mail-wr1-f67.google.com with SMTP id c9so6033384wrw.8
+        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 02:42:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=broadcom.com; s=google;
         h=from:to:cc:subject:date:message-id;
-        bh=vSkTzaQA4831ATh6BRKstnf1knElx6iw4+X08WANkTI=;
-        b=OfWHTqvs3h/rvonYxYIICe9cu4gsw0+chQ/Rgo7Cei1lR9zlQlHCSFpNlkjjtMJotb
-         UHS992dpl4NG0KVLMfAQeIpycGocfDJ3ZT7iUmXKGxlkneyFYedaQS8xa6j5ziCQ2HvT
-         cIf49f+jdBBOvcDdEHltgdCMk/Mvj6YhbbYTk=
+        bh=hYeg+wlRdEphQLMa6bJ+kzNI6fLLZBpv3hkhUqSkWkw=;
+        b=EMKXOpr09lqzAz0uzFhSLwbJ/kmPxUJYoWcck/sqdYTr1T402w/1ELxZPbnjpoVd+G
+         aunnoiWoSyUtyr7T9JzC2bcRc+i6RoZdGViGD3WFjJ2O5AGkv6H+U6CtE5Z6lyB/0/r/
+         JA67EY8wx756kU67S0XoZJ6ZDE+g2KJexfQJc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=vSkTzaQA4831ATh6BRKstnf1knElx6iw4+X08WANkTI=;
-        b=KkeCiCKRRU3qOF1/RjMWxKBCEYFBePDBbm3rZs7Gu7IptBcQot7JqU7PMCeMhqiiX3
-         3jHvjeNBuOdiWuE958z4/ZdT1nSW+l+3tVhHcYLLHTzxr595QfkFSIjZtYXGd7ngNGnO
-         myobpH925LBRv/rl51KGMee6ByfgeQ5UIWVZl9INtKHQ5nLlbvtsilkpBtl8TGWav+bt
-         KYOLaMNDQBfi5avl1ctRhzAvvHxyZHGitz1VKkFpKUl+2pqh50OzXM3oSWLXHfeIjr66
-         SK37PiFyPQQ06ZTwL/ZjP87rl5C7N3PWkkGt5HXrm/MDV30RntxZEKINrML0Zh8+bpIJ
-         uwZQ==
-X-Gm-Message-State: APjAAAWY8B+DdsoSk38GKW/MvvSTC9zIgt1I4VGR706wSFiFjkSC/xD1
-        wKK4GOZeGO/o9QPvTPrn7juwUNYweZkvhYI5eRjOFxKs7hIdbQLQtgDB72Osw3NBU7eeq0KJPoE
-        GAKJJzwth2nZ9v7XAb3wEVMEdKgWkffQF3SPBUJ3NiM+R4PZFsEDoFA8Y+DsTRke5cLuquTyV8u
-        Mg
-X-Google-Smtp-Source: APXvYqydTqjiwkORXjqdch5Uyuq12cC+Fhq24cnHBq2KTZhUrepOpggIX4EypXMiwHYYZqrrFqv6oA==
-X-Received: by 2002:a5d:6406:: with SMTP id z6mr20915035wru.294.1581590462940;
-        Thu, 13 Feb 2020 02:41:02 -0800 (PST)
+        bh=hYeg+wlRdEphQLMa6bJ+kzNI6fLLZBpv3hkhUqSkWkw=;
+        b=Pp4Eh78jdPvHsyBoTu+07HeGdV9oG1Ds8J5oGjADiN2bJKh6CG83FMSvdkSvcTR00g
+         bAmVZqbUMC+gXOo8K58xPPY04FNvuI5fqnlvwR9HZ+vtoe0tDKlJaoi6jAqe7RCIx0yU
+         6cE1s1Lk84psBNrv5Apyk9C21FV8mLbs0GXO/1uvVVYf62LtEKl6rwbO3LXViws+C5o2
+         uLfHkDtYyE+IzXarIHUPoav9r9xskcaRLAsM6Ov9dnY/G0K3/E06oE0m1zLUz3GhXPtE
+         SfH/BiPoTFKsIjnktmqWCfhf82GCnsw+iRxe/tQ/IbT+XxNDODQuTW31xXiGMH8+vXSZ
+         tD4A==
+X-Gm-Message-State: APjAAAW6CoUWBOJ9Mxnzd6x/Z1YNspm7HSLrLKZ2dITNe09mJbbshjLJ
+        OeuSm3/ymMVp6DRI9/YVu5H6MH4n6pdqaWYeghXtiYylXK9RwrBrWuffe70MdjsN/wAoaVQ2ERx
+        IKjqg2iI05qYmQkRwapEaRz/uwVV0BeHDz3WxkqWZSFu/77d1gKWq9M6aS2BJLhUEMyQVm1q7rw
+        ==
+X-Google-Smtp-Source: APXvYqxZloHdlXqIWw8+Dpm+5B6WtDRgS6JTncSV+qbixF6dLwnuD3zMq06wDIONzHzsdh/dtQGCsw==
+X-Received: by 2002:a5d:5647:: with SMTP id j7mr21067568wrw.265.1581590538063;
+        Thu, 13 Feb 2020 02:42:18 -0800 (PST)
 Received: from dhcp-10-123-20-32.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id j14sm2442682wrn.32.2020.02.13.02.40.58
+        by smtp.gmail.com with ESMTPSA id h10sm2557378wml.18.2020.02.13.02.42.13
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Feb 2020 02:41:02 -0800 (PST)
+        Thu, 13 Feb 2020 02:42:17 -0800 (PST)
 From:   Anand Lodnoor <anand.lodnoor@broadcom.com>
 To:     stable@vger.kernel.org
 Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
@@ -50,9 +50,9 @@ Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
         Anand Lodnoor <anand.lodnoor@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9] scsi: megaraid_sas: Do not initiate OCR if controller is not in ready state
-Date:   Thu, 13 Feb 2020 16:10:35 +0530
-Message-Id: <1581590435-19519-1-git-send-email-anand.lodnoor@broadcom.com>
+Subject: [PATCH 4.14] scsi: megaraid_sas: Do not initiate OCR if controller is not in ready state
+Date:   Thu, 13 Feb 2020 16:11:53 +0530
+Message-Id: <1581590513-19568-1-git-send-email-anand.lodnoor@broadcom.com>
 X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -81,11 +81,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  3 files changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index c5cc002..23848bb 100644
+index 5775136..9b77f4e 100644
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -3978,7 +3978,8 @@ int megasas_alloc_cmds(struct megasas_instance *instance)
- 	if (!instance->ctrl_context)
+@@ -4109,7 +4109,8 @@ int megasas_alloc_cmds(struct megasas_instance *instance)
+ 	if (instance->adapter_type == MFI_SERIES)
  		return KILL_ADAPTER;
  	else if (instance->unload ||
 -			test_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags))
@@ -95,18 +95,18 @@ index c5cc002..23848bb 100644
  	else
  		return INITIATE_OCR;
 diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index fe1a209..874e5a7 100644
+index 7be2b9e..b137212 100644
 --- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -3438,6 +3438,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
+@@ -4212,6 +4212,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
  	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
  		del_timer_sync(&instance->sriov_heartbeat_timer);
  	set_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
 +	set_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
  	atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_POLLING);
  	instance->instancet->disable_intr(instance);
- 	msleep(1000);
-@@ -3594,7 +3595,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
+ 	megasas_sync_irqs((unsigned long)instance);
+@@ -4399,7 +4400,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
  		atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
  	}
  out:
@@ -116,17 +116,17 @@ index fe1a209..874e5a7 100644
  	return retval;
  }
 diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.h b/drivers/scsi/megaraid/megaraid_sas_fusion.h
-index e3bee04..034653d 100644
+index 7c1f7cc..40724df 100644
 --- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
 +++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
-@@ -93,6 +93,7 @@ enum MR_RAID_FLAGS_IO_SUB_TYPE {
+@@ -100,6 +100,7 @@ enum MR_RAID_FLAGS_IO_SUB_TYPE {
  
  #define MEGASAS_FP_CMD_LEN	16
  #define MEGASAS_FUSION_IN_RESET 0
 +#define MEGASAS_FUSION_OCR_NOT_POSSIBLE 1
  #define THRESHOLD_REPLY_COUNT 50
+ #define RAID_1_PEER_CMDS 2
  #define JBOD_MAPS_COUNT	2
- 
 -- 
 1.8.3.1
 
