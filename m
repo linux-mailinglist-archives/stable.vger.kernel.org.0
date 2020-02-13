@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7D715C58D
+	by mail.lfdr.de (Postfix) with ESMTP id 82C6A15C58C
 	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728285AbgBMPXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728289AbgBMPXL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Feb 2020 10:23:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33786 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728278AbgBMPXK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728129AbgBMPXK (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:23:10 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FD2C24693;
+        by mail.kernel.org (Postfix) with ESMTPSA id B8C2124689;
         Thu, 13 Feb 2020 15:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581607389;
-        bh=uWRAqrrz8QGRmZbaK0xqB+Wr/NpuVq0kBoEB4W7u2Og=;
+        bh=7cqMCJ9GXmCqEY6VdO/ifb5Idjq6R0CpGeUisgxTWpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3B7YGku8v2GJq9ni0kaWWjnhwf7UeoJSxFZ8HXASH2PF+L3BO69ixUl5s8MDFc3W
-         lejCk8paNBXhMTUnISb3zYTdgKnlOjIFEpAXRNWb1hc/AwqwPk4yptvjyCwsHZ5mws
-         S9mN6kRoOM6QqeSp2cE1f6zWOOugA7LiBP0eNqu4=
+        b=0piQFXL/jHLRxsE39h2AQdFHEvSHGjU4eFhaV661XM7A0TxkuUCRrMmRxJjLJd+19
+         h9Sr6JT3BaGwm2RdBQevKzMfXI9afO5S30Vj1mPZGpV2TTRNMhxXCUGx3Fw2JRRlVw
+         OVFVp3orlq72Fz+ToBKuYqckSy+37r0T8Ah1h93E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 90/91] libertas: make lbs_ibss_join_existing() return error code on rates overflow
-Date:   Thu, 13 Feb 2020 07:20:47 -0800
-Message-Id: <20200213151857.632316857@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Bader <stefan.bader@canonical.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.4 91/91] dm: fix potential for q->make_request_fn NULL pointer
+Date:   Thu, 13 Feb 2020 07:20:48 -0800
+Message-Id: <20200213151857.973752051@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
 References: <20200213151821.384445454@linuxfoundation.org>
@@ -44,43 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Mike Snitzer <snitzer@redhat.com>
 
-[ Upstream commit 1754c4f60aaf1e17d886afefee97e94d7f27b4cb ]
+commit 47ace7e012b9f7ad71d43ac9063d335ea3d6820b upstream.
 
-Commit e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss
-descriptor") introduced a bounds check on the number of supplied rates to
-lbs_ibss_join_existing() and made it to return on overflow.
+Move blk_queue_make_request() to dm.c:alloc_dev() so that
+q->make_request_fn is never NULL during the lifetime of a DM device
+(even one that is created without a DM table).
 
-However, the aforementioned commit doesn't set the return value accordingly
-and thus, lbs_ibss_join_existing() would return with zero even though it
-failed.
+Otherwise generic_make_request() will crash simply by doing:
+  dmsetup create -n test
+  mount /dev/dm-N /mnt
 
-Make lbs_ibss_join_existing return -EINVAL in case the bounds check on the
-number of supplied rates fails.
+While at it, move ->congested_data initialization out of
+dm.c:alloc_dev() and into the bio-based specific init method.
 
-Fixes: e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Stefan Bader <stefan.bader@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1860231
+Fixes: ff36ab34583a ("dm: remove request-based logic from make_request_fn wrapper")
+Depends-on: c12c9a3c3860c ("dm: various cleanups to md->queue initialization code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[smb: adjusted for context and dm_init_md_queue() exitsting in older
+      kernels, and congested_data embedded in backing_dev_info, and
+      dm_init_normal_md_queue() was called dm_init_old_md_queue()]
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/libertas/cfg.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/libertas/cfg.c b/drivers/net/wireless/libertas/cfg.c
-index 803684eed142c..7d55de21b1903 100644
---- a/drivers/net/wireless/libertas/cfg.c
-+++ b/drivers/net/wireless/libertas/cfg.c
-@@ -1854,6 +1854,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
- 		if (rates_max > MAX_RATES) {
- 			lbs_deb_join("invalid rates");
- 			rcu_read_unlock();
-+			ret = -EINVAL;
- 			goto out;
- 		}
- 		rates = cmd.bss.rates;
--- 
-2.20.1
-
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -2293,7 +2293,6 @@ static void dm_init_md_queue(struct mapp
+ 	 * - must do so here (in alloc_dev callchain) before queue is used
+ 	 */
+ 	md->queue->queuedata = md;
+-	md->queue->backing_dev_info.congested_data = md;
+ }
+ 
+ static void dm_init_old_md_queue(struct mapped_device *md)
+@@ -2304,6 +2303,7 @@ static void dm_init_old_md_queue(struct
+ 	/*
+ 	 * Initialize aspects of queue that aren't relevant for blk-mq
+ 	 */
++	md->queue->backing_dev_info.congested_data = md;
+ 	md->queue->backing_dev_info.congested_fn = dm_any_congested;
+ 	blk_queue_bounce_limit(md->queue, BLK_BOUNCE_ANY);
+ }
+@@ -2386,6 +2386,12 @@ static struct mapped_device *alloc_dev(i
+ 		goto bad;
+ 
+ 	dm_init_md_queue(md);
++	/*
++	 * default to bio-based required ->make_request_fn until DM
++	 * table is loaded and md->type established. If request-based
++	 * table is loaded: blk-mq will override accordingly.
++	 */
++	blk_queue_make_request(md->queue, dm_make_request);
+ 
+ 	md->disk = alloc_disk(1);
+ 	if (!md->disk)
+@@ -2849,7 +2855,6 @@ int dm_setup_md_queue(struct mapped_devi
+ 		break;
+ 	case DM_TYPE_BIO_BASED:
+ 		dm_init_old_md_queue(md);
+-		blk_queue_make_request(md->queue, dm_make_request);
+ 		/*
+ 		 * DM handles splitting bios as needed.  Free the bio_split bioset
+ 		 * since it won't be used (saves 1 process per bio-based DM device).
 
 
