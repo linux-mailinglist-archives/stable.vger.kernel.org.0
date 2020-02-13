@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8255415C204
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D768415C182
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729600AbgBMP2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54970 "EHLO mail.kernel.org"
+        id S1728537AbgBMPXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728534AbgBMP2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:15 -0500
+        id S1728000AbgBMPXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:55 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5B1D222C2;
-        Thu, 13 Feb 2020 15:28:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D410224689;
+        Thu, 13 Feb 2020 15:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607695;
-        bh=bTaM9z7UZIreCdFbopgJgFvaS0Ot1vVV2fi3Qq0RXyQ=;
+        s=default; t=1581607435;
+        bh=QU5hlEcn8A5qyauh+f5DdOPlzw74Il9ZLeMFavcEx8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E23BcBPFrxOT81eMgPny7ruAJ4lKINFN14LnQXpMy5ndYMz/6DsAARyUNHF0dnqLf
-         YAGx56I+qnj+VLx9fRYd781BK+Y/r8xTHtR3AUuDhtOij5PQppY9dpvrMs/ByIo9nh
-         mBHAivrL9tzsbZ0RXdJxrH5KwjDWRRPcTDk1hu1I=
+        b=yPGL+AhJzJs1htfZRhpYGpph7qhelnLt7K2ixJV3xaPsMuIgp7NHaXQPuYbrVk2v0
+         waCPAB9SJl7kEQhSBEdDszuE6+jfN949Nrno58aOA9WDsI3pF7JemNT98QvW/Ox34H
+         wEOpiXmLqwDqNUCP8xK4Eki0BTo3gtVCKA4bP018=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Ziswiler <marcel@ziswiler.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.5 018/120] PCI: tegra: Fix afi_pex2_ctrl reg offset for Tegra30
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.9 070/116] ubi: fastmap: Fix inverted logic in seen selfcheck
 Date:   Thu, 13 Feb 2020 07:20:14 -0800
-Message-Id: <20200213151908.294986420@linuxfoundation.org>
+Message-Id: <20200213151910.163533127@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel@ziswiler.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit 21a92676e1fe292acb077b13106b08c22ed36b14 upstream.
+commit ef5aafb6e4e9942a28cd300bdcda21ce6cbaf045 upstream.
 
-Fix AFI_PEX2_CTRL reg offset for Tegra30 by moving it from the Tegra20
-SoC struct where it erroneously got added. This fixes the AFI_PEX2_CTRL
-reg offset being uninitialised subsequently failing to bring up the
-third PCIe port.
+set_seen() sets the bit corresponding to the PEB number in the bitmap,
+so when self_check_seen() wants to find PEBs that haven't been seen we
+have to print the PEBs that have their bit cleared, not the ones which
+have it set.
 
-Fixes: adb2653b3d2e ("PCI: tegra: Add AFI_PEX2_CTRL reg offset as part of SoC struct")
-Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
+Fixes: 5d71afb00840 ("ubi: Use bitmaps in Fastmap self-check code")
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/pci-tegra.c |    2 +-
+ drivers/mtd/ubi/fastmap.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -2499,7 +2499,6 @@ static const struct tegra_pcie_soc tegra
- 	.num_ports = 2,
- 	.ports = tegra20_pcie_ports,
- 	.msi_base_shift = 0,
--	.afi_pex2_ctrl = 0x128,
- 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA20,
- 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_DIV10,
- 	.pads_refclk_cfg0 = 0xfa5cfa5c,
-@@ -2528,6 +2527,7 @@ static const struct tegra_pcie_soc tegra
- 	.num_ports = 3,
- 	.ports = tegra30_pcie_ports,
- 	.msi_base_shift = 8,
-+	.afi_pex2_ctrl = 0x128,
- 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
- 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
- 	.pads_refclk_cfg0 = 0xfa5cfa5c,
+--- a/drivers/mtd/ubi/fastmap.c
++++ b/drivers/mtd/ubi/fastmap.c
+@@ -73,7 +73,7 @@ static int self_check_seen(struct ubi_de
+ 		return 0;
+ 
+ 	for (pnum = 0; pnum < ubi->peb_count; pnum++) {
+-		if (test_bit(pnum, seen) && ubi->lookuptbl[pnum]) {
++		if (!test_bit(pnum, seen) && ubi->lookuptbl[pnum]) {
+ 			ubi_err(ubi, "self-check failed for PEB %d, fastmap didn't see it", pnum);
+ 			ret = -EINVAL;
+ 		}
 
 
