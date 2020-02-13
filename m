@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54EB115C780
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3726715C599
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727891AbgBMPW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59570 "EHLO mail.kernel.org"
+        id S1728386AbgBMPX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727881AbgBMPW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:26 -0500
+        id S1727597AbgBMPX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:27 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 475CC24691;
-        Thu, 13 Feb 2020 15:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D801F24699;
+        Thu, 13 Feb 2020 15:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607344;
-        bh=r3ITya3+iLuggfTp/Cp5GzvU6us3UZStXpWPGQ4bTj8=;
+        s=default; t=1581607407;
+        bh=SVhXEM5ip6DL8l6Fd0jQhEMKOcT/fCDb5xo5D0hWBBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1qlIsHGhmqvB6/hgRK4mE0MbuIxC7vGKRSTQcF8/eHY4C+r/c/nxv30hmKx71zqF
-         c78ee8wf6TcHJ9i8NFaFKq54levznBFXUyED38aAFQWfwH956xuOwhO9l7oNYjOm0a
-         vlsRCOinFSxoS05odEh3fTgoSPQz4Q2lENTG6a1c=
+        b=w0gVkUWBrREVkLs6K8vMS+4DAUowoebY9qI3X514MrFWmE1cmnnyLdfYFhGwYMAWh
+         gWMSBwtN+7xagsZeaT2XDp7XMeSE6/b1r3WwJe+tKOOL7wSVi9Py+Z/FNRhZabrZl2
+         xZNqW9GEpH3JqE76Muov53hryypSzQsSzGlFyUoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Patrick Lai <plai@codeaurora.org>,
-        Banajit Goswami <bgoswami@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 04/91] ASoC: qcom: Fix of-node refcount unbalance to link->codec_of_node
-Date:   Thu, 13 Feb 2020 07:19:21 -0800
-Message-Id: <20200213151823.036410808@linuxfoundation.org>
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.9 018/116] usb: gadget: legacy: set max_speed to super-speed
+Date:   Thu, 13 Feb 2020 07:19:22 -0800
+Message-Id: <20200213151850.063028852@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+From: Roger Quadros <rogerq@ti.com>
 
-[ This is a fix specific to 4.4.y and 4.9.y stable trees;
-  4.14.y and older are not affected ]
+commit 463f67aec2837f981b0a0ce8617721ff59685c00 upstream.
 
-The of-node refcount fixes were made in commit 8d1667200850 ("ASoC: qcom:
-Fix of-node refcount unbalance in apq8016_sbc_parse_of()"), but not enough
-in 4.4.y and 4.9.y. The modification of link->codec_of_node is missing.
-This fixes of-node refcount unbalance to link->codec_of_node.
+These interfaces do support super-speed so let's not
+limit maximum speed to high-speed.
 
-Fixes: 8d1667200850 ("ASoC: qcom: Fix of-node refcount unbalance in apq8016_sbc_parse_of()")
-Cc: Patrick Lai <plai@codeaurora.org>
-Cc: Banajit Goswami <bgoswami@codeaurora.org>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/qcom/apq8016_sbc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/legacy/cdc2.c  |    2 +-
+ drivers/usb/gadget/legacy/g_ffs.c |    2 +-
+ drivers/usb/gadget/legacy/multi.c |    2 +-
+ drivers/usb/gadget/legacy/ncm.c   |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/qcom/apq8016_sbc.c b/sound/soc/qcom/apq8016_sbc.c
-index 886f2027e671..f2c71bcd06fa 100644
---- a/sound/soc/qcom/apq8016_sbc.c
-+++ b/sound/soc/qcom/apq8016_sbc.c
-@@ -112,7 +112,8 @@ static struct apq8016_sbc_data *apq8016_sbc_parse_of(struct snd_soc_card *card)
- 		link->codec_of_node = of_parse_phandle(codec, "sound-dai", 0);
- 		if (!link->codec_of_node) {
- 			dev_err(card->dev, "error getting codec phandle\n");
--			return ERR_PTR(-EINVAL);
-+			ret = -EINVAL;
-+			goto error;
- 		}
- 
- 		ret = snd_soc_of_get_dai_name(cpu, &link->cpu_dai_name);
--- 
-2.23.0
-
+--- a/drivers/usb/gadget/legacy/cdc2.c
++++ b/drivers/usb/gadget/legacy/cdc2.c
+@@ -229,7 +229,7 @@ static struct usb_composite_driver cdc_d
+ 	.name		= "g_cdc",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= cdc_bind,
+ 	.unbind		= cdc_unbind,
+ };
+--- a/drivers/usb/gadget/legacy/g_ffs.c
++++ b/drivers/usb/gadget/legacy/g_ffs.c
+@@ -153,7 +153,7 @@ static struct usb_composite_driver gfs_d
+ 	.name		= DRIVER_NAME,
+ 	.dev		= &gfs_dev_desc,
+ 	.strings	= gfs_dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= gfs_bind,
+ 	.unbind		= gfs_unbind,
+ };
+--- a/drivers/usb/gadget/legacy/multi.c
++++ b/drivers/usb/gadget/legacy/multi.c
+@@ -486,7 +486,7 @@ static struct usb_composite_driver multi
+ 	.name		= "g_multi",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= multi_bind,
+ 	.unbind		= multi_unbind,
+ 	.needs_serial	= 1,
+--- a/drivers/usb/gadget/legacy/ncm.c
++++ b/drivers/usb/gadget/legacy/ncm.c
+@@ -203,7 +203,7 @@ static struct usb_composite_driver ncm_d
+ 	.name		= "g_ncm",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= gncm_bind,
+ 	.unbind		= gncm_unbind,
+ };
 
 
