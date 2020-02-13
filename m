@@ -2,103 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 241AE15CE70
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 00:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 020FE15CE7B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 00:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727669AbgBMXBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 18:01:18 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46772 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726780AbgBMXBS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 18:01:18 -0500
-Received: by mail-wr1-f65.google.com with SMTP id z7so8747482wrl.13
-        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 15:01:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=95Po0oKpku27T9o1cB/li6lUhMoPZa5wJDlK8/lwwIU=;
-        b=ZaSsR9xICRMqGtewQ7U8jd4KuOzkE1klUYiufPwAnxewWiKd7k721rxLOKeG52M91C
-         zelWy1tyPSzSatPdKLDGrpS98kChVr5NFn91/JhCLxI38BxALYuIQgZzggFGNSNISKPr
-         JeNzS0RZVMoJ/gg7TC6I5t6QhDgb4T3mudnWNBv3ypBV2IlsteWUA29LY4zniF+9MN7q
-         q+zS3qbUc3lsGQrqvFRqJxz/4fUgvpSVy/aJiQFAb8v2svBovJyncI9/vuNMPvWPodlR
-         3y2ITGuvwh+GEQD/d4FEIw7M+bJFg0s5fwqVUlRNtkdmXIIcKUDCzhJRK3x8cBZ/OWsY
-         +P3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=95Po0oKpku27T9o1cB/li6lUhMoPZa5wJDlK8/lwwIU=;
-        b=IHQcQMQ+TPUQbvalrKo7jTvsonaJIwMTZnKvtUwgpuRRhA5GLATkvV0hN2kV0vNNsC
-         U/OZwrzds5io+f+tjxb33h4Vvt/PZweIZWHVAIkmThi7ff7yjSmDfHNH9LLMbtN1i6bc
-         JBXn6r5N2Qfh4hHQ3ACfpPKS9OUsPRKXrYtJEfK8un19aT0gLpvK2HMxjmsh/MMj6X6O
-         WK5+2Re3NQH2DrMSDRvHK1Rrx86+W0A3oDZW5Fdsq12Ho3Do3Zo7R0ZjflDvHYNVuiD3
-         ZYQDaJOv7y44sykS8/nw5CP0X/gwVQCNdR1/00jlC4gwpPomn+uGOcJqO8VHAC0xU0AQ
-         FpKg==
-X-Gm-Message-State: APjAAAUl3GxqFI9nEZeF7K7A5sjtlFD4wJPxkzfaX6dZPZugXWCgnOzo
-        +YvyXVWvWt+tX0QYf68fBgvzQ/samQxwnQ==
-X-Google-Smtp-Source: APXvYqxD+Ri8IdzaX6SF+GxmScWFc6vkK7flmoMPWnPRrLyC+FnA0tCcV29oMrh2LCxCMEFbTq4w9Q==
-X-Received: by 2002:a5d:438c:: with SMTP id i12mr23293200wrq.51.1581634875923;
-        Thu, 13 Feb 2020 15:01:15 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s8sm4789933wmf.45.2020.02.13.15.01.15
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Feb 2020 15:01:15 -0800 (PST)
-Message-ID: <5e45d53b.1c69fb81.28227.5749@mx.google.com>
-Date:   Thu, 13 Feb 2020 15:01:15 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727571AbgBMXFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 18:05:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42478 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726780AbgBMXFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 18:05:40 -0500
+Received: from localhost (unknown [104.132.1.104])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 957CA20675;
+        Thu, 13 Feb 2020 23:05:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581635139;
+        bh=CUZDHl7TVBOCTWU/9IGjTpj26LMuMrCuo/S82CdGO1o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Xjov0OrjPwJr/Y2IKHNxQ+zrMdFLlQIRADGCm9/slIYttGCDt9DnQJdfp3tDWz/2i
+         Z9cnEf/d2B9z8qhwQBBAhY7em4Rh4eH3OLJVPnt9mkKRlu6+I9ZlNWwnQ8fmplo2G+
+         sEskCJmC+u0Mt9I66YhPBhnZMFCl+QAPmrgkzLuA=
+Date:   Thu, 13 Feb 2020 15:05:39 -0800
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
+Message-ID: <20200213230539.GC3878275@kroah.com>
+References: <20200213151839.156309910@linuxfoundation.org>
+ <20200213222732.GA20637@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.213-92-ga4539ca32651
-Subject: stable-rc/linux-4.4.y boot: 13 boots: 2 failed,
- 11 passed (v4.4.213-92-ga4539ca32651)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200213222732.GA20637@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 13 boots: 2 failed, 11 passed (v4.4.213-92-ga45=
-39ca32651)
+On Thu, Feb 13, 2020 at 02:27:32PM -0800, Guenter Roeck wrote:
+> On Thu, Feb 13, 2020 at 07:20:07AM -0800, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.20 release.
+> > There are 96 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build reference: v5.4.19-98-gdfae536f94c2
+> gcc version: powerpc64-linux-gcc (GCC) 9.2.0
+> 
+> Building powerpc:defconfig ... failed
+> --------------
+> Error log:
+> drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
+>  1570 | static const struct regmap_config regmap_config = {
+> 
+> Bisect log below. Looks like the the definition of "not needed"
+> needs an update.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.213-92-ga4539ca32651/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.213-92-ga4539ca32651/
+Nice catch, sorry about that.  I've dropped the offending commit and
+will push out -rc2 releases for both 5.5.y and 5.4.y.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.213-92-ga4539ca32651
-Git Commit: a4539ca32651f32bc7c45d0f09be1fb9fca3ec71
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 10 unique boards, 6 SoC families, 6 builds out of 112
+thanks,
 
-Boot Regressions Detected:
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 2 days (last pass: v4.4.2=
-13-80-g5eb5593c7143 - first fail: v4.4.213-80-gc93242186b91)
-
-Boot Failures Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
