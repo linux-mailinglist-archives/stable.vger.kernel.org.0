@@ -2,52 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9713E15C67E
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 022BE15C678
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730085AbgBMQBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:01:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38880 "EHLO mail.kernel.org"
+        id S1728280AbgBMQAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:00:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728762AbgBMPYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728281AbgBMPYn (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:24:43 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF7F224691;
-        Thu, 13 Feb 2020 15:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B57DA246B1;
+        Thu, 13 Feb 2020 15:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581607482;
-        bh=HIJ84k4kruDMoI/Z6AJum0brp2NtCyYGH6otIn3QTHk=;
+        bh=6U861f3HlY1jbH9VK2csIX+8uPv8zZrqsBmhEnRUkx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieZUgpfReWhTSBPNPW4Pvd1ePKguuxF0LXry915gZhpwE9oK0YMYlMoQoIxDIN76i
-         klCk8tqUMxkIa1SJiHhQcmW2Hm3sRohg91QP1tCudJGLQ1zik9NGR6kA2Vocu5b9Wq
-         z/2BdMob86SfPY7ldgckOPqFFi0HRTjOe1Er1PUQ=
+        b=Z8rxyEbROM2vQT8fNYbpgy5KM8VVQU8zs8PUZXkUsrkqocQPGsXnK1ssea9+TlAv5
+         2Jz66VBgYoFafp6CGYeyPJh62nj20/VSWqDAuGvgxx/HG+9seYdRFbO4acfKBqGLMR
+         R09nL8I4rG02WhAgXbfFMPXKb29sb71rtKo5pXsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 026/173] media/v4l2-core: set pages dirty upon releasing DMA buffers
-Date:   Thu, 13 Feb 2020 07:18:49 -0800
-Message-Id: <20200213151940.023133261@linuxfoundation.org>
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 027/173] media: v4l2-rect.h: fix v4l2_rect_map_inside() top/left adjustments
+Date:   Thu, 13 Feb 2020 07:18:50 -0800
+Message-Id: <20200213151940.297481730@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -60,61 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Helen Koike <helen.koike@collabora.com>
 
-commit 3c7470b6f68434acae459482ab920d1e3fabd1c7 upstream.
+commit f51e50db4c20d46930b33be3f208851265694f3e upstream.
 
-After DMA is complete, and the device and CPU caches are synchronized,
-it's still required to mark the CPU pages as dirty, if the data was
-coming from the device.  However, this driver was just issuing a bare
-put_page() call, without any set_page_dirty*() call.
+boundary->width and boundary->height are sizes relative to
+boundary->left and boundary->top coordinates, but they were not being
+taken into consideration to adjust r->left and r->top, leading to the
+following error:
 
-Fix the problem, by calling set_page_dirty_lock() if the CPU pages were
-potentially receiving data from the device.
+Consider the follow as initial values for boundary and r:
 
-Link: http://lkml.kernel.org/r/20200107224558.2362728-11-jhubbard@nvidia.com
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Björn Töpel <bjorn.topel@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+struct v4l2_rect boundary = {
+	.left = 100,
+	.top = 100,
+	.width = 800,
+	.height = 600,
+}
+
+struct v4l2_rect r = {
+	.left = 0,
+	.top = 0,
+	.width = 1920,
+	.height = 960,
+}
+
+calling v4l2_rect_map_inside(&r, &boundary) was modifying r to:
+
+r = {
+	.left = 0,
+	.top = 0,
+	.width = 800,
+	.height = 600,
+}
+
+Which is wrongly outside the boundary rectangle, because:
+
+	v4l2_rect_set_max_size(r, boundary); // r->width = 800, r->height = 600
+	...
+	if (r->left + r->width > boundary->width) // true
+		r->left = boundary->width - r->width; // r->left = 800 - 800
+	if (r->top + r->height > boundary->height) // true
+		r->top = boundary->height - r->height; // r->height = 600 - 600
+
+Fix this by considering top/left coordinates from boundary.
+
+Fixes: ac49de8c49d7 ("[media] v4l2-rect.h: new header with struct v4l2_rect helper functions")
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Cc: <stable@vger.kernel.org>      # for v4.7 and up
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/v4l2-core/videobuf-dma-sg.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/media/v4l2-rect.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/media/v4l2-core/videobuf-dma-sg.c
-+++ b/drivers/media/v4l2-core/videobuf-dma-sg.c
-@@ -352,8 +352,11 @@ int videobuf_dma_free(struct videobuf_dm
- 	BUG_ON(dma->sglen);
+--- a/include/media/v4l2-rect.h
++++ b/include/media/v4l2-rect.h
+@@ -75,10 +75,10 @@ static inline void v4l2_rect_map_inside(
+ 		r->left = boundary->left;
+ 	if (r->top < boundary->top)
+ 		r->top = boundary->top;
+-	if (r->left + r->width > boundary->width)
+-		r->left = boundary->width - r->width;
+-	if (r->top + r->height > boundary->height)
+-		r->top = boundary->height - r->height;
++	if (r->left + r->width > boundary->left + boundary->width)
++		r->left = boundary->left + boundary->width - r->width;
++	if (r->top + r->height > boundary->top + boundary->height)
++		r->top = boundary->top + boundary->height - r->height;
+ }
  
- 	if (dma->pages) {
--		for (i = 0; i < dma->nr_pages; i++)
-+		for (i = 0; i < dma->nr_pages; i++) {
-+			if (dma->direction == DMA_FROM_DEVICE)
-+				set_page_dirty_lock(dma->pages[i]);
- 			put_page(dma->pages[i]);
-+		}
- 		kfree(dma->pages);
- 		dma->pages = NULL;
- 	}
+ /**
 
 
