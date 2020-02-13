@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B5515C18A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D02C15C171
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728598AbgBMPYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:24:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36772 "EHLO mail.kernel.org"
+        id S1728324AbgBMPXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728592AbgBMPYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:07 -0500
+        id S1728316AbgBMPXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:15 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECCFD24691;
-        Thu, 13 Feb 2020 15:24:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7904A24699;
+        Thu, 13 Feb 2020 15:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607447;
-        bh=usdD7E2v7ryHJezLF4KmGqTvXV8BRUodlwhHkqQprBU=;
+        s=default; t=1581607395;
+        bh=34JpyfKjva3rhXTyg4I/8Ci1RhB0a4u9w93euC206PY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cah7D5CUzIx/h3sZ2MXiiGDZXnIaxJIAhe8K3/IySsnVzJcV9n+vOCG61lH3L+Uka
-         zaWnFP94M4NBL0jhBz/68KxKj7le1Z2/Z+7vZRPnPYGsT1aNc14ZYeNx8fbEbWZJWY
-         3hSvX5kbbvCSvD8pOCFoM/SuEMpMC3gOGa2tFIjA=
+        b=dd+iV0wPL4lqFPSjL2FdTnCYzOY5dT4ddr+01XDa7DPGDPsqHAPvOpoYj3yW/ZQFN
+         80trYdEZD3cczkB6zJNmDpqcw2QDLW1gb/y0pye4VOtkbsIwBv1gauP9SAQBmBeyh3
+         C503O2JA9fd0dvxFaSfK190dOaA8y4wz5R0zb1Ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 089/116] btrfs: flush write bio if we loop in extent_write_cache_pages
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.4 76/91] cifs: fail i/o on soft mounts if sessionsetup errors out
 Date:   Thu, 13 Feb 2020 07:20:33 -0800
-Message-Id: <20200213151917.511897953@linuxfoundation.org>
+Message-Id: <20200213151851.774679691@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,106 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 96bf313ecb33567af4cb53928b0c951254a02759 ]
+commit b0dd940e582b6a60296b9847a54012a4b080dc72 upstream.
 
-There exists a deadlock with range_cyclic that has existed forever.  If
-we loop around with a bio already built we could deadlock with a writer
-who has the page locked that we're attempting to write but is waiting on
-a page in our bio to be written out.  The task traces are as follows
+RHBZ: 1579050
 
-  PID: 1329874  TASK: ffff889ebcdf3800  CPU: 33  COMMAND: "kworker/u113:5"
-   #0 [ffffc900297bb658] __schedule at ffffffff81a4c33f
-   #1 [ffffc900297bb6e0] schedule at ffffffff81a4c6e3
-   #2 [ffffc900297bb6f8] io_schedule at ffffffff81a4ca42
-   #3 [ffffc900297bb708] __lock_page at ffffffff811f145b
-   #4 [ffffc900297bb798] __process_pages_contig at ffffffff814bc502
-   #5 [ffffc900297bb8c8] lock_delalloc_pages at ffffffff814bc684
-   #6 [ffffc900297bb900] find_lock_delalloc_range at ffffffff814be9ff
-   #7 [ffffc900297bb9a0] writepage_delalloc at ffffffff814bebd0
-   #8 [ffffc900297bba18] __extent_writepage at ffffffff814bfbf2
-   #9 [ffffc900297bba98] extent_write_cache_pages at ffffffff814bffbd
+If we have a soft mount we should fail commands for session-setup
+failures (such as the password having changed/ account being deleted/ ...)
+and return an error back to the application.
 
-  PID: 2167901  TASK: ffff889dc6a59c00  CPU: 14  COMMAND:
-  "aio-dio-invalid"
-   #0 [ffffc9003b50bb18] __schedule at ffffffff81a4c33f
-   #1 [ffffc9003b50bba0] schedule at ffffffff81a4c6e3
-   #2 [ffffc9003b50bbb8] io_schedule at ffffffff81a4ca42
-   #3 [ffffc9003b50bbc8] wait_on_page_bit at ffffffff811f24d6
-   #4 [ffffc9003b50bc60] prepare_pages at ffffffff814b05a7
-   #5 [ffffc9003b50bcd8] btrfs_buffered_write at ffffffff814b1359
-   #6 [ffffc9003b50bdb0] btrfs_file_write_iter at ffffffff814b5933
-   #7 [ffffc9003b50be38] new_sync_write at ffffffff8128f6a8
-   #8 [ffffc9003b50bec8] vfs_write at ffffffff81292b9d
-   #9 [ffffc9003b50bf00] ksys_pwrite64 at ffffffff81293032
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I used drgn to find the respective pages we were stuck on
-
-page_entry.page 0xffffea00fbfc7500 index 8148 bit 15 pid 2167901
-page_entry.page 0xffffea00f9bb7400 index 7680 bit 0 pid 1329874
-
-As you can see the kworker is waiting for bit 0 (PG_locked) on index
-7680, and aio-dio-invalid is waiting for bit 15 (PG_writeback) on index
-8148.  aio-dio-invalid has 7680, and the kworker epd looks like the
-following
-
-  crash> struct extent_page_data ffffc900297bbbb0
-  struct extent_page_data {
-    bio = 0xffff889f747ed830,
-    tree = 0xffff889eed6ba448,
-    extent_locked = 0,
-    sync_io = 0
-  }
-
-Probably worth mentioning as well that it waits for writeback of the
-page to complete while holding a lock on it (at prepare_pages()).
-
-Using drgn I walked the bio pages looking for page
-0xffffea00fbfc7500 which is the one we're waiting for writeback on
-
-  bio = Object(prog, 'struct bio', address=0xffff889f747ed830)
-  for i in range(0, bio.bi_vcnt.value_()):
-      bv = bio.bi_io_vec[i]
-      if bv.bv_page.value_() == 0xffffea00fbfc7500:
-	  print("FOUND IT")
-
-which validated what I suspected.
-
-The fix for this is simple, flush the epd before we loop back around to
-the beginning of the file during writeout.
-
-Fixes: b293f02e1423 ("Btrfs: Add writepages support")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/cifs/smb2pdu.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 37a28e2369b91..1372d3e5d90bb 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4060,6 +4060,14 @@ static int extent_write_cache_pages(struct extent_io_tree *tree,
- 		 */
- 		scanned = 1;
- 		index = 0;
-+
-+		/*
-+		 * If we're looping we could run into a page that is locked by a
-+		 * writer and that writer could be waiting on writeback for a
-+		 * page in our current bio, and thus deadlock, so flush the
-+		 * write bio here.
-+		 */
-+		flush_write_bio(data);
- 		goto retry;
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -250,9 +250,14 @@ smb2_reconnect(__le16 smb2_command, stru
+ 	 */
+ 	mutex_lock(&tcon->ses->session_mutex);
+ 	rc = cifs_negotiate_protocol(0, tcon->ses);
+-	if (!rc && tcon->ses->need_reconnect)
++	if (!rc && tcon->ses->need_reconnect) {
+ 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
+-
++		if ((rc == -EACCES) && !tcon->retry) {
++			rc = -EHOSTDOWN;
++			mutex_unlock(&tcon->ses->session_mutex);
++			goto failed;
++		}
++	}
+ 	if (rc || !tcon->need_reconnect) {
+ 		mutex_unlock(&tcon->ses->session_mutex);
+ 		goto out;
+@@ -286,6 +291,7 @@ out:
+ 	case SMB2_SET_INFO:
+ 		rc = -EAGAIN;
  	}
- 
--- 
-2.20.1
-
++failed:
+ 	unload_nls(nls_codepage);
+ 	return rc;
+ }
 
 
