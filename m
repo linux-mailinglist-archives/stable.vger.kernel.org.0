@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59ECF15C3C6
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A613615C48C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387862AbgBMPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:44:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52406 "EHLO mail.kernel.org"
+        id S1727874AbgBMPsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:48:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729493AbgBMP1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:45 -0500
+        id S1729295AbgBMP04 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:56 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF36224670;
-        Thu, 13 Feb 2020 15:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFA0B206DB;
+        Thu, 13 Feb 2020 15:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607665;
-        bh=rRVGBJoAk4p4b9bDiH9vGGzq0KWGMCjQPhZI4jrpP8U=;
+        s=default; t=1581607615;
+        bh=dVJglPzkGQNWLRZbvnUE/tGiFH6lQqO/45Lkw0Kd2MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUn2bypk6DAnv9HmuFoKttHAMaxbB+QSZgEp2y6ZDIQFS0rFVNFsHJbDxMAFXT+zG
-         thDgl+5IpSvOQ6GO9y5vGheXzqylvo5FswpInl2cMrsmBQNMWAkXgLmlu3+pFVyPFB
-         G/tTdlJqHI7AIq7P2BsRFsoS6bAt8y8zy6XLLCnQ=
+        b=eI/shsGzg4Pn+ydIjDTWZSfig+al9DF8B8yJgI8IBFXpJNILRE55fvJd+RC+EmZCY
+         drKSf2ZrTRM7gia74hc7JwOfHPZfrVeipKYC5V4a7oORy1wBNmiXj5KFQtAa53WgXR
+         YZicYS2KYT3Mh0eNBhDe2Llb0UBRpbdPhpUKIOxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.4 85/96] selinux: revert "stop passing MAY_NOT_BLOCK to the AVC upon follow_link"
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Dmitry Safonov <dima@arista.com>
+Subject: [PATCH 4.19 51/52] x86/stackframe: Move ENCODE_FRAME_POINTER to asm/frame.h
 Date:   Thu, 13 Feb 2020 07:21:32 -0800
-Message-Id: <20200213151911.147099125@linuxfoundation.org>
+Message-Id: <20200213151830.764945877@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +48,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1a37079c236d55fb31ebbf4b59945dab8ec8764c upstream.
+commit a9b3c6998d4a7d53a787cf4d0fd4a4c11239e517 upstream.
 
-This reverts commit e46e01eebbbc ("selinux: stop passing MAY_NOT_BLOCK
-to the AVC upon follow_link"). The correct fix is to instead fall
-back to ref-walk if audit is required irrespective of the specific
-audit data type.  This is done in the next commit.
+In preparation for wider use, move the ENCODE_FRAME_POINTER macros to
+a common header and provide inline asm versions.
 
-Fixes: e46e01eebbbc ("selinux: stop passing MAY_NOT_BLOCK to the AVC upon follow_link")
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+These macros are used to encode a pt_regs frame for the unwinder; see
+unwind_frame.c:decode_frame_pointer().
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Dmitry Safonov <dima@arista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/selinux/avc.c         |   24 ++++++++++++++++++++++--
- security/selinux/hooks.c       |    5 +++--
- security/selinux/include/avc.h |    5 +++++
- 3 files changed, 30 insertions(+), 4 deletions(-)
+ arch/x86/entry/calling.h     |   15 -------------
+ arch/x86/entry/entry_32.S    |   16 --------------
+ arch/x86/include/asm/frame.h |   49 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 49 insertions(+), 31 deletions(-)
 
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -862,8 +862,9 @@ static int avc_update_node(struct selinu
- 	 * permissive mode that only appear when in enforcing mode.
- 	 *
- 	 * See the corresponding handling in slow_avc_audit(), and the
--	 * logic in selinux_inode_permission for the MAY_NOT_BLOCK flag,
--	 * which is transliterated into AVC_NONBLOCKING.
-+	 * logic in selinux_inode_follow_link and selinux_inode_permission
-+	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
-+	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
- 	 */
- 	if (flags & AVC_NONBLOCKING)
- 		return 0;
-@@ -1203,6 +1204,25 @@ int avc_has_perm(struct selinux_state *s
- 	if (rc2)
- 		return rc2;
- 	return rc;
-+}
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -172,21 +172,6 @@ For 32-bit we have the following convent
+ 	.endif
+ .endm
+ 
+-/*
+- * This is a sneaky trick to help the unwinder find pt_regs on the stack.  The
+- * frame pointer is replaced with an encoded pointer to pt_regs.  The encoding
+- * is just setting the LSB, which makes it an invalid stack address and is also
+- * a signal to the unwinder that it's a pt_regs pointer in disguise.
+- *
+- * NOTE: This macro must be used *after* PUSH_AND_CLEAR_REGS because it corrupts
+- * the original rbp.
+- */
+-.macro ENCODE_FRAME_POINTER ptregs_offset=0
+-#ifdef CONFIG_FRAME_POINTER
+-	leaq 1+\ptregs_offset(%rsp), %rbp
+-#endif
+-.endm
+-
+ #ifdef CONFIG_PAGE_TABLE_ISOLATION
+ 
+ /*
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -245,22 +245,6 @@
+ .Lend_\@:
+ .endm
+ 
+-/*
+- * This is a sneaky trick to help the unwinder find pt_regs on the stack.  The
+- * frame pointer is replaced with an encoded pointer to pt_regs.  The encoding
+- * is just clearing the MSB, which makes it an invalid stack address and is also
+- * a signal to the unwinder that it's a pt_regs pointer in disguise.
+- *
+- * NOTE: This macro must be used *after* SAVE_ALL because it corrupts the
+- * original rbp.
+- */
+-.macro ENCODE_FRAME_POINTER
+-#ifdef CONFIG_FRAME_POINTER
+-	mov %esp, %ebp
+-	andl $0x7fffffff, %ebp
+-#endif
+-.endm
+-
+ .macro RESTORE_INT_REGS
+ 	popl	%ebx
+ 	popl	%ecx
+--- a/arch/x86/include/asm/frame.h
++++ b/arch/x86/include/asm/frame.h
+@@ -22,6 +22,35 @@
+ 	pop %_ASM_BP
+ .endm
+ 
++#ifdef CONFIG_X86_64
++/*
++ * This is a sneaky trick to help the unwinder find pt_regs on the stack.  The
++ * frame pointer is replaced with an encoded pointer to pt_regs.  The encoding
++ * is just setting the LSB, which makes it an invalid stack address and is also
++ * a signal to the unwinder that it's a pt_regs pointer in disguise.
++ *
++ * NOTE: This macro must be used *after* PUSH_AND_CLEAR_REGS because it corrupts
++ * the original rbp.
++ */
++.macro ENCODE_FRAME_POINTER ptregs_offset=0
++	leaq 1+\ptregs_offset(%rsp), %rbp
++.endm
++#else /* !CONFIG_X86_64 */
++/*
++ * This is a sneaky trick to help the unwinder find pt_regs on the stack.  The
++ * frame pointer is replaced with an encoded pointer to pt_regs.  The encoding
++ * is just clearing the MSB, which makes it an invalid stack address and is also
++ * a signal to the unwinder that it's a pt_regs pointer in disguise.
++ *
++ * NOTE: This macro must be used *after* SAVE_ALL because it corrupts the
++ * original ebp.
++ */
++.macro ENCODE_FRAME_POINTER
++	mov %esp, %ebp
++	andl $0x7fffffff, %ebp
++.endm
++#endif /* CONFIG_X86_64 */
 +
-+int avc_has_perm_flags(struct selinux_state *state,
-+		       u32 ssid, u32 tsid, u16 tclass, u32 requested,
-+		       struct common_audit_data *auditdata,
-+		       int flags)
-+{
-+	struct av_decision avd;
-+	int rc, rc2;
+ #else /* !__ASSEMBLY__ */
+ 
+ #define FRAME_BEGIN				\
+@@ -30,12 +59,32 @@
+ 
+ #define FRAME_END "pop %" _ASM_BP "\n"
+ 
++#ifdef CONFIG_X86_64
++#define ENCODE_FRAME_POINTER			\
++	"lea 1(%rsp), %rbp\n\t"
++#else /* !CONFIG_X86_64 */
++#define ENCODE_FRAME_POINTER			\
++	"movl %esp, %ebp\n\t"			\
++	"andl $0x7fffffff, %ebp\n\t"
++#endif /* CONFIG_X86_64 */
 +
-+	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
-+				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
-+				  &avd);
+ #endif /* __ASSEMBLY__ */
+ 
+ #define FRAME_OFFSET __ASM_SEL(4, 8)
+ 
+ #else /* !CONFIG_FRAME_POINTER */
+ 
++#ifdef __ASSEMBLY__
 +
-+	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
-+			auditdata, flags);
-+	if (rc2)
-+		return rc2;
-+	return rc;
- }
- 
- u32 avc_policy_seqno(struct selinux_state *state)
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3008,8 +3008,9 @@ static int selinux_inode_follow_link(str
- 	if (IS_ERR(isec))
- 		return PTR_ERR(isec);
- 
--	return avc_has_perm(&selinux_state,
--			    sid, isec->sid, isec->sclass, FILE__READ, &ad);
-+	return avc_has_perm_flags(&selinux_state,
-+				  sid, isec->sid, isec->sclass, FILE__READ, &ad,
-+				  rcu ? MAY_NOT_BLOCK : 0);
- }
- 
- static noinline int audit_inode_permission(struct inode *inode,
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -153,6 +153,11 @@ int avc_has_perm(struct selinux_state *s
- 		 u32 ssid, u32 tsid,
- 		 u16 tclass, u32 requested,
- 		 struct common_audit_data *auditdata);
-+int avc_has_perm_flags(struct selinux_state *state,
-+		       u32 ssid, u32 tsid,
-+		       u16 tclass, u32 requested,
-+		       struct common_audit_data *auditdata,
-+		       int flags);
- 
- int avc_has_extended_perms(struct selinux_state *state,
- 			   u32 ssid, u32 tsid, u16 tclass, u32 requested,
++.macro ENCODE_FRAME_POINTER ptregs_offset=0
++.endm
++
++#else /* !__ASSEMBLY */
++
++#define ENCODE_FRAME_POINTER
++
++#endif
++
+ #define FRAME_BEGIN
+ #define FRAME_END
+ #define FRAME_OFFSET 0
 
 
