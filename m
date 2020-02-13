@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA74315C6F4
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ECD915C5E0
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730275AbgBMQFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
+        id S1728967AbgBMPZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728486AbgBMPXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:48 -0500
+        id S1728102AbgBMPZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:19 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 574EA2469C;
-        Thu, 13 Feb 2020 15:23:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAEC224691;
+        Thu, 13 Feb 2020 15:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607428;
-        bh=2S2Xv7OmE/qAmWepxc4mgXxqfn5c9L+ojn0/7KWDObU=;
+        s=default; t=1581607519;
+        bh=OSlvVw44Qhx2hrQj100qel0ozOsHwi4Z0gCH3uBz36o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHqBzD6o4UZcfsCPDiJp5uW08VzbWVT2dmsHqpG0H3H06d14rOjj64fV42RhQ/HcR
-         5BpBKx8BBLt4o7yKzdSubH+n8aJaRolraZ9aS4VTm0ktDKCoFx7JXUuzGDb7fnFryr
-         4yzMUVNPYsONQvU2jYHbbf7dTOrV+xJv3E9wFKEk=
+        b=Hcybp1jL271orjjhakLuRfK63fcBgQsri/9PExhm7cH0UE8+J/DoMex+22n3j1ETG
+         zqlWc+PDDXY3fSQHpxlUAZ2saH9xxW9drOlv8FbaBJnhcbUhpYlehGQIXNscus8Osa
+         tzKBxdA9dmZAi2xvNx5I83suJlCgRRhJioRaVR8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Frank Sorenson <sorenson@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.9 043/116] sunrpc: expiry_time should be seconds not timeval
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 084/173] KVM: x86: Protect MSR-based index computations in pmu.h from Spectre-v1/L1TF attacks
 Date:   Thu, 13 Feb 2020 07:19:47 -0800
-Message-Id: <20200213151859.743949173@linuxfoundation.org>
+Message-Id: <20200213151954.513237244@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Bergantinos Corpas <rbergant@redhat.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit 3d96208c30f84d6edf9ab4fac813306ac0d20c10 upstream.
+commit 13c5183a4e643cc2b03a22d0e582c8e17bb7457d upstream.
 
-When upcalling gssproxy, cache_head.expiry_time is set as a
-timeval, not seconds since boot. As such, RPC cache expiry
-logic will not clean expired objects created under
-auth.rpcsec.context cache.
+This fixes a Spectre-v1/L1TF vulnerability in the get_gp_pmc() and
+get_fixed_pmc() functions.
+They both contain index computations based on the (attacker-controlled)
+MSR number.
 
-This has proven to cause kernel memory leaks on field. Using
-64 bit variants of getboottime/timespec
+Fixes: 25462f7f5295 ("KVM: x86/vPMU: Define kvm_pmu_ops to support vPMU function dispatch")
 
-Expiration times have worked this way since 2010's c5b29f885afe "sunrpc:
-use seconds since boot in expiry cache".  The gssproxy code introduced
-in 2012 added gss_proxy_save_rsc and introduced the bug.  That's a while
-for this to lurk, but it required a bit of an extreme case to make it
-obvious.
-
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Fixes: 030d794bf498 "SUNRPC: Use gssproxy upcall for server..."
-Tested-By: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/auth_gss/svcauth_gss.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kvm/pmu.h |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1180,6 +1180,7 @@ static int gss_proxy_save_rsc(struct cac
- 		dprintk("RPC:       No creds found!\n");
- 		goto out;
- 	} else {
-+		struct timespec64 boot;
+--- a/arch/x86/kvm/pmu.h
++++ b/arch/x86/kvm/pmu.h
+@@ -2,6 +2,8 @@
+ #ifndef __KVM_X86_PMU_H
+ #define __KVM_X86_PMU_H
  
- 		/* steal creds */
- 		rsci.cred = ud->creds;
-@@ -1200,6 +1201,9 @@ static int gss_proxy_save_rsc(struct cac
- 						&expiry, GFP_KERNEL);
- 		if (status)
- 			goto out;
++#include <linux/nospec.h>
 +
-+		getboottime64(&boot);
-+		expiry -= boot.tv_sec;
- 	}
+ #define vcpu_to_pmu(vcpu) (&(vcpu)->arch.pmu)
+ #define pmu_to_vcpu(pmu)  (container_of((pmu), struct kvm_vcpu, arch.pmu))
+ #define pmc_to_pmu(pmc)   (&(pmc)->vcpu->arch.pmu)
+@@ -81,8 +83,12 @@ static inline bool pmc_is_enabled(struct
+ static inline struct kvm_pmc *get_gp_pmc(struct kvm_pmu *pmu, u32 msr,
+ 					 u32 base)
+ {
+-	if (msr >= base && msr < base + pmu->nr_arch_gp_counters)
+-		return &pmu->gp_counters[msr - base];
++	if (msr >= base && msr < base + pmu->nr_arch_gp_counters) {
++		u32 index = array_index_nospec(msr - base,
++					       pmu->nr_arch_gp_counters);
++
++		return &pmu->gp_counters[index];
++	}
  
- 	rsci.h.expiry_time = expiry;
+ 	return NULL;
+ }
+@@ -92,8 +98,12 @@ static inline struct kvm_pmc *get_fixed_
+ {
+ 	int base = MSR_CORE_PERF_FIXED_CTR0;
+ 
+-	if (msr >= base && msr < base + pmu->nr_arch_fixed_counters)
+-		return &pmu->fixed_counters[msr - base];
++	if (msr >= base && msr < base + pmu->nr_arch_fixed_counters) {
++		u32 index = array_index_nospec(msr - base,
++					       pmu->nr_arch_fixed_counters);
++
++		return &pmu->fixed_counters[index];
++	}
+ 
+ 	return NULL;
+ }
 
 
