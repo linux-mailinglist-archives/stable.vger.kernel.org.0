@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B994215C6DD
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E65B15C5FB
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730220AbgBMQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:04:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
+        id S1728968AbgBMPz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:55:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728570AbgBMPYB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:01 -0500
+        id S2387438AbgBMPZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:31 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B7FB2469A;
-        Thu, 13 Feb 2020 15:24:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8586F20848;
+        Thu, 13 Feb 2020 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607440;
-        bh=twN4RF9ZFOmxA+8NyM6AY4L43q3yb2h1qu0p7injG7Y=;
+        s=default; t=1581607530;
+        bh=Y1qJ4WosxJNPcN5BVx7gfDlF+Vvx9yR2+2ZUjt6mZSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMvLy3PW9ZQJ+TfN1+eENSIp/YQ9L1M0OcwH/wyUjcWIzLbt6ldEAm5jjQP/7zS64
-         cDwLcywUDCVlFs7y5Nvef60MLN687km5VZIjrONprWKrfWxQdxrJCsm4j5rzu0lGvf
-         +FibycQeN/CZGJU17MoO2zOqiex7tmRUJ6BA62wk=
+        b=jFv/gKKZ50Qq2qsCeYSGshYevXTWlOj1jmnb89NEqxSN/LotmwNgAhkolBwc41BCC
+         VHacN7leCOPZ1orFRGuKlnVgVZohdypo5REfVY7DCHCuCJY9hlOcv9VTFUUUgxRCSG
+         sMrAK/4wApD7nVeJbUIa4yYDjMjht4f8vVPVtBUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.9 061/116] ext2: Adjust indentation in ext2_fill_super
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 102/173] net: smc911x: Adjust indentation in smc911x_phy_configure
 Date:   Thu, 13 Feb 2020 07:20:05 -0800
-Message-Id: <20200213151906.567025148@linuxfoundation.org>
+Message-Id: <20200213151958.460440491@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +46,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit d9e9866803f7b6c3fdd35d345e97fb0b2908bbbc upstream.
+commit 5c61e223004b3b5c3f1dd25718e979bc17a3b12d upstream.
 
 Clang warns:
 
-../fs/ext2/super.c:1076:3: warning: misleading indentation; statement is
-not part of the previous 'if' [-Wmisleading-indentation]
-        sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
-        ^
-../fs/ext2/super.c:1074:2: note: previous statement is here
-        if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
+../drivers/net/ethernet/smsc/smc911x.c:939:3: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+         if (!lp->ctl_rfduplx)
+         ^
+../drivers/net/ethernet/smsc/smc911x.c:936:2: note: previous statement
+is here
+        if (lp->ctl_rspeed != 100)
         ^
 1 warning generated.
 
-This warning occurs because there is a space before the tab on this
-line. Remove it so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
+This warning occurs because there is a space after the tab on this line.
+Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
 
-Fixes: 41f04d852e35 ("[PATCH] ext2: fix mounts at 16T")
-Link: https://github.com/ClangBuiltLinux/linux/issues/827
-Link: https://lore.kernel.org/r/20191218031930.31393-1-natechancellor@gmail.com
+Fixes: 0a0c72c9118c ("[PATCH] RE: [PATCH 1/1] net driver: Add support for SMSC LAN911x line of ethernet chips")
+Link: https://github.com/ClangBuiltLinux/linux/issues/796
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext2/super.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/smsc/smc911x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -1047,9 +1047,9 @@ static int ext2_fill_super(struct super_
+--- a/drivers/net/ethernet/smsc/smc911x.c
++++ b/drivers/net/ethernet/smsc/smc911x.c
+@@ -948,7 +948,7 @@ static void smc911x_phy_configure(struct
+ 	if (lp->ctl_rspeed != 100)
+ 		my_ad_caps &= ~(ADVERTISE_100BASE4|ADVERTISE_100FULL|ADVERTISE_100HALF);
  
- 	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
- 		goto cantfind_ext2;
-- 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
-- 				le32_to_cpu(es->s_first_data_block) - 1)
-- 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
-+	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
-+				le32_to_cpu(es->s_first_data_block) - 1)
-+					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
- 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT2_DESC_PER_BLOCK(sb);
- 	sbi->s_group_desc = kmalloc (db_count * sizeof (struct buffer_head *), GFP_KERNEL);
+-	 if (!lp->ctl_rfduplx)
++	if (!lp->ctl_rfduplx)
+ 		my_ad_caps &= ~(ADVERTISE_100FULL|ADVERTISE_10FULL);
+ 
+ 	/* Update our Auto-Neg Advertisement Register */
 
 
