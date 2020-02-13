@@ -2,86 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E155715C131
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:15:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9945015C1A3
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:25:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727594AbgBMPPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:15:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43040 "EHLO mail.kernel.org"
+        id S1728886AbgBMPZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727163AbgBMPPl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:15:41 -0500
+        id S1728882AbgBMPZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:00 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96BF52168B;
-        Thu, 13 Feb 2020 15:15:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB09524693;
+        Thu, 13 Feb 2020 15:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581606940;
-        bh=Wa++UXcaTTd5txMUfjV4DpYjH7laEO8r+6+IdRw6vgI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IEpcxp4lr9mfOTEf/UXaZC9RMhgaF5/9q12kkMKiAmaXVNh6WvFdMJK5DiwLt5606
-         G84NAY+qL7U6t/CKytpJs+OW3H7nf0YQMyvRMj9GdvYe83NEpYjRBUZ8lx0+j7RONy
-         2PI4tt316/V1A8wV0aaN4DNtSeWU/nlTrqmzDxqA=
-Date:   Thu, 13 Feb 2020 07:15:40 -0800
+        s=default; t=1581607499;
+        bh=dUIA7XYKh2tjWz5vcmmzWs7dwmjsqJYdL6fQNXnZiDE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NPGYROw0hrW8/agwVGZKnB1VWYt8ETaFHn+5B9OzeB4jAYOv3jNUZ9YzjPsjWS8XX
+         m4E4+U4uroVnrZV5HamkQGMOQXKLEh2+Gg4+oFwRiojIgZMAIhMTYJUDTM7L4bAwwJ
+         0sznpEVU0c6oSgU7RanHoL8vggksFLTfBnm4NePw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, linux-samsung-soc@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>, agross@kernel.org
-Subject: Re: stable-rc 5.4: arm64 make dtbs failed
-Message-ID: <20200213151540.GA3502153@kroah.com>
-References: <CA+G9fYsxGkwOQYhuxwOZMwJi=1v4qc+cZ8PZgV6MczFNjo84HQ@mail.gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        Mark Brown <broonie@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 036/173] mmc: spi: Toggle SPI polarity, do not hardcode it
+Date:   Thu, 13 Feb 2020 07:18:59 -0800
+Message-Id: <20200213151942.906422152@linuxfoundation.org>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYsxGkwOQYhuxwOZMwJi=1v4qc+cZ8PZgV6MczFNjo84HQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 08:38:07PM +0530, Naresh Kamboju wrote:
-> # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux ARCH=arm64
-> CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
-> aarch64-linux-gnu-gcc" O=build dtbs
-> 
-> 
-> ../arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning
-> (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)
-> (#address-cells == 2, #size-cells == 2)
-> arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning
-> (pci_device_bus_num): Failed prerequisite 'reg_format'
-> arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_reg):
-> Failed prerequisite 'reg_format'
-> arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_reg):
-> Failed prerequisite 'reg_format'
-> ../arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning
-> (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)
-> (#address-cells == 2, #size-cells == 2)
-> arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning
-> (pci_device_bus_num): Failed prerequisite 'reg_format'
-> arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_reg):
-> Failed prerequisite 'reg_format'
-> arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_reg):
-> Failed prerequisite 'reg_format'
-> ../arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning
-> (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)
-> (#address-cells == 2, #size-cells == 2)
-> arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning
-> (pci_device_bus_num): Failed prerequisite 'reg_format'
-> arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning
-> (i2c_bus_reg): Failed prerequisite 'reg_format'
-> arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning
-> (spi_bus_reg): Failed prerequisite 'reg_format'
-> ../arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi:10.10-13.4: ERROR
-> (path_references): /aliases: Reference to non-existent node or label
-> "blsp1_uart3"
+From: Linus Walleij <linus.walleij@linaro.org>
 
-Thanks for the notice, I'll go drop the offending patch.
+commit af3ed119329cf9690598c5a562d95dfd128e91d6 upstream.
 
-greg k-h
+The code in mmc_spi_initsequence() tries to send a burst with
+high chipselect and for this reason hardcodes the device into
+SPI_CS_HIGH.
+
+This is not good because the SPI_CS_HIGH flag indicates
+logical "asserted" CS not always the physical level. In
+some cases the signal is inverted in the GPIO library and
+in that case SPI_CS_HIGH is already set, and enforcing
+SPI_CS_HIGH again will actually drive it low.
+
+Instead of hard-coding this, toggle the polarity so if the
+default is LOW it goes high to assert chipselect but if it
+is already high then toggle it low instead.
+
+Cc: Phil Elwell <phil@raspberrypi.org>
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20191204152749.12652-1-linus.walleij@linaro.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/mmc/host/mmc_spi.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -1154,17 +1154,22 @@ static void mmc_spi_initsequence(struct
+ 	 * SPI protocol.  Another is that when chipselect is released while
+ 	 * the card returns BUSY status, the clock must issue several cycles
+ 	 * with chipselect high before the card will stop driving its output.
++	 *
++	 * SPI_CS_HIGH means "asserted" here. In some cases like when using
++	 * GPIOs for chip select, SPI_CS_HIGH is set but this will be logically
++	 * inverted by gpiolib, so if we want to ascertain to drive it high
++	 * we should toggle the default with an XOR as we do here.
+ 	 */
+-	host->spi->mode |= SPI_CS_HIGH;
++	host->spi->mode ^= SPI_CS_HIGH;
+ 	if (spi_setup(host->spi) != 0) {
+ 		/* Just warn; most cards work without it. */
+ 		dev_warn(&host->spi->dev,
+ 				"can't change chip-select polarity\n");
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 	} else {
+ 		mmc_spi_readbytes(host, 18);
+ 
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 		if (spi_setup(host->spi) != 0) {
+ 			/* Wot, we can't get the same setup we had before? */
+ 			dev_err(&host->spi->dev,
+
+
