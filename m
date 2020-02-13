@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C812115C15A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066D815C1BA
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728115AbgBMPWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60798 "EHLO mail.kernel.org"
+        id S1729114AbgBMPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728107AbgBMPWq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:46 -0500
+        id S1729110AbgBMPZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:52 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E387124699;
-        Thu, 13 Feb 2020 15:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0680F24693;
+        Thu, 13 Feb 2020 15:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607365;
-        bh=wgQjZs1ddBRdFqlffXn/FGMRtYF9eRuUuRtsGAyWpRA=;
+        s=default; t=1581607552;
+        bh=fPaObG+zKIvumG63pCibj4GFA7/6iCVHsZhVsIS5drU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzVzQE5KvvNPxjPUNFeGq48Oeo/uvsEwuxPrNM3cV+3ao7dtHN64iElheoTdAsAxu
-         X4Byiu+JLDMB8vuCrtxp39uCeZSkU/6b9KqUg71b6U2AgorZF43XmeG6XWf2O3eCHv
-         k7k1fExDXDnra7iYfdV90kBNycngPVTuFxYt5nh8=
+        b=CQMBtroscvbSp3im+lO++bfwD6AYDE06xyl8IN5i1VPVotWgx0OxTwyS4nYRej4Bp
+         FwMK6WGTJjKH4CGS+Yymu02z/6dCtF6f/lhno6u2a1NLxLalmf0KV1pekmvjeIFr3c
+         7+lBK/rNCLKY5mgjDuqrOLklzHugsDUtUFxeIuaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 53/91] ppp: Adjust indentation into ppp_async_input
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.14 107/173] nfsd: fix jiffies/time_t mixup in LRU list
 Date:   Thu, 13 Feb 2020 07:20:10 -0800
-Message-Id: <20200213151842.139701943@linuxfoundation.org>
+Message-Id: <20200213151959.639491737@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 08cbc75f96029d3092664213a844a5e25523aa35 upstream.
+commit 9594497f2c78993cb66b696122f7c65528ace985 upstream.
 
-Clang warns:
+The nfsd4_blocked_lock->nbl_time timestamp is recorded in jiffies,
+but then compared to a CLOCK_REALTIME timestamp later on, which makes
+no sense.
 
-../drivers/net/ppp/ppp_async.c:877:6: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-                                ap->rpkt = skb;
-                                ^
-../drivers/net/ppp/ppp_async.c:875:5: note: previous statement is here
-                                if (!skb)
-                                ^
-1 warning generated.
+For consistency with the other timestamps, change this to use a time_t.
 
-This warning occurs because there is a space before the tab on this
-line. Clean up this entire block's indentation so that it is consistent
-with the Linux kernel coding style and clang no longer warns.
+This is a change in behavior, which may cause regressions, but the
+current code is not sensible. On a system with CONFIG_HZ=1000,
+the 'time_after((unsigned long)nbl->nbl_time, (unsigned long)cutoff))'
+check is false for roughly the first 18 days of uptime and then true
+for the next 49 days.
 
-Fixes: 6722e78c9005 ("[PPP]: handle misaligned accesses")
-Link: https://github.com/ClangBuiltLinux/linux/issues/800
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7919d0a27f1e ("nfsd: add a LRU list for blocked locks")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ppp/ppp_async.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/nfsd/nfs4state.c |    2 +-
+ fs/nfsd/state.h     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ppp/ppp_async.c
-+++ b/drivers/net/ppp/ppp_async.c
-@@ -878,15 +878,15 @@ ppp_async_input(struct asyncppp *ap, con
- 				skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2);
- 				if (!skb)
- 					goto nomem;
-- 				ap->rpkt = skb;
-- 			}
-- 			if (skb->len == 0) {
-- 				/* Try to get the payload 4-byte aligned.
-- 				 * This should match the
-- 				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
-- 				 * process_input_packet, but we do not have
-- 				 * enough chars here to test buf[1] and buf[2].
-- 				 */
-+				ap->rpkt = skb;
-+			}
-+			if (skb->len == 0) {
-+				/* Try to get the payload 4-byte aligned.
-+				 * This should match the
-+				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
-+				 * process_input_packet, but we do not have
-+				 * enough chars here to test buf[1] and buf[2].
-+				 */
- 				if (buf[0] != PPP_ALLSTATIONS)
- 					skb_reserve(skb, 2 + (buf[0] & 1));
- 			}
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -6040,7 +6040,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struc
+ 	}
+ 
+ 	if (fl_flags & FL_SLEEP) {
+-		nbl->nbl_time = jiffies;
++		nbl->nbl_time = get_seconds();
+ 		spin_lock(&nn->blocked_locks_lock);
+ 		list_add_tail(&nbl->nbl_list, &lock_sop->lo_blocked);
+ 		list_add_tail(&nbl->nbl_lru, &nn->blocked_locks_lru);
+--- a/fs/nfsd/state.h
++++ b/fs/nfsd/state.h
+@@ -591,7 +591,7 @@ static inline bool nfsd4_stateid_generat
+ struct nfsd4_blocked_lock {
+ 	struct list_head	nbl_list;
+ 	struct list_head	nbl_lru;
+-	unsigned long		nbl_time;
++	time_t			nbl_time;
+ 	struct file_lock	nbl_lock;
+ 	struct knfsd_fh		nbl_fh;
+ 	struct nfsd4_callback	nbl_cb;
 
 
