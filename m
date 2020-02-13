@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F8415C406
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B7515C453
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387552AbgBMP00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:26:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45228 "EHLO mail.kernel.org"
+        id S1729224AbgBMPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:46:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387543AbgBMP00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:26 -0500
+        id S1729376AbgBMP1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:20 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6EF1206DB;
-        Thu, 13 Feb 2020 15:26:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCD7B24688;
+        Thu, 13 Feb 2020 15:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607585;
-        bh=tJt9/r+HD8XZQ+jPWZSzkRHlhQNGebvbX5zkirhzIQE=;
+        s=default; t=1581607640;
+        bh=Qm0xSLfvbGM27e3fE+H72stdknaIeAyPzTwdgyCF8Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Te40h5fs3raIehYxqF/SFcpCoxvA6ftTGbJlZ22pxNbmDUmK0WhYnS0tWVxXAWIBM
-         w7TTcsi2p0Vj4gBL5ZRLrKbuyZFs3EdTRUWY42boYVVOpGtAUqvGMn0InK8V85sEXc
-         mjaMEzpSczetmVgzvrldy8Mgd1YcM40FSrmvdWVg=
+        b=2IvL2G7fQaZL1o7Po45erV/lVgSsPC9CrgTvuDtK3LsV3HIv6Xd9uPhVzaIwnwKr4
+         P+SDlJcS+Pfx90mfI/aeq0IcvuLXw68Qh8RzS0CDcTSGI4xx4p7vjubw6Dd+IhDHeZ
+         22KIwjbMlu+VP+mhXIGOF66DHhtEtyXBgi+wwyIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Muthuswamy <sunilmut@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/52] hv_sock: Remove the accept port restriction
-Date:   Thu, 13 Feb 2020 07:20:43 -0800
-Message-Id: <20200213151811.534631865@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.4 37/96] rtc: cmos: Stop using shared IRQ
+Date:   Thu, 13 Feb 2020 07:20:44 -0800
+Message-Id: <20200213151853.571492440@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,168 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Muthuswamy <sunilmut@microsoft.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit c742c59e1fbd022b64d91aa9a0092b3a699d653c ]
+commit b6da197a2e9670df6f07e6698629e9ce95ab614e upstream.
 
-Currently, hv_sock restricts the port the guest socket can accept
-connections on. hv_sock divides the socket port namespace into two parts
-for server side (listening socket), 0-0x7FFFFFFF & 0x80000000-0xFFFFFFFF
-(there are no restrictions on client port namespace). The first part
-(0-0x7FFFFFFF) is reserved for sockets where connections can be accepted.
-The second part (0x80000000-0xFFFFFFFF) is reserved for allocating ports
-for the peer (host) socket, once a connection is accepted.
-This reservation of the port namespace is specific to hv_sock and not
-known by the generic vsock library (ex: af_vsock). This is problematic
-because auto-binds/ephemeral ports are handled by the generic vsock
-library and it has no knowledge of this port reservation and could
-allocate a port that is not compatible with hv_sock (and legitimately so).
-The issue hasn't surfaced so far because the auto-bind code of vsock
-(__vsock_bind_stream) prior to the change 'VSOCK: bind to random port for
-VMADDR_PORT_ANY' would start walking up from LAST_RESERVED_PORT (1023) and
-start assigning ports. That will take a large number of iterations to hit
-0x7FFFFFFF. But, after the above change to randomize port selection, the
-issue has started coming up more frequently.
-There has really been no good reason to have this port reservation logic
-in hv_sock from the get go. Reserving a local port for peer ports is not
-how things are handled generally. Peer ports should reflect the peer port.
-This fixes the issue by lifting the port reservation, and also returns the
-right peer port. Since the code converts the GUID to the peer port (by
-using the first 4 bytes), there is a possibility of conflicts, but that
-seems like a reasonable risk to take, given this is limited to vsock and
-that only applies to all local sockets.
+As reported by Guilherme G. Piccoli:
 
-Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+---8<---8<---8<---
+
+The rtc-cmos interrupt setting was changed in the commit 079062b28fb4
+("rtc: cmos: prevent kernel warning on IRQ flags mismatch") in order
+to allow shared interrupts; according to that commit's description,
+some machine got kernel warnings due to the interrupt line being shared
+between rtc-cmos and other hardware, and rtc-cmos didn't allow IRQ sharing
+that time.
+
+After the aforementioned commit though it was observed a huge increase
+in lost HPET interrupts in some systems, observed through the following
+kernel message:
+
+[...] hpet1: lost 35 rtc interrupts
+
+After investigation, it was narrowed down to the shared interrupts
+usage when having the kernel option "irqpoll" enabled. In this case,
+all IRQ handlers are called for non-timer interrupts, if such handlers
+are setup in shared IRQ lines. The rtc-cmos IRQ handler could be set to
+hpet_rtc_interrupt(), which will produce the kernel "lost interrupts"
+message after doing work - lots of readl/writel to HPET registers, which
+are known to be slow.
+
+Although "irqpoll" is not a default kernel option, it's used in some contexts,
+one being the kdump kernel (which is an already "impaired" kernel usually
+running with 1 CPU available), so the performance burden could be considerable.
+Also, the same issue would happen (in a shorter extent though) when using
+"irqfixup" kernel option.
+
+In a quick experiment, a virtual machine with uptime of 2 minutes produced
+>300 calls to hpet_rtc_interrupt() when "irqpoll" was set, whereas without
+sharing interrupts this number reduced to 1 interrupt. Machines with more
+hardware than a VM should generate even more unnecessary HPET interrupts
+in this scenario.
+
+---8<---8<---8<---
+
+After looking into the rtc-cmos driver history and DSDT table from
+the Microsoft Surface 3, we may notice that Hans de Goede submitted
+a correct fix (see dependency below). Thus, we simply revert
+the culprit commit.
+
+Fixes: 079062b28fb4 ("rtc: cmos: prevent kernel warning on IRQ flags mismatch")
+Depends-on: a1e23a42f1bd ("rtc: cmos: Do not assume irq 8 for rtc when there are no legacy irqs")
+Reported-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200123131437.28157-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/vmw_vsock/hyperv_transport.c | 68 +++++---------------------------
- 1 file changed, 9 insertions(+), 59 deletions(-)
+ drivers/rtc/rtc-cmos.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 70350dc673669..db6ca51228d2f 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -144,28 +144,15 @@ struct hvsock {
-  ****************************************************************************
-  * The only valid Service GUIDs, from the perspectives of both the host and *
-  * Linux VM, that can be connected by the other end, must conform to this   *
-- * format: <port>-facb-11e6-bd58-64006a7986d3, and the "port" must be in    *
-- * this range [0, 0x7FFFFFFF].                                              *
-+ * format: <port>-facb-11e6-bd58-64006a7986d3.                              *
-  ****************************************************************************
-  *
-  * When we write apps on the host to connect(), the GUID ServiceID is used.
-  * When we write apps in Linux VM to connect(), we only need to specify the
-  * port and the driver will form the GUID and use that to request the host.
-  *
-- * From the perspective of Linux VM:
-- * 1. the local ephemeral port (i.e. the local auto-bound port when we call
-- * connect() without explicit bind()) is generated by __vsock_bind_stream(),
-- * and the range is [1024, 0xFFFFFFFF).
-- * 2. the remote ephemeral port (i.e. the auto-generated remote port for
-- * a connect request initiated by the host's connect()) is generated by
-- * hvs_remote_addr_init() and the range is [0x80000000, 0xFFFFFFFF).
-  */
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -850,7 +850,7 @@ cmos_do_probe(struct device *dev, struct
+ 			rtc_cmos_int_handler = cmos_interrupt;
  
--#define MAX_LISTEN_PORT			((u32)0x7FFFFFFF)
--#define MAX_VM_LISTEN_PORT		MAX_LISTEN_PORT
--#define MAX_HOST_LISTEN_PORT		MAX_LISTEN_PORT
--#define MIN_HOST_EPHEMERAL_PORT		(MAX_HOST_LISTEN_PORT + 1)
--
- /* 00000000-facb-11e6-bd58-64006a7986d3 */
- static const uuid_le srv_id_template =
- 	UUID_LE(0x00000000, 0xfacb, 0x11e6, 0xbd, 0x58,
-@@ -188,33 +175,6 @@ static void hvs_addr_init(struct sockaddr_vm *addr, const uuid_le *svr_id)
- 	vsock_addr_init(addr, VMADDR_CID_ANY, port);
- }
- 
--static void hvs_remote_addr_init(struct sockaddr_vm *remote,
--				 struct sockaddr_vm *local)
--{
--	static u32 host_ephemeral_port = MIN_HOST_EPHEMERAL_PORT;
--	struct sock *sk;
--
--	vsock_addr_init(remote, VMADDR_CID_ANY, VMADDR_PORT_ANY);
--
--	while (1) {
--		/* Wrap around ? */
--		if (host_ephemeral_port < MIN_HOST_EPHEMERAL_PORT ||
--		    host_ephemeral_port == VMADDR_PORT_ANY)
--			host_ephemeral_port = MIN_HOST_EPHEMERAL_PORT;
--
--		remote->svm_port = host_ephemeral_port++;
--
--		sk = vsock_find_connected_socket(remote, local);
--		if (!sk) {
--			/* Found an available ephemeral port */
--			return;
--		}
--
--		/* Release refcnt got in vsock_find_connected_socket */
--		sock_put(sk);
--	}
--}
--
- static void hvs_set_channel_pending_send_size(struct vmbus_channel *chan)
- {
- 	set_channel_pending_send_size(chan,
-@@ -342,12 +302,7 @@ static void hvs_open_connection(struct vmbus_channel *chan)
- 	if_type = &chan->offermsg.offer.if_type;
- 	if_instance = &chan->offermsg.offer.if_instance;
- 	conn_from_host = chan->offermsg.offer.u.pipe.user_def[0];
--
--	/* The host or the VM should only listen on a port in
--	 * [0, MAX_LISTEN_PORT]
--	 */
--	if (!is_valid_srv_id(if_type) ||
--	    get_port_by_srv_id(if_type) > MAX_LISTEN_PORT)
-+	if (!is_valid_srv_id(if_type))
- 		return;
- 
- 	hvs_addr_init(&addr, conn_from_host ? if_type : if_instance);
-@@ -371,6 +326,13 @@ static void hvs_open_connection(struct vmbus_channel *chan)
- 
- 		new->sk_state = TCP_SYN_SENT;
- 		vnew = vsock_sk(new);
-+
-+		hvs_addr_init(&vnew->local_addr, if_type);
-+
-+		/* Remote peer is always the host */
-+		vsock_addr_init(&vnew->remote_addr,
-+				VMADDR_CID_HOST, VMADDR_PORT_ANY);
-+		vnew->remote_addr.svm_port = get_port_by_srv_id(if_instance);
- 		hvs_new = vnew->trans;
- 		hvs_new->chan = chan;
- 	} else {
-@@ -410,8 +372,6 @@ static void hvs_open_connection(struct vmbus_channel *chan)
- 		sk->sk_ack_backlog++;
- 
- 		hvs_addr_init(&vnew->local_addr, if_type);
--		hvs_remote_addr_init(&vnew->remote_addr, &vnew->local_addr);
--
- 		hvs_new->vm_srv_id = *if_type;
- 		hvs_new->host_srv_id = *if_instance;
- 
-@@ -716,16 +676,6 @@ static bool hvs_stream_is_active(struct vsock_sock *vsk)
- 
- static bool hvs_stream_allow(u32 cid, u32 port)
- {
--	/* The host's port range [MIN_HOST_EPHEMERAL_PORT, 0xFFFFFFFF) is
--	 * reserved as ephemeral ports, which are used as the host's ports
--	 * when the host initiates connections.
--	 *
--	 * Perform this check in the guest so an immediate error is produced
--	 * instead of a timeout.
--	 */
--	if (port > MAX_HOST_LISTEN_PORT)
--		return false;
--
- 	if (cid == VMADDR_CID_HOST)
- 		return true;
- 
--- 
-2.20.1
-
+ 		retval = request_irq(rtc_irq, rtc_cmos_int_handler,
+-				IRQF_SHARED, dev_name(&cmos_rtc.rtc->dev),
++				0, dev_name(&cmos_rtc.rtc->dev),
+ 				cmos_rtc.rtc);
+ 		if (retval < 0) {
+ 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
 
 
