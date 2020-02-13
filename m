@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6BF15C545
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 902CE15C47E
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729050AbgBMPyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42642 "EHLO mail.kernel.org"
+        id S1729417AbgBMPrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:47:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729102AbgBMPZv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:51 -0500
+        id S1729309AbgBMP07 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:59 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6032120848;
-        Thu, 13 Feb 2020 15:25:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFB0D20661;
+        Thu, 13 Feb 2020 15:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607551;
-        bh=xSKy0VUYvuRtdZfsXdTP62/aEzxuc94wctJhZJ9qRQ8=;
+        s=default; t=1581607618;
+        bh=Pm+Mw0+GOmvlozoTcCID/HKqOQ0CXLV9Qfa6XUztFXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzQXbjMA7eMfvjRTuVOjL5CPGGmoSz8Trsey/v+B9FOIcrOmcwIr5cJFmnx/srXbC
-         T7Ec3ouvCqnAj/lwesf3cErgxPCpthLXfb4u8qQPWXJz10Ji5dyruDEtS9f5cup2cK
-         0UjOF4FNt9d6664zmWZnQnk88XnEZnGfpZln1Sis=
+        b=eiIUtJzuv01y8gIp9MgUvFErqh+BU3/zTo+wUkjz8gep8qv3M7QWcoMDhF0LnhdYT
+         tqSGjnVfV8Mbj4S381ipMyQ1NTghMnyhXfiIJZF3JaIVhVc+qTy5ple0r+U0kY7+al
+         B5c+DozrrQ4Cs3cvt+UPMIEDkkPmzFQLSJJqHV6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 116/173] net: macb: Limit maximum GEM TX length in TSO
+        stable@vger.kernel.org, Asutosh Das <asutoshd@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 12/96] scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
 Date:   Thu, 13 Feb 2020 07:20:19 -0800
-Message-Id: <20200213152001.702224885@linuxfoundation.org>
+Message-Id: <20200213151843.859773749@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit f822e9c4ffa511a5c681cf866287d9383a3b6f1b ]
+commit b9fc5320212efdfb4e08b825aaa007815fd11d16 upstream.
 
-GEM_MAX_TX_LEN currently resolves to 0x3FF8 for any IP version supporting
-TSO with full 14bits of length field in payload descriptor. But an IP
-errata causes false amba_error (bit 6 of ISR) when length in payload
-descriptors is specified above 16387. The error occurs because the DMA
-falsely concludes that there is not enough space in SRAM for incoming
-payload. These errors were observed continuously under stress of large
-packets using iperf on a version where SRAM was 16K for each queue. This
-errata will be documented shortly and affects all versions since TSO
-functionality was added. Hence limit the max length to 0x3FC0 (rounded).
+A non-zero error value likely being returned by ufshcd_scsi_add_wlus() in
+case of failure of adding the WLs, but ufshcd_probe_hba() doesn't use this
+value, and doesn't report this failure to upper caller.  This patch is to
+fix this issue.
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2a8fa600445c ("ufs: manually add well known logical units")
+Link: https://lore.kernel.org/r/20200120130820.1737-2-huobean@gmail.com
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/cadence/macb_main.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -66,7 +66,11 @@
- /* Max length of transmit frame must be a multiple of 8 bytes */
- #define MACB_TX_LEN_ALIGN	8
- #define MACB_MAX_TX_LEN		((unsigned int)((1 << MACB_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
--#define GEM_MAX_TX_LEN		((unsigned int)((1 << GEM_TX_FRMLEN_SIZE) - 1) & ~((unsigned int)(MACB_TX_LEN_ALIGN - 1)))
-+/* Limit maximum TX length as per Cadence TSO errata. This is to avoid a
-+ * false amba_error in TX path from the DMA assuming there is not enough
-+ * space in the SRAM (16KB) even when there is.
-+ */
-+#define GEM_MAX_TX_LEN		(unsigned int)(0x3FC0)
+---
+ drivers/scsi/ufs/ufshcd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6953,7 +6953,8 @@ static int ufshcd_probe_hba(struct ufs_h
+ 			ufshcd_init_icc_levels(hba);
  
- #define GEM_MTU_MIN_SIZE	ETH_MIN_MTU
- #define MACB_NETIF_LSO		NETIF_F_TSO
+ 		/* Add required well known logical units to scsi mid layer */
+-		if (ufshcd_scsi_add_wlus(hba))
++		ret = ufshcd_scsi_add_wlus(hba);
++		if (ret)
+ 			goto out;
+ 
+ 		/* Initialize devfreq after UFS device is detected */
 
 
