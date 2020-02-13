@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8737115C174
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F03815C1A0
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:25:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbgBMPXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
+        id S1728862AbgBMPY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:24:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728356AbgBMPXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:22 -0500
+        id S1728858AbgBMPYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:55 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F7B724691;
-        Thu, 13 Feb 2020 15:23:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5447E246A4;
+        Thu, 13 Feb 2020 15:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607401;
-        bh=ACjKYz9A2d8Fi5hQbocr4bi/V9Cmxvl3mDGZ6dQiI0A=;
+        s=default; t=1581607495;
+        bh=XBzjrddAAyUu1vsIm5IwAqfqOvGPpOdXctWjSZOa7YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUxl46A9vbSckRz81y82JvHgjlxjjTfzJQqxKmLcjlckA+wXZldy1lcIGjPomPW53
-         y/EeVXq7spr4f3lReCqaSed9iprPB9CHLyvD6tvn97W6UbFhcjJ+3fE5cWqFyO42wE
-         VTaLrPDTdPEXj6D5KJ2ePaAZg8qOpcJaxoUKYL+Q=
+        b=Dtkk8ASgIGVzzoKwMH5mZyJdz6+ImB1bS+uKv9VG+/mJT8G+OdufufbpcxP9R/WvY
+         Oq87bL7MNFqxkHgJFFeDfOqGvs5F/kNgnlLoQXtWxLE07+8PsXbugAkidpTiDrQSkF
+         MFkUkXYIM2B4sVBxnr14zuHrCaVLYUIU7mS3TzXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Neelima Krishnan <neelima.krishnan@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 002/116] x86/cpu: Update cached HLE state on write to TSX_CTRL_CPUID_CLEAR
-Date:   Thu, 13 Feb 2020 07:19:06 -0800
-Message-Id: <20200213151843.221414164@linuxfoundation.org>
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 047/173] scsi: qla2xxx: Fix mtcp dump collection failure
+Date:   Thu, 13 Feb 2020 07:19:10 -0800
+Message-Id: <20200213151945.853627319@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 5efc6fa9044c3356d6046c6e1da6d02572dbed6b ]
+commit 641e0efddcbde52461e017136acd3ce7f2ef0c14 upstream.
 
-/proc/cpuinfo currently reports Hardware Lock Elision (HLE) feature to
-be present on boot cpu even if it was disabled during the bootup. This
-is because cpuinfo_x86->x86_capability HLE bit is not updated after TSX
-state is changed via the new MSR IA32_TSX_CTRL.
+MTCP dump failed due to MB Reg 10 was picking garbage data from stack
+memory.
 
-Update the cached HLE bit also since it is expected to change after an
-update to CPUID_CLEAR bit in MSR IA32_TSX_CTRL.
-
-Fixes: 95c5824f75f3 ("x86/cpu: Add a "tsx=" cmdline option with TSX disabled by default")
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Fixes: 81178772b636a ("[SCSI] qla2xxx: Implemetation of mctp.")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/2529b99546294c893dfa1c89e2b3e46da3369a59.1578685425.git.pawan.kumar.gupta@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20191217220617.28084-14-hmadhani@marvell.com
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/cpu/tsx.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/tsx.c b/arch/x86/kernel/cpu/tsx.c
-index 3e20d322bc98b..032509adf9de9 100644
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -115,11 +115,12 @@ void __init tsx_init(void)
- 		tsx_disable();
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -5853,9 +5853,8 @@ qla2x00_dump_mctp_data(scsi_qla_host_t *
+ 	mcp->mb[7] = LSW(MSD(req_dma));
+ 	mcp->mb[8] = MSW(addr);
+ 	/* Setting RAM ID to valid */
+-	mcp->mb[10] |= BIT_7;
+ 	/* For MCTP RAM ID is 0x40 */
+-	mcp->mb[10] |= 0x40;
++	mcp->mb[10] = BIT_7 | 0x40;
  
- 		/*
--		 * tsx_disable() will change the state of the
--		 * RTM CPUID bit.  Clear it here since it is now
--		 * expected to be not set.
-+		 * tsx_disable() will change the state of the RTM and HLE CPUID
-+		 * bits. Clear them here since they are now expected to be not
-+		 * set.
- 		 */
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
-+		setup_clear_cpu_cap(X86_FEATURE_HLE);
- 	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
- 
- 		/*
-@@ -131,10 +132,10 @@ void __init tsx_init(void)
- 		tsx_enable();
- 
- 		/*
--		 * tsx_enable() will change the state of the
--		 * RTM CPUID bit.  Force it here since it is now
--		 * expected to be set.
-+		 * tsx_enable() will change the state of the RTM and HLE CPUID
-+		 * bits. Force them here since they are now expected to be set.
- 		 */
- 		setup_force_cpu_cap(X86_FEATURE_RTM);
-+		setup_force_cpu_cap(X86_FEATURE_HLE);
- 	}
- }
--- 
-2.20.1
-
+ 	mcp->out_mb |= MBX_10|MBX_8|MBX_7|MBX_6|MBX_5|MBX_4|MBX_3|MBX_2|MBX_1|
+ 	    MBX_0;
 
 
