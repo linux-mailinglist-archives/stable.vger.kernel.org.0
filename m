@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC8F15B862
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5FB615B863
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbgBMENa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 23:13:30 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42937 "EHLO
+        id S1729470AbgBMEPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 23:15:06 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:37997 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729440AbgBMENa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:13:30 -0500
+        by vger.kernel.org with ESMTP id S1729443AbgBMEPG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:15:06 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 03F4021F34;
-        Wed, 12 Feb 2020 23:13:30 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 996FF22056;
+        Wed, 12 Feb 2020 23:15:05 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:13:30 -0500
+  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:15:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ueBmcW
-        ML6giUOBss6tCn8ywE+OMR6jQJqLUk4dc2hnA=; b=K/zV58sb4APq4uuVoaZFDT
-        HN7AR0ayRjaH2OWMRYURwULgI2YvK9TRnyh5exs2ctY1oZRbzJkQdHMhAKh5XODU
-        0xZYxJDxm4FXlxsReANFi18wcZojEjhNoUuFtpouHrmRoeXy6HSnw3rcE2qrbTPA
-        UxoBImxul0ybKNyERcIInZsy7gBvt2Xl69nUf+M9+iLnEmnNXV9S7fC6uFQLzz6F
-        SdIIP3paAwi0aeJvxHfP8y4wQHKeF6E4RxjrWX4WEuEhvAJHo7xjwJUAGNSlT574
-        /Fqe4BCt2i7ap/2BLuGjiFE0ltDuUIyZjIN/8lpo3JxNqN4/FZVNnTPREkQr0s/g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=s7HJOZ
+        V9xE+MJcxeyz/aORLgMuUPo+jppjbndy+F1r4=; b=MhM1unObOqkQh3hv9+8YkY
+        dMtv+wDoW++K/e32IgzVmvoLtEeYF+h20AsW5iIk1aYTtYwIItk/Q7gowQ1e1Ylk
+        oRdAzhUTmdGgkS1ss1yQomAoEUvbyys/1Qf8ZH69jsobQf4dQccZXuOxPWFoRxwu
+        OtwBpy4LhaywiRI87FWxz+naFqRsJte0nmCMzuoyIy+309QOlKtGnaVfUvjNdD2U
+        Dp9klT+P1EX54aAxmYvGQ/JdEkZUAWVXOmy7P/x6W9G1Z6YRFWBHNPfj+nQAY6zO
+        gvr5XuNhnWyEbYvKrHjPgAOY+M/UCBCRl2MnfgybPRL+BeWAUrqa/MeuwUiJ9sIw
         ==
-X-ME-Sender: <xms:6cxEXm8sAV7A5QKvBWLYFvtWkjdyrmRcxyB3BSjenzl8gsbJRp2PIA>
+X-ME-Sender: <xms:Sc1EXpg4utJXSIaOapL6U5sgaOdvLc-WZU1gSUWdG2Nd5dy2RwS2Ig>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrieejgdejtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepvddtledrfeejrdeljedrudelgeenucevlhhushhtvghrufhiiigvpedvne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:6cxEXnUVo60VzoLQKB6se0XFCDfXtE3Mf2E0bUjTCMa2aK3Zocq3Pg>
-    <xmx:6cxEXnIQJQg_49JE8VMIiLX41ZyC3DRzqyKVt5oIsQ62rwEpRLoU9A>
-    <xmx:6cxEXjB3UeQq8m43SryJeLw3JiDwmACou1Q0w5RDSr5dinjl_Q4IGA>
-    <xmx:6cxEXuDcva_drpKys3IZRILgUY7dORn73f_jqCJDRQ1vA4oPgh_MIw>
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppedvtdelrdefjedrleejrd
+    duleegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:Sc1EXjSyQRM7n2atCVTn3Jfd-eYfYT3JD0QO-GoMEX42VMXQ4MM5YA>
+    <xmx:Sc1EXqw3l3E2t3d2Aschp8pYoQ_7K83DDwSubz_cEscXHa7VG4BXvw>
+    <xmx:Sc1EXmcyQOg15fTKiHIBS67c9pEPKKlHfy5iUxPToFerzGUY3KX1uA>
+    <xmx:Sc1EXtsH2eb3gf2nBeqWpQavnDeUo7IhczB8EhA824SMcPwtsphNAQ>
 Received: from localhost (unknown [209.37.97.194])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A1D133280060;
-        Wed, 12 Feb 2020 23:13:29 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: ptrace: nofpsimd: Fail FP/SIMD regset operations" failed to apply to 4.14-stable tree
-To:     suzuki.poulose@arm.com, ardb@kernel.org, catalin.marinas@arm.com,
-        mark.rutland@arm.com, will@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 308533280059;
+        Wed, 12 Feb 2020 23:15:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is unset" failed to apply to 4.14-stable tree
+To:     eric.auger@redhat.com, andrew.murray@arm.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 Feb 2020 20:13:28 -0800
-Message-ID: <158156720821102@kroah.com>
+Date:   Wed, 12 Feb 2020 20:15:04 -0800
+Message-ID: <1581567304238176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,94 +68,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c9d66999f064947e6b577ceacc1eb2fbca6a8d3c Mon Sep 17 00:00:00 2001
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Date: Mon, 13 Jan 2020 23:30:21 +0000
-Subject: [PATCH] arm64: ptrace: nofpsimd: Fail FP/SIMD regset operations
+From 3837407c1aa1101ed5e214c7d6041e7a23335c6e Mon Sep 17 00:00:00 2001
+From: Eric Auger <eric.auger@redhat.com>
+Date: Fri, 24 Jan 2020 15:25:32 +0100
+Subject: [PATCH] KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is unset
 
-When fp/simd is not supported on the system, fail the operations
-of FP/SIMD regsets.
+The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
+if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
 
-Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
+be set for the corresponding event counter but we also need
+the PMCR.E bit to be set.
 
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 6771c399d40c..cd6e5fa48b9c 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -615,6 +615,13 @@ static int gpr_set(struct task_struct *target, const struct user_regset *regset,
- 	return 0;
- }
+Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200124142535.29386-2-eric.auger@redhat.com
+
+diff --git a/virt/kvm/arm/pmu.c b/virt/kvm/arm/pmu.c
+index 8731dfeced8b..c3f8b059881e 100644
+--- a/virt/kvm/arm/pmu.c
++++ b/virt/kvm/arm/pmu.c
+@@ -486,6 +486,9 @@ void kvm_pmu_software_increment(struct kvm_vcpu *vcpu, u64 val)
+ 	if (val == 0)
+ 		return;
  
-+static int fpr_active(struct task_struct *target, const struct user_regset *regset)
-+{
-+	if (!system_supports_fpsimd())
-+		return -ENODEV;
-+	return regset->n;
-+}
++	if (!(__vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
++		return;
 +
- /*
-  * TODO: update fp accessors for lazy context switching (sync/flush hwstate)
-  */
-@@ -637,6 +644,9 @@ static int fpr_get(struct task_struct *target, const struct user_regset *regset,
- 		   unsigned int pos, unsigned int count,
- 		   void *kbuf, void __user *ubuf)
- {
-+	if (!system_supports_fpsimd())
-+		return -EINVAL;
-+
- 	if (target == current)
- 		fpsimd_preserve_current_state();
- 
-@@ -676,6 +686,9 @@ static int fpr_set(struct task_struct *target, const struct user_regset *regset,
- {
- 	int ret;
- 
-+	if (!system_supports_fpsimd())
-+		return -EINVAL;
-+
- 	ret = __fpr_set(target, regset, pos, count, kbuf, ubuf, 0);
- 	if (ret)
- 		return ret;
-@@ -1134,6 +1147,7 @@ static const struct user_regset aarch64_regsets[] = {
- 		 */
- 		.size = sizeof(u32),
- 		.align = sizeof(u32),
-+		.active = fpr_active,
- 		.get = fpr_get,
- 		.set = fpr_set
- 	},
-@@ -1348,6 +1362,9 @@ static int compat_vfp_get(struct task_struct *target,
- 	compat_ulong_t fpscr;
- 	int ret, vregs_end_pos;
- 
-+	if (!system_supports_fpsimd())
-+		return -EINVAL;
-+
- 	uregs = &target->thread.uw.fpsimd_state;
- 
- 	if (target == current)
-@@ -1381,6 +1398,9 @@ static int compat_vfp_set(struct task_struct *target,
- 	compat_ulong_t fpscr;
- 	int ret, vregs_end_pos;
- 
-+	if (!system_supports_fpsimd())
-+		return -EINVAL;
-+
- 	uregs = &target->thread.uw.fpsimd_state;
- 
- 	vregs_end_pos = VFP_STATE_SIZE - sizeof(compat_ulong_t);
-@@ -1438,6 +1458,7 @@ static const struct user_regset aarch32_regsets[] = {
- 		.n = VFP_STATE_SIZE / sizeof(compat_ulong_t),
- 		.size = sizeof(compat_ulong_t),
- 		.align = sizeof(compat_ulong_t),
-+		.active = fpr_active,
- 		.get = compat_vfp_get,
- 		.set = compat_vfp_set
- 	},
+ 	enable = __vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
+ 	for (i = 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
+ 		if (!(val & BIT(i)))
 
