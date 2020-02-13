@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D08615C67D
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C64815C67B
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbgBMQBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728359AbgBMQBF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Feb 2020 11:01:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38544 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728755AbgBMPYl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:41 -0500
+        id S1728760AbgBMPYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6CFC246A3;
-        Thu, 13 Feb 2020 15:24:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E923246A4;
+        Thu, 13 Feb 2020 15:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607480;
-        bh=kt0Bz0bPpo/l/zqQOhZV+pT2pslamunyf4gkPOCt2Pw=;
+        s=default; t=1581607481;
+        bh=CTsNSG9RAGIm5TNqWVpP5QVDKiL46+dVIx7R8/Sm4mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGl+iPcnbipTkRAo8H0DIAUUm9ohvK53jruvYfh9hVD1Iz2ZPy/CRcJJTTI0r2Q3r
-         L9KMGnQ4kd0joh65zAYN3rzrvv5/1ZWX7MJ3yAhq/mIZ2y5hT7VlwV8/Z/9KpzDN/R
-         lrdqwbK3qLSUUhqO88WTGrfz/0c7+a5YJPO5T67U=
+        b=SQ2G1NsFwWuQVkfjV5Kznhk8IEjdlJfFOs+ahaIwUR3Y95WmSLhSCxg7mIQ4tBnZ6
+         /rl8urJhnsqeJEPEbpABuJyVqXl41+NLnk5TKuA5cPX0Gaq+XbsEE7yxVkCZpZj+kx
+         z5Cq4sdbNQRvwJbEOXj1xd0uT/achXWW6HvBatTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.14 024/173] usb: gadget: f_ecm: Use atomic_t to track in-flight request
-Date:   Thu, 13 Feb 2020 07:18:47 -0800
-Message-Id: <20200213151939.533073373@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 025/173] ALSA: dummy: Fix PCM format loop in proc output
+Date:   Thu, 13 Feb 2020 07:18:48 -0800
+Message-Id: <20200213151939.747279669@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -44,91 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d710562e01c48d59be3f60d58b7a85958b39aeda upstream.
+commit 2acf25f13ebe8beb40e97a1bbe76f36277c64f1e upstream.
 
-Currently ecm->notify_req is used to flag when a request is in-flight.
-ecm->notify_req is set to NULL and when a request completes it is
-subsequently reset.
+The loop termination for iterating over all formats should contain
+SNDRV_PCM_FORMAT_LAST, not less than it.
 
-This is fundamentally buggy in that the unbind logic of the ECM driver will
-unconditionally free ecm->notify_req leading to a NULL pointer dereference.
-
-Fixes: da741b8c56d6 ("usb ethernet gadget: split CDC Ethernet function")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 9b151fec139d ("ALSA: dummy - Add debug proc file")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200201080530.22390-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_ecm.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ sound/drivers/dummy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -56,6 +56,7 @@ struct f_ecm {
- 	struct usb_ep			*notify;
- 	struct usb_request		*notify_req;
- 	u8				notify_state;
-+	atomic_t			notify_count;
- 	bool				is_open;
+--- a/sound/drivers/dummy.c
++++ b/sound/drivers/dummy.c
+@@ -933,7 +933,7 @@ static void print_formats(struct snd_dum
+ {
+ 	int i;
  
- 	/* FIXME is_open needs some irq-ish locking
-@@ -384,7 +385,7 @@ static void ecm_do_notify(struct f_ecm *
- 	int				status;
- 
- 	/* notification already in flight? */
--	if (!req)
-+	if (atomic_read(&ecm->notify_count))
- 		return;
- 
- 	event = req->buf;
-@@ -424,10 +425,10 @@ static void ecm_do_notify(struct f_ecm *
- 	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ecm->ctrl_id);
- 
--	ecm->notify_req = NULL;
-+	atomic_inc(&ecm->notify_count);
- 	status = usb_ep_queue(ecm->notify, req, GFP_ATOMIC);
- 	if (status < 0) {
--		ecm->notify_req = req;
-+		atomic_dec(&ecm->notify_count);
- 		DBG(cdev, "notify --> %d\n", status);
+-	for (i = 0; i < SNDRV_PCM_FORMAT_LAST; i++) {
++	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
+ 		if (dummy->pcm_hw.formats & (1ULL << i))
+ 			snd_iprintf(buffer, " %s", snd_pcm_format_name(i));
  	}
- }
-@@ -452,17 +453,19 @@ static void ecm_notify_complete(struct u
- 	switch (req->status) {
- 	case 0:
- 		/* no fault */
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
-+		atomic_set(&ecm->notify_count, 0);
- 		ecm->notify_state = ECM_NOTIFY_NONE;
- 		break;
- 	default:
- 		DBG(cdev, "event %02x --> %d\n",
- 			event->bNotificationType, req->status);
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	}
--	ecm->notify_req = req;
- 	ecm_do_notify(ecm);
- }
- 
-@@ -909,6 +912,11 @@ static void ecm_unbind(struct usb_config
- 
- 	usb_free_all_descriptors(f);
- 
-+	if (atomic_read(&ecm->notify_count)) {
-+		usb_ep_dequeue(ecm->notify, ecm->notify_req);
-+		atomic_set(&ecm->notify_count, 0);
-+	}
-+
- 	kfree(ecm->notify_req->buf);
- 	usb_ep_free_request(ecm->notify, ecm->notify_req);
- }
 
 
