@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DAD15C15E
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D70DF15C1FE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726968AbgBMPWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32904 "EHLO mail.kernel.org"
+        id S1729000AbgBMP2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbgBMPWw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:52 -0500
+        id S1729545AbgBMP2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:04 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 821C92469C;
-        Thu, 13 Feb 2020 15:22:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25A0C218AC;
+        Thu, 13 Feb 2020 15:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607371;
-        bh=ImnbD9F25e9BycBbdnfihLcvYJC4fBuKP6FR6RfChZo=;
+        s=default; t=1581607684;
+        bh=IzQ6xyG7OVKJTpEyVdt5ZW6WXPzpifb6DD9cEoFHN8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghOB+xU9bYbVFGu6LnO9rYJUyXtdf+M5TlQbFH6856lxWzS4PoIE/qcOXtsNAlzUS
-         OvvNBDmNegoMUoV/J20/WoONt0QK+vUwCBp2BtyBGjqVjpWkdDUyoJ8rmhg6Pnyo6a
-         Kin9c/4SUsPKFsDjtQxT+B0oojTkMPSQP+0CLAQc=
+        b=Nsuev0SURuq5ouMWOLcCTD7/RVA8h7XLFpAZY8wzSXr/nqN5m3KmwKFaQp/ZRJ5iA
+         xiLAR3djwDmU8u5h5Nm3wTWntJes3CZ8eJawdWbxuWmV3Cp02sUDpEn06NNMFqIUGq
+         mZV2zrmUcmeT4lgrbR1yFop4YBMf0rm3CzstMhhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 46/91] KVM: x86: Free wbinvd_dirty_mask if vCPU creation fails
-Date:   Thu, 13 Feb 2020 07:20:03 -0800
-Message-Id: <20200213151839.364525463@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Guralnik <michaelgur@mellanox.com>,
+        Yishai Hadas <yishaih@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 008/120] RDMA/uverbs: Verify MR access flags
+Date:   Thu, 13 Feb 2020 07:20:04 -0800
+Message-Id: <20200213151904.370359735@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Michael Guralnik <michaelgur@mellanox.com>
 
-commit 16be9ddea268ad841457a59109963fff8c9de38d upstream.
+commit ca95c1411198c2d87217c19d44571052cdc94725 upstream.
 
-Free the vCPU's wbinvd_dirty_mask if vCPU creation fails after
-kvm_arch_vcpu_init(), e.g. when installing the vCPU's file descriptor.
-Do the freeing by calling kvm_arch_vcpu_free() instead of open coding
-the freeing.  This adds a likely superfluous, but ultimately harmless,
-call to kvmclock_reset(), which only clears vcpu->arch.pv_time_enabled.
-Using kvm_arch_vcpu_free() allows for additional cleanup in the future.
+Verify that MR access flags that are passed from user are all supported
+ones, otherwise an error is returned.
 
-Fixes: f5f48ee15c2ee ("KVM: VMX: Execute WBINVD to keep data consistency with assigned devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 4fca03778351 ("IB/uverbs: Move ib_access_flags and ib_read_counters_flags to uapi")
+Link: https://lore.kernel.org/r/1578506740-22188-6-git-send-email-yishaih@mellanox.com
+Signed-off-by: Michael Guralnik <michaelgur@mellanox.com>
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/rdma/ib_verbs.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7498,7 +7498,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
- 	kvm_mmu_unload(vcpu);
- 	vcpu_put(vcpu);
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -4300,6 +4300,9 @@ static inline int ib_check_mr_access(int
+ 	    !(flags & IB_ACCESS_LOCAL_WRITE))
+ 		return -EINVAL;
  
--	kvm_x86_ops->vcpu_free(vcpu);
-+	kvm_arch_vcpu_free(vcpu);
++	if (flags & ~IB_ACCESS_SUPPORTED)
++		return -EINVAL;
++
+ 	return 0;
  }
  
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 
