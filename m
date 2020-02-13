@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B5C15C38F
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 565C215C42B
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729470AbgBMPmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:42:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54792 "EHLO mail.kernel.org"
+        id S1729341AbgBMP1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728802AbgBMP2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:12 -0500
+        id S1729048AbgBMP1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:15 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAA1A222C2;
-        Thu, 13 Feb 2020 15:28:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFB60206DB;
+        Thu, 13 Feb 2020 15:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607691;
-        bh=dBjMwYiib9tdGRpo7RTRVgn9LZnKD9lqcHjCVdNjL9c=;
+        s=default; t=1581607634;
+        bh=egsv0F3QI165Kw4Zy5KRqStiuf+/g6ZG+gWYqu5O9EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nnADpDzebvLstqUVpNEa+gryVahNDh+C1GNkOH7LRST70CiSHSLMRKviUIU4l+2o8
-         dET5gXRBVDUE/zkdL3/536+OXAvTY2KHJuMlh4cdlpLyuGjMMbdLTvFkB2Jo1eJ/VE
-         JxYi811IorB7QS8wB3CXh+4YP21oav9uQy8JWeDI=
+        b=UBYINCXsfcCELQWtP6wLgErnpMFa3PRN5lPhRHf4RTqJ4TF67+0Fnjt9lUqtgGJiu
+         uu29K5bHHBq1LS1HOa8CmzMh1yrXg2Q1IgM4MdGaTDCAul1On7qHtX4lXo7TjOOPhs
+         MfpPHUkaMHN8yAT5CaUGin9nsr/9yjyOg7w2zpR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.5 030/120] NFS/pnfs: Fix pnfs_generic_prepare_to_resend_writes()
-Date:   Thu, 13 Feb 2020 07:20:26 -0800
-Message-Id: <20200213151912.218866135@linuxfoundation.org>
+        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 20/96] iwlwifi: mvm: avoid use after free for pmsr request
+Date:   Thu, 13 Feb 2020 07:20:27 -0800
+Message-Id: <20200213151846.993912426@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,118 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Avraham Stern <avraham.stern@intel.com>
 
-commit 221203ce6406273cf00e5c6397257d986c003ee6 upstream.
+commit cc4255eff523f25187bb95561642941de0e57497 upstream.
 
-Instead of making assumptions about the commit verifier contents, change
-the commit code to ensure we always check that the verifier was set
-by the XDR code.
+When a FTM request is aborted, the driver sends the abort command to
+the fw and waits for a response. When the response arrives, the driver
+calls cfg80211_pmsr_complete() for that request.
+However, cfg80211 frees the requested data immediately after sending
+the abort command, so this may lead to use after free.
 
-Fixes: f54bcf2ecee9 ("pnfs: Prepare for flexfiles by pulling out common code")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fix it by clearing the request data in the driver when the abort
+command arrives and ignoring the fw notification that will come
+afterwards.
+
+Signed-off-by: Avraham Stern <avraham.stern@intel.com>
+Fixes: fc36ffda3267 ("iwlwifi: mvm: support FTM initiator")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/direct.c   |    4 ++--
- fs/nfs/nfs3xdr.c  |    5 ++++-
- fs/nfs/nfs4xdr.c  |    5 ++++-
- fs/nfs/pnfs_nfs.c |    7 +++----
- fs/nfs/write.c    |    4 +++-
- 5 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -245,10 +245,10 @@ static int nfs_direct_cmp_commit_data_ve
- 					 data->ds_commit_index);
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+@@ -8,6 +8,7 @@
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+  * Copyright (C) 2018 Intel Corporation
+  * Copyright (C) 2019 Intel Corporation
++ * Copyright (C) 2020 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -30,6 +31,7 @@
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+  * Copyright (C) 2018 Intel Corporation
+  * Copyright (C) 2019 Intel Corporation
++ * Copyright (C) 2020 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -389,6 +391,8 @@ void iwl_mvm_ftm_abort(struct iwl_mvm *m
+ 	if (req != mvm->ftm_initiator.req)
+ 		return;
  
- 	/* verifier not set so always fail */
--	if (verfp->committed < 0)
-+	if (verfp->committed < 0 || data->res.verf->committed <= NFS_UNSTABLE)
- 		return 1;
++	iwl_mvm_ftm_reset(mvm);
++
+ 	if (iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(TOF_RANGE_ABORT_CMD,
+ 						 LOCATION_GROUP, 0),
+ 				 0, sizeof(cmd), &cmd))
+@@ -502,7 +506,6 @@ void iwl_mvm_ftm_range_resp(struct iwl_m
+ 	lockdep_assert_held(&mvm->mutex);
  
--	return nfs_direct_cmp_verf(verfp, &data->verf);
-+	return nfs_direct_cmp_verf(verfp, data->res.verf);
- }
+ 	if (!mvm->ftm_initiator.req) {
+-		IWL_ERR(mvm, "Got FTM response but have no request?\n");
+ 		return;
+ 	}
  
- /**
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -2334,6 +2334,7 @@ static int nfs3_xdr_dec_commit3res(struc
- 				   void *data)
- {
- 	struct nfs_commitres *result = data;
-+	struct nfs_writeverf *verf = result->verf;
- 	enum nfs_stat status;
- 	int error;
- 
-@@ -2346,7 +2347,9 @@ static int nfs3_xdr_dec_commit3res(struc
- 	result->op_status = status;
- 	if (status != NFS3_OK)
- 		goto out_status;
--	error = decode_writeverf3(xdr, &result->verf->verifier);
-+	error = decode_writeverf3(xdr, &verf->verifier);
-+	if (!error)
-+		verf->committed = NFS_FILE_SYNC;
- out:
- 	return error;
- out_status:
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4313,11 +4313,14 @@ static int decode_write_verifier(struct
- 
- static int decode_commit(struct xdr_stream *xdr, struct nfs_commitres *res)
- {
-+	struct nfs_writeverf *verf = res->verf;
- 	int status;
- 
- 	status = decode_op_hdr(xdr, OP_COMMIT);
- 	if (!status)
--		status = decode_write_verifier(xdr, &res->verf->verifier);
-+		status = decode_write_verifier(xdr, &verf->verifier);
-+	if (!status)
-+		verf->committed = NFS_FILE_SYNC;
- 	return status;
- }
- 
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -31,12 +31,11 @@ EXPORT_SYMBOL_GPL(pnfs_generic_rw_releas
- /* Fake up some data that will cause nfs_commit_release to retry the writes. */
- void pnfs_generic_prepare_to_resend_writes(struct nfs_commit_data *data)
- {
--	struct nfs_page *first = nfs_list_entry(data->pages.next);
-+	struct nfs_writeverf *verf = data->res.verf;
- 
- 	data->task.tk_status = 0;
--	memcpy(&data->verf.verifier, &first->wb_verf,
--	       sizeof(data->verf.verifier));
--	data->verf.verifier.data[0]++; /* ensure verifier mismatch */
-+	memset(&verf->verifier, 0, sizeof(verf->verifier));
-+	verf->committed = NFS_UNSTABLE;
- }
- EXPORT_SYMBOL_GPL(pnfs_generic_prepare_to_resend_writes);
- 
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1837,6 +1837,7 @@ static void nfs_commit_done(struct rpc_t
- 
- static void nfs_commit_release_pages(struct nfs_commit_data *data)
- {
-+	const struct nfs_writeverf *verf = data->res.verf;
- 	struct nfs_page	*req;
- 	int status = data->task.tk_status;
- 	struct nfs_commit_info cinfo;
-@@ -1864,7 +1865,8 @@ static void nfs_commit_release_pages(str
- 
- 		/* Okay, COMMIT succeeded, apparently. Check the verifier
- 		 * returned by the server against all stored verfs. */
--		if (!nfs_write_verifier_cmp(&req->wb_verf, &data->verf.verifier)) {
-+		if (verf->committed > NFS_UNSTABLE &&
-+		    !nfs_write_verifier_cmp(&req->wb_verf, &verf->verifier)) {
- 			/* We have a match */
- 			if (req->wb_page)
- 				nfs_inode_remove_request(req);
 
 
