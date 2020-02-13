@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4682D15C6D5
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07EF115C736
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728455AbgBMQEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:04:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36822 "EHLO mail.kernel.org"
+        id S1730323AbgBMQIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:08:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728599AbgBMPYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:08 -0500
+        id S1728287AbgBMPXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:11 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98D0E24690;
-        Thu, 13 Feb 2020 15:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F0A4246A3;
+        Thu, 13 Feb 2020 15:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607447;
-        bh=NSl0QrEKiOkbgfri/p32nDkaFvn2spBG2s1vpvEtXyE=;
+        s=default; t=1581607390;
+        bh=mQIBlK+zHeQZrDw2/w1JteBA5tl5pdyppA55xoJLPxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEGRRGCEsc1H/gdKdI3qKBm6hUdMgRSGURxG5V/w0NiKnmKinIoh+FUF9rSknmAjT
-         aY8cZYVOCHQJglNRm3xdHKn8xuPvkMoX1IFFzhee7nJcR5fi9ymjxeg1iqUO2gYERJ
-         FNv3UEwJBXP2dnOc7IprA8tREXPIjcSNJo5FBhSo=
+        b=ICGXXjWhgVC4QJ9KCNo3Z3aVGZrJQO0eovP3j+F/RqLaNhwML6SfrFk6np6fOPZof
+         G0VccoKNNb1ZOc52vvHulGAxqcssooA70FqZI28/GQ8AdIefjCAJWnxT590NaKZFSt
+         2sl9HZaWILpI3DaRMG0OMlbDH8ayt4eZl3i/Klt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 090/116] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM
-Date:   Thu, 13 Feb 2020 07:20:34 -0800
-Message-Id: <20200213151917.983069432@linuxfoundation.org>
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Song Liu <songliubraving@fb.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.4 78/91] perf/core: Fix mlock accounting in perf_mmap()
+Date:   Thu, 13 Feb 2020 07:20:35 -0800
+Message-Id: <20200213151852.717231523@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit e30a7d623dccdb3f880fbcad980b0cb589a1da45 ]
+commit 003461559ef7a9bd0239bae35a22ad8924d6e9ad upstream.
 
-Remove the bogus 64-bit only condition from the check that disables MMIO
-spte optimization when the system supports the max PA, i.e. doesn't have
-any reserved PA bits.  32-bit KVM always uses PAE paging for the shadow
-MMU, and per Intel's SDM:
+Decreasing sysctl_perf_event_mlock between two consecutive perf_mmap()s of
+a perf ring buffer may lead to an integer underflow in locked memory
+accounting. This may lead to the undesired behaviors, such as failures in
+BPF map creation.
 
-  PAE paging translates 32-bit linear addresses to 52-bit physical
-  addresses.
+Address this by adjusting the accounting logic to take into account the
+possibility that the amount of already locked memory may exceed the
+current limit.
 
-The kernel's restrictions on max physical addresses are limits on how
-much memory the kernel can reasonably use, not what physical addresses
-are supported by hardware.
+Fixes: c4b75479741c ("perf/core: Make the mlock accounting simple again")
+Suggested-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lkml.kernel.org/r/20200123181146.2238074-1-songliubraving@fb.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: ce88decffd17 ("KVM: MMU: mmio page fault support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |    2 --
- 1 file changed, 2 deletions(-)
+ kernel/events/core.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6132,14 +6132,12 @@ static void kvm_set_mmio_spte_mask(void)
- 	/* Set the present bit. */
- 	mask |= 1ull;
- 
--#ifdef CONFIG_X86_64
- 	/*
- 	 * If reserved bit is not supported, clear the present bit to disable
- 	 * mmio page fault.
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -4887,7 +4887,15 @@ accounting:
  	 */
- 	if (maxphyaddr == 52)
- 		mask &= ~1ull;
--#endif
+ 	user_lock_limit *= num_online_cpus();
  
- 	kvm_mmu_set_mmio_spte_mask(mask);
- }
+-	user_locked = atomic_long_read(&user->locked_vm) + user_extra;
++	user_locked = atomic_long_read(&user->locked_vm);
++
++	/*
++	 * sysctl_perf_event_mlock may have changed, so that
++	 *     user->locked_vm > user_lock_limit
++	 */
++	if (user_locked > user_lock_limit)
++		user_locked = user_lock_limit;
++	user_locked += user_extra;
+ 
+ 	if (user_locked > user_lock_limit)
+ 		extra = user_locked - user_lock_limit;
 
 
