@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E3215C474
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A50015C54D
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728105AbgBMPr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:47:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48578 "EHLO mail.kernel.org"
+        id S1729071AbgBMPZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387650AbgBMP1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:03 -0500
+        id S1729067AbgBMPZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:47 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 358D32465D;
-        Thu, 13 Feb 2020 15:27:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA93C246AD;
+        Thu, 13 Feb 2020 15:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607623;
-        bh=Kp5ITOmmGRq5nUzVovCIS4LzsjYjFZEjGH8vi4E4nvM=;
+        s=default; t=1581607546;
+        bh=akSMmoZGmQBXeXujcuEDtGc90zRTWhUPSqJ5RAJ5Fyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wlNcgDbEu0+M3EN1y663NVDmtGMxawgTIh7dfST0K54bXhm8SoJEOgfHnElROxrq6
-         /A9iomX/VMAF6Hiv93uHmfkquxUFfn+gWYqZiH2Q96kzpPYP9AL+Pd3g1/7PKcEw/3
-         /BCapFVZPi9febq5kexLWZS+fdtZ5ICOAZTfqTzg=
+        b=SswB6wh8e5SUDJJ6Wr5KmKNEcUWGPE4T7q72IUpUjdThHr7G1DkF+rB6WCDHke/Uc
+         kz/Vy8HaDYmnfGsyeByWKlwc1DNVhKa6I9IIB4aPcX2UOfDPrbxY5emRy4vh3M7ncx
+         zLJUgOE1CqXNzKCyn0K5z1QiQbJDhtIj6xIVYZN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Gorenko <sergeygo@mellanox.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 04/96] IB/srp: Never use immediate data if it is disabled by a user
-Date:   Thu, 13 Feb 2020 07:20:11 -0800
-Message-Id: <20200213151840.592525080@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 109/173] ubi: Fix an error pointer dereference in error handling code
+Date:   Thu, 13 Feb 2020 07:20:12 -0800
+Message-Id: <20200213152000.075167401@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Gorenko <sergeygo@mellanox.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 0fbb37dd82998b5c83355997b3bdba2806968ac7 upstream.
+commit 5d3805af279c93ef49a64701f35254676d709622 upstream.
 
-Some SRP targets that do not support specification SRP-2, put the garbage
-to the reserved bits of the SRP login response.  The problem was not
-detected for a long time because the SRP initiator ignored those bits. But
-now one of them is used as SRP_LOGIN_RSP_IMMED_SUPP. And it causes a
-critical error on the target when the initiator sends immediate data.
+If "seen_pebs = init_seen(ubi);" fails then "seen_pebs" is an error pointer
+and we try to kfree() it which results in an Oops.
 
-The ib_srp module has a use_imm_date parameter to enable or disable
-immediate data manually. But it does not help in the above case, because
-use_imm_date is ignored at handling the SRP login response. The problem is
-definitely caused by a bug on the target side, but the initiator's
-behavior also does not look correct.  The initiator should not use
-immediate data if use_imm_date is disabled by a user.
+This patch re-arranges the error handling so now it only frees things
+which have been allocated successfully.
 
-This commit adds an additional checking of use_imm_date at the handling of
-SRP login response to avoid unexpected use of immediate data.
-
-Fixes: 882981f4a411 ("RDMA/srp: Add support for immediate data")
-Link: https://lore.kernel.org/r/20200115133055.30232-1-sergeygo@mellanox.com
-Signed-off-by: Sergey Gorenko <sergeygo@mellanox.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: daef3dd1f0ae ("UBI: Fastmap: Add self check to detect absent PEBs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/ulp/srp/ib_srp.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/ubi/fastmap.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -2536,7 +2536,8 @@ static void srp_cm_rep_handler(struct ib
- 	if (lrsp->opcode == SRP_LOGIN_RSP) {
- 		ch->max_ti_iu_len = be32_to_cpu(lrsp->max_ti_iu_len);
- 		ch->req_lim       = be32_to_cpu(lrsp->req_lim_delta);
--		ch->use_imm_data  = lrsp->rsp_flags & SRP_LOGIN_RSP_IMMED_SUPP;
-+		ch->use_imm_data  = srp_use_imm_data &&
-+			(lrsp->rsp_flags & SRP_LOGIN_RSP_IMMED_SUPP);
- 		ch->max_it_iu_len = srp_max_it_iu_len(target->cmd_sg_cnt,
- 						      ch->use_imm_data);
- 		WARN_ON_ONCE(ch->max_it_iu_len >
+--- a/drivers/mtd/ubi/fastmap.c
++++ b/drivers/mtd/ubi/fastmap.c
+@@ -1147,7 +1147,7 @@ static int ubi_write_fastmap(struct ubi_
+ 	struct rb_node *tmp_rb;
+ 	int ret, i, j, free_peb_count, used_peb_count, vol_count;
+ 	int scrub_peb_count, erase_peb_count;
+-	unsigned long *seen_pebs = NULL;
++	unsigned long *seen_pebs;
+ 
+ 	fm_raw = ubi->fm_buf;
+ 	memset(ubi->fm_buf, 0, ubi->fm_size);
+@@ -1161,7 +1161,7 @@ static int ubi_write_fastmap(struct ubi_
+ 	dvbuf = new_fm_vbuf(ubi, UBI_FM_DATA_VOLUME_ID);
+ 	if (!dvbuf) {
+ 		ret = -ENOMEM;
+-		goto out_kfree;
++		goto out_free_avbuf;
+ 	}
+ 
+ 	avhdr = ubi_get_vid_hdr(avbuf);
+@@ -1170,7 +1170,7 @@ static int ubi_write_fastmap(struct ubi_
+ 	seen_pebs = init_seen(ubi);
+ 	if (IS_ERR(seen_pebs)) {
+ 		ret = PTR_ERR(seen_pebs);
+-		goto out_kfree;
++		goto out_free_dvbuf;
+ 	}
+ 
+ 	spin_lock(&ubi->volumes_lock);
+@@ -1338,7 +1338,7 @@ static int ubi_write_fastmap(struct ubi_
+ 	ret = ubi_io_write_vid_hdr(ubi, new_fm->e[0]->pnum, avbuf);
+ 	if (ret) {
+ 		ubi_err(ubi, "unable to write vid_hdr to fastmap SB!");
+-		goto out_kfree;
++		goto out_free_seen;
+ 	}
+ 
+ 	for (i = 0; i < new_fm->used_blocks; i++) {
+@@ -1360,7 +1360,7 @@ static int ubi_write_fastmap(struct ubi_
+ 		if (ret) {
+ 			ubi_err(ubi, "unable to write vid_hdr to PEB %i!",
+ 				new_fm->e[i]->pnum);
+-			goto out_kfree;
++			goto out_free_seen;
+ 		}
+ 	}
+ 
+@@ -1370,7 +1370,7 @@ static int ubi_write_fastmap(struct ubi_
+ 		if (ret) {
+ 			ubi_err(ubi, "unable to write fastmap to PEB %i!",
+ 				new_fm->e[i]->pnum);
+-			goto out_kfree;
++			goto out_free_seen;
+ 		}
+ 	}
+ 
+@@ -1380,10 +1380,13 @@ static int ubi_write_fastmap(struct ubi_
+ 	ret = self_check_seen(ubi, seen_pebs);
+ 	dbg_bld("fastmap written!");
+ 
+-out_kfree:
+-	ubi_free_vid_buf(avbuf);
+-	ubi_free_vid_buf(dvbuf);
++out_free_seen:
+ 	free_seen(seen_pebs);
++out_free_dvbuf:
++	ubi_free_vid_buf(dvbuf);
++out_free_avbuf:
++	ubi_free_vid_buf(avbuf);
++
+ out:
+ 	return ret;
+ }
 
 
