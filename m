@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 844B815C1AC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF0415C14E
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:22:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbgBMPZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40786 "EHLO mail.kernel.org"
+        id S1727872AbgBMPWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728516AbgBMPZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:22 -0500
+        id S1727858AbgBMPWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:24 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3323124690;
-        Thu, 13 Feb 2020 15:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5281420848;
+        Thu, 13 Feb 2020 15:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607522;
-        bh=SIsmPf3abXu8RlcQgswvaUTqnh7SxIEE2Cc3DW6G/Lc=;
+        s=default; t=1581607342;
+        bh=U5NaCvN1gipuWmLQIkyxE6inp8CEX2KbOkl76Xssuu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgqd11IRRmxuh41Ct60EIMj3pHNQSoXTUYO2ecQsyxd0mbUhlJmigW58CySHj+GTY
-         78ZuBZqzWPJe8ztFLExoFnxg9R3h4n7zOQRE0Vjc3iK1c2cZrefZzlOqAxFe0GWp52
-         y2XshKEpWBd/Qw+v4Cfw6tqCjdnLxeYhmXbcGXxE=
+        b=A1TJUweXUub0x94n+CUySaTzDvS/giuZzZKqGu8A3XpAyLs3Z91IVGI8IFgqWo4r+
+         qIkj7G4Z2jytCKPBS58orTjI8V9t5M8Skh9r49vHw1+LD2gM/8ZFjiJbv4ZmwrcB9g
+         +m/nCYEmNTea/mqfKw9hQ4gYXfq6fNib4YvQwkhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
-        Stephen Warren <swarren@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.14 072/173] ARM: tegra: Enable PLLP bypass during Tegra124 LP1
+        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 18/91] powerpc/pseries: Advance pfn if section is not present in lmb_is_removable()
 Date:   Thu, 13 Feb 2020 07:19:35 -0800
-Message-Id: <20200213151951.723509496@linuxfoundation.org>
+Message-Id: <20200213151828.804544724@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Warren <swarren@nvidia.com>
+From: Pingfan Liu <kernelfans@gmail.com>
 
-commit 1a3388d506bf5b45bb283e6a4c4706cfb4897333 upstream.
+commit fbee6ba2dca30d302efe6bddb3a886f5e964a257 upstream.
 
-For a little over a year, U-Boot has configured the flow controller to
-perform automatic RAM re-repair on off->on power transitions of the CPU
-rail[1]. This is mandatory for correct operation of Tegra124. However,
-RAM re-repair relies on certain clocks, which the kernel must enable and
-leave running. PLLP is one of those clocks. This clock is shut down
-during LP1 in order to save power. Enable bypass (which I believe routes
-osc_div_clk, essentially the crystal clock, to the PLL output) so that
-this clock signal toggles even though the PLL is not active. This is
-required so that LP1 power mode (system suspend) operates correctly.
+In lmb_is_removable(), if a section is not present, it should continue
+to test the rest of the sections in the block. But the current code
+fails to do so.
 
-The bypass configuration must then be undone when resuming from LP1, so
-that all peripheral clocks run at the expected rate. Without this, many
-peripherals won't work correctly; for example, the UART baud rate would
-be incorrect.
-
-NVIDIA's downstream kernel code only does this if not compiled for
-Tegra30, so the added code is made conditional upon the chip ID.
-NVIDIA's downstream code makes this change conditional upon the active
-CPU cluster. The upstream kernel currently doesn't support cluster
-switching, so this patch doesn't test the active CPU cluster ID.
-
-[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
-
-Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 51925fb3c5c9 ("powerpc/pseries: Implement memory hotplug remove in the kernel")
+Cc: stable@vger.kernel.org # v4.1+
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1578632042-12415-1-git-send-email-kernelfans@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-tegra/sleep-tegra30.S |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/powerpc/platforms/pseries/hotplug-memory.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-tegra/sleep-tegra30.S
-+++ b/arch/arm/mach-tegra/sleep-tegra30.S
-@@ -382,6 +382,14 @@ _pll_m_c_x_done:
- 	pll_locked r1, r0, CLK_RESET_PLLC_BASE
- 	pll_locked r1, r0, CLK_RESET_PLLX_BASE
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -205,8 +205,10 @@ static bool lmb_is_removable(struct of_d
  
-+	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
-+	cmp	r1, #TEGRA30
-+	beq	1f
-+	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
-+	bic	r1, r1, #(1<<31)	@ disable PllP bypass
-+	str	r1, [r0, #CLK_RESET_PLLP_BASE]
-+1:
-+
- 	mov32	r7, TEGRA_TMRUS_BASE
- 	ldr	r1, [r7]
- 	add	r1, r1, #LOCK_DELAY
-@@ -641,7 +649,10 @@ tegra30_switch_cpu_to_clk32k:
- 	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
+ 	for (i = 0; i < scns_per_block; i++) {
+ 		pfn = PFN_DOWN(phys_addr);
+-		if (!pfn_present(pfn))
++		if (!pfn_present(pfn)) {
++			phys_addr += MIN_MEMORY_BLOCK_SIZE;
+ 			continue;
++		}
  
- 	/* disable PLLP, PLLA, PLLC and PLLX */
-+	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
-+	cmp	r1, #TEGRA30
- 	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
-+	orrne	r0, r0, #(1 << 31)	@ enable PllP bypass on fast cluster
- 	bic	r0, r0, #(1 << 30)
- 	str	r0, [r5, #CLK_RESET_PLLP_BASE]
- 	ldr	r0, [r5, #CLK_RESET_PLLA_BASE]
+ 		rc &= is_mem_section_removable(pfn, PAGES_PER_SECTION);
+ 		phys_addr += MIN_MEMORY_BLOCK_SIZE;
 
 
