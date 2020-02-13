@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D92C15C5F7
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FCA15C756
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728053AbgBMPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:55:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41458 "EHLO mail.kernel.org"
+        id S1728404AbgBMQJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:09:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387453AbgBMPZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:33 -0500
+        id S1728091AbgBMPWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:44 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 863CD24689;
-        Thu, 13 Feb 2020 15:25:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4824246A3;
+        Thu, 13 Feb 2020 15:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607532;
-        bh=J8U2XHhDjEV1eshd/Uyu3VJchwaFWGske4LcJpeg+Gk=;
+        s=default; t=1581607363;
+        bh=bBRNU/XhX8hgq6uIAe2ranG1Tg5vXviudg/xQk03MkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/Mh/nNoDGSEsAQprZXATlXiwS4br63CyU515JrAU6nZ/JjQ5wL8XS3a9yJYe60g8
-         12VzkuZnTOUCzcDvUxs7PDZR/SaLSsungTMNfTKF+rRHMuwkXrsyIZZixBfxiUM992
-         qYThl6iBsytT26z2Q4PdldkFe1346l2eMc4AxKb4=
+        b=ywxotiaf1sjGuRN2xaYq6dY9q1BRXvIVISz8sDjvxzbkUK8ya0YXdQuk0a80W7hwj
+         /JqvocDdmnEFTB67vzCbw5C94GAelpVaoJGEy1ZkIYn1q4RmNwCnoWmioSmomlv4bJ
+         LwL7TF3hhtO+0NJLcEHQJznzW1F1t02y+avE+Z/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
-        Artemy Kovalyov <artemyko@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 4.14 105/173] IB/core: Fix ODP get user pages flow
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 51/91] powerpc/44x: Adjust indentation in ibm4xx_denali_fixup_memsize
 Date:   Thu, 13 Feb 2020 07:20:08 -0800
-Message-Id: <20200213151959.153418142@linuxfoundation.org>
+Message-Id: <20200213151841.417992499@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yishai Hadas <yishaih@mellanox.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit d07de8bd1709a80a282963ad7b2535148678a9e4 upstream.
+commit c3aae14e5d468d18dbb5d7c0c8c7e2968cc14aad upstream.
 
-The nr_pages argument of get_user_pages_remote() should always be in terms
-of the system page size, not the MR page size. Use PAGE_SIZE instead of
-umem_odp->page_shift.
+Clang warns:
 
-Fixes: 403cd12e2cf7 ("IB/umem: Add contiguous ODP support")
-Link: https://lore.kernel.org/r/20191222124649.52300-3-leon@kernel.org
-Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+../arch/powerpc/boot/4xx.c:231:3: warning: misleading indentation;
+statement is not part of the previous 'else' [-Wmisleading-indentation]
+        val = SDRAM0_READ(DDR0_42);
+        ^
+../arch/powerpc/boot/4xx.c:227:2: note: previous statement is here
+        else
+        ^
+
+This is because there is a space at the beginning of this line; remove
+it so that the indentation is consistent according to the Linux kernel
+coding style and clang no longer warns.
+
+Fixes: d23f5099297c ("[POWERPC] 4xx: Adds decoding of 440SPE memory size to boot wrapper library")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/780
+Link: https://lore.kernel.org/r/20191209200338.12546-1-natechancellor@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/umem_odp.c |    2 +-
+ arch/powerpc/boot/4xx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/umem_odp.c
-+++ b/drivers/infiniband/core/umem_odp.c
-@@ -637,7 +637,7 @@ int ib_umem_odp_map_dma_pages(struct ib_
+--- a/arch/powerpc/boot/4xx.c
++++ b/arch/powerpc/boot/4xx.c
+@@ -232,7 +232,7 @@ void ibm4xx_denali_fixup_memsize(void)
+ 		dpath = 8; /* 64 bits */
  
- 	while (bcnt > 0) {
- 		const size_t gup_num_pages = min_t(size_t,
--				(bcnt + BIT(page_shift) - 1) >> page_shift,
-+				ALIGN(bcnt, PAGE_SIZE) / PAGE_SIZE,
- 				PAGE_SIZE / sizeof(struct page *));
+ 	/* get address pins (rows) */
+- 	val = SDRAM0_READ(DDR0_42);
++	val = SDRAM0_READ(DDR0_42);
  
- 		down_read(&owning_mm->mmap_sem);
+ 	row = DDR_GET_VAL(val, DDR_APIN, DDR_APIN_SHIFT);
+ 	if (row > max_row)
 
 
