@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A788D15C57C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B994215C6DD
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728083AbgBMPWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60622 "EHLO mail.kernel.org"
+        id S1730220AbgBMQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:04:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728066AbgBMPWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:42 -0500
+        id S1728570AbgBMPYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:01 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A816E246A4;
-        Thu, 13 Feb 2020 15:22:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B7FB2469A;
+        Thu, 13 Feb 2020 15:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607361;
-        bh=xp5AfYsg5Lg7c8CdywzoLdQcyf/BrBlzYmWCtroqw9A=;
+        s=default; t=1581607440;
+        bh=twN4RF9ZFOmxA+8NyM6AY4L43q3yb2h1qu0p7injG7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLE2SJpTMMjfCekGlGs0ht7VCQjqQPaws2JBUqvpbn7/VHazhXlh6SKnGVdWa6hLB
-         DNhaCaCAMa+SgHPVRMNW787Dh7zhwMXD1/NGA7CAycvLHhDLL5w8dS2C4Xyjd1vr6B
-         Hbv3raVAIV3XUnUhRnh7STxDQTYiXKgi75GcxnS4=
+        b=zMvLy3PW9ZQJ+TfN1+eENSIp/YQ9L1M0OcwH/wyUjcWIzLbt6ldEAm5jjQP/7zS64
+         cDwLcywUDCVlFs7y5Nvef60MLN687km5VZIjrONprWKrfWxQdxrJCsm4j5rzu0lGvf
+         +FibycQeN/CZGJU17MoO2zOqiex7tmRUJ6BA62wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 48/91] scsi: csiostor: Adjust indentation in csio_device_reset
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 061/116] ext2: Adjust indentation in ext2_fill_super
 Date:   Thu, 13 Feb 2020 07:20:05 -0800
-Message-Id: <20200213151840.304812250@linuxfoundation.org>
+Message-Id: <20200213151906.567025148@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +46,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit a808a04c861782e31fc30e342a619c144aaee14a upstream.
+commit d9e9866803f7b6c3fdd35d345e97fb0b2908bbbc upstream.
 
 Clang warns:
 
-../drivers/scsi/csiostor/csio_scsi.c:1386:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-         csio_lnodes_exit(hw, 1);
-         ^
-../drivers/scsi/csiostor/csio_scsi.c:1382:2: note: previous statement is
-here
-        if (*buf != '1')
+../fs/ext2/super.c:1076:3: warning: misleading indentation; statement is
+not part of the previous 'if' [-Wmisleading-indentation]
+        sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
+        ^
+../fs/ext2/super.c:1074:2: note: previous statement is here
+        if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
         ^
 1 warning generated.
 
-This warning occurs because there is a space after the tab on this
-line.  Remove it so that the indentation is consistent with the Linux
+This warning occurs because there is a space before the tab on this
+line. Remove it so that the indentation is consistent with the Linux
 kernel coding style and clang no longer warns.
 
-Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/818
-Link: https://lore.kernel.org/r/20191218014726.8455-1-natechancellor@gmail.com
+Fixes: 41f04d852e35 ("[PATCH] ext2: fix mounts at 16T")
+Link: https://github.com/ClangBuiltLinux/linux/issues/827
+Link: https://lore.kernel.org/r/20191218031930.31393-1-natechancellor@gmail.com
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/csiostor/csio_scsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext2/super.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/csiostor/csio_scsi.c
-+++ b/drivers/scsi/csiostor/csio_scsi.c
-@@ -1383,7 +1383,7 @@ csio_device_reset(struct device *dev,
- 		return -EINVAL;
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -1047,9 +1047,9 @@ static int ext2_fill_super(struct super_
  
- 	/* Delete NPIV lnodes */
--	 csio_lnodes_exit(hw, 1);
-+	csio_lnodes_exit(hw, 1);
- 
- 	/* Block upper IOs */
- 	csio_lnodes_block_request(hw);
+ 	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
+ 		goto cantfind_ext2;
+- 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
+- 				le32_to_cpu(es->s_first_data_block) - 1)
+- 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
++	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
++				le32_to_cpu(es->s_first_data_block) - 1)
++					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
+ 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
+ 		   EXT2_DESC_PER_BLOCK(sb);
+ 	sbi->s_group_desc = kmalloc (db_count * sizeof (struct buffer_head *), GFP_KERNEL);
 
 
