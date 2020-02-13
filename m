@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2D315C5F9
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D92C15C5F7
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728297AbgBMPzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:55:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41422 "EHLO mail.kernel.org"
+        id S1728053AbgBMPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:55:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387444AbgBMPZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:32 -0500
+        id S2387453AbgBMPZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:33 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD79B20848;
-        Thu, 13 Feb 2020 15:25:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 863CD24689;
+        Thu, 13 Feb 2020 15:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581607532;
-        bh=W6R6/H9LJYmDqr1OCcfQ0aOFtqfURjgqrU8o3+YAPoE=;
+        bh=J8U2XHhDjEV1eshd/Uyu3VJchwaFWGske4LcJpeg+Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mo7SDmIIdxPewhHlBZF9jlFpjpsXTv9RV43xP4CSAmqQQPpHWyhb/H/JEg1YGtcKI
-         LyMKQ2Hec5zcX1JwF/HsaoWolPBJ26o8TQBTDmzssqtTDcqujPKBL04r8uXj4sAUOs
-         85bypO2ScrnQLCPbd+t+LSzyzsCdUYR9fFpm4sEE=
+        b=u/Mh/nNoDGSEsAQprZXATlXiwS4br63CyU515JrAU6nZ/JjQ5wL8XS3a9yJYe60g8
+         12VzkuZnTOUCzcDvUxs7PDZR/SaLSsungTMNfTKF+rRHMuwkXrsyIZZixBfxiUM992
+         qYThl6iBsytT26z2Q4PdldkFe1346l2eMc4AxKb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Prabhath Sajeepa <psajeepa@purestorage.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 104/173] IB/mlx5: Fix outstanding_pi index for GSI qps
-Date:   Thu, 13 Feb 2020 07:20:07 -0800
-Message-Id: <20200213151958.929420153@linuxfoundation.org>
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Artemy Kovalyov <artemyko@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 4.14 105/173] IB/core: Fix ODP get user pages flow
+Date:   Thu, 13 Feb 2020 07:20:08 -0800
+Message-Id: <20200213151959.153418142@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -45,40 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prabhath Sajeepa <psajeepa@purestorage.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-commit b5671afe5e39ed71e94eae788bacdcceec69db09 upstream.
+commit d07de8bd1709a80a282963ad7b2535148678a9e4 upstream.
 
-Commit b0ffeb537f3a ("IB/mlx5: Fix iteration overrun in GSI qps") changed
-the way outstanding WRs are tracked for the GSI QP. But the fix did not
-cover the case when a call to ib_post_send() fails and updates index to
-track outstanding.
+The nr_pages argument of get_user_pages_remote() should always be in terms
+of the system page size, not the MR page size. Use PAGE_SIZE instead of
+umem_odp->page_shift.
 
-Since the prior commmit outstanding_pi should not be bounded otherwise the
-loop generate_completions() will fail.
-
-Fixes: b0ffeb537f3a ("IB/mlx5: Fix iteration overrun in GSI qps")
-Link: https://lore.kernel.org/r/1576195889-23527-1-git-send-email-psajeepa@purestorage.com
-Signed-off-by: Prabhath Sajeepa <psajeepa@purestorage.com>
-Acked-by: Leon Romanovsky <leonro@mellanox.com>
+Fixes: 403cd12e2cf7 ("IB/umem: Add contiguous ODP support")
+Link: https://lore.kernel.org/r/20191222124649.52300-3-leon@kernel.org
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/gsi.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/core/umem_odp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/gsi.c
-+++ b/drivers/infiniband/hw/mlx5/gsi.c
-@@ -507,8 +507,7 @@ int mlx5_ib_gsi_post_send(struct ib_qp *
- 		ret = ib_post_send(tx_qp, &cur_wr.wr, bad_wr);
- 		if (ret) {
- 			/* Undo the effect of adding the outstanding wr */
--			gsi->outstanding_pi = (gsi->outstanding_pi - 1) %
--					      gsi->cap.max_send_wr;
-+			gsi->outstanding_pi--;
- 			goto err;
- 		}
- 		spin_unlock_irqrestore(&gsi->lock, flags);
+--- a/drivers/infiniband/core/umem_odp.c
++++ b/drivers/infiniband/core/umem_odp.c
+@@ -637,7 +637,7 @@ int ib_umem_odp_map_dma_pages(struct ib_
+ 
+ 	while (bcnt > 0) {
+ 		const size_t gup_num_pages = min_t(size_t,
+-				(bcnt + BIT(page_shift) - 1) >> page_shift,
++				ALIGN(bcnt, PAGE_SIZE) / PAGE_SIZE,
+ 				PAGE_SIZE / sizeof(struct page *));
+ 
+ 		down_read(&owning_mm->mmap_sem);
 
 
