@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4E7B15C401
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B55D215C43C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgBMP0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:26:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44534 "EHLO mail.kernel.org"
+        id S1728970AbgBMPpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:45:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387533AbgBMP0U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:20 -0500
+        id S1729430AbgBMP1d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:33 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 278E22168B;
-        Thu, 13 Feb 2020 15:26:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75133206DB;
+        Thu, 13 Feb 2020 15:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607579;
-        bh=CBdWRYR4pFnB0IUA3KxdzijBYkFtgwojVNqaHv4Kyl8=;
+        s=default; t=1581607652;
+        bh=dFdzzarvAnU4bC10RLMRXRLW9GdfSigpZSNr4TdWn1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yoEeC7Cuw32UG7sYPX40RW3yAPikqDgrtKRG/6p2b5fPACzJUDHOq4BsIzn0oNtDS
-         gLHZNze3Zk9FxjITAUS5LWwHOyF+90ZJnz9AA2sg47yfnAA67hsXB6BmAk1sPk9xSl
-         MYkOBnUeWv4NJMFwqyxK0ywMkgKnWEGT5AHOkYLc=
+        b=qJyxAa0OjY2vK8+Gr8WpRfKsLAbFD9TLRQN/R1Sam5zk24ZV7S2rdIoCaeYtK0G+N
+         8k9t0xERikiIk0WwqwVgtXS9ygVmyIflb8tS7Uyopbronfi17mEFbBQvNCjF4S3MBd
+         hs4SqKj7p4qElTppwXYAjt6Jt4mXbEgsaL5jmnvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Bader <stefan.bader@canonical.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 169/173] dm: fix potential for q->make_request_fn NULL pointer
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.4 65/96] arm64: cpufeature: Fix the type of no FP/SIMD capability
 Date:   Thu, 13 Feb 2020 07:21:12 -0800
-Message-Id: <20200213152013.662014215@linuxfoundation.org>
+Message-Id: <20200213151904.029786736@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,74 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 47ace7e012b9f7ad71d43ac9063d335ea3d6820b upstream.
+commit 449443c03d8cfdacf7313e17779a2594ebf87e6d upstream.
 
-Move blk_queue_make_request() to dm.c:alloc_dev() so that
-q->make_request_fn is never NULL during the lifetime of a DM device
-(even one that is created without a DM table).
+The NO_FPSIMD capability is defined with scope SYSTEM, which implies
+that the "absence" of FP/SIMD on at least one CPU is detected only
+after all the SMP CPUs are brought up. However, we use the status
+of this capability for every context switch. So, let us change
+the scope to LOCAL_CPU to allow the detection of this capability
+as and when the first CPU without FP is brought up.
 
-Otherwise generic_make_request() will crash simply by doing:
-  dmsetup create -n test
-  mount /dev/dm-N /mnt
+Also, the current type allows hotplugged CPU to be brought up without
+FP/SIMD when all the current CPUs have FP/SIMD and we have the userspace
+up. Fix both of these issues by changing the capability to
+BOOT_RESTRICTED_LOCAL_CPU_FEATURE.
 
-While at it, move ->congested_data initialization out of
-dm.c:alloc_dev() and into the bio-based specific init method.
-
-Reported-by: Stefan Bader <stefan.bader@canonical.com>
-BugLink: https://bugs.launchpad.net/bugs/1860231
-Fixes: ff36ab34583a ("dm: remove request-based logic from make_request_fn wrapper")
-Depends-on: c12c9a3c3860c ("dm: various cleanups to md->queue initialization code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-[smb: adjusted for context and dm_init_md_queue() exitsting in older
-      kernels]
-Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/cpufeature.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1647,7 +1647,6 @@ void dm_init_md_queue(struct mapped_devi
- 	 * - must do so here (in alloc_dev callchain) before queue is used
- 	 */
- 	md->queue->queuedata = md;
--	md->queue->backing_dev_info->congested_data = md;
- }
- 
- void dm_init_normal_md_queue(struct mapped_device *md)
-@@ -1658,6 +1657,7 @@ void dm_init_normal_md_queue(struct mapp
- 	/*
- 	 * Initialize aspects of queue that aren't relevant for blk-mq
- 	 */
-+	md->queue->backing_dev_info->congested_data = md;
- 	md->queue->backing_dev_info->congested_fn = dm_any_congested;
- }
- 
-@@ -1750,6 +1750,12 @@ static struct mapped_device *alloc_dev(i
- 		goto bad;
- 
- 	dm_init_md_queue(md);
-+	/*
-+	 * default to bio-based required ->make_request_fn until DM
-+	 * table is loaded and md->type established. If request-based
-+	 * table is loaded: blk-mq will override accordingly.
-+	 */
-+	blk_queue_make_request(md->queue, dm_make_request);
- 
- 	md->disk = alloc_disk_node(1, numa_node_id);
- 	if (!md->disk)
-@@ -2055,7 +2061,6 @@ int dm_setup_md_queue(struct mapped_devi
- 	case DM_TYPE_BIO_BASED:
- 	case DM_TYPE_DAX_BIO_BASED:
- 		dm_init_normal_md_queue(md);
--		blk_queue_make_request(md->queue, dm_make_request);
- 		/*
- 		 * DM handles splitting bios as needed.  Free the bio_split bioset
- 		 * since it won't be used (saves 1 process per bio-based DM device).
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1367,7 +1367,7 @@ static const struct arm64_cpu_capabiliti
+ 	{
+ 		/* FP/SIMD is not implemented */
+ 		.capability = ARM64_HAS_NO_FPSIMD,
+-		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
++		.type = ARM64_CPUCAP_BOOT_RESTRICTED_CPU_LOCAL_FEATURE,
+ 		.min_field_value = 0,
+ 		.matches = has_no_fpsimd,
+ 	},
 
 
