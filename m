@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9502F15C219
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9982415C1F9
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387477AbgBMP3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:29:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58642 "EHLO mail.kernel.org"
+        id S1729529AbgBMP17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729663AbgBMP3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:05 -0500
+        id S1729524AbgBMP16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:58 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23D2920661;
-        Thu, 13 Feb 2020 15:29:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0A3A20661;
+        Thu, 13 Feb 2020 15:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607744;
-        bh=4LziLDgEs1a6bdEtUIGJmGqk67KT7ZSxeXxXjuRP6yE=;
+        s=default; t=1581607677;
+        bh=XNDD2meNX5BtVFSvRvL9MggIIc57XvcHUhfEtjDcsms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLTGf5w9+nJm7eB31dL1dHNC+k9SHzpeSFL3VG1vf2SBzaKX79qsduMc9w7HW5/6I
-         dhPznpAkwmtjVyP22/KYU+4l816mhNqEykuQsFcD7a5cC5AyUkshLTbhTZi8XOIPYd
-         PFLhSVbr1ibiViy6+i0tFPjkON8y6RrM0/wARAlI=
+        b=gzyq6GXvYQsCGg7P21Ak+ICWQ3r0VKHG1XceukkSYpzImWU84TxJvztOQAgXFNQCc
+         HTuPS91MJ6CIQZdlFcqg6vgRhlrwepu51FqbYb9utysxKKYtdqTMPUkVw2CSToKmZX
+         +QuSRgDc7rJUiGwdgUa80xEcds5ARgIyR9Yo37JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 100/120] media: i2c: adv748x: Fix unsafe macros
-Date:   Thu, 13 Feb 2020 07:21:36 -0800
-Message-Id: <20200213151934.598850472@linuxfoundation.org>
+        stable@vger.kernel.org, Qing Xu <m1s5p6688@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 94/96] mwifiex: Fix possible buffer overflows in mwifiex_cmd_append_vsie_tlv()
+Date:   Thu, 13 Feb 2020 07:21:41 -0800
+Message-Id: <20200213151914.100775833@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Qing Xu <m1s5p6688@gmail.com>
 
-commit 0d962e061abcf1b9105f88fb850158b5887fbca3 upstream.
+[ Upstream commit b70261a288ea4d2f4ac7cd04be08a9f0f2de4f4d ]
 
-Enclose multiple macro parameters in parentheses in order to
-make such macros safer and fix the Clang warning below:
+mwifiex_cmd_append_vsie_tlv() calls memcpy() without checking
+the destination size may trigger a buffer overflower,
+which a local user could use to cause denial of service
+or the execution of arbitrary code.
+Fix it by putting the length check before calling memcpy().
 
-drivers/media/i2c/adv748x/adv748x-afe.c:452:12: warning: operator '?:'
-has lower precedence than '|'; '|' will be evaluated first
-[-Wbitwise-conditional-parentheses]
-
-ret = sdp_clrset(state, ADV748X_SDP_FRP, ADV748X_SDP_FRP_MASK, enable
-? ctrl->val - 1 : 0);
-
-Fixes: 3e89586a64df ("media: i2c: adv748x: add adv748x driver")
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Qing Xu <m1s5p6688@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv748x/adv748x.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/scan.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/media/i2c/adv748x/adv748x.h
-+++ b/drivers/media/i2c/adv748x/adv748x.h
-@@ -394,10 +394,10 @@ int adv748x_write_block(struct adv748x_s
- 
- #define io_read(s, r) adv748x_read(s, ADV748X_PAGE_IO, r)
- #define io_write(s, r, v) adv748x_write(s, ADV748X_PAGE_IO, r, v)
--#define io_clrset(s, r, m, v) io_write(s, r, (io_read(s, r) & ~m) | v)
-+#define io_clrset(s, r, m, v) io_write(s, r, (io_read(s, r) & ~(m)) | (v))
- 
- #define hdmi_read(s, r) adv748x_read(s, ADV748X_PAGE_HDMI, r)
--#define hdmi_read16(s, r, m) (((hdmi_read(s, r) << 8) | hdmi_read(s, r+1)) & m)
-+#define hdmi_read16(s, r, m) (((hdmi_read(s, r) << 8) | hdmi_read(s, (r)+1)) & (m))
- #define hdmi_write(s, r, v) adv748x_write(s, ADV748X_PAGE_HDMI, r, v)
- 
- #define repeater_read(s, r) adv748x_read(s, ADV748X_PAGE_REPEATER, r)
-@@ -405,11 +405,11 @@ int adv748x_write_block(struct adv748x_s
- 
- #define sdp_read(s, r) adv748x_read(s, ADV748X_PAGE_SDP, r)
- #define sdp_write(s, r, v) adv748x_write(s, ADV748X_PAGE_SDP, r, v)
--#define sdp_clrset(s, r, m, v) sdp_write(s, r, (sdp_read(s, r) & ~m) | v)
-+#define sdp_clrset(s, r, m, v) sdp_write(s, r, (sdp_read(s, r) & ~(m)) | (v))
- 
- #define cp_read(s, r) adv748x_read(s, ADV748X_PAGE_CP, r)
- #define cp_write(s, r, v) adv748x_write(s, ADV748X_PAGE_CP, r, v)
--#define cp_clrset(s, r, m, v) cp_write(s, r, (cp_read(s, r) & ~m) | v)
-+#define cp_clrset(s, r, m, v) cp_write(s, r, (cp_read(s, r) & ~(m)) | (v))
- 
- #define tx_read(t, r) adv748x_read(t->state, t->page, r)
- #define tx_write(t, r, v) adv748x_write(t->state, t->page, r, v)
+diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
+index 593c594982cb3..59f0651d148bb 100644
+--- a/drivers/net/wireless/marvell/mwifiex/scan.c
++++ b/drivers/net/wireless/marvell/mwifiex/scan.c
+@@ -2886,6 +2886,13 @@ mwifiex_cmd_append_vsie_tlv(struct mwifiex_private *priv,
+ 			vs_param_set->header.len =
+ 				cpu_to_le16((((u16) priv->vs_ie[id].ie[1])
+ 				& 0x00FF) + 2);
++			if (le16_to_cpu(vs_param_set->header.len) >
++				MWIFIEX_MAX_VSIE_LEN) {
++				mwifiex_dbg(priv->adapter, ERROR,
++					    "Invalid param length!\n");
++				break;
++			}
++
+ 			memcpy(vs_param_set->ie, priv->vs_ie[id].ie,
+ 			       le16_to_cpu(vs_param_set->header.len));
+ 			*buffer += le16_to_cpu(vs_param_set->header.len) +
+-- 
+2.20.1
+
 
 
