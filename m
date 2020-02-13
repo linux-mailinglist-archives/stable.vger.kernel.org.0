@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F4915C59E
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7429C15C795
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728437AbgBMPXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35196 "EHLO mail.kernel.org"
+        id S1727782AbgBMPWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbgBMPXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:37 -0500
+        id S1727779AbgBMPWS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:18 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E78E8246B8;
-        Thu, 13 Feb 2020 15:23:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9E8724693;
+        Thu, 13 Feb 2020 15:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607417;
-        bh=ZYqFd2UMqZljpxCmE2ZW4VaxsnEOsTXis5PLPV4k+ww=;
+        s=default; t=1581607337;
+        bh=rUcEVU3gBhjHwiVrzHGmMtspZDVT+yVIgYlJpo9qhi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lY0XwyYsaJUToaDC/t+ceYj2TesirK7W7KXkbzXRQhG9xknvAHTXmrRs0Mwts+wbd
-         g4B+N7gWmMC+UE93ZaVnx7qz5QzghBE/LmcDtVUtOgXvUUOtE8EhRMEAo4h3hsaViF
-         0NgnKTZa1I2bHas2LYiywYvoqEGfQi580mRqwLE8=
+        b=V/tOmHuPat4Mcz1b59c+nuYBIOZcR/TC7WBGpetKyB0Ve5a0OtcL1MiclHg0PUr5d
+         X/Yg5kz/GTB8emusHkcxuYRsD7/bM9LIUH4ND3VVQ/MCrQFgeJs5eZWv+ci/EB0M5Z
+         je0uvRNHvSCV7F5ERH2pSfqyc9JFTN0PHpuFVZJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 024/116] lib/test_kasan.c: fix memory leak in kmalloc_oob_krealloc_more()
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 11/91] mfd: dln2: More sanity checking for endpoints
 Date:   Thu, 13 Feb 2020 07:19:28 -0800
-Message-Id: <20200213151852.240664549@linuxfoundation.org>
+Message-Id: <20200213151825.990503892@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 3e21d9a501bf99aee2e5835d7f34d8c823f115b5 upstream.
+commit 2b8bd606b1e60ca28c765f69c1eedd7d2a2e9dca upstream.
 
-In case memory resources for _ptr2_ were allocated, release them before
-return.
+It is not enough to check for the number of endpoints.
+The types must also be correct.
 
-Notice that in case _ptr1_ happens to be NULL, krealloc() behaves
-exactly like kmalloc().
-
-Addresses-Coverity-ID: 1490594 ("Resource leak")
-Link: http://lkml.kernel.org/r/20200123160115.GA4202@embeddedor
-Fixes: 3f15801cdc23 ("lib: add kasan test module")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-and-tested-by: syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/test_kasan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/dln2.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/lib/test_kasan.c
-+++ b/lib/test_kasan.c
-@@ -124,6 +124,7 @@ static noinline void __init kmalloc_oob_
- 	if (!ptr1 || !ptr2) {
- 		pr_err("Allocation failed\n");
- 		kfree(ptr1);
-+		kfree(ptr2);
- 		return;
- 	}
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -729,6 +729,8 @@ static int dln2_probe(struct usb_interfa
+ 		      const struct usb_device_id *usb_id)
+ {
+ 	struct usb_host_interface *hostif = interface->cur_altsetting;
++	struct usb_endpoint_descriptor *epin;
++	struct usb_endpoint_descriptor *epout;
+ 	struct device *dev = &interface->dev;
+ 	struct dln2_dev *dln2;
+ 	int ret;
+@@ -738,12 +740,19 @@ static int dln2_probe(struct usb_interfa
+ 	    hostif->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
  
++	epin = &hostif->endpoint[0].desc;
++	epout = &hostif->endpoint[1].desc;
++	if (!usb_endpoint_is_bulk_out(epout))
++		return -ENODEV;
++	if (!usb_endpoint_is_bulk_in(epin))
++		return -ENODEV;
++
+ 	dln2 = kzalloc(sizeof(*dln2), GFP_KERNEL);
+ 	if (!dln2)
+ 		return -ENOMEM;
+ 
+-	dln2->ep_out = hostif->endpoint[0].desc.bEndpointAddress;
+-	dln2->ep_in = hostif->endpoint[1].desc.bEndpointAddress;
++	dln2->ep_out = epout->bEndpointAddress;
++	dln2->ep_in = epin->bEndpointAddress;
+ 	dln2->usb_dev = usb_get_dev(interface_to_usbdev(interface));
+ 	dln2->interface = interface;
+ 	usb_set_intfdata(interface, dln2);
 
 
