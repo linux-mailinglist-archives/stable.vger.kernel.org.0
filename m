@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B909115C1A1
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD1415C173
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbgBMPY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:24:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
+        id S1728360AbgBMPXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728861AbgBMPY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:56 -0500
+        id S1728171AbgBMPXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:21 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBEED246B3;
-        Thu, 13 Feb 2020 15:24:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F24CC20848;
+        Thu, 13 Feb 2020 15:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607496;
-        bh=FYWV3E0itvXOBUSA3WBPSQUl2JEx0E9gY563Ml6bPOY=;
+        s=default; t=1581607400;
+        bh=UrlpERl3yDVB+DFfMKOUl5VrG2Ohbdi8WCW162x08W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bzq3jSX1DuaBQUUTNt5apoUCeDiwAVVLJhVDeB4PjQ07hphZEDuiCZMoiROC0vsqr
-         xUATLNtBsAPW3KvbP5ESRj6LXcowJUlpVv4JpAiuy3YOzlv2WEGoy2k43vYX9O9B3C
-         YMGcTp4h55nKx6QYaiZ8UoQYfuebIplriMFxXBrI=
+        b=jxXkSRoPhWz4nar3By5cBD4OItKs9KOQtd++NVw+ToKV7QqhBD6DpjATz+r7bzYI7
+         QLHIMOeZfRcmmYI4SZkk5S/WslVTv0pWOtCACffPg4xmj9+IpVGEovflwhObcrcjqv
+         uBTw4YNbln9Tl0/rI5Kq5linFMtQnqXWGC9kQspc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.14 048/173] power: supply: ltc2941-battery-gauge: fix use-after-free
-Date:   Thu, 13 Feb 2020 07:19:11 -0800
-Message-Id: <20200213151946.117730255@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Will Deacon <will@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9 015/116] media: uvcvideo: Avoid cyclic entity chains due to malformed USB descriptors
+Date:   Thu, 13 Feb 2020 07:19:19 -0800
+Message-Id: <20200213151848.786849731@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-commit a60ec78d306c6548d4adbc7918b587a723c555cc upstream.
+commit 68035c80e129c4cfec659aac4180354530b26527 upstream.
 
-This driver's remove path calls cancel_delayed_work().
-However, that function does not wait until the work function
-finishes. This could mean that the work function is still
-running after the driver's remove function has finished,
-which would result in a use-after-free.
+Way back in 2017, fuzzing the 4.14-rc2 USB stack with syzkaller kicked
+up the following WARNING from the UVC chain scanning code:
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-that the work is properly cancelled, no longer running, and
-unable to re-schedule itself.
+  | list_add double add: new=ffff880069084010, prev=ffff880069084010,
+  | next=ffff880067d22298.
+  | ------------[ cut here ]------------
+  | WARNING: CPU: 1 PID: 1846 at lib/list_debug.c:31 __list_add_valid+0xbd/0xf0
+  | Modules linked in:
+  | CPU: 1 PID: 1846 Comm: kworker/1:2 Not tainted
+  | 4.14.0-rc2-42613-g1488251d1a98 #238
+  | Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+  | Workqueue: usb_hub_wq hub_event
+  | task: ffff88006b01ca40 task.stack: ffff880064358000
+  | RIP: 0010:__list_add_valid+0xbd/0xf0 lib/list_debug.c:29
+  | RSP: 0018:ffff88006435ddd0 EFLAGS: 00010286
+  | RAX: 0000000000000058 RBX: ffff880067d22298 RCX: 0000000000000000
+  | RDX: 0000000000000058 RSI: ffffffff85a58800 RDI: ffffed000c86bbac
+  | RBP: ffff88006435dde8 R08: 1ffff1000c86ba52 R09: 0000000000000000
+  | R10: 0000000000000002 R11: 0000000000000000 R12: ffff880069084010
+  | R13: ffff880067d22298 R14: ffff880069084010 R15: ffff880067d222a0
+  | FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
+  | CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  | CR2: 0000000020004ff2 CR3: 000000006b447000 CR4: 00000000000006e0
+  | Call Trace:
+  |  __list_add ./include/linux/list.h:59
+  |  list_add_tail+0x8c/0x1b0 ./include/linux/list.h:92
+  |  uvc_scan_chain_forward.isra.8+0x373/0x416
+  | drivers/media/usb/uvc/uvc_driver.c:1471
+  |  uvc_scan_chain drivers/media/usb/uvc/uvc_driver.c:1585
+  |  uvc_scan_device drivers/media/usb/uvc/uvc_driver.c:1769
+  |  uvc_probe+0x77f2/0x8f00 drivers/media/usb/uvc/uvc_driver.c:2104
 
-This issue was detected with the help of Coccinelle.
+Looking into the output from usbmon, the interesting part is the
+following data packet:
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+  ffff880069c63e00 30710169 C Ci:1:002:0 0 143 = 09028f00 01030080
+  00090403 00000e01 00000924 03000103 7c003328 010204db
+
+If we drop the lead configuration and interface descriptors, we're left
+with an output terminal descriptor describing a generic display:
+
+  /* Output terminal descriptor */
+  buf[0]	09
+  buf[1]	24
+  buf[2]	03	/* UVC_VC_OUTPUT_TERMINAL */
+  buf[3]	00	/* ID */
+  buf[4]	01	/* type == 0x0301 (UVC_OTT_DISPLAY) */
+  buf[5]	03
+  buf[6]	7c
+  buf[7]	00	/* source ID refers to self! */
+  buf[8]	33
+
+The problem with this descriptor is that it is self-referential: the
+source ID of 0 matches itself! This causes the 'struct uvc_entity'
+representing the display to be added to its chain list twice during
+'uvc_scan_chain()': once via 'uvc_scan_chain_entity()' when it is
+processed directly from the 'dev->entities' list and then again
+immediately afterwards when trying to follow the source ID in
+'uvc_scan_chain_forward()'
+
+Add a check before adding an entity to a chain list to ensure that the
+entity is not already part of a chain.
+
+Link: https://lore.kernel.org/linux-media/CAAeHK+z+Si69jUR+N-SjN9q4O+o5KFiNManqEa-PjUta7EOb7A@mail.gmail.com/
+
+Cc: <stable@vger.kernel.org>
+Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/ltc2941-battery-gauge.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_driver.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/power/supply/ltc2941-battery-gauge.c
-+++ b/drivers/power/supply/ltc2941-battery-gauge.c
-@@ -406,7 +406,7 @@ static int ltc294x_i2c_remove(struct i2c
- {
- 	struct ltc294x_info *info = i2c_get_clientdata(client);
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -1411,6 +1411,11 @@ static int uvc_scan_chain_forward(struct
+ 			break;
+ 		if (forward == prev)
+ 			continue;
++		if (forward->chain.next || forward->chain.prev) {
++			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++				"entity %d already in chain.\n", forward->id);
++			return -EINVAL;
++		}
  
--	cancel_delayed_work(&info->work);
-+	cancel_delayed_work_sync(&info->work);
- 	power_supply_unregister(info->supply);
- 	return 0;
- }
+ 		switch (UVC_ENTITY_TYPE(forward)) {
+ 		case UVC_VC_EXTENSION_UNIT:
+@@ -1492,6 +1497,13 @@ static int uvc_scan_chain_backward(struc
+ 				return -1;
+ 			}
+ 
++			if (term->chain.next || term->chain.prev) {
++				uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++					"entity %d already in chain.\n",
++					term->id);
++				return -EINVAL;
++			}
++
+ 			if (uvc_trace_param & UVC_TRACE_PROBE)
+ 				printk(" %d", term->id);
+ 
 
 
