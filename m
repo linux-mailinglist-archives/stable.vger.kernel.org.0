@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6D315C30A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A15C015C3E1
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729648AbgBMP3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:29:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57966 "EHLO mail.kernel.org"
+        id S1729438AbgBMP1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728493AbgBMP3B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:01 -0500
+        id S1729431AbgBMP1d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:33 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E37D72168B;
-        Thu, 13 Feb 2020 15:29:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18D02218AC;
+        Thu, 13 Feb 2020 15:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607741;
-        bh=F72EiyA+IiELPNaODgNRBv6WEF9RdIqrmfKes5y6Osw=;
+        s=default; t=1581607653;
+        bh=Txgji935p5qkDO2s/KDcGofrmHh+2mrdTNQyLLPDkFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuhORwr3y1m6/mV+gL0+tq9KUvVTv3FJns8J82CKcFfsoTZT/8XtLPx3UkOMWnYDI
-         j8Fro1EVKlX5cBI3X02e9dcs6XJdvr6UtEL/bIy5g0OJKHU2RAp8K4JxeagvlUhJ4s
-         tgJNQVwE6aeDsvqJ5QYphq+bGM6EV9HPBkcSGxEM=
+        b=pdIjurdmjqig2hL8DZugqHWJTiLEr16nuk+brkONbVGx4C/TCZ0fGhp/7GfPXHgOA
+         8qlEEsW24OiCd/NyaJYDBGHyy/z+dXA6E97aS8SnuMGC30kKiR4e//NSh0tcDN2sLj
+         dEmqpYts+TouKpEM4wLQDToKtqItSsbCKl/eFjjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH 5.5 077/120] KVM: arm/arm64: vgic-its: Fix restoration of unmapped collections
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.4 66/96] arm64: cpufeature: Set the FP/SIMD compat HWCAP bits properly
 Date:   Thu, 13 Feb 2020 07:21:13 -0800
-Message-Id: <20200213151927.406402983@linuxfoundation.org>
+Message-Id: <20200213151904.359760984@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 8c58be34494b7f1b2adb446e2d8beeb90e5de65b upstream.
+commit 7559950aef1ab8792c50797c6c5c7c5150a02460 upstream.
 
-Saving/restoring an unmapped collection is a valid scenario. For
-example this happens if a MAPTI command was sent, featuring an
-unmapped collection. At the moment the CTE fails to be restored.
-Only compare against the number of online vcpus if the rdist
-base is set.
+We set the compat_elf_hwcap bits unconditionally on arm64 to
+include the VFP and NEON support. However, the FP/SIMD unit
+is optional on Arm v8 and thus could be missing. We already
+handle this properly in the kernel, but still advertise to
+the COMPAT applications that the VFP is available. Fix this
+to make sure we only advertise when we really have them.
 
-Fixes: ea1ad53e1e31a ("KVM: arm64: vgic-its: Collection table save/restore")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Zenghui Yu <yuzenghui@huawei.com>
-Link: https://lore.kernel.org/r/20191213094237.19627-1-eric.auger@redhat.com
+Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/vgic/vgic-its.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/cpufeature.c |   37 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
---- a/virt/kvm/arm/vgic/vgic-its.c
-+++ b/virt/kvm/arm/vgic/vgic-its.c
-@@ -2475,7 +2475,8 @@ static int vgic_its_restore_cte(struct v
- 	target_addr = (u32)(val >> KVM_ITS_CTE_RDBASE_SHIFT);
- 	coll_id = val & KVM_ITS_CTE_ICID_MASK;
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -32,9 +32,7 @@ static unsigned long elf_hwcap __read_mo
+ #define COMPAT_ELF_HWCAP_DEFAULT	\
+ 				(COMPAT_HWCAP_HALF|COMPAT_HWCAP_THUMB|\
+ 				 COMPAT_HWCAP_FAST_MULT|COMPAT_HWCAP_EDSP|\
+-				 COMPAT_HWCAP_TLS|COMPAT_HWCAP_VFP|\
+-				 COMPAT_HWCAP_VFPv3|COMPAT_HWCAP_VFPv4|\
+-				 COMPAT_HWCAP_NEON|COMPAT_HWCAP_IDIV|\
++				 COMPAT_HWCAP_TLS|COMPAT_HWCAP_IDIV|\
+ 				 COMPAT_HWCAP_LPAE)
+ unsigned int compat_elf_hwcap __read_mostly = COMPAT_ELF_HWCAP_DEFAULT;
+ unsigned int compat_elf_hwcap2 __read_mostly;
+@@ -1595,6 +1593,12 @@ static const struct arm64_cpu_capabiliti
+ 		.match_list = list,						\
+ 	}
  
--	if (target_addr >= atomic_read(&kvm->online_vcpus))
-+	if (target_addr != COLLECTION_NOT_MAPPED &&
-+	    target_addr >= atomic_read(&kvm->online_vcpus))
- 		return -EINVAL;
++#define HWCAP_CAP_MATCH(match, cap_type, cap)					\
++	{									\
++		__HWCAP_CAP(#cap, cap_type, cap)				\
++		.matches = match,						\
++	}
++
+ #ifdef CONFIG_ARM64_PTR_AUTH
+ static const struct arm64_cpu_capabilities ptr_auth_hwcap_addr_matches[] = {
+ 	{
+@@ -1668,8 +1672,35 @@ static const struct arm64_cpu_capabiliti
+ 	{},
+ };
  
- 	collection = find_collection(its, coll_id);
++#ifdef CONFIG_COMPAT
++static bool compat_has_neon(const struct arm64_cpu_capabilities *cap, int scope)
++{
++	/*
++	 * Check that all of MVFR1_EL1.{SIMDSP, SIMDInt, SIMDLS} are available,
++	 * in line with that of arm32 as in vfp_init(). We make sure that the
++	 * check is future proof, by making sure value is non-zero.
++	 */
++	u32 mvfr1;
++
++	WARN_ON(scope == SCOPE_LOCAL_CPU && preemptible());
++	if (scope == SCOPE_SYSTEM)
++		mvfr1 = read_sanitised_ftr_reg(SYS_MVFR1_EL1);
++	else
++		mvfr1 = read_sysreg_s(SYS_MVFR1_EL1);
++
++	return cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDSP_SHIFT) &&
++		cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDINT_SHIFT) &&
++		cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDLS_SHIFT);
++}
++#endif
++
+ static const struct arm64_cpu_capabilities compat_elf_hwcaps[] = {
+ #ifdef CONFIG_COMPAT
++	HWCAP_CAP_MATCH(compat_has_neon, CAP_COMPAT_HWCAP, COMPAT_HWCAP_NEON),
++	HWCAP_CAP(SYS_MVFR1_EL1, MVFR1_SIMDFMAC_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFPv4),
++	/* Arm v8 mandates MVFR0.FPDP == {0, 2}. So, piggy back on this for the presence of VFP support */
++	HWCAP_CAP(SYS_MVFR0_EL1, MVFR0_FPDP_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFP),
++	HWCAP_CAP(SYS_MVFR0_EL1, MVFR0_FPDP_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFPv3),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_PMULL),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_AES),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_SHA1_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_SHA1),
 
 
