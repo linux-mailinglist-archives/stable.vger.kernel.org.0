@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B95515C328
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C758015C526
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387472AbgBMP2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55238 "EHLO mail.kernel.org"
+        id S2387507AbgBMPxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:53:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728591AbgBMP2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:19 -0500
+        id S2387497AbgBMP0C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:02 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A39862168B;
-        Thu, 13 Feb 2020 15:28:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FB382469A;
+        Thu, 13 Feb 2020 15:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607698;
-        bh=0Wyzm8prTXdxcC5qKMuthwEvTdxOmhJ2ohgnlYe8qGk=;
+        s=default; t=1581607561;
+        bh=dQDLL5v0B2uWONqaxaUpBsOW51lVw8D4m2aJaCr6JpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHmv6xJtHmJXDBhsSEtUU6lvlBC6SYDgYQFVPEvjM132H1ugyN74w6Tg7wkD2D8zU
-         POyMl6fDyzCGsaQ7OsZFOsmzATK2FMlM03s9D9HXaTGdw+KG3nvP5kYXfvZnf0Qc7P
-         cZ/1xAJnbFzQcWi/KTAHUBjNwlMsG1oZNt7dNiWc=
+        b=bneKyTcRl340ESn4W+RiMVdsD0H1qfJjy8Aj/Tz81GIS7+NWuAbV3kDVprzImKCQn
+         AJHDV3XKxKTl+jxl2cKnuE62HSaDe3mC58cl+YcuvpFt+Vp18PVOvnVnXf9GwlzC41
+         x4Kvbl12OWmxOS5/t7ITMsOtXumfCZD2ZcfEa6To=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>
-Subject: [PATCH 5.5 041/120] bpf, sockmap: Check update requirements after locking
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 134/173] KVM: Use vcpu-specific gva->hva translation when querying host page size
 Date:   Thu, 13 Feb 2020 07:20:37 -0800
-Message-Id: <20200213151915.720570765@linuxfoundation.org>
+Message-Id: <20200213152005.766626332@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 85b8ac01a421791d66c3a458a7f83cfd173fe3fa upstream.
+[ Upstream commit f9b84e19221efc5f493156ee0329df3142085f28 ]
 
-It's currently possible to insert sockets in unexpected states into
-a sockmap, due to a TOCTTOU when updating the map from a syscall.
-sock_map_update_elem checks that sk->sk_state == TCP_ESTABLISHED,
-locks the socket and then calls sock_map_update_common. At this
-point, the socket may have transitioned into another state, and
-the earlier assumptions don't hold anymore. Crucially, it's
-conceivable (though very unlikely) that a socket has become unhashed.
-This breaks the sockmap's assumption that it will get a callback
-via sk->sk_prot->unhash.
+Use kvm_vcpu_gfn_to_hva() when retrieving the host page size so that the
+correct set of memslots is used when handling x86 page faults in SMM.
 
-Fix this by checking the (fixed) sk_type and sk_protocol without the
-lock, followed by a locked check of sk_state.
-
-Unfortunately it's not possible to push the check down into
-sock_(map|hash)_update_common, since BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB
-run before the socket has transitioned from TCP_SYN_RECV into
-TCP_ESTABLISHED.
-
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20200207103713.28175-1-lmb@cloudflare.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 54bf36aac520 ("KVM: x86: use vcpu-specific functions to read/write/translate GFNs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock_map.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/x86/kvm/mmu.c       | 6 +++---
+ include/linux/kvm_host.h | 2 +-
+ virt/kvm/kvm_main.c      | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -417,14 +417,16 @@ static int sock_map_update_elem(struct b
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (!sock_map_sk_is_suitable(sk) ||
--	    sk->sk_state != TCP_ESTABLISHED) {
-+	if (!sock_map_sk_is_suitable(sk)) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
- 	}
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index c0b0135ef07f0..e5af08b581320 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -1165,12 +1165,12 @@ static bool mmu_gfn_lpage_is_disallowed(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 	return __mmu_gfn_lpage_is_disallowed(gfn, level, slot);
+ }
  
- 	sock_map_sk_acquire(sk);
--	ret = sock_map_update_common(map, idx, sk, flags);
-+	if (sk->sk_state != TCP_ESTABLISHED)
-+		ret = -EOPNOTSUPP;
-+	else
-+		ret = sock_map_update_common(map, idx, sk, flags);
- 	sock_map_sk_release(sk);
- out:
- 	fput(sock->file);
-@@ -740,14 +742,16 @@ static int sock_hash_update_elem(struct
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (!sock_map_sk_is_suitable(sk) ||
--	    sk->sk_state != TCP_ESTABLISHED) {
-+	if (!sock_map_sk_is_suitable(sk)) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
- 	}
+-static int host_mapping_level(struct kvm *kvm, gfn_t gfn)
++static int host_mapping_level(struct kvm_vcpu *vcpu, gfn_t gfn)
+ {
+ 	unsigned long page_size;
+ 	int i, ret = 0;
  
- 	sock_map_sk_acquire(sk);
--	ret = sock_hash_update_common(map, key, sk, flags);
-+	if (sk->sk_state != TCP_ESTABLISHED)
-+		ret = -EOPNOTSUPP;
-+	else
-+		ret = sock_hash_update_common(map, key, sk, flags);
- 	sock_map_sk_release(sk);
- out:
- 	fput(sock->file);
+-	page_size = kvm_host_page_size(kvm, gfn);
++	page_size = kvm_host_page_size(vcpu, gfn);
+ 
+ 	for (i = PT_PAGE_TABLE_LEVEL; i <= PT_MAX_HUGEPAGE_LEVEL; ++i) {
+ 		if (page_size >= KVM_HPAGE_SIZE(i))
+@@ -1220,7 +1220,7 @@ static int mapping_level(struct kvm_vcpu *vcpu, gfn_t large_gfn,
+ 	if (unlikely(*force_pt_level))
+ 		return PT_PAGE_TABLE_LEVEL;
+ 
+-	host_level = host_mapping_level(vcpu->kvm, large_gfn);
++	host_level = host_mapping_level(vcpu, large_gfn);
+ 
+ 	if (host_level == PT_PAGE_TABLE_LEVEL)
+ 		return host_level;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 7668c68ddb5b3..30376715a6070 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -695,7 +695,7 @@ int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
+ int kvm_clear_guest(struct kvm *kvm, gpa_t gpa, unsigned long len);
+ struct kvm_memory_slot *gfn_to_memslot(struct kvm *kvm, gfn_t gfn);
+ bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn);
+-unsigned long kvm_host_page_size(struct kvm *kvm, gfn_t gfn);
++unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn);
+ void mark_page_dirty(struct kvm *kvm, gfn_t gfn);
+ 
+ struct kvm_memslots *kvm_vcpu_memslots(struct kvm_vcpu *vcpu);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index deff4b3eb9722..609903481e39b 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1277,14 +1277,14 @@ bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn)
+ }
+ EXPORT_SYMBOL_GPL(kvm_is_visible_gfn);
+ 
+-unsigned long kvm_host_page_size(struct kvm *kvm, gfn_t gfn)
++unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn)
+ {
+ 	struct vm_area_struct *vma;
+ 	unsigned long addr, size;
+ 
+ 	size = PAGE_SIZE;
+ 
+-	addr = gfn_to_hva(kvm, gfn);
++	addr = kvm_vcpu_gfn_to_hva(vcpu, gfn);
+ 	if (kvm_is_error_hva(addr))
+ 		return PAGE_SIZE;
+ 
+-- 
+2.20.1
+
 
 
