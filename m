@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B4315C739
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4682D15C6D5
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387411AbgBMQIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:08:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33412 "EHLO mail.kernel.org"
+        id S1728455AbgBMQEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:04:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728252AbgBMPXG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:06 -0500
+        id S1728599AbgBMPYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:08 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B68D82469A;
-        Thu, 13 Feb 2020 15:23:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98D0E24690;
+        Thu, 13 Feb 2020 15:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607385;
-        bh=R4qi8/bgh7+4Guu0GaXMWgMf20w69Ml8MImhr3b/5J0=;
+        s=default; t=1581607447;
+        bh=NSl0QrEKiOkbgfri/p32nDkaFvn2spBG2s1vpvEtXyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMeAIwTBUbgWBHAJhTFEWyd4BR2AwLxb/eMvNRisDhxRThl21fr2dC+JTq1wu4SRC
-         xSCRgpc7pWzUiY0lBY4iyrQMLp5NFvI68kUqcvOp9faUckeNzxwOrfsOa6uwdqlqGm
-         MrdGYMrXQIDJ4BWyJogRgRgVqNupS0mx9lrJNI7o=
+        b=DEGRRGCEsc1H/gdKdI3qKBm6hUdMgRSGURxG5V/w0NiKnmKinIoh+FUF9rSknmAjT
+         aY8cZYVOCHQJglNRm3xdHKn8xuPvkMoX1IFFzhee7nJcR5fi9ymjxeg1iqUO2gYERJ
+         FNv3UEwJBXP2dnOc7IprA8tREXPIjcSNJo5FBhSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.4 77/91] clocksource: Prevent double add_timer_on() for watchdog_timer
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 090/116] KVM: x86/mmu: Apply max PA check for MMIO sptes to 32-bit KVM
 Date:   Thu, 13 Feb 2020 07:20:34 -0800
-Message-Id: <20200213151852.309100561@linuxfoundation.org>
+Message-Id: <20200213151917.983069432@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit febac332a819f0e764aa4da62757ba21d18c182b upstream.
+[ Upstream commit e30a7d623dccdb3f880fbcad980b0cb589a1da45 ]
 
-Kernel crashes inside QEMU/KVM are observed:
+Remove the bogus 64-bit only condition from the check that disables MMIO
+spte optimization when the system supports the max PA, i.e. doesn't have
+any reserved PA bits.  32-bit KVM always uses PAE paging for the shadow
+MMU, and per Intel's SDM:
 
-  kernel BUG at kernel/time/timer.c:1154!
-  BUG_ON(timer_pending(timer) || !timer->function) in add_timer_on().
+  PAE paging translates 32-bit linear addresses to 52-bit physical
+  addresses.
 
-At the same time another cpu got:
+The kernel's restrictions on max physical addresses are limits on how
+much memory the kernel can reasonably use, not what physical addresses
+are supported by hardware.
 
-  general protection fault: 0000 [#1] SMP PTI of poinson pointer 0xdead000000000200 in:
-
-  __hlist_del at include/linux/list.h:681
-  (inlined by) detach_timer at kernel/time/timer.c:818
-  (inlined by) expire_timers at kernel/time/timer.c:1355
-  (inlined by) __run_timers at kernel/time/timer.c:1686
-  (inlined by) run_timer_softirq at kernel/time/timer.c:1699
-
-Unfortunately kernel logs are badly scrambled, stacktraces are lost.
-
-Printing the timer->function before the BUG_ON() pointed to
-clocksource_watchdog().
-
-The execution of clocksource_watchdog() can race with a sequence of
-clocksource_stop_watchdog() .. clocksource_start_watchdog():
-
-expire_timers()
- detach_timer(timer, true);
-  timer->entry.pprev = NULL;
- raw_spin_unlock_irq(&base->lock);
- call_timer_fn
-  clocksource_watchdog()
-
-					clocksource_watchdog_kthread() or
-					clocksource_unbind()
-
-					spin_lock_irqsave(&watchdog_lock, flags);
-					clocksource_stop_watchdog();
-					 del_timer(&watchdog_timer);
-					 watchdog_running = 0;
-					spin_unlock_irqrestore(&watchdog_lock, flags);
-
-					spin_lock_irqsave(&watchdog_lock, flags);
-					clocksource_start_watchdog();
-					 add_timer_on(&watchdog_timer, ...);
-					 watchdog_running = 1;
-					spin_unlock_irqrestore(&watchdog_lock, flags);
-
-  spin_lock(&watchdog_lock);
-  add_timer_on(&watchdog_timer, ...);
-   BUG_ON(timer_pending(timer) || !timer->function);
-    timer_pending() -> true
-    BUG()
-
-I.e. inside clocksource_watchdog() watchdog_timer could be already armed.
-
-Check timer_pending() before calling add_timer_on(). This is sufficient as
-all operations are synchronized by watchdog_lock.
-
-Fixes: 75c5158f70c0 ("timekeeping: Update clocksource with stop_machine")
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Fixes: ce88decffd17 ("KVM: MMU: mmio page fault support")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/158048693917.4378.13823603769948933793.stgit@buzz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/clocksource.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -272,8 +272,15 @@ static void clocksource_watchdog(unsigne
- 	next_cpu = cpumask_next(raw_smp_processor_id(), cpu_online_mask);
- 	if (next_cpu >= nr_cpu_ids)
- 		next_cpu = cpumask_first(cpu_online_mask);
--	watchdog_timer.expires += WATCHDOG_INTERVAL;
--	add_timer_on(&watchdog_timer, next_cpu);
-+
-+	/*
-+	 * Arm timer if not already pending: could race with concurrent
-+	 * pair clocksource_stop_watchdog() clocksource_start_watchdog().
-+	 */
-+	if (!timer_pending(&watchdog_timer)) {
-+		watchdog_timer.expires += WATCHDOG_INTERVAL;
-+		add_timer_on(&watchdog_timer, next_cpu);
-+	}
- out:
- 	spin_unlock(&watchdog_lock);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6132,14 +6132,12 @@ static void kvm_set_mmio_spte_mask(void)
+ 	/* Set the present bit. */
+ 	mask |= 1ull;
+ 
+-#ifdef CONFIG_X86_64
+ 	/*
+ 	 * If reserved bit is not supported, clear the present bit to disable
+ 	 * mmio page fault.
+ 	 */
+ 	if (maxphyaddr == 52)
+ 		mask &= ~1ull;
+-#endif
+ 
+ 	kvm_mmu_set_mmio_spte_mask(mask);
  }
 
 
