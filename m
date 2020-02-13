@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB0815C779
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAAEB15C6F2
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727951AbgBMPWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59570 "EHLO mail.kernel.org"
+        id S1728653AbgBMQFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:05:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727946AbgBMPWa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:30 -0500
+        id S1728481AbgBMPXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:48 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 623CF20848;
-        Thu, 13 Feb 2020 15:22:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4F3F246AD;
+        Thu, 13 Feb 2020 15:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607349;
-        bh=/QIIiKLLOME+T7VODOcXDaeNjirLEVsJBrE5ZbWR8rE=;
+        s=default; t=1581607427;
+        bh=sliaj5BSkKa6BZ89HC0XulnKCqnhPE0kdzLJ7gX9zqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztp24As1fHNL7tzIHze/A8ve3RivyaamQuUor7EvgRpgVaEt37bUONnIwXI3K/rf1
-         SUKznvBjO9YOG+bj+om7a7ZJqsByhJIm6CQnht9rkOkzrEhtBRvYvsYWCaQYQYRLCM
-         DWYwTm9XGFwcwb6vThbV/jEBh+vkWVnaiB6v+Uwk=
+        b=zWurs5Pm1yQcJifqY5/ddtDSfB8A1fU3ElLIU0+Mi0Aeq94ZcTmq2Oyij2mX8Jlhy
+         uF4WKdeKsRZYIiRTkp3bQrDKqY0V+OCUVJ6I7EMsny0QD97/biYm90ywz0spT5/LL9
+         8Uy3IHXIe+9YMM7E5PseSO1YRdfxCj5PlxUJyKB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 29/91] crypto: api - Fix race condition in crypto_spawn_alg
+        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 042/116] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
 Date:   Thu, 13 Feb 2020 07:19:46 -0800
-Message-Id: <20200213151832.831143978@linuxfoundation.org>
+Message-Id: <20200213151859.367219337@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 73669cc556462f4e50376538d77ee312142e8a8a upstream.
+commit 65b1aae0d9d5962faccc06bdb8e91a2a0b09451c upstream.
 
-The function crypto_spawn_alg is racy because it drops the lock
-before shooting the dying algorithm.  The algorithm could disappear
-altogether before we shoot it.
+We called rcu_read_lock(), so we need to call rcu_read_unlock() before
+we return.
 
-This patch fixes it by moving the shooting into the locked section.
-
-Fixes: 6bfd48096ff8 ("[CRYPTO] api: Added spawns")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+Cc: stable@vger.kernel.org
+Cc: huangwen <huangwenabc@gmail.com>
+Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/algapi.c   |   16 +++++-----------
- crypto/api.c      |    3 +--
- crypto/internal.h |    1 -
- 3 files changed, 6 insertions(+), 14 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/crypto/algapi.c
-+++ b/crypto/algapi.c
-@@ -663,22 +663,16 @@ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
- static struct crypto_alg *crypto_spawn_alg(struct crypto_spawn *spawn)
- {
- 	struct crypto_alg *alg;
--	struct crypto_alg *alg2;
+--- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
+@@ -274,6 +274,7 @@ static int mwifiex_process_country_ie(st
  
- 	down_read(&crypto_alg_sem);
- 	alg = spawn->alg;
--	alg2 = alg;
--	if (alg2)
--		alg2 = crypto_mod_get(alg2);
--	up_read(&crypto_alg_sem);
--
--	if (!alg2) {
--		if (alg)
--			crypto_shoot_alg(alg);
--		return ERR_PTR(-EAGAIN);
-+	if (alg && !crypto_mod_get(alg)) {
-+		alg->cra_flags |= CRYPTO_ALG_DYING;
-+		alg = NULL;
- 	}
-+	up_read(&crypto_alg_sem);
- 
--	return alg;
-+	return alg ?: ERR_PTR(-EAGAIN);
- }
- 
- struct crypto_tfm *crypto_spawn_tfm(struct crypto_spawn *spawn, u32 type,
---- a/crypto/api.c
-+++ b/crypto/api.c
-@@ -355,13 +355,12 @@ static unsigned int crypto_ctxsize(struc
- 	return len;
- }
- 
--void crypto_shoot_alg(struct crypto_alg *alg)
-+static void crypto_shoot_alg(struct crypto_alg *alg)
- {
- 	down_write(&crypto_alg_sem);
- 	alg->cra_flags |= CRYPTO_ALG_DYING;
- 	up_write(&crypto_alg_sem);
- }
--EXPORT_SYMBOL_GPL(crypto_shoot_alg);
- 
- struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
- 				      u32 mask)
---- a/crypto/internal.h
-+++ b/crypto/internal.h
-@@ -87,7 +87,6 @@ void crypto_alg_tested(const char *name,
- void crypto_remove_spawns(struct crypto_alg *alg, struct list_head *list,
- 			  struct crypto_alg *nalg);
- void crypto_remove_final(struct list_head *list);
--void crypto_shoot_alg(struct crypto_alg *alg);
- struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
- 				      u32 mask);
- void *crypto_create_tfm(struct crypto_alg *alg,
+ 	if (country_ie_len >
+ 	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
++		rcu_read_unlock();
+ 		mwifiex_dbg(priv->adapter, ERROR,
+ 			    "11D: country_ie_len overflow!, deauth AP\n");
+ 		return -EINVAL;
 
 
