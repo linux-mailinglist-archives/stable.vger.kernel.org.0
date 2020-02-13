@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF11A15C781
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFA2D15C5D0
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727896AbgBMQLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:11:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59526 "EHLO mail.kernel.org"
+        id S1728907AbgBMPZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727879AbgBMPWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:25 -0500
+        id S1728899AbgBMPZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:03 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBD682469A;
-        Thu, 13 Feb 2020 15:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 051B124693;
+        Thu, 13 Feb 2020 15:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607345;
-        bh=/iSY98Fyo2OeoB+k6PzpvUFSIUyQvKPdg5gzWsjdSMM=;
+        s=default; t=1581607503;
+        bh=lLtqOmb6ArOFmm28b9QmeMjMkS6NyDFvFIkExuqLrsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XF3HNjsAMPEWhxQWP2cWg72njvyxxWJP8QRNE40t3NOQTYydAhlcGDeB74C3zrTQG
-         tgq4Qby2RY/EqELq4XKG79aS52wWgBRaiCmpnMQXXBsqsWwwV1m86e2X9AIPrtXOY9
-         6Q14nYL0IRX8+91LBfM0LfQ07JtL9kmaW3/Kyamw=
+        b=qvUaxORK5Kj4QP20lzmsMYmu1iH1sQqlhuVX6JqfMvP6ZPHaayaEzvTBMCo0OnNfh
+         paaujLoZGjVPcihrKYNESB6Y2EY3QYrH6LA6Qa8PVPyvp+Djyhi4uV0P8MlP+lDEpP
+         qxVm58u3ldnzgV3CotxESS6fxlygioT24MxZgqJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 05/91] cls_rsvp: fix rsvp_policy
+        stable@vger.kernel.org, Amol Grover <frextrite@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 059/173] tracing: Annotate ftrace_graph_notrace_hash pointer with __rcu
 Date:   Thu, 13 Feb 2020 07:19:22 -0800
-Message-Id: <20200213151823.421606574@linuxfoundation.org>
+Message-Id: <20200213151948.709228320@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Amol Grover <frextrite@gmail.com>
 
-[ Upstream commit cb3c0e6bdf64d0d124e94ce43cbe4ccbb9b37f51 ]
+[ Upstream commit fd0e6852c407dd9aefc594f54ddcc21d84803d3b ]
 
-NLA_BINARY can be confusing, since .len value represents
-the max size of the blob.
+Fix following instances of sparse error
+kernel/trace/ftrace.c:5667:29: error: incompatible types in comparison
+kernel/trace/ftrace.c:5813:21: error: incompatible types in comparison
+kernel/trace/ftrace.c:5868:36: error: incompatible types in comparison
+kernel/trace/ftrace.c:5870:25: error: incompatible types in comparison
 
-cls_rsvp really wants user space to provide long enough data
-for TCA_RSVP_DST and TCA_RSVP_SRC attributes.
+Use rcu_dereference_protected to dereference the newly annotated pointer.
 
-BUG: KMSAN: uninit-value in rsvp_get net/sched/cls_rsvp.h:258 [inline]
-BUG: KMSAN: uninit-value in gen_handle net/sched/cls_rsvp.h:402 [inline]
-BUG: KMSAN: uninit-value in rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
-CPU: 1 PID: 13228 Comm: syz-executor.1 Not tainted 5.5.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- rsvp_get net/sched/cls_rsvp.h:258 [inline]
- gen_handle net/sched/cls_rsvp.h:402 [inline]
- rsvp_change+0x1ae9/0x4220 net/sched/cls_rsvp.h:572
- tc_new_tfilter+0x31fe/0x5010 net/sched/cls_api.c:2104
- rtnetlink_rcv_msg+0xcb7/0x1570 net/core/rtnetlink.c:5415
- netlink_rcv_skb+0x451/0x650 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5442
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0xf9e/0x1100 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x1248/0x14d0 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg net/socket.c:659 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
- ___sys_sendmsg net/socket.c:2384 [inline]
- __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45b349
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f269d43dc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f269d43e6d4 RCX: 000000000045b349
-RDX: 0000000000000000 RSI: 00000000200001c0 RDI: 0000000000000003
-RBP: 000000000075bfc8 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00000000000009c2 R14: 00000000004cb338 R15: 000000000075bfd4
+Link: http://lkml.kernel.org/r/20200205055701.30195-1-frextrite@gmail.com
 
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2774 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4382
- __kmalloc_reserve net/core/skbuff.c:141 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:209
- alloc_skb include/linux/skbuff.h:1049 [inline]
- netlink_alloc_large_skb net/netlink/af_netlink.c:1174 [inline]
- netlink_sendmsg+0x7d3/0x14d0 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg net/socket.c:659 [inline]
- ____sys_sendmsg+0x12b6/0x1350 net/socket.c:2330
- ___sys_sendmsg net/socket.c:2384 [inline]
- __sys_sendmsg+0x451/0x5f0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg+0x97/0xb0 net/socket.c:2424
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2424
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 6fa8c0144b77 ("[NET_SCHED]: Use nla_policy for attribute validation in classifiers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amol Grover <frextrite@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_rsvp.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ kernel/trace/ftrace.c | 2 +-
+ kernel/trace/trace.h  | 8 ++++++--
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
---- a/net/sched/cls_rsvp.h
-+++ b/net/sched/cls_rsvp.h
-@@ -455,10 +455,8 @@ static u32 gen_tunnel(struct rsvp_head *
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 6af28692f0f53..dd9fdb52e24ad 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5147,7 +5147,7 @@ static const struct file_operations ftrace_notrace_fops = {
+ static DEFINE_MUTEX(graph_lock);
  
- static const struct nla_policy rsvp_policy[TCA_RSVP_MAX + 1] = {
- 	[TCA_RSVP_CLASSID]	= { .type = NLA_U32 },
--	[TCA_RSVP_DST]		= { .type = NLA_BINARY,
--				    .len = RSVP_DST_LEN * sizeof(u32) },
--	[TCA_RSVP_SRC]		= { .type = NLA_BINARY,
--				    .len = RSVP_DST_LEN * sizeof(u32) },
-+	[TCA_RSVP_DST]		= { .len = RSVP_DST_LEN * sizeof(u32) },
-+	[TCA_RSVP_SRC]		= { .len = RSVP_DST_LEN * sizeof(u32) },
- 	[TCA_RSVP_PINFO]	= { .len = sizeof(struct tc_rsvp_pinfo) },
- };
+ struct ftrace_hash __rcu *ftrace_graph_hash = EMPTY_HASH;
+-struct ftrace_hash *ftrace_graph_notrace_hash = EMPTY_HASH;
++struct ftrace_hash __rcu *ftrace_graph_notrace_hash = EMPTY_HASH;
  
+ enum graph_filter_type {
+ 	GRAPH_FILTER_NOTRACE	= 0,
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 17f36488d3c84..757bb1bffed99 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -869,7 +869,7 @@ extern void __trace_graph_return(struct trace_array *tr,
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ extern struct ftrace_hash __rcu *ftrace_graph_hash;
+-extern struct ftrace_hash *ftrace_graph_notrace_hash;
++extern struct ftrace_hash __rcu *ftrace_graph_notrace_hash;
+ 
+ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+ {
+@@ -922,10 +922,14 @@ static inline void ftrace_graph_addr_finish(struct ftrace_graph_ret *trace)
+ static inline int ftrace_graph_notrace_addr(unsigned long addr)
+ {
+ 	int ret = 0;
++	struct ftrace_hash *notrace_hash;
+ 
+ 	preempt_disable_notrace();
+ 
+-	if (ftrace_lookup_ip(ftrace_graph_notrace_hash, addr))
++	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
++						 !preemptible());
++
++	if (ftrace_lookup_ip(notrace_hash, addr))
+ 		ret = 1;
+ 
+ 	preempt_enable_notrace();
+-- 
+2.20.1
+
 
 
