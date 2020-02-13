@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6C215C520
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6167F15C3FE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728596AbgBMPxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:53:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43442 "EHLO mail.kernel.org"
+        id S1729183AbgBMP0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387507AbgBMP0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:04 -0500
+        id S1729178AbgBMP0M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:12 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBC4C2469A;
-        Thu, 13 Feb 2020 15:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED2EB2465D;
+        Thu, 13 Feb 2020 15:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607563;
-        bh=dxP9b95RA/Ex7UPTD+619gJTLhBTm3vGZUaa0dKoiBc=;
+        s=default; t=1581607571;
+        bh=+rb1xsD4rqswuV16rQ2zxJmrEqt0/6ApD8HljhcNnno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M49WWvSHj26fss+d/SlSb8pxLlMledyxvAZuB542I4BklZxW2BM0WUmPSgS0dBC3x
-         jEiCOS/auvzAbq9rXjFRSALcBIgTzDjgyYY+rDxfXZSTNISzx/+DXCI8Msp7a1rT3T
-         CZGpVLeiSWLnApeG5zl3AguTGIRZWx8a2yIyGn7s=
+        b=Nv00Vq364cDXhemRkl6elRYK6tlwKGH40+Tb1BlKC/jTOH/OQsb6hKafPHOghJhDj
+         9jDMs0EWNqtbAeigCsbntEVqB6awRqMjCQzn0i9nPZ5UJwttvffL6B6aIeFeL+x/lq
+         JZkMtBM9eLbtpdIc3iFOMPrbHjczb/taCQZJJYrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Meyer <dmeyer@gigaio.com>,
+        stable@vger.kernel.org, Kit Chow <kchow@gigaio.com>,
         Logan Gunthorpe <logang@deltatee.com>,
         Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 145/173] PCI/switchtec: Fix vep_vector_number ioread width
-Date:   Thu, 13 Feb 2020 07:20:48 -0800
-Message-Id: <20200213152008.236429353@linuxfoundation.org>
+Subject: [PATCH 4.14 146/173] PCI: Dont disable bridge BARs when assigning bus resources
+Date:   Thu, 13 Feb 2020 07:20:49 -0800
+Message-Id: <20200213152008.475185807@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -46,32 +46,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Logan Gunthorpe <logang@deltatee.com>
 
-commit 9375646b4cf03aee81bc6c305aa18cc80b682796 upstream.
+commit 9db8dc6d0785225c42a37be7b44d1b07b31b8957 upstream.
 
-vep_vector_number is actually a 16 bit register which should be read with
-ioread16() instead of ioread32().
+Some PCI bridges implement BARs in addition to bridge windows.  For
+example, here's a PLX switch:
 
-Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
-Link: https://lore.kernel.org/r/20200106190337.2428-3-logang@deltatee.com
-Reported-by: Doug Meyer <dmeyer@gigaio.com>
+  04:00.0 PCI bridge: PLX Technology, Inc. PEX 8724 24-Lane, 6-Port PCI
+            Express Gen 3 (8 GT/s) Switch, 19 x 19mm FCBGA (rev ca)
+	    (prog-if 00 [Normal decode])
+      Flags: bus master, fast devsel, latency 0, IRQ 30, NUMA node 0
+      Memory at 90a00000 (32-bit, non-prefetchable) [size=256K]
+      Bus: primary=04, secondary=05, subordinate=0a, sec-latency=0
+      I/O behind bridge: 00002000-00003fff
+      Memory behind bridge: 90000000-909fffff
+      Prefetchable memory behind bridge: 0000380000800000-0000380000bfffff
+
+Previously, when the kernel assigned resource addresses (with the
+pci=realloc command line parameter, for example) it could clear the struct
+resource corresponding to the BAR.  When this happened, lspci would report
+this BAR as "ignored":
+
+   Region 0: Memory at <ignored> (32-bit, non-prefetchable) [size=256K]
+
+This is because the kernel reports a zero start address and zero flags
+in the corresponding sysfs resource file and in /proc/bus/pci/devices.
+Investigation with 'lspci -x', however, shows the BIOS-assigned address
+will still be programmed in the device's BAR registers.
+
+It's clearly a bug that the kernel lost track of the BAR value, but in most
+cases, this still won't result in a visible issue because nothing uses the
+memory, so nothing is affected.  However, when an IOMMU is in use, it will
+not reserve this space in the IOVA because the kernel no longer thinks the
+range is valid.  (See dmar_init_reserved_ranges() for the Intel
+implementation of this.)
+
+Without the proper reserved range, a DMA mapping may allocate an IOVA that
+matches a bridge BAR, which results in DMA accesses going to the BAR
+instead of the intended RAM.
+
+The problem was in pci_assign_unassigned_root_bus_resources().  When any
+resource from a bridge device fails to get assigned, the code set the
+resource's flags to zero.  This makes sense for bridge windows, as they
+will be re-enabled later, but for regular BARs, it makes the kernel
+permanently lose track of the fact that they decode address space.
+
+Change pci_assign_unassigned_root_bus_resources() and
+pci_assign_unassigned_bridge_resources() so they only clear "res->flags"
+for bridge *windows*, not bridge BARs.
+
+Fixes: da7822e5ad71 ("PCI: update bridge resources to get more big ranges when allocating space (again)")
+Link: https://lore.kernel.org/r/20200108213208.4612-1-logang@deltatee.com
+[bhelgaas: commit log, check for pci_is_bridge()]
+Reported-by: Kit Chow <kchow@gigaio.com>
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/switch/switchtec.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/setup-bus.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -1399,7 +1399,7 @@ static int switchtec_init_isr(struct swi
- 	if (nvecs < 0)
- 		return nvecs;
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -1824,12 +1824,18 @@ again:
+ 	/* restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
  
--	event_irq = ioread32(&stdev->mmio_part_cfg->vep_vector_number);
-+	event_irq = ioread16(&stdev->mmio_part_cfg->vep_vector_number);
- 	if (event_irq < 0 || event_irq >= nvecs)
- 		return -EFAULT;
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
++
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
++		}
+ 	}
+ 	free_list(&fail_head);
+ 
+@@ -1895,12 +1901,18 @@ again:
+ 	/* restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
+ 
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
++
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
++		}
+ 	}
+ 	free_list(&fail_head);
  
 
 
