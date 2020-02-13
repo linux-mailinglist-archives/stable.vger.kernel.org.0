@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3F115C20F
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:29:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3626215C1D2
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387792AbgBMP2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56854 "EHLO mail.kernel.org"
+        id S1729225AbgBMP0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387787AbgBMP2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:47 -0500
+        id S1729222AbgBMP0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A02C520661;
-        Thu, 13 Feb 2020 15:28:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20040206DB;
+        Thu, 13 Feb 2020 15:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607726;
-        bh=oZBAetFEYbzhQ5qSX3ax2gWXTVqhU/D25NWfZlIdAV0=;
+        s=default; t=1581607602;
+        bh=FxYiCaXQskh90KrwG3iV7GTqM8cjabD5+J+amsqs1UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1O7vp+/jFFnEIl5L0K7eDbti2A70m/nPErvIAj5pEPGPXmtMhhon+aboro6FWrUM3
-         P0oPWR4+LUpKRqnFy1z6qFoRNQ48RXWP/pMan0Xqv2mWA+8Utb/+dzshv0yRqrCUED
-         Xtlyz7H28i2l8+OLD1XhwEha7RTqsKbXT8u6V928=
+        b=iFuAlbqXc3IDlOuKChBcDYjfnXK9OXaYMPx0TjZ5APSZpL/X6lLj199f/rX7Eas86
+         PNXnR46mQ0K7gYFbUkQ4h1TLrnVq59+tCYe23/5NlwTBSI7tAn4DMP2cAZZ2Xf1WDa
+         Mh89IxhrUDnBvRDuU/g2c9Q31YLayZL7xLzK0rAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH 5.5 056/120] arm64: dts: uDPU: fix broken ethernet
-Date:   Thu, 13 Feb 2020 07:20:52 -0800
-Message-Id: <20200213151920.904752273@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.19 12/52] nfs: NFS_SWAP should depend on SWAP
+Date:   Thu, 13 Feb 2020 07:20:53 -0800
+Message-Id: <20200213151816.036795353@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 1eebac0240580b531954b02c05068051df41142a upstream.
+commit 474c4f306eefbb21b67ebd1de802d005c7d7ecdc upstream.
 
-The uDPU uses both ethernet controllers, which ties up COMPHY 0 for
-eth1 and COMPHY 1 for eth0, with no USB3 comphy.  The addition of
-COMPHY support made the kernel override the setup by the boot loader
-breaking this platform by assuming that COMPHY 0 was always used for
-USB3.  Delete the USB3 COMPHY definition at platform level, and add
-phy specifications for the ethernet channels.
+If CONFIG_SWAP=n, it does not make much sense to offer the user the
+option to enable support for swapping over NFS, as that will still fail
+at run time:
 
-Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+    # swapon /swap
+    swapon: /swap: swapon failed: Function not implemented
+
+Fix this by adding a dependency on CONFIG_SWAP.
+
+Fixes: a564b8f0398636ba ("nfs: enable swap on NFS")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
-@@ -143,6 +143,7 @@
- 	phy-mode = "sgmii";
- 	status = "okay";
- 	managed = "in-band-status";
-+	phys = <&comphy1 0>;
- 	sfp = <&sfp_eth0>;
- };
- 
-@@ -150,11 +151,14 @@
- 	phy-mode = "sgmii";
- 	status = "okay";
- 	managed = "in-band-status";
-+	phys = <&comphy0 1>;
- 	sfp = <&sfp_eth1>;
- };
- 
- &usb3 {
- 	status = "okay";
-+	phys = <&usb2_utmi_otg_phy>;
-+	phy-names = "usb2-utmi-otg-phy";
- };
- 
- &uart0 {
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -89,7 +89,7 @@ config NFS_V4
+ config NFS_SWAP
+ 	bool "Provide swap over NFS support"
+ 	default n
+-	depends on NFS_FS
++	depends on NFS_FS && SWAP
+ 	select SUNRPC_SWAP
+ 	help
+ 	  This option enables swapon to work on files located on NFS mounts.
 
 
