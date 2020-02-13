@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2439615C68F
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D4015C693
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728026AbgBMQBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:01:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38540 "EHLO mail.kernel.org"
+        id S1727761AbgBMQBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:01:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728743AbgBMPYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:38 -0500
+        id S1728236AbgBMPYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:37 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 879D5246CA;
-        Thu, 13 Feb 2020 15:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AA06246DA;
+        Thu, 13 Feb 2020 15:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607475;
-        bh=Z1qasub3p2ej/ZULPaO4jNVZJ8sDqnBDPHJGunHBHoE=;
+        s=default; t=1581607476;
+        bh=37/ll+Q8F05WZcAJOUYCDjnU8UFeyuVajRI2A0XgZP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQ66ztSHolCMuomWNIwH63kz+w6yVIQWuPPawE8RpRQCllc5JiC0mblJPwRka+oWs
-         iItyqtzdu6zqcqWqYxkiKMO2jUeHSe5fveIbP4VXxM4TRcSLviiXhQIQvoboxzrrps
-         yEyZA/SVw61qtTxW7tgkfecGyttA1RsHsGP/tcOg=
+        b=KDvUmiAqMA2zxrvzhLddQZl5MYzjVNfFgqlrr7+W8EgJWCnaSqn9MDNzEPezFoC0d
+         5q4fxMDz9AjRhntL6qoUVQPD6ZmysEGjWWKGA9Xo6apCUOmqHs46F0MldEnt4FZg+m
+         OdEW5Jt6bWmVXvy4u0VuBNr4HMknvd+e4+2omKSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org,
+        Ridge Kennedy <ridge.kennedy@alliedtelesis.co.nz>,
+        James Chapman <jchapman@katalix.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 007/173] gtp: use __GFP_NOWARN to avoid memalloc warning
-Date:   Thu, 13 Feb 2020 07:18:30 -0800
-Message-Id: <20200213151934.211733169@linuxfoundation.org>
+Subject: [PATCH 4.14 008/173] l2tp: Allow duplicate session creation with UDP
+Date:   Thu, 13 Feb 2020 07:18:31 -0800
+Message-Id: <20200213151934.510224161@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -43,68 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Ridge Kennedy <ridge.kennedy@alliedtelesis.co.nz>
 
-[ Upstream commit bd5cd35b782abf5437fbd01dfaee12437d20e832 ]
+[ Upstream commit 0d0d9a388a858e271bb70e71e99e7fe2a6fd6f64 ]
 
-gtp hashtable size is received by user-space.
-So, this hashtable size could be too large. If so, kmalloc will internally
-print a warning message.
-This warning message is actually not necessary for the gtp module.
-So, this patch adds __GFP_NOWARN to avoid this message.
+In the past it was possible to create multiple L2TPv3 sessions with the
+same session id as long as the sessions belonged to different tunnels.
+The resulting sessions had issues when used with IP encapsulated tunnels,
+but worked fine with UDP encapsulated ones. Some applications began to
+rely on this behaviour to avoid having to negotiate unique session ids.
 
-Splat looks like:
-[ 2171.200049][ T1860] WARNING: CPU: 1 PID: 1860 at mm/page_alloc.c:4713 __alloc_pages_nodemask+0x2f3/0x740
-[ 2171.238885][ T1860] Modules linked in: gtp veth openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv]
-[ 2171.262680][ T1860] CPU: 1 PID: 1860 Comm: gtp-link Not tainted 5.5.0+ #321
-[ 2171.263567][ T1860] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[ 2171.264681][ T1860] RIP: 0010:__alloc_pages_nodemask+0x2f3/0x740
-[ 2171.265332][ T1860] Code: 64 fe ff ff 65 48 8b 04 25 c0 0f 02 00 48 05 f0 12 00 00 41 be 01 00 00 00 49 89 47 0
-[ 2171.267301][ T1860] RSP: 0018:ffff8880b51af1f0 EFLAGS: 00010246
-[ 2171.268320][ T1860] RAX: ffffed1016a35e43 RBX: 0000000000000000 RCX: 0000000000000000
-[ 2171.269517][ T1860] RDX: 0000000000000000 RSI: 000000000000000b RDI: 0000000000000000
-[ 2171.270305][ T1860] RBP: 0000000000040cc0 R08: ffffed1018893109 R09: dffffc0000000000
-[ 2171.275973][ T1860] R10: 0000000000000001 R11: ffffed1018893108 R12: 1ffff11016a35e43
-[ 2171.291039][ T1860] R13: 000000000000000b R14: 000000000000000b R15: 00000000000f4240
-[ 2171.292328][ T1860] FS:  00007f53cbc83740(0000) GS:ffff8880da000000(0000) knlGS:0000000000000000
-[ 2171.293409][ T1860] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2171.294586][ T1860] CR2: 000055f540014508 CR3: 00000000b49f2004 CR4: 00000000000606e0
-[ 2171.295424][ T1860] Call Trace:
-[ 2171.295756][ T1860]  ? mark_held_locks+0xa5/0xe0
-[ 2171.296659][ T1860]  ? __alloc_pages_slowpath+0x21b0/0x21b0
-[ 2171.298283][ T1860]  ? gtp_encap_enable_socket+0x13e/0x400 [gtp]
-[ 2171.298962][ T1860]  ? alloc_pages_current+0xc1/0x1a0
-[ 2171.299475][ T1860]  kmalloc_order+0x22/0x80
-[ 2171.299936][ T1860]  kmalloc_order_trace+0x1d/0x140
-[ 2171.300437][ T1860]  __kmalloc+0x302/0x3a0
-[ 2171.300896][ T1860]  gtp_newlink+0x293/0xba0 [gtp]
-[ ... ]
+Some time ago a change was made to require session ids to be unique across
+all tunnels, breaking the applications making use of this "feature".
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+This change relaxes the duplicate session id check to allow duplicates
+if both of the colliding sessions belong to UDP encapsulated tunnels.
+
+Fixes: dbdbc73b4478 ("l2tp: fix duplicate session creation")
+Signed-off-by: Ridge Kennedy <ridge.kennedy@alliedtelesis.co.nz>
+Acked-by: James Chapman <jchapman@katalix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/l2tp/l2tp_core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -771,11 +771,13 @@ static int gtp_hashtable_new(struct gtp_
- {
- 	int i;
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -358,8 +358,13 @@ static int l2tp_session_add_to_tunnel(st
  
--	gtp->addr_hash = kmalloc(sizeof(struct hlist_head) * hsize, GFP_KERNEL);
-+	gtp->addr_hash = kmalloc(sizeof(struct hlist_head) * hsize,
-+				 GFP_KERNEL | __GFP_NOWARN);
- 	if (gtp->addr_hash == NULL)
- 		return -ENOMEM;
+ 		spin_lock_bh(&pn->l2tp_session_hlist_lock);
  
--	gtp->tid_hash = kmalloc(sizeof(struct hlist_head) * hsize, GFP_KERNEL);
-+	gtp->tid_hash = kmalloc(sizeof(struct hlist_head) * hsize,
-+				GFP_KERNEL | __GFP_NOWARN);
- 	if (gtp->tid_hash == NULL)
- 		goto err1;
- 
++		/* IP encap expects session IDs to be globally unique, while
++		 * UDP encap doesn't.
++		 */
+ 		hlist_for_each_entry(session_walk, g_head, global_hlist)
+-			if (session_walk->session_id == session->session_id) {
++			if (session_walk->session_id == session->session_id &&
++			    (session_walk->tunnel->encap == L2TP_ENCAPTYPE_IP ||
++			     tunnel->encap == L2TP_ENCAPTYPE_IP)) {
+ 				err = -EEXIST;
+ 				goto err_tlock_pnlock;
+ 			}
 
 
