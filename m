@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCA715C49B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A96A15C402
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729246AbgBMPs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:48:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
+        id S1729198AbgBMP0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729258AbgBMP0u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:50 -0500
+        id S1729196AbgBMP0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:21 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC38E2467B;
-        Thu, 13 Feb 2020 15:26:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2247C20661;
+        Thu, 13 Feb 2020 15:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607610;
-        bh=7OZtItf/0dIUR/Bw9IMQi3zppq5EypSGVvdPlW5Lseg=;
+        s=default; t=1581607581;
+        bh=ybrmC2rHhdfkY7gVnF0IU5j4QPB1DHBHoIR7OzmC2is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/w3iOj3swm3lDnKoJrvuaTLrDAFYdoEaQYHqTQfbH4DA6hssUCf409r8OXcq7N94
-         3Ax07YqsobWfCSPgDFNktsHyrKIhwgMlV6DRo80gPASrqpvNaJHuqYU0a86y2Jc6AE
-         uCvOSjr2XK3eHD3D2gytkjDUcrU0FXImiL0+sUCM=
+        b=RrbkQZhPLCr1a38bo5jPzbcz/elGiMRGATWl1/62fUN+ujAYAxx8k4OZ3B+5yl4sP
+         jtbld8JwAaaW9Fa70J9/Co44HimstQxYYwnQ3gTgTgKjaGDTWsP2PuCw81ecAd6KQk
+         Ub2DjWAeBuzzAHgUeHY5KP7MfpKjOqNketY9yno8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 4.19 34/52] arm64: cpufeature: Fix the type of no FP/SIMD capability
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 172/173] libertas: dont exit from lbs_ibss_join_existing() with RCU read lock held
 Date:   Thu, 13 Feb 2020 07:21:15 -0800
-Message-Id: <20200213151824.124180177@linuxfoundation.org>
+Message-Id: <20200213152014.343895495@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Nicolai Stange <nstange@suse.de>
 
-commit 449443c03d8cfdacf7313e17779a2594ebf87e6d upstream.
+[ Upstream commit c7bf1fb7ddca331780b9a733ae308737b39f1ad4 ]
 
-The NO_FPSIMD capability is defined with scope SYSTEM, which implies
-that the "absence" of FP/SIMD on at least one CPU is detected only
-after all the SMP CPUs are brought up. However, we use the status
-of this capability for every context switch. So, let us change
-the scope to LOCAL_CPU to allow the detection of this capability
-as and when the first CPU without FP is brought up.
+Commit e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss
+descriptor") introduced a bounds check on the number of supplied rates to
+lbs_ibss_join_existing().
 
-Also, the current type allows hotplugged CPU to be brought up without
-FP/SIMD when all the current CPUs have FP/SIMD and we have the userspace
-up. Fix both of these issues by changing the capability to
-BOOT_RESTRICTED_LOCAL_CPU_FEATURE.
+Unfortunately, it introduced a return path from within a RCU read side
+critical section without a corresponding rcu_read_unlock(). Fix this.
 
-Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/marvell/libertas/cfg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1241,7 +1241,7 @@ static const struct arm64_cpu_capabiliti
- 	{
- 		/* FP/SIMD is not implemented */
- 		.capability = ARM64_HAS_NO_FPSIMD,
--		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
-+		.type = ARM64_CPUCAP_BOOT_RESTRICTED_CPU_LOCAL_FEATURE,
- 		.min_field_value = 0,
- 		.matches = has_no_fpsimd,
- 	},
+diff --git a/drivers/net/wireless/marvell/libertas/cfg.c b/drivers/net/wireless/marvell/libertas/cfg.c
+index 4ffc188d2ffd3..a2874f111d122 100644
+--- a/drivers/net/wireless/marvell/libertas/cfg.c
++++ b/drivers/net/wireless/marvell/libertas/cfg.c
+@@ -1788,6 +1788,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
+ 		rates_max = rates_eid[1];
+ 		if (rates_max > MAX_RATES) {
+ 			lbs_deb_join("invalid rates");
++			rcu_read_unlock();
+ 			goto out;
+ 		}
+ 		rates = cmd.bss.rates;
+-- 
+2.20.1
+
 
 
