@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C52E415C713
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF07715C612
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730406AbgBMQGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:06:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
+        id S2387459AbgBMP4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:56:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727967AbgBMPXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:33 -0500
+        id S1728990AbgBMPZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:25 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDA282469C;
-        Thu, 13 Feb 2020 15:23:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B32442469A;
+        Thu, 13 Feb 2020 15:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607412;
-        bh=ZI60MJYRu8jKhrxFGhixMOM4BOXL81oCtDEH43M3F2U=;
+        s=default; t=1581607524;
+        bh=CRBIkMmtK6DbX7OWOAvW7vuWCkdRO+6B/HqySGWO/fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0crLaqjYSgEaRL/PxORoZulpHat/AKYNz5rFjDnhKYruvPWz1sxqtWzEQQcGmR0LJ
-         BrMPD6rCuxgDotfwN64o656q1KjyVxWrd3iydJ7LafM6Ewu7Cs8YgzGwXnoEiav/VN
-         AmcDlKLAk0bpg7qxTnIeecML83dQMEEavicSGnq4=
+        b=yYI7kzh06h4DVf4UDs2iHsb+FFzCALTRNAgK9F0V0E3+v0Cv5FuL4JFM7t3AkJKCn
+         5j1X5y38ze4NarBbm/3x8a2Pcwl9cmyXeDyqqBORZqk5agWRvzHUzw1X4wCkoB1lpi
+         q5hM5MG64ujuoCQs4PMba93LEJJFH5DifZDiVAFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Wheeler <dm-devel@lists.ewheeler.net>,
-        Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 034/116] dm space map common: fix to ensure new block isnt already in use
-Date:   Thu, 13 Feb 2020 07:19:38 -0800
-Message-Id: <20200213151856.479697265@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
+        Gavin Shan <gshan@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 076/173] tools/kvm_stat: Fix kvm_exit filter name
+Date:   Thu, 13 Feb 2020 07:19:39 -0800
+Message-Id: <20200213151952.689740853@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,122 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Gavin Shan <gshan@redhat.com>
 
-commit 4feaef830de7ffdd8352e1fe14ad3bf13c9688f8 upstream.
+commit 5fcf3a55a62afb0760ccb6f391d62f20bce4a42f upstream.
 
-The space-maps track the reference counts for disk blocks allocated by
-both the thin-provisioning and cache targets.  There are variants for
-tracking metadata blocks and data blocks.
+The filter name is fixed to "exit_reason" for some kvm_exit events, no
+matter what architect we have. Actually, the filter name ("exit_reason")
+is only applicable to x86, meaning it's broken on other architects
+including aarch64.
 
-Transactionality is implemented by never touching blocks from the
-previous transaction, so we can rollback in the event of a crash.
+This fixes the issue by providing various kvm_exit filter names, depending
+on architect we're on. Afterwards, the variable filter name is picked and
+applied through ioctl(fd, SET_FILTER).
 
-When allocating a new block we need to ensure the block is free (has
-reference count of 0) in both the current and previous transaction.
-Prior to this fix we were doing this by searching for a free block in
-the previous transaction, and relying on a 'begin' counter to track
-where the last allocation in the current transaction was.  This
-'begin' field was not being updated in all code paths (eg, increment
-of a data block reference count due to breaking sharing of a neighbour
-block in the same btree leaf).
-
-This fix keeps the 'begin' field, but now it's just a hint to speed up
-the search.  Instead the current transaction is searched for a free
-block, and then the old transaction is double checked to ensure it's
-free.  Much simpler.
-
-This fixes reports of sm_disk_new_block()'s BUG_ON() triggering when
-DM thin-provisioning's snapshots are heavily used.
-
-Reported-by: Eric Wheeler <dm-devel@lists.ewheeler.net>
+Reported-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Gavin Shan <gshan@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/persistent-data/dm-space-map-common.c   |   27 +++++++++++++++++++++
- drivers/md/persistent-data/dm-space-map-common.h   |    2 +
- drivers/md/persistent-data/dm-space-map-disk.c     |    6 +++-
- drivers/md/persistent-data/dm-space-map-metadata.c |    5 +++
- 4 files changed, 37 insertions(+), 3 deletions(-)
+ tools/kvm/kvm_stat/kvm_stat |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/md/persistent-data/dm-space-map-common.c
-+++ b/drivers/md/persistent-data/dm-space-map-common.c
-@@ -382,6 +382,33 @@ int sm_ll_find_free_block(struct ll_disk
- 	return -ENOSPC;
- }
+--- a/tools/kvm/kvm_stat/kvm_stat
++++ b/tools/kvm/kvm_stat/kvm_stat
+@@ -261,6 +261,7 @@ class ArchX86(Arch):
+     def __init__(self, exit_reasons):
+         self.sc_perf_evt_open = 298
+         self.ioctl_numbers = IOCTL_NUMBERS
++        self.exit_reason_field = 'exit_reason'
+         self.exit_reasons = exit_reasons
  
-+int sm_ll_find_common_free_block(struct ll_disk *old_ll, struct ll_disk *new_ll,
-+	                         dm_block_t begin, dm_block_t end, dm_block_t *b)
-+{
-+	int r;
-+	uint32_t count;
-+
-+	do {
-+		r = sm_ll_find_free_block(new_ll, begin, new_ll->nr_blocks, b);
-+		if (r)
-+			break;
-+
-+		/* double check this block wasn't used in the old transaction */
-+		if (*b >= old_ll->nr_blocks)
-+			count = 0;
-+		else {
-+			r = sm_ll_lookup(old_ll, *b, &count);
-+			if (r)
-+				break;
-+
-+			if (count)
-+				begin = *b + 1;
-+		}
-+	} while (count);
-+
-+	return r;
-+}
-+
- static int sm_ll_mutate(struct ll_disk *ll, dm_block_t b,
- 			int (*mutator)(void *context, uint32_t old, uint32_t *new),
- 			void *context, enum allocation_event *ev)
---- a/drivers/md/persistent-data/dm-space-map-common.h
-+++ b/drivers/md/persistent-data/dm-space-map-common.h
-@@ -109,6 +109,8 @@ int sm_ll_lookup_bitmap(struct ll_disk *
- int sm_ll_lookup(struct ll_disk *ll, dm_block_t b, uint32_t *result);
- int sm_ll_find_free_block(struct ll_disk *ll, dm_block_t begin,
- 			  dm_block_t end, dm_block_t *result);
-+int sm_ll_find_common_free_block(struct ll_disk *old_ll, struct ll_disk *new_ll,
-+	                         dm_block_t begin, dm_block_t end, dm_block_t *result);
- int sm_ll_insert(struct ll_disk *ll, dm_block_t b, uint32_t ref_count, enum allocation_event *ev);
- int sm_ll_inc(struct ll_disk *ll, dm_block_t b, enum allocation_event *ev);
- int sm_ll_dec(struct ll_disk *ll, dm_block_t b, enum allocation_event *ev);
---- a/drivers/md/persistent-data/dm-space-map-disk.c
-+++ b/drivers/md/persistent-data/dm-space-map-disk.c
-@@ -167,8 +167,10 @@ static int sm_disk_new_block(struct dm_s
- 	enum allocation_event ev;
- 	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
  
--	/* FIXME: we should loop round a couple of times */
--	r = sm_ll_find_free_block(&smd->old_ll, smd->begin, smd->old_ll.nr_blocks, b);
-+	/*
-+	 * Any block we allocate has to be free in both the old and current ll.
-+	 */
-+	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
- 	if (r)
- 		return r;
+@@ -276,6 +277,7 @@ class ArchPPC(Arch):
+         # numbers depend on the wordsize.
+         char_ptr_size = ctypes.sizeof(ctypes.c_char_p)
+         self.ioctl_numbers['SET_FILTER'] = 0x80002406 | char_ptr_size << 16
++        self.exit_reason_field = 'exit_nr'
+         self.exit_reasons = {}
  
---- a/drivers/md/persistent-data/dm-space-map-metadata.c
-+++ b/drivers/md/persistent-data/dm-space-map-metadata.c
-@@ -447,7 +447,10 @@ static int sm_metadata_new_block_(struct
- 	enum allocation_event ev;
- 	struct sm_metadata *smm = container_of(sm, struct sm_metadata, sm);
  
--	r = sm_ll_find_free_block(&smm->old_ll, smm->begin, smm->old_ll.nr_blocks, b);
-+	/*
-+	 * Any block we allocate has to be free in both the old and current ll.
-+	 */
-+	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
- 	if (r)
- 		return r;
+@@ -283,6 +285,7 @@ class ArchA64(Arch):
+     def __init__(self):
+         self.sc_perf_evt_open = 241
+         self.ioctl_numbers = IOCTL_NUMBERS
++        self.exit_reason_field = 'esr_ec'
+         self.exit_reasons = AARCH64_EXIT_REASONS
  
+ 
+@@ -290,6 +293,7 @@ class ArchS390(Arch):
+     def __init__(self):
+         self.sc_perf_evt_open = 331
+         self.ioctl_numbers = IOCTL_NUMBERS
++        self.exit_reason_field = None
+         self.exit_reasons = None
+ 
+ ARCH = Arch.get_arch()
+@@ -513,8 +517,8 @@ class TracepointProvider(Provider):
+         """
+         filters = {}
+         filters['kvm_userspace_exit'] = ('reason', USERSPACE_EXIT_REASONS)
+-        if ARCH.exit_reasons:
+-            filters['kvm_exit'] = ('exit_reason', ARCH.exit_reasons)
++        if ARCH.exit_reason_field and ARCH.exit_reasons:
++            filters['kvm_exit'] = (ARCH.exit_reason_field, ARCH.exit_reasons)
+         return filters
+ 
+     def get_available_fields(self):
 
 
