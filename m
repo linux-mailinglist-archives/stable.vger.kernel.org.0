@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAEB15C6F2
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA74315C6F4
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728653AbgBMQFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:05:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
+        id S1730275AbgBMQFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:05:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728481AbgBMPXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728486AbgBMPXs (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:23:48 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4F3F246AD;
-        Thu, 13 Feb 2020 15:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 574EA2469C;
+        Thu, 13 Feb 2020 15:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607427;
-        bh=sliaj5BSkKa6BZ89HC0XulnKCqnhPE0kdzLJ7gX9zqw=;
+        s=default; t=1581607428;
+        bh=2S2Xv7OmE/qAmWepxc4mgXxqfn5c9L+ojn0/7KWDObU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWurs5Pm1yQcJifqY5/ddtDSfB8A1fU3ElLIU0+Mi0Aeq94ZcTmq2Oyij2mX8Jlhy
-         uF4WKdeKsRZYIiRTkp3bQrDKqY0V+OCUVJ6I7EMsny0QD97/biYm90ywz0spT5/LL9
-         8Uy3IHXIe+9YMM7E5PseSO1YRdfxCj5PlxUJyKB0=
+        b=wHqBzD6o4UZcfsCPDiJp5uW08VzbWVT2dmsHqpG0H3H06d14rOjj64fV42RhQ/HcR
+         5BpBKx8BBLt4o7yKzdSubH+n8aJaRolraZ9aS4VTm0ktDKCoFx7JXUuzGDb7fnFryr
+         4yzMUVNPYsONQvU2jYHbbf7dTOrV+xJv3E9wFKEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 042/116] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
-Date:   Thu, 13 Feb 2020 07:19:46 -0800
-Message-Id: <20200213151859.367219337@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Frank Sorenson <sorenson@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.9 043/116] sunrpc: expiry_time should be seconds not timeval
+Date:   Thu, 13 Feb 2020 07:19:47 -0800
+Message-Id: <20200213151859.743949173@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
 References: <20200213151842.259660170@linuxfoundation.org>
@@ -45,35 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Roberto Bergantinos Corpas <rbergant@redhat.com>
 
-commit 65b1aae0d9d5962faccc06bdb8e91a2a0b09451c upstream.
+commit 3d96208c30f84d6edf9ab4fac813306ac0d20c10 upstream.
 
-We called rcu_read_lock(), so we need to call rcu_read_unlock() before
-we return.
+When upcalling gssproxy, cache_head.expiry_time is set as a
+timeval, not seconds since boot. As such, RPC cache expiry
+logic will not clean expired objects created under
+auth.rpcsec.context cache.
 
-Fixes: 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+This has proven to cause kernel memory leaks on field. Using
+64 bit variants of getboottime/timespec
+
+Expiration times have worked this way since 2010's c5b29f885afe "sunrpc:
+use seconds since boot in expiry cache".  The gssproxy code introduced
+in 2012 added gss_proxy_save_rsc and introduced the bug.  That's a while
+for this to lurk, but it required a bit of an extreme case to make it
+obvious.
+
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
 Cc: stable@vger.kernel.org
-Cc: huangwen <huangwenabc@gmail.com>
-Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 030d794bf498 "SUNRPC: Use gssproxy upcall for server..."
+Tested-By: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/auth_gss/svcauth_gss.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-@@ -274,6 +274,7 @@ static int mwifiex_process_country_ie(st
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1180,6 +1180,7 @@ static int gss_proxy_save_rsc(struct cac
+ 		dprintk("RPC:       No creds found!\n");
+ 		goto out;
+ 	} else {
++		struct timespec64 boot;
  
- 	if (country_ie_len >
- 	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
-+		rcu_read_unlock();
- 		mwifiex_dbg(priv->adapter, ERROR,
- 			    "11D: country_ie_len overflow!, deauth AP\n");
- 		return -EINVAL;
+ 		/* steal creds */
+ 		rsci.cred = ud->creds;
+@@ -1200,6 +1201,9 @@ static int gss_proxy_save_rsc(struct cac
+ 						&expiry, GFP_KERNEL);
+ 		if (status)
+ 			goto out;
++
++		getboottime64(&boot);
++		expiry -= boot.tv_sec;
+ 	}
+ 
+ 	rsci.h.expiry_time = expiry;
 
 
