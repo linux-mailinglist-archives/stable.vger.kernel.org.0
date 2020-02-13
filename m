@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE6615C4DE
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D602315C451
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387512AbgBMPv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:51:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S1727873AbgBMPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:46:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728358AbgBMP0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:14 -0500
+        id S1728833AbgBMP1V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:21 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15BBC206ED;
-        Thu, 13 Feb 2020 15:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 241042468D;
+        Thu, 13 Feb 2020 15:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607574;
-        bh=papIyfFj1qzrURl+Pra2xbV58csYt+VzN7lpJCfdmHg=;
+        s=default; t=1581607641;
+        bh=AzyPehGb52ECJ+zdCScD6NmW/QG6jNq0X+C2XumulvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ryGGV18Lxc3h+qnTdtnPtpdPrI6BpimLN0PDo6JZag8sTmPmUFeO6tzjCtcZFeAc
-         e56ICV9f1AIo6o8JV48Ur/A1Gi2LI/ICfWzHL920ZaEUiF4rFbl4gZ+AvIAIV6JNPj
-         zOv7yvZDvdZ6hoIGsxxXOtB9mGyZqK5vAmT14C5k=
+        b=UD9RkW9ZPiByenwQGM5HJNouJp1Kw4K5aUAfD9URzEiDlqb40CM6aEUaoYLqujZ7e
+         sXI9klPcv34wAX3PmUxyBuwTUfSHP05LEObI9hLT0W2+IE8Pa9ruxvFjq1YLvDc97M
+         uwGwz8/+NQEldGUcK8KcFvQXPt6tG5/RgZVJnZd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.14 151/173] rtc: hym8563: Return -EINVAL if the time is known to be invalid
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: [PATCH 5.4 47/96] ARM: dts: meson8: use the actual frequency for the GPUs 182.1MHz OPP
 Date:   Thu, 13 Feb 2020 07:20:54 -0800
-Message-Id: <20200213152009.601822611@linuxfoundation.org>
+Message-Id: <20200213151857.588130768@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit f236a2a2ebabad0848ad0995af7ad1dc7029e895 upstream.
+commit fe634a7a9a57fb736e39fb71aa9adc6448a90f94 upstream.
 
-The current code returns -EPERM when the voltage loss bit is set.
-Since the bit indicates that the time value is not valid, return
--EINVAL instead, which is the appropriate error code for this
-situation.
+The clock setup on Meson8 cannot achieve a Mali frequency of exactly
+182.15MHz. The vendor driver uses "FCLK_DIV7 / 2" for this frequency,
+which translates to 2550MHz / 7 / 2 = 182142857Hz.
+Update the GPU operating point to that specific frequency to not confuse
+myself when comparing the frequency from the .dts with the actual clock
+rate on the system.
 
-Fixes: dcaf03849352 ("rtc: add hym8563 rtc-driver")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Link: https://lore.kernel.org/r/20191212153111.966923-1-paul.kocialkowski@bootlin.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-hym8563.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/meson8.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/rtc/rtc-hym8563.c
-+++ b/drivers/rtc/rtc-hym8563.c
-@@ -105,7 +105,7 @@ static int hym8563_rtc_read_time(struct
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -129,8 +129,8 @@
+ 	gpu_opp_table: gpu-opp-table {
+ 		compatible = "operating-points-v2";
  
- 	if (!hym8563->valid) {
- 		dev_warn(&client->dev, "no valid clock/calendar values available\n");
--		return -EPERM;
-+		return -EINVAL;
- 	}
- 
- 	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
+-		opp-182150000 {
+-			opp-hz = /bits/ 64 <182150000>;
++		opp-182142857 {
++			opp-hz = /bits/ 64 <182142857>;
+ 			opp-microvolt = <1150000>;
+ 		};
+ 		opp-318750000 {
 
 
