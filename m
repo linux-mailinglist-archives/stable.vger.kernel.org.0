@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7058D15C62F
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F31915C785
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388160AbgBMP6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:58:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40286 "EHLO mail.kernel.org"
+        id S1729702AbgBMQLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:11:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728944AbgBMPZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:13 -0500
+        id S1727848AbgBMPWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:23 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 869EE246B1;
-        Thu, 13 Feb 2020 15:25:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA9BA24690;
+        Thu, 13 Feb 2020 15:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607512;
-        bh=qryj1/5zCcZu3EilfXkWMgTiTaiwavq8VV7ZrG6NMl8=;
+        s=default; t=1581607343;
+        bh=Wapkas+waZEDrUTxeCmaU37Zgapt29th2rLS2nZtvWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swB0qy+OfvCiZf0BBQTbtg6+Cbe8k4S6I+zTXlVGng7swK+HrQpZo+8MQfc0Wfhsf
-         IVOubNXW2iB+KZ4SRH/xWHJSEKCRsVDyGH+FYtilxShcygABwUeDnxr5BAReHQahEX
-         6HdSjqrDOPO+VCHuDCTfMtlTmlsW8gPfREFDQ/rA=
+        b=MQ/n3Jkf4LriLbANqT0ySfQBFKurTPEWm/rsffxxVBPVUBEPrlXsEtRLykVpVK4KZ
+         DxYwvP2JASr+PzIO2FPhs1EiU47KLheUFQjHrgX7bdNMmsRRMwr2rjSt3a5O9rB2AR
+         TnZhYFNupu+AtegwN965yvJ90aGncC0x2Fbtygvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerad Simpson <jbsimpson@gmail.com>,
-        Milan Broz <gmazyland@gmail.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 056/173] dm crypt: fix benbi IV constructor crash if used in authenticated mode
+        stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Neelima Krishnan <neelima.krishnan@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 02/91] x86/cpu: Update cached HLE state on write to TSX_CTRL_CPUID_CLEAR
 Date:   Thu, 13 Feb 2020 07:19:19 -0800
-Message-Id: <20200213151948.043880074@linuxfoundation.org>
+Message-Id: <20200213151822.199748174@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Milan Broz <gmazyland@gmail.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 4ea9471fbd1addb25a4d269991dc724e200ca5b5 upstream.
+[ Upstream commit 5efc6fa9044c3356d6046c6e1da6d02572dbed6b ]
 
-If benbi IV is used in AEAD construction, for example:
-  cryptsetup luksFormat <device> --cipher twofish-xts-benbi --key-size 512 --integrity=hmac-sha256
-the constructor uses wrong skcipher function and crashes:
+/proc/cpuinfo currently reports Hardware Lock Elision (HLE) feature to
+be present on boot cpu even if it was disabled during the bootup. This
+is because cpuinfo_x86->x86_capability HLE bit is not updated after TSX
+state is changed via the new MSR IA32_TSX_CTRL.
 
- BUG: kernel NULL pointer dereference, address: 00000014
- ...
- EIP: crypt_iv_benbi_ctr+0x15/0x70 [dm_crypt]
- Call Trace:
-  ? crypt_subkey_size+0x20/0x20 [dm_crypt]
-  crypt_ctr+0x567/0xfc0 [dm_crypt]
-  dm_table_add_target+0x15f/0x340 [dm_mod]
+Update the cached HLE bit also since it is expected to change after an
+update to CPUID_CLEAR bit in MSR IA32_TSX_CTRL.
 
-Fix this by properly using crypt_aead_blocksize() in this case.
-
-Fixes: ef43aa38063a6 ("dm crypt: add cryptographic data integrity protection (authenticated encryption)")
-Cc: stable@vger.kernel.org # v4.12+
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=941051
-Reported-by: Jerad Simpson <jbsimpson@gmail.com>
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 95c5824f75f3 ("x86/cpu: Add a "tsx=" cmdline option with TSX disabled by default")
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/2529b99546294c893dfa1c89e2b3e46da3369a59.1578685425.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-crypt.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/tsx.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -485,8 +485,14 @@ static int crypt_iv_essiv_gen(struct cry
- static int crypt_iv_benbi_ctr(struct crypt_config *cc, struct dm_target *ti,
- 			      const char *opts)
- {
--	unsigned bs = crypto_skcipher_blocksize(any_tfm(cc));
--	int log = ilog2(bs);
-+	unsigned bs;
-+	int log;
-+
-+	if (test_bit(CRYPT_MODE_INTEGRITY_AEAD, &cc->cipher_flags))
-+		bs = crypto_aead_blocksize(any_tfm_aead(cc));
-+	else
-+		bs = crypto_skcipher_blocksize(any_tfm(cc));
-+	log = ilog2(bs);
+diff --git a/arch/x86/kernel/cpu/tsx.c b/arch/x86/kernel/cpu/tsx.c
+index c2a9dd816c5c6..9a7983968ba86 100644
+--- a/arch/x86/kernel/cpu/tsx.c
++++ b/arch/x86/kernel/cpu/tsx.c
+@@ -115,11 +115,12 @@ void __init tsx_init(void)
+ 		tsx_disable();
  
- 	/* we need to calculate how far we must shift the sector count
- 	 * to get the cipher block count, we use this shift in _gen */
+ 		/*
+-		 * tsx_disable() will change the state of the
+-		 * RTM CPUID bit.  Clear it here since it is now
+-		 * expected to be not set.
++		 * tsx_disable() will change the state of the RTM and HLE CPUID
++		 * bits. Clear them here since they are now expected to be not
++		 * set.
+ 		 */
+ 		setup_clear_cpu_cap(X86_FEATURE_RTM);
++		setup_clear_cpu_cap(X86_FEATURE_HLE);
+ 	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
+ 
+ 		/*
+@@ -131,10 +132,10 @@ void __init tsx_init(void)
+ 		tsx_enable();
+ 
+ 		/*
+-		 * tsx_enable() will change the state of the
+-		 * RTM CPUID bit.  Force it here since it is now
+-		 * expected to be set.
++		 * tsx_enable() will change the state of the RTM and HLE CPUID
++		 * bits. Force them here since they are now expected to be set.
+ 		 */
+ 		setup_force_cpu_cap(X86_FEATURE_RTM);
++		setup_force_cpu_cap(X86_FEATURE_HLE);
+ 	}
+ }
+-- 
+2.20.1
+
 
 
