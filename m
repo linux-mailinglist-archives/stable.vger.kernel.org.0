@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A456315C31F
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE88515C41C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729573AbgBMP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
+        id S2387637AbgBMP1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729565AbgBMP2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:07 -0500
+        id S2387420AbgBMP07 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:59 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53C0D218AC;
-        Thu, 13 Feb 2020 15:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6775D24671;
+        Thu, 13 Feb 2020 15:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607687;
-        bh=Z5lZXUiB6mlzTPLpoJlxhmPg57lh4/wOXqiKgZ3hICU=;
+        s=default; t=1581607619;
+        bh=/CemN1ycka/MJsyzYlUU88+mA6n3Ug1qud/dFE15e/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4KcELOHHVAzGCpApVQlPxm0qrUJInE8fvYA/Hpi6liOfNY1/XrkAvwXA41zpn00x
-         Dj0BY44owcYASV0RsswBfNP/CYFG8LnPJK80TSTxJn94WCcCLSZ5wKiY/x50nixE5n
-         VtJlBQIFj13i8u6gwFEaalsOIgUfXu45YYOCPScU=
+        b=bZhif5vGj3YcE+nCJzszOAY9y4UV6Sf8KVZ/yjPNR8cwGhxMGEZQ7oCFkPVbqKGUh
+         dJjInSjwO86uLYGj8315kLIE4Ai4PkSuc+C3/ITGsJJyJorHWECKtWSuahUUu71Zt3
+         1ApWXPZPF/eFXi5k8qRbx6gCkF5VndiooimSN3VI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        wenxu <wenxu@ucloud.cn>
-Subject: [PATCH 5.5 023/120] netfilter: flowtable: fetch stats only if flow is still alive
-Date:   Thu, 13 Feb 2020 07:20:19 -0800
-Message-Id: <20200213151910.049692279@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 13/96] PCI/IOV: Fix memory leak in pci_iov_add_virtfn()
+Date:   Thu, 13 Feb 2020 07:20:20 -0800
+Message-Id: <20200213151844.419804126@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 79b9b685dde1d1bf43cf84163c76953dc3781c85 upstream.
+commit 8c386cc817878588195dde38e919aa6ba9409d58 upstream.
 
-Do not fetch statistics if flow has expired since it might not in
-hardware anymore. After this update, remove the FLOW_OFFLOAD_HW_DYING
-check from nf_flow_offload_stats() since this flag is never set on.
+In the implementation of pci_iov_add_virtfn() the allocated virtfn is
+leaked if pci_setup_device() fails. The error handling is not calling
+pci_stop_and_remove_bus_device(). Change the goto label to failed2.
 
-Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Acked-by: wenxu <wenxu@ucloud.cn>
+Fixes: 156c55325d30 ("PCI: Check for pci_setup_device() failure in pci_iov_add_virtfn()")
+Link: https://lore.kernel.org/r/20191125195255.23740-1-navid.emamdoost@gmail.com
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_flow_table_core.c    |    5 ++---
- net/netfilter/nf_flow_table_offload.c |    3 +--
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ drivers/pci/iov.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -348,9 +348,6 @@ static void nf_flow_offload_gc_step(stru
- {
- 	struct nf_flowtable *flow_table = data;
+--- a/drivers/pci/iov.c
++++ b/drivers/pci/iov.c
+@@ -187,10 +187,10 @@ int pci_iov_add_virtfn(struct pci_dev *d
+ 	sprintf(buf, "virtfn%u", id);
+ 	rc = sysfs_create_link(&dev->dev.kobj, &virtfn->dev.kobj, buf);
+ 	if (rc)
+-		goto failed2;
++		goto failed1;
+ 	rc = sysfs_create_link(&virtfn->dev.kobj, &dev->dev.kobj, "physfn");
+ 	if (rc)
+-		goto failed3;
++		goto failed2;
  
--	if (flow->flags & FLOW_OFFLOAD_HW)
--		nf_flow_offload_stats(flow_table, flow);
--
- 	if (nf_flow_has_expired(flow) || nf_ct_is_dying(flow->ct) ||
- 	    (flow->flags & (FLOW_OFFLOAD_DYING | FLOW_OFFLOAD_TEARDOWN))) {
- 		if (flow->flags & FLOW_OFFLOAD_HW) {
-@@ -361,6 +358,8 @@ static void nf_flow_offload_gc_step(stru
- 		} else {
- 			flow_offload_del(flow_table, flow);
- 		}
-+	} else if (flow->flags & FLOW_OFFLOAD_HW) {
-+		nf_flow_offload_stats(flow_table, flow);
- 	}
- }
+ 	kobject_uevent(&virtfn->dev.kobj, KOBJ_CHANGE);
  
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -784,8 +784,7 @@ void nf_flow_offload_stats(struct nf_flo
- 	__s32 delta;
+@@ -198,11 +198,10 @@ int pci_iov_add_virtfn(struct pci_dev *d
  
- 	delta = nf_flow_timeout_delta(flow->timeout);
--	if ((delta >= (9 * NF_FLOW_TIMEOUT) / 10) ||
--	    flow->flags & FLOW_OFFLOAD_HW_DYING)
-+	if ((delta >= (9 * NF_FLOW_TIMEOUT) / 10))
- 		return;
+ 	return 0;
  
- 	offload = kzalloc(sizeof(struct flow_offload_work), GFP_ATOMIC);
+-failed3:
+-	sysfs_remove_link(&dev->dev.kobj, buf);
+ failed2:
+-	pci_stop_and_remove_bus_device(virtfn);
++	sysfs_remove_link(&dev->dev.kobj, buf);
+ failed1:
++	pci_stop_and_remove_bus_device(virtfn);
+ 	pci_dev_put(dev);
+ failed0:
+ 	virtfn_remove_bus(dev->bus, bus);
 
 
