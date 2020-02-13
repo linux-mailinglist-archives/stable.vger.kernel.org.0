@@ -2,51 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21F1415B885
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C40C15B887
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729652AbgBMEXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 23:23:39 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:35875 "EHLO
+        id S1729401AbgBMEYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 23:24:51 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:44237 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729562AbgBMEXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:23:39 -0500
+        by vger.kernel.org with ESMTP id S1729358AbgBMEYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:24:51 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id ACDBB9DE;
-        Wed, 12 Feb 2020 23:23:38 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id CD054E4F;
+        Wed, 12 Feb 2020 23:24:49 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:23:38 -0500
+  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:24:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mY1goK
-        JEjsLN6P0abQSDS1jaO7Q7UNF18e6sfKiv/14=; b=TZ8Or2rtKm+5pZZGLStxGe
-        xt2LIgXIEQPkHmi5y6UvBNlrRZr/Gw5IvJ4qTD93KqgVAuIJHVMOPwGPbEYhONIi
-        UnRXeIzofJy0Ua69GJLXyzsAcL8KOvsWYgg7nKJtltFFf7JXwOBYGSktUK1py+gW
-        aKOfVQHzLxX3PIyy3qGCaRYzOkJVby2FG6MuE2eCBgIFtLP8U59jPXxUMzKJ1jq/
-        lWvhv2GieDvvn24maMSYe4PfFUzyQs9zxEQPHbojVauMXJJGR/E0DlC84tNGG/w3
-        fyWSLOdziN53JJcGGVm4fIi4fK7mWWqHOfAOWo6lUxd3Sqq/z+wNMSvZnuUYpFuQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=i2QwO3
+        LcCxC/d3mw4ZHafr2i6yNBKmIJsUyWQLnGGJ0=; b=ymONwB/2sLeUvayDf+odhK
+        wG4fF3UEkWxt0xfnMF4gRa8ZAbGNi5IkV1Mf/uNxR9IK7BGludOBsLONHE9EMh2M
+        d+8hdwEPUB+x9/HWaDulBgP0zICkB1a7XA3CgzjQal3PzE0I2zxHjudXhSkWnosz
+        KUSIKEBLsPNSQ5COepYQqKhxBXKJrCaRDnXHoLKUjr4NbmEi+/HvFoCgTcAyQSyo
+        mE9Qo/UKMqVggwvjQMRpr7o/thj8mpXZXUBdpzrtbsV9vAXGI+kilcoHGwX0pmyL
+        O26oe1vALyQV+RGWwlWqw0ulf1MKELqybyiumtllJDeHF+DyBxMtklzCfHpUn0AA
         ==
-X-ME-Sender: <xms:Ss9EXlnv7OzxcnyZwdRnuGLLtMFrvPv6fWr8B1c5XvppKEErKZxK-Q>
+X-ME-Sender: <xms:kc9EXuZQUJ6qpORGEFWTInWmqFrC5FLYO6jJ4bXhtkFrbUW2QQITvw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrieejgdejvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepvddtledrfeejrdeljedrudelgeenucevlhhushhtvghrufhiiigvpedtne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Ss9EXsst-2_wzDu732XJUjqBZYmPl4MVwfGsBpVD4D6-dtu21krUhQ>
-    <xmx:Ss9EXnLITqMh0NvJz-by8GLFm6umDJqlOm7q4ey_u4fzWIjvqjiQXA>
-    <xmx:Ss9EXpiuLElFlsPHrFb6M1SAGhyudcx8IZs_Zd74dAD2HFJ9FJ_zqg>
-    <xmx:Ss9EXv8kCOTIbQpEXY0g5RzHU39OBXgsZATOlEgEH19lSC0YnvzlAg>
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppedvtdelrdefjedrleejrd
+    duleegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:kc9EXn8fj65uROX6u8OkeSsXZv5SDxOuLYsc4FjUaKmr0Fh_Ro5pPg>
+    <xmx:kc9EXqrgMyk6BZjhgqS-_Uz5r3Rf5SuAF6WFM5Av_ynHYa0hWP592g>
+    <xmx:kc9EXqG2lmENIWBqC-jw-Cbkeq-HgvCqCIP5mfNM6LTMwI9pjeYnAA>
+    <xmx:kc9EXrlBSyjVpTbyF4Z2xa_3F1DqsC8PtECI5wdbmSDZnZV_kHFEQw>
 Received: from localhost (unknown [209.37.97.194])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0430330606E9;
-        Wed, 12 Feb 2020 23:23:37 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Allocate IRQ chip dynamic" failed to apply to 4.9-stable tree
-To:     andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 045F33060A88;
+        Wed, 12 Feb 2020 23:24:48 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: qcom: Don't lock around irq_set_irq_wake()" failed to apply to 5.4-stable tree
+To:     swboyd@chromium.org, bjorn.andersson@linaro.org,
+        dianders@chromium.org, ilina@codeaurora.org,
+        linus.walleij@linaro.org, masneyb@onstation.org,
+        mkshah@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 Feb 2020 20:23:35 -0800
-Message-ID: <1581567815128192@kroah.com>
+Date:   Wed, 12 Feb 2020 20:24:48 -0800
+Message-ID: <1581567888173127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,68 +71,191 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 539d8bde72c22d760013bf81436d6bb94eb67aed Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Thu, 24 Oct 2019 17:33:42 +0300
-Subject: [PATCH] pinctrl: baytrail: Allocate IRQ chip dynamic
+From 1d44616e7549d0154c1224a3eee3c407029294dc Mon Sep 17 00:00:00 2001
+From: Stephen Boyd <swboyd@chromium.org>
+Date: Tue, 21 Jan 2020 10:09:50 -0800
+Subject: [PATCH] pinctrl: qcom: Don't lock around irq_set_irq_wake()
 
-Keeping the IRQ chip definition static shares it with multiple instances
-of the GPIO chip in the system. This is bad and now we get this warning
-from GPIO library:
+We don't need to hold the local pinctrl lock here to set irq wake on the
+summary irq line. Doing so only leads to lockdep warnings instead of
+protecting us from anything. Remove the locking.
 
-"detected irqchip that is shared with multiple gpiochips: please fix the driver."
+ WARNING: possible circular locking dependency detected
+ 5.4.11 #2 Tainted: G        W
+ ------------------------------------------------------
+ cat/3083 is trying to acquire lock:
+ ffffff81f4fa58c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
 
-Hence, move the IRQ chip definition from being driver static into the struct
-intel_pinctrl. So a unique IRQ chip is used for each GPIO chip instance.
+ but task is already holding lock:
+ ffffff81f4880c18 (&pctrl->lock){-.-.}, at: msm_gpio_irq_set_wake+0x48/0x7c
 
-Fixes: 9f573b98ca50 ("pinctrl: baytrail: Update irq chip operations")
-Depends-on: ca8a958e2acb ("pinctrl: baytrail: Pass irqchip when adding gpiochip")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+ which lock already depends on the new lock.
 
-diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index 55141d5de29e..72ffd19448e5 100644
---- a/drivers/pinctrl/intel/pinctrl-baytrail.c
-+++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -107,6 +107,7 @@ struct byt_gpio_pin_context {
+ the existing dependency chain (in reverse order) is:
+
+ -> #1 (&pctrl->lock){-.-.}:
+        _raw_spin_lock_irqsave+0x64/0x80
+        msm_gpio_irq_ack+0x68/0xf4
+        __irq_do_set_handler+0xe0/0x180
+        __irq_set_handler+0x60/0x9c
+        irq_domain_set_info+0x90/0xb4
+        gpiochip_hierarchy_irq_domain_alloc+0x110/0x200
+        __irq_domain_alloc_irqs+0x130/0x29c
+        irq_create_fwspec_mapping+0x1f0/0x300
+        irq_create_of_mapping+0x70/0x98
+        of_irq_get+0xa4/0xd4
+        spi_drv_probe+0x4c/0xb0
+        really_probe+0x138/0x3f0
+        driver_probe_device+0x70/0x140
+        __device_attach_driver+0x9c/0x110
+        bus_for_each_drv+0x88/0xd0
+        __device_attach+0xb0/0x160
+        device_initial_probe+0x20/0x2c
+        bus_probe_device+0x34/0x94
+        device_add+0x35c/0x3f0
+        spi_add_device+0xbc/0x194
+        of_register_spi_devices+0x2c8/0x408
+        spi_register_controller+0x57c/0x6fc
+        spi_geni_probe+0x260/0x328
+        platform_drv_probe+0x90/0xb0
+        really_probe+0x138/0x3f0
+        driver_probe_device+0x70/0x140
+        device_driver_attach+0x4c/0x6c
+        __driver_attach+0xcc/0x154
+        bus_for_each_dev+0x84/0xcc
+        driver_attach+0x2c/0x38
+        bus_add_driver+0x108/0x1fc
+        driver_register+0x64/0xf8
+        __platform_driver_register+0x4c/0x58
+        spi_geni_driver_init+0x1c/0x24
+        do_one_initcall+0x1a4/0x3e8
+        do_initcall_level+0xb4/0xcc
+        do_basic_setup+0x30/0x48
+        kernel_init_freeable+0x124/0x1a8
+        kernel_init+0x14/0x100
+        ret_from_fork+0x10/0x18
+
+ -> #0 (&irq_desc_lock_class){-.-.}:
+        __lock_acquire+0xeb4/0x2388
+        lock_acquire+0x1cc/0x210
+        _raw_spin_lock_irqsave+0x64/0x80
+        __irq_get_desc_lock+0x64/0x94
+        irq_set_irq_wake+0x40/0x144
+        msm_gpio_irq_set_wake+0x5c/0x7c
+        set_irq_wake_real+0x40/0x5c
+        irq_set_irq_wake+0x70/0x144
+        cros_ec_rtc_suspend+0x38/0x4c
+        platform_pm_suspend+0x34/0x60
+        dpm_run_callback+0x64/0xcc
+        __device_suspend+0x310/0x41c
+        dpm_suspend+0xf8/0x298
+        dpm_suspend_start+0x84/0xb4
+        suspend_devices_and_enter+0xbc/0x620
+        pm_suspend+0x210/0x348
+        state_store+0xb0/0x108
+        kobj_attr_store+0x14/0x24
+        sysfs_kf_write+0x4c/0x64
+        kernfs_fop_write+0x15c/0x1fc
+        __vfs_write+0x54/0x18c
+        vfs_write+0xe4/0x1a4
+        ksys_write+0x7c/0xe4
+        __arm64_sys_write+0x20/0x2c
+        el0_svc_common+0xa8/0x160
+        el0_svc_handler+0x7c/0x98
+        el0_svc+0x8/0xc
+
+ other info that might help us debug this:
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(&pctrl->lock);
+                                lock(&irq_desc_lock_class);
+                                lock(&pctrl->lock);
+   lock(&irq_desc_lock_class);
+
+  *** DEADLOCK ***
+
+ 7 locks held by cat/3083:
+  #0: ffffff81f06d1420 (sb_writers#7){.+.+}, at: vfs_write+0xd0/0x1a4
+  #1: ffffff81c8935680 (&of->mutex){+.+.}, at: kernfs_fop_write+0x12c/0x1fc
+  #2: ffffff81f4c322f0 (kn->count#337){.+.+}, at: kernfs_fop_write+0x134/0x1fc
+  #3: ffffffe89a641d60 (system_transition_mutex){+.+.}, at: pm_suspend+0x108/0x348
+  #4: ffffff81f190e970 (&dev->mutex){....}, at: __device_suspend+0x168/0x41c
+  #5: ffffff81f183d8c0 (lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+  #6: ffffff81f4880c18 (&pctrl->lock){-.-.}, at: msm_gpio_irq_set_wake+0x48/0x7c
+
+ stack backtrace:
+ CPU: 4 PID: 3083 Comm: cat Tainted: G        W         5.4.11 #2
+ Hardware name: Google Cheza (rev3+) (DT)
+ Call trace:
+  dump_backtrace+0x0/0x174
+  show_stack+0x20/0x2c
+  dump_stack+0xc8/0x124
+  print_circular_bug+0x2ac/0x2c4
+  check_noncircular+0x1a0/0x1a8
+  __lock_acquire+0xeb4/0x2388
+  lock_acquire+0x1cc/0x210
+  _raw_spin_lock_irqsave+0x64/0x80
+  __irq_get_desc_lock+0x64/0x94
+  irq_set_irq_wake+0x40/0x144
+  msm_gpio_irq_set_wake+0x5c/0x7c
+  set_irq_wake_real+0x40/0x5c
+  irq_set_irq_wake+0x70/0x144
+  cros_ec_rtc_suspend+0x38/0x4c
+  platform_pm_suspend+0x34/0x60
+  dpm_run_callback+0x64/0xcc
+  __device_suspend+0x310/0x41c
+  dpm_suspend+0xf8/0x298
+  dpm_suspend_start+0x84/0xb4
+  suspend_devices_and_enter+0xbc/0x620
+  pm_suspend+0x210/0x348
+  state_store+0xb0/0x108
+  kobj_attr_store+0x14/0x24
+  sysfs_kf_write+0x4c/0x64
+  kernfs_fop_write+0x15c/0x1fc
+  __vfs_write+0x54/0x18c
+  vfs_write+0xe4/0x1a4
+  ksys_write+0x7c/0xe4
+  __arm64_sys_write+0x20/0x2c
+  el0_svc_common+0xa8/0x160
+  el0_svc_handler+0x7c/0x98
+  el0_svc+0x8/0xc
+
+Fixes: 6aced33f4974 ("pinctrl: msm: drop wake_irqs bitmap")
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Lina Iyer <ilina@codeaurora.org>
+Cc: Maulik Shah <mkshah@codeaurora.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20200121180950.36959-1-swboyd@chromium.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index 5d6f9f61ce02..9a8daa256a32 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -960,7 +960,6 @@ static int msm_gpio_irq_set_wake(struct irq_data *d, unsigned int on)
+ {
+ 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+ 	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
+-	unsigned long flags;
  
- struct byt_gpio {
- 	struct gpio_chip chip;
-+	struct irq_chip irqchip;
- 	struct platform_device *pdev;
- 	struct pinctrl_dev *pctl_dev;
- 	struct pinctrl_desc pctl_desc;
-@@ -1395,15 +1396,6 @@ static int byt_irq_type(struct irq_data *d, unsigned int type)
+ 	/*
+ 	 * While they may not wake up when the TLMM is powered off,
+@@ -971,12 +970,8 @@ static int msm_gpio_irq_set_wake(struct irq_data *d, unsigned int on)
+ 	if (d->parent_data)
+ 		irq_chip_set_wake_parent(d, on);
+ 
+-	raw_spin_lock_irqsave(&pctrl->lock, flags);
+-
+ 	irq_set_irq_wake(pctrl->irq, on);
+ 
+-	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
+-
  	return 0;
  }
  
--static struct irq_chip byt_irqchip = {
--	.name		= "BYT-GPIO",
--	.irq_ack	= byt_irq_ack,
--	.irq_mask	= byt_irq_mask,
--	.irq_unmask	= byt_irq_unmask,
--	.irq_set_type	= byt_irq_type,
--	.flags		= IRQCHIP_SKIP_SET_WAKE,
--};
--
- static void byt_gpio_irq_handler(struct irq_desc *desc)
- {
- 	struct irq_data *data = irq_desc_get_irq_data(desc);
-@@ -1551,8 +1543,15 @@ static int byt_gpio_probe(struct byt_gpio *vg)
- 	if (irq_rc && irq_rc->start) {
- 		struct gpio_irq_chip *girq;
- 
-+		vg->irqchip.name = "BYT-GPIO",
-+		vg->irqchip.irq_ack = byt_irq_ack,
-+		vg->irqchip.irq_mask = byt_irq_mask,
-+		vg->irqchip.irq_unmask = byt_irq_unmask,
-+		vg->irqchip.irq_set_type = byt_irq_type,
-+		vg->irqchip.flags = IRQCHIP_SKIP_SET_WAKE,
-+
- 		girq = &gc->irq;
--		girq->chip = &byt_irqchip;
-+		girq->chip = &vg->irqchip;
- 		girq->init_hw = byt_gpio_irq_init_hw;
- 		girq->parent_handler = byt_gpio_irq_handler;
- 		girq->num_parents = 1;
 
