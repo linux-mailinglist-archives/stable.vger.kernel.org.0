@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A112115C685
+	by mail.lfdr.de (Postfix) with ESMTP id 3721315C684
 	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728910AbgBMQBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:01:25 -0500
+        id S1728874AbgBMQBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:01:24 -0500
 Received: from mail.kernel.org ([198.145.29.99]:38702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728753AbgBMPYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:39 -0500
+        id S1728290AbgBMPYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:40 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C66A1246A3;
-        Thu, 13 Feb 2020 15:24:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 687E0246B3;
+        Thu, 13 Feb 2020 15:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607478;
-        bh=GXinBSpBqSY7GqT/NaS7EridjFozm3hsbg2xH/NR7hU=;
+        s=default; t=1581607479;
+        bh=SVhXEM5ip6DL8l6Fd0jQhEMKOcT/fCDb5xo5D0hWBBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqMptW+oeq8Pq7N4Pfd4ze2VnOsyvCbEwEho+bcJ/HOp2aVTdcucwj7T4NI+uKtC4
-         XhhzzpKK687MnlZdGunlx0yVdJFAlNdvzW+EK4lvLvlavy3SE52LbsoMt+fS2b8SG6
-         S/5K2ww38WrUYlC+aEDxRyK8361+NwPtng5XB/nQ=
+        b=BCcVU4BR+YTN8p+YX8EG+wWxbvohwFzNfRmX3+OtAnpc5KeFC4cVwxFm5j1kOZrXM
+         3y8Jexj16xMM8udQnQcaSRqJgVoz0QszyGcqegjQMlYdD8sM2orzFnWaRYDMmmZRxY
+         X6/o8KcysuE3TmIEnd5VfzZQ9MynIURpSFdxTTIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 021/173] brcmfmac: Fix memory leak in brcmf_usbdev_qinit
-Date:   Thu, 13 Feb 2020 07:18:44 -0800
-Message-Id: <20200213151938.511935277@linuxfoundation.org>
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.14 022/173] usb: gadget: legacy: set max_speed to super-speed
+Date:   Thu, 13 Feb 2020 07:18:45 -0800
+Message-Id: <20200213151938.851892387@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -44,32 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Roger Quadros <rogerq@ti.com>
 
-commit 4282dc057d750c6a7dd92953564b15c26b54c22c upstream.
+commit 463f67aec2837f981b0a0ce8617721ff59685c00 upstream.
 
-In the implementation of brcmf_usbdev_qinit() the allocated memory for
-reqs is leaking if usb_alloc_urb() fails. Release reqs in the error
-handling path.
+These interfaces do support super-speed so let's not
+limit maximum speed to high-speed.
 
-Fixes: 71bb244ba2fd ("brcm80211: fmac: add USB support for bcm43235/6/8 chipsets")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/legacy/cdc2.c  |    2 +-
+ drivers/usb/gadget/legacy/g_ffs.c |    2 +-
+ drivers/usb/gadget/legacy/multi.c |    2 +-
+ drivers/usb/gadget/legacy/ncm.c   |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-@@ -441,6 +441,7 @@ fail:
- 			usb_free_urb(req->urb);
- 		list_del(q->next);
- 	}
-+	kfree(reqs);
- 	return NULL;
- 
- }
+--- a/drivers/usb/gadget/legacy/cdc2.c
++++ b/drivers/usb/gadget/legacy/cdc2.c
+@@ -229,7 +229,7 @@ static struct usb_composite_driver cdc_d
+ 	.name		= "g_cdc",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= cdc_bind,
+ 	.unbind		= cdc_unbind,
+ };
+--- a/drivers/usb/gadget/legacy/g_ffs.c
++++ b/drivers/usb/gadget/legacy/g_ffs.c
+@@ -153,7 +153,7 @@ static struct usb_composite_driver gfs_d
+ 	.name		= DRIVER_NAME,
+ 	.dev		= &gfs_dev_desc,
+ 	.strings	= gfs_dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= gfs_bind,
+ 	.unbind		= gfs_unbind,
+ };
+--- a/drivers/usb/gadget/legacy/multi.c
++++ b/drivers/usb/gadget/legacy/multi.c
+@@ -486,7 +486,7 @@ static struct usb_composite_driver multi
+ 	.name		= "g_multi",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= multi_bind,
+ 	.unbind		= multi_unbind,
+ 	.needs_serial	= 1,
+--- a/drivers/usb/gadget/legacy/ncm.c
++++ b/drivers/usb/gadget/legacy/ncm.c
+@@ -203,7 +203,7 @@ static struct usb_composite_driver ncm_d
+ 	.name		= "g_ncm",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= gncm_bind,
+ 	.unbind		= gncm_unbind,
+ };
 
 
