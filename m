@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2CC15C2EA
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59DC715C2AE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:38:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728919AbgBMPiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:38:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59234 "EHLO mail.kernel.org"
+        id S2387583AbgBMP3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:29:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729694AbgBMP3Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:16 -0500
+        id S1729540AbgBMP3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:29:18 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EA012468F;
-        Thu, 13 Feb 2020 15:29:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83060206DB;
+        Thu, 13 Feb 2020 15:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607755;
-        bh=WMhpdG/ER20cB7SPcvqxg2P5BMuaboH8up8jD2FXD8U=;
+        s=default; t=1581607757;
+        bh=EF33hMLRm9aEOjhSrov18S2T0L95ZdTPRofYkUOn6qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQlGiJE6pNaTE9j6eEyO/rJzxa2jyZhHzSzbfFkzYRIW8oeWE4TsfhTN4xGPxx881
-         XInUgeYyKIDEJq96eKBAOYH2VlMheOzQwBFBgKwWetfdIkOzrF7kbM66QU5ZixNbcB
-         HjysYJid7U/3aGU4SW/VKHYh5Z9t7ETwUNtCRWXY=
+        b=kN3x+oLXg3sP7fMvQK7s6aJujXESLn7C5UQWKLKnyH6eQ3sIhNKdehI3fEst1VSSE
+         GnVE+yQnP/vuwzy2k3w5pffiyDsu1PIxvvDQURezmBJovqEZfVnJkcYrJGOYqkAWwq
+         no8B2CVJHZHx98/bPjfCmilsNhzFB6c4xniHs2EE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 5.5 110/120] pinctrl: sh-pfc: r8a77965: Fix DU_DOTCLKIN3 drive/bias control
-Date:   Thu, 13 Feb 2020 07:21:46 -0800
-Message-Id: <20200213151937.489661118@linuxfoundation.org>
+Subject: [PATCH 5.5 111/120] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
+Date:   Thu, 13 Feb 2020 07:21:47 -0800
+Message-Id: <20200213151937.715663012@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -45,47 +45,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit a34cd9dfd03fa9ec380405969f1d638bc63b8d63 upstream.
+commit 805f635703b2562b5ddd822c62fc9124087e5dd5 upstream.
 
-R-Car Gen3 Hardware Manual Errata for Rev. 2.00 of October 24, 2019
-changed the configuration bits for drive and bias control for the
-DU_DOTCLKIN3 pin on R-Car M3-N, to match the same pin on R-Car H3.
-Update the driver to reflect this.
+The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
+one set of users must be wrong.  Replace them by the correct enum IDs.
 
-After this, the handling of drive and bias control for the various
-DU_DOTCLKINx pins is consistent across all of the R-Car H3, M3-W,
-M3-W+, and M3-N SoCs.
-
-Fixes: 86c045c2e4201e94 ("pinctrl: sh-pfc: r8a77965: Replace DU_DOTCLKIN2 by DU_DOTCLKIN3")
+Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191113101653.28428-1-geert+renesas@glider.be
+Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a77965.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pinctrl/sh-pfc/pfc-r8a7778.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
-@@ -5998,7 +5998,7 @@ static const struct pinmux_drive_reg pin
- 		{ PIN_DU_DOTCLKIN1,    0, 2 },	/* DU_DOTCLKIN1 */
- 	} },
- 	{ PINMUX_DRIVE_REG("DRVCTRL12", 0xe6060330) {
--		{ PIN_DU_DOTCLKIN3,   28, 2 },	/* DU_DOTCLKIN3 */
-+		{ PIN_DU_DOTCLKIN3,   24, 2 },	/* DU_DOTCLKIN3 */
- 		{ PIN_FSCLKST,        20, 2 },	/* FSCLKST */
- 		{ PIN_TMS,             4, 2 },	/* TMS */
- 	} },
-@@ -6254,8 +6254,8 @@ static const struct pinmux_bias_reg pinm
- 		[31] = PIN_DU_DOTCLKIN1,	/* DU_DOTCLKIN1 */
- 	} },
- 	{ PINMUX_BIAS_REG("PUEN3", 0xe606040c, "PUD3", 0xe606044c) {
--		[ 0] = PIN_DU_DOTCLKIN3,	/* DU_DOTCLKIN3 */
--		[ 1] = SH_PFC_PIN_NONE,
-+		[ 0] = SH_PFC_PIN_NONE,
-+		[ 1] = PIN_DU_DOTCLKIN3,	/* DU_DOTCLKIN3 */
- 		[ 2] = PIN_FSCLKST,		/* FSCLKST */
- 		[ 3] = PIN_EXTALR,		/* EXTALR*/
- 		[ 4] = PIN_TRST_N,		/* TRST# */
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
+@@ -2305,7 +2305,7 @@ static const struct pinmux_cfg_reg pinmu
+ 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
+ 		/* IP0_11_8 [4] */
+ 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
+-		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
++		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
+ 		FN_PWM4_B,	0,		0,		0,
+ 		0,		0,		0,		0,
+ 		/* IP0_7_5 [3] */
+@@ -2349,7 +2349,7 @@ static const struct pinmux_cfg_reg pinmu
+ 		FN_TS_SDAT0_A,	0,		0,		0,
+ 		0,		0,		0,		0,
+ 		/* IP1_10_8 [3] */
+-		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
++		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
+ 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
+ 		/* IP1_7_5 [3] */
+ 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
 
 
