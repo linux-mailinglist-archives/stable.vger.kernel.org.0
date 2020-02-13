@@ -2,94 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9F2815CCEE
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 22:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B441515CD15
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 22:19:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727891AbgBMVGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 16:06:42 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:53318 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726282AbgBMVGm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 16:06:42 -0500
-Received: from p5b06da22.dip0.t-ipconnect.de ([91.6.218.34] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1j2Lgr-0003aw-CE; Thu, 13 Feb 2020 22:06:29 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id AEADE100F5A; Thu, 13 Feb 2020 22:06:28 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Dave Hansen <dave.hansen@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        vipul kumar <vipulk0511@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        x86@kernel.org, Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Bay Trail SoC
-In-Reply-To: <3d35fda5-418b-f022-1191-c53bd9468f4d@intel.com>
-References: <87iml11ccf.fsf@nanos.tec.linutronix.de> <c06260e3-bd19-bf3c-89f7-d36bdb9a5b20@redhat.com> <87ftg5131x.fsf@nanos.tec.linutronix.de> <30d49be8-67ad-6f32-37a8-0cdd26f0852e@redhat.com> <87sgjz434v.fsf@nanos.tec.linutronix.de> <20200129130350.GD32742@smile.fi.intel.com> <0d361322-87aa-af48-492c-e8c4983bb35b@redhat.com> <20200129141444.GE32742@smile.fi.intel.com> <91cdda7a-4194-ebe7-225d-854447b0436e@redhat.com> <87imku2t3w.fsf@nanos.tec.linutronix.de> <20200129155353.GI32742@smile.fi.intel.com> <87a7662d7l.fsf@nanos.tec.linutronix.de> <3d35fda5-418b-f022-1191-c53bd9468f4d@intel.com>
-Date:   Thu, 13 Feb 2020 22:06:28 +0100
-Message-ID: <87zhdmgpt7.fsf@nanos.tec.linutronix.de>
+        id S1727996AbgBMVT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 16:19:26 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:56273 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727772AbgBMVT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 16:19:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1581628765;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qeytvoYSh96I8mtSTlSSduno0MzSFAndk4/HpJXIggQ=;
+        b=JAQCSoWXBsjyu+BuBw6I+9rwLbdq5orvMqLg+cWbmJ703XDikDKnuaK3K4aCCUiaCaipF4
+        h5a32fUM9KCqCM7WYnj5JMFpolCxRvTDmGmM7FWzUZ9VbR6QEA1tSXplgSEyAoBifGPX1z
+        4BMQ3lLz2lQtRp9ys0ZR9f3mvaIm3n4=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-406-m7UJ5riJPtKG-moRykWRpg-1; Thu, 13 Feb 2020 16:19:24 -0500
+X-MC-Unique: m7UJ5riJPtKG-moRykWRpg-1
+Received: by mail-qk1-f197.google.com with SMTP id v81so4633037qkb.11
+        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 13:19:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=qeytvoYSh96I8mtSTlSSduno0MzSFAndk4/HpJXIggQ=;
+        b=AIfrX5mvZRnZbrbBQ2cVCUIxQcwQg0shv7n2sPtxGbLiOTMDaefk/9J6jApxZdx5gn
+         /JORi1eRzKUR298LRYYxLn5Q8bIrEP39G7lVt6fou1XZFwDp2R1/phbFaAAVdvhpNWKS
+         mYqYkfK/xN9RnaAM5VKGU1pr2SY+qbVHtVjazurYZ3Uw8F9WqBR9zyur4YIovDnSKSLo
+         weYVwWD07ouVTQoq20C8lGqNcmIpELBSINqLMLncp0NTTB1kl9dURNo2i/IrcQa19HBl
+         E7HRkHUvWYGntGYjsyYl+MxfzUgSdo56lKB6aCHKA1eAzCVs2Aoev/6L02C/9n+Etws8
+         DiUA==
+X-Gm-Message-State: APjAAAXqz6WHhyIanALDjp8AIerypSgCKe9eHJFbgW8yzQSYIjX6V8bX
+        4RytDyUYb2Um3hz4WR3CsQMJtobvNhxVDqchz5Ut9lnMJnmumSchjDx7b/Dqs8WkC4VPkm8dRjD
+        v/vRkuorbl8pDLcZg
+X-Received: by 2002:ad4:5009:: with SMTP id s9mr25210820qvo.30.1581628763484;
+        Thu, 13 Feb 2020 13:19:23 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzCmwC9yQ4A7PXjkJND1n6vE/oKPj8aI5adAYbhOPDc4vtyT9di5NVjr8sdOtwipFJs2QsKhw==
+X-Received: by 2002:ad4:5009:: with SMTP id s9mr25210801qvo.30.1581628763216;
+        Thu, 13 Feb 2020 13:19:23 -0800 (PST)
+Received: from dhcp-10-20-1-196.bss.redhat.com ([144.121.20.162])
+        by smtp.gmail.com with ESMTPSA id i13sm1989297qki.70.2020.02.13.13.19.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Feb 2020 13:19:22 -0800 (PST)
+Message-ID: <ca9cf8a812f4dabcfd74d66c1170c31e97f9c7b9.camel@redhat.com>
+Subject: Re: [PATCH] drm/nouveau/kms/gv100-: Re-set LUT after clearing for
+ modesets
+From:   Lyude Paul <lyude@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>, nouveau@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>
+Date:   Thu, 13 Feb 2020 16:19:21 -0500
+In-Reply-To: <20200213173705.3FD89206ED@mail.kernel.org>
+References: <20200212231150.171495-1-lyude@redhat.com>
+         <20200213173705.3FD89206ED@mail.kernel.org>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.3 (3.34.3-1.fc31) 
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dave Hansen <dave.hansen@intel.com> writes:
-> On 1/29/20 12:57 PM, Thomas Gleixner wrote:
->> Just to make it entirely clear. We are wasting days already due to the
->> fact that Intel, who designs, specifies and most importantly sells these
->> CPUs is either unable or unwilling to provide accurate information about
->> the trivial and essential information to support these CPUs:
->> 
->>     1) The crystal frequency
->> 
->>     2) The nominator/denominator pair to calculate the TSC frequency
->>        from #1
->
-> Circling back...  The problem here, as I understand it is that we have
-> some of these tables:
->
-> static const struct freq_desc freq_desc_byt = {
->         1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 }
-> };
->
-> Where "83300" means "83.3 MHz".  the 83.3 came literally from the SDM.
-> Talking to some of the folks who work on the silicon, they confirmed
-> that when the SDM says "083.3 MHz", it represents an approximation of
-> 2000/24.
-> Intel can go through and explain the values more precisely in the
-> documentation.  The big-core tables already have more significant
-> digits, for instance.  To me, it also seems like the SDM should probably
-> just explicitly state the actual ratios rather than a decimal
-> approximation.
+On Thu, 2020-02-13 at 17:37 +0000, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: facaed62b4cb ("drm/nouveau/kms/gv100: initial support").
+> 
+> The bot has tested the following trees: v5.5.3, v5.4.19, v4.19.103.
+> 
+> v5.5.3: Build OK!
+> v5.4.19: Build OK!
+> v4.19.103: Failed to apply! Possible dependencies:
+>     88b703527ba7 ("drm/nouveau/kms/gf119-: add ctm property support")
+>     cb55cd0c66a1 ("drm/nouveau/kms/nv50-: allow more flexibility with lut
+> formats")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
 
-Yes please.
+Apply it to 5.5.3, 5.4.19. We can drop the rest
 
-> But, in the end, the CPU is just enumerating frequencies that are
-> derived from crystals outside the CPU.  The hardware in question here
-> tended to be put on boards which were not using the highest-end
-> components and probably don't have the most accurate crystals.
->
-> So, while we can add precision to the numbers in the documentation,
-> we're not super confident that it will result in a meaningfully more
-> accurate frequency across a big fleet of systems.
+> 
+-- 
+Cheers,
+	Lyude Paul (she/her)
+	Associate Software Engineer at Red Hat
 
-Even if you have a cheapo 24MHz crystal it's way less off than the
-rounding error in these tables.
-
-Thanks,
-
-        tglx
