@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5021415C51E
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F8615C32D
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728664AbgBMP0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:26:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43376 "EHLO mail.kernel.org"
+        id S2387728AbgBMP2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728631AbgBMP0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:04 -0500
+        id S2387723AbgBMP2e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:34 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33A3B246A3;
-        Thu, 13 Feb 2020 15:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D1C824671;
+        Thu, 13 Feb 2020 15:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607563;
-        bh=gjjDWGRooBc5UqVMIQJAX12Qn9s0CDwI6cpcchgX04k=;
+        s=default; t=1581607713;
+        bh=NqRjdYbLxOrjmqzKa5B5q8MN0H5QJefJP55g9Nja6sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tRR/eXC1bQ8sUuAM6z0NxYVA1AmTs3PqNgyquV7zylYE6TG3B6b0ZxTC0Abgczn0o
-         YGhq3fdkR8JaggZQrAWFTcxCRHO3RXj3nxj2Yup1EBHg4MwfSxWU7UqMLtD0V82/cB
-         oNCaCG2BHfuInOxyduS70r5haCuWtvLlHnZVTRlc=
+        b=NevuJKxjOxA228seUCUSQ2G/kqgSQ3IO5XaQqw6Q1Bz6yxvCBflAioh0bs35QDJeJ
+         R5ZJCn+QTgfP/E6yySIYMdyLzJ3dZhTdt1vbpPu1sl8CcdfHQiHdUJvXFxbTCcZJxL
+         /r2RoIrsKxUr2iOgH5WV6AKjZa+3ZO7xq+IBH1pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 127/173] drm/dp_mst: Remove VCPI while disabling topology mgr
+        stable@vger.kernel.org, Robert Milkowski <rmilkowski@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.5 034/120] NFSv4.0: nfs4_do_fsinfo() should not do implicit lease renewals
 Date:   Thu, 13 Feb 2020 07:20:30 -0800
-Message-Id: <20200213152004.290260546@linuxfoundation.org>
+Message-Id: <20200213151913.468527448@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +43,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Robert Milkowski <rmilkowski@gmail.com>
 
-[ Upstream commit 64e62bdf04ab8529f45ed0a85122c703035dec3a ]
+commit 7dc2993a9e51dd2eee955944efec65bef90265b7 upstream.
 
-[Why]
+Currently, each time nfs4_do_fsinfo() is called it will do an implicit
+NFS4 lease renewal, which is not compliant with the NFS4 specification.
+This can result in a lease being expired by an NFS server.
 
-This patch is trying to address the issue observed when hotplug DP
-daisy chain monitors.
+Commit 83ca7f5ab31f ("NFS: Avoid PUTROOTFH when managing leases")
+introduced implicit client lease renewal in nfs4_do_fsinfo(),
+which can result in the NFSv4.0 lease to expire on a server side,
+and servers returning NFS4ERR_EXPIRED or NFS4ERR_STALE_CLIENTID.
 
-e.g.
-src-mstb-mstb-sst -> src (unplug) mstb-mstb-sst -> src-mstb-mstb-sst
-(plug in again)
+This can easily be reproduced by frequently unmounting a sub-mount,
+then stat'ing it to get it mounted again, which will delay or even
+completely prevent client from sending RENEW operations if no other
+NFS operations are issued. Eventually nfs server will expire client's
+lease and return an error on file access or next RENEW.
 
-Once unplug a DP MST capable device, driver will call
-drm_dp_mst_topology_mgr_set_mst() to disable MST. In this function,
-it cleans data of topology manager while disabling mst_state. However,
-it doesn't clean up the proposed_vcpis of topology manager.
-If proposed_vcpi is not reset, once plug in MST daisy chain monitors
-later, code will fail at checking port validation while trying to
-allocate payloads.
+This can also happen when a sub-mount is automatically unmounted
+due to inactivity (after nfs_mountpoint_expiry_timeout), then it is
+mounted again via stat(). This can result in a short window during
+which client's lease will expire on a server but not on a client.
+This specific case was observed on production systems.
 
-When MST capable device is plugged in again and try to allocate
-payloads by calling drm_dp_update_payload_part1(), this
-function will iterate over all proposed virtual channels to see if
-any proposed VCPI's num_slots is greater than 0. If any proposed
-VCPI's num_slots is greater than 0 and the port which the
-specific virtual channel directed to is not in the topology, code then
-fails at the port validation. Since there are stale VCPI allocations
-from the previous topology enablement in proposed_vcpi[], code will fail
-at port validation and reurn EINVAL.
+This patch removes the implicit lease renewal from nfs4_do_fsinfo().
 
-[How]
+Fixes: 83ca7f5ab31f ("NFS: Avoid PUTROOTFH when managing leases")
+Signed-off-by: Robert Milkowski <rmilkowski@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Clean up the data of stale proposed_vcpi[] and reset mgr->proposed_vcpis
-to NULL while disabling mst in drm_dp_mst_topology_mgr_set_mst().
-
-Changes since v1:
-*Add on more details in commit message to describe the issue which the
-patch is trying to fix
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-[added cc to stable]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191205090043.7580-1-Wayne.Lin@amd.com
-Cc: <stable@vger.kernel.org> # v3.17+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ fs/nfs/nfs4_fs.h    |    4 +---
+ fs/nfs/nfs4proc.c   |   12 ++++++++----
+ fs/nfs/nfs4renewd.c |    5 +----
+ fs/nfs/nfs4state.c  |    4 +---
+ 4 files changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 9d94c306c8ca1..f427a5dc66685 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2046,6 +2046,7 @@ static bool drm_dp_get_vc_payload_bw(int dp_link_bw,
- int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state)
- {
- 	int ret = 0;
-+	int i = 0;
- 	struct drm_dp_mst_branch *mstb = NULL;
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -446,9 +446,7 @@ extern void nfs4_schedule_state_renewal(
+ extern void nfs4_renewd_prepare_shutdown(struct nfs_server *);
+ extern void nfs4_kill_renewd(struct nfs_client *);
+ extern void nfs4_renew_state(struct work_struct *);
+-extern void nfs4_set_lease_period(struct nfs_client *clp,
+-		unsigned long lease,
+-		unsigned long lastrenewed);
++extern void nfs4_set_lease_period(struct nfs_client *clp, unsigned long lease);
  
- 	mutex_lock(&mgr->lock);
-@@ -2106,10 +2107,21 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
-+		mutex_lock(&mgr->payload_lock);
- 		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
- 		mgr->payload_mask = 0;
- 		set_bit(0, &mgr->payload_mask);
-+		for (i = 0; i < mgr->max_payloads; i++) {
-+			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
+ 
+ /* nfs4state.c */
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5026,16 +5026,13 @@ static int nfs4_do_fsinfo(struct nfs_ser
+ 	struct nfs4_exception exception = {
+ 		.interruptible = true,
+ 	};
+-	unsigned long now = jiffies;
+ 	int err;
+ 
+ 	do {
+ 		err = _nfs4_do_fsinfo(server, fhandle, fsinfo);
+ 		trace_nfs4_fsinfo(server, fhandle, fsinfo->fattr, err);
+ 		if (err == 0) {
+-			nfs4_set_lease_period(server->nfs_client,
+-					fsinfo->lease_time * HZ,
+-					now);
++			nfs4_set_lease_period(server->nfs_client, fsinfo->lease_time * HZ);
+ 			break;
+ 		}
+ 		err = nfs4_handle_exception(server, err, &exception);
+@@ -6091,6 +6088,7 @@ int nfs4_proc_setclientid(struct nfs_cli
+ 		.callback_data = &setclientid,
+ 		.flags = RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN,
+ 	};
++	unsigned long now = jiffies;
+ 	int status;
+ 
+ 	/* nfs_client_id4 */
+@@ -6123,6 +6121,9 @@ int nfs4_proc_setclientid(struct nfs_cli
+ 		clp->cl_acceptor = rpcauth_stringify_acceptor(setclientid.sc_cred);
+ 		put_rpccred(setclientid.sc_cred);
+ 	}
 +
-+			if (vcpi) {
-+				vcpi->vcpi = 0;
-+				vcpi->num_slots = 0;
-+			}
-+			mgr->proposed_vcpis[i] = NULL;
-+		}
- 		mgr->vcpi_mask = 0;
-+		mutex_unlock(&mgr->payload_lock);
++	if (status == 0)
++		do_renew_lease(clp, now);
+ out:
+ 	trace_nfs4_setclientid(clp, status);
+ 	dprintk("NFS reply setclientid: %d\n", status);
+@@ -8210,6 +8211,7 @@ static int _nfs4_proc_exchange_id(struct
+ 	struct rpc_task *task;
+ 	struct nfs41_exchange_id_args *argp;
+ 	struct nfs41_exchange_id_res *resp;
++	unsigned long now = jiffies;
+ 	int status;
+ 
+ 	task = nfs4_run_exchange_id(clp, cred, sp4_how, NULL);
+@@ -8230,6 +8232,8 @@ static int _nfs4_proc_exchange_id(struct
+ 	if (status != 0)
+ 		goto out;
+ 
++	do_renew_lease(clp, now);
++
+ 	clp->cl_clientid = resp->clientid;
+ 	clp->cl_exchange_flags = resp->flags;
+ 	clp->cl_seqid = resp->seqid;
+--- a/fs/nfs/nfs4renewd.c
++++ b/fs/nfs/nfs4renewd.c
+@@ -138,15 +138,12 @@ nfs4_kill_renewd(struct nfs_client *clp)
+  *
+  * @clp: pointer to nfs_client
+  * @lease: new value for lease period
+- * @lastrenewed: time at which lease was last renewed
+  */
+ void nfs4_set_lease_period(struct nfs_client *clp,
+-		unsigned long lease,
+-		unsigned long lastrenewed)
++		unsigned long lease)
+ {
+ 	spin_lock(&clp->cl_lock);
+ 	clp->cl_lease_time = lease;
+-	clp->cl_last_renewal = lastrenewed;
+ 	spin_unlock(&clp->cl_lock);
+ 
+ 	/* Cap maximum reconnect timeout at 1/2 lease period */
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -92,17 +92,15 @@ static int nfs4_setup_state_renewal(stru
+ {
+ 	int status;
+ 	struct nfs_fsinfo fsinfo;
+-	unsigned long now;
+ 
+ 	if (!test_bit(NFS_CS_CHECK_LEASE_TIME, &clp->cl_res_state)) {
+ 		nfs4_schedule_state_renewal(clp);
+ 		return 0;
  	}
  
- out_unlock:
--- 
-2.20.1
-
+-	now = jiffies;
+ 	status = nfs4_proc_get_lease_time(clp, &fsinfo);
+ 	if (status == 0) {
+-		nfs4_set_lease_period(clp, fsinfo.lease_time * HZ, now);
++		nfs4_set_lease_period(clp, fsinfo.lease_time * HZ);
+ 		nfs4_schedule_state_renewal(clp);
+ 	}
+ 
 
 
