@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1452615C5DD
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1018315C6F7
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387430AbgBMPZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40532 "EHLO mail.kernel.org"
+        id S1728132AbgBMQFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:05:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387424AbgBMPZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:17 -0500
+        id S1728473AbgBMPXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:46 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67D1F246B5;
-        Thu, 13 Feb 2020 15:25:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDDAC24690;
+        Thu, 13 Feb 2020 15:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607516;
-        bh=6jiThO6KwAUUZpDdP6OoahcnF7wU3KAVmYKEa7AhWX4=;
+        s=default; t=1581607425;
+        bh=Vhtu+GJd61zC6VEPXpl3uRiKHP47EvSOLhiqTowZbW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMAR/8UwmibOc30kXCaxCm76btxO5+6ZmiU9yIcQw6E2PnH/FAzhEn14gzJ0oxZno
-         GX5fZmoguO76+bqOpqip5GCbfF3XWmaKbVz+Hj8b+PDMCw/VqJoolXFDdzWpG5ba6i
-         jBKM9EuFg4gZZewHiC2GwEqU5+G4DjJjRBj6oQpA=
+        b=jQJY2IipXAzSlnHUly93KVW5IGOQukTWPNq1m8NyfrlxVIM4JlG8XSpvMgxPUsoYp
+         jOmmy3iBpZNbUtcP8YqI1bOV6DdHCXrx5tII3BoOzQMyBdJFKVySLE99UNrDtbLq4c
+         Km94hRvbpVY/wVYNN5Sc2SE6VhVEFvWRhe8OdTpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 080/173] KVM: x86: Protect DR-based index computations from Spectre-v1/L1TF attacks
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 039/116] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
 Date:   Thu, 13 Feb 2020 07:19:43 -0800
-Message-Id: <20200213151953.652740374@linuxfoundation.org>
+Message-Id: <20200213151858.326928796@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit ea740059ecb37807ba47b84b33d1447435a8d868 upstream.
+commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in __kvm_set_dr() and
-kvm_get_dr().
-Both kvm_get_dr() and kvm_set_dr() (a wrapper of __kvm_set_dr()) are
-exported symbols so KVM should tream them conservatively from a security
-perspective.
+Since tasklet is needed to be initialized before registering IRQ
+handler, adjust the position of tasklet_init to fix the wrong order.
 
-Fixes: 020df0794f57 ("KVM: move DR register access handling into generic code")
+Besides, to fix the missed tasklet_kill, this patch adds a helper
+function and uses devm_add_action to kill the tasklet automatically.
 
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -924,9 +924,11 @@ static u64 kvm_dr6_fixed(struct kvm_vcpu
+--- a/drivers/crypto/picoxcell_crypto.c
++++ b/drivers/crypto/picoxcell_crypto.c
+@@ -1632,6 +1632,11 @@ static bool spacc_is_compatible(struct p
+ 	return false;
+ }
  
- static int __kvm_set_dr(struct kvm_vcpu *vcpu, int dr, unsigned long val)
- {
-+	size_t size = ARRAY_SIZE(vcpu->arch.db);
++static void spacc_tasklet_kill(void *data)
++{
++	tasklet_kill(data);
++}
 +
- 	switch (dr) {
- 	case 0 ... 3:
--		vcpu->arch.db[dr] = val;
-+		vcpu->arch.db[array_index_nospec(dr, size)] = val;
- 		if (!(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP))
- 			vcpu->arch.eff_db[dr] = val;
- 		break;
-@@ -963,9 +965,11 @@ EXPORT_SYMBOL_GPL(kvm_set_dr);
+ static int spacc_probe(struct platform_device *pdev)
+ {
+ 	int i, err, ret = -EINVAL;
+@@ -1674,6 +1679,14 @@ static int spacc_probe(struct platform_d
+ 		return -ENXIO;
+ 	}
  
- int kvm_get_dr(struct kvm_vcpu *vcpu, int dr, unsigned long *val)
- {
-+	size_t size = ARRAY_SIZE(vcpu->arch.db);
++	tasklet_init(&engine->complete, spacc_spacc_complete,
++		     (unsigned long)engine);
 +
- 	switch (dr) {
- 	case 0 ... 3:
--		*val = vcpu->arch.db[dr];
-+		*val = vcpu->arch.db[array_index_nospec(dr, size)];
- 		break;
- 	case 4:
- 		/* fall through */
++	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
++			      &engine->complete);
++	if (ret)
++		return ret;
++
+ 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
+ 			     engine->name, engine)) {
+ 		dev_err(engine->dev, "failed to request IRQ\n");
+@@ -1736,8 +1749,6 @@ static int spacc_probe(struct platform_d
+ 	INIT_LIST_HEAD(&engine->completed);
+ 	INIT_LIST_HEAD(&engine->in_progress);
+ 	engine->in_flight = 0;
+-	tasklet_init(&engine->complete, spacc_spacc_complete,
+-		     (unsigned long)engine);
+ 
+ 	platform_set_drvdata(pdev, engine);
+ 
 
 
