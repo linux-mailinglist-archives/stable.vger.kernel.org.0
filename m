@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24EF415C384
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 732AF15C429
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728902AbgBMPmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:42:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55308 "EHLO mail.kernel.org"
+        id S1729316AbgBMP1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387450AbgBMP2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:19 -0500
+        id S1728464AbgBMP1M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:12 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 476DC222C2;
-        Thu, 13 Feb 2020 15:28:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B5EF2465D;
+        Thu, 13 Feb 2020 15:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607699;
-        bh=m2zuk68W3p50Ha0nrV0cD8BjVNfkJsTE0v3GQloDCnw=;
+        s=default; t=1581607631;
+        bh=5kwNS4XKm3AZXsdFsl8F+9R4Dv3SzGpFpihSZp9kgfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eD44tvg2hN+eMMnQBBOYrpuCl2xZnQP3DKM6pLNZ9Tx0QnutvErzeyWv5/Ayxx3JV
-         I+kUxkRBBCXg4cR7jo52hwsfiTYbsppLipjm02UidnygGQqtnoic1XUSE/GjF8rQkF
-         1Ekr0tE0WpppoN26hWWS8oR1znhiMCy8YokvujYU=
+        b=1PdQKhQKYTtJQG++pb8OYIIxxSB98dLD3yJR0vS9/oWHO4cUfHW6Nfh1GqauAG4xH
+         O28K0BDaBZ2BeWNNrwFpc3hjzaRFqj7Z1NdfK05zfBJnKKDgt2PQgWMGg+o6GHaUsJ
+         DrZvtGJPf/ZRoB1pN0h1d8pvXc+DiAgWUfce8QWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.5 042/120] mt76: mt7615: fix max_nss in mt7615_eeprom_parse_hw_cap
-Date:   Thu, 13 Feb 2020 07:20:38 -0800
-Message-Id: <20200213151916.014391631@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Milkowski <rmilkowski@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.4 32/96] NFSv4: try lease recovery on NFS4ERR_EXPIRED
+Date:   Thu, 13 Feb 2020 07:20:39 -0800
+Message-Id: <20200213151851.414866295@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Robert Milkowski <rmilkowski@gmail.com>
 
-commit d08f3010f4a32eec3c8aa771f03a1b342a1472fa upstream.
+commit 924491f2e476f7234d722b24171a4daff61bbe13 upstream.
 
-Fix u8 cast reading max_nss from MT_TOP_STRAP_STA register in
-mt7615_eeprom_parse_hw_cap routine
+Currently, if an nfs server returns NFS4ERR_EXPIRED to open(),
+we return EIO to applications without even trying to recover.
 
-Fixes: acf5457fd99db ("mt76: mt7615: read {tx,rx} mask from eeprom")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 272289a3df72 ("NFSv4: nfs4_do_handle_exception() handle revoke/expiry of a single stateid")
+Signed-off-by: Robert Milkowski <rmilkowski@gmail.com>
+Reviewed-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
-@@ -92,8 +92,9 @@ static int mt7615_check_eeprom(struct mt
- 
- static void mt7615_eeprom_parse_hw_cap(struct mt7615_dev *dev)
- {
--	u8 val, *eeprom = dev->mt76.eeprom.data;
-+	u8 *eeprom = dev->mt76.eeprom.data;
- 	u8 tx_mask, rx_mask, max_nss;
-+	u32 val;
- 
- 	val = FIELD_GET(MT_EE_NIC_WIFI_CONF_BAND_SEL,
- 			eeprom[MT_EE_WIFI_CONF]);
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3187,6 +3187,11 @@ static struct nfs4_state *nfs4_do_open(s
+ 			exception.retry = 1;
+ 			continue;
+ 		}
++		if (status == -NFS4ERR_EXPIRED) {
++			nfs4_schedule_lease_recovery(server->nfs_client);
++			exception.retry = 1;
++			continue;
++		}
+ 		if (status == -EAGAIN) {
+ 			/* We must have found a delegation */
+ 			exception.retry = 1;
 
 
