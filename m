@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4956315C33F
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A28915C4A7
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729405AbgBMP25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57840 "EHLO mail.kernel.org"
+        id S1729918AbgBMPtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729630AbgBMP24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:56 -0500
+        id S2387618AbgBMP0q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:46 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 692692467D;
-        Thu, 13 Feb 2020 15:28:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C48120661;
+        Thu, 13 Feb 2020 15:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607736;
-        bh=fPB1iHhgeFpUPKsYjqf2vZYkXrit/70jiBZ3Dsfo/pk=;
+        s=default; t=1581607605;
+        bh=hYNz40p2Qlm43B9gsOmwAE7R5tC9tcvgb6V4u5Ihi58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RuHVsARH3l9mYKC2OIRNahDJE2/UtzIzEDLVOh1ZOZ58lh/Ie4xn3Qi/dOY2p70+t
-         ewHnmi+FnRqZmMKxWh+/qy06ylQAFQ75xg6802c5Gmz3o6/ERk+DQ/oJmypCAMEPpn
-         56N4o2CCjPnzR4O1BWU8uxTip9AYEWk6kLSxAkho=
+        b=IQ61FAW1BJLcrnu8QuJ9jTZVN/q32+JObTsTKQIDQy7rWrarLZ2CVATkZ4cgJJT/q
+         osJxwKz+jHkaoD6FlpFYV/OYWiN47CJ/eIJnHIfOCXGGHbn46YifL7gF6vTPcWnbUx
+         HKSG/nPYFYmFC59Ih2zbcKEgo0lZVhOu6wFV9lQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Andrew Murray <andrew.murray@arm.com>
-Subject: [PATCH 5.5 088/120] KVM: arm64: pmu: Dont increment SW_INCR if PMCR.E is unset
-Date:   Thu, 13 Feb 2020 07:21:24 -0800
-Message-Id: <20200213151930.882972327@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 44/52] media: i2c: adv748x: Fix unsafe macros
+Date:   Thu, 13 Feb 2020 07:21:25 -0800
+Message-Id: <20200213151828.199697666@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 3837407c1aa1101ed5e214c7d6041e7a23335c6e upstream.
+commit 0d962e061abcf1b9105f88fb850158b5887fbca3 upstream.
 
-The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
-if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
+Enclose multiple macro parameters in parentheses in order to
+make such macros safer and fix the Clang warning below:
 
-For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
-be set for the corresponding event counter but we also need
-the PMCR.E bit to be set.
+drivers/media/i2c/adv748x/adv748x-afe.c:452:12: warning: operator '?:'
+has lower precedence than '|'; '|' will be evaluated first
+[-Wbitwise-conditional-parentheses]
 
-Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200124142535.29386-2-eric.auger@redhat.com
+ret = sdp_clrset(state, ADV748X_SDP_FRP, ADV748X_SDP_FRP_MASK, enable
+? ctrl->val - 1 : 0);
+
+Fixes: 3e89586a64df ("media: i2c: adv748x: add adv748x driver")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/pmu.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/i2c/adv748x/adv748x.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/virt/kvm/arm/pmu.c
-+++ b/virt/kvm/arm/pmu.c
-@@ -486,6 +486,9 @@ void kvm_pmu_software_increment(struct k
- 	if (val == 0)
- 		return;
+--- a/drivers/media/i2c/adv748x/adv748x.h
++++ b/drivers/media/i2c/adv748x/adv748x.h
+@@ -361,10 +361,10 @@ int adv748x_write_block(struct adv748x_s
  
-+	if (!(__vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
-+		return;
-+
- 	enable = __vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
- 	for (i = 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
- 		if (!(val & BIT(i)))
+ #define io_read(s, r) adv748x_read(s, ADV748X_PAGE_IO, r)
+ #define io_write(s, r, v) adv748x_write(s, ADV748X_PAGE_IO, r, v)
+-#define io_clrset(s, r, m, v) io_write(s, r, (io_read(s, r) & ~m) | v)
++#define io_clrset(s, r, m, v) io_write(s, r, (io_read(s, r) & ~(m)) | (v))
+ 
+ #define hdmi_read(s, r) adv748x_read(s, ADV748X_PAGE_HDMI, r)
+-#define hdmi_read16(s, r, m) (((hdmi_read(s, r) << 8) | hdmi_read(s, r+1)) & m)
++#define hdmi_read16(s, r, m) (((hdmi_read(s, r) << 8) | hdmi_read(s, (r)+1)) & (m))
+ #define hdmi_write(s, r, v) adv748x_write(s, ADV748X_PAGE_HDMI, r, v)
+ 
+ #define repeater_read(s, r) adv748x_read(s, ADV748X_PAGE_REPEATER, r)
+@@ -372,11 +372,11 @@ int adv748x_write_block(struct adv748x_s
+ 
+ #define sdp_read(s, r) adv748x_read(s, ADV748X_PAGE_SDP, r)
+ #define sdp_write(s, r, v) adv748x_write(s, ADV748X_PAGE_SDP, r, v)
+-#define sdp_clrset(s, r, m, v) sdp_write(s, r, (sdp_read(s, r) & ~m) | v)
++#define sdp_clrset(s, r, m, v) sdp_write(s, r, (sdp_read(s, r) & ~(m)) | (v))
+ 
+ #define cp_read(s, r) adv748x_read(s, ADV748X_PAGE_CP, r)
+ #define cp_write(s, r, v) adv748x_write(s, ADV748X_PAGE_CP, r, v)
+-#define cp_clrset(s, r, m, v) cp_write(s, r, (cp_read(s, r) & ~m) | v)
++#define cp_clrset(s, r, m, v) cp_write(s, r, (cp_read(s, r) & ~(m)) | (v))
+ 
+ #define txa_read(s, r) adv748x_read(s, ADV748X_PAGE_TXA, r)
+ #define txb_read(s, r) adv748x_read(s, ADV748X_PAGE_TXB, r)
 
 
