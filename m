@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC45A15C655
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB99415C653
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727978AbgBMP7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:59:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
+        id S1729014AbgBMP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:59:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728809AbgBMPYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:52 -0500
+        id S1728829AbgBMPYx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:53 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8622424693;
-        Thu, 13 Feb 2020 15:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A177246A4;
+        Thu, 13 Feb 2020 15:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607491;
-        bh=mI7qczRJxzPh+VQeXpN6CYxInWBEWQHtsA/oCIycgYo=;
+        s=default; t=1581607492;
+        bh=2oxY/CeXo6tpQqHA33WHFGYWV8gsqXM69By8VEJZBrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOIcjIMTs0b6xDSQQlJoHZvwEdt5vmGQnaorErW95FkZGJoiw6wM6x1oipRHq3JOM
-         3HepU9Zu04AHr9wqHD5oVI80lRTtfB81yH80a8qu8n71+LYGBE5yQE5t19uhlJGzSx
-         Qb0m1Tlrl6+GSNwi1k7Gg4lASjVc7ga8EvtMgEyo=
+        b=qInmNIhvBfznFIE2305GUoYwbWHRPI0oiJIOPkc2CSzIOHstlRMMYQItd+DqpCduf
+         cWoIGIn/+xOv6nkQ8soyXcM0f8I1H3yhRw2PvDOEuy5EYB7sUnWCZ2MHjGNAe5vfi0
+         6uPcIm22QprZx6TAYj2kHlZqeEuvUhbzU9NKYIv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        "zhangyi (F)" <yi.zhang@huawei.com>, Stable@vger.kernel.org,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.14 041/173] ubifs: Fix deadlock in concurrent bulk-read and writepage
-Date:   Thu, 13 Feb 2020 07:19:04 -0800
-Message-Id: <20200213151944.307212834@linuxfoundation.org>
+        stable@vger.kernel.org, Yurii Monakov <monakov.y@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 042/173] PCI: keystone: Fix link training retries initiation
+Date:   Thu, 13 Feb 2020 07:19:05 -0800
+Message-Id: <20200213151944.585298649@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -44,56 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Yurii Monakov <monakov.y@gmail.com>
 
-commit f5de5b83303e61b1f3fb09bd77ce3ac2d7a475f2 upstream.
+[ Upstream commit 6df19872d881641e6394f93ef2938cffcbdae5bb ]
 
-In ubifs, concurrent execution of writepage and bulk read on the same file
-may cause ABBA deadlock, for example (Reproduce method see Link):
+ks_pcie_stop_link() function does not clear LTSSM_EN_VAL bit so
+link training was not triggered more than once after startup.
+In configurations where link can be unstable during early boot,
+for example, under low temperature, it will never be established.
 
-Process A(Bulk-read starts from page4)         Process B(write page4 back)
-  vfs_read                                       wb_workfn or fsync
-  ...                                            ...
-  generic_file_buffered_read                     write_cache_pages
-    ubifs_readpage                                 LOCK(page4)
-
-      ubifs_bulk_read                              ubifs_writepage
-        LOCK(ui->ui_mutex)                           ubifs_write_inode
-
-	  ubifs_do_bulk_read                           LOCK(ui->ui_mutex)
-	    find_or_create_page(alloc page4)                  ↑
-	      LOCK(page4)                   <--     ABBA deadlock occurs!
-
-In order to ensure the serialization execution of bulk read, we can't
-remove the big lock 'ui->ui_mutex' in ubifs_bulk_read(). Instead, we
-allow ubifs_do_bulk_read() to lock page failed by replacing
-find_or_create_page(FGP_LOCK) with
-pagecache_get_page(FGP_LOCK | FGP_NOWAIT).
-
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Suggested-by: zhangyi (F) <yi.zhang@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Fixes: 4793e7c5e1c ("UBIFS: add bulk-read facility")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206153
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0c4ffcfe1fbc ("PCI: keystone: Add TI Keystone PCIe driver")
+Signed-off-by: Yurii Monakov <monakov.y@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Andrew Murray <andrew.murray@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pci/dwc/pci-keystone-dw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -797,7 +797,9 @@ static int ubifs_do_bulk_read(struct ubi
+diff --git a/drivers/pci/dwc/pci-keystone-dw.c b/drivers/pci/dwc/pci-keystone-dw.c
+index 2fb20b887d2a5..4cf2662930d86 100644
+--- a/drivers/pci/dwc/pci-keystone-dw.c
++++ b/drivers/pci/dwc/pci-keystone-dw.c
+@@ -510,7 +510,7 @@ void ks_dw_pcie_initiate_link_train(struct keystone_pcie *ks_pcie)
+ 	/* Disable Link training */
+ 	val = ks_dw_app_readl(ks_pcie, CMD_STATUS);
+ 	val &= ~LTSSM_EN_VAL;
+-	ks_dw_app_writel(ks_pcie, CMD_STATUS, LTSSM_EN_VAL | val);
++	ks_dw_app_writel(ks_pcie, CMD_STATUS, val);
  
- 		if (page_offset > end_index)
- 			break;
--		page = find_or_create_page(mapping, page_offset, ra_gfp_mask);
-+		page = pagecache_get_page(mapping, page_offset,
-+				 FGP_LOCK|FGP_ACCESSED|FGP_CREAT|FGP_NOWAIT,
-+				 ra_gfp_mask);
- 		if (!page)
- 			break;
- 		if (!PageUptodate(page))
+ 	/* Initiate Link Training */
+ 	val = ks_dw_app_readl(ks_pcie, CMD_STATUS);
+-- 
+2.20.1
+
 
 
