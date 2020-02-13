@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4DC215C4A2
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E70D315C3AD
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbgBMPtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:49:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47178 "EHLO mail.kernel.org"
+        id S1727707AbgBMPnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:43:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbgBMP0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:47 -0500
+        id S1729505AbgBMP1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:54 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A49C02465D;
-        Thu, 13 Feb 2020 15:26:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D43932465D;
+        Thu, 13 Feb 2020 15:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607606;
-        bh=ml6QscKtm4bBJ/vUH8hmDsJo0+uiqHtRTEA2EJWmucA=;
+        s=default; t=1581607674;
+        bh=Rz7lJTFMsK3PbyJvA7oCormXXhuf2NgqQc2/DqCu1hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwdlC02cjEy/lqDDTN+q4qnBuoJSw+5pOUD6OeDB+/bGElD7QNp0BZm3ZXXLFMqRg
-         Z8VArg+APvmfDSDRJ/r2B6n5MGjHTPoDfmgnm/H5n6Ttbw4wf7IWdAb2u6o3jHM+Ei
-         DAIABEwSGxQ2mJBJKWjtkznCsMqLsw3Y46qIJv7U=
+        b=fYMUasyo1wPSzIw8XrBGdHnCm4HiiO74II83N9jzISg9UW+Z/qy21wpE/2O54mQem
+         r/FIDGcCrtBSZvGY46RGJGAsaZhqXceFpbVS9ikT5P6J50xR80lBRs2R4SoofbUi3E
+         lV+atlyl+W9DXoEXpodVfQNXU2xv8m/wGz64jrrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qing Xu <m1s5p6688@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/52] mwifiex: Fix possible buffer overflows in mwifiex_ret_wmm_get_status()
-Date:   Thu, 13 Feb 2020 07:21:27 -0800
-Message-Id: <20200213151828.881124833@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Roullier <christophe.roullier@st.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.4 81/96] drivers: watchdog: stm32_iwdg: set WDOG_HW_RUNNING at probe
+Date:   Thu, 13 Feb 2020 07:21:28 -0800
+Message-Id: <20200213151909.676392504@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qing Xu <m1s5p6688@gmail.com>
+From: Christophe Roullier <christophe.roullier@st.com>
 
-[ Upstream commit 3a9b153c5591548612c3955c9600a98150c81875 ]
+commit 85fdc63fe256b595f923a69848cd99972ff446d8 upstream.
 
-mwifiex_ret_wmm_get_status() calls memcpy() without checking the
-destination size.Since the source is given from remote AP which
-contains illegal wmm elements , this may trigger a heap buffer
-overflow.
-Fix it by putting the length check before calling memcpy().
+If the watchdog hardware is already enabled during the boot process,
+when the Linux watchdog driver loads, it should start/reset the watchdog
+and tell the watchdog framework. As a result, ping can be generated from
+the watchdog framework (if CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is set),
+until the userspace watchdog daemon takes over control
 
-Signed-off-by: Qing Xu <m1s5p6688@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes:4332d113c66a ("watchdog: Add STM32 IWDG driver")
+
+Signed-off-by: Christophe Roullier <christophe.roullier@st.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20191122132246.8473-1-christophe.roullier@st.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/marvell/mwifiex/wmm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/watchdog/stm32_iwdg.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/wmm.c b/drivers/net/wireless/marvell/mwifiex/wmm.c
-index 64916ba15df5d..429ea2752e6aa 100644
---- a/drivers/net/wireless/marvell/mwifiex/wmm.c
-+++ b/drivers/net/wireless/marvell/mwifiex/wmm.c
-@@ -977,6 +977,10 @@ int mwifiex_ret_wmm_get_status(struct mwifiex_private *priv,
- 				    "WMM Parameter Set Count: %d\n",
- 				    wmm_param_ie->qos_info_bitmap & mask);
+--- a/drivers/watchdog/stm32_iwdg.c
++++ b/drivers/watchdog/stm32_iwdg.c
+@@ -262,6 +262,24 @@ static int stm32_iwdg_probe(struct platf
+ 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+ 	watchdog_init_timeout(wdd, 0, dev);
  
-+			if (wmm_param_ie->vend_hdr.len + 2 >
-+				sizeof(struct ieee_types_wmm_parameter))
-+				break;
++	/*
++	 * In case of CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is set
++	 * (Means U-Boot/bootloaders leaves the watchdog running)
++	 * When we get here we should make a decision to prevent
++	 * any side effects before user space daemon will take care of it.
++	 * The best option, taking into consideration that there is no
++	 * way to read values back from hardware, is to enforce watchdog
++	 * being run with deterministic values.
++	 */
++	if (IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) {
++		ret = stm32_iwdg_start(wdd);
++		if (ret)
++			return ret;
 +
- 			memcpy((u8 *) &priv->curr_bss_params.bss_descriptor.
- 			       wmm_ie, wmm_param_ie,
- 			       wmm_param_ie->vend_hdr.len + 2);
--- 
-2.20.1
-
++		/* Make sure the watchdog is serviced */
++		set_bit(WDOG_HW_RUNNING, &wdd->status);
++	}
++
+ 	ret = devm_watchdog_register_device(dev, wdd);
+ 	if (ret)
+ 		return ret;
 
 
