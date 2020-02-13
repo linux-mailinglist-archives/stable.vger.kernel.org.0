@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CEF315C1FD
+	by mail.lfdr.de (Postfix) with ESMTP id 0319A15C1FC
 	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729547AbgBMP2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53994 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729536AbgBMP2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729541AbgBMP2D (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Feb 2020 10:28:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54040 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728280AbgBMP2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:02 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FA63222C2;
-        Thu, 13 Feb 2020 15:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311AD20661;
+        Thu, 13 Feb 2020 15:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607681;
-        bh=Z0WUW3WebhFnMI1JtileyBhNCkLIzEIlAU4RtOpoYm4=;
+        s=default; t=1581607682;
+        bh=jOzQoKaNoUzmDAcE2f1lJ1Vju69MQpsJT9S2YdQl15U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYckIh3Ax/6ic8SPjdKNOsXFRN4QveWav0JasEkSh6YyrGM2HhlUxiQkewQcMQjAT
-         ETPUx6Y34pm83Nw6c1LmZABDi92rxiJSAMupvGivNHOtuWTV4EY7brJy2+GydRGIsj
-         rO/5tFnR1hmDh8zFFtPqytEz8e/0WVxdIgLkJ/bw=
+        b=yK71ba9IqR0fAa3OdcIy8bB9ANmaQvC1nVF1eNKPZYaGo7nReApyu/UEdJUMo441n
+         SdRnOwLrEDvhE9UJYehmovNI7EYAEd38enD8SMAhU34wMMF7oGVkkeFflD1Gy41tn2
+         eo8aW3nHR3To4f6Gv6YNqiVBOrv9I2bXvOSVEagM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Mark Haywood <mark.haywood@oracle.com>,
         =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Manjunath Patil <manjunath.b.patil@oracle.com>,
-        Rama Nichanamatlu <rama.nichanamatlu@oracle.com>,
-        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 004/120] IB/mlx4: Fix leak in id_map_find_del
-Date:   Thu, 13 Feb 2020 07:20:00 -0800
-Message-Id: <20200213151902.741710086@linuxfoundation.org>
+Subject: [PATCH 5.5 005/120] RDMA/netlink: Do not always generate an ACK for some netlink operations
+Date:   Thu, 13 Feb 2020 07:20:01 -0800
+Message-Id: <20200213151903.095079526@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -49,125 +47,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Håkon Bugge <haakon.bugge@oracle.com>
 
-commit ea660ad7c1c476fd6e5e3b17780d47159db71dea upstream.
+commit a242c36951ecd24bc16086940dbe6b522205c461 upstream.
 
-Using CX-3 virtual functions, either from a bare-metal machine or
-pass-through from a VM, MAD packets are proxied through the PF driver.
+In rdma_nl_rcv_skb(), the local variable err is assigned the return value
+of the supplied callback function, which could be one of
+ib_nl_handle_resolve_resp(), ib_nl_handle_set_timeout(), or
+ib_nl_handle_ip_res_resp(). These three functions all return skb->len on
+success.
 
-Since the VF drivers have separate name spaces for MAD Transaction Ids
-(TIDs), the PF driver has to re-map the TIDs and keep the book keeping in
-a cache.
+rdma_nl_rcv_skb() is merely a copy of netlink_rcv_skb(). The callback
+functions used by the latter have the convention: "Returns 0 on success or
+a negative error code".
 
-Following the RDMA Connection Manager (CM) protocol, it is clear when an
-entry has to evicted from the cache. When a DREP is sent from
-mlx4_ib_multiplex_cm_handler(), id_map_find_del() is called. Similar when
-a REJ is received by the mlx4_ib_demux_cm_handler(), id_map_find_del() is
-called.
+In particular, the statement (equal for both functions):
 
-This function wipes out the TID in use from the IDR or XArray and removes
-the id_map_entry from the table.
+   if (nlh->nlmsg_flags & NLM_F_ACK || err)
 
-In short, it does everything except the topping of the cake, which is to
-remove the entry from the list and free it. In other words, for the REJ
-case enumerated above, one id_map_entry will be leaked.
+implies that rdma_nl_rcv_skb() always will ack a message, independent of
+the NLM_F_ACK being set in nlmsg_flags or not.
 
-For the other case above, a DREQ has been received first. The reception of
-the DREQ will trigger queuing of a delayed work to delete the
-id_map_entry, for the case where the VM doesn't send back a DREP.
+The fix could be to change the above statement, but it is better to keep
+the two *_rcv_skb() functions equal in this respect and instead change the
+three callback functions in the rdma subsystem to the correct convention.
 
-In the normal case, the VM _will_ send back a DREP, and id_map_find_del()
-will be called.
-
-But this scenario introduces a secondary leak. First, when the DREQ is
-received, a delayed work is queued. The VM will then return a DREP, which
-will call id_map_find_del(). As stated above, this will free the TID used
-from the XArray or IDR. Now, there is window where that particular TID can
-be re-allocated, lets say by an outgoing REQ. This TID will later be wiped
-out by the delayed work, when the function id_map_ent_timeout() is
-called. But the id_map_entry allocated by the outgoing REQ will not be
-de-allocated, and we have a leak.
-
-Both leaks are fixed by removing the id_map_find_del() function and only
-using schedule_delayed(). Of course, a check in schedule_delayed() to see
-if the work already has been queued, has been added.
-
-Another benefit of always using the delayed version for deleting entries,
-is that we do get a TimeWait effect; a TID no longer in use, will occupy
-the XArray or IDR for CM_CLEANUP_CACHE_TIMEOUT time, without any ability
-of being re-used for that time period.
-
-Fixes: 3cf69cc8dbeb ("IB/mlx4: Add CM paravirtualization")
-Link: https://lore.kernel.org/r/20200123155521.1212288-1-haakon.bugge@oracle.com
+Fixes: 2ca546b92a02 ("IB/sa: Route SA pathrecord query through netlink")
+Fixes: ae43f8286730 ("IB/core: Add IP to GID netlink offload")
+Link: https://lore.kernel.org/r/20191216120436.3204814-1-haakon.bugge@oracle.com
+Suggested-by: Mark Haywood <mark.haywood@oracle.com>
 Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Manjunath Patil <manjunath.b.patil@oracle.com>
-Reviewed-by: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
-Reviewed-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Tested-by: Mark Haywood <mark.haywood@oracle.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx4/cm.c |   29 +++--------------------------
- 1 file changed, 3 insertions(+), 26 deletions(-)
+ drivers/infiniband/core/addr.c     |    2 +-
+ drivers/infiniband/core/sa_query.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/mlx4/cm.c
-+++ b/drivers/infiniband/hw/mlx4/cm.c
-@@ -186,23 +186,6 @@ out:
- 	kfree(ent);
+--- a/drivers/infiniband/core/addr.c
++++ b/drivers/infiniband/core/addr.c
+@@ -139,7 +139,7 @@ int ib_nl_handle_ip_res_resp(struct sk_b
+ 	if (ib_nl_is_good_ip_resp(nlh))
+ 		ib_nl_process_good_ip_rsep(nlh);
+ 
+-	return skb->len;
++	return 0;
  }
  
--static void id_map_find_del(struct ib_device *ibdev, int pv_cm_id)
--{
--	struct mlx4_ib_sriov *sriov = &to_mdev(ibdev)->sriov;
--	struct rb_root *sl_id_map = &sriov->sl_id_map;
--	struct id_map_entry *ent, *found_ent;
--
--	spin_lock(&sriov->id_map_lock);
--	ent = xa_erase(&sriov->pv_id_table, pv_cm_id);
--	if (!ent)
--		goto out;
--	found_ent = id_map_find_by_sl_id(ibdev, ent->slave_id, ent->sl_cm_id);
--	if (found_ent && found_ent == ent)
--		rb_erase(&found_ent->node, sl_id_map);
--out:
--	spin_unlock(&sriov->id_map_lock);
--}
--
- static void sl_id_map_add(struct ib_device *ibdev, struct id_map_entry *new)
- {
- 	struct rb_root *sl_id_map = &to_mdev(ibdev)->sriov.sl_id_map;
-@@ -294,7 +277,7 @@ static void schedule_delayed(struct ib_d
- 	spin_lock(&sriov->id_map_lock);
- 	spin_lock_irqsave(&sriov->going_down_lock, flags);
- 	/*make sure that there is no schedule inside the scheduled work.*/
--	if (!sriov->is_going_down) {
-+	if (!sriov->is_going_down && !id->scheduled_delete) {
- 		id->scheduled_delete = 1;
- 		schedule_delayed_work(&id->timeout, CM_CLEANUP_CACHE_TIMEOUT);
+ static int ib_nl_ip_send_msg(struct rdma_dev_addr *dev_addr,
+--- a/drivers/infiniband/core/sa_query.c
++++ b/drivers/infiniband/core/sa_query.c
+@@ -1068,7 +1068,7 @@ int ib_nl_handle_set_timeout(struct sk_b
  	}
-@@ -341,9 +324,6 @@ cont:
  
- 	if (mad->mad_hdr.attr_id == CM_DREQ_ATTR_ID)
- 		schedule_delayed(ibdev, id);
--	else if (mad->mad_hdr.attr_id == CM_DREP_ATTR_ID)
--		id_map_find_del(ibdev, pv_cm_id);
--
- 	return 0;
+ settimeout_out:
+-	return skb->len;
++	return 0;
  }
  
-@@ -382,12 +362,9 @@ int mlx4_ib_demux_cm_handler(struct ib_d
- 		*slave = id->slave_id;
- 	set_remote_comm_id(mad, id->sl_cm_id);
+ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
+@@ -1139,7 +1139,7 @@ int ib_nl_handle_resolve_resp(struct sk_
+ 	}
  
--	if (mad->mad_hdr.attr_id == CM_DREQ_ATTR_ID)
-+	if (mad->mad_hdr.attr_id == CM_DREQ_ATTR_ID ||
-+	    mad->mad_hdr.attr_id == CM_REJ_ATTR_ID)
- 		schedule_delayed(ibdev, id);
--	else if (mad->mad_hdr.attr_id == CM_REJ_ATTR_ID ||
--			mad->mad_hdr.attr_id == CM_DREP_ATTR_ID) {
--		id_map_find_del(ibdev, (int) pv_cm_id);
--	}
- 
- 	return 0;
+ resp_out:
+-	return skb->len;
++	return 0;
  }
+ 
+ static void free_sm_ah(struct kref *kref)
 
 
