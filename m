@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0349015C1E0
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A9F15C16E
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729367AbgBMP1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:27:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S1728299AbgBMPXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729360AbgBMP1T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:19 -0500
+        id S1728295AbgBMPXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:12 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B75924676;
-        Thu, 13 Feb 2020 15:27:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FD5724693;
+        Thu, 13 Feb 2020 15:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607638;
-        bh=0Wyzm8prTXdxcC5qKMuthwEvTdxOmhJ2ohgnlYe8qGk=;
+        s=default; t=1581607391;
+        bh=te01ZD4LbuBprhp+ViV8jD2DV5gshQV40JjHVD/CQiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgGmTP7QYcDr+iKJYS8Cb5W1FQBv+lIs6Oyffc+o+mD8c4xgef5SxQl7ZJSeN/SJo
-         xfubhQYDFShLV0vYK3GafsBTIf6mys5BGVsXhbozMroVFMs/94hMS2vi8+WB+j6MAf
-         d/69td3WSUSHonM56AltCOCeDKASifKlyjcffR3o=
+        b=XREX05Qf4rSH4yl6jRPiJsSsi+pB6xw8kuS1gaq3z+lsrw+/dt8edGg8QLNF8KD0Y
+         3SQHaF/NAQlZw17S1HpSn48YR4sjyxsXDCbPDSx0lnBUp5sqvoyoriR+OsjwYdl69f
+         seKwXGqY3yLQXYiZc3j89HlEty/PiXe5hLuWAFzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>
-Subject: [PATCH 5.4 26/96] bpf, sockmap: Check update requirements after locking
-Date:   Thu, 13 Feb 2020 07:20:33 -0800
-Message-Id: <20200213151849.209731823@linuxfoundation.org>
+        stable@vger.kernel.org, Asutosh Das <asutoshd@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 80/91] scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
+Date:   Thu, 13 Feb 2020 07:20:37 -0800
+Message-Id: <20200213151853.863070644@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Bean Huo <beanhuo@micron.com>
 
-commit 85b8ac01a421791d66c3a458a7f83cfd173fe3fa upstream.
+commit b9fc5320212efdfb4e08b825aaa007815fd11d16 upstream.
 
-It's currently possible to insert sockets in unexpected states into
-a sockmap, due to a TOCTTOU when updating the map from a syscall.
-sock_map_update_elem checks that sk->sk_state == TCP_ESTABLISHED,
-locks the socket and then calls sock_map_update_common. At this
-point, the socket may have transitioned into another state, and
-the earlier assumptions don't hold anymore. Crucially, it's
-conceivable (though very unlikely) that a socket has become unhashed.
-This breaks the sockmap's assumption that it will get a callback
-via sk->sk_prot->unhash.
+A non-zero error value likely being returned by ufshcd_scsi_add_wlus() in
+case of failure of adding the WLs, but ufshcd_probe_hba() doesn't use this
+value, and doesn't report this failure to upper caller.  This patch is to
+fix this issue.
 
-Fix this by checking the (fixed) sk_type and sk_protocol without the
-lock, followed by a locked check of sk_state.
-
-Unfortunately it's not possible to push the check down into
-sock_(map|hash)_update_common, since BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB
-run before the socket has transitioned from TCP_SYN_RECV into
-TCP_ESTABLISHED.
-
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20200207103713.28175-1-lmb@cloudflare.com
+Fixes: 2a8fa600445c ("ufs: manually add well known logical units")
+Link: https://lore.kernel.org/r/20200120130820.1737-2-huobean@gmail.com
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/sock_map.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/scsi/ufs/ufshcd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -417,14 +417,16 @@ static int sock_map_update_elem(struct b
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (!sock_map_sk_is_suitable(sk) ||
--	    sk->sk_state != TCP_ESTABLISHED) {
-+	if (!sock_map_sk_is_suitable(sk)) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
- 	}
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4324,7 +4324,8 @@ static int ufshcd_probe_hba(struct ufs_h
+ 			ufshcd_init_icc_levels(hba);
  
- 	sock_map_sk_acquire(sk);
--	ret = sock_map_update_common(map, idx, sk, flags);
-+	if (sk->sk_state != TCP_ESTABLISHED)
-+		ret = -EOPNOTSUPP;
-+	else
-+		ret = sock_map_update_common(map, idx, sk, flags);
- 	sock_map_sk_release(sk);
- out:
- 	fput(sock->file);
-@@ -740,14 +742,16 @@ static int sock_hash_update_elem(struct
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (!sock_map_sk_is_suitable(sk) ||
--	    sk->sk_state != TCP_ESTABLISHED) {
-+	if (!sock_map_sk_is_suitable(sk)) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
- 	}
+ 		/* Add required well known logical units to scsi mid layer */
+-		if (ufshcd_scsi_add_wlus(hba))
++		ret = ufshcd_scsi_add_wlus(hba);
++		if (ret)
+ 			goto out;
  
- 	sock_map_sk_acquire(sk);
--	ret = sock_hash_update_common(map, key, sk, flags);
-+	if (sk->sk_state != TCP_ESTABLISHED)
-+		ret = -EOPNOTSUPP;
-+	else
-+		ret = sock_hash_update_common(map, key, sk, flags);
- 	sock_map_sk_release(sk);
- out:
- 	fput(sock->file);
+ 		scsi_scan_host(hba->host);
 
 
