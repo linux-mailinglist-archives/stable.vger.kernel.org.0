@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FBEB15C6DC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0071D15C5FE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388086AbgBMQEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:04:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36444 "EHLO mail.kernel.org"
+        id S1728601AbgBMP4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:56:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728566AbgBMPYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:00 -0500
+        id S1729028AbgBMPZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:30 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E71FE24699;
-        Thu, 13 Feb 2020 15:23:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D544324689;
+        Thu, 13 Feb 2020 15:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607440;
-        bh=/O/Q4FG/rgon6u0qtaJpJXjl/VmEOXvI7NIDBPba6es=;
+        s=default; t=1581607530;
+        bh=wgQjZs1ddBRdFqlffXn/FGMRtYF9eRuUuRtsGAyWpRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMLqP6/rG+F6bI7WTdE6d7xNw2eJnzF+DpeLGcsJDbpibyaFcBzFUOR9SZ6dfPlVs
-         G2oIYCI+UJpSMUW/3TQ8Ycj4NdxS+zFnxQX/ka+QbVd8GFL253wVY3OrWwpTrttbHd
-         p/mXWHtGH2FdugvltnAWhspoeTMrQW3JBatBjUsI=
+        b=JL4XUPy4caXk4AWI4Sc90zRtRE77BwqPDAKX9m9Q3hp95Qg9kbbBUakFTtnPQJOg3
+         VdZTu+VB35qTt9Hw4U65mR/NdZ8CpkhreeqBXvl2oAgcmGSz2sdvU7OfYFo9PB0eV1
+         g+fOmkknFZbOJzk5d5frdt79KvgcRghB2PZTAtw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 060/116] scsi: qla4xxx: Adjust indentation in qla4xxx_mem_free
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 101/173] ppp: Adjust indentation into ppp_async_input
 Date:   Thu, 13 Feb 2020 07:20:04 -0800
-Message-Id: <20200213151906.283020734@linuxfoundation.org>
+Message-Id: <20200213151958.259769711@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +46,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit aa8679736a82386551eb9f3ea0e6ebe2c0e99104 upstream.
+commit 08cbc75f96029d3092664213a844a5e25523aa35 upstream.
 
 Clang warns:
 
-../drivers/scsi/qla4xxx/ql4_os.c:4148:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-         if (ha->fw_dump)
-         ^
-../drivers/scsi/qla4xxx/ql4_os.c:4144:2: note: previous statement is
-here
-        if (ha->queues)
-        ^
+../drivers/net/ppp/ppp_async.c:877:6: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                ap->rpkt = skb;
+                                ^
+../drivers/net/ppp/ppp_async.c:875:5: note: previous statement is here
+                                if (!skb)
+                                ^
 1 warning generated.
 
-This warning occurs because there is a space after the tab on this
-line.  Remove it so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
+This warning occurs because there is a space before the tab on this
+line. Clean up this entire block's indentation so that it is consistent
+with the Linux kernel coding style and clang no longer warns.
 
-Fixes: 068237c87c64 ("[SCSI] qla4xxx: Capture minidump for ISP82XX on firmware failure")
-Link: https://github.com/ClangBuiltLinux/linux/issues/819
-Link: https://lore.kernel.org/r/20191218015252.20890-1-natechancellor@gmail.com
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: 6722e78c9005 ("[PPP]: handle misaligned accesses")
+Link: https://github.com/ClangBuiltLinux/linux/issues/800
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla4xxx/ql4_os.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ppp/ppp_async.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -4150,7 +4150,7 @@ static void qla4xxx_mem_free(struct scsi
- 		dma_free_coherent(&ha->pdev->dev, ha->queues_len, ha->queues,
- 				  ha->queues_dma);
- 
--	 if (ha->fw_dump)
-+	if (ha->fw_dump)
- 		vfree(ha->fw_dump);
- 
- 	ha->queues_len = 0;
+--- a/drivers/net/ppp/ppp_async.c
++++ b/drivers/net/ppp/ppp_async.c
+@@ -878,15 +878,15 @@ ppp_async_input(struct asyncppp *ap, con
+ 				skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2);
+ 				if (!skb)
+ 					goto nomem;
+- 				ap->rpkt = skb;
+- 			}
+- 			if (skb->len == 0) {
+- 				/* Try to get the payload 4-byte aligned.
+- 				 * This should match the
+- 				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
+- 				 * process_input_packet, but we do not have
+- 				 * enough chars here to test buf[1] and buf[2].
+- 				 */
++				ap->rpkt = skb;
++			}
++			if (skb->len == 0) {
++				/* Try to get the payload 4-byte aligned.
++				 * This should match the
++				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
++				 * process_input_packet, but we do not have
++				 * enough chars here to test buf[1] and buf[2].
++				 */
+ 				if (buf[0] != PPP_ALLSTATIONS)
+ 					skb_reserve(skb, 2 + (buf[0] & 1));
+ 			}
 
 
