@@ -2,141 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE82515CDD8
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 23:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2B915CE0C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 23:27:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727722AbgBMWK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 17:10:29 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:41598 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726780AbgBMWK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 17:10:28 -0500
-Received: by mail-wr1-f66.google.com with SMTP id c9so8649122wrw.8
-        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 14:10:27 -0800 (PST)
+        id S1727347AbgBMW1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 17:27:36 -0500
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:36132 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726780AbgBMW1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 17:27:35 -0500
+Received: by mail-pj1-f65.google.com with SMTP id gv17so3045011pjb.1;
+        Thu, 13 Feb 2020 14:27:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Jea2sP8dGKdVajoaWKqLhJyEyySTIMYiO+2gtVhdfd8=;
-        b=uKhvGS9J4Z/WdL9lBP2Qpc2fNXFCfXgpXkaXL5puTgGh6CvbZZCil75UrOa3f9eVJQ
-         1gUCa8a+j6DwHW7ORsZu1Tu0FaI3vIQzhtWzzlUAM1PxPxLEhLtciVxxRDQ5Poiqv4cj
-         hDyd8foiLj4refO42h3k0J984h2i2FCbFTeAoAaIZ+u9ll9bRyyiUiCz6BIhQCHKCmJw
-         axnkxnhPxi1Gds/0jj3aiSe1ba7t9Hl9iqroH6RMIJd+3GjtSg6ugW+a3Dmx6bqhMmmc
-         u+qe3tLudZv0RNiXjSuQ4MLzy4j4ySyKee8CIEbNuljo8LDCsn54aaPn3c1+BbJtQEsa
-         gq0w==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=PTOvmX++Ot7D+SDBSFFIqqTI+TOj77rI5cOlwAJFUtU=;
+        b=r5UlR2alyeO348xdmUtZ9Cp+xvhwFTl2j1ZYVj5aEzB+SwDEJaVuKrv12DpVYZx5MK
+         t2a1uftgQ5hShMJh1Mrl+Htoifr7oQVOYiz+IN3ExK5J2iTZ0gUSqL+8kR1eG58ZM0qO
+         nQOZrkxvBrFfLWbPz+ljlANNxLxxH+6VqsTqZbe271dp5ixbbURyW2hAOvRMAKmFON1I
+         0CwU8tO7zt9YdWlCNihOuP6xo7iLAhNAYktxBwryowYxVzHObjSv4jaVQaS/hibPfFOp
+         ExYspDfHJ5qI4CT/biOf2pVLtbhKxjSpZ/NvvUOv2Vyk5nF1/gCvJTjPQOKrTnYyQYD5
+         FUZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Jea2sP8dGKdVajoaWKqLhJyEyySTIMYiO+2gtVhdfd8=;
-        b=eMHTZ8gE8vPHJpG681yL/QUOIm2/bm55ri3HA8ERaSEBKVq9KP+T/acibwZqFp5cAf
-         v6VgAJVeJhU9ghnPODZRPtb+MkLETIvlJtk+Bp7AhWVQJ8y4pj1BtfjinaZSo9oGeCaW
-         o6zbm0bNv5mUvFP1XlYqDfMe6b5iKQ2Xbkag+eGC61qKxjCWk+tUnjf0jSwSwbIdAQrp
-         unMMhIpzAyw9b7J58vdU0YP4DK/Q/sengGEGN5licCCYBjJeQudpb+tYHIpGC4vN7mBd
-         C1dGuvfUzypEvpVBLoeiE/UoSwftjUrp4LMxkHFzhGo26QvgRAd7D8abSVYcDRNAqASW
-         wOeg==
-X-Gm-Message-State: APjAAAWZ80ngq8c10750urn4FD08rNCfCXmO1zL+qPGiWlCdeiNLUnA7
-        YiG+auPOZnnIujNXeohwV25p7CP/H86W1Q==
-X-Google-Smtp-Source: APXvYqxyWpLd3WoOkwkMlI35FGZEJ3mDd1JxQPfLicu+DACC4PYZZDSwOeVNECMS4bG/qpGZhyv0rQ==
-X-Received: by 2002:adf:ee0b:: with SMTP id y11mr23457839wrn.62.1581631827015;
-        Thu, 13 Feb 2020 14:10:27 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w13sm4654762wru.38.2020.02.13.14.10.26
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Feb 2020 14:10:26 -0800 (PST)
-Message-ID: <5e45c952.1c69fb81.281e8.5111@mx.google.com>
-Date:   Thu, 13 Feb 2020 14:10:26 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=PTOvmX++Ot7D+SDBSFFIqqTI+TOj77rI5cOlwAJFUtU=;
+        b=QRa1xxlXCu/U0h003GpSDnraZyS5q+UR6y+uMyY8RfpV5X0/bPxY2R+707tP1MPtbe
+         /Hbn5mXmyt28ffWB9bqxuCdsdSqTYsW1bZHDcxmvCFwI8LuNpjudYJvxd8TYPUCLrg2b
+         BBxPI+kb3JFHGo1FTnVlYw0c4Z6ZLwl4WbdiXIn9KYMnHFg7Pf2N0TeQPPBn959pe6Nn
+         O+Z3hLYzh0Gic98swvkjdM1iszK01NwNNsdHOzadgPQGYf/ATbD6WFq3J3QCJTx+hJTt
+         o6YjRm+tCl8VU8qQgrkLsYb2ksNVM7tZsuEZSoITlfLRJJXB80adiu3AGaJ9mbkrGtNL
+         sGZQ==
+X-Gm-Message-State: APjAAAX2my9/fkHpSlVaYTLwi/nra4XSSwY4jUhHFv48ipw0BrISWFLR
+        4hKvCrNFQBhgDidJJiSw1Z8=
+X-Google-Smtp-Source: APXvYqwewiPN8d2fd5zsHsGWxKEnFQXYATEI8A5xKLudpLMBwuj3hG213YUe3ciUrEYjR0Dw10TMuw==
+X-Received: by 2002:a17:90a:b008:: with SMTP id x8mr7877313pjq.106.1581632855191;
+        Thu, 13 Feb 2020 14:27:35 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b42sm3737747pjc.27.2020.02.13.14.27.33
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 13 Feb 2020 14:27:34 -0800 (PST)
+Date:   Thu, 13 Feb 2020 14:27:32 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
+Message-ID: <20200213222732.GA20637@roeck-us.net>
+References: <20200213151839.156309910@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.19-98-gdfae536f94c2
-Subject: stable-rc/linux-5.4.y boot: 140 boots: 2 failed,
- 132 passed with 5 offline, 1 untried/unknown (v5.4.19-98-gdfae536f94c2)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 140 boots: 2 failed, 132 passed with 5 offline,=
- 1 untried/unknown (v5.4.19-98-gdfae536f94c2)
+On Thu, Feb 13, 2020 at 07:20:07AM -0800, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.20 release.
+> There are 96 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
+> Anything received after that time might be too late.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.19-98-gdfae536f94c2/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.19-98-gdfae536f94c2/
+Build reference: v5.4.19-98-gdfae536f94c2
+gcc version: powerpc64-linux-gcc (GCC) 9.2.0
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.19-98-gdfae536f94c2
-Git Commit: dfae536f94c22d5fd109d5db73cd5ed7245a764c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 89 unique boards, 24 SoC families, 14 builds out of 135
+Building powerpc:defconfig ... failed
+--------------
+Error log:
+drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
+ 1570 | static const struct regmap_config regmap_config = {
 
-Boot Regressions Detected:
+Bisect log below. Looks like the the definition of "not needed"
+needs an update.
 
-arm:
+v5.5.y has the same problem.
 
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v5.4.18-310-ga28430b852=
-9b)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 5 days (last pass: v5.4.1=
-7-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.19)
-          meson-gxl-s805x-p241:
-              lab-baylibre: new failure (last pass: v5.4.19)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
+Guenter
 
 ---
-For more info write to <info@kernelci.org>
+# bad: [dfae536f94c22d5fd109d5db73cd5ed7245a764c] Linux 5.4.20-rc1
+# good: [d6591ea2dd1a44b1c72c5a3e3b6555d7585acdae] Linux 5.4.19
+git bisect start 'HEAD' 'v5.4.19'
+# bad: [f52a8d450b1431b775d993cd8586f0cfd5fe25e1] ARM: dts: at91: sama5d3: fix maximum peripheral clock rates
+git bisect bad f52a8d450b1431b775d993cd8586f0cfd5fe25e1
+# good: [99323d91be3464a8ff87c7b16c72e7134b7b5075] selftests/bpf: Test freeing sockmap/sockhash with a socket in it
+git bisect good 99323d91be3464a8ff87c7b16c72e7134b7b5075
+# bad: [4ece240000532dbe0628f28f3f5466ed4091613b] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
+git bisect bad 4ece240000532dbe0628f28f3f5466ed4091613b
+# good: [3a0805bedf5a29ff659d82b34ccf8f393820a5f1] NFS: Fix fix of show_nfs_errors
+git bisect good 3a0805bedf5a29ff659d82b34ccf8f393820a5f1
+# good: [bd35cae202fa94fe8349ea63ea082f190b31692c] NFSv4.0: nfs4_do_fsinfo() should not do implicit lease renewals
+git bisect good bd35cae202fa94fe8349ea63ea082f190b31692c
+# good: [d052da5a3c584de39b4b74176b37925d58ab4239] rtc: hym8563: Return -EINVAL if the time is known to be invalid
+git bisect good d052da5a3c584de39b4b74176b37925d58ab4239
+# first bad commit: [4ece240000532dbe0628f28f3f5466ed4091613b] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
