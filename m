@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 655C315C5CF
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF4315C5C6
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbgBMPZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39674 "EHLO mail.kernel.org"
+        id S1728797AbgBMPYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:24:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728417AbgBMPZB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:01 -0500
+        id S1728808AbgBMPYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:50 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67836246A4;
-        Thu, 13 Feb 2020 15:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B97624689;
+        Thu, 13 Feb 2020 15:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607500;
-        bh=x/XNKUFPLS3neS+LDoNIiq/pjbpPs7OtyRIHTd6zdl0=;
+        s=default; t=1581607490;
+        bh=ON+3G+hJbKkT+2LuEtLzWfkjK9GflaxmVD4AfwgcIZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dSnA5phARhJZmPBQRvBFBr2aJKS5U8ZiYruK6TMhLc9XtTyMlqqa1EiplrwhO27vA
-         k1I2nmlapQ39mKA3yCPK6UKVYN7gtqyqrb1/lh7FwuBiwqe1hPg1+g8xLxfDLhA6dD
-         Pn0Shoy/VcXktazsdPSXodHlNBt8wy3UUsCIM7Ug=
+        b=i3Ho+CUOEMhe911I6NreX1/KE34pzBfC5RZHis+jsHDdElrqrEKkdTmvjcvR4Cpdg
+         81JTM9J3VhYVGo4IaRvzs5+wW+z0ZXJWfWUzzwx6hpKQ+kLME6Vg79wQnfSxaz+6Y9
+         F3BusYmj0lUQ+AfqfpsL6lz1btLW8hY3rzuLR2vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 037/173] ACPI: video: Do not export a non working backlight interface on MSI MS-7721 boards
-Date:   Thu, 13 Feb 2020 07:19:00 -0800
-Message-Id: <20200213151943.327388407@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 039/173] ubifs: Reject unsupported ioctl flags explicitly
+Date:   Thu, 13 Feb 2020 07:19:02 -0800
+Message-Id: <20200213151943.789180373@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -43,59 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit d21a91629f4b8e794fc4c0e0c17c85cedf1d806c upstream.
+commit 2fe8b2d5578d7d142982e3bf62e4c0caf8b8fe02 upstream.
 
-Despite our heuristics to not wrongly export a non working ACPI backlight
-interface on desktop machines, we still end up exporting one on desktops
-using a motherboard from the MSI MS-7721 series.
+Reject unsupported ioctl flags explicitly, so the following command
+on a regular ubifs file will fail:
+	chattr +d ubifs_file
 
-I've looked at improving the heuristics, but in this case a quirk seems
-to be the only way to solve this.
+And xfstests generic/424 will pass.
 
-While at it also add a comment to separate the video_detect_force_none
-entries in the video_detect_dmi_table from other type of entries, as we
-already do for the other entry types.
-
-Cc: All applicable <stable@vger.kernel.org>
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1783786
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/video_detect.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/ubifs/ioctl.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -328,6 +328,11 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Precision 7510"),
- 		},
- 	},
+--- a/fs/ubifs/ioctl.c
++++ b/fs/ubifs/ioctl.c
+@@ -28,6 +28,11 @@
+ #include <linux/mount.h>
+ #include "ubifs.h"
+ 
++/* Need to be kept consistent with checked flags in ioctl2ubifs() */
++#define UBIFS_SUPPORTED_IOCTL_FLAGS \
++	(FS_COMPR_FL | FS_SYNC_FL | FS_APPEND_FL | \
++	 FS_IMMUTABLE_FL | FS_DIRSYNC_FL)
 +
-+	/*
-+	 * Desktops which falsely report a backlight and which our heuristics
-+	 * for this do not catch.
-+	 */
- 	{
- 	 .callback = video_detect_force_none,
- 	 .ident = "Dell OptiPlex 9020M",
-@@ -336,6 +341,14 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 9020M"),
- 		},
- 	},
-+	{
-+	 .callback = video_detect_force_none,
-+	 .ident = "MSI MS-7721",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "MSI"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "MS-7721"),
-+		},
-+	},
- 	{ },
- };
+ /**
+  * ubifs_set_inode_flags - set VFS inode flags.
+  * @inode: VFS inode to set flags for
+@@ -166,6 +171,9 @@ long ubifs_ioctl(struct file *file, unsi
+ 		if (get_user(flags, (int __user *) arg))
+ 			return -EFAULT;
+ 
++		if (flags & ~UBIFS_SUPPORTED_IOCTL_FLAGS)
++			return -EOPNOTSUPP;
++
+ 		if (!S_ISDIR(inode->i_mode))
+ 			flags &= ~FS_DIRSYNC_FL;
  
 
 
