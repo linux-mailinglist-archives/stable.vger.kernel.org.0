@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 567CA15C211
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:29:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0BD15C1CA
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729344AbgBMP2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57108 "EHLO mail.kernel.org"
+        id S2387575AbgBMP03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728414AbgBMP2u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:50 -0500
+        id S2387564AbgBMP02 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:28 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5CEA2465D;
-        Thu, 13 Feb 2020 15:28:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22D3420661;
+        Thu, 13 Feb 2020 15:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607730;
-        bh=vF3vpiJfV5jRF2elPwqFz17RlyJWH7ft1gujGBsgYYU=;
+        s=default; t=1581607588;
+        bh=+8K9qALO+PnHir5xlA2IA3S4gSUrvcUcxgqPV0CBVvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6SMki5fdIEjMBYyqlA9N0M94YdYG4F93C5eP7TLMnK8CYqK5aP8KERV1vwbbmaxy
-         7itek2APbzpOZMSQSg/JfvTHYyMOsG28872D4LYoqh11wE51ENIIuBpIAz3QcRZSvo
-         0gmLgQiom5wQyTAnomf9K44PgpGAlWtNTFJ0RHdc=
+        b=jsWRGKSkcQQ2IU5ek20Bk6EoO6YQEn9pLLuXnni1UJCus9Qjpa7hZLrMyY+pjDYy8
+         gmdVW+7FnWRTD7KC09mi3PipahLPldERUVFTp79HMJqYxrencecSU7Nl8t2DRi4Zyx
+         k8aqb3TPUo58DLAKl1T0Zj1eieoezCHsjuUXVpLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.5 051/120] watchdog: qcom: Use platform_get_irq_optional() for bark irq
-Date:   Thu, 13 Feb 2020 07:20:47 -0800
-Message-Id: <20200213151919.340210137@linuxfoundation.org>
+        stable@vger.kernel.org, Asutosh Das <asutoshd@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 07/52] scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
+Date:   Thu, 13 Feb 2020 07:20:48 -0800
+Message-Id: <20200213151813.630401481@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Bean Huo <beanhuo@micron.com>
 
-commit e0b4f4e0cf7fa9d62628d4249c765ec18dffd143 upstream.
+commit b9fc5320212efdfb4e08b825aaa007815fd11d16 upstream.
 
-platform_get_irq() prints an error message when the interrupt
-is not available. So on platforms where bark interrupt is
-not specified, following error message is observed on SDM845.
+A non-zero error value likely being returned by ufshcd_scsi_add_wlus() in
+case of failure of adding the WLs, but ufshcd_probe_hba() doesn't use this
+value, and doesn't report this failure to upper caller.  This patch is to
+fix this issue.
 
-[    2.975888] qcom_wdt 17980000.watchdog: IRQ index 0 not found
-
-This is also seen on SC7180, SM8150 SoCs as well.
-Fix this by using platform_get_irq_optional() instead.
-
-Fixes: 36375491a4395654 ("watchdog: qcom: support pre-timeout when the bark irq is available")
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20191213064934.4112-1-saiprakash.ranjan@codeaurora.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: 2a8fa600445c ("ufs: manually add well known logical units")
+Link: https://lore.kernel.org/r/20200120130820.1737-2-huobean@gmail.com
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/qcom-wdt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -246,7 +246,7 @@ static int qcom_wdt_probe(struct platfor
- 	}
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6685,7 +6685,8 @@ static int ufshcd_probe_hba(struct ufs_h
+ 			ufshcd_init_icc_levels(hba);
  
- 	/* check if there is pretimeout support */
--	irq = platform_get_irq(pdev, 0);
-+	irq = platform_get_irq_optional(pdev, 0);
- 	if (irq > 0) {
- 		ret = devm_request_irq(dev, irq, qcom_wdt_isr,
- 				       IRQF_TRIGGER_RISING,
+ 		/* Add required well known logical units to scsi mid layer */
+-		if (ufshcd_scsi_add_wlus(hba))
++		ret = ufshcd_scsi_add_wlus(hba);
++		if (ret)
+ 			goto out;
+ 
+ 		/* Initialize devfreq after UFS device is detected */
 
 
