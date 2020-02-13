@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B11515BC23
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 10:52:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AAD315BC21
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 10:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729754AbgBMJwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729877AbgBMJwN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Feb 2020 04:52:13 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:39394 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:39396 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729632AbgBMJwM (ORCPT
+        with ESMTP id S1729875AbgBMJwM (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 04:52:12 -0500
 Received: from 1.general.smb.uk.vpn ([10.172.193.28] helo=canonical.com)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <stefan.bader@canonical.com>)
-        id 1j2BAJ-00059O-9v; Thu, 13 Feb 2020 09:52:11 +0000
+        id 1j2BAJ-00059T-QS; Thu, 13 Feb 2020 09:52:11 +0000
 From:   Stefan Bader <stefan.bader@canonical.com>
 To:     stable@vger.kernel.org, snitzer@redhat.com
-Subject: [PATCH 4.9.y] dm: fix potential for q->make_request_fn NULL pointer
-Date:   Thu, 13 Feb 2020 10:52:08 +0100
-Message-Id: <20200213095209.30560-3-stefan.bader@canonical.com>
+Subject: [PATCH 4.4.y] dm: fix potential for q->make_request_fn NULL pointer
+Date:   Thu, 13 Feb 2020 10:52:09 +0100
+Message-Id: <20200213095209.30560-4-stefan.bader@canonical.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200213095209.30560-1-stefan.bader@canonical.com>
 References: <20200213095209.30560-1-stefan.bader@canonical.com>
@@ -50,25 +50,26 @@ Depends-on: c12c9a3c3860c ("dm: various cleanups to md->queue initialization cod
 Cc: stable@vger.kernel.org
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 [smb: adjusted for context and dm_init_md_queue() exitsting in older
-      kernels, and congested_data embedded in backing_dev_info]
+      kernels, and congested_data embedded in backing_dev_info, and
+      dm_init_normal_md_queue() was called dm_init_old_md_queue()]
 Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
 ---
  drivers/md/dm.c | 9 +++++++--
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 36e6221fabab..dd154027adc9 100644
+index c752c55f0bb2..c4d4cd38a58f 100644
 --- a/drivers/md/dm.c
 +++ b/drivers/md/dm.c
-@@ -1457,7 +1457,6 @@ void dm_init_md_queue(struct mapped_device *md)
+@@ -2293,7 +2293,6 @@ static void dm_init_md_queue(struct mapped_device *md)
  	 * - must do so here (in alloc_dev callchain) before queue is used
  	 */
  	md->queue->queuedata = md;
 -	md->queue->backing_dev_info.congested_data = md;
  }
  
- void dm_init_normal_md_queue(struct mapped_device *md)
-@@ -1468,6 +1467,7 @@ void dm_init_normal_md_queue(struct mapped_device *md)
+ static void dm_init_old_md_queue(struct mapped_device *md)
+@@ -2304,6 +2303,7 @@ static void dm_init_old_md_queue(struct mapped_device *md)
  	/*
  	 * Initialize aspects of queue that aren't relevant for blk-mq
  	 */
@@ -76,7 +77,7 @@ index 36e6221fabab..dd154027adc9 100644
  	md->queue->backing_dev_info.congested_fn = dm_any_congested;
  	blk_queue_bounce_limit(md->queue, BLK_BOUNCE_ANY);
  }
-@@ -1555,6 +1555,12 @@ static struct mapped_device *alloc_dev(int minor)
+@@ -2386,6 +2386,12 @@ static struct mapped_device *alloc_dev(int minor)
  		goto bad;
  
  	dm_init_md_queue(md);
@@ -87,12 +88,12 @@ index 36e6221fabab..dd154027adc9 100644
 +	 */
 +	blk_queue_make_request(md->queue, dm_make_request);
  
- 	md->disk = alloc_disk_node(1, numa_node_id);
+ 	md->disk = alloc_disk(1);
  	if (!md->disk)
-@@ -1853,7 +1859,6 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
+@@ -2849,7 +2855,6 @@ int dm_setup_md_queue(struct mapped_device *md)
+ 		break;
  	case DM_TYPE_BIO_BASED:
- 	case DM_TYPE_DAX_BIO_BASED:
- 		dm_init_normal_md_queue(md);
+ 		dm_init_old_md_queue(md);
 -		blk_queue_make_request(md->queue, dm_make_request);
  		/*
  		 * DM handles splitting bios as needed.  Free the bio_split bioset
