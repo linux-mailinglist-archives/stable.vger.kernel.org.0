@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9982415C1F9
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F5E15C1FB
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729529AbgBMP17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:27:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53522 "EHLO mail.kernel.org"
+        id S1729099AbgBMP2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729524AbgBMP16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:58 -0500
+        id S1729522AbgBMP15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:57 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0A3A20661;
-        Thu, 13 Feb 2020 15:27:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0513924670;
+        Thu, 13 Feb 2020 15:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581607677;
-        bh=XNDD2meNX5BtVFSvRvL9MggIIc57XvcHUhfEtjDcsms=;
+        bh=laid7J5sQfr4zc5dfFYayIFp5SqBhYxHplp0Qg+Sfbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzyq6GXvYQsCGg7P21Ak+ICWQ3r0VKHG1XceukkSYpzImWU84TxJvztOQAgXFNQCc
-         HTuPS91MJ6CIQZdlFcqg6vgRhlrwepu51FqbYb9utysxKKYtdqTMPUkVw2CSToKmZX
-         +QuSRgDc7rJUiGwdgUa80xEcds5ARgIyR9Yo37JM=
+        b=zQjja0pDZitXl+RZcn5esNlXlgG0kEN2QvC4trQbCWr3FpzZvR1oFMKZnirfKdkkr
+         /8oMzkK4xHzoo83AP/GRVLYfMH7yvyPk6/pr8fGx6YPhPf2GejaUP6BFnul1VoyLul
+         APbbHTTviS+HrJykF3b2C3DKn0PUT/YHJUp9tXTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qing Xu <m1s5p6688@gmail.com>,
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 94/96] mwifiex: Fix possible buffer overflows in mwifiex_cmd_append_vsie_tlv()
-Date:   Thu, 13 Feb 2020 07:21:41 -0800
-Message-Id: <20200213151914.100775833@linuxfoundation.org>
+Subject: [PATCH 5.4 96/96] libertas: make lbs_ibss_join_existing() return error code on rates overflow
+Date:   Thu, 13 Feb 2020 07:21:43 -0800
+Message-Id: <20200213151914.736275424@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
 References: <20200213151839.156309910@linuxfoundation.org>
@@ -44,41 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qing Xu <m1s5p6688@gmail.com>
+From: Nicolai Stange <nstange@suse.de>
 
-[ Upstream commit b70261a288ea4d2f4ac7cd04be08a9f0f2de4f4d ]
+[ Upstream commit 1754c4f60aaf1e17d886afefee97e94d7f27b4cb ]
 
-mwifiex_cmd_append_vsie_tlv() calls memcpy() without checking
-the destination size may trigger a buffer overflower,
-which a local user could use to cause denial of service
-or the execution of arbitrary code.
-Fix it by putting the length check before calling memcpy().
+Commit e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss
+descriptor") introduced a bounds check on the number of supplied rates to
+lbs_ibss_join_existing() and made it to return on overflow.
 
-Signed-off-by: Qing Xu <m1s5p6688@gmail.com>
+However, the aforementioned commit doesn't set the return value accordingly
+and thus, lbs_ibss_join_existing() would return with zero even though it
+failed.
+
+Make lbs_ibss_join_existing return -EINVAL in case the bounds check on the
+number of supplied rates fails.
+
+Fixes: e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
+Signed-off-by: Nicolai Stange <nstange@suse.de>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/scan.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wireless/marvell/libertas/cfg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
-index 593c594982cb3..59f0651d148bb 100644
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -2886,6 +2886,13 @@ mwifiex_cmd_append_vsie_tlv(struct mwifiex_private *priv,
- 			vs_param_set->header.len =
- 				cpu_to_le16((((u16) priv->vs_ie[id].ie[1])
- 				& 0x00FF) + 2);
-+			if (le16_to_cpu(vs_param_set->header.len) >
-+				MWIFIEX_MAX_VSIE_LEN) {
-+				mwifiex_dbg(priv->adapter, ERROR,
-+					    "Invalid param length!\n");
-+				break;
-+			}
-+
- 			memcpy(vs_param_set->ie, priv->vs_ie[id].ie,
- 			       le16_to_cpu(vs_param_set->header.len));
- 			*buffer += le16_to_cpu(vs_param_set->header.len) +
+diff --git a/drivers/net/wireless/marvell/libertas/cfg.c b/drivers/net/wireless/marvell/libertas/cfg.c
+index 68985d7663491..4e3de684928bf 100644
+--- a/drivers/net/wireless/marvell/libertas/cfg.c
++++ b/drivers/net/wireless/marvell/libertas/cfg.c
+@@ -1786,6 +1786,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
+ 		if (rates_max > MAX_RATES) {
+ 			lbs_deb_join("invalid rates");
+ 			rcu_read_unlock();
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 		rates = cmd.bss.rates;
 -- 
 2.20.1
 
