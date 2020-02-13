@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DDDB15C5F3
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9011515C6D8
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729139AbgBMPzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:55:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41726 "EHLO mail.kernel.org"
+        id S1730235AbgBMQEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:04:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728542AbgBMPZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:38 -0500
+        id S2387407AbgBMPYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:04 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 945F424690;
-        Thu, 13 Feb 2020 15:25:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE38D24691;
+        Thu, 13 Feb 2020 15:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607537;
-        bh=56b4QelP62Qj6qy1lyC1qDTrZBpCEENYWK7uHYYMPUM=;
+        s=default; t=1581607443;
+        bh=BGhSltwy/SzWp5viB2C1ip1c1zJyhs+DsDXWV/utVLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPBhsOwKySDeyTssWBsouzvkNnLoFtWts+8QaCmfnRDs8GMF2X4fUK8BAMsIV2u15
-         Sd1v4CSVPXmUG3pbtmAFLR4esw9oYIZQ5nxaXcGBeJj0fRZaIO4MdemytvS17IFg3I
-         g4UlwsDri5I0zr0J7bf2mhY8jDPHHREjsuM1wbBo=
+        b=DW6WBiJVJtjWu2sdUwTd7lzIN9FMj0JwHmoeDdTeQu9Ys5MpxWbus5phUCRIizOyn
+         FGULJ62bG+m2rEWiLuBxAQxy2M5wGbMNYTP14/wW3oLaUC0+BFrDusaVY8/vBFgCBe
+         78jD9XhVmVA5UlKD3TuJgvnqxcRCOpXnxkku0qFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 096/173] scsi: ufs: Recheck bkops level if bkops is disabled
-Date:   Thu, 13 Feb 2020 07:19:59 -0800
-Message-Id: <20200213151957.157886640@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 056/116] KVM: x86: Free wbinvd_dirty_mask if vCPU creation fails
+Date:   Thu, 13 Feb 2020 07:20:00 -0800
+Message-Id: <20200213151904.663022132@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asutosh Das <asutoshd@codeaurora.org>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 24366c2afbb0539fb14eff330d4e3a5db5c0a3ef upstream.
+commit 16be9ddea268ad841457a59109963fff8c9de38d upstream.
 
-bkops level should be rechecked upon receiving an exception.  Currently the
-level is being cached and never updated.
+Free the vCPU's wbinvd_dirty_mask if vCPU creation fails after
+kvm_arch_vcpu_init(), e.g. when installing the vCPU's file descriptor.
+Do the freeing by calling kvm_arch_vcpu_free() instead of open coding
+the freeing.  This adds a likely superfluous, but ultimately harmless,
+call to kvmclock_reset(), which only clears vcpu->arch.pv_time_enabled.
+Using kvm_arch_vcpu_free() allows for additional cleanup in the future.
 
-Update bkops each time the level is checked.  Also do not use the cached
-bkops level value if it is disabled and then enabled.
-
-Fixes: afdfff59a0e0 (scsi: ufs: handle non spec compliant bkops behaviour by device)
-Link: https://lore.kernel.org/r/1574751214-8321-2-git-send-email-cang@qti.qualcomm.com
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: f5f48ee15c2ee ("KVM: VMX: Execute WBINVD to keep data consistency with assigned devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/ufs/ufshcd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/x86.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4812,6 +4812,7 @@ static int ufshcd_disable_auto_bkops(str
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7809,7 +7809,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
+ 	kvm_mmu_unload(vcpu);
+ 	vcpu_put(vcpu);
  
- 	hba->auto_bkops_enabled = false;
- 	trace_ufshcd_auto_bkops_state(dev_name(hba->dev), "Disabled");
-+	hba->is_urgent_bkops_lvl_checked = false;
- out:
- 	return err;
- }
-@@ -4836,6 +4837,7 @@ static void ufshcd_force_reset_auto_bkop
- 		hba->ee_ctrl_mask &= ~MASK_EE_URGENT_BKOPS;
- 		ufshcd_disable_auto_bkops(hba);
- 	}
-+	hba->is_urgent_bkops_lvl_checked = false;
+-	kvm_x86_ops->vcpu_free(vcpu);
++	kvm_arch_vcpu_free(vcpu);
  }
  
- static inline int ufshcd_get_bkops_status(struct ufs_hba *hba, u32 *status)
-@@ -4882,6 +4884,7 @@ static int ufshcd_bkops_ctrl(struct ufs_
- 		err = ufshcd_enable_auto_bkops(hba);
- 	else
- 		err = ufshcd_disable_auto_bkops(hba);
-+	hba->urgent_bkops_lvl = curr_status;
- out:
- 	return err;
- }
+ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 
