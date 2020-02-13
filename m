@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43AD415C356
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEE715C4C1
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728863AbgBMPkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:40:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
+        id S2388018AbgBMPuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:50:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387782AbgBMP2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:45 -0500
+        id S2387579AbgBMP03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:29 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5419824687;
-        Thu, 13 Feb 2020 15:28:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FDC124671;
+        Thu, 13 Feb 2020 15:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607725;
-        bh=xtM+YC0fsXmRTgOGiXE3QIqZjxM4PwqTDLgPxouqRsc=;
+        s=default; t=1581607589;
+        bh=YUGtBppluf/GNuwmwdxwwXdXPfgjPAuei32E0Qaw8oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dt9Eq1XKejM9cHaUPdNW1tbmnMhy0rb9WCccGROGBoMezb3MfTJavrI23myNKcqVU
-         iLLYjVsMjKhvagbkL3hxBBGjWbObdvwIQKheUQ5A2Np87IqMkmLLXUbvuFPt0nc7x+
-         F0ZSkm2PBzScniQZX0B2ZUQg8uoZbr8sJ8OffAtg=
+        b=SK39BkWTEzAh89JtjKWg0rKByxi8GUyJpDyoMEouiQkHTAgC2HR9BI9DHCUTM1UNB
+         nIxJL29/RlynCe4Crhtb//rclbnG9eZh8F+Nb11va7YX3l7nJQxE0WkuZQ6GLgzQxG
+         VNqqZu6dUA+2LMqUsjCM73ckTlzCjhERAopyTdm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.5 054/120] platform/x86: intel_mid_powerbtn: Take a copy of ddata
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 09/52] ath10k: pci: Only dump ATH10K_MEM_REGION_TYPE_IOREG when safe
 Date:   Thu, 13 Feb 2020 07:20:50 -0800
-Message-Id: <20200213151920.179682944@linuxfoundation.org>
+Message-Id: <20200213151814.650067469@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 5e0c94d3aeeecc68c573033f08d9678fecf253bd upstream.
+commit d239380196c4e27a26fa4bea73d2bf994c14ec2d upstream.
 
-The driver gets driver_data from memory that is marked as const (which
-is probably put to read-only memory) and it then modifies it. This
-likely causes some sort of fault to happen.
+ath10k_pci_dump_memory_reg() will try to access memory of type
+ATH10K_MEM_REGION_TYPE_IOREG however, if a hardware restart is in progress
+this can crash a system.
 
-Fix this by taking a copy of the structure.
+Individual ioread32() time has been observed to jump from 15-20 ticks to >
+80k ticks followed by a secure-watchdog bite and a system reset.
 
-Fixes: c94a8ff14de3 ("platform/x86: intel_mid_powerbtn: make mid_pb_ddata const")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Work around this corner case by only issuing the read transaction when the
+driver state is ATH10K_STATE_ON.
+
+Tested-on: QCA9988 PCI 10.4-3.9.0.2-00044
+
+Fixes: 219cc084c6706 ("ath10k: add memory dump support QCA9984")
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel_mid_powerbtn.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/drivers/platform/x86/intel_mid_powerbtn.c
-+++ b/drivers/platform/x86/intel_mid_powerbtn.c
-@@ -146,9 +146,10 @@ static int mid_pb_probe(struct platform_
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -1613,11 +1613,22 @@ static int ath10k_pci_dump_memory_reg(st
+ {
+ 	struct ath10k_pci *ar_pci = ath10k_pci_priv(ar);
+ 	u32 i;
++	int ret;
++
++	mutex_lock(&ar->conf_mutex);
++	if (ar->state != ATH10K_STATE_ON) {
++		ath10k_warn(ar, "Skipping pci_dump_memory_reg invalid state\n");
++		ret = -EIO;
++		goto done;
++	}
  
- 	input_set_capability(input, EV_KEY, KEY_POWER);
+ 	for (i = 0; i < region->len; i += 4)
+ 		*(u32 *)(buf + i) = ioread32(ar_pci->mem + region->start + i);
  
--	ddata = (struct mid_pb_ddata *)id->driver_data;
-+	ddata = devm_kmemdup(&pdev->dev, (void *)id->driver_data,
-+			     sizeof(*ddata), GFP_KERNEL);
- 	if (!ddata)
--		return -ENODATA;
-+		return -ENOMEM;
+-	return region->len;
++	ret = region->len;
++done:
++	mutex_unlock(&ar->conf_mutex);
++	return ret;
+ }
  
- 	ddata->dev = &pdev->dev;
- 	ddata->irq = irq;
+ /* if an error happened returns < 0, otherwise the length */
+@@ -1713,7 +1724,11 @@ static void ath10k_pci_dump_memory(struc
+ 			count = ath10k_pci_dump_memory_sram(ar, current_region, buf);
+ 			break;
+ 		case ATH10K_MEM_REGION_TYPE_IOREG:
+-			count = ath10k_pci_dump_memory_reg(ar, current_region, buf);
++			ret = ath10k_pci_dump_memory_reg(ar, current_region, buf);
++			if (ret < 0)
++				break;
++
++			count = ret;
+ 			break;
+ 		default:
+ 			ret = ath10k_pci_dump_memory_generic(ar, current_region, buf);
 
 
