@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 020FE15CE7B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 00:05:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 036BF15CE8D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 00:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727571AbgBMXFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 18:05:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42478 "EHLO mail.kernel.org"
+        id S1727936AbgBMXRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 18:17:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726780AbgBMXFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 18:05:40 -0500
+        id S1727933AbgBMXRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 18:17:13 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 957CA20675;
-        Thu, 13 Feb 2020 23:05:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C53D2082F;
+        Thu, 13 Feb 2020 23:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581635139;
-        bh=CUZDHl7TVBOCTWU/9IGjTpj26LMuMrCuo/S82CdGO1o=;
+        s=default; t=1581635833;
+        bh=9BFksy91a775VSD9NdGjMXAGbW9PDXIG+9cxZg+b95s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Xjov0OrjPwJr/Y2IKHNxQ+zrMdFLlQIRADGCm9/slIYttGCDt9DnQJdfp3tDWz/2i
-         Z9cnEf/d2B9z8qhwQBBAhY7em4Rh4eH3OLJVPnt9mkKRlu6+I9ZlNWwnQ8fmplo2G+
-         sEskCJmC+u0Mt9I66YhPBhnZMFCl+QAPmrgkzLuA=
-Date:   Thu, 13 Feb 2020 15:05:39 -0800
+        b=p6gRYqf6ur5aDrjWN27gT37hIo3Fzop8EuMG1m0qJR9AJV5GbDpc69qc/vfON8q2w
+         5eh/rZFDacb70HxoGTMTuS65fW1tcmPPgUrmdBwTYoHCMKZl6xa1fnkozhwR9vSknZ
+         k4H/CevBe78zcmD+Kyzq6oYfcAE6Og15mxBzcKSo=
+Date:   Thu, 13 Feb 2020 15:17:12 -0800
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
-Message-ID: <20200213230539.GC3878275@kroah.com>
-References: <20200213151839.156309910@linuxfoundation.org>
- <20200213222732.GA20637@roeck-us.net>
+To:     Chris Paterson <Chris.Paterson2@renesas.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/91] 4.4.214-stable review
+Message-ID: <20200213231712.GA3925201@kroah.com>
+References: <20200213151821.384445454@linuxfoundation.org>
+ <TYAPR01MB2285DD1197799842E72C26B1B71A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200213222732.GA20637@roeck-us.net>
+In-Reply-To: <TYAPR01MB2285DD1197799842E72C26B1B71A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 02:27:32PM -0800, Guenter Roeck wrote:
-> On Thu, Feb 13, 2020 at 07:20:07AM -0800, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.20 release.
-> > There are 96 patches in this series, all will be posted as a response
+On Thu, Feb 13, 2020 at 04:57:32PM +0000, Chris Paterson wrote:
+> Hi Greg,
+> 
+> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > Behalf Of Greg Kroah-Hartman
+> > Sent: 13 February 2020 15:19
+> > 
+> > This is the start of the stable review cycle for the 4.4.214 release.
+> > There are 91 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
-> > 
-> > Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
-> > Anything received after that time might be too late.
-> > 
 > 
-> Build reference: v5.4.19-98-gdfae536f94c2
-> gcc version: powerpc64-linux-gcc (GCC) 9.2.0
+> No issues seen for CIP configs.
 > 
-> Building powerpc:defconfig ... failed
-> --------------
-> Error log:
-> drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
->  1570 | static const struct regmap_config regmap_config = {
-> 
-> Bisect log below. Looks like the the definition of "not needed"
-> needs an update.
+> Build logs: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/117668767
+> Pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-pipelines/-/blob/ba32334b/trees/linux-4.4.y.yml
 
-Nice catch, sorry about that.  I've dropped the offending commit and
-will push out -rc2 releases for both 5.5.y and 5.4.y.
-
-thanks,
+Great, thanks for testing 2 of these and letting me know.
 
 greg k-h
