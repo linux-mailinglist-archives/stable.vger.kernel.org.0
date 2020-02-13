@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A980F15C169
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B50415C1BB
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728265AbgBMPXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
+        id S1729129AbgBMPZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728259AbgBMPXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:07 -0500
+        id S1728619AbgBMPZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:55 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67EC7246AD;
-        Thu, 13 Feb 2020 15:23:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 360B1246A4;
+        Thu, 13 Feb 2020 15:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607386;
-        bh=8kYutW9+41XF0O/3w4uBAxEow1/LGdc52OsXTqnh5vA=;
+        s=default; t=1581607555;
+        bh=K+s38cj5BHIKmV+617PonKL6SoRCkEgPvgG0+Aam/6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1i/QjVfwtMPvws2NgxY9Bb0NpzFInPD2HYD94GvpAbs0lomxZ12KSNMsdbQh6Wqd
-         F08QfcwuskhV35JIzw3YRTHBk2GoFPXEqv3yQd3xplfOLyXDvF2dhTn0808JWepUq2
-         QUMheTXm9H4r+tvJOgFHDYbTC+qgzw9kEw8gFNfc=
+        b=WWqS6glmpMKny5sNxnwf7CgsAxhBQjIqBowz9TDlJ01oj+RNAi0eSlFaaaBp8BFeH
+         wee4LrgZCN0JysxSvVymlf/wl9aQNP8EfeHYzS3iZEPYRKzs3HqTz8lX3AWB73bvlu
+         Ha2xxZeMDcyN33jJUYj6voDJEmIadOLLJRuZ3JKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.4 86/91] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 140/173] rxrpc: Fix service call disconnection
 Date:   Thu, 13 Feb 2020 07:20:43 -0800
-Message-Id: <20200213151856.055258250@linuxfoundation.org>
+Message-Id: <20200213152007.050589400@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: David Howells <dhowells@redhat.com>
 
-commit 805f635703b2562b5ddd822c62fc9124087e5dd5 upstream.
+[ Upstream commit b39a934ec72fa2b5a74123891f25273a38378b90 ]
 
-The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
-one set of users must be wrong.  Replace them by the correct enum IDs.
+The recent patch that substituted a flag on an rxrpc_call for the
+connection pointer being NULL as an indication that a call was disconnected
+puts the set_bit in the wrong place for service calls.  This is only a
+problem if a call is implicitly terminated by a new call coming in on the
+same connection channel instead of a terminating ACK packet.
 
-Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In such a case, rxrpc_input_implicit_end_call() calls
+__rxrpc_disconnect_call(), which is now (incorrectly) setting the
+disconnection bit, meaning that when rxrpc_release_call() is later called,
+it doesn't call rxrpc_disconnect_call() and so the call isn't removed from
+the peer's error distribution list and the list gets corrupted.
 
+KASAN finds the issue as an access after release on a call, but the
+position at which it occurs is confusing as it appears to be related to a
+different call (the call site is where the latter call is being removed
+from the error distribution list and either the next or pprev pointer
+points to a previously released call).
+
+Fix this by moving the setting of the flag from __rxrpc_disconnect_call()
+to rxrpc_disconnect_call() in the same place that the connection pointer
+was being cleared.
+
+Fixes: 5273a191dca6 ("rxrpc: Fix NULL pointer deref due to call->conn being cleared on disconnect")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a7778.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rxrpc/conn_object.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-@@ -2324,7 +2324,7 @@ static const struct pinmux_cfg_reg pinmu
- 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
- 		/* IP0_11_8 [4] */
- 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
--		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
-+		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
- 		FN_PWM4_B,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP0_7_5 [3] */
-@@ -2366,7 +2366,7 @@ static const struct pinmux_cfg_reg pinmu
- 		FN_TS_SDAT0_A,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP1_10_8 [3] */
--		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
-+		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
- 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
- 		/* IP1_7_5 [3] */
- 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
+diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
+index 13b29e491de91..af02328205979 100644
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -163,8 +163,6 @@ void __rxrpc_disconnect_call(struct rxrpc_connection *conn,
+ 
+ 	_enter("%d,%x", conn->debug_id, call->cid);
+ 
+-	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
+-
+ 	if (rcu_access_pointer(chan->call) == call) {
+ 		/* Save the result of the call so that we can repeat it if necessary
+ 		 * through the channel, whilst disposing of the actual call record.
+@@ -209,6 +207,7 @@ void rxrpc_disconnect_call(struct rxrpc_call *call)
+ 	__rxrpc_disconnect_call(conn, call);
+ 	spin_unlock(&conn->channel_lock);
+ 
++	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
+ 	conn->idle_timestamp = jiffies;
+ }
+ 
+-- 
+2.20.1
+
 
 
