@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26ACB15C192
+	by mail.lfdr.de (Postfix) with ESMTP id 9061F15C193
 	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728699AbgBMPY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:24:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37932 "EHLO mail.kernel.org"
+        id S1728709AbgBMPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:24:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728209AbgBMPY1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:27 -0500
+        id S1728701AbgBMPY2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:28 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8390820848;
-        Thu, 13 Feb 2020 15:24:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 250F12469A;
+        Thu, 13 Feb 2020 15:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607466;
-        bh=LDwsagcPvncREaWRkphZJJ11vcxiGs5VBaB88r8yZBA=;
+        s=default; t=1581607467;
+        bh=papIyfFj1qzrURl+Pra2xbV58csYt+VzN7lpJCfdmHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iNqGoTnroNlka0HwiDU2MhteuulY6VKI7vG4CYBomnoN+h4YQ1pchM+yFN0wXVrGc
-         WtyIfadIHhNZtJm/REe6DP1Vu8qEWuF41sg7GwdLSQFDcJfVSpHmVIe+Dmg+9b84vZ
-         X0odJQSfmuVozJMJAElNbwLYm1Qzk5Po6zjWvouk=
+        b=MdivBarOCDdGCe/DyQQPPHxYAn69lhD8///CWSX1GiY4JSxxFU+e7l9N5bVLWM8IO
+         Nc2y/3Ky46W1o1x9Uylmq10mSqdO5AKxL6xzPtTK5/8eKfEqQnD4cNa/BDzgPkk2KA
+         mht0yxeXiU82IHCCabEpyigTpc2jidOW873w3bHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Milkowski <rmilkowski@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.9 102/116] NFSv4: try lease recovery on NFS4ERR_EXPIRED
-Date:   Thu, 13 Feb 2020 07:20:46 -0800
-Message-Id: <20200213151922.089222431@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.9 103/116] rtc: hym8563: Return -EINVAL if the time is known to be invalid
+Date:   Thu, 13 Feb 2020 07:20:47 -0800
+Message-Id: <20200213151922.404079033@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
 References: <20200213151842.259660170@linuxfoundation.org>
@@ -44,36 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Milkowski <rmilkowski@gmail.com>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-commit 924491f2e476f7234d722b24171a4daff61bbe13 upstream.
+commit f236a2a2ebabad0848ad0995af7ad1dc7029e895 upstream.
 
-Currently, if an nfs server returns NFS4ERR_EXPIRED to open(),
-we return EIO to applications without even trying to recover.
+The current code returns -EPERM when the voltage loss bit is set.
+Since the bit indicates that the time value is not valid, return
+-EINVAL instead, which is the appropriate error code for this
+situation.
 
-Fixes: 272289a3df72 ("NFSv4: nfs4_do_handle_exception() handle revoke/expiry of a single stateid")
-Signed-off-by: Robert Milkowski <rmilkowski@gmail.com>
-Reviewed-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: dcaf03849352 ("rtc: add hym8563 rtc-driver")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Link: https://lore.kernel.org/r/20191212153111.966923-1-paul.kocialkowski@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs4proc.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/rtc/rtc-hym8563.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -2916,6 +2916,11 @@ static struct nfs4_state *nfs4_do_open(s
- 			exception.retry = 1;
- 			continue;
- 		}
-+		if (status == -NFS4ERR_EXPIRED) {
-+			nfs4_schedule_lease_recovery(server->nfs_client);
-+			exception.retry = 1;
-+			continue;
-+		}
- 		if (status == -EAGAIN) {
- 			/* We must have found a delegation */
- 			exception.retry = 1;
+--- a/drivers/rtc/rtc-hym8563.c
++++ b/drivers/rtc/rtc-hym8563.c
+@@ -105,7 +105,7 @@ static int hym8563_rtc_read_time(struct
+ 
+ 	if (!hym8563->valid) {
+ 		dev_warn(&client->dev, "no valid clock/calendar values available\n");
+-		return -EPERM;
++		return -EINVAL;
+ 	}
+ 
+ 	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
 
 
