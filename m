@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A61115C61D
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB0815C779
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728238AbgBMP5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:57:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40532 "EHLO mail.kernel.org"
+        id S1727951AbgBMPWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728965AbgBMPZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:18 -0500
+        id S1727946AbgBMPWa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:30 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F0B924690;
-        Thu, 13 Feb 2020 15:25:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 623CF20848;
+        Thu, 13 Feb 2020 15:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607518;
-        bh=mXZjmtU8ZBPx99jKMMldFF0RvJ/FI5u4/VQBKYH05oI=;
+        s=default; t=1581607349;
+        bh=/QIIiKLLOME+T7VODOcXDaeNjirLEVsJBrE5ZbWR8rE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9I9WbomZyBwPjM2vYqRJrvFxjzzGsCU7dRDkXexy7CdsBD4wk9fmwRLUsM8E49Ge
-         Qbbiac16NuLiMz/dgQFDtWlA4RMkBH31hDvIx1vgTtEbe02d3/5Wo1fICnuo1vzPD1
-         sQHhrapyAnSMzMhfSbSTNnrg8zqlZpnyy/Q+4TAw=
+        b=ztp24As1fHNL7tzIHze/A8ve3RivyaamQuUor7EvgRpgVaEt37bUONnIwXI3K/rf1
+         SUKznvBjO9YOG+bj+om7a7ZJqsByhJIm6CQnht9rkOkzrEhtBRvYvsYWCaQYQYRLCM
+         DWYwTm9XGFwcwb6vThbV/jEBh+vkWVnaiB6v+Uwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 083/173] KVM: x86: Protect ioapic_write_indirect() from Spectre-v1/L1TF attacks
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 29/91] crypto: api - Fix race condition in crypto_spawn_alg
 Date:   Thu, 13 Feb 2020 07:19:46 -0800
-Message-Id: <20200213151954.297398404@linuxfoundation.org>
+Message-Id: <20200213151832.831143978@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 670564559ca35b439c8d8861fc399451ddf95137 upstream.
+commit 73669cc556462f4e50376538d77ee312142e8a8a upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in ioapic_write_indirect().
-This function contains index computations based on the
-(attacker-controlled) IOREGSEL register.
+The function crypto_spawn_alg is racy because it drops the lock
+before shooting the dying algorithm.  The algorithm could disappear
+altogether before we shoot it.
 
-This patch depends on patch
-"KVM: x86: Protect ioapic_read_indirect() from Spectre-v1/L1TF attacks".
+This patch fixes it by moving the shooting into the locked section.
 
-Fixes: 70f93dae32ac ("KVM: Use temporary variable to shorten lines.")
-
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 6bfd48096ff8 ("[CRYPTO] api: Added spawns")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/ioapic.c |    1 +
- 1 file changed, 1 insertion(+)
+ crypto/algapi.c   |   16 +++++-----------
+ crypto/api.c      |    3 +--
+ crypto/internal.h |    1 -
+ 3 files changed, 6 insertions(+), 14 deletions(-)
 
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -297,6 +297,7 @@ static void ioapic_write_indirect(struct
- 		ioapic_debug("change redir index %x val %x\n", index, val);
- 		if (index >= IOAPIC_NUM_PINS)
- 			return;
-+		index = array_index_nospec(index, IOAPIC_NUM_PINS);
- 		e = &ioapic->redirtbl[index];
- 		mask_before = e->fields.mask;
- 		/* Preserve read-only fields */
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -663,22 +663,16 @@ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
+ static struct crypto_alg *crypto_spawn_alg(struct crypto_spawn *spawn)
+ {
+ 	struct crypto_alg *alg;
+-	struct crypto_alg *alg2;
+ 
+ 	down_read(&crypto_alg_sem);
+ 	alg = spawn->alg;
+-	alg2 = alg;
+-	if (alg2)
+-		alg2 = crypto_mod_get(alg2);
+-	up_read(&crypto_alg_sem);
+-
+-	if (!alg2) {
+-		if (alg)
+-			crypto_shoot_alg(alg);
+-		return ERR_PTR(-EAGAIN);
++	if (alg && !crypto_mod_get(alg)) {
++		alg->cra_flags |= CRYPTO_ALG_DYING;
++		alg = NULL;
+ 	}
++	up_read(&crypto_alg_sem);
+ 
+-	return alg;
++	return alg ?: ERR_PTR(-EAGAIN);
+ }
+ 
+ struct crypto_tfm *crypto_spawn_tfm(struct crypto_spawn *spawn, u32 type,
+--- a/crypto/api.c
++++ b/crypto/api.c
+@@ -355,13 +355,12 @@ static unsigned int crypto_ctxsize(struc
+ 	return len;
+ }
+ 
+-void crypto_shoot_alg(struct crypto_alg *alg)
++static void crypto_shoot_alg(struct crypto_alg *alg)
+ {
+ 	down_write(&crypto_alg_sem);
+ 	alg->cra_flags |= CRYPTO_ALG_DYING;
+ 	up_write(&crypto_alg_sem);
+ }
+-EXPORT_SYMBOL_GPL(crypto_shoot_alg);
+ 
+ struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
+ 				      u32 mask)
+--- a/crypto/internal.h
++++ b/crypto/internal.h
+@@ -87,7 +87,6 @@ void crypto_alg_tested(const char *name,
+ void crypto_remove_spawns(struct crypto_alg *alg, struct list_head *list,
+ 			  struct crypto_alg *nalg);
+ void crypto_remove_final(struct list_head *list);
+-void crypto_shoot_alg(struct crypto_alg *alg);
+ struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
+ 				      u32 mask);
+ void *crypto_create_tfm(struct crypto_alg *alg,
 
 
