@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B769B15C1E9
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 406F215C213
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729468AbgBMP1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:27:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51580 "EHLO mail.kernel.org"
+        id S1729626AbgBMP2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729461AbgBMP1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:37 -0500
+        id S1729618AbgBMP2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:54 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6C45206DB;
-        Thu, 13 Feb 2020 15:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAF24222C2;
+        Thu, 13 Feb 2020 15:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607656;
-        bh=AyhCAYMCFmAmAbmoLSWttuf0ENfoysuc6lyikTyu6s8=;
+        s=default; t=1581607733;
+        bh=ugwuPXf6WghU5oJsdjNmcF1b0R0Cd4sUsD8gETy8zxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F75vBHSMyJi0jGqD4w8thP55R8raG/uDuPB07EA6TigtQ5Pn4sgdrZR/nsHAiEc0W
-         5lQ54OLOEB4KWaAJsutwOIBTMmwzCs99jMWWBJb+W4cKqySVQBvmdqPlT692FxIwNo
-         e608Xat84c14UmrC+GXKoYxf5her94YFsamBj5Bc=
+        b=0EiUmmEN50J56iPkyH6tKy8Hb4D3V07E57vphCq4/ymaRZGD+djEmHhGg/dkkWY+F
+         nXiEX6M6aoCJ0CPlQL3cwGBdENjWPJ9kz3gI9uOd3CVfTUz8LoMuP4l1UOViNKQP0L
+         tKZ8/xHikUJ58xGgqBEiG0KKoBO13fBYvD6WPsLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 72/96] KVM: arm64: pmu: Fix chained SW_INCR counters
-Date:   Thu, 13 Feb 2020 07:21:19 -0800
-Message-Id: <20200213151906.522641270@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 084/120] crypto: arm/chacha - fix build failured when kernel mode NEON is disabled
+Date:   Thu, 13 Feb 2020 07:21:20 -0800
+Message-Id: <20200213151929.629202597@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit aa76829171e98bd75a0cc00b6248eca269ac7f4f upstream.
+commit 0bc81767c5bd9d005fae1099fb39eb3688370cb1 upstream.
 
-At the moment a SW_INCR counter always overflows on 32-bit
-boundary, independently on whether the n+1th counter is
-programmed as CHAIN.
+When the ARM accelerated ChaCha driver is built as part of a configuration
+that has kernel mode NEON disabled, we expect the compiler to propagate
+the build time constant expression IS_ENABLED(CONFIG_KERNEL_MODE_NEON) in
+a way that eliminates all the cross-object references to the actual NEON
+routines, which allows the chacha-neon-core.o object to be omitted from
+the build entirely.
 
-Check whether the SW_INCR counter is a 64b counter and if so,
-implement the 64b logic.
+Unfortunately, this fails to work as expected in some cases, and we may
+end up with a build error such as
 
-Fixes: 80f393a23be6 ("KVM: arm/arm64: Support chained PMU counters")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200124142535.29386-4-eric.auger@redhat.com
+  chacha-glue.c:(.text+0xc0): undefined reference to `chacha_4block_xor_neon'
+
+caused by the fact that chacha_doneon() has not been eliminated from the
+object code, even though it will never be called in practice.
+
+Let's fix this by adding some IS_ENABLED(CONFIG_KERNEL_MODE_NEON) tests
+that are not strictly needed from a logical point of view, but should
+help the compiler infer that the NEON code paths are unreachable in
+those cases.
+
+Fixes: b36d8c09e710c71f ("crypto: arm/chacha - remove dependency on generic ...")
+Reported-by: Russell King <linux@armlinux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/pmu.c |   43 ++++++++++++++++++++++++++++++-------------
- 1 file changed, 30 insertions(+), 13 deletions(-)
+ arch/arm/crypto/chacha-glue.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/virt/kvm/arm/pmu.c
-+++ b/virt/kvm/arm/pmu.c
-@@ -480,28 +480,45 @@ static void kvm_pmu_perf_overflow(struct
-  */
- void kvm_pmu_software_increment(struct kvm_vcpu *vcpu, u64 val)
- {
-+	struct kvm_pmu *pmu = &vcpu->arch.pmu;
- 	int i;
--	u64 type, enable, reg;
--
--	if (val == 0)
--		return;
+--- a/arch/arm/crypto/chacha-glue.c
++++ b/arch/arm/crypto/chacha-glue.c
+@@ -115,7 +115,7 @@ static int chacha_stream_xor(struct skci
+ 		if (nbytes < walk.total)
+ 			nbytes = round_down(nbytes, walk.stride);
  
- 	if (!(__vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
- 		return;
+-		if (!neon) {
++		if (!IS_ENABLED(CONFIG_KERNEL_MODE_NEON) || !neon) {
+ 			chacha_doarm(walk.dst.virt.addr, walk.src.virt.addr,
+ 				     nbytes, state, ctx->nrounds);
+ 			state[12] += DIV_ROUND_UP(nbytes, CHACHA_BLOCK_SIZE);
+@@ -159,7 +159,7 @@ static int do_xchacha(struct skcipher_re
  
--	enable = __vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
-+	/* Weed out disabled counters */
-+	val &= __vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
-+
- 	for (i = 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
-+		u64 type, reg;
-+
- 		if (!(val & BIT(i)))
- 			continue;
--		type = __vcpu_sys_reg(vcpu, PMEVTYPER0_EL0 + i)
--		       & ARMV8_PMU_EVTYPE_EVENT;
--		if ((type == ARMV8_PMUV3_PERFCTR_SW_INCR)
--		    && (enable & BIT(i))) {
--			reg = __vcpu_sys_reg(vcpu, PMEVCNTR0_EL0 + i) + 1;
-+
-+		/* PMSWINC only applies to ... SW_INC! */
-+		type = __vcpu_sys_reg(vcpu, PMEVTYPER0_EL0 + i);
-+		type &= ARMV8_PMU_EVTYPE_EVENT;
-+		if (type != ARMV8_PMUV3_PERFCTR_SW_INCR)
-+			continue;
-+
-+		/* increment this even SW_INC counter */
-+		reg = __vcpu_sys_reg(vcpu, PMEVCNTR0_EL0 + i) + 1;
-+		reg = lower_32_bits(reg);
-+		__vcpu_sys_reg(vcpu, PMEVCNTR0_EL0 + i) = reg;
-+
-+		if (reg) /* no overflow on the low part */
-+			continue;
-+
-+		if (kvm_pmu_pmc_is_chained(&pmu->pmc[i])) {
-+			/* increment the high counter */
-+			reg = __vcpu_sys_reg(vcpu, PMEVCNTR0_EL0 + i + 1) + 1;
- 			reg = lower_32_bits(reg);
--			__vcpu_sys_reg(vcpu, PMEVCNTR0_EL0 + i) = reg;
--			if (!reg)
--				__vcpu_sys_reg(vcpu, PMOVSSET_EL0) |= BIT(i);
-+			__vcpu_sys_reg(vcpu, PMEVCNTR0_EL0 + i + 1) = reg;
-+			if (!reg) /* mark overflow on the high counter */
-+				__vcpu_sys_reg(vcpu, PMOVSSET_EL0) |= BIT(i + 1);
-+		} else {
-+			/* mark overflow on low counter */
-+			__vcpu_sys_reg(vcpu, PMOVSSET_EL0) |= BIT(i);
- 		}
- 	}
- }
+ 	chacha_init_generic(state, ctx->key, req->iv);
+ 
+-	if (!neon) {
++	if (!IS_ENABLED(CONFIG_KERNEL_MODE_NEON) || !neon) {
+ 		hchacha_block_arm(state, subctx.key, ctx->nrounds);
+ 	} else {
+ 		kernel_neon_begin();
 
 
