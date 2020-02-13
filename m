@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A31C315C37B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF1D15C408
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728886AbgBMPll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:41:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
+        id S1729206AbgBMP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729612AbgBMP2b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:31 -0500
+        id S2387555AbgBMP00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:26 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F3F420661;
-        Thu, 13 Feb 2020 15:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38E092465D;
+        Thu, 13 Feb 2020 15:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607711;
-        bh=apdVoM1n0KbyCo2+Qj7vg+Z37yBrWQBTkDgIYKkM5Nk=;
+        s=default; t=1581607586;
+        bh=soxysgmScoUA5zevNE0Fcjs3PkGIp9uikcZICujSkPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcbX5L4par3glKAOUl2dteebJoW0OQRX7JB3b77ztNu0upn4AGw1YBlmcnBdMoBxm
-         LV875aVW8g1hk29danxd6MZjBQW8rpPOFojGy/9Zj7fJLWDVk0+I/MsgCt5rjXldYo
-         l0alELVJYqhwzo925Ivz1EUjzNX35aiOPnQngGCA=
+        b=ljUiUkj+DCQR3NjG6VceJ9k31FxH2wXt/ZZb57FMeMz7xMDWEK/qBPgH7CSYilklK
+         dZeHn6Am7c/zIPMRwaqOegngWxn6pa3yT6vEB+hvFOjwYX6DNMUqDs43U3sfLqoCuU
+         xRYEWUmYj2vBs9Ndr/5lDxVUk4zcq97qE34JYu/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        kbuild test robot <lkp@intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.5 049/120] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
+        stable@vger.kernel.org, Mark Haywood <mark.haywood@oracle.com>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.19 04/52] RDMA/netlink: Do not always generate an ACK for some netlink operations
 Date:   Thu, 13 Feb 2020 07:20:45 -0800
-Message-Id: <20200213151918.505301005@linuxfoundation.org>
+Message-Id: <20200213151812.472960096@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-commit 34719de919af07682861cb0fa2bcf64da33ecf44 upstream.
+commit a242c36951ecd24bc16086940dbe6b522205c461 upstream.
 
-Merely enabling I2C and RTC selects REGMAP_I2C and REGMAP_SPI, even when
-no driver needs it.  While the former can be moduler, the latter cannot,
-and thus becomes built-in.
+In rdma_nl_rcv_skb(), the local variable err is assigned the return value
+of the supplied callback function, which could be one of
+ib_nl_handle_resolve_resp(), ib_nl_handle_set_timeout(), or
+ib_nl_handle_ip_res_resp(). These three functions all return skb->len on
+success.
 
-Fix this by moving the select statements for REGMAP_I2C and REGMAP_SPI
-from the RTC_I2C_AND_SPI helper to the individual drivers that depend on
-it.
+rdma_nl_rcv_skb() is merely a copy of netlink_rcv_skb(). The callback
+functions used by the latter have the convention: "Returns 0 on success or
+a negative error code".
 
-Note that the comment for RTC_I2C_AND_SPI refers to SND_SOC_I2C_AND_SPI
-for more information, but the latter does not select REGMAP_{I2C,SPI}
-itself, and defers that to the individual drivers, too.
+In particular, the statement (equal for both functions):
 
-Fixes: 080481f54ef62121 ("rtc: merge ds3232 and ds3234")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20200112171349.22268-1-geert@linux-m68k.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+   if (nlh->nlmsg_flags & NLM_F_ACK || err)
+
+implies that rdma_nl_rcv_skb() always will ack a message, independent of
+the NLM_F_ACK being set in nlmsg_flags or not.
+
+The fix could be to change the above statement, but it is better to keep
+the two *_rcv_skb() functions equal in this respect and instead change the
+three callback functions in the rdma subsystem to the correct convention.
+
+Fixes: 2ca546b92a02 ("IB/sa: Route SA pathrecord query through netlink")
+Fixes: ae43f8286730 ("IB/core: Add IP to GID netlink offload")
+Link: https://lore.kernel.org/r/20191216120436.3204814-1-haakon.bugge@oracle.com
+Suggested-by: Mark Haywood <mark.haywood@oracle.com>
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Tested-by: Mark Haywood <mark.haywood@oracle.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/Kconfig |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/addr.c     |    2 +-
+ drivers/infiniband/core/sa_query.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -848,14 +848,14 @@ config RTC_I2C_AND_SPI
- 	default m if I2C=m
- 	default y if I2C=y
- 	default y if SPI_MASTER=y
--	select REGMAP_I2C if I2C
--	select REGMAP_SPI if SPI_MASTER
+--- a/drivers/infiniband/core/addr.c
++++ b/drivers/infiniband/core/addr.c
+@@ -136,7 +136,7 @@ int ib_nl_handle_ip_res_resp(struct sk_b
+ 	if (ib_nl_is_good_ip_resp(nlh))
+ 		ib_nl_process_good_ip_rsep(nlh);
  
- comment "SPI and I2C RTC drivers"
+-	return skb->len;
++	return 0;
+ }
  
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232/DS3234"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS3232 and DS3234 real-time clock chips. If an interrupt is associated
-@@ -875,6 +875,8 @@ config RTC_DRV_DS3232_HWMON
- config RTC_DRV_PCF2127
- 	tristate "NXP PCF2127"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	select WATCHDOG_CORE if WATCHDOG
- 	help
- 	  If you say yes here you get support for the NXP PCF2127/29 RTC
-@@ -891,6 +893,8 @@ config RTC_DRV_PCF2127
- config RTC_DRV_RV3029C2
- 	tristate "Micro Crystal RV3029/3049"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	help
- 	  If you say yes here you get support for the Micro Crystal
- 	  RV3029 and RV3049 RTC chips.
+ static int ib_nl_ip_send_msg(struct rdma_dev_addr *dev_addr,
+--- a/drivers/infiniband/core/sa_query.c
++++ b/drivers/infiniband/core/sa_query.c
+@@ -1078,7 +1078,7 @@ int ib_nl_handle_set_timeout(struct sk_b
+ 	}
+ 
+ settimeout_out:
+-	return skb->len;
++	return 0;
+ }
+ 
+ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
+@@ -1149,7 +1149,7 @@ int ib_nl_handle_resolve_resp(struct sk_
+ 	}
+ 
+ resp_out:
+-	return skb->len;
++	return 0;
+ }
+ 
+ static void free_sm_ah(struct kref *kref)
 
 
