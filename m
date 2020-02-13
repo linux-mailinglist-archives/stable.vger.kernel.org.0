@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E176215C17B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F8A15C1A9
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:25:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728428AbgBMPXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35040 "EHLO mail.kernel.org"
+        id S1728927AbgBMPZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728425AbgBMPXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:36 -0500
+        id S1728919AbgBMPZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:08 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C26424689;
-        Thu, 13 Feb 2020 15:23:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C526C246A3;
+        Thu, 13 Feb 2020 15:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607416;
-        bh=6U861f3HlY1jbH9VK2csIX+8uPv8zZrqsBmhEnRUkx0=;
+        s=default; t=1581607506;
+        bh=rnUAQxha5PjK5HbsT8UT0RJBat2b5wPYL/hdyIgr9r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oV4dujv9hSFA4Ur+O8tYlduoAmmZtRc9qxkkBKkSeJwhIPfGRzEePsf8lqT33g875
-         keebf8HcJ4tNoAPApY1UMuxUQNstJ7Fl/Q0TVwr8Fzj/wHXY+F3OP/ASBJbbjKIaqY
-         AY7xk2GSYCWjS6C8SaOgYccY18zny+SBhEpdhlKs=
+        b=MCfDcfWmwNhg6BB8Vh1sZt5T4lTslmaW25Eis7JtKfTavtnLzAujr6+crJ2+L+lSE
+         DaFfTJrX4Z310AOyHN91ZmUZdHQbYdPzCD0PYU9GfEH4RxPmeDXQMN/+/JZCvFyt9N
+         oIq1ZmJ8tUfhtz0XzKAKYhYrCCBKoCTVMemOI2SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 023/116] media: v4l2-rect.h: fix v4l2_rect_map_inside() top/left adjustments
-Date:   Thu, 13 Feb 2020 07:19:27 -0800
-Message-Id: <20200213151851.946150810@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 065/173] crypto: atmel-aes - Fix counter overflow in CTR mode
+Date:   Thu, 13 Feb 2020 07:19:28 -0800
+Message-Id: <20200213151950.113618457@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit f51e50db4c20d46930b33be3f208851265694f3e upstream.
+commit 781a08d9740afa73357f1a60d45d7c93d7cca2dd upstream.
 
-boundary->width and boundary->height are sizes relative to
-boundary->left and boundary->top coordinates, but they were not being
-taken into consideration to adjust r->left and r->top, leading to the
-following error:
+32 bit counter is not supported by neither of our AES IPs, all implement
+a 16 bit block counter. Drop the 32 bit block counter logic.
 
-Consider the follow as initial values for boundary and r:
-
-struct v4l2_rect boundary = {
-	.left = 100,
-	.top = 100,
-	.width = 800,
-	.height = 600,
-}
-
-struct v4l2_rect r = {
-	.left = 0,
-	.top = 0,
-	.width = 1920,
-	.height = 960,
-}
-
-calling v4l2_rect_map_inside(&r, &boundary) was modifying r to:
-
-r = {
-	.left = 0,
-	.top = 0,
-	.width = 800,
-	.height = 600,
-}
-
-Which is wrongly outside the boundary rectangle, because:
-
-	v4l2_rect_set_max_size(r, boundary); // r->width = 800, r->height = 600
-	...
-	if (r->left + r->width > boundary->width) // true
-		r->left = boundary->width - r->width; // r->left = 800 - 800
-	if (r->top + r->height > boundary->height) // true
-		r->top = boundary->height - r->height; // r->height = 600 - 600
-
-Fix this by considering top/left coordinates from boundary.
-
-Fixes: ac49de8c49d7 ("[media] v4l2-rect.h: new header with struct v4l2_rect helper functions")
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Cc: <stable@vger.kernel.org>      # for v4.7 and up
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: fcac83656a3e ("crypto: atmel-aes - fix the counter overflow in CTR mode")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/media/v4l2-rect.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/crypto/atmel-aes.c |   37 ++++++++++++-------------------------
+ 1 file changed, 12 insertions(+), 25 deletions(-)
 
---- a/include/media/v4l2-rect.h
-+++ b/include/media/v4l2-rect.h
-@@ -75,10 +75,10 @@ static inline void v4l2_rect_map_inside(
- 		r->left = boundary->left;
- 	if (r->top < boundary->top)
- 		r->top = boundary->top;
--	if (r->left + r->width > boundary->width)
--		r->left = boundary->width - r->width;
--	if (r->top + r->height > boundary->height)
--		r->top = boundary->height - r->height;
-+	if (r->left + r->width > boundary->left + boundary->width)
-+		r->left = boundary->left + boundary->width - r->width;
-+	if (r->top + r->height > boundary->top + boundary->height)
-+		r->top = boundary->top + boundary->height - r->height;
- }
+--- a/drivers/crypto/atmel-aes.c
++++ b/drivers/crypto/atmel-aes.c
+@@ -91,7 +91,6 @@
+ struct atmel_aes_caps {
+ 	bool			has_dualbuff;
+ 	bool			has_cfb64;
+-	bool			has_ctr32;
+ 	bool			has_gcm;
+ 	bool			has_xts;
+ 	bool			has_authenc;
+@@ -990,8 +989,9 @@ static int atmel_aes_ctr_transfer(struct
+ 	struct atmel_aes_ctr_ctx *ctx = atmel_aes_ctr_ctx_cast(dd->ctx);
+ 	struct ablkcipher_request *req = ablkcipher_request_cast(dd->areq);
+ 	struct scatterlist *src, *dst;
+-	u32 ctr, blocks;
+ 	size_t datalen;
++	u32 ctr;
++	u16 blocks, start, end;
+ 	bool use_dma, fragmented = false;
  
- /**
+ 	/* Check for transfer completion. */
+@@ -1003,27 +1003,17 @@ static int atmel_aes_ctr_transfer(struct
+ 	datalen = req->nbytes - ctx->offset;
+ 	blocks = DIV_ROUND_UP(datalen, AES_BLOCK_SIZE);
+ 	ctr = be32_to_cpu(ctx->iv[3]);
+-	if (dd->caps.has_ctr32) {
+-		/* Check 32bit counter overflow. */
+-		u32 start = ctr;
+-		u32 end = start + blocks - 1;
+-
+-		if (end < start) {
+-			ctr |= 0xffffffff;
+-			datalen = AES_BLOCK_SIZE * -start;
+-			fragmented = true;
+-		}
+-	} else {
+-		/* Check 16bit counter overflow. */
+-		u16 start = ctr & 0xffff;
+-		u16 end = start + (u16)blocks - 1;
+-
+-		if (blocks >> 16 || end < start) {
+-			ctr |= 0xffff;
+-			datalen = AES_BLOCK_SIZE * (0x10000-start);
+-			fragmented = true;
+-		}
++
++	/* Check 16bit counter overflow. */
++	start = ctr & 0xffff;
++	end = start + blocks - 1;
++
++	if (blocks >> 16 || end < start) {
++		ctr |= 0xffff;
++		datalen = AES_BLOCK_SIZE * (0x10000 - start);
++		fragmented = true;
+ 	}
++
+ 	use_dma = (datalen >= ATMEL_AES_DMA_THRESHOLD);
+ 
+ 	/* Jump to offset. */
+@@ -2536,7 +2526,6 @@ static void atmel_aes_get_cap(struct atm
+ {
+ 	dd->caps.has_dualbuff = 0;
+ 	dd->caps.has_cfb64 = 0;
+-	dd->caps.has_ctr32 = 0;
+ 	dd->caps.has_gcm = 0;
+ 	dd->caps.has_xts = 0;
+ 	dd->caps.has_authenc = 0;
+@@ -2547,7 +2536,6 @@ static void atmel_aes_get_cap(struct atm
+ 	case 0x500:
+ 		dd->caps.has_dualbuff = 1;
+ 		dd->caps.has_cfb64 = 1;
+-		dd->caps.has_ctr32 = 1;
+ 		dd->caps.has_gcm = 1;
+ 		dd->caps.has_xts = 1;
+ 		dd->caps.has_authenc = 1;
+@@ -2556,7 +2544,6 @@ static void atmel_aes_get_cap(struct atm
+ 	case 0x200:
+ 		dd->caps.has_dualbuff = 1;
+ 		dd->caps.has_cfb64 = 1;
+-		dd->caps.has_ctr32 = 1;
+ 		dd->caps.has_gcm = 1;
+ 		dd->caps.max_burst_size = 4;
+ 		break;
 
 
