@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF07715C612
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE8615C768
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387459AbgBMP4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:56:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
+        id S1727347AbgBMQK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:10:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728990AbgBMPZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:25 -0500
+        id S1728003AbgBMPWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:37 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B32442469A;
-        Thu, 13 Feb 2020 15:25:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB20024689;
+        Thu, 13 Feb 2020 15:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607524;
-        bh=CRBIkMmtK6DbX7OWOAvW7vuWCkdRO+6B/HqySGWO/fY=;
+        s=default; t=1581607355;
+        bh=1Iizuofl1M9QTJuqeATp+FLhwr0NT7Oa3L7BrSWjUnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYI7kzh06h4DVf4UDs2iHsb+FFzCALTRNAgK9F0V0E3+v0Cv5FuL4JFM7t3AkJKCn
-         5j1X5y38ze4NarBbm/3x8a2Pcwl9cmyXeDyqqBORZqk5agWRvzHUzw1X4wCkoB1lpi
-         q5hM5MG64ujuoCQs4PMba93LEJJFH5DifZDiVAFU=
+        b=SFOr7qY51QvB8lHooFAGSknunz24tPiQurPIfa0G4QwXUkaF2cK+OSHezfZDgvq/Z
+         z0o2gmmAKW1/9e32el0nLOfk4Xw6rn1RjzLPVjGkLbs46LilriZwZWVkrfdJOdzgDN
+         hTx3AVpxkEqNErrOBHamjhYCzfkIrfhh2MBfH4vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
-        Gavin Shan <gshan@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 076/173] tools/kvm_stat: Fix kvm_exit filter name
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 22/91] scsi: qla2xxx: Fix mtcp dump collection failure
 Date:   Thu, 13 Feb 2020 07:19:39 -0800
-Message-Id: <20200213151952.689740853@linuxfoundation.org>
+Message-Id: <20200213151830.210127935@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Shan <gshan@redhat.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 5fcf3a55a62afb0760ccb6f391d62f20bce4a42f upstream.
+commit 641e0efddcbde52461e017136acd3ce7f2ef0c14 upstream.
 
-The filter name is fixed to "exit_reason" for some kvm_exit events, no
-matter what architect we have. Actually, the filter name ("exit_reason")
-is only applicable to x86, meaning it's broken on other architects
-including aarch64.
+MTCP dump failed due to MB Reg 10 was picking garbage data from stack
+memory.
 
-This fixes the issue by providing various kvm_exit filter names, depending
-on architect we're on. Afterwards, the variable filter name is picked and
-applied through ioctl(fd, SET_FILTER).
-
-Reported-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Gavin Shan <gshan@redhat.com>
+Fixes: 81178772b636a ("[SCSI] qla2xxx: Implemetation of mctp.")
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20191217220617.28084-14-hmadhani@marvell.com
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/kvm/kvm_stat/kvm_stat |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/tools/kvm/kvm_stat/kvm_stat
-+++ b/tools/kvm/kvm_stat/kvm_stat
-@@ -261,6 +261,7 @@ class ArchX86(Arch):
-     def __init__(self, exit_reasons):
-         self.sc_perf_evt_open = 298
-         self.ioctl_numbers = IOCTL_NUMBERS
-+        self.exit_reason_field = 'exit_reason'
-         self.exit_reasons = exit_reasons
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -5455,9 +5455,8 @@ qla2x00_dump_mctp_data(scsi_qla_host_t *
+ 	mcp->mb[7] = LSW(MSD(req_dma));
+ 	mcp->mb[8] = MSW(addr);
+ 	/* Setting RAM ID to valid */
+-	mcp->mb[10] |= BIT_7;
+ 	/* For MCTP RAM ID is 0x40 */
+-	mcp->mb[10] |= 0x40;
++	mcp->mb[10] = BIT_7 | 0x40;
  
- 
-@@ -276,6 +277,7 @@ class ArchPPC(Arch):
-         # numbers depend on the wordsize.
-         char_ptr_size = ctypes.sizeof(ctypes.c_char_p)
-         self.ioctl_numbers['SET_FILTER'] = 0x80002406 | char_ptr_size << 16
-+        self.exit_reason_field = 'exit_nr'
-         self.exit_reasons = {}
- 
- 
-@@ -283,6 +285,7 @@ class ArchA64(Arch):
-     def __init__(self):
-         self.sc_perf_evt_open = 241
-         self.ioctl_numbers = IOCTL_NUMBERS
-+        self.exit_reason_field = 'esr_ec'
-         self.exit_reasons = AARCH64_EXIT_REASONS
- 
- 
-@@ -290,6 +293,7 @@ class ArchS390(Arch):
-     def __init__(self):
-         self.sc_perf_evt_open = 331
-         self.ioctl_numbers = IOCTL_NUMBERS
-+        self.exit_reason_field = None
-         self.exit_reasons = None
- 
- ARCH = Arch.get_arch()
-@@ -513,8 +517,8 @@ class TracepointProvider(Provider):
-         """
-         filters = {}
-         filters['kvm_userspace_exit'] = ('reason', USERSPACE_EXIT_REASONS)
--        if ARCH.exit_reasons:
--            filters['kvm_exit'] = ('exit_reason', ARCH.exit_reasons)
-+        if ARCH.exit_reason_field and ARCH.exit_reasons:
-+            filters['kvm_exit'] = (ARCH.exit_reason_field, ARCH.exit_reasons)
-         return filters
- 
-     def get_available_fields(self):
+ 	mcp->out_mb |= MBX_10|MBX_8|MBX_7|MBX_6|MBX_5|MBX_4|MBX_3|MBX_2|MBX_1|
+ 	    MBX_0;
 
 
