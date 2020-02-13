@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9497915C5EC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1256715C76B
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728549AbgBMPZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41422 "EHLO mail.kernel.org"
+        id S1727993AbgBMPWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387458AbgBMPZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:34 -0500
+        id S1727973AbgBMPWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:35 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4B8324691;
-        Thu, 13 Feb 2020 15:25:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 865CC20848;
+        Thu, 13 Feb 2020 15:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607533;
-        bh=nmHHeJv0jxAv944SVEIlCzmf1RpyAVWuyx6keZbVcjI=;
+        s=default; t=1581607354;
+        bh=HoPYvoEBNfhFq7YxHxFAAPfn70vdc+PTMBDCMsHQFcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSe3Q05KbXacXYmuj3lyqRM4C/rEHgAzmke+Yl/tyaovQRonKFzIfKVoDlNWL/TFd
-         rO9eh99llk7VlD1KkyOpJfRKqzScqIfsDdTa8nJUyEMPIcFcxHe6j55uX0NmgMnmqt
-         g0lX3qA4hY03G6Bj+PBslYyy/35PPfTcJahVM7N4=
+        b=QxSqYl1JMvlURIw2Mny+CDZ7MjuIqZ9V1QqC4CuQA4rvuvsq8EjqFScU2DMWyY1Ur
+         JlpqR1nbfZRNafbumjEi6ePjDHZZBoKD8Fy//AMYi5FFE9o7333+GxSbDJMBHAap9k
+         9xry7oQMfwvsPuNTj1cNKZ84SUANFWl2RL9EOOUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 090/173] KVM: PPC: Book3S PR: Free shared page if mmu initialization fails
-Date:   Thu, 13 Feb 2020 07:19:53 -0800
-Message-Id: <20200213151955.787342894@linuxfoundation.org>
+Subject: [PATCH 4.4 37/91] KVM: x86: Protect kvm_hv_msr_[get|set]_crash_data() from Spectre-v1/L1TF attacks
+Date:   Thu, 13 Feb 2020 07:19:54 -0800
+Message-Id: <20200213151835.916554087@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit cb10bf9194f4d2c5d830eddca861f7ca0fecdbb4 upstream.
+commit 8618793750071d66028584a83ed0b4fa7eb4f607 upstream.
 
-Explicitly free the shared page if kvmppc_mmu_init() fails during
-kvmppc_core_vcpu_create(), as the page is freed only in
-kvmppc_core_vcpu_free(), which is not reached via kvm_vcpu_uninit().
+This fixes Spectre-v1/L1TF vulnerabilities in kvm_hv_msr_get_crash_data()
+and kvm_hv_msr_set_crash_data().
+These functions contain index computations that use the
+(attacker-controlled) MSR number.
 
-Fixes: 96bc451a15329 ("KVM: PPC: Introduce shared page")
+Fixes: e7d9513b60e8 ("kvm/x86: added hyper-v crash msrs into kvm hyperv context")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_pr.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/hyperv.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_pr.c
-+++ b/arch/powerpc/kvm/book3s_pr.c
-@@ -1482,10 +1482,12 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -26,6 +26,7 @@
+ #include "hyperv.h"
  
- 	err = kvmppc_mmu_init(vcpu);
- 	if (err < 0)
--		goto uninit_vcpu;
-+		goto free_shared_page;
+ #include <linux/kvm_host.h>
++#include <linux/nospec.h>
+ #include <trace/events/kvm.h>
  
- 	return vcpu;
+ #include "trace.h"
+@@ -53,11 +54,12 @@ static int kvm_hv_msr_get_crash_data(str
+ 				     u32 index, u64 *pdata)
+ {
+ 	struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
++	size_t size = ARRAY_SIZE(hv->hv_crash_param);
  
-+free_shared_page:
-+	free_page((unsigned long)vcpu->arch.shared);
- uninit_vcpu:
- 	kvm_vcpu_uninit(vcpu);
- free_shadow_vcpu:
+-	if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
++	if (WARN_ON_ONCE(index >= size))
+ 		return -EINVAL;
+ 
+-	*pdata = hv->hv_crash_param[index];
++	*pdata = hv->hv_crash_param[array_index_nospec(index, size)];
+ 	return 0;
+ }
+ 
+@@ -96,11 +98,12 @@ static int kvm_hv_msr_set_crash_data(str
+ 				     u32 index, u64 data)
+ {
+ 	struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
++	size_t size = ARRAY_SIZE(hv->hv_crash_param);
+ 
+-	if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
++	if (WARN_ON_ONCE(index >= size))
+ 		return -EINVAL;
+ 
+-	hv->hv_crash_param[index] = data;
++	hv->hv_crash_param[array_index_nospec(index, size)] = data;
+ 	return 0;
+ }
+ 
 
 
