@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63BBD15C4AA
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4956315C33F
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbgBMPt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:49:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47008 "EHLO mail.kernel.org"
+        id S1729405AbgBMP25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729237AbgBMP0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:45 -0500
+        id S1729630AbgBMP24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:56 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABEC824685;
-        Thu, 13 Feb 2020 15:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 692692467D;
+        Thu, 13 Feb 2020 15:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607604;
-        bh=Dgrwx/JC4sa0jfa3IwWsSW9puRlLOOtDFySxIgxoPhs=;
+        s=default; t=1581607736;
+        bh=fPB1iHhgeFpUPKsYjqf2vZYkXrit/70jiBZ3Dsfo/pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1HLrbVVFt6r2HOQqmhQL2ppYt+9yCipnxBGXrRq05+izXMS9v4+3B7JAZkW+ehD4h
-         EsqN2PTc7gfYlt6x6svBmKSDEdVrgaV41df8i+0Ion53iHE8GC4nDrygAFDauGyY+U
-         t3tmYwSxCsI5MHwzO4K9Vre6OBNQ5tWAqIKE7YAs=
+        b=RuHVsARH3l9mYKC2OIRNahDJE2/UtzIzEDLVOh1ZOZ58lh/Ie4xn3Qi/dOY2p70+t
+         ewHnmi+FnRqZmMKxWh+/qy06ylQAFQ75xg6802c5Gmz3o6/ERk+DQ/oJmypCAMEPpn
+         56N4o2CCjPnzR4O1BWU8uxTip9AYEWk6kLSxAkho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 43/52] crypto: atmel-sha - fix error handling when setting hmac key
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Andrew Murray <andrew.murray@arm.com>
+Subject: [PATCH 5.5 088/120] KVM: arm64: pmu: Dont increment SW_INCR if PMCR.E is unset
 Date:   Thu, 13 Feb 2020 07:21:24 -0800
-Message-Id: <20200213151827.802990585@linuxfoundation.org>
+Message-Id: <20200213151930.882972327@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-commit b529f1983b2dcc46354f311feda92e07b6e9e2da upstream.
+commit 3837407c1aa1101ed5e214c7d6041e7a23335c6e upstream.
 
-HMAC keys can be of any length, and atmel_sha_hmac_key_set() can only
-fail due to -ENOMEM.  But atmel_sha_hmac_setkey() incorrectly treated
-any error as a "bad key length" error.  Fix it to correctly propagate
-the -ENOMEM error code and not set any tfm result flags.
+The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
+if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
 
-Fixes: 81d8750b2b59 ("crypto: atmel-sha - add support to hmac(shaX)")
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
+be set for the corresponding event counter but we also need
+the PMCR.E bit to be set.
+
+Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200124142535.29386-2-eric.auger@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/atmel-sha.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ virt/kvm/arm/pmu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/crypto/atmel-sha.c
-+++ b/drivers/crypto/atmel-sha.c
-@@ -1921,12 +1921,7 @@ static int atmel_sha_hmac_setkey(struct
- {
- 	struct atmel_sha_hmac_ctx *hmac = crypto_ahash_ctx(tfm);
+--- a/virt/kvm/arm/pmu.c
++++ b/virt/kvm/arm/pmu.c
+@@ -486,6 +486,9 @@ void kvm_pmu_software_increment(struct k
+ 	if (val == 0)
+ 		return;
  
--	if (atmel_sha_hmac_key_set(&hmac->hkey, key, keylen)) {
--		crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
--		return -EINVAL;
--	}
--
--	return 0;
-+	return atmel_sha_hmac_key_set(&hmac->hkey, key, keylen);
- }
- 
- static int atmel_sha_hmac_init(struct ahash_request *req)
++	if (!(__vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
++		return;
++
+ 	enable = __vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
+ 	for (i = 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
+ 		if (!(val & BIT(i)))
 
 
