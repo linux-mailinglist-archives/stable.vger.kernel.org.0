@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9460F15C74C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67FA215C582
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728708AbgBMQJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:09:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60850 "EHLO mail.kernel.org"
+        id S1728160AbgBMPWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728150AbgBMPWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728152AbgBMPWu (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:22:50 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94D3E24699;
-        Thu, 13 Feb 2020 15:22:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A2792469A;
+        Thu, 13 Feb 2020 15:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607369;
-        bh=Bzhi6lde7OpuvdLPjVRGmFwvB5ok4FRpi36AmEcxJis=;
+        s=default; t=1581607370;
+        bh=i+yGrRs4yCH7reidTqlcHP58PGWiJO2laSighC9WHBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kpj1E1KsrUGftVC1TP/x+kJsmU6B0BOVUeLogJrvQtDAdik0oqAFrO399rLfZUxwd
-         BFVTojHBgrMS6yATU3gRzZvENRO2rXt3MblbSdeZZrjI37tI+ON/whvhsp9JiQJp9T
-         VJ4tkRaUS+1QC0aUXrnWw1+fjhRpLc0746f6AVn4=
+        b=GZjjEjVGgHnK+tBp5mZK50BkRgDWvDBu0vnBfDbiO1yPuoTUx4sMBiA6F9/KcqSQI
+         7OpYP+9uG6s2UoEaNFy9nLEgkSDVxi6uYTkc1aUfu2nWg7Qez2rukUNEbqlN6MtEXp
+         WdkhH92GewnhY1/iA+yNI9h0aHVWRuak6ZH+BszA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 43/91] KVM: x86: Protect MSR-based index computations in fixed_msr_to_seg_unit() from Spectre-v1/L1TF attacks
-Date:   Thu, 13 Feb 2020 07:20:00 -0800
-Message-Id: <20200213151838.314721719@linuxfoundation.org>
+Subject: [PATCH 4.4 44/91] KVM: PPC: Book3S HV: Uninit vCPU if vcore creation fails
+Date:   Thu, 13 Feb 2020 07:20:01 -0800
+Message-Id: <20200213151838.723680390@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
 References: <20200213151821.384445454@linuxfoundation.org>
@@ -46,55 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 25a5edea71b7c154b6a0b8cec14c711cafa31d26 upstream.
+commit 1a978d9d3e72ddfa40ac60d26301b154247ee0bc upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in fixed_msr_to_seg_unit().
-This function contains index computations based on the
-(attacker-controlled) MSR number.
+Call kvm_vcpu_uninit() if vcore creation fails to avoid leaking any
+resources allocated by kvm_vcpu_init(), i.e. the vcpu->run page.
 
-Fixes: de9aef5e1ad6 ("KVM: MTRR: introduce fixed_mtrr_segment table")
-
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
+Fixes: 371fefd6f2dc4 ("KVM: PPC: Allow book3s_hv guests to use SMT processor modes")
 Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Acked-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mtrr.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mtrr.c
-+++ b/arch/x86/kvm/mtrr.c
-@@ -17,6 +17,7 @@
-  */
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -1669,7 +1669,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+ 	mutex_unlock(&kvm->lock);
  
- #include <linux/kvm_host.h>
-+#include <linux/nospec.h>
- #include <asm/mtrr.h>
+ 	if (!vcore)
+-		goto free_vcpu;
++		goto uninit_vcpu;
  
- #include "cpuid.h"
-@@ -202,11 +203,15 @@ static bool fixed_msr_to_seg_unit(u32 ms
- 		break;
- 	case MSR_MTRRfix16K_80000 ... MSR_MTRRfix16K_A0000:
- 		*seg = 1;
--		*unit = msr - MSR_MTRRfix16K_80000;
-+		*unit = array_index_nospec(
-+			msr - MSR_MTRRfix16K_80000,
-+			MSR_MTRRfix16K_A0000 - MSR_MTRRfix16K_80000 + 1);
- 		break;
- 	case MSR_MTRRfix4K_C0000 ... MSR_MTRRfix4K_F8000:
- 		*seg = 2;
--		*unit = msr - MSR_MTRRfix4K_C0000;
-+		*unit = array_index_nospec(
-+			msr - MSR_MTRRfix4K_C0000,
-+			MSR_MTRRfix4K_F8000 - MSR_MTRRfix4K_C0000 + 1);
- 		break;
- 	default:
- 		return false;
+ 	spin_lock(&vcore->lock);
+ 	++vcore->num_threads;
+@@ -1685,6 +1685,8 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+ 
+ 	return vcpu;
+ 
++uninit_vcpu:
++	kvm_vcpu_uninit(vcpu);
+ free_vcpu:
+ 	kmem_cache_free(kvm_vcpu_cache, vcpu);
+ out:
 
 
