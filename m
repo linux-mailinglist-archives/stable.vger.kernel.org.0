@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7486E15C5EE
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BC115C6FB
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729043AbgBMPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
+        id S1729211AbgBMQFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:05:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387472AbgBMPZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:36 -0500
+        id S1728453AbgBMPXo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:44 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A0D524693;
-        Thu, 13 Feb 2020 15:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FE7F2469A;
+        Thu, 13 Feb 2020 15:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607534;
-        bh=b0FOauxgLNMEy1wQ+wzaA8xcGscBzKC+R+e0FgSdLPw=;
+        s=default; t=1581607422;
+        bh=WkXP5THQLpgyAgHz6BXhPjPpeimWm8UHRJ3AEUw7n1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6YPJl4QRNpeR5kTvGNqCIu6BdL8Dptvc+gLiqxeRt/McOMWtBcDtSMLuF0YMziXQ
-         3dN+SNW+JpMrsEa59g6XsHN2+WO9uiG5YCy1pUrbvQLx84mMhwKCCb8U47YLg4hicQ
-         Kw5FB7sAdNJlnY1CxO18/RWUu81bTX/dMAjLfzWU=
+        b=y+Qq/RHRQfObTwDOqR20EZT/3J/R/F8JkSe1ApUGGkWQ5Si1BD9hFg+8O8T4dfeWx
+         Jje0LowmZAjeg2q9ZKW0ZR2PYamyZGOb06zL2glIxWoLor2HsYcvc0aAAJHrbxS8Jl
+         2PlQ85mL3qlaW2sbLt/Ci2vNBc+71sHp1BIh/rMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 091/173] KVM: x86: Free wbinvd_dirty_mask if vCPU creation fails
-Date:   Thu, 13 Feb 2020 07:19:54 -0800
-Message-Id: <20200213151956.021088390@linuxfoundation.org>
+Subject: [PATCH 4.9 051/116] KVM: x86: Protect MSR-based index computations from Spectre-v1/L1TF attacks in x86.c
+Date:   Thu, 13 Feb 2020 07:19:55 -0800
+Message-Id: <20200213151902.581826169@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit 16be9ddea268ad841457a59109963fff8c9de38d upstream.
+commit 6ec4c5eee1750d5d17951c4e1960d953376a0dda upstream.
 
-Free the vCPU's wbinvd_dirty_mask if vCPU creation fails after
-kvm_arch_vcpu_init(), e.g. when installing the vCPU's file descriptor.
-Do the freeing by calling kvm_arch_vcpu_free() instead of open coding
-the freeing.  This adds a likely superfluous, but ultimately harmless,
-call to kvmclock_reset(), which only clears vcpu->arch.pv_time_enabled.
-Using kvm_arch_vcpu_free() allows for additional cleanup in the future.
+This fixes a Spectre-v1/L1TF vulnerability in set_msr_mce() and
+get_msr_mce().
+Both functions contain index computations based on the
+(attacker-controlled) MSR number.
 
-Fixes: f5f48ee15c2ee ("KVM: VMX: Execute WBINVD to keep data consistency with assigned devices")
+Fixes: 890ca9aefa78 ("KVM: Add MCE support")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8063,7 +8063,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
- 	kvm_mmu_unload(vcpu);
- 	vcpu_put(vcpu);
- 
--	kvm_x86_ops->vcpu_free(vcpu);
-+	kvm_arch_vcpu_free(vcpu);
- }
- 
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
+@@ -2130,7 +2130,10 @@ static int set_msr_mce(struct kvm_vcpu *
+ 	default:
+ 		if (msr >= MSR_IA32_MC0_CTL &&
+ 		    msr < MSR_IA32_MCx_CTL(bank_num)) {
+-			u32 offset = msr - MSR_IA32_MC0_CTL;
++			u32 offset = array_index_nospec(
++				msr - MSR_IA32_MC0_CTL,
++				MSR_IA32_MCx_CTL(bank_num) - MSR_IA32_MC0_CTL);
++
+ 			/* only 0 or all 1s can be written to IA32_MCi_CTL
+ 			 * some Linux kernels though clear bit 10 in bank 4 to
+ 			 * workaround a BIOS/GART TBL issue on AMD K8s, ignore
+@@ -2498,7 +2501,10 @@ static int get_msr_mce(struct kvm_vcpu *
+ 	default:
+ 		if (msr >= MSR_IA32_MC0_CTL &&
+ 		    msr < MSR_IA32_MCx_CTL(bank_num)) {
+-			u32 offset = msr - MSR_IA32_MC0_CTL;
++			u32 offset = array_index_nospec(
++				msr - MSR_IA32_MC0_CTL,
++				MSR_IA32_MCx_CTL(bank_num) - MSR_IA32_MC0_CTL);
++
+ 			data = vcpu->arch.mce_banks[offset];
+ 			break;
+ 		}
 
 
