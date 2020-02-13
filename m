@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9011515C6D8
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9460F15C74C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730235AbgBMQEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:04:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36614 "EHLO mail.kernel.org"
+        id S1728708AbgBMQJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:09:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387407AbgBMPYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:04 -0500
+        id S1728150AbgBMPWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:50 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE38D24691;
-        Thu, 13 Feb 2020 15:24:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94D3E24699;
+        Thu, 13 Feb 2020 15:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607443;
-        bh=BGhSltwy/SzWp5viB2C1ip1c1zJyhs+DsDXWV/utVLY=;
+        s=default; t=1581607369;
+        bh=Bzhi6lde7OpuvdLPjVRGmFwvB5ok4FRpi36AmEcxJis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DW6WBiJVJtjWu2sdUwTd7lzIN9FMj0JwHmoeDdTeQu9Ys5MpxWbus5phUCRIizOyn
-         FGULJ62bG+m2rEWiLuBxAQxy2M5wGbMNYTP14/wW3oLaUC0+BFrDusaVY8/vBFgCBe
-         78jD9XhVmVA5UlKD3TuJgvnqxcRCOpXnxkku0qFM=
+        b=Kpj1E1KsrUGftVC1TP/x+kJsmU6B0BOVUeLogJrvQtDAdik0oqAFrO399rLfZUxwd
+         BFVTojHBgrMS6yATU3gRzZvENRO2rXt3MblbSdeZZrjI37tI+ON/whvhsp9JiQJp9T
+         VJ4tkRaUS+1QC0aUXrnWw1+fjhRpLc0746f6AVn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 056/116] KVM: x86: Free wbinvd_dirty_mask if vCPU creation fails
+Subject: [PATCH 4.4 43/91] KVM: x86: Protect MSR-based index computations in fixed_msr_to_seg_unit() from Spectre-v1/L1TF attacks
 Date:   Thu, 13 Feb 2020 07:20:00 -0800
-Message-Id: <20200213151904.663022132@linuxfoundation.org>
+Message-Id: <20200213151838.314721719@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit 16be9ddea268ad841457a59109963fff8c9de38d upstream.
+commit 25a5edea71b7c154b6a0b8cec14c711cafa31d26 upstream.
 
-Free the vCPU's wbinvd_dirty_mask if vCPU creation fails after
-kvm_arch_vcpu_init(), e.g. when installing the vCPU's file descriptor.
-Do the freeing by calling kvm_arch_vcpu_free() instead of open coding
-the freeing.  This adds a likely superfluous, but ultimately harmless,
-call to kvmclock_reset(), which only clears vcpu->arch.pv_time_enabled.
-Using kvm_arch_vcpu_free() allows for additional cleanup in the future.
+This fixes a Spectre-v1/L1TF vulnerability in fixed_msr_to_seg_unit().
+This function contains index computations based on the
+(attacker-controlled) MSR number.
 
-Fixes: f5f48ee15c2ee ("KVM: VMX: Execute WBINVD to keep data consistency with assigned devices")
+Fixes: de9aef5e1ad6 ("KVM: MTRR: introduce fixed_mtrr_segment table")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/mtrr.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7809,7 +7809,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
- 	kvm_mmu_unload(vcpu);
- 	vcpu_put(vcpu);
+--- a/arch/x86/kvm/mtrr.c
++++ b/arch/x86/kvm/mtrr.c
+@@ -17,6 +17,7 @@
+  */
  
--	kvm_x86_ops->vcpu_free(vcpu);
-+	kvm_arch_vcpu_free(vcpu);
- }
+ #include <linux/kvm_host.h>
++#include <linux/nospec.h>
+ #include <asm/mtrr.h>
  
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
+ #include "cpuid.h"
+@@ -202,11 +203,15 @@ static bool fixed_msr_to_seg_unit(u32 ms
+ 		break;
+ 	case MSR_MTRRfix16K_80000 ... MSR_MTRRfix16K_A0000:
+ 		*seg = 1;
+-		*unit = msr - MSR_MTRRfix16K_80000;
++		*unit = array_index_nospec(
++			msr - MSR_MTRRfix16K_80000,
++			MSR_MTRRfix16K_A0000 - MSR_MTRRfix16K_80000 + 1);
+ 		break;
+ 	case MSR_MTRRfix4K_C0000 ... MSR_MTRRfix4K_F8000:
+ 		*seg = 2;
+-		*unit = msr - MSR_MTRRfix4K_C0000;
++		*unit = array_index_nospec(
++			msr - MSR_MTRRfix4K_C0000,
++			MSR_MTRRfix4K_F8000 - MSR_MTRRfix4K_C0000 + 1);
+ 		break;
+ 	default:
+ 		return false;
 
 
