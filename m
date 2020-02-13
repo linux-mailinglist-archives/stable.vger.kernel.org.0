@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2D615C712
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C54E15C714
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728416AbgBMQGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:06:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34762 "EHLO mail.kernel.org"
+        id S1728660AbgBMQGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:06:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbgBMPXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727881AbgBMPXd (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:23:33 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 918CA24699;
-        Thu, 13 Feb 2020 15:23:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3679F246AD;
+        Thu, 13 Feb 2020 15:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607412;
-        bh=i51N5vsJGfbRUtDCnYlXm5BfBaOKh4rrwDhVWr/Xjdg=;
+        s=default; t=1581607413;
+        bh=nue5T3gYIodIk7hAlwR2JIdhQ6M5D4n4gZHo6VdSTpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2iRNThiqifqKJsmiuONBBig9/TZ2q6d+yWUPk/vM8iXrAqBg9FquY9aR0QAoWo4rl
-         h/vmJ7xrS9iwTJRUbmtr7U/yFHft2OGsJtpJBdF1x3leiIxaH5d41OWedOTrksg3Mo
-         o3Kez9YXknfr92fFg5IqJtbwNtIUYwqHId25VUG0=
+        b=brkUth03IIBPcwd4c5horHUTHxPBed/Sm+5UR1ff+nw+WhC3oQfyI7VegwjU1qbhA
+         6fqS3ruGdKZZWtBzQmj2Rrv2a0YJCwNyjdBe7hV9eYiI5RFuKzl5N2bk2nZmeasb7L
+         dClNWwZoIa/MZJRgu53lIa9qoyP65IUVW52/U5S4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 035/116] padata: Remove broken queue flushing
-Date:   Thu, 13 Feb 2020 07:19:39 -0800
-Message-Id: <20200213151856.812892483@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 036/116] crypto: pcrypt - Do not clear MAY_SLEEP flag in original request
+Date:   Thu, 13 Feb 2020 07:19:40 -0800
+Message-Id: <20200213151857.161403531@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
 References: <20200213151842.259660170@linuxfoundation.org>
@@ -46,142 +45,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 07928d9bfc81640bab36f5190e8725894d93b659 ]
+commit e8d998264bffade3cfe0536559f712ab9058d654 upstream.
 
-The function padata_flush_queues is fundamentally broken because
-it cannot force padata users to complete the request that is
-underway.  IOW padata has to passively wait for the completion
-of any outstanding work.
+We should not be modifying the original request's MAY_SLEEP flag
+upon completion.  It makes no sense to do so anyway.
 
-As it stands flushing is used in two places.  Its use in padata_stop
-is simply unnecessary because nothing depends on the queues to
-be flushed afterwards.
-
-The other use in padata_replace is more substantial as we depend
-on it to free the old pd structure.  This patch instead uses the
-pd->refcnt to dynamically free the pd structure once all requests
-are complete.
-
-Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
-Cc: <stable@vger.kernel.org>
+Reported-by: Eric Biggers <ebiggers@kernel.org>
+Fixes: 5068c7a883d1 ("crypto: pcrypt - Add pcrypt crypto...")
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Tested-by: Eric Biggers <ebiggers@kernel.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/padata.c | 46 ++++++++++++----------------------------------
- 1 file changed, 12 insertions(+), 34 deletions(-)
+ crypto/pcrypt.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 63449fc584daf..9ba611b42abac 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -34,6 +34,8 @@
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -130,7 +130,6 @@ static void pcrypt_aead_done(struct cryp
+ 	struct padata_priv *padata = pcrypt_request_padata(preq);
  
- #define MAX_OBJ_NUM 1000
+ 	padata->info = err;
+-	req->base.flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
  
-+static void padata_free_pd(struct parallel_data *pd);
-+
- static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
- {
- 	int cpu, target_cpu;
-@@ -301,6 +303,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	struct padata_serial_queue *squeue;
- 	struct parallel_data *pd;
- 	LIST_HEAD(local_list);
-+	int cnt;
- 
- 	local_bh_disable();
- 	squeue = container_of(serial_work, struct padata_serial_queue, work);
-@@ -310,6 +313,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	list_replace_init(&squeue->serial.list, &local_list);
- 	spin_unlock(&squeue->serial.lock);
- 
-+	cnt = 0;
-+
- 	while (!list_empty(&local_list)) {
- 		struct padata_priv *padata;
- 
-@@ -319,9 +324,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 		list_del_init(&padata->list);
- 
- 		padata->serial(padata);
--		atomic_dec(&pd->refcnt);
-+		cnt++;
- 	}
- 	local_bh_enable();
-+
-+	if (atomic_sub_and_test(cnt, &pd->refcnt))
-+		padata_free_pd(pd);
+ 	padata_do_serial(padata);
  }
- 
- /**
-@@ -444,8 +452,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	setup_timer(&pd->timer, padata_reorder_timer, (unsigned long)pd);
- 	atomic_set(&pd->seq_nr, -1);
- 	atomic_set(&pd->reorder_objects, 0);
--	atomic_set(&pd->refcnt, 0);
--	pd->pinst = pinst;
-+	atomic_set(&pd->refcnt, 1);
- 	spin_lock_init(&pd->lock);
- 
- 	return pd;
-@@ -469,31 +476,6 @@ static void padata_free_pd(struct parallel_data *pd)
- 	kfree(pd);
- }
- 
--/* Flush all objects out of the padata queues. */
--static void padata_flush_queues(struct parallel_data *pd)
--{
--	int cpu;
--	struct padata_parallel_queue *pqueue;
--	struct padata_serial_queue *squeue;
--
--	for_each_cpu(cpu, pd->cpumask.pcpu) {
--		pqueue = per_cpu_ptr(pd->pqueue, cpu);
--		flush_work(&pqueue->work);
--	}
--
--	del_timer_sync(&pd->timer);
--
--	if (atomic_read(&pd->reorder_objects))
--		padata_reorder(pd);
--
--	for_each_cpu(cpu, pd->cpumask.cbcpu) {
--		squeue = per_cpu_ptr(pd->squeue, cpu);
--		flush_work(&squeue->work);
--	}
--
--	BUG_ON(atomic_read(&pd->refcnt) != 0);
--}
--
- static void __padata_start(struct padata_instance *pinst)
- {
- 	pinst->flags |= PADATA_INIT;
-@@ -507,10 +489,6 @@ static void __padata_stop(struct padata_instance *pinst)
- 	pinst->flags &= ~PADATA_INIT;
- 
- 	synchronize_rcu();
--
--	get_online_cpus();
--	padata_flush_queues(pinst->pd);
--	put_online_cpus();
- }
- 
- /* Replace the internal control structure with a new one. */
-@@ -531,8 +509,8 @@ static void padata_replace(struct padata_instance *pinst,
- 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
- 		notification_mask |= PADATA_CPU_SERIAL;
- 
--	padata_flush_queues(pd_old);
--	padata_free_pd(pd_old);
-+	if (atomic_dec_and_test(&pd_old->refcnt))
-+		padata_free_pd(pd_old);
- 
- 	if (notification_mask)
- 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
--- 
-2.20.1
-
 
 
