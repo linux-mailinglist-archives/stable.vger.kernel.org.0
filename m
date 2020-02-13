@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA2615C3D8
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8C215C347
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbgBMPou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:44:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51528 "EHLO mail.kernel.org"
+        id S2387527AbgBMPjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:39:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729454AbgBMP1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:36 -0500
+        id S1729621AbgBMP2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:54 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 317F824670;
-        Thu, 13 Feb 2020 15:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18BEB2168B;
+        Thu, 13 Feb 2020 15:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607656;
-        bh=fPB1iHhgeFpUPKsYjqf2vZYkXrit/70jiBZ3Dsfo/pk=;
+        s=default; t=1581607733;
+        bh=/6nvKJXpUQXg8GvlxjuliI9HJ8lsGRxn/EMimUQ8VTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qah9WawN3PjLgiBRd5baoykMmNsh7wPzslr0jcH8H1c8M2DJWK6B2S5KT2R0yqmha
-         tZhOksklqxdy9Nhf+QaLu40t2RQp7bXT2rAIbqog4IvtjPyb91kyraU9P+HFZKMJwa
-         6gEZF5uJsjrGDvQZlHh5moLU7mZd4WPbx1VySYho=
+        b=QuExdttnfH9vtM8TVTCxHm0qqm0CDO+anpa17hP01t+MKGdpeC+0RZg1vKWr0Tijg
+         zdL3RRb1R74YYVI4f3lslAN6fH5SYvfvruI7gf6WZ0CXtZmbwfZpFlkvKA4vo4qg2Y
+         w7e/Uh58URDvnRwvHZHdmYLG1FUuZfmbHoA/nUIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Andrew Murray <andrew.murray@arm.com>
-Subject: [PATCH 5.4 71/96] KVM: arm64: pmu: Dont increment SW_INCR if PMCR.E is unset
-Date:   Thu, 13 Feb 2020 07:21:18 -0800
-Message-Id: <20200213151906.126388921@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.5 083/120] arm64: ptrace: nofpsimd: Fail FP/SIMD regset operations
+Date:   Thu, 13 Feb 2020 07:21:19 -0800
+Message-Id: <20200213151929.337288670@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 3837407c1aa1101ed5e214c7d6041e7a23335c6e upstream.
+commit c9d66999f064947e6b577ceacc1eb2fbca6a8d3c upstream.
 
-The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
-if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
+When fp/simd is not supported on the system, fail the operations
+of FP/SIMD regsets.
 
-For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
-be set for the corresponding event counter but we also need
-the PMCR.E bit to be set.
-
-Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200124142535.29386-2-eric.auger@redhat.com
+Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/pmu.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/kernel/ptrace.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/virt/kvm/arm/pmu.c
-+++ b/virt/kvm/arm/pmu.c
-@@ -486,6 +486,9 @@ void kvm_pmu_software_increment(struct k
- 	if (val == 0)
- 		return;
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -615,6 +615,13 @@ static int gpr_set(struct task_struct *t
+ 	return 0;
+ }
  
-+	if (!(__vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
-+		return;
++static int fpr_active(struct task_struct *target, const struct user_regset *regset)
++{
++	if (!system_supports_fpsimd())
++		return -ENODEV;
++	return regset->n;
++}
 +
- 	enable = __vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
- 	for (i = 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
- 		if (!(val & BIT(i)))
+ /*
+  * TODO: update fp accessors for lazy context switching (sync/flush hwstate)
+  */
+@@ -637,6 +644,9 @@ static int fpr_get(struct task_struct *t
+ 		   unsigned int pos, unsigned int count,
+ 		   void *kbuf, void __user *ubuf)
+ {
++	if (!system_supports_fpsimd())
++		return -EINVAL;
++
+ 	if (target == current)
+ 		fpsimd_preserve_current_state();
+ 
+@@ -676,6 +686,9 @@ static int fpr_set(struct task_struct *t
+ {
+ 	int ret;
+ 
++	if (!system_supports_fpsimd())
++		return -EINVAL;
++
+ 	ret = __fpr_set(target, regset, pos, count, kbuf, ubuf, 0);
+ 	if (ret)
+ 		return ret;
+@@ -1134,6 +1147,7 @@ static const struct user_regset aarch64_
+ 		 */
+ 		.size = sizeof(u32),
+ 		.align = sizeof(u32),
++		.active = fpr_active,
+ 		.get = fpr_get,
+ 		.set = fpr_set
+ 	},
+@@ -1348,6 +1362,9 @@ static int compat_vfp_get(struct task_st
+ 	compat_ulong_t fpscr;
+ 	int ret, vregs_end_pos;
+ 
++	if (!system_supports_fpsimd())
++		return -EINVAL;
++
+ 	uregs = &target->thread.uw.fpsimd_state;
+ 
+ 	if (target == current)
+@@ -1381,6 +1398,9 @@ static int compat_vfp_set(struct task_st
+ 	compat_ulong_t fpscr;
+ 	int ret, vregs_end_pos;
+ 
++	if (!system_supports_fpsimd())
++		return -EINVAL;
++
+ 	uregs = &target->thread.uw.fpsimd_state;
+ 
+ 	vregs_end_pos = VFP_STATE_SIZE - sizeof(compat_ulong_t);
+@@ -1438,6 +1458,7 @@ static const struct user_regset aarch32_
+ 		.n = VFP_STATE_SIZE / sizeof(compat_ulong_t),
+ 		.size = sizeof(compat_ulong_t),
+ 		.align = sizeof(compat_ulong_t),
++		.active = fpr_active,
+ 		.get = compat_vfp_get,
+ 		.set = compat_vfp_set
+ 	},
 
 
