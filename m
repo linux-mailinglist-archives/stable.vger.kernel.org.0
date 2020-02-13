@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B57F915C187
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E68F615C1B1
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387402AbgBMPYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:24:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36562 "EHLO mail.kernel.org"
+        id S1729034AbgBMPZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387394AbgBMPYD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:03 -0500
+        id S2387456AbgBMPZe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:34 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F56124691;
-        Thu, 13 Feb 2020 15:24:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28C6124690;
+        Thu, 13 Feb 2020 15:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607442;
-        bh=wgQjZs1ddBRdFqlffXn/FGMRtYF9eRuUuRtsGAyWpRA=;
+        s=default; t=1581607533;
+        bh=4/tTk0ZiW7DQJxVy89AldRXoFxuJGR2zrHVnfhe/Pt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=diOZUEQ/KR35p6RatyNcpEPo58RwAk5PSk39MTSwrdJtsGYM1w4qkAMnL/jbXTMkQ
-         TOXYojUR5HefEgHZMyNyhh18a0HwP4VI5HRQbkVKA1Ey1FAdjfTpHLvqOX2zB/5WRh
-         KnziuG7keqHjlTRXw0jLVMGCON1BBxaNg5wXO/o0=
+        b=izDlQsaw1tv28HURyV2qmR4Js+sQ8TfNF6xGL3Em8JL38bX9RYIh+n7nU4YJPGt7j
+         xWP+r1wXU+wxy98BgrZvvezktp3581N8TKVVtnS9Mjuz+LsMLMPsR51x4EJvLQnyBc
+         ZU8fFk78cGMdzMLs3LP+XaxudNq5kJ6+kv25Zmv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 064/116] ppp: Adjust indentation into ppp_async_input
-Date:   Thu, 13 Feb 2020 07:20:08 -0800
-Message-Id: <20200213151907.888503397@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.14 106/173] nfsd: fix delay timer on 32-bit architectures
+Date:   Thu, 13 Feb 2020 07:20:09 -0800
+Message-Id: <20200213151959.417339917@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 08cbc75f96029d3092664213a844a5e25523aa35 upstream.
+commit 2561c92b12f4f4e386d453556685f75775c0938b upstream.
 
-Clang warns:
+The nfsd4_cb_layout_done() function takes a 'time_t' value,
+multiplied by NSEC_PER_SEC*2 to get a nanosecond value.
 
-../drivers/net/ppp/ppp_async.c:877:6: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-                                ap->rpkt = skb;
-                                ^
-../drivers/net/ppp/ppp_async.c:875:5: note: previous statement is here
-                                if (!skb)
-                                ^
-1 warning generated.
+This works fine on 64-bit architectures, but on 32-bit, any
+value over 1 second results in a signed integer overflow
+with unexpected results.
 
-This warning occurs because there is a space before the tab on this
-line. Clean up this entire block's indentation so that it is consistent
-with the Linux kernel coding style and clang no longer warns.
+Cast one input to a 64-bit type in order to produce the
+same result that we have on 64-bit architectures, regarless
+of the type of nfsd4_lease.
 
-Fixes: 6722e78c9005 ("[PPP]: handle misaligned accesses")
-Link: https://github.com/ClangBuiltLinux/linux/issues/800
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6b9b21073d3b ("nfsd: give up on CB_LAYOUTRECALLs after two lease periods")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ppp/ppp_async.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/nfsd/nfs4layouts.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ppp/ppp_async.c
-+++ b/drivers/net/ppp/ppp_async.c
-@@ -878,15 +878,15 @@ ppp_async_input(struct asyncppp *ap, con
- 				skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2);
- 				if (!skb)
- 					goto nomem;
-- 				ap->rpkt = skb;
-- 			}
-- 			if (skb->len == 0) {
-- 				/* Try to get the payload 4-byte aligned.
-- 				 * This should match the
-- 				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
-- 				 * process_input_packet, but we do not have
-- 				 * enough chars here to test buf[1] and buf[2].
-- 				 */
-+				ap->rpkt = skb;
-+			}
-+			if (skb->len == 0) {
-+				/* Try to get the payload 4-byte aligned.
-+				 * This should match the
-+				 * PPP_ALLSTATIONS/PPP_UI/compressed tests in
-+				 * process_input_packet, but we do not have
-+				 * enough chars here to test buf[1] and buf[2].
-+				 */
- 				if (buf[0] != PPP_ALLSTATIONS)
- 					skb_reserve(skb, 2 + (buf[0] & 1));
- 			}
+--- a/fs/nfsd/nfs4layouts.c
++++ b/fs/nfsd/nfs4layouts.c
+@@ -683,7 +683,7 @@ nfsd4_cb_layout_done(struct nfsd4_callba
+ 
+ 		/* Client gets 2 lease periods to return it */
+ 		cutoff = ktime_add_ns(task->tk_start,
+-					 nn->nfsd4_lease * NSEC_PER_SEC * 2);
++					 (u64)nn->nfsd4_lease * NSEC_PER_SEC * 2);
+ 
+ 		if (ktime_before(now, cutoff)) {
+ 			rpc_delay(task, HZ/100); /* 10 mili-seconds */
 
 
