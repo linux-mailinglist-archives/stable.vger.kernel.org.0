@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9CF15C2DD
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E6B15C2DC
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbgBMPhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:37:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
+        id S1728457AbgBMPhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:37:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387830AbgBMP3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:21 -0500
+        id S1729713AbgBMP3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:29:22 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0BC2218AC;
-        Thu, 13 Feb 2020 15:29:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43CBD222C2;
+        Thu, 13 Feb 2020 15:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607760;
-        bh=2LOS4tbupeTSygClD40dSb6uvh6u9TGMj8TmfoR5iNU=;
+        s=default; t=1581607761;
+        bh=KHdrEN3OtqPPD6L5YgBi2g1IZzGbO2eK07lEomwDnVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxahJbJURHdE5Swf5Vp/X6iAAfau/ycqCV4TVY6GbUDvF0J/5lUiRzTJeCee+o9Iu
-         Lrt6u7rbYONmP2Yp5TLDNKNN0BxhAbfKpE33L1VaszjHew3NX7Ky1ofG/cQUfKeT/v
-         3WrSDv6OvEaqr6WdADMtABlfFQZriGEUMoOYyNjU=
+        b=x6jvqfZjnQrJuXw7R9GTvS8OFOC7vFFJR9u4SL8EElXys/v6+78TPNJBa9azXyh+L
+         fBvDbvPe4yCOF14w7FnjqgoqCfNj9CQIis4mfbWRROh93CDMJRdGnJA9bBFVuJweGV
+         TTucS1+mURtCVMqB/kPKktrC/qf42tiWnnbCHKWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.5 116/120] dmaengine: axi-dmac: add a check for devm_regmap_init_mmio
-Date:   Thu, 13 Feb 2020 07:21:52 -0800
-Message-Id: <20200213151939.111274282@linuxfoundation.org>
+        stable@vger.kernel.org, Qing Xu <m1s5p6688@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 117/120] mwifiex: Fix possible buffer overflows in mwifiex_ret_wmm_get_status()
+Date:   Thu, 13 Feb 2020 07:21:53 -0800
+Message-Id: <20200213151939.387313212@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -44,52 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Qing Xu <m1s5p6688@gmail.com>
 
-commit a5b982af953bcc838cd198b0434834cc1dff14ec upstream.
+[ Upstream commit 3a9b153c5591548612c3955c9600a98150c81875 ]
 
-The driver misses checking the result of devm_regmap_init_mmio().
-Add a check to fix it.
+mwifiex_ret_wmm_get_status() calls memcpy() without checking the
+destination size.Since the source is given from remote AP which
+contains illegal wmm elements , this may trigger a heap buffer
+overflow.
+Fix it by putting the length check before calling memcpy().
 
-Fixes: fc15be39a827 ("dmaengine: axi-dmac: add regmap support")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Link: https://lore.kernel.org/r/20191209085711.16001-1-hslester96@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Qing Xu <m1s5p6688@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dma-axi-dmac.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwifiex/wmm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/dma/dma-axi-dmac.c
-+++ b/drivers/dma/dma-axi-dmac.c
-@@ -830,6 +830,7 @@ static int axi_dmac_probe(struct platfor
- 	struct dma_device *dma_dev;
- 	struct axi_dmac *dmac;
- 	struct resource *res;
-+	struct regmap *regmap;
- 	int ret;
+diff --git a/drivers/net/wireless/marvell/mwifiex/wmm.c b/drivers/net/wireless/marvell/mwifiex/wmm.c
+index 41f0231376c01..132f9e8ed68c1 100644
+--- a/drivers/net/wireless/marvell/mwifiex/wmm.c
++++ b/drivers/net/wireless/marvell/mwifiex/wmm.c
+@@ -970,6 +970,10 @@ int mwifiex_ret_wmm_get_status(struct mwifiex_private *priv,
+ 				    "WMM Parameter Set Count: %d\n",
+ 				    wmm_param_ie->qos_info_bitmap & mask);
  
- 	dmac = devm_kzalloc(&pdev->dev, sizeof(*dmac), GFP_KERNEL);
-@@ -921,10 +922,17 @@ static int axi_dmac_probe(struct platfor
- 
- 	platform_set_drvdata(pdev, dmac);
- 
--	devm_regmap_init_mmio(&pdev->dev, dmac->base, &axi_dmac_regmap_config);
-+	regmap = devm_regmap_init_mmio(&pdev->dev, dmac->base,
-+		 &axi_dmac_regmap_config);
-+	if (IS_ERR(regmap)) {
-+		ret = PTR_ERR(regmap);
-+		goto err_free_irq;
-+	}
- 
- 	return 0;
- 
-+err_free_irq:
-+	free_irq(dmac->irq, dmac);
- err_unregister_of:
- 	of_dma_controller_free(pdev->dev.of_node);
- err_unregister_device:
++			if (wmm_param_ie->vend_hdr.len + 2 >
++				sizeof(struct ieee_types_wmm_parameter))
++				break;
++
+ 			memcpy((u8 *) &priv->curr_bss_params.bss_descriptor.
+ 			       wmm_ie, wmm_param_ie,
+ 			       wmm_param_ie->vend_hdr.len + 2);
+-- 
+2.20.1
+
 
 
