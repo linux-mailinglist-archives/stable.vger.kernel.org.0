@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC8915C4B3
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9D715C4D3
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387621AbgBMPtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:49:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
+        id S1729280AbgBMPvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:51:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387614AbgBMP0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:37 -0500
+        id S2387528AbgBMP0T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:19 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A3DF24671;
-        Thu, 13 Feb 2020 15:26:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8681C24676;
+        Thu, 13 Feb 2020 15:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607596;
-        bh=COk2qwgQAqyPFdJNvcLdB0ZAmx/iSdR/Yvaay3oXR3E=;
+        s=default; t=1581607578;
+        bh=+AozUer+RTveAtjd+snUjhhpsON3Db5m0S4zTsSF4T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k56tJEXWpGF7KWLjyaisoBs28cuK0W9+EloU7dCejg+5hxy5qRJG2dBBV030gTxv8
-         XuUM1KSPGrA48cJurlDbwpOqfhInPgq2Y15nA6fpykMGzwxHZN0/wjwQPShaRs0AqB
-         VdAY70gBXXbaR7+rjpKbpA360KHlp+7va4aO4IRc=
+        b=oPHFZJpd2sjYsu+XDrYavwfRQZcN+KMor2IWLCcoFWX0Amrqm6/JQqB6oB5hsHn81
+         f6rmKSpi7rMMH9mY7JBhri+yuNxOGXizc67h/d4xnYQQRzwAiaQfvIcUgUIrcfcoFx
+         umm4JVJUwbVNP1ygmmI0Ti5o9x2sPUVfb3/3BajQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 30/52] powerpc/pseries: Allow not having ibm, hypertas-functions::hcall-multi-tce for DDW
+        stable@vger.kernel.org,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        Anand Lodnoor <anand.lodnoor@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 168/173] scsi: megaraid_sas: Do not initiate OCR if controller is not in ready state
 Date:   Thu, 13 Feb 2020 07:21:11 -0800
-Message-Id: <20200213151822.483646973@linuxfoundation.org>
+Message-Id: <20200213152013.403952129@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,155 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Anand Lodnoor <anand.lodnoor@broadcom.com>
 
-commit 7559d3d295f3365ea7ac0c0274c05e633fe4f594 upstream.
+commit 6d7537270e3283b92f9b327da9d58a4de40fe8d0 upstream.
 
-By default a pseries guest supports a H_PUT_TCE hypercall which maps
-a single IOMMU page in a DMA window. Additionally the hypervisor may
-support H_PUT_TCE_INDIRECT/H_STUFF_TCE which update multiple TCEs at once;
-this is advertised via the device tree /rtas/ibm,hypertas-functions
-property which Linux converts to FW_FEATURE_MULTITCE.
+Driver initiates OCR if a DCMD command times out. But there is a deadlock
+if the driver attempts to invoke another OCR before the mutex lock
+(reset_mutex) is released from the previous session of OCR.
 
-FW_FEATURE_MULTITCE is checked when dma_iommu_ops is used; however
-the code managing the huge DMA window (DDW) ignores it and calls
-H_PUT_TCE_INDIRECT even if it is explicitly disabled via
-the "multitce=off" kernel command line parameter.
+This patch takes care of the above scenario using new flag
+MEGASAS_FUSION_OCR_NOT_POSSIBLE to indicate if OCR is possible.
 
-This adds FW_FEATURE_MULTITCE checking to the DDW code path.
-
-This changes tce_build_pSeriesLP to take liobn and page size as
-the huge window does not have iommu_table descriptor which usually
-the place to store these numbers.
-
-Fixes: 4e8b0cf46b25 ("powerpc/pseries: Add support for dynamic dma windows")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Tested-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191216041924.42318-3-aik@ozlabs.ru
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1579000882-20246-9-git-send-email-anand.lodnoor@broadcom.com
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Signed-off-by: Anand Lodnoor <anand.lodnoor@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/iommu.c |   43 ++++++++++++++++++++++-----------
- 1 file changed, 29 insertions(+), 14 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c   |    3 ++-
+ drivers/scsi/megaraid/megaraid_sas_fusion.c |    3 ++-
+ drivers/scsi/megaraid/megaraid_sas_fusion.h |    1 +
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/iommu.c
-+++ b/arch/powerpc/platforms/pseries/iommu.c
-@@ -167,10 +167,10 @@ static unsigned long tce_get_pseries(str
- 	return be64_to_cpu(*tcep);
- }
- 
--static void tce_free_pSeriesLP(struct iommu_table*, long, long);
-+static void tce_free_pSeriesLP(unsigned long liobn, long, long);
- static void tce_freemulti_pSeriesLP(struct iommu_table*, long, long);
- 
--static int tce_build_pSeriesLP(struct iommu_table *tbl, long tcenum,
-+static int tce_build_pSeriesLP(unsigned long liobn, long tcenum, long tceshift,
- 				long npages, unsigned long uaddr,
- 				enum dma_data_direction direction,
- 				unsigned long attrs)
-@@ -181,25 +181,25 @@ static int tce_build_pSeriesLP(struct io
- 	int ret = 0;
- 	long tcenum_start = tcenum, npages_start = npages;
- 
--	rpn = __pa(uaddr) >> TCE_SHIFT;
-+	rpn = __pa(uaddr) >> tceshift;
- 	proto_tce = TCE_PCI_READ;
- 	if (direction != DMA_TO_DEVICE)
- 		proto_tce |= TCE_PCI_WRITE;
- 
- 	while (npages--) {
--		tce = proto_tce | (rpn & TCE_RPN_MASK) << TCE_RPN_SHIFT;
--		rc = plpar_tce_put((u64)tbl->it_index, (u64)tcenum << 12, tce);
-+		tce = proto_tce | (rpn & TCE_RPN_MASK) << tceshift;
-+		rc = plpar_tce_put((u64)liobn, (u64)tcenum << tceshift, tce);
- 
- 		if (unlikely(rc == H_NOT_ENOUGH_RESOURCES)) {
- 			ret = (int)rc;
--			tce_free_pSeriesLP(tbl, tcenum_start,
-+			tce_free_pSeriesLP(liobn, tcenum_start,
- 			                   (npages_start - (npages + 1)));
- 			break;
- 		}
- 
- 		if (rc && printk_ratelimit()) {
- 			printk("tce_build_pSeriesLP: plpar_tce_put failed. rc=%lld\n", rc);
--			printk("\tindex   = 0x%llx\n", (u64)tbl->it_index);
-+			printk("\tindex   = 0x%llx\n", (u64)liobn);
- 			printk("\ttcenum  = 0x%llx\n", (u64)tcenum);
- 			printk("\ttce val = 0x%llx\n", tce );
- 			dump_stack();
-@@ -228,7 +228,8 @@ static int tce_buildmulti_pSeriesLP(stru
- 	unsigned long flags;
- 
- 	if ((npages == 1) || !firmware_has_feature(FW_FEATURE_MULTITCE)) {
--		return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
-+		return tce_build_pSeriesLP(tbl->it_index, tcenum,
-+					   tbl->it_page_shift, npages, uaddr,
- 		                           direction, attrs);
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -4109,7 +4109,8 @@ dcmd_timeout_ocr_possible(struct megasas
+ 	if (instance->adapter_type == MFI_SERIES)
+ 		return KILL_ADAPTER;
+ 	else if (instance->unload ||
+-			test_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags))
++			test_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE,
++				 &instance->reset_flags))
+ 		return IGNORE_TIMEOUT;
+ 	else
+ 		return INITIATE_OCR;
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -4212,6 +4212,7 @@ int megasas_reset_fusion(struct Scsi_Hos
+ 	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
+ 		del_timer_sync(&instance->sriov_heartbeat_timer);
+ 	set_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
++	set_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
+ 	atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_POLLING);
+ 	instance->instancet->disable_intr(instance);
+ 	megasas_sync_irqs((unsigned long)instance);
+@@ -4399,7 +4400,7 @@ fail_kill_adapter:
+ 		atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
  	}
- 
-@@ -244,8 +245,9 @@ static int tce_buildmulti_pSeriesLP(stru
- 		/* If allocation fails, fall back to the loop implementation */
- 		if (!tcep) {
- 			local_irq_restore(flags);
--			return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
--					    direction, attrs);
-+			return tce_build_pSeriesLP(tbl->it_index, tcenum,
-+					tbl->it_page_shift,
-+					npages, uaddr, direction, attrs);
- 		}
- 		__this_cpu_write(tce_page, tcep);
- 	}
-@@ -296,16 +298,16 @@ static int tce_buildmulti_pSeriesLP(stru
- 	return ret;
+ out:
+-	clear_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
++	clear_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
+ 	mutex_unlock(&instance->reset_mutex);
+ 	return retval;
  }
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+@@ -100,6 +100,7 @@ enum MR_RAID_FLAGS_IO_SUB_TYPE {
  
--static void tce_free_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages)
-+static void tce_free_pSeriesLP(unsigned long liobn, long tcenum, long npages)
- {
- 	u64 rc;
- 
- 	while (npages--) {
--		rc = plpar_tce_put((u64)tbl->it_index, (u64)tcenum << 12, 0);
-+		rc = plpar_tce_put((u64)liobn, (u64)tcenum << 12, 0);
- 
- 		if (rc && printk_ratelimit()) {
- 			printk("tce_free_pSeriesLP: plpar_tce_put failed. rc=%lld\n", rc);
--			printk("\tindex   = 0x%llx\n", (u64)tbl->it_index);
-+			printk("\tindex   = 0x%llx\n", (u64)liobn);
- 			printk("\ttcenum  = 0x%llx\n", (u64)tcenum);
- 			dump_stack();
- 		}
-@@ -320,7 +322,7 @@ static void tce_freemulti_pSeriesLP(stru
- 	u64 rc;
- 
- 	if (!firmware_has_feature(FW_FEATURE_MULTITCE))
--		return tce_free_pSeriesLP(tbl, tcenum, npages);
-+		return tce_free_pSeriesLP(tbl->it_index, tcenum, npages);
- 
- 	rc = plpar_tce_stuff((u64)tbl->it_index, (u64)tcenum << 12, 0, npages);
- 
-@@ -435,6 +437,19 @@ static int tce_setrange_multi_pSeriesLP(
- 	u64 rc = 0;
- 	long l, limit;
- 
-+	if (!firmware_has_feature(FW_FEATURE_MULTITCE)) {
-+		unsigned long tceshift = be32_to_cpu(maprange->tce_shift);
-+		unsigned long dmastart = (start_pfn << PAGE_SHIFT) +
-+				be64_to_cpu(maprange->dma_base);
-+		unsigned long tcenum = dmastart >> tceshift;
-+		unsigned long npages = num_pfn << PAGE_SHIFT >> tceshift;
-+		void *uaddr = __va(start_pfn << PAGE_SHIFT);
-+
-+		return tce_build_pSeriesLP(be32_to_cpu(maprange->liobn),
-+				tcenum, tceshift, npages, (unsigned long) uaddr,
-+				DMA_BIDIRECTIONAL, 0);
-+	}
-+
- 	local_irq_disable();	/* to protect tcep and the page behind it */
- 	tcep = __this_cpu_read(tce_page);
- 
+ #define MEGASAS_FP_CMD_LEN	16
+ #define MEGASAS_FUSION_IN_RESET 0
++#define MEGASAS_FUSION_OCR_NOT_POSSIBLE 1
+ #define THRESHOLD_REPLY_COUNT 50
+ #define RAID_1_PEER_CMDS 2
+ #define JBOD_MAPS_COUNT	2
 
 
