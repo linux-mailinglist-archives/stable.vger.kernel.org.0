@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0E615C702
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7486E15C5EE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729775AbgBMQGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:06:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35458 "EHLO mail.kernel.org"
+        id S1729043AbgBMPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728446AbgBMPXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:42 -0500
+        id S2387472AbgBMPZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:36 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEF56246AD;
-        Thu, 13 Feb 2020 15:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A0D524693;
+        Thu, 13 Feb 2020 15:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607422;
-        bh=wp6DlfLy2ZTgy4xURGFu8rOf9ZQEUYuUErnKGeDGjD0=;
+        s=default; t=1581607534;
+        bh=b0FOauxgLNMEy1wQ+wzaA8xcGscBzKC+R+e0FgSdLPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCZ1YPcC0v7IoHBBhNoa5DdO5iaSJHLqz3aP0Lf8N0L5m/BxKxaO8NdCDPT9jkjV8
-         216IZINxFm78FJhemzMe1wf6dh0LbQMJrzMnsuOvEfy+UZKJbnPEja7bQbigmSuRvj
-         7oBgj6q89SOULAeYP2rbJonbWrl+19JU5CZ3TXic=
+        b=i6YPJl4QRNpeR5kTvGNqCIu6BdL8Dptvc+gLiqxeRt/McOMWtBcDtSMLuF0YMziXQ
+         3dN+SNW+JpMrsEa59g6XsHN2+WO9uiG5YCy1pUrbvQLx84mMhwKCCb8U47YLg4hicQ
+         Kw5FB7sAdNJlnY1CxO18/RWUu81bTX/dMAjLfzWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 050/116] KVM: x86: Protect ioapic_read_indirect() from Spectre-v1/L1TF attacks
+Subject: [PATCH 4.14 091/173] KVM: x86: Free wbinvd_dirty_mask if vCPU creation fails
 Date:   Thu, 13 Feb 2020 07:19:54 -0800
-Message-Id: <20200213151902.169820776@linuxfoundation.org>
+Message-Id: <20200213151956.021088390@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 8c86405f606ca8508b8d9280680166ca26723695 upstream.
+commit 16be9ddea268ad841457a59109963fff8c9de38d upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in ioapic_read_indirect().
-This function contains index computations based on the
-(attacker-controlled) IOREGSEL register.
+Free the vCPU's wbinvd_dirty_mask if vCPU creation fails after
+kvm_arch_vcpu_init(), e.g. when installing the vCPU's file descriptor.
+Do the freeing by calling kvm_arch_vcpu_free() instead of open coding
+the freeing.  This adds a likely superfluous, but ultimately harmless,
+call to kvmclock_reset(), which only clears vcpu->arch.pv_time_enabled.
+Using kvm_arch_vcpu_free() allows for additional cleanup in the future.
 
-Fixes: a2c118bfab8b ("KVM: Fix bounds checking in ioapic indirect register reads (CVE-2013-1798)")
-
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
+Fixes: f5f48ee15c2ee ("KVM: VMX: Execute WBINVD to keep data consistency with assigned devices")
 Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/ioapic.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/x86/kvm/x86.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -74,13 +74,14 @@ static unsigned long ioapic_read_indirec
- 	default:
- 		{
- 			u32 redir_index = (ioapic->ioregsel - 0x10) >> 1;
--			u64 redir_content;
-+			u64 redir_content = ~0ULL;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8063,7 +8063,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
+ 	kvm_mmu_unload(vcpu);
+ 	vcpu_put(vcpu);
  
--			if (redir_index < IOAPIC_NUM_PINS)
--				redir_content =
--					ioapic->redirtbl[redir_index].bits;
--			else
--				redir_content = ~0ULL;
-+			if (redir_index < IOAPIC_NUM_PINS) {
-+				u32 index = array_index_nospec(
-+					redir_index, IOAPIC_NUM_PINS);
-+
-+				redir_content = ioapic->redirtbl[index].bits;
-+			}
+-	kvm_x86_ops->vcpu_free(vcpu);
++	kvm_arch_vcpu_free(vcpu);
+ }
  
- 			result = (ioapic->ioregsel & 0x1) ?
- 			    (redir_content >> 32) & 0xffffffff :
+ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 
