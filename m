@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB8A15C76A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6414815C701
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727996AbgBMPWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60154 "EHLO mail.kernel.org"
+        id S1729617AbgBMQGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:06:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727982AbgBMPWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:35 -0500
+        id S1728009AbgBMPXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:41 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342DD24689;
-        Thu, 13 Feb 2020 15:22:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B201324689;
+        Thu, 13 Feb 2020 15:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607353;
-        bh=0iu1mtL/dPB7ua2msYJlQENzi50mFh/OXAG/DxLqoTQ=;
+        s=default; t=1581607420;
+        bh=1jBUdfWsHuGg8rPEnMV66fDGVZqo7eI+0SF9nRDwqdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vu2i7SBcP/9LwW0JYBIlwjNdK/hv1JMYdG5av8DsLH81TOHhB86w1C+LLSmFMTI+O
-         uGcJapGHpN1JwS+gOQhnDimGmKA0EzkFuuxmvkLSZ9DyjeRyb6vdYYiqlU3x1oowST
-         ANG0XlsOkOdO8dglGgaUxgnuCHGvIUrRGNBsEW6M=
+        b=SODoKnrG+b1da4b9zVhAXbyw+QP491bqHD3c5SVtNhMcewKz8tU6yfSeDJMFo8N35
+         QMk7nA+nR0oJjrrlTdNHzS3zxlh/1TsjnVax7bs0a8wqIEHBgLwk/4V8Yh6vgl7X/a
+         GciSdan247E/R/PF6f/o8NVBA/Mb7qVnNe7/p+ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 35/91] KVM: x86: Refactor prefix decoding to prevent Spectre-v1/L1TF attacks
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 048/116] KVM: x86: Protect ioapic_write_indirect() from Spectre-v1/L1TF attacks
 Date:   Thu, 13 Feb 2020 07:19:52 -0800
-Message-Id: <20200213151835.142777176@linuxfoundation.org>
+Message-Id: <20200213151901.504476491@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +48,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marios Pomonis <pomonis@google.com>
 
-commit 125ffc5e0a56a3eded608dc51e09d5ebf72cf652 upstream.
+commit 670564559ca35b439c8d8861fc399451ddf95137 upstream.
 
-This fixes Spectre-v1/L1TF vulnerabilities in
-vmx_read_guest_seg_selector(), vmx_read_guest_seg_base(),
-vmx_read_guest_seg_limit() and vmx_read_guest_seg_ar().  When
-invoked from emulation, these functions contain index computations
-based on the (attacker-influenced) segment value.  Using constants
-prevents the attack.
+This fixes a Spectre-v1/L1TF vulnerability in ioapic_write_indirect().
+This function contains index computations based on the
+(attacker-controlled) IOREGSEL register.
 
+This patch depends on patch
+"KVM: x86: Protect ioapic_read_indirect() from Spectre-v1/L1TF attacks".
+
+Fixes: 70f93dae32ac ("KVM: Use temporary variable to shorten lines.")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/x86/kvm/ioapic.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5041,16 +5041,28 @@ int x86_decode_insn(struct x86_emulate_c
- 				ctxt->ad_bytes = def_ad_bytes ^ 6;
- 			break;
- 		case 0x26:	/* ES override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_ES;
-+			break;
- 		case 0x2e:	/* CS override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_CS;
-+			break;
- 		case 0x36:	/* SS override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_SS;
-+			break;
- 		case 0x3e:	/* DS override */
- 			has_seg_override = true;
--			ctxt->seg_override = (ctxt->b >> 3) & 3;
-+			ctxt->seg_override = VCPU_SREG_DS;
- 			break;
- 		case 0x64:	/* FS override */
-+			has_seg_override = true;
-+			ctxt->seg_override = VCPU_SREG_FS;
-+			break;
- 		case 0x65:	/* GS override */
- 			has_seg_override = true;
--			ctxt->seg_override = ctxt->b & 7;
-+			ctxt->seg_override = VCPU_SREG_GS;
- 			break;
- 		case 0x40 ... 0x4f: /* REX */
- 			if (mode != X86EMUL_MODE_PROT64)
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -36,6 +36,7 @@
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
++#include <linux/nospec.h>
+ #include <asm/processor.h>
+ #include <asm/page.h>
+ #include <asm/current.h>
+@@ -299,6 +300,7 @@ static void ioapic_write_indirect(struct
+ 		ioapic_debug("change redir index %x val %x\n", index, val);
+ 		if (index >= IOAPIC_NUM_PINS)
+ 			return;
++		index = array_index_nospec(index, IOAPIC_NUM_PINS);
+ 		e = &ioapic->redirtbl[index];
+ 		mask_before = e->fields.mask;
+ 		/* Preserve read-only fields */
 
 
