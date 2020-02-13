@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC9815C184
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2C6215C15F
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:22:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728543AbgBMPX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36184 "EHLO mail.kernel.org"
+        id S1728180AbgBMPWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728539AbgBMPX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:56 -0500
+        id S1728175AbgBMPWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:53 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8526724691;
-        Thu, 13 Feb 2020 15:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 666D8246A3;
+        Thu, 13 Feb 2020 15:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607435;
-        bh=+n9UQHxAvQgQFJMau27dS5mtw+cO/bqHPKaO4xMeHrA=;
+        s=default; t=1581607373;
+        bh=OjyORDHmX1MHfQBDCYTakI+KY54HgAt1ETrCR0sCuws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjGqU1OveDs7GNWrXZUacsiWWaHFK1w64Hn697jhWpDN0aRvyZicq0djqWqF7JuMO
-         5lHIbPmddqvzhHs+zUZTg6v8IAA2xCmUoqRT1WTET4VMjS37pPlT0ezM8D+S5DCgA1
-         V6rBWMAvXm5FflrTw2C31fFQ0ED1NVGW8yytNVa4=
+        b=wpupGSrwCc+473xWJRbbmW8NAAgWqncS8cyHoSZhmTUOfK/I+HogYu4zu+nC8pEBC
+         Br1aUeFXTpgKVqE30Eu48uZKSishluhX09q2B/wFSpCOvDd73AuHspoNjAX902YdYD
+         /Bpnc1qJ70Sdr6lnQu4pIatiBu0oH+lviYJQ4rdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 071/116] ubi: Fix an error pointer dereference in error handling code
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 58/91] net: systemport: Avoid RBUF stuck in Wake-on-LAN mode
 Date:   Thu, 13 Feb 2020 07:20:15 -0800
-Message-Id: <20200213151910.510226175@linuxfoundation.org>
+Message-Id: <20200213151844.378802899@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,97 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 5d3805af279c93ef49a64701f35254676d709622 upstream.
+[ Upstream commit 263a425a482fc495d6d3f9a29b9103a664c38b69 ]
 
-If "seen_pebs = init_seen(ubi);" fails then "seen_pebs" is an error pointer
-and we try to kfree() it which results in an Oops.
+After a number of suspend and resume cycles, it is possible for the RBUF
+to be stuck in Wake-on-LAN mode, despite the MPD enable bit being
+cleared which instructed the RBUF to exit that mode.
 
-This patch re-arranges the error handling so now it only frees things
-which have been allocated successfully.
+Avoid creating that problematic condition by clearing the RX_EN and
+TX_EN bits in the UniMAC prior to disable the Magic Packet Detector
+logic which is guaranteed to make the RBUF exit Wake-on-LAN mode.
 
-Fixes: daef3dd1f0ae ("UBI: Fastmap: Add self check to detect absent PEBs")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 83e82f4c706b ("net: systemport: add Wake-on-LAN support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mtd/ubi/fastmap.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/broadcom/bcmsysport.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mtd/ubi/fastmap.c
-+++ b/drivers/mtd/ubi/fastmap.c
-@@ -1127,7 +1127,7 @@ static int ubi_write_fastmap(struct ubi_
- 	struct rb_node *tmp_rb;
- 	int ret, i, j, free_peb_count, used_peb_count, vol_count;
- 	int scrub_peb_count, erase_peb_count;
--	unsigned long *seen_pebs = NULL;
-+	unsigned long *seen_pebs;
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -1997,6 +1997,9 @@ static int bcm_sysport_resume(struct dev
  
- 	fm_raw = ubi->fm_buf;
- 	memset(ubi->fm_buf, 0, ubi->fm_size);
-@@ -1141,7 +1141,7 @@ static int ubi_write_fastmap(struct ubi_
- 	dvbuf = new_fm_vbuf(ubi, UBI_FM_DATA_VOLUME_ID);
- 	if (!dvbuf) {
- 		ret = -ENOMEM;
--		goto out_kfree;
-+		goto out_free_avbuf;
- 	}
+ 	umac_reset(priv);
  
- 	avhdr = ubi_get_vid_hdr(avbuf);
-@@ -1150,7 +1150,7 @@ static int ubi_write_fastmap(struct ubi_
- 	seen_pebs = init_seen(ubi);
- 	if (IS_ERR(seen_pebs)) {
- 		ret = PTR_ERR(seen_pebs);
--		goto out_kfree;
-+		goto out_free_dvbuf;
- 	}
- 
- 	spin_lock(&ubi->volumes_lock);
-@@ -1318,7 +1318,7 @@ static int ubi_write_fastmap(struct ubi_
- 	ret = ubi_io_write_vid_hdr(ubi, new_fm->e[0]->pnum, avbuf);
- 	if (ret) {
- 		ubi_err(ubi, "unable to write vid_hdr to fastmap SB!");
--		goto out_kfree;
-+		goto out_free_seen;
- 	}
- 
- 	for (i = 0; i < new_fm->used_blocks; i++) {
-@@ -1340,7 +1340,7 @@ static int ubi_write_fastmap(struct ubi_
- 		if (ret) {
- 			ubi_err(ubi, "unable to write vid_hdr to PEB %i!",
- 				new_fm->e[i]->pnum);
--			goto out_kfree;
-+			goto out_free_seen;
- 		}
- 	}
- 
-@@ -1350,7 +1350,7 @@ static int ubi_write_fastmap(struct ubi_
- 		if (ret) {
- 			ubi_err(ubi, "unable to write fastmap to PEB %i!",
- 				new_fm->e[i]->pnum);
--			goto out_kfree;
-+			goto out_free_seen;
- 		}
- 	}
- 
-@@ -1360,10 +1360,13 @@ static int ubi_write_fastmap(struct ubi_
- 	ret = self_check_seen(ubi, seen_pebs);
- 	dbg_bld("fastmap written!");
- 
--out_kfree:
--	ubi_free_vid_buf(avbuf);
--	ubi_free_vid_buf(dvbuf);
-+out_free_seen:
- 	free_seen(seen_pebs);
-+out_free_dvbuf:
-+	ubi_free_vid_buf(dvbuf);
-+out_free_avbuf:
-+	ubi_free_vid_buf(avbuf);
++	/* Disable the UniMAC RX/TX */
++	umac_enable_set(priv, CMD_RX_EN | CMD_TX_EN, 0);
 +
- out:
- 	return ret;
- }
+ 	/* We may have been suspended and never received a WOL event that
+ 	 * would turn off MPD detection, take care of that now
+ 	 */
 
 
