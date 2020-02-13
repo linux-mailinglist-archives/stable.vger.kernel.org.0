@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF1D15C408
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2C815C534
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729206AbgBMP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45336 "EHLO mail.kernel.org"
+        id S2388239AbgBMPyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:54:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387555AbgBMP00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:26 -0500
+        id S1728629AbgBMPZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:57 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38E092465D;
-        Thu, 13 Feb 2020 15:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 877D82469C;
+        Thu, 13 Feb 2020 15:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607586;
-        bh=soxysgmScoUA5zevNE0Fcjs3PkGIp9uikcZICujSkPc=;
+        s=default; t=1581607556;
+        bh=3OIHW4066o0u/0e3NMt7Vy6v1ng3ZSh1p7l+PzhQRa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljUiUkj+DCQR3NjG6VceJ9k31FxH2wXt/ZZb57FMeMz7xMDWEK/qBPgH7CSYilklK
-         dZeHn6Am7c/zIPMRwaqOegngWxn6pa3yT6vEB+hvFOjwYX6DNMUqDs43U3sfLqoCuU
-         xRYEWUmYj2vBs9Ndr/5lDxVUk4zcq97qE34JYu/o=
+        b=0SGcwmL/9zfjNlDr2PPTASmsJxTLAiRDOJQCpWEaVgZ2lMYvTTrxKJXdYIMB9jXPC
+         A8WWXUhbMbtqN10SXbKTbhsuVIfX/V0ZWi1RQsurK3Jd8eqylIUaB46sH9jHZq875L
+         bpBq1DmQN+kBEUzcCqA340yiklEmjRl/uHWVv77U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Haywood <mark.haywood@oracle.com>,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 04/52] RDMA/netlink: Do not always generate an ACK for some netlink operations
+        stable@vger.kernel.org, Sunil Muthuswamy <sunilmut@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 142/173] hv_sock: Remove the accept port restriction
 Date:   Thu, 13 Feb 2020 07:20:45 -0800
-Message-Id: <20200213151812.472960096@linuxfoundation.org>
+Message-Id: <20200213152007.503711773@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +44,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Sunil Muthuswamy <sunilmut@microsoft.com>
 
-commit a242c36951ecd24bc16086940dbe6b522205c461 upstream.
+[ Upstream commit c742c59e1fbd022b64d91aa9a0092b3a699d653c ]
 
-In rdma_nl_rcv_skb(), the local variable err is assigned the return value
-of the supplied callback function, which could be one of
-ib_nl_handle_resolve_resp(), ib_nl_handle_set_timeout(), or
-ib_nl_handle_ip_res_resp(). These three functions all return skb->len on
-success.
+Currently, hv_sock restricts the port the guest socket can accept
+connections on. hv_sock divides the socket port namespace into two parts
+for server side (listening socket), 0-0x7FFFFFFF & 0x80000000-0xFFFFFFFF
+(there are no restrictions on client port namespace). The first part
+(0-0x7FFFFFFF) is reserved for sockets where connections can be accepted.
+The second part (0x80000000-0xFFFFFFFF) is reserved for allocating ports
+for the peer (host) socket, once a connection is accepted.
+This reservation of the port namespace is specific to hv_sock and not
+known by the generic vsock library (ex: af_vsock). This is problematic
+because auto-binds/ephemeral ports are handled by the generic vsock
+library and it has no knowledge of this port reservation and could
+allocate a port that is not compatible with hv_sock (and legitimately so).
+The issue hasn't surfaced so far because the auto-bind code of vsock
+(__vsock_bind_stream) prior to the change 'VSOCK: bind to random port for
+VMADDR_PORT_ANY' would start walking up from LAST_RESERVED_PORT (1023) and
+start assigning ports. That will take a large number of iterations to hit
+0x7FFFFFFF. But, after the above change to randomize port selection, the
+issue has started coming up more frequently.
+There has really been no good reason to have this port reservation logic
+in hv_sock from the get go. Reserving a local port for peer ports is not
+how things are handled generally. Peer ports should reflect the peer port.
+This fixes the issue by lifting the port reservation, and also returns the
+right peer port. Since the code converts the GUID to the peer port (by
+using the first 4 bytes), there is a possibility of conflicts, but that
+seems like a reasonable risk to take, given this is limited to vsock and
+that only applies to all local sockets.
 
-rdma_nl_rcv_skb() is merely a copy of netlink_rcv_skb(). The callback
-functions used by the latter have the convention: "Returns 0 on success or
-a negative error code".
-
-In particular, the statement (equal for both functions):
-
-   if (nlh->nlmsg_flags & NLM_F_ACK || err)
-
-implies that rdma_nl_rcv_skb() always will ack a message, independent of
-the NLM_F_ACK being set in nlmsg_flags or not.
-
-The fix could be to change the above statement, but it is better to keep
-the two *_rcv_skb() functions equal in this respect and instead change the
-three callback functions in the rdma subsystem to the correct convention.
-
-Fixes: 2ca546b92a02 ("IB/sa: Route SA pathrecord query through netlink")
-Fixes: ae43f8286730 ("IB/core: Add IP to GID netlink offload")
-Link: https://lore.kernel.org/r/20191216120436.3204814-1-haakon.bugge@oracle.com
-Suggested-by: Mark Haywood <mark.haywood@oracle.com>
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Tested-by: Mark Haywood <mark.haywood@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/addr.c     |    2 +-
- drivers/infiniband/core/sa_query.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/vmw_vsock/hyperv_transport.c | 68 +++++---------------------------
+ 1 file changed, 9 insertions(+), 59 deletions(-)
 
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -136,7 +136,7 @@ int ib_nl_handle_ip_res_resp(struct sk_b
- 	if (ib_nl_is_good_ip_resp(nlh))
- 		ib_nl_process_good_ip_rsep(nlh);
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 6614512f81800..736b76ec8cf01 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -144,28 +144,15 @@ struct hvsock {
+  ****************************************************************************
+  * The only valid Service GUIDs, from the perspectives of both the host and *
+  * Linux VM, that can be connected by the other end, must conform to this   *
+- * format: <port>-facb-11e6-bd58-64006a7986d3, and the "port" must be in    *
+- * this range [0, 0x7FFFFFFF].                                              *
++ * format: <port>-facb-11e6-bd58-64006a7986d3.                              *
+  ****************************************************************************
+  *
+  * When we write apps on the host to connect(), the GUID ServiceID is used.
+  * When we write apps in Linux VM to connect(), we only need to specify the
+  * port and the driver will form the GUID and use that to request the host.
+  *
+- * From the perspective of Linux VM:
+- * 1. the local ephemeral port (i.e. the local auto-bound port when we call
+- * connect() without explicit bind()) is generated by __vsock_bind_stream(),
+- * and the range is [1024, 0xFFFFFFFF).
+- * 2. the remote ephemeral port (i.e. the auto-generated remote port for
+- * a connect request initiated by the host's connect()) is generated by
+- * hvs_remote_addr_init() and the range is [0x80000000, 0xFFFFFFFF).
+  */
  
--	return skb->len;
-+	return 0;
+-#define MAX_LISTEN_PORT			((u32)0x7FFFFFFF)
+-#define MAX_VM_LISTEN_PORT		MAX_LISTEN_PORT
+-#define MAX_HOST_LISTEN_PORT		MAX_LISTEN_PORT
+-#define MIN_HOST_EPHEMERAL_PORT		(MAX_HOST_LISTEN_PORT + 1)
+-
+ /* 00000000-facb-11e6-bd58-64006a7986d3 */
+ static const uuid_le srv_id_template =
+ 	UUID_LE(0x00000000, 0xfacb, 0x11e6, 0xbd, 0x58,
+@@ -188,33 +175,6 @@ static void hvs_addr_init(struct sockaddr_vm *addr, const uuid_le *svr_id)
+ 	vsock_addr_init(addr, VMADDR_CID_ANY, port);
  }
  
- static int ib_nl_ip_send_msg(struct rdma_dev_addr *dev_addr,
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -1078,7 +1078,7 @@ int ib_nl_handle_set_timeout(struct sk_b
- 	}
+-static void hvs_remote_addr_init(struct sockaddr_vm *remote,
+-				 struct sockaddr_vm *local)
+-{
+-	static u32 host_ephemeral_port = MIN_HOST_EPHEMERAL_PORT;
+-	struct sock *sk;
+-
+-	vsock_addr_init(remote, VMADDR_CID_ANY, VMADDR_PORT_ANY);
+-
+-	while (1) {
+-		/* Wrap around ? */
+-		if (host_ephemeral_port < MIN_HOST_EPHEMERAL_PORT ||
+-		    host_ephemeral_port == VMADDR_PORT_ANY)
+-			host_ephemeral_port = MIN_HOST_EPHEMERAL_PORT;
+-
+-		remote->svm_port = host_ephemeral_port++;
+-
+-		sk = vsock_find_connected_socket(remote, local);
+-		if (!sk) {
+-			/* Found an available ephemeral port */
+-			return;
+-		}
+-
+-		/* Release refcnt got in vsock_find_connected_socket */
+-		sock_put(sk);
+-	}
+-}
+-
+ static void hvs_set_channel_pending_send_size(struct vmbus_channel *chan)
+ {
+ 	set_channel_pending_send_size(chan,
+@@ -342,12 +302,7 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 	if_type = &chan->offermsg.offer.if_type;
+ 	if_instance = &chan->offermsg.offer.if_instance;
+ 	conn_from_host = chan->offermsg.offer.u.pipe.user_def[0];
+-
+-	/* The host or the VM should only listen on a port in
+-	 * [0, MAX_LISTEN_PORT]
+-	 */
+-	if (!is_valid_srv_id(if_type) ||
+-	    get_port_by_srv_id(if_type) > MAX_LISTEN_PORT)
++	if (!is_valid_srv_id(if_type))
+ 		return;
  
- settimeout_out:
--	return skb->len;
-+	return 0;
- }
+ 	hvs_addr_init(&addr, conn_from_host ? if_type : if_instance);
+@@ -372,6 +327,13 @@ static void hvs_open_connection(struct vmbus_channel *chan)
  
- static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
-@@ -1149,7 +1149,7 @@ int ib_nl_handle_resolve_resp(struct sk_
- 	}
+ 		new->sk_state = TCP_SYN_SENT;
+ 		vnew = vsock_sk(new);
++
++		hvs_addr_init(&vnew->local_addr, if_type);
++
++		/* Remote peer is always the host */
++		vsock_addr_init(&vnew->remote_addr,
++				VMADDR_CID_HOST, VMADDR_PORT_ANY);
++		vnew->remote_addr.svm_port = get_port_by_srv_id(if_instance);
+ 		hvs_new = vnew->trans;
+ 		hvs_new->chan = chan;
+ 	} else {
+@@ -411,8 +373,6 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 		sk->sk_ack_backlog++;
  
- resp_out:
--	return skb->len;
-+	return 0;
- }
+ 		hvs_addr_init(&vnew->local_addr, if_type);
+-		hvs_remote_addr_init(&vnew->remote_addr, &vnew->local_addr);
+-
+ 		hvs_new->vm_srv_id = *if_type;
+ 		hvs_new->host_srv_id = *if_instance;
  
- static void free_sm_ah(struct kref *kref)
+@@ -717,16 +677,6 @@ static bool hvs_stream_is_active(struct vsock_sock *vsk)
+ 
+ static bool hvs_stream_allow(u32 cid, u32 port)
+ {
+-	/* The host's port range [MIN_HOST_EPHEMERAL_PORT, 0xFFFFFFFF) is
+-	 * reserved as ephemeral ports, which are used as the host's ports
+-	 * when the host initiates connections.
+-	 *
+-	 * Perform this check in the guest so an immediate error is produced
+-	 * instead of a timeout.
+-	 */
+-	if (port > MAX_HOST_LISTEN_PORT)
+-		return false;
+-
+ 	if (cid == VMADDR_CID_HOST)
+ 		return true;
+ 
+-- 
+2.20.1
+
 
 
