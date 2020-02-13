@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7655B15C440
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E09B15C4EB
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387410AbgBMPpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:45:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51104 "EHLO mail.kernel.org"
+        id S1729298AbgBMPvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:51:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728612AbgBMP1d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:33 -0500
+        id S1728651AbgBMP0J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:09 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CACAE20661;
-        Thu, 13 Feb 2020 15:27:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B33D206ED;
+        Thu, 13 Feb 2020 15:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607651;
-        bh=ykTPePhQ0hHddIuGcVzpNHQS8K4ncWoU9fS/eVv0JTs=;
+        s=default; t=1581607569;
+        bh=MXUvtE+DyhgA9eVd8REk4gWhFUqUQf7jXGOjSh3qabQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x7jdKUAd4oFtswdvmpi5uzd0GRXXu3SdiKK6HCzZDlM6MEC++oo0aav121tka1Fbh
-         O9AQn2CcAcVfv+uKtkZ35ISvUnQkjytKDNj/QZCASwUzfrdb4R2+Xs8iUMnnkhdqrL
-         vAiJetIiU2PlBR2d69Tduk20NeZtL1ruVSp1WQVA=
+        b=LWRebF7eprKk180MKSp+o5vmyjhiFL8c7NgrBSn4AAJSdABSuvZgPoY1beo3RPSm0
+         j6PgbjsmsRsp+/s0QSGlnEEXNUrR9lkz6wdaRsKL/uvQWmKTjV+i9PwkeWFLPam0T4
+         LkbzFQmibSdLhJQdmfiVR2gZXUbtz45JoMCGsiUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 56/96] powerpc/papr_scm: Fix leaking bus_desc.provider_name in some paths
-Date:   Thu, 13 Feb 2020 07:21:03 -0800
-Message-Id: <20200213151901.020531511@linuxfoundation.org>
+        stable@vger.kernel.org, Olof Johansson <olof@lixom.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.14 161/173] ARM: 8949/1: mm: mark free_memmap as __init
+Date:   Thu, 13 Feb 2020 07:21:04 -0800
+Message-Id: <20200213152011.837317599@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Jain <vaibhav@linux.ibm.com>
+From: Olof Johansson <olof@lixom.net>
 
-commit 5649607a8d0b0e019a4db14aab3de1e16c3a2b4f upstream.
+commit 31f3010e60522ede237fb145a63b4af5a41718c2 upstream.
 
-String 'bus_desc.provider_name' allocated inside
-papr_scm_nvdimm_init() will leaks in case call to
-nvdimm_bus_register() fails or when papr_scm_remove() is called.
+As of commit ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING
+forcibly"), free_memmap() might not always be inlined, and thus is
+triggering a section warning:
 
-This minor patch ensures that 'bus_desc.provider_name' is freed in
-error path for nvdimm_bus_register() as well as in papr_scm_remove().
+WARNING: vmlinux.o(.text.unlikely+0x904): Section mismatch in reference from the function free_memmap() to the function .meminit.text:memblock_free()
 
-Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200122155140.120429-1-vaibhav@linux.ibm.com
+Mark it as __init, since the faller (free_unused_memmap) already is.
+
+Fixes: ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING forcibly")
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/papr_scm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mm/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -342,6 +342,7 @@ static int papr_scm_nvdimm_init(struct p
- 	p->bus = nvdimm_bus_register(NULL, &p->bus_desc);
- 	if (!p->bus) {
- 		dev_err(dev, "Error creating nvdimm bus %pOF\n", p->dn);
-+		kfree(p->bus_desc.provider_name);
- 		return -ENXIO;
- 	}
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -356,7 +356,7 @@ static inline void poison_init_mem(void
+ 		*p++ = 0xe7fddef0;
+ }
  
-@@ -498,6 +499,7 @@ static int papr_scm_remove(struct platfo
- 
- 	nvdimm_bus_unregister(p->bus);
- 	drc_pmem_unbind(p);
-+	kfree(p->bus_desc.provider_name);
- 	kfree(p);
- 
- 	return 0;
+-static inline void
++static inline void __init
+ free_memmap(unsigned long start_pfn, unsigned long end_pfn)
+ {
+ 	struct page *start_pg, *end_pg;
 
 
