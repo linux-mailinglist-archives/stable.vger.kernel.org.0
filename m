@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB4E15C75B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD8615C6DA
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728807AbgBMQJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:09:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
+        id S1728688AbgBMQEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:04:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728079AbgBMPWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:43 -0500
+        id S1728572AbgBMPYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:01 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5955C246B3;
-        Thu, 13 Feb 2020 15:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3043C24690;
+        Thu, 13 Feb 2020 15:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607362;
-        bh=/O/Q4FG/rgon6u0qtaJpJXjl/VmEOXvI7NIDBPba6es=;
+        s=default; t=1581607441;
+        bh=bBRNU/XhX8hgq6uIAe2ranG1Tg5vXviudg/xQk03MkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pY+yFEhO+PyFhofI4Rkg09+JIQaXRaadmWyg+t5Kp3NhK/AJLVMEaydjB+iFQ0y5Z
-         ZKajB+rYtL6xijLa5H+lWT5b6jXC2mk8OGWnpbFGxkasN9vQ475JV62Pe4/CnzF/cd
-         ga95Mwy1RljIYN3CkteKKohZEbYexoX7iQLIMdoU=
+        b=ytV2XzyOzHmRiaf3SGQAogXhXUw8Gq7VjaBV3vPrHjuG5jgmwB/uWgTjSy0NZ7jVG
+         Z4Ur9lVe7aC+nhI3/GrmARDWukknCpjWs85FoA2PJzfM/x94JCs87z661GfszUQvNE
+         L0aLI2343soj45BP+Xr4+jkpA8skQswU02sH4Tbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 49/91] scsi: qla4xxx: Adjust indentation in qla4xxx_mem_free
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 062/116] powerpc/44x: Adjust indentation in ibm4xx_denali_fixup_memsize
 Date:   Thu, 13 Feb 2020 07:20:06 -0800
-Message-Id: <20200213151840.640099802@linuxfoundation.org>
+Message-Id: <20200213151906.943052703@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit aa8679736a82386551eb9f3ea0e6ebe2c0e99104 upstream.
+commit c3aae14e5d468d18dbb5d7c0c8c7e2968cc14aad upstream.
 
 Clang warns:
 
-../drivers/scsi/qla4xxx/ql4_os.c:4148:3: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-         if (ha->fw_dump)
-         ^
-../drivers/scsi/qla4xxx/ql4_os.c:4144:2: note: previous statement is
-here
-        if (ha->queues)
+../arch/powerpc/boot/4xx.c:231:3: warning: misleading indentation;
+statement is not part of the previous 'else' [-Wmisleading-indentation]
+        val = SDRAM0_READ(DDR0_42);
         ^
-1 warning generated.
+../arch/powerpc/boot/4xx.c:227:2: note: previous statement is here
+        else
+        ^
 
-This warning occurs because there is a space after the tab on this
-line.  Remove it so that the indentation is consistent with the Linux
-kernel coding style and clang no longer warns.
+This is because there is a space at the beginning of this line; remove
+it so that the indentation is consistent according to the Linux kernel
+coding style and clang no longer warns.
 
-Fixes: 068237c87c64 ("[SCSI] qla4xxx: Capture minidump for ISP82XX on firmware failure")
-Link: https://github.com/ClangBuiltLinux/linux/issues/819
-Link: https://lore.kernel.org/r/20191218015252.20890-1-natechancellor@gmail.com
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: d23f5099297c ("[POWERPC] 4xx: Adds decoding of 440SPE memory size to boot wrapper library")
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/780
+Link: https://lore.kernel.org/r/20191209200338.12546-1-natechancellor@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla4xxx/ql4_os.c |    2 +-
+ arch/powerpc/boot/4xx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -4150,7 +4150,7 @@ static void qla4xxx_mem_free(struct scsi
- 		dma_free_coherent(&ha->pdev->dev, ha->queues_len, ha->queues,
- 				  ha->queues_dma);
+--- a/arch/powerpc/boot/4xx.c
++++ b/arch/powerpc/boot/4xx.c
+@@ -232,7 +232,7 @@ void ibm4xx_denali_fixup_memsize(void)
+ 		dpath = 8; /* 64 bits */
  
--	 if (ha->fw_dump)
-+	if (ha->fw_dump)
- 		vfree(ha->fw_dump);
+ 	/* get address pins (rows) */
+- 	val = SDRAM0_READ(DDR0_42);
++	val = SDRAM0_READ(DDR0_42);
  
- 	ha->queues_len = 0;
+ 	row = DDR_GET_VAL(val, DDR_APIN, DDR_APIN_SHIFT);
+ 	if (row > max_row)
 
 
