@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52AB515C346
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE91D15C41A
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387564AbgBMPjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:39:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57624 "EHLO mail.kernel.org"
+        id S1729283AbgBMP0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729624AbgBMP2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:54 -0500
+        id S1728899AbgBMP0y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:54 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 644AD206DB;
-        Thu, 13 Feb 2020 15:28:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97D4B222C2;
+        Thu, 13 Feb 2020 15:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607734;
-        bh=WuqV254a5onX5HPGKhHxntSjp5QurUQnAHBFMgCKLuQ=;
+        s=default; t=1581607613;
+        bh=yyXdNtolbkkLeuWnCD3w9o0e3vo2Fw9io8pKjlkstB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ygsCihCbkLz1PVYtkNSm6NfYC+lyeG5cc7jGFCt7XUfKe+ssFbwANlTNw7yIOtQnB
-         o6RDa5Gh/WMYoaESxIX6PQoZcZkbZs/ggsFe3PZwj2Ba934/zpeXkb6KD40/fF2zr/
-         cg84y350fw6C5f93Jbku+gHVxdBwYarXF2nQXNfQ=
+        b=kmUGvTRu5gyc1/6wNgIlGlzmNfT8p7rlIQEVz87Acqdq0j3wdu/lMFxK1EojGuSJX
+         NLp5VzVoQUYrc4YWJ87rBKB7Kn9bpUgyZUQwDLlI4U2CQaHyZWZfAS+8jO3N3cJMKO
+         3Rx8v/Bgk7conI8lqfWaxDB0UUMxH8Po/he+hMdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.5 085/120] KVM: arm/arm64: Fix young bit from mmu notifier
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.19 40/52] mtd: onenand_base: Adjust indentation in onenand_read_ops_nolock
 Date:   Thu, 13 Feb 2020 07:21:21 -0800
-Message-Id: <20200213151929.930520608@linuxfoundation.org>
+Message-Id: <20200213151826.742940868@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Shan <gshan@redhat.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit cf2d23e0bac9f6b5cd1cba8898f5f05ead40e530 upstream.
+commit 0e7ca83e82d021c928dadf4c13c137d57337540d upstream.
 
-kvm_test_age_hva() is called upon mmu_notifier_test_young(), but wrong
-address range has been passed to handle_hva_to_gpa(). With the wrong
-address range, no young bits will be checked in handle_hva_to_gpa().
-It means zero is always returned from mmu_notifier_test_young().
+Clang warns:
 
-This fixes the issue by passing correct address range to the underly
-function handle_hva_to_gpa(), so that the hardware young (access) bit
-will be visited.
+../drivers/mtd/nand/onenand/onenand_base.c:1269:3: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+        while (!ret) {
+        ^
+../drivers/mtd/nand/onenand/onenand_base.c:1266:2: note: previous
+statement is here
+        if (column + thislen > writesize)
+        ^
+1 warning generated.
 
-Fixes: 35307b9a5f7e ("arm/arm64: KVM: Implement Stage-2 page aging")
-Signed-off-by: Gavin Shan <gshan@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200121055659.19560-1-gshan@redhat.com
+This warning occurs because there is a space before the tab of the while
+loop. There are spaces at the beginning of a lot of the lines in this
+block, remove them so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
+
+Fixes: a8de85d55700 ("[MTD] OneNAND: Implement read-while-load")
+Link: https://github.com/ClangBuiltLinux/linux/issues/794
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/mmu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/onenand/onenand_base.c |   82 ++++++++++++++++----------------
+ 1 file changed, 41 insertions(+), 41 deletions(-)
 
---- a/virt/kvm/arm/mmu.c
-+++ b/virt/kvm/arm/mmu.c
-@@ -2147,7 +2147,8 @@ int kvm_test_age_hva(struct kvm *kvm, un
- 	if (!kvm->arch.pgd)
- 		return 0;
- 	trace_kvm_test_age_hva(hva);
--	return handle_hva_to_gpa(kvm, hva, hva, kvm_test_age_hva_handler, NULL);
-+	return handle_hva_to_gpa(kvm, hva, hva + PAGE_SIZE,
-+				 kvm_test_age_hva_handler, NULL);
- }
+--- a/drivers/mtd/nand/onenand/onenand_base.c
++++ b/drivers/mtd/nand/onenand/onenand_base.c
+@@ -1251,44 +1251,44 @@ static int onenand_read_ops_nolock(struc
  
- void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu)
+ 	stats = mtd->ecc_stats;
+ 
+- 	/* Read-while-load method */
++	/* Read-while-load method */
+ 
+- 	/* Do first load to bufferRAM */
+- 	if (read < len) {
+- 		if (!onenand_check_bufferram(mtd, from)) {
++	/* Do first load to bufferRAM */
++	if (read < len) {
++		if (!onenand_check_bufferram(mtd, from)) {
+ 			this->command(mtd, ONENAND_CMD_READ, from, writesize);
+- 			ret = this->wait(mtd, FL_READING);
+- 			onenand_update_bufferram(mtd, from, !ret);
++			ret = this->wait(mtd, FL_READING);
++			onenand_update_bufferram(mtd, from, !ret);
+ 			if (mtd_is_eccerr(ret))
+ 				ret = 0;
+- 		}
+- 	}
++		}
++	}
+ 
+ 	thislen = min_t(int, writesize, len - read);
+ 	column = from & (writesize - 1);
+ 	if (column + thislen > writesize)
+ 		thislen = writesize - column;
+ 
+- 	while (!ret) {
+- 		/* If there is more to load then start next load */
+- 		from += thislen;
+- 		if (read + thislen < len) {
++	while (!ret) {
++		/* If there is more to load then start next load */
++		from += thislen;
++		if (read + thislen < len) {
+ 			this->command(mtd, ONENAND_CMD_READ, from, writesize);
+- 			/*
+- 			 * Chip boundary handling in DDP
+- 			 * Now we issued chip 1 read and pointed chip 1
++			/*
++			 * Chip boundary handling in DDP
++			 * Now we issued chip 1 read and pointed chip 1
+ 			 * bufferram so we have to point chip 0 bufferram.
+- 			 */
+- 			if (ONENAND_IS_DDP(this) &&
+- 			    unlikely(from == (this->chipsize >> 1))) {
+- 				this->write_word(ONENAND_DDP_CHIP0, this->base + ONENAND_REG_START_ADDRESS2);
+- 				boundary = 1;
+- 			} else
+- 				boundary = 0;
+- 			ONENAND_SET_PREV_BUFFERRAM(this);
+- 		}
+- 		/* While load is going, read from last bufferRAM */
+- 		this->read_bufferram(mtd, ONENAND_DATARAM, buf, column, thislen);
++			 */
++			if (ONENAND_IS_DDP(this) &&
++			    unlikely(from == (this->chipsize >> 1))) {
++				this->write_word(ONENAND_DDP_CHIP0, this->base + ONENAND_REG_START_ADDRESS2);
++				boundary = 1;
++			} else
++				boundary = 0;
++			ONENAND_SET_PREV_BUFFERRAM(this);
++		}
++		/* While load is going, read from last bufferRAM */
++		this->read_bufferram(mtd, ONENAND_DATARAM, buf, column, thislen);
+ 
+ 		/* Read oob area if needed */
+ 		if (oobbuf) {
+@@ -1304,24 +1304,24 @@ static int onenand_read_ops_nolock(struc
+ 			oobcolumn = 0;
+ 		}
+ 
+- 		/* See if we are done */
+- 		read += thislen;
+- 		if (read == len)
+- 			break;
+- 		/* Set up for next read from bufferRAM */
+- 		if (unlikely(boundary))
+- 			this->write_word(ONENAND_DDP_CHIP1, this->base + ONENAND_REG_START_ADDRESS2);
+- 		ONENAND_SET_NEXT_BUFFERRAM(this);
+- 		buf += thislen;
++		/* See if we are done */
++		read += thislen;
++		if (read == len)
++			break;
++		/* Set up for next read from bufferRAM */
++		if (unlikely(boundary))
++			this->write_word(ONENAND_DDP_CHIP1, this->base + ONENAND_REG_START_ADDRESS2);
++		ONENAND_SET_NEXT_BUFFERRAM(this);
++		buf += thislen;
+ 		thislen = min_t(int, writesize, len - read);
+- 		column = 0;
+- 		cond_resched();
+- 		/* Now wait for load */
+- 		ret = this->wait(mtd, FL_READING);
+- 		onenand_update_bufferram(mtd, from, !ret);
++		column = 0;
++		cond_resched();
++		/* Now wait for load */
++		ret = this->wait(mtd, FL_READING);
++		onenand_update_bufferram(mtd, from, !ret);
+ 		if (mtd_is_eccerr(ret))
+ 			ret = 0;
+- 	}
++	}
+ 
+ 	/*
+ 	 * Return success, if no ECC failures, else -EBADMSG
 
 
