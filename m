@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A77C15C70D
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4579C15C5D1
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730386AbgBMQGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:06:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35014 "EHLO mail.kernel.org"
+        id S1728913AbgBMPZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728416AbgBMPXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:34 -0500
+        id S1728903AbgBMPZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:04 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D074F246B3;
-        Thu, 13 Feb 2020 15:23:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5C6D246A4;
+        Thu, 13 Feb 2020 15:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607413;
-        bh=z9SGixNCT5LqAOs1AaIfPqnNP4XDDLBFKtI3cWOntoQ=;
+        s=default; t=1581607503;
+        bh=70flgQxNwh5hYgsNI8djhEjl8EqUBmy1+5Jcyh62HQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6EG1zBKzcLpPUrjKSwKDYKHIBGJZGwe+4k8C0WaiCVkZutyNFi7zjQTCqKc1ydqe
-         oaoCJSfkzOTNp4sA7LSfXZr5MZ18HUVHqaJ6bO6xdXg728VtscTroVJBQ0itJpmqwL
-         dNfL0fG4owh1rJPWda7TEbSeyVpa6cD5JK6clpXE=
+        b=ruIOeIwOyvGMqJpZwCrHDSXYSpooY20GaTJRlhTlXg0Q9Fca//C5USRy7OlABIequ
+         YypCGCIkooN9U0CZ9IUNtQwcb4l0T9b5wgLW3JltzeBYSG6s1IlgsLXNQnH+hvmaw9
+         RQ48EKdPYFX1T8chNFBZ8KXIUQT0e0Z/iDEuNGqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.9 019/116] usb: gadget: f_ncm: Use atomic_t to track in-flight request
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 060/173] ftrace: Add comment to why rcu_dereference_sched() is open coded
 Date:   Thu, 13 Feb 2020 07:19:23 -0800
-Message-Id: <20200213151850.320924673@linuxfoundation.org>
+Message-Id: <20200213151948.956357608@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 5b24c28cfe136597dc3913e1c00b119307a20c7e upstream.
+[ Upstream commit 16052dd5bdfa16dbe18d8c1d4cde2ddab9d23177 ]
 
-Currently ncm->notify_req is used to flag when a request is in-flight.
-ncm->notify_req is set to NULL and when a request completes it is
-subsequently reset.
+Because the function graph tracer can execute in sections where RCU is not
+"watching", the rcu_dereference_sched() for the has needs to be open coded.
+This is fine because the RCU "flavor" of the ftrace hash is protected by
+its own RCU handling (it does its own little synchronization on every CPU
+and does not rely on RCU sched).
 
-This is fundamentally buggy in that the unbind logic of the NCM driver will
-unconditionally free ncm->notify_req leading to a NULL pointer dereference.
-
-Fixes: 40d133d7f542 ("usb: gadget: f_ncm: convert to new function interface with backward compatibility")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Acked-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ kernel/trace/trace.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -57,6 +57,7 @@ struct f_ncm {
- 	struct usb_ep			*notify;
- 	struct usb_request		*notify_req;
- 	u8				notify_state;
-+	atomic_t			notify_count;
- 	bool				is_open;
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 757bb1bffed99..99af95e294d8d 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -879,6 +879,11 @@ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
  
- 	const struct ndp_parser_opts	*parser_opts;
-@@ -552,7 +553,7 @@ static void ncm_do_notify(struct f_ncm *
- 	int				status;
+ 	preempt_disable_notrace();
  
- 	/* notification already in flight? */
--	if (!req)
-+	if (atomic_read(&ncm->notify_count))
- 		return;
++	/*
++	 * Have to open code "rcu_dereference_sched()" because the
++	 * function graph tracer can be called when RCU is not
++	 * "watching".
++	 */
+ 	hash = rcu_dereference_protected(ftrace_graph_hash, !preemptible());
  
- 	event = req->buf;
-@@ -592,7 +593,8 @@ static void ncm_do_notify(struct f_ncm *
- 	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ncm->ctrl_id);
+ 	if (ftrace_hash_empty(hash)) {
+@@ -926,6 +931,11 @@ static inline int ftrace_graph_notrace_addr(unsigned long addr)
  
--	ncm->notify_req = NULL;
-+	atomic_inc(&ncm->notify_count);
-+
- 	/*
- 	 * In double buffering if there is a space in FIFO,
- 	 * completion callback can be called right after the call,
-@@ -602,7 +604,7 @@ static void ncm_do_notify(struct f_ncm *
- 	status = usb_ep_queue(ncm->notify, req, GFP_ATOMIC);
- 	spin_lock(&ncm->lock);
- 	if (status < 0) {
--		ncm->notify_req = req;
-+		atomic_dec(&ncm->notify_count);
- 		DBG(cdev, "notify --> %d\n", status);
- 	}
- }
-@@ -637,17 +639,19 @@ static void ncm_notify_complete(struct u
- 	case 0:
- 		VDBG(cdev, "Notification %02x sent\n",
- 		     event->bNotificationType);
-+		atomic_dec(&ncm->notify_count);
- 		break;
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
-+		atomic_set(&ncm->notify_count, 0);
- 		ncm->notify_state = NCM_NOTIFY_NONE;
- 		break;
- 	default:
- 		DBG(cdev, "event %02x --> %d\n",
- 			event->bNotificationType, req->status);
-+		atomic_dec(&ncm->notify_count);
- 		break;
- 	}
--	ncm->notify_req = req;
- 	ncm_do_notify(ncm);
- 	spin_unlock(&ncm->lock);
- }
-@@ -1639,6 +1643,11 @@ static void ncm_unbind(struct usb_config
- 	ncm_string_defs[0].id = 0;
- 	usb_free_all_descriptors(f);
+ 	preempt_disable_notrace();
  
-+	if (atomic_read(&ncm->notify_count)) {
-+		usb_ep_dequeue(ncm->notify, ncm->notify_req);
-+		atomic_set(&ncm->notify_count, 0);
-+	}
-+
- 	kfree(ncm->notify_req->buf);
- 	usb_ep_free_request(ncm->notify, ncm->notify_req);
- }
++	/*
++	 * Have to open code "rcu_dereference_sched()" because the
++	 * function graph tracer can be called when RCU is not
++	 * "watching".
++	 */
+ 	notrace_hash = rcu_dereference_protected(ftrace_graph_notrace_hash,
+ 						 !preemptible());
+ 
+-- 
+2.20.1
+
 
 
