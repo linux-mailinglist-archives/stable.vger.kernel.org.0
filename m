@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 070D415C543
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7141515C480
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729106AbgBMPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42610 "EHLO mail.kernel.org"
+        id S1729435AbgBMPrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:47:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729091AbgBMPZv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:51 -0500
+        id S1727986AbgBMP06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:58 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADE5B24693;
-        Thu, 13 Feb 2020 15:25:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23AAF24677;
+        Thu, 13 Feb 2020 15:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607550;
-        bh=sDVloQ0gtz8WZ3p0QvAxsOXSizQEKXzw5W9VDqyug68=;
+        s=default; t=1581607618;
+        bh=Qi7UqkWj3azxCJlMz34Rq3df9Z8YUBZlDpzh1tYSrkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2BcFmESyhdI4QCuEXFJ51nY397k8bEe4jw+etfYM0K4dp1MKXVslgGrn2Oh3TSum
-         RQSv91UCc1LgPeT6fuKRqqZpvWOYhsEB1OorwWkA6peGVLOE/WB3wNDCur8B470Ou5
-         A/0ZyPMu5rsr7lKFAb20xrp9uuEqGUte3h3CSVmg=
+        b=oRm4rnDUArGq0hMl+SMRmNOZ4gR0eAHq4lIf04cHObxre5HlF2dTtfv/aZSAfnhiU
+         ZQMcNeIrEnKPPeCJl/iLjXDCswdRMVUI0CMHaEIcnEZf4mTIVp85FSPsRWikZ/LDSU
+         a4cSmhBsacLKdlhA65+w31WpxONhm9OZc6bwJ7DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 115/173] net: macb: Remove unnecessary alignment check for TSO
+        stable@vger.kernel.org, Artemy Kovalyov <artemyko@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Gal Pressman <galpress@amazon.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 11/96] RDMA/umem: Fix ib_umem_find_best_pgsz()
 Date:   Thu, 13 Feb 2020 07:20:18 -0800
-Message-Id: <20200213152001.489242907@linuxfoundation.org>
+Message-Id: <20200213151843.594895581@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Artemy Kovalyov <artemyko@mellanox.com>
 
-[ Upstream commit 41c1ef978c8d0259c6636e6d2d854777e92650eb ]
+commit 36798d5ae1af62e830c5e045b2e41ce038690c61 upstream.
 
-The IP TSO implementation does NOT require the length to be a
-multiple of 8. That is only a requirement for UFO as per IP
-documentation. Hence, exit macb_features_check function in the
-beginning if the protocol is not UDP. Only when it is UDP,
-proceed further to the alignment checks. Update comments to
-reflect the same. Also remove dead code checking for protocol
-TCP when calculating header length.
+Except for the last entry, the ending iova alignment sets the maximum
+possible page size as the low bits of the iova must be zero when starting
+the next chunk.
 
-Fixes: 1629dd4f763c ("cadence: Add LSO support.")
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
+Link: https://lore.kernel.org/r/20200128135612.174820-1-leon@kernel.org
+Signed-off-by: Artemy Kovalyov <artemyko@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Tested-by: Gal Pressman <galpress@amazon.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/cadence/macb_main.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1577,16 +1577,14 @@ static netdev_features_t macb_features_c
- 
- 	/* Validate LSO compatibility */
- 
--	/* there is only one buffer */
--	if (!skb_is_nonlinear(skb))
-+	/* there is only one buffer or protocol is not UDP */
-+	if (!skb_is_nonlinear(skb) || (ip_hdr(skb)->protocol != IPPROTO_UDP))
- 		return features;
- 
- 	/* length of header */
- 	hdrlen = skb_transport_offset(skb);
--	if (ip_hdr(skb)->protocol == IPPROTO_TCP)
--		hdrlen += tcp_hdrlen(skb);
- 
--	/* For LSO:
-+	/* For UFO only:
- 	 * When software supplies two or more payload buffers all payload buffers
- 	 * apart from the last must be a multiple of 8 bytes in size.
- 	 */
+---
+ drivers/infiniband/core/umem.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/drivers/infiniband/core/umem.c
++++ b/drivers/infiniband/core/umem.c
+@@ -166,10 +166,13 @@ unsigned long ib_umem_find_best_pgsz(str
+ 		 * for any address.
+ 		 */
+ 		mask |= (sg_dma_address(sg) + pgoff) ^ va;
+-		if (i && i != (umem->nmap - 1))
+-			/* restrict by length as well for interior SGEs */
+-			mask |= sg_dma_len(sg);
+ 		va += sg_dma_len(sg) - pgoff;
++		/* Except for the last entry, the ending iova alignment sets
++		 * the maximum possible page size as the low bits of the iova
++		 * must be zero when starting the next chunk.
++		 */
++		if (i != (umem->nmap - 1))
++			mask |= va;
+ 		pgoff = 0;
+ 	}
+ 	best_pg_bit = rdma_find_pg_bit(mask, pgsz_bitmap);
 
 
