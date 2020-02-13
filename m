@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 646C315C30B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D085915C491
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728791AbgBMP3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:29:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57966 "EHLO mail.kernel.org"
+        id S2387476AbgBMPse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:48:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729642AbgBMP3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:00 -0500
+        id S1729280AbgBMP0y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:54 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92DD424671;
-        Thu, 13 Feb 2020 15:28:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D5302468E;
+        Thu, 13 Feb 2020 15:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607739;
-        bh=/cBsV2+fZ3tqujiRAUL+RNTm5GPLITKuiZjrgCkDibY=;
+        s=default; t=1581607614;
+        bh=XfP0hxBw4XciKG4xJAy7w77XrwM1u8ge/WhhJ+ZEbpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zf1FLqTb8+GHT/nD4EwNduMJhDC9B+nZvWa2PI/eUpOlxblhx98qQFxli8ait24pW
-         R13I+Z7ypYg3g2dGtEY0EZpvstRnl3jyUV6fdJwoBRE0zAKetrq1rvoWuzoGC7gKAk
-         Ai3TYP6z2eqG4HgZ+7/PzqlGhKCte/oXJBdIebko=
+        b=emmy3DNVYID9xyqKW1KiWADB8qglSW7r74efyMFElXxfqc3xdUl61EYCfnpqgXBS8
+         iYrCQUUInxXSNj2dSWxZNiH7j1ehaxcS2wAwNmKuMgt94SmsJuWuIPtBpJeNRyGbCq
+         JbOa8OMQ64DLa5IgJwtmHro15Rq+bMnSM7tK6YdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.5 075/120] ARM: at91: pm: use SAM9X60 PMCs compatible
-Date:   Thu, 13 Feb 2020 07:21:11 -0800
-Message-Id: <20200213151926.789262343@linuxfoundation.org>
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 31/52] iommu/arm-smmu-v3: Populate VMID field for CMDQ_OP_TLBI_NH_VA
+Date:   Thu, 13 Feb 2020 07:21:12 -0800
+Message-Id: <20200213151822.860424461@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 
-commit 6b9dfd986a81a999a27b6ed9dbe91203089c62dd upstream.
+commit 935d43ba272e0001f8ef446a3eff15d8175cb11b upstream.
 
-SAM9X60 PMC's has a different PMC. It was not integrated at the moment
-commit 01c7031cfa73 ("ARM: at91: pm: initial PM support for SAM9X60")
-was published.
+CMDQ_OP_TLBI_NH_VA requires VMID and this was missing since
+commit 1c27df1c0a82 ("iommu/arm-smmu: Use correct address mask
+for CMD_TLBI_S2_IPA"). Add it back.
 
-Fixes: 01c7031cfa73 ("ARM: at91: pm: initial PM support for SAM9X60")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/1576062248-18514-2-git-send-email-claudiu.beznea@microchip.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 1c27df1c0a82 ("iommu/arm-smmu: Use correct address mask for CMD_TLBI_S2_IPA")
+Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-at91/pm.c |    1 +
+ drivers/iommu/arm-smmu-v3.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -751,6 +751,7 @@ static const struct of_device_id atmel_p
- 	{ .compatible = "atmel,sama5d3-pmc", .data = &pmc_infos[1] },
- 	{ .compatible = "atmel,sama5d4-pmc", .data = &pmc_infos[1] },
- 	{ .compatible = "atmel,sama5d2-pmc", .data = &pmc_infos[1] },
-+	{ .compatible = "microchip,sam9x60-pmc", .data = &pmc_infos[1] },
- 	{ /* sentinel */ },
- };
- 
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -810,6 +810,7 @@ static int arm_smmu_cmdq_build_cmd(u64 *
+ 		cmd[1] |= FIELD_PREP(CMDQ_CFGI_1_RANGE, 31);
+ 		break;
+ 	case CMDQ_OP_TLBI_NH_VA:
++		cmd[0] |= FIELD_PREP(CMDQ_TLBI_0_VMID, ent->tlbi.vmid);
+ 		cmd[0] |= FIELD_PREP(CMDQ_TLBI_0_ASID, ent->tlbi.asid);
+ 		cmd[1] |= FIELD_PREP(CMDQ_TLBI_1_LEAF, ent->tlbi.leaf);
+ 		cmd[1] |= ent->tlbi.addr & CMDQ_TLBI_1_VA_MASK;
 
 
