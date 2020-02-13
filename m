@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5074A15C6F3
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A691F15C771
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730179AbgBMQFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:05:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
+        id S1727976AbgBMPWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728495AbgBMPXu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:50 -0500
+        id S1727964AbgBMPWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:33 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0C0924690;
-        Thu, 13 Feb 2020 15:23:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 447B924691;
+        Thu, 13 Feb 2020 15:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607429;
-        bh=wfrSAr0KNk13gs0Ou2qSbGuJ1cF9Av2hKMxs2i1xMyk=;
+        s=default; t=1581607351;
+        bh=GK8jr8jCxIwxjXE6OaSqKIeV53lYBLlca+58bBPRPcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvcYOAf5RWcfhEzkQfiqIhh0YaG2abhGJWwgWqi9loUAjtncCBw3jhF6IpCzH0328
-         9qvzwDOE8iAeKliAf1CuyZCa4JkbooWRrkbYUm7iV4QcJmPoCoCWR9PFxwCGD5XHpb
-         bTZK6KgwsDZBGcdatKZghWyyp6oURh2wOBRz/yK0=
+        b=vM+0vvw+fo8xPNiepIuoR9EO2jeBSoBu6vfC0lBUcTO+vSZLYNoFxq+xVtnZTQy0R
+         8+fZnNAAfN1xYcEGXbmzdDhgVHmOZciy5rHFNtRMjiku5Tv+PcXH/L7S5C7v/zH0Mp
+         8vdHq0ia5uE1fLmlb6QVIL5OsA7c1BCxH2LR4m4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 045/116] KVM: x86: Protect DR-based index computations from Spectre-v1/L1TF attacks
+        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.4 32/91] ARM: tegra: Enable PLLP bypass during Tegra124 LP1
 Date:   Thu, 13 Feb 2020 07:19:49 -0800
-Message-Id: <20200213151900.549837543@linuxfoundation.org>
+Message-Id: <20200213151834.179693607@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Stephen Warren <swarren@nvidia.com>
 
-commit ea740059ecb37807ba47b84b33d1447435a8d868 upstream.
+commit 1a3388d506bf5b45bb283e6a4c4706cfb4897333 upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in __kvm_set_dr() and
-kvm_get_dr().
-Both kvm_get_dr() and kvm_set_dr() (a wrapper of __kvm_set_dr()) are
-exported symbols so KVM should tream them conservatively from a security
-perspective.
+For a little over a year, U-Boot has configured the flow controller to
+perform automatic RAM re-repair on off->on power transitions of the CPU
+rail[1]. This is mandatory for correct operation of Tegra124. However,
+RAM re-repair relies on certain clocks, which the kernel must enable and
+leave running. PLLP is one of those clocks. This clock is shut down
+during LP1 in order to save power. Enable bypass (which I believe routes
+osc_div_clk, essentially the crystal clock, to the PLL output) so that
+this clock signal toggles even though the PLL is not active. This is
+required so that LP1 power mode (system suspend) operates correctly.
 
-Fixes: 020df0794f57 ("KVM: move DR register access handling into generic code")
+The bypass configuration must then be undone when resuming from LP1, so
+that all peripheral clocks run at the expected rate. Without this, many
+peripherals won't work correctly; for example, the UART baud rate would
+be incorrect.
 
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
+NVIDIA's downstream kernel code only does this if not compiled for
+Tegra30, so the added code is made conditional upon the chip ID.
+NVIDIA's downstream code makes this change conditional upon the active
+CPU cluster. The upstream kernel currently doesn't support cluster
+switching, so this patch doesn't test the active CPU cluster ID.
+
+[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
+
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/mach-tegra/sleep-tegra30.S |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -889,9 +889,11 @@ static u64 kvm_dr6_fixed(struct kvm_vcpu
+--- a/arch/arm/mach-tegra/sleep-tegra30.S
++++ b/arch/arm/mach-tegra/sleep-tegra30.S
+@@ -379,6 +379,14 @@ _pll_m_c_x_done:
+ 	pll_locked r1, r0, CLK_RESET_PLLC_BASE
+ 	pll_locked r1, r0, CLK_RESET_PLLX_BASE
  
- static int __kvm_set_dr(struct kvm_vcpu *vcpu, int dr, unsigned long val)
- {
-+	size_t size = ARRAY_SIZE(vcpu->arch.db);
++	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
++	cmp	r1, #TEGRA30
++	beq	1f
++	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
++	bic	r1, r1, #(1<<31)	@ disable PllP bypass
++	str	r1, [r0, #CLK_RESET_PLLP_BASE]
++1:
 +
- 	switch (dr) {
- 	case 0 ... 3:
--		vcpu->arch.db[dr] = val;
-+		vcpu->arch.db[array_index_nospec(dr, size)] = val;
- 		if (!(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP))
- 			vcpu->arch.eff_db[dr] = val;
- 		break;
-@@ -928,9 +930,11 @@ EXPORT_SYMBOL_GPL(kvm_set_dr);
+ 	mov32	r7, TEGRA_TMRUS_BASE
+ 	ldr	r1, [r7]
+ 	add	r1, r1, #LOCK_DELAY
+@@ -638,7 +646,10 @@ tegra30_switch_cpu_to_clk32k:
+ 	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
  
- int kvm_get_dr(struct kvm_vcpu *vcpu, int dr, unsigned long *val)
- {
-+	size_t size = ARRAY_SIZE(vcpu->arch.db);
-+
- 	switch (dr) {
- 	case 0 ... 3:
--		*val = vcpu->arch.db[dr];
-+		*val = vcpu->arch.db[array_index_nospec(dr, size)];
- 		break;
- 	case 4:
- 		/* fall through */
+ 	/* disable PLLP, PLLA, PLLC and PLLX */
++	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
++	cmp	r1, #TEGRA30
+ 	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
++	orrne	r0, r0, #(1 << 31)	@ enable PllP bypass on fast cluster
+ 	bic	r0, r0, #(1 << 30)
+ 	str	r0, [r5, #CLK_RESET_PLLP_BASE]
+ 	ldr	r0, [r5, #CLK_RESET_PLLA_BASE]
 
 
