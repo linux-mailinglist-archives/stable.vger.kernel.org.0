@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3835315C201
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D54215C1E1
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:27:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727874AbgBMP2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54662 "EHLO mail.kernel.org"
+        id S1729381AbgBMP1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387452AbgBMP2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:11 -0500
+        id S1729368AbgBMP1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:20 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74524206DB;
-        Thu, 13 Feb 2020 15:28:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42D3C24681;
+        Thu, 13 Feb 2020 15:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607690;
-        bh=tC9cEW+ryI8p9lRdNHxjFGOCMp+uK5CPyG52NOUYjkA=;
+        s=default; t=1581607639;
+        bh=bTaM9z7UZIreCdFbopgJgFvaS0Ot1vVV2fi3Qq0RXyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TswAhUV1yFxFLVeiRDVOLeyFG/Sh0kRQ4UT9LMtXVIgKPI12f2kBtiRRDf8JeI0J9
-         OhV8Bcxr45IEfH8zrI6CmLkWepBoo+XK9kANUqk4rg1APWx2uTfGcf6YA5sRT5My3L
-         fr1Gh65ErxHgqIldwEn/dz3LPF8wxJlEjoEKZp7k=
+        b=qIuIRVq4GN1YNsJQr54pZ0snxBd+eNrGEPQ/mNPEEPtgmiu9mEZzJoMGaLDl3O/z+
+         pjfVVrwUgLCsW2Y0Y7u9uleQGKGPa+zABoVwUysvInM81eOeymEbspFQrTzPcuo27N
+         I4wDxlhFBucW7WC57Ztf6NAZVUZL5SfNSA0O0xeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.5 028/120] nfs: NFS_SWAP should depend on SWAP
+        stable@vger.kernel.org, Marcel Ziswiler <marcel@ziswiler.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.4 17/96] PCI: tegra: Fix afi_pex2_ctrl reg offset for Tegra30
 Date:   Thu, 13 Feb 2020 07:20:24 -0800
-Message-Id: <20200213151911.616830861@linuxfoundation.org>
+Message-Id: <20200213151846.153218983@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Marcel Ziswiler <marcel@ziswiler.com>
 
-commit 474c4f306eefbb21b67ebd1de802d005c7d7ecdc upstream.
+commit 21a92676e1fe292acb077b13106b08c22ed36b14 upstream.
 
-If CONFIG_SWAP=n, it does not make much sense to offer the user the
-option to enable support for swapping over NFS, as that will still fail
-at run time:
+Fix AFI_PEX2_CTRL reg offset for Tegra30 by moving it from the Tegra20
+SoC struct where it erroneously got added. This fixes the AFI_PEX2_CTRL
+reg offset being uninitialised subsequently failing to bring up the
+third PCIe port.
 
-    # swapon /swap
-    swapon: /swap: swapon failed: Function not implemented
-
-Fix this by adding a dependency on CONFIG_SWAP.
-
-Fixes: a564b8f0398636ba ("nfs: enable swap on NFS")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: adb2653b3d2e ("PCI: tegra: Add AFI_PEX2_CTRL reg offset as part of SoC struct")
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/Kconfig |    2 +-
+ drivers/pci/controller/pci-tegra.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/Kconfig
-+++ b/fs/nfs/Kconfig
-@@ -90,7 +90,7 @@ config NFS_V4
- config NFS_SWAP
- 	bool "Provide swap over NFS support"
- 	default n
--	depends on NFS_FS
-+	depends on NFS_FS && SWAP
- 	select SUNRPC_SWAP
- 	help
- 	  This option enables swapon to work on files located on NFS mounts.
+--- a/drivers/pci/controller/pci-tegra.c
++++ b/drivers/pci/controller/pci-tegra.c
+@@ -2499,7 +2499,6 @@ static const struct tegra_pcie_soc tegra
+ 	.num_ports = 2,
+ 	.ports = tegra20_pcie_ports,
+ 	.msi_base_shift = 0,
+-	.afi_pex2_ctrl = 0x128,
+ 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA20,
+ 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_DIV10,
+ 	.pads_refclk_cfg0 = 0xfa5cfa5c,
+@@ -2528,6 +2527,7 @@ static const struct tegra_pcie_soc tegra
+ 	.num_ports = 3,
+ 	.ports = tegra30_pcie_ports,
+ 	.msi_base_shift = 8,
++	.afi_pex2_ctrl = 0x128,
+ 	.pads_pll_ctl = PADS_PLL_CTL_TEGRA30,
+ 	.tx_ref_sel = PADS_PLL_CTL_TXCLKREF_BUF_EN,
+ 	.pads_refclk_cfg0 = 0xfa5cfa5c,
 
 
