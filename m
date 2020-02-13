@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7790E15C17A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A5D215C156
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbgBMPXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34868 "EHLO mail.kernel.org"
+        id S1728026AbgBMPWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728413AbgBMPXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:32 -0500
+        id S1727934AbgBMPWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:38 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 586EE24689;
-        Thu, 13 Feb 2020 15:23:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC04620848;
+        Thu, 13 Feb 2020 15:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607411;
-        bh=7MNK/TauGHXmAnRubrDcdm2nGzPtHqK83NWMvsrExFI=;
+        s=default; t=1581607357;
+        bh=9W9fDx/JQzv1ID2zg5J16xrPyezITT+LM//09W5EwM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIOy4UQhVpwbxS5dTJPBmkrZ6POi8ZLZYMC2cSZtU2GCal0X4us/w6V74GCKN254e
-         yv/jo0DJvhmZ0tbJ526GxMP9SbBk/resLDRouncqAM4yVFSqRZk681Pi96DcjLMPou
-         rhe/0SVU0HjtUTl1RfA8FqAR/pxDmgiL+eghd0BA=
+        b=CmiKJB3ClCKaIoghV0a8IF3AmW9p//NMrCkmGhNIGr6my9ThUYrdyXmAZlgbr9l9q
+         WYx6sLa8CEwU6F8zCIp4RIM3Cmeyq6Of/23ep5tH7sbQPc+epgR5FRJ7302aWTejo6
+         EYf4ENGPpmPTvofAP8QbZhV01w4RC9xHv/psWupU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.9 033/116] of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc
-Date:   Thu, 13 Feb 2020 07:19:37 -0800
-Message-Id: <20200213151855.953082018@linuxfoundation.org>
+Subject: [PATCH 4.4 25/91] of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc
+Date:   Thu, 13 Feb 2020 07:19:42 -0800
+Message-Id: <20200213151831.379688414@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -82,7 +82,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/Kconfig
 +++ b/arch/powerpc/Kconfig
-@@ -85,6 +85,7 @@ config PPC
+@@ -93,6 +93,7 @@ config PPC
  	select BINFMT_ELF
  	select ARCH_HAS_ELF_RANDOMIZE
  	select OF
@@ -93,8 +93,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 --- a/drivers/of/Kconfig
 +++ b/drivers/of/Kconfig
 @@ -112,4 +112,8 @@ config OF_OVERLAY
- config OF_NUMA
- 	bool
+ 	  While this option is selected automatically when needed, you can
+ 	  enable it manually to improve device tree unit test coverage.
  
 +config OF_DMA_DEFAULT_COHERENT
 +	# arches should select this if DMA is coherent by default for OF devices
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  endif # OF
 --- a/drivers/of/address.c
 +++ b/drivers/of/address.c
-@@ -896,12 +896,16 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
+@@ -1009,12 +1009,16 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
   * @np:	device node
   *
   * It returns true if "dma-coherent" property was found
