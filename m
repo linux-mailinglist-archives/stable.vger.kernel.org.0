@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FFC15C2E2
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9CF15C2DD
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728492AbgBMPh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:37:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60040 "EHLO mail.kernel.org"
+        id S1729204AbgBMPhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387490AbgBMP3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:20 -0500
+        id S2387830AbgBMP3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:29:21 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0847B20661;
+        by mail.kernel.org (Postfix) with ESMTPSA id A0BC2218AC;
         Thu, 13 Feb 2020 15:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581607760;
-        bh=K5GDi/oMQ+ieE+yMPPxgcSW5Fm1FmbEPK4ciFjOj3p8=;
+        bh=2LOS4tbupeTSygClD40dSb6uvh6u9TGMj8TmfoR5iNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qv5XoO8R5MFxYDzLekWr9JQEOIYym2IWF7hkTV7tMlSv5SMTQuSM0LLbfyxuCHpGS
-         KI4JzqV0yhe+tfetE465kQ4CXi1STFSEqhdcKQY4boEjR/7UZvV2s10AixKyh6+hAN
-         mevz3JOlR00oBMEB1gJe575OPkEx2rGsUPxOzXgI=
+        b=xxahJbJURHdE5Swf5Vp/X6iAAfau/ycqCV4TVY6GbUDvF0J/5lUiRzTJeCee+o9Iu
+         Lrt6u7rbYONmP2Yp5TLDNKNN0BxhAbfKpE33L1VaszjHew3NX7Ky1ofG/cQUfKeT/v
+         3WrSDv6OvEaqr6WdADMtABlfFQZriGEUMoOYyNjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Shmidt <dimitrysh@google.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH 5.5 115/120] clk: meson: g12a: fix missing uart2 in regmap table
-Date:   Thu, 13 Feb 2020 07:21:51 -0800
-Message-Id: <20200213151938.820545567@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.5 116/120] dmaengine: axi-dmac: add a check for devm_regmap_init_mmio
+Date:   Thu, 13 Feb 2020 07:21:52 -0800
+Message-Id: <20200213151939.111274282@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -45,37 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit b1b3f0622a9d52ac19a63619911823c89a4d85a4 upstream.
+commit a5b982af953bcc838cd198b0434834cc1dff14ec upstream.
 
-UART2 peripheral is missing from the regmap fixup table of the g12a family
-clock controller. As it is, any access to this clock would Oops, which is
-not great.
+The driver misses checking the result of devm_regmap_init_mmio().
+Add a check to fix it.
 
-Add the clock to the table to fix the problem.
-
-Fixes: 085a4ea93d54 ("clk: meson: g12a: add peripheral clock controller")
-Reported-by: Dmitry Shmidt <dimitrysh@google.com>
-Tested-by: Dmitry Shmidt <dimitrysh@google.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Fixes: fc15be39a827 ("dmaengine: axi-dmac: add regmap support")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Link: https://lore.kernel.org/r/20191209085711.16001-1-hslester96@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/meson/g12a.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/dma-axi-dmac.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/meson/g12a.c
-+++ b/drivers/clk/meson/g12a.c
-@@ -4692,6 +4692,7 @@ static struct clk_regmap *const g12a_clk
- 	&g12a_bt656,
- 	&g12a_usb1_to_ddr,
- 	&g12a_mmc_pclk,
-+	&g12a_uart2,
- 	&g12a_vpu_intr,
- 	&g12a_gic,
- 	&g12a_sd_emmc_a_clk0,
+--- a/drivers/dma/dma-axi-dmac.c
++++ b/drivers/dma/dma-axi-dmac.c
+@@ -830,6 +830,7 @@ static int axi_dmac_probe(struct platfor
+ 	struct dma_device *dma_dev;
+ 	struct axi_dmac *dmac;
+ 	struct resource *res;
++	struct regmap *regmap;
+ 	int ret;
+ 
+ 	dmac = devm_kzalloc(&pdev->dev, sizeof(*dmac), GFP_KERNEL);
+@@ -921,10 +922,17 @@ static int axi_dmac_probe(struct platfor
+ 
+ 	platform_set_drvdata(pdev, dmac);
+ 
+-	devm_regmap_init_mmio(&pdev->dev, dmac->base, &axi_dmac_regmap_config);
++	regmap = devm_regmap_init_mmio(&pdev->dev, dmac->base,
++		 &axi_dmac_regmap_config);
++	if (IS_ERR(regmap)) {
++		ret = PTR_ERR(regmap);
++		goto err_free_irq;
++	}
+ 
+ 	return 0;
+ 
++err_free_irq:
++	free_irq(dmac->irq, dmac);
+ err_unregister_of:
+ 	of_dma_controller_free(pdev->dev.of_node);
+ err_unregister_device:
 
 
