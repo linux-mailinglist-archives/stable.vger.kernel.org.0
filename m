@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FAFF15C46C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5675915C32F
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387515AbgBMPrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:47:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49082 "EHLO mail.kernel.org"
+        id S2387744AbgBMP2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387680AbgBMP1J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:09 -0500
+        id S1728602AbgBMP2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:37 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A96A24670;
-        Thu, 13 Feb 2020 15:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E21D20661;
+        Thu, 13 Feb 2020 15:28:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607629;
-        bh=CuVfiS2S9a2bwNenn2jhACMneXOOC1/b5Hy9foAEjiY=;
+        s=default; t=1581607716;
+        bh=uXHAlkeBHn3E/t2VnFzPT+P6qV46bbGDPnOCUUOx6Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCgRLh70xpMMBRl5nAzYg/eIjYrrbjnOcaAF6W6ksVkBweIxuXLUjjSG1lvB+wiip
-         cmiMB19ZHb8F/TqyUL8ivRy3SsvVj7avoZ4hElvoIg7RCz4We6DnnwM+LAWP/KQt56
-         HpiKwvwfsPFE5n5vkq/X7RrrBir31LqzMAVNnIm8=
+        b=mPEZJr+ah3ZiT4GjuX4PcqhipHS936pjSe/4RvKmNplcnzobln+CrQpCnwNMIdTTn
+         CpyCLHseZGcbmIv7xSEImlzhnVe6ZchYIHb4gqJ4ldNo05L48B2oSQEWfOq4AVY/2D
+         i3qlEkkXt4ACnRKrEJ9lKF10FtqCXfdijodNp5E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.4 28/96] NFS: Revalidate the file size on a fatal write error
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.5 039/120] selftests/bpf: Test freeing sockmap/sockhash with a socket in it
 Date:   Thu, 13 Feb 2020 07:20:35 -0800
-Message-Id: <20200213151849.887788287@linuxfoundation.org>
+Message-Id: <20200213151915.096333453@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-commit 0df68ced55443243951d02cc497be31fadf28173 upstream.
+commit 5d3919a953c3c96c02fc7a337f8376cde43ae31f upstream.
 
-If we suffer a fatal error upon writing a file, which causes us to
-need to revalidate the entire mapping, then we should also revalidate
-the file size.
+Commit 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during tear
+down") introduced sleeping issues inside RCU critical sections and while
+holding a spinlock on sockmap/sockhash tear-down. There has to be at least
+one socket in the map for the problem to surface.
 
-Fixes: d2ceb7e57086 ("NFS: Don't use page_file_mapping after removing the page")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This adds a test that triggers the warnings for broken locking rules. Not a
+fix per se, but rather tooling to verify the accompanying fixes. Run on a
+VM with 1 vCPU to reproduce the warnings.
+
+Fixes: 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during tear down")
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20200206111652.694507-4-jakub@cloudflare.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/write.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ tools/testing/selftests/bpf/prog_tests/sockmap_basic.c |   74 +++++++++++++++++
+ 1 file changed, 74 insertions(+)
 
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -243,7 +243,15 @@ out:
- /* A writeback failed: mark the page as bad, and invalidate the page cache */
- static void nfs_set_pageerror(struct address_space *mapping)
- {
-+	struct inode *inode = mapping->host;
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
+@@ -0,0 +1,74 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (c) 2020 Cloudflare
 +
- 	nfs_zap_mapping(mapping->host, mapping);
-+	/* Force file size revalidation */
-+	spin_lock(&inode->i_lock);
-+	NFS_I(inode)->cache_validity |= NFS_INO_REVAL_FORCED |
-+					NFS_INO_REVAL_PAGECACHE |
-+					NFS_INO_INVALID_SIZE;
-+	spin_unlock(&inode->i_lock);
- }
- 
- static void nfs_mapping_set_error(struct page *page, int error)
++#include "test_progs.h"
++
++static int connected_socket_v4(void)
++{
++	struct sockaddr_in addr = {
++		.sin_family = AF_INET,
++		.sin_port = htons(80),
++		.sin_addr = { inet_addr("127.0.0.1") },
++	};
++	socklen_t len = sizeof(addr);
++	int s, repair, err;
++
++	s = socket(AF_INET, SOCK_STREAM, 0);
++	if (CHECK_FAIL(s == -1))
++		goto error;
++
++	repair = TCP_REPAIR_ON;
++	err = setsockopt(s, SOL_TCP, TCP_REPAIR, &repair, sizeof(repair));
++	if (CHECK_FAIL(err))
++		goto error;
++
++	err = connect(s, (struct sockaddr *)&addr, len);
++	if (CHECK_FAIL(err))
++		goto error;
++
++	repair = TCP_REPAIR_OFF_NO_WP;
++	err = setsockopt(s, SOL_TCP, TCP_REPAIR, &repair, sizeof(repair));
++	if (CHECK_FAIL(err))
++		goto error;
++
++	return s;
++error:
++	perror(__func__);
++	close(s);
++	return -1;
++}
++
++/* Create a map, populate it with one socket, and free the map. */
++static void test_sockmap_create_update_free(enum bpf_map_type map_type)
++{
++	const int zero = 0;
++	int s, map, err;
++
++	s = connected_socket_v4();
++	if (CHECK_FAIL(s == -1))
++		return;
++
++	map = bpf_create_map(map_type, sizeof(int), sizeof(int), 1, 0);
++	if (CHECK_FAIL(map == -1)) {
++		perror("bpf_create_map");
++		goto out;
++	}
++
++	err = bpf_map_update_elem(map, &zero, &s, BPF_NOEXIST);
++	if (CHECK_FAIL(err)) {
++		perror("bpf_map_update");
++		goto out;
++	}
++
++out:
++	close(map);
++	close(s);
++}
++
++void test_sockmap_basic(void)
++{
++	if (test__start_subtest("sockmap create_update_free"))
++		test_sockmap_create_update_free(BPF_MAP_TYPE_SOCKMAP);
++	if (test__start_subtest("sockhash create_update_free"))
++		test_sockmap_create_update_free(BPF_MAP_TYPE_SOCKHASH);
++}
 
 
