@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B92515C549
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6680015C422
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgBMPZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
+        id S1728503AbgBMP1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729077AbgBMPZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:48 -0500
+        id S2387667AbgBMP1F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:05 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1904B246D5;
-        Thu, 13 Feb 2020 15:25:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 166B720661;
+        Thu, 13 Feb 2020 15:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607548;
-        bh=MrJiRdv9r/LUUwNsVWVmc/rZcoTAG34gs6aj4hF9sl8=;
+        s=default; t=1581607625;
+        bh=qalAB5bKEGVK827bqT35jJirfnT6wm6bOd0KLJ3sqa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2UCZXQYz2oty2AX2W8pgnH8nKk0FttwzHY2OH6+leG15GBjtXi7QtNnEoQCCXVAM
-         cCSUAFFYRE00x+jDmFfcdco2kRJovgqSZBR1t6ct/H0n2qibN307obZnKGTtBPvqow
-         Yv/NcRTM/DIP7Swthd6s5Ef24SobimC69NI/6SEQ=
+        b=FrqIS/KXSeHBIGb5jPLSK1FbYkozUQLVPtsbtZNMCU1lDRddvrGkCvdjZTkwhligR
+         K/Sh8+Y4rpZDKqi4H2jBFm5GStr7Vd8tS4nPY28DtxPYard9oI1p/B73irrWbAIzFD
+         OnEOG1nZhL/ZQ+NupESwswj25hCdZPQfKhJJz0ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 111/173] mfd: rn5t618: Mark ADC control register volatile
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 07/96] RDMA/i40iw: fix a potential NULL pointer dereference
 Date:   Thu, 13 Feb 2020 07:20:14 -0800
-Message-Id: <20200213152000.546832829@linuxfoundation.org>
+Message-Id: <20200213151841.973038724@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 2f3dc25c0118de03a00ddc88b61f7216854f534d upstream.
+commit 04db1580b5e48a79e24aa51ecae0cd4b2296ec23 upstream.
 
-There is a bit which gets cleared after conversion.
+A NULL pointer can be returned by in_dev_get(). Thus add a corresponding
+check so that a NULL pointer dereference will be avoided at this place.
 
-Fixes: 9bb9e29c78f8 ("mfd: Add Ricoh RN5T618 PMIC core driver")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 8e06af711bf2 ("i40iw: add main, hdr, status")
+Link: https://lore.kernel.org/r/1577672668-46499-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mfd/rn5t618.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/i40iw/i40iw_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mfd/rn5t618.c
-+++ b/drivers/mfd/rn5t618.c
-@@ -32,6 +32,7 @@ static bool rn5t618_volatile_reg(struct
- 	case RN5T618_WATCHDOGCNT:
- 	case RN5T618_DCIRQ:
- 	case RN5T618_ILIMDATAH ... RN5T618_AIN0DATAL:
-+	case RN5T618_ADCCNT3:
- 	case RN5T618_IR_ADC1 ... RN5T618_IR_ADC3:
- 	case RN5T618_IR_GPR:
- 	case RN5T618_IR_GPF:
+--- a/drivers/infiniband/hw/i40iw/i40iw_main.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
+@@ -1225,6 +1225,8 @@ static void i40iw_add_ipv4_addr(struct i
+ 			const struct in_ifaddr *ifa;
+ 
+ 			idev = in_dev_get(dev);
++			if (!idev)
++				continue;
+ 			in_dev_for_each_ifa_rtnl(ifa, idev) {
+ 				i40iw_debug(&iwdev->sc_dev, I40IW_DEBUG_CM,
+ 					    "IP=%pI4, vlan_id=%d, MAC=%pM\n", &ifa->ifa_address,
 
 
