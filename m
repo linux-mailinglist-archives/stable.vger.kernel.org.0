@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE91D15C41A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C406315C3C7
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729283AbgBMP0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:26:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
+        id S2387855AbgBMPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:44:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728899AbgBMP0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:54 -0500
+        id S1728877AbgBMP1p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:45 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97D4B222C2;
-        Thu, 13 Feb 2020 15:26:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99649206DB;
+        Thu, 13 Feb 2020 15:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607613;
-        bh=yyXdNtolbkkLeuWnCD3w9o0e3vo2Fw9io8pKjlkstB4=;
+        s=default; t=1581607663;
+        bh=7pTrDl4Glr3gTU6VkEdKIMfPGLAXrN9ECWaFuKi4I4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmUGvTRu5gyc1/6wNgIlGlzmNfT8p7rlIQEVz87Acqdq0j3wdu/lMFxK1EojGuSJX
-         NLp5VzVoQUYrc4YWJ87rBKB7Kn9bpUgyZUQwDLlI4U2CQaHyZWZfAS+8jO3N3cJMKO
-         3Rx8v/Bgk7conI8lqfWaxDB0UUMxH8Po/he+hMdc=
+        b=S+0dk9/1K6Z5cwTScYc2s2cF74EhopEayHbQLv0aNtGGxV5Jsj/1YBN4lRUx7I4nP
+         1+hwIUb+uYkpxYYCsXuNxoE3je5VMHxvR39tMjMpi5h2CUyVbt16QYEJVVtUYooew/
+         1eFt+bQZUWWTcFwuNWg1lhLIseZ7h8xwJeWwHnfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 40/52] mtd: onenand_base: Adjust indentation in onenand_read_ops_nolock
-Date:   Thu, 13 Feb 2020 07:21:21 -0800
-Message-Id: <20200213151826.742940868@linuxfoundation.org>
+Subject: [PATCH 5.4 75/96] mtd: onenand_base: Adjust indentation in onenand_read_ops_nolock
+Date:   Thu, 13 Feb 2020 07:21:22 -0800
+Message-Id: <20200213151907.725499694@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
-References: <20200213151810.331796857@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mtd/nand/onenand/onenand_base.c
 +++ b/drivers/mtd/nand/onenand/onenand_base.c
-@@ -1251,44 +1251,44 @@ static int onenand_read_ops_nolock(struc
+@@ -1248,44 +1248,44 @@ static int onenand_read_ops_nolock(struc
  
  	stats = mtd->ecc_stats;
  
@@ -149,7 +149,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		/* Read oob area if needed */
  		if (oobbuf) {
-@@ -1304,24 +1304,24 @@ static int onenand_read_ops_nolock(struc
+@@ -1301,24 +1301,24 @@ static int onenand_read_ops_nolock(struc
  			oobcolumn = 0;
  		}
  
