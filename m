@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA2C815C70B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B0A515C77B
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728838AbgBMQGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35080 "EHLO mail.kernel.org"
+        id S1727652AbgBMQLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:11:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728420AbgBMPXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:35 -0500
+        id S1727939AbgBMPW3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:29 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18BE8246B1;
-        Thu, 13 Feb 2020 15:23:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78B7824691;
+        Thu, 13 Feb 2020 15:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607415;
-        bh=lbxSGU59kmdmmuKS911zLdpcn6ZObIXNyQT2hHgEQDs=;
+        s=default; t=1581607347;
+        bh=JCwYCQrF/9+gly2oGXHpmxKKzSCu44hCe2o+ll4uUws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=du58Y1/TTa5iiEAibexsqWsSFZSqgNxxHZr7+RW91exslW5dMnkriwZdTScP0xtkV
-         3L9TQfSMHQcwfU4m21vLDzPcbov13CWRSVjNtOkGV/APU7I2Mow5ubuyVkBVCkeMCT
-         Jc8tnIbcm215mP3r2DdaA4IJPd7tIBi69W72qat4=
+        b=QKgTIauwMyhxcYbvqAs2xGfmbGHS3x7PbG9JnVe3uMXYHAfBbfDtckOAk/kNgrY/t
+         YU+1vlB4grzK/DkNgt7lk7rzLHXdq4AyphI9HmpzELIYOIG01/WfXeOP25U8kpgNYr
+         I0k1/cltMWiGbYGArwq43npkvu9+fm3WiceOHNiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 021/116] ALSA: dummy: Fix PCM format loop in proc output
-Date:   Thu, 13 Feb 2020 07:19:25 -0800
-Message-Id: <20200213151851.123743279@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Marcelo Ricardo Leitner <mleitner@redhat.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 09/91] tcp: clear tp->segs_{in|out} in tcp_disconnect()
+Date:   Thu, 13 Feb 2020 07:19:26 -0800
+Message-Id: <20200213151825.093839366@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 2acf25f13ebe8beb40e97a1bbe76f36277c64f1e upstream.
+[ Upstream commit 784f8344de750a41344f4bbbebb8507a730fc99c ]
 
-The loop termination for iterating over all formats should contain
-SNDRV_PCM_FORMAT_LAST, not less than it.
+tp->segs_in and tp->segs_out need to be cleared in tcp_disconnect().
 
-Fixes: 9b151fec139d ("ALSA: dummy - Add debug proc file")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200201080530.22390-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+tcp_disconnect() is rarely used, but it is worth fixing it.
+
+Fixes: 2efd055c53c0 ("tcp: add tcpi_segs_in and tcpi_segs_out to tcp_info")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Marcelo Ricardo Leitner <mleitner@redhat.com>
+Cc: Yuchung Cheng <ycheng@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/drivers/dummy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/drivers/dummy.c
-+++ b/sound/drivers/dummy.c
-@@ -925,7 +925,7 @@ static void print_formats(struct snd_dum
- {
- 	int i;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2273,6 +2273,8 @@ int tcp_disconnect(struct sock *sk, int
+ 	dst_release(sk->sk_rx_dst);
+ 	sk->sk_rx_dst = NULL;
+ 	tcp_saved_syn_free(tp);
++	tp->segs_in = 0;
++	tp->segs_out = 0;
+ 	tp->bytes_acked = 0;
+ 	tp->bytes_received = 0;
  
--	for (i = 0; i < SNDRV_PCM_FORMAT_LAST; i++) {
-+	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
- 		if (dummy->pcm_hw.formats & (1ULL << i))
- 			snd_iprintf(buffer, " %s", snd_pcm_format_name(i));
- 	}
 
 
