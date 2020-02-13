@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B7515C453
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CF515C52B
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729224AbgBMPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:46:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
+        id S2387492AbgBMP0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729376AbgBMP1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:20 -0500
+        id S1729127AbgBMPZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:56 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCD7B24688;
-        Thu, 13 Feb 2020 15:27:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E62012469A;
+        Thu, 13 Feb 2020 15:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607640;
-        bh=Qm0xSLfvbGM27e3fE+H72stdknaIeAyPzTwdgyCF8Zw=;
+        s=default; t=1581607556;
+        bh=FkoqLt+4wlffzb2m9rmAuQaAX7Solflc3ijztMUAcG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IvL2G7fQaZL1o7Po45erV/lVgSsPC9CrgTvuDtK3LsV3HIv6Xd9uPhVzaIwnwKr4
-         P+SDlJcS+Pfx90mfI/aeq0IcvuLXw68Qh8RzS0CDcTSGI4xx4p7vjubw6Dd+IhDHeZ
-         22KIwjbMlu+VP+mhXIGOF66DHhtEtyXBgi+wwyIE=
+        b=jFESZqhbTBLd1qKDLQVBoDzK6HqXTf8LvA9xOfpQYWuj9roxtocZGpI0Pp+/7FKtF
+         /RAicW0UOu3W7uMaNfL6YqZXrVcvC3+9SudJzRrClGW3Fqd9GM3Zjf1nX5Va1V22sm
+         7ZX6MWzFbp+KnlmAuVvdltJGlrGgh+3a4HbwjsYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.4 37/96] rtc: cmos: Stop using shared IRQ
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 141/173] ASoC: pcm: update FE/BE trigger order based on the command
 Date:   Thu, 13 Feb 2020 07:20:44 -0800
-Message-Id: <20200213151853.571492440@linuxfoundation.org>
+Message-Id: <20200213152007.273658467@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,79 +46,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-commit b6da197a2e9670df6f07e6698629e9ce95ab614e upstream.
+[ Upstream commit acbf27746ecfa96b290b54cc7f05273482ea128a ]
 
-As reported by Guilherme G. Piccoli:
+Currently, the trigger orders SND_SOC_DPCM_TRIGGER_PRE/POST
+determine the order in which FE DAI and BE DAI are triggered.
+In the case of SND_SOC_DPCM_TRIGGER_PRE, the FE DAI is
+triggered before the BE DAI and in the case of
+SND_SOC_DPCM_TRIGGER_POST, the BE DAI is triggered before
+the FE DAI. And this order remains the same irrespective of the
+trigger command.
 
----8<---8<---8<---
+In the case of the SOF driver, during playback, the FW
+expects the BE DAI to be triggered before the FE DAI during
+the START trigger. The BE DAI trigger handles the starting of
+Link DMA and so it must be started before the FE DAI is started
+to prevent xruns during pause/release. This can be addressed
+by setting the trigger order for the FE dai link to
+SND_SOC_DPCM_TRIGGER_POST. But during the STOP trigger,
+the FW expects the FE DAI to be triggered before the BE DAI.
+Retaining the same order during the START and STOP commands,
+results in FW error as the DAI component in the FW is still
+active.
 
-The rtc-cmos interrupt setting was changed in the commit 079062b28fb4
-("rtc: cmos: prevent kernel warning on IRQ flags mismatch") in order
-to allow shared interrupts; according to that commit's description,
-some machine got kernel warnings due to the interrupt line being shared
-between rtc-cmos and other hardware, and rtc-cmos didn't allow IRQ sharing
-that time.
+The issue can be fixed by mirroring the trigger order of
+FE and BE DAI's during the START and STOP trigger. So, with the
+trigger order set to SND_SOC_DPCM_TRIGGER_PRE, the FE DAI will be
+trigger first during SNDRV_PCM_TRIGGER_START/STOP/RESUME
+and the BE DAI will be triggered first during the
+STOP/SUSPEND/PAUSE commands. Conversely, with the trigger order
+set to SND_SOC_DPCM_TRIGGER_POST, the BE DAI will be triggered
+first during the SNDRV_PCM_TRIGGER_START/STOP/RESUME commands
+and the FE DAI will be triggered first during the
+SNDRV_PCM_TRIGGER_STOP/SUSPEND/PAUSE commands.
 
-After the aforementioned commit though it was observed a huge increase
-in lost HPET interrupts in some systems, observed through the following
-kernel message:
-
-[...] hpet1: lost 35 rtc interrupts
-
-After investigation, it was narrowed down to the shared interrupts
-usage when having the kernel option "irqpoll" enabled. In this case,
-all IRQ handlers are called for non-timer interrupts, if such handlers
-are setup in shared IRQ lines. The rtc-cmos IRQ handler could be set to
-hpet_rtc_interrupt(), which will produce the kernel "lost interrupts"
-message after doing work - lots of readl/writel to HPET registers, which
-are known to be slow.
-
-Although "irqpoll" is not a default kernel option, it's used in some contexts,
-one being the kdump kernel (which is an already "impaired" kernel usually
-running with 1 CPU available), so the performance burden could be considerable.
-Also, the same issue would happen (in a shorter extent though) when using
-"irqfixup" kernel option.
-
-In a quick experiment, a virtual machine with uptime of 2 minutes produced
->300 calls to hpet_rtc_interrupt() when "irqpoll" was set, whereas without
-sharing interrupts this number reduced to 1 interrupt. Machines with more
-hardware than a VM should generate even more unnecessary HPET interrupts
-in this scenario.
-
----8<---8<---8<---
-
-After looking into the rtc-cmos driver history and DSDT table from
-the Microsoft Surface 3, we may notice that Hans de Goede submitted
-a correct fix (see dependency below). Thus, we simply revert
-the culprit commit.
-
-Fixes: 079062b28fb4 ("rtc: cmos: prevent kernel warning on IRQ flags mismatch")
-Depends-on: a1e23a42f1bd ("rtc: cmos: Do not assume irq 8 for rtc when there are no legacy irqs")
-Reported-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200123131437.28157-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191104224812.3393-2-ranjani.sridharan@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-pcm.c | 95 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 68 insertions(+), 27 deletions(-)
 
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -850,7 +850,7 @@ cmos_do_probe(struct device *dev, struct
- 			rtc_cmos_int_handler = cmos_interrupt;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 70e1a60a2e980..89f772ed47053 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2123,42 +2123,81 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
+ }
+ EXPORT_SYMBOL_GPL(dpcm_be_dai_trigger);
  
- 		retval = request_irq(rtc_irq, rtc_cmos_int_handler,
--				IRQF_SHARED, dev_name(&cmos_rtc.rtc->dev),
-+				0, dev_name(&cmos_rtc.rtc->dev),
- 				cmos_rtc.rtc);
- 		if (retval < 0) {
- 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
++static int dpcm_dai_trigger_fe_be(struct snd_pcm_substream *substream,
++				  int cmd, bool fe_first)
++{
++	struct snd_soc_pcm_runtime *fe = substream->private_data;
++	int ret;
++
++	/* call trigger on the frontend before the backend. */
++	if (fe_first) {
++		dev_dbg(fe->dev, "ASoC: pre trigger FE %s cmd %d\n",
++			fe->dai_link->name, cmd);
++
++		ret = soc_pcm_trigger(substream, cmd);
++		if (ret < 0)
++			return ret;
++
++		ret = dpcm_be_dai_trigger(fe, substream->stream, cmd);
++		return ret;
++	}
++
++	/* call trigger on the frontend after the backend. */
++	ret = dpcm_be_dai_trigger(fe, substream->stream, cmd);
++	if (ret < 0)
++		return ret;
++
++	dev_dbg(fe->dev, "ASoC: post trigger FE %s cmd %d\n",
++		fe->dai_link->name, cmd);
++
++	ret = soc_pcm_trigger(substream, cmd);
++
++	return ret;
++}
++
+ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
+ {
+ 	struct snd_soc_pcm_runtime *fe = substream->private_data;
+-	int stream = substream->stream, ret;
++	int stream = substream->stream;
++	int ret = 0;
+ 	enum snd_soc_dpcm_trigger trigger = fe->dai_link->trigger[stream];
+ 
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
+ 
+ 	switch (trigger) {
+ 	case SND_SOC_DPCM_TRIGGER_PRE:
+-		/* call trigger on the frontend before the backend. */
+-
+-		dev_dbg(fe->dev, "ASoC: pre trigger FE %s cmd %d\n",
+-				fe->dai_link->name, cmd);
+-
+-		ret = soc_pcm_trigger(substream, cmd);
+-		if (ret < 0) {
+-			dev_err(fe->dev,"ASoC: trigger FE failed %d\n", ret);
+-			goto out;
++		switch (cmd) {
++		case SNDRV_PCM_TRIGGER_START:
++		case SNDRV_PCM_TRIGGER_RESUME:
++		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++			ret = dpcm_dai_trigger_fe_be(substream, cmd, true);
++			break;
++		case SNDRV_PCM_TRIGGER_STOP:
++		case SNDRV_PCM_TRIGGER_SUSPEND:
++		case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
++			ret = dpcm_dai_trigger_fe_be(substream, cmd, false);
++			break;
++		default:
++			ret = -EINVAL;
++			break;
+ 		}
+-
+-		ret = dpcm_be_dai_trigger(fe, substream->stream, cmd);
+ 		break;
+ 	case SND_SOC_DPCM_TRIGGER_POST:
+-		/* call trigger on the frontend after the backend. */
+-
+-		ret = dpcm_be_dai_trigger(fe, substream->stream, cmd);
+-		if (ret < 0) {
+-			dev_err(fe->dev,"ASoC: trigger FE failed %d\n", ret);
+-			goto out;
++		switch (cmd) {
++		case SNDRV_PCM_TRIGGER_START:
++		case SNDRV_PCM_TRIGGER_RESUME:
++		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++			ret = dpcm_dai_trigger_fe_be(substream, cmd, false);
++			break;
++		case SNDRV_PCM_TRIGGER_STOP:
++		case SNDRV_PCM_TRIGGER_SUSPEND:
++		case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
++			ret = dpcm_dai_trigger_fe_be(substream, cmd, true);
++			break;
++		default:
++			ret = -EINVAL;
++			break;
+ 		}
+-
+-		dev_dbg(fe->dev, "ASoC: post trigger FE %s cmd %d\n",
+-				fe->dai_link->name, cmd);
+-
+-		ret = soc_pcm_trigger(substream, cmd);
+ 		break;
+ 	case SND_SOC_DPCM_TRIGGER_BESPOKE:
+ 		/* bespoke trigger() - handles both FE and BEs */
+@@ -2167,10 +2206,6 @@ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
+ 				fe->dai_link->name, cmd);
+ 
+ 		ret = soc_pcm_bespoke_trigger(substream, cmd);
+-		if (ret < 0) {
+-			dev_err(fe->dev,"ASoC: trigger FE failed %d\n", ret);
+-			goto out;
+-		}
+ 		break;
+ 	default:
+ 		dev_err(fe->dev, "ASoC: invalid trigger cmd %d for %s\n", cmd,
+@@ -2179,6 +2214,12 @@ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
+ 		goto out;
+ 	}
+ 
++	if (ret < 0) {
++		dev_err(fe->dev, "ASoC: trigger FE cmd: %d failed: %d\n",
++			cmd, ret);
++		goto out;
++	}
++
+ 	switch (cmd) {
+ 	case SNDRV_PCM_TRIGGER_START:
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+-- 
+2.20.1
+
 
 
