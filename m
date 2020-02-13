@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C8D15C525
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24EF415C384
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388170AbgBMPxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:53:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43294 "EHLO mail.kernel.org"
+        id S1728902AbgBMPmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:42:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387500AbgBMP0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:02 -0500
+        id S2387450AbgBMP2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:19 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E431220848;
-        Thu, 13 Feb 2020 15:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 476DC222C2;
+        Thu, 13 Feb 2020 15:28:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607562;
-        bh=NTGbum1SsITiuvjgE69WjCAGMFofLTIVmCGgTl6xZ/E=;
+        s=default; t=1581607699;
+        bh=m2zuk68W3p50Ha0nrV0cD8BjVNfkJsTE0v3GQloDCnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVzuA9S/YzQnaJw542uZ+gVrJdpQoeXFiJcelyewRq9QtK5ZqpBS2eclHbraJn9vs
-         EI3WklnIkhDaxk7UXwVXoUGyc5noqNXHNggDVro6m/lPtex1nR/S07GerYEXCDsqiv
-         zbx0WYs3kwJ5E7QW7J/PDNMI0fuul9Qn+KCMF1q0=
+        b=eD44tvg2hN+eMMnQBBOYrpuCl2xZnQP3DKM6pLNZ9Tx0QnutvErzeyWv5/Ayxx3JV
+         I+kUxkRBBCXg4cR7jo52hwsfiTYbsppLipjm02UidnygGQqtnoic1XUSE/GjF8rQkF
+         1Ekr0tE0WpppoN26hWWS8oR1znhiMCy8YokvujYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/173] KVM: Play nice with read-only memslots when querying host page size
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.5 042/120] mt76: mt7615: fix max_nss in mt7615_eeprom_parse_hw_cap
 Date:   Thu, 13 Feb 2020 07:20:38 -0800
-Message-Id: <20200213152006.042928040@linuxfoundation.org>
+Message-Id: <20200213151916.014391631@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 42cde48b2d39772dba47e680781a32a6c4b7dc33 ]
+commit d08f3010f4a32eec3c8aa771f03a1b342a1472fa upstream.
 
-Avoid the "writable" check in __gfn_to_hva_many(), which will always fail
-on read-only memslots due to gfn_to_hva() assuming writes.  Functionally,
-this allows x86 to create large mappings for read-only memslots that
-are backed by HugeTLB mappings.
+Fix u8 cast reading max_nss from MT_TOP_STRAP_STA register in
+mt7615_eeprom_parse_hw_cap routine
 
-Note, the changelog for commit 05da45583de9 ("KVM: MMU: large page
-support") states "If the largepage contains write-protected pages, a
-large pte is not used.", but "write-protected" refers to pages that are
-temporarily read-only, e.g. read-only memslots didn't even exist at the
-time.
+Fixes: acf5457fd99db ("mt76: mt7615: read {tx,rx} mask from eeprom")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 4d8b81abc47b ("KVM: introduce readonly memslot")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-[Redone using kvm_vcpu_gfn_to_memslot_prot. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 609903481e39b..745ee09083dd5 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1284,7 +1284,7 @@ unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn)
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
+@@ -92,8 +92,9 @@ static int mt7615_check_eeprom(struct mt
  
- 	size = PAGE_SIZE;
+ static void mt7615_eeprom_parse_hw_cap(struct mt7615_dev *dev)
+ {
+-	u8 val, *eeprom = dev->mt76.eeprom.data;
++	u8 *eeprom = dev->mt76.eeprom.data;
+ 	u8 tx_mask, rx_mask, max_nss;
++	u32 val;
  
--	addr = kvm_vcpu_gfn_to_hva(vcpu, gfn);
-+	addr = kvm_vcpu_gfn_to_hva_prot(vcpu, gfn, NULL);
- 	if (kvm_is_error_hva(addr))
- 		return PAGE_SIZE;
- 
--- 
-2.20.1
-
+ 	val = FIELD_GET(MT_EE_NIC_WIFI_CONF_BAND_SEL,
+ 			eeprom[MT_EE_WIFI_CONF]);
 
 
