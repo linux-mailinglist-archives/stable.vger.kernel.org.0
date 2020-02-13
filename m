@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3721315C684
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B67BD15C67C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgBMQBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:01:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38702 "EHLO mail.kernel.org"
+        id S1730187AbgBMQBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:01:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbgBMPYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:40 -0500
+        id S1728211AbgBMPYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:41 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 687E0246B3;
-        Thu, 13 Feb 2020 15:24:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BD3324689;
+        Thu, 13 Feb 2020 15:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607479;
-        bh=SVhXEM5ip6DL8l6Fd0jQhEMKOcT/fCDb5xo5D0hWBBU=;
+        s=default; t=1581607480;
+        bh=ZaI7ZKKuBU2guKfdSaNMv2IyHE2OcDMl4jelfqUdvlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCcVU4BR+YTN8p+YX8EG+wWxbvohwFzNfRmX3+OtAnpc5KeFC4cVwxFm5j1kOZrXM
-         3y8Jexj16xMM8udQnQcaSRqJgVoz0QszyGcqegjQMlYdD8sM2orzFnWaRYDMmmZRxY
-         X6/o8KcysuE3TmIEnd5VfzZQ9MynIURpSFdxTTIk=
+        b=Jpy2EoH9J8co4642vBzFpPwNN78N84hYLt8UDLB+/qI/zlCcESVtBVZDIfLi6mlpM
+         Er8/nvbi9SDeRv7zsUU7fQOHZqudYsCL1Sybk09J7y2smneArHy6ZZNDnTCPZKPT/8
+         ToGKP+8WRLAaC+rqhLx8SSeU+YQyhYX4O2FfLnTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.14 022/173] usb: gadget: legacy: set max_speed to super-speed
-Date:   Thu, 13 Feb 2020 07:18:45 -0800
-Message-Id: <20200213151938.851892387@linuxfoundation.org>
+Subject: [PATCH 4.14 023/173] usb: gadget: f_ncm: Use atomic_t to track in-flight request
+Date:   Thu, 13 Feb 2020 07:18:46 -0800
+Message-Id: <20200213151939.183100831@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -43,68 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 463f67aec2837f981b0a0ce8617721ff59685c00 upstream.
+commit 5b24c28cfe136597dc3913e1c00b119307a20c7e upstream.
 
-These interfaces do support super-speed so let's not
-limit maximum speed to high-speed.
+Currently ncm->notify_req is used to flag when a request is in-flight.
+ncm->notify_req is set to NULL and when a request completes it is
+subsequently reset.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
+This is fundamentally buggy in that the unbind logic of the NCM driver will
+unconditionally free ncm->notify_req leading to a NULL pointer dereference.
+
+Fixes: 40d133d7f542 ("usb: gadget: f_ncm: convert to new function interface with backward compatibility")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/cdc2.c  |    2 +-
- drivers/usb/gadget/legacy/g_ffs.c |    2 +-
- drivers/usb/gadget/legacy/multi.c |    2 +-
- drivers/usb/gadget/legacy/ncm.c   |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/function/f_ncm.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/legacy/cdc2.c
-+++ b/drivers/usb/gadget/legacy/cdc2.c
-@@ -229,7 +229,7 @@ static struct usb_composite_driver cdc_d
- 	.name		= "g_cdc",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= cdc_bind,
- 	.unbind		= cdc_unbind,
- };
---- a/drivers/usb/gadget/legacy/g_ffs.c
-+++ b/drivers/usb/gadget/legacy/g_ffs.c
-@@ -153,7 +153,7 @@ static struct usb_composite_driver gfs_d
- 	.name		= DRIVER_NAME,
- 	.dev		= &gfs_dev_desc,
- 	.strings	= gfs_dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= gfs_bind,
- 	.unbind		= gfs_unbind,
- };
---- a/drivers/usb/gadget/legacy/multi.c
-+++ b/drivers/usb/gadget/legacy/multi.c
-@@ -486,7 +486,7 @@ static struct usb_composite_driver multi
- 	.name		= "g_multi",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= multi_bind,
- 	.unbind		= multi_unbind,
- 	.needs_serial	= 1,
---- a/drivers/usb/gadget/legacy/ncm.c
-+++ b/drivers/usb/gadget/legacy/ncm.c
-@@ -203,7 +203,7 @@ static struct usb_composite_driver ncm_d
- 	.name		= "g_ncm",
- 	.dev		= &device_desc,
- 	.strings	= dev_strings,
--	.max_speed	= USB_SPEED_HIGH,
-+	.max_speed	= USB_SPEED_SUPER,
- 	.bind		= gncm_bind,
- 	.unbind		= gncm_unbind,
- };
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -58,6 +58,7 @@ struct f_ncm {
+ 	struct usb_ep			*notify;
+ 	struct usb_request		*notify_req;
+ 	u8				notify_state;
++	atomic_t			notify_count;
+ 	bool				is_open;
+ 
+ 	const struct ndp_parser_opts	*parser_opts;
+@@ -553,7 +554,7 @@ static void ncm_do_notify(struct f_ncm *
+ 	int				status;
+ 
+ 	/* notification already in flight? */
+-	if (!req)
++	if (atomic_read(&ncm->notify_count))
+ 		return;
+ 
+ 	event = req->buf;
+@@ -593,7 +594,8 @@ static void ncm_do_notify(struct f_ncm *
+ 	event->bmRequestType = 0xA1;
+ 	event->wIndex = cpu_to_le16(ncm->ctrl_id);
+ 
+-	ncm->notify_req = NULL;
++	atomic_inc(&ncm->notify_count);
++
+ 	/*
+ 	 * In double buffering if there is a space in FIFO,
+ 	 * completion callback can be called right after the call,
+@@ -603,7 +605,7 @@ static void ncm_do_notify(struct f_ncm *
+ 	status = usb_ep_queue(ncm->notify, req, GFP_ATOMIC);
+ 	spin_lock(&ncm->lock);
+ 	if (status < 0) {
+-		ncm->notify_req = req;
++		atomic_dec(&ncm->notify_count);
+ 		DBG(cdev, "notify --> %d\n", status);
+ 	}
+ }
+@@ -638,17 +640,19 @@ static void ncm_notify_complete(struct u
+ 	case 0:
+ 		VDBG(cdev, "Notification %02x sent\n",
+ 		     event->bNotificationType);
++		atomic_dec(&ncm->notify_count);
+ 		break;
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
++		atomic_set(&ncm->notify_count, 0);
+ 		ncm->notify_state = NCM_NOTIFY_NONE;
+ 		break;
+ 	default:
+ 		DBG(cdev, "event %02x --> %d\n",
+ 			event->bNotificationType, req->status);
++		atomic_dec(&ncm->notify_count);
+ 		break;
+ 	}
+-	ncm->notify_req = req;
+ 	ncm_do_notify(ncm);
+ 	spin_unlock(&ncm->lock);
+ }
+@@ -1632,6 +1636,11 @@ static void ncm_unbind(struct usb_config
+ 	ncm_string_defs[0].id = 0;
+ 	usb_free_all_descriptors(f);
+ 
++	if (atomic_read(&ncm->notify_count)) {
++		usb_ep_dequeue(ncm->notify, ncm->notify_req);
++		atomic_set(&ncm->notify_count, 0);
++	}
++
+ 	kfree(ncm->notify_req->buf);
+ 	usb_ep_free_request(ncm->notify, ncm->notify_req);
+ }
 
 
