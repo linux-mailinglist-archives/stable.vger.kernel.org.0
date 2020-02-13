@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABF315C4D8
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E4715C3C9
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387599AbgBMPvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:51:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44534 "EHLO mail.kernel.org"
+        id S1729162AbgBMPoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:44:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387524AbgBMP0S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:18 -0500
+        id S1729140AbgBMP1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA7DC20661;
-        Thu, 13 Feb 2020 15:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C648324676;
+        Thu, 13 Feb 2020 15:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607578;
-        bh=CEnA5KxjyFqr6S2JVJaG4x3AfLs3XLduoz3lLlq/M3I=;
+        s=default; t=1581607661;
+        bh=XWFvTXfYNzLK9xy8MuWVG8VNm3uWOjyKcLAzorH8MJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rx9aE3Ak63G2zOIf/htoEHiIBeMtlgVcu0TTcQAtm5FhuLw0lZxr35y1rf89Oy45l
-         XF2xaenOv6dMj4GjmIgT8Mv7NuO+z6Mmalc+KmwB47rOsIxwogUJ6CHdYhmlduMgrY
-         X+V8j1SvYjUT4LubKld5dx1RiEnNzPvhXny2UDgc=
+        b=fwjdiSXzILzRzNZdDRYie0i2TMGOfeoy16SOJA378qWvaUmBTLzojv6aVF1W2vxYv
+         9Eiovfy/zwwsGrkTiDScepr1TC+EZN3TF9w4p/1UmtFxp/BsHP9QJUcYxpVlL/yjFQ
+         cTgpg74dv7Gc9cVVNUQNIJJ80+TSmPEbmHPLVKIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.14 167/173] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
+        stable@vger.kernel.org, Olof Johansson <olof@lixom.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 63/96] ARM: 8949/1: mm: mark free_memmap as __init
 Date:   Thu, 13 Feb 2020 07:21:10 -0800
-Message-Id: <20200213152013.193132676@linuxfoundation.org>
+Message-Id: <20200213151903.383922742@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Olof Johansson <olof@lixom.net>
 
-commit 805f635703b2562b5ddd822c62fc9124087e5dd5 upstream.
+commit 31f3010e60522ede237fb145a63b4af5a41718c2 upstream.
 
-The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
-one set of users must be wrong.  Replace them by the correct enum IDs.
+As of commit ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING
+forcibly"), free_memmap() might not always be inlined, and thus is
+triggering a section warning:
 
-Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
+WARNING: vmlinux.o(.text.unlikely+0x904): Section mismatch in reference from the function free_memmap() to the function .meminit.text:memblock_free()
+
+Mark it as __init, since the faller (free_unused_memmap) already is.
+
+Fixes: ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING forcibly")
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a7778.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mm/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-@@ -2325,7 +2325,7 @@ static const struct pinmux_cfg_reg pinmu
- 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
- 		/* IP0_11_8 [4] */
- 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
--		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
-+		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
- 		FN_PWM4_B,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP0_7_5 [3] */
-@@ -2367,7 +2367,7 @@ static const struct pinmux_cfg_reg pinmu
- 		FN_TS_SDAT0_A,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP1_10_8 [3] */
--		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
-+		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
- 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
- 		/* IP1_7_5 [3] */
- 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -323,7 +323,7 @@ static inline void poison_init_mem(void
+ 		*p++ = 0xe7fddef0;
+ }
+ 
+-static inline void
++static inline void __init
+ free_memmap(unsigned long start_pfn, unsigned long end_pfn)
+ {
+ 	struct page *start_pg, *end_pg;
 
 
