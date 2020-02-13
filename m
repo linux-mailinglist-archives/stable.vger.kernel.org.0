@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D13AC15C1B3
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 190A015C1FA
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387476AbgBMPZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41630 "EHLO mail.kernel.org"
+        id S1729535AbgBMP2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387470AbgBMPZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:36 -0500
+        id S1729525AbgBMP16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:58 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFF820848;
-        Thu, 13 Feb 2020 15:25:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49C922168B;
+        Thu, 13 Feb 2020 15:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607535;
-        bh=AAt1npNBuoF9HEte28mNGNs8qJLbOCp8Vc1bkpK/1Hw=;
+        s=default; t=1581607678;
+        bh=OBudWwLaKIgRwJwUVqgm2yLIjoeMSr2ZkCKtSc+IYjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=088Rnp5/AYdeFi8LC9tlzl/u7Jjr+cYoZdGPHy8TZ7IuqCkLoNvQbMM3YaIvJwMrZ
-         NKyFMrBJAjX9RFi4XgBYkjU08urvrTM4uoTdSAYKloYLyNSQR++U2/HbkGf9JdBNXe
-         CZ8DKPJWGYaD8LYprrcImjh2bRSVbOEG2mMk6zns=
+        b=J9K5EbvTZEu0gM34L9V/+SHt+OtYoq4evtNEDqBbfciT2HzcTO5RD0BCF0ljWOQkw
+         pHR11CTK6aThi5CMF1s20nJe6unYnTaynsusfeN+AVPpJKShCJfQj2l1cf3FEEqtic
+         /ilIfZjRZC9oh15HvSD0VFkv8XeMijVH6RgjEml4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
-        Stephen Warren <swarren@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.14 092/173] clk: tegra: Mark fuse clock as critical
-Date:   Thu, 13 Feb 2020 07:19:55 -0800
-Message-Id: <20200213151956.303629055@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 001/120] IB/mlx4: Fix memory leak in add_gid error flow
+Date:   Thu, 13 Feb 2020 07:19:57 -0800
+Message-Id: <20200213151901.536306294@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,44 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Warren <swarren@nvidia.com>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-commit bf83b96f87ae2abb1e535306ea53608e8de5dfbb upstream.
+commit eaad647e5cc27f7b46a27f3b85b14c4c8a64bffa upstream.
 
-For a little over a year, U-Boot on Tegra124 has configured the flow
-controller to perform automatic RAM re-repair on off->on power
-transitions of the CPU rail[1]. This is mandatory for correct operation
-of Tegra124. However, RAM re-repair relies on certain clocks, which the
-kernel must enable and leave running. The fuse clock is one of those
-clocks. Mark this clock as critical so that LP1 power mode (system
-suspend) operates correctly.
+In procedure mlx4_ib_add_gid(), if the driver is unable to update the FW
+gid table, there is a memory leak in the driver's copy of the gid table:
+the gid entry's context buffer is not freed.
 
-[1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
+If such an error occurs, free the entry's context buffer, and mark the
+entry as available (by setting its context pointer to NULL).
 
-Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: e26be1bfef81 ("IB/mlx4: Implement ib_device callbacks")
+Link: https://lore.kernel.org/r/20200115085050.73746-1-leon@kernel.org
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/tegra/clk-tegra-periph.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx4/main.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/drivers/clk/tegra/clk-tegra-periph.c
-+++ b/drivers/clk/tegra/clk-tegra-periph.c
-@@ -825,7 +825,11 @@ static struct tegra_periph_init_data gat
- 	GATE("vcp", "clk_m", 29, 0, tegra_clk_vcp, 0),
- 	GATE("apbdma", "clk_m", 34, 0, tegra_clk_apbdma, 0),
- 	GATE("kbc", "clk_32k", 36, TEGRA_PERIPH_ON_APB | TEGRA_PERIPH_NO_RESET, tegra_clk_kbc, 0),
--	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, 0),
-+	/*
-+	 * Critical for RAM re-repair operation, which must occur on resume
-+	 * from LP1 system suspend and as part of CCPLEX cluster switching.
-+	 */
-+	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, CLK_IS_CRITICAL),
- 	GATE("fuse_burn", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse_burn, 0),
- 	GATE("kfuse", "clk_m", 40, TEGRA_PERIPH_ON_APB, tegra_clk_kfuse, 0),
- 	GATE("apbif", "clk_m", 107, TEGRA_PERIPH_ON_APB, tegra_clk_apbif, 0),
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -246,6 +246,13 @@ static int mlx4_ib_update_gids(struct gi
+ 	return mlx4_ib_update_gids_v1(gids, ibdev, port_num);
+ }
+ 
++static void free_gid_entry(struct gid_entry *entry)
++{
++	memset(&entry->gid, 0, sizeof(entry->gid));
++	kfree(entry->ctx);
++	entry->ctx = NULL;
++}
++
+ static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
+ {
+ 	struct mlx4_ib_dev *ibdev = to_mdev(attr->device);
+@@ -313,6 +320,8 @@ static int mlx4_ib_add_gid(const struct
+ 				     GFP_ATOMIC);
+ 		if (!gids) {
+ 			ret = -ENOMEM;
++			*context = NULL;
++			free_gid_entry(&port_gid_table->gids[free]);
+ 		} else {
+ 			for (i = 0; i < MLX4_MAX_PORT_GIDS; i++) {
+ 				memcpy(&gids[i].gid, &port_gid_table->gids[i].gid, sizeof(union ib_gid));
+@@ -324,6 +333,12 @@ static int mlx4_ib_add_gid(const struct
+ 
+ 	if (!ret && hw_update) {
+ 		ret = mlx4_ib_update_gids(gids, ibdev, attr->port_num);
++		if (ret) {
++			spin_lock_bh(&iboe->lock);
++			*context = NULL;
++			free_gid_entry(&port_gid_table->gids[free]);
++			spin_unlock_bh(&iboe->lock);
++		}
+ 		kfree(gids);
+ 	}
+ 
+@@ -353,10 +368,7 @@ static int mlx4_ib_del_gid(const struct
+ 		if (!ctx->refcount) {
+ 			unsigned int real_index = ctx->real_index;
+ 
+-			memset(&port_gid_table->gids[real_index].gid, 0,
+-			       sizeof(port_gid_table->gids[real_index].gid));
+-			kfree(port_gid_table->gids[real_index].ctx);
+-			port_gid_table->gids[real_index].ctx = NULL;
++			free_gid_entry(&port_gid_table->gids[real_index]);
+ 			hw_update = 1;
+ 		}
+ 	}
 
 
