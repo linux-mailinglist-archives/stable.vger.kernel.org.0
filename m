@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F39A15C44B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A240D15C332
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729121AbgBMPpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:45:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50316 "EHLO mail.kernel.org"
+        id S2387757AbgBMP2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728976AbgBMP1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:24 -0500
+        id S1728445AbgBMP2k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:40 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABC8824681;
-        Thu, 13 Feb 2020 15:27:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D52E24676;
+        Thu, 13 Feb 2020 15:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607643;
-        bh=6APSuzR5QQ1pD6w/up3le0id6xut3M8E7VEdJw0ul/k=;
+        s=default; t=1581607719;
+        bh=AzyPehGb52ECJ+zdCScD6NmW/QG6jNq0X+C2XumulvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njgVF+Tz7p/k1CwqakA7gQBr3MA68JoHaKKjZNFxk85PqDOEb1puKdJKxS36jUD1x
-         tRCb3r4B9nCx/zVs/EePwze2bY5p/Ep0wKElo9rFgROi20O31+r9jqvK4eclUFDS0+
-         A3uwtkpzOxT73GBEoK7m+WpfGuL1cDEmn47hWwKM=
+        b=LsbSZOz3rHjdc00g1Uqc2xoY/QQmcTpn8xm6s65IAssHf6zB6yeZXZQpJB4m8Wneu
+         qHVB5Uu0UBQ71tHzs002nFjyABh3KC6WbskobfPbCcbU5m2bGbfc1ht6BCi37OkXju
+         unXR/8F7N2fmvf+naACm/S+TvLA0ypFZrzjNZBqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@kylinos.cn>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 51/96] tools/power/acpi: fix compilation error
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: [PATCH 5.5 062/120] ARM: dts: meson8: use the actual frequency for the GPUs 182.1MHz OPP
 Date:   Thu, 13 Feb 2020 07:20:58 -0800
-Message-Id: <20200213151859.191189876@linuxfoundation.org>
+Message-Id: <20200213151922.555702018@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 1985f8c7f9a42a651a9750d6fcadc74336d182df upstream.
+commit fe634a7a9a57fb736e39fb71aa9adc6448a90f94 upstream.
 
-If we compile tools/acpi target in the top source directory, we'd get a
-compilation error showing as bellow:
+The clock setup on Meson8 cannot achieve a Mali frequency of exactly
+182.15MHz. The vendor driver uses "FCLK_DIV7 / 2" for this frequency,
+which translates to 2550MHz / 7 / 2 = 182142857Hz.
+Update the GPU operating point to that specific frequency to not confuse
+myself when comparing the frequency from the .dts with the actual clock
+rate on the system.
 
-	# make tools/acpi
-	  DESCEND  power/acpi
-	  DESCEND  tools/acpidbg
-	  CC       tools/acpidbg/acpidbg.o
-	Assembler messages:
-	Fatal error: can't create /home/lzy/kernel-upstream/power/acpi/\
-			tools/acpidbg/acpidbg.o: No such file or directory
-	../../Makefile.rules:26: recipe for target '/home/lzy/kernel-upstream/\
-			power/acpi/tools/acpidbg/acpidbg.o' failed
-	make[3]: *** [/home/lzy/kernel-upstream//power/acpi/tools/acpidbg/\
-			acpidbg.o] Error 1
-	Makefile:19: recipe for target 'acpidbg' failed
-	make[2]: *** [acpidbg] Error 2
-	Makefile:54: recipe for target 'acpi' failed
-	make[1]: *** [acpi] Error 2
-	Makefile:1607: recipe for target 'tools/acpi' failed
-	make: *** [tools/acpi] Error 2
-
-Fixes: d5a4b1a540b8 ("tools/power/acpi: Remove direct kernel source include reference")
-Signed-off-by: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/power/acpi/Makefile.config |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/meson8.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/power/acpi/Makefile.config
-+++ b/tools/power/acpi/Makefile.config
-@@ -15,7 +15,7 @@ include $(srctree)/../../scripts/Makefil
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -129,8 +129,8 @@
+ 	gpu_opp_table: gpu-opp-table {
+ 		compatible = "operating-points-v2";
  
- OUTPUT=$(srctree)/
- ifeq ("$(origin O)", "command line")
--	OUTPUT := $(O)/power/acpi/
-+	OUTPUT := $(O)/tools/power/acpi/
- endif
- #$(info Determined 'OUTPUT' to be $(OUTPUT))
- 
+-		opp-182150000 {
+-			opp-hz = /bits/ 64 <182150000>;
++		opp-182142857 {
++			opp-hz = /bits/ 64 <182142857>;
+ 			opp-microvolt = <1150000>;
+ 		};
+ 		opp-318750000 {
 
 
