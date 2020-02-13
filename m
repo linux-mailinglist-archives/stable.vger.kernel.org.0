@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A20C15C608
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C78715C770
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727597AbgBMP42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:56:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41176 "EHLO mail.kernel.org"
+        id S1730244AbgBMQKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:10:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729007AbgBMPZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:27 -0500
+        id S1727988AbgBMPWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:35 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47ACB2469C;
-        Thu, 13 Feb 2020 15:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DED2324690;
+        Thu, 13 Feb 2020 15:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607527;
-        bh=JFBmRzG9tCU5CB6dXtmryaVPF24jOZixMc1b2NHjwI8=;
+        s=default; t=1581607354;
+        bh=mrU7RCK5WEhJt8eYqqolSqzoo9dFvW8eoP0dTn9M3zI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vs0Vp59DHZYGWn9qMySa8yO2om1UpGGZtrSg/mngZb1UxixNdnjM6njeZEnVABnYJ
-         PYcSzmqzOVZxQ1gX9PR0Fap6WQE9UXCQ3c60g5XP2Hye/AAtaykFqgOWdk3E94C2Qo
-         3PlZ663uW1ffpD4bSuOMhqBF29Ugr7q5jP+/WS2c=
+        b=z8InTUvTHoABgIaLOhIIP+9ebIgC7SLeVPuOAzyxDDPA4GWj31uN1CT9Say471/Jf
+         xinSPo/rpFxl/WXlqWRzpWawA63RWdC+BXpi9EdqJ0Tfk5k5QiJbbhirlJa9o6cHIH
+         GLvmNlzP6ps0XX+WrV0haBkutl8kU7YQtlhV1/nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 089/173] KVM: PPC: Book3S HV: Uninit vCPU if vcore creation fails
-Date:   Thu, 13 Feb 2020 07:19:52 -0800
-Message-Id: <20200213151955.573534147@linuxfoundation.org>
+Subject: [PATCH 4.4 36/91] KVM: x86: Protect DR-based index computations from Spectre-v1/L1TF attacks
+Date:   Thu, 13 Feb 2020 07:19:53 -0800
+Message-Id: <20200213151835.471940017@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marios Pomonis <pomonis@google.com>
 
-commit 1a978d9d3e72ddfa40ac60d26301b154247ee0bc upstream.
+commit ea740059ecb37807ba47b84b33d1447435a8d868 upstream.
 
-Call kvm_vcpu_uninit() if vcore creation fails to avoid leaking any
-resources allocated by kvm_vcpu_init(), i.e. the vcpu->run page.
+This fixes a Spectre-v1/L1TF vulnerability in __kvm_set_dr() and
+kvm_get_dr().
+Both kvm_get_dr() and kvm_set_dr() (a wrapper of __kvm_set_dr()) are
+exported symbols so KVM should tream them conservatively from a security
+perspective.
 
-Fixes: 371fefd6f2dc4 ("KVM: PPC: Allow book3s_hv guests to use SMT processor modes")
+Fixes: 020df0794f57 ("KVM: move DR register access handling into generic code")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
+Reviewed-by: Jim Mattson <jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -1997,7 +1997,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu
- 	mutex_unlock(&kvm->lock);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -53,6 +53,7 @@
+ #include <linux/pvclock_gtod.h>
+ #include <linux/kvm_irqfd.h>
+ #include <linux/irqbypass.h>
++#include <linux/nospec.h>
+ #include <trace/events/kvm.h>
  
- 	if (!vcore)
--		goto free_vcpu;
-+		goto uninit_vcpu;
+ #define CREATE_TRACE_POINTS
+@@ -873,9 +874,11 @@ static u64 kvm_dr6_fixed(struct kvm_vcpu
  
- 	spin_lock(&vcore->lock);
- 	++vcore->num_threads;
-@@ -2014,6 +2014,8 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+ static int __kvm_set_dr(struct kvm_vcpu *vcpu, int dr, unsigned long val)
+ {
++	size_t size = ARRAY_SIZE(vcpu->arch.db);
++
+ 	switch (dr) {
+ 	case 0 ... 3:
+-		vcpu->arch.db[dr] = val;
++		vcpu->arch.db[array_index_nospec(dr, size)] = val;
+ 		if (!(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP))
+ 			vcpu->arch.eff_db[dr] = val;
+ 		break;
+@@ -912,9 +915,11 @@ EXPORT_SYMBOL_GPL(kvm_set_dr);
  
- 	return vcpu;
- 
-+uninit_vcpu:
-+	kvm_vcpu_uninit(vcpu);
- free_vcpu:
- 	kmem_cache_free(kvm_vcpu_cache, vcpu);
- out:
+ int kvm_get_dr(struct kvm_vcpu *vcpu, int dr, unsigned long *val)
+ {
++	size_t size = ARRAY_SIZE(vcpu->arch.db);
++
+ 	switch (dr) {
+ 	case 0 ... 3:
+-		*val = vcpu->arch.db[dr];
++		*val = vcpu->arch.db[array_index_nospec(dr, size)];
+ 		break;
+ 	case 4:
+ 		/* fall through */
 
 
