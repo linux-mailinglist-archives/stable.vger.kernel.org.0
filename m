@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D23D15C4D1
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D1815C3DE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728765AbgBMPvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:51:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44854 "EHLO mail.kernel.org"
+        id S1729077AbgBMPo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:44:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728747AbgBMP0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:21 -0500
+        id S1729437AbgBMP1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:34 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FB86218AC;
-        Thu, 13 Feb 2020 15:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6566E20661;
+        Thu, 13 Feb 2020 15:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607580;
-        bh=ZDuLrSCJOFSSpKWX6MNOS1abnctVLaODKY4DGqUkhfY=;
+        s=default; t=1581607654;
+        bh=WuqV254a5onX5HPGKhHxntSjp5QurUQnAHBFMgCKLuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ban3ip2J8GxGRMOFFuFuXaAM7DlFg+OiSgsDsZQBOoNC70Dap0Zvlhfp0DbeMEl5f
-         qnXB4Y7U3uol4WQNUiH2UzzGAcbdp9wQwAV7ShDY/RdFz3FJyu0Nry/QrgVvQ/tZsP
-         yK79hFShDmh8gPPgFnedMGLzvLZF8bNN6YQW5Qso=
+        b=TXBX8N/S92zrhlKvcsOrjzB7GY3CpPBdgsLWV28huGjhwcfiR8vfWsY2aTE/wlPlb
+         ShnA2X9uduY5bTz/Ua064FHqLGHyKWmlZP8zUvAbGCj9a5/tfK74diVAvDJhIrLxOi
+         bsPiCLsRtO3Q2CGjhU2V3PJDS1ZQ4FXx/PTd0KhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qing Xu <m1s5p6688@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 171/173] mwifiex: Fix possible buffer overflows in mwifiex_cmd_append_vsie_tlv()
-Date:   Thu, 13 Feb 2020 07:21:14 -0800
-Message-Id: <20200213152014.080520382@linuxfoundation.org>
+        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 68/96] KVM: arm/arm64: Fix young bit from mmu notifier
+Date:   Thu, 13 Feb 2020 07:21:15 -0800
+Message-Id: <20200213151904.946853903@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qing Xu <m1s5p6688@gmail.com>
+From: Gavin Shan <gshan@redhat.com>
 
-[ Upstream commit b70261a288ea4d2f4ac7cd04be08a9f0f2de4f4d ]
+commit cf2d23e0bac9f6b5cd1cba8898f5f05ead40e530 upstream.
 
-mwifiex_cmd_append_vsie_tlv() calls memcpy() without checking
-the destination size may trigger a buffer overflower,
-which a local user could use to cause denial of service
-or the execution of arbitrary code.
-Fix it by putting the length check before calling memcpy().
+kvm_test_age_hva() is called upon mmu_notifier_test_young(), but wrong
+address range has been passed to handle_hva_to_gpa(). With the wrong
+address range, no young bits will be checked in handle_hva_to_gpa().
+It means zero is always returned from mmu_notifier_test_young().
 
-Signed-off-by: Qing Xu <m1s5p6688@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fixes the issue by passing correct address range to the underly
+function handle_hva_to_gpa(), so that the hardware young (access) bit
+will be visited.
+
+Fixes: 35307b9a5f7e ("arm/arm64: KVM: Implement Stage-2 page aging")
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200121055659.19560-1-gshan@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/marvell/mwifiex/scan.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ virt/kvm/arm/mmu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
-index c013c94fbf15f..0071c40afe81b 100644
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -2890,6 +2890,13 @@ mwifiex_cmd_append_vsie_tlv(struct mwifiex_private *priv,
- 			vs_param_set->header.len =
- 				cpu_to_le16((((u16) priv->vs_ie[id].ie[1])
- 				& 0x00FF) + 2);
-+			if (le16_to_cpu(vs_param_set->header.len) >
-+				MWIFIEX_MAX_VSIE_LEN) {
-+				mwifiex_dbg(priv->adapter, ERROR,
-+					    "Invalid param length!\n");
-+				break;
-+			}
-+
- 			memcpy(vs_param_set->ie, priv->vs_ie[id].ie,
- 			       le16_to_cpu(vs_param_set->header.len));
- 			*buffer += le16_to_cpu(vs_param_set->header.len) +
--- 
-2.20.1
-
+--- a/virt/kvm/arm/mmu.c
++++ b/virt/kvm/arm/mmu.c
+@@ -2147,7 +2147,8 @@ int kvm_test_age_hva(struct kvm *kvm, un
+ 	if (!kvm->arch.pgd)
+ 		return 0;
+ 	trace_kvm_test_age_hva(hva);
+-	return handle_hva_to_gpa(kvm, hva, hva, kvm_test_age_hva_handler, NULL);
++	return handle_hva_to_gpa(kvm, hva, hva + PAGE_SIZE,
++				 kvm_test_age_hva_handler, NULL);
+ }
+ 
+ void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu)
 
 
