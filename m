@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 003E315C33C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC9415C418
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729615AbgBMP2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57338 "EHLO mail.kernel.org"
+        id S1729272AbgBMP0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387504AbgBMP2w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:52 -0500
+        id S1729268AbgBMP0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:51 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C47EC206DB;
-        Thu, 13 Feb 2020 15:28:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2134A222C2;
+        Thu, 13 Feb 2020 15:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607731;
-        bh=dPmNghqpDzjIZPEWpK9qL+Y/G3+b0ngJ5XVWYCr9ioc=;
+        s=default; t=1581607611;
+        bh=uEqBD+pRryWe/jG4/xFJ/zSOq1zd6Fja6rU94sP9RLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5NhPZgGkVjSnTMmBBP8qwrEVG3tp1+9Cna90wmchmGZvG+e2jHLy9UUjMJ3kMC9P
-         B72ephHT4f5ENEptku4BeiI7Ptj4UUeY230qVn8/LF3BmnviiJXIzZmE6GshMZYAYE
-         tCU9rZcl9BCBY3HsF2eUHHDiB2pXagKYPAEEQfrc=
+        b=BqEluBXNDvUn3XVMp3Q9b/tjk66hcFWY+1Dh9+1Ii8ds18y+8xrr/p4vXYxg4m5V/
+         6Or2mnZoFqvs8Uoj5kgwD/TKRhNdlWukAhfGF4jNKqerVltThPjxue/oKmQdMT1dxX
+         1P/twHa5LQMX/CjQgnnhoLJqM7qmm+g6RNUO3zI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.5 081/120] arm64: cpufeature: Fix the type of no FP/SIMD capability
+        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 36/52] KVM: arm/arm64: Fix young bit from mmu notifier
 Date:   Thu, 13 Feb 2020 07:21:17 -0800
-Message-Id: <20200213151928.803124228@linuxfoundation.org>
+Message-Id: <20200213151825.176692550@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Gavin Shan <gshan@redhat.com>
 
-commit 449443c03d8cfdacf7313e17779a2594ebf87e6d upstream.
+commit cf2d23e0bac9f6b5cd1cba8898f5f05ead40e530 upstream.
 
-The NO_FPSIMD capability is defined with scope SYSTEM, which implies
-that the "absence" of FP/SIMD on at least one CPU is detected only
-after all the SMP CPUs are brought up. However, we use the status
-of this capability for every context switch. So, let us change
-the scope to LOCAL_CPU to allow the detection of this capability
-as and when the first CPU without FP is brought up.
+kvm_test_age_hva() is called upon mmu_notifier_test_young(), but wrong
+address range has been passed to handle_hva_to_gpa(). With the wrong
+address range, no young bits will be checked in handle_hva_to_gpa().
+It means zero is always returned from mmu_notifier_test_young().
 
-Also, the current type allows hotplugged CPU to be brought up without
-FP/SIMD when all the current CPUs have FP/SIMD and we have the userspace
-up. Fix both of these issues by changing the capability to
-BOOT_RESTRICTED_LOCAL_CPU_FEATURE.
+This fixes the issue by passing correct address range to the underly
+function handle_hva_to_gpa(), so that the hardware young (access) bit
+will be visited.
 
-Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 35307b9a5f7e ("arm/arm64: KVM: Implement Stage-2 page aging")
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200121055659.19560-1-gshan@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/cpufeature.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ virt/kvm/arm/mmu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1368,7 +1368,7 @@ static const struct arm64_cpu_capabiliti
- 	{
- 		/* FP/SIMD is not implemented */
- 		.capability = ARM64_HAS_NO_FPSIMD,
--		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
-+		.type = ARM64_CPUCAP_BOOT_RESTRICTED_CPU_LOCAL_FEATURE,
- 		.min_field_value = 0,
- 		.matches = has_no_fpsimd,
- 	},
+--- a/virt/kvm/arm/mmu.c
++++ b/virt/kvm/arm/mmu.c
+@@ -1925,7 +1925,8 @@ int kvm_test_age_hva(struct kvm *kvm, un
+ 	if (!kvm->arch.pgd)
+ 		return 0;
+ 	trace_kvm_test_age_hva(hva);
+-	return handle_hva_to_gpa(kvm, hva, hva, kvm_test_age_hva_handler, NULL);
++	return handle_hva_to_gpa(kvm, hva, hva + PAGE_SIZE,
++				 kvm_test_age_hva_handler, NULL);
+ }
+ 
+ void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu)
 
 
