@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E2F15C587
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFD415C5AE
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728235AbgBMPXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
+        id S1728557AbgBMPX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728222AbgBMPXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:02 -0500
+        id S1728549AbgBMPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:59 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E60902469A;
-        Thu, 13 Feb 2020 15:23:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1558124691;
+        Thu, 13 Feb 2020 15:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607382;
-        bh=c37catCXQ/yGhz6D+YLiRTmWKuW5Gr2suXO/MLMWmkM=;
+        s=default; t=1581607438;
+        bh=TmD2bJfVghIxBgeQMl8W9YvpnhUUlp0KThkHrdEJluQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CcbJCivwBZw7flxuI4TL164MftH8vN7LosbyHDpuUfSggO1z7GHRij5BnfJC6KGM
-         jq6LK67G9KM4iFSWGyDj4TXa2Iid9qtIm0O7qDiwkg6wyqpG7+HYd+/DjjQ6cZRZHp
-         xgByFttSOeDWQm2kKhcqtXoIRR7WGn3Xr0IgiEa8=
+        b=F/sNudoUU9Ritzm4FraiLLPJ0PdreBVSpfx0F8IhDRESVECEp3cI8UO7IdZIbM0Uv
+         Fd5cq7bU/RNxcBLuzsgMqOqc5KhFFWXclmz5hNtbkEBznRmQzc8V0eks2tpqR6QaO3
+         kcu6lt8gr9oCC2Jtbx2PtbZqO+ryYORoIDXfIqlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 62/91] NFS: Directory page cache pages need to be locked when read
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 075/116] bonding/alb: properly access headers in bond_alb_xmit()
 Date:   Thu, 13 Feb 2020 07:20:19 -0800
-Message-Id: <20200213151846.058632156@linuxfoundation.org>
+Message-Id: <20200213151912.013945504@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,116 +47,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 114de38225d9b300f027e2aec9afbb6e0def154b ]
+[ Upstream commit 38f88c45404293bbc027b956def6c10cbd45c616 ]
 
-When a NFS directory page cache page is removed from the page cache,
-its contents are freed through a call to nfs_readdir_clear_array().
-To prevent the removal of the page cache entry until after we've
-finished reading it, we must take the page lock.
+syzbot managed to send an IPX packet through bond_alb_xmit()
+and af_packet and triggered a use-after-free.
 
-Fixes: 11de3b11e08c ("NFS: Fix a memory leak in nfs_readdir")
-Cc: stable@vger.kernel.org # v2.6.37+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+First, bond_alb_xmit() was using ipx_hdr() helper to reach
+the IPX header, but ipx_hdr() was using the transport offset
+instead of the network offset. In the particular syzbot
+report transport offset was 0xFFFF
+
+This patch removes ipx_hdr() since it was only (mis)used from bonding.
+
+Then we need to make sure IPv4/IPv6/IPX headers are pulled
+in skb->head before dereferencing anything.
+
+BUG: KASAN: use-after-free in bond_alb_xmit+0x153a/0x1590 drivers/net/bonding/bond_alb.c:1452
+Read of size 2 at addr ffff8801ce56dfff by task syz-executor.2/18108
+ (if (ipx_hdr(skb)->ipx_checksum != IPX_NO_CHECKSUM) ...)
+
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ [<ffffffff8441fc42>] __dump_stack lib/dump_stack.c:17 [inline]
+ [<ffffffff8441fc42>] dump_stack+0x14d/0x20b lib/dump_stack.c:53
+ [<ffffffff81a7dec4>] print_address_description+0x6f/0x20b mm/kasan/report.c:282
+ [<ffffffff81a7e0ec>] kasan_report_error mm/kasan/report.c:380 [inline]
+ [<ffffffff81a7e0ec>] kasan_report mm/kasan/report.c:438 [inline]
+ [<ffffffff81a7e0ec>] kasan_report.cold+0x8c/0x2a0 mm/kasan/report.c:422
+ [<ffffffff81a7dc4f>] __asan_report_load_n_noabort+0xf/0x20 mm/kasan/report.c:469
+ [<ffffffff82c8c00a>] bond_alb_xmit+0x153a/0x1590 drivers/net/bonding/bond_alb.c:1452
+ [<ffffffff82c60c74>] __bond_start_xmit drivers/net/bonding/bond_main.c:4199 [inline]
+ [<ffffffff82c60c74>] bond_start_xmit+0x4f4/0x1570 drivers/net/bonding/bond_main.c:4224
+ [<ffffffff83baa558>] __netdev_start_xmit include/linux/netdevice.h:4525 [inline]
+ [<ffffffff83baa558>] netdev_start_xmit include/linux/netdevice.h:4539 [inline]
+ [<ffffffff83baa558>] xmit_one net/core/dev.c:3611 [inline]
+ [<ffffffff83baa558>] dev_hard_start_xmit+0x168/0x910 net/core/dev.c:3627
+ [<ffffffff83bacf35>] __dev_queue_xmit+0x1f55/0x33b0 net/core/dev.c:4238
+ [<ffffffff83bae3a8>] dev_queue_xmit+0x18/0x20 net/core/dev.c:4278
+ [<ffffffff84339189>] packet_snd net/packet/af_packet.c:3226 [inline]
+ [<ffffffff84339189>] packet_sendmsg+0x4919/0x70b0 net/packet/af_packet.c:3252
+ [<ffffffff83b1ac0c>] sock_sendmsg_nosec net/socket.c:673 [inline]
+ [<ffffffff83b1ac0c>] sock_sendmsg+0x12c/0x160 net/socket.c:684
+ [<ffffffff83b1f5a2>] __sys_sendto+0x262/0x380 net/socket.c:1996
+ [<ffffffff83b1f700>] SYSC_sendto net/socket.c:2008 [inline]
+ [<ffffffff83b1f700>] SyS_sendto+0x40/0x60 net/socket.c:2004
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/dir.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ drivers/net/bonding/bond_alb.c |   44 +++++++++++++++++++++++++++++------------
+ 1 file changed, 32 insertions(+), 12 deletions(-)
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index e2927aeb092d0..2ac3d2527ad20 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -720,8 +720,6 @@ int nfs_readdir_filler(nfs_readdir_descriptor_t *desc, struct page* page)
- static
- void cache_page_release(nfs_readdir_descriptor_t *desc)
- {
--	if (!desc->page->mapping)
--		nfs_readdir_clear_array(desc->page);
- 	page_cache_release(desc->page);
- 	desc->page = NULL;
- }
-@@ -735,19 +733,28 @@ struct page *get_cache_page(nfs_readdir_descriptor_t *desc)
+--- a/drivers/net/bonding/bond_alb.c
++++ b/drivers/net/bonding/bond_alb.c
+@@ -1371,26 +1371,31 @@ int bond_alb_xmit(struct sk_buff *skb, s
+ 	bool do_tx_balance = true;
+ 	u32 hash_index = 0;
+ 	const u8 *hash_start = NULL;
+-	struct ipv6hdr *ip6hdr;
  
- /*
-  * Returns 0 if desc->dir_cookie was found on page desc->page_index
-+ * and locks the page to prevent removal from the page cache.
-  */
- static
--int find_cache_page(nfs_readdir_descriptor_t *desc)
-+int find_and_lock_cache_page(nfs_readdir_descriptor_t *desc)
- {
- 	int res;
+ 	skb_reset_mac_header(skb);
+ 	eth_data = eth_hdr(skb);
  
- 	desc->page = get_cache_page(desc);
- 	if (IS_ERR(desc->page))
- 		return PTR_ERR(desc->page);
--
--	res = nfs_readdir_search_array(desc);
-+	res = lock_page_killable(desc->page);
- 	if (res != 0)
--		cache_page_release(desc);
-+		goto error;
-+	res = -EAGAIN;
-+	if (desc->page->mapping != NULL) {
-+		res = nfs_readdir_search_array(desc);
-+		if (res == 0)
-+			return 0;
+ 	switch (ntohs(skb->protocol)) {
+ 	case ETH_P_IP: {
+-		const struct iphdr *iph = ip_hdr(skb);
++		const struct iphdr *iph;
+ 
+ 		if (ether_addr_equal_64bits(eth_data->h_dest, mac_bcast) ||
+-		    (iph->daddr == ip_bcast) ||
+-		    (iph->protocol == IPPROTO_IGMP)) {
++		    (!pskb_network_may_pull(skb, sizeof(*iph)))) {
++			do_tx_balance = false;
++			break;
++		}
++		iph = ip_hdr(skb);
++		if (iph->daddr == ip_bcast || iph->protocol == IPPROTO_IGMP) {
+ 			do_tx_balance = false;
+ 			break;
+ 		}
+ 		hash_start = (char *)&(iph->daddr);
+ 		hash_size = sizeof(iph->daddr);
+-	}
+ 		break;
+-	case ETH_P_IPV6:
 +	}
-+	unlock_page(desc->page);
-+error:
-+	cache_page_release(desc);
- 	return res;
- }
- 
-@@ -762,7 +769,7 @@ int readdir_search_pagecache(nfs_readdir_descriptor_t *desc)
- 		desc->last_cookie = 0;
- 	}
- 	do {
--		res = find_cache_page(desc);
-+		res = find_and_lock_cache_page(desc);
- 	} while (res == -EAGAIN);
- 	return res;
- }
-@@ -807,7 +814,6 @@ int nfs_do_filldir(nfs_readdir_descriptor_t *desc)
- 
- 	nfs_readdir_release_array(desc->page);
- out:
--	cache_page_release(desc);
- 	dfprintk(DIRCACHE, "NFS: nfs_do_filldir() filling ended @ cookie %Lu; returning = %d\n",
- 			(unsigned long long)*desc->dir_cookie, res);
- 	return res;
-@@ -853,13 +859,13 @@ int uncached_readdir(nfs_readdir_descriptor_t *desc)
- 
- 	status = nfs_do_filldir(desc);
- 
-+ out_release:
-+	nfs_readdir_clear_array(desc->page);
-+	cache_page_release(desc);
-  out:
- 	dfprintk(DIRCACHE, "NFS: %s: returns %d\n",
- 			__func__, status);
- 	return status;
-- out_release:
--	cache_page_release(desc);
--	goto out;
- }
- 
- /* The file offset position represents the dirent entry number.  A
-@@ -925,6 +931,8 @@ static int nfs_readdir(struct file *file, struct dir_context *ctx)
++	case ETH_P_IPV6: {
++		const struct ipv6hdr *ip6hdr;
++
+ 		/* IPv6 doesn't really use broadcast mac address, but leave
+ 		 * that here just in case.
+ 		 */
+@@ -1407,7 +1412,11 @@ int bond_alb_xmit(struct sk_buff *skb, s
  			break;
+ 		}
  
- 		res = nfs_do_filldir(desc);
-+		unlock_page(desc->page);
-+		cache_page_release(desc);
- 		if (res < 0)
+-		/* Additianally, DAD probes should not be tx-balanced as that
++		if (!pskb_network_may_pull(skb, sizeof(*ip6hdr))) {
++			do_tx_balance = false;
++			break;
++		}
++		/* Additionally, DAD probes should not be tx-balanced as that
+ 		 * will lead to false positives for duplicate addresses and
+ 		 * prevent address configuration from working.
+ 		 */
+@@ -1417,17 +1426,26 @@ int bond_alb_xmit(struct sk_buff *skb, s
  			break;
- 	} while (!desc->eof);
--- 
-2.20.1
-
+ 		}
+ 
+-		hash_start = (char *)&(ipv6_hdr(skb)->daddr);
+-		hash_size = sizeof(ipv6_hdr(skb)->daddr);
++		hash_start = (char *)&ip6hdr->daddr;
++		hash_size = sizeof(ip6hdr->daddr);
+ 		break;
+-	case ETH_P_IPX:
+-		if (ipx_hdr(skb)->ipx_checksum != IPX_NO_CHECKSUM) {
++	}
++	case ETH_P_IPX: {
++		const struct ipxhdr *ipxhdr;
++
++		if (pskb_network_may_pull(skb, sizeof(*ipxhdr))) {
++			do_tx_balance = false;
++			break;
++		}
++		ipxhdr = (struct ipxhdr *)skb_network_header(skb);
++
++		if (ipxhdr->ipx_checksum != IPX_NO_CHECKSUM) {
+ 			/* something is wrong with this packet */
+ 			do_tx_balance = false;
+ 			break;
+ 		}
+ 
+-		if (ipx_hdr(skb)->ipx_type != IPX_TYPE_NCP) {
++		if (ipxhdr->ipx_type != IPX_TYPE_NCP) {
+ 			/* The only protocol worth balancing in
+ 			 * this family since it has an "ARP" like
+ 			 * mechanism
+@@ -1436,9 +1454,11 @@ int bond_alb_xmit(struct sk_buff *skb, s
+ 			break;
+ 		}
+ 
++		eth_data = eth_hdr(skb);
+ 		hash_start = (char *)eth_data->h_dest;
+ 		hash_size = ETH_ALEN;
+ 		break;
++	}
+ 	case ETH_P_ARP:
+ 		do_tx_balance = false;
+ 		if (bond_info->rlb_enabled)
 
 
