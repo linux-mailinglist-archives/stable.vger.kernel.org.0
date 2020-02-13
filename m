@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7475915C720
+	by mail.lfdr.de (Postfix) with ESMTP id DFCFA15C721
 	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388296AbgBMQHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387399AbgBMQHU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Feb 2020 11:07:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34480 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728367AbgBMPXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728369AbgBMPXZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:23:25 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC98B20848;
-        Thu, 13 Feb 2020 15:23:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62D46246AD;
+        Thu, 13 Feb 2020 15:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607403;
-        bh=zCnYQwLaSk6jNcHbnqxcTOVbTYavOhSozb67NHsNvss=;
+        s=default; t=1581607404;
+        bh=q2Xzx4ZtTCFaYhUq4TinA37Ytiy1/EO7VvAyCcRFcoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2TCGAU6LEVxSzaHnn7TeUk+VjK23RObIY8xbpIez6OBsDUgEFpKqe6UmwKrjxgSy
-         GpGp+0tIaYZ28HjtYbUbl+FQ2qrbr4p70IZeyuDMkp6JE2XLhr4/ruK2fJKCAKJF5M
-         IDkjNqFdOEgw30YiLkAoLLFkltvat0wVjhJLxiLQ=
+        b=rVhk1btc2+rdy/4NtWnWZS1+d4t+NU5BNTIF6nqbsvDY79umZw1E/XimRcS1mjaBY
+         8NLYM9Nw+5QQoZxvwUY2wYIEQe7YszCQiv7uFPfxrKTZkQZUfYWXYzgaZ3cgWsm1/u
+         dNTywOu8bneRIwpO0xTXuEn11HcSh5Ip0VLzjGgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 006/116] gtp: use __GFP_NOWARN to avoid memalloc warning
-Date:   Thu, 13 Feb 2020 07:19:10 -0800
-Message-Id: <20200213151845.076376193@linuxfoundation.org>
+Subject: [PATCH 4.9 007/116] net: hsr: fix possible NULL deref in hsr_handle_frame()
+Date:   Thu, 13 Feb 2020 07:19:11 -0800
+Message-Id: <20200213151845.479811890@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
 References: <20200213151842.259660170@linuxfoundation.org>
@@ -43,68 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit bd5cd35b782abf5437fbd01dfaee12437d20e832 ]
+[ Upstream commit 2b5b8251bc9fe2f9118411f037862ee17cf81e97 ]
 
-gtp hashtable size is received by user-space.
-So, this hashtable size could be too large. If so, kmalloc will internally
-print a warning message.
-This warning message is actually not necessary for the gtp module.
-So, this patch adds __GFP_NOWARN to avoid this message.
+hsr_port_get_rcu() can return NULL, so we need to be careful.
 
-Splat looks like:
-[ 2171.200049][ T1860] WARNING: CPU: 1 PID: 1860 at mm/page_alloc.c:4713 __alloc_pages_nodemask+0x2f3/0x740
-[ 2171.238885][ T1860] Modules linked in: gtp veth openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv]
-[ 2171.262680][ T1860] CPU: 1 PID: 1860 Comm: gtp-link Not tainted 5.5.0+ #321
-[ 2171.263567][ T1860] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[ 2171.264681][ T1860] RIP: 0010:__alloc_pages_nodemask+0x2f3/0x740
-[ 2171.265332][ T1860] Code: 64 fe ff ff 65 48 8b 04 25 c0 0f 02 00 48 05 f0 12 00 00 41 be 01 00 00 00 49 89 47 0
-[ 2171.267301][ T1860] RSP: 0018:ffff8880b51af1f0 EFLAGS: 00010246
-[ 2171.268320][ T1860] RAX: ffffed1016a35e43 RBX: 0000000000000000 RCX: 0000000000000000
-[ 2171.269517][ T1860] RDX: 0000000000000000 RSI: 000000000000000b RDI: 0000000000000000
-[ 2171.270305][ T1860] RBP: 0000000000040cc0 R08: ffffed1018893109 R09: dffffc0000000000
-[ 2171.275973][ T1860] R10: 0000000000000001 R11: ffffed1018893108 R12: 1ffff11016a35e43
-[ 2171.291039][ T1860] R13: 000000000000000b R14: 000000000000000b R15: 00000000000f4240
-[ 2171.292328][ T1860] FS:  00007f53cbc83740(0000) GS:ffff8880da000000(0000) knlGS:0000000000000000
-[ 2171.293409][ T1860] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2171.294586][ T1860] CR2: 000055f540014508 CR3: 00000000b49f2004 CR4: 00000000000606e0
-[ 2171.295424][ T1860] Call Trace:
-[ 2171.295756][ T1860]  ? mark_held_locks+0xa5/0xe0
-[ 2171.296659][ T1860]  ? __alloc_pages_slowpath+0x21b0/0x21b0
-[ 2171.298283][ T1860]  ? gtp_encap_enable_socket+0x13e/0x400 [gtp]
-[ 2171.298962][ T1860]  ? alloc_pages_current+0xc1/0x1a0
-[ 2171.299475][ T1860]  kmalloc_order+0x22/0x80
-[ 2171.299936][ T1860]  kmalloc_order_trace+0x1d/0x140
-[ 2171.300437][ T1860]  __kmalloc+0x302/0x3a0
-[ 2171.300896][ T1860]  gtp_newlink+0x293/0xba0 [gtp]
-[ ... ]
+general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
+CPU: 1 PID: 10249 Comm: syz-executor.5 Not tainted 5.5.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__read_once_size include/linux/compiler.h:199 [inline]
+RIP: 0010:hsr_addr_is_self+0x86/0x330 net/hsr/hsr_framereg.c:44
+Code: 04 00 f3 f3 f3 65 48 8b 04 25 28 00 00 00 48 89 45 d0 31 c0 e8 6b ff 94 f9 4c 89 f2 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 75 02 00 00 48 8b 43 30 49 39 c6 49 89 47 c0 0f
+RSP: 0018:ffffc90000da8a90 EFLAGS: 00010206
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff87e0cc33
+RDX: 0000000000000006 RSI: ffffffff87e035d5 RDI: 0000000000000000
+RBP: ffffc90000da8b20 R08: ffff88808e7de040 R09: ffffed1015d2707c
+R10: ffffed1015d2707b R11: ffff8880ae9383db R12: ffff8880a689bc5e
+R13: 1ffff920001b5153 R14: 0000000000000030 R15: ffffc90000da8af8
+FS:  00007fd7a42be700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b32338000 CR3: 00000000a928c000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ hsr_handle_frame+0x1c5/0x630 net/hsr/hsr_slave.c:31
+ __netif_receive_skb_core+0xfbc/0x30b0 net/core/dev.c:5099
+ __netif_receive_skb_one_core+0xa8/0x1a0 net/core/dev.c:5196
+ __netif_receive_skb+0x2c/0x1d0 net/core/dev.c:5312
+ process_backlog+0x206/0x750 net/core/dev.c:6144
+ napi_poll net/core/dev.c:6582 [inline]
+ net_rx_action+0x508/0x1120 net/core/dev.c:6650
+ __do_softirq+0x262/0x98c kernel/softirq.c:292
+ do_softirq_own_stack+0x2a/0x40 arch/x86/entry/entry_64.S:1082
+ </IRQ>
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: c5a759117210 ("net/hsr: Use list_head (and rcu) instead of array for slave devices.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/hsr/hsr_slave.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -784,11 +784,13 @@ static int gtp_hashtable_new(struct gtp_
- {
- 	int i;
+--- a/net/hsr/hsr_slave.c
++++ b/net/hsr/hsr_slave.c
+@@ -31,6 +31,8 @@ static rx_handler_result_t hsr_handle_fr
  
--	gtp->addr_hash = kmalloc(sizeof(struct hlist_head) * hsize, GFP_KERNEL);
-+	gtp->addr_hash = kmalloc(sizeof(struct hlist_head) * hsize,
-+				 GFP_KERNEL | __GFP_NOWARN);
- 	if (gtp->addr_hash == NULL)
- 		return -ENOMEM;
+ 	rcu_read_lock(); /* hsr->node_db, hsr->ports */
+ 	port = hsr_port_get_rcu(skb->dev);
++	if (!port)
++		goto finish_pass;
  
--	gtp->tid_hash = kmalloc(sizeof(struct hlist_head) * hsize, GFP_KERNEL);
-+	gtp->tid_hash = kmalloc(sizeof(struct hlist_head) * hsize,
-+				GFP_KERNEL | __GFP_NOWARN);
- 	if (gtp->tid_hash == NULL)
- 		goto err1;
- 
+ 	if (hsr_addr_is_self(port->hsr, eth_hdr(skb)->h_source)) {
+ 		/* Directly kill frames sent by ourselves */
 
 
