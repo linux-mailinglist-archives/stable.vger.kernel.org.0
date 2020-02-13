@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F393215C78D
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A13A215C59A
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727811AbgBMPWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:22:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
+        id S1728393AbgBMPX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727798AbgBMPWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:20 -0500
+        id S1728388AbgBMPX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:28 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA78B24689;
-        Thu, 13 Feb 2020 15:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED2F2469A;
+        Thu, 13 Feb 2020 15:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607339;
-        bh=QKirvJTzadsxJZgIjuS6fjr99EEqwS1P5FAtPV2A0xM=;
+        s=default; t=1581607407;
+        bh=h1jvcIZdjodHYjLypghcVkFJ+zkW2H7PdFtEX+iSY20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5Fu4s0Q/xHaAcd+4pi+swccxCzw/q1HysXMhgHjnSCWYYOniMB+ltuoqoaP1xkns
-         dhUMiWIhEKJufLgQcDeBnokucXgQWSbKLag1+kg2FDOSWDK+pmp717suEiz63kPTOW
-         W5TXEmnfyfwgtBLoAu5oDIKqIB3Dvl8LoVujaT4M=
+        b=2rG0zJjwmX26fT/yBsZezx9owal79C6Zhf6GNdyy7+TkULLTFFoxpaAuTPRwlh7sO
+         ozv6Jcvi603QF2FTr9pK+1uMfpueMqdDT6s3adJNNu9H6R4SECx/L7Dm0AcMAKCk2z
+         xZAZbMEViRqFwhAHiwYvAEnSNFZlCyTx4o5KB8nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.4 14/91] usb: gadget: f_ncm: Use atomic_t to track in-flight request
+        stable@vger.kernel.org, Yurii Monakov <monakov.y@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 027/116] PCI: keystone: Fix link training retries initiation
 Date:   Thu, 13 Feb 2020 07:19:31 -0800
-Message-Id: <20200213151827.237022864@linuxfoundation.org>
+Message-Id: <20200213151853.493272633@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Yurii Monakov <monakov.y@gmail.com>
 
-commit 5b24c28cfe136597dc3913e1c00b119307a20c7e upstream.
+[ Upstream commit 6df19872d881641e6394f93ef2938cffcbdae5bb ]
 
-Currently ncm->notify_req is used to flag when a request is in-flight.
-ncm->notify_req is set to NULL and when a request completes it is
-subsequently reset.
+ks_pcie_stop_link() function does not clear LTSSM_EN_VAL bit so
+link training was not triggered more than once after startup.
+In configurations where link can be unstable during early boot,
+for example, under low temperature, it will never be established.
 
-This is fundamentally buggy in that the unbind logic of the NCM driver will
-unconditionally free ncm->notify_req leading to a NULL pointer dereference.
-
-Fixes: 40d133d7f542 ("usb: gadget: f_ncm: convert to new function interface with backward compatibility")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0c4ffcfe1fbc ("PCI: keystone: Add TI Keystone PCIe driver")
+Signed-off-by: Yurii Monakov <monakov.y@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Andrew Murray <andrew.murray@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/pci/host/pci-keystone-dw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -57,6 +57,7 @@ struct f_ncm {
- 	struct usb_ep			*notify;
- 	struct usb_request		*notify_req;
- 	u8				notify_state;
-+	atomic_t			notify_count;
- 	bool				is_open;
+diff --git a/drivers/pci/host/pci-keystone-dw.c b/drivers/pci/host/pci-keystone-dw.c
+index 9397c46671062..f011a8780ff53 100644
+--- a/drivers/pci/host/pci-keystone-dw.c
++++ b/drivers/pci/host/pci-keystone-dw.c
+@@ -502,7 +502,7 @@ void ks_dw_pcie_initiate_link_train(struct keystone_pcie *ks_pcie)
+ 	/* Disable Link training */
+ 	val = ks_dw_app_readl(ks_pcie, CMD_STATUS);
+ 	val &= ~LTSSM_EN_VAL;
+-	ks_dw_app_writel(ks_pcie, CMD_STATUS, LTSSM_EN_VAL | val);
++	ks_dw_app_writel(ks_pcie, CMD_STATUS, val);
  
- 	const struct ndp_parser_opts	*parser_opts;
-@@ -480,7 +481,7 @@ static void ncm_do_notify(struct f_ncm *
- 	int				status;
- 
- 	/* notification already in flight? */
--	if (!req)
-+	if (atomic_read(&ncm->notify_count))
- 		return;
- 
- 	event = req->buf;
-@@ -520,7 +521,8 @@ static void ncm_do_notify(struct f_ncm *
- 	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ncm->ctrl_id);
- 
--	ncm->notify_req = NULL;
-+	atomic_inc(&ncm->notify_count);
-+
- 	/*
- 	 * In double buffering if there is a space in FIFO,
- 	 * completion callback can be called right after the call,
-@@ -530,7 +532,7 @@ static void ncm_do_notify(struct f_ncm *
- 	status = usb_ep_queue(ncm->notify, req, GFP_ATOMIC);
- 	spin_lock(&ncm->lock);
- 	if (status < 0) {
--		ncm->notify_req = req;
-+		atomic_dec(&ncm->notify_count);
- 		DBG(cdev, "notify --> %d\n", status);
- 	}
- }
-@@ -565,17 +567,19 @@ static void ncm_notify_complete(struct u
- 	case 0:
- 		VDBG(cdev, "Notification %02x sent\n",
- 		     event->bNotificationType);
-+		atomic_dec(&ncm->notify_count);
- 		break;
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
-+		atomic_set(&ncm->notify_count, 0);
- 		ncm->notify_state = NCM_NOTIFY_NONE;
- 		break;
- 	default:
- 		DBG(cdev, "event %02x --> %d\n",
- 			event->bNotificationType, req->status);
-+		atomic_dec(&ncm->notify_count);
- 		break;
- 	}
--	ncm->notify_req = req;
- 	ncm_do_notify(ncm);
- 	spin_unlock(&ncm->lock);
- }
-@@ -1559,6 +1563,11 @@ static void ncm_unbind(struct usb_config
- 	ncm_string_defs[0].id = 0;
- 	usb_free_all_descriptors(f);
- 
-+	if (atomic_read(&ncm->notify_count)) {
-+		usb_ep_dequeue(ncm->notify, ncm->notify_req);
-+		atomic_set(&ncm->notify_count, 0);
-+	}
-+
- 	kfree(ncm->notify_req->buf);
- 	usb_ep_free_request(ncm->notify, ncm->notify_req);
- }
+ 	/* Initiate Link Training */
+ 	val = ks_dw_app_readl(ks_pcie, CMD_STATUS);
+-- 
+2.20.1
+
 
 
