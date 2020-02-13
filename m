@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 190A015C1FA
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:28:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A806D15C15C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729535AbgBMP2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53718 "EHLO mail.kernel.org"
+        id S1728151AbgBMPWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729525AbgBMP16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:58 -0500
+        id S1728134AbgBMPWt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:49 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49C922168B;
-        Thu, 13 Feb 2020 15:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE5D624693;
+        Thu, 13 Feb 2020 15:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607678;
-        bh=OBudWwLaKIgRwJwUVqgm2yLIjoeMSr2ZkCKtSc+IYjE=;
+        s=default; t=1581607368;
+        bh=/yrbXLuKTNJ+NhfvCzfSoPXRN5DYKogpAK801Iam9+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9K5EbvTZEu0gM34L9V/+SHt+OtYoq4evtNEDqBbfciT2HzcTO5RD0BCF0ljWOQkw
-         pHR11CTK6aThi5CMF1s20nJe6unYnTaynsusfeN+AVPpJKShCJfQj2l1cf3FEEqtic
-         /ilIfZjRZC9oh15HvSD0VFkv8XeMijVH6RgjEml4=
+        b=fj2Fauz5Ueu7vkSyOIGdrlIyy8PrORKuJ7aDehSfFdUN5NNJ5twdml4NXfSPT4BSI
+         BesKiWHAT9yNsQv2VMCS4auebUxUMyf48l8hWzANsAkMWy65Uxnpwxqg+5QobnTpoO
+         xEpRObdK3KSM3FZUYvtW2U7QfkfVcuL8Cu4vMR7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Parav Pandit <parav@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 001/120] IB/mlx4: Fix memory leak in add_gid error flow
-Date:   Thu, 13 Feb 2020 07:19:57 -0800
-Message-Id: <20200213151901.536306294@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
+        Marios Pomonis <pomonis@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 42/91] KVM: x86: Protect x86_decode_insn from Spectre-v1/L1TF attacks
+Date:   Thu, 13 Feb 2020 07:19:59 -0800
+Message-Id: <20200213151837.986856794@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,78 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@dev.mellanox.co.il>
+From: Marios Pomonis <pomonis@google.com>
 
-commit eaad647e5cc27f7b46a27f3b85b14c4c8a64bffa upstream.
+commit 3c9053a2cae7ba2ba73766a34cea41baa70f57f7 upstream.
 
-In procedure mlx4_ib_add_gid(), if the driver is unable to update the FW
-gid table, there is a memory leak in the driver's copy of the gid table:
-the gid entry's context buffer is not freed.
+This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
+kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
+symbol, so KVM should treat it conservatively from a security perspective.
 
-If such an error occurs, free the entry's context buffer, and mark the
-entry as available (by setting its context pointer to NULL).
+Fixes: 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
 
-Fixes: e26be1bfef81 ("IB/mlx4: Implement ib_device callbacks")
-Link: https://lore.kernel.org/r/20200115085050.73746-1-leon@kernel.org
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx4/main.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ arch/x86/kvm/emulate.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -246,6 +246,13 @@ static int mlx4_ib_update_gids(struct gi
- 	return mlx4_ib_update_gids_v1(gids, ibdev, port_num);
- }
- 
-+static void free_gid_entry(struct gid_entry *entry)
-+{
-+	memset(&entry->gid, 0, sizeof(entry->gid));
-+	kfree(entry->ctx);
-+	entry->ctx = NULL;
-+}
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -23,6 +23,7 @@
+ #include <linux/kvm_host.h>
+ #include "kvm_cache_regs.h"
+ #include <linux/module.h>
++#include <linux/nospec.h>
+ #include <asm/kvm_emulate.h>
+ #include <linux/stringify.h>
+ #include <asm/debugreg.h>
+@@ -5146,10 +5147,15 @@ done_prefixes:
+ 			}
+ 			break;
+ 		case Escape:
+-			if (ctxt->modrm > 0xbf)
+-				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
+-			else
++			if (ctxt->modrm > 0xbf) {
++				size_t size = ARRAY_SIZE(opcode.u.esc->high);
++				u32 index = array_index_nospec(
++					ctxt->modrm - 0xc0, size);
 +
- static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
- {
- 	struct mlx4_ib_dev *ibdev = to_mdev(attr->device);
-@@ -313,6 +320,8 @@ static int mlx4_ib_add_gid(const struct
- 				     GFP_ATOMIC);
- 		if (!gids) {
- 			ret = -ENOMEM;
-+			*context = NULL;
-+			free_gid_entry(&port_gid_table->gids[free]);
- 		} else {
- 			for (i = 0; i < MLX4_MAX_PORT_GIDS; i++) {
- 				memcpy(&gids[i].gid, &port_gid_table->gids[i].gid, sizeof(union ib_gid));
-@@ -324,6 +333,12 @@ static int mlx4_ib_add_gid(const struct
- 
- 	if (!ret && hw_update) {
- 		ret = mlx4_ib_update_gids(gids, ibdev, attr->port_num);
-+		if (ret) {
-+			spin_lock_bh(&iboe->lock);
-+			*context = NULL;
-+			free_gid_entry(&port_gid_table->gids[free]);
-+			spin_unlock_bh(&iboe->lock);
-+		}
- 		kfree(gids);
- 	}
- 
-@@ -353,10 +368,7 @@ static int mlx4_ib_del_gid(const struct
- 		if (!ctx->refcount) {
- 			unsigned int real_index = ctx->real_index;
- 
--			memset(&port_gid_table->gids[real_index].gid, 0,
--			       sizeof(port_gid_table->gids[real_index].gid));
--			kfree(port_gid_table->gids[real_index].ctx);
--			port_gid_table->gids[real_index].ctx = NULL;
-+			free_gid_entry(&port_gid_table->gids[real_index]);
- 			hw_update = 1;
- 		}
- 	}
++				opcode = opcode.u.esc->high[index];
++			} else {
+ 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
++			}
+ 			break;
+ 		case InstrDual:
+ 			if ((ctxt->modrm >> 6) == 3)
 
 
