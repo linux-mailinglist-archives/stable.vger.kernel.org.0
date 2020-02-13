@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7353D15C344
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A48EE15C4A6
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728731AbgBMPjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:39:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57778 "EHLO mail.kernel.org"
+        id S1729928AbgBMPtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729629AbgBMP24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:56 -0500
+        id S2387626AbgBMP0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:45 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC20E2168B;
-        Thu, 13 Feb 2020 15:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 096E1206DB;
+        Thu, 13 Feb 2020 15:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607735;
-        bh=eA2xG7o/gojCA1Jlfncc6S6XqFxRCP2rOYoV6DMyWws=;
+        s=default; t=1581607604;
+        bh=5IHAgVIK4KTq1hgs6co910tH1rCw+oBCf0E6d10O9A0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWKuZCgmr2pgF+7njm3T+ct3JOaUfKbM6yDxc7cjWF1rj4BopJMeth4RMZx+ky8S5
-         Up3PIRWUe2jvpfgdT7elF04HMLg1NMn0fWQpBCB3gW03Rp9MX4qGeTth36kHyh5vEN
-         1CAnGzrSdphxUHQIoj0ICj4WVyyvyajw8dUEYN5U=
+        b=D/0cSHTUWlSmwH00qsIr6L3ZGC41/fNOQjcECZYSkG2SY53FxObRzz8Et/pvxctCQ
+         U1FeBCichWCPzH5U/1MLDFPCkasaWd0gwEomMSVDkQ8OAVhy7LbeG7xv071Uhsy9cq
+         cqFG9MPs4rxMKRFFN+sBVsFKPgrZLvrDQBw3sRwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Beata Michalska <beata.michalska@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.5 087/120] KVM: arm: Make inject_abt32() inject an external abort instead
+        stable@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 42/52] crypto: artpec6 - return correct error code for failed setkey()
 Date:   Thu, 13 Feb 2020 07:21:23 -0800
-Message-Id: <20200213151930.619676045@linuxfoundation.org>
+Message-Id: <20200213151827.432558505@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 21aecdbd7f3ab02c9b82597dc733ee759fb8b274 upstream.
+commit b828f905904cd76424230c69741a4cabb0174168 upstream.
 
-KVM's inject_abt64() injects an external-abort into an aarch64 guest.
-The KVM_CAP_ARM_INJECT_EXT_DABT is intended to do exactly this, but
-for an aarch32 guest inject_abt32() injects an implementation-defined
-exception, 'Lockdown fault'.
+->setkey() is supposed to retun -EINVAL for invalid key lengths, not -1.
 
-Change this to external abort. For non-LPAE we now get the documented:
-| Unhandled fault: external abort on non-linefetch (0x008) at 0x9c800f00
-and for LPAE:
-| Unhandled fault: synchronous external abort (0x210) at 0x9c800f00
-
-Fixes: 74a64a981662a ("KVM: arm/arm64: Unify 32bit fault injection")
-Reported-by: Beata Michalska <beata.michalska@linaro.org>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200121123356.203000-3-james.morse@arm.com
+Fixes: a21eb94fc4d3 ("crypto: axis - add ARTPEC-6/7 crypto accelerator driver")
+Cc: Jesper Nilsson <jesper.nilsson@axis.com>
+Cc: Lars Persson <lars.persson@axis.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Lars Persson <lars.persson@axis.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/aarch32.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/crypto/axis/artpec6_crypto.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/virt/kvm/arm/aarch32.c
-+++ b/virt/kvm/arm/aarch32.c
-@@ -15,6 +15,10 @@
- #include <asm/kvm_emulate.h>
- #include <asm/kvm_hyp.h>
+--- a/drivers/crypto/axis/artpec6_crypto.c
++++ b/drivers/crypto/axis/artpec6_crypto.c
+@@ -1256,7 +1256,7 @@ static int artpec6_crypto_aead_set_key(s
  
-+#define DFSR_FSC_EXTABT_LPAE	0x10
-+#define DFSR_FSC_EXTABT_nLPAE	0x08
-+#define DFSR_LPAE		BIT(9)
-+
- /*
-  * Table taken from ARMv8 ARM DDI0487B-B, table G1-10.
-  */
-@@ -182,10 +186,10 @@ static void inject_abt32(struct kvm_vcpu
- 	/* Give the guest an IMPLEMENTATION DEFINED exception */
- 	is_lpae = (vcpu_cp15(vcpu, c2_TTBCR) >> 31);
- 	if (is_lpae) {
--		*fsr = 1 << 9 | 0x34;
-+		*fsr = DFSR_LPAE | DFSR_FSC_EXTABT_LPAE;
- 	} else {
--		/* Surprise! DFSR's FS[4] lives in bit 10 */
--		*fsr = BIT(10) | 0x4; /* 0x14 */
-+		/* no need to shuffle FS[4] into DFSR[10] as its 0 */
-+		*fsr = DFSR_FSC_EXTABT_nLPAE;
+ 	if (len != 16 && len != 24 && len != 32) {
+ 		crypto_aead_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+-		return -1;
++		return -EINVAL;
  	}
- }
  
+ 	ctx->key_length = len;
 
 
