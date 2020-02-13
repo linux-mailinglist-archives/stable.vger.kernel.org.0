@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B8915B866
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7541315B867
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 05:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729443AbgBMEPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Feb 2020 23:15:53 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:35879 "EHLO
+        id S1729547AbgBMEPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Feb 2020 23:15:54 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:48361 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729547AbgBMEPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:15:52 -0500
+        by vger.kernel.org with ESMTP id S1729546AbgBMEPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Feb 2020 23:15:53 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DA35C21F92;
-        Wed, 12 Feb 2020 23:15:51 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:15:51 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id EDA0421F82;
+        Wed, 12 Feb 2020 23:15:52 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 12 Feb 2020 23:15:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=UJtYBK
-        MiO9PKmAPn2Z6yr7a1u6wytFRFQDZ17FS1bVI=; b=yr1SIRojCetqgIlzdNBvUi
-        ew8+4dGb1rLaa34pT9IGACvrEiKZbkiA17Y+j6QkJLqrqMzNLYlaM7fqdbUplUAC
-        dQF0ClxX4u4CxaaHpj2uTq1j66T5O9isXoRDk5eepweKcqx4UbgQuf+LHAIjp25e
-        G1yxn9z+xJlswdQ39pCnolYrUwHTD+aHNcmkWb1VlQJw+FSqlXoD02h7Mac+lBvp
-        zwmynnNtMSjlf//3IoMfHh9Sj/IlJH4Hvlkt6Tv+g+5njm0wdtlDb6JqowCAESjg
-        p2UL0jPCQmLsK+v38CFPjTJJenYvKvIvx14HX44GvZNAg3j9jufz2qTpaWe4HrOg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=k9synL
+        l9CiEUh2h3zC3SFYUHVjvEdT8Cn2Fd9u7+1u4=; b=Vl7AkwgdErKhFPDAf5ecpI
+        t10LCXApseNh30e9KGQJjtLyOb8gQ7rnmAG+j5AkMJZbrWjoBRzK1g+jG27rn4Pn
+        QDUZGMrfjcn5qhrBporLXoydllNRYGjrit8/H7vRyt3On54OcPCQMhgYGY3aGxkh
+        kPLW4/W59cd00Ozr6nKy5RnL6JpANfssNr9a/m3tpeSAo2d0h9Tg60ZjkjZN/IEZ
+        ZE2MYUBmQjRev7RwvPBq9+/pkJwYpkgciKf7FeNIRMWGIpeSl9ql0q4qaa6ymnFX
+        rtY332BF2d31bUjV/hUBkHo831TTyd+qtjikLuU8dHvmzJWvlCxm+Nep6lMNpOyg
         ==
-X-ME-Sender: <xms:d81EXsr74cmtbaxGy9W8V5z_N9g4o8hZCYc4MWLDCYrUNAJylUAsbQ>
+X-ME-Sender: <xms:eM1EXkG-1d-gvnFKhAkUSRSOJpdM8wnFhtbYrPAA4y8PdnEG7w9GJQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrieejgdejudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepvddtledrfeejrdeljedrudelgeenucevlhhushhtvghrufhiiigvpedtne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:d81EXopQOyAk-A0uQE5YLkJ5A6Bf0XEUd2zVgLbq4eRjqwech3Hb7g>
-    <xmx:d81EXu08HiMIsnFpJ2kKZIPJzh-otn4VrnkidWHqmot-jN_APEZcww>
-    <xmx:d81EXvAn8_YJe8TOaoagGyihssiqLmeZtlfwNrUydGzgTY24itm15A>
-    <xmx:d81EXgf5LZXzA71jIFLmWbHsGfFOqu5_K6nW9RGZDKO79LQzY9R3tw>
+X-ME-Proxy: <xmx:eM1EXm8acfRRdRVyC7pbdVqoAKbBgOzLa1m5ipqJOctaSwuoWu3Flg>
+    <xmx:eM1EXuLyDQS1ZkpHnLTExPXm5fGncb5_1kgKAjyRiSq6XfTKYa_EGQ>
+    <xmx:eM1EXpZ-_VoDD24zhZ36wmIwsR96qIER5aotTheTKRJuZZx7-pD-Mg>
+    <xmx:eM1EXlJH_ghOtmN1evZcuHc-AztX-bT_5sgRj3bhSd1cXglmninBOw>
 Received: from localhost (unknown [209.37.97.194])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 830C03280059;
-        Wed, 12 Feb 2020 23:15:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: nofpsmid: Handle TIF_FOREIGN_FPSTATE flag cleanly" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 977C230600DC;
+        Wed, 12 Feb 2020 23:15:52 -0500 (EST)
+Subject: FAILED: patch "[PATCH] arm64: nofpsmid: Handle TIF_FOREIGN_FPSTATE flag cleanly" failed to apply to 4.14-stable tree
 To:     suzuki.poulose@arm.com, ardb@kernel.org, catalin.marinas@arm.com,
         mark.rutland@arm.com, maz@kernel.org, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 Feb 2020 20:15:50 -0800
-Message-ID: <15815673501139@kroah.com>
+Date:   Wed, 12 Feb 2020 20:15:51 -0800
+Message-ID: <158156735133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
