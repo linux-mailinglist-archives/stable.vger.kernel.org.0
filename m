@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A389E15C6FD
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE84215C5EF
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730340AbgBMQFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
+        id S1728579AbgBMPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbgBMPXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:44 -0500
+        id S2387474AbgBMPZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:37 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F5212469C;
-        Thu, 13 Feb 2020 15:23:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A7E224689;
+        Thu, 13 Feb 2020 15:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607423;
-        bh=XXb20+cl7ObgXcj/kFd/QmhIqjvVjJSEWhKs5xo0lEo=;
+        s=default; t=1581607536;
+        bh=xp5AfYsg5Lg7c8CdywzoLdQcyf/BrBlzYmWCtroqw9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+9h/sHq7jB8HQftmZuCvifaXaDT6CvX2WYkKfjlYAPg9YL9C1BpimlZKqJw8c0mg
-         Eepx12+eUyx5ki543RJF/i3PDw+rFrAQzSjUeyg0Ud5iH5Zpp9WBvfEz41JneoIPa1
-         1hZ/K4t1HedkF6Trq3oOGGqE2at0jIpmjsD3MEqU=
+        b=1gq13jm/ZY2ZZ4kkCWaG5/oLzFm7gkHUjrjLS/X4vql7gaSvH/uP3Pz1WQ8GzrNrp
+         ge6Xw3gfv9mUL3hHqEq7rLPWnjjsqaA3peX3bsSCWrRSkQ+BHAAP1XLd+w87fPW5XY
+         jbc4GWgjp5hw2jBwQLCpzUm5/tDvUTxOuBlaOMBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 052/116] KVM: x86: Protect x86_decode_insn from Spectre-v1/L1TF attacks
-Date:   Thu, 13 Feb 2020 07:19:56 -0800
-Message-Id: <20200213151903.154634019@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 094/173] scsi: csiostor: Adjust indentation in csio_device_reset
+Date:   Thu, 13 Feb 2020 07:19:57 -0800
+Message-Id: <20200213151956.750581256@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 3c9053a2cae7ba2ba73766a34cea41baa70f57f7 upstream.
+commit a808a04c861782e31fc30e342a619c144aaee14a upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
-kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
-symbol, so KVM should treat it conservatively from a security perspective.
+Clang warns:
 
-Fixes: 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
+../drivers/scsi/csiostor/csio_scsi.c:1386:3: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+         csio_lnodes_exit(hw, 1);
+         ^
+../drivers/scsi/csiostor/csio_scsi.c:1382:2: note: previous statement is
+here
+        if (*buf != '1')
+        ^
+1 warning generated.
 
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This warning occurs because there is a space after the tab on this
+line.  Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
+
+Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/818
+Link: https://lore.kernel.org/r/20191218014726.8455-1-natechancellor@gmail.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/scsi/csiostor/csio_scsi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -21,6 +21,7 @@
-  */
+--- a/drivers/scsi/csiostor/csio_scsi.c
++++ b/drivers/scsi/csiostor/csio_scsi.c
+@@ -1383,7 +1383,7 @@ csio_device_reset(struct device *dev,
+ 		return -EINVAL;
  
- #include <linux/kvm_host.h>
-+#include <linux/nospec.h>
- #include "kvm_cache_regs.h"
- #include <asm/kvm_emulate.h>
- #include <linux/stringify.h>
-@@ -5158,10 +5159,15 @@ done_prefixes:
- 			}
- 			break;
- 		case Escape:
--			if (ctxt->modrm > 0xbf)
--				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
--			else
-+			if (ctxt->modrm > 0xbf) {
-+				size_t size = ARRAY_SIZE(opcode.u.esc->high);
-+				u32 index = array_index_nospec(
-+					ctxt->modrm - 0xc0, size);
-+
-+				opcode = opcode.u.esc->high[index];
-+			} else {
- 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
-+			}
- 			break;
- 		case InstrDual:
- 			if ((ctxt->modrm >> 6) == 3)
+ 	/* Delete NPIV lnodes */
+-	 csio_lnodes_exit(hw, 1);
++	csio_lnodes_exit(hw, 1);
+ 
+ 	/* Block upper IOs */
+ 	csio_lnodes_block_request(hw);
 
 
