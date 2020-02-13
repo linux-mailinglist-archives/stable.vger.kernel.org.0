@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F6C15C552
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF3815C368
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729503AbgBMPyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42172 "EHLO mail.kernel.org"
+        id S1729424AbgBMPlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:41:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728214AbgBMPZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:45 -0500
+        id S2387745AbgBMP2i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:38 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4A2724693;
-        Thu, 13 Feb 2020 15:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D6A024676;
+        Thu, 13 Feb 2020 15:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607544;
-        bh=mfdu4/m+3ZXP+UEA0EL/w7fUCQVPVvD3tc1dQxKdgeM=;
+        s=default; t=1581607717;
+        bh=7FjNszEGcyqwFNDRE5D8/DfailREOXD8wf+cbYYTG3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uI6ZjQ5qe8obfA4/QnAegfm9oOyDKRg//6+BcSmLXpNuSl0wfCAlsgRbxO8ka/oVr
-         A95927c2SxR5rJ3T8j5aY3ncA4dBfAjTxq778jF2UZLjGlOLrcBeY8eWqY2S3I5GpX
-         ozDVv8QOiYbFafR2WYnHxn6WdOiYOsKtn+Gc4Fyg=
+        b=kvDIwbn5MC0mWPcL3HHCrG/6KcmndYtPHBb3c/J9zY2rGMJ/OP/270Fx6rfo6PuOe
+         HKkRG18FQnU5qTf3n9zkpRe63fszYifemZFTQLY+9hWG1b1dgp4EHpuzHQK9CizXLY
+         xfRULa9IKV8N/Jqzd3slmydoqt55l+6GPipWB4N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/173] btrfs: remove trivial locking wrappers of tree mod log
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.5 031/120] NFS: Fix fix of show_nfs_errors
 Date:   Thu, 13 Feb 2020 07:20:27 -0800
-Message-Id: <20200213152003.588313840@linuxfoundation.org>
+Message-Id: <20200213151912.509741343@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,217 +44,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit b1a09f1ec540408abf3a50d15dff5d9506932693 ]
+commit 118b6292195cfb86a9f43cb65610fc6d980c65f4 upstream.
 
-The wrappers are trivial and do not bring any extra value on top of the
-plain locking primitives.
+Casting a negative value to an unsigned long is not the same as
+converting it to its absolute value.
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 96650e2effa2 ("NFS: Fix show_nfs_errors macros again")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/ctree.c | 58 ++++++++++++++++--------------------------------
- 1 file changed, 19 insertions(+), 39 deletions(-)
+ fs/nfs/nfs4trace.h |   33 +++++++++++++++++----------------
+ 1 file changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
-index 740ef428acdd9..a7b9859449c5a 100644
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -334,26 +334,6 @@ struct tree_mod_elem {
- 	struct tree_mod_root old_root;
- };
+--- a/fs/nfs/nfs4trace.h
++++ b/fs/nfs/nfs4trace.h
+@@ -352,7 +352,7 @@ DECLARE_EVENT_CLASS(nfs4_clientid_event,
+ 		),
  
--static inline void tree_mod_log_read_lock(struct btrfs_fs_info *fs_info)
--{
--	read_lock(&fs_info->tree_mod_log_lock);
--}
--
--static inline void tree_mod_log_read_unlock(struct btrfs_fs_info *fs_info)
--{
--	read_unlock(&fs_info->tree_mod_log_lock);
--}
--
--static inline void tree_mod_log_write_lock(struct btrfs_fs_info *fs_info)
--{
--	write_lock(&fs_info->tree_mod_log_lock);
--}
--
--static inline void tree_mod_log_write_unlock(struct btrfs_fs_info *fs_info)
--{
--	write_unlock(&fs_info->tree_mod_log_lock);
--}
--
- /*
-  * Pull a new tree mod seq number for our operation.
-  */
-@@ -373,14 +353,14 @@ static inline u64 btrfs_inc_tree_mod_seq(struct btrfs_fs_info *fs_info)
- u64 btrfs_get_tree_mod_seq(struct btrfs_fs_info *fs_info,
- 			   struct seq_list *elem)
- {
--	tree_mod_log_write_lock(fs_info);
-+	write_lock(&fs_info->tree_mod_log_lock);
- 	spin_lock(&fs_info->tree_mod_seq_lock);
- 	if (!elem->seq) {
- 		elem->seq = btrfs_inc_tree_mod_seq(fs_info);
- 		list_add_tail(&elem->list, &fs_info->tree_mod_seq_list);
- 	}
- 	spin_unlock(&fs_info->tree_mod_seq_lock);
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&fs_info->tree_mod_log_lock);
+ 		TP_fast_assign(
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__assign_str(dstaddr, clp->cl_hostname);
+ 		),
  
- 	return elem->seq;
- }
-@@ -422,7 +402,7 @@ void btrfs_put_tree_mod_seq(struct btrfs_fs_info *fs_info,
- 	 * anything that's lower than the lowest existing (read: blocked)
- 	 * sequence number can be removed from the tree.
- 	 */
--	tree_mod_log_write_lock(fs_info);
-+	write_lock(&fs_info->tree_mod_log_lock);
- 	tm_root = &fs_info->tree_mod_log;
- 	for (node = rb_first(tm_root); node; node = next) {
- 		next = rb_next(node);
-@@ -432,7 +412,7 @@ void btrfs_put_tree_mod_seq(struct btrfs_fs_info *fs_info,
- 		rb_erase(node, tm_root);
- 		kfree(tm);
- 	}
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&fs_info->tree_mod_log_lock);
- }
+@@ -432,7 +432,8 @@ TRACE_EVENT(nfs4_sequence_done,
+ 			__entry->target_highest_slotid =
+ 					res->sr_target_highest_slotid;
+ 			__entry->status_flags = res->sr_status_flags;
+-			__entry->error = res->sr_status;
++			__entry->error = res->sr_status < 0 ?
++					-res->sr_status : 0;
+ 		),
+ 		TP_printk(
+ 			"error=%ld (%s) session=0x%08x slot_nr=%u seq_nr=%u "
+@@ -640,7 +641,7 @@ TRACE_EVENT(nfs4_state_mgr_failed,
+ 		),
  
- /*
-@@ -443,7 +423,7 @@ void btrfs_put_tree_mod_seq(struct btrfs_fs_info *fs_info,
-  * for root replace operations, or the logical address of the affected
-  * block for all other operations.
-  *
-- * Note: must be called with write lock (tree_mod_log_write_lock).
-+ * Note: must be called with write lock for fs_info::tree_mod_log_lock.
-  */
- static noinline int
- __tree_mod_log_insert(struct btrfs_fs_info *fs_info, struct tree_mod_elem *tm)
-@@ -481,7 +461,7 @@ __tree_mod_log_insert(struct btrfs_fs_info *fs_info, struct tree_mod_elem *tm)
-  * Determines if logging can be omitted. Returns 1 if it can. Otherwise, it
-  * returns zero with the tree_mod_log_lock acquired. The caller must hold
-  * this until all tree mod log insertions are recorded in the rb tree and then
-- * call tree_mod_log_write_unlock() to release.
-+ * write unlock fs_info::tree_mod_log_lock.
-  */
- static inline int tree_mod_dont_log(struct btrfs_fs_info *fs_info,
- 				    struct extent_buffer *eb) {
-@@ -491,9 +471,9 @@ static inline int tree_mod_dont_log(struct btrfs_fs_info *fs_info,
- 	if (eb && btrfs_header_level(eb) == 0)
- 		return 1;
+ 		TP_fast_assign(
+-			__entry->error = status;
++			__entry->error = status < 0 ? -status : 0;
+ 			__entry->state = clp->cl_state;
+ 			__assign_str(hostname, clp->cl_hostname);
+ 			__assign_str(section, section);
+@@ -659,7 +660,7 @@ TRACE_EVENT(nfs4_xdr_status,
+ 		TP_PROTO(
+ 			const struct xdr_stream *xdr,
+ 			u32 op,
+-			int error
++			u32 error
+ 		),
  
--	tree_mod_log_write_lock(fs_info);
-+	write_lock(&fs_info->tree_mod_log_lock);
- 	if (list_empty(&(fs_info)->tree_mod_seq_list)) {
--		tree_mod_log_write_unlock(fs_info);
-+		write_unlock(&fs_info->tree_mod_log_lock);
- 		return 1;
- 	}
+ 		TP_ARGS(xdr, op, error),
+@@ -849,7 +850,7 @@ TRACE_EVENT(nfs4_close,
+ 			__entry->fileid = NFS_FILEID(inode);
+ 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
+ 			__entry->fmode = (__force unsigned int)state->state;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(args->stateid.seqid);
+ 			__entry->stateid_hash =
+@@ -914,7 +915,7 @@ DECLARE_EVENT_CLASS(nfs4_lock_event,
+ 		TP_fast_assign(
+ 			const struct inode *inode = state->inode;
  
-@@ -557,7 +537,7 @@ tree_mod_log_insert_key(struct btrfs_fs_info *fs_info,
- 	}
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->cmd = cmd;
+ 			__entry->type = request->fl_type;
+ 			__entry->start = request->fl_start;
+@@ -986,7 +987,7 @@ TRACE_EVENT(nfs4_set_lock,
+ 		TP_fast_assign(
+ 			const struct inode *inode = state->inode;
  
- 	ret = __tree_mod_log_insert(fs_info, tm);
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&eb->fs_info->tree_mod_log_lock);
- 	if (ret)
- 		kfree(tm);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->cmd = cmd;
+ 			__entry->type = request->fl_type;
+ 			__entry->start = request->fl_start;
+@@ -1164,7 +1165,7 @@ TRACE_EVENT(nfs4_delegreturn_exit,
+ 		TP_fast_assign(
+ 			__entry->dev = res->server->s_dev;
+ 			__entry->fhandle = nfs_fhandle_hash(args->fhandle);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(args->stateid->seqid);
+ 			__entry->stateid_hash =
+@@ -1204,7 +1205,7 @@ DECLARE_EVENT_CLASS(nfs4_test_stateid_ev
+ 		TP_fast_assign(
+ 			const struct inode *inode = state->inode;
  
-@@ -621,7 +601,7 @@ tree_mod_log_insert_move(struct btrfs_fs_info *fs_info,
- 	ret = __tree_mod_log_insert(fs_info, tm);
- 	if (ret)
- 		goto free_tms;
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&eb->fs_info->tree_mod_log_lock);
- 	kfree(tm_list);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->dev = inode->i_sb->s_dev;
+ 			__entry->fileid = NFS_FILEID(inode);
+ 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
+@@ -1306,7 +1307,7 @@ TRACE_EVENT(nfs4_lookupp,
+ 		TP_fast_assign(
+ 			__entry->dev = inode->i_sb->s_dev;
+ 			__entry->ino = NFS_FILEID(inode);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 		),
  
- 	return 0;
-@@ -632,7 +612,7 @@ tree_mod_log_insert_move(struct btrfs_fs_info *fs_info,
- 		kfree(tm_list[i]);
- 	}
- 	if (locked)
--		tree_mod_log_write_unlock(fs_info);
-+		write_unlock(&eb->fs_info->tree_mod_log_lock);
- 	kfree(tm_list);
- 	kfree(tm);
+ 		TP_printk(
+@@ -1342,7 +1343,7 @@ TRACE_EVENT(nfs4_rename,
+ 			__entry->dev = olddir->i_sb->s_dev;
+ 			__entry->olddir = NFS_FILEID(olddir);
+ 			__entry->newdir = NFS_FILEID(newdir);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__assign_str(oldname, oldname->name);
+ 			__assign_str(newname, newname->name);
+ 		),
+@@ -1433,7 +1434,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_stateid_e
+ 			__entry->dev = inode->i_sb->s_dev;
+ 			__entry->fileid = NFS_FILEID(inode);
+ 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(stateid->seqid);
+ 			__entry->stateid_hash =
+@@ -1489,7 +1490,7 @@ DECLARE_EVENT_CLASS(nfs4_getattr_event,
+ 			__entry->valid = fattr->valid;
+ 			__entry->fhandle = nfs_fhandle_hash(fhandle);
+ 			__entry->fileid = (fattr->valid & NFS_ATTR_FATTR_FILEID) ? fattr->fileid : 0;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 		),
  
-@@ -713,7 +693,7 @@ tree_mod_log_insert_root(struct btrfs_fs_info *fs_info,
- 	if (!ret)
- 		ret = __tree_mod_log_insert(fs_info, tm);
+ 		TP_printk(
+@@ -1536,7 +1537,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_callback_
+ 		),
  
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&fs_info->tree_mod_log_lock);
- 	if (ret)
- 		goto free_tms;
- 	kfree(tm_list);
-@@ -740,7 +720,7 @@ __tree_mod_log_search(struct btrfs_fs_info *fs_info, u64 start, u64 min_seq,
- 	struct tree_mod_elem *cur = NULL;
- 	struct tree_mod_elem *found = NULL;
+ 		TP_fast_assign(
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->fhandle = nfs_fhandle_hash(fhandle);
+ 			if (!IS_ERR_OR_NULL(inode)) {
+ 				__entry->fileid = NFS_FILEID(inode);
+@@ -1593,7 +1594,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_stateid_c
+ 		),
  
--	tree_mod_log_read_lock(fs_info);
-+	read_lock(&fs_info->tree_mod_log_lock);
- 	tm_root = &fs_info->tree_mod_log;
- 	node = tm_root->rb_node;
- 	while (node) {
-@@ -768,7 +748,7 @@ __tree_mod_log_search(struct btrfs_fs_info *fs_info, u64 start, u64 min_seq,
- 			break;
- 		}
- 	}
--	tree_mod_log_read_unlock(fs_info);
-+	read_unlock(&fs_info->tree_mod_log_lock);
- 
- 	return found;
- }
-@@ -849,7 +829,7 @@ tree_mod_log_eb_copy(struct btrfs_fs_info *fs_info, struct extent_buffer *dst,
- 			goto free_tms;
- 	}
- 
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&fs_info->tree_mod_log_lock);
- 	kfree(tm_list);
- 
- 	return 0;
-@@ -861,7 +841,7 @@ tree_mod_log_eb_copy(struct btrfs_fs_info *fs_info, struct extent_buffer *dst,
- 		kfree(tm_list[i]);
- 	}
- 	if (locked)
--		tree_mod_log_write_unlock(fs_info);
-+		write_unlock(&fs_info->tree_mod_log_lock);
- 	kfree(tm_list);
- 
- 	return ret;
-@@ -921,7 +901,7 @@ tree_mod_log_free_eb(struct btrfs_fs_info *fs_info, struct extent_buffer *eb)
- 		goto free_tms;
- 
- 	ret = __tree_mod_log_free_eb(fs_info, tm_list, nritems);
--	tree_mod_log_write_unlock(fs_info);
-+	write_unlock(&eb->fs_info->tree_mod_log_lock);
- 	if (ret)
- 		goto free_tms;
- 	kfree(tm_list);
-@@ -1279,7 +1259,7 @@ __tree_mod_log_rewind(struct btrfs_fs_info *fs_info, struct extent_buffer *eb,
- 	unsigned long p_size = sizeof(struct btrfs_key_ptr);
- 
- 	n = btrfs_header_nritems(eb);
--	tree_mod_log_read_lock(fs_info);
-+	read_lock(&fs_info->tree_mod_log_lock);
- 	while (tm && tm->seq >= time_seq) {
- 		/*
- 		 * all the operations are recorded with the operator used for
-@@ -1334,7 +1314,7 @@ __tree_mod_log_rewind(struct btrfs_fs_info *fs_info, struct extent_buffer *eb,
- 		if (tm->logical != first_tm->logical)
- 			break;
- 	}
--	tree_mod_log_read_unlock(fs_info);
-+	read_unlock(&fs_info->tree_mod_log_lock);
- 	btrfs_set_header_nritems(eb, n);
- }
- 
--- 
-2.20.1
-
+ 		TP_fast_assign(
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->fhandle = nfs_fhandle_hash(fhandle);
+ 			if (!IS_ERR_OR_NULL(inode)) {
+ 				__entry->fileid = NFS_FILEID(inode);
+@@ -1896,7 +1897,7 @@ TRACE_EVENT(nfs4_layoutget,
+ 			__entry->iomode = args->iomode;
+ 			__entry->offset = args->offset;
+ 			__entry->count = args->length;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(state->stateid.seqid);
+ 			__entry->stateid_hash =
 
 
