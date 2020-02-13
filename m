@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE56515C319
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CA815C39B
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729534AbgBMP2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
+        id S2387612AbgBMPnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:43:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729169AbgBMP17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:59 -0500
+        id S1729530AbgBMP2A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:00 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBDD820661;
-        Thu, 13 Feb 2020 15:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B39D206DB;
+        Thu, 13 Feb 2020 15:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1581607679;
-        bh=eOvi2lyam38R3vikiDpoBEPaRqMpYkr9BVA2+dxyxkE=;
+        bh=X/HxYEGkzOyCx1UWSmnVMY8V7OZ+LRSGbtAvaH+Zfso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0cxAT95fSV/foegaXT1g7EYFGg3y+5W+n1hTObl4Zmz7r4uXmpGEqmWiyJkGbanF
-         46lxOSoRlTT6shCjvs2WsIKj022pIyPyX+FeuL9zofV9cSHlkj+/fUhAgm//6a3Er8
-         XLGOcvj695Ft9zA3FIMWlTieyS9AmrHrN9xXpgb4=
+        b=n1beVZ+f0BQyJz7hTpPaTOnZTdbkozeBpxGwYMNqIzJejg8G0C5jgHiP8VU3AhsCH
+         Tnsfo0D5YPVThX9rb771RO1upflGXYW1F3+uvdFKQw9M9/CTGnTEwYixuxMxWRnt8c
+         10FY+UWbQqbMwpCcwF/iALFKiPCY06DJm/KKGSKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 010/120] RDMA/core: Ensure that rdma_user_mmap_entry_remove() is a fence
-Date:   Thu, 13 Feb 2020 07:20:06 -0800
-Message-Id: <20200213151905.020233871@linuxfoundation.org>
+Subject: [PATCH 5.5 011/120] RDMA/cma: Fix unbalanced cm_id reference count during address resolve
+Date:   Thu, 13 Feb 2020 07:20:07 -0800
+Message-Id: <20200213151905.332258945@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -44,39 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Parav Pandit <parav@mellanox.com>
 
-commit 6b3712c0246ca7b2b8fa05eab2362cf267410f7e upstream.
+commit b4fb4cc5ba83b20dae13cef116c33648e81d2f44 upstream.
 
-The set of entry->driver_removed is missing locking, protect it with
-xa_lock() which is held by the only reader.
+Below commit missed the AF_IB and loopback code flow in
+rdma_resolve_addr().  This leads to an unbalanced cm_id refcount in
+cma_work_handler() which puts the refcount which was not incremented prior
+to queuing the work.
 
-Otherwise readers may continue to see driver_removed = false after
-rdma_user_mmap_entry_remove() returns and may continue to try and
-establish new mmaps.
+A call trace is observed with such code flow:
 
-Fixes: 3411f9f01b76 ("RDMA/core: Create mmap database and cookie helper functions")
-Link: https://lore.kernel.org/r/20200115202041.GA17199@ziepe.ca
-Reviewed-by: Gal Pressman <galpress@amazon.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
+ BUG: unable to handle kernel NULL pointer dereference at (null)
+ [<ffffffff96b67e16>] __mutex_lock_slowpath+0x166/0x1d0
+ [<ffffffff96b6715f>] mutex_lock+0x1f/0x2f
+ [<ffffffffc0beabb5>] cma_work_handler+0x25/0xa0
+ [<ffffffff964b9ebf>] process_one_work+0x17f/0x440
+ [<ffffffff964baf56>] worker_thread+0x126/0x3c0
+
+Hence, hold the cm_id reference when scheduling the resolve work item.
+
+Fixes: 722c7b2bfead ("RDMA/{cma, core}: Avoid callback on rdma_addr_cancel()")
+Link: https://lore.kernel.org/r/20200126142652.104803-2-leon@kernel.org
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/ib_core_uverbs.c |    2 ++
+ drivers/infiniband/core/cma.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/core/ib_core_uverbs.c
-+++ b/drivers/infiniband/core/ib_core_uverbs.c
-@@ -232,7 +232,9 @@ void rdma_user_mmap_entry_remove(struct
- 	if (!entry)
- 		return;
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -3118,6 +3118,7 @@ static int cma_resolve_loopback(struct r
+ 	rdma_addr_get_sgid(&id_priv->id.route.addr.dev_addr, &gid);
+ 	rdma_addr_set_dgid(&id_priv->id.route.addr.dev_addr, &gid);
  
-+	xa_lock(&entry->ucontext->mmap_xa);
- 	entry->driver_removed = true;
-+	xa_unlock(&entry->ucontext->mmap_xa);
- 	kref_put(&entry->ref, rdma_user_mmap_entry_free);
- }
- EXPORT_SYMBOL(rdma_user_mmap_entry_remove);
++	atomic_inc(&id_priv->refcount);
+ 	cma_init_resolve_addr_work(work, id_priv);
+ 	queue_work(cma_wq, &work->work);
+ 	return 0;
+@@ -3144,6 +3145,7 @@ static int cma_resolve_ib_addr(struct rd
+ 	rdma_addr_set_dgid(&id_priv->id.route.addr.dev_addr, (union ib_gid *)
+ 		&(((struct sockaddr_ib *) &id_priv->id.route.addr.dst_addr)->sib_addr));
+ 
++	atomic_inc(&id_priv->refcount);
+ 	cma_init_resolve_addr_work(work, id_priv);
+ 	queue_work(cma_wq, &work->work);
+ 	return 0;
 
 
