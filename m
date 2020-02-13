@@ -2,132 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D39ED15BC25
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 10:53:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BFE615BC31
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 10:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729459AbgBMJxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 04:53:23 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:39438 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729440AbgBMJxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 04:53:22 -0500
-Received: from 1.general.smb.uk.vpn ([10.172.193.28])
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <stefan.bader@canonical.com>)
-        id 1j2BBQ-0005Dm-FC; Thu, 13 Feb 2020 09:53:20 +0000
-Subject: Re: Backports 4.14, 4.9, 4.4: dm: fix potential for
- q->make_request_fn NULL pointer
-From:   Stefan Bader <stefan.bader@canonical.com>
-To:     stable@vger.kernel.org, snitzer@redhat.com
-References: <20200213094928.30487-1-stefan.bader@canonical.com>
-Autocrypt: addr=stefan.bader@canonical.com; prefer-encrypt=mutual; keydata=
- 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
- 2Iat+yfjuNhlNAJs
-Message-ID: <d7452285-87ee-335e-f214-4b88e13c5ba8@canonical.com>
-Date:   Thu, 13 Feb 2020 10:53:12 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-In-Reply-To: <20200213094928.30487-1-stefan.bader@canonical.com>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="UeAGFHBoPz5T4ugW9qFua017fTPoHVNQf"
+        id S1729613AbgBMJzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 04:55:39 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:46061 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726232AbgBMJzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 04:55:39 -0500
+Received: by mail-lj1-f195.google.com with SMTP id e18so5809301ljn.12
+        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 01:55:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=KVPyYo0pJTGCUkEFsuiM96kKjpjdNQqLwNQNRYIv3YU=;
+        b=GGLXKhFvfIi4xDE8UvvxTqrcs6o0ExnNkRLNQouavkV55412qBGknsUHssh6E4HZ0z
+         ewmMjouol7CTrlsClIn1v88r+olp7jgWbJYRwUUM2eSkDNnNq+l0rTg7crP0aF44IOvN
+         Wt4dfTaeTtmMhgWfIsJTgnBeNRTN2OiPi8mmlavk5ko/079b7+NC0MhLhjUJqMsWmKEk
+         6ssDJuF2OtWBELDqJ8nN/Gul1ZURIf5bsteC0HyNhNY8b01teE7RPm9F/lB7XvYRSVC+
+         iXmieVrDtBuhPhhXhQ4VzgqOwPJp98p9tYEyo1jPtzFyDKoKM6I4hTk3gNGnyJh5eySp
+         Yuww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=KVPyYo0pJTGCUkEFsuiM96kKjpjdNQqLwNQNRYIv3YU=;
+        b=GMDrt+CLBx4n96DUwbpe2rZqFUft3imM+mxTc6D2kfUoi8ha4sr7xOg6DhlDvbUICM
+         pIasKbKkb989+67V1yOJclyC4PKHTnWdLIFZ3TCFAgqE4xAhf6iwxratFVRr0/IdIq0F
+         F7pEsROSZuTkbJyc/L6JCy4kwmBn+DKg4oJGsD27/Y59a96zj5Jr4lXgCmbT0MfEaYWd
+         oA3SPmF6rcrUdOh2aw/swrJExw3Cge8OkC32U/6MZyYcQPenA6XYQShU7Dq/qA3pqzyi
+         oI2DuSPO5stJ4xuB+Q/OTVnyIT2Ms9pEuCpwuM/7OmWpLgs43ZLh8kEHccGAmgHo/Mws
+         ySbA==
+X-Gm-Message-State: APjAAAWhSi3KSgsfKIJLT+H8iSNZAcypQlGIQEygJVxwQmSDyckrAEMx
+        9ylwdYQymXhW/4woQ+hSpC2ZNQ==
+X-Google-Smtp-Source: APXvYqz7QQxIxHUlskZ0NzCArlLosaGbwrV2OU/si4MoNKHi3oir3CxiMvlT7K0HiQQGlWku23mvtA==
+X-Received: by 2002:a2e:a37c:: with SMTP id i28mr10413925ljn.118.1581587736280;
+        Thu, 13 Feb 2020 01:55:36 -0800 (PST)
+Received: from localhost.localdomain ([94.155.124.210])
+        by smtp.gmail.com with ESMTPSA id v5sm1090684ljk.67.2020.02.13.01.55.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Feb 2020 01:55:35 -0800 (PST)
+From:   Stanimir Varbanov <stanimir.varbanov@linaro.org>
+To:     linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] venus: cache vb payload to be used by clock scaling
+Date:   Thu, 13 Feb 2020 11:55:14 +0200
+Message-Id: <20200213095514.30290-1-stanimir.varbanov@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---UeAGFHBoPz5T4ugW9qFua017fTPoHVNQf
-Content-Type: multipart/mixed; boundary="ZldwD5q9477hdj0L5VZOYCHjONS2c2qaR"
+Instead of iterate over previously queued buffers in clock
+scaling code do cache the payload in instance context structure
+for later use when calculating new clock rate.
 
---ZldwD5q9477hdj0L5VZOYCHjONS2c2qaR
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+This will avoid to use spin locks during buffer list iteration
+in clock_scaling.
 
-On 13.02.20 10:49, Stefan Bader wrote:
-> Following are the backports into the 3 stable trees mentioned. Unfortun=
-ately
-> context required ajustments for each tree. Mike, I would appreciate if =
-you
-> could glance over those to double check. Thanks.
->=20
-> -Stefan
->=20
-Something went wrong sending this the first time and ate the 4.4.y backpo=
-rt. I
-am re-sending the whole batch.
+This fixes following kernel Oops:
 
--Stefan
+ Unable to handle kernel paging request at virtual address deacfffffffffd6c
+ Mem abort info:
+   ESR = 0x96000004
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000004
+   CM = 0, WnR = 0
+ [deacfffffffffd6c] address between user and kernel address ranges
+ Internal error: Oops: 96000004 [#1] PREEMPT SMP
+ CPU: 7 PID: 5763 Comm: V4L2DecoderThre Tainted: G S      W         5.4.11 #8
+ pstate: 20400009 (nzCv daif +PAN -UAO)
+ pc : load_scale_v4+0x4c/0x2bc [venus_core]
+ lr : session_process_buf+0x18c/0x1c0 [venus_core]
+ sp : ffffffc01376b8d0
+ x29: ffffffc01376b8d0 x28: ffffff80cf1b0220
+ x27: ffffffc01376bba0 x26: ffffffd8f562b2d8
+ x25: ffffff80cf1b0220 x24: 0000000000000005
+ x23: ffffffd8f5620d98 x22: ffffff80ca01c800
+ x21: ffffff80cf1b0000 x20: ffffff8149490080
+ x19: ffffff8174b2c010 x18: 0000000000000000
+ x17: 0000000000000000 x16: ffffffd96ee3a0dc
+ x15: 0000000000000026 x14: 0000000000000026
+ x13: 00000000000055ac x12: 0000000000000001
+ x11: deacfffffffffd6c x10: dead000000000100
+ x9 : ffffff80ca01cf28 x8 : 0000000000000026
+ x7 : 0000000000000000 x6 : ffffff80cdd899c0
+ x5 : ffffff80cdd899c0 x4 : 0000000000000008
+ x3 : ffffff80ca01cf28 x2 : ffffff80ca01cf28
+ x1 : ffffff80d47ffc00 x0 : ffffff80cf1b0000
+ Call trace:
+  load_scale_v4+0x4c/0x2bc [venus_core]
+  session_process_buf+0x18c/0x1c0 [venus_core]
+  venus_helper_vb2_buf_queue+0x7c/0xf0 [venus_core]
+  __enqueue_in_driver+0xe4/0xfc [videobuf2_common]
+  vb2_core_qbuf+0x15c/0x338 [videobuf2_common]
+  vb2_qbuf+0x78/0xb8 [videobuf2_v4l2]
+  v4l2_m2m_qbuf+0x80/0xf8 [v4l2_mem2mem]
+  v4l2_m2m_ioctl_qbuf+0x2c/0x38 [v4l2_mem2mem]
+  v4l_qbuf+0x48/0x58
+  __video_do_ioctl+0x2b0/0x39c
+  video_usercopy+0x394/0x710
+  video_ioctl2+0x38/0x48
+  v4l2_ioctl+0x6c/0x80
+  do_video_ioctl+0xb00/0x2874
+  v4l2_compat_ioctl32+0x5c/0xcc
+  __se_compat_sys_ioctl+0x100/0x2074
+  __arm64_compat_sys_ioctl+0x20/0x2c
+  el0_svc_common+0xa4/0x154
+  el0_svc_compat_handler+0x2c/0x38
+  el0_svc_compat+0x8/0x10
+ Code: eb0a013f 54000200 aa1f03e8 d10e514b (b940016c)
+ ---[ end trace e11304b46552e0b9 ]---
 
+Cc: stable@vger.kernel.org # v5.5+
+Fixes: c0e284ccfeda ("media: venus: Update clock scaling")
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+---
+ drivers/media/platform/qcom/venus/core.h    |  1 +
+ drivers/media/platform/qcom/venus/helpers.c | 20 +++++++++++++-------
+ 2 files changed, 14 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/media/platform/qcom/venus/core.h b/drivers/media/platform/qcom/venus/core.h
+index 11585fb3cae3..2f661af7f873 100644
+--- a/drivers/media/platform/qcom/venus/core.h
++++ b/drivers/media/platform/qcom/venus/core.h
+@@ -344,6 +344,7 @@ struct venus_inst {
+ 	unsigned int subscriptions;
+ 	int buf_count;
+ 	struct venus_ts_metadata tss[VIDEO_MAX_FRAME];
++	unsigned long payloads[VIDEO_MAX_FRAME];
+ 	u64 fps;
+ 	struct v4l2_fract timeperframe;
+ 	const struct venus_format *fmt_out;
+diff --git a/drivers/media/platform/qcom/venus/helpers.c b/drivers/media/platform/qcom/venus/helpers.c
+index a172f1ac0b35..32f8fb8d7f33 100644
+--- a/drivers/media/platform/qcom/venus/helpers.c
++++ b/drivers/media/platform/qcom/venus/helpers.c
+@@ -544,18 +544,13 @@ static int scale_clocks_v4(struct venus_inst *inst)
+ 	struct venus_core *core = inst->core;
+ 	const struct freq_tbl *table = core->res->freq_tbl;
+ 	unsigned int num_rows = core->res->freq_tbl_size;
+-	struct v4l2_m2m_ctx *m2m_ctx = inst->m2m_ctx;
+ 	struct device *dev = core->dev;
+ 	unsigned long freq = 0, freq_core1 = 0, freq_core2 = 0;
+ 	unsigned long filled_len = 0;
+-	struct venus_buffer *buf, *n;
+-	struct vb2_buffer *vb;
+ 	int i, ret;
+ 
+-	v4l2_m2m_for_each_src_buf_safe(m2m_ctx, buf, n) {
+-		vb = &buf->vb.vb2_buf;
+-		filled_len = max(filled_len, vb2_get_plane_payload(vb, 0));
+-	}
++	for (i = 0; i < inst->num_input_bufs; i++)
++		filled_len = max(filled_len, inst->payloads[i]);
+ 
+ 	if (inst->session_type == VIDC_SESSION_TYPE_DEC && !filled_len)
+ 		return 0;
+@@ -1289,6 +1284,15 @@ int venus_helper_vb2_buf_prepare(struct vb2_buffer *vb)
+ }
+ EXPORT_SYMBOL_GPL(venus_helper_vb2_buf_prepare);
+ 
++static void cache_payload(struct venus_inst *inst, struct vb2_buffer *vb)
++{
++	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
++	unsigned int idx = vbuf->vb2_buf.index;
++
++	if (vbuf->vb2_buf.type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
++		inst->payloads[idx] = vb2_get_plane_payload(vb, 0);
++}
++
+ void venus_helper_vb2_buf_queue(struct vb2_buffer *vb)
+ {
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+@@ -1300,6 +1304,8 @@ void venus_helper_vb2_buf_queue(struct vb2_buffer *vb)
+ 
+ 	v4l2_m2m_buf_queue(m2m_ctx, vbuf);
+ 
++	cache_payload(inst, vb);
++
+ 	if (inst->session_type == VIDC_SESSION_TYPE_ENC &&
+ 	    !(inst->streamon_out && inst->streamon_cap))
+ 		goto unlock;
+-- 
+2.17.1
 
---ZldwD5q9477hdj0L5VZOYCHjONS2c2qaR--
-
---UeAGFHBoPz5T4ugW9qFua017fTPoHVNQf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE2118yvOZTjOV2k0+6Gdd7svuzqMFAl5FHI8ACgkQ6Gdd7svu
-zqPE4hAAwVqRXoUN6cjMOuKVu2I2SCDmX8k5PI+i5okx7CyP58Z0gbeuXq0dFUVZ
-Y5IDybZ8Upg8qFQl2WnOhLWzvsrj8ManXr4lqJl6ucf/SXoq4NsEqreu7NCLT6N+
-qtXptoMBfxWMNtcIxbnxkj0whWmthjvQIu8zz84GQaUDJ4JorB4JnUcCT/Qu5lJH
-jKVnBIkVho++tIOopUM6XS3zEO0qnWgHkpC89oZGpqd+6gWZ9IpVRn73mJ9bcvPY
-65V46hhqfNluDI6g+tD0F8K0TApH3sAs+A2KFzPflG4IHX1nVLfFQJUdNSTvSzfI
-PP2Qrq5OJSwdQa3bv4ADaLOL6WtqzckZIAMC3ACsL1wVFbnwyqo/wqeg75ffK7sk
-BWQysrmMtWFcDvRJjlipa2JBq+WX2STmoc+pSjYqdaD+krGVbPkOXjaqpXRG4qSQ
-1NVjY69VAeaN6qDOZAmCEKFyfp8wFsGQRtG28qz5ekAuCS/C1h29sRGEzGlBbxwe
-qtN23bZXwro7/5WNLj0QoypDKR6BNwWp5OMq4rr576intyEHFJkSHytpu5qnZ6QZ
-ZVnutraYuBWIWiszECU7I+2FrtPhuxuNqKSv9QU1ULUbab8+Xf60ge+m7rrn7xRG
-41zYuCpKMcyTk0oRrdqQMCOGf+igx7+VllHzZUne/9isih8oRe4=
-=GmxA
------END PGP SIGNATURE-----
-
---UeAGFHBoPz5T4ugW9qFua017fTPoHVNQf--
