@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2212C15C5A2
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA4515C5F5
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728466AbgBMPXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35604 "EHLO mail.kernel.org"
+        id S2388059AbgBMPzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:55:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727873AbgBMPXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:45 -0500
+        id S1728200AbgBMPZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:38 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 800B3246B5;
-        Thu, 13 Feb 2020 15:23:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC85F20848;
+        Thu, 13 Feb 2020 15:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607424;
-        bh=c6YHXyVYeo56alttnMPtiq+Xf9OGWRPcr2cFn1Y7gX4=;
+        s=default; t=1581607537;
+        bh=/O/Q4FG/rgon6u0qtaJpJXjl/VmEOXvI7NIDBPba6es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xJgtdIfnf5MqkqPH7thUN5qAef2NBcuE68HY2wq+CXBchFBOXnuKgNkD6IHu23QU
-         yEacl/CrX4StDpzhS+11XlAgNHTJjOzKCoTXIyehnBDV4mCfeG15wIeKMCxeHwEOv5
-         g4MCzKveIh6oBtGURYkD5/8fiGL9OyIHCSJM/fkY=
+        b=csFPNPZKU8f0W6bE6LerMxFZTR0XQFFpL7SB63fy4WeWtxk661EyIP0u2Clh2Bfz2
+         h08wQl+fgnrPbjOqXE2c/uYe/7nfwlxOb0ZT7p0LzGdVC882iWJ0yh8Y+zRDb51uES
+         I3Xv4oKQdrw8Qs4G+wZJoGaUDafYyX+Rdh2UqxM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 054/116] KVM: PPC: Book3S HV: Uninit vCPU if vcore creation fails
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 095/173] scsi: qla4xxx: Adjust indentation in qla4xxx_mem_free
 Date:   Thu, 13 Feb 2020 07:19:58 -0800
-Message-Id: <20200213151903.928016018@linuxfoundation.org>
+Message-Id: <20200213151956.947394191@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 1a978d9d3e72ddfa40ac60d26301b154247ee0bc upstream.
+commit aa8679736a82386551eb9f3ea0e6ebe2c0e99104 upstream.
 
-Call kvm_vcpu_uninit() if vcore creation fails to avoid leaking any
-resources allocated by kvm_vcpu_init(), i.e. the vcpu->run page.
+Clang warns:
 
-Fixes: 371fefd6f2dc4 ("KVM: PPC: Allow book3s_hv guests to use SMT processor modes")
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+../drivers/scsi/qla4xxx/ql4_os.c:4148:3: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+         if (ha->fw_dump)
+         ^
+../drivers/scsi/qla4xxx/ql4_os.c:4144:2: note: previous statement is
+here
+        if (ha->queues)
+        ^
+1 warning generated.
+
+This warning occurs because there is a space after the tab on this
+line.  Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
+
+Fixes: 068237c87c64 ("[SCSI] qla4xxx: Capture minidump for ISP82XX on firmware failure")
+Link: https://github.com/ClangBuiltLinux/linux/issues/819
+Link: https://lore.kernel.org/r/20191218015252.20890-1-natechancellor@gmail.com
+Acked-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla4xxx/ql4_os.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -1766,7 +1766,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu
- 	mutex_unlock(&kvm->lock);
+--- a/drivers/scsi/qla4xxx/ql4_os.c
++++ b/drivers/scsi/qla4xxx/ql4_os.c
+@@ -4150,7 +4150,7 @@ static void qla4xxx_mem_free(struct scsi
+ 		dma_free_coherent(&ha->pdev->dev, ha->queues_len, ha->queues,
+ 				  ha->queues_dma);
  
- 	if (!vcore)
--		goto free_vcpu;
-+		goto uninit_vcpu;
+-	 if (ha->fw_dump)
++	if (ha->fw_dump)
+ 		vfree(ha->fw_dump);
  
- 	spin_lock(&vcore->lock);
- 	++vcore->num_threads;
-@@ -1782,6 +1782,8 @@ static struct kvm_vcpu *kvmppc_core_vcpu
- 
- 	return vcpu;
- 
-+uninit_vcpu:
-+	kvm_vcpu_uninit(vcpu);
- free_vcpu:
- 	kmem_cache_free(kvm_vcpu_cache, vcpu);
- out:
+ 	ha->queues_len = 0;
 
 
