@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD6D15C595
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1E6215C64C
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727595AbgBMPXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
+        id S1728864AbgBMP7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:59:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728363AbgBMPXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:23 -0500
+        id S1728853AbgBMPYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:24:55 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 819CB24699;
-        Thu, 13 Feb 2020 15:23:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B14F024689;
+        Thu, 13 Feb 2020 15:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607402;
-        bh=uf0sW80CIBSxOkP6grpHcVop7BngU6qc+NqqsOk2MDc=;
+        s=default; t=1581607494;
+        bh=eznXPyPtjKiPjmnqn26WtXAu+cuU4ehtOyvEIL3a3iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/ByYe6uiyXA3NRtOFdaif0r+MzSMxkB0njtE/0Gw8f1hchCm/rDYqKZoOFx6Tn/F
-         Pi0SMNUfAj9I5IphHpoaA1OlmoL20Huvfp/vMlI9zZxzlpx2fcR1bB2oyV2IpbtCBr
-         KHLhybZ+2jJJ4gT1sYQzoDcWeuCkbcMjUdfOVkiQ=
+        b=rkcuZfyw8g2RO+sscdBP3g0oqYvJ7cR7w83BDTYgUQO2kQwBFpeDWx+VpScdtSzaf
+         +eNqCX0ORdO/m5zb+odZmLq9kixz3RYVIlfvRFU4cz8Gzenk1yeCnQslrHlbvUNxl1
+         eKaEQklaaT85r0Dww4tPZiBRcu5/n3JcpjiMQpso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Patrick Lai <plai@codeaurora.org>,
-        Banajit Goswami <bgoswami@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.9 004/116] ASoC: qcom: Fix of-node refcount unbalance to link->codec_of_node
-Date:   Thu, 13 Feb 2020 07:19:08 -0800
-Message-Id: <20200213151844.171406458@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 046/173] crypto: api - Check spawn->alg under lock in crypto_drop_spawn
+Date:   Thu, 13 Feb 2020 07:19:09 -0800
+Message-Id: <20200213151945.544273046@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ This is a fix specific to 4.4.y and 4.9.y stable trees;
-  4.14.y and older are not affected ]
+commit 7db3b61b6bba4310f454588c2ca6faf2958ad79f upstream.
 
-The of-node refcount fixes were made in commit 8d1667200850 ("ASoC: qcom:
-Fix of-node refcount unbalance in apq8016_sbc_parse_of()"), but not enough
-in 4.4.y and 4.9.y. The modification of link->codec_of_node is missing.
-This fixes of-node refcount unbalance to link->codec_of_node.
+We need to check whether spawn->alg is NULL under lock as otherwise
+the algorithm could be removed from under us after we have checked
+it and found it to be non-NULL.  This could cause us to remove the
+spawn from a non-existent list.
 
-Fixes: 8d1667200850 ("ASoC: qcom: Fix of-node refcount unbalance in apq8016_sbc_parse_of()")
-Cc: Patrick Lai <plai@codeaurora.org>
-Cc: Banajit Goswami <bgoswami@codeaurora.org>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Fixes: 7ede5a5ba55a ("crypto: api - Fix crypto_drop_spawn crash...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/soc/qcom/apq8016_sbc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/soc/qcom/apq8016_sbc.c
-+++ b/sound/soc/qcom/apq8016_sbc.c
-@@ -128,7 +128,8 @@ static struct apq8016_sbc_data *apq8016_
- 		link->codec_of_node = of_parse_phandle(codec, "sound-dai", 0);
- 		if (!link->codec_of_node) {
- 			dev_err(card->dev, "error getting codec phandle\n");
--			return ERR_PTR(-EINVAL);
-+			ret = -EINVAL;
-+			goto error;
- 		}
+---
+ crypto/algapi.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -652,11 +652,9 @@ EXPORT_SYMBOL_GPL(crypto_grab_spawn);
  
- 		ret = snd_soc_of_get_dai_name(cpu, &link->cpu_dai_name);
+ void crypto_drop_spawn(struct crypto_spawn *spawn)
+ {
+-	if (!spawn->alg)
+-		return;
+-
+ 	down_write(&crypto_alg_sem);
+-	list_del(&spawn->list);
++	if (spawn->alg)
++		list_del(&spawn->list);
+ 	up_write(&crypto_alg_sem);
+ }
+ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
 
 
