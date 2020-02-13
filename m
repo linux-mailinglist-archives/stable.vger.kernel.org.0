@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C8715C39C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4C8115C31D
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387595AbgBMPnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:43:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S1729557AbgBMP2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:28:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729542AbgBMP2E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:04 -0500
+        id S1729548AbgBMP2F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:05 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 842322168B;
-        Thu, 13 Feb 2020 15:28:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCCDF20661;
+        Thu, 13 Feb 2020 15:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607683;
-        bh=BJPUC+Pua1rzB3+wAh4ZHva9Wdewqir9ahqmes+T8KA=;
+        s=default; t=1581607684;
+        bh=D0VFgF0KUyoRWh3UyMx5s9aPCETw1nMcu79+b7qUyDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ChaenLmeJRQBTk6UPDm+ytYrbOfUiQFdA7CMRK6RU0o7C2S7iJnIdAK8Jyq/AER39
-         Fo9aJT3qD34l0hY6+65LvfBZd1SOt/H4gcEs1GpGV8CDEKovF8yFMid4kh8hPs8Z56
-         gwZgb6CjlNrIteb8mbQbnfoz8Sokt+9l0m/Iro6Y=
+        b=bSp4W2oyTtusP9+LOgTsmv0OwH3W3KGfTK10Z/blervckgdiKR3XrJXrylcWsAM75
+         D1Gft2c3UoeQ+nerm9s4aynYsbe3VWeL/i8CjMPQGQXybN+hB1liptr/UwFnsr1ToA
+         iDaFl+P3/ywf/tM18iq6JlFzcGrB4bj7aHUbBkHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 007/120] RDMA/core: Fix locking in ib_uverbs_event_read
-Date:   Thu, 13 Feb 2020 07:20:03 -0800
-Message-Id: <20200213151904.016323249@linuxfoundation.org>
+        stable@vger.kernel.org, Moni Shoua <monis@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 5.5 009/120] RDMA/mlx5: Fix handling of IOVA != user_va in ODP paths
+Date:   Thu, 13 Feb 2020 07:20:05 -0800
+Message-Id: <20200213151904.724551439@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -46,105 +46,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit 14e23bd6d22123f6f3b2747701fa6cd4c6d05873 upstream.
+commit 8ffc32485158528f870b62707077ab494ba31deb upstream.
 
-This should not be using ib_dev to test for disassociation, during
-disassociation is_closed is set under lock and the waitq is triggered.
+Till recently it was not possible for userspace to specify a different
+IOVA, but with the new ibv_reg_mr_iova() library call this can be done.
 
-Instead check is_closed and be sure to re-obtain the lock to test the
-value after the wait_event returns.
+To compute the user_va we must compute:
+  user_va = (iova - iova_start) + user_va_start
 
-Fixes: 036b10635739 ("IB/uverbs: Enable device removal when there are active user space applications")
-Link: https://lore.kernel.org/r/1578504126-9400-12-git-send-email-yishaih@mellanox.com
-Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
+while being cautious of overflow and other math problems.
+
+The iova is not reliably stored in the mmkey when the MR is created. Only
+the cached creation path (the common one) set it, so it must also be set
+when creating uncached MRs.
+
+Fix the weird use of iova when computing the starting page index in the
+MR. In the normal case, when iova == umem.address:
+  iova & (~(BIT(page_shift) - 1)) ==
+  ALIGN_DOWN(umem.address, odp->page_size) ==
+  ib_umem_start(odp)
+
+And when iova is different using it in math with a user_va is wrong.
+
+Finally, do not allow an implicit ODP to be created with a non-zero IOVA
+as we have no support for that.
+
+Fixes: 7bdf65d411c1 ("IB/mlx5: Handle page faults")
+Signed-off-by: Moni Shoua <monis@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/uverbs_main.c |   32 ++++++++++++++------------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
+ drivers/infiniband/hw/mlx5/mr.c  |    2 ++
+ drivers/infiniband/hw/mlx5/odp.c |   19 +++++++++++++------
+ 2 files changed, 15 insertions(+), 6 deletions(-)
 
---- a/drivers/infiniband/core/uverbs_main.c
-+++ b/drivers/infiniband/core/uverbs_main.c
-@@ -220,7 +220,6 @@ void ib_uverbs_release_file(struct kref
- }
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1247,6 +1247,8 @@ struct ib_mr *mlx5_ib_reg_user_mr(struct
  
- static ssize_t ib_uverbs_event_read(struct ib_uverbs_event_queue *ev_queue,
--				    struct ib_uverbs_file *uverbs_file,
- 				    struct file *filp, char __user *buf,
- 				    size_t count, loff_t *pos,
- 				    size_t eventsz)
-@@ -238,19 +237,16 @@ static ssize_t ib_uverbs_event_read(stru
+ 	if (IS_ENABLED(CONFIG_INFINIBAND_ON_DEMAND_PAGING) && !start &&
+ 	    length == U64_MAX) {
++		if (virt_addr != start)
++			return ERR_PTR(-EINVAL);
+ 		if (!(access_flags & IB_ACCESS_ON_DEMAND) ||
+ 		    !(dev->odp_caps.general_caps & IB_ODP_SUPPORT_IMPLICIT))
+ 			return ERR_PTR(-EINVAL);
+--- a/drivers/infiniband/hw/mlx5/odp.c
++++ b/drivers/infiniband/hw/mlx5/odp.c
+@@ -624,11 +624,10 @@ static int pagefault_real_mr(struct mlx5
+ 	bool downgrade = flags & MLX5_PF_FLAGS_DOWNGRADE;
+ 	unsigned long current_seq;
+ 	u64 access_mask;
+-	u64 start_idx, page_mask;
++	u64 start_idx;
  
- 		if (wait_event_interruptible(ev_queue->poll_wait,
- 					     (!list_empty(&ev_queue->event_list) ||
--			/* The barriers built into wait_event_interruptible()
--			 * and wake_up() guarentee this will see the null set
--			 * without using RCU
--			 */
--					     !uverbs_file->device->ib_dev)))
-+					      ev_queue->is_closed)))
- 			return -ERESTARTSYS;
+ 	page_shift = odp->page_shift;
+-	page_mask = ~(BIT(page_shift) - 1);
+-	start_idx = (user_va - (mr->mmkey.iova & page_mask)) >> page_shift;
++	start_idx = (user_va - ib_umem_start(odp)) >> page_shift;
+ 	access_mask = ODP_READ_ALLOWED_BIT;
  
-+		spin_lock_irq(&ev_queue->lock);
+ 	if (odp->umem.writable && !downgrade)
+@@ -767,11 +766,19 @@ static int pagefault_mr(struct mlx5_ib_m
+ {
+ 	struct ib_umem_odp *odp = to_ib_umem_odp(mr->umem);
+ 
++	if (unlikely(io_virt < mr->mmkey.iova))
++		return -EFAULT;
 +
- 		/* If device was disassociated and no event exists set an error */
--		if (list_empty(&ev_queue->event_list) &&
--		    !uverbs_file->device->ib_dev)
-+		if (list_empty(&ev_queue->event_list) && ev_queue->is_closed) {
-+			spin_unlock_irq(&ev_queue->lock);
- 			return -EIO;
--
--		spin_lock_irq(&ev_queue->lock);
-+		}
+ 	if (!odp->is_implicit_odp) {
+-		if (unlikely(io_virt < ib_umem_start(odp) ||
+-			     ib_umem_end(odp) - io_virt < bcnt))
++		u64 user_va;
++
++		if (check_add_overflow(io_virt - mr->mmkey.iova,
++				       (u64)odp->umem.address, &user_va))
++			return -EFAULT;
++		if (unlikely(user_va >= ib_umem_end(odp) ||
++			     ib_umem_end(odp) - user_va < bcnt))
+ 			return -EFAULT;
+-		return pagefault_real_mr(mr, odp, io_virt, bcnt, bytes_mapped,
++		return pagefault_real_mr(mr, odp, user_va, bcnt, bytes_mapped,
+ 					 flags);
  	}
- 
- 	event = list_entry(ev_queue->event_list.next, struct ib_uverbs_event, list);
-@@ -285,8 +281,7 @@ static ssize_t ib_uverbs_async_event_rea
- {
- 	struct ib_uverbs_async_event_file *file = filp->private_data;
- 
--	return ib_uverbs_event_read(&file->ev_queue, file->uverbs_file, filp,
--				    buf, count, pos,
-+	return ib_uverbs_event_read(&file->ev_queue, filp, buf, count, pos,
- 				    sizeof(struct ib_uverbs_async_event_desc));
- }
- 
-@@ -296,9 +291,8 @@ static ssize_t ib_uverbs_comp_event_read
- 	struct ib_uverbs_completion_event_file *comp_ev_file =
- 		filp->private_data;
- 
--	return ib_uverbs_event_read(&comp_ev_file->ev_queue,
--				    comp_ev_file->uobj.ufile, filp,
--				    buf, count, pos,
-+	return ib_uverbs_event_read(&comp_ev_file->ev_queue, filp, buf, count,
-+				    pos,
- 				    sizeof(struct ib_uverbs_comp_event_desc));
- }
- 
-@@ -321,7 +315,9 @@ static __poll_t ib_uverbs_event_poll(str
- static __poll_t ib_uverbs_async_event_poll(struct file *filp,
- 					       struct poll_table_struct *wait)
- {
--	return ib_uverbs_event_poll(filp->private_data, filp, wait);
-+	struct ib_uverbs_async_event_file *file = filp->private_data;
-+
-+	return ib_uverbs_event_poll(&file->ev_queue, filp, wait);
- }
- 
- static __poll_t ib_uverbs_comp_event_poll(struct file *filp,
-@@ -335,9 +331,9 @@ static __poll_t ib_uverbs_comp_event_pol
- 
- static int ib_uverbs_async_event_fasync(int fd, struct file *filp, int on)
- {
--	struct ib_uverbs_event_queue *ev_queue = filp->private_data;
-+	struct ib_uverbs_async_event_file *file = filp->private_data;
- 
--	return fasync_helper(fd, filp, on, &ev_queue->async_queue);
-+	return fasync_helper(fd, filp, on, &file->ev_queue.async_queue);
- }
- 
- static int ib_uverbs_comp_event_fasync(int fd, struct file *filp, int on)
+ 	return pagefault_implicit_mr(mr, odp, io_virt, bcnt, bytes_mapped,
 
 
