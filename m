@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C86B515C4EA
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4476415C3CF
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729166AbgBMPvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:51:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43956 "EHLO mail.kernel.org"
+        id S2387470AbgBMP1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728222AbgBMP0K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:10 -0500
+        id S2387698AbgBMP1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:39 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52B02222C2;
-        Thu, 13 Feb 2020 15:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42DF1206DB;
+        Thu, 13 Feb 2020 15:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607570;
-        bh=LamjSVIOiwpvjWhaNoXxOds4ACQhvlkXYHqHWxtPCD0=;
+        s=default; t=1581607659;
+        bh=k3puIBjVFYmGf7IfDvzFoxSc/Urm4/cjTLMX4cl8Tvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HG/Ou/FJhlSynBhrepioJfMLx8bRnZ9WO5lXYHM8j6zYMM25WTShheGCYEdWij+nF
-         z7aiR6kKZJGYmu/wf/i2z30AciIwkTBP14T+5TlsMuKLQ/iQeM9YBuJioLYk71tIdS
-         CCBE3UJw3OUTeoblrONpviy/7DvxtR4XDtVdVlgY=
+        b=HcpZs5fmGRDg18v8LxcySsVf17y8GS2G9qtcdxh4o/4ucqYYpc/ZWJae8KR4jGDPm
+         VJI6l/6LSsTIz0ZTNtIjCPX8pjYWe9Z6ZO1eY7CCa7/ylQGeWzj4z0DuchPcO0ISBj
+         7YPltvYfSYNuAbOPi167BF7gSfX8i4MKnswypBI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.14 163/173] KVM: arm/arm64: Fix young bit from mmu notifier
+        stable@vger.kernel.org,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 59/96] iommu/arm-smmu-v3: Populate VMID field for CMDQ_OP_TLBI_NH_VA
 Date:   Thu, 13 Feb 2020 07:21:06 -0800
-Message-Id: <20200213152012.260755298@linuxfoundation.org>
+Message-Id: <20200213151901.872746489@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Shan <gshan@redhat.com>
+From: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 
-commit cf2d23e0bac9f6b5cd1cba8898f5f05ead40e530 upstream.
+commit 935d43ba272e0001f8ef446a3eff15d8175cb11b upstream.
 
-kvm_test_age_hva() is called upon mmu_notifier_test_young(), but wrong
-address range has been passed to handle_hva_to_gpa(). With the wrong
-address range, no young bits will be checked in handle_hva_to_gpa().
-It means zero is always returned from mmu_notifier_test_young().
+CMDQ_OP_TLBI_NH_VA requires VMID and this was missing since
+commit 1c27df1c0a82 ("iommu/arm-smmu: Use correct address mask
+for CMD_TLBI_S2_IPA"). Add it back.
 
-This fixes the issue by passing correct address range to the underly
-function handle_hva_to_gpa(), so that the hardware young (access) bit
-will be visited.
-
-Fixes: 35307b9a5f7e ("arm/arm64: KVM: Implement Stage-2 page aging")
-Signed-off-by: Gavin Shan <gshan@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200121055659.19560-1-gshan@redhat.com
+Fixes: 1c27df1c0a82 ("iommu/arm-smmu: Use correct address mask for CMD_TLBI_S2_IPA")
+Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/mmu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/arm-smmu-v3.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/virt/kvm/arm/mmu.c
-+++ b/virt/kvm/arm/mmu.c
-@@ -1736,7 +1736,8 @@ int kvm_test_age_hva(struct kvm *kvm, un
- 	if (!kvm->arch.pgd)
- 		return 0;
- 	trace_kvm_test_age_hva(hva);
--	return handle_hva_to_gpa(kvm, hva, hva, kvm_test_age_hva_handler, NULL);
-+	return handle_hva_to_gpa(kvm, hva, hva + PAGE_SIZE,
-+				 kvm_test_age_hva_handler, NULL);
- }
- 
- void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu)
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -856,6 +856,7 @@ static int arm_smmu_cmdq_build_cmd(u64 *
+ 		cmd[1] |= FIELD_PREP(CMDQ_CFGI_1_RANGE, 31);
+ 		break;
+ 	case CMDQ_OP_TLBI_NH_VA:
++		cmd[0] |= FIELD_PREP(CMDQ_TLBI_0_VMID, ent->tlbi.vmid);
+ 		cmd[0] |= FIELD_PREP(CMDQ_TLBI_0_ASID, ent->tlbi.asid);
+ 		cmd[1] |= FIELD_PREP(CMDQ_TLBI_1_LEAF, ent->tlbi.leaf);
+ 		cmd[1] |= ent->tlbi.addr & CMDQ_TLBI_1_VA_MASK;
 
 
