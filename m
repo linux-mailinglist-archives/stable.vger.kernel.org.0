@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1FAA15C53E
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0C315C375
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388257AbgBMPyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42716 "EHLO mail.kernel.org"
+        id S1729225AbgBMPl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:41:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729122AbgBMPZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:55 -0500
+        id S2387725AbgBMP2e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:34 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D3DA24691;
-        Thu, 13 Feb 2020 15:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE4D42168B;
+        Thu, 13 Feb 2020 15:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607552;
-        bh=u8zKPE2MDJBP7Xodhz8YBPY1I5BV9w4c8q36pzW/TeY=;
+        s=default; t=1581607713;
+        bh=qNVJvkLk5QY4zMFf9zWqo7r205XJykyNObIRHrwIBPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWNp4RSXGQv3y1pGAfnd9CO2vpHz96J1RysZfeu8zHEEmSH2gX1wwqxSJHllcwF90
-         mnBklfe3vnyGctIwS53bXPqDJ3ofREmPPb+ZqeiCE8GsHXj/RWr6AGyiDSktc4QHRR
-         H76nkKs+eUiI/93777Tr8bUiUqcnVgBiavywPDtM=
+        b=eSdhd21AsrVeBhBUaZ+REaI2tMFdnzhL7z43zMczyMMYYTx+/7hnyC7F2aH9Bx77R
+         w9nYGJ9S1BQbeVWQOlbBNxOZAQrIvcEALG6e2LvVrRSRhmfAWfWXz8s1v9HLdUtk0o
+         pqENeUCrUB1DNqxacNHEf8LLz1STEZ0xxhILv6FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Finco <nifi@google.com>,
-        Marios Pomonis <pomonis@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Steven Clarkson <sc@lambdal.com>,
+        Borislav Petkov <bp@suse.de>, linux-acpi@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 128/173] KVM: x86: Protect pmu_intel.c from Spectre-v1/L1TF attacks
+Subject: [PATCH 5.5 035/120] x86/boot: Handle malformed SRAT tables during early ACPI parsing
 Date:   Thu, 13 Feb 2020 07:20:31 -0800
-Message-Id: <20200213152004.512717026@linuxfoundation.org>
+Message-Id: <20200213151913.733845018@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,77 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Pomonis <pomonis@google.com>
+From: Steven Clarkson <sc@lambdal.com>
 
-[ Upstream commit 66061740f1a487f4ed54fde75e724709f805da53 ]
+[ Upstream commit 2b73ea3796242608b4ccf019ff217156c92e92fe ]
 
-This fixes Spectre-v1/L1TF vulnerabilities in intel_find_fixed_event()
-and intel_rdpmc_ecx_to_pmc().
-kvm_rdpmc() (ancestor of intel_find_fixed_event()) and
-reprogram_fixed_counter() (ancestor of intel_rdpmc_ecx_to_pmc()) are
-exported symbols so KVM should treat them conservatively from a security
-perspective.
+Break an infinite loop when early parsing of the SRAT table is caused
+by a subtable with zero length. Known to affect the ASUS WS X299 SAGE
+motherboard with firmware version 1201 which has a large block of
+zeros in its SRAT table. The kernel could boot successfully on this
+board/firmware prior to the introduction of early parsing this table or
+after a BIOS update.
 
-Fixes: 25462f7f5295 ("KVM: x86/vPMU: Define kvm_pmu_ops to support vPMU function dispatch")
+ [ bp: Fixup whitespace damage and commit message. Make it return 0 to
+   denote that there are no immovable regions because who knows what
+   else is broken in this BIOS. ]
 
-Signed-off-by: Nick Finco <nifi@google.com>
-Signed-off-by: Marios Pomonis <pomonis@google.com>
-Reviewed-by: Andrew Honig <ahonig@google.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 02a3e3cdb7f1 ("x86/boot: Parse SRAT table and count immovable memory regions")
+Signed-off-by: Steven Clarkson <sc@lambdal.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: linux-acpi@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206343
+Link: https://lkml.kernel.org/r/CAHKq8taGzj0u1E_i=poHUam60Bko5BpiJ9jn0fAupFUYexvdUQ@mail.gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/pmu_intel.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ arch/x86/boot/compressed/acpi.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/kvm/pmu_intel.c b/arch/x86/kvm/pmu_intel.c
-index 2729131fe9bfc..84ae4dd261caf 100644
---- a/arch/x86/kvm/pmu_intel.c
-+++ b/arch/x86/kvm/pmu_intel.c
-@@ -87,10 +87,14 @@ static unsigned intel_find_arch_event(struct kvm_pmu *pmu,
+diff --git a/arch/x86/boot/compressed/acpi.c b/arch/x86/boot/compressed/acpi.c
+index 25019d42ae937..ef2ad7253cd5e 100644
+--- a/arch/x86/boot/compressed/acpi.c
++++ b/arch/x86/boot/compressed/acpi.c
+@@ -393,7 +393,13 @@ int count_immovable_mem_regions(void)
+ 	table = table_addr + sizeof(struct acpi_table_srat);
  
- static unsigned intel_find_fixed_event(int idx)
- {
--	if (idx >= ARRAY_SIZE(fixed_pmc_events))
-+	u32 event;
-+	size_t size = ARRAY_SIZE(fixed_pmc_events);
+ 	while (table + sizeof(struct acpi_subtable_header) < table_end) {
 +
-+	if (idx >= size)
- 		return PERF_COUNT_HW_MAX;
+ 		sub_table = (struct acpi_subtable_header *)table;
++		if (!sub_table->length) {
++			debug_putstr("Invalid zero length SRAT subtable.\n");
++			return 0;
++		}
++
+ 		if (sub_table->type == ACPI_SRAT_TYPE_MEMORY_AFFINITY) {
+ 			struct acpi_srat_mem_affinity *ma;
  
--	return intel_arch_events[fixed_pmc_events[idx]].event_type;
-+	event = fixed_pmc_events[array_index_nospec(idx, size)];
-+	return intel_arch_events[event].event_type;
- }
- 
- /* check if a PMC is enabled by comparing it with globl_ctrl bits. */
-@@ -131,15 +135,19 @@ static struct kvm_pmc *intel_msr_idx_to_pmc(struct kvm_vcpu *vcpu,
- 	struct kvm_pmu *pmu = vcpu_to_pmu(vcpu);
- 	bool fixed = idx & (1u << 30);
- 	struct kvm_pmc *counters;
-+	unsigned int num_counters;
- 
- 	idx &= ~(3u << 30);
--	if (!fixed && idx >= pmu->nr_arch_gp_counters)
--		return NULL;
--	if (fixed && idx >= pmu->nr_arch_fixed_counters)
-+	if (fixed) {
-+		counters = pmu->fixed_counters;
-+		num_counters = pmu->nr_arch_fixed_counters;
-+	} else {
-+		counters = pmu->gp_counters;
-+		num_counters = pmu->nr_arch_gp_counters;
-+	}
-+	if (idx >= num_counters)
- 		return NULL;
--	counters = fixed ? pmu->fixed_counters : pmu->gp_counters;
--
--	return &counters[idx];
-+	return &counters[array_index_nospec(idx, num_counters)];
- }
- 
- static bool intel_is_valid_msr(struct kvm_vcpu *vcpu, u32 msr)
 -- 
 2.20.1
 
