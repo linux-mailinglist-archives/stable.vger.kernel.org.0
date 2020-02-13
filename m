@@ -2,55 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C2215C59C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA7415C5D2
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgBMPXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:23:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35080 "EHLO mail.kernel.org"
+        id S1727857AbgBMPZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:25:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728423AbgBMPXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:36 -0500
+        id S1727877AbgBMPZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:06 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA157246B5;
-        Thu, 13 Feb 2020 15:23:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86382246B1;
+        Thu, 13 Feb 2020 15:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607415;
-        bh=HIJ84k4kruDMoI/Z6AJum0brp2NtCyYGH6otIn3QTHk=;
+        s=default; t=1581607505;
+        bh=s9vMX17cL/4UN/uKNxZu0qzByCTD+ZvN3gc5LxNfAN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVy/sI16Yoa4B57w59LxTw1CAuWZ36h30QEW6Qyfdt+Zn1KUkuA6TjTzLKYniLGcV
-         V0tkRTB5AV/0AAMW5B6TItc8jzmhJBRp4cfaix8s0yQCixe4mKMjaCUkIticUj9rGj
-         eSXItSb5srktvqgMWNy2fMJMkFU15d21pUjOKS/M=
+        b=XPzuCGhk/dd3nyLd5tD4cDmq88ryvGyabec0hcIT3fk93wDPv2HpPfAMwQKAqxVKW
+         gFLfnvjgaB1t4T5LhWSRP8syKbANpb1RYs5hQ4afYg1fAC/KkEMbIIui5xTzU+w/uq
+         DtxAoVbIN7aaiqTC92hc/Z8n0ZLqRGfTYH6hicI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 022/116] media/v4l2-core: set pages dirty upon releasing DMA buffers
+        stable@vger.kernel.org, Gary R Hook <gary.hook@amd.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 063/173] crypto: ccp - set max RSA modulus size for v3 platform devices as well
 Date:   Thu, 13 Feb 2020 07:19:26 -0800
-Message-Id: <20200213151851.546420791@linuxfoundation.org>
+Message-Id: <20200213151949.713565684@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,61 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 3c7470b6f68434acae459482ab920d1e3fabd1c7 upstream.
+commit 11548f5a5747813ff84bed6f2ea01100053b0d8d upstream.
 
-After DMA is complete, and the device and CPU caches are synchronized,
-it's still required to mark the CPU pages as dirty, if the data was
-coming from the device.  However, this driver was just issuing a bare
-put_page() call, without any set_page_dirty*() call.
+AMD Seattle incorporates a non-PCI version of the v3 CCP crypto
+accelerator, and this version was left behind when the maximum
+RSA modulus size was parameterized in order to support v5 hardware
+which supports larger moduli than v3 hardware does. Due to this
+oversight, RSA acceleration no longer works at all on these systems.
 
-Fix the problem, by calling set_page_dirty_lock() if the CPU pages were
-potentially receiving data from the device.
+Fix this by setting the .rsamax property to the appropriate value
+for v3 platform hardware.
 
-Link: http://lkml.kernel.org/r/20200107224558.2362728-11-jhubbard@nvidia.com
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Björn Töpel <bjorn.topel@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e28c190db66830c0 ("csrypto: ccp - Expand RSA support for a v5 ccp")
+Cc: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/v4l2-core/videobuf-dma-sg.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-dev-v3.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/v4l2-core/videobuf-dma-sg.c
-+++ b/drivers/media/v4l2-core/videobuf-dma-sg.c
-@@ -352,8 +352,11 @@ int videobuf_dma_free(struct videobuf_dm
- 	BUG_ON(dma->sglen);
+--- a/drivers/crypto/ccp/ccp-dev-v3.c
++++ b/drivers/crypto/ccp/ccp-dev-v3.c
+@@ -590,6 +590,7 @@ const struct ccp_vdata ccpv3_platform =
+ 	.setup = NULL,
+ 	.perform = &ccp3_actions,
+ 	.offset = 0,
++	.rsamax = CCP_RSA_MAX_WIDTH,
+ };
  
- 	if (dma->pages) {
--		for (i = 0; i < dma->nr_pages; i++)
-+		for (i = 0; i < dma->nr_pages; i++) {
-+			if (dma->direction == DMA_FROM_DEVICE)
-+				set_page_dirty_lock(dma->pages[i]);
- 			put_page(dma->pages[i]);
-+		}
- 		kfree(dma->pages);
- 		dma->pages = NULL;
- 	}
+ const struct ccp_vdata ccpv3 = {
 
 
