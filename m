@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8571015C3CB
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5C715C40A
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:52:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728679AbgBMPo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:44:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52004 "EHLO mail.kernel.org"
+        id S2387610AbgBMP0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:26:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728398AbgBMP1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:41 -0500
+        id S2387601AbgBMP0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:35 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A7082467D;
-        Thu, 13 Feb 2020 15:27:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A3EA2465D;
+        Thu, 13 Feb 2020 15:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607660;
-        bh=g3V5GqFuvHm9hAAo7i5DEoNIqNDkI0QlDyTVfPLRz8E=;
+        s=default; t=1581607594;
+        bh=vK0jvBmRKwQvyHXa/EMemD0TVUS1+x9d8R924du5diM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aeioqHO6QfJGfgLughkx5ysvUbUxld9xVObTTjF7wd2YDDZzV/Q6uNyHmYTO9+CLT
-         I0tCU7IF4KlzZBfWgtU5+Ld6dWRfqWTvEhLrMF5NjUKee9CXfKrOFZYhKpj7SVeker
-         xqKVJyYi7xU7X3Sq5qE474HJAv3Hv0TJHIhF9LX0=
+        b=GwwCTXuLGek4TDE20WErBY9WKZIKh1VpxVWsELLhHPLK6L0UUCzURaPBBMfvVHijm
+         CjhX64v2c8CbUnXUoZs2MJj6td8NXsBRYyOrK56Y61FXwPE5jD/eNgDUmJjQGJY5Wb
+         hClnD0f4qz3MvIICVDydv2fnHXMCvnxabsFlZ1NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        =?UTF-8?q?Karl=20Rudb=C3=A6k=20Olsen?= <karl@micro-technic.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.4 61/96] ARM: at91: pm: use of_device_id array to find the proper shdwc node
+Subject: [PATCH 4.19 27/52] ARM: dts: at91: sama5d3: define clock rate range for tcb1
 Date:   Thu, 13 Feb 2020 07:21:08 -0800
-Message-Id: <20200213151902.636412094@linuxfoundation.org>
+Message-Id: <20200213151821.296370732@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-commit ec6e618c8c018c1361d77789a100a5f6f6317178 upstream.
+commit a7e0f3fc01df4b1b7077df777c37feae8c9e8b6d upstream.
 
-Use of_device_id array to find the proper shdwc compatibile node.
-SAM9X60's shdwc changes were not integrated when
-commit eaedc0d379da ("ARM: at91: pm: add ULP1 support for SAM9X60")
-was integrated.
+The clock rate range for the TCB1 clock is missing. define it in the device
+tree.
 
-Fixes: eaedc0d379da ("ARM: at91: pm: add ULP1 support for SAM9X60")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/1576062248-18514-3-git-send-email-claudiu.beznea@microchip.com
+Reported-by: Karl Rudbæk Olsen <karl@micro-technic.com>
+Fixes: d2e8190b7916 ("ARM: at91/dt: define sama5d3 clocks")
+Link: https://lore.kernel.org/r/20200110172007.1253659-2-alexandre.belloni@bootlin.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-at91/pm.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/sama5d3_tcb1.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -691,6 +691,12 @@ static void __init at91_pm_use_default_m
- 		soc_pm.data.suspend_mode = AT91_PM_ULP0;
- }
- 
-+static const struct of_device_id atmel_shdwc_ids[] = {
-+	{ .compatible = "atmel,sama5d2-shdwc" },
-+	{ .compatible = "microchip,sam9x60-shdwc" },
-+	{ /* sentinel. */ }
-+};
-+
- static void __init at91_pm_modes_init(void)
- {
- 	struct device_node *np;
-@@ -700,7 +706,7 @@ static void __init at91_pm_modes_init(vo
- 	    !at91_is_pm_mode_active(AT91_PM_ULP1))
- 		return;
- 
--	np = of_find_compatible_node(NULL, NULL, "atmel,sama5d2-shdwc");
-+	np = of_find_matching_node(NULL, atmel_shdwc_ids);
- 	if (!np) {
- 		pr_warn("%s: failed to find shdwc!\n", __func__);
- 		goto ulp1_default;
+--- a/arch/arm/boot/dts/sama5d3_tcb1.dtsi
++++ b/arch/arm/boot/dts/sama5d3_tcb1.dtsi
+@@ -23,6 +23,7 @@
+ 					tcb1_clk: tcb1_clk {
+ 						#clock-cells = <0>;
+ 						reg = <27>;
++						atmel,clk-output-range = <0 166000000>;
+ 					};
+ 				};
+ 			};
 
 
