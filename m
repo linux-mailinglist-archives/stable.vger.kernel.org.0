@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05F1315C62E
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5418315C797
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388175AbgBMP6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:58:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40096 "EHLO mail.kernel.org"
+        id S1727720AbgBMPWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728442AbgBMPZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:11 -0500
+        id S1727669AbgBMPWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:17 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 411C4246A3;
-        Thu, 13 Feb 2020 15:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 656EB24690;
+        Thu, 13 Feb 2020 15:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607511;
-        bh=MwYhGUE+jYWpjZsa+15g3hupFybA4O768IPBJA8Bcy0=;
+        s=default; t=1581607336;
+        bh=5hDFTEFqhTMBINghl6SqPXEuOch/SmuKxFXn9GwbzaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHzXRLlY4wHzCDh8sPl4P6eiwkhelJV8FwQga4JTnWQhP9KWHz98lkWgjksmqWfjP
-         KL3oPbnSGzuNf4h3FUpee+yCnRXHM2YOQPzYmx5lUKklnMaCQLMJbzkyJTPoHX050n
-         JRFObzlBqFtQ5SdpwwrppQeqj1vfuEXhFXRsopT8=
+        b=G4XmyJ5/+5lRKWgtXXgLgSa7q3neQXDUNgZelbsZZ05BWXPyHpZW6A8c7/+2QKkPH
+         ltf0h9McywRasfVwuKp+Oyfhm0SNB7pUWghrGwZY+XrOobcvH/NBjwUTp4F3QZttAt
+         z71cDURU/odZbkkymxcs7MW14TJc4YOuR7AuEW0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 054/173] dm zoned: support zone sizes smaller than 128MiB
-Date:   Thu, 13 Feb 2020 07:19:17 -0800
-Message-Id: <20200213151947.619717329@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 01/91] media: iguanair: fix endpoint sanity check
+Date:   Thu, 13 Feb 2020 07:19:18 -0800
+Message-Id: <20200213151821.848596291@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,117 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b39962950339912978484cdac50069258545d753 upstream.
+[ Upstream commit 1b257870a78b0a9ce98fdfb052c58542022ffb5b ]
 
-dm-zoned is observed to log failed kernel assertions and not work
-correctly when operating against a device with a zone size smaller
-than 128MiB (e.g. 32768 bits per 4K block). The reason is that the
-bitmap size per zone is calculated as zero with such a small zone
-size. Fix this problem and also make the code related to zone bitmap
-management be able to handle per zone bitmaps smaller than a single
-block.
+Make sure to use the current alternate setting, which need not be the
+first one by index, when verifying the endpoint descriptors and
+initialising the URBs.
 
-A dm-zoned-tools patch is required to properly format dm-zoned devices
-with zone sizes smaller than 128MiB.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 26ff63137c45 ("[media] Add support for the IguanaWorks USB IR Transceiver")
+Fixes: ab1cbdf159be ("media: iguanair: add sanity checks")
+Cc: stable <stable@vger.kernel.org>     # 3.6
+Cc: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-zoned-metadata.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/media/rc/iguanair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -132,6 +132,7 @@ struct dmz_metadata {
+diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
+index cda4ce612dcf5..782391507e3a5 100644
+--- a/drivers/media/rc/iguanair.c
++++ b/drivers/media/rc/iguanair.c
+@@ -430,7 +430,7 @@ static int iguanair_probe(struct usb_interface *intf,
+ 	int ret, pipein, pipeout;
+ 	struct usb_host_interface *idesc;
  
- 	sector_t		zone_bitmap_size;
- 	unsigned int		zone_nr_bitmap_blocks;
-+	unsigned int		zone_bits_per_mblk;
+-	idesc = intf->altsetting;
++	idesc = intf->cur_altsetting;
+ 	if (idesc->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
  
- 	unsigned int		nr_bitmap_blocks;
- 	unsigned int		nr_map_blocks;
-@@ -1165,7 +1166,10 @@ static int dmz_init_zones(struct dmz_met
- 
- 	/* Init */
- 	zmd->zone_bitmap_size = dev->zone_nr_blocks >> 3;
--	zmd->zone_nr_bitmap_blocks = zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT;
-+	zmd->zone_nr_bitmap_blocks =
-+		max_t(sector_t, 1, zmd->zone_bitmap_size >> DMZ_BLOCK_SHIFT);
-+	zmd->zone_bits_per_mblk = min_t(sector_t, dev->zone_nr_blocks,
-+					DMZ_BLOCK_SIZE_BITS);
- 
- 	/* Allocate zone array */
- 	zmd->zones = kcalloc(dev->nr_zones, sizeof(struct dm_zone), GFP_KERNEL);
-@@ -1982,7 +1986,7 @@ int dmz_copy_valid_blocks(struct dmz_met
- 		dmz_release_mblock(zmd, to_mblk);
- 		dmz_release_mblock(zmd, from_mblk);
- 
--		chunk_block += DMZ_BLOCK_SIZE_BITS;
-+		chunk_block += zmd->zone_bits_per_mblk;
- 	}
- 
- 	to_zone->weight = from_zone->weight;
-@@ -2043,7 +2047,7 @@ int dmz_validate_blocks(struct dmz_metad
- 
- 		/* Set bits */
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 
- 		count = dmz_set_bits((unsigned long *)mblk->data, bit, nr_bits);
- 		if (count) {
-@@ -2122,7 +2126,7 @@ int dmz_invalidate_blocks(struct dmz_met
- 
- 		/* Clear bits */
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 
- 		count = dmz_clear_bits((unsigned long *)mblk->data,
- 				       bit, nr_bits);
-@@ -2182,6 +2186,7 @@ static int dmz_to_next_set_block(struct
- {
- 	struct dmz_mblock *mblk;
- 	unsigned int bit, set_bit, nr_bits;
-+	unsigned int zone_bits = zmd->zone_bits_per_mblk;
- 	unsigned long *bitmap;
- 	int n = 0;
- 
-@@ -2196,15 +2201,15 @@ static int dmz_to_next_set_block(struct
- 		/* Get offset */
- 		bitmap = (unsigned long *) mblk->data;
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zone_bits - bit);
- 		if (set)
--			set_bit = find_next_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
-+			set_bit = find_next_bit(bitmap, zone_bits, bit);
- 		else
--			set_bit = find_next_zero_bit(bitmap, DMZ_BLOCK_SIZE_BITS, bit);
-+			set_bit = find_next_zero_bit(bitmap, zone_bits, bit);
- 		dmz_release_mblock(zmd, mblk);
- 
- 		n += set_bit - bit;
--		if (set_bit < DMZ_BLOCK_SIZE_BITS)
-+		if (set_bit < zone_bits)
- 			break;
- 
- 		nr_blocks -= nr_bits;
-@@ -2307,7 +2312,7 @@ static void dmz_get_zone_weight(struct d
- 		/* Count bits in this block */
- 		bitmap = mblk->data;
- 		bit = chunk_block & DMZ_BLOCK_MASK_BITS;
--		nr_bits = min(nr_blocks, DMZ_BLOCK_SIZE_BITS - bit);
-+		nr_bits = min(nr_blocks, zmd->zone_bits_per_mblk - bit);
- 		n += dmz_count_bits(bitmap, bit, nr_bits);
- 
- 		dmz_release_mblock(zmd, mblk);
+-- 
+2.20.1
+
 
 
