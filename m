@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA1415C5D4
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C9B15C78E
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387419AbgBMPZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:25:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40056 "EHLO mail.kernel.org"
+        id S1727800AbgBMPWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:22:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728923AbgBMPZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:08 -0500
+        id S1727797AbgBMPWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:22:20 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 690CE246B3;
-        Thu, 13 Feb 2020 15:25:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F109246C3;
+        Thu, 13 Feb 2020 15:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607507;
-        bh=JnJMKykcCMlxvmwUkHWNd/DN9s2hpkqaD2YmQKTtg9w=;
+        s=default; t=1581607338;
+        bh=SeUInoUZKF668T+Lg79mvKlNvrUROy3LHdp63jNvHxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRNW1FHrupTet/G2yeIbuk3zQt/M0eiKSoGEu2u4ZLeqzPYKIBgAiE5pSivosUmsy
-         JBxWdHfc6/KrI01ne0izj0vtsPfKWCmau77MDkLsQmU8LYaGhLLE1wfIySN2cYHojZ
-         ZjlnM7zmqNvFFwHM/K2krGY1cccyCSOMuZxzd8FQ=
+        b=MDeb4EIjQwqmDKHAcAdI3rBMjSHInpsdPxHvcrbteXwR0ZrcI5WgObIsSYwQ2nYQG
+         vx+rRj/pO0L9MFk0FLbFOplVKabLr/QE/RQl4RxJSYkgWUVYxLSZJ3JwX2BZKRUJ4A
+         chn6J5T2f2IrmTo5bqRKvSVYRXoCPlzHxO9XSe4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 066/173] crypto: api - Fix race condition in crypto_spawn_alg
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 12/91] brcmfmac: Fix memory leak in brcmf_usbdev_qinit
 Date:   Thu, 13 Feb 2020 07:19:29 -0800
-Message-Id: <20200213151950.383288559@linuxfoundation.org>
+Message-Id: <20200213151826.385949633@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 73669cc556462f4e50376538d77ee312142e8a8a upstream.
+commit 4282dc057d750c6a7dd92953564b15c26b54c22c upstream.
 
-The function crypto_spawn_alg is racy because it drops the lock
-before shooting the dying algorithm.  The algorithm could disappear
-altogether before we shoot it.
+In the implementation of brcmf_usbdev_qinit() the allocated memory for
+reqs is leaking if usb_alloc_urb() fails. Release reqs in the error
+handling path.
 
-This patch fixes it by moving the shooting into the locked section.
-
-Fixes: 6bfd48096ff8 ("[CRYPTO] api: Added spawns")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 71bb244ba2fd ("brcm80211: fmac: add USB support for bcm43235/6/8 chipsets")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/algapi.c   |   16 +++++-----------
- crypto/api.c      |    3 +--
- crypto/internal.h |    1 -
- 3 files changed, 6 insertions(+), 14 deletions(-)
+ drivers/net/wireless/brcm80211/brcmfmac/usb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/crypto/algapi.c
-+++ b/crypto/algapi.c
-@@ -662,22 +662,16 @@ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
- static struct crypto_alg *crypto_spawn_alg(struct crypto_spawn *spawn)
- {
- 	struct crypto_alg *alg;
--	struct crypto_alg *alg2;
- 
- 	down_read(&crypto_alg_sem);
- 	alg = spawn->alg;
--	alg2 = alg;
--	if (alg2)
--		alg2 = crypto_mod_get(alg2);
--	up_read(&crypto_alg_sem);
--
--	if (!alg2) {
--		if (alg)
--			crypto_shoot_alg(alg);
--		return ERR_PTR(-EAGAIN);
-+	if (alg && !crypto_mod_get(alg)) {
-+		alg->cra_flags |= CRYPTO_ALG_DYING;
-+		alg = NULL;
+--- a/drivers/net/wireless/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/usb.c
+@@ -426,6 +426,7 @@ fail:
+ 			usb_free_urb(req->urb);
+ 		list_del(q->next);
  	}
-+	up_read(&crypto_alg_sem);
++	kfree(reqs);
+ 	return NULL;
  
--	return alg;
-+	return alg ?: ERR_PTR(-EAGAIN);
  }
- 
- struct crypto_tfm *crypto_spawn_tfm(struct crypto_spawn *spawn, u32 type,
---- a/crypto/api.c
-+++ b/crypto/api.c
-@@ -339,13 +339,12 @@ static unsigned int crypto_ctxsize(struc
- 	return len;
- }
- 
--void crypto_shoot_alg(struct crypto_alg *alg)
-+static void crypto_shoot_alg(struct crypto_alg *alg)
- {
- 	down_write(&crypto_alg_sem);
- 	alg->cra_flags |= CRYPTO_ALG_DYING;
- 	up_write(&crypto_alg_sem);
- }
--EXPORT_SYMBOL_GPL(crypto_shoot_alg);
- 
- struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
- 				      u32 mask)
---- a/crypto/internal.h
-+++ b/crypto/internal.h
-@@ -84,7 +84,6 @@ void crypto_alg_tested(const char *name,
- void crypto_remove_spawns(struct crypto_alg *alg, struct list_head *list,
- 			  struct crypto_alg *nalg);
- void crypto_remove_final(struct list_head *list);
--void crypto_shoot_alg(struct crypto_alg *alg);
- struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
- 				      u32 mask);
- void *crypto_create_tfm(struct crypto_alg *alg,
 
 
