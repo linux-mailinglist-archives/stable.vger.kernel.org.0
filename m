@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7235F15C1CC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C74A215C170
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:23:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387590AbgBMP0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:26:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45692 "EHLO mail.kernel.org"
+        id S1728320AbgBMPXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387583AbgBMP0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:26:31 -0500
+        id S1728311AbgBMPXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:15 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D24624677;
-        Thu, 13 Feb 2020 15:26:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9AEE2469A;
+        Thu, 13 Feb 2020 15:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607590;
-        bh=DJ0Hz4pB36UMgbur4Sz8lMXiHAWjjzaROLPdjiNsDp8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=KQabMVtXY7G6MZievuusg4jq9RBN8W9Mw0a88nxMqR1pt0+pYtKHP9wZIeYmJAyz2
-         O0Kdn0ZK11XsrAQx1rz6x6WHwXtv9Y5aO+u55bDy8NvGkRXA4Rof2GC4IhofRtzcY3
-         d782AqN3qSADwFwkgYb1kLcx1DAcEmFda3po0Y8Q=
+        s=default; t=1581607394;
+        bh=ElxmrueDo6pLBFZlf+2NhsDNIQikV09F+er9cIAjL9A=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GubOgsVNJRrkkG1Nz1CQFhO/qRZ3SLLnIMfEAzVVQlE4EIaJkOLDh6GHc/ZzIkKdd
+         n3v8vwZAX95DwgyMkb6NMn09ghVU+rbgxOkuYoMjLmaPtO/VECtAkOIoiMcNxudvd/
+         af9/1VZn3fikTLu9VmhZ0P8wsS15FfQv9yl5lyY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/52] 4.19.104-stable review
-Date:   Thu, 13 Feb 2020 07:20:41 -0800
-Message-Id: <20200213151810.331796857@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 85/91] powerpc/pseries: Allow not having ibm, hypertas-functions::hcall-multi-tce for DDW
+Date:   Thu, 13 Feb 2020 07:20:42 -0800
+Message-Id: <20200213151855.731834682@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-MIME-Version: 1.0
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+References: <20200213151821.384445454@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.104-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.104-rc1
-X-KernelTest-Deadline: 2020-02-15T15:18+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,256 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.104 release.
-There are 52 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-Responses should be made by Sat, 15 Feb 2020 15:16:41 +0000.
-Anything received after that time might be too late.
+commit 7559d3d295f3365ea7ac0c0274c05e633fe4f594 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.104-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+By default a pseries guest supports a H_PUT_TCE hypercall which maps
+a single IOMMU page in a DMA window. Additionally the hypervisor may
+support H_PUT_TCE_INDIRECT/H_STUFF_TCE which update multiple TCEs at once;
+this is advertised via the device tree /rtas/ibm,hypertas-functions
+property which Linux converts to FW_FEATURE_MULTITCE.
 
-thanks,
+FW_FEATURE_MULTITCE is checked when dma_iommu_ops is used; however
+the code managing the huge DMA window (DDW) ignores it and calls
+H_PUT_TCE_INDIRECT even if it is explicitly disabled via
+the "multitce=off" kernel command line parameter.
 
-greg k-h
+This adds FW_FEATURE_MULTITCE checking to the DDW code path.
 
--------------
-Pseudo-Shortlog of commits:
+This changes tce_build_pSeriesLP to take liobn and page size as
+the huge window does not have iommu_table descriptor which usually
+the place to store these numbers.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.104-rc1
+Fixes: 4e8b0cf46b25 ("powerpc/pseries: Add support for dynamic dma windows")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Tested-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191216041924.42318-3-aik@ozlabs.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Peter Zijlstra <peterz@infradead.org>
-    x86/stackframe, x86/ftrace: Add pt_regs frame annotations
+---
+ arch/powerpc/platforms/pseries/iommu.c |   43 ++++++++++++++++++++++-----------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
 
-Peter Zijlstra <peterz@infradead.org>
-    x86/stackframe: Move ENCODE_FRAME_POINTER to asm/frame.h
-
-Anand Lodnoor <anand.lodnoor@broadcom.com>
-    scsi: megaraid_sas: Do not initiate OCR if controller is not in ready state
-
-Nicolai Stange <nstange@suse.de>
-    libertas: make lbs_ibss_join_existing() return error code on rates overflow
-
-Nicolai Stange <nstange@suse.de>
-    libertas: don't exit from lbs_ibss_join_existing() with RCU read lock held
-
-Qing Xu <m1s5p6688@gmail.com>
-    mwifiex: Fix possible buffer overflows in mwifiex_cmd_append_vsie_tlv()
-
-Qing Xu <m1s5p6688@gmail.com>
-    mwifiex: Fix possible buffer overflows in mwifiex_ret_wmm_get_status()
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
-
-Gustavo A. R. Silva <gustavo@embeddedor.com>
-    media: i2c: adv748x: Fix unsafe macros
-
-Eric Biggers <ebiggers@google.com>
-    crypto: atmel-sha - fix error handling when setting hmac key
-
-Eric Biggers <ebiggers@google.com>
-    crypto: artpec6 - return correct error code for failed setkey()
-
-YueHaibing <yuehaibing@huawei.com>
-    mtd: sharpslpart: Fix unsigned comparison to zero
-
-Nathan Chancellor <natechancellor@gmail.com>
-    mtd: onenand_base: Adjust indentation in onenand_read_ops_nolock
-
-Eric Auger <eric.auger@redhat.com>
-    KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is unset
-
-James Morse <james.morse@arm.com>
-    KVM: arm: Make inject_abt32() inject an external abort instead
-
-James Morse <james.morse@arm.com>
-    KVM: arm: Fix DFSR setting for non-LPAE aarch32 guests
-
-Gavin Shan <gshan@redhat.com>
-    KVM: arm/arm64: Fix young bit from mmu notifier
-
-Suzuki K Poulose <suzuki.poulose@arm.com>
-    arm64: ptrace: nofpsimd: Fail FP/SIMD regset operations
-
-Suzuki K Poulose <suzuki.poulose@arm.com>
-    arm64: cpufeature: Fix the type of no FP/SIMD capability
-
-Olof Johansson <olof@lixom.net>
-    ARM: 8949/1: mm: mark free_memmap as __init
-
-Eric Auger <eric.auger@redhat.com>
-    KVM: arm/arm64: vgic-its: Fix restoration of unmapped collections
-
-Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-    iommu/arm-smmu-v3: Populate VMID field for CMDQ_OP_TLBI_NH_VA
-
-Alexey Kardashevskiy <aik@ozlabs.ru>
-    powerpc/pseries: Allow not having ibm, hypertas-functions::hcall-multi-tce for DDW
-
-Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
-    powerpc/pseries/vio: Fix iommu_table use-after-free refcount warning
-
-Zhengyuan Liu <liuzhengyuan@kylinos.cn>
-    tools/power/acpi: fix compilation error
-
-Alexandre Belloni <alexandre.belloni@bootlin.com>
-    ARM: dts: at91: sama5d3: define clock rate range for tcb1
-
-Alexandre Belloni <alexandre.belloni@bootlin.com>
-    ARM: dts: at91: sama5d3: fix maximum peripheral clock rates
-
-Tero Kristo <t-kristo@ti.com>
-    ARM: dts: am43xx: add support for clkout1 clock
-
-Ingo van Lil <inguin@gmx.de>
-    ARM: dts: at91: Reenable UART TX pull-ups
-
-Mika Westerberg <mika.westerberg@linux.intel.com>
-    platform/x86: intel_mid_powerbtn: Take a copy of ddata
-
-Jose Abreu <Jose.Abreu@synopsys.com>
-    ARC: [plat-axs10x]: Add missing multicast filter number to GMAC node
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    rtc: cmos: Stop using shared IRQ
-
-Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-    rtc: hym8563: Return -EINVAL if the time is known to be invalid
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    spi: spi-mem: Fix inverted logic in op sanity check
-
-Boris Brezillon <boris.brezillon@bootlin.com>
-    spi: spi-mem: Add extra sanity checks on the op param
-
-Brandon Maier <Brandon.Maier@collins.com>
-    gpio: zynq: Report gpio direction at boot
-
-Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-    serial: uartps: Add a timeout to the tx empty wait
-
-Robert Milkowski <rmilkowski@gmail.com>
-    NFSv4: try lease recovery on NFS4ERR_EXPIRED
-
-Trond Myklebust <trondmy@gmail.com>
-    NFS/pnfs: Fix pnfs_generic_prepare_to_resend_writes()
-
-Trond Myklebust <trondmy@gmail.com>
-    NFS: Revalidate the file size on a fatal write error
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    nfs: NFS_SWAP should depend on SWAP
-
-Logan Gunthorpe <logang@deltatee.com>
-    PCI: Don't disable bridge BARs when assigning bus resources
-
-Logan Gunthorpe <logang@deltatee.com>
-    PCI/switchtec: Fix vep_vector_number ioread width
-
-Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-    ath10k: pci: Only dump ATH10K_MEM_REGION_TYPE_IOREG when safe
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    PCI/IOV: Fix memory leak in pci_iov_add_virtfn()
-
-Bean Huo <beanhuo@micron.com>
-    scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
-
-Michael Guralnik <michaelgur@mellanox.com>
-    RDMA/uverbs: Verify MR access flags
-
-Jason Gunthorpe <jgg@ziepe.ca>
-    RDMA/core: Fix locking in ib_uverbs_event_read
-
-Håkon Bugge <haakon.bugge@oracle.com>
-    RDMA/netlink: Do not always generate an ACK for some netlink operations
-
-Jack Morgenstein <jackm@dev.mellanox.co.il>
-    IB/mlx4: Fix memory leak in add_gid error flow
-
-Sunil Muthuswamy <sunilmut@microsoft.com>
-    hv_sock: Remove the accept port restriction
-
-Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-    ASoC: pcm: update FE/BE trigger order based on the command
-
-
--------------
-
-Diffstat:
-
- Makefile                                    |  4 +-
- arch/arc/boot/dts/axs10x_mb.dtsi            |  1 +
- arch/arm/boot/dts/am43xx-clocks.dtsi        | 54 ++++++++++++++++
- arch/arm/boot/dts/at91sam9260.dtsi          | 12 ++--
- arch/arm/boot/dts/at91sam9261.dtsi          |  6 +-
- arch/arm/boot/dts/at91sam9263.dtsi          |  6 +-
- arch/arm/boot/dts/at91sam9g45.dtsi          |  8 +--
- arch/arm/boot/dts/at91sam9rl.dtsi           |  8 +--
- arch/arm/boot/dts/sama5d3.dtsi              | 28 ++++-----
- arch/arm/boot/dts/sama5d3_can.dtsi          |  4 +-
- arch/arm/boot/dts/sama5d3_tcb1.dtsi         |  1 +
- arch/arm/boot/dts/sama5d3_uart.dtsi         |  4 +-
- arch/arm/mm/init.c                          |  2 +-
- arch/arm64/kernel/cpufeature.c              |  2 +-
- arch/arm64/kernel/ptrace.c                  | 21 +++++++
- arch/powerpc/platforms/pseries/iommu.c      | 43 ++++++++-----
- arch/powerpc/platforms/pseries/vio.c        |  2 +
- arch/x86/entry/calling.h                    | 15 -----
- arch/x86/entry/entry_32.S                   | 16 -----
- arch/x86/include/asm/frame.h                | 49 +++++++++++++++
- arch/x86/kernel/ftrace_32.S                 |  3 +
- arch/x86/kernel/ftrace_64.S                 |  3 +
- drivers/crypto/atmel-sha.c                  |  7 +--
- drivers/crypto/axis/artpec6_crypto.c        |  2 +-
- drivers/gpio/gpio-zynq.c                    | 23 +++++++
- drivers/infiniband/core/addr.c              |  2 +-
- drivers/infiniband/core/sa_query.c          |  4 +-
- drivers/infiniband/core/uverbs_main.c       | 32 +++++-----
- drivers/infiniband/hw/mlx4/main.c           | 20 ++++--
- drivers/iommu/arm-smmu-v3.c                 |  1 +
- drivers/media/i2c/adv748x/adv748x.h         |  8 +--
- drivers/mtd/nand/onenand/onenand_base.c     | 82 ++++++++++++-------------
- drivers/mtd/parsers/sharpslpart.c           |  4 +-
- drivers/net/wireless/ath/ath10k/pci.c       | 19 +++++-
- drivers/net/wireless/marvell/libertas/cfg.c |  2 +
- drivers/net/wireless/marvell/mwifiex/scan.c |  7 +++
- drivers/net/wireless/marvell/mwifiex/wmm.c  |  4 ++
- drivers/pci/iov.c                           |  9 ++-
- drivers/pci/setup-bus.c                     | 20 ++++--
- drivers/pci/switch/switchtec.c              |  2 +-
- drivers/pinctrl/sh-pfc/pfc-r8a7778.c        |  4 +-
- drivers/platform/x86/intel_mid_powerbtn.c   |  5 +-
- drivers/rtc/rtc-cmos.c                      |  2 +-
- drivers/rtc/rtc-hym8563.c                   |  2 +-
- drivers/scsi/megaraid/megaraid_sas_base.c   |  3 +-
- drivers/scsi/megaraid/megaraid_sas_fusion.c |  3 +-
- drivers/scsi/megaraid/megaraid_sas_fusion.h |  1 +
- drivers/scsi/ufs/ufshcd.c                   |  3 +-
- drivers/spi/spi-mem.c                       | 54 ++++++++++++++--
- drivers/tty/serial/xilinx_uartps.c          | 14 +++--
- fs/nfs/Kconfig                              |  2 +-
- fs/nfs/direct.c                             |  4 +-
- fs/nfs/nfs3xdr.c                            |  5 +-
- fs/nfs/nfs4proc.c                           |  5 ++
- fs/nfs/nfs4xdr.c                            |  5 +-
- fs/nfs/pnfs_nfs.c                           |  7 +--
- fs/nfs/write.c                              | 12 +++-
- include/rdma/ib_verbs.h                     |  3 +
- net/vmw_vsock/hyperv_transport.c            | 68 +++------------------
- sound/soc/soc-pcm.c                         | 95 +++++++++++++++++++++--------
- tools/power/acpi/Makefile.config            |  2 +-
- virt/kvm/arm/aarch32.c                      | 14 +++--
- virt/kvm/arm/mmu.c                          |  3 +-
- virt/kvm/arm/pmu.c                          |  3 +
- virt/kvm/arm/vgic/vgic-its.c                |  3 +-
- 65 files changed, 562 insertions(+), 300 deletions(-)
+--- a/arch/powerpc/platforms/pseries/iommu.c
++++ b/arch/powerpc/platforms/pseries/iommu.c
+@@ -202,10 +202,10 @@ static unsigned long tce_get_pseries(str
+ 	return be64_to_cpu(*tcep);
+ }
+ 
+-static void tce_free_pSeriesLP(struct iommu_table*, long, long);
++static void tce_free_pSeriesLP(unsigned long liobn, long, long);
+ static void tce_freemulti_pSeriesLP(struct iommu_table*, long, long);
+ 
+-static int tce_build_pSeriesLP(struct iommu_table *tbl, long tcenum,
++static int tce_build_pSeriesLP(unsigned long liobn, long tcenum, long tceshift,
+ 				long npages, unsigned long uaddr,
+ 				enum dma_data_direction direction,
+ 				struct dma_attrs *attrs)
+@@ -216,25 +216,25 @@ static int tce_build_pSeriesLP(struct io
+ 	int ret = 0;
+ 	long tcenum_start = tcenum, npages_start = npages;
+ 
+-	rpn = __pa(uaddr) >> TCE_SHIFT;
++	rpn = __pa(uaddr) >> tceshift;
+ 	proto_tce = TCE_PCI_READ;
+ 	if (direction != DMA_TO_DEVICE)
+ 		proto_tce |= TCE_PCI_WRITE;
+ 
+ 	while (npages--) {
+-		tce = proto_tce | (rpn & TCE_RPN_MASK) << TCE_RPN_SHIFT;
+-		rc = plpar_tce_put((u64)tbl->it_index, (u64)tcenum << 12, tce);
++		tce = proto_tce | (rpn & TCE_RPN_MASK) << tceshift;
++		rc = plpar_tce_put((u64)liobn, (u64)tcenum << tceshift, tce);
+ 
+ 		if (unlikely(rc == H_NOT_ENOUGH_RESOURCES)) {
+ 			ret = (int)rc;
+-			tce_free_pSeriesLP(tbl, tcenum_start,
++			tce_free_pSeriesLP(liobn, tcenum_start,
+ 			                   (npages_start - (npages + 1)));
+ 			break;
+ 		}
+ 
+ 		if (rc && printk_ratelimit()) {
+ 			printk("tce_build_pSeriesLP: plpar_tce_put failed. rc=%lld\n", rc);
+-			printk("\tindex   = 0x%llx\n", (u64)tbl->it_index);
++			printk("\tindex   = 0x%llx\n", (u64)liobn);
+ 			printk("\ttcenum  = 0x%llx\n", (u64)tcenum);
+ 			printk("\ttce val = 0x%llx\n", tce );
+ 			dump_stack();
+@@ -263,7 +263,8 @@ static int tce_buildmulti_pSeriesLP(stru
+ 	unsigned long flags;
+ 
+ 	if ((npages == 1) || !firmware_has_feature(FW_FEATURE_MULTITCE)) {
+-		return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
++		return tce_build_pSeriesLP(tbl->it_index, tcenum,
++					   tbl->it_page_shift, npages, uaddr,
+ 		                           direction, attrs);
+ 	}
+ 
+@@ -279,8 +280,9 @@ static int tce_buildmulti_pSeriesLP(stru
+ 		/* If allocation fails, fall back to the loop implementation */
+ 		if (!tcep) {
+ 			local_irq_restore(flags);
+-			return tce_build_pSeriesLP(tbl, tcenum, npages, uaddr,
+-					    direction, attrs);
++			return tce_build_pSeriesLP(tbl->it_index, tcenum,
++					tbl->it_page_shift,
++					npages, uaddr, direction, attrs);
+ 		}
+ 		__this_cpu_write(tce_page, tcep);
+ 	}
+@@ -331,16 +333,16 @@ static int tce_buildmulti_pSeriesLP(stru
+ 	return ret;
+ }
+ 
+-static void tce_free_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages)
++static void tce_free_pSeriesLP(unsigned long liobn, long tcenum, long npages)
+ {
+ 	u64 rc;
+ 
+ 	while (npages--) {
+-		rc = plpar_tce_put((u64)tbl->it_index, (u64)tcenum << 12, 0);
++		rc = plpar_tce_put((u64)liobn, (u64)tcenum << 12, 0);
+ 
+ 		if (rc && printk_ratelimit()) {
+ 			printk("tce_free_pSeriesLP: plpar_tce_put failed. rc=%lld\n", rc);
+-			printk("\tindex   = 0x%llx\n", (u64)tbl->it_index);
++			printk("\tindex   = 0x%llx\n", (u64)liobn);
+ 			printk("\ttcenum  = 0x%llx\n", (u64)tcenum);
+ 			dump_stack();
+ 		}
+@@ -355,7 +357,7 @@ static void tce_freemulti_pSeriesLP(stru
+ 	u64 rc;
+ 
+ 	if (!firmware_has_feature(FW_FEATURE_MULTITCE))
+-		return tce_free_pSeriesLP(tbl, tcenum, npages);
++		return tce_free_pSeriesLP(tbl->it_index, tcenum, npages);
+ 
+ 	rc = plpar_tce_stuff((u64)tbl->it_index, (u64)tcenum << 12, 0, npages);
+ 
+@@ -470,6 +472,19 @@ static int tce_setrange_multi_pSeriesLP(
+ 	u64 rc = 0;
+ 	long l, limit;
+ 
++	if (!firmware_has_feature(FW_FEATURE_MULTITCE)) {
++		unsigned long tceshift = be32_to_cpu(maprange->tce_shift);
++		unsigned long dmastart = (start_pfn << PAGE_SHIFT) +
++				be64_to_cpu(maprange->dma_base);
++		unsigned long tcenum = dmastart >> tceshift;
++		unsigned long npages = num_pfn << PAGE_SHIFT >> tceshift;
++		void *uaddr = __va(start_pfn << PAGE_SHIFT);
++
++		return tce_build_pSeriesLP(be32_to_cpu(maprange->liobn),
++				tcenum, tceshift, npages, (unsigned long) uaddr,
++				DMA_BIDIRECTIONAL, 0);
++	}
++
+ 	local_irq_disable();	/* to protect tcep and the page behind it */
+ 	tcep = __this_cpu_read(tce_page);
+ 
 
 
