@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6543D15C2FB
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13AD615C2D8
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:39:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbgBMPiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:38:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59162 "EHLO mail.kernel.org"
+        id S1728366AbgBMPhd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:37:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbgBMP3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:09 -0500
+        id S2387836AbgBMP3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:29:23 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2590F24676;
-        Thu, 13 Feb 2020 15:29:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BF042168B;
+        Thu, 13 Feb 2020 15:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607749;
-        bh=hezexXoqhoHQQYWxAbijaaWThtMnIPAMPMWTUGaVRq0=;
+        s=default; t=1581607762;
+        bh=TaFRYpriDM/AUHejBc6XrY0Ki68FPo4gvMOXwfY6+CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQSCmGFKKngHi9+mT87qff0UWT9AJ8/sIGVnyFVpNN9/Uxx1JVdRLg2DafjCWTGxB
-         JKjuxeL6ECgxS8Cw94mEMk/kyLTYtWQkW2aHaufrZdDwrLAE2Ri6oMbP7GNacWiBU/
-         tY65tavrAS9ck3w7tUrw7KW6DH2zeOM3S0uNfo30=
+        b=EAtT/UsdaUiAYbWSkMMm2b10nvtIf0s80U3yXBmIk3rylfWjR3I8jwNpj5iEbgFJH
+         OpI28jjxKI2Bd3/qmW8LA52T6ZqqfOGRsM7Wi36olUOe7A3CyWTomZmOUiIDmZlpaA
+         PpHm3SqiD8UfKNAdLm5nTMfIU/J/1DFgPteUX6sI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.5 108/120] selinux: fix regression introduced by move_mount(2) syscall
-Date:   Thu, 13 Feb 2020 07:21:44 -0800
-Message-Id: <20200213151936.963056082@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.5 109/120] pinctrl: baytrail: Allocate IRQ chip dynamic
+Date:   Thu, 13 Feb 2020 07:21:45 -0800
+Message-Id: <20200213151937.249913134@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
 References: <20200213151901.039700531@linuxfoundation.org>
@@ -44,56 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 98aa00345de54b8340dc2ddcd87f446d33387b5e upstream.
+commit 539d8bde72c22d760013bf81436d6bb94eb67aed upstream.
 
-commit 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
-introduced a new move_mount(2) system call and a corresponding new LSM
-security_move_mount hook but did not implement this hook for any existing
-LSM.  This creates a regression for SELinux with respect to consistent
-checking of mounts; the existing selinux_mount hook checks mounton
-permission to the mount point path.  Provide a SELinux hook
-implementation for move_mount that applies this same check for
-consistency.  In the future we may wish to add a new move_mount
-filesystem permission and check as well, but this addresses
-the immediate regression.
+Keeping the IRQ chip definition static shares it with multiple instances
+of the GPIO chip in the system. This is bad and now we get this warning
+from GPIO library:
 
-Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+"detected irqchip that is shared with multiple gpiochips: please fix the driver."
+
+Hence, move the IRQ chip definition from being driver static into the struct
+intel_pinctrl. So a unique IRQ chip is used for each GPIO chip instance.
+
+Fixes: 9f573b98ca50 ("pinctrl: baytrail: Update irq chip operations")
+Depends-on: ca8a958e2acb ("pinctrl: baytrail: Pass irqchip when adding gpiochip")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/selinux/hooks.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/pinctrl/intel/pinctrl-baytrail.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2762,6 +2762,14 @@ static int selinux_mount(const char *dev
- 		return path_has_perm(cred, path, FILE__MOUNTON);
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -107,6 +107,7 @@ struct byt_gpio_pin_context {
+ 
+ struct byt_gpio {
+ 	struct gpio_chip chip;
++	struct irq_chip irqchip;
+ 	struct platform_device *pdev;
+ 	struct pinctrl_dev *pctl_dev;
+ 	struct pinctrl_desc pctl_desc;
+@@ -1395,15 +1396,6 @@ static int byt_irq_type(struct irq_data
+ 	return 0;
  }
  
-+static int selinux_move_mount(const struct path *from_path,
-+			      const struct path *to_path)
-+{
-+	const struct cred *cred = current_cred();
-+
-+	return path_has_perm(cred, to_path, FILE__MOUNTON);
-+}
-+
- static int selinux_umount(struct vfsmount *mnt, int flags)
+-static struct irq_chip byt_irqchip = {
+-	.name		= "BYT-GPIO",
+-	.irq_ack	= byt_irq_ack,
+-	.irq_mask	= byt_irq_mask,
+-	.irq_unmask	= byt_irq_unmask,
+-	.irq_set_type	= byt_irq_type,
+-	.flags		= IRQCHIP_SKIP_SET_WAKE,
+-};
+-
+ static void byt_gpio_irq_handler(struct irq_desc *desc)
  {
- 	const struct cred *cred = current_cred();
-@@ -6904,6 +6912,8 @@ static struct security_hook_list selinux
- 	LSM_HOOK_INIT(sb_clone_mnt_opts, selinux_sb_clone_mnt_opts),
- 	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
+ 	struct irq_data *data = irq_desc_get_irq_data(desc);
+@@ -1551,8 +1543,15 @@ static int byt_gpio_probe(struct byt_gpi
+ 	if (irq_rc && irq_rc->start) {
+ 		struct gpio_irq_chip *girq;
  
-+	LSM_HOOK_INIT(move_mount, selinux_move_mount),
++		vg->irqchip.name = "BYT-GPIO",
++		vg->irqchip.irq_ack = byt_irq_ack,
++		vg->irqchip.irq_mask = byt_irq_mask,
++		vg->irqchip.irq_unmask = byt_irq_unmask,
++		vg->irqchip.irq_set_type = byt_irq_type,
++		vg->irqchip.flags = IRQCHIP_SKIP_SET_WAKE,
 +
- 	LSM_HOOK_INIT(dentry_init_security, selinux_dentry_init_security),
- 	LSM_HOOK_INIT(dentry_create_files_as, selinux_dentry_create_files_as),
- 
+ 		girq = &gc->irq;
+-		girq->chip = &byt_irqchip;
++		girq->chip = &vg->irqchip;
+ 		girq->init_hw = byt_gpio_irq_init_hw;
+ 		girq->parent_handler = byt_gpio_irq_handler;
+ 		girq->num_parents = 1;
 
 
