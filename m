@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 152A615C784
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3555915C724
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729613AbgBMQLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:11:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59526 "EHLO mail.kernel.org"
+        id S1727433AbgBMQHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:07:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727860AbgBMPWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:24 -0500
+        id S1727777AbgBMPXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:21 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9969C24699;
-        Thu, 13 Feb 2020 15:22:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9839A246C0;
+        Thu, 13 Feb 2020 15:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607343;
-        bh=NdlLm7yWaw3LgbtsyqnOryAaYva9na4S5TGxCK5Z3bM=;
+        s=default; t=1581607400;
+        bh=rUcEVU3gBhjHwiVrzHGmMtspZDVT+yVIgYlJpo9qhi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8w1rLyd1D/RfAU0+lC0/Fh93T04mIPSZ+wYWzG9Lmh4vL85uInXmATDxtP47aomZ
-         sZnilCoTbGL6FUGJE6Gf5Ds6CzFurXnFmABa+mdiz/RMOLgYFIFdCBJg0ibWBMfEPw
-         HwQusfktVODZrEPlzF+mLJqREG1QdKYqYjqkMe88=
+        b=DjWUBDFJuXz77d7shfDt4/agI2E4GGI38anVM1Uc8tyht6Su/lgkXmKcM85DhSc6T
+         SQ/XeW/WHqPpaQ/A6FQs0VRSpAQY5WdTs+2SB9PvgPyoY0hUGNt0SbEzKJrhZef4LE
+         TqbnvV0D6BVK0aVjaNmIsNoKaVmmak3ghC4CcExA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        "Dmitry V . Levin" <ldv@altlinux.org>,
-        Rich Felker <dalias@libc.org>, libc-alpha@sourceware.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/91] sparc32: fix struct ipc64_perm type definition
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 016/116] mfd: dln2: More sanity checking for endpoints
 Date:   Thu, 13 Feb 2020 07:19:20 -0800
-Message-Id: <20200213151822.586392184@linuxfoundation.org>
+Message-Id: <20200213151849.286887601@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 34ca70ef7d3a9fa7e89151597db5e37ae1d429b4 ]
+commit 2b8bd606b1e60ca28c765f69c1eedd7d2a2e9dca upstream.
 
-As discussed in the strace issue tracker, it appears that the sparc32
-sysvipc support has been broken for the past 11 years. It was however
-working in compat mode, which is how it must have escaped most of the
-regular testing.
+It is not enough to check for the number of endpoints.
+The types must also be correct.
 
-The problem is that a cleanup patch inadvertently changed the uid/gid
-fields in struct ipc64_perm from 32-bit types to 16-bit types in uapi
-headers.
+Reported-and-tested-by: syzbot+48a2851be24583b864dc@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Both glibc and uclibc-ng still use the original types, so they should
-work fine with compat mode, but not natively.  Change the definitions
-to use __kernel_uid32_t and __kernel_gid32_t again.
-
-Fixes: 83c86984bff2 ("sparc: unify ipcbuf.h")
-Link: https://github.com/strace/strace/issues/116
-Cc: <stable@vger.kernel.org> # v2.6.29
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Dmitry V . Levin" <ldv@altlinux.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: libc-alpha@sourceware.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/include/uapi/asm/ipcbuf.h | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/mfd/dln2.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/include/uapi/asm/ipcbuf.h b/arch/sparc/include/uapi/asm/ipcbuf.h
-index 66013b4fe10d5..58da9c4addb2d 100644
---- a/arch/sparc/include/uapi/asm/ipcbuf.h
-+++ b/arch/sparc/include/uapi/asm/ipcbuf.h
-@@ -14,19 +14,19 @@
- 
- struct ipc64_perm
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -729,6 +729,8 @@ static int dln2_probe(struct usb_interfa
+ 		      const struct usb_device_id *usb_id)
  {
--	__kernel_key_t	key;
--	__kernel_uid_t	uid;
--	__kernel_gid_t	gid;
--	__kernel_uid_t	cuid;
--	__kernel_gid_t	cgid;
-+	__kernel_key_t		key;
-+	__kernel_uid32_t	uid;
-+	__kernel_gid32_t	gid;
-+	__kernel_uid32_t	cuid;
-+	__kernel_gid32_t	cgid;
- #ifndef __arch64__
--	unsigned short	__pad0;
-+	unsigned short		__pad0;
- #endif
--	__kernel_mode_t	mode;
--	unsigned short	__pad1;
--	unsigned short	seq;
--	unsigned long long __unused1;
--	unsigned long long __unused2;
-+	__kernel_mode_t		mode;
-+	unsigned short		__pad1;
-+	unsigned short		seq;
-+	unsigned long long	__unused1;
-+	unsigned long long	__unused2;
- };
+ 	struct usb_host_interface *hostif = interface->cur_altsetting;
++	struct usb_endpoint_descriptor *epin;
++	struct usb_endpoint_descriptor *epout;
+ 	struct device *dev = &interface->dev;
+ 	struct dln2_dev *dln2;
+ 	int ret;
+@@ -738,12 +740,19 @@ static int dln2_probe(struct usb_interfa
+ 	    hostif->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
  
- #endif /* __SPARC_IPCBUF_H */
--- 
-2.20.1
-
++	epin = &hostif->endpoint[0].desc;
++	epout = &hostif->endpoint[1].desc;
++	if (!usb_endpoint_is_bulk_out(epout))
++		return -ENODEV;
++	if (!usb_endpoint_is_bulk_in(epin))
++		return -ENODEV;
++
+ 	dln2 = kzalloc(sizeof(*dln2), GFP_KERNEL);
+ 	if (!dln2)
+ 		return -ENOMEM;
+ 
+-	dln2->ep_out = hostif->endpoint[0].desc.bEndpointAddress;
+-	dln2->ep_in = hostif->endpoint[1].desc.bEndpointAddress;
++	dln2->ep_out = epout->bEndpointAddress;
++	dln2->ep_in = epin->bEndpointAddress;
+ 	dln2->usb_dev = usb_get_dev(interface_to_usbdev(interface));
+ 	dln2->interface = interface;
+ 	usb_set_intfdata(interface, dln2);
 
 
