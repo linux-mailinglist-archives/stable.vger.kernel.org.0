@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC09115C2A8
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:38:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 460E815C3B8
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729695AbgBMP3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:29:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59234 "EHLO mail.kernel.org"
+        id S2387523AbgBMP1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729689AbgBMP3P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:15 -0500
+        id S2387501AbgBMP1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:47 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 518EE2467B;
-        Thu, 13 Feb 2020 15:29:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE53C24671;
+        Thu, 13 Feb 2020 15:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607754;
-        bh=Rz7lJTFMsK3PbyJvA7oCormXXhuf2NgqQc2/DqCu1hM=;
+        s=default; t=1581607666;
+        bh=EF33hMLRm9aEOjhSrov18S2T0L95ZdTPRofYkUOn6qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jm7t3Pevjpxvp+2Aje0ck4I4tBI6vVk/neS9tnvXz8AXylubzrnI6tpSlDdifxTkL
-         9m9Kig1+nEatJida2ttPpX9TZwmlegKR88ZcSjOrIuOO/s0ySIqncWzpVTpAPwdW0x
-         U0JSHdyge9o7wOeKOQd7RW73Cu2c+dYtHSjVzA0U=
+        b=MoqG7iAeTe8sD8M/koACeB/EFULJJLTGP9Ys5J2uJm9omXTmvGDEhRXy8i4zEoi+d
+         NQd+a0UUsqEHyeW4UYNlV7xtWBz9RmMuFVZ2bt7M1b17MqQItCJV7/nZevxxeCk3FR
+         f7GHPYq3hDL+hGZ/Mp+HZ12wJnKsH1eCS97OB/Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Roullier <christophe.roullier@st.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.5 099/120] drivers: watchdog: stm32_iwdg: set WDOG_HW_RUNNING at probe
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 5.4 88/96] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
 Date:   Thu, 13 Feb 2020 07:21:35 -0800
-Message-Id: <20200213151934.223896799@linuxfoundation.org>
+Message-Id: <20200213151912.119664555@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Roullier <christophe.roullier@st.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 85fdc63fe256b595f923a69848cd99972ff446d8 upstream.
+commit 805f635703b2562b5ddd822c62fc9124087e5dd5 upstream.
 
-If the watchdog hardware is already enabled during the boot process,
-when the Linux watchdog driver loads, it should start/reset the watchdog
-and tell the watchdog framework. As a result, ping can be generated from
-the watchdog framework (if CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is set),
-until the userspace watchdog daemon takes over control
+The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
+one set of users must be wrong.  Replace them by the correct enum IDs.
 
-Fixes:4332d113c66a ("watchdog: Add STM32 IWDG driver")
-
-Signed-off-by: Christophe Roullier <christophe.roullier@st.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20191122132246.8473-1-christophe.roullier@st.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/stm32_iwdg.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/pinctrl/sh-pfc/pfc-r8a7778.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/watchdog/stm32_iwdg.c
-+++ b/drivers/watchdog/stm32_iwdg.c
-@@ -262,6 +262,24 @@ static int stm32_iwdg_probe(struct platf
- 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
- 	watchdog_init_timeout(wdd, 0, dev);
- 
-+	/*
-+	 * In case of CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED is set
-+	 * (Means U-Boot/bootloaders leaves the watchdog running)
-+	 * When we get here we should make a decision to prevent
-+	 * any side effects before user space daemon will take care of it.
-+	 * The best option, taking into consideration that there is no
-+	 * way to read values back from hardware, is to enforce watchdog
-+	 * being run with deterministic values.
-+	 */
-+	if (IS_ENABLED(CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED)) {
-+		ret = stm32_iwdg_start(wdd);
-+		if (ret)
-+			return ret;
-+
-+		/* Make sure the watchdog is serviced */
-+		set_bit(WDOG_HW_RUNNING, &wdd->status);
-+	}
-+
- 	ret = devm_watchdog_register_device(dev, wdd);
- 	if (ret)
- 		return ret;
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
+@@ -2305,7 +2305,7 @@ static const struct pinmux_cfg_reg pinmu
+ 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
+ 		/* IP0_11_8 [4] */
+ 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
+-		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
++		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
+ 		FN_PWM4_B,	0,		0,		0,
+ 		0,		0,		0,		0,
+ 		/* IP0_7_5 [3] */
+@@ -2349,7 +2349,7 @@ static const struct pinmux_cfg_reg pinmu
+ 		FN_TS_SDAT0_A,	0,		0,		0,
+ 		0,		0,		0,		0,
+ 		/* IP1_10_8 [3] */
+-		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
++		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
+ 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
+ 		/* IP1_7_5 [3] */
+ 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
 
 
