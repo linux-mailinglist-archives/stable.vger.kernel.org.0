@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA58E15C433
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD60215C4AD
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:54:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729388AbgBMP10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:27:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
+        id S1728844AbgBMPtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:49:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729076AbgBMP10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:27:26 -0500
+        id S1728878AbgBMP0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:26:42 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E486524689;
-        Thu, 13 Feb 2020 15:27:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4093224685;
+        Thu, 13 Feb 2020 15:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607645;
-        bh=r9xKMrfjsCH7A7sq9FAn3xenWtfx94nRGSwIgf1QNaw=;
+        s=default; t=1581607600;
+        bh=F+SdouQSAWB+bQPlqsWglxn4eZE/w0y84eUsZc9kWig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psCFahKrMW2fCU1KgLBuUnVOeOqLn1dwRSE+QB8P6VaZAZL98rdbJokOnbF06Kxmy
-         YRzz7NRNYU/VuhZtIeK65UUaLjEAA+z5AyFUMibMXNyKXAh4KvoOSqVM3UQqQkSusv
-         GJmBN+2soSLrU0ZILlqOqBxL5e9hmBLQaMhjMAKo=
+        b=B6HBiZqrZ2Vz00sEhZCSOVkWDJ0QiX0tR3Y3u49DvGbqGQqVldpzfaIMPrcJH01hP
+         I9VXtjNI7UfiowS1ddWYhKiHCyIsmFBaYvQUCjhQqrQlxjr/uF57phsWEgn14Sg9bh
+         RPq9reO/PPE+AnqPoxgyKph8w7nIPftIIpx1R7Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 53/96] Revert "powerpc/pseries/iommu: Dont use dma_iommu_ops on secure guests"
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 19/52] spi: spi-mem: Fix inverted logic in op sanity check
 Date:   Thu, 13 Feb 2020 07:21:00 -0800
-Message-Id: <20200213151859.926436608@linuxfoundation.org>
+Message-Id: <20200213151818.524000806@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-References: <20200213151839.156309910@linuxfoundation.org>
+In-Reply-To: <20200213151810.331796857@linuxfoundation.org>
+References: <20200213151810.331796857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ram Pai <linuxram@us.ibm.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit d862b44133b7a1d7de25288e09eabf4df415e971 upstream.
+[ Upstream commit aea3877e24f3acc6145094848dbb85f9ce85674a ]
 
-This reverts commit edea902c1c1efb855f77e041f9daf1abe7a9768a.
+On r8a7791/koelsch:
 
-At the time the change allowed direct DMA ops for secure VMs; however
-since then we switched on using SWIOTLB backed with IOMMU (direct mapping)
-and to make this work, we need dma_iommu_ops which handles all cases
-including TCE mapping I/O pages in the presence of an IOMMU.
+    m25p80 spi0.0: error -22 reading 9f
+    m25p80: probe of spi0.0 failed with error -22
 
-Fixes: edea902c1c1e ("powerpc/pseries/iommu: Don't use dma_iommu_ops on secure guests")
-Signed-off-by: Ram Pai <linuxram@us.ibm.com>
-[aik: added "revert" and "fixes:"]
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Tested-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191216041924.42318-2-aik@ozlabs.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Apparently the logic in spi_mem_check_op() is wrong, rejecting the
+spi-mem operation if any buswidth is valid, instead of invalid.
 
+Fixes: 380583227c0c7f52 ("spi: spi-mem: Add extra sanity checks on the op param")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/iommu.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/spi/spi-mem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/iommu.c
-+++ b/arch/powerpc/platforms/pseries/iommu.c
-@@ -36,7 +36,6 @@
- #include <asm/udbg.h>
- #include <asm/mmzone.h>
- #include <asm/plpar_wrappers.h>
--#include <asm/svm.h>
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index cc3d425aae56c..62a7b80801d22 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -169,10 +169,10 @@ static int spi_mem_check_op(const struct spi_mem_op *op)
+ 	    (op->data.nbytes && !op->data.buswidth))
+ 		return -EINVAL;
  
- #include "pseries.h"
+-	if (spi_mem_buswidth_is_valid(op->cmd.buswidth) ||
+-	    spi_mem_buswidth_is_valid(op->addr.buswidth) ||
+-	    spi_mem_buswidth_is_valid(op->dummy.buswidth) ||
+-	    spi_mem_buswidth_is_valid(op->data.buswidth))
++	if (!spi_mem_buswidth_is_valid(op->cmd.buswidth) ||
++	    !spi_mem_buswidth_is_valid(op->addr.buswidth) ||
++	    !spi_mem_buswidth_is_valid(op->dummy.buswidth) ||
++	    !spi_mem_buswidth_is_valid(op->data.buswidth))
+ 		return -EINVAL;
  
-@@ -1320,15 +1319,7 @@ void iommu_init_early_pSeries(void)
- 	of_reconfig_notifier_register(&iommu_reconfig_nb);
- 	register_memory_notifier(&iommu_mem_nb);
- 
--	/*
--	 * Secure guest memory is inacessible to devices so regular DMA isn't
--	 * possible.
--	 *
--	 * In that case keep devices' dma_map_ops as NULL so that the generic
--	 * DMA code path will use SWIOTLB to bounce buffers for DMA.
--	 */
--	if (!is_secure_guest())
--		set_pci_dma_ops(&dma_iommu_ops);
-+	set_pci_dma_ops(&dma_iommu_ops);
- }
- 
- static int __init disable_multitce(char *str)
+ 	return 0;
+-- 
+2.20.1
+
 
 
