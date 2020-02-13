@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE8615C768
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2D615C712
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727347AbgBMQK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:10:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
+        id S1728416AbgBMQGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:06:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728003AbgBMPWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:22:37 -0500
+        id S1728415AbgBMPXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:33 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB20024689;
-        Thu, 13 Feb 2020 15:22:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 918CA24699;
+        Thu, 13 Feb 2020 15:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607355;
-        bh=1Iizuofl1M9QTJuqeATp+FLhwr0NT7Oa3L7BrSWjUnQ=;
+        s=default; t=1581607412;
+        bh=i51N5vsJGfbRUtDCnYlXm5BfBaOKh4rrwDhVWr/Xjdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFOr7qY51QvB8lHooFAGSknunz24tPiQurPIfa0G4QwXUkaF2cK+OSHezfZDgvq/Z
-         z0o2gmmAKW1/9e32el0nLOfk4Xw6rn1RjzLPVjGkLbs46LilriZwZWVkrfdJOdzgDN
-         hTx3AVpxkEqNErrOBHamjhYCzfkIrfhh2MBfH4vc=
+        b=2iRNThiqifqKJsmiuONBBig9/TZ2q6d+yWUPk/vM8iXrAqBg9FquY9aR0QAoWo4rl
+         h/vmJ7xrS9iwTJRUbmtr7U/yFHft2OGsJtpJBdF1x3leiIxaH5d41OWedOTrksg3Mo
+         o3Kez9YXknfr92fFg5IqJtbwNtIUYwqHId25VUG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 22/91] scsi: qla2xxx: Fix mtcp dump collection failure
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 035/116] padata: Remove broken queue flushing
 Date:   Thu, 13 Feb 2020 07:19:39 -0800
-Message-Id: <20200213151830.210127935@linuxfoundation.org>
+Message-Id: <20200213151856.812892483@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
-References: <20200213151821.384445454@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 641e0efddcbde52461e017136acd3ce7f2ef0c14 upstream.
+[ Upstream commit 07928d9bfc81640bab36f5190e8725894d93b659 ]
 
-MTCP dump failed due to MB Reg 10 was picking garbage data from stack
-memory.
+The function padata_flush_queues is fundamentally broken because
+it cannot force padata users to complete the request that is
+underway.  IOW padata has to passively wait for the completion
+of any outstanding work.
 
-Fixes: 81178772b636a ("[SCSI] qla2xxx: Implemetation of mctp.")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191217220617.28084-14-hmadhani@marvell.com
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As it stands flushing is used in two places.  Its use in padata_stop
+is simply unnecessary because nothing depends on the queues to
+be flushed afterwards.
 
+The other use in padata_replace is more substantial as we depend
+on it to free the old pd structure.  This patch instead uses the
+pd->refcnt to dynamically free the pd structure once all requests
+are complete.
+
+Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/padata.c | 46 ++++++++++++----------------------------------
+ 1 file changed, 12 insertions(+), 34 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -5455,9 +5455,8 @@ qla2x00_dump_mctp_data(scsi_qla_host_t *
- 	mcp->mb[7] = LSW(MSD(req_dma));
- 	mcp->mb[8] = MSW(addr);
- 	/* Setting RAM ID to valid */
--	mcp->mb[10] |= BIT_7;
- 	/* For MCTP RAM ID is 0x40 */
--	mcp->mb[10] |= 0x40;
-+	mcp->mb[10] = BIT_7 | 0x40;
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 63449fc584daf..9ba611b42abac 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -34,6 +34,8 @@
  
- 	mcp->out_mb |= MBX_10|MBX_8|MBX_7|MBX_6|MBX_5|MBX_4|MBX_3|MBX_2|MBX_1|
- 	    MBX_0;
+ #define MAX_OBJ_NUM 1000
+ 
++static void padata_free_pd(struct parallel_data *pd);
++
+ static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
+ {
+ 	int cpu, target_cpu;
+@@ -301,6 +303,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 	struct padata_serial_queue *squeue;
+ 	struct parallel_data *pd;
+ 	LIST_HEAD(local_list);
++	int cnt;
+ 
+ 	local_bh_disable();
+ 	squeue = container_of(serial_work, struct padata_serial_queue, work);
+@@ -310,6 +313,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 	list_replace_init(&squeue->serial.list, &local_list);
+ 	spin_unlock(&squeue->serial.lock);
+ 
++	cnt = 0;
++
+ 	while (!list_empty(&local_list)) {
+ 		struct padata_priv *padata;
+ 
+@@ -319,9 +324,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 		list_del_init(&padata->list);
+ 
+ 		padata->serial(padata);
+-		atomic_dec(&pd->refcnt);
++		cnt++;
+ 	}
+ 	local_bh_enable();
++
++	if (atomic_sub_and_test(cnt, &pd->refcnt))
++		padata_free_pd(pd);
+ }
+ 
+ /**
+@@ -444,8 +452,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
+ 	setup_timer(&pd->timer, padata_reorder_timer, (unsigned long)pd);
+ 	atomic_set(&pd->seq_nr, -1);
+ 	atomic_set(&pd->reorder_objects, 0);
+-	atomic_set(&pd->refcnt, 0);
+-	pd->pinst = pinst;
++	atomic_set(&pd->refcnt, 1);
+ 	spin_lock_init(&pd->lock);
+ 
+ 	return pd;
+@@ -469,31 +476,6 @@ static void padata_free_pd(struct parallel_data *pd)
+ 	kfree(pd);
+ }
+ 
+-/* Flush all objects out of the padata queues. */
+-static void padata_flush_queues(struct parallel_data *pd)
+-{
+-	int cpu;
+-	struct padata_parallel_queue *pqueue;
+-	struct padata_serial_queue *squeue;
+-
+-	for_each_cpu(cpu, pd->cpumask.pcpu) {
+-		pqueue = per_cpu_ptr(pd->pqueue, cpu);
+-		flush_work(&pqueue->work);
+-	}
+-
+-	del_timer_sync(&pd->timer);
+-
+-	if (atomic_read(&pd->reorder_objects))
+-		padata_reorder(pd);
+-
+-	for_each_cpu(cpu, pd->cpumask.cbcpu) {
+-		squeue = per_cpu_ptr(pd->squeue, cpu);
+-		flush_work(&squeue->work);
+-	}
+-
+-	BUG_ON(atomic_read(&pd->refcnt) != 0);
+-}
+-
+ static void __padata_start(struct padata_instance *pinst)
+ {
+ 	pinst->flags |= PADATA_INIT;
+@@ -507,10 +489,6 @@ static void __padata_stop(struct padata_instance *pinst)
+ 	pinst->flags &= ~PADATA_INIT;
+ 
+ 	synchronize_rcu();
+-
+-	get_online_cpus();
+-	padata_flush_queues(pinst->pd);
+-	put_online_cpus();
+ }
+ 
+ /* Replace the internal control structure with a new one. */
+@@ -531,8 +509,8 @@ static void padata_replace(struct padata_instance *pinst,
+ 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
+ 		notification_mask |= PADATA_CPU_SERIAL;
+ 
+-	padata_flush_queues(pd_old);
+-	padata_free_pd(pd_old);
++	if (atomic_dec_and_test(&pd_old->refcnt))
++		padata_free_pd(pd_old);
+ 
+ 	if (notification_mask)
+ 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
+-- 
+2.20.1
+
 
 
