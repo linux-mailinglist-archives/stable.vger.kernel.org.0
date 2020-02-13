@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF5D15C742
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E2F15C587
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728218AbgBMQIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:08:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33382 "EHLO mail.kernel.org"
+        id S1728235AbgBMPXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728219AbgBMPXB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:01 -0500
+        id S1728222AbgBMPXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:02 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43F9424699;
+        by mail.kernel.org (Postfix) with ESMTPSA id E60902469A;
         Thu, 13 Feb 2020 15:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607381;
-        bh=mI6jafeU6zIiuC+1CW1GrQ6YSAm34TlC8SVlyGH4GoE=;
+        s=default; t=1581607382;
+        bh=c37catCXQ/yGhz6D+YLiRTmWKuW5Gr2suXO/MLMWmkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMzqvqBtZN5jmGrO2OdiKU1cnryTB7EZxdEMjEyMdyZv+xwIiF4yg3Ldn4NKchEch
-         DrmaFxHYk+CiI0mJtbqduwpTG6zhcTBiQaiHQ/06z/W1mQrr69dC5AWGX2o05YPhs9
-         +01bJwIOgLREN0JIKl0V1UuwbXamZPCsDcwE5f8g=
+        b=1CcbJCivwBZw7flxuI4TL164MftH8vN7LosbyHDpuUfSggO1z7GHRij5BnfJC6KGM
+         jq6LK67G9KM4iFSWGyDj4TXa2Iid9qtIm0O7qDiwkg6wyqpG7+HYd+/DjjQ6cZRZHp
+         xgByFttSOeDWQm2kKhcqtXoIRR7WGn3Xr0IgiEa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Meyer <thomas@m3y3r.de>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 61/91] NFS: Fix bool initialization/comparison
-Date:   Thu, 13 Feb 2020 07:20:18 -0800
-Message-Id: <20200213151845.653541388@linuxfoundation.org>
+Subject: [PATCH 4.4 62/91] NFS: Directory page cache pages need to be locked when read
+Date:   Thu, 13 Feb 2020 07:20:19 -0800
+Message-Id: <20200213151846.058632156@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
 References: <20200213151821.384445454@linuxfoundation.org>
@@ -44,97 +46,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Meyer <thomas@m3y3r.de>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit 6089dd0d731028531fb1148be9fd33274ff90da4 ]
+[ Upstream commit 114de38225d9b300f027e2aec9afbb6e0def154b ]
 
-Bool initializations should use true and false. Bool tests don't need
-comparisons.
+When a NFS directory page cache page is removed from the page cache,
+its contents are freed through a call to nfs_readdir_clear_array().
+To prevent the removal of the page cache entry until after we've
+finished reading it, we must take the page lock.
 
-Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+Fixes: 11de3b11e08c ("NFS: Fix a memory leak in nfs_readdir")
+Cc: stable@vger.kernel.org # v2.6.37+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/callback_proc.c |  2 +-
- fs/nfs/dir.c           | 10 +++++-----
- fs/nfs/nfs4client.c    |  2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ fs/nfs/dir.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index 807eb6ef4f916..6f4f68967c310 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -368,7 +368,7 @@ static bool referring_call_exists(struct nfs_client *clp,
- 				  uint32_t nrclists,
- 				  struct referring_call_list *rclists)
- {
--	bool status = 0;
-+	bool status = false;
- 	int i, j;
- 	struct nfs4_session *session;
- 	struct nfs4_slot_table *tbl;
 diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 5fae07590c3a9..e2927aeb092d0 100644
+index e2927aeb092d0..2ac3d2527ad20 100644
 --- a/fs/nfs/dir.c
 +++ b/fs/nfs/dir.c
-@@ -289,7 +289,7 @@ int nfs_readdir_search_for_pos(struct nfs_cache_array *array, nfs_readdir_descri
- 	desc->cache_entry_index = index;
- 	return 0;
- out_eof:
--	desc->eof = 1;
-+	desc->eof = true;
- 	return -EBADCOOKIE;
+@@ -720,8 +720,6 @@ int nfs_readdir_filler(nfs_readdir_descriptor_t *desc, struct page* page)
+ static
+ void cache_page_release(nfs_readdir_descriptor_t *desc)
+ {
+-	if (!desc->page->mapping)
+-		nfs_readdir_clear_array(desc->page);
+ 	page_cache_release(desc->page);
+ 	desc->page = NULL;
+ }
+@@ -735,19 +733,28 @@ struct page *get_cache_page(nfs_readdir_descriptor_t *desc)
+ 
+ /*
+  * Returns 0 if desc->dir_cookie was found on page desc->page_index
++ * and locks the page to prevent removal from the page cache.
+  */
+ static
+-int find_cache_page(nfs_readdir_descriptor_t *desc)
++int find_and_lock_cache_page(nfs_readdir_descriptor_t *desc)
+ {
+ 	int res;
+ 
+ 	desc->page = get_cache_page(desc);
+ 	if (IS_ERR(desc->page))
+ 		return PTR_ERR(desc->page);
+-
+-	res = nfs_readdir_search_array(desc);
++	res = lock_page_killable(desc->page);
+ 	if (res != 0)
+-		cache_page_release(desc);
++		goto error;
++	res = -EAGAIN;
++	if (desc->page->mapping != NULL) {
++		res = nfs_readdir_search_array(desc);
++		if (res == 0)
++			return 0;
++	}
++	unlock_page(desc->page);
++error:
++	cache_page_release(desc);
+ 	return res;
  }
  
-@@ -343,7 +343,7 @@ int nfs_readdir_search_for_cookie(struct nfs_cache_array *array, nfs_readdir_des
- 	if (array->eof_index >= 0) {
- 		status = -EBADCOOKIE;
- 		if (*desc->dir_cookie == array->last_cookie)
--			desc->eof = 1;
-+			desc->eof = true;
+@@ -762,7 +769,7 @@ int readdir_search_pagecache(nfs_readdir_descriptor_t *desc)
+ 		desc->last_cookie = 0;
  	}
- out:
- 	return status;
-@@ -791,7 +791,7 @@ int nfs_do_filldir(nfs_readdir_descriptor_t *desc)
- 		ent = &array->array[i];
- 		if (!dir_emit(desc->ctx, ent->string.name, ent->string.len,
- 		    nfs_compat_user_ino64(ent->ino), ent->d_type)) {
--			desc->eof = 1;
-+			desc->eof = true;
- 			break;
- 		}
- 		desc->ctx->pos++;
-@@ -803,7 +803,7 @@ int nfs_do_filldir(nfs_readdir_descriptor_t *desc)
- 			ctx->duped = 1;
- 	}
- 	if (array->eof_index >= 0)
--		desc->eof = 1;
-+		desc->eof = true;
+ 	do {
+-		res = find_cache_page(desc);
++		res = find_and_lock_cache_page(desc);
+ 	} while (res == -EAGAIN);
+ 	return res;
+ }
+@@ -807,7 +814,6 @@ int nfs_do_filldir(nfs_readdir_descriptor_t *desc)
  
  	nfs_readdir_release_array(desc->page);
  out:
-@@ -905,7 +905,7 @@ static int nfs_readdir(struct file *file, struct dir_context *ctx)
- 		if (res == -EBADCOOKIE) {
- 			res = 0;
- 			/* This means either end of directory */
--			if (*desc->dir_cookie && desc->eof == 0) {
-+			if (*desc->dir_cookie && !desc->eof) {
- 				/* Or that the server has 'lost' a cookie */
- 				res = uncached_readdir(desc);
- 				if (res == 0)
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index dac20f31f01f8..92895f41d9a0f 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -751,7 +751,7 @@ nfs4_find_client_sessionid(struct net *net, const struct sockaddr *addr,
+-	cache_page_release(desc);
+ 	dfprintk(DIRCACHE, "NFS: nfs_do_filldir() filling ended @ cookie %Lu; returning = %d\n",
+ 			(unsigned long long)*desc->dir_cookie, res);
+ 	return res;
+@@ -853,13 +859,13 @@ int uncached_readdir(nfs_readdir_descriptor_t *desc)
  
- 	spin_lock(&nn->nfs_client_lock);
- 	list_for_each_entry(clp, &nn->nfs_client_list, cl_share_link) {
--		if (nfs4_cb_match_client(addr, clp, minorversion) == false)
-+		if (!nfs4_cb_match_client(addr, clp, minorversion))
- 			continue;
+ 	status = nfs_do_filldir(desc);
  
- 		if (!nfs4_has_session(clp))
++ out_release:
++	nfs_readdir_clear_array(desc->page);
++	cache_page_release(desc);
+  out:
+ 	dfprintk(DIRCACHE, "NFS: %s: returns %d\n",
+ 			__func__, status);
+ 	return status;
+- out_release:
+-	cache_page_release(desc);
+-	goto out;
+ }
+ 
+ /* The file offset position represents the dirent entry number.  A
+@@ -925,6 +931,8 @@ static int nfs_readdir(struct file *file, struct dir_context *ctx)
+ 			break;
+ 
+ 		res = nfs_do_filldir(desc);
++		unlock_page(desc->page);
++		cache_page_release(desc);
+ 		if (res < 0)
+ 			break;
+ 	} while (!desc->eof);
 -- 
 2.20.1
 
