@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2054A15C36A
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15BB715C42F
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729173AbgBMPlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:41:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1729359AbgBMP1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:27:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387730AbgBMP2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:28:35 -0500
+        id S1729355AbgBMP1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:18 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53A9C24670;
-        Thu, 13 Feb 2020 15:28:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3BFF24670;
+        Thu, 13 Feb 2020 15:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607714;
-        bh=WwMWopCX5Uq8MXSKhvMYkBKWyMFv8TndcuJiHSuffrU=;
+        s=default; t=1581607638;
+        bh=IrTAExo0GMcygchAtn0puJ0Ay//ICD8FkZHzXTXCYGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhYvHa1TNltMQ1nkkefRwCCq6SDLTPHFR8ySwG9XWbfwIQv5HJSa4zlWo3GnsMaGG
-         2tbHaxf8nPLxnGYtM7BNiHiYxAWvyjmiw+oUFi7xDP4wHs47ImS2II9lKmtoGLwn4F
-         etI3OtgEJNEgmPAcMqHubGKpk2v+CQCOoED7JreU=
+        b=gkd6V+7PxGzTdwJpT0b0+HLCvyRqi/0OTC6757ByotR3sl5ZukaDaBw9Ahg+5qXM4
+         5sPM7eVoA6h/58ihyWB2RgIUsF6vucR7NaaKUdSc4XK6zyUofcXbceXSThIJgeeYhM
+         YXuKEl8/TwEU49rZCS6w4ojqStX0SB7BeumKwBg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Quentin Monnet <quentin@isovalent.com>
-Subject: [PATCH 5.5 036/120] bpftool: Dont crash on missing xlated program instructions
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.4 25/96] bpf: Improve bucket_log calculation logic
 Date:   Thu, 13 Feb 2020 07:20:32 -0800
-Message-Id: <20200213151914.120750684@linuxfoundation.org>
+Message-Id: <20200213151848.861853002@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Martin KaFai Lau <kafai@fb.com>
 
-commit d95f1e8b462c4372ac409886070bb8719d8a4d3a upstream.
+commit 88d6f130e5632bbf419a2e184ec7adcbe241260b upstream.
 
-Turns out the xlated program instructions can also be missing if
-kptr_restrict sysctl is set. This means that the previous fix to check the
-jited_prog_insns pointer was insufficient; add another check of the
-xlated_prog_insns pointer as well.
+It was reported that the max_t, ilog2, and roundup_pow_of_two macros have
+exponential effects on the number of states in the sparse checker.
 
-Fixes: 5b79bcdf0362 ("bpftool: Don't crash on missing jited insns or ksyms")
-Fixes: cae73f233923 ("bpftool: use bpf_program__get_prog_info_linear() in prog.c:do_dump()")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+This patch breaks them up by calculating the "nbuckets" first so that the
+"bucket_log" only needs to take ilog2().
+
+In addition, Linus mentioned:
+
+  Patch looks good, but I'd like to point out that it's not just sparse.
+
+  You can see it with a simple
+
+    make net/core/bpf_sk_storage.i
+    grep 'smap->bucket_log = ' net/core/bpf_sk_storage.i | wc
+
+  and see the end result:
+
+      1  365071 2686974
+
+  That's one line (the assignment line) that is 2,686,974 characters in
+  length.
+
+  Now, sparse does happen to react particularly badly to that (I didn't
+  look to why, but I suspect it's just that evaluating all the types
+  that don't actually ever end up getting used ends up being much more
+  expensive than it should be), but I bet it's not good for gcc either.
+
+Fixes: 6ac99e8f23d4 ("bpf: Introduce bpf sk local storage")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Link: https://lore.kernel.org/bpf/20200206102906.112551-1-toke@redhat.com
+Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Link: https://lore.kernel.org/bpf/20200207081810.3918919-1-kafai@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/bpf/bpftool/prog.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/bpf_sk_storage.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/tools/bpf/bpftool/prog.c
-+++ b/tools/bpf/bpftool/prog.c
-@@ -500,7 +500,7 @@ static int do_dump(int argc, char **argv
- 		buf = (unsigned char *)(info->jited_prog_insns);
- 		member_len = info->jited_prog_len;
- 	} else {	/* DUMP_XLATED */
--		if (info->xlated_prog_len == 0) {
-+		if (info->xlated_prog_len == 0 || !info->xlated_prog_insns) {
- 			p_err("error retrieving insn dump: kernel.kptr_restrict set?");
- 			goto err_free;
- 		}
+--- a/net/core/bpf_sk_storage.c
++++ b/net/core/bpf_sk_storage.c
+@@ -643,9 +643,10 @@ static struct bpf_map *bpf_sk_storage_ma
+ 		return ERR_PTR(-ENOMEM);
+ 	bpf_map_init_from_attr(&smap->map, attr);
+ 
++	nbuckets = roundup_pow_of_two(num_possible_cpus());
+ 	/* Use at least 2 buckets, select_bucket() is undefined behavior with 1 bucket */
+-	smap->bucket_log = max_t(u32, 1, ilog2(roundup_pow_of_two(num_possible_cpus())));
+-	nbuckets = 1U << smap->bucket_log;
++	nbuckets = max_t(u32, 2, nbuckets);
++	smap->bucket_log = ilog2(nbuckets);
+ 	cost = sizeof(*smap->buckets) * nbuckets + sizeof(*smap);
+ 
+ 	ret = bpf_map_charge_init(&smap->map.memory, cost);
 
 
