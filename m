@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9158115C542
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:55:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA1915C381
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388255AbgBMPyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:54:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42754 "EHLO mail.kernel.org"
+        id S1729397AbgBMPlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:41:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729113AbgBMPZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:53 -0500
+        id S1728574AbgBMP23 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:28:29 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 419032469A;
-        Thu, 13 Feb 2020 15:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA349218AC;
+        Thu, 13 Feb 2020 15:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607553;
-        bh=bZLNbdWM+R++4x+FGREdTx1p1LRAKEtoH6Ebaj6xYDs=;
+        s=default; t=1581607708;
+        bh=viXTubHjJJdfgCqMA5HPg8I1RXnkt7yCOCPd1SL12Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZN+teDUUD5CpKKzCS/SeJHWwQ0aUZ0oW0AlwfacNW3tjPEVnH4owCzqVsaU4IW+G8
-         GaKoju7AjxEmqOB16/22M69HUK85AiUOIF8iqx4OoX/oodPV0CF7BmRWOCWq+nyuaa
-         ZtHcmB3+bmzQRmjamNpK/QDEFyJGrTt5hsVBIbME=
+        b=bzU93SaDbBxT7zL6KUN+SJCXzlsM8Jqz+64Vq8J0LcihJ7+6tvcgeEYhuE83L3q8T
+         iOkE5Z6MYlHm7nOK/wZbwv8JZc4cQjEyLRRNJjT/L6y7TtHrRYthIfBLKE2A0ZJpCk
+         YEiGXyXQidt+lfwKkfUiMwQGW8nvw2wn7OlX8rug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 137/173] cifs: fail i/o on soft mounts if sessionsetup errors out
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.5 044/120] netdevsim: disable devlink reload when resources are being used
 Date:   Thu, 13 Feb 2020 07:20:40 -0800
-Message-Id: <20200213152006.417267003@linuxfoundation.org>
+Message-Id: <20200213151916.567946868@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+References: <20200213151901.039700531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit b0dd940e582b6a60296b9847a54012a4b080dc72 upstream.
+commit 6ab63366e1ec4ec1900f253aa64727b4b5f4ee73 upstream.
 
-RHBZ: 1579050
+devlink reload destroys resources and allocates resources again.
+So, when devices and ports resources are being used, devlink reload
+function should not be executed. In order to avoid this race, a new
+lock is added and new_port() and del_port() call devlink_reload_disable()
+and devlink_reload_enable().
 
-If we have a soft mount we should fail commands for session-setup
-failures (such as the password having changed/ account being deleted/ ...)
-and return an error back to the application.
+Thread0                      Thread1
+{new/del}_port()             {new/del}_port()
+devlink_reload_disable()
+                             devlink_reload_disable()
+devlink_reload_enable()
+                             //here
+                             devlink_reload_enable()
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
+Before Thread1's devlink_reload_enable(), the devlink is already allowed
+to execute reload because Thread0 allows it. devlink reload disable/enable
+variable type is bool. So the above case would exist.
+So, disable/enable should be executed atomically.
+In order to do that, a new lock is used.
+
+Test commands:
+    modprobe netdevsim
+    echo 1 > /sys/bus/netdevsim/new_device
+    while :
+    do
+        echo 1 > /sys/devices/netdevsim1/new_port &
+        echo 1 > /sys/devices/netdevsim1/del_port &
+        devlink dev reload netdevsim/netdevsim1 &
+    done
+
+Splat looks like:
+[   23.342145][  T932] DEBUG_LOCKS_WARN_ON(mutex_is_locked(lock))
+[   23.342159][  T932] WARNING: CPU: 0 PID: 932 at kernel/locking/mutex-debug.c:103 mutex_destroy+0xc7/0xf0
+[   23.344182][  T932] Modules linked in: netdevsim openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_dx
+[   23.346485][  T932] CPU: 0 PID: 932 Comm: devlink Not tainted 5.5.0+ #322
+[   23.347696][  T932] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   23.348893][  T932] RIP: 0010:mutex_destroy+0xc7/0xf0
+[   23.349505][  T932] Code: e0 07 83 c0 03 38 d0 7c 04 84 d2 75 2e 8b 05 00 ac b0 02 85 c0 75 8b 48 c7 c6 00 5e 07 96 40
+[   23.351887][  T932] RSP: 0018:ffff88806208f810 EFLAGS: 00010286
+[   23.353963][  T932] RAX: dffffc0000000008 RBX: ffff888067f6f2c0 RCX: ffffffff942c4bd4
+[   23.355222][  T932] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff96dac5b4
+[   23.356169][  T932] RBP: ffff888067f6f000 R08: fffffbfff2d235a5 R09: fffffbfff2d235a5
+[   23.357160][  T932] R10: 0000000000000001 R11: fffffbfff2d235a4 R12: ffff888067f6f208
+[   23.358288][  T932] R13: ffff88806208fa70 R14: ffff888067f6f000 R15: ffff888069ce3800
+[   23.359307][  T932] FS:  00007fe2a3876740(0000) GS:ffff88806c000000(0000) knlGS:0000000000000000
+[   23.360473][  T932] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   23.361319][  T932] CR2: 00005561357aa000 CR3: 000000005227a006 CR4: 00000000000606f0
+[   23.362323][  T932] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   23.363417][  T932] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   23.364414][  T932] Call Trace:
+[   23.364828][  T932]  nsim_dev_reload_destroy+0x77/0xb0 [netdevsim]
+[   23.365655][  T932]  nsim_dev_reload_down+0x84/0xb0 [netdevsim]
+[   23.366433][  T932]  devlink_reload+0xb1/0x350
+[   23.367010][  T932]  genl_rcv_msg+0x580/0xe90
+
+[ ...]
+
+[   23.531729][ T1305] kernel BUG at lib/list_debug.c:53!
+[   23.532523][ T1305] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+[   23.533467][ T1305] CPU: 2 PID: 1305 Comm: bash Tainted: G        W         5.5.0+ #322
+[   23.534962][ T1305] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   23.536503][ T1305] RIP: 0010:__list_del_entry_valid+0xe6/0x150
+[   23.538346][ T1305] Code: 89 ea 48 c7 c7 00 73 1e 96 e8 df f7 4c ff 0f 0b 48 c7 c7 60 73 1e 96 e8 d1 f7 4c ff 0f 0b 44
+[   23.541068][ T1305] RSP: 0018:ffff888047c27b58 EFLAGS: 00010282
+[   23.542001][ T1305] RAX: 0000000000000054 RBX: ffff888067f6f318 RCX: 0000000000000000
+[   23.543051][ T1305] RDX: 0000000000000054 RSI: 0000000000000008 RDI: ffffed1008f84f61
+[   23.544072][ T1305] RBP: ffff88804aa0fca0 R08: ffffed100d940539 R09: ffffed100d940539
+[   23.545085][ T1305] R10: 0000000000000001 R11: ffffed100d940538 R12: ffff888047c27cb0
+[   23.546422][ T1305] R13: ffff88806208b840 R14: ffffffff981976c0 R15: ffff888067f6f2c0
+[   23.547406][ T1305] FS:  00007f76c0431740(0000) GS:ffff88806c800000(0000) knlGS:0000000000000000
+[   23.548527][ T1305] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   23.549389][ T1305] CR2: 00007f5048f1a2f8 CR3: 000000004b310006 CR4: 00000000000606e0
+[   23.550636][ T1305] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   23.551578][ T1305] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   23.552597][ T1305] Call Trace:
+[   23.553004][ T1305]  mutex_remove_waiter+0x101/0x520
+[   23.553646][ T1305]  __mutex_lock+0xac7/0x14b0
+[   23.554218][ T1305]  ? nsim_dev_port_del+0x4e/0x140 [netdevsim]
+[   23.554908][ T1305]  ? mutex_lock_io_nested+0x1380/0x1380
+[   23.555570][ T1305]  ? _parse_integer+0xf0/0xf0
+[   23.556043][ T1305]  ? kstrtouint+0x86/0x110
+[   23.556504][ T1305]  ? nsim_dev_port_del+0x4e/0x140 [netdevsim]
+[   23.557133][ T1305]  nsim_dev_port_del+0x4e/0x140 [netdevsim]
+[   23.558024][ T1305]  del_port_store+0xcc/0xf0 [netdevsim]
+[ ... ]
+
+Fixes: 75ba029f3c07 ("netdevsim: implement proper devlink reload")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2pdu.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/netdevsim/bus.c       |   19 +++++++++++++++++++
+ drivers/net/netdevsim/netdevsim.h |    2 ++
+ 2 files changed, 21 insertions(+)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -257,9 +257,14 @@ smb2_reconnect(__le16 smb2_command, stru
- 	}
+--- a/drivers/net/netdevsim/bus.c
++++ b/drivers/net/netdevsim/bus.c
+@@ -97,6 +97,8 @@ new_port_store(struct device *dev, struc
+ 	       const char *buf, size_t count)
+ {
+ 	struct nsim_bus_dev *nsim_bus_dev = to_nsim_bus_dev(dev);
++	struct nsim_dev *nsim_dev = dev_get_drvdata(dev);
++	struct devlink *devlink;
+ 	unsigned int port_index;
+ 	int ret;
  
- 	rc = cifs_negotiate_protocol(0, tcon->ses);
--	if (!rc && tcon->ses->need_reconnect)
-+	if (!rc && tcon->ses->need_reconnect) {
- 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
--
-+		if ((rc == -EACCES) && !tcon->retry) {
-+			rc = -EHOSTDOWN;
-+			mutex_unlock(&tcon->ses->session_mutex);
-+			goto failed;
-+		}
-+	}
- 	if (rc || !tcon->need_reconnect) {
- 		mutex_unlock(&tcon->ses->session_mutex);
- 		goto out;
-@@ -301,6 +306,7 @@ out:
- 	case SMB2_SET_INFO:
- 		rc = -EAGAIN;
- 	}
-+failed:
- 	unload_nls(nls_codepage);
- 	return rc;
+@@ -106,7 +108,14 @@ new_port_store(struct device *dev, struc
+ 	ret = kstrtouint(buf, 0, &port_index);
+ 	if (ret)
+ 		return ret;
++
++	devlink = priv_to_devlink(nsim_dev);
++
++	mutex_lock(&nsim_bus_dev->nsim_bus_reload_lock);
++	devlink_reload_disable(devlink);
+ 	ret = nsim_dev_port_add(nsim_bus_dev, port_index);
++	devlink_reload_enable(devlink);
++	mutex_unlock(&nsim_bus_dev->nsim_bus_reload_lock);
+ 	return ret ? ret : count;
  }
+ 
+@@ -117,6 +126,8 @@ del_port_store(struct device *dev, struc
+ 	       const char *buf, size_t count)
+ {
+ 	struct nsim_bus_dev *nsim_bus_dev = to_nsim_bus_dev(dev);
++	struct nsim_dev *nsim_dev = dev_get_drvdata(dev);
++	struct devlink *devlink;
+ 	unsigned int port_index;
+ 	int ret;
+ 
+@@ -126,7 +137,14 @@ del_port_store(struct device *dev, struc
+ 	ret = kstrtouint(buf, 0, &port_index);
+ 	if (ret)
+ 		return ret;
++
++	devlink = priv_to_devlink(nsim_dev);
++
++	mutex_lock(&nsim_bus_dev->nsim_bus_reload_lock);
++	devlink_reload_disable(devlink);
+ 	ret = nsim_dev_port_del(nsim_bus_dev, port_index);
++	devlink_reload_enable(devlink);
++	mutex_unlock(&nsim_bus_dev->nsim_bus_reload_lock);
+ 	return ret ? ret : count;
+ }
+ 
+@@ -311,6 +329,7 @@ nsim_bus_dev_new(unsigned int id, unsign
+ 	nsim_bus_dev->dev.type = &nsim_bus_dev_type;
+ 	nsim_bus_dev->port_count = port_count;
+ 	nsim_bus_dev->initial_net = current->nsproxy->net_ns;
++	mutex_init(&nsim_bus_dev->nsim_bus_reload_lock);
+ 	/* Disallow using nsim_bus_dev */
+ 	smp_store_release(&nsim_bus_dev->init, false);
+ 
+--- a/drivers/net/netdevsim/netdevsim.h
++++ b/drivers/net/netdevsim/netdevsim.h
+@@ -240,6 +240,8 @@ struct nsim_bus_dev {
+ 				  */
+ 	unsigned int num_vfs;
+ 	struct nsim_vf_config *vfconfigs;
++	/* Lock for devlink->reload_enabled in netdevsim module */
++	struct mutex nsim_bus_reload_lock;
+ 	bool init;
+ };
+ 
 
 
