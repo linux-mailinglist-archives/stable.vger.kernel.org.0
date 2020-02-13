@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E61A315C6CB
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0BD15C6CC
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728781AbgBMQDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730069AbgBMQDv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Feb 2020 11:03:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728626AbgBMPYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728627AbgBMPYN (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 13 Feb 2020 10:24:13 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0A4324690;
-        Thu, 13 Feb 2020 15:24:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6952024691;
+        Thu, 13 Feb 2020 15:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607451;
-        bh=m/jtpNHP23dXKUbiWzsdHnidRDDzRpDuj35W0/3fEhw=;
+        s=default; t=1581607452;
+        bh=O6ewSjpdqXaXHXN1T6gYNrn5uIY08E3PEni/mjKuYKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylNqPg+7Jk3RoGYsYQw08CdotuoNqtxKt056njMFWNpHwnko3dAUHH5Hd7B2Wf4eO
-         4L/rELeB4ygcIcgReMHbPQtNycXKH4EaS0PETF4K2dDeONeVN4O6PZITGcTz6FFp7H
-         wL1XqA+h4/r1gtRnvRqM9byz48gj52QiSAUCV4aU=
+        b=pQKGmneAVXGkxaGaNczN/YOnfV6qxJIx2QQPSDQQgAYQKGyF3NDxQMKW50ksXEXq4
+         9N1Oi2xV1yChmzn/g7coet6MkRtrothRBo7CS5Pp4CXf8BJSQL4lHpOQUyin1Mtau2
+         2Pdl+h1fdCjBVo4WPfhoi4Pk6l9D+azO2d988Weg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 079/116] NFS: Directory page cache pages need to be locked when read
-Date:   Thu, 13 Feb 2020 07:20:23 -0800
-Message-Id: <20200213151913.519796323@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 080/116] ext4: fix deadlock allocating crypto bounce page from mempool
+Date:   Thu, 13 Feb 2020 07:20:24 -0800
+Message-Id: <20200213151913.930182058@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
 References: <20200213151842.259660170@linuxfoundation.org>
@@ -46,114 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 114de38225d9b300f027e2aec9afbb6e0def154b ]
+[ Upstream commit 547c556f4db7c09447ecf5f833ab6aaae0c5ab58 ]
 
-When a NFS directory page cache page is removed from the page cache,
-its contents are freed through a call to nfs_readdir_clear_array().
-To prevent the removal of the page cache entry until after we've
-finished reading it, we must take the page lock.
+ext4_writepages() on an encrypted file has to encrypt the data, but it
+can't modify the pagecache pages in-place, so it encrypts the data into
+bounce pages and writes those instead.  All bounce pages are allocated
+from a mempool using GFP_NOFS.
 
-Fixes: 11de3b11e08c ("NFS: Fix a memory leak in nfs_readdir")
-Cc: stable@vger.kernel.org # v2.6.37+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This is not correct use of a mempool, and it can deadlock.  This is
+because GFP_NOFS includes __GFP_DIRECT_RECLAIM, which enables the "never
+fail" mode for mempool_alloc() where a failed allocation will fall back
+to waiting for one of the preallocated elements in the pool.
+
+But since this mode is used for all a bio's pages and not just the
+first, it can deadlock waiting for pages already in the bio to be freed.
+
+This deadlock can be reproduced by patching mempool_alloc() to pretend
+that pool->alloc() always fails (so that it always falls back to the
+preallocations), and then creating an encrypted file of size > 128 KiB.
+
+Fix it by only using GFP_NOFS for the first page in the bio.  For
+subsequent pages just use GFP_NOWAIT, and if any of those fail, just
+submit the bio and start a new one.
+
+This will need to be fixed in f2fs too, but that's less straightforward.
+
+Fixes: c9af28fdd449 ("ext4 crypto: don't let data integrity writebacks fail with ENOMEM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20191231181149.47619-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/dir.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ fs/ext4/page-io.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 2c6e64dce2bdb..c2665d920cf8c 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -741,8 +741,6 @@ int nfs_readdir_filler(nfs_readdir_descriptor_t *desc, struct page* page)
- static
- void cache_page_release(nfs_readdir_descriptor_t *desc)
- {
--	if (!desc->page->mapping)
--		nfs_readdir_clear_array(desc->page);
- 	put_page(desc->page);
- 	desc->page = NULL;
- }
-@@ -756,19 +754,28 @@ struct page *get_cache_page(nfs_readdir_descriptor_t *desc)
+diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
+index 0094923e5ebf5..94f60f9d57fd1 100644
+--- a/fs/ext4/page-io.c
++++ b/fs/ext4/page-io.c
+@@ -469,16 +469,25 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
+ 	    nr_to_submit) {
+ 		gfp_t gfp_flags = GFP_NOFS;
  
- /*
-  * Returns 0 if desc->dir_cookie was found on page desc->page_index
-+ * and locks the page to prevent removal from the page cache.
-  */
- static
--int find_cache_page(nfs_readdir_descriptor_t *desc)
-+int find_and_lock_cache_page(nfs_readdir_descriptor_t *desc)
- {
- 	int res;
- 
- 	desc->page = get_cache_page(desc);
- 	if (IS_ERR(desc->page))
- 		return PTR_ERR(desc->page);
--
--	res = nfs_readdir_search_array(desc);
-+	res = lock_page_killable(desc->page);
- 	if (res != 0)
--		cache_page_release(desc);
-+		goto error;
-+	res = -EAGAIN;
-+	if (desc->page->mapping != NULL) {
-+		res = nfs_readdir_search_array(desc);
-+		if (res == 0)
-+			return 0;
-+	}
-+	unlock_page(desc->page);
-+error:
-+	cache_page_release(desc);
- 	return res;
- }
- 
-@@ -783,7 +790,7 @@ int readdir_search_pagecache(nfs_readdir_descriptor_t *desc)
- 		desc->last_cookie = 0;
- 	}
- 	do {
--		res = find_cache_page(desc);
-+		res = find_and_lock_cache_page(desc);
- 	} while (res == -EAGAIN);
- 	return res;
- }
-@@ -828,7 +835,6 @@ int nfs_do_filldir(nfs_readdir_descriptor_t *desc)
- 
- 	nfs_readdir_release_array(desc->page);
- out:
--	cache_page_release(desc);
- 	dfprintk(DIRCACHE, "NFS: nfs_do_filldir() filling ended @ cookie %Lu; returning = %d\n",
- 			(unsigned long long)*desc->dir_cookie, res);
- 	return res;
-@@ -874,13 +880,13 @@ int uncached_readdir(nfs_readdir_descriptor_t *desc)
- 
- 	status = nfs_do_filldir(desc);
- 
-+ out_release:
-+	nfs_readdir_clear_array(desc->page);
-+	cache_page_release(desc);
-  out:
- 	dfprintk(DIRCACHE, "NFS: %s: returns %d\n",
- 			__func__, status);
- 	return status;
-- out_release:
--	cache_page_release(desc);
--	goto out;
- }
- 
- /* The file offset position represents the dirent entry number.  A
-@@ -945,6 +951,8 @@ static int nfs_readdir(struct file *file, struct dir_context *ctx)
- 			break;
- 
- 		res = nfs_do_filldir(desc);
-+		unlock_page(desc->page);
-+		cache_page_release(desc);
- 		if (res < 0)
- 			break;
- 	} while (!desc->eof);
++		/*
++		 * Since bounce page allocation uses a mempool, we can only use
++		 * a waiting mask (i.e. request guaranteed allocation) on the
++		 * first page of the bio.  Otherwise it can deadlock.
++		 */
++		if (io->io_bio)
++			gfp_flags = GFP_NOWAIT | __GFP_NOWARN;
+ 	retry_encrypt:
+ 		data_page = fscrypt_encrypt_page(inode, page, gfp_flags);
+ 		if (IS_ERR(data_page)) {
+ 			ret = PTR_ERR(data_page);
+-			if (ret == -ENOMEM && wbc->sync_mode == WB_SYNC_ALL) {
+-				if (io->io_bio) {
++			if (ret == -ENOMEM &&
++			    (io->io_bio || wbc->sync_mode == WB_SYNC_ALL)) {
++				gfp_flags = GFP_NOFS;
++				if (io->io_bio)
+ 					ext4_io_submit(io);
+-					congestion_wait(BLK_RW_ASYNC, HZ/50);
+-				}
+-				gfp_flags |= __GFP_NOFAIL;
++				else
++					gfp_flags |= __GFP_NOFAIL;
++				congestion_wait(BLK_RW_ASYNC, HZ/50);
+ 				goto retry_encrypt;
+ 			}
+ 			data_page = NULL;
 -- 
 2.20.1
 
