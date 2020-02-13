@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D598015C2AA
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:38:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D1015C3AF
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbgBMP3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:29:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
+        id S1728763AbgBMPng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729690AbgBMP3P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:29:15 -0500
+        id S1728412AbgBMP1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:27:53 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC44424688;
-        Thu, 13 Feb 2020 15:29:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9757F218AC;
+        Thu, 13 Feb 2020 15:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607755;
-        bh=q8XtGX2CbdDm3oYTtQ6OZ88EQxl5iLM35Nkg4DPXLVY=;
+        s=default; t=1581607672;
+        bh=Y7tj7PSZoyNOv58hg+6UOtynPKMg5y4iPeSa/ueM9To=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+zg2uNUgRRkzmipCzVv+iVIh2Nd50nYkrmEFAngVvjelZm+uOx4Te8ZsTDpKBJZ3
-         Lqjps/b9NjKM1TS1NAFWoIwZgETsGr+WtlXr4M8/XSvTrg1Wq5vB51WWwfBDy+v545
-         rGuH7Q7FUGGBMTBmtTCZGM0eXrwVbO5svw6AvPSg=
+        b=WSceo7h8Un/a+AD7PCxqjK/1O8WftM0lGth5g+ui7/pVK3mBADqKsY2GScIdlilYW
+         GdT8k9CvKgkkJDKyHZTZwN2vnXOvKyGLAgYhIr7ZOualdMyvDvVrQGw9YNIuSU+8Qk
+         gxORHny6QgunwH//Vl8A6nsGbtrReAohgnrBZfhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.5 090/120] KVM: arm64: Treat emulated TVAL TimerValue as a signed 32-bit integer
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 79/96] crypto: atmel-sha - fix error handling when setting hmac key
 Date:   Thu, 13 Feb 2020 07:21:26 -0800
-Message-Id: <20200213151931.495371546@linuxfoundation.org>
+Message-Id: <20200213151908.944131584@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-References: <20200213151901.039700531@linuxfoundation.org>
+In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+References: <20200213151839.156309910@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Elisei <alexandru.elisei@arm.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 4a267aa707953a9a73d1f5dc7f894dd9024a92be upstream.
+commit b529f1983b2dcc46354f311feda92e07b6e9e2da upstream.
 
-According to the ARM ARM, registers CNT{P,V}_TVAL_EL0 have bits [63:32]
-RES0 [1]. When reading the register, the value is truncated to the least
-significant 32 bits [2], and on writes, TimerValue is treated as a signed
-32-bit integer [1, 2].
+HMAC keys can be of any length, and atmel_sha_hmac_key_set() can only
+fail due to -ENOMEM.  But atmel_sha_hmac_setkey() incorrectly treated
+any error as a "bad key length" error.  Fix it to correctly propagate
+the -ENOMEM error code and not set any tfm result flags.
 
-When the guest behaves correctly and writes 32-bit values, treating TVAL
-as an unsigned 64 bit register works as expected. However, things start
-to break down when the guest writes larger values, because
-(u64)0x1_ffff_ffff = 8589934591. but (s32)0x1_ffff_ffff = -1, and the
-former will cause the timer interrupt to be asserted in the future, but
-the latter will cause it to be asserted now.  Let's treat TVAL as a
-signed 32-bit register on writes, to match the behaviour described in
-the architecture, and the behaviour experimentally exhibited by the
-virtual timer on a non-vhe host.
-
-[1] Arm DDI 0487E.a, section D13.8.18
-[2] Arm DDI 0487E.a, section D11.2.4
-
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-[maz: replaced the read-side mask with lower_32_bits]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: 8fa761624871 ("KVM: arm/arm64: arch_timer: Fix CNTP_TVAL calculation")
-Link: https://lore.kernel.org/r/20200127103652.2326-1-alexandru.elisei@arm.com
+Fixes: 81d8750b2b59 ("crypto: atmel-sha - add support to hmac(shaX)")
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/arm/arch_timer.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/atmel-sha.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/virt/kvm/arm/arch_timer.c
-+++ b/virt/kvm/arm/arch_timer.c
-@@ -805,6 +805,7 @@ static u64 kvm_arm_timer_read(struct kvm
- 	switch (treg) {
- 	case TIMER_REG_TVAL:
- 		val = timer->cnt_cval - kvm_phys_timer_read() + timer->cntvoff;
-+		val &= lower_32_bits(val);
- 		break;
- 
- 	case TIMER_REG_CTL:
-@@ -850,7 +851,7 @@ static void kvm_arm_timer_write(struct k
+--- a/drivers/crypto/atmel-sha.c
++++ b/drivers/crypto/atmel-sha.c
+@@ -1918,12 +1918,7 @@ static int atmel_sha_hmac_setkey(struct
  {
- 	switch (treg) {
- 	case TIMER_REG_TVAL:
--		timer->cnt_cval = kvm_phys_timer_read() - timer->cntvoff + val;
-+		timer->cnt_cval = kvm_phys_timer_read() - timer->cntvoff + (s32)val;
- 		break;
+ 	struct atmel_sha_hmac_ctx *hmac = crypto_ahash_ctx(tfm);
  
- 	case TIMER_REG_CTL:
+-	if (atmel_sha_hmac_key_set(&hmac->hkey, key, keylen)) {
+-		crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+-		return -EINVAL;
+-	}
+-
+-	return 0;
++	return atmel_sha_hmac_key_set(&hmac->hkey, key, keylen);
+ }
+ 
+ static int atmel_sha_hmac_init(struct ahash_request *req)
 
 
