@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C52B15C63C
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBECC15C59F
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbgBMP6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:58:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40076 "EHLO mail.kernel.org"
+        id S1728443AbgBMPXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:23:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728190AbgBMPZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:08 -0500
+        id S1728442AbgBMPXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:38 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B80E246C1;
-        Thu, 13 Feb 2020 15:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A878246AD;
+        Thu, 13 Feb 2020 15:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607508;
-        bh=H0mPSkaFOF7J4fHrknf39KG7tqcuvpubEYUOXQTbNcM=;
+        s=default; t=1581607418;
+        bh=I4BM5jV6fmMz0MB6nVZKLDDCTivXHgSEbj9NYG4nepc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdBpGYZ4xa0OHsp2g/HUnS7XMONDqEJC1oWs9jaLRhqyo02ECJuiooVBs0iMLe3j3
-         1CIdSmxCOt6vbX35jh9tCQ2G9rta+5iWQY9GRVCmcEtqk1TBf/FOij68SdVHlS2NHt
-         zCsHyAcacMwLSG245iJk3mRIfuvDirHfnT86U9DY=
+        b=YLJX1xRnclUgmWSm6fdp5eE1DcXQAjto9NXchLRhKZPylQpt1QX/jEZxqxq6JJZZ6
+         5yDNglyINuHjaOmHRSB8AvYjiWBVIaEIAs5qplSaAvAkiMblnaVIRCPk45PQ0eaVqR
+         FNoZiS04QI2OzBfCc1j6DEsKq9lQiUaJhS0Qes+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 067/173] crypto: picoxcell - adjust the position of tasklet_init and fix missed tasklet_kill
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        Mark Brown <broonie@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.9 026/116] mmc: spi: Toggle SPI polarity, do not hardcode it
 Date:   Thu, 13 Feb 2020 07:19:30 -0800
-Message-Id: <20200213151950.616419334@linuxfoundation.org>
+Message-Id: <20200213151853.066660298@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 7f8c36fe9be46862c4f3c5302f769378028a34fa upstream.
+commit af3ed119329cf9690598c5a562d95dfd128e91d6 upstream.
 
-Since tasklet is needed to be initialized before registering IRQ
-handler, adjust the position of tasklet_init to fix the wrong order.
+The code in mmc_spi_initsequence() tries to send a burst with
+high chipselect and for this reason hardcodes the device into
+SPI_CS_HIGH.
 
-Besides, to fix the missed tasklet_kill, this patch adds a helper
-function and uses devm_add_action to kill the tasklet automatically.
+This is not good because the SPI_CS_HIGH flag indicates
+logical "asserted" CS not always the physical level. In
+some cases the signal is inverted in the GPIO library and
+in that case SPI_CS_HIGH is already set, and enforcing
+SPI_CS_HIGH again will actually drive it low.
 
-Fixes: ce92136843cb ("crypto: picoxcell - add support for the picoxcell crypto engines")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Instead of hard-coding this, toggle the polarity so if the
+default is LOW it goes high to assert chipselect but if it
+is already high then toggle it low instead.
+
+Cc: Phil Elwell <phil@raspberrypi.org>
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20191204152749.12652-1-linus.walleij@linaro.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/picoxcell_crypto.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/mmc/host/mmc_spi.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/picoxcell_crypto.c
-+++ b/drivers/crypto/picoxcell_crypto.c
-@@ -1616,6 +1616,11 @@ static const struct of_device_id spacc_o
- MODULE_DEVICE_TABLE(of, spacc_of_id_table);
- #endif /* CONFIG_OF */
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -1157,17 +1157,22 @@ static void mmc_spi_initsequence(struct
+ 	 * SPI protocol.  Another is that when chipselect is released while
+ 	 * the card returns BUSY status, the clock must issue several cycles
+ 	 * with chipselect high before the card will stop driving its output.
++	 *
++	 * SPI_CS_HIGH means "asserted" here. In some cases like when using
++	 * GPIOs for chip select, SPI_CS_HIGH is set but this will be logically
++	 * inverted by gpiolib, so if we want to ascertain to drive it high
++	 * we should toggle the default with an XOR as we do here.
+ 	 */
+-	host->spi->mode |= SPI_CS_HIGH;
++	host->spi->mode ^= SPI_CS_HIGH;
+ 	if (spi_setup(host->spi) != 0) {
+ 		/* Just warn; most cards work without it. */
+ 		dev_warn(&host->spi->dev,
+ 				"can't change chip-select polarity\n");
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 	} else {
+ 		mmc_spi_readbytes(host, 18);
  
-+static void spacc_tasklet_kill(void *data)
-+{
-+	tasklet_kill(data);
-+}
-+
- static int spacc_probe(struct platform_device *pdev)
- {
- 	int i, err, ret = -EINVAL;
-@@ -1659,6 +1664,14 @@ static int spacc_probe(struct platform_d
- 		return -ENXIO;
- 	}
- 
-+	tasklet_init(&engine->complete, spacc_spacc_complete,
-+		     (unsigned long)engine);
-+
-+	ret = devm_add_action(&pdev->dev, spacc_tasklet_kill,
-+			      &engine->complete);
-+	if (ret)
-+		return ret;
-+
- 	if (devm_request_irq(&pdev->dev, irq->start, spacc_spacc_irq, 0,
- 			     engine->name, engine)) {
- 		dev_err(engine->dev, "failed to request IRQ\n");
-@@ -1721,8 +1734,6 @@ static int spacc_probe(struct platform_d
- 	INIT_LIST_HEAD(&engine->completed);
- 	INIT_LIST_HEAD(&engine->in_progress);
- 	engine->in_flight = 0;
--	tasklet_init(&engine->complete, spacc_spacc_complete,
--		     (unsigned long)engine);
- 
- 	platform_set_drvdata(pdev, engine);
- 
+-		host->spi->mode &= ~SPI_CS_HIGH;
++		host->spi->mode ^= SPI_CS_HIGH;
+ 		if (spi_setup(host->spi) != 0) {
+ 			/* Wot, we can't get the same setup we had before? */
+ 			dev_err(&host->spi->dev,
 
 
