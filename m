@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3B315C61B
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9100D15C6EF
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728980AbgBMP5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 10:57:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40786 "EHLO mail.kernel.org"
+        id S2388413AbgBMQFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 11:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728971AbgBMPZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:25:21 -0500
+        id S1728504AbgBMPXv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:23:51 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF834246B3;
-        Thu, 13 Feb 2020 15:25:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 459B3246B1;
+        Thu, 13 Feb 2020 15:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607520;
-        bh=vmlTOK+xcyxhgGSa4G1hrpXvoXcBuZtW2tITrdeePi8=;
+        s=default; t=1581607430;
+        bh=aPRs1KOt/Qo4t2xkXnvnLyTVDxTo1eBGIpfx/JeOrTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Btf1G85IVaMJTxgACCDzLCok6F/7sgLady+R8Rpcl4qFFcILw1H10qXq0H2mqnJHI
-         1cLX+p0OJtt7TPjH5UEn5L/VyM3TfoV1lpy3/4m+E9qV5nemtsUjOxrfpFX31f1Pcs
-         OTXqp+Y4JpXdFt/iPSO+sC1bAFlqs3DGG06rqyOw=
+        b=upTipuHeg9LIVU932NCigrjLH0BEStAQRn6RJzr/JOs5Bcm4d3O1p4ALCOPUT7Vpd
+         9uiRU9wpxeie+IDz2tJN4dFSGXGvBytClLA+3iisIMop1qHH2v9y42xnq8431pu62+
+         qpGgIfh4g9HaMO6p58gHNyjW/VNKRI7YRjqk6uFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Honig <ahonig@google.com>,
         Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 087/173] KVM: x86: Protect x86_decode_insn from Spectre-v1/L1TF attacks
+Subject: [PATCH 4.9 046/116] KVM: x86: Protect kvm_lapic_reg_write() from Spectre-v1/L1TF attacks
 Date:   Thu, 13 Feb 2020 07:19:50 -0800
-Message-Id: <20200213151955.122767971@linuxfoundation.org>
+Message-Id: <20200213151900.866636406@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
-References: <20200213151931.677980430@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+References: <20200213151842.259660170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,13 +48,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marios Pomonis <pomonis@google.com>
 
-commit 3c9053a2cae7ba2ba73766a34cea41baa70f57f7 upstream.
+commit 4bf79cb089f6b1c6c632492c0271054ce52ad766 upstream.
 
-This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
-kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
-symbol, so KVM should treat it conservatively from a security perspective.
+This fixes a Spectre-v1/L1TF vulnerability in kvm_lapic_reg_write().
+This function contains index computations based on the
+(attacker-controlled) MSR number.
 
-Fixes: 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
+Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
 
 Signed-off-by: Nick Finco <nifi@google.com>
 Signed-off-by: Marios Pomonis <pomonis@google.com>
@@ -65,29 +65,43 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/kvm/lapic.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5199,10 +5199,15 @@ done_prefixes:
- 			}
- 			break;
- 		case Escape:
--			if (ctxt->modrm > 0xbf)
--				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
--			else
-+			if (ctxt->modrm > 0xbf) {
-+				size_t size = ARRAY_SIZE(opcode.u.esc->high);
-+				u32 index = array_index_nospec(
-+					ctxt->modrm - 0xc0, size);
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -28,6 +28,7 @@
+ #include <linux/export.h>
+ #include <linux/math64.h>
+ #include <linux/slab.h>
++#include <linux/nospec.h>
+ #include <asm/processor.h>
+ #include <asm/msr.h>
+ #include <asm/page.h>
+@@ -1587,15 +1588,20 @@ int kvm_lapic_reg_write(struct kvm_lapic
+ 	case APIC_LVTTHMR:
+ 	case APIC_LVTPC:
+ 	case APIC_LVT1:
+-	case APIC_LVTERR:
++	case APIC_LVTERR: {
+ 		/* TODO: Check vector */
++		size_t size;
++		u32 index;
 +
-+				opcode = opcode.u.esc->high[index];
-+			} else {
- 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
-+			}
- 			break;
- 		case InstrDual:
- 			if ((ctxt->modrm >> 6) == 3)
+ 		if (!kvm_apic_sw_enabled(apic))
+ 			val |= APIC_LVT_MASKED;
+-
+-		val &= apic_lvt_mask[(reg - APIC_LVTT) >> 4];
++		size = ARRAY_SIZE(apic_lvt_mask);
++		index = array_index_nospec(
++				(reg - APIC_LVTT) >> 4, size);
++		val &= apic_lvt_mask[index];
+ 		kvm_lapic_set_reg(apic, reg, val);
+-
+ 		break;
++	}
+ 
+ 	case APIC_LVTT:
+ 		if (!kvm_apic_sw_enabled(apic))
 
 
