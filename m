@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3FF615C6F9
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:13:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDDB15C5F3
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728473AbgBMQFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:05:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
+        id S1729139AbgBMPzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:55:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728462AbgBMPXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:23:45 -0500
+        id S1728542AbgBMPZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:38 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 334E724699;
-        Thu, 13 Feb 2020 15:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 945F424690;
+        Thu, 13 Feb 2020 15:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607425;
-        bh=nmHHeJv0jxAv944SVEIlCzmf1RpyAVWuyx6keZbVcjI=;
+        s=default; t=1581607537;
+        bh=56b4QelP62Qj6qy1lyC1qDTrZBpCEENYWK7uHYYMPUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MssN+1ybu+b3VgTh0uVZRTXafvaVhotLCRZ1J8zrHc1o1kN2utuOuLgKqfztoutp/
-         yF4fMIg4xI7KGWd5cpEkoJrE+guPRLqPGUuhQSNQvnGDdPlHpKm73Fq3ai44NRCug2
-         e1SlDlR4ppQpwfFVFjH8PqJ4DkcNX5V1CheDrSL4=
+        b=mPBhsOwKySDeyTssWBsouzvkNnLoFtWts+8QaCmfnRDs8GMF2X4fUK8BAMsIV2u15
+         Sd1v4CSVPXmUG3pbtmAFLR4esw9oYIZQ5nxaXcGBeJj0fRZaIO4MdemytvS17IFg3I
+         g4UlwsDri5I0zr0J7bf2mhY8jDPHHREjsuM1wbBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 055/116] KVM: PPC: Book3S PR: Free shared page if mmu initialization fails
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 096/173] scsi: ufs: Recheck bkops level if bkops is disabled
 Date:   Thu, 13 Feb 2020 07:19:59 -0800
-Message-Id: <20200213151904.263988281@linuxfoundation.org>
+Message-Id: <20200213151957.157886640@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
-References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
+References: <20200213151931.677980430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Asutosh Das <asutoshd@codeaurora.org>
 
-commit cb10bf9194f4d2c5d830eddca861f7ca0fecdbb4 upstream.
+commit 24366c2afbb0539fb14eff330d4e3a5db5c0a3ef upstream.
 
-Explicitly free the shared page if kvmppc_mmu_init() fails during
-kvmppc_core_vcpu_create(), as the page is freed only in
-kvmppc_core_vcpu_free(), which is not reached via kvm_vcpu_uninit().
+bkops level should be rechecked upon receiving an exception.  Currently the
+level is being cached and never updated.
 
-Fixes: 96bc451a15329 ("KVM: PPC: Introduce shared page")
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Acked-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Update bkops each time the level is checked.  Also do not use the cached
+bkops level value if it is disabled and then enabled.
+
+Fixes: afdfff59a0e0 (scsi: ufs: handle non spec compliant bkops behaviour by device)
+Link: https://lore.kernel.org/r/1574751214-8321-2-git-send-email-cang@qti.qualcomm.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_pr.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/powerpc/kvm/book3s_pr.c
-+++ b/arch/powerpc/kvm/book3s_pr.c
-@@ -1482,10 +1482,12 @@ static struct kvm_vcpu *kvmppc_core_vcpu
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4812,6 +4812,7 @@ static int ufshcd_disable_auto_bkops(str
  
- 	err = kvmppc_mmu_init(vcpu);
- 	if (err < 0)
--		goto uninit_vcpu;
-+		goto free_shared_page;
+ 	hba->auto_bkops_enabled = false;
+ 	trace_ufshcd_auto_bkops_state(dev_name(hba->dev), "Disabled");
++	hba->is_urgent_bkops_lvl_checked = false;
+ out:
+ 	return err;
+ }
+@@ -4836,6 +4837,7 @@ static void ufshcd_force_reset_auto_bkop
+ 		hba->ee_ctrl_mask &= ~MASK_EE_URGENT_BKOPS;
+ 		ufshcd_disable_auto_bkops(hba);
+ 	}
++	hba->is_urgent_bkops_lvl_checked = false;
+ }
  
- 	return vcpu;
- 
-+free_shared_page:
-+	free_page((unsigned long)vcpu->arch.shared);
- uninit_vcpu:
- 	kvm_vcpu_uninit(vcpu);
- free_shadow_vcpu:
+ static inline int ufshcd_get_bkops_status(struct ufs_hba *hba, u32 *status)
+@@ -4882,6 +4884,7 @@ static int ufshcd_bkops_ctrl(struct ufs_
+ 		err = ufshcd_enable_auto_bkops(hba);
+ 	else
+ 		err = ufshcd_disable_auto_bkops(hba);
++	hba->urgent_bkops_lvl = curr_status;
+ out:
+ 	return err;
+ }
 
 
