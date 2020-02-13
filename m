@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C33515C677
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46CE615C641
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 17:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730120AbgBMQAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 11:00:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38998 "EHLO mail.kernel.org"
+        id S1727608AbgBMP6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:58:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728359AbgBMPYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 10:24:43 -0500
+        id S1728425AbgBMPZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:25:02 -0500
 Received: from localhost (unknown [104.132.1.104])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5902B246C7;
-        Thu, 13 Feb 2020 15:24:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6A7224690;
+        Thu, 13 Feb 2020 15:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581607483;
-        bh=+BpZ3TDIChsJ4SUx/k15uWJiv6Ek36N7bx9aI6TNxAE=;
+        s=default; t=1581607501;
+        bh=od7zeOreRAXcHWXUSpsD6viNKergL7vkryhJ+LZGCng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoT0f2ky5AXrvprPbaOX8QoLqPUSTEf2+Czn0M5hgGnWceYfzbSR87SunKWidHzty
-         dMw5vh3ugC1Jx+xBog65BNlw4ANPzxtOgrDtM6vlZ7PeVHR8J3cp8JD8NwLiwbCV2g
-         V0CHjF7GLIt5kS+xkd+4bnWMQzXfGIcMwwv6oBn0=
+        b=DUieTuUfgaPPQwPUHb2PA4v/3hCz8pH9mzg7jHqdyI/HrWwJdA11pu+6+/2er2AMx
+         VLR+03l9l1N3UV8fOUSNjc9eizJ3G1bjiVVaTSo7ZV3A9TJeZeUWDAos0k6DX3qcBC
+         onewE+voS6WpVT5386cOi4w33VzKzxU9aJ4TVKhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 028/173] lib/test_kasan.c: fix memory leak in kmalloc_oob_krealloc_more()
-Date:   Thu, 13 Feb 2020 07:18:51 -0800
-Message-Id: <20200213151940.587492472@linuxfoundation.org>
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.14 029/173] irqdomain: Fix a memory leak in irq_domain_push_irq()
+Date:   Thu, 13 Feb 2020 07:18:52 -0800
+Message-Id: <20200213151940.940633671@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200213151931.677980430@linuxfoundation.org>
 References: <20200213151931.677980430@linuxfoundation.org>
@@ -46,38 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 3e21d9a501bf99aee2e5835d7f34d8c823f115b5 upstream.
+commit 0f394daef89b38d58c91118a2b08b8a1b316703b upstream.
 
-In case memory resources for _ptr2_ were allocated, release them before
-return.
+Fix a memory leak reported by kmemleak:
+unreferenced object 0xffff000bc6f50e80 (size 128):
+  comm "kworker/23:2", pid 201, jiffies 4294894947 (age 942.132s)
+  hex dump (first 32 bytes):
+    00 00 00 00 41 00 00 00 86 c0 03 00 00 00 00 00  ....A...........
+    00 a0 b2 c6 0b 00 ff ff 40 51 fd 10 00 80 ff ff  ........@Q......
+  backtrace:
+    [<00000000e62d2240>] kmem_cache_alloc_trace+0x1a4/0x320
+    [<00000000279143c9>] irq_domain_push_irq+0x7c/0x188
+    [<00000000d9f4c154>] thunderx_gpio_probe+0x3ac/0x438
+    [<00000000fd09ec22>] pci_device_probe+0xe4/0x198
+    [<00000000d43eca75>] really_probe+0xdc/0x320
+    [<00000000d3ebab09>] driver_probe_device+0x5c/0xf0
+    [<000000005b3ecaa0>] __device_attach_driver+0x88/0xc0
+    [<000000004e5915f5>] bus_for_each_drv+0x7c/0xc8
+    [<0000000079d4db41>] __device_attach+0xe4/0x140
+    [<00000000883bbda9>] device_initial_probe+0x18/0x20
+    [<000000003be59ef6>] bus_probe_device+0x98/0xa0
+    [<0000000039b03d3f>] deferred_probe_work_func+0x74/0xa8
+    [<00000000870934ce>] process_one_work+0x1c8/0x470
+    [<00000000e3cce570>] worker_thread+0x1f8/0x428
+    [<000000005d64975e>] kthread+0xfc/0x128
+    [<00000000f0eaa764>] ret_from_fork+0x10/0x18
 
-Notice that in case _ptr1_ happens to be NULL, krealloc() behaves
-exactly like kmalloc().
-
-Addresses-Coverity-ID: 1490594 ("Resource leak")
-Link: http://lkml.kernel.org/r/20200123160115.GA4202@embeddedor
-Fixes: 3f15801cdc23 ("lib: add kasan test module")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 495c38d3001f ("irqdomain: Add irq_domain_{push,pop}_irq() functions")
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200120043547.22271-1-haokexin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/test_kasan.c |    1 +
+ kernel/irq/irqdomain.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/lib/test_kasan.c
-+++ b/lib/test_kasan.c
-@@ -126,6 +126,7 @@ static noinline void __init kmalloc_oob_
- 	if (!ptr1 || !ptr2) {
- 		pr_err("Allocation failed\n");
- 		kfree(ptr1);
-+		kfree(ptr2);
- 		return;
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -1538,6 +1538,7 @@ int irq_domain_push_irq(struct irq_domai
+ 	if (rv) {
+ 		/* Restore the original irq_data. */
+ 		*root_irq_data = *child_irq_data;
++		kfree(child_irq_data);
+ 		goto error;
  	}
  
 
