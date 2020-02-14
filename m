@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DACA015E663
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2543615E65F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:47:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387927AbgBNQrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:47:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54920 "EHLO mail.kernel.org"
+        id S2394012AbgBNQrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:47:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404275AbgBNQUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:20:55 -0500
+        id S2405280AbgBNQU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:20:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8203A2473E;
-        Fri, 14 Feb 2020 16:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B66DA24717;
+        Fri, 14 Feb 2020 16:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697254;
-        bh=SONkKqbwf5JAh6hTaH2JVn6iDfa5NTZtilJALl4Cgsw=;
+        s=default; t=1581697256;
+        bh=QvxfOGCLgdsLGPzOiRJcc1LAqqGhABSP+R7a3xTSzao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNWN39TgsLG4OFE97Wm5M0ZgB4eorKYxWkjtBvFnqm0uY3sD88vq8MRCnaWzQGlbS
-         ro6j5h6fDJN32BsR0Ssa9UCUIVIPzcO/Ah2zLqEOsVbH+OzVSSz8RObVmPDqPY5m/d
-         TpVcJMwEvBaXVBE2HhQqzP73r+Q1qNvwFgL0j9ZM=
+        b=ypYdlj+WW/g0la7XAhasRZsTmBWCU2d0Kh7q3OXlRSfO7WlkFf+ez0iSrY1/xc4V0
+         cknP8AEcr7QJgfQL1ggQcPBkrcJil4Z60lZr8tmT3pAFwAQO9yGw9ZNythUAdYlWEq
+         FuLaxmWbKkc+1O9ac8w32cLNgsfvIHVEFiYgEt2M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
-        Jean Delvare <jdelvare@suse.de>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 171/186] docs: i2c: writing-clients: properly name the stop condition
-Date:   Fri, 14 Feb 2020 11:17:00 -0500
-Message-Id: <20200214161715.18113-171-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 173/186] trigger_next should increase position index
+Date:   Fri, 14 Feb 2020 11:17:02 -0500
+Message-Id: <20200214161715.18113-173-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -44,39 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 4fcb445ec688a62da9c864ab05a4bd39b0307cdc ]
+[ Upstream commit 6722b23e7a2ace078344064a9735fb73e554e9ef ]
 
-In I2C there is no such thing as a "stop bit". Use the proper naming: "stop
-condition".
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reported-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Without patch:
+ # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
+ dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
+ n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ # Available triggers:
+ # traceon traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ 6+1 records in
+ 6+1 records out
+ 206 bytes copied, 0.00027916 s, 738 kB/s
+
+Notice the printing of "# Available triggers:..." after the line.
+
+With the patch:
+ # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
+ dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
+ n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ 2+1 records in
+ 2+1 records out
+ 88 bytes copied, 0.000526867 s, 167 kB/s
+
+It only prints the end of the file, and does not restart.
+
+Link: http://lkml.kernel.org/r/3c35ee24-dd3a-8119-9c19-552ed253388a@virtuozzo.com
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/i2c/writing-clients | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events_trigger.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/i2c/writing-clients b/Documentation/i2c/writing-clients
-index a755b141fa4a8..8b0de4334ae90 100644
---- a/Documentation/i2c/writing-clients
-+++ b/Documentation/i2c/writing-clients
-@@ -339,9 +339,9 @@ read/written.
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index e2da180ca172a..31e91efe243e5 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -127,9 +127,10 @@ static void *trigger_next(struct seq_file *m, void *t, loff_t *pos)
+ {
+ 	struct trace_event_file *event_file = event_file_data(m->private);
  
- This sends a series of messages. Each message can be a read or write,
- and they can be mixed in any way. The transactions are combined: no
--stop bit is sent between transaction. The i2c_msg structure contains
--for each message the client address, the number of bytes of the message
--and the message data itself.
-+stop condition is issued between transaction. The i2c_msg structure
-+contains for each message the client address, the number of bytes of the
-+message and the message data itself.
+-	if (t == SHOW_AVAILABLE_TRIGGERS)
++	if (t == SHOW_AVAILABLE_TRIGGERS) {
++		(*pos)++;
+ 		return NULL;
+-
++	}
+ 	return seq_list_next(t, &event_file->triggers, pos);
+ }
  
- You can read the file `i2c-protocol' for more information about the
- actual I2C protocol.
 -- 
 2.20.1
 
