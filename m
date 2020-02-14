@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D77F15E0A5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D51615E0A6
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392316AbgBNQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43968 "EHLO mail.kernel.org"
+        id S2392321AbgBNQO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:14:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404027AbgBNQO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2392313AbgBNQO1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:14:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD715246AA;
-        Fri, 14 Feb 2020 16:14:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18845246C0;
+        Fri, 14 Feb 2020 16:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696865;
-        bh=Vs4JIXKOY68VcmDg9hGYy8Jl4dneukZoBexeHZyaEZc=;
+        s=default; t=1581696866;
+        bh=UpZvJzYBeiSR3mvF3VSpvjTTs9IvGaU4AIbik5XnVTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJMs4awotA6H9pri+4WRc7jlXxX/pk8gbh8QKZAVcs010UBiwdt/lphus5r+2/I9G
-         apdXZ+oBTob9BcWr2i2vIS3u8iZiGttMG2nRUxuZ6GneNOumitfHgv4P4WrTU0l6RQ
-         l+GFKJipAzTUK2Zq7PScSzZB+lV3WXDSK17qfN2I=
+        b=a4cp1EYHLMQxW42ZK0Fj4H0mcEuGNmmg/NII38lz3nwhpZ/WpDC78EZ9z4Yk9xbwW
+         LCbScaOKDO/eJtE8wpHPisSXQN5govJxQWAWTN3xsReF8KdUxMYZeHPk19QpuPARAN
+         MqA0LvTxnicfdPXzmU6Y7acPkNfjYzL9KW1GnDdc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>, linux-sh@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 124/252] pinctrl: sh-pfc: sh7269: Fix CAN function GPIOs
-Date:   Fri, 14 Feb 2020 11:09:39 -0500
-Message-Id: <20200214161147.15842-124-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 125/252] reset: uniphier: Add SCSSI reset control for each channel
+Date:   Fri, 14 Feb 2020 11:09:40 -0500
+Message-Id: <20200214161147.15842-125-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,179 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 02aeb2f21530c98fc3ca51028eda742a3fafbd9f ]
+[ Upstream commit f4aec227e985e31d2fdc5608daf48e3de19157b7 ]
 
-pinmux_func_gpios[] contains a hole due to the missing function GPIO
-definition for the "CTX0&CTX1" signal, which is the logical "AND" of the
-first two CAN outputs.
+SCSSI has reset controls for each channel in the SoCs newer than Pro4,
+so this adds missing reset controls for channel 1, 2 and 3. And more, this
+moves MCSSI reset ID after SCSSI.
 
-A closer look reveals other issues:
-  - Some functionality is available on alternative pins, but the
-    PINMUX_DATA() entries is using the wrong marks,
-  - Several configurations are missing.
-
-Fix this by:
-  - Renaming CTX0CTX1CTX2_MARK, CRX0CRX1_PJ22_MARK, and
-    CRX0CRX1CRX2_PJ20_MARK to CTX0_CTX1_CTX2_MARK, CRX0_CRX1_PJ22_MARK,
-    resp. CRX0_CRX1_CRX2_PJ20_MARK for consistency with the
-    corresponding enum IDs,
-  - Adding all missing enum IDs and marks,
-  - Use the right (*_PJ2x) variants for alternative pins,
-  - Adding all missing configurations to pinmux_data[],
-  - Adding all missing function GPIO definitions to pinmux_func_gpios[].
-
-See SH7268 Group, SH7269 Group User’s Manual: Hardware, Rev. 2.00:
-  [1] Table 1.4 List of Pins
-  [2] Figure 23.29 Connection Example when Using Channels 0 and 1 as One
-      Channel (64 Mailboxes × 1 Channel) and Channel 2 as One Channel
-      (32 Mailboxes × 1 Channel),
-  [3] Figure 23.30 Connection Example when Using Channels 0, 1, and 2 as
-      One Channel (96 Mailboxes × 1 Channel),
-  [4] Table 48.3 Multiplexed Pins (Port B),
-  [5] Table 48.4 Multiplexed Pins (Port C),
-  [6] Table 48.10 Multiplexed Pins (Port J),
-  [7] Section 48.2.4 Port B Control Registers 0 to 5 (PBCR0 to PBCR5).
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191218194812.12741-5-geert+renesas@glider.be
+Fixes: 6b39fd590aeb ("reset: uniphier: add reset control support for SPI")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/cpu-sh2a/cpu/sh7269.h | 11 ++++++--
- drivers/pinctrl/sh-pfc/pfc-sh7269.c   | 39 ++++++++++++++++++---------
- 2 files changed, 36 insertions(+), 14 deletions(-)
+ drivers/reset/reset-uniphier.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/sh/include/cpu-sh2a/cpu/sh7269.h b/arch/sh/include/cpu-sh2a/cpu/sh7269.h
-index d516e5d488180..b887cc402b712 100644
---- a/arch/sh/include/cpu-sh2a/cpu/sh7269.h
-+++ b/arch/sh/include/cpu-sh2a/cpu/sh7269.h
-@@ -78,8 +78,15 @@ enum {
- 	GPIO_FN_WDTOVF,
+diff --git a/drivers/reset/reset-uniphier.c b/drivers/reset/reset-uniphier.c
+index 5605745663ae0..adbecb2c7cd3a 100644
+--- a/drivers/reset/reset-uniphier.c
++++ b/drivers/reset/reset-uniphier.c
+@@ -202,8 +202,8 @@ static const struct uniphier_reset_data uniphier_pro5_sd_reset_data[] = {
+ #define UNIPHIER_PERI_RESET_FI2C(id, ch)		\
+ 	UNIPHIER_RESETX((id), 0x114, 24 + (ch))
  
- 	/* CAN */
--	GPIO_FN_CTX1, GPIO_FN_CRX1, GPIO_FN_CTX0, GPIO_FN_CTX0_CTX1,
--	GPIO_FN_CRX0, GPIO_FN_CRX0_CRX1, GPIO_FN_CRX0_CRX1_CRX2,
-+	GPIO_FN_CTX2, GPIO_FN_CRX2,
-+	GPIO_FN_CTX1, GPIO_FN_CRX1,
-+	GPIO_FN_CTX0, GPIO_FN_CRX0,
-+	GPIO_FN_CTX0_CTX1, GPIO_FN_CRX0_CRX1,
-+	GPIO_FN_CTX0_CTX1_CTX2, GPIO_FN_CRX0_CRX1_CRX2,
-+	GPIO_FN_CTX2_PJ21, GPIO_FN_CRX2_PJ20,
-+	GPIO_FN_CTX1_PJ23, GPIO_FN_CRX1_PJ22,
-+	GPIO_FN_CTX0_CTX1_PJ23, GPIO_FN_CRX0_CRX1_PJ22,
-+	GPIO_FN_CTX0_CTX1_CTX2_PJ21, GPIO_FN_CRX0_CRX1_CRX2_PJ20,
+-#define UNIPHIER_PERI_RESET_SCSSI(id)			\
+-	UNIPHIER_RESETX((id), 0x110, 17)
++#define UNIPHIER_PERI_RESET_SCSSI(id, ch)		\
++	UNIPHIER_RESETX((id), 0x110, 17 + (ch))
  
- 	/* DMAC */
- 	GPIO_FN_TEND0, GPIO_FN_DACK0, GPIO_FN_DREQ0,
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7269.c b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
-index cfdb4fc177c3e..3df0c0d139d08 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh7269.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
-@@ -740,13 +740,12 @@ enum {
- 	CRX0_MARK, CTX0_MARK,
- 	CRX1_MARK, CTX1_MARK,
- 	CRX2_MARK, CTX2_MARK,
--	CRX0_CRX1_MARK,
--	CRX0_CRX1_CRX2_MARK,
--	CTX0CTX1CTX2_MARK,
-+	CRX0_CRX1_MARK, CTX0_CTX1_MARK,
-+	CRX0_CRX1_CRX2_MARK, CTX0_CTX1_CTX2_MARK,
- 	CRX1_PJ22_MARK, CTX1_PJ23_MARK,
- 	CRX2_PJ20_MARK, CTX2_PJ21_MARK,
--	CRX0CRX1_PJ22_MARK,
--	CRX0CRX1CRX2_PJ20_MARK,
-+	CRX0_CRX1_PJ22_MARK, CTX0_CTX1_PJ23_MARK,
-+	CRX0_CRX1_CRX2_PJ20_MARK, CTX0_CTX1_CTX2_PJ21_MARK,
+ #define UNIPHIER_PERI_RESET_MCSSI(id)			\
+ 	UNIPHIER_RESETX((id), 0x114, 14)
+@@ -218,7 +218,7 @@ static const struct uniphier_reset_data uniphier_ld4_peri_reset_data[] = {
+ 	UNIPHIER_PERI_RESET_I2C(6, 2),
+ 	UNIPHIER_PERI_RESET_I2C(7, 3),
+ 	UNIPHIER_PERI_RESET_I2C(8, 4),
+-	UNIPHIER_PERI_RESET_SCSSI(11),
++	UNIPHIER_PERI_RESET_SCSSI(11, 0),
+ 	UNIPHIER_RESET_END,
+ };
  
- 	/* VDC */
- 	DV_CLK_MARK,
-@@ -824,6 +823,7 @@ static const u16 pinmux_data[] = {
- 	PINMUX_DATA(CS3_MARK, PC8MD_001),
- 	PINMUX_DATA(TXD7_MARK, PC8MD_010),
- 	PINMUX_DATA(CTX1_MARK, PC8MD_011),
-+	PINMUX_DATA(CTX0_CTX1_MARK, PC8MD_100),
+@@ -234,8 +234,11 @@ static const struct uniphier_reset_data uniphier_pro4_peri_reset_data[] = {
+ 	UNIPHIER_PERI_RESET_FI2C(8, 4),
+ 	UNIPHIER_PERI_RESET_FI2C(9, 5),
+ 	UNIPHIER_PERI_RESET_FI2C(10, 6),
+-	UNIPHIER_PERI_RESET_SCSSI(11),
+-	UNIPHIER_PERI_RESET_MCSSI(12),
++	UNIPHIER_PERI_RESET_SCSSI(11, 0),
++	UNIPHIER_PERI_RESET_SCSSI(12, 1),
++	UNIPHIER_PERI_RESET_SCSSI(13, 2),
++	UNIPHIER_PERI_RESET_SCSSI(14, 3),
++	UNIPHIER_PERI_RESET_MCSSI(15),
+ 	UNIPHIER_RESET_END,
+ };
  
- 	PINMUX_DATA(PC7_DATA, PC7MD_000),
- 	PINMUX_DATA(CKE_MARK, PC7MD_001),
-@@ -836,11 +836,12 @@ static const u16 pinmux_data[] = {
- 	PINMUX_DATA(CAS_MARK, PC6MD_001),
- 	PINMUX_DATA(SCK7_MARK, PC6MD_010),
- 	PINMUX_DATA(CTX0_MARK, PC6MD_011),
-+	PINMUX_DATA(CTX0_CTX1_CTX2_MARK, PC6MD_100),
- 
- 	PINMUX_DATA(PC5_DATA, PC5MD_000),
- 	PINMUX_DATA(RAS_MARK, PC5MD_001),
- 	PINMUX_DATA(CRX0_MARK, PC5MD_011),
--	PINMUX_DATA(CTX0CTX1CTX2_MARK, PC5MD_100),
-+	PINMUX_DATA(CTX0_CTX1_CTX2_MARK, PC5MD_100),
- 	PINMUX_DATA(IRQ0_PC_MARK, PC5MD_101),
- 
- 	PINMUX_DATA(PC4_DATA, PC4MD_00),
-@@ -1292,30 +1293,32 @@ static const u16 pinmux_data[] = {
- 	PINMUX_DATA(LCD_DATA23_PJ23_MARK, PJ23MD_010),
- 	PINMUX_DATA(LCD_TCON6_MARK, PJ23MD_011),
- 	PINMUX_DATA(IRQ3_PJ_MARK, PJ23MD_100),
--	PINMUX_DATA(CTX1_MARK, PJ23MD_101),
-+	PINMUX_DATA(CTX1_PJ23_MARK, PJ23MD_101),
-+	PINMUX_DATA(CTX0_CTX1_PJ23_MARK, PJ23MD_110),
- 
- 	PINMUX_DATA(PJ22_DATA, PJ22MD_000),
- 	PINMUX_DATA(DV_DATA22_MARK, PJ22MD_001),
- 	PINMUX_DATA(LCD_DATA22_PJ22_MARK, PJ22MD_010),
- 	PINMUX_DATA(LCD_TCON5_MARK, PJ22MD_011),
- 	PINMUX_DATA(IRQ2_PJ_MARK, PJ22MD_100),
--	PINMUX_DATA(CRX1_MARK, PJ22MD_101),
--	PINMUX_DATA(CRX0_CRX1_MARK, PJ22MD_110),
-+	PINMUX_DATA(CRX1_PJ22_MARK, PJ22MD_101),
-+	PINMUX_DATA(CRX0_CRX1_PJ22_MARK, PJ22MD_110),
- 
- 	PINMUX_DATA(PJ21_DATA, PJ21MD_000),
- 	PINMUX_DATA(DV_DATA21_MARK, PJ21MD_001),
- 	PINMUX_DATA(LCD_DATA21_PJ21_MARK, PJ21MD_010),
- 	PINMUX_DATA(LCD_TCON4_MARK, PJ21MD_011),
- 	PINMUX_DATA(IRQ1_PJ_MARK, PJ21MD_100),
--	PINMUX_DATA(CTX2_MARK, PJ21MD_101),
-+	PINMUX_DATA(CTX2_PJ21_MARK, PJ21MD_101),
-+	PINMUX_DATA(CTX0_CTX1_CTX2_PJ21_MARK, PJ21MD_110),
- 
- 	PINMUX_DATA(PJ20_DATA, PJ20MD_000),
- 	PINMUX_DATA(DV_DATA20_MARK, PJ20MD_001),
- 	PINMUX_DATA(LCD_DATA20_PJ20_MARK, PJ20MD_010),
- 	PINMUX_DATA(LCD_TCON3_MARK, PJ20MD_011),
- 	PINMUX_DATA(IRQ0_PJ_MARK, PJ20MD_100),
--	PINMUX_DATA(CRX2_MARK, PJ20MD_101),
--	PINMUX_DATA(CRX0CRX1CRX2_PJ20_MARK, PJ20MD_110),
-+	PINMUX_DATA(CRX2_PJ20_MARK, PJ20MD_101),
-+	PINMUX_DATA(CRX0_CRX1_CRX2_PJ20_MARK, PJ20MD_110),
- 
- 	PINMUX_DATA(PJ19_DATA, PJ19MD_000),
- 	PINMUX_DATA(DV_DATA19_MARK, PJ19MD_001),
-@@ -1666,12 +1669,24 @@ static const struct pinmux_func pinmux_func_gpios[] = {
- 	GPIO_FN(WDTOVF),
- 
- 	/* CAN */
-+	GPIO_FN(CTX2),
-+	GPIO_FN(CRX2),
- 	GPIO_FN(CTX1),
- 	GPIO_FN(CRX1),
- 	GPIO_FN(CTX0),
- 	GPIO_FN(CRX0),
-+	GPIO_FN(CTX0_CTX1),
- 	GPIO_FN(CRX0_CRX1),
-+	GPIO_FN(CTX0_CTX1_CTX2),
- 	GPIO_FN(CRX0_CRX1_CRX2),
-+	GPIO_FN(CTX2_PJ21),
-+	GPIO_FN(CRX2_PJ20),
-+	GPIO_FN(CTX1_PJ23),
-+	GPIO_FN(CRX1_PJ22),
-+	GPIO_FN(CTX0_CTX1_PJ23),
-+	GPIO_FN(CRX0_CRX1_PJ22),
-+	GPIO_FN(CTX0_CTX1_CTX2_PJ21),
-+	GPIO_FN(CRX0_CRX1_CRX2_PJ20),
- 
- 	/* DMAC */
- 	GPIO_FN(TEND0),
 -- 
 2.20.1
 
