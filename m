@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7088715DCB6
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B5A015DCBB
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731522AbgBNPy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:54:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34468 "EHLO mail.kernel.org"
+        id S1731566AbgBNPye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:54:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731520AbgBNPy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:54:26 -0500
+        id S1731561AbgBNPye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:54:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51F432465D;
-        Fri, 14 Feb 2020 15:54:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC270222C4;
+        Fri, 14 Feb 2020 15:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695666;
-        bh=pH3RsqpVld5qfAxEnwf2qQxsd5/8DLGOl92mZwcPoYE=;
+        s=default; t=1581695673;
+        bh=BMSj3i+Zs6AHfdEoKpkr+5pJSuTkEp65CL/I5pXfE30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ro0CRFHa8rYwbB3+882h2q/+HWCYW7EFJEQ8vav9NXcjVheF9FatXQu+YNg9N3ZrT
-         0dEMHYAn0ktlmgbbSPNVHOUYCf3i6mi7+oGaklNQ2PySMIoPNwsHiUhy5tlyc20UK3
-         Q0pofqcBcCZzkGXRi3o/4/R2tUJEjn+qAUaJi/48=
+        b=XSu8di0JnhYlh1SBQhs6NLHue/AsXLF8HKyUUprOAv0ndit8VpImYH0Rilj0ld9k1
+         7ofH1uHeI0PpC/FtRW2lXmLXv6R9PEt2Aige31bCrYRC/rZARvOonqG+pkZIpKS+Qj
+         9/V0kiWQ/dB/t6bnd475xQY2V6d03eSmzXc0v+lA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.5 255/542] iommu/amd: Only support x2APIC with IVHD type 11h/40h
-Date:   Fri, 14 Feb 2020 10:44:07 -0500
-Message-Id: <20200214154854.6746-255-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.5 261/542] ASoC: Intel: kbl_da7219_max98357a: remove unused variable 'constraints_16000' and 'ch_mono'
+Date:   Fri, 14 Feb 2020 10:44:13 -0500
+Message-Id: <20200214154854.6746-261-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,52 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 966b753cf3969553ca50bacd2b8c4ddade5ecc9e ]
+[ Upstream commit c5614fb8e3d13be7bba79f71b798468a3a6224f7 ]
 
-Current implementation for IOMMU x2APIC support makes use of
-the MMIO access to MSI capability block registers, which requires
-checking EFR[MsiCapMmioSup]. However, only IVHD type 11h/40h contain
-the information, and not in the IVHD type 10h IOMMU feature reporting
-field. Since the BIOS in newer systems, which supports x2APIC, would
-normally contain IVHD type 11h/40h, remove the IOMMU_FEAT_XTSUP_SHIFT
-check for IVHD type 10h, and only support x2APIC with IVHD type 11h/40h.
+sound/soc/intel/boards/kbl_da7219_max98357a.c:343:48:
+ warning: constraints_16000 defined but not used [-Wunused-const-variable=]
+sound/soc/intel/boards/kbl_da7219_max98357a.c:348:27:
+ warning: ch_mono defined but not used [-Wunused-const-variable=]
 
-Fixes: 66929812955b ('iommu/amd: Add support for X2APIC IOMMU interrupts')
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+They are never used, so can be removed.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20191224140237.36732-1-yuehaibing@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_init.c  | 2 --
- drivers/iommu/amd_iommu_types.h | 1 -
- 2 files changed, 3 deletions(-)
+ sound/soc/intel/boards/kbl_da7219_max98357a.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 61628c906ce11..d7cbca8bf2cd4 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -1523,8 +1523,6 @@ static int __init init_iommu_one(struct amd_iommu *iommu, struct ivhd_header *h)
- 			iommu->mmio_phys_end = MMIO_CNTR_CONF_OFFSET;
- 		if (((h->efr_attr & (0x1 << IOMMU_FEAT_GASUP_SHIFT)) == 0))
- 			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY;
--		if (((h->efr_attr & (0x1 << IOMMU_FEAT_XTSUP_SHIFT)) == 0))
--			amd_iommu_xt_mode = IRQ_REMAP_XAPIC_MODE;
- 		break;
- 	case 0x11:
- 	case 0x40:
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index f8a7945f3df90..798e1533a1471 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -377,7 +377,6 @@
- #define IOMMU_CAP_EFR     27
+diff --git a/sound/soc/intel/boards/kbl_da7219_max98357a.c b/sound/soc/intel/boards/kbl_da7219_max98357a.c
+index 537a88932bb69..0d55319a0773c 100644
+--- a/sound/soc/intel/boards/kbl_da7219_max98357a.c
++++ b/sound/soc/intel/boards/kbl_da7219_max98357a.c
+@@ -336,19 +336,6 @@ static struct snd_soc_ops kabylake_dmic_ops = {
+ 	.startup = kabylake_dmic_startup,
+ };
  
- /* IOMMU Feature Reporting Field (for IVHD type 10h */
--#define IOMMU_FEAT_XTSUP_SHIFT	0
- #define IOMMU_FEAT_GASUP_SHIFT	6
+-static const unsigned int rates_16000[] = {
+-	16000,
+-};
+-
+-static const struct snd_pcm_hw_constraint_list constraints_16000 = {
+-	.count = ARRAY_SIZE(rates_16000),
+-	.list  = rates_16000,
+-};
+-
+-static const unsigned int ch_mono[] = {
+-	1,
+-};
+-
+ SND_SOC_DAILINK_DEF(dummy,
+ 	DAILINK_COMP_ARRAY(COMP_DUMMY()));
  
- /* IOMMU Extended Feature Register (EFR) */
 -- 
 2.20.1
 
