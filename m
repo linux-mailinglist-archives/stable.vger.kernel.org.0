@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C10015EA6D
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB3415EA69
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390150AbgBNRNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:13:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
+        id S2404658AbgBNRNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:13:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392052AbgBNQMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:45 -0500
+        id S2391499AbgBNQMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A896D246AD;
-        Fri, 14 Feb 2020 16:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4669246A1;
+        Fri, 14 Feb 2020 16:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696764;
-        bh=lWAgD2Omqn54//9A3l2dvEl/1ZU//HbLZ4rJgI2VEQo=;
+        s=default; t=1581696765;
+        bh=8V+AhVnwvZDjdmCMcsAyXitcpcmm+EABiM6EKbbfb0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQbBLQGrEpjriyaKr18Q8UiXxx01vv8/33yUNJaGcev/r1e7Ak7Y9UxJfy5FGHKEs
-         UdJN3BwFPXeN4n2AlYwkCkV8A9ElmZjHzhtijH7iFK1iDtK0BcdnF9H1Ct33oiMr4S
-         S/4jlAxBdcNnhKATtcwlEPxWkSYMMSg7mC+2MdQg=
+        b=WMuLyhNwbUIqyp2aZmLFSp92K4x9Wvkrb7DO1o/2oxhJTOjywLlUdDdwcejUXz6C6
+         PA1So4n8Km5ThLfwoORQW5MS5KhR/tbaJS+S0CsZllVdrlavv7NURyHe5AGb/0IBms
+         /V/b/wUIPgc6uGqk9XTuZVMrNH5vvgSUOexPCZwo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 044/252] ARM: 8952/1: Disable kmemleak on XIP kernels
-Date:   Fri, 14 Feb 2020 11:08:19 -0500
-Message-Id: <20200214161147.15842-44-sashal@kernel.org>
+Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 045/252] ext4, jbd2: ensure panic when aborting with zero errno
+Date:   Fri, 14 Feb 2020 11:08:20 -0500
+Message-Id: <20200214161147.15842-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,52 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: "zhangyi (F)" <yi.zhang@huawei.com>
 
-[ Upstream commit bc420c6ceefbb86cbbc8c00061bd779c17fa6997 ]
+[ Upstream commit 51f57b01e4a3c7d7bdceffd84de35144e8c538e7 ]
 
-Kmemleak relies on specific symbols to register the read only data
-during init (e.g. __start_ro_after_init).
-Trying to build an XIP kernel on arm results in the linking error
-reported below because when this option is selected read only data
-after init are not allowed since .data is read only (.rodata).
+JBD2_REC_ERR flag used to indicate the errno has been updated when jbd2
+aborted, and then __ext4_abort() and ext4_handle_error() can invoke
+panic if ERRORS_PANIC is specified. But if the journal has been aborted
+with zero errno, jbd2_journal_abort() didn't set this flag so we can
+no longer panic. Fix this by always record the proper errno in the
+journal superblock.
 
-  arm-linux-gnueabihf-ld: mm/kmemleak.o: in function `kmemleak_init':
-  kmemleak.c:(.init.text+0x148): undefined reference to `__end_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x14c):
-     undefined reference to `__end_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x150):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x156):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x162):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x16a):
-     undefined reference to `__start_ro_after_init'
-  linux/Makefile:1078: recipe for target 'vmlinux' failed
-
-Fix the issue enabling kmemleak only on non XIP kernels.
-
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 4327ba52afd03 ("ext4, jbd2: ensure entering into panic after recording an error in superblock")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-3-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jbd2/checkpoint.c |  2 +-
+ fs/jbd2/journal.c    | 15 ++++-----------
+ 2 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 185e552f14610..9f03befdfbf06 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -61,7 +61,7 @@ config ARM
- 	select HAVE_EBPF_JIT if !CPU_ENDIAN_BE32
- 	select HAVE_CONTEXT_TRACKING
- 	select HAVE_C_RECORDMCOUNT
--	select HAVE_DEBUG_KMEMLEAK
-+	select HAVE_DEBUG_KMEMLEAK if !XIP_KERNEL
- 	select HAVE_DMA_CONTIGUOUS if MMU
- 	select HAVE_DYNAMIC_FTRACE if (!XIP_KERNEL) && !CPU_ENDIAN_BE32 && MMU
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
+diff --git a/fs/jbd2/checkpoint.c b/fs/jbd2/checkpoint.c
+index 26f8d7e46462e..66409cbd3ed54 100644
+--- a/fs/jbd2/checkpoint.c
++++ b/fs/jbd2/checkpoint.c
+@@ -165,7 +165,7 @@ void __jbd2_log_wait_for_space(journal_t *journal)
+ 				       "journal space in %s\n", __func__,
+ 				       journal->j_devname);
+ 				WARN_ON(1);
+-				jbd2_journal_abort(journal, 0);
++				jbd2_journal_abort(journal, -EIO);
+ 			}
+ 			write_lock(&journal->j_state_lock);
+ 		} else {
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 568ca0ca0127c..1a96287f92647 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2142,12 +2142,10 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+ 
+ 	__jbd2_journal_abort_hard(journal);
+ 
+-	if (errno) {
+-		jbd2_journal_update_sb_errno(journal);
+-		write_lock(&journal->j_state_lock);
+-		journal->j_flags |= JBD2_REC_ERR;
+-		write_unlock(&journal->j_state_lock);
+-	}
++	jbd2_journal_update_sb_errno(journal);
++	write_lock(&journal->j_state_lock);
++	journal->j_flags |= JBD2_REC_ERR;
++	write_unlock(&journal->j_state_lock);
+ }
+ 
+ /**
+@@ -2189,11 +2187,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+  * failure to disk.  ext3_error, for example, now uses this
+  * functionality.
+  *
+- * Errors which originate from within the journaling layer will NOT
+- * supply an errno; a null errno implies that absolutely no further
+- * writes are done to the journal (unless there are any already in
+- * progress).
+- *
+  */
+ 
+ void jbd2_journal_abort(journal_t *journal, int errno)
 -- 
 2.20.1
 
