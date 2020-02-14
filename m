@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 111C515E586
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7DD815E55F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393309AbgBNQmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:42:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
+        id S2393221AbgBNQWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:22:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393208AbgBNQWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:22:23 -0500
+        id S2393217AbgBNQWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B987324752;
-        Fri, 14 Feb 2020 16:22:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BACF72474D;
+        Fri, 14 Feb 2020 16:22:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697343;
-        bh=85Fpwrg1s5nFfiNRz/VMyBUDJukDM49smNb0L1R9tok=;
+        s=default; t=1581697344;
+        bh=UO55tRwkGBNUjjrj++FD29xVqIkGuWGsESnDe4rEb70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8ZyUNOze2oqHVDPsfmn3vwLAC0pVYrT2VSNmkvHts+nL0ihtNT6NfPS6Gckx660t
-         qBSFa+7nqieM0avb2tOT++bpLMY0n6ol/jcUKlW3W40MyT/zM3nD97K8y5w6zh7xuV
-         HE7O+ASDCj7i41TjZodf6P8kKozgBazzaXupLDY0=
+        b=InhpFNCPOznifp4nrgSwOUceFRsCPWcCVAFkykuAmTKOb+MpIZFOUwgr7i5tUnxwf
+         SZ75ZPTys09SYH1J1IGNKZrmP6vJ46cexUr77yktQUlNlsNNUROC2HGvDZKkz2TH17
+         kQye9uyyphoHy+L9R+ntAdOto19SjS/rLf3igiBg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 048/141] regulator: rk808: Lower log level on optional GPIOs being not available
-Date:   Fri, 14 Feb 2020 11:19:48 -0500
-Message-Id: <20200214162122.19794-48-sashal@kernel.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Qiang Zhao <qiang.zhao@nxp.com>, Timur Tabi <timur@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>,
+        netdev@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 049/141] net/wan/fsl_ucc_hdlc: reject muram offsets above 64K
+Date:   Fri, 14 Feb 2020 11:19:49 -0500
+Message-Id: <20200214162122.19794-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -43,42 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit b8a039d37792067c1a380dc710361905724b9b2f ]
+[ Upstream commit 148587a59f6b85831695e0497d9dd1af5f0495af ]
 
-RK808 can leverage a couple of GPIOs to tweak the ramp rate during DVS
-(Dynamic Voltage Scaling). These GPIOs are entirely optional but a
-dev_warn() appeared when cleaning this driver to use a more up-to-date
-gpiod API. At least reduce the log level to 'info' as it is totally
-fine to not populate these GPIO on a hardware design.
+Qiang Zhao points out that these offsets get written to 16-bit
+registers, and there are some QE platforms with more than 64K
+muram. So it is possible that qe_muram_alloc() gives us an allocation
+that can't actually be used by the hardware, so detect and reject
+that.
 
-This change is trivial but it is worth not polluting the logs during
-bringup phase by having real warnings and errors sorted out
-correctly.
-
-Fixes: a13eaf02e2d6 ("regulator: rk808: make better use of the gpiod API")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/r/20191203164709.11127-1-miquel.raynal@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Qiang Zhao <qiang.zhao@nxp.com>
+Reviewed-by: Timur Tabi <timur@kernel.org>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Acked-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/rk808-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wan/fsl_ucc_hdlc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
-index dfa8d50a5d741..28646e4cf3bae 100644
---- a/drivers/regulator/rk808-regulator.c
-+++ b/drivers/regulator/rk808-regulator.c
-@@ -589,7 +589,7 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
- 		}
+diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
+index af85a1b3135e2..87bf05a81db50 100644
+--- a/drivers/net/wan/fsl_ucc_hdlc.c
++++ b/drivers/net/wan/fsl_ucc_hdlc.c
+@@ -209,6 +209,11 @@ static int uhdlc_init(struct ucc_hdlc_private *priv)
+ 		ret = -ENOMEM;
+ 		goto free_riptr;
+ 	}
++	if (riptr != (u16)riptr || tiptr != (u16)tiptr) {
++		dev_err(priv->dev, "MURAM allocation out of addressable range\n");
++		ret = -ENOMEM;
++		goto free_tiptr;
++	}
  
- 		if (!pdata->dvs_gpio[i]) {
--			dev_warn(dev, "there is no dvs%d gpio\n", i);
-+			dev_info(dev, "there is no dvs%d gpio\n", i);
- 			continue;
- 		}
- 
+ 	/* Set RIPTR, TIPTR */
+ 	iowrite16be(riptr, &priv->ucc_pram->riptr);
 -- 
 2.20.1
 
