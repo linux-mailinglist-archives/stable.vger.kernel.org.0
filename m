@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1136915F3EC
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 380F315F2E6
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:20:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404408AbgBNSQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:16:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56478 "EHLO mail.kernel.org"
+        id S1730786AbgBNPva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:51:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbgBNPv3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:29 -0500
+        id S1730780AbgBNPva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C885B24676;
-        Fri, 14 Feb 2020 15:51:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2416F2467E;
+        Fri, 14 Feb 2020 15:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695488;
-        bh=9/bnzQ+ER74MOe91Hzqc8GaIE8a7Ubr1rTd8soxdpJY=;
+        s=default; t=1581695489;
+        bh=PujbNvqkvyrzZobB4pxyCIUog3O22ilzl8UACEUWRV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFrAZbTVwp+7GoYz4Q/QqMoWRSNcrZp1N6+ugxMakJ6J26pmnbcOUggeXnzmqX6mo
-         5f6+kQ8eXSXOyIZegKfbBgpeKOvXMGkOmeson7AFA6Z1gLaA1h6eGVynATTK1jtUF+
-         Tz4WuRcqxPHTzAak6l/a3XowXqnzdjIfjMmYublQ=
+        b=d2yVdn8h2na2gMl4u4i4KnAPTBYK5n9gIfL4e4X3c0LJIdzM3F4lNUTputBqfb5vo
+         og9v0Z06HRJ5Ez+p+Fyz+hnAm2nWWjp2GEIZdhIJ6fKuxBVhw4AlJ997wXunA2G9+2
+         O3CQcfHnBU0CKC2XDc/A6VvjwVKW1tos2HifMqwE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Artemy Kovalyov <artemyko@mellanox.com>,
+Cc:     Parav Pandit <parav@mellanox.com>,
         Leon Romanovsky <leonro@mellanox.com>,
-        Gal Pressman <galpress@amazon.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 118/542] RDMA/umem: Fix ib_umem_find_best_pgsz()
-Date:   Fri, 14 Feb 2020 10:41:50 -0500
-Message-Id: <20200214154854.6746-118-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 119/542] RDMA/cma: Fix unbalanced cm_id reference count during address resolve
+Date:   Fri, 14 Feb 2020 10:41:51 -0500
+Message-Id: <20200214154854.6746-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,47 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artemy Kovalyov <artemyko@mellanox.com>
+From: Parav Pandit <parav@mellanox.com>
 
-[ Upstream commit 36798d5ae1af62e830c5e045b2e41ce038690c61 ]
+[ Upstream commit b4fb4cc5ba83b20dae13cef116c33648e81d2f44 ]
 
-Except for the last entry, the ending iova alignment sets the maximum
-possible page size as the low bits of the iova must be zero when starting
-the next chunk.
+Below commit missed the AF_IB and loopback code flow in
+rdma_resolve_addr().  This leads to an unbalanced cm_id refcount in
+cma_work_handler() which puts the refcount which was not incremented prior
+to queuing the work.
 
-Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
-Link: https://lore.kernel.org/r/20200128135612.174820-1-leon@kernel.org
-Signed-off-by: Artemy Kovalyov <artemyko@mellanox.com>
+A call trace is observed with such code flow:
+
+ BUG: unable to handle kernel NULL pointer dereference at (null)
+ [<ffffffff96b67e16>] __mutex_lock_slowpath+0x166/0x1d0
+ [<ffffffff96b6715f>] mutex_lock+0x1f/0x2f
+ [<ffffffffc0beabb5>] cma_work_handler+0x25/0xa0
+ [<ffffffff964b9ebf>] process_one_work+0x17f/0x440
+ [<ffffffff964baf56>] worker_thread+0x126/0x3c0
+
+Hence, hold the cm_id reference when scheduling the resolve work item.
+
+Fixes: 722c7b2bfead ("RDMA/{cma, core}: Avoid callback on rdma_addr_cancel()")
+Link: https://lore.kernel.org/r/20200126142652.104803-2-leon@kernel.org
+Signed-off-by: Parav Pandit <parav@mellanox.com>
 Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Tested-by: Gal Pressman <galpress@amazon.com>
 Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/umem.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/cma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/core/umem.c b/drivers/infiniband/core/umem.c
-index 7a3b99597eada..40cadb889114f 100644
---- a/drivers/infiniband/core/umem.c
-+++ b/drivers/infiniband/core/umem.c
-@@ -166,10 +166,13 @@ unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
- 		 * for any address.
- 		 */
- 		mask |= (sg_dma_address(sg) + pgoff) ^ va;
--		if (i && i != (umem->nmap - 1))
--			/* restrict by length as well for interior SGEs */
--			mask |= sg_dma_len(sg);
- 		va += sg_dma_len(sg) - pgoff;
-+		/* Except for the last entry, the ending iova alignment sets
-+		 * the maximum possible page size as the low bits of the iova
-+		 * must be zero when starting the next chunk.
-+		 */
-+		if (i != (umem->nmap - 1))
-+			mask |= va;
- 		pgoff = 0;
- 	}
- 	best_pg_bit = rdma_find_pg_bit(mask, pgsz_bitmap);
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 43a6f07e0afe2..af1afc17b8bdf 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -3118,6 +3118,7 @@ static int cma_resolve_loopback(struct rdma_id_private *id_priv)
+ 	rdma_addr_get_sgid(&id_priv->id.route.addr.dev_addr, &gid);
+ 	rdma_addr_set_dgid(&id_priv->id.route.addr.dev_addr, &gid);
+ 
++	atomic_inc(&id_priv->refcount);
+ 	cma_init_resolve_addr_work(work, id_priv);
+ 	queue_work(cma_wq, &work->work);
+ 	return 0;
+@@ -3144,6 +3145,7 @@ static int cma_resolve_ib_addr(struct rdma_id_private *id_priv)
+ 	rdma_addr_set_dgid(&id_priv->id.route.addr.dev_addr, (union ib_gid *)
+ 		&(((struct sockaddr_ib *) &id_priv->id.route.addr.dst_addr)->sib_addr));
+ 
++	atomic_inc(&id_priv->refcount);
+ 	cma_init_resolve_addr_work(work, id_priv);
+ 	queue_work(cma_wq, &work->work);
+ 	return 0;
 -- 
 2.20.1
 
