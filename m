@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3607515E200
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24DFE15E204
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393088AbgBNQVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:21:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56574 "EHLO mail.kernel.org"
+        id S2393129AbgBNQVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:21:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393075AbgBNQVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:21:44 -0500
+        id S2393123AbgBNQVy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:21:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CB37246C5;
-        Fri, 14 Feb 2020 16:21:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5141A246B8;
+        Fri, 14 Feb 2020 16:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697304;
-        bh=lL4pFfsrsx5IvHqyB0CeDf2N+rjFEBCQR0PaBMWEcVk=;
+        s=default; t=1581697313;
+        bh=qekGi7wU7YSQhUWkPVpoPPNnb+45FMbtrtnohbHSl10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEuBJEFzuMbG758vb88vmeye+U0Hy+XSdtlLJNuf8UgnJ/BbUu0kFEYkRLNPawEbH
-         t92d50sSk3Wjt1DF7zvA97IEZEVDdxF6d8vuRLCoWxbSYvJel16kSeqNv6Pg032Xkb
-         Ty9E2pOyZmyUFKHq6spzoykMeHDpoH3j2uoZHriM=
+        b=P9sTUIwW4hprUN7Qsg7a4Cm+oQ5Q+vT7TWiUatm0ZijXfYA5XZS3G6GVOnXNip8yh
+         CfPTEUugBaIUeShiSR1cqHpsdZAUd2O+0PRL5bP1Z11rEDTF/vOXWXWunBzeTgg9KS
+         dQ95768XB6BoPWtqjDyPJ0bBUW9JWX5RMhbevOuA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Matthew Garrett <mjg59@google.com>, linux-efi@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org, x86@kernel.org
-Subject: [PATCH AUTOSEL 4.9 016/141] efi/x86: Map the entire EFI vendor string before copying it
-Date:   Fri, 14 Feb 2020 11:19:16 -0500
-Message-Id: <20200214162122.19794-16-sashal@kernel.org>
+Cc:     Bean Huo <beanhuo@micron.com>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 024/141] scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
+Date:   Fri, 14 Feb 2020 11:19:24 -0500
+Message-Id: <20200214162122.19794-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -48,67 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit ffc2760bcf2dba0dbef74013ed73eea8310cc52c ]
+[ Upstream commit b9fc5320212efdfb4e08b825aaa007815fd11d16 ]
 
-Fix a couple of issues with the way we map and copy the vendor string:
-- we map only 2 bytes, which usually works since you get at least a
-  page, but if the vendor string happens to cross a page boundary,
-  a crash will result
-- only call early_memunmap() if early_memremap() succeeded, or we will
-  call it with a NULL address which it doesn't like,
-- while at it, switch to early_memremap_ro(), and array indexing rather
-  than pointer dereferencing to read the CHAR16 characters.
+A non-zero error value likely being returned by ufshcd_scsi_add_wlus() in
+case of failure of adding the WLs, but ufshcd_probe_hba() doesn't use this
+value, and doesn't report this failure to upper caller.  This patch is to
+fix this issue.
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: linux-efi@vger.kernel.org
-Fixes: 5b83683f32b1 ("x86: EFI runtime service support")
-Link: https://lkml.kernel.org/r/20200103113953.9571-5-ardb@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 2a8fa600445c ("ufs: manually add well known logical units")
+Link: https://lore.kernel.org/r/20200120130820.1737-2-huobean@gmail.com
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/efi/efi.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
-index b6669d326545a..f08abdf8bb676 100644
---- a/arch/x86/platform/efi/efi.c
-+++ b/arch/x86/platform/efi/efi.c
-@@ -478,7 +478,6 @@ void __init efi_init(void)
- 	efi_char16_t *c16;
- 	char vendor[100] = "unknown";
- 	int i = 0;
--	void *tmp;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 094e879af1213..394df57894e6b 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5347,7 +5347,8 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
+ 			ufshcd_init_icc_levels(hba);
  
- #ifdef CONFIG_X86_32
- 	if (boot_params.efi_info.efi_systab_hi ||
-@@ -503,14 +502,16 @@ void __init efi_init(void)
- 	/*
- 	 * Show what we know for posterity
- 	 */
--	c16 = tmp = early_memremap(efi.systab->fw_vendor, 2);
-+	c16 = early_memremap_ro(efi.systab->fw_vendor,
-+				sizeof(vendor) * sizeof(efi_char16_t));
- 	if (c16) {
--		for (i = 0; i < sizeof(vendor) - 1 && *c16; ++i)
--			vendor[i] = *c16++;
-+		for (i = 0; i < sizeof(vendor) - 1 && c16[i]; ++i)
-+			vendor[i] = c16[i];
- 		vendor[i] = '\0';
--	} else
-+		early_memunmap(c16, sizeof(vendor) * sizeof(efi_char16_t));
-+	} else {
- 		pr_err("Could not map the firmware vendor!\n");
--	early_memunmap(tmp, 2);
-+	}
+ 		/* Add required well known logical units to scsi mid layer */
+-		if (ufshcd_scsi_add_wlus(hba))
++		ret = ufshcd_scsi_add_wlus(hba);
++		if (ret)
+ 			goto out;
  
- 	pr_info("EFI v%u.%.02u by %s\n",
- 		efi.systab->hdr.revision >> 16,
+ 		scsi_scan_host(hba->host);
 -- 
 2.20.1
 
