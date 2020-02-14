@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1ECD15F13D
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E58E15F51F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390733AbgBNSAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:00:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38462 "EHLO mail.kernel.org"
+        id S1729523AbgBNPs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:48:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387876AbgBNP4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:35 -0500
+        id S1729051AbgBNPs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:48:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B19C206D7;
-        Fri, 14 Feb 2020 15:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A77902086A;
+        Fri, 14 Feb 2020 15:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695794;
-        bh=38p9MvRGjy//9Vx20f5bGwTQYOMD8UNHHMDJnca5RVU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfZdzOEvF053zPYeyvWR2WVe6DU3keu2PO+PxYiZPLKpYFfm7zzcvdMh91QYYnXMn
-         QsNDynEhSxVAJAKmctvsjAKQw1a6o8v17hOKqHDVNMogzC79U5fityfV8sJMPK7jk+
-         KTfi1wbWwjX95xTaReZu0F6nQqIxWDNoY/vD8pi0=
+        s=default; t=1581695336;
+        bh=IKYMgjBeoDBAoEF+iuAVlhvvQpsP6YlXHDORnZotvPI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SQ5zNQEUxazzdQcq0owq2r5aj3xyXWFPjvnY+gv6zbQKesIjcqnwymn8BOk4HYNlZ
+         nbpc1dGtK6l+AOh+OpoK1MWBgc1kO2QX+cv+6/ZpWYHW19QpGGGhjirbEhn/szgdr/
+         OJm3rrBWugBIJJJWm451farGEEX2lMkhHtlQVGhU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 356/542] drm/nouveau/gr/gk20a,gm200-: add terminators to method lists read from fw
-Date:   Fri, 14 Feb 2020 10:45:48 -0500
-Message-Id: <20200214154854.6746-356-sashal@kernel.org>
+Cc:     yu kuai <yukuai3@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 001/542] drm/amdgpu: remove set but not used variable 'mc_shared_chmap' from 'gfx_v6_0.c' and 'gfx_v7_0.c'
+Date:   Fri, 14 Feb 2020 10:39:53 -0500
+Message-Id: <20200214154854.6746-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,73 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 7adc77aa0e11f25b0e762859219c70852cd8d56f ]
+[ Upstream commit 747a397d394fac0001e4b3c03d7dce3a118af567 ]
 
-Method init is typically ordered by class in the FW image as ThreeD,
-TwoD, Compute.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Due to a bug in parsing the FW into our internal format, we've been
-accidentally sending Twod + Compute methods to the ThreeD class, as
-well as Compute methods to the TwoD class - oops.
+drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c: In function
+‘gfx_v6_0_constants_init’:
+drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c:1579:6: warning: variable
+‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c: In function
+‘gfx_v7_0_gpu_early_init’:
+drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c:4262:6: warning: variable
+‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
+
+Fixes: 2cd46ad22383 ("drm/amdgpu: add graphic pipeline implementation for si v8")
+Fixes: d93f3ca706b8 ("drm/amdgpu/gfx7: rework gpu_init()")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/nouveau/nvkm/engine/gr/gk20a.c    | 21 ++++++++++---------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c | 3 +--
+ drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c
-index 500cb08dd6080..b57ab5cea9a10 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c
-@@ -143,23 +143,24 @@ gk20a_gr_av_to_method(struct gf100_gr *gr, const char *fw_name,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
+index 7f0a63628c43a..31f44d05e606d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
+@@ -1576,7 +1576,7 @@ static void gfx_v6_0_config_init(struct amdgpu_device *adev)
+ static void gfx_v6_0_constants_init(struct amdgpu_device *adev)
+ {
+ 	u32 gb_addr_config = 0;
+-	u32 mc_shared_chmap, mc_arb_ramcfg;
++	u32 mc_arb_ramcfg;
+ 	u32 sx_debug_1;
+ 	u32 hdp_host_path_cntl;
+ 	u32 tmp;
+@@ -1678,7 +1678,6 @@ static void gfx_v6_0_constants_init(struct amdgpu_device *adev)
  
- 	nent = (fuc.size / sizeof(struct gk20a_fw_av));
+ 	WREG32(mmBIF_FB_EN, BIF_FB_EN__FB_READ_EN_MASK | BIF_FB_EN__FB_WRITE_EN_MASK);
  
--	pack = vzalloc((sizeof(*pack) * max_classes) +
--		       (sizeof(*init) * (nent + 1)));
-+	pack = vzalloc((sizeof(*pack) * (max_classes + 1)) +
-+		       (sizeof(*init) * (nent + max_classes + 1)));
- 	if (!pack) {
- 		ret = -ENOMEM;
- 		goto end;
+-	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
+ 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
+ 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
+index d92e92e5d50b7..8f20a5dd44fe7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
+@@ -4258,7 +4258,7 @@ static int gfx_v7_0_late_init(void *handle)
+ static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
+ {
+ 	u32 gb_addr_config;
+-	u32 mc_shared_chmap, mc_arb_ramcfg;
++	u32 mc_arb_ramcfg;
+ 	u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_addr_map;
+ 	u32 tmp;
+ 
+@@ -4335,7 +4335,6 @@ static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
+ 		break;
  	}
  
--	init = (void *)(pack + max_classes);
-+	init = (void *)(pack + max_classes + 1);
+-	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
+ 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
+ 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
  
--	for (i = 0; i < nent; i++) {
--		struct gf100_gr_init *ent = &init[i];
-+	for (i = 0; i < nent; i++, init++) {
- 		struct gk20a_fw_av *av = &((struct gk20a_fw_av *)fuc.data)[i];
- 		u32 class = av->addr & 0xffff;
- 		u32 addr = (av->addr & 0xffff0000) >> 14;
- 
- 		if (prevclass != class) {
--			pack[classidx].init = ent;
-+			if (prevclass) /* Add terminator to the method list. */
-+				init++;
-+			pack[classidx].init = init;
- 			pack[classidx].type = class;
- 			prevclass = class;
- 			if (++classidx >= max_classes) {
-@@ -169,10 +170,10 @@ gk20a_gr_av_to_method(struct gf100_gr *gr, const char *fw_name,
- 			}
- 		}
- 
--		ent->addr = addr;
--		ent->data = av->data;
--		ent->count = 1;
--		ent->pitch = 1;
-+		init->addr = addr;
-+		init->data = av->data;
-+		init->count = 1;
-+		init->pitch = 1;
- 	}
- 
- 	*ppack = pack;
 -- 
 2.20.1
 
