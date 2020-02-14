@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33C8A15DD7F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DDE315DD82
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388386AbgBNP6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:58:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
+        id S2388562AbgBNP64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:58:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388709AbgBNP6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:50 -0500
+        id S2388740AbgBNP64 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9808F24694;
-        Fri, 14 Feb 2020 15:58:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84B802467C;
+        Fri, 14 Feb 2020 15:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695929;
-        bh=PNI4J4LnI5EeNudriscWBtbKyV+GK1O1DWXIYeyYIG4=;
+        s=default; t=1581695935;
+        bh=AWcXrUPmg1Ok0gkYHL79LaRTs1+QfXtcYfPh5YIhW2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvthPykI9v3lMPRBBsqQ8efu29bYmx+7/MPnhHwE64VTz2XrgV1YDvl2s2vs1uXGM
-         3qY4qtBipt/r/EHPqjk+sUlZwhqPxY38IyuIlsyw74R3AXIA32OXSWNLk4l2QGjadd
-         WV7fogs4AR/4ohgua/ClCDSd4kUezjrFpFwkXmSE=
+        b=FSlTUjqBqkTlCgefOQNUhLzg1x8O9OST6mdesnqR0dX83/cW/sO+PgNISqmbGgHOC
+         s48PLn0gNgB8IkbxhQlcfo3/vnPivOEpdo9P7KgE4v/hriaWAURu4BERzxCw2UJqgf
+         FmYU1x1WHJjMa8v7twAp52RQ8ANXYNvPb1YmboQw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver O'Halloran <oohall@gmail.com>,
-        Steve Best <sbest@redhat.com>,
-        Douglas Miller <dougmill@us.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 465/542] selftests/eeh: Bump EEH wait time to 60s
-Date:   Fri, 14 Feb 2020 10:47:37 -0500
-Message-Id: <20200214154854.6746-465-sashal@kernel.org>
+Cc:     Nicola Lunghi <nick83ola@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.5 470/542] ALSA: usb-audio: add quirks for Line6 Helix devices fw>=2.82
+Date:   Fri, 14 Feb 2020 10:47:42 -0500
+Message-Id: <20200214154854.6746-470-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,49 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Nicola Lunghi <nick83ola@gmail.com>
 
-[ Upstream commit 414f50434aa2463202a5b35e844f4125dd1a7101 ]
+[ Upstream commit b81cbf7abfc94878a3c6f0789f2185ee55b1cc21 ]
 
-Some newer cards supported by aacraid can take up to 40s to recover
-after an EEH event. This causes spurious failures in the basic EEH
-self-test since the current maximim timeout is only 30s.
+With firmware 2.82 Line6 changed the usb id of some of the Helix
+devices but the quirks is still needed.
 
-Fix the immediate issue by bumping the timeout to a default of 60s,
-and allow the wait time to be specified via an environmental variable
-(EEH_MAX_WAIT).
+Add it to the quirk list for line6 helix family of devices.
 
-Reported-by: Steve Best <sbest@redhat.com>
-Suggested-by: Douglas Miller <dougmill@us.ibm.com>
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200122031125.25991-1-oohall@gmail.com
+Thanks to Jens for pointing out the missing ids.
+
+Signed-off-by: Nicola Lunghi <nick83ola@gmail.com>
+Link: https://lore.kernel.org/r/20200125150917.5040-1-nick83ola@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/eeh/eeh-functions.sh | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ sound/usb/format.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
-index 26112ab5cdf42..f52ed92b53e74 100755
---- a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
-+++ b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
-@@ -53,9 +53,13 @@ eeh_one_dev() {
- 	# is a no-op.
- 	echo $dev >/sys/kernel/debug/powerpc/eeh_dev_check
- 
--	# Enforce a 30s timeout for recovery. Even the IPR, which is infamously
--	# slow to reset, should recover within 30s.
--	max_wait=30
-+	# Default to a 60s timeout when waiting for a device to recover. This
-+	# is an arbitrary default which can be overridden by setting the
-+	# EEH_MAX_WAIT environmental variable when required.
-+
-+	# The current record holder for longest recovery time is:
-+	#  "Adaptec Series 8 12G SAS/PCIe 3" at 39 seconds
-+	max_wait=${EEH_MAX_WAIT:=60}
- 
- 	for i in `seq 0 ${max_wait}` ; do
- 		if pe_ok $dev ; then
+diff --git a/sound/usb/format.c b/sound/usb/format.c
+index d79db71305f63..53922f73467f4 100644
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -296,6 +296,9 @@ static int line6_parse_audio_format_rates_quirk(struct snd_usb_audio *chip,
+ 	case USB_ID(0x0E41, 0x4242): /* Line6 Helix Rack */
+ 	case USB_ID(0x0E41, 0x4244): /* Line6 Helix LT */
+ 	case USB_ID(0x0E41, 0x4246): /* Line6 HX-Stomp */
++	case USB_ID(0x0E41, 0x4248): /* Line6 Helix >= fw 2.82 */
++	case USB_ID(0x0E41, 0x4249): /* Line6 Helix Rack >= fw 2.82 */
++	case USB_ID(0x0E41, 0x424a): /* Line6 Helix LT >= fw 2.82 */
+ 		/* supported rates: 48Khz */
+ 		kfree(fp->rate_table);
+ 		fp->rate_table = kmalloc(sizeof(int), GFP_KERNEL);
 -- 
 2.20.1
 
