@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C61815EA73
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C67B515EA72
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392215AbgBNROD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:14:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40306 "EHLO mail.kernel.org"
+        id S2392043AbgBNQMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:12:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392030AbgBNQMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:39 -0500
+        id S2392036AbgBNQMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C777A246A4;
-        Fri, 14 Feb 2020 16:12:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 098DF246A1;
+        Fri, 14 Feb 2020 16:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696758;
-        bh=qYgXaaotD3UAIdYCci+5NEMLI+F4Ma0EUyRocg3aj+Y=;
+        s=default; t=1581696759;
+        bh=NHRY8nTgvpDMYt7nTHrEUE6DQu4BJr5qwDwM4Ypy4tI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZcLLGzj98aa6wtwqlq2n+DTU2dEK6cTypI//dQd91ndndtOhI6ooWhoxUIaR7D5d
-         /b6k68YoYOG4CpmnkU/LQCBmmztXwta5X76M855wsFqCciFWAG56zFeR81jrj8b0Cv
-         0ie8zpggyp6Ka4ABhMNjBsUGT/a+ZhiSkF/ziwzo=
+        b=yxQRz8sR5QGoJklzgo4698Ej8L7GOSG6ktRxemxyolnR+0ezSBBhRRXUvknghZQxm
+         Ns0xnuC/LVR1q8PnnPAADOhAZ77PZu0ikLW+f0LCo1mmxYyJg2ZztJTzBTQiDq2m9i
+         tWrCuDb+XQ88FHqdBqJEmhBDmPyFmYmS9h2piH5U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frederic Barrat <fbarrat@linux.ibm.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
+Cc:     Oliver O'Halloran <oohall@gmail.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 039/252] powerpc/powernv/ioda: Fix ref count for devices with their own PE
-Date:   Fri, 14 Feb 2020 11:08:14 -0500
-Message-Id: <20200214161147.15842-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 040/252] powerpc/iov: Move VF pdev fixup into pcibios_fixup_iov()
+Date:   Fri, 14 Feb 2020 11:08:15 -0500
+Message-Id: <20200214161147.15842-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,93 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Barrat <fbarrat@linux.ibm.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 ]
+[ Upstream commit 965c94f309be58fbcc6c8d3e4f123376c5970d79 ]
 
-The pci_dn structure used to store a pointer to the struct pci_dev, so
-taking a reference on the device was required. However, the pci_dev
-pointer was later removed from the pci_dn structure, but the reference
-was kept for the npu device.
-See commit 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary
-pcidev from pci_dn").
+An ioda_pe for each VF is allocated in pnv_pci_sriov_enable() before
+the pci_dev for the VF is created. We need to set the pe->pdev pointer
+at some point after the pci_dev is created. Currently we do that in:
 
-We don't need to take a reference on the device when assigning the PE
-as the struct pnv_ioda_pe is cleaned up at the same time as
-the (physical) device is released. Doing so prevents the device from
-being released, which is a problem for opencapi devices, since we want
-to be able to remove them through PCI hotplug.
+pcibios_bus_add_device()
+	pnv_pci_dma_dev_setup() (via phb->ops.dma_dev_setup)
+		/* fixup is done here */
+		pnv_pci_ioda_dma_dev_setup() (via pnv_phb->dma_dev_setup)
 
-Now the ugly part: nvlink npu devices are not meant to be
-released. Because of the above, we've always leaked a reference and
-simply removing it now is dangerous and would likely require more
-work. There's currently no release device callback for nvlink devices
-for example. So to be safe, this patch leaks a reference on the npu
-device, but only for nvlink and not opencapi.
+The fixup needs to be done before setting up DMA for for the VF's PE,
+but there's no real reason to delay it until this point. Move the
+fixup into pnv_pci_ioda_fixup_iov() so the ordering is:
 
-Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+	pcibios_add_device()
+		pnv_pci_ioda_fixup_iov() (via ppc_md.pcibios_fixup_sriov)
+
+	pcibios_bus_add_device()
+		...
+
+This isn't strictly required, but it's a slightly more logical place
+to do the fixup and it simplifies pnv_pci_dma_dev_setup().
+
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191121134918.7155-2-fbarrat@linux.ibm.com
+Link: https://lore.kernel.org/r/20200110070207.439-4-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/pci-ioda.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ arch/powerpc/platforms/powernv/pci-ioda.c | 29 +++++++++++++++++++----
+ arch/powerpc/platforms/powernv/pci.c      | 14 -----------
+ 2 files changed, 25 insertions(+), 18 deletions(-)
 
 diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index 28adfe4dd04c5..e47ff05c5996f 100644
+index e47ff05c5996f..19cd6affdd5fb 100644
 --- a/arch/powerpc/platforms/powernv/pci-ioda.c
 +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -1071,14 +1071,13 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
- 		return NULL;
+@@ -3020,9 +3020,6 @@ static void pnv_pci_ioda_fixup_iov_resources(struct pci_dev *pdev)
+ 	struct pci_dn *pdn;
+ 	int mul, total_vfs;
+ 
+-	if (!pdev->is_physfn || pci_dev_is_added(pdev))
+-		return;
+-
+ 	pdn = pci_get_pdn(pdev);
+ 	pdn->vfs_expanded = 0;
+ 	pdn->m64_single_mode = false;
+@@ -3097,6 +3094,30 @@ static void pnv_pci_ioda_fixup_iov_resources(struct pci_dev *pdev)
+ 		res->end = res->start - 1;
  	}
- 
--	/* NOTE: We get only one ref to the pci_dev for the pdn, not for the
--	 * pointer in the PE data structure, both should be destroyed at the
--	 * same time. However, this needs to be looked at more closely again
--	 * once we actually start removing things (Hotplug, SR-IOV, ...)
-+	/* NOTE: We don't get a reference for the pointer in the PE
-+	 * data structure, both the device and PE structures should be
-+	 * destroyed at the same time. However, removing nvlink
-+	 * devices will need some work.
- 	 *
- 	 * At some point we want to remove the PDN completely anyways
- 	 */
--	pci_dev_get(dev);
- 	pdn->pe_number = pe->pe_number;
- 	pe->flags = PNV_IODA_PE_DEV;
- 	pe->pdev = dev;
-@@ -1093,7 +1092,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
- 		pnv_ioda_free_pe(pe);
- 		pdn->pe_number = IODA_INVALID_PE;
- 		pe->pdev = NULL;
--		pci_dev_put(dev);
- 		return NULL;
- 	}
- 
-@@ -1213,6 +1211,14 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
- 	struct pci_controller *hose = pci_bus_to_host(npu_pdev->bus);
- 	struct pnv_phb *phb = hose->private_data;
- 
-+	/*
-+	 * Intentionally leak a reference on the npu device (for
-+	 * nvlink only; this is not an opencapi path) to make sure it
-+	 * never goes away, as it's been the case all along and some
-+	 * work is needed otherwise.
-+	 */
-+	pci_dev_get(npu_pdev);
+ }
 +
- 	/*
- 	 * Due to a hardware errata PE#0 on the NPU is reserved for
- 	 * error handling. This means we only have three PEs remaining
-@@ -1236,7 +1242,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
- 			 */
- 			dev_info(&npu_pdev->dev,
- 				"Associating to existing PE %x\n", pe_num);
--			pci_dev_get(npu_pdev);
- 			npu_pdn = pci_get_pdn(npu_pdev);
- 			rid = npu_pdev->bus->number << 8 | npu_pdn->devfn;
- 			npu_pdn->pe_number = pe_num;
++static void pnv_pci_ioda_fixup_iov(struct pci_dev *pdev)
++{
++	if (WARN_ON(pci_dev_is_added(pdev)))
++		return;
++
++	if (pdev->is_virtfn) {
++		struct pnv_ioda_pe *pe = pnv_ioda_get_pe(pdev);
++
++		/*
++		 * VF PEs are single-device PEs so their pdev pointer needs to
++		 * be set. The pdev doesn't exist when the PE is allocated (in
++		 * (pcibios_sriov_enable()) so we fix it up here.
++		 */
++		pe->pdev = pdev;
++		WARN_ON(!(pe->flags & PNV_IODA_PE_VF));
++	} else if (pdev->is_physfn) {
++		/*
++		 * For PFs adjust their allocated IOV resources to match what
++		 * the PHB can support using it's M64 BAR table.
++		 */
++		pnv_pci_ioda_fixup_iov_resources(pdev);
++	}
++}
+ #endif /* CONFIG_PCI_IOV */
+ 
+ static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
+@@ -3990,7 +4011,7 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
+ 	ppc_md.pcibios_default_alignment = pnv_pci_default_alignment;
+ 
+ #ifdef CONFIG_PCI_IOV
+-	ppc_md.pcibios_fixup_sriov = pnv_pci_ioda_fixup_iov_resources;
++	ppc_md.pcibios_fixup_sriov = pnv_pci_ioda_fixup_iov;
+ 	ppc_md.pcibios_iov_resource_alignment = pnv_pci_iov_resource_alignment;
+ 	ppc_md.pcibios_sriov_enable = pnv_pcibios_sriov_enable;
+ 	ppc_md.pcibios_sriov_disable = pnv_pcibios_sriov_disable;
+diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
+index aa95b8e0f66ad..b6fa900af5da5 100644
+--- a/arch/powerpc/platforms/powernv/pci.c
++++ b/arch/powerpc/platforms/powernv/pci.c
+@@ -820,20 +820,6 @@ void pnv_pci_dma_dev_setup(struct pci_dev *pdev)
+ {
+ 	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
+ 	struct pnv_phb *phb = hose->private_data;
+-#ifdef CONFIG_PCI_IOV
+-	struct pnv_ioda_pe *pe;
+-
+-	/* Fix the VF pdn PE number */
+-	if (pdev->is_virtfn) {
+-		list_for_each_entry(pe, &phb->ioda.pe_list, list) {
+-			if (pe->rid == ((pdev->bus->number << 8) |
+-			    (pdev->devfn & 0xff))) {
+-				pe->pdev = pdev;
+-				break;
+-			}
+-		}
+-	}
+-#endif /* CONFIG_PCI_IOV */
+ 
+ 	if (phb && phb->dma_dev_setup)
+ 		phb->dma_dev_setup(phb, pdev);
 -- 
 2.20.1
 
