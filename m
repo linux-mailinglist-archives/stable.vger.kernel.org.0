@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3D015E449
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:35:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E2F115E448
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:35:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393623AbgBNQe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:34:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33766 "EHLO mail.kernel.org"
+        id S2393622AbgBNQe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:34:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406004AbgBNQYx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:24:53 -0500
+        id S2393233AbgBNQYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:24:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1230E247AC;
-        Fri, 14 Feb 2020 16:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80C91247A4;
+        Fri, 14 Feb 2020 16:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697492;
-        bh=4gpuPKxIJXblhGLDI+y2KBiclaBaNI5Q/MfBXm87de0=;
+        s=default; t=1581697495;
+        bh=HFLC+Yo0x9wSQm87FrCxRKv1d02a88A9cGmqneDWLKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHTlbB3l66WE/HZryLYiLqIVPfq1ujj/Q6oDzIymNHF+/RXBiPyzAruCB/fTgXMbG
-         TwBz0dzb7bNf4PxQ99BnCPzCPjp8XcsvsyEbWfGbJs/BJQHwydHvKXV8qOMcLZfvy2
-         E3A8X+TkcB+a2UGa9rU+k7HlC+YA/ki2Pd+IxQJ4=
+        b=CP9V/I7kRauVjJgK0utNl3VcWWMTIOTNdfmnHCApyhdnNRlc/Wxf6nXLeTlop4Lpy
+         fjKL1Ymkkl2Wa6vmw29CdazRyImAqUZUU347zzg55T3rUD5LaxoDJt1Frl6pipZlva
+         JgzEjIrtg4iU2zeKkZJcvxTWkoAj2PdTgG9s512Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     yu kuai <yukuai3@huawei.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 022/100] drm/amdgpu: remove set but not used variable 'dig_connector'
-Date:   Fri, 14 Feb 2020 11:23:06 -0500
-Message-Id: <20200214162425.21071-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 024/100] drm/amdgpu: remove always false comparison in 'amdgpu_atombios_i2c_process_i2c_ch'
+Date:   Fri, 14 Feb 2020 11:23:08 -0500
+Message-Id: <20200214162425.21071-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -47,46 +47,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 5bea7fedb7fe4d5e6d3ba9f385dd3619fb004ce7 ]
+[ Upstream commit 220ac8d1444054ade07ce14498fcda266410f90e ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Fixes gcc '-Wtype-limits' warning:
 
-drivers/gpu/drm/amd/amdgpu/atombios_dp.c: In function
-‘amdgpu_atombios_dp_get_panel_mode’:
-drivers/gpu/drm/amd/amdgpu/atombios_dp.c:364:36: warning: variable
-‘dig_connector’ set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/atombios_i2c.c: In function
+‘amdgpu_atombios_i2c_process_i2c_ch’:
+drivers/gpu/drm/amd/amdgpu/atombios_i2c.c:79:11: warning: comparison is
+always false due to limited range of data type [-Wtype-limits]
 
-It is never used, so can be removed.
+'num' is 'u8', so it will never be greater than 'TOM_MAX_HW_I2C_READ',
+which is defined as 255. Therefore, the comparison can be removed.
 
 Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
 Signed-off-by: yu kuai <yukuai3@huawei.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/atombios_dp.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/atombios_i2c.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-index 7f85c2c1d6815..120a5fd992081 100644
---- a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-@@ -363,7 +363,6 @@ int amdgpu_atombios_dp_get_panel_mode(struct drm_encoder *encoder,
- 			       struct drm_connector *connector)
- {
- 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
--	struct amdgpu_connector_atom_dig *dig_connector;
- 	int panel_mode = DP_PANEL_MODE_EXTERNAL_DP_MODE;
- 	u16 dp_bridge = amdgpu_connector_encoder_get_dp_bridge_encoder_id(connector);
- 	u8 tmp;
-@@ -371,8 +370,6 @@ int amdgpu_atombios_dp_get_panel_mode(struct drm_encoder *encoder,
- 	if (!amdgpu_connector->con_priv)
- 		return panel_mode;
- 
--	dig_connector = amdgpu_connector->con_priv;
--
- 	if (dp_bridge != ENCODER_OBJECT_ID_NONE) {
- 		/* DP bridge chips */
- 		if (drm_dp_dpcd_readb(&amdgpu_connector->ddc_bus->aux,
+diff --git a/drivers/gpu/drm/amd/amdgpu/atombios_i2c.c b/drivers/gpu/drm/amd/amdgpu/atombios_i2c.c
+index 13cdb01e9b450..59fd674128540 100644
+--- a/drivers/gpu/drm/amd/amdgpu/atombios_i2c.c
++++ b/drivers/gpu/drm/amd/amdgpu/atombios_i2c.c
+@@ -68,11 +68,6 @@ static int amdgpu_atombios_i2c_process_i2c_ch(struct amdgpu_i2c_chan *chan,
+ 			memcpy(&out, &buf[1], num);
+ 		args.lpI2CDataOut = cpu_to_le16(out);
+ 	} else {
+-		if (num > ATOM_MAX_HW_I2C_READ) {
+-			DRM_ERROR("hw i2c: tried to read too many bytes (%d vs 255)\n", num);
+-			r = -EINVAL;
+-			goto done;
+-		}
+ 		args.ucRegIndex = 0;
+ 		args.lpI2CDataOut = 0;
+ 	}
 -- 
 2.20.1
 
