@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED9915DBEA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:51:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9EB15DC42
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729677AbgBNPv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:51:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56320 "EHLO mail.kernel.org"
+        id S1730855AbgBNPvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:51:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730331AbgBNPvY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:24 -0500
+        id S1730852AbgBNPvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9369C24649;
-        Fri, 14 Feb 2020 15:51:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 578F02465D;
+        Fri, 14 Feb 2020 15:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695484;
-        bh=kwYS4IJqe/CCzOFwvS5e6qcl5rOhH6tgd+nA24huEr8=;
+        s=default; t=1581695505;
+        bh=mEbUikUJPdO2aLyeQBlvtyjvsrmBOXxH5GFU6k+4vuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmzozrmzJsqODW4SIRTaNJshsrlu1rpA4S+sdvhnp1qBLdIpel/AR13S4JilZRNZv
-         QpRfvL5wqEg2ZAh1e97F0cYOzrkp6fE+2hbh0ODW90Dki1vPdwz4IClzWoxLyEEetX
-         JBT67Z98SHHWb3Ovcy83WBxSwRLSaJPIUnvOlHn0=
+        b=cGqHRBgH3dtHRinDlTUa/2iD1OY39U7gAQYLDmCBNTSy/mz5+GVLLao2AgmzYBe57
+         edP9J0e9KRRSrzOADlSFe1RukPwkeaUeghZOP3Vb/LGB6qIYWw7b5e0/SZwEMUWfQG
+         n+R96c+9oA4ppSZacNAdqgNEYF8dSyLRZqREweow=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 115/542] selftests: settings: tests can be in subsubdirs
-Date:   Fri, 14 Feb 2020 10:41:47 -0500
-Message-Id: <20200214154854.6746-115-sashal@kernel.org>
+Cc:     Yong Zhao <Yong.Zhao@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 131/542] drm/amdkfd: Fix a bug in SDMA RLC queue counting under HWS mode
+Date:   Fri, 14 Feb 2020 10:42:03 -0500
+Message-Id: <20200214154854.6746-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,58 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Yong Zhao <Yong.Zhao@amd.com>
 
-[ Upstream commit ac87813d4372f4c005264acbe3b7f00c1dee37c4 ]
+[ Upstream commit f38abc15d157b7b31fa7f651dc8bf92858c963f8 ]
 
-Commit 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second
-timeout per test") adds support for a new per-test-directory "settings"
-file. But this only works for tests not in a sub-subdirectories, e.g.
+The sdma_queue_count increment should be done before
+execute_queues_cpsch(), which calls pm_calc_rlib_size() where
+sdma_queue_count is used to calculate whether over_subscription is
+triggered.
 
- - tools/testing/selftests/rtc (rtc) is OK,
- - tools/testing/selftests/net/mptcp (net/mptcp) is not.
+With the previous code, when a SDMA queue is created,
+compute_queue_count in pm_calc_rlib_size() is one more than the
+actual compute queue number, because the queue_count has been
+incremented while sdma_queue_count has not. This patch fixes that.
 
-We have to increase the timeout for net/mptcp tests which are not
-upstreamed yet but this fix is valid for other tests if they need to add
-a "settings" file, see the full list with:
-
-  tools/testing/selftests/*/*/**/Makefile
-
-Note that this patch changes the text header message printed at the end
-of the execution but this text is modified only for the tests that are
-in sub-subdirectories, e.g.
-
-  ok 1 selftests: net/mptcp: mptcp_connect.sh
-
-Before we had:
-
-  ok 1 selftests: mptcp: mptcp_connect.sh
-
-But showing the full target name is probably better, just in case a
-subsubdir has the same name as another one in another subdirectory.
-
-Fixes: 852c8cbf34d3 (selftests/kselftest/runner.sh: Add 45 second timeout per test)
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Yong Zhao <Yong.Zhao@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kselftest/runner.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/kselftest/runner.sh b/tools/testing/selftests/kselftest/runner.sh
-index a8d20cbb711cf..e84d901f85672 100644
---- a/tools/testing/selftests/kselftest/runner.sh
-+++ b/tools/testing/selftests/kselftest/runner.sh
-@@ -91,7 +91,7 @@ run_one()
- run_many()
- {
- 	echo "TAP version 13"
--	DIR=$(basename "$PWD")
-+	DIR="${PWD#${BASE_DIR}/}"
- 	test_num=0
- 	total=$(echo "$@" | wc -w)
- 	echo "1..$total"
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index 984c2f2b24b60..d128a8bbe19d0 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1225,16 +1225,18 @@ static int create_queue_cpsch(struct device_queue_manager *dqm, struct queue *q,
+ 
+ 	list_add(&q->list, &qpd->queues_list);
+ 	qpd->queue_count++;
++
++	if (q->properties.type == KFD_QUEUE_TYPE_SDMA)
++		dqm->sdma_queue_count++;
++	else if (q->properties.type == KFD_QUEUE_TYPE_SDMA_XGMI)
++		dqm->xgmi_sdma_queue_count++;
++
+ 	if (q->properties.is_active) {
+ 		dqm->queue_count++;
+ 		retval = execute_queues_cpsch(dqm,
+ 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
+ 	}
+ 
+-	if (q->properties.type == KFD_QUEUE_TYPE_SDMA)
+-		dqm->sdma_queue_count++;
+-	else if (q->properties.type == KFD_QUEUE_TYPE_SDMA_XGMI)
+-		dqm->xgmi_sdma_queue_count++;
+ 	/*
+ 	 * Unconditionally increment this counter, regardless of the queue's
+ 	 * type or whether the queue is active.
 -- 
 2.20.1
 
