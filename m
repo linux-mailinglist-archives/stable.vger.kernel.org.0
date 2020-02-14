@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C085D15E0AB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F026E15E0B3
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403796AbgBNQOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
+        id S2392375AbgBNQOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:14:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392066AbgBNQOi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:38 -0500
+        id S2392371AbgBNQOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB7F8246D8;
-        Fri, 14 Feb 2020 16:14:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3A11246AA;
+        Fri, 14 Feb 2020 16:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696877;
-        bh=GrMvaoHiW8mqPaedW80LgmLZTHUhiLrqAUih5cuG+FQ=;
+        s=default; t=1581696882;
+        bh=tt4qicG9AyUyxBltT0C/4gAsKNu/2tuaYYs+7jDOo1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1J9siBH/fZsT4Qml6hK4ZyfnlN0v7g25mciwRDFtdNJOam3OMweJ+VukYPupn0+kJ
-         bJWajfaS/fVTho8kFfedIJwsyNXbfdzlMcQW+YoJubHmJnD6ttmpgJeAEpPV2AIqYo
-         uTx4k8cKvNbLb/lfMSjWxcPKRUdF3qwPdQsk9qPY=
+        b=tL951TCSCdOPhLdnwaQ451puBbvIbEVyn5Y20W8fZ6sOlnlbhn3qp6g2F596doH6d
+         AM69/rRovh408Z3ACMO454Db+LM/ggCfMO3h/8FIgDiYAvpe1iM03zV4kb8baVg6Lv
+         uDxprYSPYHZPtuGYrbZclGM8BdThTozHVkz6GQMk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Ekstrand <jason@jlekstrand.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 133/252] ACPI: button: Add DMI quirk for Razer Blade Stealth 13 late 2019 lid switch
-Date:   Fri, 14 Feb 2020 11:09:48 -0500
-Message-Id: <20200214161147.15842-133-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Chen Zhou <chenzhou10@huawei.com>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 137/252] soc: fsl: qe: remove set but not used variable 'mm_gc'
+Date:   Fri, 14 Feb 2020 11:09:52 -0500
+Message-Id: <20200214161147.15842-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,45 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 0528904926aab19bffb2068879aa44db166c6d5f ]
+[ Upstream commit 6e62bd36e9ad85a22d92b1adce6a0336ea549733 ]
 
-Running evemu-record on the lid switch event shows that the lid reports
-the first "close" but then never reports an "open".  This causes systemd
-to continuously re-suspend the laptop every 30s.  Resetting the _LID to
-"open" fixes the issue.
+drivers/soc/fsl/qe/gpio.c: In function qe_pin_request:
+drivers/soc/fsl/qe/gpio.c:163:26: warning: variable mm_gc set but not used [-Wunused-but-set-variable]
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+commit 1e714e54b5ca ("powerpc: qe_lib-gpio: use gpiochip data pointer")
+left behind this unused variable.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/button.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/soc/fsl/qe/gpio.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-index a25d77b3a16ad..d5c19e25ddf59 100644
---- a/drivers/acpi/button.c
-+++ b/drivers/acpi/button.c
-@@ -102,6 +102,17 @@ static const struct dmi_system_id lid_blacklst[] = {
- 		},
- 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
- 	},
-+	{
-+		/*
-+		 * Razer Blade Stealth 13 late 2019, notification of the LID device
-+		 * only happens on close, not on open and _LID always returns closed.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Razer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Razer Blade Stealth 13 Late 2019"),
-+		},
-+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
-+	},
- 	{}
- };
+diff --git a/drivers/soc/fsl/qe/gpio.c b/drivers/soc/fsl/qe/gpio.c
+index 51b3a47b5a559..2aa4088a63e6c 100644
+--- a/drivers/soc/fsl/qe/gpio.c
++++ b/drivers/soc/fsl/qe/gpio.c
+@@ -164,7 +164,6 @@ struct qe_pin *qe_pin_request(struct device_node *np, int index)
+ {
+ 	struct qe_pin *qe_pin;
+ 	struct gpio_chip *gc;
+-	struct of_mm_gpio_chip *mm_gc;
+ 	struct qe_gpio_chip *qe_gc;
+ 	int err;
+ 	unsigned long flags;
+@@ -190,7 +189,6 @@ struct qe_pin *qe_pin_request(struct device_node *np, int index)
+ 		goto err0;
+ 	}
  
+-	mm_gc = to_of_mm_gpio_chip(gc);
+ 	qe_gc = gpiochip_get_data(gc);
+ 
+ 	spin_lock_irqsave(&qe_gc->lock, flags);
 -- 
 2.20.1
 
