@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCD615E92D
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5520015E927
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392767AbgBNRFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:05:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45172 "EHLO mail.kernel.org"
+        id S2391960AbgBNQPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404087AbgBNQPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2404090AbgBNQPI (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:15:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F29A3246EA;
-        Fri, 14 Feb 2020 16:15:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39274246D6;
+        Fri, 14 Feb 2020 16:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696906;
-        bh=m5Cbde0MkyTIfAZXk2VOebFijI7ViAMm6mqjcgfmBt0=;
+        s=default; t=1581696908;
+        bh=RM5bJZqD6fBIu+hMD74+5St8AFmtMUWd4KMgCZxZTrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tivexfug0HrCFYhwJ2FPHRUGb+vBlCqtyVo7SKAB/Mo44P1YudNNKbw9zHQUIV0fs
-         DkmyjMiDq8NmwHC+r17Dlu//r7Hus59rdvYV2he/RDZySlhXP9VH+yzXH83rQXdVKZ
-         aH1YeIwFt2mV9xXJQ2vnguJu7/TWrdMkpO0/xaCY=
+        b=MnAwbbPaYIpd/4mhQCFglQIBWXGpH94hVemS6pQfJk88MK18+ddUzR9n19XIq8nWc
+         Pw/1cbSaR+KOdwzf70YlIawQfzLJUfRFyPtAC8+u/2eIx1sezHoVaVdGQxwfKFoXGC
+         ZKjzzNjpcxh4+yySdj3AYUWWJtSDLPz/xkzU8Xa8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Logan Gunthorpe <logang@deltatee.com>, Kit Chow <kchow@gigaio.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 156/252] PCI: Don't disable bridge BARs when assigning bus resources
-Date:   Fri, 14 Feb 2020 11:10:11 -0500
-Message-Id: <20200214161147.15842-156-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        Michael Guralnik <michaelgur@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 157/252] RDMA/uverbs: Remove needs_kfree_rcu from uverbs_obj_type_class
+Date:   Fri, 14 Feb 2020 11:10:12 -0500
+Message-Id: <20200214161147.15842-157-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,113 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 9db8dc6d0785225c42a37be7b44d1b07b31b8957 ]
+[ Upstream commit 8bdf9dd984c18375d1090ddeb1792511f619c5c1 ]
 
-Some PCI bridges implement BARs in addition to bridge windows.  For
-example, here's a PLX switch:
+After device disassociation the uapi_objects are destroyed and freed,
+however it is still possible that core code can be holding a kref on the
+uobject. When it finally goes to uverbs_uobject_free() via the kref_put()
+it can trigger a use-after-free on the uapi_object.
 
-  04:00.0 PCI bridge: PLX Technology, Inc. PEX 8724 24-Lane, 6-Port PCI
-            Express Gen 3 (8 GT/s) Switch, 19 x 19mm FCBGA (rev ca)
-	    (prog-if 00 [Normal decode])
-      Flags: bus master, fast devsel, latency 0, IRQ 30, NUMA node 0
-      Memory at 90a00000 (32-bit, non-prefetchable) [size=256K]
-      Bus: primary=04, secondary=05, subordinate=0a, sec-latency=0
-      I/O behind bridge: 00002000-00003fff
-      Memory behind bridge: 90000000-909fffff
-      Prefetchable memory behind bridge: 0000380000800000-0000380000bfffff
+Since needs_kfree_rcu is a micro optimization that only benefits file
+uobjects, just get rid of it. There is no harm in using kfree_rcu even if
+it isn't required, and the number of involved objects is small.
 
-Previously, when the kernel assigned resource addresses (with the
-pci=realloc command line parameter, for example) it could clear the struct
-resource corresponding to the BAR.  When this happened, lspci would report
-this BAR as "ignored":
-
-   Region 0: Memory at <ignored> (32-bit, non-prefetchable) [size=256K]
-
-This is because the kernel reports a zero start address and zero flags
-in the corresponding sysfs resource file and in /proc/bus/pci/devices.
-Investigation with 'lspci -x', however, shows the BIOS-assigned address
-will still be programmed in the device's BAR registers.
-
-It's clearly a bug that the kernel lost track of the BAR value, but in most
-cases, this still won't result in a visible issue because nothing uses the
-memory, so nothing is affected.  However, when an IOMMU is in use, it will
-not reserve this space in the IOVA because the kernel no longer thinks the
-range is valid.  (See dmar_init_reserved_ranges() for the Intel
-implementation of this.)
-
-Without the proper reserved range, a DMA mapping may allocate an IOVA that
-matches a bridge BAR, which results in DMA accesses going to the BAR
-instead of the intended RAM.
-
-The problem was in pci_assign_unassigned_root_bus_resources().  When any
-resource from a bridge device fails to get assigned, the code set the
-resource's flags to zero.  This makes sense for bridge windows, as they
-will be re-enabled later, but for regular BARs, it makes the kernel
-permanently lose track of the fact that they decode address space.
-
-Change pci_assign_unassigned_root_bus_resources() and
-pci_assign_unassigned_bridge_resources() so they only clear "res->flags"
-for bridge *windows*, not bridge BARs.
-
-Fixes: da7822e5ad71 ("PCI: update bridge resources to get more big ranges when allocating space (again)")
-Link: https://lore.kernel.org/r/20200108213208.4612-1-logang@deltatee.com
-[bhelgaas: commit log, check for pci_is_bridge()]
-Reported-by: Kit Chow <kchow@gigaio.com>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20200113143306.GA28717@ziepe.ca
+Signed-off-by: Michael Guralnik <michaelgur@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/setup-bus.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/rdma_core.c | 23 +----------------------
+ include/rdma/uverbs_types.h         |  1 -
+ 2 files changed, 1 insertion(+), 23 deletions(-)
 
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index 79b1824e83b47..8e5b00a420a55 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -1820,12 +1820,18 @@ void pci_assign_unassigned_root_bus_resources(struct pci_bus *bus)
- 	/* restore size and flags */
- 	list_for_each_entry(fail_res, &fail_head, list) {
- 		struct resource *res = fail_res->res;
-+		int idx;
+diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
+index c4118bcd51035..c2c9bd72b350f 100644
+--- a/drivers/infiniband/core/rdma_core.c
++++ b/drivers/infiniband/core/rdma_core.c
+@@ -49,13 +49,7 @@ void uverbs_uobject_get(struct ib_uobject *uobject)
  
- 		res->start = fail_res->start;
- 		res->end = fail_res->end;
- 		res->flags = fail_res->flags;
--		if (fail_res->dev->subordinate)
--			res->flags = 0;
-+
-+		if (pci_is_bridge(fail_res->dev)) {
-+			idx = res - &fail_res->dev->resource[0];
-+			if (idx >= PCI_BRIDGE_RESOURCES &&
-+			    idx <= PCI_BRIDGE_RESOURCE_END)
-+				res->flags = 0;
-+		}
- 	}
- 	free_list(&fail_head);
+ static void uverbs_uobject_free(struct kref *ref)
+ {
+-	struct ib_uobject *uobj =
+-		container_of(ref, struct ib_uobject, ref);
+-
+-	if (uobj->uapi_object->type_class->needs_kfree_rcu)
+-		kfree_rcu(uobj, rcu);
+-	else
+-		kfree(uobj);
++	kfree_rcu(container_of(ref, struct ib_uobject, ref), rcu);
+ }
  
-@@ -2066,12 +2072,18 @@ void pci_assign_unassigned_bridge_resources(struct pci_dev *bridge)
- 	/* restore size and flags */
- 	list_for_each_entry(fail_res, &fail_head, list) {
- 		struct resource *res = fail_res->res;
-+		int idx;
+ void uverbs_uobject_put(struct ib_uobject *uobject)
+@@ -753,20 +747,6 @@ const struct uverbs_obj_type_class uverbs_idr_class = {
+ 	.lookup_put = lookup_put_idr_uobject,
+ 	.destroy_hw = destroy_hw_idr_uobject,
+ 	.remove_handle = remove_handle_idr_uobject,
+-	/*
+-	 * When we destroy an object, we first just lock it for WRITE and
+-	 * actually DESTROY it in the finalize stage. So, the problematic
+-	 * scenario is when we just started the finalize stage of the
+-	 * destruction (nothing was executed yet). Now, the other thread
+-	 * fetched the object for READ access, but it didn't lock it yet.
+-	 * The DESTROY thread continues and starts destroying the object.
+-	 * When the other thread continue - without the RCU, it would
+-	 * access freed memory. However, the rcu_read_lock delays the free
+-	 * until the rcu_read_lock of the READ operation quits. Since the
+-	 * exclusive lock of the object is still taken by the DESTROY flow, the
+-	 * READ operation will get -EBUSY and it'll just bail out.
+-	 */
+-	.needs_kfree_rcu = true,
+ };
+ EXPORT_SYMBOL(uverbs_idr_class);
  
- 		res->start = fail_res->start;
- 		res->end = fail_res->end;
- 		res->flags = fail_res->flags;
--		if (fail_res->dev->subordinate)
--			res->flags = 0;
-+
-+		if (pci_is_bridge(fail_res->dev)) {
-+			idx = res - &fail_res->dev->resource[0];
-+			if (idx >= PCI_BRIDGE_RESOURCES &&
-+			    idx <= PCI_BRIDGE_RESOURCE_END)
-+				res->flags = 0;
-+		}
- 	}
- 	free_list(&fail_head);
+@@ -954,7 +934,6 @@ const struct uverbs_obj_type_class uverbs_fd_class = {
+ 	.lookup_put = lookup_put_fd_uobject,
+ 	.destroy_hw = destroy_hw_fd_uobject,
+ 	.remove_handle = remove_handle_fd_uobject,
+-	.needs_kfree_rcu = false,
+ };
+ EXPORT_SYMBOL(uverbs_fd_class);
  
+diff --git a/include/rdma/uverbs_types.h b/include/rdma/uverbs_types.h
+index acb1bfa3cc99a..f70155cc73979 100644
+--- a/include/rdma/uverbs_types.h
++++ b/include/rdma/uverbs_types.h
+@@ -97,7 +97,6 @@ struct uverbs_obj_type_class {
+ 	int __must_check (*destroy_hw)(struct ib_uobject *uobj,
+ 				       enum rdma_remove_reason why);
+ 	void (*remove_handle)(struct ib_uobject *uobj);
+-	u8    needs_kfree_rcu;
+ };
+ 
+ struct uverbs_obj_type {
 -- 
 2.20.1
 
