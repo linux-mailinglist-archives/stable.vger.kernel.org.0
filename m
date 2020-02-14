@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0E2E15E1EF
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:21:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9562715E1F1
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:21:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392831AbgBNQVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:21:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55582 "EHLO mail.kernel.org"
+        id S2405343AbgBNQVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:21:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405000AbgBNQVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:21:11 -0500
+        id S2405340AbgBNQVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:21:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 500E624696;
-        Fri, 14 Feb 2020 16:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A16272469F;
+        Fri, 14 Feb 2020 16:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697271;
-        bh=UKNtu5XRs/pDceewTzCYEE9giWtipSmHD1MFay/pACc=;
+        s=default; t=1581697273;
+        bh=P7PcwhEQKc9dJYLWA5Sy97y0Q0hHiop6lLN4kdBC4fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0g+CyMJ+sOk6kSjJuKaP54s92e1ER1t6lcQP1DxSYDBP+ZOgQPRm5+0pVQcL7JAqg
-         JmKo+TJ/xjbRmSiT8aAZpHH28C7TYdBA6TfRLyx0Aiso2nl8TyW7D8cY362d7Hmzq2
-         lH6bMnX4YA+Z9Tgie7TrMO6n2chpwtBcDqM3hhOA=
+        b=zLjd52hxrLCKxIrJ+0kKyfM1QSI4Mz1G4FziT7HLgRbTu+TyiDFrE0co9cVvAr0hC
+         Hj6MDxkfdoKBiahU1oHWY+zM6bt89hzxLa+wW3jdfCm9LvZgd3NG/L6pC3x+Pj3uAO
+         Kvu0Sl7Tm3sC26Z4EFHfNsU/lgMZ+Nmq2jNsDGw0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
-Subject: [PATCH AUTOSEL 4.14 184/186] help_next should increase position index
-Date:   Fri, 14 Feb 2020 11:17:13 -0500
-Message-Id: <20200214161715.18113-184-sashal@kernel.org>
+Cc:     Ido Schimmel <idosch@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 186/186] mlxsw: spectrum_dpipe: Add missing error path
+Date:   Fri, 14 Feb 2020 11:17:15 -0500
+Message-Id: <20200214161715.18113-186-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -43,33 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 9f198a2ac543eaaf47be275531ad5cbd50db3edf ]
+[ Upstream commit 3a99cbb6fa7bca1995586ec2dc21b0368aad4937 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+In case devlink_dpipe_entry_ctx_prepare() failed, release RTNL that was
+previously taken and free the memory allocated by
+mlxsw_sp_erif_entry_prepare().
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Fixes: 2ba5999f009d ("mlxsw: spectrum: Add Support for erif table entries access")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index 1c59dff530dee..34d1cc98260d2 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -305,6 +305,7 @@ static void *help_start(struct seq_file *m, loff_t *pos)
- 
- static void *help_next(struct seq_file *m, void *v, loff_t *pos)
- {
-+	(*pos)++;
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "help_next: start\n");
- 
- 	return NULL;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c
+index 51e6846da72bc..3c04f3d5de2dc 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c
+@@ -225,7 +225,7 @@ mlxsw_sp_dpipe_table_erif_entries_dump(void *priv, bool counters_enabled,
+ start_again:
+ 	err = devlink_dpipe_entry_ctx_prepare(dump_ctx);
+ 	if (err)
+-		return err;
++		goto err_ctx_prepare;
+ 	j = 0;
+ 	for (; i < rif_count; i++) {
+ 		struct mlxsw_sp_rif *rif = mlxsw_sp_rif_by_index(mlxsw_sp, i);
+@@ -257,6 +257,7 @@ mlxsw_sp_dpipe_table_erif_entries_dump(void *priv, bool counters_enabled,
+ 	return 0;
+ err_entry_append:
+ err_entry_get:
++err_ctx_prepare:
+ 	rtnl_unlock();
+ 	devlink_dpipe_entry_clear(&entry);
+ 	return err;
 -- 
 2.20.1
 
