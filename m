@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC45115E4AF
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6176115E4B9
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405762AbgBNQX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:23:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
+        id S1729472AbgBNQhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:37:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405756AbgBNQX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:23:56 -0500
+        id S2405758AbgBNQX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:23:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203032477E;
-        Fri, 14 Feb 2020 16:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68D9424787;
+        Fri, 14 Feb 2020 16:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697436;
-        bh=NifAf0h26zH6D6CNPvJCP6MoQzO4tqRvgabs6pItoNw=;
+        s=default; t=1581697437;
+        bh=wdqrxYPyjy0I0lxc+ygjYYNq7crfOp6Bd9hVxhogQZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4LeelStkU6YYJNGgpcIWWy7vrfAPGJhz9ahj1TfiTZ+VcDTAt+U2wHSUhy86Ps1f
-         8LrGoVedD6h+23apqYga3GlLDWnHUfP5CRLflbB65OttsUIbr/OjKeDZXRQIP6AjbD
-         Kidkc6EX7nddBmSrict87O4fjv5AFyhXb/zwSEJU=
+        b=Zx6olH03uxUb2VpWuUPa1+aPNKD+fLB7ndU9WnDrn7KJ7tV2oz5+MMNUqo8pI/Y5T
+         x1iI4D53PD/lTFCQrtdrfzHmR9FdY9cbaZC7PxWrkre1Oc12kegT0SmS2SksZJtLbV
+         tYptqHtYhdo/+iY9fnfUcLYfVLa+EPE+VsR6xSgE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 122/141] iwlegacy: ensure loop counter addr does not wrap and cause an infinite loop
-Date:   Fri, 14 Feb 2020 11:21:02 -0500
-Message-Id: <20200214162122.19794-122-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.9 123/141] cifs: fix NULL dereference in match_prepath
+Date:   Fri, 14 Feb 2020 11:21:03 -0500
+Message-Id: <20200214162122.19794-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -45,39 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit c2f9a4e4a5abfc84c01b738496b3fd2d471e0b18 ]
+[ Upstream commit fe1292686333d1dadaf84091f585ee903b9ddb84 ]
 
-The loop counter addr is a u16 where as the upper limit of the loop
-is an int. In the unlikely event that the il->cfg->eeprom_size is
-greater than 64K then we end up with an infinite loop since addr will
-wrap around an never reach upper loop limit. Fix this by making addr
-an int.
+RHBZ: 1760879
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: be663ab67077 ("iwlwifi: split the drivers for agn and legacy devices 3945/4965")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fix an oops in match_prepath() by making sure that the prepath string is not
+NULL before we pass it into strcmp().
+
+This is similar to other checks we make for example in cifs_root_iget()
+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlegacy/common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/connect.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlegacy/common.c b/drivers/net/wireless/intel/iwlegacy/common.c
-index 140b6ea8f7cc4..db2373fe8ac32 100644
---- a/drivers/net/wireless/intel/iwlegacy/common.c
-+++ b/drivers/net/wireless/intel/iwlegacy/common.c
-@@ -717,7 +717,7 @@ il_eeprom_init(struct il_priv *il)
- 	u32 gp = _il_rd(il, CSR_EEPROM_GP);
- 	int sz;
- 	int ret;
--	u16 addr;
-+	int addr;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 751bdde6515d5..961fcb40183a4 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2927,8 +2927,10 @@ match_prepath(struct super_block *sb, struct cifs_mnt_data *mnt_data)
+ {
+ 	struct cifs_sb_info *old = CIFS_SB(sb);
+ 	struct cifs_sb_info *new = mnt_data->cifs_sb;
+-	bool old_set = old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
+-	bool new_set = new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
++	bool old_set = (old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++		old->prepath;
++	bool new_set = (new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++		new->prepath;
  
- 	/* allocate eeprom */
- 	sz = il->cfg->eeprom_size;
+ 	if (old_set && new_set && !strcmp(new->prepath, old->prepath))
+ 		return 1;
 -- 
 2.20.1
 
