@@ -2,117 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5954215E8CD
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E1515F113
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:00:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394429AbgBNRCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:02:48 -0500
-Received: from mx2.suse.de ([195.135.220.15]:34652 "EHLO mx2.suse.de"
+        id S2388612AbgBNR75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:59:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394411AbgBNRCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 12:02:48 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 65BD3B133;
-        Fri, 14 Feb 2020 17:02:46 +0000 (UTC)
-From:   Roman Penyaev <rpenyaev@suse.de>
-Cc:     Roman Penyaev <rpenyaev@suse.de>,
-        Max Neunhoeffer <max@arangodb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christopher Kohlhoff <chris.kohlhoff@clearpool.io>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Jason Baron <jbaron@akamai.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v3 1/2] epoll: fix possible lost wakeup on epoll_ctl() path
-Date:   Fri, 14 Feb 2020 18:02:10 +0100
-Message-Id: <20200214170211.561524-1-rpenyaev@suse.de>
-X-Mailer: git-send-email 2.24.1
+        id S2387890AbgBNP4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:36 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D6E0222C4;
+        Fri, 14 Feb 2020 15:56:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581695796;
+        bh=jJmGbjrMcrnfyaWkDHs+k6NYLdiYkzr+UWsEzaleZVE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rO9EABfGsZReNiZvx7lZsW9s8T3fv+4ED850qpClu1nMDEN03tqykRPQMY1KX+HMq
+         HITUcuymKiacAcxRZJUl4KateDuf58kUylbD8u5Eq6gU5Wzyj7pCdxYjQkDJO+vznY
+         QyXefGCeeKEepYGka6f7SF7ux++DPfAtSfc05MuE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 357/542] drm/nouveau: Fix copy-paste error in nouveau_fence_wait_uevent_handler
+Date:   Fri, 14 Feb 2020 10:45:49 -0500
+Message-Id: <20200214154854.6746-357-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
+References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes possible lost wakeup introduced by the a218cc491420.
-Originally modifications to ep->wq were serialized by ep->wq.lock,
-but in the a218cc491420 new rw lock was introduced in order to
-relax fd event path, i.e. callers of ep_poll_callback() function.
+From: YueHaibing <yuehaibing@huawei.com>
 
-After the change ep_modify and ep_insert (both are called on
-epoll_ctl() path) were switched to ep->lock, but ep_poll
-(epoll_wait) was using ep->wq.lock on wqueue list modification.
+[ Upstream commit 1eb013473bff5f95b6fe1ca4dd7deda47257b9c2 ]
 
-The bug doesn't lead to any wqueue list corruptions, because wake up
-path and list modifications were serialized by ep->wq.lock
-internally, but actual waitqueue_active() check prior wake_up()
-call can be reordered with modifications of ep ready list, thus
-wake up can be lost.
+Like other cases, it should use rcu protected 'chan' rather
+than 'fence->channel' in nouveau_fence_wait_uevent_handler.
 
-And yes, can be healed by explicit smp_mb():
-
-  list_add_tail(&epi->rdlink, &ep->rdllist);
-  smp_mb();
-  if (waitqueue_active(&ep->wq))
-	wake_up(&ep->wp);
-
-But let's make it simple, thus current patch replaces ep->wq.lock
-with the ep->lock for wqueue modifications, thus wake up path
-always observes activeness of the wqueue correcty.
-
-Fixes: a218cc491420 ("epoll: use rwlock in order to reduce ep_poll_callback() contention")
-References: https://bugzilla.kernel.org/show_bug.cgi?id=205933
-Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-Reported-by: Max Neunhoeffer <max@arangodb.com>
-Bisected-by: Max Neunhoeffer <max@arangodb.com>
-Tested-by: Max Neunhoeffer <max@arangodb.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Christopher Kohlhoff <chris.kohlhoff@clearpool.io>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org  #5.1+
+Fixes: 0ec5f02f0e2c ("drm/nouveau: prevent stale fence->channel pointers, and protect with rcu")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Nothing was changed in v3
- Nothing interesting in v2:
-     changed the comment a bit and specified Reported-by and Bisected-by tags
+ drivers/gpu/drm/nouveau/nouveau_fence.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- fs/eventpoll.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index b041b66002db..eee3c92a9ebf 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1854,9 +1854,9 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 		waiter = true;
- 		init_waitqueue_entry(&wait, current);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fence.c b/drivers/gpu/drm/nouveau/nouveau_fence.c
+index 9118df035b28d..70bb6bb97af87 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fence.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fence.c
+@@ -156,7 +156,7 @@ nouveau_fence_wait_uevent_handler(struct nvif_notify *notify)
  
--		spin_lock_irq(&ep->wq.lock);
-+		write_lock_irq(&ep->lock);
- 		__add_wait_queue_exclusive(&ep->wq, &wait);
--		spin_unlock_irq(&ep->wq.lock);
-+		write_unlock_irq(&ep->lock);
+ 		fence = list_entry(fctx->pending.next, typeof(*fence), head);
+ 		chan = rcu_dereference_protected(fence->channel, lockdep_is_held(&fctx->lock));
+-		if (nouveau_fence_update(fence->channel, fctx))
++		if (nouveau_fence_update(chan, fctx))
+ 			ret = NVIF_NOTIFY_DROP;
  	}
- 
- 	for (;;) {
-@@ -1904,9 +1904,9 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 		goto fetch_events;
- 
- 	if (waiter) {
--		spin_lock_irq(&ep->wq.lock);
-+		write_lock_irq(&ep->lock);
- 		__remove_wait_queue(&ep->wq, &wait);
--		spin_unlock_irq(&ep->wq.lock);
-+		write_unlock_irq(&ep->lock);
- 	}
- 
- 	return res;
+ 	spin_unlock_irqrestore(&fctx->lock, flags);
 -- 
-2.24.1
+2.20.1
 
