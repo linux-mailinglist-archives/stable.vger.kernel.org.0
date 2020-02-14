@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 672F815DEAE
+	by mail.lfdr.de (Postfix) with ESMTP id DEE5715DEAF
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389878AbgBNQEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:04:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53182 "EHLO mail.kernel.org"
+        id S2390002AbgBNQEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:04:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389985AbgBNQEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:04:40 -0500
+        id S2389233AbgBNQEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:04:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70F762467E;
-        Fri, 14 Feb 2020 16:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FA9624697;
+        Fri, 14 Feb 2020 16:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696280;
-        bh=teQ3VhKRiQx4ZQR6KWHa0rIxyTGDKcRpRbGx2fbYElA=;
+        s=default; t=1581696285;
+        bh=VmjazXHbYOmE3kuJDLwNWEs0WTE/ymZRgyhhGE7grCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pi5VWJ1sLsJ1cLaa94k7erxGCrTRlt9LGst8t7j2v26+7CKkvBYzlFsRgLpZL2pYQ
-         PKrioY5MqDTDMBpaMGWqRs1GRG63vv56G59UwaYK+gYEw40NzyCieDuqqo+G9kFlF3
-         E8ClhZ0JZEs9/K+VZRjfxj+38eFvlbW4Ta5v/NlQ=
+        b=cu6zA+7q9QzjsCbvB73N94dBDi8p9sNsXM/pN6QC1kQxNYWxbJkPmtKNt08tuIQdp
+         j0FKFHjeXox5XmL/4QXXIuLPyK8ujTWiBNdinTwkjQWWd3p2XwbYTMaf4dXDWvlYfn
+         Jd2VpZPWy3FM9Qf7+paHoNAw5GWgpuj3ETkwZ/4I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 129/459] drm/amdgpu: remove set but not used variable 'invalid'
-Date:   Fri, 14 Feb 2020 10:56:19 -0500
-Message-Id: <20200214160149.11681-129-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 133/459] drm/gma500: remove set but not used variable 'is_hdmi','is_crt'
+Date:   Fri, 14 Feb 2020 10:56:23 -0500
+Message-Id: <20200214160149.11681-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,45 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 9e089a29c696d86d26e79737bafbce94738fb462 ]
+[ Upstream commit 834c43a97f341d319aa7b74099bbce2c4e75bc72 ]
 
 Fixes gcc '-Wunused-but-set-variable' warning:
 
-drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c: In function
-‘amdgpu_amdkfd_evict_userptr’:
-drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c:1665:6: warning:
-variable ‘invalid’ set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/gma500/cdv_intel_display.c: In function cdv_intel_crtc_mode_set:
+drivers/gpu/drm/gma500/cdv_intel_display.c:594:7: warning: variable is_hdmi set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/gma500/cdv_intel_display.c: In function cdv_intel_crtc_mode_set:
+drivers/gpu/drm/gma500/cdv_intel_display.c:593:7: warning: variable is_crt set but not used [-Wunused-but-set-variable]
 
-'invalid' is never used, so can be removed. Thus 'atomic_inc_return'
-can be replaced as 'atomic_inc'
+They are not used since commit acd7ef927e06 ("gma500:
+Update the Cedarview clock handling")
 
-Fixes: 5ae0283e831a ("drm/amdgpu: Add userptr support for KFD")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1573828027-122323-4-git-send-email-zhengbin13@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/gma500/cdv_intel_display.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index 6d021ecc8d598..77e5dcecb4612 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1657,10 +1657,10 @@ int amdgpu_amdkfd_evict_userptr(struct kgd_mem *mem,
- 				struct mm_struct *mm)
- {
- 	struct amdkfd_process_info *process_info = mem->process_info;
--	int invalid, evicted_bos;
-+	int evicted_bos;
- 	int r = 0;
- 
--	invalid = atomic_inc_return(&mem->invalid);
-+	atomic_inc(&mem->invalid);
- 	evicted_bos = atomic_inc_return(&process_info->evicted_bos);
- 	if (evicted_bos == 1) {
- 		/* First eviction, stop the queues */
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_display.c b/drivers/gpu/drm/gma500/cdv_intel_display.c
+index f56852a503e8d..910bf3bec34a1 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_display.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_display.c
+@@ -580,8 +580,8 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
+ 	struct gma_clock_t clock;
+ 	u32 dpll = 0, dspcntr, pipeconf;
+ 	bool ok;
+-	bool is_crt = false, is_lvds = false, is_tv = false;
+-	bool is_hdmi = false, is_dp = false;
++	bool is_lvds = false, is_tv = false;
++	bool is_dp = false;
+ 	struct drm_mode_config *mode_config = &dev->mode_config;
+ 	struct drm_connector *connector;
+ 	const struct gma_limit_t *limit;
+@@ -605,10 +605,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
+ 			is_tv = true;
+ 			break;
+ 		case INTEL_OUTPUT_ANALOG:
+-			is_crt = true;
+-			break;
+ 		case INTEL_OUTPUT_HDMI:
+-			is_hdmi = true;
+ 			break;
+ 		case INTEL_OUTPUT_DISPLAYPORT:
+ 			is_dp = true;
 -- 
 2.20.1
 
