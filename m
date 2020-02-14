@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BDB15F41C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C8615F41A
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390283AbgBNSSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:18:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55174 "EHLO mail.kernel.org"
+        id S2394160AbgBNSSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:18:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730585AbgBNPuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:50:46 -0500
+        id S1729872AbgBNPur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:50:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F3EE22314;
-        Fri, 14 Feb 2020 15:50:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46F392467E;
+        Fri, 14 Feb 2020 15:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695445;
-        bh=Qt8Et4Nmv72ffbqegZAEOEqYIFv83EAW38M0+ZpuCtQ=;
+        s=default; t=1581695446;
+        bh=IuS2CtTqepTc4chmTYqBB1uenb3nV/CDnvFzzHUVADM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGEPCWh9BMDGJ2UAm7D2cIzmb4TDo1ybHTUvZ0ptNdZ74OPhJxSqckwHpWv9YVOZx
-         Uu4melaW9XUwuqvOcnAovGovgOSdvnpJiYlRXYTAI9zIHWS2e2sO/FDOWsKJJwbZqa
-         ztvcMHM/UMfhQ2i8WLhMpOJBlZD5qubrwNtAzoVI=
+        b=q9zno8BcUVepaeuAaBQ5akOpGf2DAQf6WMnw34C/QnQq2ZBXLqtHpOv/4GRQVL1mn
+         FDV5U1/k14Rlcy3w8Pb9owZXHrwJZcAhFORz/H2W9g56+KMkDcU1BhE1iOsc0OsM+F
+         0vK13YFJqgzpZD9PItxz56NY30fWBq7xOdqvG2y0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Christopher Head <chead@chead.ca>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 086/542] x86/sysfb: Fix check for bad VRAM size
-Date:   Fri, 14 Feb 2020 10:41:18 -0500
-Message-Id: <20200214154854.6746-86-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 087/542] pwm: omap-dmtimer: Simplify error handling
+Date:   Fri, 14 Feb 2020 10:41:19 -0500
+Message-Id: <20200214154854.6746-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,48 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit dacc9092336be20b01642afe1a51720b31f60369 ]
+[ Upstream commit c4cf7aa57eb83b108d2d9c6c37c143388fee2a4d ]
 
-When checking whether the reported lfb_size makes sense, the height
-* stride result is page-aligned before seeing whether it exceeds the
-reported size.
+Instead of doing error handling in the middle of ->probe(), move error
+handling and freeing the reference to timer to the end.
 
-This doesn't work if height * stride is not an exact number of pages.
-For example, as reported in the kernel bugzilla below, an 800x600x32 EFI
-framebuffer gets skipped because of this.
+This fixes a resource leak as dm_timer wasn't freed when allocating
+*omap failed.
 
-Move the PAGE_ALIGN to after the check vs size.
+Implementation note: The put: label was never reached without a goto and
+ret being unequal to 0, so the removed return statement is fine.
 
-Reported-by: Christopher Head <chead@chead.ca>
-Tested-by: Christopher Head <chead@chead.ca>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206051
-Link: https://lkml.kernel.org/r/20200107230410.2291947-1-nivedita@alum.mit.edu
+Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sysfb_simplefb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-omap-dmtimer.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/sysfb_simplefb.c b/arch/x86/kernel/sysfb_simplefb.c
-index 01f0e2263b86b..298fc1edd9c95 100644
---- a/arch/x86/kernel/sysfb_simplefb.c
-+++ b/arch/x86/kernel/sysfb_simplefb.c
-@@ -90,11 +90,11 @@ __init int create_simplefb(const struct screen_info *si,
- 	if (si->orig_video_isVGA == VIDEO_TYPE_VLFB)
- 		size <<= 16;
- 	length = mode->height * mode->stride;
--	length = PAGE_ALIGN(length);
- 	if (length > size) {
- 		printk(KERN_WARNING "sysfb: VRAM smaller than advertised\n");
- 		return -EINVAL;
+diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
+index 00772fc534906..6cfeb0e1cc679 100644
+--- a/drivers/pwm/pwm-omap-dmtimer.c
++++ b/drivers/pwm/pwm-omap-dmtimer.c
+@@ -298,15 +298,10 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
+ 		goto put;
  	}
-+	length = PAGE_ALIGN(length);
  
- 	/* setup IORESOURCE_MEM as framebuffer memory */
- 	memset(&res, 0, sizeof(res));
+-put:
+-	of_node_put(timer);
+-	if (ret < 0)
+-		return ret;
+-
+ 	omap = devm_kzalloc(&pdev->dev, sizeof(*omap), GFP_KERNEL);
+ 	if (!omap) {
+-		pdata->free(dm_timer);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_alloc_omap;
+ 	}
+ 
+ 	omap->pdata = pdata;
+@@ -339,13 +334,28 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
+ 	ret = pwmchip_add(&omap->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM\n");
+-		omap->pdata->free(omap->dm_timer);
+-		return ret;
++		goto err_pwmchip_add;
+ 	}
+ 
++	of_node_put(timer);
++
+ 	platform_set_drvdata(pdev, omap);
+ 
+ 	return 0;
++
++err_pwmchip_add:
++
++	/*
++	 * *omap is allocated using devm_kzalloc,
++	 * so no free necessary here
++	 */
++err_alloc_omap:
++
++	pdata->free(dm_timer);
++put:
++	of_node_put(timer);
++
++	return ret;
+ }
+ 
+ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
 -- 
 2.20.1
 
