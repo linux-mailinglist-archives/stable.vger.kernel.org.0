@@ -2,109 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7452415F908
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 22:55:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE4F15F90B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 22:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730486AbgBNVyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 16:54:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59484 "EHLO mail.kernel.org"
+        id S2387755AbgBNVye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 16:54:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728911AbgBNVyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 16:54:32 -0500
+        id S2387666AbgBNVyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 16:54:33 -0500
 Received: from localhost (unknown [65.119.211.164])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A914A24649;
-        Fri, 14 Feb 2020 21:54:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0823B2168B;
+        Fri, 14 Feb 2020 21:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581717271;
-        bh=4EaJD4cBQj2ixLoQQ9Ro1z/eRAHDR7cjQ7KLJA2dnYQ=;
+        s=default; t=1581717273;
+        bh=hYecJEDTMS4sRitWMiS4XFnCF5z2Aq11PjB0ocf5FBA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cH50z6/hQ484QtdtM5AbiW5rhX8uAxBJ1xvtyDj7AaCp7i2VBV/JQskY7FIW/iJEK
-         qb+yMvXEQrefwv+MBxWKsHs94qopKbTcKYeH7mwqR5UFKZ2KRvwzXt2SDqNx1hrBca
-         VV0MIrjMZotasSKN6+pva+GYlfR5aLKTZIPWmGyw=
-Date:   Fri, 14 Feb 2020 16:47:30 -0500
+        b=efxubQc02cob0OZRWoak22UQRTd1ture8757Wvxpl1sJrxttz+uMoE1OapwO9G/CT
+         rPdHFMetp53Bqm3kwxbnxS2qZXXQ3WMJAncji36qMySi33bKGv75PkcEo9jf6eRl2K
+         p0mUjGuYet/enBHsH62vYCeNBn1zQ0HWcBivjdh8=
+Date:   Fri, 14 Feb 2020 16:48:23 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@google.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Joerg Roedel <jroedel@suse.de>, Will Deacon <will@kernel.org>,
-        John Garry <john.garry@huawei.com>, linux-pci@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 253/542] PCI/ATS: Restore EXPORT_SYMBOL_GPL()
- for pci_{enable,disable}_ats()
-Message-ID: <20200214214730.GC4193448@kroah.com>
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: Re: [PATCH AUTOSEL 5.5 456/542] char: hpet: Use flexible-array member
+Message-ID: <20200214214823.GD4193448@kroah.com>
 References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-253-sashal@kernel.org>
+ <20200214154854.6746-456-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200214154854.6746-253-sashal@kernel.org>
+In-Reply-To: <20200214154854.6746-456-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 10:44:05AM -0500, Sasha Levin wrote:
-> From: Greg Kroah-Hartman <gregkh@google.com>
+On Fri, Feb 14, 2020 at 10:47:28AM -0500, Sasha Levin wrote:
+> From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 > 
-> [ Upstream commit bb950bca5d522119f8b9ce3f6cbac4841c6d6517 ]
+> [ Upstream commit 987f028b8637cfa7658aa456ae73f8f21a7a7f6f ]
 > 
-> Commit d355bb209783 ("PCI/ATS: Remove unnecessary EXPORT_SYMBOL_GPL()")
-> unexported a bunch of symbols from the PCI core since the only external
-> users were non-modular IOMMU drivers. Although most of those symbols
-> can remain private for now, 'pci_{enable,disable_ats()' is required for
-> the ARM SMMUv3 driver to build as a module, otherwise we get a build
-> failure as follows:
+> Old code in the kernel uses 1-byte and 0-byte arrays to indicate the
+> presence of a "variable length array":
 > 
->   | ERROR: "pci_enable_ats" [drivers/iommu/arm-smmu-v3.ko] undefined!
->   | ERROR: "pci_disable_ats" [drivers/iommu/arm-smmu-v3.ko] undefined!
+> struct something {
+>     int length;
+>     u8 data[1];
+> };
 > 
-> Re-export these two functions so that the ARM SMMUv3 driver can be build
-> as a module.
+> struct something *instance;
 > 
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: Joerg Roedel <jroedel@suse.de>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@google.com>
-> [will: rewrote commit message]
-> Signed-off-by: Will Deacon <will@kernel.org>
-> Tested-by: John Garry <john.garry@huawei.com> # smmu v3
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> instance = kmalloc(sizeof(*instance) + size, GFP_KERNEL);
+> instance->length = size;
+> memcpy(instance->data, source, size);
+> 
+> There is also 0-byte arrays. Both cases pose confusion for things like
+> sizeof(), CONFIG_FORTIFY_SOURCE, etc.[1] Instead, the preferred mechanism
+> to declare variable-length types such as the one above is a flexible array
+> member[2] which need to be the last member of a structure and empty-sized:
+> 
+> struct something {
+>         int stuff;
+>         u8 data[];
+> };
+> 
+> Also, by making use of the mechanism above, we will get a compiler warning
+> in case the flexible array does not occur last in the structure, which
+> will help us prevent some kind of undefined behavior bugs from being
+> unadvertenly introduced[3] to the codebase from now on.
+> 
+> [1] https://github.com/KSPP/linux/issues/21
+> [2] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+> [3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> Link: https://lore.kernel.org/r/20200120235326.GA29231@embeddedor.com
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  drivers/pci/ats.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/char/hpet.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/pci/ats.c b/drivers/pci/ats.c
-> index b6f064c885c37..3ef0bb281e7cc 100644
-> --- a/drivers/pci/ats.c
-> +++ b/drivers/pci/ats.c
-> @@ -69,6 +69,7 @@ int pci_enable_ats(struct pci_dev *dev, int ps)
->  	dev->ats_enabled = 1;
->  	return 0;
->  }
-> +EXPORT_SYMBOL_GPL(pci_enable_ats);
+> diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
+> index 9ac6671bb5141..aed2c45f7968c 100644
+> --- a/drivers/char/hpet.c
+> +++ b/drivers/char/hpet.c
+> @@ -110,7 +110,7 @@ struct hpets {
+>  	unsigned long hp_delta;
+>  	unsigned int hp_ntimer;
+>  	unsigned int hp_which;
+> -	struct hpet_dev hp_dev[1];
+> +	struct hpet_dev hp_dev[];
+>  };
 >  
->  /**
->   * pci_disable_ats - disable the ATS capability
-> @@ -87,6 +88,7 @@ void pci_disable_ats(struct pci_dev *dev)
->  
->  	dev->ats_enabled = 0;
->  }
-> +EXPORT_SYMBOL_GPL(pci_disable_ats);
->  
->  void pci_restore_ats_state(struct pci_dev *dev)
->  {
+>  static struct hpets *hpets;
 > -- 
 > 2.20.1
 > 
 
-This isn't needed to be backported as the problem it solves is not in
-the 5.5 or older kernels, it only showed up in 5.6-rc1, and this was
-part of a larger patchset.
+Not needed, please drop from all trees.  Along with the other hpet patch
+that fixes the bug this one introduced :)
 
-So please drop from everywhere, thanks.
+thanks,
 
 greg k-h
