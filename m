@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EFC815E5AA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:44:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D4415E5AC
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:44:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393101AbgBNQVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:21:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56734 "EHLO mail.kernel.org"
+        id S2393109AbgBNQVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:21:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393095AbgBNQVu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:21:50 -0500
+        id S2393100AbgBNQVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:21:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E73CC246B8;
-        Fri, 14 Feb 2020 16:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01C96246AC;
+        Fri, 14 Feb 2020 16:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697309;
-        bh=yi9QOP/il3GJcu7Kn35kfDf8jWGVv+A/VKq1CrPmysg=;
+        s=default; t=1581697310;
+        bh=ocdjRBdF3SWbCeWgrak9y4X6hDQvhe0i5iBNvmefeNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXKJDCpcMoI0p4PXTrVbzKt2gQEXQgr9teWc+lKc6mRtyLl9gbfgXDDoXVQCOlKPY
-         aohQpm0VDM5Tjn7PVYcbDl/kYDhR+ogOIGnjP64xn3wYErjIt0FQdaRTiTVaH3R/Ym
-         JhxCoiF/iBmk+1PnjBI1IRiFkLJlkPlZUPb7xXy4=
+        b=HMUC7m/DihzXHniIG7eJSj78Pwp7HgYrAw33KKRUWrxb1W5Pomi+DbKiVtiIpD0YF
+         8OyI6JcIyWvMkuZyBvFnczuOJCntWCIz37XWz/z1U1vy3qZuMQ9050Rg/9CaBTmsXm
+         y12rQdhPprINA36KQOI8FBCZJIO4uCQ2dBZ7Q1Yk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 021/141] nfs: NFS_SWAP should depend on SWAP
-Date:   Fri, 14 Feb 2020 11:19:21 -0500
-Message-Id: <20200214162122.19794-21-sashal@kernel.org>
+Cc:     Kai Li <li.kai4@h3c.com>, Theodore Ts'o <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 022/141] jbd2: clear JBD2_ABORT flag before journal_reset to update log tail info when load journal
+Date:   Fri, 14 Feb 2020 11:19:22 -0500
+Message-Id: <20200214162122.19794-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -43,40 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kai Li <li.kai4@h3c.com>
 
-[ Upstream commit 474c4f306eefbb21b67ebd1de802d005c7d7ecdc ]
+[ Upstream commit a09decff5c32060639a685581c380f51b14e1fc2 ]
 
-If CONFIG_SWAP=n, it does not make much sense to offer the user the
-option to enable support for swapping over NFS, as that will still fail
-at run time:
+If the journal is dirty when the filesystem is mounted, jbd2 will replay
+the journal but the journal superblock will not be updated by
+journal_reset() because JBD2_ABORT flag is still set (it was set in
+journal_init_common()). This is problematic because when a new transaction
+is then committed, it will be recorded in block 1 (journal->j_tail was set
+to 1 in journal_reset()). If unclean shutdown happens again before the
+journal superblock is updated, the new recorded transaction will not be
+replayed during the next mount (because of stale sb->s_start and
+sb->s_sequence values) which can lead to filesystem corruption.
 
-    # swapon /swap
-    swapon: /swap: swapon failed: Function not implemented
-
-Fix this by adding a dependency on CONFIG_SWAP.
-
-Fixes: a564b8f0398636ba ("nfs: enable swap on NFS")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 85e0c4e89c1b ("jbd2: if the journal is aborted then don't allow update of the log tail")
+Signed-off-by: Kai Li <li.kai4@h3c.com>
+Link: https://lore.kernel.org/r/20200111022542.5008-1-li.kai4@h3c.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jbd2/journal.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
-index b1daeafbea920..c3428767332c2 100644
---- a/fs/nfs/Kconfig
-+++ b/fs/nfs/Kconfig
-@@ -89,7 +89,7 @@ config NFS_V4
- config NFS_SWAP
- 	bool "Provide swap over NFS support"
- 	default n
--	depends on NFS_FS
-+	depends on NFS_FS && SWAP
- 	select SUNRPC_SWAP
- 	help
- 	  This option enables swapon to work on files located on NFS mounts.
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 3cbcf649ac660..40c754854b29e 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -1670,6 +1670,11 @@ int jbd2_journal_load(journal_t *journal)
+ 		       journal->j_devname);
+ 		return -EFSCORRUPTED;
+ 	}
++	/*
++	 * clear JBD2_ABORT flag initialized in journal_init_common
++	 * here to update log tail information with the newest seq.
++	 */
++	journal->j_flags &= ~JBD2_ABORT;
+ 
+ 	/* OK, we've finished with the dynamic journal bits:
+ 	 * reinitialise the dynamic contents of the superblock in memory
+@@ -1677,7 +1682,6 @@ int jbd2_journal_load(journal_t *journal)
+ 	if (journal_reset(journal))
+ 		goto recovery_error;
+ 
+-	journal->j_flags &= ~JBD2_ABORT;
+ 	journal->j_flags |= JBD2_LOADED;
+ 	return 0;
+ 
 -- 
 2.20.1
 
