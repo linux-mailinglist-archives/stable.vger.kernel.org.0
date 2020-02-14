@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 138A915DCCE
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3CB15DCD1
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731685AbgBNPzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:55:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35728 "EHLO mail.kernel.org"
+        id S1731274AbgBNPzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:55:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731113AbgBNPzD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:55:03 -0500
+        id S1731348AbgBNPzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:55:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 208E8222C4;
-        Fri, 14 Feb 2020 15:55:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF9A524687;
+        Fri, 14 Feb 2020 15:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695702;
-        bh=kghje1weHDXaNnkhjKVQVyo+h5Uf7vFFAzcwhw0XdyY=;
+        s=default; t=1581695709;
+        bh=IMsQ7+myA2VFgMAOR1pcDR51QxoVGL6Z14/X9w+j5No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wc1vnLekU0V6e2vbCBOZHYY3gWlQmolCqENwpXOpIeINtyflAipsiYKi4yVKHAJO6
-         pkJPJhPjRrpWX823e1rmNTH89w5QrD0ZBOetTHxxYp5dybrmANAD73tDarCDhjVJ48
-         kcT9SXM7dxynieiiisHpKGJlcfuAubVLLAtkq3as=
+        b=b6b+fSvU7w3ub7hJHO4WaRZcFM7b+e65UHQOKMQvvLc+DKPivlvWbz389GfyJlqjj
+         NuXWQf1eNLQxuQ0ID1HEd1OLEO9OJClIHBzVUSeu3g7MOzNLnevVjqMH1Ogo/d2HVw
+         U8kjjO96r/ZPzEWz4Kp+SJKX6ZwU0HbFTUPQutFo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.5 284/542] ALSA: sh: Fix compile warning wrt const
-Date:   Fri, 14 Feb 2020 10:44:36 -0500
-Message-Id: <20200214154854.6746-284-sashal@kernel.org>
+Cc:     Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 289/542] x86/unwind/orc: Fix !CONFIG_MODULES build warning
+Date:   Fri, 14 Feb 2020 10:44:41 -0500
+Message-Id: <20200214154854.6746-289-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,39 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-[ Upstream commit f1dd4795b1523fbca7ab4344dd5a8bb439cc770d ]
+[ Upstream commit 22a7fa8848c5e881d87ef2f7f3c2ea77b286e6f9 ]
 
-A long-standing compile warning was seen during build test:
-  sound/sh/aica.c: In function 'load_aica_firmware':
-  sound/sh/aica.c:521:25: warning: passing argument 2 of 'spu_memload' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+To fix follwowing warning due to ORC sort moved to build time:
 
-Fixes: 198de43d758c ("[ALSA] Add ALSA support for the SEGA Dreamcast PCM device")
-Link: https://lore.kernel.org/r/20200105144823.29547-69-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  arch/x86/kernel/unwind_orc.c:210:12: warning: ‘orc_sort_cmp’ defined but not used [-Wunused-function]
+  arch/x86/kernel/unwind_orc.c:190:13: warning: ‘orc_sort_swap’ defined but not used [-Wunused-function]
+
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/c9c81536-2afc-c8aa-c5f8-c7618ecd4f54@linux.alibaba.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/sh/aica.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/unwind_orc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/sh/aica.c b/sound/sh/aica.c
-index bf1fb0d8a9306..f69072d2564c8 100644
---- a/sound/sh/aica.c
-+++ b/sound/sh/aica.c
-@@ -101,10 +101,10 @@ static void spu_memset(u32 toi, u32 what, int length)
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 332ae6530fa88..7a9306bc5982f 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -187,6 +187,8 @@ static struct orc_entry *orc_find(unsigned long ip)
+ 	return orc_ftrace_find(ip);
  }
  
- /* spu_memload - write to SPU address space */
--static void spu_memload(u32 toi, void *from, int length)
-+static void spu_memload(u32 toi, const void *from, int length)
++#ifdef CONFIG_MODULES
++
+ static void orc_sort_swap(void *_a, void *_b, int size)
  {
- 	unsigned long flags;
--	u32 *froml = from;
-+	const u32 *froml = from;
- 	u32 __iomem *to = (u32 __iomem *) (SPU_MEMORY_BASE + toi);
- 	int i;
- 	u32 val;
+ 	struct orc_entry *orc_a, *orc_b;
+@@ -229,7 +231,6 @@ static int orc_sort_cmp(const void *_a, const void *_b)
+ 	return orc_a->sp_reg == ORC_REG_UNDEFINED && !orc_a->end ? -1 : 1;
+ }
+ 
+-#ifdef CONFIG_MODULES
+ void unwind_module_init(struct module *mod, void *_orc_ip, size_t orc_ip_size,
+ 			void *_orc, size_t orc_size)
+ {
 -- 
 2.20.1
 
