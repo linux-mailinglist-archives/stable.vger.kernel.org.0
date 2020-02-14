@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA14515EC68
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ECA815EC77
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:28:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390879AbgBNQIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:08:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60048 "EHLO mail.kernel.org"
+        id S2390743AbgBNR1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:27:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389168AbgBNQIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:08:12 -0500
+        id S2390876AbgBNQIN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:08:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BC972067D;
-        Fri, 14 Feb 2020 16:08:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8236022314;
+        Fri, 14 Feb 2020 16:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696492;
-        bh=qe91vsZl+bETNV5aGSCLwyygrLUCbqOnEPRe1+9FlF4=;
+        s=default; t=1581696493;
+        bh=p5HfsD/7oSJvIOKScBFttuw+L3MLtwgbJ+C+qro4QB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1bZQD+uVsWmqyVyRTx/6QU/Eo8mN6B4f2ZVUgVwBexqZVFS0XR8scEahL9MV0Ngy
-         y04BRRsaiJB/0W8/B/34yqR50TCeIm13sue0EDQ1Iqt4xxiHRtIkRFsvXozsHhmCKM
-         13rg74a0OYA2SKQZ63dlBef5joEkDofo+pxhInsY=
+        b=Xb3MV2MnbWV+WTQRo72fH7iWyzjkow26+V/hldrlBg0vlIHKzAB7NwutN5UjtfKRQ
+         y0LugU7FAix4fbEPUQ5l2JNZhRwyyOxB4BRbPrS3/ibP07c0ZWo+hGFSztBqXXCpYn
+         fZ6PCACAXqdKjOHUXsC/+czFtbkbccE8hYwAm1QQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+Cc:     Hongbo Yao <yaohongbo@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 297/459] tty: synclink_gt: Adjust indentation in several functions
-Date:   Fri, 14 Feb 2020 10:59:07 -0500
-Message-Id: <20200214160149.11681-297-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 298/459] misc: genwqe: fix compile warnings
+Date:   Fri, 14 Feb 2020 10:59:08 -0500
+Message-Id: <20200214160149.11681-298-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,116 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Hongbo Yao <yaohongbo@huawei.com>
 
-[ Upstream commit 446e76873b5e4e70bdee5db2f2a894d5b4a7d081 ]
+[ Upstream commit 8edf4cd193067ac5e03fd9580f1affbb6a3f729b ]
 
-Clang warns:
+Using the following command will get compile warnings:
+make W=1 drivers/misc/genwqe/card_ddcb.o ARCH=x86_64
 
-../drivers/tty/synclink_gt.c:1337:3: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-        if (C_CRTSCTS(tty)) {
-        ^
-../drivers/tty/synclink_gt.c:1335:2: note: previous statement is here
-        if (I_IXOFF(tty))
-        ^
-../drivers/tty/synclink_gt.c:2563:3: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-        if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
-        ^
-../drivers/tty/synclink_gt.c:2561:2: note: previous statement is here
-        if (I_INPCK(info->port.tty))
-        ^
-../drivers/tty/synclink_gt.c:3221:3: warning: misleading indentation;
-statement is not part of the previous 'else' [-Wmisleading-indentation]
-        set_signals(info);
-        ^
-../drivers/tty/synclink_gt.c:3219:2: note: previous statement is here
-        else
-        ^
-3 warnings generated.
+drivers/misc/genwqe/card_ddcb.c: In function setup_ddcb_queue:
+drivers/misc/genwqe/card_ddcb.c:1024:6: warning: variable rc set but not
+used [-Wunused-but-set-variable]
+drivers/misc/genwqe/card_ddcb.c: In function genwqe_card_thread:
+drivers/misc/genwqe/card_ddcb.c:1190:23: warning: variable rc set but
+not used [-Wunused-but-set-variable]
 
-The indentation on these lines is not at all consistent, tabs and spaces
-are mixed together. Convert to just using tabs to be consistent with the
-Linux kernel coding style and eliminate these warnings from clang.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/822
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://lore.kernel.org/r/20191218023912.13827-1-natechancellor@gmail.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Hongbo Yao <yaohongbo@huawei.com>
+Link: https://lore.kernel.org/r/20191205111655.170382-1-yaohongbo@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/synclink_gt.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/misc/genwqe/card_ddcb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index e8a9047de4516..36f1a4d870eb1 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -1334,10 +1334,10 @@ static void throttle(struct tty_struct * tty)
- 	DBGINFO(("%s throttle\n", info->device_name));
- 	if (I_IXOFF(tty))
- 		send_xchar(tty, STOP_CHAR(tty));
-- 	if (C_CRTSCTS(tty)) {
-+	if (C_CRTSCTS(tty)) {
- 		spin_lock_irqsave(&info->lock,flags);
- 		info->signals &= ~SerialSignal_RTS;
--	 	set_signals(info);
-+		set_signals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
- }
-@@ -1359,10 +1359,10 @@ static void unthrottle(struct tty_struct * tty)
- 		else
- 			send_xchar(tty, START_CHAR(tty));
- 	}
-- 	if (C_CRTSCTS(tty)) {
-+	if (C_CRTSCTS(tty)) {
- 		spin_lock_irqsave(&info->lock,flags);
- 		info->signals |= SerialSignal_RTS;
--	 	set_signals(info);
-+		set_signals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
- }
-@@ -2560,8 +2560,8 @@ static void change_params(struct slgt_info *info)
- 	info->read_status_mask = IRQ_RXOVER;
- 	if (I_INPCK(info->port.tty))
- 		info->read_status_mask |= MASK_PARITY | MASK_FRAMING;
-- 	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
-- 		info->read_status_mask |= MASK_BREAK;
-+	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
-+		info->read_status_mask |= MASK_BREAK;
- 	if (I_IGNPAR(info->port.tty))
- 		info->ignore_status_mask |= MASK_PARITY | MASK_FRAMING;
- 	if (I_IGNBRK(info->port.tty)) {
-@@ -3192,7 +3192,7 @@ static int tiocmset(struct tty_struct *tty,
- 		info->signals &= ~SerialSignal_DTR;
+diff --git a/drivers/misc/genwqe/card_ddcb.c b/drivers/misc/genwqe/card_ddcb.c
+index 026c6ca245408..905106579935a 100644
+--- a/drivers/misc/genwqe/card_ddcb.c
++++ b/drivers/misc/genwqe/card_ddcb.c
+@@ -1084,7 +1084,7 @@ static int setup_ddcb_queue(struct genwqe_dev *cd, struct ddcb_queue *queue)
+ 				queue->ddcb_daddr);
+ 	queue->ddcb_vaddr = NULL;
+ 	queue->ddcb_daddr = 0ull;
+-	return -ENODEV;
++	return rc;
  
- 	spin_lock_irqsave(&info->lock,flags);
-- 	set_signals(info);
-+	set_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 	return 0;
- }
-@@ -3203,7 +3203,7 @@ static int carrier_raised(struct tty_port *port)
- 	struct slgt_info *info = container_of(port, struct slgt_info, port);
- 
- 	spin_lock_irqsave(&info->lock,flags);
-- 	get_signals(info);
-+	get_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
- }
-@@ -3218,7 +3218,7 @@ static void dtr_rts(struct tty_port *port, int on)
- 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
- 	else
- 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
-- 	set_signals(info);
-+	set_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
  }
  
+@@ -1179,7 +1179,7 @@ static irqreturn_t genwqe_vf_isr(int irq, void *dev_id)
+  */
+ static int genwqe_card_thread(void *data)
+ {
+-	int should_stop = 0, rc = 0;
++	int should_stop = 0;
+ 	struct genwqe_dev *cd = (struct genwqe_dev *)data;
+ 
+ 	while (!kthread_should_stop()) {
+@@ -1187,12 +1187,12 @@ static int genwqe_card_thread(void *data)
+ 		genwqe_check_ddcb_queue(cd, &cd->queue);
+ 
+ 		if (GENWQE_POLLING_ENABLED) {
+-			rc = wait_event_interruptible_timeout(
++			wait_event_interruptible_timeout(
+ 				cd->queue_waitq,
+ 				genwqe_ddcbs_in_flight(cd) ||
+ 				(should_stop = kthread_should_stop()), 1);
+ 		} else {
+-			rc = wait_event_interruptible_timeout(
++			wait_event_interruptible_timeout(
+ 				cd->queue_waitq,
+ 				genwqe_next_ddcb_ready(cd) ||
+ 				(should_stop = kthread_should_stop()), HZ);
 -- 
 2.20.1
 
