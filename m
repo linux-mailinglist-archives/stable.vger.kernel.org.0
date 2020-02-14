@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C8915E184
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B169315E18E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:19:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404926AbgBNQTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:19:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52036 "EHLO mail.kernel.org"
+        id S2404982AbgBNQTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:19:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404922AbgBNQTD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:19:03 -0500
+        id S2404977AbgBNQTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:19:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24EB124709;
-        Fri, 14 Feb 2020 16:19:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D9CC2470B;
+        Fri, 14 Feb 2020 16:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697142;
-        bh=5ZhS83xKSd69Gd6diFUVn9rulU3syIPi3/tE+VyKn6o=;
+        s=default; t=1581697160;
+        bh=nTuhEsUJ/ZNBwAWvy2RhX4lADpGDTGPM2k2rZZ1pgTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0o7HKWseF90c1/VyH/Al4+l6Ib0DLpPxpYwXTzGS49tCSCkK4ZAkViR19YqWuXXc
-         p8UNOkndzmr7Jd0CkJQhSB6nRsozCYekbuJcxytBXxzOJimbmi+h8RDB0QEeMGffmY
-         2fc4GJ2Sm54GN1Nvlxbv8409+WQMM0+/UYOg6LZA=
+        b=YiAezlQT4uky7XHiXGlC2/LGhj3zAHR7bopmuw5M5Uk+SCnrI0M6HbllR78hAQ668
+         v4tV59AVS8Cf7K2OG3YclQsEWp3M3raqISRxr080b/FiNRVM8TQTC+yEPYkUiff/dH
+         S3zd8ikos48XBbWLFiC/R/S6KWHfE7CzuqmU1tJ4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>, Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Icenowy Zheng <icenowy@aosc.io>,
+        Vasily Khoruzhick <anarsoul@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 083/186] orinoco: avoid assertion in case of NULL pointer
-Date:   Fri, 14 Feb 2020 11:15:32 -0500
-Message-Id: <20200214161715.18113-83-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 097/186] clk: sunxi-ng: add mux and pll notifiers for A64 CPU clock
+Date:   Fri, 14 Feb 2020 11:15:46 -0500
+Message-Id: <20200214161715.18113-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -43,35 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit c705f9fc6a1736dcf6ec01f8206707c108dca824 ]
+[ Upstream commit ec97faff743b398e21f74a54c81333f3390093aa ]
 
-In ezusb_init, if upriv is NULL, the code crashes. However, the caller
-in ezusb_probe can handle the error and print the failure message.
-The patch replaces the BUG_ON call to error return.
+The A64 PLL_CPU clock has the same instability if some factor changed
+without the PLL gated like other SoCs with sun6i-style CCU, e.g. A33,
+H3.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Add the mux and pll notifiers for A64 CPU clock to workaround the
+problem.
+
+Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intersil/orinoco/orinoco_usb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 28 ++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-index 95015d74b1c0e..5a64674a5c8da 100644
---- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-+++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-@@ -1364,7 +1364,8 @@ static int ezusb_init(struct hermes *hw)
- 	int retval;
+diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+index eaafc038368f5..183985c8c9bab 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
++++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+@@ -884,11 +884,26 @@ static const struct sunxi_ccu_desc sun50i_a64_ccu_desc = {
+ 	.num_resets	= ARRAY_SIZE(sun50i_a64_ccu_resets),
+ };
  
- 	BUG_ON(in_interrupt());
--	BUG_ON(!upriv);
-+	if (!upriv)
-+		return -EINVAL;
++static struct ccu_pll_nb sun50i_a64_pll_cpu_nb = {
++	.common	= &pll_cpux_clk.common,
++	/* copy from pll_cpux_clk */
++	.enable	= BIT(31),
++	.lock	= BIT(28),
++};
++
++static struct ccu_mux_nb sun50i_a64_cpu_nb = {
++	.common		= &cpux_clk.common,
++	.cm		= &cpux_clk.mux,
++	.delay_us	= 1, /* > 8 clock cycles at 24 MHz */
++	.bypass_index	= 1, /* index of 24 MHz oscillator */
++};
++
+ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+ 	void __iomem *reg;
+ 	u32 val;
++	int ret;
  
- 	upriv->reply_count = 0;
- 	/* Write the MAGIC number on the simulated registers to keep
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	reg = devm_ioremap_resource(&pdev->dev, res);
+@@ -902,7 +917,18 @@ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+ 
+ 	writel(0x515, reg + SUN50I_A64_PLL_MIPI_REG);
+ 
+-	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
++	ret = sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
++	if (ret)
++		return ret;
++
++	/* Gate then ungate PLL CPU after any rate changes */
++	ccu_pll_notifier_register(&sun50i_a64_pll_cpu_nb);
++
++	/* Reparent CPU during PLL CPU rate changes */
++	ccu_mux_notifier_register(pll_cpux_clk.common.hw.clk,
++				  &sun50i_a64_cpu_nb);
++
++	return 0;
+ }
+ 
+ static const struct of_device_id sun50i_a64_ccu_ids[] = {
 -- 
 2.20.1
 
