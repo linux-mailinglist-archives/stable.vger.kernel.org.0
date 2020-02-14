@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FEB15E928
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CDF15E91C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388905AbgBNRFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:05:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45310 "EHLO mail.kernel.org"
+        id S2404096AbgBNRFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:05:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392425AbgBNQPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:12 -0500
+        id S2392427AbgBNQPN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A83DC246DC;
-        Fri, 14 Feb 2020 16:15:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B74D7246C3;
+        Fri, 14 Feb 2020 16:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696912;
-        bh=hVrg8rRe/pnLXFS4sp1Q4wJtlR5vsf1nCybQKCaUqxU=;
+        s=default; t=1581696913;
+        bh=RJwtUpJBdRYkUiccppQNybQRCLhpCuqZmZrx0SpYbAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SoVpXz0b2uYWxxLxTHxFNYCTozc8uvcxqQhVjmnCrXcEuFGOUJ9bAvJ9p5Ye+liTu
-         t4mm8sF5v5LRMozOiUcu7DpK2wqlpgzHzn+aeSi/wud7MSPKX1prRtE9jHWiLMrgxs
-         gbnXgid9VJI9l0pL62wyEtRS08oQ+xcFkEKuHJlY=
+        b=wtA+RpeOIdKefn46K4rpvbqJCKHKYg7CWNdDn5dR+tzbNqsNGNmXNT1LfjCMWgbGz
+         TOMypI3IHm3tDwbAKO02wdmz9lJo78VPPM4nFdxmk1ahgNSxXXkXXYne9pt1zNwUMx
+         wZoz9gV256ohMHUjKLhgiDDRNj2AF98/Q15mXVWs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
+Cc:     Simon Schwartz <kern.simon@theschwartz.xyz>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, sparmaintainer@unisys.com
-Subject: [PATCH AUTOSEL 4.19 161/252] visorbus: fix uninitialized variable access
-Date:   Fri, 14 Feb 2020 11:10:16 -0500
-Message-Id: <20200214161147.15842-161-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 162/252] driver core: platform: Prevent resouce overflow from causing infinite loops
+Date:   Fri, 14 Feb 2020 11:10:17 -0500
+Message-Id: <20200214161147.15842-162-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,58 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Simon Schwartz <kern.simon@theschwartz.xyz>
 
-[ Upstream commit caf82f727e69b647f09d57a1fc56e69d22a5f483 ]
+[ Upstream commit 39cc539f90d035a293240c9443af50be55ee81b8 ]
 
-The setup_crash_devices_work_queue function only partially initializes
-the message it sends to chipset_init, leading to undefined behavior:
+num_resources in the platform_device struct is declared as a u32.  The
+for loops that iterate over num_resources use an int as the counter,
+which can cause infinite loops on architectures with smaller ints.
+Change the loop counters to u32.
 
-drivers/visorbus/visorchipset.c: In function 'setup_crash_devices_work_queue':
-drivers/visorbus/visorchipset.c:333:6: error: '((unsigned char*)&msg.hdr.flags)[0]' is used uninitialized in this function [-Werror=uninitialized]
-  if (inmsg->hdr.flags.response_expected)
-
-Set up the entire structure, zero-initializing the 'response_expected'
-flag.
-
-This was apparently found by the patch that added the -O3 build option
-in Kconfig.
-
-Fixes: 12e364b9f08a ("staging: visorchipset driver to provide registration and other services")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200107202950.782951-1-arnd@arndb.de
+Signed-off-by: Simon Schwartz <kern.simon@theschwartz.xyz>
+Link: https://lore.kernel.org/r/2201ce63a2a171ffd2ed14e867875316efcf71db.camel@theschwartz.xyz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/visorbus/visorchipset.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/base/platform.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/visorbus/visorchipset.c b/drivers/visorbus/visorchipset.c
-index ca752b8f495fa..cb1eb7e05f871 100644
---- a/drivers/visorbus/visorchipset.c
-+++ b/drivers/visorbus/visorchipset.c
-@@ -1210,14 +1210,17 @@ static void setup_crash_devices_work_queue(struct work_struct *work)
- {
- 	struct controlvm_message local_crash_bus_msg;
- 	struct controlvm_message local_crash_dev_msg;
--	struct controlvm_message msg;
-+	struct controlvm_message msg = {
-+		.hdr.id = CONTROLVM_CHIPSET_INIT,
-+		.cmd.init_chipset = {
-+			.bus_count = 23,
-+			.switch_count = 0,
-+		},
-+	};
- 	u32 local_crash_msg_offset;
- 	u16 local_crash_msg_count;
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index e9be1f56929af..1d3a50ac21664 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -27,6 +27,7 @@
+ #include <linux/limits.h>
+ #include <linux/property.h>
+ #include <linux/kmemleak.h>
++#include <linux/types.h>
  
- 	/* send init chipset msg */
--	msg.hdr.id = CONTROLVM_CHIPSET_INIT;
--	msg.cmd.init_chipset.bus_count = 23;
--	msg.cmd.init_chipset.switch_count = 0;
- 	chipset_init(&msg);
- 	/* get saved message count */
- 	if (visorchannel_read(chipset_dev->controlvm_channel,
+ #include "base.h"
+ #include "power/power.h"
+@@ -67,7 +68,7 @@ void __weak arch_setup_pdev_archdata(struct platform_device *pdev)
+ struct resource *platform_get_resource(struct platform_device *dev,
+ 				       unsigned int type, unsigned int num)
+ {
+-	int i;
++	u32 i;
+ 
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -162,7 +163,7 @@ struct resource *platform_get_resource_byname(struct platform_device *dev,
+ 					      unsigned int type,
+ 					      const char *name)
+ {
+-	int i;
++	u32 i;
+ 
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -359,7 +360,8 @@ EXPORT_SYMBOL_GPL(platform_device_add_properties);
+  */
+ int platform_device_add(struct platform_device *pdev)
+ {
+-	int i, ret;
++	u32 i;
++	int ret;
+ 
+ 	if (!pdev)
+ 		return -EINVAL;
+@@ -446,7 +448,7 @@ EXPORT_SYMBOL_GPL(platform_device_add);
+  */
+ void platform_device_del(struct platform_device *pdev)
+ {
+-	int i;
++	u32 i;
+ 
+ 	if (pdev) {
+ 		device_remove_properties(&pdev->dev);
 -- 
 2.20.1
 
