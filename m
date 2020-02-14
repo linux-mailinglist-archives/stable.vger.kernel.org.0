@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 800E215F04B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3D715F043
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388727AbgBNRxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:53:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42060 "EHLO mail.kernel.org"
+        id S2390852AbgBNRxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:53:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387719AbgBNP6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:19 -0500
+        id S2388077AbgBNP6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C499B2082F;
-        Fri, 14 Feb 2020 15:58:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17BDD2067D;
+        Fri, 14 Feb 2020 15:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695898;
-        bh=AxKfZmAdFXCPVhMsF/7rjFQ7ZLiEFxpynnsIU06lQ8s=;
+        s=default; t=1581695901;
+        bh=ps/Ytm66ViZbio9cASrGrz8rEcZC/M/vTrgGiL1IpXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTQw5aEAVAqm1QXaMStiKGgHwm/UPkxv+1RQYb3ZutfsByh0wenE8niiDYqiaotTT
-         4Gvdc95kBmF3+7aoG56gknHE/xd7rKwWOnbCQBXP6geRJdmM8ezbkWBZGW/Yl9GNCl
-         eY3WAbGQSa1y2B3qRyamK9GvAplaf626MlNkayKM=
+        b=MWEtXBTrXwj8t2PEyDS3ltY62vNM/C5a9gyMy3X4Ccr1WkdHjTSfly0uKVWyZtD9H
+         KQVP+hkLfaRwZ0DL9te5DP9MPp1Ckj2CbJE6FiyWhUyb7H+YK9KdmhpOXZlRY2hHdr
+         +B7m15/AY6ObrBQFdj6pJjeMMcJw4GXwlu0fQ6tI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trondmy@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J . Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 440/542] sunrpc: Fix potential leaks in sunrpc_cache_unhash()
-Date:   Fri, 14 Feb 2020 10:47:12 -0500
-Message-Id: <20200214154854.6746-440-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 442/542] drm/nouveau/kms/nv50: remove set but not unused variable 'nv_connector'
+Date:   Fri, 14 Feb 2020 10:47:14 -0500
+Message-Id: <20200214154854.6746-442-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,34 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 1d82163714c16ebe09c7a8c9cd3cef7abcc16208 ]
+[ Upstream commit 39496368ba96b40b1dca07315418e473998eef15 ]
 
-When we unhash the cache entry, we need to handle any pending upcalls
-by calling cache_fresh_unlocked().
+drivers/gpu/drm/nouveau/dispnv50/disp.c: In function nv50_pior_enable:
+drivers/gpu/drm/nouveau/dispnv50/disp.c:1672:28: warning:
+ variable nv_connector set but not used [-Wunused-but-set-variable]
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+commit ac2d9275f371 ("drm/nouveau/kms/nv50-: Store the
+bpc we're using in nv50_head_atom") left behind this.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/cache.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/nouveau/dispnv50/disp.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
-index f740cb51802af..7ede1e52fd812 100644
---- a/net/sunrpc/cache.c
-+++ b/net/sunrpc/cache.c
-@@ -1888,7 +1888,9 @@ void sunrpc_cache_unhash(struct cache_detail *cd, struct cache_head *h)
- 	if (!hlist_unhashed(&h->cache_list)){
- 		hlist_del_init_rcu(&h->cache_list);
- 		cd->entries--;
-+		set_bit(CACHE_CLEANED, &h->flags);
- 		spin_unlock(&cd->hash_lock);
-+		cache_fresh_unlocked(h, cd);
- 		cache_put(h, cd);
- 	} else
- 		spin_unlock(&cd->hash_lock);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index 63425e2460189..5b3b0db51d596 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -1673,7 +1673,6 @@ nv50_pior_enable(struct drm_encoder *encoder)
+ {
+ 	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
+ 	struct nouveau_crtc *nv_crtc = nouveau_crtc(encoder->crtc);
+-	struct nouveau_connector *nv_connector;
+ 	struct nv50_head_atom *asyh = nv50_head_atom(nv_crtc->base.state);
+ 	struct nv50_core *core = nv50_disp(encoder->dev)->core;
+ 	u8 owner = 1 << nv_crtc->index;
+@@ -1681,7 +1680,6 @@ nv50_pior_enable(struct drm_encoder *encoder)
+ 
+ 	nv50_outp_acquire(nv_encoder);
+ 
+-	nv_connector = nouveau_encoder_connector_get(nv_encoder);
+ 	switch (asyh->or.bpc) {
+ 	case 10: asyh->or.depth = 0x6; break;
+ 	case  8: asyh->or.depth = 0x5; break;
 -- 
 2.20.1
 
