@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A00BE15E430
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:34:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165A315E431
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389207AbgBNQZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:25:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34352 "EHLO mail.kernel.org"
+        id S2393365AbgBNQZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:25:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393359AbgBNQZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:25:09 -0500
+        id S2393347AbgBNQZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:25:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34EE9247B5;
-        Fri, 14 Feb 2020 16:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79784247C4;
+        Fri, 14 Feb 2020 16:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697509;
-        bh=rWKJNV9Sbr1m7wRyPB2Ede1g5VawtcrzSvOZgyNhgN4=;
+        s=default; t=1581697510;
+        bh=Wy5Y3bFv3lNObAMJ+SCk+cfbupAnQ2FsFM+1ga9hGkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvNLADaAM6kmitXq6tjt5//ERnZtpWDTySs7wl2v9i6Kfq2Y4tJgwL8KY+fHjJngF
-         W2MBrf/6N1IUoqdVN+hhPbRJmRsvxj93iXsehlLfTc9bBW1LOUFcu5smPlrPGgKEaA
-         1cG7Rl9oqyQts13Vua9coYTfHtj/NoEemfgX0yQA=
+        b=O2II7hwdcooyCSwpF/pzCrEdL0JtpArAUYqAsmGKpfZBjmYVv+oJmzUeOj7mmFzFe
+         F1dKHRhVD7KOLCo4MwKFcLjPyugH6GEVHrxF2iLr8csIDGARxmSiMvW1g6T+5jmoK0
+         RciR6H9yz6AmVz3cp3qxkHCxJM+WtF63piTi+DjA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 035/100] drm/radeon: remove set but not used variable 'tv_pll_cntl1'
-Date:   Fri, 14 Feb 2020 11:23:19 -0500
-Message-Id: <20200214162425.21071-35-sashal@kernel.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 036/100] regulator: rk808: Lower log level on optional GPIOs being not available
+Date:   Fri, 14 Feb 2020 11:23:20 -0500
+Message-Id: <20200214162425.21071-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -44,53 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengbin <zhengbin13@huawei.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit dc9b3dbd28744510b78490dc6312848a8f918749 ]
+[ Upstream commit b8a039d37792067c1a380dc710361905724b9b2f ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+RK808 can leverage a couple of GPIOs to tweak the ramp rate during DVS
+(Dynamic Voltage Scaling). These GPIOs are entirely optional but a
+dev_warn() appeared when cleaning this driver to use a more up-to-date
+gpiod API. At least reduce the log level to 'info' as it is totally
+fine to not populate these GPIO on a hardware design.
 
-drivers/gpu/drm/radeon/radeon_legacy_tv.c: In function radeon_legacy_tv_mode_set:
-drivers/gpu/drm/radeon/radeon_legacy_tv.c:538:24: warning: variable tv_pll_cntl1 set but not used [-Wunused-but-set-variable]
+This change is trivial but it is worth not polluting the logs during
+bringup phase by having real warnings and errors sorted out
+correctly.
 
-It is introduced by commit 4ce001abafaf ("drm/radeon/kms:
-add initial radeon tv-out support."), but never used,
-so remove it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: zhengbin <zhengbin13@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: a13eaf02e2d6 ("regulator: rk808: make better use of the gpiod API")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20191203164709.11127-1-miquel.raynal@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_legacy_tv.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/regulator/rk808-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_legacy_tv.c b/drivers/gpu/drm/radeon/radeon_legacy_tv.c
-index 49750d07ab7d4..3133f5dfc239a 100644
---- a/drivers/gpu/drm/radeon/radeon_legacy_tv.c
-+++ b/drivers/gpu/drm/radeon/radeon_legacy_tv.c
-@@ -544,7 +544,7 @@ void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
- 	uint32_t tv_master_cntl, tv_rgb_cntl, tv_dac_cntl;
- 	uint32_t tv_modulator_cntl1, tv_modulator_cntl2;
- 	uint32_t tv_vscaler_cntl1, tv_vscaler_cntl2;
--	uint32_t tv_pll_cntl, tv_pll_cntl1, tv_ftotal;
-+	uint32_t tv_pll_cntl, tv_ftotal;
- 	uint32_t tv_y_fall_cntl, tv_y_rise_cntl, tv_y_saw_tooth_cntl;
- 	uint32_t m, n, p;
- 	const uint16_t *hor_timing;
-@@ -716,12 +716,6 @@ void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
- 		(((n >> 9) & RADEON_TV_N0HI_MASK) << RADEON_TV_N0HI_SHIFT) |
- 		((p & RADEON_TV_P_MASK) << RADEON_TV_P_SHIFT);
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index d86a3dcd61e24..b96d50a03022c 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -551,7 +551,7 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 		}
  
--	tv_pll_cntl1 = (((4 & RADEON_TVPCP_MASK) << RADEON_TVPCP_SHIFT) |
--			((4 & RADEON_TVPVG_MASK) << RADEON_TVPVG_SHIFT) |
--			((1 & RADEON_TVPDC_MASK) << RADEON_TVPDC_SHIFT) |
--			RADEON_TVCLK_SRC_SEL_TVPLL |
--			RADEON_TVPLL_TEST_DIS);
--
- 	tv_dac->tv.tv_uv_adr = 0xc8;
+ 		if (!pdata->dvs_gpio[i]) {
+-			dev_warn(dev, "there is no dvs%d gpio\n", i);
++			dev_info(dev, "there is no dvs%d gpio\n", i);
+ 			continue;
+ 		}
  
- 	if (tv_dac->tv_std == TV_STD_NTSC ||
 -- 
 2.20.1
 
