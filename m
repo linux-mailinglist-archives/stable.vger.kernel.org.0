@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E870515EBF1
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:24:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 938BB15EC12
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391150AbgBNQJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:09:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        id S2391041AbgBNRYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:24:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391142AbgBNQJB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:01 -0500
+        id S2391173AbgBNQJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B99524685;
-        Fri, 14 Feb 2020 16:08:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C67D2467E;
+        Fri, 14 Feb 2020 16:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696540;
-        bh=/eTuMA1+EKSBwjBLo0bimCwtlU8PRo/V9j/mbKbSwU4=;
+        s=default; t=1581696543;
+        bh=cF0AFVHw8PPABmHKwcOZG09O4STfsB3xpXfX9/LrqXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u40XGGBis8EpKirG27QLBaiAlZTLypuGNPih2/swnbV7+K9iUmCN1MuxKS7Sn+3J+
-         gAGeGVnYEqU0F3RG7XXSGFMtXg1KTktQLgzoahkzHBPSzOG6IUd6R5hwSKGHtakzOO
-         m/57lK7FusAotNeI8y8tf5jZ1GYDyMkueBT02uRE=
+        b=xhxxuooJcoQ6GiEL7acBv6XLjJMdENEggS7hd72p4PTSgQxDWAYeIfFtc2mrd7rB+
+         jLAbWzjbh47wKZ7uzVwFrA9DY0cr3fCnD2uQw0RXJuBb/XkgG9hAeES8CZlHT8ZGnU
+         hqKcF3sd/4R2soJ5qskAlzB7tSnoUQnlBfsmqQLQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 335/459] arm64: fix alternatives with LLVM's integrated assembler
-Date:   Fri, 14 Feb 2020 10:59:45 -0500
-Message-Id: <20200214160149.11681-335-sashal@kernel.org>
+Cc:     Jun Lei <Jun.Lei@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 337/459] drm/amd/display: fixup DML dependencies
+Date:   Fri, 14 Feb 2020 10:59:47 -0500
+Message-Id: <20200214160149.11681-337-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -46,117 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Jun Lei <Jun.Lei@amd.com>
 
-[ Upstream commit c54f90c2627cc316d365e3073614731e17dbc631 ]
+[ Upstream commit 34ad0230062c39cdcba564d16d122c0fb467a7d6 ]
 
-LLVM's integrated assembler fails with the following error when
-building KVM:
+[why]
+Need to fix DML portability issues to enable SW unit testing around DML
 
-  <inline asm>:12:6: error: expected absolute expression
-   .if kvm_update_va_mask == 0
-       ^
-  <inline asm>:21:6: error: expected absolute expression
-   .if kvm_update_va_mask == 0
-       ^
-  <inline asm>:24:2: error: unrecognized instruction mnemonic
-          NOT_AN_INSTRUCTION
-          ^
-  LLVM ERROR: Error parsing inline asm
+[how]
+Move calcs into dc include folder since multiple components reference it
+Remove relative paths to external dependencies
 
-These errors come from ALTERNATIVE_CB and __ALTERNATIVE_CFG,
-which test for the existence of the callback parameter in inline
-assembly using the following expression:
-
-  " .if " __stringify(cb) " == 0\n"
-
-This works with GNU as, but isn't supported by LLVM. This change
-splits __ALTERNATIVE_CFG and ALTINSTR_ENTRY into separate macros
-to fix the LLVM build.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/472
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Jun Lei <Jun.Lei@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/alternative.h | 32 ++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c          | 2 +-
+ drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h          | 2 +-
+ drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h | 0
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h (100%)
 
-diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
-index b9f8d787eea9f..324e7d5ab37ed 100644
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -35,13 +35,16 @@ void apply_alternatives_module(void *start, size_t length);
- static inline void apply_alternatives_module(void *start, size_t length) { }
- #endif
- 
--#define ALTINSTR_ENTRY(feature,cb)					      \
-+#define ALTINSTR_ENTRY(feature)					              \
- 	" .word 661b - .\n"				/* label           */ \
--	" .if " __stringify(cb) " == 0\n"				      \
- 	" .word 663f - .\n"				/* new instruction */ \
--	" .else\n"							      \
-+	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
-+	" .byte 662b-661b\n"				/* source len      */ \
-+	" .byte 664f-663f\n"				/* replacement len */
-+
-+#define ALTINSTR_ENTRY_CB(feature, cb)					      \
-+	" .word 661b - .\n"				/* label           */ \
- 	" .word " __stringify(cb) "- .\n"		/* callback */	      \
--	" .endif\n"							      \
- 	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
- 	" .byte 662b-661b\n"				/* source len      */ \
- 	" .byte 664f-663f\n"				/* replacement len */
-@@ -62,15 +65,14 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
-  *
-  * Alternatives with callbacks do not generate replacement instructions.
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
+index b953b02a15121..723af0b2dda04 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
+@@ -24,7 +24,7 @@
   */
--#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled, cb)	\
-+#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled)	\
- 	".if "__stringify(cfg_enabled)" == 1\n"				\
- 	"661:\n\t"							\
- 	oldinstr "\n"							\
- 	"662:\n"							\
- 	".pushsection .altinstructions,\"a\"\n"				\
--	ALTINSTR_ENTRY(feature,cb)					\
-+	ALTINSTR_ENTRY(feature)						\
- 	".popsection\n"							\
--	" .if " __stringify(cb) " == 0\n"				\
- 	".pushsection .altinstr_replacement, \"a\"\n"			\
- 	"663:\n\t"							\
- 	newinstr "\n"							\
-@@ -78,17 +80,25 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
- 	".popsection\n\t"						\
- 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
- 	".org	. - (662b-661b) + (664b-663b)\n"			\
--	".else\n\t"							\
-+	".endif\n"
-+
-+#define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
-+	".if "__stringify(cfg_enabled)" == 1\n"				\
-+	"661:\n\t"							\
-+	oldinstr "\n"							\
-+	"662:\n"							\
-+	".pushsection .altinstructions,\"a\"\n"				\
-+	ALTINSTR_ENTRY_CB(feature, cb)					\
-+	".popsection\n"							\
- 	"663:\n\t"							\
- 	"664:\n\t"							\
--	".endif\n"							\
- 	".endif\n"
  
- #define _ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg, ...)	\
--	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg), 0)
-+	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg))
+ #include "dml_common_defs.h"
+-#include "../calcs/dcn_calc_math.h"
++#include "dcn_calc_math.h"
  
- #define ALTERNATIVE_CB(oldinstr, cb) \
--	__ALTERNATIVE_CFG(oldinstr, "NOT_AN_INSTRUCTION", ARM64_CB_PATCH, 1, cb)
-+	__ALTERNATIVE_CFG_CB(oldinstr, ARM64_CB_PATCH, 1, cb)
- #else
+ #include "dml_inline_defs.h"
  
- #include <asm/assembler.h>
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
+index eca140da13d82..ded71ea82413d 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
+@@ -27,7 +27,7 @@
+ #define __DML_INLINE_DEFS_H__
+ 
+ #include "dml_common_defs.h"
+-#include "../calcs/dcn_calc_math.h"
++#include "dcn_calc_math.h"
+ #include "dml_logger.h"
+ 
+ static inline double dml_min(double a, double b)
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h b/drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
+similarity index 100%
+rename from drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h
+rename to drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
 -- 
 2.20.1
 
