@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C740515DCD2
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A700D15DCD4
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730935AbgBNPzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:55:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36000 "EHLO mail.kernel.org"
+        id S1731737AbgBNPzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:55:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731711AbgBNPzL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:55:11 -0500
+        id S1731731AbgBNPzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:55:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4146224684;
-        Fri, 14 Feb 2020 15:55:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6EBA24684;
+        Fri, 14 Feb 2020 15:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695711;
-        bh=e6hZLrdtLccx63LlzwcLe3onLTHlCbLuO+s10UC2pWg=;
+        s=default; t=1581695717;
+        bh=mHCqROaKJ7SzNg5MXZjS44KD2tpZdsshpaEXfJi5wlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KY5bWO79Vkgw36TTqTe1AP+o1Es+zFbqzK4CWL5yAYQLkiecyaCmQ6mQzXVW7NODu
-         zKXWccGivyXE8Wh8Pc0sOQmuWeLcNaUiivfbqdFDl/vSwGJowNkORW82kYqerb+G93
-         uCEe4Neb4PF4i/NokRyovWPPgurAFLX8cPkx+k38=
+        b=mAslCNFzmbg7v/jqHu+YLQQpsFYLj4NJffFj1w+sZwYDNT6esyXbwV4fzfkl+yquJ
+         h8igydmTQqH8L9mGTo34AaAsT1f7GWzEjBVBQDtydPE5hSlyXR+KDJKCv8SkqVWWyy
+         IbvnxRV8mxySrTg7hV2/RtbCtypAXGPUmAmuCvDE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Ekstrand <jason@jlekstrand.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 290/542] ACPI: button: Add DMI quirk for Razer Blade Stealth 13 late 2019 lid switch
-Date:   Fri, 14 Feb 2020 10:44:42 -0500
-Message-Id: <20200214154854.6746-290-sashal@kernel.org>
+Cc:     Wenpeng Liang <liangwenpeng@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 295/542] RDMA/hns: Avoid printing address of mtt page
+Date:   Fri, 14 Feb 2020 10:44:47 -0500
+Message-Id: <20200214154854.6746-295-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,45 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Wenpeng Liang <liangwenpeng@huawei.com>
 
-[ Upstream commit 0528904926aab19bffb2068879aa44db166c6d5f ]
+[ Upstream commit eca44507c3e908b7362696a4d6a11d90371334c6 ]
 
-Running evemu-record on the lid switch event shows that the lid reports
-the first "close" but then never reports an "open".  This causes systemd
-to continuously re-suspend the laptop every 30s.  Resetting the _LID to
-"open" fixes the issue.
+Address of a page shouldn't be printed in case of security issues.
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/1578313276-29080-2-git-send-email-liweihang@huawei.com
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/button.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_mr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-index b758b45737f50..f6925f16c4a2a 100644
---- a/drivers/acpi/button.c
-+++ b/drivers/acpi/button.c
-@@ -122,6 +122,17 @@ static const struct dmi_system_id dmi_lid_quirks[] = {
- 		},
- 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
- 	},
-+	{
-+		/*
-+		 * Razer Blade Stealth 13 late 2019, notification of the LID device
-+		 * only happens on close, not on open and _LID always returns closed.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Razer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Razer Blade Stealth 13 Late 2019"),
-+		},
-+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
-+	},
- 	{}
- };
- 
+diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
+index 9ad19170c3f97..95765560c1cfb 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_mr.c
++++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
+@@ -1064,8 +1064,8 @@ int hns_roce_ib_umem_write_mtt(struct hns_roce_dev *hr_dev,
+ 		if (!(npage % (1 << (mtt->page_shift - PAGE_SHIFT)))) {
+ 			if (page_addr & ((1 << mtt->page_shift) - 1)) {
+ 				dev_err(dev,
+-					"page_addr 0x%llx is not page_shift %d alignment!\n",
+-					page_addr, mtt->page_shift);
++					"page_addr is not page_shift %d alignment!\n",
++					mtt->page_shift);
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
 -- 
 2.20.1
 
