@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A913B15F437
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:23:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFDF15F434
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394765AbgBNSTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:19:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54426 "EHLO mail.kernel.org"
+        id S2394746AbgBNSTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:19:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730444AbgBNPuX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:50:23 -0500
+        id S1730451AbgBNPuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:50:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36BDF22314;
-        Fri, 14 Feb 2020 15:50:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B45E24684;
+        Fri, 14 Feb 2020 15:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695423;
-        bh=F1Trexx99c5lKvDtbQFpRyhfDrMxurBJs0BaHnCMNeE=;
+        s=default; t=1581695424;
+        bh=2a+zUaID5zALeOpO/fqjSjJWxrxS49+DTJaNZxvO+2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsJY1t05qEXhzxadKHKhYQbpPk2YIMiPUFb48ptC6U0FQOAPDF5OQi4eGUgANEMnw
-         Izi4MrysZeAGYKkdM7ZtIOsVdNJ9H/TAsSh8t/YEMappY4/p/qFd4MCW555nE+pXpH
-         uwo3ZoE3yn3ng0dr5DoivPO7rpbqCSOfjd+Txoj4=
+        b=Kf8MMhCdtosTqTAYCpyjD7+JWpMIYP/a+DdipeqfGCsMVDhSNgxmayEVsRvWMWhEC
+         Iey2b8YcxkGZmvHHHUBsTfBW2PbQW/9IN667ceCw/51QixtNI4xoi0RbHaNolTzHs6
+         U9JTkN52EaEsuQuHil5j492MtD8kaNDCY0PiMWbY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhengyuan Liu <liuzhengyuan@kylinos.cn>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 067/542] raid6/test: fix a compilation error
-Date:   Fri, 14 Feb 2020 10:40:59 -0500
-Message-Id: <20200214154854.6746-67-sashal@kernel.org>
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 068/542] iio: imu: st_lsm6dsx: check return value from st_lsm6dsx_sensor_set_enable
+Date:   Fri, 14 Feb 2020 10:41:00 -0500
+Message-Id: <20200214154854.6746-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,53 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 6b8651aac1dca6140dd7fb4c9fec2736ed3f6223 ]
+[ Upstream commit a2dd9bd9334efb8dc0bdc0109abff3a7b57effb1 ]
 
-The compilation error is redeclaration showed as following:
+Add missing return value check in st_lsm6dsx_read_oneshot disabling the
+sensor. The issue is reported by coverity with the following error:
 
-        In file included from ../../../include/linux/limits.h:6,
-                         from /usr/include/x86_64-linux-gnu/bits/local_lim.h:38,
-                         from /usr/include/x86_64-linux-gnu/bits/posix1_lim.h:161,
-                         from /usr/include/limits.h:183,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include-fixed/limits.h:194,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include-fixed/syslimits.h:7,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include-fixed/limits.h:34,
-                         from ../../../include/linux/raid/pq.h:30,
-                         from algos.c:14:
-        ../../../include/linux/types.h:114:15: error: conflicting types for ‘int64_t’
-         typedef s64   int64_t;
-                       ^~~~~~~
-        In file included from /usr/include/stdint.h:34,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include/stdint.h:9,
-                         from /usr/include/inttypes.h:27,
-                         from ../../../include/linux/raid/pq.h:29,
-                         from algos.c:14:
-        /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:27:19: note: previous \
-        declaration of ‘int64_t’ was here
-         typedef __int64_t int64_t;
+Unchecked return value:
+If the function returns an error value, the error value may be mistaken
+for a normal value.
 
-Fixes: 54d50897d544 ("linux/kernel.h: split *_MAX and *_MIN macros into <linux/limits.h>")
-Signed-off-by: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Addresses-Coverity-ID: 1446733 ("Unchecked return value")
+Fixes: b5969abfa8b8 ("iio: imu: st_lsm6dsx: add motion events")
+Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/raid/pq.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/raid/pq.h b/include/linux/raid/pq.h
-index 0832c9b66852e..0b6e7ad9cd2a8 100644
---- a/include/linux/raid/pq.h
-+++ b/include/linux/raid/pq.h
-@@ -27,7 +27,6 @@ extern const char raid6_empty_zero_page[PAGE_SIZE];
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index b921dd9e108fa..e45123d8d2812 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1506,8 +1506,11 @@ static int st_lsm6dsx_read_oneshot(struct st_lsm6dsx_sensor *sensor,
+ 	if (err < 0)
+ 		return err;
  
- #include <errno.h>
- #include <inttypes.h>
--#include <limits.h>
- #include <stddef.h>
- #include <sys/mman.h>
- #include <sys/time.h>
+-	if (!hw->enable_event)
+-		st_lsm6dsx_sensor_set_enable(sensor, false);
++	if (!hw->enable_event) {
++		err = st_lsm6dsx_sensor_set_enable(sensor, false);
++		if (err < 0)
++			return err;
++	}
+ 
+ 	*val = (s16)le16_to_cpu(data);
+ 
 -- 
 2.20.1
 
