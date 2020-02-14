@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EEB315E0A0
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D77F15E0A5
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392302AbgBNQOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43866 "EHLO mail.kernel.org"
+        id S2392316AbgBNQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:14:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388741AbgBNQOV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:21 -0500
+        id S2404027AbgBNQO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8D34246BF;
-        Fri, 14 Feb 2020 16:14:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD715246AA;
+        Fri, 14 Feb 2020 16:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696860;
-        bh=p+DwLs2tKWnYLYuHR1Dc7sSD64Mu6NYtKotHuozV5y0=;
+        s=default; t=1581696865;
+        bh=Vs4JIXKOY68VcmDg9hGYy8Jl4dneukZoBexeHZyaEZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1aLGKSfV6IH22FBeuhPQLFcSLCkqN4ypVY1LvXtgOnoSE43RDntQKSeTWV2H5RoE
-         HXrBSFnK80I4G/WvIyRvn1OlSh86Bk1ZE31Za6DqUH9rsVRvYK+/vxBfiU5ohtxd5v
-         bISKXmxf4s9FEiJ7/A2cKRv6OWbZuoyNtEiyszuQ=
+        b=jJMs4awotA6H9pri+4WRc7jlXxX/pk8gbh8QKZAVcs010UBiwdt/lphus5r+2/I9G
+         apdXZ+oBTob9BcWr2i2vIS3u8iZiGttMG2nRUxuZ6GneNOumitfHgv4P4WrTU0l6RQ
+         l+GFKJipAzTUK2Zq7PScSzZB+lV3WXDSK17qfN2I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Zhou <chenzhou10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 120/252] net/wan/fsl_ucc_hdlc: remove set but not used variables 'ut_info' and 'ret'
-Date:   Fri, 14 Feb 2020 11:09:35 -0500
-Message-Id: <20200214161147.15842-120-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>, linux-sh@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 124/252] pinctrl: sh-pfc: sh7269: Fix CAN function GPIOs
+Date:   Fri, 14 Feb 2020 11:09:39 -0500
+Message-Id: <20200214161147.15842-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,92 +44,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 270fe2ceda66b6964d4c6f261d7f562a02c1c786 ]
+[ Upstream commit 02aeb2f21530c98fc3ca51028eda742a3fafbd9f ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+pinmux_func_gpios[] contains a hole due to the missing function GPIO
+definition for the "CTX0&CTX1" signal, which is the logical "AND" of the
+first two CAN outputs.
 
-drivers/net/wan/fsl_ucc_hdlc.c: In function ucc_hdlc_irq_handler:
-drivers/net/wan/fsl_ucc_hdlc.c:643:23:
-	warning: variable ut_info set but not used [-Wunused-but-set-variable]
-drivers/net/wan/fsl_ucc_hdlc.c: In function uhdlc_suspend:
-drivers/net/wan/fsl_ucc_hdlc.c:880:23:
-	warning: variable ut_info set but not used [-Wunused-but-set-variable]
-drivers/net/wan/fsl_ucc_hdlc.c: In function uhdlc_resume:
-drivers/net/wan/fsl_ucc_hdlc.c:925:6:
-	warning: variable ret set but not used [-Wunused-but-set-variable]
+A closer look reveals other issues:
+  - Some functionality is available on alternative pins, but the
+    PINMUX_DATA() entries is using the wrong marks,
+  - Several configurations are missing.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by:
+  - Renaming CTX0CTX1CTX2_MARK, CRX0CRX1_PJ22_MARK, and
+    CRX0CRX1CRX2_PJ20_MARK to CTX0_CTX1_CTX2_MARK, CRX0_CRX1_PJ22_MARK,
+    resp. CRX0_CRX1_CRX2_PJ20_MARK for consistency with the
+    corresponding enum IDs,
+  - Adding all missing enum IDs and marks,
+  - Use the right (*_PJ2x) variants for alternative pins,
+  - Adding all missing configurations to pinmux_data[],
+  - Adding all missing function GPIO definitions to pinmux_func_gpios[].
+
+See SH7268 Group, SH7269 Group User’s Manual: Hardware, Rev. 2.00:
+  [1] Table 1.4 List of Pins
+  [2] Figure 23.29 Connection Example when Using Channels 0 and 1 as One
+      Channel (64 Mailboxes × 1 Channel) and Channel 2 as One Channel
+      (32 Mailboxes × 1 Channel),
+  [3] Figure 23.30 Connection Example when Using Channels 0, 1, and 2 as
+      One Channel (96 Mailboxes × 1 Channel),
+  [4] Table 48.3 Multiplexed Pins (Port B),
+  [5] Table 48.4 Multiplexed Pins (Port C),
+  [6] Table 48.10 Multiplexed Pins (Port J),
+  [7] Section 48.2.4 Port B Control Registers 0 to 5 (PBCR0 to PBCR5).
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191218194812.12741-5-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/fsl_ucc_hdlc.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ arch/sh/include/cpu-sh2a/cpu/sh7269.h | 11 ++++++--
+ drivers/pinctrl/sh-pfc/pfc-sh7269.c   | 39 ++++++++++++++++++---------
+ 2 files changed, 36 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
-index 9ab04ef532f34..bb560f1d9a48c 100644
---- a/drivers/net/wan/fsl_ucc_hdlc.c
-+++ b/drivers/net/wan/fsl_ucc_hdlc.c
-@@ -591,11 +591,9 @@ static irqreturn_t ucc_hdlc_irq_handler(int irq, void *dev_id)
- 	struct ucc_hdlc_private *priv = (struct ucc_hdlc_private *)dev_id;
- 	struct net_device *dev = priv->ndev;
- 	struct ucc_fast_private *uccf;
--	struct ucc_tdm_info *ut_info;
- 	u32 ucce;
- 	u32 uccm;
+diff --git a/arch/sh/include/cpu-sh2a/cpu/sh7269.h b/arch/sh/include/cpu-sh2a/cpu/sh7269.h
+index d516e5d488180..b887cc402b712 100644
+--- a/arch/sh/include/cpu-sh2a/cpu/sh7269.h
++++ b/arch/sh/include/cpu-sh2a/cpu/sh7269.h
+@@ -78,8 +78,15 @@ enum {
+ 	GPIO_FN_WDTOVF,
  
--	ut_info = priv->ut_info;
- 	uccf = priv->uccf;
+ 	/* CAN */
+-	GPIO_FN_CTX1, GPIO_FN_CRX1, GPIO_FN_CTX0, GPIO_FN_CTX0_CTX1,
+-	GPIO_FN_CRX0, GPIO_FN_CRX0_CRX1, GPIO_FN_CRX0_CRX1_CRX2,
++	GPIO_FN_CTX2, GPIO_FN_CRX2,
++	GPIO_FN_CTX1, GPIO_FN_CRX1,
++	GPIO_FN_CTX0, GPIO_FN_CRX0,
++	GPIO_FN_CTX0_CTX1, GPIO_FN_CRX0_CRX1,
++	GPIO_FN_CTX0_CTX1_CTX2, GPIO_FN_CRX0_CRX1_CRX2,
++	GPIO_FN_CTX2_PJ21, GPIO_FN_CRX2_PJ20,
++	GPIO_FN_CTX1_PJ23, GPIO_FN_CRX1_PJ22,
++	GPIO_FN_CTX0_CTX1_PJ23, GPIO_FN_CRX0_CRX1_PJ22,
++	GPIO_FN_CTX0_CTX1_CTX2_PJ21, GPIO_FN_CRX0_CRX1_CRX2_PJ20,
  
- 	ucce = ioread32be(uccf->p_ucce);
-@@ -825,7 +823,6 @@ static void resume_clk_config(struct ucc_hdlc_private *priv)
- static int uhdlc_suspend(struct device *dev)
- {
- 	struct ucc_hdlc_private *priv = dev_get_drvdata(dev);
--	struct ucc_tdm_info *ut_info;
- 	struct ucc_fast __iomem *uf_regs;
+ 	/* DMAC */
+ 	GPIO_FN_TEND0, GPIO_FN_DACK0, GPIO_FN_DREQ0,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7269.c b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
+index cfdb4fc177c3e..3df0c0d139d08 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7269.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
+@@ -740,13 +740,12 @@ enum {
+ 	CRX0_MARK, CTX0_MARK,
+ 	CRX1_MARK, CTX1_MARK,
+ 	CRX2_MARK, CTX2_MARK,
+-	CRX0_CRX1_MARK,
+-	CRX0_CRX1_CRX2_MARK,
+-	CTX0CTX1CTX2_MARK,
++	CRX0_CRX1_MARK, CTX0_CTX1_MARK,
++	CRX0_CRX1_CRX2_MARK, CTX0_CTX1_CTX2_MARK,
+ 	CRX1_PJ22_MARK, CTX1_PJ23_MARK,
+ 	CRX2_PJ20_MARK, CTX2_PJ21_MARK,
+-	CRX0CRX1_PJ22_MARK,
+-	CRX0CRX1CRX2_PJ20_MARK,
++	CRX0_CRX1_PJ22_MARK, CTX0_CTX1_PJ23_MARK,
++	CRX0_CRX1_CRX2_PJ20_MARK, CTX0_CTX1_CTX2_PJ21_MARK,
  
- 	if (!priv)
-@@ -837,7 +834,6 @@ static int uhdlc_suspend(struct device *dev)
- 	netif_device_detach(priv->ndev);
- 	napi_disable(&priv->napi);
+ 	/* VDC */
+ 	DV_CLK_MARK,
+@@ -824,6 +823,7 @@ static const u16 pinmux_data[] = {
+ 	PINMUX_DATA(CS3_MARK, PC8MD_001),
+ 	PINMUX_DATA(TXD7_MARK, PC8MD_010),
+ 	PINMUX_DATA(CTX1_MARK, PC8MD_011),
++	PINMUX_DATA(CTX0_CTX1_MARK, PC8MD_100),
  
--	ut_info = priv->ut_info;
- 	uf_regs = priv->uf_regs;
+ 	PINMUX_DATA(PC7_DATA, PC7MD_000),
+ 	PINMUX_DATA(CKE_MARK, PC7MD_001),
+@@ -836,11 +836,12 @@ static const u16 pinmux_data[] = {
+ 	PINMUX_DATA(CAS_MARK, PC6MD_001),
+ 	PINMUX_DATA(SCK7_MARK, PC6MD_010),
+ 	PINMUX_DATA(CTX0_MARK, PC6MD_011),
++	PINMUX_DATA(CTX0_CTX1_CTX2_MARK, PC6MD_100),
  
- 	/* backup gumr guemr*/
-@@ -870,7 +866,7 @@ static int uhdlc_resume(struct device *dev)
- 	struct ucc_fast __iomem *uf_regs;
- 	struct ucc_fast_private *uccf;
- 	struct ucc_fast_info *uf_info;
--	int ret, i;
-+	int i;
- 	u32 cecr_subblock;
- 	u16 bd_status;
+ 	PINMUX_DATA(PC5_DATA, PC5MD_000),
+ 	PINMUX_DATA(RAS_MARK, PC5MD_001),
+ 	PINMUX_DATA(CRX0_MARK, PC5MD_011),
+-	PINMUX_DATA(CTX0CTX1CTX2_MARK, PC5MD_100),
++	PINMUX_DATA(CTX0_CTX1_CTX2_MARK, PC5MD_100),
+ 	PINMUX_DATA(IRQ0_PC_MARK, PC5MD_101),
  
-@@ -915,16 +911,16 @@ static int uhdlc_resume(struct device *dev)
+ 	PINMUX_DATA(PC4_DATA, PC4MD_00),
+@@ -1292,30 +1293,32 @@ static const u16 pinmux_data[] = {
+ 	PINMUX_DATA(LCD_DATA23_PJ23_MARK, PJ23MD_010),
+ 	PINMUX_DATA(LCD_TCON6_MARK, PJ23MD_011),
+ 	PINMUX_DATA(IRQ3_PJ_MARK, PJ23MD_100),
+-	PINMUX_DATA(CTX1_MARK, PJ23MD_101),
++	PINMUX_DATA(CTX1_PJ23_MARK, PJ23MD_101),
++	PINMUX_DATA(CTX0_CTX1_PJ23_MARK, PJ23MD_110),
  
- 	/* Write to QE CECR, UCCx channel to Stop Transmission */
- 	cecr_subblock = ucc_fast_get_qe_cr_subblock(uf_info->ucc_num);
--	ret = qe_issue_cmd(QE_STOP_TX, cecr_subblock,
--			   (u8)QE_CR_PROTOCOL_UNSPECIFIED, 0);
-+	qe_issue_cmd(QE_STOP_TX, cecr_subblock,
-+		     (u8)QE_CR_PROTOCOL_UNSPECIFIED, 0);
+ 	PINMUX_DATA(PJ22_DATA, PJ22MD_000),
+ 	PINMUX_DATA(DV_DATA22_MARK, PJ22MD_001),
+ 	PINMUX_DATA(LCD_DATA22_PJ22_MARK, PJ22MD_010),
+ 	PINMUX_DATA(LCD_TCON5_MARK, PJ22MD_011),
+ 	PINMUX_DATA(IRQ2_PJ_MARK, PJ22MD_100),
+-	PINMUX_DATA(CRX1_MARK, PJ22MD_101),
+-	PINMUX_DATA(CRX0_CRX1_MARK, PJ22MD_110),
++	PINMUX_DATA(CRX1_PJ22_MARK, PJ22MD_101),
++	PINMUX_DATA(CRX0_CRX1_PJ22_MARK, PJ22MD_110),
  
- 	/* Set UPSMR normal mode */
- 	iowrite32be(0, &uf_regs->upsmr);
+ 	PINMUX_DATA(PJ21_DATA, PJ21MD_000),
+ 	PINMUX_DATA(DV_DATA21_MARK, PJ21MD_001),
+ 	PINMUX_DATA(LCD_DATA21_PJ21_MARK, PJ21MD_010),
+ 	PINMUX_DATA(LCD_TCON4_MARK, PJ21MD_011),
+ 	PINMUX_DATA(IRQ1_PJ_MARK, PJ21MD_100),
+-	PINMUX_DATA(CTX2_MARK, PJ21MD_101),
++	PINMUX_DATA(CTX2_PJ21_MARK, PJ21MD_101),
++	PINMUX_DATA(CTX0_CTX1_CTX2_PJ21_MARK, PJ21MD_110),
  
- 	/* init parameter base */
- 	cecr_subblock = ucc_fast_get_qe_cr_subblock(uf_info->ucc_num);
--	ret = qe_issue_cmd(QE_ASSIGN_PAGE_TO_DEVICE, cecr_subblock,
--			   QE_CR_PROTOCOL_UNSPECIFIED, priv->ucc_pram_offset);
-+	qe_issue_cmd(QE_ASSIGN_PAGE_TO_DEVICE, cecr_subblock,
-+		     QE_CR_PROTOCOL_UNSPECIFIED, priv->ucc_pram_offset);
+ 	PINMUX_DATA(PJ20_DATA, PJ20MD_000),
+ 	PINMUX_DATA(DV_DATA20_MARK, PJ20MD_001),
+ 	PINMUX_DATA(LCD_DATA20_PJ20_MARK, PJ20MD_010),
+ 	PINMUX_DATA(LCD_TCON3_MARK, PJ20MD_011),
+ 	PINMUX_DATA(IRQ0_PJ_MARK, PJ20MD_100),
+-	PINMUX_DATA(CRX2_MARK, PJ20MD_101),
+-	PINMUX_DATA(CRX0CRX1CRX2_PJ20_MARK, PJ20MD_110),
++	PINMUX_DATA(CRX2_PJ20_MARK, PJ20MD_101),
++	PINMUX_DATA(CRX0_CRX1_CRX2_PJ20_MARK, PJ20MD_110),
  
- 	priv->ucc_pram = (struct ucc_hdlc_param __iomem *)
- 				qe_muram_addr(priv->ucc_pram_offset);
+ 	PINMUX_DATA(PJ19_DATA, PJ19MD_000),
+ 	PINMUX_DATA(DV_DATA19_MARK, PJ19MD_001),
+@@ -1666,12 +1669,24 @@ static const struct pinmux_func pinmux_func_gpios[] = {
+ 	GPIO_FN(WDTOVF),
+ 
+ 	/* CAN */
++	GPIO_FN(CTX2),
++	GPIO_FN(CRX2),
+ 	GPIO_FN(CTX1),
+ 	GPIO_FN(CRX1),
+ 	GPIO_FN(CTX0),
+ 	GPIO_FN(CRX0),
++	GPIO_FN(CTX0_CTX1),
+ 	GPIO_FN(CRX0_CRX1),
++	GPIO_FN(CTX0_CTX1_CTX2),
+ 	GPIO_FN(CRX0_CRX1_CRX2),
++	GPIO_FN(CTX2_PJ21),
++	GPIO_FN(CRX2_PJ20),
++	GPIO_FN(CTX1_PJ23),
++	GPIO_FN(CRX1_PJ22),
++	GPIO_FN(CTX0_CTX1_PJ23),
++	GPIO_FN(CRX0_CRX1_PJ22),
++	GPIO_FN(CTX0_CTX1_CTX2_PJ21),
++	GPIO_FN(CRX0_CRX1_CRX2_PJ20),
+ 
+ 	/* DMAC */
+ 	GPIO_FN(TEND0),
 -- 
 2.20.1
 
