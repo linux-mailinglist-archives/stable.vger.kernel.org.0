@@ -2,149 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1721A15E375
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 118F215E3B0
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:32:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406281AbgBNQ35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:29:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37116 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406436AbgBNQ0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:26:30 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F18B1246FB;
-        Fri, 14 Feb 2020 16:26:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697589;
-        bh=eD0+slTQEDPWptH6UvgJhptAS0AAfbbJ/DGCI2QLIbQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MU3lLoFbU/6Ar0wLrO66gpfqjczXUXX3JvW6T+D2/8x3o85Pym7OJRm3oAuv2trEc
-         mhERDY1IYyAkwZ8s9HTmyOJSyOWYlz6TcIHqWkn8DS21s1NubZJyTTW8o4MwoZci9C
-         HZlP5Q+xPRxnqpt7OJKs0EFFOHEUlwxz3sFSsF5Y=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Bob Liu <bob.liu@oracle.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 100/100] brd: check and limit max_part par
-Date:   Fri, 14 Feb 2020 11:24:24 -0500
-Message-Id: <20200214162425.21071-100-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
-References: <20200214162425.21071-1-sashal@kernel.org>
+        id S2406824AbgBNQbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:31:45 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54683 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406548AbgBNQbo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 11:31:44 -0500
+Received: by mail-wm1-f68.google.com with SMTP id g1so10556871wmh.4;
+        Fri, 14 Feb 2020 08:31:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eAPiyJCQWJAYuCQbg5vLQMsHB0XHMIF5EmjZS4cVVMc=;
+        b=U/MyHARiUoYbmegGISDczV0sWnxf/CnBisvcw2jP8Q2HgYSyL06jv5gfeTBP2p4i3D
+         QhuS8B+4XAy9CwyDawix1OFxAgYhQpFMMsmC94tYIm2qmJnfyh55YEg0pWY1pHMg+ocI
+         manMWCwf4ahuziuNMS3zGbJONPoQWeeIR3zEGrreA3w7fmh8XdV/8B78hr80zPWdC2LT
+         cVlEtA0td92IIYlzvtt2X0tnS9sXkgKV/dqnFWYcWfP6BnqJjk5hQc+N90kscu4bfQXt
+         FkBvGcZCIWjwRCYqPZxbptIimSIJ9le4M94WzYU5Og0VLFp9HC3MZoCehWOIBKHr6K6o
+         HyJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eAPiyJCQWJAYuCQbg5vLQMsHB0XHMIF5EmjZS4cVVMc=;
+        b=ikZ1Iu3zCpnrDIpDMbRTIChci9UEZq2p8zvEu7cCwQucbuXs2TPQRLy2ise+Kglf2/
+         db3bcZNvSYN2uIC8iqPTKObVPyJSQ9m+YPtHBCL6XIpO30G0b1T2graVmj9N0k0o/J5v
+         fsUt5iRwwGaRkIiVPcfG4CXwE9seogkpGzD3SyX4yMyMejJS5QjnlXLH3+cHHNlOgqlo
+         jtrr0vETLHlkq3L0v/w9+5hOZkI2kS2STdbawZ22tFY/eDrT2cSSP7Y+AyNAMa3V0gZi
+         zIHC/aA5OUl2dRatU9kQClHCCb7i8S11HZjjqm/K6xdagQnf55OICZdZUio81NcMiVip
+         kgdw==
+X-Gm-Message-State: APjAAAWyOnxfs1rIvM1rQuXAMJaRw+OltZoXvx7k/a73x2NJHI349w0S
+        y0WI1lxkizsANNl9BRCruVo6vAsgGIU4oSiwKxs=
+X-Google-Smtp-Source: APXvYqzlHaboZa+02wB3RWO97MuTp7IBVGo1BoTiJj/H1xoW7PoNMQhdrNk38Zh5PiWw6BYvdcF+waGi/AJsrdjus7I=
+X-Received: by 2002:a05:600c:2c53:: with SMTP id r19mr5496620wmg.39.1581697902657;
+ Fri, 14 Feb 2020 08:31:42 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20200214154854.6746-1-sashal@kernel.org> <20200214154854.6746-530-sashal@kernel.org>
+In-Reply-To: <20200214154854.6746-530-sashal@kernel.org>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Fri, 14 Feb 2020 11:31:31 -0500
+Message-ID: <CADnq5_Oq-6VYYMWgvSbTcs5S6+DHP1K+ambo3Cd_BBkYFQk8HQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.5 530/542] drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_voltage
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        "for 3.8" <stable@vger.kernel.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Maling list - DRI developers 
+        <dri-devel@lists.freedesktop.org>,
+        amd-gfx list <amd-gfx@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+On Fri, Feb 14, 2020 at 11:00 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Alex Deucher <alexander.deucher@amd.com>
+>
+> [ Upstream commit 1064ad4aeef94f51ca230ac639a9e996fb7867a0 ]
+>
+> Cull out 0 clocks to avoid a warning in DC.
+>
+> Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
 
-[ Upstream commit c8ab422553c81a0eb070329c63725df1cd1425bc ]
+All of the upstream commits that reference this bug need to be applied
+or this patch set will be broken.  Please either apply them all or
+drop them.
 
-In brd_init func, rd_nr num of brd_device are firstly allocated
-and add in brd_devices, then brd_devices are traversed to add each
-brd_device by calling add_disk func. When allocating brd_device,
-the disk->first_minor is set to i * max_part, if rd_nr * max_part
-is larger than MINORMASK, two different brd_device may have the same
-devt, then only one of them can be successfully added.
-when rmmod brd.ko, it will cause oops when calling brd_exit.
+Alex
 
-Follow those steps:
-  # modprobe brd rd_nr=3 rd_size=102400 max_part=1048576
-  # rmmod brd
-then, the oops will appear.
-
-Oops log:
-[  726.613722] Call trace:
-[  726.614175]  kernfs_find_ns+0x24/0x130
-[  726.614852]  kernfs_find_and_get_ns+0x44/0x68
-[  726.615749]  sysfs_remove_group+0x38/0xb0
-[  726.616520]  blk_trace_remove_sysfs+0x1c/0x28
-[  726.617320]  blk_unregister_queue+0x98/0x100
-[  726.618105]  del_gendisk+0x144/0x2b8
-[  726.618759]  brd_exit+0x68/0x560 [brd]
-[  726.619501]  __arm64_sys_delete_module+0x19c/0x2a0
-[  726.620384]  el0_svc_common+0x78/0x130
-[  726.621057]  el0_svc_handler+0x38/0x78
-[  726.621738]  el0_svc+0x8/0xc
-[  726.622259] Code: aa0203f6 aa0103f7 aa1e03e0 d503201f (7940e260)
-
-Here, we add brd_check_and_reset_par func to check and limit max_part par.
-
---
-V5->V6:
- - remove useless code
-
-V4->V5:(suggested by Ming Lei)
- - make sure max_part is not larger than DISK_MAX_PARTS
-
-V3->V4:(suggested by Ming Lei)
- - remove useless change
- - add one limit of max_part
-
-V2->V3: (suggested by Ming Lei)
- - clear .minors when running out of consecutive minor space in brd_alloc
- - remove limit of rd_nr
-
-V1->V2:
- - add more checks in brd_check_par_valid as suggested by Ming Lei.
-
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/block/brd.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 1914c63ca8b1d..58c1138ad5e17 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -581,6 +581,25 @@ static struct kobject *brd_probe(dev_t dev, int *part, void *data)
- 	return kobj;
- }
- 
-+static inline void brd_check_and_reset_par(void)
-+{
-+	if (unlikely(!max_part))
-+		max_part = 1;
-+
-+	/*
-+	 * make sure 'max_part' can be divided exactly by (1U << MINORBITS),
-+	 * otherwise, it is possiable to get same dev_t when adding partitions.
-+	 */
-+	if ((1U << MINORBITS) % max_part != 0)
-+		max_part = 1UL << fls(max_part);
-+
-+	if (max_part > DISK_MAX_PARTS) {
-+		pr_info("brd: max_part can't be larger than %d, reset max_part = %d.\n",
-+			DISK_MAX_PARTS, DISK_MAX_PARTS);
-+		max_part = DISK_MAX_PARTS;
-+	}
-+}
-+
- static int __init brd_init(void)
- {
- 	struct brd_device *brd, *next;
-@@ -604,8 +623,7 @@ static int __init brd_init(void)
- 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk"))
- 		return -EIO;
- 
--	if (unlikely(!max_part))
--		max_part = 1;
-+	brd_check_and_reset_par();
- 
- 	for (i = 0; i < rd_nr; i++) {
- 		brd = brd_alloc(i);
--- 
-2.20.1
-
+> Reviewed-by: Evan Quan <evan.quan@amd.com>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+> index 627a42e8fd318..fed3fc4bb57a9 100644
+> --- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+> +++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+> @@ -1080,9 +1080,11 @@ static int smu10_get_clock_by_type_with_voltage(struct pp_hwmgr *hwmgr,
+>
+>         clocks->num_levels = 0;
+>         for (i = 0; i < pclk_vol_table->count; i++) {
+> -               clocks->data[i].clocks_in_khz = pclk_vol_table->entries[i].clk  * 10;
+> -               clocks->data[i].voltage_in_mv = pclk_vol_table->entries[i].vol;
+> -               clocks->num_levels++;
+> +               if (pclk_vol_table->entries[i].clk) {
+> +                       clocks->data[clocks->num_levels].clocks_in_khz = pclk_vol_table->entries[i].clk  * 10;
+> +                       clocks->data[clocks->num_levels].voltage_in_mv = pclk_vol_table->entries[i].vol;
+> +                       clocks->num_levels++;
+> +               }
+>         }
+>
+>         return 0;
+> --
+> 2.20.1
+>
+> _______________________________________________
+> amd-gfx mailing list
+> amd-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
