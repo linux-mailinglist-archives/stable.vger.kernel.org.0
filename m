@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C25C315E9C2
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:09:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D37315E9BA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389975AbgBNRJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:09:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
+        id S2394494AbgBNRIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:08:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403982AbgBNQN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:13:58 -0500
+        id S2403989AbgBNQOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FB77246CF;
-        Fri, 14 Feb 2020 16:13:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB0C9246C9;
+        Fri, 14 Feb 2020 16:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696838;
-        bh=WozPa1qStD4LufFFl3Dl7fGjdGPOMv7Wj8JbkNrLvLo=;
+        s=default; t=1581696839;
+        bh=EuFzhoLZW1Xqcn9uKBwQn2yQLYSQNUgB5uOubWxz5C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRlTn9eC3WGD6A6/+qehpcs41joCo32z+U7napNfMsaDwGUzwDytNKLS8YKsquIJ7
-         EY9SNg66PWUMPHllvsy8aK8yvGVxooMGEjKHo1CriOBLxrmD37PwSQsjxH2Xza7wOH
-         mjaOWHasokNHbwOW9leHupk655fYjyFo6EvbgbXw=
+        b=sEz+fpUzRJ7egktsScWQyqLoyfUaE/KxiSHC6ypkAXuVyd9b//Y8fnq7lT5T9+0Rn
+         OmYUW+/GSWEgA0AUf0A+66ttUk4MC2cieaxPLDZ6TiFQ+dQrCLFM4ICXa8JxHDBYvE
+         H7j2pfAkrq129lkQpAES4rBER+5ktByaf9cL3UCU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        David Engraf <david.engraf@sysgo.com>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 102/252] Revert "tty/serial: atmel: fix out of range clock divider handling"
-Date:   Fri, 14 Feb 2020 11:09:17 -0500
-Message-Id: <20200214161147.15842-102-sashal@kernel.org>
+Cc:     Phong Tran <tranmanphong@gmail.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, b43-dev@lists.infradead.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 103/252] b43legacy: Fix -Wcast-function-type
+Date:   Fri, 14 Feb 2020 11:09:18 -0500
+Message-Id: <20200214161147.15842-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,37 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Phong Tran <tranmanphong@gmail.com>
 
-[ Upstream commit 6dbd54e4154dfe386b3333687de15be239576617 ]
+[ Upstream commit 475eec112e4267232d10f4afe2f939a241692b6c ]
 
-This reverts commit 751d0017334db9c4d68a8909c59f662a6ecbcec6.
+correct usage prototype of callback in tasklet_init().
+Report by https://github.com/KSPP/linux/issues/20
 
-The wrong commit got added to the tty-next tree, the correct one is in
-the tty-linus branch.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: David Engraf <david.engraf@sysgo.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/atmel_serial.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/broadcom/b43legacy/main.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index f34520e9ad6e5..19b926b44cc1e 100644
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -2154,6 +2154,9 @@ static void atmel_set_termios(struct uart_port *port, struct ktermios *termios,
- 		mode |= ATMEL_US_USMODE_NORMAL;
- 	}
+diff --git a/drivers/net/wireless/broadcom/b43legacy/main.c b/drivers/net/wireless/broadcom/b43legacy/main.c
+index 55f411925960e..770cc218ca4bd 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/main.c
++++ b/drivers/net/wireless/broadcom/b43legacy/main.c
+@@ -1304,8 +1304,9 @@ static void handle_irq_ucode_debug(struct b43legacy_wldev *dev)
+ }
  
-+	/* set the mode, clock divisor, parity, stop bits and data size */
-+	atmel_uart_writel(port, ATMEL_US_MR, mode);
-+
- 	/*
- 	 * Set the baud rate:
- 	 * Fractional baudrate allows to setup output frequency more
+ /* Interrupt handler bottom-half */
+-static void b43legacy_interrupt_tasklet(struct b43legacy_wldev *dev)
++static void b43legacy_interrupt_tasklet(unsigned long data)
+ {
++	struct b43legacy_wldev *dev = (struct b43legacy_wldev *)data;
+ 	u32 reason;
+ 	u32 dma_reason[ARRAY_SIZE(dev->dma_reason)];
+ 	u32 merged_dma_reason = 0;
+@@ -3775,7 +3776,7 @@ static int b43legacy_one_core_attach(struct ssb_device *dev,
+ 	b43legacy_set_status(wldev, B43legacy_STAT_UNINIT);
+ 	wldev->bad_frames_preempt = modparam_bad_frames_preempt;
+ 	tasklet_init(&wldev->isr_tasklet,
+-		     (void (*)(unsigned long))b43legacy_interrupt_tasklet,
++		     b43legacy_interrupt_tasklet,
+ 		     (unsigned long)wldev);
+ 	if (modparam_pio)
+ 		wldev->__using_pio = true;
 -- 
 2.20.1
 
