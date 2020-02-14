@@ -2,196 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4BE15F747
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:02:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F024115F75B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389120AbgBNUCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 15:02:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33428 "EHLO mail.kernel.org"
+        id S2389258AbgBNUCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 15:02:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387401AbgBNUCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 15:02:02 -0500
+        id S2389136AbgBNUCE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 15:02:04 -0500
 Received: from localhost (unknown [12.246.51.142])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E049A2467C;
-        Fri, 14 Feb 2020 20:02:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81E46206D7;
+        Fri, 14 Feb 2020 20:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581710521;
-        bh=FbdIifjihYtqFtEdVToAu/G9VMmG5XKyXoZj9isOthY=;
+        s=default; t=1581710523;
+        bh=vbhL7nPtuRrInzreAM2knLkJjeK5ZKQCxhIVz3erTy0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n3kdYLTP3d5NM4aGdeXfzGrKJ99lXKoqqQDtkJHykTG6apXPQlTkqjyldinoZGBY8
-         g77JZQ1EwQXGkw9bbXomJwcf8od0lJnNHl9VFDqUUjVzyaUusceWhRP/I70mHcfO5k
-         BjF/2ihD1bS+dwXDK2e7TCLjEdjGeSeCzV7Hgu68=
-Date:   Fri, 14 Feb 2020 07:21:28 -0800
+        b=0N3BZgRQajZ5/7xssEtpfAh86fEI2ifpd2hPVGfNE23RtL3mMqy0xAIfDCkCtolFI
+         bPGOVG2ssAlCqQBy6+iHyMii5QV/8Oqi270r+OUjLvVqUZuFGLDrhvjRR1hGINEkEw
+         X3Oe34GaWOTEJHjDNAhJ0+VG2nC8ThICEMuQXRig=
+Date:   Fri, 14 Feb 2020 07:22:02 -0800
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Yang Yingliang <yangyingliang@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 091/195] padata: Remove broken queue flushing
-Message-ID: <20200214152128.GC3959278@kroah.com>
-References: <20200210122305.731206734@linuxfoundation.org>
- <20200210122314.217904406@linuxfoundation.org>
- <5E4674BB.4020900@huawei.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 5.5 000/120] 5.5.4-stable review
+Message-ID: <20200214152202.GD3959278@kroah.com>
+References: <20200213151901.039700531@linuxfoundation.org>
+ <CA+G9fYudhnZ9dmSk_ujQa4A8MA6N_HWjEyJV3CLDcBTceN-nLw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <5E4674BB.4020900@huawei.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYudhnZ9dmSk_ujQa4A8MA6N_HWjEyJV3CLDcBTceN-nLw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 06:21:47PM +0800, Yang Yingliang wrote:
-> Hi,
+On Fri, Feb 14, 2020 at 03:50:33PM +0530, Naresh Kamboju wrote:
+> On Thu, 13 Feb 2020 at 21:00, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.5.4 release.
+> > There are 120 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 15 Feb 2020 15:16:41 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.4-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> On 2020/2/10 20:32, Greg Kroah-Hartman wrote:
-> > From: Herbert Xu <herbert@gondor.apana.org.au>
-> > 
-> > [ Upstream commit 07928d9bfc81640bab36f5190e8725894d93b659 ]
-> > 
-> > The function padata_flush_queues is fundamentally broken because
-> > it cannot force padata users to complete the request that is
-> > underway.  IOW padata has to passively wait for the completion
-> > of any outstanding work.
-> > 
-> > As it stands flushing is used in two places.  Its use in padata_stop
-> > is simply unnecessary because nothing depends on the queues to
-> > be flushed afterwards.
-> > 
-> > The other use in padata_replace is more substantial as we depend
-> > on it to free the old pd structure.  This patch instead uses the
-> > pd->refcnt to dynamically free the pd structure once all requests
-> > are complete.
-> > 
-> > Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> > Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >   kernel/padata.c | 46 ++++++++++++----------------------------------
-> >   1 file changed, 12 insertions(+), 34 deletions(-)
-> > 
-> > diff --git a/kernel/padata.c b/kernel/padata.c
-> > index 6c06b3039faed..11c5f9c8779ea 100644
-> > --- a/kernel/padata.c
-> > +++ b/kernel/padata.c
-> > @@ -35,6 +35,8 @@
-> >   #define MAX_OBJ_NUM 1000
-> > +static void padata_free_pd(struct parallel_data *pd);
-> > +
-> >   static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
-> >   {
-> >   	int cpu, target_cpu;
-> > @@ -334,6 +336,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
-> >   	struct padata_serial_queue *squeue;
-> >   	struct parallel_data *pd;
-> >   	LIST_HEAD(local_list);
-> > +	int cnt;
-> >   	local_bh_disable();
-> >   	squeue = container_of(serial_work, struct padata_serial_queue, work);
-> > @@ -343,6 +346,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
-> >   	list_replace_init(&squeue->serial.list, &local_list);
-> >   	spin_unlock(&squeue->serial.lock);
-> > +	cnt = 0;
-> > +
-> >   	while (!list_empty(&local_list)) {
-> >   		struct padata_priv *padata;
-> > @@ -352,9 +357,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
-> >   		list_del_init(&padata->list);
-> >   		padata->serial(padata);
-> > -		atomic_dec(&pd->refcnt);
-> > +		cnt++;
-> >   	}
-> >   	local_bh_enable();
-> > +
-> > +	if (atomic_sub_and_test(cnt, &pd->refcnt))
-> > +		padata_free_pd(pd);
-> >   }
-> >   /**
-> > @@ -501,8 +509,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
-> >   	timer_setup(&pd->timer, padata_reorder_timer, 0);
-> >   	atomic_set(&pd->seq_nr, -1);
-> >   	atomic_set(&pd->reorder_objects, 0);
-> > -	atomic_set(&pd->refcnt, 0);
-> > -	pd->pinst = pinst;
-> This patch remove this assignment, it's cause a null-ptr-deref when using
-> pd->pinst in padata_reorder().
-> 
-> [39135.886908] Unable to handle kernel NULL pointer dereference at virtual
-> address 0000000000000010
-> [39135.886909] Mem abort info:
-> [39135.886910]   ESR = 0x96000004
-> [39135.886912]   Exception class = DABT (current EL), IL = 32 bits
-> [39135.886913]   SET = 0, FnV = 0
-> [39135.886913]   EA = 0, S1PTW = 0
-> [39135.886914] Data abort info:
-> [39135.886915]   ISV = 0, ISS = 0x00000004
-> [39135.886915]   CM = 0, WnR = 0
-> [39135.886918] user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000c66d7ef5
-> [39135.886919] [0000000000000010] pgd=0000000000000000
-> [39135.886922] Internal error: Oops: 96000004 [#1] SMP
-> [39135.897190] Modules linked in: authenc pcrypt crypto_user cfg80211 rfkill
-> ib_isert iscsi_target_mod ib_srpt target_core_mod dm_mirror dm_region_hash
-> rpcrdma dm_log ib_srp scsi_transport_srp sunrpc dm_mod ib_ipoib rdma_ucm
-> ib_uverbs ib_umad ib_iser rdma_cm ib_cm iw_cm aes_ce_blk crypto_simd cryptd
-> aes_ce_cipher hns_roce_hw_v2 ghash_ce sha2_ce sha256_arm64 hns_roce ib_core
-> sha1_ce sbsa_gwdt hi_sfc sg mtd ipmi_ssif sch_fq_codel ip_tables realtek
-> hclge hinic hns3 ipmi_si hisi_sas_v3_hw hibmc_drm hnae3 hisi_sas_main
-> ipmi_devintf ipmi_msghandler
-> [39135.997870] Process kworker/0:2 (pid: 789, stack limit =
-> 0x0000000047f55ba6)
-> [39136.012707] CPU: 0 PID: 789 Comm: kworker/0:2 Kdump: loaded Not tainted
-> 4.19.103+ #1
-> [39136.029010] Hardware name: Huawei TaiShan 2280 V2/BC82AMDD, BIOS 1.08
-> 12/14/2019
-> [39136.044587] Workqueue: pencrypt padata_parallel_worker
-> [39136.055396] pstate: 00c00009 (nzcv daif +PAN +UAO)
-> [39136.065479] pc : padata_reorder+0x144/0x2e0
-> [39136.074274] lr : padata_reorder+0x124/0x2e0
-> [39136.083070] sp : ffff0000149cbc90
-> [39136.090036] x29: ffff0000149cbc90 x28: 0000000000000001
-> [39136.101215] x27: ffffa02fd14af080 x26: ffffa02fd5fe1600
-> [39136.112392] x25: ffff5df7bf4c0ac8 x24: ffffa02fd5fe1628
-> [39136.123569] x23: 0000000000000000 x22: ffff00000828a258
-> [39136.134747] x21: ffffa02fd5fe1618 x20: ffff000009a79788
-> [39136.145924] x19: ffff5df7bf4c0ac8 x18: 00000000bef9a3f7
-> [39136.157102] x17: 0000000066bb7710 x16: 000000009a34db62
-> [39136.168280] x15: 0000000000342311 x14: 0000000037c9c538
-> [39136.179458] x13: 00000000deb82818 x12: 000000007abb6477
-> [39136.190638] x11: 000000006e0b05e5 x10: 00000000ccde2d6a
-> [39136.201817] x9 : 0000000000000000 x8 : a544a826aa446d6a
-> [39136.212996] x7 : e5050b6ea3a6345c x6 : ffffa02fd74ef030
-> [39136.224174] x5 : 0000000000000010 x4 : ffff5df7bf4c0ac8
-> [39136.235354] x3 : ffff5df7bf4c0ad8 x2 : ffff5df7bf4c0ac8
-> [39136.246532] x1 : ffff5df7bf4c0ad8 x0 : 0000000000000000
-> [39136.257712] Call trace:
-> [39136.262851]  padata_reorder+0x144/0x2e0
-> [39136.270922]  padata_do_serial+0xc8/0x128
-> [39136.279177]  pcrypt_aead_enc+0x60/0x70 [pcrypt]
-> [39136.288708]  padata_parallel_worker+0xd8/0x138
-> [39136.298056]  process_one_work+0x1bc/0x4b8
-> [39136.306489]  worker_thread+0x164/0x580
-> [39136.314374]  kthread+0x134/0x138
-> [39136.321163]  ret_from_fork+0x10/0x18
-> [39136.328681] Code: f900033b 52800000 91004261 089ffc20 (f9400ae1)
-> [39136.341508] ---[ end trace fc1b4f00385f0fee ]---
-> [39136.351221] Kernel panic - not syncing: Fatal exception in interrupt
-> [39136.364591] SMP: stopping secondary CPUs
-> [39136.372863] Kernel Offset: disabled
-> [39138.438722] CPU features: 0x12,a2200a38
-> [39138.446797] Memory Limit: none
-> [39138.463025] Starting crashdump kernel...
-> [39138.471295] Bye!
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-So this causes a problem in the 4.19-rc tree but not in Linus's tree?
-Or am I confused?  Should it be dropped from stable or is there some
-other fix-of-a-fix that I need to apply here?
-
-thanks,
+Thanks for testing all of tehse and letting me know.
 
 greg k-h
