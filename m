@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5DB115F383
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2295515F32B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393082AbgBNSMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:12:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60542 "EHLO mail.kernel.org"
+        id S1731177AbgBNPxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:53:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731163AbgBNPxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:11 -0500
+        id S1730533AbgBNPxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:53:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 805D324649;
-        Fri, 14 Feb 2020 15:53:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0923E2465D;
+        Fri, 14 Feb 2020 15:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695590;
-        bh=kXw+U02kMo5+dBWgsIEkSY6dFpeagC5XzqBhgIO2FW8=;
+        s=default; t=1581695592;
+        bh=wEbTmDAFGEJyYKw5bAkSrdfMG8SVFgSc3UHab2BPGXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufjCryc395phdeWJW7b7cBbBGGoeq6hJ+l67iuqMhLvpx4sT9i/2D0VW4fMRRKvPq
-         SyRZiP2+VDFOzLoQE7/DXUSJG/2vMKGzI8EGjxwZALkmGdBs0QlIvmQ+OLn1PCKfNm
-         Rd5VlfXJ7P2l9gegiF23n5cNwqHSLrvoiLDCSyIs=
+        b=ODnbLo4/+hqez5iqxe2pm9eSkzcZ8cXDGClBccjVkYOboJ7ZNLxZ/aG/7hMUJc4vx
+         G6eVN3h+m1dm7lU+lEcXeS3gAo2NXdeiJ+SdU2NyAi+NrrfC8QRo5d5oYJoldD2+/O
+         PzJXRO0d+/dyQ8kNFisO9qLxJfJ2ejdDnBjZnQR8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Chris Healy <cphealy@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
         linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 197/542] ARM: exynos_defconfig: Bring back explicitly wanted options
-Date:   Fri, 14 Feb 2020 10:43:09 -0500
-Message-Id: <20200214154854.6746-197-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 198/542] ARM: dts: imx6: rdu2: Disable WP for USDHC2 and USDHC3
+Date:   Fri, 14 Feb 2020 10:43:10 -0500
+Message-Id: <20200214154854.6746-198-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,63 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-[ Upstream commit 9f9e2df2e64df197ff6548ef494f76be5b35d08a ]
+[ Upstream commit cd58a174e58649426fb43d7456e5f7d7eab58af1 ]
 
-Few options KALLSYMS_ALL, SCSI, PM_DEVFREQ and mutex/spinlock debugging
-were removed with savedefconfig because they were selected by other
-options.  However these are user-visible options and they might not be
-selected in the future.  Exactly this happened with commit 0e4a459f56c3
-("tracing: Remove unnecessary DEBUG_FS dependency") removing the
-dependency between DEBUG_FS and TRACING.
+RDU2 production units come with resistor connecting WP pin to
+correpsonding GPIO DNPed for both SD card slots. Drop any WP related
+configuration and mark both slots with "disable-wp".
 
-To avoid losing these options in the future, explicitly mention them in
-defconfig.
-
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reported-by: Chris Healy <cphealy@gmail.com>
+Reviewed-by: Chris Healy <cphealy@gmail.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/exynos_defconfig | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/configs/exynos_defconfig b/arch/arm/configs/exynos_defconfig
-index fde84f123fbb5..ead8348ec999f 100644
---- a/arch/arm/configs/exynos_defconfig
-+++ b/arch/arm/configs/exynos_defconfig
-@@ -38,6 +38,7 @@ CONFIG_CRYPTO_SHA256_ARM=m
- CONFIG_CRYPTO_SHA512_ARM=m
- CONFIG_CRYPTO_AES_ARM_BS=m
- CONFIG_CRYPTO_CHACHA20_NEON=m
-+CONFIG_KALLSYMS_ALL=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_PARTITION_ADVANCED=y
-@@ -92,6 +93,7 @@ CONFIG_BLK_DEV_LOOP=y
- CONFIG_BLK_DEV_CRYPTOLOOP=y
- CONFIG_BLK_DEV_RAM=y
- CONFIG_BLK_DEV_RAM_SIZE=8192
-+CONFIG_SCSI=y
- CONFIG_BLK_DEV_SD=y
- CONFIG_CHR_DEV_SG=y
- CONFIG_ATA=y
-@@ -291,6 +293,7 @@ CONFIG_CROS_EC_SPI=y
- CONFIG_COMMON_CLK_MAX77686=y
- CONFIG_COMMON_CLK_S2MPS11=y
- CONFIG_EXYNOS_IOMMU=y
-+CONFIG_PM_DEVFREQ=y
- CONFIG_DEVFREQ_GOV_PERFORMANCE=y
- CONFIG_DEVFREQ_GOV_POWERSAVE=y
- CONFIG_DEVFREQ_GOV_USERSPACE=y
-@@ -356,4 +359,7 @@ CONFIG_SOFTLOCKUP_DETECTOR=y
- # CONFIG_DETECT_HUNG_TASK is not set
- CONFIG_PROVE_LOCKING=y
- CONFIG_DEBUG_ATOMIC_SLEEP=y
-+CONFIG_DEBUG_RT_MUTEXES=y
-+CONFIG_DEBUG_SPINLOCK=y
-+CONFIG_DEBUG_MUTEXES=y
- CONFIG_DEBUG_USER=y
+diff --git a/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi b/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
+index a2a4f33a3e3ef..4ec9fb332610e 100644
+--- a/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
+@@ -629,7 +629,7 @@
+ 	pinctrl-0 = <&pinctrl_usdhc2>;
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio2 2 GPIO_ACTIVE_LOW>;
+-	wp-gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;
++	disable-wp;
+ 	vmmc-supply = <&reg_3p3v_sd>;
+ 	vqmmc-supply = <&reg_3p3v>;
+ 	no-1-8-v;
+@@ -642,7 +642,7 @@
+ 	pinctrl-0 = <&pinctrl_usdhc3>;
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio2 0 GPIO_ACTIVE_LOW>;
+-	wp-gpios = <&gpio2 1 GPIO_ACTIVE_HIGH>;
++	disable-wp;
+ 	vmmc-supply = <&reg_3p3v_sd>;
+ 	vqmmc-supply = <&reg_3p3v>;
+ 	no-1-8-v;
+@@ -1056,7 +1056,6 @@
+ 			MX6QDL_PAD_SD2_DAT1__SD2_DATA1		0x17059
+ 			MX6QDL_PAD_SD2_DAT2__SD2_DATA2		0x17059
+ 			MX6QDL_PAD_SD2_DAT3__SD2_DATA3		0x17059
+-			MX6QDL_PAD_NANDF_D3__GPIO2_IO03		0x40010040
+ 			MX6QDL_PAD_NANDF_D2__GPIO2_IO02		0x40010040
+ 		>;
+ 	};
+@@ -1069,7 +1068,6 @@
+ 			MX6QDL_PAD_SD3_DAT1__SD3_DATA1		0x17059
+ 			MX6QDL_PAD_SD3_DAT2__SD3_DATA2		0x17059
+ 			MX6QDL_PAD_SD3_DAT3__SD3_DATA3		0x17059
+-			MX6QDL_PAD_NANDF_D1__GPIO2_IO01		0x40010040
+ 			MX6QDL_PAD_NANDF_D0__GPIO2_IO00		0x40010040
+ 
+ 		>;
 -- 
 2.20.1
 
