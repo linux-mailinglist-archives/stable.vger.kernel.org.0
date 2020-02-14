@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 928F515EFEB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E8915EFE9
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729336AbgBNRv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:51:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43226 "EHLO mail.kernel.org"
+        id S2388217AbgBNRvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:51:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388711AbgBNP6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:52 -0500
+        id S2388719AbgBNP6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A98D2082F;
-        Fri, 14 Feb 2020 15:58:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4811E24691;
+        Fri, 14 Feb 2020 15:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695931;
-        bh=erFRMLR9IzhmKMg/3FdZYPI3TuSoYfb9KD3j/IgNGgU=;
+        s=default; t=1581695933;
+        bh=4xz8fuR2XJP3Un2ldiH769b+k8BXaoSjCq8w1wOO9rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LaIayJLdB15ZysijlG3u3FiWHmA0wnbQJHfIno9GWxIs1kua1Ys4GbcsCQyoz0dbH
-         eQXRRGJwLJ6XWS86hwbaNvstb9ptIcxyHfghpahpix5ajNVd7NR2fUt5X809djDLug
-         QK81CPZ6iFGSGxtQK7PZYrSag++wTsj8jJFAZ7Ms=
+        b=ESDfs5LuoosnDlBRBp9xSOSGrhRrdVlCa5ZZjNCeL/WJMEIaauILEp+d+SjesA+qZ
+         PBIECOWoGf86M3cYJqNvqIYfujjbnZXAAE8bj4nfw148PhnUjXRBKs7GjfCkibV07D
+         nuam/VzQAks6DggdDnBJyUt+iyF7HC+Gt6qjzR9s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olof Johansson <olof@lixom.net>,
+Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 467/542] ARM: 8949/1: mm: mark free_memmap as __init
-Date:   Fri, 14 Feb 2020 10:47:39 -0500
-Message-Id: <20200214154854.6746-467-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 468/542] ARM: 8951/1: Fix Kexec compilation issue.
+Date:   Fri, 14 Feb 2020 10:47:40 -0500
+Message-Id: <20200214154854.6746-468-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,39 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olof Johansson <olof@lixom.net>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 31f3010e60522ede237fb145a63b4af5a41718c2 ]
+[ Upstream commit 76950f7162cad51d2200ebd22c620c14af38f718 ]
 
-As of commit ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING
-forcibly"), free_memmap() might not always be inlined, and thus is
-triggering a section warning:
+To perform the reserve_crashkernel() operation kexec uses SECTION_SIZE to
+find a memblock in a range.
+SECTION_SIZE is not defined for nommu systems. Trying to compile kexec in
+these conditions results in a build error:
 
-WARNING: vmlinux.o(.text.unlikely+0x904): Section mismatch in reference from the function free_memmap() to the function .meminit.text:memblock_free()
+  linux/arch/arm/kernel/setup.c: In function ‘reserve_crashkernel’:
+  linux/arch/arm/kernel/setup.c:1016:25: error: ‘SECTION_SIZE’ undeclared
+     (first use in this function); did you mean ‘SECTIONS_WIDTH’?
+             crash_size, SECTION_SIZE);
+                         ^~~~~~~~~~~~
+                         SECTIONS_WIDTH
+  linux/arch/arm/kernel/setup.c:1016:25: note: each undeclared identifier
+     is reported only once for each function it appears in
+  linux/scripts/Makefile.build:265: recipe for target 'arch/arm/kernel/setup.o'
+     failed
 
-Mark it as __init, since the faller (free_unused_memmap) already is.
+Make KEXEC depend on MMU to fix the compilation issue.
 
-Fixes: ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING forcibly")
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/init.c | 2 +-
+ arch/arm/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 3ef204137e732..054be44d1cdb4 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -324,7 +324,7 @@ static inline void poison_init_mem(void *s, size_t count)
- 		*p++ = 0xe7fddef0;
- }
- 
--static inline void
-+static inline void __init
- free_memmap(unsigned long start_pfn, unsigned long end_pfn)
- {
- 	struct page *start_pg, *end_pg;
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 2c3a9fd05f571..7ef1916fcbf45 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1905,7 +1905,7 @@ config XIP_DEFLATED_DATA
+ config KEXEC
+ 	bool "Kexec system call (EXPERIMENTAL)"
+ 	depends on (!SMP || PM_SLEEP_SMP)
+-	depends on !CPU_V7M
++	depends on MMU
+ 	select KEXEC_CORE
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
 -- 
 2.20.1
 
