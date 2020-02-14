@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E55ED15EA97
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D15B715EAA9
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391275AbgBNQMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:12:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39506 "EHLO mail.kernel.org"
+        id S2392031AbgBNRP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:15:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391933AbgBNQMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:12 -0500
+        id S2391946AbgBNQMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A1A3246AB;
-        Fri, 14 Feb 2020 16:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7C762469F;
+        Fri, 14 Feb 2020 16:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696732;
-        bh=JlZXVtgaL1rN68AVqhb8e94Gy+f/zbLWFdvc6qJQoe8=;
+        s=default; t=1581696735;
+        bh=zpzh7jTzlav5vmENnBuXbz1FGPBgaAbtcDNvY9gavbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMnOZjVRznjLaVgRoJeLueXy6vLwTK99NZSKECZsMQgtgMpJx3EurDSzy7zi2LewB
-         8AsrXQXUKMqihawfLBMt31zpQl9siBa5cToc6wjV4fBD8OYkTbBRzA6q4DTCxVlUBO
-         hl6EiB5iK8rprw9/AQ3Q6kF2OZeveh0TCDTyGa2k=
+        b=Ag48VvDA9Tnv1eAr824aBbw1WVPdJ70tgWspY8Ce6uaSQlFPn3pKDkn6KQZT9cEXP
+         RUQSNGXHcidOA230UZktEvgct+qrDt2Zl+CuUw8lx6afs4iHMXVjLUZpNgZ4aMO8Eb
+         FxY8+NaDF0yIWW2DVCWYUFMkdCpmr1eMT9hLbLvc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 018/252] gpio: gpio-grgpio: fix possible sleep-in-atomic-context bugs in grgpio_irq_map/unmap()
-Date:   Fri, 14 Feb 2020 11:07:53 -0500
-Message-Id: <20200214161147.15842-18-sashal@kernel.org>
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 021/252] media: sti: bdisp: fix a possible sleep-in-atomic-context bug in bdisp_device_run()
+Date:   Fri, 14 Feb 2020 11:07:56 -0500
+Message-Id: <20200214161147.15842-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,73 +47,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit e36eaf94be8f7bc4e686246eed3cf92d845e2ef8 ]
+[ Upstream commit bb6d42061a05d71dd73f620582d9e09c8fbf7f5b ]
 
 The driver may sleep while holding a spinlock.
 The function call path (from bottom to top) in Linux 4.19 is:
 
-drivers/gpio/gpio-grgpio.c, 261:
-	request_irq in grgpio_irq_map
-drivers/gpio/gpio-grgpio.c, 255:
-	_raw_spin_lock_irqsave in grgpio_irq_map
+drivers/media/platform/sti/bdisp/bdisp-hw.c, 385:
+    msleep in bdisp_hw_reset
+drivers/media/platform/sti/bdisp/bdisp-v4l2.c, 341:
+    bdisp_hw_reset in bdisp_device_run
+drivers/media/platform/sti/bdisp/bdisp-v4l2.c, 317:
+    _raw_spin_lock_irqsave in bdisp_device_run
 
-drivers/gpio/gpio-grgpio.c, 318:
-	free_irq in grgpio_irq_unmap
-drivers/gpio/gpio-grgpio.c, 299:
-	_raw_spin_lock_irqsave in grgpio_irq_unmap
+To fix this bug, msleep() is replaced with udelay().
 
-request_irq() and free_irq() can sleep at runtime.
-
-To fix these bugs, request_irq() and free_irq() are called without
-holding the spinlock.
-
-These bugs are found by a static analysis tool STCheck written by myself.
+This bug is found by a static analysis tool STCheck written by myself.
 
 Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20191218132605.10594-1-baijiaju1990@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-grgpio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/media/platform/sti/bdisp/bdisp-hw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-grgpio.c b/drivers/gpio/gpio-grgpio.c
-index 60a1556c570a4..c1be299e5567b 100644
---- a/drivers/gpio/gpio-grgpio.c
-+++ b/drivers/gpio/gpio-grgpio.c
-@@ -258,17 +258,16 @@ static int grgpio_irq_map(struct irq_domain *d, unsigned int irq,
- 	lirq->irq = irq;
- 	uirq = &priv->uirqs[lirq->index];
- 	if (uirq->refcnt == 0) {
-+		spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
- 		ret = request_irq(uirq->uirq, grgpio_irq_handler, 0,
- 				  dev_name(priv->dev), priv);
- 		if (ret) {
- 			dev_err(priv->dev,
- 				"Could not request underlying irq %d\n",
- 				uirq->uirq);
--
--			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
--
- 			return ret;
- 		}
-+		spin_lock_irqsave(&priv->gc.bgpio_lock, flags);
- 	}
- 	uirq->refcnt++;
+diff --git a/drivers/media/platform/sti/bdisp/bdisp-hw.c b/drivers/media/platform/sti/bdisp/bdisp-hw.c
+index 26d9fa7aeb5f2..d57f659d740a1 100644
+--- a/drivers/media/platform/sti/bdisp/bdisp-hw.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-hw.c
+@@ -14,8 +14,8 @@
+ #define MAX_SRC_WIDTH           2048
  
-@@ -314,8 +313,11 @@ static void grgpio_irq_unmap(struct irq_domain *d, unsigned int irq)
- 	if (index >= 0) {
- 		uirq = &priv->uirqs[lirq->index];
- 		uirq->refcnt--;
--		if (uirq->refcnt == 0)
-+		if (uirq->refcnt == 0) {
-+			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
- 			free_irq(uirq->uirq, priv);
-+			return;
-+		}
- 	}
+ /* Reset & boot poll config */
+-#define POLL_RST_MAX            50
+-#define POLL_RST_DELAY_MS       20
++#define POLL_RST_MAX            500
++#define POLL_RST_DELAY_MS       2
  
- 	spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
+ enum bdisp_target_plan {
+ 	BDISP_RGB,
+@@ -382,7 +382,7 @@ int bdisp_hw_reset(struct bdisp_dev *bdisp)
+ 	for (i = 0; i < POLL_RST_MAX; i++) {
+ 		if (readl(bdisp->regs + BLT_STA1) & BLT_STA1_IDLE)
+ 			break;
+-		msleep(POLL_RST_DELAY_MS);
++		udelay(POLL_RST_DELAY_MS * 1000);
+ 	}
+ 	if (i == POLL_RST_MAX)
+ 		dev_err(bdisp->dev, "Reset timeout\n");
 -- 
 2.20.1
 
