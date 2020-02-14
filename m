@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF0515E8FC
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EDE215E8F9
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:04:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392478AbgBNQPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:15:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46036 "EHLO mail.kernel.org"
+        id S2392554AbgBNREC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:04:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392475AbgBNQPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:39 -0500
+        id S2392493AbgBNQPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E60C246F2;
-        Fri, 14 Feb 2020 16:15:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0835C246F3;
+        Fri, 14 Feb 2020 16:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696939;
-        bh=yzoiKmt3nAhRVtfsDr9a8b1lx8fMEShoEFhjBaCQzqo=;
+        s=default; t=1581696942;
+        bh=O6NHsOKP5WI6rUdV37NfHsDshjlGXVTkDbk7qfG4Jhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiYQZ+no92DsJUaJqDmI+k5PTnBNU4JWikS9ySV2BtzGVPKk5lC2nZnM5kO50YMZj
-         64ils+SW8zaIi8o9g4qH1fL24sbtt0EwQ/NwFnt3CN/CxYYK2/DieGxo/Y0PV2O9X8
-         4lMkHONjBnYuz/A61i5TLW2DaAt7aOrjCnLysvyw=
+        b=ojd2USduC4CUAFMczvsIwvZwqudtXlWI63Ws31UcItTjtolCx9RYe/YrvxgpiSRHP
+         6MzF6GK84gN9CcUY9z831fTfd+v7/Jw8zdLmIVwLm2xMoSB9OaS1vvWxKRJXholgim
+         DEGPw4T73+LC+9pb+SPFKPZXMbcI+ZyaZY4t9Gsk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jun Lei <Jun.Lei@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 182/252] drm/amd/display: fixup DML dependencies
-Date:   Fri, 14 Feb 2020 11:10:37 -0500
-Message-Id: <20200214161147.15842-182-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Robert Richter <rrichter@marvell.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 185/252] watchdog/softlockup: Enforce that timestamp is valid on boot
+Date:   Fri, 14 Feb 2020 11:10:40 -0500
+Message-Id: <20200214161147.15842-185-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -46,60 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Lei <Jun.Lei@amd.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 34ad0230062c39cdcba564d16d122c0fb467a7d6 ]
+[ Upstream commit 11e31f608b499f044f24b20be73f1dcab3e43f8a ]
 
-[why]
-Need to fix DML portability issues to enable SW unit testing around DML
+Robert reported that during boot the watchdog timestamp is set to 0 for one
+second which is the indicator for a watchdog reset.
 
-[how]
-Move calcs into dc include folder since multiple components reference it
-Remove relative paths to external dependencies
+The reason for this is that the timestamp is in seconds and the time is
+taken from sched clock and divided by ~1e9. sched clock starts at 0 which
+means that for the first second during boot the watchdog timestamp is 0,
+i.e. reset.
 
-Signed-off-by: Jun Lei <Jun.Lei@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Harry Wentland <harry.wentland@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Use ULONG_MAX as the reset indicator value so the watchdog works correctly
+right from the start. ULONG_MAX would only conflict with a real timestamp
+if the system reaches an uptime of 136 years on 32bit and almost eternity
+on 64bit.
+
+Reported-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/87o8v3uuzl.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c          | 2 +-
- drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h          | 2 +-
- drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h | 0
- 3 files changed, 2 insertions(+), 2 deletions(-)
- rename drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h (100%)
+ kernel/watchdog.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
-index b953b02a15121..723af0b2dda04 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
-@@ -24,7 +24,7 @@
-  */
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index bbc4940f21af6..6d60701dc6361 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -161,6 +161,8 @@ static void lockup_detector_update_enable(void)
  
- #include "dml_common_defs.h"
--#include "../calcs/dcn_calc_math.h"
-+#include "dcn_calc_math.h"
+ #ifdef CONFIG_SOFTLOCKUP_DETECTOR
  
- #include "dml_inline_defs.h"
++#define SOFTLOCKUP_RESET	ULONG_MAX
++
+ /* Global variables, exported for sysctl */
+ unsigned int __read_mostly softlockup_panic =
+ 			CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC_VALUE;
+@@ -267,7 +269,7 @@ notrace void touch_softlockup_watchdog_sched(void)
+ 	 * Preemption can be enabled.  It doesn't matter which CPU's timestamp
+ 	 * gets zeroed here, so use the raw_ operation.
+ 	 */
+-	raw_cpu_write(watchdog_touch_ts, 0);
++	raw_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
-index e8ce08567cd8e..e4f595a3038c4 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
-@@ -27,7 +27,7 @@
- #define __DML_INLINE_DEFS_H__
+ notrace void touch_softlockup_watchdog(void)
+@@ -291,14 +293,14 @@ void touch_all_softlockup_watchdogs(void)
+ 	 * the softlockup check.
+ 	 */
+ 	for_each_cpu(cpu, &watchdog_allowed_mask)
+-		per_cpu(watchdog_touch_ts, cpu) = 0;
++		per_cpu(watchdog_touch_ts, cpu) = SOFTLOCKUP_RESET;
+ 	wq_watchdog_touch(-1);
+ }
  
- #include "dml_common_defs.h"
--#include "../calcs/dcn_calc_math.h"
-+#include "dcn_calc_math.h"
- #include "dml_logger.h"
+ void touch_softlockup_watchdog_sync(void)
+ {
+ 	__this_cpu_write(softlockup_touch_sync, true);
+-	__this_cpu_write(watchdog_touch_ts, 0);
++	__this_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
  
- static inline double dml_min(double a, double b)
-diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h b/drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
-similarity index 100%
-rename from drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h
-rename to drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
+ static int is_softlockup(unsigned long touch_ts)
+@@ -376,7 +378,7 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ 	/* .. and repeat */
+ 	hrtimer_forward_now(hrtimer, ns_to_ktime(sample_period));
+ 
+-	if (touch_ts == 0) {
++	if (touch_ts == SOFTLOCKUP_RESET) {
+ 		if (unlikely(__this_cpu_read(softlockup_touch_sync))) {
+ 			/*
+ 			 * If the time stamp was touched atomically
 -- 
 2.20.1
 
