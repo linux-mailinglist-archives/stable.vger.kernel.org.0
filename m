@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1D815DFF1
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3AE715E00C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391792AbgBNQL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:11:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38136 "EHLO mail.kernel.org"
+        id S2391224AbgBNQLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:11:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391781AbgBNQL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:11:27 -0500
+        id S2391851AbgBNQLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:11:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7577F24684;
-        Fri, 14 Feb 2020 16:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A919222C2;
+        Fri, 14 Feb 2020 16:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696686;
-        bh=7SERtw8OK82XTQ5ufmS4hqri0I5TFHdgVzia8a+AzFY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obxuLzsHtV1KXLfT0JXzijdueGxdNh5mhTSEnep9HgdXaSA6UdJe2bFb74mt2umPR
-         w7DuLgKGuiyqdwiN/xvW8q0PF1nD6gaPUTSv5PXzk2qaprW2JNllcYPCzAmdci6DgI
-         TCBRFzHKoJX1ar0dI8gfrYpMkiYXbURhmnqQYZbI=
+        s=default; t=1581696709;
+        bh=MKNm3DH+iFG/2MKS7mW0IPl2gpbcCAHThyKYruf9gXM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Z4Oh62ci8HZzM61xAIyouudBRbxEve7eXRxatUKe8UOM4Wo4XgP8mT5MuHfH4vbG9
+         tu9GintuoQGixsUQRDO+U7HowWSMVU9DRpCvxcNOeTmG0Bx9giPuz6QmvQ4/+pwiAS
+         F8Jr7IbNjqC87w1yqeQ46iIVAEzqa7gffkfrd7OU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robert Milkowski <rmilkowski@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 453/459] NFSv4.0: nfs4_do_fsinfo() should not do implicit lease renewals
-Date:   Fri, 14 Feb 2020 11:01:43 -0500
-Message-Id: <20200214160149.11681-453-sashal@kernel.org>
+Cc:     yu kuai <yukuai3@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 001/252] drm/amdgpu: remove set but not used variable 'mc_shared_chmap' from 'gfx_v6_0.c' and 'gfx_v7_0.c'
+Date:   Fri, 14 Feb 2020 11:07:36 -0500
+Message-Id: <20200214161147.15842-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
-References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,159 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Milkowski <rmilkowski@gmail.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 7dc2993a9e51dd2eee955944efec65bef90265b7 ]
+[ Upstream commit 747a397d394fac0001e4b3c03d7dce3a118af567 ]
 
-Currently, each time nfs4_do_fsinfo() is called it will do an implicit
-NFS4 lease renewal, which is not compliant with the NFS4 specification.
-This can result in a lease being expired by an NFS server.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Commit 83ca7f5ab31f ("NFS: Avoid PUTROOTFH when managing leases")
-introduced implicit client lease renewal in nfs4_do_fsinfo(),
-which can result in the NFSv4.0 lease to expire on a server side,
-and servers returning NFS4ERR_EXPIRED or NFS4ERR_STALE_CLIENTID.
+drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c: In function
+‘gfx_v6_0_constants_init’:
+drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c:1579:6: warning: variable
+‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
 
-This can easily be reproduced by frequently unmounting a sub-mount,
-then stat'ing it to get it mounted again, which will delay or even
-completely prevent client from sending RENEW operations if no other
-NFS operations are issued. Eventually nfs server will expire client's
-lease and return an error on file access or next RENEW.
+drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c: In function
+‘gfx_v7_0_gpu_early_init’:
+drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c:4262:6: warning: variable
+‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
 
-This can also happen when a sub-mount is automatically unmounted
-due to inactivity (after nfs_mountpoint_expiry_timeout), then it is
-mounted again via stat(). This can result in a short window during
-which client's lease will expire on a server but not on a client.
-This specific case was observed on production systems.
-
-This patch removes the implicit lease renewal from nfs4_do_fsinfo().
-
-Fixes: 83ca7f5ab31f ("NFS: Avoid PUTROOTFH when managing leases")
-Signed-off-by: Robert Milkowski <rmilkowski@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 2cd46ad22383 ("drm/amdgpu: add graphic pipeline implementation for si v8")
+Fixes: d93f3ca706b8 ("drm/amdgpu/gfx7: rework gpu_init()")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h    |  4 +---
- fs/nfs/nfs4proc.c   | 12 ++++++++----
- fs/nfs/nfs4renewd.c |  5 +----
- fs/nfs/nfs4state.c  |  4 +---
- 4 files changed, 11 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c | 3 +--
+ drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index 16b2e5cc3e94a..bb322d9de313b 100644
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -439,9 +439,7 @@ extern void nfs4_schedule_state_renewal(struct nfs_client *);
- extern void nfs4_renewd_prepare_shutdown(struct nfs_server *);
- extern void nfs4_kill_renewd(struct nfs_client *);
- extern void nfs4_renew_state(struct work_struct *);
--extern void nfs4_set_lease_period(struct nfs_client *clp,
--		unsigned long lease,
--		unsigned long lastrenewed);
-+extern void nfs4_set_lease_period(struct nfs_client *clp, unsigned long lease);
- 
- 
- /* nfs4state.c */
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 5abb3195658a9..423960d480f10 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5024,16 +5024,13 @@ static int nfs4_do_fsinfo(struct nfs_server *server, struct nfs_fh *fhandle, str
- 	struct nfs4_exception exception = {
- 		.interruptible = true,
- 	};
--	unsigned long now = jiffies;
- 	int err;
- 
- 	do {
- 		err = _nfs4_do_fsinfo(server, fhandle, fsinfo);
- 		trace_nfs4_fsinfo(server, fhandle, fsinfo->fattr, err);
- 		if (err == 0) {
--			nfs4_set_lease_period(server->nfs_client,
--					fsinfo->lease_time * HZ,
--					now);
-+			nfs4_set_lease_period(server->nfs_client, fsinfo->lease_time * HZ);
- 			break;
- 		}
- 		err = nfs4_handle_exception(server, err, &exception);
-@@ -6089,6 +6086,7 @@ int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
- 		.callback_data = &setclientid,
- 		.flags = RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN,
- 	};
-+	unsigned long now = jiffies;
- 	int status;
- 
- 	/* nfs_client_id4 */
-@@ -6121,6 +6119,9 @@ int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
- 		clp->cl_acceptor = rpcauth_stringify_acceptor(setclientid.sc_cred);
- 		put_rpccred(setclientid.sc_cred);
- 	}
-+
-+	if (status == 0)
-+		do_renew_lease(clp, now);
- out:
- 	trace_nfs4_setclientid(clp, status);
- 	dprintk("NFS reply setclientid: %d\n", status);
-@@ -8204,6 +8205,7 @@ static int _nfs4_proc_exchange_id(struct nfs_client *clp, const struct cred *cre
- 	struct rpc_task *task;
- 	struct nfs41_exchange_id_args *argp;
- 	struct nfs41_exchange_id_res *resp;
-+	unsigned long now = jiffies;
- 	int status;
- 
- 	task = nfs4_run_exchange_id(clp, cred, sp4_how, NULL);
-@@ -8224,6 +8226,8 @@ static int _nfs4_proc_exchange_id(struct nfs_client *clp, const struct cred *cre
- 	if (status != 0)
- 		goto out;
- 
-+	do_renew_lease(clp, now);
-+
- 	clp->cl_clientid = resp->clientid;
- 	clp->cl_exchange_flags = resp->flags;
- 	clp->cl_seqid = resp->seqid;
-diff --git a/fs/nfs/nfs4renewd.c b/fs/nfs/nfs4renewd.c
-index 6ea431b067dd6..ff876dda7f063 100644
---- a/fs/nfs/nfs4renewd.c
-+++ b/fs/nfs/nfs4renewd.c
-@@ -138,15 +138,12 @@ nfs4_kill_renewd(struct nfs_client *clp)
-  *
-  * @clp: pointer to nfs_client
-  * @lease: new value for lease period
-- * @lastrenewed: time at which lease was last renewed
-  */
- void nfs4_set_lease_period(struct nfs_client *clp,
--		unsigned long lease,
--		unsigned long lastrenewed)
-+		unsigned long lease)
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
+index de184a8860573..016756cec0d10 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
+@@ -1555,7 +1555,7 @@ static void gfx_v6_0_config_init(struct amdgpu_device *adev)
+ static void gfx_v6_0_gpu_init(struct amdgpu_device *adev)
  {
- 	spin_lock(&clp->cl_lock);
- 	clp->cl_lease_time = lease;
--	clp->cl_last_renewal = lastrenewed;
- 	spin_unlock(&clp->cl_lock);
+ 	u32 gb_addr_config = 0;
+-	u32 mc_shared_chmap, mc_arb_ramcfg;
++	u32 mc_arb_ramcfg;
+ 	u32 sx_debug_1;
+ 	u32 hdp_host_path_cntl;
+ 	u32 tmp;
+@@ -1657,7 +1657,6 @@ static void gfx_v6_0_gpu_init(struct amdgpu_device *adev)
  
- 	/* Cap maximum reconnect timeout at 1/2 lease period */
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 0c6d53dc3672a..b53bcf40e2a77 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -91,17 +91,15 @@ static int nfs4_setup_state_renewal(struct nfs_client *clp)
+ 	WREG32(mmBIF_FB_EN, BIF_FB_EN__FB_READ_EN_MASK | BIF_FB_EN__FB_WRITE_EN_MASK);
+ 
+-	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
+ 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
+ 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
+index 95452c5a9df6e..8bdcc4a6655af 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
+@@ -4323,7 +4323,7 @@ static int gfx_v7_0_late_init(void *handle)
+ static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
  {
- 	int status;
- 	struct nfs_fsinfo fsinfo;
--	unsigned long now;
+ 	u32 gb_addr_config;
+-	u32 mc_shared_chmap, mc_arb_ramcfg;
++	u32 mc_arb_ramcfg;
+ 	u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_addr_map;
+ 	u32 tmp;
  
- 	if (!test_bit(NFS_CS_CHECK_LEASE_TIME, &clp->cl_res_state)) {
- 		nfs4_schedule_state_renewal(clp);
- 		return 0;
+@@ -4400,7 +4400,6 @@ static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
+ 		break;
  	}
  
--	now = jiffies;
- 	status = nfs4_proc_get_lease_time(clp, &fsinfo);
- 	if (status == 0) {
--		nfs4_set_lease_period(clp, fsinfo.lease_time * HZ, now);
-+		nfs4_set_lease_period(clp, fsinfo.lease_time * HZ);
- 		nfs4_schedule_state_renewal(clp);
- 	}
+-	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
+ 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
+ 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
  
 -- 
 2.20.1
