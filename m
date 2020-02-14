@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CC7015E2D0
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:25:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4268015E2D7
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393358AbgBNQZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:25:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34298 "EHLO mail.kernel.org"
+        id S2406061AbgBNQZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:25:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393351AbgBNQZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:25:08 -0500
+        id S2406050AbgBNQZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:25:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ED9C2479D;
-        Fri, 14 Feb 2020 16:25:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A53B2472B;
+        Fri, 14 Feb 2020 16:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697507;
-        bh=Lhe26MhIkbib9XC4bkspCVFr9AvJN+p0oE/YNus0YLs=;
+        s=default; t=1581697520;
+        bh=iFoKa7kI58lF4drk+uYfJAPj4+6ZzqFP9qh9SqAvIOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeKdXfH7YHHQdltIq8oXpsjPJ+95+o1esH01sZ/Aa0fDLsPzVivxe8FGbS4kC7/mc
-         SHB5MmThfUc51BRYfw5S6c1Zv5nqXf9cifSum3Ae1JSmEgeoGuB03BS+VcwPClxSDu
-         NDxiAmr5FSNakK/x5clBxLHttOdzTfF+0Rqq150k=
+        b=eBJJUEI0IKvvnWKuxCh7bsWavFtTyt5cVFq+eeziuNg4/7lUwmjOkZkl6B0KpCATI
+         j7BEXa5K1SqzTlH2Rh8ucAAVpzlL8I4MXm7RQRKp1NjPa1TXdlx2a7uL6n1mqXhGql
+         YriBpd4gDMdpxGc/76MoVj/juOKYglSPi1GMf1VY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 034/100] drm/radeon: remove set but not used variable 'blocks'
-Date:   Fri, 14 Feb 2020 11:23:18 -0500
-Message-Id: <20200214162425.21071-34-sashal@kernel.org>
+Cc:     Phong Tran <tranmanphong@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 044/100] ipw2x00: Fix -Wcast-function-type
+Date:   Fri, 14 Feb 2020 11:23:28 -0500
+Message-Id: <20200214162425.21071-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -44,48 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengbin <zhengbin13@huawei.com>
+From: Phong Tran <tranmanphong@gmail.com>
 
-[ Upstream commit 77441f77949807fda4a0aec0bdf3e86ae863fd56 ]
+[ Upstream commit ebd77feb27e91bb5fe35a7818b7c13ea7435fb98 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+correct usage prototype of callback in tasklet_init().
+Report by https://github.com/KSPP/linux/issues/20
 
-drivers/gpu/drm/radeon/radeon_combios.c: In function radeon_combios_get_power_modes:
-drivers/gpu/drm/radeon/radeon_combios.c:2638:10: warning: variable blocks set but not used [-Wunused-but-set-variable]
-
-It is introduced by commit 56278a8edace ("drm/radeon/kms:
-pull power mode info from bios tables (v3)"), but never used,
-so remove it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: zhengbin <zhengbin13@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_combios.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/ipw2x00/ipw2100.c | 7 ++++---
+ drivers/net/wireless/ipw2x00/ipw2200.c | 5 +++--
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_combios.c b/drivers/gpu/drm/radeon/radeon_combios.c
-index fcecaf5b55267..7a3e996fe9f6a 100644
---- a/drivers/gpu/drm/radeon/radeon_combios.c
-+++ b/drivers/gpu/drm/radeon/radeon_combios.c
-@@ -2636,7 +2636,7 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
- {
- 	struct drm_device *dev = rdev->ddev;
- 	u16 offset, misc, misc2 = 0;
--	u8 rev, blocks, tmp;
-+	u8 rev, tmp;
- 	int state_index = 0;
- 	struct radeon_i2c_bus_rec i2c_bus;
+diff --git a/drivers/net/wireless/ipw2x00/ipw2100.c b/drivers/net/wireless/ipw2x00/ipw2100.c
+index 36818c7f30b96..11cfc5822eb03 100644
+--- a/drivers/net/wireless/ipw2x00/ipw2100.c
++++ b/drivers/net/wireless/ipw2x00/ipw2100.c
+@@ -3213,8 +3213,9 @@ static void ipw2100_tx_send_data(struct ipw2100_priv *priv)
+ 	}
+ }
  
-@@ -2726,7 +2726,6 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
- 		offset = combios_get_table_offset(dev, COMBIOS_POWERPLAY_INFO_TABLE);
- 		if (offset) {
- 			rev = RBIOS8(offset);
--			blocks = RBIOS8(offset + 0x2);
- 			/* power mode 0 tends to be the only valid one */
- 			rdev->pm.power_state[state_index].num_clock_modes = 1;
- 			rdev->pm.power_state[state_index].clock_info[0].mclk = RBIOS32(offset + 0x5 + 0x2);
+-static void ipw2100_irq_tasklet(struct ipw2100_priv *priv)
++static void ipw2100_irq_tasklet(unsigned long data)
+ {
++	struct ipw2100_priv *priv = (struct ipw2100_priv *)data;
+ 	struct net_device *dev = priv->net_dev;
+ 	unsigned long flags;
+ 	u32 inta, tmp;
+@@ -6022,7 +6023,7 @@ static void ipw2100_rf_kill(struct work_struct *work)
+ 	spin_unlock_irqrestore(&priv->low_lock, flags);
+ }
+ 
+-static void ipw2100_irq_tasklet(struct ipw2100_priv *priv);
++static void ipw2100_irq_tasklet(unsigned long data);
+ 
+ static const struct net_device_ops ipw2100_netdev_ops = {
+ 	.ndo_open		= ipw2100_open,
+@@ -6151,7 +6152,7 @@ static struct net_device *ipw2100_alloc_device(struct pci_dev *pci_dev,
+ 	INIT_DELAYED_WORK(&priv->rf_kill, ipw2100_rf_kill);
+ 	INIT_DELAYED_WORK(&priv->scan_event, ipw2100_scan_event);
+ 
+-	tasklet_init(&priv->irq_tasklet, (void (*)(unsigned long))
++	tasklet_init(&priv->irq_tasklet,
+ 		     ipw2100_irq_tasklet, (unsigned long)priv);
+ 
+ 	/* NOTE:  We do not start the deferred work for status checks yet */
+diff --git a/drivers/net/wireless/ipw2x00/ipw2200.c b/drivers/net/wireless/ipw2x00/ipw2200.c
+index ed0adaf1eec44..1e08f94dc4da3 100644
+--- a/drivers/net/wireless/ipw2x00/ipw2200.c
++++ b/drivers/net/wireless/ipw2x00/ipw2200.c
+@@ -1968,8 +1968,9 @@ static void notify_wx_assoc_event(struct ipw_priv *priv)
+ 	wireless_send_event(priv->net_dev, SIOCGIWAP, &wrqu, NULL);
+ }
+ 
+-static void ipw_irq_tasklet(struct ipw_priv *priv)
++static void ipw_irq_tasklet(unsigned long data)
+ {
++	struct ipw_priv *priv = (struct ipw_priv *)data;
+ 	u32 inta, inta_mask, handled = 0;
+ 	unsigned long flags;
+ 	int rc = 0;
+@@ -10705,7 +10706,7 @@ static int ipw_setup_deferred_work(struct ipw_priv *priv)
+ 	INIT_WORK(&priv->qos_activate, ipw_bg_qos_activate);
+ #endif				/* CONFIG_IPW2200_QOS */
+ 
+-	tasklet_init(&priv->irq_tasklet, (void (*)(unsigned long))
++	tasklet_init(&priv->irq_tasklet,
+ 		     ipw_irq_tasklet, (unsigned long)priv);
+ 
+ 	return ret;
 -- 
 2.20.1
 
