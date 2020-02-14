@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4124115EED0
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00FC115EECB
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:43:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389607AbgBNRnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:43:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
+        id S2387545AbgBNRnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:43:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389581AbgBNQDQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:03:16 -0500
+        id S2389593AbgBNQDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:03:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20FD724686;
-        Fri, 14 Feb 2020 16:03:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B0392187F;
+        Fri, 14 Feb 2020 16:03:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696196;
-        bh=8LejdIoIXZMOUABhucZnQy6clJGTMw5d0X03JVnOjpw=;
+        s=default; t=1581696197;
+        bh=UrNYLjoNwFTh10XdKs0RvIzBKBWowkmHUJ3BDGvCuxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfZAPIlfJO0MAWiuTQph2TXzcdOzFXlC6seE4LqMX4DNgWwqnLu0tXs4/bLKgMbTK
-         wYHCn+0DXKTtygM5/lLNV3acB0lLESK/ZCnlidsX9gXmNhp8O+l1B5oKJaDzTDbN6k
-         Y0M6SdgUTq1yRtiUUceD3eFEM2uo2TQ8K7vVmpp4=
+        b=NZWf4kNaVcnshgmPR4xAfAhjjt7EiPESLQY55EwxDerDd1DiZ0oOWQnuASDTyWCKy
+         hW3REVP7JAk5hbbVUjjwWg1ddOCHmyNbiv66lsAIcF+AzPLcVgt/eS17ew4vaulMr+
+         pWv5gRUKZI4L1iGbmMMsFGPTXoBUAHVCQuWcFc/I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Beniamin Bia <beniamin.bia@analog.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-fbdev@vger.kernel.org, linux-iio@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 063/459] dt-bindings: iio: adc: ad7606: Fix wrong maxItems value
-Date:   Fri, 14 Feb 2020 10:55:13 -0500
-Message-Id: <20200214160149.11681-63-sashal@kernel.org>
+Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 064/459] arm64: cpufeature: Fix the type of no FP/SIMD capability
+Date:   Fri, 14 Feb 2020 10:55:14 -0500
+Message-Id: <20200214160149.11681-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,48 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Beniamin Bia <beniamin.bia@analog.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit a6c4f77cb3b11f81077b53c4a38f21b92d41f21e ]
+[ Upstream commit 449443c03d8cfdacf7313e17779a2594ebf87e6d ]
 
-This patch set the correct value for oversampling maxItems. In the
-original example, appears 3 items for oversampling while the maxItems
-is set to 1, this patch fixes those issues.
+The NO_FPSIMD capability is defined with scope SYSTEM, which implies
+that the "absence" of FP/SIMD on at least one CPU is detected only
+after all the SMP CPUs are brought up. However, we use the status
+of this capability for every context switch. So, let us change
+the scope to LOCAL_CPU to allow the detection of this capability
+as and when the first CPU without FP is brought up.
 
-Fixes: 416f882c3b40 ("dt-bindings: iio: adc: Migrate AD7606 documentation to yaml")
-Signed-off-by: Beniamin Bia <beniamin.bia@analog.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Also, the current type allows hotplugged CPU to be brought up without
+FP/SIMD when all the current CPUs have FP/SIMD and we have the userspace
+up. Fix both of these issues by changing the capability to
+BOOT_RESTRICTED_LOCAL_CPU_FEATURE.
+
+Fixes: 82e0191a1aa11abf ("arm64: Support systems without FP/ASIMD")
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/iio/adc/adi,ad7606.yaml | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/kernel/cpufeature.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/iio/adc/adi,ad7606.yaml b/Documentation/devicetree/bindings/iio/adc/adi,ad7606.yaml
-index cc544fdc38bea..bc8aed17800d3 100644
---- a/Documentation/devicetree/bindings/iio/adc/adi,ad7606.yaml
-+++ b/Documentation/devicetree/bindings/iio/adc/adi,ad7606.yaml
-@@ -85,7 +85,7 @@ properties:
-       Must be the device tree identifier of the over-sampling
-       mode pins. As the line is active high, it should be marked
-       GPIO_ACTIVE_HIGH.
--    maxItems: 1
-+    maxItems: 3
- 
-   adi,sw-mode:
-     description:
-@@ -128,9 +128,9 @@ examples:
-                 adi,conversion-start-gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
-                 reset-gpios = <&gpio 27 GPIO_ACTIVE_HIGH>;
-                 adi,first-data-gpios = <&gpio 22 GPIO_ACTIVE_HIGH>;
--                adi,oversampling-ratio-gpios = <&gpio 18 GPIO_ACTIVE_HIGH
--                                                &gpio 23 GPIO_ACTIVE_HIGH
--                                                &gpio 26 GPIO_ACTIVE_HIGH>;
-+                adi,oversampling-ratio-gpios = <&gpio 18 GPIO_ACTIVE_HIGH>,
-+                                               <&gpio 23 GPIO_ACTIVE_HIGH>,
-+                                               <&gpio 26 GPIO_ACTIVE_HIGH>;
-                 standby-gpios = <&gpio 24 GPIO_ACTIVE_LOW>;
-                 adi,sw-mode;
-         };
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 80f459ad0190d..a35c0b3af321b 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1367,7 +1367,7 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 	{
+ 		/* FP/SIMD is not implemented */
+ 		.capability = ARM64_HAS_NO_FPSIMD,
+-		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
++		.type = ARM64_CPUCAP_BOOT_RESTRICTED_CPU_LOCAL_FEATURE,
+ 		.min_field_value = 0,
+ 		.matches = has_no_fpsimd,
+ 	},
 -- 
 2.20.1
 
