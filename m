@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3740B15EF1E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:46:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B124C15EF10
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:45:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389121AbgBNRpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:45:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48964 "EHLO mail.kernel.org"
+        id S2388718AbgBNQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:02:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388782AbgBNQCe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:02:34 -0500
+        id S2389407AbgBNQCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:02:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74F2E217F4;
-        Fri, 14 Feb 2020 16:02:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B2252467C;
+        Fri, 14 Feb 2020 16:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696154;
-        bh=b/DkCkBjfmugWgVNNhk4QMI2Ne6zMW1uGQ9tVLzx0OE=;
+        s=default; t=1581696156;
+        bh=GcUOOjd60xaF7XZi3XOX5Tnm4Z0NAaWg+JkTfzDyX/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGbZ/rZ7YnQnQDN0uTxGA3bMTwi4TVvrO/+Z4q7I1OFPhm3KdDl95W9sipI+R8lL5
-         wUY1riN++RyljP6vWzWoYCLDcdZ/VWKhRqqk/jiyD4N8cSMBT2jewE8F+w9eyYk+Z5
-         W32j+XeM/aYmf6Qv8ooYlw2tJEndpfOvFNwzSMmE=
+        b=VocxCIWadXt394TZnxzQ0vFSXkJ1yIL+Mn1ioPfYVVvf4bmGIxMQQUApXGuCSjDgC
+         9J55ykyWVBzCcAo2+hWldx4hVkAWGLJHkY/HzhY8BJrikR9fZL2I+G7sTbBZJwsFUV
+         gel1JaAdccovnYgiOLA3xfUxVgQriZh0E25lj0/U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 033/459] pxa168fb: Fix the function used to release some memory in an error handling path
-Date:   Fri, 14 Feb 2020 10:54:43 -0500
-Message-Id: <20200214160149.11681-33-sashal@kernel.org>
+Cc:     Adam Ford <aford173@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 035/459] media: ov5640: Fix check for PLL1 exceeding max allowed rate
+Date:   Fri, 14 Feb 2020 10:54:45 -0500
+Message-Id: <20200214160149.11681-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -46,54 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 3c911fe799d1c338d94b78e7182ad452c37af897 ]
+[ Upstream commit 2e3df204f9af42a47823ee955c08950373417420 ]
 
-In the probe function, some resources are allocated using 'dma_alloc_wc()',
-they should be released with 'dma_free_wc()', not 'dma_free_coherent()'.
+The variable _rate is by ov5640_compute_sys_clk() which returns
+zero if the PLL exceeds 1GHz.  Unfortunately, the check to see
+if the max PLL1 output is checking 'rate' and not '_rate' and
+'rate' does not ever appear to be 0.
 
-We already use 'dma_free_wc()' in the remove function, but not in the
-error handling path of the probe function.
+This patch changes the check against the returned value of
+'_rate' to determine if the PLL1 output exceeds 1GHz.
 
-Also, remove a useless 'PAGE_ALIGN()'. 'info->fix.smem_len' is already
-PAGE_ALIGNed.
-
-Fixes: 638772c7553f ("fb: add support of LCD display controller on pxa168/910 (base layer)")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
-CC: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190831100024.3248-1-christophe.jaillet@wanadoo.fr
+Fixes: aa2882481cad ("media: ov5640: Adjust the clock based on the expected rate")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa168fb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov5640.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/pxa168fb.c b/drivers/video/fbdev/pxa168fb.c
-index 1410f476e135d..1fc50fc0694bc 100644
---- a/drivers/video/fbdev/pxa168fb.c
-+++ b/drivers/video/fbdev/pxa168fb.c
-@@ -766,8 +766,8 @@ static int pxa168fb_probe(struct platform_device *pdev)
- failed_free_clk:
- 	clk_disable_unprepare(fbi->clk);
- failed_free_fbmem:
--	dma_free_coherent(fbi->dev, info->fix.smem_len,
--			info->screen_base, fbi->fb_start_dma);
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
-+		    info->screen_base, fbi->fb_start_dma);
- failed_free_info:
- 	kfree(info);
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 18dd2d717088b..a398ea81e422b 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -874,7 +874,7 @@ static unsigned long ov5640_calc_sys_clk(struct ov5640_dev *sensor,
+ 			 * We have reached the maximum allowed PLL1 output,
+ 			 * increase sysdiv.
+ 			 */
+-			if (!rate)
++			if (!_rate)
+ 				break;
  
-@@ -801,7 +801,7 @@ static int pxa168fb_remove(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 
--	dma_free_wc(fbi->dev, PAGE_ALIGN(info->fix.smem_len),
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
- 		    info->screen_base, info->fix.smem_start);
- 
- 	clk_disable_unprepare(fbi->clk);
+ 			/*
 -- 
 2.20.1
 
