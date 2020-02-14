@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0DF15E207
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8BC15E239
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393154AbgBNQV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:21:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S2405381AbgBNQWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:22:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393148AbgBNQV6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:21:58 -0500
+        id S2405378AbgBNQWG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31CB2246C5;
-        Fri, 14 Feb 2020 16:21:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E667246D3;
+        Fri, 14 Feb 2020 16:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697318;
-        bh=itWkoEn71T71AO/soIL9Y/hO0hjGCrgB5AHWBByO/GU=;
+        s=default; t=1581697325;
+        bh=P9jEKKyfNmkT4yHp4U4ESLCvkX7RR/kRv7QnsR0c6rM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0yX6IxO3hbkqhtw9o8hof2k7aYKRJOYRtmHAM8v1jyB7DZZQF6xycV3KbM9HTe84g
-         z4o2cKjOaxSHpFTkYxYVZMhQX6tfOpVBnThJQSSMsXhqvqKckS0gMqMKRuUvwrdOZ1
-         6PV45hWbHpqENynRevWbyzhdkDgR0/oQIe2xhD9E=
+        b=G9hI1ilu6qcZaQbWPPrXmRDT/gLwpCQZKpSXTXVKbVJ24Gd456tS3EWEVlYW0uVJX
+         fIavEH3+EkGwF3WkjMJ3PFnngwINwhXLKm/ZUuscnHC80wawMebOJfSKWZZXFHSCvN
+         DSRE6RX8PKuCuHMzvIX0C5vHB9h7tZo2byqFf9To=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolai Stange <nstange@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        libertas-dev@lists.infradead.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 028/141] libertas: don't exit from lbs_ibss_join_existing() with RCU read lock held
-Date:   Fri, 14 Feb 2020 11:19:28 -0500
-Message-Id: <20200214162122.19794-28-sashal@kernel.org>
+Cc:     yu kuai <yukuai3@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 034/141] drm/amdgpu: remove set but not used variable 'dig'
+Date:   Fri, 14 Feb 2020 11:19:34 -0500
+Message-Id: <20200214162122.19794-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,37 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit c7bf1fb7ddca331780b9a733ae308737b39f1ad4 ]
+[ Upstream commit d1d09dc417826f5a983e0f4f212f227beeb65e29 ]
 
-Commit e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss
-descriptor") introduced a bounds check on the number of supplied rates to
-lbs_ibss_join_existing().
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Unfortunately, it introduced a return path from within a RCU read side
-critical section without a corresponding rcu_read_unlock(). Fix this.
+drivers/gpu/drm/amd/amdgpu/atombios_dp.c: In function
+‘amdgpu_atombios_dp_link_train’:
+drivers/gpu/drm/amd/amdgpu/atombios_dp.c:716:34: warning: variable ‘dig’
+set but not used [-Wunused-but-set-variable]
 
-Fixes: e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/cfg.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/atombios_dp.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/cfg.c b/drivers/net/wireless/marvell/libertas/cfg.c
-index 3eab802c7d3f3..0b61942fedd90 100644
---- a/drivers/net/wireless/marvell/libertas/cfg.c
-+++ b/drivers/net/wireless/marvell/libertas/cfg.c
-@@ -1859,6 +1859,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
- 		rates_max = rates_eid[1];
- 		if (rates_max > MAX_RATES) {
- 			lbs_deb_join("invalid rates");
-+			rcu_read_unlock();
- 			goto out;
- 		}
- 		rates = cmd.bss.rates;
+diff --git a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
+index d712dee892545..8abe9beab0343 100644
+--- a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
++++ b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
+@@ -710,7 +710,6 @@ void amdgpu_atombios_dp_link_train(struct drm_encoder *encoder,
+ 	struct drm_device *dev = encoder->dev;
+ 	struct amdgpu_device *adev = dev->dev_private;
+ 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
+-	struct amdgpu_encoder_atom_dig *dig;
+ 	struct amdgpu_connector *amdgpu_connector;
+ 	struct amdgpu_connector_atom_dig *dig_connector;
+ 	struct amdgpu_atombios_dp_link_train_info dp_info;
+@@ -718,7 +717,6 @@ void amdgpu_atombios_dp_link_train(struct drm_encoder *encoder,
+ 
+ 	if (!amdgpu_encoder->enc_priv)
+ 		return;
+-	dig = amdgpu_encoder->enc_priv;
+ 
+ 	amdgpu_connector = to_amdgpu_connector(connector);
+ 	if (!amdgpu_connector->con_priv)
 -- 
 2.20.1
 
