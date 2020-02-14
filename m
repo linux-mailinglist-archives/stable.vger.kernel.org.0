@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED90315E1E5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:21:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4285015E1EB
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405278AbgBNQU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:20:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54976 "EHLO mail.kernel.org"
+        id S2392726AbgBNQVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:21:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390590AbgBNQUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:20:55 -0500
+        id S2405301AbgBNQVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:21:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B021E24746;
-        Fri, 14 Feb 2020 16:20:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A425A24743;
+        Fri, 14 Feb 2020 16:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697255;
-        bh=Pi388ptHgVYkZ8WA+e2JmRExMa36mn92aIiORGlgohw=;
+        s=default; t=1581697262;
+        bh=n11QlKoKBxyutbZj/PQ2zDMnJllH2zULDMkm5Sg16Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pyjyyvEwG5pKyBkA/PtLgU00jhfegg9geDZg2J2QtvGj46CR2LVQnghBZmg4P8NRO
-         AFOfYEytYlbmrQKiVttfo47gexoH8dDJgUSy1Dqoe6OQ2h5sx+NakS2Ya4fHlGcek3
-         GOvb13eN928J0jCyo44oWNDlH0st3rcR7eaMPL98=
+        b=HNLJtpUDGaG1xodSG3F7E4MvDjS8Jymk4DXLtdM5nsUYJvfAbuFcw/mLPYlVA6EtF
+         VnBEl1XRusT1bgx1iPlIxZHSKtAlljc1acazoMxS3UNYZRhh7F53iGkB0duicQh0Jl
+         qisZk4+jmxvZvGCrAaKYkGjA8w4+wBmWpmzcJ2NI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 172/186] ftrace: fpid_next() should increase position index
-Date:   Fri, 14 Feb 2020 11:17:01 -0500
-Message-Id: <20200214161715.18113-172-sashal@kernel.org>
+Cc:     Yunfeng Ye <yeyunfeng@huawei.com>,
+        zhengbin <zhengbin13@huawei.com>,
+        Hu Shiyuan <hushiyuan@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>, Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, reiserfs-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 177/186] reiserfs: prevent NULL pointer dereference in reiserfs_insert_item()
+Date:   Fri, 14 Feb 2020 11:17:06 -0500
+Message-Id: <20200214161715.18113-177-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -43,61 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit e4075e8bdffd93a9b6d6e1d52fabedceeca5a91b ]
+[ Upstream commit aacee5446a2a1aa35d0a49dab289552578657fb4 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+The variable inode may be NULL in reiserfs_insert_item(), but there is
+no check before accessing the member of inode.
 
-Without patch:
- # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
- dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
- id
- no pid
- 2+1 records in
- 2+1 records out
- 10 bytes copied, 0.000213285 s, 46.9 kB/s
+Fix this by adding NULL pointer check before calling reiserfs_debug().
 
-Notice the "id" followed by "no pid".
-
-With the patch:
- # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
- dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
- id
- 0+1 records in
- 0+1 records out
- 3 bytes copied, 0.000202112 s, 14.8 kB/s
-
-Notice that it only prints "id" and not the "no pid" afterward.
-
-Link: http://lkml.kernel.org/r/4f87c6ad-f114-30bb-8506-c32274ce2992@virtuozzo.com
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: http://lkml.kernel.org/r/79c5135d-ff25-1cc9-4e99-9f572b88cc00@huawei.com
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Cc: zhengbin <zhengbin13@huawei.com>
+Cc: Hu Shiyuan <hushiyuan@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/reiserfs/stree.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 3864d23414429..3d0ffee0ed78f 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6310,9 +6310,10 @@ static void *fpid_next(struct seq_file *m, void *v, loff_t *pos)
- 	struct trace_array *tr = m->private;
- 	struct trace_pid_list *pid_list = rcu_dereference_sched(tr->function_pids);
- 
--	if (v == FTRACE_NO_PIDS)
-+	if (v == FTRACE_NO_PIDS) {
-+		(*pos)++;
- 		return NULL;
--
-+	}
- 	return trace_pid_next(pid_list, v, pos);
- }
- 
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index 0037aea97d39a..2946713cb00d6 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -2250,7 +2250,8 @@ int reiserfs_insert_item(struct reiserfs_transaction_handle *th,
+ 	/* also releases the path */
+ 	unfix_nodes(&s_ins_balance);
+ #ifdef REISERQUOTA_DEBUG
+-	reiserfs_debug(th->t_super, REISERFS_DEBUG_CODE,
++	if (inode)
++		reiserfs_debug(th->t_super, REISERFS_DEBUG_CODE,
+ 		       "reiserquota insert_item(): freeing %u id=%u type=%c",
+ 		       quota_bytes, inode->i_uid, head2type(ih));
+ #endif
 -- 
 2.20.1
 
