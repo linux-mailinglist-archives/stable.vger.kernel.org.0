@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BECC15DDC5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FBA115DDC8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389112AbgBNQAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:00:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45676 "EHLO mail.kernel.org"
+        id S2389120AbgBNQAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:00:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389109AbgBNQAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:00:18 -0500
+        id S2389115AbgBNQAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:00:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B38712468A;
-        Fri, 14 Feb 2020 16:00:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D57542086A;
+        Fri, 14 Feb 2020 16:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696018;
-        bh=uiFWzuo/y1vx3D80IkrnHuinHjU+Bj+7CiDyhZhphNc=;
+        s=default; t=1581696019;
+        bh=vCOwDC4HiMKfA9asIcQGpE8w0AH9BpB7uecmviq9Qsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npIjUgo2WnCRTbns505a1oFTT6cbzTmGF3b5YgwPLCmy8CGy4UiRQC5eqazXzNEcb
-         mTyK9JdO/REccxYX4wlKNKEvpTicPUOwyPQhpGenm64xMzHpcQi+vZzN1fV1hFVcrz
-         Y1F3MOqqEW3y8mvGfJwJGpsNj6shwwm2+aJvqKLk=
+        b=NoH2aBHFXcTynOX7zXn9jT6EOQOJLS+WOExD4jUvdZB5WXHY2ixuwLaJu01TtuWM4
+         WVQPXKlWKBwSaG59QRvPZGnoo4FgsZXFeO6aNn0VT6mk4vlIYKty1TCknMRn1ajYV8
+         ldeH/soZX6TXxCk9/IZN/gUpRRdplpv3eBVZbKYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
-Subject: [PATCH AUTOSEL 5.5 534/542] help_next should increase position index
-Date:   Fri, 14 Feb 2020 10:48:46 -0500
-Message-Id: <20200214154854.6746-534-sashal@kernel.org>
+Cc:     Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 535/542] i40e: Relax i40e_xsk_wakeup's return value when PF is busy
+Date:   Fri, 14 Feb 2020 10:48:47 -0500
+Message-Id: <20200214154854.6746-535-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,33 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 9f198a2ac543eaaf47be275531ad5cbd50db3edf ]
+[ Upstream commit c77e9f09143822623dd71a0fdc84331129e97c3a ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Return -EAGAIN instead of -ENETDOWN to provide a slightly milder
+information to user space so that an application will know to retry the
+syscall when __I40E_CONFIG_BUSY bit is set on pf->state.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Fixes: b3873a5be757 ("net/i40e: Fix concurrency issues between config flow and XSK")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/20200205045834.56795-2-maciej.fijalkowski@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_xsk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index 25543a966c486..29eaa45443727 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -273,6 +273,7 @@ static void *help_start(struct seq_file *m, loff_t *pos)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+index f73cd917c44f7..3156de786d955 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+@@ -791,7 +791,7 @@ int i40e_xsk_wakeup(struct net_device *dev, u32 queue_id, u32 flags)
+ 	struct i40e_ring *ring;
  
- static void *help_next(struct seq_file *m, void *v, loff_t *pos)
- {
-+	(*pos)++;
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "help_next: start\n");
+ 	if (test_bit(__I40E_CONFIG_BUSY, pf->state))
+-		return -ENETDOWN;
++		return -EAGAIN;
  
- 	return NULL;
+ 	if (test_bit(__I40E_VSI_DOWN, vsi->state))
+ 		return -ENETDOWN;
 -- 
 2.20.1
 
