@@ -2,149 +2,473 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34C5B15D689
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 12:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B4615D6AD
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 12:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729020AbgBNLaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 06:30:06 -0500
-Received: from mail-mw2nam12on2058.outbound.protection.outlook.com ([40.107.244.58]:55790
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728864AbgBNLaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 06:30:06 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aYlPx2EJlS+eFPzXH/GjTzbnAYgcJOULirq8tZG5hfl1deYvvL/lmhzFvDI1dJfn/tkduVkNC9CKK6+6sUiLMFc/EVUPlCDrO1GUopV/W7rPOjVO46KIJFx0P6j+290ieNrTSCYwZUXlXdxJPqTsN/m/sC3MgGJ+aaVjedYGS/Ida0bnwtsHK2vB8xF7jM+uK9dBVwfKZ6CekNI8pDCA2cBUnSLkBjuLTdZpzcgSBzlpZTdjaDqDmzMnzfzb+PYkOsNZLPUf8fMFG8zuqF0/s3DXT/15+0jE9zE3qqj0cnx6It+G5DKP7ZyfF/YUAjoGo1LXnSQrLLSrYgaoqdFj4Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WoDoHWytFW8KlPewj6mRrwRzqpCXDyBvswbhIZGJ1fg=;
- b=IGaI7abQ9DB1uYfOB97Luvczq9ttor1QrkWA79LXUEhhHh1kuqSEwS/aGpdlcz7G3AR3qcXYcz008UDnTQHW1R7YthsYxAyDfiZI9Zj133xmUu6mXLjndkSOBGZNNzfyz/9YcRtMIouVYQ4fqku1aGU9szGKEGB3TKmKO9vNQRvnjFN45MALl7nzZ3eT6qUT6NBbKrVwauUi0pSeCgVq5tR+aINJ29h9QUXCJUPKlE2S2jSe8K8HnA6XMyCdkix8XkyBljtvygy9yGdVopbj6NxJBWmhz6WJBIOmqTAaZWUOVbqu6njW1Xp1tCencXVpQdZdnscYNPayWveTX+go9Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=xilinx.com; dmarc=pass action=none header.from=xilinx.com;
- dkim=pass header.d=xilinx.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WoDoHWytFW8KlPewj6mRrwRzqpCXDyBvswbhIZGJ1fg=;
- b=EPYmTEpbPba9diviCqLcTMGlp4a6uVuwEQhFQnqmZhxMkbw8D5sjI5AHah9Xfn/Atcx3YrIqg5Dz/omchbFaTWstT4qm/NsFNdpehCFxTmbQn3Hjnp98u3kvXM9fhcnU8PiU0S4kR7sAMhV11VLK5B1KAI/lucxZx9mYAAaawxE=
-Received: from MN2PR02MB5823.namprd02.prod.outlook.com (20.179.86.19) by
- MN2PR02MB5967.namprd02.prod.outlook.com (20.179.98.146) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2707.21; Fri, 14 Feb 2020 11:30:02 +0000
-Received: from MN2PR02MB5823.namprd02.prod.outlook.com
- ([fe80::c438:427c:f078:d336]) by MN2PR02MB5823.namprd02.prod.outlook.com
- ([fe80::c438:427c:f078:d336%7]) with mapi id 15.20.2729.025; Fri, 14 Feb 2020
- 11:30:02 +0000
-From:   Sai Krishna Potthuri <lakshmis@xilinx.com>
-To:     Joel Stanley <joel@jms.id.au>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Richard Weinberger <richard@nod.at>
-Subject: RE: [LINUX PATCH 2/7] Revert "jffs2: Fix possible null-pointer
- dereferences in jffs2_add_frag_to_fragtree()"
-Thread-Topic: [LINUX PATCH 2/7] Revert "jffs2: Fix possible null-pointer
- dereferences in jffs2_add_frag_to_fragtree()"
-Thread-Index: AQHV4ykCYMUnLZDDOUKF8LSJJcPVDqgajZXQ
-Date:   Fri, 14 Feb 2020 11:30:02 +0000
-Message-ID: <MN2PR02MB582351F8098EBF82A825A61DBD150@MN2PR02MB5823.namprd02.prod.outlook.com>
-References: <1581679051-17534-1-git-send-email-lakshmi.sai.krishna.potthuri@xilinx.com>
- <1581679051-17534-3-git-send-email-lakshmi.sai.krishna.potthuri@xilinx.com>
-In-Reply-To: <1581679051-17534-3-git-send-email-lakshmi.sai.krishna.potthuri@xilinx.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=lakshmis@xilinx.com; 
-x-originating-ip: [149.199.50.133]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: fa0f8648-9b54-4558-ae2a-08d7b1413b74
-x-ms-traffictypediagnostic: MN2PR02MB5967:
-x-microsoft-antispam-prvs: <MN2PR02MB59678FCEAD775B8FE9D36D40BD150@MN2PR02MB5967.namprd02.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1751;
-x-forefront-prvs: 03137AC81E
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(39850400004)(376002)(346002)(366004)(136003)(396003)(189003)(199004)(478600001)(7696005)(8936002)(6506007)(81166006)(2906002)(186003)(53546011)(26005)(8676002)(110136005)(81156014)(86362001)(316002)(9686003)(71200400001)(76116006)(52536014)(66946007)(66556008)(33656002)(66446008)(64756008)(5660300002)(66476007)(55016002);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR02MB5967;H:MN2PR02MB5823.namprd02.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: xilinx.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: rEmWqe9+kxpBDROxt/fwve170fWpZbSkEXDw/NWw/Qgb0s2Qy4UGT9ES36mcZcqZKNCXsof3lziXXYWKVqvd9938807GVKzCnrMQJJ28IEUDkDn1W8sxD+bHrxolIhB6LUlHd6XWsJhids3SRwsNHmFk6HF388fVybBLEqFzUOakolqFkY0C952b8XNYZGLX3/cwSWL6/NVo594tdw23vx2lULKP2OReThuyrWSPpGU1kmoIOsPjlt3BMdbhyzHeMkPHKYlbCdyWcDs65tjF0Gse64nno4v55vIgxs+8hH4XdGaTMXoynqiAIB85fGm1DpZF/40Sjjbt8csqyVX/aPfNV6gY1+TbPVKu79b4PI1LP66JSYnvPWkRzUvbMH9pvx3gZ74FeBEffnJsBtg6TbqKJa6wNFKbnvUjyPFlz8u4BSfS86nFnrSByZ0LitPp
-x-ms-exchange-antispam-messagedata: n32gzAlXd9ihDm+w9gcCDr+lKOC0kIM7yXKZ8mLUdQdhAijHnUVYYh/8D4cmCkNS2IIcu4Gw0crmgWvrCROEQ5L04p8jkfJrQfNyeQtOFGrdISsgB+/NjbPIf+1Ag/8lNrBSY00zRSOkuqCKON+z6A==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
+        id S1727835AbgBNLlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 06:41:03 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:51080 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727754AbgBNLlD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 06:41:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1581680460;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=TluYKBI1GgG0lPLJvk5cHjNGZfp7jugJ2iTGLAyp93w=;
+        b=WUvgJm3VxGo2AUvxhBf4vhClH8ic8RwWYredwna76Wm/x7ihjl6GIXa7GWsHJMfLs3gfU+
+        WIZM8lPzVVSJnhr0OSFEzpXHC6gishPSBDoYfC9rG8ubuzsVfJWPQ9wTR8iT5INOVMydDh
+        f/1FsVNj+87FiVE6oJnU357gc2MsUcA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-384-0Y2jVizINeuOwISB0JWgGQ-1; Fri, 14 Feb 2020 06:40:54 -0500
+X-MC-Unique: 0Y2jVizINeuOwISB0JWgGQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F0BD51005512
+        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 11:40:53 +0000 (UTC)
+Received: from [172.54.85.204] (cpt-1024.paas.prod.upshift.rdu2.redhat.com [10.0.19.50])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1B6575C13D;
+        Fri, 14 Feb 2020 11:40:51 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fa0f8648-9b54-4558-ae2a-08d7b1413b74
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Feb 2020 11:30:02.3838
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Fqle8jx1gNocKcZKG1PAUF+kdlu/sQZ4HFmRh5W6Y+kAKATOnnbV3WjI/TGX1R/ifxFlCbueVkdOQJulgZesNA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR02MB5967
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.20-rc1-ec5ea65.cki
+ (stable)
+Date:   Fri, 14 Feb 2020 11:40:50 -0000
+Message-ID: <cki.B68E2B9ABC.G9IX8R16NG@redhat.com>
+X-Gitlab-Pipeline-ID: 435620
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/435620
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-Sorry, Please ignore this.
-I am pulling this patch for testing.
+Hello,
 
-Regards
-Sai Krishna
+We ran automated tests on a recent commit from this kernel tree:
 
-> -----Original Message-----
-> From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
-> Sent: Friday, February 14, 2020 4:47 PM
-> To: git-dev <git-dev@xilinx.com>
-> Cc: Michal Simek <michals@xilinx.com>; Joel Stanley <joel@jms.id.au>;
-> stable@vger.kernel.org; Richard Weinberger <richard@nod.at>; Sai Krishna
-> Potthuri <lakshmis@xilinx.com>
-> Subject: [LINUX PATCH 2/7] Revert "jffs2: Fix possible null-pointer deref=
-erences
-> in jffs2_add_frag_to_fragtree()"
->=20
-> From: Joel Stanley <joel@jms.id.au>
->=20
-> This reverts commit f2538f999345405f7d2e1194c0c8efa4e11f7b3a. The patch
-> stopped JFFS2 from being able to mount an existing filesystem with the
-> following errors:
->=20
->  jffs2: error: (77) jffs2_build_inode_fragtree: Add node to tree failed -=
-22
->  jffs2: error: (77) jffs2_do_read_inode_internal: Failed to build final f=
-ragtree for
-> inode #5377: error -22
->=20
-> Fixes: f2538f999345 ("jffs2: Fix possible null-pointer dereferences...")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Hou Tao <houtao1@huawei.com>
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
-> Signed-off-by: Richard Weinberger <richard@nod.at>
-> Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.=
-com>
-> ---
->  fs/jffs2/nodelist.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/fs/jffs2/nodelist.c b/fs/jffs2/nodelist.c index
-> 021a4a2190ee..b86c78d178c6 100644
-> --- a/fs/jffs2/nodelist.c
-> +++ b/fs/jffs2/nodelist.c
-> @@ -226,7 +226,7 @@ static int jffs2_add_frag_to_fragtree(struct
-> jffs2_sb_info *c, struct rb_root *r
->  		lastend =3D this->ofs + this->size;
->  	} else {
->  		dbg_fragtree2("lookup gave no frag\n");
-> -		return -EINVAL;
-> +		lastend =3D 0;
->  	}
->=20
->  	/* See if we ran off the end of the fragtree */
-> --
-> 2.17.1
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x-stable-rc.git
+            Commit: ec5ea65a191c - Linux 5.4.20-rc1
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
+rehouse/2020/02/13/435620
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =E2=8F=B1  jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=8F=B1  Networking: igmp conformance test
+       =E2=8F=B1  Networking route: pmtu
+       =E2=8F=B1  Networking route_func - local
+       =E2=8F=B1  Networking route_func - forward
+       =E2=8F=B1  Networking TCP: keepalive test
+       =E2=8F=B1  Networking UDP: socket
+       =E2=8F=B1  Networking tunnel: geneve basic test
+       =E2=8F=B1  Networking tunnel: gre basic
+       =E2=8F=B1  L2TP basic test
+       =E2=8F=B1  Networking tunnel: vxlan basic
+       =E2=8F=B1  Networking ipsec: basic netns - transport
+       =E2=8F=B1  Networking ipsec: basic netns - tunnel
+       =E2=8F=B1  audit: audit testsuite test
+       =E2=8F=B1  httpd: mod_ssl smoke sanity
+       =E2=8F=B1  tuned: tune-processes-through-perf
+       =E2=8F=B1  ALSA PCM loopback test
+       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
+       =E2=8F=B1  storage: SCSI VPD
+       =E2=8F=B1  trace: ftrace/tracer
+       =E2=8F=B1  CIFS Connectathon
+       =E2=8F=B1  POSIX pjd-fstest suites
+       =E2=8F=B1  jvm test suite
+       =E2=8F=B1  Memory function: kaslr
+       =E2=8F=B1  LTP: openposix test suite
+       =E2=8F=B1  Networking vnic: ipvlan/basic
+       =E2=8F=B1  iotop: sanity
+       =E2=8F=B1  Usex - version 1.9-29
+       =E2=8F=B1  storage: dm/common
+
+  ppc64le:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =E2=8F=B1  jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=8F=B1  Networking route_func - forward
+       =E2=8F=B1  Networking TCP: keepalive test
+       =E2=8F=B1  Networking UDP: socket
+       =E2=8F=B1  Networking tunnel: geneve basic test
+       =E2=8F=B1  Networking tunnel: gre basic
+       =E2=8F=B1  L2TP basic test
+       =E2=8F=B1  Networking tunnel: vxlan basic
+       =E2=8F=B1  Networking ipsec: basic netns - tunnel
+       =E2=8F=B1  audit: audit testsuite test
+       =E2=8F=B1  httpd: mod_ssl smoke sanity
+       =E2=8F=B1  tuned: tune-processes-through-perf
+       =E2=8F=B1  ALSA PCM loopback test
+       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
+       =E2=8F=B1  trace: ftrace/tracer
+       =E2=8F=B1  CIFS Connectathon
+       =E2=8F=B1  POSIX pjd-fstest suites
+       =E2=8F=B1  jvm test suite
+       =E2=8F=B1  Memory function: kaslr
+       =E2=8F=B1  LTP: openposix test suite
+       =E2=8F=B1  Networking vnic: ipvlan/basic
+       =E2=8F=B1  iotop: sanity
+       =E2=8F=B1  Usex - version 1.9-29
+       =E2=8F=B1  storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =E2=8F=B1  jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+    Host 5:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 6:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =E2=8F=B1  jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
+have
+a Beaker recipe linked to next to each host.
 
