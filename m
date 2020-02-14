@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F154415DCE7
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67D5B15DCE8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387709AbgBNP4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387718AbgBNP4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 10:56:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37808 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387689AbgBNP4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:13 -0500
+        id S2387704AbgBNP4P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 424642082F;
-        Fri, 14 Feb 2020 15:56:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9153A222C4;
+        Fri, 14 Feb 2020 15:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695773;
-        bh=ab0ALA7QeyFFt8xfeX1sv16lhosGZFNhWcq5ie5xykg=;
+        s=default; t=1581695775;
+        bh=GxeaPn+Hi8p0/CIxFlRsxVrH5otHDsR5tXjDQcI6rFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4yNxxr24iIUR2JOQjzKnwK9IDxLmB7x34u8eQg8PTuLTtDeTUkfKDg7A8UnO6lvK
-         ZllLSPGFbCVBZhtzNPgvbQOawvMHUq4zUztNxJNkj46MYXoM8+6BchDTSbUHBhJOk8
-         hTjvqi2w8IMfcQCIULqXvE2KXLh1fm23pEE8NaRs=
+        b=UqMmhbrWbUihAkbviT8rwku1FW5zDZclg1gfxAYXLLS+NyM6xTIXXBXbI/wCQF6BH
+         2IvKqeGP0sH+fG0VHVdFvt2URvSXutS3EVUfHGoRd8GQBNKE0/Lqz5chT+USgDlf4R
+         WXKXpefrM4++YLIWQOAAYNUobcopzDa2F+/yBYEE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhengyuan Liu <liuzhengyuan@kylinos.cn>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 338/542] raid6/test: fix a compilation warning
-Date:   Fri, 14 Feb 2020 10:45:30 -0500
-Message-Id: <20200214154854.6746-338-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.5 340/542] tty: synclinkmp: Adjust indentation in several functions
+Date:   Fri, 14 Feb 2020 10:45:32 -0500
+Message-Id: <20200214154854.6746-340-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,57 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 5e5ac01c2b8802921fee680518a986011cb59820 ]
+[ Upstream commit 1feedf61e7265128244f6993f23421f33dd93dbc ]
 
-The compilation warning is redefination showed as following:
+Clang warns:
 
-        In file included from tables.c:2:
-        ../../../include/linux/export.h:180: warning: "EXPORT_SYMBOL" redefined
-         #define EXPORT_SYMBOL(sym)  __EXPORT_SYMBOL(sym, "")
+../drivers/tty/synclinkmp.c:1456:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        if (C_CRTSCTS(tty)) {
+        ^
+../drivers/tty/synclinkmp.c:1453:2: note: previous statement is here
+        if (I_IXOFF(tty))
+        ^
+../drivers/tty/synclinkmp.c:2473:8: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                                info->port.tty->hw_stopped = 0;
+                                                ^
+../drivers/tty/synclinkmp.c:2471:7: note: previous statement is here
+                                                if ( debug_level >= DEBUG_LEVEL_ISR )
+                                                ^
+../drivers/tty/synclinkmp.c:2482:8: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                                info->port.tty->hw_stopped = 1;
+                                                ^
+../drivers/tty/synclinkmp.c:2480:7: note: previous statement is here
+                                                if ( debug_level >= DEBUG_LEVEL_ISR )
+                                                ^
+../drivers/tty/synclinkmp.c:2809:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
+        ^
+../drivers/tty/synclinkmp.c:2807:2: note: previous statement is here
+        if (I_INPCK(info->port.tty))
+        ^
+../drivers/tty/synclinkmp.c:3246:3: warning: misleading indentation;
+statement is not part of the previous 'else' [-Wmisleading-indentation]
+        set_signals(info);
+        ^
+../drivers/tty/synclinkmp.c:3244:2: note: previous statement is here
+        else
+        ^
+5 warnings generated.
 
-        In file included from tables.c:1:
-        ../../../include/linux/raid/pq.h:61: note: this is the location of the previous definition
-         #define EXPORT_SYMBOL(sym)
+The indentation on these lines is not at all consistent, tabs and spaces
+are mixed together. Convert to just using tabs to be consistent with the
+Linux kernel coding style and eliminate these warnings from clang.
 
-Fixes: 69a94abb82ee ("export.h, genksyms: do not make genksyms calculate CRC of trimmed symbols")
-Signed-off-by: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/823
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20191218024720.3528-1-natechancellor@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/raid/pq.h | 2 ++
- lib/raid6/mktables.c    | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/synclinkmp.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/raid/pq.h b/include/linux/raid/pq.h
-index 0b6e7ad9cd2a8..e0ddb47f44020 100644
---- a/include/linux/raid/pq.h
-+++ b/include/linux/raid/pq.h
-@@ -58,7 +58,9 @@ extern const char raid6_empty_zero_page[PAGE_SIZE];
- #define enable_kernel_altivec()
- #define disable_kernel_altivec()
+diff --git a/drivers/tty/synclinkmp.c b/drivers/tty/synclinkmp.c
+index fcb91bf7a15ba..54b897a646d02 100644
+--- a/drivers/tty/synclinkmp.c
++++ b/drivers/tty/synclinkmp.c
+@@ -1453,10 +1453,10 @@ static void throttle(struct tty_struct * tty)
+ 	if (I_IXOFF(tty))
+ 		send_xchar(tty, STOP_CHAR(tty));
  
-+#undef	EXPORT_SYMBOL
- #define EXPORT_SYMBOL(sym)
-+#undef	EXPORT_SYMBOL_GPL
- #define EXPORT_SYMBOL_GPL(sym)
- #define MODULE_LICENSE(licence)
- #define MODULE_DESCRIPTION(desc)
-diff --git a/lib/raid6/mktables.c b/lib/raid6/mktables.c
-index 9c485df1308fb..f02e10fa62381 100644
---- a/lib/raid6/mktables.c
-+++ b/lib/raid6/mktables.c
-@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
- 	uint8_t v;
- 	uint8_t exptbl[256], invtbl[256];
+- 	if (C_CRTSCTS(tty)) {
++	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->serial_signals &= ~SerialSignal_RTS;
+-	 	set_signals(info);
++		set_signals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1482,10 +1482,10 @@ static void unthrottle(struct tty_struct * tty)
+ 			send_xchar(tty, START_CHAR(tty));
+ 	}
  
--	printf("#include <linux/raid/pq.h>\n");
- 	printf("#include <linux/export.h>\n");
-+	printf("#include <linux/raid/pq.h>\n");
+- 	if (C_CRTSCTS(tty)) {
++	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->serial_signals |= SerialSignal_RTS;
+-	 	set_signals(info);
++		set_signals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -2470,7 +2470,7 @@ static void isr_io_pin( SLMP_INFO *info, u16 status )
+ 					if (status & SerialSignal_CTS) {
+ 						if ( debug_level >= DEBUG_LEVEL_ISR )
+ 							printk("CTS tx start...");
+-			 			info->port.tty->hw_stopped = 0;
++						info->port.tty->hw_stopped = 0;
+ 						tx_start(info);
+ 						info->pending_bh |= BH_TRANSMIT;
+ 						return;
+@@ -2479,7 +2479,7 @@ static void isr_io_pin( SLMP_INFO *info, u16 status )
+ 					if (!(status & SerialSignal_CTS)) {
+ 						if ( debug_level >= DEBUG_LEVEL_ISR )
+ 							printk("CTS tx stop...");
+-			 			info->port.tty->hw_stopped = 1;
++						info->port.tty->hw_stopped = 1;
+ 						tx_stop(info);
+ 					}
+ 				}
+@@ -2806,8 +2806,8 @@ static void change_params(SLMP_INFO *info)
+ 	info->read_status_mask2 = OVRN;
+ 	if (I_INPCK(info->port.tty))
+ 		info->read_status_mask2 |= PE | FRME;
+- 	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
+- 		info->read_status_mask1 |= BRKD;
++	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
++		info->read_status_mask1 |= BRKD;
+ 	if (I_IGNPAR(info->port.tty))
+ 		info->ignore_status_mask2 |= PE | FRME;
+ 	if (I_IGNBRK(info->port.tty)) {
+@@ -3177,7 +3177,7 @@ static int tiocmget(struct tty_struct *tty)
+  	unsigned long flags;
  
- 	/* Compute multiplication table */
- 	printf("\nconst u8  __attribute__((aligned(256)))\n"
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++	get_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	result = ((info->serial_signals & SerialSignal_RTS) ? TIOCM_RTS : 0) |
+@@ -3215,7 +3215,7 @@ static int tiocmset(struct tty_struct *tty,
+ 		info->serial_signals &= ~SerialSignal_DTR;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	set_signals(info);
++	set_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	return 0;
+@@ -3227,7 +3227,7 @@ static int carrier_raised(struct tty_port *port)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++	get_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	return (info->serial_signals & SerialSignal_DCD) ? 1 : 0;
+@@ -3243,7 +3243,7 @@ static void dtr_rts(struct tty_port *port, int on)
+ 		info->serial_signals |= SerialSignal_RTS | SerialSignal_DTR;
+ 	else
+ 		info->serial_signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+- 	set_signals(info);
++	set_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ }
+ 
 -- 
 2.20.1
 
