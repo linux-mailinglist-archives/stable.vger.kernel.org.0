@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A754515EF7E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD5F15EF74
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:48:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388478AbgBNRsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:48:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44884 "EHLO mail.kernel.org"
+        id S2389011AbgBNP7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:59:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388529AbgBNP7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:59:52 -0500
+        id S2389009AbgBNP7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:59:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4B0E2086A;
-        Fri, 14 Feb 2020 15:59:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D48462468E;
+        Fri, 14 Feb 2020 15:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695991;
-        bh=b7WeVWMU18+0j8Oy/dzmg82C976aMJG0iJwWBry31w0=;
+        s=default; t=1581695992;
+        bh=4MDVES3THZ/HyptygoMnFX/brvs0LcNdsxCNUjLPTbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lceZfoEtyq/cISGNXQqjZf8hUH2DukmsTZ0fUZEyOGjMWkx/v4wOFwLF3+Ee1T+en
-         NmAAPIx5ovskLSCg3dCboDnPEM4KMTCAMECAwoiIt5Gkubpavw4u3OJee9j5EGHU2W
-         qNCj7TUP8NiQHLpG3jYivqNBhXgPO3/YnYhjOFjk=
+        b=ZqMkTI2GFfMh+17ej4I4Bfs+fbMjhdpC90+LA4B5fyRHiLYXDqkNn5PMuZwfSCRsB
+         Z5yJomCeKQVzkWXDv6HhWHBnanIFLEQQlyMuB//iEbI6DQsdoiozaTVEh3kJI239in
+         Da4Xgnmo71LSFLwCnnZZVy/zGstWOs0Er8aK0mqE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zenghui Yu <yuzenghui@huawei.com>, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 512/542] irqchip/gic-v3-its: Reference to its_invall_cmd descriptor when building INVALL
-Date:   Fri, 14 Feb 2020 10:48:24 -0500
-Message-Id: <20200214154854.6746-512-sashal@kernel.org>
+Cc:     Amol Grover <frextrite@gmail.com>,
+        kbuild test robot <lkp@intel.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 513/542] nvmet: Pass lockdep expression to RCU lists
+Date:   Fri, 14 Feb 2020 10:48:25 -0500
+Message-Id: <20200214154854.6746-513-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -42,36 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Amol Grover <frextrite@gmail.com>
 
-[ Upstream commit 107945227ac5d4c37911c7841b27c64b489ce9a9 ]
+[ Upstream commit 4ac76436a6d07dec1c3c766f234aa787a16e8f65 ]
 
-It looks like an obvious mistake to use its_mapc_cmd descriptor when
-building the INVALL command block. It so far worked by luck because
-both its_mapc_cmd.col and its_invall_cmd.col sit at the same offset of
-the ITS command descriptor, but we should not rely on it.
+ctrl->subsys->namespaces and subsys->namespaces are traversed with
+list_for_each_entry_rcu outside an RCU read-side critical section but
+under the protection of ctrl->subsys->lock and subsys->lock respectively.
 
-Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20191202071021.1251-1-yuzenghui@huawei.com
+Hence, add the corresponding lockdep expression to the list traversal
+primitive to silence false-positive lockdep warnings, and harden RCU
+lists.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Amol Grover <frextrite@gmail.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/target/core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index b704214390c0f..50f89056c16bb 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -598,7 +598,7 @@ static struct its_collection *its_build_invall_cmd(struct its_node *its,
- 						   struct its_cmd_desc *desc)
- {
- 	its_encode_cmd(cmd, GITS_CMD_INVALL);
--	its_encode_collection(cmd, desc->its_mapc_cmd.col->col_id);
-+	its_encode_collection(cmd, desc->its_invall_cmd.col->col_id);
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 28438b833c1b0..35810a0a8d212 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -555,7 +555,8 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
+ 	} else {
+ 		struct nvmet_ns *old;
  
- 	its_fixup_cmd(cmd);
+-		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link) {
++		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link,
++					lockdep_is_held(&subsys->lock)) {
+ 			BUG_ON(ns->nsid == old->nsid);
+ 			if (ns->nsid < old->nsid)
+ 				break;
+@@ -1172,7 +1173,8 @@ static void nvmet_setup_p2p_ns_map(struct nvmet_ctrl *ctrl,
+ 
+ 	ctrl->p2p_client = get_device(req->p2p_client);
+ 
+-	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link)
++	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link,
++				lockdep_is_held(&ctrl->subsys->lock))
+ 		nvmet_p2pmem_ns_add_p2p(ctrl, ns);
+ }
  
 -- 
 2.20.1
