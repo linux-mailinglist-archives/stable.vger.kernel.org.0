@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DDD15E99B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D2F715E993
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404063AbgBNRIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:08:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
+        id S2392171AbgBNQON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:14:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391959AbgBNQOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:11 -0500
+        id S2391113AbgBNQOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6287F246CD;
-        Fri, 14 Feb 2020 16:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A13BC246D5;
+        Fri, 14 Feb 2020 16:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696851;
-        bh=7kdgymCTe3z+kDx0t23a5tS8Fgh/KOpwizHQDgLdcc4=;
+        s=default; t=1581696852;
+        bh=vVexZEER5O/jm8hcPhJvhiZ8rHMq++7YZdv102yM0tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQScVPL2OPG6iy+l2S/eRW1pepPjunbU/aIJSPixJnnfGPy4lEDGFpwRacaW9I+gm
-         eJkPVoSG9bXN36OUVNSbRtYY4eOQe6es3j9wspAn9PDT0mv3EUXtE/TwY7usqLaX9D
-         Okq5JvGtFjIU/I2J+4vZStZI8vKHEx0D6H8jjOi4=
+        b=IhEnV7UGM8A7GwSoQ6wkT6VRDxNdd6wPyeSefu/3lPDtPUj5MORPtpjID+14vP3y1
+         /W0blwTDnsMRIRONOOmMOHU+8AHsi1Odz0qgdMKQi8DIu/jmBn5r861VhxUBzXiXql
+         iRLtauuhBdMuKF7dmwpLptOn8TOZY/wVJf1n9R7c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 112/252] scsi: aic7xxx: Adjust indentation in ahc_find_syncrate
-Date:   Fri, 14 Feb 2020 11:09:27 -0500
-Message-Id: <20200214161147.15842-112-sashal@kernel.org>
+Cc:     Bibby Hsieh <bibby.hsieh@mediatek.com>, CK Hu <ck.hu@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 113/252] drm/mediatek: handle events when enabling/disabling crtc
+Date:   Fri, 14 Feb 2020 11:09:28 -0500
+Message-Id: <20200214161147.15842-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,52 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-[ Upstream commit 4dbc96ad65c45cdd4e895ed7ae4c151b780790c5 ]
+[ Upstream commit 411f5c1eacfebb1f6e40b653d29447cdfe7282aa ]
 
-Clang warns:
+The driver currently handles vblank events only when updating planes on
+an already enabled CRTC. The atomic update API however allows requesting
+an event when enabling or disabling a CRTC. This currently leads to
+event objects being leaked in the kernel and to events not being sent
+out. Fix it.
 
-../drivers/scsi/aic7xxx/aic7xxx_core.c:2317:5: warning: misleading
-indentation; statement is not part of the previous 'if'
-[-Wmisleading-indentation]
-                        if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
-                        ^
-../drivers/scsi/aic7xxx/aic7xxx_core.c:2310:4: note: previous statement
-is here
-                        if (syncrate == &ahc_syncrates[maxsync])
-                        ^
-1 warning generated.
-
-This warning occurs because there is a space amongst the tabs on this
-line. Remove it so that the indentation is consistent with the Linux kernel
-coding style and clang no longer warns.
-
-This has been a problem since the beginning of git history hence no fixes
-tag.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/817
-Link: https://lore.kernel.org/r/20191218014220.52746-1-natechancellor@gmail.com
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
-index 915a34f141e4f..49e02e8745533 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_core.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
-@@ -2321,7 +2321,7 @@ ahc_find_syncrate(struct ahc_softc *ahc, u_int *period,
- 			 * At some speeds, we only support
- 			 * ST transfers.
- 			 */
--		 	if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
-+			if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
- 				*ppr_options &= ~MSG_EXT_PPR_DT_REQ;
- 			break;
- 		}
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+index 92ecb9bf982cf..b86ee7d25af36 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+@@ -308,6 +308,7 @@ static int mtk_crtc_ddp_hw_init(struct mtk_drm_crtc *mtk_crtc)
+ static void mtk_crtc_ddp_hw_fini(struct mtk_drm_crtc *mtk_crtc)
+ {
+ 	struct drm_device *drm = mtk_crtc->base.dev;
++	struct drm_crtc *crtc = &mtk_crtc->base;
+ 	int i;
+ 
+ 	DRM_DEBUG_DRIVER("%s\n", __func__);
+@@ -329,6 +330,13 @@ static void mtk_crtc_ddp_hw_fini(struct mtk_drm_crtc *mtk_crtc)
+ 	mtk_disp_mutex_unprepare(mtk_crtc->mutex);
+ 
+ 	pm_runtime_put(drm->dev);
++
++	if (crtc->state->event && !crtc->state->active) {
++		spin_lock_irq(&crtc->dev->event_lock);
++		drm_crtc_send_vblank_event(crtc, crtc->state->event);
++		crtc->state->event = NULL;
++		spin_unlock_irq(&crtc->dev->event_lock);
++	}
+ }
+ 
+ static void mtk_crtc_ddp_config(struct drm_crtc *crtc)
 -- 
 2.20.1
 
