@@ -2,110 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9633C15E6B5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB3C15E816
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729982AbgBNQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:49:41 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:37067 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405286AbgBNQtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 11:49:33 -0500
-Received: by mail-wr1-f66.google.com with SMTP id w15so11655203wru.4;
-        Fri, 14 Feb 2020 08:49:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YOBa47sfB4zGlt/eSqmdr7tVajGz1eh8XyouzGHZTXA=;
-        b=FNX3ZTo7L6hK1EJbxDuzGg93cWg/xmbLJWlVdWTgc+1FogMSsT6a3vu4ssxq3MWWlH
-         0a85jSPJgIvWWMN8lE+lwL26e5plRyOKGXvgnvRUQYWI0/wJK3e2xgcMk3AZHCaylqBj
-         0yMjs8bunFNhHd2Fgz42dKJpQsT+408waOxwEsPW9meV0VehP/pd47mu+14+FgL1Hy1i
-         adQ2f/QyVYC9hiEI/meR0ac89wfrF1j2RxOg2NJME6FOOi7Es5ZRAa5+ri68X6DvlHDH
-         UkZEVxgRf5OMUn/Rxtncg9oD4fexwzdHWGj/VdY26yA/T0gk4KeZlwuAGvLM6yg/X96R
-         qkcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YOBa47sfB4zGlt/eSqmdr7tVajGz1eh8XyouzGHZTXA=;
-        b=Dkx/SELrte0bkqjc19AXPaLeZgSM555swUMiIhmxsE2yc1ZACr6JQIpZtfrGUuuhD9
-         ccCfjTaRcZExTDPjof153Z58Eh3EuV1I6FbR5+tfgLRSHFtTW8317sJRjww42aim8Hyj
-         q+OFmZ0MXxhaFpW0pOf/qGAF2unoi8j9gTWwu3AaOeJ+p4QaShcL1lJp8EZw92HlW0EC
-         LVXzwLeGP+i9Fr4nUgRkruPUUQEg5QPaD87D3Y4GyXMVqoAm5lzi5Kz3nb5V3wBku6V9
-         jIljDE3hpjixxTUMGsEHbnhleF2RwcZt+ogtOEsudhFOm59i1fD0FMI3kk/l6eokFt/o
-         IKRg==
-X-Gm-Message-State: APjAAAVuJCdFnECMCHSsfqJkQ38JkGhbeqtT+47F/xFMnmqnLDZLJ3cT
-        DmpHyg7RVSxtz45oQnJrnPpmaKJPoZFI1QRfKVc=
-X-Google-Smtp-Source: APXvYqxKeiQx6w2kj07XUMKdeqQDJA9gMVv/ylGoEkmKSG2AofVbH9t2OsP5D5vsIQzNmIOPHSPfc1T6F3njsJwzMKQ=
-X-Received: by 2002:adf:b254:: with SMTP id y20mr4851957wra.362.1581698971153;
- Fri, 14 Feb 2020 08:49:31 -0800 (PST)
+        id S2394025AbgBNQ5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:57:43 -0500
+Received: from foss.arm.com ([217.140.110.172]:40394 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2393691AbgBNQ5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:57:43 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1D88B328;
+        Fri, 14 Feb 2020 08:57:43 -0800 (PST)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id DC1913F68E;
+        Fri, 14 Feb 2020 08:57:41 -0800 (PST)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, catalin.marinas@arm.com,
+        mark.rutland@arm.com, maz@kernel.org, will@kernel.org,
+        ard.biesheuvel@linaro.org,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [stable 4.19 PATCH 1/2] arm64: cpufeature: Set the FP/SIMD compat HWCAP bits properly
+Date:   Fri, 14 Feb 2020 16:57:33 +0000
+Message-Id: <20200214165734.1999618-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-References: <20200214161147.15842-1-sashal@kernel.org> <20200214161147.15842-246-sashal@kernel.org>
-In-Reply-To: <20200214161147.15842-246-sashal@kernel.org>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Fri, 14 Feb 2020 11:49:20 -0500
-Message-ID: <CADnq5_O500gd2yFfF0VuyAt5CCirAwb+HzLcpSwM5C3VBC660w@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.19 246/252] drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_voltage
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 11:17 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Alex Deucher <alexander.deucher@amd.com>
->
-> [ Upstream commit 1064ad4aeef94f51ca230ac639a9e996fb7867a0 ]
->
-> Cull out 0 clocks to avoid a warning in DC.
->
-> Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
+commit 7ef1ab8792c50797c6c5c7c5150a02460 upstream
 
-Same comment as for 5.5.  All of the upstream patches that reference
-that bug need to be applied or they all need to be dropped.
+We set the compat_elf_hwcap bits unconditionally on arm64 to
+include the VFP and NEON support. However, the FP/SIMD unit
+is optional on Arm v8 and thus could be missing. We already
+handle this properly in the kernel, but still advertise to
+the COMPAT applications that the VFP is available. Fix this
+to make sure we only advertise when we really have them.
 
-Alex
+Cc: stable@vger.kernel.org # v4.19
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ arch/arm64/kernel/cpufeature.c | 52 +++++++++++++++++++++++++++++-----
+ 1 file changed, 45 insertions(+), 7 deletions(-)
 
-> Reviewed-by: Evan Quan <evan.quan@amd.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-> index 3fa6e8123b8eb..48e31711bc68f 100644
-> --- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-> +++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-> @@ -1048,9 +1048,11 @@ static int smu10_get_clock_by_type_with_voltage(struct pp_hwmgr *hwmgr,
->
->         clocks->num_levels = 0;
->         for (i = 0; i < pclk_vol_table->count; i++) {
-> -               clocks->data[i].clocks_in_khz = pclk_vol_table->entries[i].clk  * 10;
-> -               clocks->data[i].voltage_in_mv = pclk_vol_table->entries[i].vol;
-> -               clocks->num_levels++;
-> +               if (pclk_vol_table->entries[i].clk) {
-> +                       clocks->data[clocks->num_levels].clocks_in_khz = pclk_vol_table->entries[i].clk  * 10;
-> +                       clocks->data[clocks->num_levels].voltage_in_mv = pclk_vol_table->entries[i].vol;
-> +                       clocks->num_levels++;
-> +               }
->         }
->
->         return 0;
-> --
-> 2.20.1
->
-> _______________________________________________
-> amd-gfx mailing list
-> amd-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 220ebfa0ece6..a07fd946beaa 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -42,9 +42,7 @@ EXPORT_SYMBOL_GPL(elf_hwcap);
+ #define COMPAT_ELF_HWCAP_DEFAULT	\
+ 				(COMPAT_HWCAP_HALF|COMPAT_HWCAP_THUMB|\
+ 				 COMPAT_HWCAP_FAST_MULT|COMPAT_HWCAP_EDSP|\
+-				 COMPAT_HWCAP_TLS|COMPAT_HWCAP_VFP|\
+-				 COMPAT_HWCAP_VFPv3|COMPAT_HWCAP_VFPv4|\
+-				 COMPAT_HWCAP_NEON|COMPAT_HWCAP_IDIV|\
++				 COMPAT_HWCAP_TLS|COMPAT_HWCAP_IDIV|\
+ 				 COMPAT_HWCAP_LPAE)
+ unsigned int compat_elf_hwcap __read_mostly = COMPAT_ELF_HWCAP_DEFAULT;
+ unsigned int compat_elf_hwcap2 __read_mostly;
+@@ -1341,17 +1339,30 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 	{},
+ };
+ 
+-#define HWCAP_CAP(reg, field, s, min_value, cap_type, cap)	\
+-	{							\
+-		.desc = #cap,					\
+-		.type = ARM64_CPUCAP_SYSTEM_FEATURE,		\
++
++#define HWCAP_CPUID_MATCH(reg, field, s, min_value)		\
+ 		.matches = has_cpuid_feature,			\
+ 		.sys_reg = reg,					\
+ 		.field_pos = field,				\
+ 		.sign = s,					\
+ 		.min_field_value = min_value,			\
++
++#define __HWCAP_CAP(name, cap_type, cap)			\
++		.desc = name,					\
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,		\
+ 		.hwcap_type = cap_type,				\
+ 		.hwcap = cap,					\
++
++#define HWCAP_CAP(reg, field, s, min_value, cap_type, cap)	\
++	{							\
++		__HWCAP_CAP(#cap, cap_type, cap)		\
++		HWCAP_CPUID_MATCH(reg, field, s, min_value)	\
++	}
++
++#define HWCAP_CAP_MATCH(match, cap_type, cap)			\
++	{							\
++		__HWCAP_CAP(#cap, cap_type, cap)		\
++		.matches = match,				\
+ 	}
+ 
+ static const struct arm64_cpu_capabilities arm64_elf_hwcaps[] = {
+@@ -1387,8 +1398,35 @@ static const struct arm64_cpu_capabilities arm64_elf_hwcaps[] = {
+ 	{},
+ };
+ 
++#ifdef CONFIG_COMPAT
++static bool compat_has_neon(const struct arm64_cpu_capabilities *cap, int scope)
++{
++	/*
++	 * Check that all of MVFR1_EL1.{SIMDSP, SIMDInt, SIMDLS} are available,
++	 * in line with that of arm32 as in vfp_init(). We make sure that the
++	 * check is future proof, by making sure value is non-zero.
++	 */
++	u32 mvfr1;
++
++	WARN_ON(scope == SCOPE_LOCAL_CPU && preemptible());
++	if (scope == SCOPE_SYSTEM)
++		mvfr1 = read_sanitised_ftr_reg(SYS_MVFR1_EL1);
++	else
++		mvfr1 = read_sysreg_s(SYS_MVFR1_EL1);
++
++	return cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDSP_SHIFT) &&
++		cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDINT_SHIFT) &&
++		cpuid_feature_extract_unsigned_field(mvfr1, MVFR1_SIMDLS_SHIFT);
++}
++#endif
++
+ static const struct arm64_cpu_capabilities compat_elf_hwcaps[] = {
+ #ifdef CONFIG_COMPAT
++	HWCAP_CAP_MATCH(compat_has_neon, CAP_COMPAT_HWCAP, COMPAT_HWCAP_NEON),
++	HWCAP_CAP(SYS_MVFR1_EL1, MVFR1_SIMDFMAC_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFPv4),
++	/* Arm v8 mandates MVFR0.FPDP == {0, 2}. So, piggy back on this for the presence of VFP support */
++	HWCAP_CAP(SYS_MVFR0_EL1, MVFR0_FPDP_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFP),
++	HWCAP_CAP(SYS_MVFR0_EL1, MVFR0_FPDP_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP, COMPAT_HWCAP_VFPv3),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_PMULL),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_AES),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_SHA1_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_SHA1),
+-- 
+2.24.1
+
