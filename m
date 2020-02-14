@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C2B15F498
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FEA515F48D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389210AbgBNSWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:22:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
+        id S1730015AbgBNPtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:49:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730000AbgBNPtd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:33 -0500
+        id S1730008AbgBNPte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:49:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E404224650;
-        Fri, 14 Feb 2020 15:49:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E79324654;
+        Fri, 14 Feb 2020 15:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695372;
-        bh=w72o9lcZbaZku5BCWTjN8fzU+n6bQrTtcghNJBGySBw=;
+        s=default; t=1581695374;
+        bh=Wg6DfDmhJX8CmKYfKrG4vk4WEruzi4uSKrwmTAYfZMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/EytJ1FBGpi+CzroumUQWiU1E+lQZU19a8zwNTS/kFG+zePcj4gurTCJPolErIOQ
-         ondLQH43Qi6GzN19EQYoAWemqaTeRpzUKyDxit45IB//J2hf3p3dCbZ/N/4h3z2vw1
-         NUSsTS5Cnd9meR+mQXV0IwWxe4ST69ZfdH+WrE78=
+        b=xYFqkP2GHBdiFlw0aKanFboibn5fMyeY3t64fxMUBycQ4t3g12V2tpLUCU9SXqSDw
+         wpzAhllkaeLaw4QD2gBVgYsr6sefmmmFykQhrdw196qjNPY70r4+218iDOehwIwoAc
+         gWDhdHslQeKqELmoYhsluO23BEjZvZ4PZvY8rN4s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nikola Cornij <nikola.cornij@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 029/542] drm/amd/display: Map ODM memory correctly when doing ODM combine
-Date:   Fri, 14 Feb 2020 10:40:21 -0500
-Message-Id: <20200214154854.6746-29-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 030/542] pinctrl: sh-pfc: r8a77965: Fix DU_DOTCLKIN3 drive/bias control
+Date:   Fri, 14 Feb 2020 10:40:22 -0500
+Message-Id: <20200214154854.6746-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,87 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikola Cornij <nikola.cornij@amd.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ec5b356c58941bb8930858155d9ce14ceb3d30a0 ]
+[ Upstream commit a34cd9dfd03fa9ec380405969f1d638bc63b8d63 ]
 
-[why]
-Up to 4 ODM memory pieces are required per ODM combine and cannot
-overlap, i.e. each ODM "session" has to use its own memory pieces.
-The ODM-memory mapping is currently broken for generic case.
+R-Car Gen3 Hardware Manual Errata for Rev. 2.00 of October 24, 2019
+changed the configuration bits for drive and bias control for the
+DU_DOTCLKIN3 pin on R-Car M3-N, to match the same pin on R-Car H3.
+Update the driver to reflect this.
 
-The maximum number of memory pieces is ASIC-dependent, but it's always
-big enough to satisfy maximum number of ODM combines. Memory pieces
-are mapped as a bit-map, i.e. one memory piece corresponds to one bit.
-The OPTC doing ODM needs to select memory pieces by setting the
-corresponding bits, making sure there's no overlap with other OPTC
-instances that might be doing ODM.
+After this, the handling of drive and bias control for the various
+DU_DOTCLKINx pins is consistent across all of the R-Car H3, M3-W,
+M3-W+, and M3-N SoCs.
 
-The current mapping works only for OPTC instance indexes smaller than
-3. For instance indexes 3 and up it practically maps no ODM memory,
-causing black, gray or white screen in display configs that include
-ODM on OPTC instance 3 or up.
-
-[how]
-Statically map two unique ODM memory pieces for each OPTC instance
-and piece them together when programming ODM combine mode.
-
-Signed-off-by: Nikola Cornij <nikola.cornij@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 86c045c2e4201e94 ("pinctrl: sh-pfc: r8a77965: Replace DU_DOTCLKIN2 by DU_DOTCLKIN3")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191113101653.28428-1-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dcn20/dcn20_optc.c    | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/pinctrl/sh-pfc/pfc-r8a77965.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
-index 3b613fb93ef80..0162d3ffe268f 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
-@@ -233,12 +233,13 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
- 		struct dc_crtc_timing *timing)
- {
- 	struct optc *optc1 = DCN10TG_FROM_TG(optc);
--	/* 2 pieces of memory required for up to 5120 displays, 4 for up to 8192 */
- 	int mpcc_hactive = (timing->h_addressable + timing->h_border_left + timing->h_border_right)
- 			/ opp_cnt;
--	int memory_mask = mpcc_hactive <= 2560 ? 0x3 : 0xf;
-+	uint32_t memory_mask;
- 	uint32_t data_fmt = 0;
- 
-+	ASSERT(opp_cnt == 2);
-+
- 	/* TODO: In pseudocode but does not affect maximus, delete comment if we dont need on asic
- 	 * REG_SET(OTG_GLOBAL_CONTROL2, 0, GLOBAL_UPDATE_LOCK_EN, 1);
- 	 * Program OTG register MASTER_UPDATE_LOCK_DB_X/Y to the position before DP frame start
-@@ -246,9 +247,17 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
- 	 *		MASTER_UPDATE_LOCK_DB_X, 160,
- 	 *		MASTER_UPDATE_LOCK_DB_Y, 240);
- 	 */
-+
-+	/* 2 pieces of memory required for up to 5120 displays, 4 for up to 8192,
-+	 * however, for ODM combine we can simplify by always using 4.
-+	 * To make sure there's no overlap, each instance "reserves" 2 memories and
-+	 * they are uniquely combined here.
-+	 */
-+	memory_mask = 0x3 << (opp_id[0] * 2) | 0x3 << (opp_id[1] * 2);
-+
- 	if (REG(OPTC_MEMORY_CONFIG))
- 		REG_SET(OPTC_MEMORY_CONFIG, 0,
--			OPTC_MEM_SEL, memory_mask << (optc->inst * 4));
-+			OPTC_MEM_SEL, memory_mask);
- 
- 	if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
- 		data_fmt = 1;
-@@ -257,7 +266,6 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
- 
- 	REG_UPDATE(OPTC_DATA_FORMAT_CONTROL, OPTC_DATA_FORMAT, data_fmt);
- 
--	ASSERT(opp_cnt == 2);
- 	REG_SET_3(OPTC_DATA_SOURCE_SELECT, 0,
- 			OPTC_NUM_OF_INPUT_SEGMENT, 1,
- 			OPTC_SEG0_SRC_SEL, opp_id[0],
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
+index 8bdf33c807f6c..6616f5210b9d9 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
+@@ -5998,7 +5998,7 @@ static const struct pinmux_drive_reg pinmux_drive_regs[] = {
+ 		{ PIN_DU_DOTCLKIN1,    0, 2 },	/* DU_DOTCLKIN1 */
+ 	} },
+ 	{ PINMUX_DRIVE_REG("DRVCTRL12", 0xe6060330) {
+-		{ PIN_DU_DOTCLKIN3,   28, 2 },	/* DU_DOTCLKIN3 */
++		{ PIN_DU_DOTCLKIN3,   24, 2 },	/* DU_DOTCLKIN3 */
+ 		{ PIN_FSCLKST,        20, 2 },	/* FSCLKST */
+ 		{ PIN_TMS,             4, 2 },	/* TMS */
+ 	} },
+@@ -6254,8 +6254,8 @@ static const struct pinmux_bias_reg pinmux_bias_regs[] = {
+ 		[31] = PIN_DU_DOTCLKIN1,	/* DU_DOTCLKIN1 */
+ 	} },
+ 	{ PINMUX_BIAS_REG("PUEN3", 0xe606040c, "PUD3", 0xe606044c) {
+-		[ 0] = PIN_DU_DOTCLKIN3,	/* DU_DOTCLKIN3 */
+-		[ 1] = SH_PFC_PIN_NONE,
++		[ 0] = SH_PFC_PIN_NONE,
++		[ 1] = PIN_DU_DOTCLKIN3,	/* DU_DOTCLKIN3 */
+ 		[ 2] = PIN_FSCLKST,		/* FSCLKST */
+ 		[ 3] = PIN_EXTALR,		/* EXTALR*/
+ 		[ 4] = PIN_TRST_N,		/* TRST# */
 -- 
 2.20.1
 
