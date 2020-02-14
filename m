@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA8E915E8D8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:03:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F79515E8D4
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404259AbgBNRDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:03:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46476 "EHLO mail.kernel.org"
+        id S2404288AbgBNRDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:03:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390191AbgBNQPz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:55 -0500
+        id S2403815AbgBNQP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8877246EB;
-        Fri, 14 Feb 2020 16:15:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1137A246F4;
+        Fri, 14 Feb 2020 16:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696954;
-        bh=5eWnpuNF97wZpSCxSv5oQjhNwTwyBqxF0DiaBFyiu2o=;
+        s=default; t=1581696956;
+        bh=LO9osZihFUTbpG6o//SCjgXWqG9dLGPwwMhlrka+frI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R7lvux+zeH0BqZoi/NmyYmtBWFVcykjt1QksOoU2DlbFjvJs0s6mFYLiq+t16/+Dk
-         qLkMXkBQlJHzIwvzWk0/5spbfDqKoL1eLPTM2dZVidmXCwPwAQKUAO6zLS9NKW1Kg9
-         gNxKli3ElkQBUVt50GE6yp5UI0PA2YCIfnx1mUc8=
+        b=g40jxIQ/U9EverZuTMa0rDERzfmal3Xyj/XZ8Oy2+HJZr3SdQbt493ACjyL12Se4M
+         R7Vtk1hoq6M9xsK2XbQIwkd6MeCr2Hw88tCcQrsNwtDkiiAGYUbdOFBKgCHV7qIeRQ
+         7l6NqfCll4Bc8nhjKK4Rc5FOGgXWxFYjje5J3hmU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Anand Jain <anand.jain@oracle.com>, philip@philip-seeger.de,
         Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 195/252] btrfs: safely advance counter when looking up bio csums
-Date:   Fri, 14 Feb 2020 11:10:50 -0500
-Message-Id: <20200214161147.15842-195-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 196/252] btrfs: device stats, log when stats are zeroed
+Date:   Fri, 14 Feb 2020 11:10:51 -0500
+Message-Id: <20200214161147.15842-196-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,51 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit 4babad10198fa73fe73239d02c2e99e3333f5f5c ]
+[ Upstream commit a69976bc69308aa475d0ba3b8b3efd1d013c0460 ]
 
-Dan's smatch tool reports
+We had a report indicating that some read errors aren't reported by the
+device stats in the userland. It is important to have the errors
+reported in the device stat as user land scripts might depend on it to
+take the reasonable corrective actions. But to debug these issue we need
+to be really sure that request to reset the device stat did not come
+from the userland itself. So log an info message when device error reset
+happens.
 
-  fs/btrfs/file-item.c:295 btrfs_lookup_bio_sums()
-  warn: should this be 'count == -1'
+For example:
+ BTRFS info (device sdc): device stats zeroed by btrfs(9223)
 
-which points to the while (count--) loop. With count == 0 the check
-itself could decrement it to -1. There's a WARN_ON a few lines below
-that has never been seen in practice though.
-
-It turns out that the value of page_bytes_left matches the count (by
-sectorsize multiples). The loop never reaches the state where count
-would go to -1, because page_bytes_left == 0 is found first and this
-breaks out.
-
-For clarity, use only plain check on count (and only for positive
-value), decrement safely inside the loop. Any other discrepancy after
-the whole bio list processing should be reported by the exising
-WARN_ON_ONCE as well.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reported-by: philip@philip-seeger.de
+Link: https://www.spinics.net/lists/linux-btrfs/msg96528.html
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file-item.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/volumes.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
-index 4cf2817ab1202..f9e280d0b44f3 100644
---- a/fs/btrfs/file-item.c
-+++ b/fs/btrfs/file-item.c
-@@ -275,7 +275,8 @@ static blk_status_t __btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio
- 		csum += count * csum_size;
- 		nblocks -= count;
- next:
--		while (count--) {
-+		while (count > 0) {
-+			count--;
- 			disk_bytenr += fs_info->sectorsize;
- 			offset += fs_info->sectorsize;
- 			page_bytes_left -= fs_info->sectorsize;
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 5bbcdcff68a9e..9c3b394b99fa2 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7260,6 +7260,8 @@ int btrfs_get_dev_stats(struct btrfs_fs_info *fs_info,
+ 			else
+ 				btrfs_dev_stat_reset(dev, i);
+ 		}
++		btrfs_info(fs_info, "device stats zeroed by %s (%d)",
++			   current->comm, task_pid_nr(current));
+ 	} else {
+ 		for (i = 0; i < BTRFS_DEV_STAT_VALUES_MAX; i++)
+ 			if (stats->nr_items > i)
 -- 
 2.20.1
 
