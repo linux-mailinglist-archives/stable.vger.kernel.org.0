@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9847215E483
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D5DC15E480
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393559AbgBNQgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:36:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33032 "EHLO mail.kernel.org"
+        id S2389008AbgBNQgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:36:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405878AbgBNQY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:24:29 -0500
+        id S2405888AbgBNQYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:24:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FAEA2478E;
-        Fri, 14 Feb 2020 16:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4F622479D;
+        Fri, 14 Feb 2020 16:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697468;
-        bh=cVD/pATdk4ecCWNI0zebfKO4Ve+wZ7c4HZgKfelu+fw=;
+        s=default; t=1581697469;
+        bh=kqobUzNIK0zbxE3SOKiTCuJq60wEzhM2JkGtXbIxiek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHdOo9NesA6xMILfSyyMjjZX47kPLtcpq6dM7Hl8BAgmj+PXagoxhOyz+Jz9fZCCx
-         6N8yldko80g09Uc3dDGHHh/IxolpS7FNbUIx4Gkl6vesey84luiuzGDWkBJJq7SZ6l
-         wuC4vSUarDYHGVTiu0N/kPhusVAnwpIYMeMbujYY=
+        b=Z2LOYZeMAOHfrw9UFGk/V2BL4VCqP43CuRPFJ+gnyp3I6lZ78hdc6+ZE3pPpE+kZX
+         nY7BLEQqE7ftQ6rCRnsXe4nnhfGvDpe+WcD/1DX01yevAMrT9d/nZ0MF+w1kt3p+4F
+         aRA34Om0lFGzMyTaNvGlYEV4SmFufS/jU4tCR9Lk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 002/100] nfsd4: avoid NULL deference on strange COPY compounds
-Date:   Fri, 14 Feb 2020 11:22:46 -0500
-Message-Id: <20200214162425.21071-2-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 003/100] brcmfmac: Fix use after free in brcmf_sdio_readframes()
+Date:   Fri, 14 Feb 2020 11:22:47 -0500
+Message-Id: <20200214162425.21071-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -43,52 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d781e3df710745fbbaee4eb07fd5b64331a1b175 ]
+[ Upstream commit 216b44000ada87a63891a8214c347e05a4aea8fe ]
 
-With cross-server COPY we've introduced the possibility that the current
-or saved filehandle might not have fh_dentry/fh_export filled in, but we
-missed a place that assumed it was.  I think this could be triggered by
-a compound like:
+The brcmu_pkt_buf_free_skb() function frees "pkt" so it leads to a
+static checker warning:
 
-	PUTFH(foreign filehandle)
-	GETATTR
-	SAVEFH
-	COPY
+    drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:1974 brcmf_sdio_readframes()
+    error: dereferencing freed memory 'pkt'
 
-First, check_if_stalefh_allowed sets no_verify on the first (PUTFH) op.
-Then op_func = nfsd4_putfh runs and leaves current_fh->fh_export NULL.
-need_wrongsec_check returns true, since this PUTFH has OP_IS_PUTFH_LIKE
-set and GETATTR does not have OP_HANDLES_WRONGSEC set.
+It looks like there was supposed to be a continue after we free "pkt".
 
-We should probably also consider tightening the checks in
-check_if_stalefh_allowed and double-checking that we don't assume the
-filehandle is verified elsewhere in the compound.  But I think this
-fixes the immediate issue.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 4e48f1cccab3 "NFSD: allow inter server COPY to have... "
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 4754fceeb9a6 ("brcmfmac: streamline SDIO read frame routine")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Franky Lin <franky.lin@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/brcm80211/brcmfmac/sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index c67064d94096b..0cb956d792f21 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1704,7 +1704,8 @@ nfsd4_proc_compound(struct svc_rqst *rqstp,
- 			if (opdesc->op_flags & OP_CLEAR_STATEID)
- 				clear_current_stateid(cstate);
- 
--			if (need_wrongsec_check(rqstp))
-+			if (current_fh->fh_export &&
-+					need_wrongsec_check(rqstp))
- 				op->status = check_nfsd_access(current_fh->fh_export, rqstp);
- 		}
- encode_op:
+diff --git a/drivers/net/wireless/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
+index 9954e641c943d..8bb028f740fd8 100644
+--- a/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
+@@ -2027,6 +2027,7 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
+ 					       BRCMF_SDIO_FT_NORMAL)) {
+ 				rd->len = 0;
+ 				brcmu_pkt_buf_free_skb(pkt);
++				continue;
+ 			}
+ 			bus->sdcnt.rx_readahead_cnt++;
+ 			if (rd->len != roundup(rd_new.len, 16)) {
 -- 
 2.20.1
 
