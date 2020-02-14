@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B66415F4A6
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5129415F4A3
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403774AbgBNSW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:22:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52388 "EHLO mail.kernel.org"
+        id S1729955AbgBNPta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:49:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729928AbgBNPt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:28 -0500
+        id S1729953AbgBNPt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:49:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 910542467D;
-        Fri, 14 Feb 2020 15:49:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBF0224687;
+        Fri, 14 Feb 2020 15:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695367;
-        bh=r7FkUelilDY8E2lxOEaBeUfq44C8QuYUFKAVBdViqps=;
+        s=default; t=1581695368;
+        bh=iuyIbYzgZDi9u7sIMIx8Fd9TnuJLfU1RqCaPaTF+SmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRJ5UO7nzNkI3B2FsvFqQf+sN5/rxQj4qoCBwv8nm6VIGmX8opWj79+aC+PGoIKKK
-         YL54AliVyABbmqSNbIgfQqD3QV6KFmlXqqk68MUYe92vzuTBO0KRetoqIACJleIbkV
-         lViqfoV7UwCAxrGBu6i76I9ihPi5DXlhw2dTwcoQ=
+        b=ORHK1QJVabjLDsbGFSl0uk+bWOwMCMruSJIX23aDOoRrh0Os4DQss7KiLSqGPP8MB
+         kbLCa3zbfeDDXOEVWkdr3hpYd3m+VW5FoMclQV2Wrhb7vcy5Tzdql0HN85gPjhho4r
+         A0R77pDk3Gk8IEHtcO2O3Bf3+CiA3fm9LyzHgoRI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 025/542] dmaengine: ti: edma: Fix error return code in edma_probe()
-Date:   Fri, 14 Feb 2020 10:40:17 -0500
-Message-Id: <20200214154854.6746-25-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 026/542] brcmfmac: Fix memory leak in brcmf_p2p_create_p2pdev()
+Date:   Fri, 14 Feb 2020 10:40:18 -0500
+Message-Id: <20200214154854.6746-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,39 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit d1fd03a35efc6285e43f4ef35ef04dbf2c9389c6 ]
+[ Upstream commit 5cc509aa83c6acd2c5cd94f99065c39d2bd0a490 ]
 
-Fix to return negative error code -ENOMEM from the error handling
-case instead of 0, as done elsewhere in this function.
+In the implementation of brcmf_p2p_create_p2pdev() the allocated memory
+for p2p_vif is leaked when the mac address is the same as primary
+interface. To fix this, go to error path to release p2p_vif via
+brcmf_free_vif().
 
-Fixes: 2a03c1314506 ("dmaengine: ti: edma: add missed operations")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20191212114622.127322-1-weiyongjun1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: cb746e47837a ("brcmfmac: check p2pdev mac address uniqueness")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/edma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti/edma.c b/drivers/dma/ti/edma.c
-index 0628ee4bf1b41..03a7f647f7b2c 100644
---- a/drivers/dma/ti/edma.c
-+++ b/drivers/dma/ti/edma.c
-@@ -2342,8 +2342,10 @@ static int edma_probe(struct platform_device *pdev)
- 	ecc->channels_mask = devm_kcalloc(dev,
- 					   BITS_TO_LONGS(ecc->num_channels),
- 					   sizeof(unsigned long), GFP_KERNEL);
--	if (!ecc->slave_chans || !ecc->slot_inuse || !ecc->channels_mask)
-+	if (!ecc->slave_chans || !ecc->slot_inuse || !ecc->channels_mask) {
-+		ret = -ENOMEM;
- 		goto err_disable_pm;
-+	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+index 7ba9f6a686459..1f5deea5a288e 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+@@ -2092,7 +2092,8 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
+ 	/* firmware requires unique mac address for p2pdev interface */
+ 	if (addr && ether_addr_equal(addr, pri_ifp->mac_addr)) {
+ 		bphy_err(drvr, "discovery vif must be different from primary interface\n");
+-		return ERR_PTR(-EINVAL);
++		err = -EINVAL;
++		goto fail;
+ 	}
  
- 	/* Mark all channels available initially */
- 	bitmap_fill(ecc->channels_mask, ecc->num_channels);
+ 	brcmf_p2p_generate_bss_mac(p2p, addr);
 -- 
 2.20.1
 
