@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FE315E7B8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD59C15E7D6
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:56:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392429AbgBNQSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:18:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49732 "EHLO mail.kernel.org"
+        id S2394283AbgBNQ4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:56:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404622AbgBNQSC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:18:02 -0500
+        id S2392705AbgBNQSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:18:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FB72246F2;
-        Fri, 14 Feb 2020 16:18:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F62424694;
+        Fri, 14 Feb 2020 16:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697081;
-        bh=TGY9eRF63MvRnoSFi/x/yc6e7exFHtN9syw76TwQoEA=;
+        s=default; t=1581697082;
+        bh=MsONPWTNfPo6V0X4S3Ypn68YP2qKHWF1siRbP0V/Czo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bx7R78Y9fnm6FAR9uSe1+vBPIwg1CE189LVT7kHLm6gZQ4XTtJn++pmNu2Xffyg6v
-         QTi5j/pbvd5As424Of7tiiHuISzQApbPvVE7rhfgi8SZgdqeDk/VSMQltLmLqmpdoY
-         yvNj9onNsWleTDFbJB02SpcyjVBnd400XoG30G48=
+        b=tbEe7mR0SC8kCPcn49uweRxsa3DV4yb800eucSuB4JheMqckxM16pS5nFlwJMv/3Z
+         cHJ2I66UIXw6x4lWUk5Izpn/6j1xYZsL30B4/08QUkocAxKfIlDE/2DvNn0r7Rj+uu
+         Aea70aE8TEzreStZQd5lQ3sb0rumm8x91KReWiFY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bean Huo <beanhuo@micron.com>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 035/186] scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
-Date:   Fri, 14 Feb 2020 11:14:44 -0500
-Message-Id: <20200214161715.18113-35-sashal@kernel.org>
+Cc:     Luis Henriques <luis.henriques@canonical.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 036/186] tracing: Fix tracing_stat return values in error handling paths
+Date:   Fri, 14 Feb 2020 11:14:45 -0500
+Message-Id: <20200214161715.18113-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -48,41 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Luis Henriques <luis.henriques@canonical.com>
 
-[ Upstream commit b9fc5320212efdfb4e08b825aaa007815fd11d16 ]
+[ Upstream commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 ]
 
-A non-zero error value likely being returned by ufshcd_scsi_add_wlus() in
-case of failure of adding the WLs, but ufshcd_probe_hba() doesn't use this
-value, and doesn't report this failure to upper caller.  This patch is to
-fix this issue.
+tracing_stat_init() was always returning '0', even on the error paths.  It
+now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
+to created the 'trace_stat' debugfs directory.
 
-Fixes: 2a8fa600445c ("ufs: manually add well known logical units")
-Link: https://lore.kernel.org/r/20200120130820.1737-2-huobean@gmail.com
-Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
+
+Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
+Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
+[ Pulled from the archeological digging of my INBOX ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/trace/trace_stat.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index d25082e573e0a..ed9b41bedb633 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6412,7 +6412,8 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
- 			ufshcd_init_icc_levels(hba);
+diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
+index 75bf1bcb4a8a5..bf68af63538b4 100644
+--- a/kernel/trace/trace_stat.c
++++ b/kernel/trace/trace_stat.c
+@@ -278,18 +278,22 @@ static int tracing_stat_init(void)
  
- 		/* Add required well known logical units to scsi mid layer */
--		if (ufshcd_scsi_add_wlus(hba))
-+		ret = ufshcd_scsi_add_wlus(hba);
-+		if (ret)
- 			goto out;
+ 	d_tracing = tracing_init_dentry();
+ 	if (IS_ERR(d_tracing))
+-		return 0;
++		return -ENODEV;
  
- 		/* Initialize devfreq after UFS device is detected */
+ 	stat_dir = tracefs_create_dir("trace_stat", d_tracing);
+-	if (!stat_dir)
++	if (!stat_dir) {
+ 		pr_warn("Could not create tracefs 'trace_stat' entry\n");
++		return -ENOMEM;
++	}
+ 	return 0;
+ }
+ 
+ static int init_stat_file(struct stat_session *session)
+ {
+-	if (!stat_dir && tracing_stat_init())
+-		return -ENODEV;
++	int ret;
++
++	if (!stat_dir && (ret = tracing_stat_init()))
++		return ret;
+ 
+ 	session->file = tracefs_create_file(session->ts->name, 0644,
+ 					    stat_dir,
 -- 
 2.20.1
 
