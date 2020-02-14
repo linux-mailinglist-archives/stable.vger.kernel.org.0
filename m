@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1854E15EB78
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E1C15EB5F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:20:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390987AbgBNRUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:20:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36398 "EHLO mail.kernel.org"
+        id S2391580AbgBNRUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:20:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391387AbgBNQKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:10:37 -0500
+        id S2391140AbgBNQKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:10:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A37D72467E;
-        Fri, 14 Feb 2020 16:10:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCD0E2468C;
+        Fri, 14 Feb 2020 16:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696636;
-        bh=cclzFkiBpLoO2SrI2jMFGiPVusooNw/Dq2xBkCYQvuQ=;
+        s=default; t=1581696637;
+        bh=kxTg842rKPYYI0+Z1PfQ8eFsHAo/dHjWgz+J9Sx9eRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ZCITSwvqPyT7ktlXVCoIHwIG0Mzdi9JI1Jlt7yR4XKZNzEo/K2pu0vCVZ9T8fsjO
-         OQ0vMm8f3OevDKlMJhubaCXNkpMLuOw3Egs2c3tuu1hYY4lqC1LBx+bNw8uEwb4nHF
-         AZpRPWjTDtjp9USKuqcnL4+Eh6LNcyhq+K6OFIY8=
+        b=JdWT97oolY/oKZn8bUwGcgdrygYFX5IJSy1/c47rvU2coOyH34vOAArJhv/EzEgAE
+         y7fDYbuHSj/dlieOKu1FB7LJkSfOJxxinNpTdQ7otxnUwXaOpnV4VDUPsSrKkc79Gw
+         EKDDdipCO5BTSW1zAQwXQI5EHW5xixSeg3iql0s4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.4 414/459] cifs: fix NULL dereference in match_prepath
-Date:   Fri, 14 Feb 2020 11:01:04 -0500
-Message-Id: <20200214160149.11681-414-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 415/459] bpf: map_seq_next should always increase position index
+Date:   Fri, 14 Feb 2020 11:01:05 -0500
+Message-Id: <20200214160149.11681-415-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,41 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit fe1292686333d1dadaf84091f585ee903b9ddb84 ]
+[ Upstream commit 90435a7891a2259b0f74c5a1bc5600d0d64cba8f ]
 
-RHBZ: 1760879
+If seq_file .next fuction does not change position index,
+read after some lseek can generate an unexpected output.
 
-Fix an oops in match_prepath() by making sure that the prepath string is not
-NULL before we pass it into strcmp().
+See also: https://bugzilla.kernel.org/show_bug.cgi?id=206283
 
-This is similar to other checks we make for example in cifs_root_iget()
+v1 -> v2: removed missed increment in end of function
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/eca84fdd-c374-a154-d874-6c7b55fc3bc4@virtuozzo.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/bpf/inode.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 02451d085ddd0..5d3c867bdc808 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3652,8 +3652,10 @@ match_prepath(struct super_block *sb, struct cifs_mnt_data *mnt_data)
- {
- 	struct cifs_sb_info *old = CIFS_SB(sb);
- 	struct cifs_sb_info *new = mnt_data->cifs_sb;
--	bool old_set = old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
--	bool new_set = new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
-+	bool old_set = (old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+		old->prepath;
-+	bool new_set = (new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+		new->prepath;
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index a70f7209cda3f..218c09ff6a273 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -196,6 +196,7 @@ static void *map_seq_next(struct seq_file *m, void *v, loff_t *pos)
+ 	void *key = map_iter(m)->key;
+ 	void *prev_key;
  
- 	if (old_set && new_set && !strcmp(new->prepath, old->prepath))
- 		return 1;
++	(*pos)++;
+ 	if (map_iter(m)->done)
+ 		return NULL;
+ 
+@@ -208,8 +209,6 @@ static void *map_seq_next(struct seq_file *m, void *v, loff_t *pos)
+ 		map_iter(m)->done = true;
+ 		return NULL;
+ 	}
+-
+-	++(*pos);
+ 	return key;
+ }
+ 
 -- 
 2.20.1
 
