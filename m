@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C73915EC84
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9C915EC82
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391132AbgBNR2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:28:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
+        id S2388870AbgBNR2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:28:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390347AbgBNQIF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:08:05 -0500
+        id S2390855AbgBNQII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:08:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 601922187F;
-        Fri, 14 Feb 2020 16:08:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D690322314;
+        Fri, 14 Feb 2020 16:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696485;
-        bh=jL6j0v0f9MVjx5AE0XIrGAimUcz+A06QyJSz/62WD3w=;
+        s=default; t=1581696487;
+        bh=x7sw3HRxfEHEX1Ax+eGUS8pRpBWe8NIuHfYdorZmjqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2jRsS3KqDSa/a5UplhgDjmL01sUOrwBuqbhM8sAwTftHBjh4mRA9ESi4F3z8V/rd
-         CZctFaCk+Z6gpYi3Xp5c9OzAcP4yZ6bKifocYTC2wQgciACx6vHjoZKTyR9UYboZex
-         QfgeJZgCOT454JnijMwXOq3cXtWqfMy6EIwYCWWo=
+        b=tP06EpJtxJLfmtAz3NJ3gEpuiW7b7dYujP0MgDmyDAh00MPxH/y3KQR6USffl6GQg
+         ZuABup5W7yjW1T9nnNl9wEUvMw9KcYTT2LLuj0vL/Svl8gjoXtJz6FWxbZ3rYYR05h
+         lEh1eVt/kyEXPRdPRqwBvO2Vd7b1EVhbddWatc2Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Tsoy <alexander@tsoy.me>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 291/459] ALSA: usb-audio: Add boot quirk for MOTU M Series
-Date:   Fri, 14 Feb 2020 10:59:01 -0500
-Message-Id: <20200214160149.11681-291-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>, Kit Chow <kchow@gigaio.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 293/459] PCI: Don't disable bridge BARs when assigning bus resources
+Date:   Fri, 14 Feb 2020 10:59:03 -0500
+Message-Id: <20200214160149.11681-293-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -42,116 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 73ac9f5e5b43a5dbadb61f27dae7a971f7ec0d22 ]
+[ Upstream commit 9db8dc6d0785225c42a37be7b44d1b07b31b8957 ]
 
-Add delay to make sure that audio urbs are not sent too early.
-Otherwise the device hangs. Windows driver makes ~2s delay, so use
-about the same time delay value.
+Some PCI bridges implement BARs in addition to bridge windows.  For
+example, here's a PLX switch:
 
-snd_usb_apply_boot_quirk() is called 3 times for my MOTU M4, which
-is an overkill. Thus a quirk that is called only once is implemented.
+  04:00.0 PCI bridge: PLX Technology, Inc. PEX 8724 24-Lane, 6-Port PCI
+            Express Gen 3 (8 GT/s) Switch, 19 x 19mm FCBGA (rev ca)
+	    (prog-if 00 [Normal decode])
+      Flags: bus master, fast devsel, latency 0, IRQ 30, NUMA node 0
+      Memory at 90a00000 (32-bit, non-prefetchable) [size=256K]
+      Bus: primary=04, secondary=05, subordinate=0a, sec-latency=0
+      I/O behind bridge: 00002000-00003fff
+      Memory behind bridge: 90000000-909fffff
+      Prefetchable memory behind bridge: 0000380000800000-0000380000bfffff
 
-Also send two vendor-specific control messages before and after
-the delay. This behaviour is blindly copied from the Windows driver.
+Previously, when the kernel assigned resource addresses (with the
+pci=realloc command line parameter, for example) it could clear the struct
+resource corresponding to the BAR.  When this happened, lspci would report
+this BAR as "ignored":
 
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Link: https://lore.kernel.org/r/20200112102358.18085-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+   Region 0: Memory at <ignored> (32-bit, non-prefetchable) [size=256K]
+
+This is because the kernel reports a zero start address and zero flags
+in the corresponding sysfs resource file and in /proc/bus/pci/devices.
+Investigation with 'lspci -x', however, shows the BIOS-assigned address
+will still be programmed in the device's BAR registers.
+
+It's clearly a bug that the kernel lost track of the BAR value, but in most
+cases, this still won't result in a visible issue because nothing uses the
+memory, so nothing is affected.  However, when an IOMMU is in use, it will
+not reserve this space in the IOVA because the kernel no longer thinks the
+range is valid.  (See dmar_init_reserved_ranges() for the Intel
+implementation of this.)
+
+Without the proper reserved range, a DMA mapping may allocate an IOVA that
+matches a bridge BAR, which results in DMA accesses going to the BAR
+instead of the intended RAM.
+
+The problem was in pci_assign_unassigned_root_bus_resources().  When any
+resource from a bridge device fails to get assigned, the code set the
+resource's flags to zero.  This makes sense for bridge windows, as they
+will be re-enabled later, but for regular BARs, it makes the kernel
+permanently lose track of the fact that they decode address space.
+
+Change pci_assign_unassigned_root_bus_resources() and
+pci_assign_unassigned_bridge_resources() so they only clear "res->flags"
+for bridge *windows*, not bridge BARs.
+
+Fixes: da7822e5ad71 ("PCI: update bridge resources to get more big ranges when allocating space (again)")
+Link: https://lore.kernel.org/r/20200108213208.4612-1-logang@deltatee.com
+[bhelgaas: commit log, check for pci_is_bridge()]
+Reported-by: Kit Chow <kchow@gigaio.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c   |  4 ++++
- sound/usb/quirks.c | 38 ++++++++++++++++++++++++++++++++++++++
- sound/usb/quirks.h |  5 +++++
- 3 files changed, 47 insertions(+)
+ drivers/pci/setup-bus.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index db91dc76cc915..e6a618a239948 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -597,6 +597,10 @@ static int usb_audio_probe(struct usb_interface *intf,
- 		}
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index e7dbe21705ba5..5356630e0e483 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -1785,12 +1785,18 @@ void pci_assign_unassigned_root_bus_resources(struct pci_bus *bus)
+ 	/* Restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
+ 
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
++
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
++		}
  	}
- 	if (! chip) {
-+		err = snd_usb_apply_boot_quirk_once(dev, intf, quirk, id);
-+		if (err < 0)
-+			return err;
-+
- 		/* it's a fresh one.
- 		 * now look for an empty slot and create a new card instance
- 		 */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 82184036437b5..0464df785f2ee 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1113,6 +1113,31 @@ static int snd_usb_motu_microbookii_boot_quirk(struct usb_device *dev)
- 	return err;
- }
+ 	free_list(&fail_head);
  
-+static int snd_usb_motu_m_series_boot_quirk(struct usb_device *dev)
-+{
-+	int ret;
-+
-+	if (snd_usb_pipe_sanity_check(dev, usb_sndctrlpipe(dev, 0)))
-+		return -EINVAL;
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+			      1, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+			      0x0, 0, NULL, 0, 1000);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	msleep(2000);
-+
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+			      1, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+			      0x20, 0, NULL, 0, 1000);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
- /*
-  * Setup quirks
-  */
-@@ -1297,6 +1322,19 @@ int snd_usb_apply_boot_quirk(struct usb_device *dev,
- 	return 0;
- }
+@@ -2037,12 +2043,18 @@ void pci_assign_unassigned_bridge_resources(struct pci_dev *bridge)
+ 	/* Restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
  
-+int snd_usb_apply_boot_quirk_once(struct usb_device *dev,
-+				  struct usb_interface *intf,
-+				  const struct snd_usb_audio_quirk *quirk,
-+				  unsigned int id)
-+{
-+	switch (id) {
-+	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
-+		return snd_usb_motu_m_series_boot_quirk(dev);
-+	}
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
 +
-+	return 0;
-+}
-+
- /*
-  * check if the device uses big-endian samples
-  */
-diff --git a/sound/usb/quirks.h b/sound/usb/quirks.h
-index a80e0ddd07364..df0355843a4c1 100644
---- a/sound/usb/quirks.h
-+++ b/sound/usb/quirks.h
-@@ -20,6 +20,11 @@ int snd_usb_apply_boot_quirk(struct usb_device *dev,
- 			     const struct snd_usb_audio_quirk *quirk,
- 			     unsigned int usb_id);
- 
-+int snd_usb_apply_boot_quirk_once(struct usb_device *dev,
-+				  struct usb_interface *intf,
-+				  const struct snd_usb_audio_quirk *quirk,
-+				  unsigned int usb_id);
-+
- void snd_usb_set_format_quirk(struct snd_usb_substream *subs,
- 			      struct audioformat *fmt);
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
++		}
+ 	}
+ 	free_list(&fail_head);
  
 -- 
 2.20.1
