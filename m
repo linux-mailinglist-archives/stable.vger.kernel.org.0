@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5635B15DE8A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0062315DE95
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389756AbgBNQDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:03:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51320 "EHLO mail.kernel.org"
+        id S2389827AbgBNQEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:04:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389751AbgBNQDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:03:48 -0500
+        id S2388942AbgBNQEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:04:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7350A24696;
-        Fri, 14 Feb 2020 16:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB3E9217F4;
+        Fri, 14 Feb 2020 16:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696228;
-        bh=34CbnzDIZ+vLOwvSOHav9qUkGCcD8Lq+e6pvkM/8zjU=;
+        s=default; t=1581696240;
+        bh=kwYS4IJqe/CCzOFwvS5e6qcl5rOhH6tgd+nA24huEr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwcQHeQFkIXwMp34+LrPhuTQBTxhghWhA6GaJN9gVa4DqK/eBSQhWVZEB4bwrLfzZ
-         ryyZJxBazLsFTgDs/c7f7TyYo7mpET7azd3dBgu0PTKHhMxsu77QgJyHfdWCvt/X6i
-         6/C2+WF5Y9UoTgtUJET+1jVSscavL9uAX9EmnnEs=
+        b=O8fD+BQoxM4RL31O0K3xj15fcuBrYOGU18W3evVXBjHkTdi1X5tapkl0XncXl+qY0
+         lY1Nl0wZEAN+sRKdg497QPGPgqP/8CDfNNPDVIoRm6KXk6YyIjFvMODzM+rfX3Y4qI
+         iK9k7PN0vkd5y5yCTS+IGEfwQi5att6R00kB6Ktk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+Cc:     Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 090/459] ARM: 8952/1: Disable kmemleak on XIP kernels
-Date:   Fri, 14 Feb 2020 10:55:40 -0500
-Message-Id: <20200214160149.11681-90-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 099/459] selftests: settings: tests can be in subsubdirs
+Date:   Fri, 14 Feb 2020 10:55:49 -0500
+Message-Id: <20200214160149.11681-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,52 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-[ Upstream commit bc420c6ceefbb86cbbc8c00061bd779c17fa6997 ]
+[ Upstream commit ac87813d4372f4c005264acbe3b7f00c1dee37c4 ]
 
-Kmemleak relies on specific symbols to register the read only data
-during init (e.g. __start_ro_after_init).
-Trying to build an XIP kernel on arm results in the linking error
-reported below because when this option is selected read only data
-after init are not allowed since .data is read only (.rodata).
+Commit 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second
+timeout per test") adds support for a new per-test-directory "settings"
+file. But this only works for tests not in a sub-subdirectories, e.g.
 
-  arm-linux-gnueabihf-ld: mm/kmemleak.o: in function `kmemleak_init':
-  kmemleak.c:(.init.text+0x148): undefined reference to `__end_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x14c):
-     undefined reference to `__end_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x150):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x156):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x162):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x16a):
-     undefined reference to `__start_ro_after_init'
-  linux/Makefile:1078: recipe for target 'vmlinux' failed
+ - tools/testing/selftests/rtc (rtc) is OK,
+ - tools/testing/selftests/net/mptcp (net/mptcp) is not.
 
-Fix the issue enabling kmemleak only on non XIP kernels.
+We have to increase the timeout for net/mptcp tests which are not
+upstreamed yet but this fix is valid for other tests if they need to add
+a "settings" file, see the full list with:
 
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+  tools/testing/selftests/*/*/**/Makefile
+
+Note that this patch changes the text header message printed at the end
+of the execution but this text is modified only for the tests that are
+in sub-subdirectories, e.g.
+
+  ok 1 selftests: net/mptcp: mptcp_connect.sh
+
+Before we had:
+
+  ok 1 selftests: mptcp: mptcp_connect.sh
+
+But showing the full target name is probably better, just in case a
+subsubdir has the same name as another one in another subdirectory.
+
+Fixes: 852c8cbf34d3 (selftests/kselftest/runner.sh: Add 45 second timeout per test)
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 2 +-
+ tools/testing/selftests/kselftest/runner.sh | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 39002d769d956..9fadf322a2b76 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -75,7 +75,7 @@ config ARM
- 	select HAVE_CONTEXT_TRACKING
- 	select HAVE_COPY_THREAD_TLS
- 	select HAVE_C_RECORDMCOUNT
--	select HAVE_DEBUG_KMEMLEAK
-+	select HAVE_DEBUG_KMEMLEAK if !XIP_KERNEL
- 	select HAVE_DMA_CONTIGUOUS if MMU
- 	select HAVE_DYNAMIC_FTRACE if !XIP_KERNEL && !CPU_ENDIAN_BE32 && MMU
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
+diff --git a/tools/testing/selftests/kselftest/runner.sh b/tools/testing/selftests/kselftest/runner.sh
+index a8d20cbb711cf..e84d901f85672 100644
+--- a/tools/testing/selftests/kselftest/runner.sh
++++ b/tools/testing/selftests/kselftest/runner.sh
+@@ -91,7 +91,7 @@ run_one()
+ run_many()
+ {
+ 	echo "TAP version 13"
+-	DIR=$(basename "$PWD")
++	DIR="${PWD#${BASE_DIR}/}"
+ 	test_num=0
+ 	total=$(echo "$@" | wc -w)
+ 	echo "1..$total"
 -- 
 2.20.1
 
