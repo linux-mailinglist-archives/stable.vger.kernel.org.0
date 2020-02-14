@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF3615E5C7
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C4715E5C4
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:44:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387906AbgBNQnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:43:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57240 "EHLO mail.kernel.org"
+        id S2393685AbgBNQnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:43:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405387AbgBNQWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:22:09 -0500
+        id S2393175AbgBNQWL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8324A246DD;
-        Fri, 14 Feb 2020 16:22:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFB78246E3;
+        Fri, 14 Feb 2020 16:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697328;
-        bh=Zis/2J4cNpsMZcqwf9Osp3kP0K7LypCRbA1/0sjuczk=;
+        s=default; t=1581697330;
+        bh=97idC7HR8p/LOff1a/Sz0B0Sg2Vysa5wF7lpSwiKO1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHybGuO1Emu90VfjTC9MuxvWIQaiC+RVMowqH9uRtHUAmRDla6rZucp8+TDctWRQD
-         2J8KULF9FX5vMzw7Gkbtl4VWXjc+2P5EuSWNBLCrgVGt6/OcfcpVXNjY4t8HfeM92Y
-         OuwcqmGGlnlm47tQ3ThLq3LkiUPrePdxaMek7wCQ=
+        b=WXfdZA0nxAz7ovJ1nscOZgKkWS9SYkUQRdmH+2doNg1llMma7bCc6Mtau4Jf/Nin9
+         xO3dFRRD5zOebq+7uc+Hg1Ad4YSDzYsJq5p9CZy2bvna1rQb1u6wmd67Xoun5U2zVx
+         sHE3Imve+ahkXgsIUjIvlhSj27PhR/TyeQ7fkTHI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 036/141] drm/amdgpu: remove set but not used variable 'mc_shared_chmap'
-Date:   Fri, 14 Feb 2020 11:19:36 -0500
-Message-Id: <20200214162122.19794-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 038/141] drm/gma500: remove set but not used variable 'htotal'
+Date:   Fri, 14 Feb 2020 11:19:38 -0500
+Message-Id: <20200214162122.19794-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,46 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit e98042db2cb8d0b728cd76e05b9c2e1c84b7f72b ]
+[ Upstream commit dfa703b6f91818fa9f652c00e3589c104c518930 ]
 
 Fixes gcc '-Wunused-but-set-variable' warning:
 
-drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c: In function
-‘gfx_v8_0_gpu_early_init’:
-drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c:1713:6: warning: variable
-‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/gma500/oaktrail_hdmi.c: In function htotal_calculate:
+drivers/gpu/drm/gma500/oaktrail_hdmi.c:160:6: warning: variable htotal set but not used [-Wunused-but-set-variable]
 
-Fixes: 0bde3a95eaa9 ("drm/amdgpu: split gfx8 gpu init into sw and hw parts")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+It is introduced by commit 39ec748f7174 ("gma600: Enable HDMI support"),
+but never used, so remove it.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1573828027-122323-2-git-send-email-zhengbin13@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/gma500/oaktrail_hdmi.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-index c8a5cf5365a94..da32c7e49be0d 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-@@ -1739,7 +1739,7 @@ static int gfx_v8_0_do_edc_gpr_workarounds(struct amdgpu_device *adev)
- static int gfx_v8_0_gpu_early_init(struct amdgpu_device *adev)
+diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi.c b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+index 8b2eb32ee988b..6b403c3586fa0 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_hdmi.c
++++ b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+@@ -157,9 +157,7 @@ static void oaktrail_hdmi_audio_disable(struct drm_device *dev)
+ 
+ static unsigned int htotal_calculate(struct drm_display_mode *mode)
  {
- 	u32 gb_addr_config;
--	u32 mc_shared_chmap, mc_arb_ramcfg;
-+	u32 mc_arb_ramcfg;
- 	u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_addr_map;
- 	u32 tmp;
- 	int ret;
-@@ -1932,7 +1932,6 @@ static int gfx_v8_0_gpu_early_init(struct amdgpu_device *adev)
- 		break;
- 	}
+-	u32 htotal, new_crtc_htotal;
+-
+-	htotal = (mode->crtc_hdisplay - 1) | ((mode->crtc_htotal - 1) << 16);
++	u32 new_crtc_htotal;
  
--	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
- 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
- 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
- 
+ 	/*
+ 	 * 1024 x 768  new_crtc_htotal = 0x1024;
 -- 
 2.20.1
 
