@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A6B15E6F6
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF8915E6DE
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388705AbgBNQvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:51:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53034 "EHLO mail.kernel.org"
+        id S2405070AbgBNQTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:19:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404649AbgBNQTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2405065AbgBNQTw (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:19:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5665F24716;
-        Fri, 14 Feb 2020 16:19:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FA002471D;
+        Fri, 14 Feb 2020 16:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697191;
-        bh=ABpt12Sdooe3Fx5J/Vp+kpGN5zd/p+KMh8wX2CZw/Lk=;
+        s=default; t=1581697192;
+        bh=5GAH1D31Jg6YN2y96DofgQKtwEufW/I2MEgvZT31F00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwfaRUHAVMyyfz93oHc0OM2jFOLlD0I86VW2eTdZxQz7pmSURBbY7RGnNpaUXBp9/
-         ueQoiUoEKoE2gHe/QI2AcdgyZO9dDaoos+eqzTyloMwQF9swOPzvXAchOExGwsZoCX
-         zN1bNQVCtBdTnbcLr3klS0/aszbFdaWcHWHVwVtQ=
+        b=Mqr/zQ/jLUPrSN5TSyTdLf0xcmnv6px3W9dnvFdXvhjHct0/2hisj/E4uQStoNNcQ
+         Z6MDcnAc/1wDOSWMKxb5hu2NYZ6PFrFEYYDZUKPkhEOiQsRgBLR33WF0LwltWku1Mi
+         E7sgDIR1dVFI3gf9OQziJLPXLDhQ+BntP9WfBPwc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+Cc:     Simon Schwartz <kern.simon@theschwartz.xyz>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 120/186] tty: synclink_gt: Adjust indentation in several functions
-Date:   Fri, 14 Feb 2020 11:16:09 -0500
-Message-Id: <20200214161715.18113-120-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 121/186] driver core: platform: Prevent resouce overflow from causing infinite loops
+Date:   Fri, 14 Feb 2020 11:16:10 -0500
+Message-Id: <20200214161715.18113-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -44,116 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Simon Schwartz <kern.simon@theschwartz.xyz>
 
-[ Upstream commit 446e76873b5e4e70bdee5db2f2a894d5b4a7d081 ]
+[ Upstream commit 39cc539f90d035a293240c9443af50be55ee81b8 ]
 
-Clang warns:
+num_resources in the platform_device struct is declared as a u32.  The
+for loops that iterate over num_resources use an int as the counter,
+which can cause infinite loops on architectures with smaller ints.
+Change the loop counters to u32.
 
-../drivers/tty/synclink_gt.c:1337:3: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-        if (C_CRTSCTS(tty)) {
-        ^
-../drivers/tty/synclink_gt.c:1335:2: note: previous statement is here
-        if (I_IXOFF(tty))
-        ^
-../drivers/tty/synclink_gt.c:2563:3: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-        if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
-        ^
-../drivers/tty/synclink_gt.c:2561:2: note: previous statement is here
-        if (I_INPCK(info->port.tty))
-        ^
-../drivers/tty/synclink_gt.c:3221:3: warning: misleading indentation;
-statement is not part of the previous 'else' [-Wmisleading-indentation]
-        set_signals(info);
-        ^
-../drivers/tty/synclink_gt.c:3219:2: note: previous statement is here
-        else
-        ^
-3 warnings generated.
-
-The indentation on these lines is not at all consistent, tabs and spaces
-are mixed together. Convert to just using tabs to be consistent with the
-Linux kernel coding style and eliminate these warnings from clang.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/822
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://lore.kernel.org/r/20191218023912.13827-1-natechancellor@gmail.com
+Signed-off-by: Simon Schwartz <kern.simon@theschwartz.xyz>
+Link: https://lore.kernel.org/r/2201ce63a2a171ffd2ed14e867875316efcf71db.camel@theschwartz.xyz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/synclink_gt.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/base/platform.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index 344e8c427c7e2..9d68f89a2bf8d 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -1349,10 +1349,10 @@ static void throttle(struct tty_struct * tty)
- 	DBGINFO(("%s throttle\n", info->device_name));
- 	if (I_IXOFF(tty))
- 		send_xchar(tty, STOP_CHAR(tty));
-- 	if (C_CRTSCTS(tty)) {
-+	if (C_CRTSCTS(tty)) {
- 		spin_lock_irqsave(&info->lock,flags);
- 		info->signals &= ~SerialSignal_RTS;
--	 	set_signals(info);
-+		set_signals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
- }
-@@ -1374,10 +1374,10 @@ static void unthrottle(struct tty_struct * tty)
- 		else
- 			send_xchar(tty, START_CHAR(tty));
- 	}
-- 	if (C_CRTSCTS(tty)) {
-+	if (C_CRTSCTS(tty)) {
- 		spin_lock_irqsave(&info->lock,flags);
- 		info->signals |= SerialSignal_RTS;
--	 	set_signals(info);
-+		set_signals(info);
- 		spin_unlock_irqrestore(&info->lock,flags);
- 	}
- }
-@@ -2575,8 +2575,8 @@ static void change_params(struct slgt_info *info)
- 	info->read_status_mask = IRQ_RXOVER;
- 	if (I_INPCK(info->port.tty))
- 		info->read_status_mask |= MASK_PARITY | MASK_FRAMING;
-- 	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
-- 		info->read_status_mask |= MASK_BREAK;
-+	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
-+		info->read_status_mask |= MASK_BREAK;
- 	if (I_IGNPAR(info->port.tty))
- 		info->ignore_status_mask |= MASK_PARITY | MASK_FRAMING;
- 	if (I_IGNBRK(info->port.tty)) {
-@@ -3207,7 +3207,7 @@ static int tiocmset(struct tty_struct *tty,
- 		info->signals &= ~SerialSignal_DTR;
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index f1105de0d9fed..e3d40c41c33b0 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -28,6 +28,7 @@
+ #include <linux/limits.h>
+ #include <linux/property.h>
+ #include <linux/kmemleak.h>
++#include <linux/types.h>
  
- 	spin_lock_irqsave(&info->lock,flags);
-- 	set_signals(info);
-+	set_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 	return 0;
- }
-@@ -3218,7 +3218,7 @@ static int carrier_raised(struct tty_port *port)
- 	struct slgt_info *info = container_of(port, struct slgt_info, port);
+ #include "base.h"
+ #include "power/power.h"
+@@ -68,7 +69,7 @@ void __weak arch_setup_pdev_archdata(struct platform_device *pdev)
+ struct resource *platform_get_resource(struct platform_device *dev,
+ 				       unsigned int type, unsigned int num)
+ {
+-	int i;
++	u32 i;
  
- 	spin_lock_irqsave(&info->lock,flags);
-- 	get_signals(info);
-+	get_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
- }
-@@ -3233,7 +3233,7 @@ static void dtr_rts(struct tty_port *port, int on)
- 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
- 	else
- 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
-- 	set_signals(info);
-+	set_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- }
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -163,7 +164,7 @@ struct resource *platform_get_resource_byname(struct platform_device *dev,
+ 					      unsigned int type,
+ 					      const char *name)
+ {
+-	int i;
++	u32 i;
  
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -360,7 +361,8 @@ EXPORT_SYMBOL_GPL(platform_device_add_properties);
+  */
+ int platform_device_add(struct platform_device *pdev)
+ {
+-	int i, ret;
++	u32 i;
++	int ret;
+ 
+ 	if (!pdev)
+ 		return -EINVAL;
+@@ -447,7 +449,7 @@ EXPORT_SYMBOL_GPL(platform_device_add);
+  */
+ void platform_device_del(struct platform_device *pdev)
+ {
+-	int i;
++	u32 i;
+ 
+ 	if (pdev) {
+ 		device_remove_properties(&pdev->dev);
 -- 
 2.20.1
 
