@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D170F15E3A4
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD1115E39F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406453AbgBNQbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:31:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36280 "EHLO mail.kernel.org"
+        id S2388038AbgBNQb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:31:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406292AbgBNQ0G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:26:06 -0500
+        id S2405777AbgBNQ0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:26:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C990247B1;
-        Fri, 14 Feb 2020 16:26:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF1C5247CB;
+        Fri, 14 Feb 2020 16:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697565;
-        bh=FMn3dqKXlRf0VWYX1FOgHq9M1KnMQBmA7KSUS80C7sI=;
+        s=default; t=1581697566;
+        bh=gMClIlblDuDMDa41XGdXIqf69zD4NFMrcwN7v3vreNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJf496GpW7e0eTtkS9NFJ0cu67/asa9N3IPJK5C7n4OIhmnt7hb3xcT0EU4xEvBln
-         Mq43Ix0n0X/U3zD9oZRozW//64vP7EFQeSEl4t3y+dt14t4sgRyI2QPLeU5cwl5gGB
-         0M9YkvbKNxCcAYcbxeeQkwwCLpYhSMCUiCYCjnaM=
+        b=ywCZrrCOnN0vZq0mwq15X9y7C4rD/+LaEyTzM3Wy4NuEmuqnomhaVVZLkM5LKiz52
+         ZFpCBo0XdfwXCr6hqqBX2UGRjWpc7QqdnSrjMxrh6kUWu+kmVFXXHvGOjV4uaJUDXi
+         7ziqZfxDa1jPDR0juOnT50BeojqnnUHLhXBzRKBg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 081/100] jbd2: switch to use jbd2_journal_abort() when failed to submit the commit record
-Date:   Fri, 14 Feb 2020 11:24:05 -0500
-Message-Id: <20200214162425.21071-81-sashal@kernel.org>
+Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 082/100] ARM: 8951/1: Fix Kexec compilation issue.
+Date:   Fri, 14 Feb 2020 11:24:06 -0500
+Message-Id: <20200214162425.21071-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,48 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "zhangyi (F)" <yi.zhang@huawei.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit d0a186e0d3e7ac05cc77da7c157dae5aa59f95d9 ]
+[ Upstream commit 76950f7162cad51d2200ebd22c620c14af38f718 ]
 
-We invoke jbd2_journal_abort() to abort the journal and record errno
-in the jbd2 superblock when committing journal transaction besides the
-failure on submitting the commit record. But there is no need for the
-case and we can also invoke jbd2_journal_abort() instead of
-__jbd2_journal_abort_hard().
+To perform the reserve_crashkernel() operation kexec uses SECTION_SIZE to
+find a memblock in a range.
+SECTION_SIZE is not defined for nommu systems. Trying to compile kexec in
+these conditions results in a build error:
 
-Fixes: 818d276ceb83a ("ext4: Add the journal checksum feature")
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191204124614.45424-2-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+  linux/arch/arm/kernel/setup.c: In function ‘reserve_crashkernel’:
+  linux/arch/arm/kernel/setup.c:1016:25: error: ‘SECTION_SIZE’ undeclared
+     (first use in this function); did you mean ‘SECTIONS_WIDTH’?
+             crash_size, SECTION_SIZE);
+                         ^~~~~~~~~~~~
+                         SECTIONS_WIDTH
+  linux/arch/arm/kernel/setup.c:1016:25: note: each undeclared identifier
+     is reported only once for each function it appears in
+  linux/scripts/Makefile.build:265: recipe for target 'arch/arm/kernel/setup.o'
+     failed
+
+Make KEXEC depend on MMU to fix the compilation issue.
+
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/commit.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
-index ebbd7d054cabd..6710fff0085e0 100644
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -797,7 +797,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
- 		err = journal_submit_commit_record(journal, commit_transaction,
- 						 &cbh, crc32_sum);
- 		if (err)
--			__jbd2_journal_abort_hard(journal);
-+			jbd2_journal_abort(journal, err);
- 	}
- 
- 	blk_finish_plug(&plug);
-@@ -890,7 +890,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
- 		err = journal_submit_commit_record(journal, commit_transaction,
- 						&cbh, crc32_sum);
- 		if (err)
--			__jbd2_journal_abort_hard(journal);
-+			jbd2_journal_abort(journal, err);
- 	}
- 	if (cbh)
- 		err = journal_wait_on_commit_record(journal, cbh);
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 2ba69df49cf86..45f2a5930379a 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -2000,7 +2000,7 @@ config XIP_PHYS_ADDR
+ config KEXEC
+ 	bool "Kexec system call (EXPERIMENTAL)"
+ 	depends on (!SMP || PM_SLEEP_SMP)
+-	depends on !CPU_V7M
++	depends on MMU
+ 	select KEXEC_CORE
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
 -- 
 2.20.1
 
