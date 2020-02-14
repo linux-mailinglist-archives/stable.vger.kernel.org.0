@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5D415EAFB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:18:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA33E15EB06
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391734AbgBNQLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:11:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
+        id S2389096AbgBNRSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:18:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390995AbgBNQLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:11:12 -0500
+        id S2391733AbgBNQLN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:11:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD66424697;
-        Fri, 14 Feb 2020 16:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C78B246A0;
+        Fri, 14 Feb 2020 16:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696671;
-        bh=21U/1a7d6mQjvZS+p4suqgModgU1QDnOz+aloeZnv8A=;
+        s=default; t=1581696672;
+        bh=QhfUCZL8nu16Ecebx/J93uNXs5f9BdBGnXmkpIxjlMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMkv1/1jGk4fi43Qg7AXjzOrRfUZ+4JlTtXBk1UGU1K4q7Vt61Cx6/vpudHigtK/+
-         q4P4WxwibqqJ5AB2dUaZhE52bJrG/THNHb4TkrseLFN0waMx0enuL1G/oC1btZafcJ
-         EyreEl+uLl3vWyaTsMFq+DmFGIyYVAIZ5HM0gcFQ=
+        b=Wv2rGBL6O6lXLISAV+wDSadacVne9bO1FZdoTSRPDl18VzQ0YrziVyLuyHctzCoXl
+         D+rQROSmuqyxPki8+KKxgV5kwPVghyPxUaMHURYJRiZPgMY5NH9eYAvSs92A5pYSGE
+         6MWFWUmSPz6oy5eBOXoQfvypEeREs5gjCedBSCoA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Edmund Nadolski <edmund.nadolski@intel.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 441/459] nvme-pci: remove nvmeq->tags
-Date:   Fri, 14 Feb 2020 11:01:31 -0500
-Message-Id: <20200214160149.11681-441-sashal@kernel.org>
+Cc:     Andrei Otcheretianski <andrei.otcheretianski@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 442/459] iwlwifi: mvm: Fix thermal zone registration
+Date:   Fri, 14 Feb 2020 11:01:32 -0500
+Message-Id: <20200214160149.11681-442-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,98 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
 
-[ Upstream commit cfa27356f835dc7755192e7b941d4f4851acbcc7 ]
+[ Upstream commit baa6cf8450b72dcab11f37c47efce7c5b9b8ad0f ]
 
-There is no real need to have a pointer to the tagset in
-struct nvme_queue, as we only need it in a single place, and that place
-can derive the used tagset from the device and qid trivially.  This
-fixes a problem with stale pointer exposure when tagsets are reset,
-and also shrinks the nvme_queue structure.  It also matches what most
-other transports have done since day 1.
+Use a unique name when registering a thermal zone. Otherwise, with
+multiple NICS, we hit the following warning during the unregistration.
 
-Reported-by: Edmund Nadolski <edmund.nadolski@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+WARNING: CPU: 2 PID: 3525 at fs/sysfs/group.c:255
+ RIP: 0010:sysfs_remove_group+0x80/0x90
+ Call Trace:
+  dpm_sysfs_remove+0x57/0x60
+  device_del+0x5a/0x350
+  ? sscanf+0x4e/0x70
+  device_unregister+0x1a/0x60
+  hwmon_device_unregister+0x4a/0xa0
+  thermal_remove_hwmon_sysfs+0x175/0x1d0
+  thermal_zone_device_unregister+0x188/0x1e0
+  iwl_mvm_thermal_exit+0xe7/0x100 [iwlmvm]
+  iwl_op_mode_mvm_stop+0x27/0x180 [iwlmvm]
+  _iwl_op_mode_stop.isra.3+0x2b/0x50 [iwlwifi]
+  iwl_opmode_deregister+0x90/0xa0 [iwlwifi]
+  __exit_compat+0x10/0x2c7 [iwlmvm]
+  __x64_sys_delete_module+0x13f/0x270
+  do_syscall_64+0x5a/0x110
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Signed-off-by: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/tt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 14d513087a14b..f34a56d588d31 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -167,7 +167,6 @@ struct nvme_queue {
- 	 /* only used for poll queues: */
- 	spinlock_t cq_poll_lock ____cacheline_aligned_in_smp;
- 	volatile struct nvme_completion *cqes;
--	struct blk_mq_tags **tags;
- 	dma_addr_t sq_dma_addr;
- 	dma_addr_t cq_dma_addr;
- 	u32 __iomem *q_db;
-@@ -377,29 +376,17 @@ static int nvme_admin_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
- 
- 	WARN_ON(hctx_idx != 0);
- 	WARN_ON(dev->admin_tagset.tags[0] != hctx->tags);
--	WARN_ON(nvmeq->tags);
- 
- 	hctx->driver_data = nvmeq;
--	nvmeq->tags = &dev->admin_tagset.tags[0];
- 	return 0;
- }
- 
--static void nvme_admin_exit_hctx(struct blk_mq_hw_ctx *hctx, unsigned int hctx_idx)
--{
--	struct nvme_queue *nvmeq = hctx->driver_data;
--
--	nvmeq->tags = NULL;
--}
--
- static int nvme_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
- 			  unsigned int hctx_idx)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tt.c b/drivers/net/wireless/intel/iwlwifi/mvm/tt.c
+index f0c539b37ea70..a630e4edd9b4d 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tt.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tt.c
+@@ -731,7 +731,8 @@ static  struct thermal_zone_device_ops tzone_ops = {
+ static void iwl_mvm_thermal_zone_register(struct iwl_mvm *mvm)
  {
- 	struct nvme_dev *dev = data;
- 	struct nvme_queue *nvmeq = &dev->queues[hctx_idx + 1];
+ 	int i;
+-	char name[] = "iwlwifi";
++	char name[16];
++	static atomic_t counter = ATOMIC_INIT(0);
  
--	if (!nvmeq->tags)
--		nvmeq->tags = &dev->tagset.tags[hctx_idx];
--
- 	WARN_ON(dev->tagset.tags[hctx_idx] != hctx->tags);
- 	hctx->driver_data = nvmeq;
- 	return 0;
-@@ -950,6 +937,13 @@ static inline void nvme_ring_cq_doorbell(struct nvme_queue *nvmeq)
- 		writel(head, nvmeq->q_db + nvmeq->dev->db_stride);
- }
+ 	if (!iwl_mvm_is_tt_in_fw(mvm)) {
+ 		mvm->tz_device.tzone = NULL;
+@@ -741,6 +742,7 @@ static void iwl_mvm_thermal_zone_register(struct iwl_mvm *mvm)
  
-+static inline struct blk_mq_tags *nvme_queue_tagset(struct nvme_queue *nvmeq)
-+{
-+	if (!nvmeq->qid)
-+		return nvmeq->dev->admin_tagset.tags[0];
-+	return nvmeq->dev->tagset.tags[nvmeq->qid - 1];
-+}
-+
- static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
- {
- 	volatile struct nvme_completion *cqe = &nvmeq->cqes[idx];
-@@ -975,7 +969,7 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
- 		return;
- 	}
+ 	BUILD_BUG_ON(ARRAY_SIZE(name) >= THERMAL_NAME_LENGTH);
  
--	req = blk_mq_tag_to_rq(*nvmeq->tags, cqe->command_id);
-+	req = blk_mq_tag_to_rq(nvme_queue_tagset(nvmeq), cqe->command_id);
- 	trace_nvme_sq(req, cqe->sq_head, nvmeq->sq_tail);
- 	nvme_end_request(req, cqe->status, cqe->result);
- }
-@@ -1578,7 +1572,6 @@ static const struct blk_mq_ops nvme_mq_admin_ops = {
- 	.queue_rq	= nvme_queue_rq,
- 	.complete	= nvme_pci_complete_rq,
- 	.init_hctx	= nvme_admin_init_hctx,
--	.exit_hctx      = nvme_admin_exit_hctx,
- 	.init_request	= nvme_init_request,
- 	.timeout	= nvme_timeout,
- };
++	sprintf(name, "iwlwifi_%u", atomic_inc_return(&counter) & 0xFF);
+ 	mvm->tz_device.tzone = thermal_zone_device_register(name,
+ 							IWL_MAX_DTS_TRIPS,
+ 							IWL_WRITABLE_TRIPS_MSK,
 -- 
 2.20.1
 
