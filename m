@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E4615DC5F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:53:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68ABF15DC63
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731023AbgBNPwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:52:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
+        id S1730468AbgBNPws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:52:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731012AbgBNPwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:52:39 -0500
+        id S1731061AbgBNPwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:52:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93B1324688;
-        Fri, 14 Feb 2020 15:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EBAA222C4;
+        Fri, 14 Feb 2020 15:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695558;
-        bh=P6ka74hq+S9cWlwpKuE4fkuQlUl5IcnNTOP1eCnSy9s=;
+        s=default; t=1581695567;
+        bh=vMAIxQCEcBteBvTjRTi8zaQHQRbcimfsWflvIWcKtRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aInGn3vRGXHIKL///8TfW2z0m9HNP9SSuukkbF8uiZraCHsxi8wu2Q9RpcO4RWDjb
-         wlObP0a5F4TlkajdsPrm8iGdxWQQW5YR/yxyjzqPQC63bQMcaBQG1mW9hrfRtTKMYM
-         4mHbkF5qNk6hEqmvWi/VJhe6uSu+sTYMaSZT4aIY=
+        b=vDL04vJppJ0l+GABfBMUIv6b6NtLE2FsRO9U0wMUGo9gTfxkZId1yqNmCYbYSt1SA
+         VIicDTk8+PyuIvvX7uVIohyZIK4hneJaJBgaHMVlZ2g5XhvY4pjj4Caq2+W/L5H8wy
+         GLBvvxFABO79+xCE/Aw0g/zxdwG+PWAZDME+Xoho=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 172/542] arm64: dts: uDPU: fix broken ethernet
-Date:   Fri, 14 Feb 2020 10:42:44 -0500
-Message-Id: <20200214154854.6746-172-sashal@kernel.org>
+Cc:     Thong Thai <thong.thai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 179/542] Revert "drm/amdgpu: enable VCN DPG on Raven and Raven2"
+Date:   Fri, 14 Feb 2020 10:42:51 -0500
+Message-Id: <20200214154854.6746-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,52 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Thong Thai <thong.thai@amd.com>
 
-[ Upstream commit 1eebac0240580b531954b02c05068051df41142a ]
+[ Upstream commit d515959125f24767d02e82587a11e444eeba0e7b ]
 
-The uDPU uses both ethernet controllers, which ties up COMPHY 0 for
-eth1 and COMPHY 1 for eth0, with no USB3 comphy.  The addition of
-COMPHY support made the kernel override the setup by the boot loader
-breaking this platform by assuming that COMPHY 0 was always used for
-USB3.  Delete the USB3 COMPHY definition at platform level, and add
-phy specifications for the ethernet channels.
+This reverts commit a4840d91c984f93b2acdcd44441d624bbc1af0d2.
 
-Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Reverting due to power efficiency issues seen on Raven 1 and 2
+when DPG mode is enabled.
+
+Signed-off-by: Thong Thai <thong.thai@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/soc15.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts b/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
-index bd4aab6092e0f..e31813a4f9722 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
-@@ -143,6 +143,7 @@
- 	phy-mode = "sgmii";
- 	status = "okay";
- 	managed = "in-band-status";
-+	phys = <&comphy1 0>;
- 	sfp = <&sfp_eth0>;
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
+index 8e1640bc07aff..04ea7cd692955 100644
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -1145,9 +1145,7 @@ static int soc15_common_early_init(void *handle)
+ 				AMD_CG_SUPPORT_SDMA_LS |
+ 				AMD_CG_SUPPORT_VCN_MGCG;
  
-@@ -150,11 +151,14 @@
- 	phy-mode = "sgmii";
- 	status = "okay";
- 	managed = "in-band-status";
-+	phys = <&comphy0 1>;
- 	sfp = <&sfp_eth1>;
- };
+-			adev->pg_flags = AMD_PG_SUPPORT_SDMA |
+-				AMD_PG_SUPPORT_VCN |
+-				AMD_PG_SUPPORT_VCN_DPG;
++			adev->pg_flags = AMD_PG_SUPPORT_SDMA | AMD_PG_SUPPORT_VCN;
+ 		} else if (adev->pdev->device == 0x15d8) {
+ 			adev->cg_flags = AMD_CG_SUPPORT_GFX_MGCG |
+ 				AMD_CG_SUPPORT_GFX_MGLS |
+@@ -1190,9 +1188,7 @@ static int soc15_common_early_init(void *handle)
+ 				AMD_CG_SUPPORT_SDMA_LS |
+ 				AMD_CG_SUPPORT_VCN_MGCG;
  
- &usb3 {
- 	status = "okay";
-+	phys = <&usb2_utmi_otg_phy>;
-+	phy-names = "usb2-utmi-otg-phy";
- };
- 
- &uart0 {
+-			adev->pg_flags = AMD_PG_SUPPORT_SDMA |
+-				AMD_PG_SUPPORT_VCN |
+-				AMD_PG_SUPPORT_VCN_DPG;
++			adev->pg_flags = AMD_PG_SUPPORT_SDMA | AMD_PG_SUPPORT_VCN;
+ 		}
+ 		break;
+ 	case CHIP_ARCTURUS:
 -- 
 2.20.1
 
