@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE34715EDA5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:35:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6D515ED98
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728173AbgBNRfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:35:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56132 "EHLO mail.kernel.org"
+        id S2390277AbgBNQGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:06:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390104AbgBNQF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:57 -0500
+        id S2390274AbgBNQF7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FAC62187F;
-        Fri, 14 Feb 2020 16:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AAE0217F4;
+        Fri, 14 Feb 2020 16:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696356;
-        bh=UHTF/KQOikrcVa58Jc+AI++DU1+I2cfHGw4+SZ/+l5w=;
+        s=default; t=1581696359;
+        bh=gUEGfpV552sDu9X3kZ+5/zD3JhIkLGBT0fJ533BkoeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZlOWs2zF8O5AX6ozp81PaH9fpAB376dRywT6vTw4ztjNVaNqFAZsmv0oWz24G2NQ
-         UWWBkB8vADnUcuKyAsh2i7EjiL2AoFZ0JRDHoIvCeFRS+Dk+aLbXwv+eg2pPTLg9r4
-         MfDbs63Ca5C0XhhBdxxFgBtC1gN1o7fIcF6J2QTc=
+        b=fPmuhl8FVe6MBJusVryBmLewCZXjESUGPysUXnzg013OBsPUnQf1NUqRRWmqvNKcd
+         ktrhDDKoYqHbFnjOvloei9rOEVpCgYgzyXhsEzfUsWrjW5eb64h8LsHQkAvAPiF6HI
+         wTRFA/j/cOy8MMksQAlCnX8lyhyc2i3P9WGXeCTQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Olof's autobuilder <build@lixom.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 189/459] isdn: don't mark kcapi_proc_exit as __exit
-Date:   Fri, 14 Feb 2020 10:57:19 -0500
-Message-Id: <20200214160149.11681-189-sashal@kernel.org>
+Cc:     Suman Anna <s-anna@ti.com>, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 191/459] ARM: OMAP2+: Add workaround for DRA7 DSP MStandby errata i879
+Date:   Fri, 14 Feb 2020 10:57:21 -0500
+Message-Id: <20200214160149.11681-191-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -46,47 +43,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Suman Anna <s-anna@ti.com>
 
-[ Upstream commit b33bdf8020c94438269becc6dace9ed49257c4ba ]
+[ Upstream commit 2f14101a1d760db72393910d481fbf7768c44530 ]
 
-As everybody pointed out by now, my patch to clean up CAPI introduced
-a link time warning, as the two parts of the capi driver are now in
-one module and the exit function may need to be called in the error
-path of the init function:
+Errata Title:
+i879: DSP MStandby requires CD_EMU in SW_WKUP
 
->> WARNING: drivers/isdn/capi/kernelcapi.o(.text+0xea4): Section mismatch in reference from the function kcapi_exit() to the function .exit.text:kcapi_proc_exit()
-   The function kcapi_exit() references a function in an exit section.
-   Often the function kcapi_proc_exit() has valid usage outside the exit section
-   and the fix is to remove the __exit annotation of kcapi_proc_exit.
+Description:
+The DSP requires the internal emulation clock to be actively toggling
+in order to successfully enter a low power mode via execution of the
+IDLE instruction and PRCM MStandby/Idle handshake. This assumes that
+other prerequisites and software sequence are followed.
 
-Remove the incorrect __exit annotation.
+Workaround:
+The emulation clock to the DSP is free-running anytime CCS is connected
+via JTAG debugger to the DSP subsystem or when the CD_EMU clock domain
+is set in SW_WKUP mode. The CD_EMU domain can be set in SW_WKUP mode
+via the CM_EMU_CLKSTCTRL [1:0]CLKTRCTRL field.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Reported-by: Olof's autobuilder <build@lixom.net>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20191216194909.1983639-1-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Implementation:
+This patch implements this workaround by denying the HW_AUTO mode
+for the EMU clockdomain during the power-up of any DSP processor
+and re-enabling the HW_AUTO mode during the shutdown of the last
+DSP processor (actually done during the enabling and disabling of
+the respective DSP MDMA MMUs). Reference counting has to be used to
+manage the independent sequencing between the multiple DSP processors.
+
+This switching is done at runtime rather than a static clockdomain
+flags value to meet the target power domain state for the EMU power
+domain during suspend.
+
+Note that the DSP MStandby behavior is not consistent across all
+boards prior to this fix. Please see commit 45f871eec6c0 ("ARM:
+OMAP2+: Extend DRA7 IPU1 MMU pdata quirks to DSP MDMA MMUs") for
+details.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/capi/kcapi_proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap2/omap-iommu.c | 43 +++++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/isdn/capi/kcapi_proc.c b/drivers/isdn/capi/kcapi_proc.c
-index c94bd12c0f7c6..28cd051f1dfd9 100644
---- a/drivers/isdn/capi/kcapi_proc.c
-+++ b/drivers/isdn/capi/kcapi_proc.c
-@@ -239,7 +239,7 @@ kcapi_proc_init(void)
- 	proc_create_seq("capi/driver",       0, NULL, &seq_capi_driver_ops);
- }
+diff --git a/arch/arm/mach-omap2/omap-iommu.c b/arch/arm/mach-omap2/omap-iommu.c
+index f1a6ece8108e4..78247e6f4a720 100644
+--- a/arch/arm/mach-omap2/omap-iommu.c
++++ b/arch/arm/mach-omap2/omap-iommu.c
+@@ -11,14 +11,43 @@
  
--void __exit
-+void
- kcapi_proc_exit(void)
+ #include "omap_hwmod.h"
+ #include "omap_device.h"
++#include "clockdomain.h"
+ #include "powerdomain.h"
+ 
++static void omap_iommu_dra7_emu_swsup_config(struct platform_device *pdev,
++					     bool enable)
++{
++	static struct clockdomain *emu_clkdm;
++	static DEFINE_SPINLOCK(emu_lock);
++	static atomic_t count;
++	struct device_node *np = pdev->dev.of_node;
++
++	if (!of_device_is_compatible(np, "ti,dra7-dsp-iommu"))
++		return;
++
++	if (!emu_clkdm) {
++		emu_clkdm = clkdm_lookup("emu_clkdm");
++		if (WARN_ON_ONCE(!emu_clkdm))
++			return;
++	}
++
++	spin_lock(&emu_lock);
++
++	if (enable && (atomic_inc_return(&count) == 1))
++		clkdm_deny_idle(emu_clkdm);
++	else if (!enable && (atomic_dec_return(&count) == 0))
++		clkdm_allow_idle(emu_clkdm);
++
++	spin_unlock(&emu_lock);
++}
++
+ int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev, bool request,
+ 				    u8 *pwrst)
  {
- 	remove_proc_entry("capi/driver",       NULL);
+ 	struct powerdomain *pwrdm;
+ 	struct omap_device *od;
+ 	u8 next_pwrst;
++	int ret = 0;
+ 
+ 	od = to_omap_device(pdev);
+ 	if (!od)
+@@ -31,13 +60,21 @@ int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev, bool request,
+ 	if (!pwrdm)
+ 		return -EINVAL;
+ 
+-	if (request)
++	if (request) {
+ 		*pwrst = pwrdm_read_next_pwrst(pwrdm);
++		omap_iommu_dra7_emu_swsup_config(pdev, true);
++	}
+ 
+ 	if (*pwrst > PWRDM_POWER_RET)
+-		return 0;
++		goto out;
+ 
+ 	next_pwrst = request ? PWRDM_POWER_ON : *pwrst;
+ 
+-	return pwrdm_set_next_pwrst(pwrdm, next_pwrst);
++	ret = pwrdm_set_next_pwrst(pwrdm, next_pwrst);
++
++out:
++	if (!request)
++		omap_iommu_dra7_emu_swsup_config(pdev, false);
++
++	return ret;
+ }
 -- 
 2.20.1
 
