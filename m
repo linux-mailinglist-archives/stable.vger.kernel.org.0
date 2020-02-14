@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27FB615EBF8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D22315EBFA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391220AbgBNQJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:09:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33388 "EHLO mail.kernel.org"
+        id S2388969AbgBNQJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:09:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389963AbgBNQJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:10 -0500
+        id S2388649AbgBNQJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 988AD24681;
-        Fri, 14 Feb 2020 16:09:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6086E222C2;
+        Fri, 14 Feb 2020 16:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696549;
-        bh=JisXudK13Jk6Kspb8myNxbaBJxcABpU3ZxO3USpbX0w=;
+        s=default; t=1581696552;
+        bh=NqIaCISv0custzYG3ZF/Mwy0/q42AlFdhqKe2fNSo9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2Ry/xdDrIas9EIQFjWqwaivTqr4jLFRNEbauVx4khClXSiL7ubtnUgha2OnPDFuF
-         u/jS8/WwYWM1KrJqyyfVUOdGrfB5xKbuFaTg7U7LkCKL29a0TDgqK5nWKIn+2hPXTp
-         8Wkw0iqbYAe8nh7OJCLzq5tOmCHCTIgRtV6jPU9M=
+        b=TWLJ6VcX4qDkmg7pgiahnaE7s+whKLsSoQqeqM/mtOhk2690PUHiA4IJDEraoRPE1
+         2sPq34rELMGdy4zNJQvsK4eLp1SK5vjWOZ1a56gtYqpivJNMy/g9ZzrnhaDN6cLerk
+         El5LNQLgKDeg+Wh2dEyF6Ty1G7rzUD2UxlLkR0v4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lokesh Vutla <lokeshvutla@ti.com>, Suman Anna <s-anna@ti.com>,
-        Tero Kristo <t-kristo@ti.com>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 342/459] arm64: dts: ti: k3-j721e-main: Add missing power-domains for smmu
-Date:   Fri, 14 Feb 2020 10:59:52 -0500
-Message-Id: <20200214160149.11681-342-sashal@kernel.org>
+Cc:     Valentin Schneider <valentin.schneider@arm.com>,
+        Zeng Tao <prime.zeng@hisilicon.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 344/459] sched/topology: Assert non-NUMA topology masks don't (partially) overlap
+Date:   Fri, 14 Feb 2020 10:59:54 -0500
+Message-Id: <20200214160149.11681-344-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,35 +45,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lokesh Vutla <lokeshvutla@ti.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 3f03a58b25753843ce9e4511e9e246c51bd11011 ]
+[ Upstream commit ccf74128d66ce937876184ad55db2e0276af08d3 ]
 
-Add power-domains entry for smmu, so that the it is accessible as long
-as the driver is active. Without this device shutdown is throwing the
-below warning:
-"[   44.736348] arm-smmu-v3 36600000.smmu: failed to clear cr0"
+topology.c::get_group() relies on the assumption that non-NUMA domains do
+not partially overlap. Zeng Tao pointed out in [1] that such topology
+descriptions, while completely bogus, can end up being exposed to the
+scheduler.
 
-Reported-by: Suman Anna <s-anna@ti.com>
-Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
+In his example (8 CPUs, 2-node system), we end up with:
+  MC span for CPU3 == 3-7
+  MC span for CPU4 == 4-7
+
+The first pass through get_group(3, sdd@MC) will result in the following
+sched_group list:
+
+  3 -> 4 -> 5 -> 6 -> 7
+  ^                  /
+   `----------------'
+
+And a later pass through get_group(4, sdd@MC) will "corrupt" that to:
+
+  3 -> 4 -> 5 -> 6 -> 7
+       ^             /
+	`-----------'
+
+which will completely break things like 'while (sg != sd->groups)' when
+using CPU3's base sched_domain.
+
+There already are some architecture-specific checks in place such as
+x86/kernel/smpboot.c::topology.sane(), but this is something we can detect
+in the core scheduler, so it seems worthwhile to do so.
+
+Warn and abort the construction of the sched domains if such a broken
+topology description is detected. Note that this is somewhat
+expensive (O(t.c²), 't' non-NUMA topology levels and 'c' CPUs) and could be
+gated under SCHED_DEBUG if deemed necessary.
+
+Testing
+=======
+
+Dietmar managed to reproduce this using the following qemu incantation:
+
+  $ qemu-system-aarch64 -kernel ./Image -hda ./qemu-image-aarch64.img \
+  -append 'root=/dev/vda console=ttyAMA0 loglevel=8 sched_debug' -smp \
+  cores=8 --nographic -m 512 -cpu cortex-a53 -machine virt -numa \
+  node,cpus=0-2,nodeid=0 -numa node,cpus=3-7,nodeid=1
+
+alongside the following drivers/base/arch_topology.c hack (AIUI wouldn't be
+needed if '-smp cores=X, sockets=Y' would work with qemu):
+
+8<---
+@@ -465,6 +465,9 @@ void update_siblings_masks(unsigned int cpuid)
+ 		if (cpuid_topo->package_id != cpu_topo->package_id)
+ 			continue;
+
++		if ((cpu < 4 && cpuid > 3) || (cpu > 3 && cpuid < 4))
++			continue;
++
+ 		cpumask_set_cpu(cpuid, &cpu_topo->core_sibling);
+ 		cpumask_set_cpu(cpu, &cpuid_topo->core_sibling);
+
+8<---
+
+[1]: https://lkml.kernel.org/r/1577088979-8545-1-git-send-email-prime.zeng@hisilicon.com
+
+Reported-by: Zeng Tao <prime.zeng@hisilicon.com>
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200115160915.22575-1-valentin.schneider@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/topology.c | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 698ef9a1d5b75..96445111e3985 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -43,6 +43,7 @@
- 	smmu0: smmu@36600000 {
- 		compatible = "arm,smmu-v3";
- 		reg = <0x0 0x36600000 0x0 0x100000>;
-+		power-domains = <&k3_pds 229 TI_SCI_PD_EXCLUSIVE>;
- 		interrupt-parent = <&gic500>;
- 		interrupts = <GIC_SPI 772 IRQ_TYPE_EDGE_RISING>,
- 			     <GIC_SPI 768 IRQ_TYPE_EDGE_RISING>;
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index 49b835f1305f8..1fa1e13a59446 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1882,6 +1882,42 @@ static struct sched_domain *build_sched_domain(struct sched_domain_topology_leve
+ 	return sd;
+ }
+ 
++/*
++ * Ensure topology masks are sane, i.e. there are no conflicts (overlaps) for
++ * any two given CPUs at this (non-NUMA) topology level.
++ */
++static bool topology_span_sane(struct sched_domain_topology_level *tl,
++			      const struct cpumask *cpu_map, int cpu)
++{
++	int i;
++
++	/* NUMA levels are allowed to overlap */
++	if (tl->flags & SDTL_OVERLAP)
++		return true;
++
++	/*
++	 * Non-NUMA levels cannot partially overlap - they must be either
++	 * completely equal or completely disjoint. Otherwise we can end up
++	 * breaking the sched_group lists - i.e. a later get_group() pass
++	 * breaks the linking done for an earlier span.
++	 */
++	for_each_cpu(i, cpu_map) {
++		if (i == cpu)
++			continue;
++		/*
++		 * We should 'and' all those masks with 'cpu_map' to exactly
++		 * match the topology we're about to build, but that can only
++		 * remove CPUs, which only lessens our ability to detect
++		 * overlaps
++		 */
++		if (!cpumask_equal(tl->mask(cpu), tl->mask(i)) &&
++		    cpumask_intersects(tl->mask(cpu), tl->mask(i)))
++			return false;
++	}
++
++	return true;
++}
++
+ /*
+  * Find the sched_domain_topology_level where all CPU capacities are visible
+  * for all CPUs.
+@@ -1978,6 +2014,9 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
+ 				has_asym = true;
+ 			}
+ 
++			if (WARN_ON(!topology_span_sane(tl, cpu_map, i)))
++				goto error;
++
+ 			sd = build_sched_domain(tl, cpu_map, attr, sd, dflags, i);
+ 
+ 			if (tl == sched_domain_topology)
 -- 
 2.20.1
 
