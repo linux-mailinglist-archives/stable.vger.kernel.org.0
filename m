@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5766115E0DC
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B220A15E0EE
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392383AbgBNQPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:15:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46126 "EHLO mail.kernel.org"
+        id S2404184AbgBNQP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392490AbgBNQPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:42 -0500
+        id S2404189AbgBNQP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC8A9246E2;
-        Fri, 14 Feb 2020 16:15:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3B52246FA;
+        Fri, 14 Feb 2020 16:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696941;
-        bh=wG5DzfXhNUiTrDFakN9BOTPux0RYW2bVFY9tNLm2jJ8=;
+        s=default; t=1581696958;
+        bh=pMrgUaC8cg8znx/HKd1dZwHMdXvWd8cCe3wAG/kgbh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGw8x/GhpCxuBHR7n61Bvq6lxK/kGGZM7dkxvwu9VZcP8sORRJYkbGYONgXO8MKX3
-         yxOHiv5WR7qH8HtFalmH0s4mdHCc8mPj4ySqG4R+7pkYeWTLxHpHoTPQaJSME/5AJL
-         tK/5Pkb7ow9hbGLTW03mYdbL4HD3KK7lsWrjIINo=
+        b=mzQbc2wviJqcEyaKqhkZnly8RvL9OIBOqmq36n+GNib550o4urBqBF/frQkdQ7D6D
+         9tgcXTFikq+XHLTiN3SlgOtBW/TLHgkCKyA5kcx7h5o1pcp5ctdI6UedHGmrLKkFTD
+         3gKNFm38y/laXxDsA/XRjeG062wbyqIQlUy6AgQY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Parav Pandit <parav@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 184/252] IB/mlx4: Fix memory leak in add_gid error flow
-Date:   Fri, 14 Feb 2020 11:10:39 -0500
-Message-Id: <20200214161147.15842-184-sashal@kernel.org>
+Cc:     Brandon Maier <brandon.maier@rockwellcollins.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-remoteproc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 198/252] remoteproc: Initialize rproc_class before use
+Date:   Fri, 14 Feb 2020 11:10:53 -0500
+Message-Id: <20200214161147.15842-198-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,80 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@dev.mellanox.co.il>
+From: Brandon Maier <brandon.maier@rockwellcollins.com>
 
-[ Upstream commit eaad647e5cc27f7b46a27f3b85b14c4c8a64bffa ]
+[ Upstream commit a8f40111d184098cd2b3dc0c7170c42250a5fa09 ]
 
-In procedure mlx4_ib_add_gid(), if the driver is unable to update the FW
-gid table, there is a memory leak in the driver's copy of the gid table:
-the gid entry's context buffer is not freed.
+The remoteproc_core and remoteproc drivers all initialize with module_init().
+However remoteproc drivers need the rproc_class during their probe. If one of
+the remoteproc drivers runs init and gets through probe before
+remoteproc_init() runs, a NULL pointer access of rproc_class's `glue_dirs`
+spinlock occurs.
 
-If such an error occurs, free the entry's context buffer, and mark the
-entry as available (by setting its context pointer to NULL).
+> Unable to handle kernel NULL pointer dereference at virtual address 000000dc
+> pgd = c0004000
+> [000000dc] *pgd=00000000
+> Internal error: Oops: 5 [#1] PREEMPT ARM
+> Modules linked in:
+> CPU: 0 PID: 1 Comm: swapper Tainted: G        W       4.14.106-rt56 #1
+> Hardware name: Generic OMAP36xx (Flattened Device Tree)
+> task: c6050000 task.stack: c604a000
+> PC is at rt_spin_lock+0x40/0x6c
+> LR is at rt_spin_lock+0x28/0x6c
+> pc : [<c0523c90>]    lr : [<c0523c78>]    psr: 60000013
+> sp : c604bdc0  ip : 00000000  fp : 00000000
+> r10: 00000000  r9 : c61c7c10  r8 : c6269c20
+> r7 : c0905888  r6 : c6269c20  r5 : 00000000  r4 : 000000d4
+> r3 : 000000dc  r2 : c6050000  r1 : 00000002  r0 : 000000d4
+> Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+...
+> [<c0523c90>] (rt_spin_lock) from [<c03b65a4>] (get_device_parent+0x54/0x17c)
+> [<c03b65a4>] (get_device_parent) from [<c03b6bec>] (device_add+0xe0/0x5b4)
+> [<c03b6bec>] (device_add) from [<c042adf4>] (rproc_add+0x18/0xd8)
+> [<c042adf4>] (rproc_add) from [<c01110e4>] (my_rproc_probe+0x158/0x204)
+> [<c01110e4>] (my_rproc_probe) from [<c03bb6b8>] (platform_drv_probe+0x34/0x70)
+> [<c03bb6b8>] (platform_drv_probe) from [<c03b9dd4>] (driver_probe_device+0x2c8/0x420)
+> [<c03b9dd4>] (driver_probe_device) from [<c03ba02c>] (__driver_attach+0x100/0x11c)
+> [<c03ba02c>] (__driver_attach) from [<c03b7d08>] (bus_for_each_dev+0x7c/0xc0)
+> [<c03b7d08>] (bus_for_each_dev) from [<c03b910c>] (bus_add_driver+0x1cc/0x264)
+> [<c03b910c>] (bus_add_driver) from [<c03ba714>] (driver_register+0x78/0xf8)
+> [<c03ba714>] (driver_register) from [<c010181c>] (do_one_initcall+0x100/0x190)
+> [<c010181c>] (do_one_initcall) from [<c0800de8>] (kernel_init_freeable+0x130/0x1d0)
+> [<c0800de8>] (kernel_init_freeable) from [<c051eee8>] (kernel_init+0x8/0x114)
+> [<c051eee8>] (kernel_init) from [<c01175b0>] (ret_from_fork+0x14/0x24)
+> Code: e2843008 e3c2203f f5d3f000 e5922010 (e193cf9f)
+> ---[ end trace 0000000000000002 ]---
 
-Fixes: e26be1bfef81 ("IB/mlx4: Implement ib_device callbacks")
-Link: https://lore.kernel.org/r/20200115085050.73746-1-leon@kernel.org
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Brandon Maier <brandon.maier@rockwellcollins.com>
+Link: https://lore.kernel.org/r/20190530225223.136420-1-brandon.maier@rockwellcollins.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/main.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/remoteproc/remoteproc_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/main.c b/drivers/infiniband/hw/mlx4/main.c
-index 9386bb57b3d71..a19d3ad14dc37 100644
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -246,6 +246,13 @@ static int mlx4_ib_update_gids(struct gid_entry *gids,
- 	return mlx4_ib_update_gids_v1(gids, ibdev, port_num);
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index aa6206706fe33..abbef17c97ee2 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -1786,7 +1786,7 @@ static int __init remoteproc_init(void)
+ 
+ 	return 0;
  }
+-module_init(remoteproc_init);
++subsys_initcall(remoteproc_init);
  
-+static void free_gid_entry(struct gid_entry *entry)
-+{
-+	memset(&entry->gid, 0, sizeof(entry->gid));
-+	kfree(entry->ctx);
-+	entry->ctx = NULL;
-+}
-+
- static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
+ static void __exit remoteproc_exit(void)
  {
- 	struct mlx4_ib_dev *ibdev = to_mdev(attr->device);
-@@ -306,6 +313,8 @@ static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
- 				     GFP_ATOMIC);
- 		if (!gids) {
- 			ret = -ENOMEM;
-+			*context = NULL;
-+			free_gid_entry(&port_gid_table->gids[free]);
- 		} else {
- 			for (i = 0; i < MLX4_MAX_PORT_GIDS; i++) {
- 				memcpy(&gids[i].gid, &port_gid_table->gids[i].gid, sizeof(union ib_gid));
-@@ -317,6 +326,12 @@ static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
- 
- 	if (!ret && hw_update) {
- 		ret = mlx4_ib_update_gids(gids, ibdev, attr->port_num);
-+		if (ret) {
-+			spin_lock_bh(&iboe->lock);
-+			*context = NULL;
-+			free_gid_entry(&port_gid_table->gids[free]);
-+			spin_unlock_bh(&iboe->lock);
-+		}
- 		kfree(gids);
- 	}
- 
-@@ -346,10 +361,7 @@ static int mlx4_ib_del_gid(const struct ib_gid_attr *attr, void **context)
- 		if (!ctx->refcount) {
- 			unsigned int real_index = ctx->real_index;
- 
--			memset(&port_gid_table->gids[real_index].gid, 0,
--			       sizeof(port_gid_table->gids[real_index].gid));
--			kfree(port_gid_table->gids[real_index].ctx);
--			port_gid_table->gids[real_index].ctx = NULL;
-+			free_gid_entry(&port_gid_table->gids[real_index]);
- 			hw_update = 1;
- 		}
- 	}
 -- 
 2.20.1
 
