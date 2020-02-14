@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7E715E71A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5B515E727
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:52:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404988AbgBNQT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:19:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52510 "EHLO mail.kernel.org"
+        id S2393113AbgBNQwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:52:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392798AbgBNQT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:19:27 -0500
+        id S2404791AbgBNQT2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:19:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42E1224718;
-        Fri, 14 Feb 2020 16:19:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C602724702;
+        Fri, 14 Feb 2020 16:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697166;
-        bh=MER3F+zK08+jgmeAuCAce7UgS5Ekz7pQQqRlzv2/Bb4=;
+        s=default; t=1581697167;
+        bh=S+s3cWclEBY8U+vBbH0trtzvecUl92KL8gjlYd0sTYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wl1QegLbgbHPTK4UeYP1Ln+kWl3aFK1FyW9H4cYHtLagv5ORNCkHR0+h27utsz92g
-         WrmCxHxTajBwZL8DjOL7FG727lh7B9UJc9WMeWrZg5poLOcUSjSzcokmO90qSLfRSN
-         +q17JG/r1P+Suq8aBmRPAm9mxUnK3DVvFMOFMdoM=
+        b=Qr2sByWBhEVn05zbtPF1IMXA30YQB0ydz8itazOzesEds1r64NU7i1+UitbPEAimX
+         Qqsy+j3cTBSpawVbqXyCe2yUoc525fH08qFNL8/wdZ4ZDJT8agBurthJvwDdxH9Rn8
+         zi7Yj6uPqR4+CEq6I0ZO307o17y/hNhMWTsEcN80=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 101/186] x86/unwind/orc: Fix !CONFIG_MODULES build warning
-Date:   Fri, 14 Feb 2020 11:15:50 -0500
-Message-Id: <20200214161715.18113-101-sashal@kernel.org>
+Cc:     Dingchen Zhang <dingchen.zhang@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 102/186] drm: remove the newline for CRC source name.
+Date:   Fri, 14 Feb 2020 11:15:51 -0500
+Message-Id: <20200214161715.18113-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,50 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+From: Dingchen Zhang <dingchen.zhang@amd.com>
 
-[ Upstream commit 22a7fa8848c5e881d87ef2f7f3c2ea77b286e6f9 ]
+[ Upstream commit 72a848f5c46bab4c921edc9cbffd1ab273b2be17 ]
 
-To fix follwowing warning due to ORC sort moved to build time:
+userspace may transfer a newline, and this terminating newline
+is replaced by a '\0' to avoid followup issues.
 
-  arch/x86/kernel/unwind_orc.c:210:12: warning: ‘orc_sort_cmp’ defined but not used [-Wunused-function]
-  arch/x86/kernel/unwind_orc.c:190:13: warning: ‘orc_sort_swap’ defined but not used [-Wunused-function]
+'len-1' is the index to replace the newline of CRC source name.
 
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/c9c81536-2afc-c8aa-c5f8-c7618ecd4f54@linux.alibaba.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+v3: typo fix (Sam)
+
+v2: update patch subject, body and format. (Sam)
+
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Harry Wentland <Harry.Wentland@amd.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Dingchen Zhang <dingchen.zhang@amd.com>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190610134751.14356-1-dingchen.zhang@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/unwind_orc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_debugfs_crc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index 3bbb399f7ead3..5ac0e0359b668 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -131,6 +131,8 @@ static struct orc_entry *orc_find(unsigned long ip)
- 	return orc_module_find(ip);
- }
+diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
+index 2901b7944068d..6858c80d2eb50 100644
+--- a/drivers/gpu/drm/drm_debugfs_crc.c
++++ b/drivers/gpu/drm/drm_debugfs_crc.c
+@@ -101,8 +101,8 @@ static ssize_t crc_control_write(struct file *file, const char __user *ubuf,
+ 	if (IS_ERR(source))
+ 		return PTR_ERR(source);
  
-+#ifdef CONFIG_MODULES
-+
- static void orc_sort_swap(void *_a, void *_b, int size)
- {
- 	struct orc_entry *orc_a, *orc_b;
-@@ -173,7 +175,6 @@ static int orc_sort_cmp(const void *_a, const void *_b)
- 	return orc_a->sp_reg == ORC_REG_UNDEFINED ? -1 : 1;
- }
+-	if (source[len] == '\n')
+-		source[len] = '\0';
++	if (source[len - 1] == '\n')
++		source[len - 1] = '\0';
  
--#ifdef CONFIG_MODULES
- void unwind_module_init(struct module *mod, void *_orc_ip, size_t orc_ip_size,
- 			void *_orc, size_t orc_size)
- {
+ 	spin_lock_irq(&crc->lock);
+ 
 -- 
 2.20.1
 
