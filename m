@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6198915E9D9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8239E15E9D7
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394583AbgBNRJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2394608AbgBNRJv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 12:09:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42782 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403929AbgBNQNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2403933AbgBNQNr (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:13:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15F41246AA;
-        Fri, 14 Feb 2020 16:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 448CE24696;
+        Fri, 14 Feb 2020 16:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696825;
-        bh=3NpJQF7sZ1rITlgoBsr5kQbSK6labd42PMgCJEzJibE=;
+        s=default; t=1581696827;
+        bh=GgJwrUCWdPGyw1CTN1/A7IZ7q3flXT5Vd3XYZc9nzVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tT6attobAmlhPLSsB908+SVPoGl9L1sDEfz2pOltbbLFkT+rHsrBWHMz6aQds/yZb
-         NJnKuvNVjuUQo9GSwMoe4zWNg6ygD9v3Ag/bQLPsKZqxhT0jXHIBGFnsEp5ulR2PDg
-         kwtkMcik1R0pnirn2+qOjPOXHUk277Uwk/HBR6CM=
+        b=uYeLiRsvQJtXWZk8AL/tJi9ysEJ3WDooe92GP6fjoQG6IXvc927dC5hr1SgCvsPI2
+         X3LyvSU3YqAFybGap2j+L0j9Evo+bDa9MtcPAsATvx7OLtmMOlTpHqSJMUpdwd6X+z
+         25lUMHWVwx41NtRHWmX13LkyW4BiJh+BRAQoFFFU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Forest Crossman <cyrozap@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 092/252] media: cx23885: Add support for AVerMedia CE310B
-Date:   Fri, 14 Feb 2020 11:09:07 -0500
-Message-Id: <20200214161147.15842-92-sashal@kernel.org>
+Cc:     Daniel Drake <drake@endlessm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 093/252] PCI: Add generic quirk for increasing D3hot delay
+Date:   Fri, 14 Feb 2020 11:09:08 -0500
+Message-Id: <20200214161147.15842-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,111 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Forest Crossman <cyrozap@gmail.com>
+From: Daniel Drake <drake@endlessm.com>
 
-[ Upstream commit dc4cac67e13515835ed8081d510aa507aacb013b ]
+[ Upstream commit 62fe23df067715a21c4aef44068efe7ceaa8f627 ]
 
-The AVerMedia CE310B is a simple composite + S-Video + stereo audio
-capture card, and uses only the CX23888 to perform all of these
-functions.
+Separate the D3 delay increase functionality out of quirk_radeon_pm() into
+its own function so that it can be shared with other quirks, including the
+AMD Ryzen XHCI quirk that will be introduced in a followup commit.
 
-I've tested both video inputs and the audio interface and confirmed that
-they're all working. However, there are some issues:
+Tweak the function name and message to indicate more clearly that the delay
+relates to a D3hot-to-D0 transition.
 
-* Sometimes when I switch inputs the video signal turns black and can't
-  be recovered until the system is rebooted. I haven't been able to
-  determine the cause of this behavior, nor have I found a solution to
-  fix it or any workarounds other than rebooting.
-* The card sometimes seems to have trouble syncing to the video signal,
-  and some of the VBI data appears as noise at the top of the frame, but
-  I assume that to be a result of my very noisy RF environment and the
-  card's unshielded input traces rather than a configuration issue.
-
-Signed-off-by: Forest Crossman <cyrozap@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lore.kernel.org/r/20191127053836.31624-1-drake@endlessm.com
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx23885/cx23885-cards.c | 24 +++++++++++++++++++++++
- drivers/media/pci/cx23885/cx23885-video.c |  3 ++-
- drivers/media/pci/cx23885/cx23885.h       |  1 +
- 3 files changed, 27 insertions(+), 1 deletion(-)
+ drivers/pci/quirks.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-cards.c b/drivers/media/pci/cx23885/cx23885-cards.c
-index ed3210dc50bc2..642aefdbb7bb6 100644
---- a/drivers/media/pci/cx23885/cx23885-cards.c
-+++ b/drivers/media/pci/cx23885/cx23885-cards.c
-@@ -811,6 +811,25 @@ struct cx23885_board cx23885_boards[] = {
- 		.name		= "Hauppauge WinTV-Starburst2",
- 		.portb		= CX23885_MPEG_DVB,
- 	},
-+	[CX23885_BOARD_AVERMEDIA_CE310B] = {
-+		.name		= "AVerMedia CE310B",
-+		.porta		= CX23885_ANALOG_VIDEO,
-+		.force_bff	= 1,
-+		.input          = {{
-+			.type   = CX23885_VMUX_COMPOSITE1,
-+			.vmux   = CX25840_VIN1_CH1 |
-+				  CX25840_NONE_CH2 |
-+				  CX25840_NONE0_CH3,
-+			.amux   = CX25840_AUDIO7,
-+		}, {
-+			.type   = CX23885_VMUX_SVIDEO,
-+			.vmux   = CX25840_VIN8_CH1 |
-+				  CX25840_NONE_CH2 |
-+				  CX25840_VIN7_CH3 |
-+				  CX25840_SVIDEO_ON,
-+			.amux   = CX25840_AUDIO7,
-+		} },
-+	},
- };
- const unsigned int cx23885_bcount = ARRAY_SIZE(cx23885_boards);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 84f10cda539ea..798d46a266037 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -1848,16 +1848,21 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x2609, quirk_intel_pcie_pm);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260a, quirk_intel_pcie_pm);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260b, quirk_intel_pcie_pm);
  
-@@ -1134,6 +1153,10 @@ struct cx23885_subid cx23885_subids[] = {
- 		.subvendor = 0x0070,
- 		.subdevice = 0xf02a,
- 		.card      = CX23885_BOARD_HAUPPAUGE_STARBURST2,
-+	}, {
-+		.subvendor = 0x1461,
-+		.subdevice = 0x3100,
-+		.card      = CX23885_BOARD_AVERMEDIA_CE310B,
- 	},
- };
- const unsigned int cx23885_idcount = ARRAY_SIZE(cx23885_subids);
-@@ -2358,6 +2381,7 @@ void cx23885_card_setup(struct cx23885_dev *dev)
- 	case CX23885_BOARD_DVBSKY_T982:
- 	case CX23885_BOARD_VIEWCAST_260E:
- 	case CX23885_BOARD_VIEWCAST_460E:
-+	case CX23885_BOARD_AVERMEDIA_CE310B:
- 		dev->sd_cx25840 = v4l2_i2c_new_subdev(&dev->v4l2_dev,
- 				&dev->i2c_bus[2].i2c_adap,
- 				"cx25840", 0x88 >> 1, NULL);
-diff --git a/drivers/media/pci/cx23885/cx23885-video.c b/drivers/media/pci/cx23885/cx23885-video.c
-index f8a3deadc77a1..2a20c7165e1e8 100644
---- a/drivers/media/pci/cx23885/cx23885-video.c
-+++ b/drivers/media/pci/cx23885/cx23885-video.c
-@@ -268,7 +268,8 @@ static int cx23885_video_mux(struct cx23885_dev *dev, unsigned int input)
- 		(dev->board == CX23885_BOARD_MYGICA_X8507) ||
- 		(dev->board == CX23885_BOARD_AVERMEDIA_HC81R) ||
- 		(dev->board == CX23885_BOARD_VIEWCAST_260E) ||
--		(dev->board == CX23885_BOARD_VIEWCAST_460E)) {
-+		(dev->board == CX23885_BOARD_VIEWCAST_460E) ||
-+		(dev->board == CX23885_BOARD_AVERMEDIA_CE310B)) {
- 		/* Configure audio routing */
- 		v4l2_subdev_call(dev->sd_cx25840, audio, s_routing,
- 			INPUT(input)->amux, 0, 0);
-diff --git a/drivers/media/pci/cx23885/cx23885.h b/drivers/media/pci/cx23885/cx23885.h
-index cf965efabe666..7bbd62cc993ef 100644
---- a/drivers/media/pci/cx23885/cx23885.h
-+++ b/drivers/media/pci/cx23885/cx23885.h
-@@ -111,6 +111,7 @@
- #define CX23885_BOARD_HAUPPAUGE_STARBURST2     59
- #define CX23885_BOARD_HAUPPAUGE_QUADHD_DVB_885 60
- #define CX23885_BOARD_HAUPPAUGE_QUADHD_ATSC_885 61
-+#define CX23885_BOARD_AVERMEDIA_CE310B         62
++static void quirk_d3hot_delay(struct pci_dev *dev, unsigned int delay)
++{
++	if (dev->d3_delay >= delay)
++		return;
++
++	dev->d3_delay = delay;
++	pci_info(dev, "extending delay after power-on from D3hot to %d msec\n",
++		 dev->d3_delay);
++}
++
+ static void quirk_radeon_pm(struct pci_dev *dev)
+ {
+ 	if (dev->subsystem_vendor == PCI_VENDOR_ID_APPLE &&
+-	    dev->subsystem_device == 0x00e2) {
+-		if (dev->d3_delay < 20) {
+-			dev->d3_delay = 20;
+-			pci_info(dev, "extending delay after power-on from D3 to %d msec\n",
+-				 dev->d3_delay);
+-		}
+-	}
++	    dev->subsystem_device == 0x00e2)
++		quirk_d3hot_delay(dev, 20);
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6741, quirk_radeon_pm);
  
- #define GPIO_0 0x00000001
- #define GPIO_1 0x00000002
 -- 
 2.20.1
 
