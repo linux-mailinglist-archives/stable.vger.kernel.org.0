@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A0AD15EF50
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:47:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9988915EF4C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:47:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387651AbgBNRrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:47:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47868 "EHLO mail.kernel.org"
+        id S2389510AbgBNRq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:46:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389182AbgBNQB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:01:58 -0500
+        id S2389229AbgBNQB7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:01:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50E522067D;
-        Fri, 14 Feb 2020 16:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E9402467D;
+        Fri, 14 Feb 2020 16:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696118;
-        bh=nJbDNA7aBbKm++/k9gvMPLr0AAdaS0Gjqct3g8AWz18=;
+        s=default; t=1581696119;
+        bh=H3LKj47Yqut0p8cQXZtywNFL074vZu1UaiH+k7PfGpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7sekgYG8gQSwARRkxVMsNTnWDZ5cmLmY8LQmp35GgIHbBB5EsLXNCrjJ2umxHxOe
-         hHESRSpzwCMcSZUU03yLdfa2BLRdgzcDZ1PS22KeraJ+Yv5/QK4qMNMGbcgq5tQW5h
-         gpSXWJFvZd5YcVeHjmnhonT55+8jMjORXNbKAvbo=
+        b=qkbtllJJ3ojsHE39vpkXquk9327GmqFgamfbcf4XY4jXiEi2/EypeaIfd8MxXeqvQ
+         OHsUSy+BBAO57jrAmnoDvdboa8+x8R7ZqZ1EDLUODznVvqvUQ+rtoMlbygrxll30Xq
+         O8RzO10tSlRWMhy5vZ7yuqOuzqXwsEGmz9vCY1xU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 006/459] nfsd4: avoid NULL deference on strange COPY compounds
-Date:   Fri, 14 Feb 2020 10:54:16 -0500
-Message-Id: <20200214160149.11681-6-sashal@kernel.org>
+Cc:     Stefan Reiter <stefan@pimaker.at>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 007/459] rcu/nocb: Fix dump_tree hierarchy print always active
+Date:   Fri, 14 Feb 2020 10:54:17 -0500
+Message-Id: <20200214160149.11681-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,52 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Stefan Reiter <stefan@pimaker.at>
 
-[ Upstream commit d781e3df710745fbbaee4eb07fd5b64331a1b175 ]
+[ Upstream commit 610dea36d3083a977e4f156206cbe1eaa2a532f0 ]
 
-With cross-server COPY we've introduced the possibility that the current
-or saved filehandle might not have fh_dentry/fh_export filled in, but we
-missed a place that assumed it was.  I think this could be triggered by
-a compound like:
+Commit 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if
+dump_tree") added print statements to rcu_organize_nocb_kthreads for
+debugging, but incorrectly guarded them, causing the function to always
+spew out its message.
 
-	PUTFH(foreign filehandle)
-	GETATTR
-	SAVEFH
-	COPY
+This patch fixes it by guarding both pr_alert statements with dump_tree,
+while also changing the second pr_alert to a pr_cont, to print the
+hierarchy in a single line (assuming that's how it was supposed to
+work).
 
-First, check_if_stalefh_allowed sets no_verify on the first (PUTFH) op.
-Then op_func = nfsd4_putfh runs and leaves current_fh->fh_export NULL.
-need_wrongsec_check returns true, since this PUTFH has OP_IS_PUTFH_LIKE
-set and GETATTR does not have OP_HANDLES_WRONGSEC set.
-
-We should probably also consider tightening the checks in
-check_if_stalefh_allowed and double-checking that we don't assume the
-filehandle is verified elsewhere in the compound.  But I think this
-fixes the immediate issue.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 4e48f1cccab3 "NFSD: allow inter server COPY to have... "
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if dump_tree")
+Signed-off-by: Stefan Reiter <stefan@pimaker.at>
+[ paulmck: Make single-nocbs-CPU GP kthreads look less erroneous. ]
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/rcu/tree_plugin.h | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 4798667af647c..4d1d0bf8e385f 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -2025,7 +2025,8 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
- 			if (op->opdesc->op_flags & OP_CLEAR_STATEID)
- 				clear_current_stateid(cstate);
- 
--			if (need_wrongsec_check(rqstp))
-+			if (current_fh->fh_export &&
-+					need_wrongsec_check(rqstp))
- 				op->status = check_nfsd_access(current_fh->fh_export, rqstp);
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index f849e7429816f..f7118842a2b88 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2322,6 +2322,8 @@ static void __init rcu_organize_nocb_kthreads(void)
+ {
+ 	int cpu;
+ 	bool firsttime = true;
++	bool gotnocbs = false;
++	bool gotnocbscbs = true;
+ 	int ls = rcu_nocb_gp_stride;
+ 	int nl = 0;  /* Next GP kthread. */
+ 	struct rcu_data *rdp;
+@@ -2344,21 +2346,31 @@ static void __init rcu_organize_nocb_kthreads(void)
+ 		rdp = per_cpu_ptr(&rcu_data, cpu);
+ 		if (rdp->cpu >= nl) {
+ 			/* New GP kthread, set up for CBs & next GP. */
++			gotnocbs = true;
+ 			nl = DIV_ROUND_UP(rdp->cpu + 1, ls) * ls;
+ 			rdp->nocb_gp_rdp = rdp;
+ 			rdp_gp = rdp;
+-			if (!firsttime && dump_tree)
+-				pr_cont("\n");
+-			firsttime = false;
+-			pr_alert("%s: No-CB GP kthread CPU %d:", __func__, cpu);
++			if (dump_tree) {
++				if (!firsttime)
++					pr_cont("%s\n", gotnocbscbs
++							? "" : " (self only)");
++				gotnocbscbs = false;
++				firsttime = false;
++				pr_alert("%s: No-CB GP kthread CPU %d:",
++					 __func__, cpu);
++			}
+ 		} else {
+ 			/* Another CB kthread, link to previous GP kthread. */
++			gotnocbscbs = true;
+ 			rdp->nocb_gp_rdp = rdp_gp;
+ 			rdp_prev->nocb_next_cb_rdp = rdp;
+-			pr_alert(" %d", cpu);
++			if (dump_tree)
++				pr_cont(" %d", cpu);
  		}
- encode_op:
+ 		rdp_prev = rdp;
+ 	}
++	if (gotnocbs && dump_tree)
++		pr_cont("%s\n", gotnocbscbs ? "" : " (self only)");
+ }
+ 
+ /*
 -- 
 2.20.1
 
