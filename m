@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2331115DF9B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E2915DF9E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391316AbgBNQJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:09:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34144 "EHLO mail.kernel.org"
+        id S2390623AbgBNQJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:09:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391308AbgBNQJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:35 -0500
+        id S2390591AbgBNQJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B86E24685;
-        Fri, 14 Feb 2020 16:09:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE21C2467E;
+        Fri, 14 Feb 2020 16:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696574;
-        bh=Pp4ZrR/m1W7SeYzzjTvC8bs5kKe2Stp9EV7keNr9wpQ=;
+        s=default; t=1581696576;
+        bh=2o1WWQoBMGzmDpPyFqcjlSZ5s7gYYUk7TLywGJkq9G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdcKtt9JN7LPdJLSDpRSGhhp9gIFr2CwF+QqEd/iC8DmzbRDFIrff/tj9U/caJcgA
-         gMQr3eLpDVKNjrP+keYOrEeZk74ua5O6DuOV4zft3czpPFyEBLh3iH4/jVWkbdp8hn
-         8SFMHwjHNAg65z+93OmBhTnMmQjQEc5OjqoA1ol8=
+        b=eKUh7HVTTHVaR8xdgEJF3UgGyAyQDDFG0kqXa9LT6BteY0d+XRAJajeN0uU6oUm9l
+         sMTkgLPocZfZIhSIl05eqfayKzvo9Yt7HTkxfX+1VagprUW7oI2HWHy2Hhq7cRkRiw
+         LM9Le2F8O/RImJjB9rP2BLrstCHI0wJ/COylbspU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brandon Maier <brandon.maier@rockwellcollins.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-remoteproc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 363/459] remoteproc: Initialize rproc_class before use
-Date:   Fri, 14 Feb 2020 11:00:13 -0500
-Message-Id: <20200214160149.11681-363-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>, Marc Zyngier <maz@kernel.org>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 365/459] irqchip/mbigen: Set driver .suppress_bind_attrs to avoid remove problems
+Date:   Fri, 14 Feb 2020 11:00:15 -0500
+Message-Id: <20200214160149.11681-365-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,71 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brandon Maier <brandon.maier@rockwellcollins.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit a8f40111d184098cd2b3dc0c7170c42250a5fa09 ]
+[ Upstream commit d6152e6ec9e2171280436f7b31a571509b9287e1 ]
 
-The remoteproc_core and remoteproc drivers all initialize with module_init().
-However remoteproc drivers need the rproc_class during their probe. If one of
-the remoteproc drivers runs init and gets through probe before
-remoteproc_init() runs, a NULL pointer access of rproc_class's `glue_dirs`
-spinlock occurs.
+The following crash can be seen for setting
+CONFIG_DEBUG_TEST_DRIVER_REMOVE=y for DT FW (which some people still use):
 
-> Unable to handle kernel NULL pointer dereference at virtual address 000000dc
-> pgd = c0004000
-> [000000dc] *pgd=00000000
-> Internal error: Oops: 5 [#1] PREEMPT ARM
-> Modules linked in:
-> CPU: 0 PID: 1 Comm: swapper Tainted: G        W       4.14.106-rt56 #1
-> Hardware name: Generic OMAP36xx (Flattened Device Tree)
-> task: c6050000 task.stack: c604a000
-> PC is at rt_spin_lock+0x40/0x6c
-> LR is at rt_spin_lock+0x28/0x6c
-> pc : [<c0523c90>]    lr : [<c0523c78>]    psr: 60000013
-> sp : c604bdc0  ip : 00000000  fp : 00000000
-> r10: 00000000  r9 : c61c7c10  r8 : c6269c20
-> r7 : c0905888  r6 : c6269c20  r5 : 00000000  r4 : 000000d4
-> r3 : 000000dc  r2 : c6050000  r1 : 00000002  r0 : 000000d4
-> Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-...
-> [<c0523c90>] (rt_spin_lock) from [<c03b65a4>] (get_device_parent+0x54/0x17c)
-> [<c03b65a4>] (get_device_parent) from [<c03b6bec>] (device_add+0xe0/0x5b4)
-> [<c03b6bec>] (device_add) from [<c042adf4>] (rproc_add+0x18/0xd8)
-> [<c042adf4>] (rproc_add) from [<c01110e4>] (my_rproc_probe+0x158/0x204)
-> [<c01110e4>] (my_rproc_probe) from [<c03bb6b8>] (platform_drv_probe+0x34/0x70)
-> [<c03bb6b8>] (platform_drv_probe) from [<c03b9dd4>] (driver_probe_device+0x2c8/0x420)
-> [<c03b9dd4>] (driver_probe_device) from [<c03ba02c>] (__driver_attach+0x100/0x11c)
-> [<c03ba02c>] (__driver_attach) from [<c03b7d08>] (bus_for_each_dev+0x7c/0xc0)
-> [<c03b7d08>] (bus_for_each_dev) from [<c03b910c>] (bus_add_driver+0x1cc/0x264)
-> [<c03b910c>] (bus_add_driver) from [<c03ba714>] (driver_register+0x78/0xf8)
-> [<c03ba714>] (driver_register) from [<c010181c>] (do_one_initcall+0x100/0x190)
-> [<c010181c>] (do_one_initcall) from [<c0800de8>] (kernel_init_freeable+0x130/0x1d0)
-> [<c0800de8>] (kernel_init_freeable) from [<c051eee8>] (kernel_init+0x8/0x114)
-> [<c051eee8>] (kernel_init) from [<c01175b0>] (ret_from_fork+0x14/0x24)
-> Code: e2843008 e3c2203f f5d3f000 e5922010 (e193cf9f)
-> ---[ end trace 0000000000000002 ]---
+Hisilicon MBIGEN-V2 60080000.interrupt-controller: Failed to create mbi-gen irqdomain
+Hisilicon MBIGEN-V2: probe of 60080000.interrupt-controller failed with error -12
 
-Signed-off-by: Brandon Maier <brandon.maier@rockwellcollins.com>
-Link: https://lore.kernel.org/r/20190530225223.136420-1-brandon.maier@rockwellcollins.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+[...]
+
+Unable to handle kernel paging request at virtual address 0000000000005008
+ Mem abort info:
+   ESR = 0x96000004
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000004
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp=0000041fb9990000
+ [0000000000005008] pgd=0000000000000000
+ Internal error: Oops: 96000004 [#1] PREEMPT SMP
+ Modules linked in:
+ CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.5.0-rc6-00002-g3fc42638a506-dirty #1622
+ Hardware name: Huawei Taishan 2280 /D05, BIOS Hisilicon D05 IT21 Nemo 2.0 RC0 04/18/2018
+ pstate: 40000085 (nZcv daIf -PAN -UAO)
+ pc : mbigen_set_type+0x38/0x60
+ lr : __irq_set_trigger+0x6c/0x188
+ sp : ffff800014b4b400
+ x29: ffff800014b4b400 x28: 0000000000000007
+ x27: 0000000000000000 x26: 0000000000000000
+ x25: ffff041fd83bd0d4 x24: ffff041fd83bd188
+ x23: 0000000000000000 x22: ffff80001193ce00
+ x21: 0000000000000004 x20: 0000000000000000
+ x19: ffff041fd83bd000 x18: ffffffffffffffff
+ x17: 0000000000000000 x16: 0000000000000000
+ x15: ffff8000119098c8 x14: ffff041fb94ec91c
+ x13: ffff041fb94ec1a1 x12: 0000000000000030
+ x11: 0101010101010101 x10: 0000000000000040
+ x9 : 0000000000000000 x8 : ffff041fb98c6680
+ x7 : ffff800014b4b380 x6 : ffff041fd81636c8
+ x5 : 0000000000000000 x4 : 000000000000025f
+ x3 : 0000000000005000 x2 : 0000000000005008
+ x1 : 0000000000000004 x0 : 0000000080000000
+ Call trace:
+  mbigen_set_type+0x38/0x60
+  __setup_irq+0x744/0x900
+  request_threaded_irq+0xe0/0x198
+  pcie_pme_probe+0x98/0x118
+  pcie_port_probe_service+0x38/0x78
+  really_probe+0xa0/0x3e0
+  driver_probe_device+0x58/0x100
+  __device_attach_driver+0x90/0xb0
+  bus_for_each_drv+0x64/0xc8
+  __device_attach+0xd8/0x138
+  device_initial_probe+0x10/0x18
+  bus_probe_device+0x90/0x98
+  device_add+0x4c4/0x770
+  device_register+0x1c/0x28
+  pcie_port_device_register+0x1e4/0x4f0
+  pcie_portdrv_probe+0x34/0xd8
+  local_pci_probe+0x3c/0xa0
+  pci_device_probe+0x128/0x1c0
+  really_probe+0xa0/0x3e0
+  driver_probe_device+0x58/0x100
+  __device_attach_driver+0x90/0xb0
+  bus_for_each_drv+0x64/0xc8
+  __device_attach+0xd8/0x138
+  device_attach+0x10/0x18
+  pci_bus_add_device+0x4c/0xb8
+  pci_bus_add_devices+0x38/0x88
+  pci_host_probe+0x3c/0xc0
+  pci_host_common_probe+0xf0/0x208
+  hisi_pcie_almost_ecam_probe+0x24/0x30
+  platform_drv_probe+0x50/0xa0
+  really_probe+0xa0/0x3e0
+  driver_probe_device+0x58/0x100
+  device_driver_attach+0x6c/0x90
+  __driver_attach+0x84/0xc8
+  bus_for_each_dev+0x74/0xc8
+  driver_attach+0x20/0x28
+  bus_add_driver+0x148/0x1f0
+  driver_register+0x60/0x110
+  __platform_driver_register+0x40/0x48
+  hisi_pcie_almost_ecam_driver_init+0x1c/0x24
+
+The specific problem here is that the mbigen driver real probe has failed
+as the mbigen_of_create_domain()->of_platform_device_create() call fails,
+the reason for that being that we never destroyed the platform device
+created during the remove test dry run and there is some conflict.
+
+Since we generally would never want to unbind this driver, and to save
+adding a driver tear down path for that, just set the driver
+.suppress_bind_attrs member to avoid this possibility.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Link: https://lore.kernel.org/r/1579196323-180137-1-git-send-email-john.garry@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-mbigen.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index 3c5fbbbfb0f17..b542debbc6f03 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -2224,7 +2224,7 @@ static int __init remoteproc_init(void)
- 
- 	return 0;
- }
--module_init(remoteproc_init);
-+subsys_initcall(remoteproc_init);
- 
- static void __exit remoteproc_exit(void)
- {
+diff --git a/drivers/irqchip/irq-mbigen.c b/drivers/irqchip/irq-mbigen.c
+index 3f09f658e8e29..6b566bba263bd 100644
+--- a/drivers/irqchip/irq-mbigen.c
++++ b/drivers/irqchip/irq-mbigen.c
+@@ -374,6 +374,7 @@ static struct platform_driver mbigen_platform_driver = {
+ 		.name		= "Hisilicon MBIGEN-V2",
+ 		.of_match_table	= mbigen_of_match,
+ 		.acpi_match_table = ACPI_PTR(mbigen_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe			= mbigen_device_probe,
+ };
 -- 
 2.20.1
 
