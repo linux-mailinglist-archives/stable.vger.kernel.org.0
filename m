@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB7815F3E8
+	by mail.lfdr.de (Postfix) with ESMTP id 9718A15F3E9
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404861AbgBNSQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404808AbgBNSQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 13:16:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730802AbgBNPve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:34 -0500
+        id S1730798AbgBNPvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7EF224688;
-        Fri, 14 Feb 2020 15:51:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A3E6217F4;
+        Fri, 14 Feb 2020 15:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695493;
-        bh=pnCToD4ejXqmCSEfYgdkO9vs0Zi7wt1AqjYvKxi4kFY=;
+        s=default; t=1581695494;
+        bh=a2SdUff50JqRTa6pXuw1AYaIrrYJC/eCaJF4QanUVjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXpxqSZMVbriUiIPgs8WVrPNXwZYPyAOY1AO4c2gWdl0BM1fqs8/axoGLYRfrlm3C
-         z0t1ty+yW+8cNnLRPlryxczwcuIy3sZLJeB2EhWs5PAOvclFb+BufgVTyUNL34vTF/
-         kk7JN8lanfT4xjPU9617nh+uB/rqxsGvKoQ3+2r4=
+        b=XxphjzyK0iU+0oF38fviZbDmba1QzduOGGlimbm60wYciIaLfadZthO4Dcq59sA2V
+         zHgMJKjFo7whF4s51HLG/KYmM9PWsHM9ntO2saAGdW8x01ks8556uE4gAD0XYx2P7n
+         7yVJP6WoN11oi72PcgDIqGJtXBWZWJnPhiDmvWcM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 122/542] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
-Date:   Fri, 14 Feb 2020 10:41:54 -0500
-Message-Id: <20200214154854.6746-122-sashal@kernel.org>
+Cc:     Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 123/542] Btrfs: keep pages dirty when using btrfs_writepage_fixup_worker
+Date:   Fri, 14 Feb 2020 10:41:55 -0500
+Message-Id: <20200214154854.6746-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,54 +43,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Chris Mason <clm@fb.com>
 
-[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
+[ Upstream commit 25f3c5021985e885292980d04a1423fd83c967bb ]
 
-There is no ENOTSUPP for userspace.
+For COW, btrfs expects pages dirty pages to have been through a few setup
+steps.  This includes reserving space for the new block allocations and marking
+the range in the state tree for delayed allocation.
 
-Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
-Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
-Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+A few places outside btrfs will dirty pages directly, especially when unmapping
+mmap'd pages.  In order for these to properly go through COW, we run them
+through a fixup worker to wait for stable pages, and do the delalloc prep.
+
+87826df0ec36 added a window where the dirty pages were cleaned, but pending
+more action from the fixup worker.  We clear_page_dirty_for_io() before
+we call into writepage, so the page is no longer dirty.  The commit
+changed it so now we leave the page clean between unlocking it here and
+the fixup worker starting at some point in the future.
+
+During this window, page migration can jump in and relocate the page.  Once our
+fixup work actually starts, it finds page->mapping is NULL and we end up
+freeing the page without ever writing it.
+
+This leads to crc errors and other exciting problems, since it screws up the
+whole statemachine for waiting for ordered extents.  The fix here is to keep
+the page dirty while we're waiting for the fixup worker to get to work.
+This is accomplished by returning -EAGAIN from btrfs_writepage_cow_fixup
+if we queued the page up for fixup, which will cause the writepage
+function to redirty the page.
+
+Because we now expect the page to be dirty once it gets to the fixup
+worker we must adjust the error cases to call clear_page_dirty_for_io()
+on the page.  That is the bulk of the patch, but it is not the fix, the
+fix is the -EAGAIN from btrfs_writepage_cow_fixup.  We cannot separate
+these two changes out because the error conditions change with the new
+expectations.
+
+Signed-off-by: Chris Mason <clm@fb.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/btrfs/inode.c | 61 ++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 44 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 165dea4c7f193..c06c89d370a73 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2190,7 +2190,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 		return -EINVAL;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index c70baafb2a392..27f2c554cac32 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2204,17 +2204,27 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
+ 	struct inode *inode;
+ 	u64 page_start;
+ 	u64 page_end;
+-	int ret;
++	int ret = 0;
  
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
+ 	fixup = container_of(work, struct btrfs_writepage_fixup, work);
+ 	page = fixup->page;
+ again:
+ 	lock_page(page);
+-	if (!page->mapping || !PageDirty(page) || !PageChecked(page)) {
+-		ClearPageChecked(page);
++
++	/*
++	 * Before we queued this fixup, we took a reference on the page.
++	 * page->mapping may go NULL, but it shouldn't be moved to a different
++	 * address space.
++	 */
++	if (!page->mapping || !PageDirty(page) || !PageChecked(page))
+ 		goto out_page;
+-	}
  
- 	mutex_lock(&fi->ais_lock);
- 	ais.simm = fi->simm;
-@@ -2499,7 +2499,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	int ret = 0;
++	/*
++	 * We keep the PageChecked() bit set until we're done with the
++	 * btrfs_start_ordered_extent() dance that we do below.  That drops and
++	 * retakes the page lock, so we don't want new fixup workers queued for
++	 * this page during the churn.
++	 */
+ 	inode = page->mapping->host;
+ 	page_start = page_offset(page);
+ 	page_end = page_offset(page) + PAGE_SIZE - 1;
+@@ -2239,24 +2249,22 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
  
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
+ 	ret = btrfs_delalloc_reserve_space(inode, &data_reserved, page_start,
+ 					   PAGE_SIZE);
+-	if (ret) {
+-		mapping_set_error(page->mapping, ret);
+-		end_extent_writepage(page, ret, page_start, page_end);
+-		ClearPageChecked(page);
++	if (ret)
+ 		goto out;
+-	 }
  
- 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
- 		return -EFAULT;
-@@ -2579,7 +2579,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_ais_all ais;
+ 	ret = btrfs_set_extent_delalloc(inode, page_start, page_end, 0,
+ 					&cached_state);
+-	if (ret) {
+-		mapping_set_error(page->mapping, ret);
+-		end_extent_writepage(page, ret, page_start, page_end);
+-		ClearPageChecked(page);
++	if (ret)
+ 		goto out_reserved;
+-	}
  
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
+-	ClearPageChecked(page);
+-	set_page_dirty(page);
++	/*
++	 * Everything went as planned, we're now the owner of a dirty page with
++	 * delayed allocation bits set and space reserved for our COW
++	 * destination.
++	 *
++	 * The page was dirty when we started, nothing should have cleaned it.
++	 */
++	BUG_ON(!PageDirty(page));
+ out_reserved:
+ 	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
+ 	if (ret)
+@@ -2266,6 +2274,17 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
+ 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, page_start, page_end,
+ 			     &cached_state);
+ out_page:
++	if (ret) {
++		/*
++		 * We hit ENOSPC or other errors.  Update the mapping and page
++		 * to reflect the errors and clean the page.
++		 */
++		mapping_set_error(page->mapping, ret);
++		end_extent_writepage(page, ret, page_start, page_end);
++		clear_page_dirty_for_io(page);
++		SetPageError(page);
++	}
++	ClearPageChecked(page);
+ 	unlock_page(page);
+ 	put_page(page);
+ 	kfree(fixup);
+@@ -2293,6 +2312,13 @@ int btrfs_writepage_cow_fixup(struct page *page, u64 start, u64 end)
+ 	if (TestClearPagePrivate2(page))
+ 		return 0;
  
- 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
- 		return -EFAULT;
++	/*
++	 * PageChecked is set below when we create a fixup worker for this page,
++	 * don't try to create another one if we're already PageChecked()
++	 *
++	 * The extent_io writepage code will redirty the page if we send back
++	 * EAGAIN.
++	 */
+ 	if (PageChecked(page))
+ 		return -EAGAIN;
+ 
+@@ -2305,7 +2331,8 @@ int btrfs_writepage_cow_fixup(struct page *page, u64 start, u64 end)
+ 	btrfs_init_work(&fixup->work, btrfs_writepage_fixup_worker, NULL, NULL);
+ 	fixup->page = page;
+ 	btrfs_queue_work(fs_info->fixup_workers, &fixup->work);
+-	return -EBUSY;
++
++	return -EAGAIN;
+ }
+ 
+ static int insert_reserved_file_extent(struct btrfs_trans_handle *trans,
 -- 
 2.20.1
 
