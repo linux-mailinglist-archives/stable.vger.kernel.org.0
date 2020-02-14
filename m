@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E05C315E476
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2389515E47B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405912AbgBNQYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:24:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33148 "EHLO mail.kernel.org"
+        id S2393465AbgBNQf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:35:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405899AbgBNQYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:24:33 -0500
+        id S2405907AbgBNQYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:24:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F92124790;
-        Fri, 14 Feb 2020 16:24:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 430F02479B;
+        Fri, 14 Feb 2020 16:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697471;
-        bh=ZXhnpMrj5CaWrpKLVqIdetget1X44xH0z5FU1tXfW64=;
+        s=default; t=1581697473;
+        bh=WPoO9fSZtjkjEpEm9vtqz34cRRqNUXjfucR+5dFT6I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWO/uyBLPoFpdcu64SVS1bNhotMuLTYROHDG63krmxVg2XbUyBEISVpN2Yv8ml2Xg
-         p3TUD36kRrS9/85f60qE2K0MXcpsaHs0rq4CB9nmQ5aGl0evne/jS7kfqqrU/bNVkv
-         mDCpXu0eR5quFFrOaDa9Gf1wtqp7cgmsiuJHHZSk=
+        b=tMTO7lWzkB1aKe5qmV5QaRlMZUdSDSp8Cz57CTPUE9srUA1sHtvdpTmxvILeG+scu
+         VhzHwQ93r4f6QBAXhT6ofkEld0NrRYTqvOiSqsPKk1SITrFUPnm2u5qOaFdUbu7tGa
+         phaZpymZM9jsfrX/0+a37WvXa1LT//Ts5/Da4O8M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 005/100] pinctrl: sh-pfc: sh7264: Fix CAN function GPIOs
-Date:   Fri, 14 Feb 2020 11:22:49 -0500
-Message-Id: <20200214162425.21071-5-sashal@kernel.org>
+Cc:     Eugen Hristev <eugen.hristev@microchip.com>,
+        Wenyou Yang <wenyou.yang@microchip.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 006/100] media: i2c: mt9v032: fix enum mbus codes and frame sizes
+Date:   Fri, 14 Feb 2020 11:22:50 -0500
+Message-Id: <20200214162425.21071-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -43,92 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 55b1cb1f03ad5eea39897d0c74035e02deddcff2 ]
+[ Upstream commit 1451d5ae351d938a0ab1677498c893f17b9ee21d ]
 
-pinmux_func_gpios[] contains a hole due to the missing function GPIO
-definition for the "CTX0&CTX1" signal, which is the logical "AND" of the
-two CAN outputs.
+This driver supports both the mt9v032 (color) and the mt9v022 (mono)
+sensors. Depending on which sensor is used, the format from the sensor is
+different. The format.code inside the dev struct holds this information.
+The enum mbus and enum frame sizes need to take into account both type of
+sensors, not just the color one. To solve this, use the format.code in
+these functions instead of the hardcoded bayer color format (which is only
+used for mt9v032).
 
-Fix this by:
-  - Renaming CRX0_CRX1_MARK to CTX0_CTX1_MARK, as PJ2MD[2:0]=010
-    configures the combined "CTX0&CTX1" output signal,
-  - Renaming CRX0X1_MARK to CRX0_CRX1_MARK, as PJ3MD[1:0]=10 configures
-    the shared "CRX0/CRX1" input signal, which is fed to both CAN
-    inputs,
-  - Adding the missing function GPIO definition for "CTX0&CTX1" to
-    pinmux_func_gpios[],
-  - Moving all CAN enums next to each other.
+[Sakari Ailus: rewrapped commit message]
 
-See SH7262 Group, SH7264 Group User's Manual: Hardware, Rev. 4.00:
-  [1] Figure 1.2 (3) (Pin Assignment for the SH7264 Group (1-Mbyte
-      Version),
-  [2] Figure 1.2 (4) Pin Assignment for the SH7264 Group (640-Kbyte
-      Version,
-  [3] Table 1.4 List of Pins,
-  [4] Figure 20.29 Connection Example when Using This Module as 1-Channel
-      Module (64 Mailboxes x 1 Channel),
-  [5] Table 32.10 Multiplexed Pins (Port J),
-  [6] Section 32.2.30 (3) Port J Control Register 0 (PJCR0).
-
-Note that the last 2 disagree about PJ2MD[2:0], which is probably the
-root cause of this bug.  But considering [4], "CTx0&CTx1" in [5] must
-be correct, and "CRx0&CRx1" in [6] must be wrong.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191218194812.12741-4-geert+renesas@glider.be
+Suggested-by: Wenyou Yang <wenyou.yang@microchip.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-sh7264.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/media/i2c/mt9v032.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7264.c b/drivers/pinctrl/sh-pfc/pfc-sh7264.c
-index e1c34e19222ee..3ddb9565ed804 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh7264.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh7264.c
-@@ -500,17 +500,15 @@ enum {
- 	SD_WP_MARK, SD_CLK_MARK, SD_CMD_MARK,
- 	CRX0_MARK, CRX1_MARK,
- 	CTX0_MARK, CTX1_MARK,
-+	CRX0_CRX1_MARK, CTX0_CTX1_MARK,
+diff --git a/drivers/media/i2c/mt9v032.c b/drivers/media/i2c/mt9v032.c
+index a68ce94ee0976..cacdab30fece0 100644
+--- a/drivers/media/i2c/mt9v032.c
++++ b/drivers/media/i2c/mt9v032.c
+@@ -454,10 +454,12 @@ static int mt9v032_enum_mbus_code(struct v4l2_subdev *subdev,
+ 				  struct v4l2_subdev_pad_config *cfg,
+ 				  struct v4l2_subdev_mbus_code_enum *code)
+ {
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
+ 	if (code->index > 0)
+ 		return -EINVAL;
  
- 	PWM1A_MARK, PWM1B_MARK, PWM1C_MARK, PWM1D_MARK,
- 	PWM1E_MARK, PWM1F_MARK, PWM1G_MARK, PWM1H_MARK,
- 	PWM2A_MARK, PWM2B_MARK, PWM2C_MARK, PWM2D_MARK,
- 	PWM2E_MARK, PWM2F_MARK, PWM2G_MARK, PWM2H_MARK,
- 	IERXD_MARK, IETXD_MARK,
--	CRX0_CRX1_MARK,
- 	WDTOVF_MARK,
+-	code->code = MEDIA_BUS_FMT_SGRBG10_1X10;
++	code->code = mt9v032->format.code;
+ 	return 0;
+ }
  
--	CRX0X1_MARK,
--
- 	/* DMAC */
- 	TEND0_MARK, DACK0_MARK, DREQ0_MARK,
- 	TEND1_MARK, DACK1_MARK, DREQ1_MARK,
-@@ -998,12 +996,12 @@ static const u16 pinmux_data[] = {
+@@ -465,7 +467,11 @@ static int mt9v032_enum_frame_size(struct v4l2_subdev *subdev,
+ 				   struct v4l2_subdev_pad_config *cfg,
+ 				   struct v4l2_subdev_frame_size_enum *fse)
+ {
+-	if (fse->index >= 3 || fse->code != MEDIA_BUS_FMT_SGRBG10_1X10)
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
++	if (fse->index >= 3)
++		return -EINVAL;
++	if (mt9v032->format.code != fse->code)
+ 		return -EINVAL;
  
- 	PINMUX_DATA(PJ3_DATA, PJ3MD_00),
- 	PINMUX_DATA(CRX1_MARK, PJ3MD_01),
--	PINMUX_DATA(CRX0X1_MARK, PJ3MD_10),
-+	PINMUX_DATA(CRX0_CRX1_MARK, PJ3MD_10),
- 	PINMUX_DATA(IRQ1_PJ_MARK, PJ3MD_11),
- 
- 	PINMUX_DATA(PJ2_DATA, PJ2MD_000),
- 	PINMUX_DATA(CTX1_MARK, PJ2MD_001),
--	PINMUX_DATA(CRX0_CRX1_MARK, PJ2MD_010),
-+	PINMUX_DATA(CTX0_CTX1_MARK, PJ2MD_010),
- 	PINMUX_DATA(CS2_MARK, PJ2MD_011),
- 	PINMUX_DATA(SCK0_MARK, PJ2MD_100),
- 	PINMUX_DATA(LCD_M_DISP_MARK, PJ2MD_101),
-@@ -1248,6 +1246,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
- 	GPIO_FN(CTX1),
- 	GPIO_FN(CRX1),
- 	GPIO_FN(CTX0),
-+	GPIO_FN(CTX0_CTX1),
- 	GPIO_FN(CRX0),
- 	GPIO_FN(CRX0_CRX1),
- 
+ 	fse->min_width = MT9V032_WINDOW_WIDTH_DEF / (1 << fse->index);
 -- 
 2.20.1
 
