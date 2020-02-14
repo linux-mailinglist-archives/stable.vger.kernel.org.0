@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 282E915EF7F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:48:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6504715EF75
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389028AbgBNRsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:48:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44818 "EHLO mail.kernel.org"
+        id S2387705AbgBNP7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:59:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389000AbgBNP7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:59:49 -0500
+        id S2389002AbgBNP7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:59:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72BAB2086A;
-        Fri, 14 Feb 2020 15:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD65724654;
+        Fri, 14 Feb 2020 15:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695989;
-        bh=zgVsgEnnXQ7LrYe7AE7KvemzilGGhK+OX2oKdOz0gEs=;
+        s=default; t=1581695990;
+        bh=6T5ViOIkP+d7Ypkb1zR2zObz0C6HvxruVNw+UyKl8xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMI64wJv1M1IicyTFIEWFxv8grwZnPG1JnYBa6+GdhtD4adOzSciW83xBzpMDxgIx
-         ZYn85opqg/RvqB4SbNIY2k+GphlK/+MYbKbsfXc23uau6Esuv72HDURgD3shkuH5FU
-         kC0oKp8QBhNdGa14RcQ/D9oWskk1qlsW8X2iRT8o=
+        b=X1cP/SRov7n7pUWDiVUVf3g1qK27wZixsp4TAY6zlxtiOrQHHGzHCHSPc0soA+zRt
+         PyTfK0Nits6/UXrV2xx68QFGpirV7SW2NzkBXM3Bxic2r12YoQWu7pRa92pq7uuKSk
+         RplIozybDBF577Jx3M+DOZVXPuLL6WFYM8fJpURk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, kbuild test robot <lkp@intel.com>,
+Cc:     Coly Li <colyli@suse.de>, Dan Carpenter <dan.carpenter@oracle.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 510/542] bcache: explicity type cast in bset_bkey_last()
-Date:   Fri, 14 Feb 2020 10:48:22 -0500
-Message-Id: <20200214154854.6746-510-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 511/542] bcache: fix incorrect data type usage in btree_flush_write()
+Date:   Fri, 14 Feb 2020 10:48:23 -0500
+Message-Id: <20200214154854.6746-511-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,48 +45,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 7c02b0055f774ed9afb6e1c7724f33bf148ffdc0 ]
+[ Upstream commit d1c3cc34f5a78b38d2b809b289d912c3560545df ]
 
-In bset.h, macro bset_bkey_last() is defined as,
-    bkey_idx((struct bkey *) (i)->d, (i)->keys)
+Dan Carpenter points out that from commit 2aa8c529387c ("bcache: avoid
+unnecessary btree nodes flushing in btree_flush_write()"), there is a
+incorrect data type usage which leads to the following static checker
+warning:
+	drivers/md/bcache/journal.c:444 btree_flush_write()
+	warn: 'ref_nr' unsigned <= 0
 
-Parameter i can be variable type of data structure, the macro always
-works once the type of struct i has member 'd' and 'keys'.
+drivers/md/bcache/journal.c
+   422  static void btree_flush_write(struct cache_set *c)
+   423  {
+   424          struct btree *b, *t, *btree_nodes[BTREE_FLUSH_NR];
+   425          unsigned int i, nr, ref_nr;
+                                    ^^^^^^
 
-bset_bkey_last() is also used in macro csum_set() to calculate the
-checksum of a on-disk data structure. When csum_set() is used to
-calculate checksum of on-disk bcache super block, the parameter 'i'
-data type is struct cache_sb_disk. Inside struct cache_sb_disk (also in
-struct cache_sb) the member keys is __u16 type. But bkey_idx() expects
-unsigned int (a 32bit width), so there is problem when sending
-parameters via stack to call bkey_idx().
+   426          atomic_t *fifo_front_p, *now_fifo_front_p;
+   427          size_t mask;
+   428
+   429          if (c->journal.btree_flushing)
+   430                  return;
+   431
+   432          spin_lock(&c->journal.flush_write_lock);
+   433          if (c->journal.btree_flushing) {
+   434                  spin_unlock(&c->journal.flush_write_lock);
+   435                  return;
+   436          }
+   437          c->journal.btree_flushing = true;
+   438          spin_unlock(&c->journal.flush_write_lock);
+   439
+   440          /* get the oldest journal entry and check its refcount */
+   441          spin_lock(&c->journal.lock);
+   442          fifo_front_p = &fifo_front(&c->journal.pin);
+   443          ref_nr = atomic_read(fifo_front_p);
+   444          if (ref_nr <= 0) {
+                    ^^^^^^^^^^^
+Unsigned can't be less than zero.
 
-Sparse tool from Intel 0day kbuild system reports this incompatible
-problem. bkey_idx() is part of user space API, so the simplest fix is
-to cast the (i)->keys to unsigned int type in macro bset_bkey_last().
+   445                  /*
+   446                   * do nothing if no btree node references
+   447                   * the oldest journal entry
+   448                   */
+   449                  spin_unlock(&c->journal.lock);
+   450                  goto out;
+   451          }
+   452          spin_unlock(&c->journal.lock);
 
-Reported-by: kbuild test robot <lkp@intel.com>
+As the warning information indicates, local varaible ref_nr in unsigned
+int type is wrong, which does not matche atomic_read() and the "<= 0"
+checking.
+
+This patch fixes the above error by defining local variable ref_nr as
+int type.
+
+Fixes: 2aa8c529387c ("bcache: avoid unnecessary btree nodes flushing in btree_flush_write()")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Coly Li <colyli@suse.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/bset.h | 3 ++-
+ drivers/md/bcache/journal.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/bcache/bset.h b/drivers/md/bcache/bset.h
-index c71365e7c1fac..a50dcfda656f5 100644
---- a/drivers/md/bcache/bset.h
-+++ b/drivers/md/bcache/bset.h
-@@ -397,7 +397,8 @@ void bch_btree_keys_stats(struct btree_keys *b, struct bset_stats *state);
- 
- /* Bkey utility code */
- 
--#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, (i)->keys)
-+#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, \
-+					 (unsigned int)(i)->keys)
- 
- static inline struct bkey *bset_bkey_idx(struct bset *i, unsigned int idx)
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index 33ddc5269e8dc..6730820780b06 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -422,7 +422,8 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
+ static void btree_flush_write(struct cache_set *c)
  {
+ 	struct btree *b, *t, *btree_nodes[BTREE_FLUSH_NR];
+-	unsigned int i, nr, ref_nr;
++	unsigned int i, nr;
++	int ref_nr;
+ 	atomic_t *fifo_front_p, *now_fifo_front_p;
+ 	size_t mask;
+ 
 -- 
 2.20.1
 
