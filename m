@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFDB15F0D8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A47215F0E8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730759AbgBNP5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:57:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
+        id S2388440AbgBNR6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:58:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729885AbgBNP5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:57:13 -0500
+        id S1730621AbgBNP5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:57:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3F4124676;
-        Fri, 14 Feb 2020 15:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED396222C4;
+        Fri, 14 Feb 2020 15:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695832;
-        bh=KsMoq13yFF3jKXmzWDfs5ZlxQI1DDIftiFOworhaawU=;
+        s=default; t=1581695833;
+        bh=XdazMGhwIbJBiuiXlZkpj9HZX5NWsSPBy8ztckTuicA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGmu833+D9tV5stmO/f3a4LQtxCxnpcH7fckKAEkqInIRYVFm19EQ/zVmRxXN/abX
-         b8MurFpj6EZok/cq4C9gQL4LGZX1jusMR3B2Am+Jdbn+sVsgPxt2O21+EbejkA73jo
-         vo47K3eltiVUMRHumoZcDrC8zxmtdy6eRIMQkGKQ=
+        b=UDdl9zWh9mhlZnghccYlO/ED6eS5TRgVuXuVYgYV8WAmrEjEPmW5hCcXNTn98httE
+         woBDVmQ862mP3HJ2BlgyrvTNMl9LchEZHl4j8Dw3yKoL8tE7KIp6ZjP85VdNCf3+EQ
+         Y9oRUgVWY67XZ6Mc9JCCghtvDWyer6MV9vy8uS9o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 385/542] RDMA/mlx5: Don't fake udata for kernel path
-Date:   Fri, 14 Feb 2020 10:46:17 -0500
-Message-Id: <20200214154854.6746-385-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 386/542] netfilter: flowtable: restrict flow dissector match on meta ingress device
+Date:   Fri, 14 Feb 2020 10:46:18 -0500
+Message-Id: <20200214154854.6746-386-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -42,167 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 4835709176e8ccf6561abc9f5c405293e008095f ]
+[ Upstream commit a7521a60a5f3e1f58a015fedb6e69aed40455feb ]
 
-Kernel paths must not set udata and provide NULL pointer,
-instead of faking zeroed udata struct.
+Set on FLOW_DISSECTOR_KEY_META meta key using flow tuple ingress interface.
 
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 34 +++++++++++++++----------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ net/netfilter/nf_flow_table_offload.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 997cbfe4b90ce..760630c7aae71 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -815,6 +815,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 				struct ib_device_attr *props,
- 				struct ib_udata *uhw)
- {
-+	size_t uhw_outlen = (uhw) ? uhw->outlen : 0;
- 	struct mlx5_ib_dev *dev = to_mdev(ibdev);
- 	struct mlx5_core_dev *mdev = dev->mdev;
- 	int err = -ENOMEM;
-@@ -828,12 +829,12 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 	u64 max_tso;
+diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
+index d06969af1085e..9e01074dc34cb 100644
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -24,6 +24,7 @@ struct flow_offload_work {
+ };
  
- 	resp_len = sizeof(resp.comp_mask) + sizeof(resp.response_length);
--	if (uhw->outlen && uhw->outlen < resp_len)
-+	if (uhw_outlen && uhw_outlen < resp_len)
- 		return -EINVAL;
+ struct nf_flow_key {
++	struct flow_dissector_key_meta			meta;
+ 	struct flow_dissector_key_control		control;
+ 	struct flow_dissector_key_basic			basic;
+ 	union {
+@@ -55,6 +56,7 @@ static int nf_flow_rule_match(struct nf_flow_match *match,
+ 	struct nf_flow_key *mask = &match->mask;
+ 	struct nf_flow_key *key = &match->key;
  
- 	resp.response_length = resp_len;
++	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_META, meta);
+ 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_CONTROL, control);
+ 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_BASIC, basic);
+ 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_IPV4_ADDRS, ipv4);
+@@ -62,6 +64,9 @@ static int nf_flow_rule_match(struct nf_flow_match *match,
+ 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_TCP, tcp);
+ 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_PORTS, tp);
  
--	if (uhw->inlen && !ib_is_udata_cleared(uhw, 0, uhw->inlen))
-+	if (uhw && uhw->inlen && !ib_is_udata_cleared(uhw, 0, uhw->inlen))
- 		return -EINVAL;
++	key->meta.ingress_ifindex = tuple->iifidx;
++	mask->meta.ingress_ifindex = 0xffffffff;
++
+ 	switch (tuple->l3proto) {
+ 	case AF_INET:
+ 		key->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+@@ -105,7 +110,8 @@ static int nf_flow_rule_match(struct nf_flow_match *match,
+ 	key->tp.dst = tuple->dst_port;
+ 	mask->tp.dst = 0xffff;
  
- 	memset(props, 0, sizeof(*props));
-@@ -897,7 +898,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			props->raw_packet_caps |=
- 				IB_RAW_PACKET_CAP_CVLAN_STRIPPING;
- 
--		if (field_avail(typeof(resp), tso_caps, uhw->outlen)) {
-+		if (field_avail(typeof(resp), tso_caps, uhw_outlen)) {
- 			max_tso = MLX5_CAP_ETH(mdev, max_lso_cap);
- 			if (max_tso) {
- 				resp.tso_caps.max_tso = 1 << max_tso;
-@@ -907,7 +908,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			}
- 		}
- 
--		if (field_avail(typeof(resp), rss_caps, uhw->outlen)) {
-+		if (field_avail(typeof(resp), rss_caps, uhw_outlen)) {
- 			resp.rss_caps.rx_hash_function =
- 						MLX5_RX_HASH_FUNC_TOEPLITZ;
- 			resp.rss_caps.rx_hash_fields_mask =
-@@ -927,9 +928,9 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			resp.response_length += sizeof(resp.rss_caps);
- 		}
- 	} else {
--		if (field_avail(typeof(resp), tso_caps, uhw->outlen))
-+		if (field_avail(typeof(resp), tso_caps, uhw_outlen))
- 			resp.response_length += sizeof(resp.tso_caps);
--		if (field_avail(typeof(resp), rss_caps, uhw->outlen))
-+		if (field_avail(typeof(resp), rss_caps, uhw_outlen))
- 			resp.response_length += sizeof(resp.rss_caps);
- 	}
- 
-@@ -1054,7 +1055,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 						MLX5_MAX_CQ_PERIOD;
- 	}
- 
--	if (field_avail(typeof(resp), cqe_comp_caps, uhw->outlen)) {
-+	if (field_avail(typeof(resp), cqe_comp_caps, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.cqe_comp_caps);
- 
- 		if (MLX5_CAP_GEN(dev->mdev, cqe_compression)) {
-@@ -1072,7 +1073,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		}
- 	}
- 
--	if (field_avail(typeof(resp), packet_pacing_caps, uhw->outlen) &&
-+	if (field_avail(typeof(resp), packet_pacing_caps, uhw_outlen) &&
- 	    raw_support) {
- 		if (MLX5_CAP_QOS(mdev, packet_pacing) &&
- 		    MLX5_CAP_GEN(mdev, qos)) {
-@@ -1091,7 +1092,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 	}
- 
- 	if (field_avail(typeof(resp), mlx5_ib_support_multi_pkt_send_wqes,
--			uhw->outlen)) {
-+			uhw_outlen)) {
- 		if (MLX5_CAP_ETH(mdev, multi_pkt_send_wqe))
- 			resp.mlx5_ib_support_multi_pkt_send_wqes =
- 				MLX5_IB_ALLOW_MPW;
-@@ -1104,7 +1105,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			sizeof(resp.mlx5_ib_support_multi_pkt_send_wqes);
- 	}
- 
--	if (field_avail(typeof(resp), flags, uhw->outlen)) {
-+	if (field_avail(typeof(resp), flags, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.flags);
- 
- 		if (MLX5_CAP_GEN(mdev, cqe_compression_128))
-@@ -1120,8 +1121,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		resp.flags |= MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT;
- 	}
- 
--	if (field_avail(typeof(resp), sw_parsing_caps,
--			uhw->outlen)) {
-+	if (field_avail(typeof(resp), sw_parsing_caps, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.sw_parsing_caps);
- 		if (MLX5_CAP_ETH(mdev, swp)) {
- 			resp.sw_parsing_caps.sw_parsing_offloads |=
-@@ -1141,7 +1141,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		}
- 	}
- 
--	if (field_avail(typeof(resp), striding_rq_caps, uhw->outlen) &&
-+	if (field_avail(typeof(resp), striding_rq_caps, uhw_outlen) &&
- 	    raw_support) {
- 		resp.response_length += sizeof(resp.striding_rq_caps);
- 		if (MLX5_CAP_GEN(mdev, striding_rq)) {
-@@ -1164,8 +1164,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		}
- 	}
- 
--	if (field_avail(typeof(resp), tunnel_offloads_caps,
--			uhw->outlen)) {
-+	if (field_avail(typeof(resp), tunnel_offloads_caps, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.tunnel_offloads_caps);
- 		if (MLX5_CAP_ETH(mdev, tunnel_stateless_vxlan))
- 			resp.tunnel_offloads_caps |=
-@@ -1186,7 +1185,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 				MLX5_IB_TUNNELED_OFFLOADS_MPLS_UDP;
- 	}
- 
--	if (uhw->outlen) {
-+	if (uhw_outlen) {
- 		err = ib_copy_to_udata(uhw, &resp, resp.response_length);
- 
- 		if (err)
-@@ -4771,7 +4770,6 @@ static int __get_port_caps(struct mlx5_ib_dev *dev, u8 port)
- 	struct ib_device_attr *dprops = NULL;
- 	struct ib_port_attr *pprops = NULL;
- 	int err = -ENOMEM;
--	struct ib_udata uhw = {.inlen = 0, .outlen = 0};
- 
- 	pprops = kzalloc(sizeof(*pprops), GFP_KERNEL);
- 	if (!pprops)
-@@ -4781,7 +4779,7 @@ static int __get_port_caps(struct mlx5_ib_dev *dev, u8 port)
- 	if (!dprops)
- 		goto out;
- 
--	err = mlx5_ib_query_device(&dev->ib_dev, dprops, &uhw);
-+	err = mlx5_ib_query_device(&dev->ib_dev, dprops, NULL);
- 	if (err) {
- 		mlx5_ib_warn(dev, "query_device failed %d\n", err);
- 		goto out;
+-	match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CONTROL) |
++	match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_META) |
++				      BIT(FLOW_DISSECTOR_KEY_CONTROL) |
+ 				      BIT(FLOW_DISSECTOR_KEY_BASIC) |
+ 				      BIT(FLOW_DISSECTOR_KEY_PORTS);
+ 	return 0;
 -- 
 2.20.1
 
