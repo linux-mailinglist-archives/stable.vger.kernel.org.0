@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA12A15E97B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C06C015E97D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392342AbgBNQOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44182 "EHLO mail.kernel.org"
+        id S2388578AbgBNRHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:07:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391621AbgBNQOf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:35 -0500
+        id S2403967AbgBNQOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B2EB246D5;
-        Fri, 14 Feb 2020 16:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 590F2246D2;
+        Fri, 14 Feb 2020 16:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696875;
-        bh=+PkrT4iG1T7Rl6JWmdEM27E+WQtpZRSY2P7dpNAA9Wc=;
+        s=default; t=1581696876;
+        bh=uaqtr6l3s3vDn9atw6+mtNDLwhEDUDOlpKODIU0dLpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfAFHCrMBFJFB9CJcWxW+fgFWax0XA2UUEqpQ/Qb2HtggCS76YXuoaxiKuBou0FCC
-         twU0dLb3wbkHwKX/aq/a00FhZ+dQbkui3lBdbDhFvCjTnZthhFiMX6uCgI5T5ZFMfz
-         ZpRJo8HcaXYu6fZGicnQZCGmasffR31z4EZCx+WI=
+        b=Mao162NErL4fGFozRCPP1t3bjqxG7aoDEhlkiE/L/GfkG08MlFfXhkkrLi76BFEJy
+         Xsu+/vuOGjKIXUtvhQxmhlTPOy1MTZzVlf93EhbtDV0zuVzu7pxP1GEIv9aqDr6GcN
+         r7Am1uGUhWjkPoMkgut4VizPQwG15Gc2GIC0rfAI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Zhizhikin <andrey.z@gmail.com>,
-        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
-        Petr Mladek <pmladek@suse.com>, Jiri Olsa <jolsa@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 131/252] tools lib api fs: Fix gcc9 stringop-truncation compilation error
-Date:   Fri, 14 Feb 2020 11:09:46 -0500
-Message-Id: <20200214161147.15842-131-sashal@kernel.org>
+Cc:     Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 132/252] x86/unwind/orc: Fix !CONFIG_MODULES build warning
+Date:   Fri, 14 Feb 2020 11:09:47 -0500
+Message-Id: <20200214161147.15842-132-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,65 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Zhizhikin <andrey.z@gmail.com>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-[ Upstream commit 6794200fa3c9c3e6759dae099145f23e4310f4f7 ]
+[ Upstream commit 22a7fa8848c5e881d87ef2f7f3c2ea77b286e6f9 ]
 
-GCC9 introduced string hardening mechanisms, which exhibits the error
-during fs api compilation:
+To fix follwowing warning due to ORC sort moved to build time:
 
-error: '__builtin_strncpy' specified bound 4096 equals destination size
-[-Werror=stringop-truncation]
+  arch/x86/kernel/unwind_orc.c:210:12: warning: ‘orc_sort_cmp’ defined but not used [-Wunused-function]
+  arch/x86/kernel/unwind_orc.c:190:13: warning: ‘orc_sort_swap’ defined but not used [-Wunused-function]
 
-This comes when the length of copy passed to strncpy is is equal to
-destination size, which could potentially lead to buffer overflow.
-
-There is a need to mitigate this potential issue by limiting the size of
-destination by 1 and explicitly terminate the destination with NULL.
-
-Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20191211080109.18765-1-andrey.zhizhikin@leica-geosystems.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/c9c81536-2afc-c8aa-c5f8-c7618ecd4f54@linux.alibaba.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/api/fs/fs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/unwind_orc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
-index 7aba8243a0e7c..bd021a0eeef8c 100644
---- a/tools/lib/api/fs/fs.c
-+++ b/tools/lib/api/fs/fs.c
-@@ -210,6 +210,7 @@ static bool fs__env_override(struct fs *fs)
- 	size_t name_len = strlen(fs->name);
- 	/* name + "_PATH" + '\0' */
- 	char upper_name[name_len + 5 + 1];
-+
- 	memcpy(upper_name, fs->name, name_len);
- 	mem_toupper(upper_name, name_len);
- 	strcpy(&upper_name[name_len], "_PATH");
-@@ -219,7 +220,8 @@ static bool fs__env_override(struct fs *fs)
- 		return false;
- 
- 	fs->found = true;
--	strncpy(fs->path, override_path, sizeof(fs->path));
-+	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
-+	fs->path[sizeof(fs->path) - 1] = '\0';
- 	return true;
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 89be1be1790c4..a3cb70fbe941a 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -176,6 +176,8 @@ static struct orc_entry *orc_find(unsigned long ip)
+ 	return orc_ftrace_find(ip);
  }
  
++#ifdef CONFIG_MODULES
++
+ static void orc_sort_swap(void *_a, void *_b, int size)
+ {
+ 	struct orc_entry *orc_a, *orc_b;
+@@ -218,7 +220,6 @@ static int orc_sort_cmp(const void *_a, const void *_b)
+ 	return orc_a->sp_reg == ORC_REG_UNDEFINED && !orc_a->end ? -1 : 1;
+ }
+ 
+-#ifdef CONFIG_MODULES
+ void unwind_module_init(struct module *mod, void *_orc_ip, size_t orc_ip_size,
+ 			void *_orc, size_t orc_size)
+ {
 -- 
 2.20.1
 
