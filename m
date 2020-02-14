@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AEB315E100
+	by mail.lfdr.de (Postfix) with ESMTP id DEB6C15E102
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392349AbgBNQQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:16:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47254 "EHLO mail.kernel.org"
+        id S2392615AbgBNQQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:16:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391621AbgBNQQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:16:28 -0500
+        id S2392610AbgBNQQb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E28E24676;
-        Fri, 14 Feb 2020 16:16:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BECE2468F;
+        Fri, 14 Feb 2020 16:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696987;
-        bh=fOSHoDKMooQZW89QIAlUy6Vwu9W+gfJFSE/5lcgXbOk=;
+        s=default; t=1581696991;
+        bh=9j8X2m67R4Ml4yEuJzG98wz75DIpMegNzJAmtFU/4bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iT3oJFMFTPulpUL8wn9lgkSmG1IpKMzGtUZkSetsY4aXGoxVznmxy7MgqrjG9X0Vw
-         7FBz/3PfJsGlM/zUhA6YBwjLkLlrhnNgXi3Gavqnj2ojGzn2MmZ0oSB5jqTSLlWoOu
-         POEsLvGlnAlA1ibUzTlkwTlHRgcFQU88uXALe2cI=
+        b=MULZ9FeTa6EThUxhca/XeVVF30IABsq9z4utLCuA7MXj2Larfl7Y99MMYFiTNJs8K
+         NCUBMvt6i0b3XKfbRJ1E1UMqciGitqVoUY+zhL+76FgDyzGgOEukc53ZAK3iUdV636
+         vKIlLyjuYDz3zUVrD3Mt3q4eRAk+PXaTzF4OYZTI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 222/252] rtlwifi: rtl8192ee: remove unused variables
-Date:   Fri, 14 Feb 2020 11:11:17 -0500
-Message-Id: <20200214161147.15842-222-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.19 225/252] cifs: fix NULL dereference in match_prepath
+Date:   Fri, 14 Feb 2020 11:11:20 -0500
+Message-Id: <20200214161147.15842-225-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,156 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 253e5aba937973fd29bd5c559d21e35d0642242e ]
+[ Upstream commit fe1292686333d1dadaf84091f585ee903b9ddb84 ]
 
-drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c:15:18:
- warning: ofdmswing_table defined but not used [-Wunused-const-variable=]
-drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c:61:17:
- warning: cckswing_table_ch1ch13 defined but not used [-Wunused-const-variable=]
-drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c:97:17:
- warning: cckswing_table_ch14 defined but not used [-Wunused-const-variable=]
+RHBZ: 1760879
 
-These variable is never used, so remove them.
+Fix an oops in match_prepath() by making sure that the prepath string is not
+NULL before we pass it into strcmp().
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This is similar to other checks we make for example in cifs_root_iget()
+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/realtek/rtlwifi/rtl8192ee/dm.c   | 118 ------------------
- 1 file changed, 118 deletions(-)
+ fs/cifs/connect.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c
-index faed6e2dedf6e..2965a033549f8 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/dm.c
-@@ -34,124 +34,6 @@
- #include "fw.h"
- #include "trx.h"
- 
--static const u32 ofdmswing_table[OFDM_TABLE_SIZE] = {
--	0x7f8001fe,		/* 0, +6.0dB */
--	0x788001e2,		/* 1, +5.5dB */
--	0x71c001c7,		/* 2, +5.0dB */
--	0x6b8001ae,		/* 3, +4.5dB */
--	0x65400195,		/* 4, +4.0dB */
--	0x5fc0017f,		/* 5, +3.5dB */
--	0x5a400169,		/* 6, +3.0dB */
--	0x55400155,		/* 7, +2.5dB */
--	0x50800142,		/* 8, +2.0dB */
--	0x4c000130,		/* 9, +1.5dB */
--	0x47c0011f,		/* 10, +1.0dB */
--	0x43c0010f,		/* 11, +0.5dB */
--	0x40000100,		/* 12, +0dB */
--	0x3c8000f2,		/* 13, -0.5dB */
--	0x390000e4,		/* 14, -1.0dB */
--	0x35c000d7,		/* 15, -1.5dB */
--	0x32c000cb,		/* 16, -2.0dB */
--	0x300000c0,		/* 17, -2.5dB */
--	0x2d4000b5,		/* 18, -3.0dB */
--	0x2ac000ab,		/* 19, -3.5dB */
--	0x288000a2,		/* 20, -4.0dB */
--	0x26000098,		/* 21, -4.5dB */
--	0x24000090,		/* 22, -5.0dB */
--	0x22000088,		/* 23, -5.5dB */
--	0x20000080,		/* 24, -6.0dB */
--	0x1e400079,		/* 25, -6.5dB */
--	0x1c800072,		/* 26, -7.0dB */
--	0x1b00006c,		/* 27. -7.5dB */
--	0x19800066,		/* 28, -8.0dB */
--	0x18000060,		/* 29, -8.5dB */
--	0x16c0005b,		/* 30, -9.0dB */
--	0x15800056,		/* 31, -9.5dB */
--	0x14400051,		/* 32, -10.0dB */
--	0x1300004c,		/* 33, -10.5dB */
--	0x12000048,		/* 34, -11.0dB */
--	0x11000044,		/* 35, -11.5dB */
--	0x10000040,		/* 36, -12.0dB */
--	0x0f00003c,		/* 37, -12.5dB */
--	0x0e400039,		/* 38, -13.0dB */
--	0x0d800036,		/* 39, -13.5dB */
--	0x0cc00033,		/* 40, -14.0dB */
--	0x0c000030,		/* 41, -14.5dB */
--	0x0b40002d,		/* 42, -15.0dB */
--};
--
--static const u8 cckswing_table_ch1ch13[CCK_TABLE_SIZE][8] = {
--	{0x36, 0x35, 0x2e, 0x25, 0x1c, 0x12, 0x09, 0x04}, /* 0, +0dB */
--	{0x33, 0x32, 0x2b, 0x23, 0x1a, 0x11, 0x08, 0x04}, /* 1, -0.5dB */
--	{0x30, 0x2f, 0x29, 0x21, 0x19, 0x10, 0x08, 0x03}, /* 2, -1.0dB */
--	{0x2d, 0x2d, 0x27, 0x1f, 0x18, 0x0f, 0x08, 0x03}, /* 3, -1.5dB */
--	{0x2b, 0x2a, 0x25, 0x1e, 0x16, 0x0e, 0x07, 0x03}, /* 4, -2.0dB */
--	{0x28, 0x28, 0x22, 0x1c, 0x15, 0x0d, 0x07, 0x03}, /* 5, -2.5dB */
--	{0x26, 0x25, 0x21, 0x1b, 0x14, 0x0d, 0x06, 0x03}, /* 6, -3.0dB */
--	{0x24, 0x23, 0x1f, 0x19, 0x13, 0x0c, 0x06, 0x03}, /* 7, -3.5dB */
--	{0x22, 0x21, 0x1d, 0x18, 0x11, 0x0b, 0x06, 0x02}, /* 8, -4.0dB */
--	{0x20, 0x20, 0x1b, 0x16, 0x11, 0x08, 0x05, 0x02}, /* 9, -4.5dB */
--	{0x1f, 0x1e, 0x1a, 0x15, 0x10, 0x0a, 0x05, 0x02}, /* 10, -5.0dB */
--	{0x1d, 0x1c, 0x18, 0x14, 0x0f, 0x0a, 0x05, 0x02}, /* 11, -5.5dB */
--	{0x1b, 0x1a, 0x17, 0x13, 0x0e, 0x09, 0x04, 0x02}, /* 12, -6.0dB */
--	{0x1a, 0x19, 0x16, 0x12, 0x0d, 0x09, 0x04, 0x02}, /* 13, -6.5dB */
--	{0x18, 0x17, 0x15, 0x11, 0x0c, 0x08, 0x04, 0x02}, /* 14, -7.0dB */
--	{0x17, 0x16, 0x13, 0x10, 0x0c, 0x08, 0x04, 0x02}, /* 15, -7.5dB */
--	{0x16, 0x15, 0x12, 0x0f, 0x0b, 0x07, 0x04, 0x01}, /* 16, -8.0dB */
--	{0x14, 0x14, 0x11, 0x0e, 0x0b, 0x07, 0x03, 0x02}, /* 17, -8.5dB */
--	{0x13, 0x13, 0x10, 0x0d, 0x0a, 0x06, 0x03, 0x01}, /* 18, -9.0dB */
--	{0x12, 0x12, 0x0f, 0x0c, 0x09, 0x06, 0x03, 0x01}, /* 19, -9.5dB */
--	{0x11, 0x11, 0x0f, 0x0c, 0x09, 0x06, 0x03, 0x01}, /* 20, -10.0dB */
--	{0x10, 0x10, 0x0e, 0x0b, 0x08, 0x05, 0x03, 0x01}, /* 21, -10.5dB */
--	{0x0f, 0x0f, 0x0d, 0x0b, 0x08, 0x05, 0x03, 0x01}, /* 22, -11.0dB */
--	{0x0e, 0x0e, 0x0c, 0x0a, 0x08, 0x05, 0x02, 0x01}, /* 23, -11.5dB */
--	{0x0d, 0x0d, 0x0c, 0x0a, 0x07, 0x05, 0x02, 0x01}, /* 24, -12.0dB */
--	{0x0d, 0x0c, 0x0b, 0x09, 0x07, 0x04, 0x02, 0x01}, /* 25, -12.5dB */
--	{0x0c, 0x0c, 0x0a, 0x09, 0x06, 0x04, 0x02, 0x01}, /* 26, -13.0dB */
--	{0x0b, 0x0b, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x01}, /* 27, -13.5dB */
--	{0x0b, 0x0a, 0x09, 0x08, 0x06, 0x04, 0x02, 0x01}, /* 28, -14.0dB */
--	{0x0a, 0x0a, 0x09, 0x07, 0x05, 0x03, 0x02, 0x01}, /* 29, -14.5dB */
--	{0x0a, 0x09, 0x08, 0x07, 0x05, 0x03, 0x02, 0x01}, /* 30, -15.0dB */
--	{0x09, 0x09, 0x08, 0x06, 0x05, 0x03, 0x01, 0x01}, /* 31, -15.5dB */
--	{0x09, 0x08, 0x07, 0x06, 0x04, 0x03, 0x01, 0x01}  /* 32, -16.0dB */
--};
--
--static const u8 cckswing_table_ch14[CCK_TABLE_SIZE][8] = {
--	{0x36, 0x35, 0x2e, 0x1b, 0x00, 0x00, 0x00, 0x00}, /* 0, +0dB */
--	{0x33, 0x32, 0x2b, 0x19, 0x00, 0x00, 0x00, 0x00}, /* 1, -0.5dB */
--	{0x30, 0x2f, 0x29, 0x18, 0x00, 0x00, 0x00, 0x00}, /* 2, -1.0dB */
--	{0x2d, 0x2d, 0x17, 0x17, 0x00, 0x00, 0x00, 0x00}, /* 3, -1.5dB */
--	{0x2b, 0x2a, 0x25, 0x15, 0x00, 0x00, 0x00, 0x00}, /* 4, -2.0dB */
--	{0x28, 0x28, 0x24, 0x14, 0x00, 0x00, 0x00, 0x00}, /* 5, -2.5dB */
--	{0x26, 0x25, 0x21, 0x13, 0x00, 0x00, 0x00, 0x00}, /* 6, -3.0dB */
--	{0x24, 0x23, 0x1f, 0x12, 0x00, 0x00, 0x00, 0x00}, /* 7, -3.5dB */
--	{0x22, 0x21, 0x1d, 0x11, 0x00, 0x00, 0x00, 0x00}, /* 8, -4.0dB */
--	{0x20, 0x20, 0x1b, 0x10, 0x00, 0x00, 0x00, 0x00}, /* 9, -4.5dB */
--	{0x1f, 0x1e, 0x1a, 0x0f, 0x00, 0x00, 0x00, 0x00}, /* 10, -5.0dB */
--	{0x1d, 0x1c, 0x18, 0x0e, 0x00, 0x00, 0x00, 0x00}, /* 11, -5.5dB */
--	{0x1b, 0x1a, 0x17, 0x0e, 0x00, 0x00, 0x00, 0x00}, /* 12, -6.0dB */
--	{0x1a, 0x19, 0x16, 0x0d, 0x00, 0x00, 0x00, 0x00}, /* 13, -6.5dB */
--	{0x18, 0x17, 0x15, 0x0c, 0x00, 0x00, 0x00, 0x00}, /* 14, -7.0dB */
--	{0x17, 0x16, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x00}, /* 15, -7.5dB */
--	{0x16, 0x15, 0x12, 0x0b, 0x00, 0x00, 0x00, 0x00}, /* 16, -8.0dB */
--	{0x14, 0x14, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x00}, /* 17, -8.5dB */
--	{0x13, 0x13, 0x10, 0x0a, 0x00, 0x00, 0x00, 0x00}, /* 18, -9.0dB */
--	{0x12, 0x12, 0x0f, 0x09, 0x00, 0x00, 0x00, 0x00}, /* 19, -9.5dB */
--	{0x11, 0x11, 0x0f, 0x09, 0x00, 0x00, 0x00, 0x00}, /* 20, -10.0dB */
--	{0x10, 0x10, 0x0e, 0x08, 0x00, 0x00, 0x00, 0x00}, /* 21, -10.5dB */
--	{0x0f, 0x0f, 0x0d, 0x08, 0x00, 0x00, 0x00, 0x00}, /* 22, -11.0dB */
--	{0x0e, 0x0e, 0x0c, 0x07, 0x00, 0x00, 0x00, 0x00}, /* 23, -11.5dB */
--	{0x0d, 0x0d, 0x0c, 0x07, 0x00, 0x00, 0x00, 0x00}, /* 24, -12.0dB */
--	{0x0d, 0x0c, 0x0b, 0x06, 0x00, 0x00, 0x00, 0x00}, /* 25, -12.5dB */
--	{0x0c, 0x0c, 0x0a, 0x06, 0x00, 0x00, 0x00, 0x00}, /* 26, -13.0dB */
--	{0x0b, 0x0b, 0x0a, 0x06, 0x00, 0x00, 0x00, 0x00}, /* 27, -13.5dB */
--	{0x0b, 0x0a, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 28, -14.0dB */
--	{0x0a, 0x0a, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 29, -14.5dB */
--	{0x0a, 0x09, 0x08, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 30, -15.0dB */
--	{0x09, 0x09, 0x08, 0x05, 0x00, 0x00, 0x00, 0x00}, /* 31, -15.5dB */
--	{0x09, 0x08, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00}  /* 32, -16.0dB */
--};
--
- static void rtl92ee_dm_false_alarm_counter_statistics(struct ieee80211_hw *hw)
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 576cf71576da1..6c62ce40608a1 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3342,8 +3342,10 @@ match_prepath(struct super_block *sb, struct cifs_mnt_data *mnt_data)
  {
- 	u32 ret_value;
+ 	struct cifs_sb_info *old = CIFS_SB(sb);
+ 	struct cifs_sb_info *new = mnt_data->cifs_sb;
+-	bool old_set = old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
+-	bool new_set = new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
++	bool old_set = (old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++		old->prepath;
++	bool new_set = (new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++		new->prepath;
+ 
+ 	if (old_set && new_set && !strcmp(new->prepath, old->prepath))
+ 		return 1;
 -- 
 2.20.1
 
