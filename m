@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE6C15E4D1
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2021C15E4CE
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389063AbgBNQiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:38:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
+        id S2393814AbgBNQiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:38:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405379AbgBNQXk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:23:40 -0500
+        id S2405700AbgBNQXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:23:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8CFB24789;
-        Fri, 14 Feb 2020 16:23:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D39E92477D;
+        Fri, 14 Feb 2020 16:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697419;
-        bh=dFBHdpTmb1pYHeFIPv7bP54uozuvvZ1+7N/kxCsJCKQ=;
+        s=default; t=1581697420;
+        bh=Wvyy3v03P7E1IVhVXI6dTmZh+RPcm3cg0+Jgcl5hbLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmKOyqhOQ07RI3n+TWBz6YftNMf/urjUvZfNpPgqZet5Wm4Ou9MWYKXLr6RupABOI
-         +9e7CAYxBKy/M/MpBzNPaeBa5Yx9Rw/VLDTTWMlvAUTFkxTHvfSu9UC2NZno0f43Lu
-         /BBKVMpUbFQfvg6cvYVup8KzjP12YG3oL7daVc4E=
+        b=fRNt6b6L3JG24tNlU9Rlhdwbf/NJPNbZa9sASQMw64f+j5Q1/H81ve3Ss46HEprML
+         h79ZmJCx23RGb7Km57P3PkvNW24+LA643AU9x9K0iAtNMNuCw+mgXvZNM5lon5rMxy
+         tFnXSqSK5nJMPRjzEYdPXNSJOyctdOtGJzqxnOe0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brandon Maier <brandon.maier@rockwellcollins.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-remoteproc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 109/141] remoteproc: Initialize rproc_class before use
-Date:   Fri, 14 Feb 2020 11:20:49 -0500
-Message-Id: <20200214162122.19794-109-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 110/141] x86/decoder: Add TEST opcode to Group3-2
+Date:   Fri, 14 Feb 2020 11:20:50 -0500
+Message-Id: <20200214162122.19794-110-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -44,71 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brandon Maier <brandon.maier@rockwellcollins.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit a8f40111d184098cd2b3dc0c7170c42250a5fa09 ]
+[ Upstream commit 8b7e20a7ba54836076ff35a28349dabea4cec48f ]
 
-The remoteproc_core and remoteproc drivers all initialize with module_init().
-However remoteproc drivers need the rproc_class during their probe. If one of
-the remoteproc drivers runs init and gets through probe before
-remoteproc_init() runs, a NULL pointer access of rproc_class's `glue_dirs`
-spinlock occurs.
+Add TEST opcode to Group3-2 reg=001b as same as Group3-1 does.
 
-> Unable to handle kernel NULL pointer dereference at virtual address 000000dc
-> pgd = c0004000
-> [000000dc] *pgd=00000000
-> Internal error: Oops: 5 [#1] PREEMPT ARM
-> Modules linked in:
-> CPU: 0 PID: 1 Comm: swapper Tainted: G        W       4.14.106-rt56 #1
-> Hardware name: Generic OMAP36xx (Flattened Device Tree)
-> task: c6050000 task.stack: c604a000
-> PC is at rt_spin_lock+0x40/0x6c
-> LR is at rt_spin_lock+0x28/0x6c
-> pc : [<c0523c90>]    lr : [<c0523c78>]    psr: 60000013
-> sp : c604bdc0  ip : 00000000  fp : 00000000
-> r10: 00000000  r9 : c61c7c10  r8 : c6269c20
-> r7 : c0905888  r6 : c6269c20  r5 : 00000000  r4 : 000000d4
-> r3 : 000000dc  r2 : c6050000  r1 : 00000002  r0 : 000000d4
-> Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-...
-> [<c0523c90>] (rt_spin_lock) from [<c03b65a4>] (get_device_parent+0x54/0x17c)
-> [<c03b65a4>] (get_device_parent) from [<c03b6bec>] (device_add+0xe0/0x5b4)
-> [<c03b6bec>] (device_add) from [<c042adf4>] (rproc_add+0x18/0xd8)
-> [<c042adf4>] (rproc_add) from [<c01110e4>] (my_rproc_probe+0x158/0x204)
-> [<c01110e4>] (my_rproc_probe) from [<c03bb6b8>] (platform_drv_probe+0x34/0x70)
-> [<c03bb6b8>] (platform_drv_probe) from [<c03b9dd4>] (driver_probe_device+0x2c8/0x420)
-> [<c03b9dd4>] (driver_probe_device) from [<c03ba02c>] (__driver_attach+0x100/0x11c)
-> [<c03ba02c>] (__driver_attach) from [<c03b7d08>] (bus_for_each_dev+0x7c/0xc0)
-> [<c03b7d08>] (bus_for_each_dev) from [<c03b910c>] (bus_add_driver+0x1cc/0x264)
-> [<c03b910c>] (bus_add_driver) from [<c03ba714>] (driver_register+0x78/0xf8)
-> [<c03ba714>] (driver_register) from [<c010181c>] (do_one_initcall+0x100/0x190)
-> [<c010181c>] (do_one_initcall) from [<c0800de8>] (kernel_init_freeable+0x130/0x1d0)
-> [<c0800de8>] (kernel_init_freeable) from [<c051eee8>] (kernel_init+0x8/0x114)
-> [<c051eee8>] (kernel_init) from [<c01175b0>] (ret_from_fork+0x14/0x24)
-> Code: e2843008 e3c2203f f5d3f000 e5922010 (e193cf9f)
-> ---[ end trace 0000000000000002 ]---
+Commit
 
-Signed-off-by: Brandon Maier <brandon.maier@rockwellcollins.com>
-Link: https://lore.kernel.org/r/20190530225223.136420-1-brandon.maier@rockwellcollins.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+  12a78d43de76 ("x86/decoder: Add new TEST instruction pattern")
+
+added a TEST opcode assignment to f6 XX/001/XXX (Group 3-1), but did
+not add f7 XX/001/XXX (Group 3-2).
+
+Actually, this TEST opcode variant (ModRM.reg /1) is not described in
+the Intel SDM Vol2 but in AMD64 Architecture Programmer's Manual Vol.3,
+Appendix A.2 Table A-6. ModRM.reg Extensions for the Primary Opcode Map.
+
+Without this fix, Randy found a warning by insn_decoder_test related
+to this issue as below.
+
+    HOSTCC  arch/x86/tools/insn_decoder_test
+    HOSTCC  arch/x86/tools/insn_sanity
+    TEST    posttest
+  arch/x86/tools/insn_decoder_test: warning: Found an x86 instruction decoder bug, please report this.
+  arch/x86/tools/insn_decoder_test: warning: ffffffff81000bf1:	f7 0b 00 01 08 00    	testl  $0x80100,(%rbx)
+  arch/x86/tools/insn_decoder_test: warning: objdump says 6 bytes, but insn_get_length() says 2
+  arch/x86/tools/insn_decoder_test: warning: Decoded and checked 11913894 instructions with 1 failures
+    TEST    posttest
+  arch/x86/tools/insn_sanity: Success: decoded and checked 1000000 random instructions with 0 errors (seed:0x871ce29c)
+
+To fix this error, add the TEST opcode according to AMD64 APM Vol.3.
+
+ [ bp: Massage commit message. ]
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lkml.kernel.org/r/157966631413.9580.10311036595431878351.stgit@devnote2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/lib/x86-opcode-map.txt               | 2 +-
+ tools/objtool/arch/x86/lib/x86-opcode-map.txt | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index c6bfb3496684e..b99780574044a 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -1488,7 +1488,7 @@ static int __init remoteproc_init(void)
+diff --git a/arch/x86/lib/x86-opcode-map.txt b/arch/x86/lib/x86-opcode-map.txt
+index 0f7eb4f5bdb71..82e105b284e01 100644
+--- a/arch/x86/lib/x86-opcode-map.txt
++++ b/arch/x86/lib/x86-opcode-map.txt
+@@ -909,7 +909,7 @@ EndTable
  
- 	return 0;
- }
--module_init(remoteproc_init);
-+subsys_initcall(remoteproc_init);
+ GrpTable: Grp3_2
+ 0: TEST Ev,Iz
+-1:
++1: TEST Ev,Iz
+ 2: NOT Ev
+ 3: NEG Ev
+ 4: MUL rAX,Ev
+diff --git a/tools/objtool/arch/x86/lib/x86-opcode-map.txt b/tools/objtool/arch/x86/lib/x86-opcode-map.txt
+index 0f7eb4f5bdb71..82e105b284e01 100644
+--- a/tools/objtool/arch/x86/lib/x86-opcode-map.txt
++++ b/tools/objtool/arch/x86/lib/x86-opcode-map.txt
+@@ -909,7 +909,7 @@ EndTable
  
- static void __exit remoteproc_exit(void)
- {
+ GrpTable: Grp3_2
+ 0: TEST Ev,Iz
+-1:
++1: TEST Ev,Iz
+ 2: NOT Ev
+ 3: NEG Ev
+ 4: MUL rAX,Ev
 -- 
 2.20.1
 
