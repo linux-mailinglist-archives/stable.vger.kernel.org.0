@@ -2,165 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB80715D571
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 11:22:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9018C15D57E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 11:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729222AbgBNKW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 05:22:29 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41331 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729081AbgBNKW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 05:22:29 -0500
-Received: by mail-lj1-f194.google.com with SMTP id h23so10114198ljc.8
-        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 02:22:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=DPCFLwe5w3L0r6Lzka90B0ur8EggWQsgDuJCl9NKRBE=;
-        b=LuhprleJbTIo/s0Ng4elmsTIJsZIWypgwpqLVXC8WFvPWPVKD8Bap49OQUDfBUsFsh
-         lxyPJhLktS6rzlEQqhFNaFXtGdHyMgL+dglU1XV204FHVrCViAmZI+tyMxU0168SqKTa
-         CnZps/sjeL+XevF7EWu31hoG9vEi6d71FZ3StGB1M4fJ2zFu8ZTSWBXlKuQ4rwmFwffw
-         Hr5+4DVaaf0dzBDSicd6nZNiqtqHWridGfx5df/xNjM396P57rRgg35pLH3IsXr/VbZ1
-         qrJxnOOPPVdabwsXAEe9+Zzhrdzoi1m7+mRIyHBv0I5dvFFKOqTESY9C6gw/vSGRo04I
-         hEnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=DPCFLwe5w3L0r6Lzka90B0ur8EggWQsgDuJCl9NKRBE=;
-        b=pbv2iS+tEVkwjCUVREsRMpIQFEKysrXCAzjtkK+JTfHRiF+0cESFxhFXlZGOYCzTLi
-         q2hwgjoXYbjBRCoVz/bqclCb3Rzlm5xcXen8tCz4bLtwdVIhGUKTf0ia4Hh6giqyrC/c
-         zBfbyfPhMfxedYA7ZaKDsh4BaoSn+HB9JQjpPz2Sj+vQppzjHHI/x61RZUQdg4P/cf/g
-         Vbq6GavUSF+iBScsUl1WhszJN+5VLeT9YYVCvBsSLXs5gDWTymZoU8xjVD1aIF4Kx6BE
-         p1nMIGHM8BFVdgE7bT+9Yn1utVr99qGnMoG0/u2hGjXmX4Wr92jnV9x2uOgcqBU0mf30
-         bkgg==
-X-Gm-Message-State: APjAAAW6pMhesjoncNXR3kGnjTjgssSASpwHmeGQhHLPTewnmZX6IzwT
-        mh0Ow+/lWEiOimpETd+NyQV3vJUTP5xJB1NTpKcpiw==
-X-Google-Smtp-Source: APXvYqxoD9CTD5Joi5wkVeOv9lhITuc1Xukrd6KKsR+7iyuMQyfJAWQNzc/ay7+tE4S6Srw7XfRRgqbWi2kGMm1Qoog=
-X-Received: by 2002:a2e:8e70:: with SMTP id t16mr1665200ljk.73.1581675747774;
- Fri, 14 Feb 2020 02:22:27 -0800 (PST)
+        id S1729074AbgBNK0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 05:26:02 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:7534 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729026AbgBNK0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 05:26:02 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e4675ab0000>; Fri, 14 Feb 2020 02:25:47 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Fri, 14 Feb 2020 02:26:01 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Fri, 14 Feb 2020 02:26:01 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 14 Feb
+ 2020 10:25:59 +0000
+Subject: Re: [PATCH 4.4 00/91] 4.4.214-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200213151821.384445454@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <27634e98-7fb3-77ea-1700-cbf57d839933@nvidia.com>
+Date:   Fri, 14 Feb 2020 10:25:56 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200213151839.156309910@linuxfoundation.org>
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 14 Feb 2020 15:52:16 +0530
-Message-ID: <CA+G9fYsO+buQ113cN3rKMUXF7bFXZHAdyf2D-408Tr6FD3d2sQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200213151821.384445454@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1581675948; bh=ZjW60nX0T35MqSm51TqVp40HZ0y6CsNfjT3DPbV9IaU=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=Cr07jEvzSEP1aifogD/jImcWQlJ0/he2HmkVLafOBEWPP5ZIFQDTMVMlOV5teWJ6g
+         kbY9Q8piseTZSUdXP8EtLFl9H4L8IeS1XXNVF4VYoTKJuLQ61Pq02MmCLTpn31z9FY
+         5H76lJ4iJXL3rvEpjxvG/nQHMtbD0o2DUlsAm2c8lEOOeyMFB0xq+xc8dCWrwVAHjQ
+         n1CXlXafiJKMZWZBrGR7rBRJyme+010ciC2UrCm4pOdOKBwc0LF0kMuBDPU+YsgBg8
+         H8jDgufUpGqE9+eQB31V80elew08N0S6ws8TQtCizvmG49HUX9miTeZYpoPvvzMeXz
+         8eilAljT5v8NA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 13 Feb 2020 at 20:57, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.20 release.
-> There are 96 patches in this series, all will be posted as a response
+	
+On 13/02/2020 15:19, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.214 release.
+> There are 91 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
 > Anything received after that time might be too late.
->
+> 
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.20-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.214-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
 > and the diffstat can be found below.
->
+> 
 > thanks,
->
+> 
 > greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+All tests are passing for Tegra ...
 
-Summary
-------------------------------------------------------------------------
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
 
-kernel: 5.4.20-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: b06b66d0f2c4879cebdf5de3d93f4245d1470a70
-git describe: v5.4.19-97-gb06b66d0f2c4
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.19-97-gb06b66d0f2c4
+Linux version:	4.4.214-rc1-ga4539ca32651
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-No regressions (compared to build v5.4.19)
+Cheers
+Jon
 
-No fixes (compared to build v5.4.19)
-
-Ran 24660 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* libgpiod
-* ltp-fs-tests
-* ltp-ipc-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+nvpublic
