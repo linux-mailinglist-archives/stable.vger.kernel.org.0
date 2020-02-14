@@ -2,159 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB1AA15EC48
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:27:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A51715EA5F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390523AbgBNR0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:26:13 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:45448 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391006AbgBNQIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 11:08:38 -0500
-Received: by mail-wr1-f67.google.com with SMTP id g3so11486230wrs.12;
-        Fri, 14 Feb 2020 08:08:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=OM4TKjOm/yvAxQq7WYJdaCFUt3NS+HnL9lwT1oddEAo=;
-        b=GFhQJ+hJtV9xr6fa/iyNIspJNHMimG7PEECD3+yLw7/n8ay5/opd+1Z3uIoV7jcnlm
-         aQalqIHo/dDiwbZ/2VlYyWDSipThQj7QFyvjBotYy0UnWB+nOhuLnRaUq0rzJZJgpF5F
-         0v1Oq1tFtiDw1Dk/AA0omx4tECTuhufNUjNOslNL5zilNVEuN5ynaQfrdgUDwIpwCxVH
-         pSVRqlFfnYgyKmiHgUrG/naK1ydATRHxkAMfs/45/+XDLIhQu71LogLuHbZB94yyuStY
-         PFgUDob3KQnGx8goIU9DrX/qc0ty2E8rbI+DWzEozG3Xw7K/64dW1ElXY5hcR1eBz1Qy
-         XSOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=OM4TKjOm/yvAxQq7WYJdaCFUt3NS+HnL9lwT1oddEAo=;
-        b=N81s8UtGSKvnGyL/3D2SbS0votsaAeXl9Yz2V+9T/OyLqx6NZiTqm/q3Z7kbQd7HEc
-         Q3LNLu5eTF4C2jJ+/8JAv0HjFUdV0aTaOt9XdL1Srdt65HAItks7odTr6ScN3eeUzyXg
-         MCjFZO63AqnwU9HngBwfTIgoiOopIviQ681bDti5Qp1ANy5lTO1z6mz78JX/ysPlYNH3
-         UhB6tUVzfG88Ne5sUMUy/Zkwr4eDN3zFt7m1ow7eveVN5GAqPjN4pMGDdrDBOTW3yk74
-         BK4Y4o4C+Bdu2TuoQR0OexeiGfTEaG32wL4VLyEAcpwbYuElG3xVjy7K0ojDc/0kc/Nh
-         88Gg==
-X-Gm-Message-State: APjAAAVjpq9VzPBs7vYso92iA+za3tT+XVK0xy64qNXmjnCnpgMA0IxE
-        +okbYgfqat4Z1+5QbO4GZSHRxA9C/EOBP8Tw1hY=
-X-Google-Smtp-Source: APXvYqycEObI3GuA97O29Uko4AYNY69SACij6kVruVhitwPSRHXHFvmF3LOmMBqyGsePRr9hcwAdn5JYY0iru+ql/OE=
-X-Received: by 2002:adf:8b59:: with SMTP id v25mr4891241wra.419.1581696516592;
- Fri, 14 Feb 2020 08:08:36 -0800 (PST)
-MIME-Version: 1.0
-References: <20200214154854.6746-1-sashal@kernel.org>
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Fri, 14 Feb 2020 11:08:24 -0500
-Message-ID: <CADnq5_O1wBfVsjj1_hNqtaugw334i0X4NgPLopE4Rb-to8riLA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.5 001/542] drm/amdgpu: remove set but not used
- variable 'mc_shared_chmap' from 'gfx_v6_0.c' and 'gfx_v7_0.c'
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>,
+        id S2403899AbgBNRNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:13:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40658 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2392074AbgBNQMv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:51 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE6BF246AD;
+        Fri, 14 Feb 2020 16:12:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581696771;
+        bh=LOx3G48+qeXW1DcwfmUwMyuzLK0jenhTWOn+vwiGn6s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OIgGQXouL24ll5AUew/Ttwf9FD6PNTzp/oOAeV6d32mTExZgDs0IXs1TnpVBjo36f
+         wOeI3Yqit6UBSXtOddPqN9ivWGFjE0mOjcCJcHlrq/9bFzHhV644EiKv7LP4FABbCW
+         DLepagD8i5L2j20AAV/Cepik3RZ2H+6iCBZF4fuI=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Harry Wentland <harry.wentland@amd.com>,
+        Louis Li <Ching-shih.Li@amd.com>,
+        Wenjing Liu <Wenjing.Liu@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Eric Yang <Eric.Yang2@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        yu kuai <yukuai3@huawei.com>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 049/252] drm/amd/display: Retrain dongles when SINK_COUNT becomes non-zero
+Date:   Fri, 14 Feb 2020 11:08:24 -0500
+Message-Id: <20200214161147.15842-49-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
+References: <20200214161147.15842-1-sashal@kernel.org>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 10:48 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: yu kuai <yukuai3@huawei.com>
->
-> [ Upstream commit 747a397d394fac0001e4b3c03d7dce3a118af567 ]
->
-> Fixes gcc '-Wunused-but-set-variable' warning:
+From: Harry Wentland <harry.wentland@amd.com>
 
-There are a bunch of patches that remove set but unused variables in
-this series of stable patches.  They shouldn't hurt anything, but they
-are not really bug fixes per se.  I don't know if there is a general
-opinion for how to deal with patches like this in stable.
+[ Upstream commit 3eb6d7aca53d81ce888624f09cd44dc0302161e8 ]
 
-Alex
+[WHY]
+Two years ago the patch referenced by the Fixes tag stopped running
+dp_verify_link_cap_with_retries during DP detection when the reason
+for the detection was a short-pulse interrupt. This effectively meant
+that we were no longer doing the verify_link_cap training on active
+dongles when their SINK_COUNT changed from 0 to 1.
 
->
-> drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c: In function
-> =E2=80=98gfx_v6_0_constants_init=E2=80=99:
-> drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c:1579:6: warning: variable
-> =E2=80=98mc_shared_chmap=E2=80=99 set but not used [-Wunused-but-set-vari=
-able]
->
-> drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c: In function
-> =E2=80=98gfx_v7_0_gpu_early_init=E2=80=99:
-> drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c:4262:6: warning: variable
-> =E2=80=98mc_shared_chmap=E2=80=99 set but not used [-Wunused-but-set-vari=
-able]
->
-> Fixes: 2cd46ad22383 ("drm/amdgpu: add graphic pipeline implementation for=
- si v8")
-> Fixes: d93f3ca706b8 ("drm/amdgpu/gfx7: rework gpu_init()")
-> Signed-off-by: yu kuai <yukuai3@huawei.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c | 3 +--
->  drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c | 3 +--
->  2 files changed, 2 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c b/drivers/gpu/drm/amd/=
-amdgpu/gfx_v6_0.c
-> index 7f0a63628c43a..31f44d05e606d 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
-> @@ -1576,7 +1576,7 @@ static void gfx_v6_0_config_init(struct amdgpu_devi=
-ce *adev)
->  static void gfx_v6_0_constants_init(struct amdgpu_device *adev)
->  {
->         u32 gb_addr_config =3D 0;
-> -       u32 mc_shared_chmap, mc_arb_ramcfg;
-> +       u32 mc_arb_ramcfg;
->         u32 sx_debug_1;
->         u32 hdp_host_path_cntl;
->         u32 tmp;
-> @@ -1678,7 +1678,6 @@ static void gfx_v6_0_constants_init(struct amdgpu_d=
-evice *adev)
->
->         WREG32(mmBIF_FB_EN, BIF_FB_EN__FB_READ_EN_MASK | BIF_FB_EN__FB_WR=
-ITE_EN_MASK);
->
-> -       mc_shared_chmap =3D RREG32(mmMC_SHARED_CHMAP);
->         adev->gfx.config.mc_arb_ramcfg =3D RREG32(mmMC_ARB_RAMCFG);
->         mc_arb_ramcfg =3D adev->gfx.config.mc_arb_ramcfg;
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c b/drivers/gpu/drm/amd/=
-amdgpu/gfx_v7_0.c
-> index d92e92e5d50b7..8f20a5dd44fe7 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
-> @@ -4258,7 +4258,7 @@ static int gfx_v7_0_late_init(void *handle)
->  static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
->  {
->         u32 gb_addr_config;
-> -       u32 mc_shared_chmap, mc_arb_ramcfg;
-> +       u32 mc_arb_ramcfg;
->         u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_add=
-r_map;
->         u32 tmp;
->
-> @@ -4335,7 +4335,6 @@ static void gfx_v7_0_gpu_early_init(struct amdgpu_d=
-evice *adev)
->                 break;
->         }
->
-> -       mc_shared_chmap =3D RREG32(mmMC_SHARED_CHMAP);
->         adev->gfx.config.mc_arb_ramcfg =3D RREG32(mmMC_ARB_RAMCFG);
->         mc_arb_ramcfg =3D adev->gfx.config.mc_arb_ramcfg;
->
-> --
-> 2.20.1
->
-> _______________________________________________
-> amd-gfx mailing list
-> amd-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+A year ago this was partly remedied with:
+commit 80adaebd2d41 ("drm/amd/display: Don't skip link training for empty dongle")
+
+This made sure that we trained the dongle on initial hotplug (without
+connected downstream devices).
+
+This is all fine and dandy if it weren't for the fact that there are
+some dongles on the market that don't like link training when SINK_COUNT
+is 0 These dongles will in fact indicate a SINK_COUNT of 0 immediately
+after hotplug, even when a downstream device is connected, and then
+trigger a shortpulse interrupt indicating a SINK_COUNT change to 1.
+
+In order to play nicely we will need our policy to not link train an
+active DP dongle when SINK_COUNT is 0 but ensure we train it when the
+SINK_COUNT changes to 1.
+
+[HOW]
+Call dp_verify_link_cap_with_retries on detection even when the detection
+is triggered from a short pulse interrupt.
+
+With this change we can also revert this commit which we'll do in a separate
+follow-up change:
+commit 80adaebd2d41 ("drm/amd/display: Don't skip link training for empty dongle")
+
+Fixes: 0301ccbaf67d ("drm/amd/display: DP Compliance 400.1.1 failure")
+Suggested-by: Louis Li <Ching-shih.Li@amd.com>
+Tested-by: Louis Li <Ching-shih.Li@amd.com>
+Cc: Wenjing Liu <Wenjing.Liu@amd.com>
+Cc: Hersen Wu <hersenxs.wu@amd.com>
+Cc: Eric Yang <Eric.Yang2@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 2f42964fb9f45..3abc0294c05f5 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -780,8 +780,7 @@ bool dc_link_detect(struct dc_link *link, enum dc_detect_reason reason)
+ 			same_edid = is_same_edid(&prev_sink->dc_edid, &sink->dc_edid);
+ 
+ 		if (link->connector_signal == SIGNAL_TYPE_DISPLAY_PORT &&
+-			sink_caps.transaction_type == DDC_TRANSACTION_TYPE_I2C_OVER_AUX &&
+-			reason != DETECT_REASON_HPDRX) {
++			sink_caps.transaction_type == DDC_TRANSACTION_TYPE_I2C_OVER_AUX) {
+ 			/*
+ 			 * TODO debug why Dell 2413 doesn't like
+ 			 *  two link trainings
+-- 
+2.20.1
+
