@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB6C15E102
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1643815E107
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:16:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392615AbgBNQQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
+        id S2392625AbgBNQQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:16:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392610AbgBNQQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:16:31 -0500
+        id S2404317AbgBNQQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BECE2468F;
-        Fri, 14 Feb 2020 16:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A33C224694;
+        Fri, 14 Feb 2020 16:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696991;
-        bh=9j8X2m67R4Ml4yEuJzG98wz75DIpMegNzJAmtFU/4bQ=;
+        s=default; t=1581696998;
+        bh=WKeqSySH9aIG09sch9PE7HMHhM0Qp6oU8B87iJeSRZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MULZ9FeTa6EThUxhca/XeVVF30IABsq9z4utLCuA7MXj2Larfl7Y99MMYFiTNJs8K
-         NCUBMvt6i0b3XKfbRJ1E1UMqciGitqVoUY+zhL+76FgDyzGgOEukc53ZAK3iUdV636
-         vKIlLyjuYDz3zUVrD3Mt3q4eRAk+PXaTzF4OYZTI=
+        b=L8FHbSXARbUn9hEnqtosaIKl9wdsH95KiissZVC2rMo/3wpmuchLKUf74O4P7lUDl
+         pA9YXbAZqyN47s7zUm3XkTtwsPgBFpoqtVIuUXtHmRBJq4VKT8YGehNv+3O3AtTcOL
+         9VX7bwsOWkPlCvpGrrTaaMzyKulKNyGTEUA3EY64=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.19 225/252] cifs: fix NULL dereference in match_prepath
-Date:   Fri, 14 Feb 2020 11:11:20 -0500
-Message-Id: <20200214161147.15842-225-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Heyi Guo <guoheyi@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 231/252] irqchip/gic-v3: Only provision redistributors that are enabled in ACPI
+Date:   Fri, 14 Feb 2020 11:11:26 -0500
+Message-Id: <20200214161147.15842-231-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,41 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit fe1292686333d1dadaf84091f585ee903b9ddb84 ]
+[ Upstream commit 926b5dfa6b8dc666ff398044af6906b156e1d949 ]
 
-RHBZ: 1760879
+We currently allocate redistributor region structures for
+individual redistributors when ACPI doesn't present us with
+compact MMIO regions covering multiple redistributors.
 
-Fix an oops in match_prepath() by making sure that the prepath string is not
-NULL before we pass it into strcmp().
+It turns out that we allocate these structures even when
+the redistributor is flagged as disabled by ACPI. It works
+fine until someone actually tries to tarse one of these
+structures, and access the corresponding MMIO region.
 
-This is similar to other checks we make for example in cifs_root_iget()
+Instead, track the number of enabled redistributors, and
+only allocate what is required. This makes sure that there
+is no invalid data to misuse.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reported-by: Heyi Guo <guoheyi@huawei.com>
+Tested-by: Heyi Guo <guoheyi@huawei.com>
+Link: https://lore.kernel.org/r/20191216062745.63397-1-guoheyi@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-gic-v3.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 576cf71576da1..6c62ce40608a1 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3342,8 +3342,10 @@ match_prepath(struct super_block *sb, struct cifs_mnt_data *mnt_data)
- {
- 	struct cifs_sb_info *old = CIFS_SB(sb);
- 	struct cifs_sb_info *new = mnt_data->cifs_sb;
--	bool old_set = old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
--	bool new_set = new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
-+	bool old_set = (old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+		old->prepath;
-+	bool new_set = (new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+		new->prepath;
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index d5912f1ec8848..ac888d7a0b00a 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -1347,6 +1347,7 @@ static struct
+ 	struct redist_region *redist_regs;
+ 	u32 nr_redist_regions;
+ 	bool single_redist;
++	int enabled_rdists;
+ 	u32 maint_irq;
+ 	int maint_irq_mode;
+ 	phys_addr_t vcpu_base;
+@@ -1441,8 +1442,10 @@ static int __init gic_acpi_match_gicc(struct acpi_subtable_header *header,
+ 	 * If GICC is enabled and has valid gicr base address, then it means
+ 	 * GICR base is presented via GICC
+ 	 */
+-	if ((gicc->flags & ACPI_MADT_ENABLED) && gicc->gicr_base_address)
++	if ((gicc->flags & ACPI_MADT_ENABLED) && gicc->gicr_base_address) {
++		acpi_data.enabled_rdists++;
+ 		return 0;
++	}
  
- 	if (old_set && new_set && !strcmp(new->prepath, old->prepath))
- 		return 1;
+ 	/*
+ 	 * It's perfectly valid firmware can pass disabled GICC entry, driver
+@@ -1472,8 +1475,10 @@ static int __init gic_acpi_count_gicr_regions(void)
+ 
+ 	count = acpi_table_parse_madt(ACPI_MADT_TYPE_GENERIC_INTERRUPT,
+ 				      gic_acpi_match_gicc, 0);
+-	if (count > 0)
++	if (count > 0) {
+ 		acpi_data.single_redist = true;
++		count = acpi_data.enabled_rdists;
++	}
+ 
+ 	return count;
+ }
 -- 
 2.20.1
 
