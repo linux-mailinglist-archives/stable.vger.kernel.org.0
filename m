@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C68B15E382
+	by mail.lfdr.de (Postfix) with ESMTP id 870BA15E383
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405449AbgBNQ0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2406374AbgBNQ0R (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 11:26:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36756 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406363AbgBNQ0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:26:16 -0500
+        id S2406371AbgBNQ0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:26:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8C0C246FB;
-        Fri, 14 Feb 2020 16:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10F1D24700;
+        Fri, 14 Feb 2020 16:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697575;
-        bh=du9oXxZbxUbew44pUv5fioKxk69e07rtJO050qyje3k=;
+        s=default; t=1581697576;
+        bh=IEqL5xJdvkCDBxzC/BErSDTVMFN7oI3hvjjONr0p9Tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mvelescX/rqV3oLvWy0zinLCQkwfqCRLz9oS0p0w6tMrKuWXUHvoFfudS1VuYjLY
-         Vk/pLNsz9BigBSr7PknUZvqrZoZv8/okt2dDD4i1EsqL5GVk1KGv2G/XZgImUkQSz5
-         CHaWBvqPSDg4j0wVQLFs9ObvRmoy1HCTQ6t3Gk0U=
+        b=l8Wotf24Kiku2rlbig6Yt3sPhKvRFhlYm4P9Gns9jzaeEQyCImN1KocFfwSOmIWAE
+         le5aNpHvfw3yrXjDhjAd1uhqHUaytUawtGwWU10mnO1fU+PRJGkR/g9Hhc74MsmvzM
+         PNEHz/xhVW3UUfxuBE59Ne2FTZXOU+L3SBReDWZo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qing Xu <m1s5p6688@gmail.com>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 089/100] mwifiex: Fix possible buffer overflows in mwifiex_cmd_append_vsie_tlv()
-Date:   Fri, 14 Feb 2020 11:24:13 -0500
-Message-Id: <20200214162425.21071-89-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 090/100] drm/nouveau/disp/nv50-: prevent oops when no channel method map provided
+Date:   Fri, 14 Feb 2020 11:24:14 -0500
+Message-Id: <20200214162425.21071-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -43,41 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qing Xu <m1s5p6688@gmail.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit b70261a288ea4d2f4ac7cd04be08a9f0f2de4f4d ]
+[ Upstream commit 0e6176c6d286316e9431b4f695940cfac4ffe6c2 ]
 
-mwifiex_cmd_append_vsie_tlv() calls memcpy() without checking
-the destination size may trigger a buffer overflower,
-which a local user could use to cause denial of service
-or the execution of arbitrary code.
-Fix it by putting the length check before calling memcpy().
+The implementations for most channel types contains a map of methods to
+priv registers in order to provide debugging info when a disp exception
+has been raised.
 
-Signed-off-by: Qing Xu <m1s5p6688@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This info is missing from the implementation of PIO channels as they're
+rather simplistic already, however, if an exception is raised by one of
+them, we'd end up triggering a NULL-pointer deref.  Not ideal...
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206299
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mwifiex/scan.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/mwifiex/scan.c b/drivers/net/wireless/mwifiex/scan.c
-index 39b78dc1bd92b..e7c8972431d34 100644
---- a/drivers/net/wireless/mwifiex/scan.c
-+++ b/drivers/net/wireless/mwifiex/scan.c
-@@ -2568,6 +2568,13 @@ mwifiex_cmd_append_vsie_tlv(struct mwifiex_private *priv,
- 			vs_param_set->header.len =
- 				cpu_to_le16((((u16) priv->vs_ie[id].ie[1])
- 				& 0x00FF) + 2);
-+			if (le16_to_cpu(vs_param_set->header.len) >
-+				MWIFIEX_MAX_VSIE_LEN) {
-+				mwifiex_dbg(priv->adapter, ERROR,
-+					    "Invalid param length!\n");
-+				break;
-+			}
-+
- 			memcpy(vs_param_set->ie, priv->vs_ie[id].ie,
- 			       le16_to_cpu(vs_param_set->header.len));
- 			*buffer += le16_to_cpu(vs_param_set->header.len) +
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+index 01803c0679b68..d012df9fb9df0 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+@@ -72,6 +72,8 @@ nv50_disp_chan_mthd(struct nv50_disp_chan *chan, int debug)
+ 
+ 	if (debug > subdev->debug)
+ 		return;
++	if (!mthd)
++		return;
+ 
+ 	for (i = 0; (list = mthd->data[i].mthd) != NULL; i++) {
+ 		u32 base = chan->head * mthd->addr;
 -- 
 2.20.1
 
