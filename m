@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DDB715F022
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F44615F01B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:53:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388524AbgBNRws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:52:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42578 "EHLO mail.kernel.org"
+        id S2388788AbgBNRwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:52:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388606AbgBNP6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:31 -0500
+        id S2388524AbgBNP6c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17BDC22314;
-        Fri, 14 Feb 2020 15:58:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 611D62082F;
+        Fri, 14 Feb 2020 15:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695911;
-        bh=0AGS+MlQMepeARnJsKYIBXgbmtmIqDDXRQy0zLTy+2Q=;
+        s=default; t=1581695912;
+        bh=yroluB80juEOBOMZpHb7UIBLBNUqDczFT6GWjTSJ5BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0i8m1m3Epasid4UBYWjGkUrEkJk6NLoU3L8ELRRBKC/P3x121ThCu2/pEq/QjT4Ow
-         O7W7KnDPj/EKbGFm3AgPz7EgCsLEnE7BNoFI8bhRPalxsBVMBG+og5cDhEvT1pr8Az
-         qzGeAN9rQuvEUnfmcJz1B4uSM5Fs+tc0CGXL43MU=
+        b=O78SqoI9Mmm+XgxQJtkQLG0dToBz+V3PROs1Q2u/ar2QOb++R5/LgaPWW1EsoVnN/
+         taH9Ax3ryhS1H6Ysk46gMzhLKqSB/YQBpu62PyuGJ8l6ogfam0QNPidMkdgI5S+SbN
+         5B1wT8g+cvy60LqPj0o3WYjxfVQwzyjTA1HZ2UmQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tero Kristo <t-kristo@ti.com>, Benoit Parrot <bparrot@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 450/542] ARM: dts: am43xx: add support for clkout1 clock
-Date:   Fri, 14 Feb 2020 10:47:22 -0500
-Message-Id: <20200214154854.6746-450-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 451/542] tty: n_hdlc: Use flexible-array member and struct_size() helper
+Date:   Fri, 14 Feb 2020 10:47:23 -0500
+Message-Id: <20200214154854.6746-451-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,99 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-[ Upstream commit 01053dadb79d63b65f7b353e68b4b6ccf4effedb ]
+[ Upstream commit 85f4c95172d606dd66f7ee1fa50c45a245535ffd ]
 
-clkout1 clock node and its generation tree was missing. Add this based
-on the data on TRM and PRCM functional spec.
+Old code in the kernel uses 1-byte and 0-byte arrays to indicate the
+presence of a "variable length array":
 
-commit 664ae1ab2536 ("ARM: dts: am43xx: add clkctrl nodes") effectively
-reverted this commit 8010f13a40d3 ("ARM: dts: am43xx: add support for
-clkout1 clock") which is needed for the ov2659 camera sensor clock
-definition hence it is being re-applied here.
+struct something {
+    int length;
+    u8 data[1];
+};
 
-Note that because of the current dts node name dependency for mapping to
-clock domain, we must still use "clkout1-*ck" naming instead of generic
-"clock@" naming for the node. And because of this, it's probably best to
-apply the dts node addition together along with the other clock changes.
+struct something *instance;
 
-Fixes: 664ae1ab2536 ("ARM: dts: am43xx: add clkctrl nodes")
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Tested-by: Benoit Parrot <bparrot@ti.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+instance = kmalloc(sizeof(*instance) + size, GFP_KERNEL);
+instance->length = size;
+memcpy(instance->data, source, size);
+
+There is also 0-byte arrays. Both cases pose confusion for things like
+sizeof(), CONFIG_FORTIFY_SOURCE, etc.[1] Instead, the preferred mechanism
+to declare variable-length types such as the one above is a flexible array
+member[2] which need to be the last member of a structure and empty-sized:
+
+struct something {
+        int stuff;
+        u8 data[];
+};
+
+Also, by making use of the mechanism above, we will get a compiler warning
+in case the flexible array does not occur last in the structure, which
+will help us prevent some kind of undefined behavior bugs from being
+inadvertenly introduced[3] to the codebase from now on.
+
+Lastly, make use of the struct_size() helper to safely calculate the
+allocation size for instances of struct n_hdlc_buf and avoid any potential
+type mistakes[4][5].
+
+[1] https://github.com/KSPP/linux/issues/21
+[2] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+[3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
+[4] https://lore.kernel.org/lkml/60e14fb7-8596-e21c-f4be-546ce39e7bdb@embeddedor.com/
+[5] commit 553d66cb1e86 ("iommu/vt-d: Use struct_size() helper")
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200121172138.GA3162@embeddedor
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am43xx-clocks.dtsi | 54 ++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ drivers/tty/n_hdlc.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am43xx-clocks.dtsi b/arch/arm/boot/dts/am43xx-clocks.dtsi
-index 091356f2a8c16..c726cd8dbdf1b 100644
---- a/arch/arm/boot/dts/am43xx-clocks.dtsi
-+++ b/arch/arm/boot/dts/am43xx-clocks.dtsi
-@@ -704,6 +704,60 @@
- 		ti,bit-shift = <8>;
- 		reg = <0x2a48>;
- 	};
-+
-+	clkout1_osc_div_ck: clkout1-osc-div-ck {
-+		#clock-cells = <0>;
-+		compatible = "ti,divider-clock";
-+		clocks = <&sys_clkin_ck>;
-+		ti,bit-shift = <20>;
-+		ti,max-div = <4>;
-+		reg = <0x4100>;
-+	};
-+
-+	clkout1_src2_mux_ck: clkout1-src2-mux-ck {
-+		#clock-cells = <0>;
-+		compatible = "ti,mux-clock";
-+		clocks = <&clk_rc32k_ck>, <&sysclk_div>, <&dpll_ddr_m2_ck>,
-+			 <&dpll_per_m2_ck>, <&dpll_disp_m2_ck>,
-+			 <&dpll_mpu_m2_ck>;
-+		reg = <0x4100>;
-+	};
-+
-+	clkout1_src2_pre_div_ck: clkout1-src2-pre-div-ck {
-+		#clock-cells = <0>;
-+		compatible = "ti,divider-clock";
-+		clocks = <&clkout1_src2_mux_ck>;
-+		ti,bit-shift = <4>;
-+		ti,max-div = <8>;
-+		reg = <0x4100>;
-+	};
-+
-+	clkout1_src2_post_div_ck: clkout1-src2-post-div-ck {
-+		#clock-cells = <0>;
-+		compatible = "ti,divider-clock";
-+		clocks = <&clkout1_src2_pre_div_ck>;
-+		ti,bit-shift = <8>;
-+		ti,max-div = <32>;
-+		ti,index-power-of-two;
-+		reg = <0x4100>;
-+	};
-+
-+	clkout1_mux_ck: clkout1-mux-ck {
-+		#clock-cells = <0>;
-+		compatible = "ti,mux-clock";
-+		clocks = <&clkout1_osc_div_ck>, <&clk_rc32k_ck>,
-+			 <&clkout1_src2_post_div_ck>, <&dpll_extdev_m2_ck>;
-+		ti,bit-shift = <16>;
-+		reg = <0x4100>;
-+	};
-+
-+	clkout1_ck: clkout1-ck {
-+		#clock-cells = <0>;
-+		compatible = "ti,gate-clock";
-+		clocks = <&clkout1_mux_ck>;
-+		ti,bit-shift = <23>;
-+		reg = <0x4100>;
-+	};
+diff --git a/drivers/tty/n_hdlc.c b/drivers/tty/n_hdlc.c
+index 98361acd3053f..27b506bf03ced 100644
+--- a/drivers/tty/n_hdlc.c
++++ b/drivers/tty/n_hdlc.c
+@@ -115,11 +115,9 @@
+ struct n_hdlc_buf {
+ 	struct list_head  list_item;
+ 	int		  count;
+-	char		  buf[1];
++	char		  buf[];
  };
  
- &prcm {
+-#define	N_HDLC_BUF_SIZE	(sizeof(struct n_hdlc_buf) + maxframe)
+-
+ struct n_hdlc_buf_list {
+ 	struct list_head  list;
+ 	int		  count;
+@@ -524,7 +522,8 @@ static void n_hdlc_tty_receive(struct tty_struct *tty, const __u8 *data,
+ 		/* no buffers in free list, attempt to allocate another rx buffer */
+ 		/* unless the maximum count has been reached */
+ 		if (n_hdlc->rx_buf_list.count < MAX_RX_BUF_COUNT)
+-			buf = kmalloc(N_HDLC_BUF_SIZE, GFP_ATOMIC);
++			buf = kmalloc(struct_size(buf, buf, maxframe),
++				      GFP_ATOMIC);
+ 	}
+ 	
+ 	if (!buf) {
+@@ -853,7 +852,7 @@ static struct n_hdlc *n_hdlc_alloc(void)
+ 
+ 	/* allocate free rx buffer list */
+ 	for(i=0;i<DEFAULT_RX_BUF_COUNT;i++) {
+-		buf = kmalloc(N_HDLC_BUF_SIZE, GFP_KERNEL);
++		buf = kmalloc(struct_size(buf, buf, maxframe), GFP_KERNEL);
+ 		if (buf)
+ 			n_hdlc_buf_put(&n_hdlc->rx_free_buf_list,buf);
+ 		else if (debuglevel >= DEBUG_LEVEL_INFO)	
+@@ -862,7 +861,7 @@ static struct n_hdlc *n_hdlc_alloc(void)
+ 	
+ 	/* allocate free tx buffer list */
+ 	for(i=0;i<DEFAULT_TX_BUF_COUNT;i++) {
+-		buf = kmalloc(N_HDLC_BUF_SIZE, GFP_KERNEL);
++		buf = kmalloc(struct_size(buf, buf, maxframe), GFP_KERNEL);
+ 		if (buf)
+ 			n_hdlc_buf_put(&n_hdlc->tx_free_buf_list,buf);
+ 		else if (debuglevel >= DEBUG_LEVEL_INFO)	
 -- 
 2.20.1
 
