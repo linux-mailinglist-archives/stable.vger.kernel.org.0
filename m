@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C048C15DC6E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9ACB15DCA8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731150AbgBNPxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:53:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
+        id S1731382AbgBNPyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:54:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731145AbgBNPxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:06 -0500
+        id S1731379AbgBNPx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:53:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C913F2468D;
-        Fri, 14 Feb 2020 15:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75A042465D;
+        Fri, 14 Feb 2020 15:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695584;
-        bh=0ZqAx6uhJOEXGfvSnSWk+izdxpCldziodU+GfGmI9sA=;
+        s=default; t=1581695637;
+        bh=j0ecz4Ik4NMLL9kgzq4YLNjoyq9+a+XaYhdyqFBoVvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rAcJ29Q6nfqvBi1rpnHfi2SfBlfT5bs0246z1mVJeEhIfhHgG2I4q40qE5lT1eMu
-         vR/0AqlOMbH6nyiM1aPKCe4PVYPUehMIJKmQTNXmHhPqOPlUY50bARxxxHoQfKN5PE
-         /bvE6Uc/CHp1TDniF109TWJ+dhwUhLRoW2IzfrDY=
+        b=Mn9yO0iAfLfZcik0tAOpsg6xV6GlgfMaahjp3lGdq9XG0hygmKlEPZJTD55O9BshX
+         UMbyW8elwTy/Ph1rFqHUDP7k2qnHJxsCjzKraG1eRxzMH3snHkTlmINL0nFLR5AtR9
+         I3i+hevagEXeNWYImkDxoDWvMmoeAUSCCv322Jfk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 193/542] padata: validate cpumask without removed CPU during offline
-Date:   Fri, 14 Feb 2020 10:43:05 -0500
-Message-Id: <20200214154854.6746-193-sashal@kernel.org>
+Cc:     Sung Lee <sung.lee@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 233/542] drm/amd/display: Lower DPP DTO only when safe
+Date:   Fri, 14 Feb 2020 10:43:45 -0500
+Message-Id: <20200214154854.6746-233-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -47,185 +47,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Sung Lee <sung.lee@amd.com>
 
-[ Upstream commit 894c9ef9780c5cf2f143415e867ee39a33ecb75d ]
+[ Upstream commit 5479034576ec8b7166a66efe5de1d911feb43d4a ]
 
-Configuring an instance's parallel mask without any online CPUs...
+[Why]
+A corner case currently exists where DPP DTO is lowered before
+pipes are updated to a higher viewport. This causes underflow
+as the DPPCLK is too low for the current viewport.
 
-  echo 2 > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
-  echo 0 > /sys/devices/system/cpu/cpu1/online
+[How]
+Only lower DPP DTO when it is safe to lower, or if
+the newer clocks are higher than the current ones.
 
-...makes tcrypt mode=215 crash like this:
-
-  divide error: 0000 [#1] SMP PTI
-  CPU: 4 PID: 283 Comm: modprobe Not tainted 5.4.0-rc8-padata-doc-v2+ #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191013_105130-anatol 04/01/2014
-  RIP: 0010:padata_do_parallel+0x114/0x300
-  Call Trace:
-   pcrypt_aead_encrypt+0xc0/0xd0 [pcrypt]
-   crypto_aead_encrypt+0x1f/0x30
-   do_mult_aead_op+0x4e/0xdf [tcrypt]
-   test_mb_aead_speed.constprop.0.cold+0x226/0x564 [tcrypt]
-   do_test+0x28c2/0x4d49 [tcrypt]
-   tcrypt_mod_init+0x55/0x1000 [tcrypt]
-   ...
-
-cpumask_weight() in padata_cpu_hash() returns 0 because the mask has no
-CPUs.  The problem is __padata_remove_cpu() checks for valid masks too
-early and so doesn't mark the instance PADATA_INVALID as expected, which
-would have made padata_do_parallel() return error before doing the
-division.
-
-Fix by introducing a second padata CPU hotplug state before
-CPUHP_BRINGUP_CPU so that __padata_remove_cpu() sees the online mask
-without @cpu.  No need for the second argument to padata_replace() since
-@cpu is now already missing from the online mask.
-
-Fixes: 33e54450683c ("padata: Handle empty padata cpumasks")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/cpuhotplug.h |  1 +
- kernel/padata.c            | 30 ++++++++++++++++++------------
- 2 files changed, 19 insertions(+), 12 deletions(-)
+ .../amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c | 16 ++++++++++------
+ .../amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h |  2 +-
+ .../amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c    |  8 ++++----
+ 3 files changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index e51ee772b9f57..def48a5836700 100644
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -59,6 +59,7 @@ enum cpuhp_state {
- 	CPUHP_IOMMU_INTEL_DEAD,
- 	CPUHP_LUSTRE_CFS_DEAD,
- 	CPUHP_AP_ARM_CACHE_B15_RAC_DEAD,
-+	CPUHP_PADATA_DEAD,
- 	CPUHP_WORKQUEUE_PREP,
- 	CPUHP_POWER_NUMA_PREPARE,
- 	CPUHP_HRTIMERS_PREPARE,
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 9c82ee4a97323..fda7a7039422d 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -512,7 +512,7 @@ static int padata_replace_one(struct padata_shell *ps)
- 	return 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
+index 25d7b7c6681cc..7dca2e6eb3bc9 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
+@@ -100,13 +100,13 @@ uint32_t dentist_get_did_from_divider(int divider)
  }
  
--static int padata_replace(struct padata_instance *pinst, int cpu)
-+static int padata_replace(struct padata_instance *pinst)
+ void dcn20_update_clocks_update_dpp_dto(struct clk_mgr_internal *clk_mgr,
+-		struct dc_state *context)
++		struct dc_state *context, bool safe_to_lower)
  {
- 	int notification_mask = 0;
- 	struct padata_shell *ps;
-@@ -523,16 +523,12 @@ static int padata_replace(struct padata_instance *pinst, int cpu)
- 	cpumask_copy(pinst->omask, pinst->rcpumask.pcpu);
- 	cpumask_and(pinst->rcpumask.pcpu, pinst->cpumask.pcpu,
- 		    cpu_online_mask);
--	if (cpu >= 0)
--		cpumask_clear_cpu(cpu, pinst->rcpumask.pcpu);
- 	if (!cpumask_equal(pinst->omask, pinst->rcpumask.pcpu))
- 		notification_mask |= PADATA_CPU_PARALLEL;
+ 	int i;
  
- 	cpumask_copy(pinst->omask, pinst->rcpumask.cbcpu);
- 	cpumask_and(pinst->rcpumask.cbcpu, pinst->cpumask.cbcpu,
- 		    cpu_online_mask);
--	if (cpu >= 0)
--		cpumask_clear_cpu(cpu, pinst->rcpumask.cbcpu);
- 	if (!cpumask_equal(pinst->omask, pinst->rcpumask.cbcpu))
- 		notification_mask |= PADATA_CPU_SERIAL;
+ 	clk_mgr->dccg->ref_dppclk = clk_mgr->base.clks.dppclk_khz;
+ 	for (i = 0; i < clk_mgr->base.ctx->dc->res_pool->pipe_count; i++) {
+-		int dpp_inst, dppclk_khz;
++		int dpp_inst, dppclk_khz, prev_dppclk_khz;
  
-@@ -624,7 +620,7 @@ static int __padata_set_cpumasks(struct padata_instance *pinst,
- 	cpumask_copy(pinst->cpumask.pcpu, pcpumask);
- 	cpumask_copy(pinst->cpumask.cbcpu, cbcpumask);
+ 		/* Loop index will match dpp->inst if resource exists,
+ 		 * and we want to avoid dependency on dpp object
+@@ -114,8 +114,12 @@ void dcn20_update_clocks_update_dpp_dto(struct clk_mgr_internal *clk_mgr,
+ 		dpp_inst = i;
+ 		dppclk_khz = context->res_ctx.pipe_ctx[i].plane_res.bw.dppclk_khz;
  
--	err = padata_setup_cpumasks(pinst) ?: padata_replace(pinst, -1);
-+	err = padata_setup_cpumasks(pinst) ?: padata_replace(pinst);
+-		clk_mgr->dccg->funcs->update_dpp_dto(
+-				clk_mgr->dccg, dpp_inst, dppclk_khz);
++		prev_dppclk_khz = clk_mgr->base.ctx->dc->current_state->res_ctx.pipe_ctx[i].plane_res.bw.dppclk_khz;
++
++		if (safe_to_lower || prev_dppclk_khz < dppclk_khz) {
++			clk_mgr->dccg->funcs->update_dpp_dto(
++							clk_mgr->dccg, dpp_inst, dppclk_khz);
++		}
+ 	}
+ }
  
- 	if (valid)
- 		__padata_start(pinst);
-@@ -715,7 +711,7 @@ static int __padata_add_cpu(struct padata_instance *pinst, int cpu)
- 	int err = 0;
- 
- 	if (cpumask_test_cpu(cpu, cpu_online_mask)) {
--		err = padata_replace(pinst, -1);
-+		err = padata_replace(pinst);
- 
- 		if (padata_validate_cpumask(pinst, pinst->cpumask.pcpu) &&
- 		    padata_validate_cpumask(pinst, pinst->cpumask.cbcpu))
-@@ -729,12 +725,12 @@ static int __padata_remove_cpu(struct padata_instance *pinst, int cpu)
- {
- 	int err = 0;
- 
--	if (cpumask_test_cpu(cpu, cpu_online_mask)) {
-+	if (!cpumask_test_cpu(cpu, cpu_online_mask)) {
- 		if (!padata_validate_cpumask(pinst, pinst->cpumask.pcpu) ||
- 		    !padata_validate_cpumask(pinst, pinst->cpumask.cbcpu))
- 			__padata_stop(pinst);
- 
--		err = padata_replace(pinst, cpu);
-+		err = padata_replace(pinst);
+@@ -240,7 +244,7 @@ void dcn2_update_clocks(struct clk_mgr *clk_mgr_base,
+ 	if (dc->config.forced_clocks == false || (force_reset && safe_to_lower)) {
+ 		if (dpp_clock_lowered) {
+ 			// if clock is being lowered, increase DTO before lowering refclk
+-			dcn20_update_clocks_update_dpp_dto(clk_mgr, context);
++			dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
+ 			dcn20_update_clocks_update_dentist(clk_mgr);
+ 		} else {
+ 			// if clock is being raised, increase refclk before lowering DTO
+@@ -248,7 +252,7 @@ void dcn2_update_clocks(struct clk_mgr *clk_mgr_base,
+ 				dcn20_update_clocks_update_dentist(clk_mgr);
+ 			// always update dtos unless clock is lowered and not safe to lower
+ 			if (new_clocks->dppclk_khz >= dc->current_state->bw_ctx.bw.dcn.clk.dppclk_khz)
+-				dcn20_update_clocks_update_dpp_dto(clk_mgr, context);
++				dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
+ 		}
  	}
  
- 	return err;
-@@ -796,7 +792,7 @@ static int padata_cpu_online(unsigned int cpu, struct hlist_node *node)
- 	return ret;
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h
+index c9fd824f3c231..74ccd6c04134a 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h
+@@ -34,7 +34,7 @@ void dcn2_update_clocks_fpga(struct clk_mgr *clk_mgr,
+ 			struct dc_state *context,
+ 			bool safe_to_lower);
+ void dcn20_update_clocks_update_dpp_dto(struct clk_mgr_internal *clk_mgr,
+-		struct dc_state *context);
++		struct dc_state *context, bool safe_to_lower);
  
--static int padata_cpu_prep_down(unsigned int cpu, struct hlist_node *node)
-+static int padata_cpu_dead(unsigned int cpu, struct hlist_node *node)
- {
- 	struct padata_instance *pinst;
- 	int ret;
-@@ -817,6 +813,7 @@ static enum cpuhp_state hp_online;
- static void __padata_free(struct padata_instance *pinst)
- {
- #ifdef CONFIG_HOTPLUG_CPU
-+	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD, &pinst->node);
- 	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->node);
- #endif
+ void dcn2_init_clocks(struct clk_mgr *clk_mgr);
  
-@@ -1024,6 +1021,8 @@ static struct padata_instance *padata_alloc(const char *name,
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+index 35c55e54eac01..dbf063856846e 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -164,16 +164,16 @@ void rn_update_clocks(struct clk_mgr *clk_mgr_base,
+ 	}
  
- #ifdef CONFIG_HOTPLUG_CPU
- 	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online, &pinst->node);
-+	cpuhp_state_add_instance_nocalls_cpuslocked(CPUHP_PADATA_DEAD,
-+						    &pinst->node);
- #endif
+ 	if (dpp_clock_lowered) {
+-		// if clock is being lowered, increase DTO before lowering refclk
+-		dcn20_update_clocks_update_dpp_dto(clk_mgr, context);
++		// increase per DPP DTO before lowering global dppclk
++		dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
+ 		rn_vbios_smu_set_dppclk(clk_mgr, clk_mgr_base->clks.dppclk_khz);
+ 	} else {
+-		// if clock is being raised, increase refclk before lowering DTO
++		// increase global DPPCLK before lowering per DPP DTO
+ 		if (update_dppclk || update_dispclk)
+ 			rn_vbios_smu_set_dppclk(clk_mgr, clk_mgr_base->clks.dppclk_khz);
+ 		// always update dtos unless clock is lowered and not safe to lower
+ 		if (new_clocks->dppclk_khz >= dc->current_state->bw_ctx.bw.dcn.clk.dppclk_khz)
+-			dcn20_update_clocks_update_dpp_dto(clk_mgr, context);
++			dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
+ 	}
  
- 	put_online_cpus();
-@@ -1136,17 +1135,24 @@ static __init int padata_driver_init(void)
- 	int ret;
- 
- 	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "padata:online",
--				      padata_cpu_online,
--				      padata_cpu_prep_down);
-+				      padata_cpu_online, NULL);
- 	if (ret < 0)
- 		return ret;
- 	hp_online = ret;
-+
-+	ret = cpuhp_setup_state_multi(CPUHP_PADATA_DEAD, "padata:dead",
-+				      NULL, padata_cpu_dead);
-+	if (ret < 0) {
-+		cpuhp_remove_multi_state(hp_online);
-+		return ret;
-+	}
- 	return 0;
- }
- module_init(padata_driver_init);
- 
- static __exit void padata_driver_exit(void)
- {
-+	cpuhp_remove_multi_state(CPUHP_PADATA_DEAD);
- 	cpuhp_remove_multi_state(hp_online);
- }
- module_exit(padata_driver_exit);
+ 	if (update_dispclk &&
 -- 
 2.20.1
 
