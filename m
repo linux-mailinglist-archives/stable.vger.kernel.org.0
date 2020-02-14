@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E576A15EFD3
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2555B15EFD8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:51:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388738AbgBNP6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:58:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43300 "EHLO mail.kernel.org"
+        id S2388745AbgBNP65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:58:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388400AbgBNP6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:54 -0500
+        id S2388007AbgBNP65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FF04222C4;
-        Fri, 14 Feb 2020 15:58:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA7352467B;
+        Fri, 14 Feb 2020 15:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695934;
-        bh=PLNrytnzgF1eAeTHEjvYL517Oe7v9++dJm1YPKnNc2U=;
+        s=default; t=1581695936;
+        bh=EPGMpNhnCU4ScCAQzPrYBJssBA7zn57+mhDsCbxyLQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5lqIXlvgeFHkmc3ms1vvR9ZrOlliLaSHMZt8hbDRq5o8Su/Pi0Cdn4lWnBQkG6+y
-         6CtaL4hC4eQCuHTIbvlRi8zqerUp/CsRZPuOY3eQ3d9XvVumnUw1TTliU7600UaHab
-         8Eb03El6glPRq30+Ig9+gJoii2/YFwTW73hCL+yg=
+        b=EEyC4K71vuAdmzy/CScZSaa+MpwhytCAZcZf3efxtJo8PG4iG7SASqywOgHkVhEHU
+         WlDhzsFi6TrK8i+si3/tPcY1GvDrGcJoJmzBX9F+I2Dri4utKmWzMT1xueNpgLLAcP
+         G6r+ZOPtyvkkyGRv+9NXvAlwEsBIOuRcQ8ZKi3H4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Gunthorpe <jgg@mellanox.com>,
-        Gal Pressman <galpress@amazon.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 469/542] RDMA/core: Ensure that rdma_user_mmap_entry_remove() is a fence
-Date:   Fri, 14 Feb 2020 10:47:41 -0500
-Message-Id: <20200214154854.6746-469-sashal@kernel.org>
+Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 471/542] ath10k: pci: Only dump ATH10K_MEM_REGION_TYPE_IOREG when safe
+Date:   Fri, 14 Feb 2020 10:47:43 -0500
+Message-Id: <20200214154854.6746-471-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,41 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 6b3712c0246ca7b2b8fa05eab2362cf267410f7e ]
+[ Upstream commit d239380196c4e27a26fa4bea73d2bf994c14ec2d ]
 
-The set of entry->driver_removed is missing locking, protect it with
-xa_lock() which is held by the only reader.
+ath10k_pci_dump_memory_reg() will try to access memory of type
+ATH10K_MEM_REGION_TYPE_IOREG however, if a hardware restart is in progress
+this can crash a system.
 
-Otherwise readers may continue to see driver_removed = false after
-rdma_user_mmap_entry_remove() returns and may continue to try and
-establish new mmaps.
+Individual ioread32() time has been observed to jump from 15-20 ticks to >
+80k ticks followed by a secure-watchdog bite and a system reset.
 
-Fixes: 3411f9f01b76 ("RDMA/core: Create mmap database and cookie helper functions")
-Link: https://lore.kernel.org/r/20200115202041.GA17199@ziepe.ca
-Reviewed-by: Gal Pressman <galpress@amazon.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Work around this corner case by only issuing the read transaction when the
+driver state is ATH10K_STATE_ON.
+
+Tested-on: QCA9988 PCI 10.4-3.9.0.2-00044
+
+Fixes: 219cc084c6706 ("ath10k: add memory dump support QCA9984")
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/ib_core_uverbs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath10k/pci.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/ib_core_uverbs.c b/drivers/infiniband/core/ib_core_uverbs.c
-index b7cb59844ece4..b51bd7087a881 100644
---- a/drivers/infiniband/core/ib_core_uverbs.c
-+++ b/drivers/infiniband/core/ib_core_uverbs.c
-@@ -232,7 +232,9 @@ void rdma_user_mmap_entry_remove(struct rdma_user_mmap_entry *entry)
- 	if (!entry)
- 		return;
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index bb44f5a0941b9..4822a65f6f3c2 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -1604,11 +1604,22 @@ static int ath10k_pci_dump_memory_reg(struct ath10k *ar,
+ {
+ 	struct ath10k_pci *ar_pci = ath10k_pci_priv(ar);
+ 	u32 i;
++	int ret;
++
++	mutex_lock(&ar->conf_mutex);
++	if (ar->state != ATH10K_STATE_ON) {
++		ath10k_warn(ar, "Skipping pci_dump_memory_reg invalid state\n");
++		ret = -EIO;
++		goto done;
++	}
  
-+	xa_lock(&entry->ucontext->mmap_xa);
- 	entry->driver_removed = true;
-+	xa_unlock(&entry->ucontext->mmap_xa);
- 	kref_put(&entry->ref, rdma_user_mmap_entry_free);
+ 	for (i = 0; i < region->len; i += 4)
+ 		*(u32 *)(buf + i) = ioread32(ar_pci->mem + region->start + i);
+ 
+-	return region->len;
++	ret = region->len;
++done:
++	mutex_unlock(&ar->conf_mutex);
++	return ret;
  }
- EXPORT_SYMBOL(rdma_user_mmap_entry_remove);
+ 
+ /* if an error happened returns < 0, otherwise the length */
+@@ -1704,7 +1715,11 @@ static void ath10k_pci_dump_memory(struct ath10k *ar,
+ 			count = ath10k_pci_dump_memory_sram(ar, current_region, buf);
+ 			break;
+ 		case ATH10K_MEM_REGION_TYPE_IOREG:
+-			count = ath10k_pci_dump_memory_reg(ar, current_region, buf);
++			ret = ath10k_pci_dump_memory_reg(ar, current_region, buf);
++			if (ret < 0)
++				break;
++
++			count = ret;
+ 			break;
+ 		default:
+ 			ret = ath10k_pci_dump_memory_generic(ar, current_region, buf);
 -- 
 2.20.1
 
