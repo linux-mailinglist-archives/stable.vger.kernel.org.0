@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A09E215E8E9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:04:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9D515E8EA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:04:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404168AbgBNQPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:15:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46390 "EHLO mail.kernel.org"
+        id S2389344AbgBNRD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:03:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404163AbgBNQPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:53 -0500
+        id S2404169AbgBNQPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8875B246C3;
-        Fri, 14 Feb 2020 16:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0839246AA;
+        Fri, 14 Feb 2020 16:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696952;
-        bh=Wt3NAeACM4K4qNvn/QVuLHb67CRV4buzK2nKtMV9C+Q=;
+        s=default; t=1581696953;
+        bh=JJMmc5g1eGCmHENbQ2PMQGmXelm8gaob9rFnxvQpAFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3DHzxAT35yTjMoBglItS4K51T8cqVq3Enyok856Anma08lxszn4RmCqNREu+2BKk
-         LTyLO7lX9aTmd2+aNLVq6Tx8toOgH3svUMxFV2tJS51KaUVIMxS79U5VmjDLBZuNy9
-         LG21ZbePjJCVRKWkbHxezWQyJvScTSSYF3fSS6Bg=
+        b=zOjAkz5ZD7tgV7LFmdS8MsC30lQoc9o5vJdbRUN5G6niZtisOqW3uAo1g95YW9KhT
+         gRBb285lObjY8Bn53rOjcUym61UsqHqLfv/lWXw1K6RXSg5E79FVyCFbA+UKj0c3RD
+         esYnyMPO4PkhCjsGkfWTl1/vRl9iTZOYoIaXnKr8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 193/252] pwm: Remove set but not set variable 'pwm'
-Date:   Fri, 14 Feb 2020 11:10:48 -0500
-Message-Id: <20200214161147.15842-193-sashal@kernel.org>
+Cc:     Johannes Thumshirn <jth@kernel.org>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 194/252] btrfs: fix possible NULL-pointer dereference in integrity checks
+Date:   Fri, 14 Feb 2020 11:10:49 -0500
+Message-Id: <20200214161147.15842-194-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,46 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Johannes Thumshirn <jth@kernel.org>
 
-[ Upstream commit 9871abffc81048e20f02e15d6aa4558a44ad53ea ]
+[ Upstream commit 3dbd351df42109902fbcebf27104149226a4fcd9 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+A user reports a possible NULL-pointer dereference in
+btrfsic_process_superblock(). We are assigning state->fs_info to a local
+fs_info variable and afterwards checking for the presence of state.
 
-	drivers/pwm/pwm-pca9685.c: In function ‘pca9685_pwm_gpio_free’:
-	drivers/pwm/pwm-pca9685.c:162:21: warning: variable ‘pwm’ set but not used [-Wunused-but-set-variable]
+While we would BUG_ON() a NULL state anyways, we can also just remove
+the local fs_info copy, as fs_info is only used once as the first
+argument for btrfs_num_copies(). There we can just pass in
+state->fs_info as well.
 
-It is never used, and so can be removed. In that case, hold and release
-the lock 'pca->lock' can be removed since nothing will be done between
-them.
-
-Fixes: e926b12c611c ("pwm: Clear chip_data in pwm_put()")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205003
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-pca9685.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/btrfs/check-integrity.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
-index 567f5e2771c47..e1e5dfcb16f36 100644
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -170,13 +170,9 @@ static void pca9685_pwm_gpio_set(struct gpio_chip *gpio, unsigned int offset,
- static void pca9685_pwm_gpio_free(struct gpio_chip *gpio, unsigned int offset)
+diff --git a/fs/btrfs/check-integrity.c b/fs/btrfs/check-integrity.c
+index 833cf3c35b4df..3b77c8ab5357e 100644
+--- a/fs/btrfs/check-integrity.c
++++ b/fs/btrfs/check-integrity.c
+@@ -629,7 +629,6 @@ static struct btrfsic_dev_state *btrfsic_dev_state_hashtable_lookup(dev_t dev,
+ static int btrfsic_process_superblock(struct btrfsic_state *state,
+ 				      struct btrfs_fs_devices *fs_devices)
  {
- 	struct pca9685 *pca = gpiochip_get_data(gpio);
--	struct pwm_device *pwm;
+-	struct btrfs_fs_info *fs_info = state->fs_info;
+ 	struct btrfs_super_block *selected_super;
+ 	struct list_head *dev_head = &fs_devices->devices;
+ 	struct btrfs_device *device;
+@@ -700,7 +699,7 @@ static int btrfsic_process_superblock(struct btrfsic_state *state,
+ 			break;
+ 		}
  
- 	pca9685_pwm_gpio_set(gpio, offset, 0);
- 	pm_runtime_put(pca->chip.dev);
--	mutex_lock(&pca->lock);
--	pwm = &pca->chip.pwms[offset];
--	mutex_unlock(&pca->lock);
- }
- 
- static int pca9685_pwm_gpio_get_direction(struct gpio_chip *chip,
+-		num_copies = btrfs_num_copies(fs_info, next_bytenr,
++		num_copies = btrfs_num_copies(state->fs_info, next_bytenr,
+ 					      state->metablock_size);
+ 		if (state->print_mask & BTRFSIC_PRINT_MASK_NUM_COPIES)
+ 			pr_info("num_copies(log_bytenr=%llu) = %d\n",
 -- 
 2.20.1
 
