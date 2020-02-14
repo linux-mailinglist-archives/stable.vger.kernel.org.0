@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74EC015F2D4
+	by mail.lfdr.de (Postfix) with ESMTP id EAE2D15F2D5
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:20:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730668AbgBNPvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:51:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55854 "EHLO mail.kernel.org"
+        id S1730033AbgBNPvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:51:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730147AbgBNPvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:07 -0500
+        id S1730670AbgBNPvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 479D5217F4;
-        Fri, 14 Feb 2020 15:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E79924681;
+        Fri, 14 Feb 2020 15:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695466;
-        bh=vs9jAO3/iw7R1mvmvAtc60BtnED6zWOu2HDmfa45RQ8=;
+        s=default; t=1581695468;
+        bh=QJtTy7MFyHcChWSVPxgWsBwRynjwmpJPstPRMkqQB5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oi+engCQ5HhiC2WetV7TVv4C2PnMvX6nrloK5/RobJmTK8IMIEM0FTVCkp5bgxf9B
-         zzwuPIMLnWd6yACD0L301/4WXMAI5nJrgUP9+Mb4hKFKCPejoa5fjWJKfVwii5Ef1M
-         K5umBjsg3+TxaMOADGpwV3l2l8z5OloKusumuurA=
+        b=cd2zLyMQFeWgUVfi7Va4M1M/TI0m5qJyUbw+nGnajO87oTPT2ZKgDxjVah8azQVaT
+         xymm+Z/07JkvrQJzBup/IOlkOaH14DGz/BZbBR6zZRlD5wFvOIlpJc1wNn3UAf2QW9
+         hxzo5JEIBSfoOuXWjgDDk5GVeUZiQg1M6IUvjhqQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Luis Henriques <luis.henriques@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 102/542] tracing: Fix very unlikely race of registering two stat tracers
-Date:   Fri, 14 Feb 2020 10:41:34 -0500
-Message-Id: <20200214154854.6746-102-sashal@kernel.org>
+Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.5 103/542] powerpc/papr_scm: Fix leaking 'bus_desc.provider_name' in some paths
+Date:   Fri, 14 Feb 2020 10:41:35 -0500
+Message-Id: <20200214154854.6746-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,85 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit dfb6cd1e654315168e36d947471bd2a0ccd834ae ]
+[ Upstream commit 5649607a8d0b0e019a4db14aab3de1e16c3a2b4f ]
 
-Looking through old emails in my INBOX, I came across a patch from Luis
-Henriques that attempted to fix a race of two stat tracers registering the
-same stat trace (extremely unlikely, as this is done in the kernel, and
-probably doesn't even exist). The submitted patch wasn't quite right as it
-needed to deal with clean up a bit better (if two stat tracers were the
-same, it would have the same files).
+String 'bus_desc.provider_name' allocated inside
+papr_scm_nvdimm_init() will leaks in case call to
+nvdimm_bus_register() fails or when papr_scm_remove() is called.
 
-But to make the code cleaner, all we needed to do is to keep the
-all_stat_sessions_mutex held for most of the registering function.
+This minor patch ensures that 'bus_desc.provider_name' is freed in
+error path for nvdimm_bus_register() as well as in papr_scm_remove().
 
-Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
-
-Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
-Reported-by: Luis Henriques <luis.henriques@canonical.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200122155140.120429-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/powerpc/platforms/pseries/papr_scm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index 2b4d6e674d876..d1fa19773cc8e 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -308,7 +308,7 @@ static int init_stat_file(struct stat_session *session)
- int register_stat_tracer(struct tracer_stat *trace)
- {
- 	struct stat_session *session, *node;
--	int ret;
-+	int ret = -EINVAL;
- 
- 	if (!trace)
- 		return -EINVAL;
-@@ -319,17 +319,15 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	/* Already registered? */
- 	mutex_lock(&all_stat_sessions_mutex);
- 	list_for_each_entry(node, &all_stat_sessions, session_list) {
--		if (node->ts == trace) {
--			mutex_unlock(&all_stat_sessions_mutex);
--			return -EINVAL;
--		}
-+		if (node->ts == trace)
-+			goto out;
- 	}
--	mutex_unlock(&all_stat_sessions_mutex);
- 
-+	ret = -ENOMEM;
- 	/* Init the session */
- 	session = kzalloc(sizeof(*session), GFP_KERNEL);
- 	if (!session)
--		return -ENOMEM;
-+		goto out;
- 
- 	session->ts = trace;
- 	INIT_LIST_HEAD(&session->session_list);
-@@ -338,15 +336,16 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	ret = init_stat_file(session);
- 	if (ret) {
- 		destroy_session(session);
--		return ret;
-+		goto out;
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index c2ef320ba1bf2..eb420655ed0b9 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -322,6 +322,7 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
+ 	p->bus = nvdimm_bus_register(NULL, &p->bus_desc);
+ 	if (!p->bus) {
+ 		dev_err(dev, "Error creating nvdimm bus %pOF\n", p->dn);
++		kfree(p->bus_desc.provider_name);
+ 		return -ENXIO;
  	}
  
-+	ret = 0;
- 	/* Register */
--	mutex_lock(&all_stat_sessions_mutex);
- 	list_add_tail(&session->session_list, &all_stat_sessions);
-+ out:
- 	mutex_unlock(&all_stat_sessions_mutex);
+@@ -477,6 +478,7 @@ static int papr_scm_remove(struct platform_device *pdev)
  
--	return 0;
-+	return ret;
- }
+ 	nvdimm_bus_unregister(p->bus);
+ 	drc_pmem_unbind(p);
++	kfree(p->bus_desc.provider_name);
+ 	kfree(p);
  
- void unregister_stat_tracer(struct tracer_stat *trace)
+ 	return 0;
 -- 
 2.20.1
 
