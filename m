@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E0515DCE9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B216115DCEB
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387746AbgBNP4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:56:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38064 "EHLO mail.kernel.org"
+        id S2387777AbgBNP4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:56:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387744AbgBNP4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:19 -0500
+        id S2387769AbgBNP4W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 154EC206D7;
-        Fri, 14 Feb 2020 15:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8523124681;
+        Fri, 14 Feb 2020 15:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695778;
-        bh=p5HfsD/7oSJvIOKScBFttuw+L3MLtwgbJ+C+qro4QB4=;
+        s=default; t=1581695782;
+        bh=aoYt103LAXkSgzeNDmfe0681CWASNG0wJiOscC/U/Bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iw3NsrwX5tpuVap832gLAEL8PfhKutoPdE13UyvaVYH395bjna1F4PGb4ht8pcJZm
-         9lbYK2PplOXswD2zd9bp+qKqDVom4RIRBN+2XfRGZie9wxgd2UxpSRmqNJtW29AUYe
-         oQbAmbODBYYn4+gxCa75J/hBxyeATMYAurpdetVE=
+        b=kw7ohOmejYPc24dOndhA9f5xssjei2MPy9niBMp7lzvNHHZ5xPdbCzq7qfzvYwEsV
+         4mtVAghmYdPoEQ/cxTsUG+Uahz8hza3shjsyBmnfN0DcWvl65MFXPkIlFxH7s5jE0y
+         g0srCMbhR560ErtzpCQvDaNNDThtqbrHo1i7BJmc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hongbo Yao <yaohongbo@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+Cc:     Simon Schwartz <kern.simon@theschwartz.xyz>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 343/542] misc: genwqe: fix compile warnings
-Date:   Fri, 14 Feb 2020 10:45:35 -0500
-Message-Id: <20200214154854.6746-343-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 346/542] driver core: platform: Prevent resouce overflow from causing infinite loops
+Date:   Fri, 14 Feb 2020 10:45:38 -0500
+Message-Id: <20200214154854.6746-346-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,66 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongbo Yao <yaohongbo@huawei.com>
+From: Simon Schwartz <kern.simon@theschwartz.xyz>
 
-[ Upstream commit 8edf4cd193067ac5e03fd9580f1affbb6a3f729b ]
+[ Upstream commit 39cc539f90d035a293240c9443af50be55ee81b8 ]
 
-Using the following command will get compile warnings:
-make W=1 drivers/misc/genwqe/card_ddcb.o ARCH=x86_64
+num_resources in the platform_device struct is declared as a u32.  The
+for loops that iterate over num_resources use an int as the counter,
+which can cause infinite loops on architectures with smaller ints.
+Change the loop counters to u32.
 
-drivers/misc/genwqe/card_ddcb.c: In function setup_ddcb_queue:
-drivers/misc/genwqe/card_ddcb.c:1024:6: warning: variable rc set but not
-used [-Wunused-but-set-variable]
-drivers/misc/genwqe/card_ddcb.c: In function genwqe_card_thread:
-drivers/misc/genwqe/card_ddcb.c:1190:23: warning: variable rc set but
-not used [-Wunused-but-set-variable]
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Hongbo Yao <yaohongbo@huawei.com>
-Link: https://lore.kernel.org/r/20191205111655.170382-1-yaohongbo@huawei.com
+Signed-off-by: Simon Schwartz <kern.simon@theschwartz.xyz>
+Link: https://lore.kernel.org/r/2201ce63a2a171ffd2ed14e867875316efcf71db.camel@theschwartz.xyz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/genwqe/card_ddcb.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/base/platform.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/genwqe/card_ddcb.c b/drivers/misc/genwqe/card_ddcb.c
-index 026c6ca245408..905106579935a 100644
---- a/drivers/misc/genwqe/card_ddcb.c
-+++ b/drivers/misc/genwqe/card_ddcb.c
-@@ -1084,7 +1084,7 @@ static int setup_ddcb_queue(struct genwqe_dev *cd, struct ddcb_queue *queue)
- 				queue->ddcb_daddr);
- 	queue->ddcb_vaddr = NULL;
- 	queue->ddcb_daddr = 0ull;
--	return -ENODEV;
-+	return rc;
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index cf6b6b722e5c9..864b53b3d5980 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -27,6 +27,7 @@
+ #include <linux/limits.h>
+ #include <linux/property.h>
+ #include <linux/kmemleak.h>
++#include <linux/types.h>
  
- }
- 
-@@ -1179,7 +1179,7 @@ static irqreturn_t genwqe_vf_isr(int irq, void *dev_id)
-  */
- static int genwqe_card_thread(void *data)
+ #include "base.h"
+ #include "power/power.h"
+@@ -48,7 +49,7 @@ EXPORT_SYMBOL_GPL(platform_bus);
+ struct resource *platform_get_resource(struct platform_device *dev,
+ 				       unsigned int type, unsigned int num)
  {
--	int should_stop = 0, rc = 0;
-+	int should_stop = 0;
- 	struct genwqe_dev *cd = (struct genwqe_dev *)data;
+-	int i;
++	u32 i;
  
- 	while (!kthread_should_stop()) {
-@@ -1187,12 +1187,12 @@ static int genwqe_card_thread(void *data)
- 		genwqe_check_ddcb_queue(cd, &cd->queue);
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -255,7 +256,7 @@ struct resource *platform_get_resource_byname(struct platform_device *dev,
+ 					      unsigned int type,
+ 					      const char *name)
+ {
+-	int i;
++	u32 i;
  
- 		if (GENWQE_POLLING_ENABLED) {
--			rc = wait_event_interruptible_timeout(
-+			wait_event_interruptible_timeout(
- 				cd->queue_waitq,
- 				genwqe_ddcbs_in_flight(cd) ||
- 				(should_stop = kthread_should_stop()), 1);
- 		} else {
--			rc = wait_event_interruptible_timeout(
-+			wait_event_interruptible_timeout(
- 				cd->queue_waitq,
- 				genwqe_next_ddcb_ready(cd) ||
- 				(should_stop = kthread_should_stop()), HZ);
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -501,7 +502,8 @@ EXPORT_SYMBOL_GPL(platform_device_add_properties);
+  */
+ int platform_device_add(struct platform_device *pdev)
+ {
+-	int i, ret;
++	u32 i;
++	int ret;
+ 
+ 	if (!pdev)
+ 		return -EINVAL;
+@@ -590,7 +592,7 @@ EXPORT_SYMBOL_GPL(platform_device_add);
+  */
+ void platform_device_del(struct platform_device *pdev)
+ {
+-	int i;
++	u32 i;
+ 
+ 	if (!IS_ERR_OR_NULL(pdev)) {
+ 		device_del(&pdev->dev);
 -- 
 2.20.1
 
