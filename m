@@ -2,93 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E24CD15F783
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:12:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B394415F77D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389326AbgBNUMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 15:12:10 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:54520 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388948AbgBNUMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 15:12:10 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EK8slH109372;
-        Fri, 14 Feb 2020 20:11:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=SHVAUp+OJ3+OGTvce+XogHU7eHOaTVPHbznHopguoFU=;
- b=hpIhxdaLRRF+vo4c+1R1Bm9u9FORGZ3uHGUiF5etLzR2wdxDMsh1pgdgUFDnn5oEs3z8
- E4pIVycqyjszBMYO4UJl2ACvgpfn/w1/mhBQPrQQBc2ZqXEFAsO821au3FRdVZnXoFb3
- B76Ed/PdQX9fFfzqRT8VavTPFS+zByNagsCbplX5iWM4l8OLv3SR7/An6XQaeLBRgDqh
- eH+pP3XkXVXSrxQajiHs/8ozDvMmu4351EZ2lN8OgoWLfBXjdAGjipENS0NWutnqzmhl
- gxHA/Jv0N4JxN0gkdlGkYuX03GZI7AZb7DQG+j+XwCpTJEaw0HjlxPJdXV0AHDUi+frG xw== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 2y2k88uemb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Feb 2020 20:11:55 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EK7Zvs092152;
-        Fri, 14 Feb 2020 20:09:54 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 2y4k3e9320-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Feb 2020 20:09:54 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 01EK9o6E012450;
-        Fri, 14 Feb 2020 20:09:52 GMT
-Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 14 Feb 2020 12:09:50 -0800
-Date:   Fri, 14 Feb 2020 15:10:06 -0500
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 091/195] padata: Remove broken queue flushing
-Message-ID: <20200214201006.6qlfqillveotr47n@ca-dmjordan1.us.oracle.com>
-References: <20200210122305.731206734@linuxfoundation.org>
- <20200210122314.217904406@linuxfoundation.org>
- <5E4674BB.4020900@huawei.com>
- <20200214152128.GC3959278@kroah.com>
+        id S2388952AbgBNULt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 15:11:49 -0500
+Received: from mail.skyhub.de ([5.9.137.197]:53778 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387674AbgBNULt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 15:11:49 -0500
+Received: from zn.tnic (p200300EC2F0D5A00D5EC2BA3BD6A59D8.dip0.t-ipconnect.de [IPv6:2003:ec:2f0d:5a00:d5ec:2ba3:bd6a:59d8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 8220F1EC0C49;
+        Fri, 14 Feb 2020 21:11:47 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1581711107;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=WtbrNzLdMFduip9mrfKODkLFFhWDVuVcXtAZTycd370=;
+        b=CUWXwqS/1Z0ytRk82SPqQNC1oIuOSHEpxwsDmRqIFI/MG0uwkcH6MM09B6Teyc6U283sH8
+        k9SX8PcZmDqVZZtjCVt7zjdl0YcL+LyKg4Mu8sVHg231s2tGIIvF1U1fanvXz2WAez79Vs
+        AO9HTBpm4R5eKzhaivJz5OIAQDqACS4=
+Date:   Fri, 14 Feb 2020 21:11:43 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, X86 ML <x86@kernel.org>,
+        Yazen Ghannam <Yazen.Ghannam@amd.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86/mce/amd: Fix kobject lifetime
+Message-ID: <20200214201143.GQ13395@zn.tnic>
+References: <20200214082801.13836-1-bp@alien8.de>
+ <20200214083230.GA13395@zn.tnic>
+ <20200214151727.GA3959278@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200214152128.GC3959278@kroah.com>
-User-Agent: NeoMutt/20180716
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
- bulkscore=0 malwarescore=0 phishscore=0 suspectscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002140146
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 lowpriorityscore=0
- suspectscore=0 bulkscore=0 phishscore=0 mlxlogscore=999 mlxscore=0
- malwarescore=0 impostorscore=0 clxscore=1015 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2001150001 definitions=main-2002140146
+In-Reply-To: <20200214151727.GA3959278@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 07:21:28AM -0800, Greg Kroah-Hartman wrote:
-> So this causes a problem in the 4.19-rc tree but not in Linus's tree?
-> Or am I confused?  Should it be dropped from stable or is there some
-> other fix-of-a-fix that I need to apply here?
+On Fri, Feb 14, 2020 at 07:17:27AM -0800, Greg KH wrote:
+> Does not bother me at all, it's fine to see stuff come by that will end
+> up in future trees, it's not noise at all.  So no need to suppress
+> stable@vger if you don't want to.
 
-This causes a problem in 4.19.103 and 4.19-rc but not Linus's tree.
+Ok, but what about your formletter which you send to people explaining
+this is not how you should send a patch to stable?
 
-The fix-of-a-fix is posted recently here:
+Like this, for example:
 
-    https://lore.kernel.org/lkml/20200214182821.337706-1-daniel.m.jordan@oracle.com/
+https://lkml.kernel.org/r/20200116100925.GA157179@kroah.com
 
-For 4.14, 4.9, and 4.4, I'm posting a revised version of "Remove broken queue
-flushing" in each review thread.  4.14 is already up.  Is this what I should be
-doing?
+-- 
+Regards/Gruss,
+    Boris.
 
-thanks,
-Daniel
+https://people.kernel.org/tglx/notes-about-netiquette
