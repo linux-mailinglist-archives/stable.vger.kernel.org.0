@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 444EC15DBB7
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:51:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA6B15DBC1
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730234AbgBNPtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:49:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53214 "EHLO mail.kernel.org"
+        id S1730355AbgBNPuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:50:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730224AbgBNPtt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:49 -0500
+        id S1730346AbgBNPuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:50:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20A7524688;
-        Fri, 14 Feb 2020 15:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71AAD24684;
+        Fri, 14 Feb 2020 15:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695389;
-        bh=c7JCE0FUS+3bdwXpx4DK8SQXjElF8rXBOwR4c3H51RI=;
+        s=default; t=1581695403;
+        bh=rya72cDI956HviiwG0v5mNpwy6n2E3LyPKsA3FCHJ8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qu4HvSnEVZiqRK9LldFY76EkFhojh0eGRDbPM8MGALlRqcRnCHn5ocNTss5WO4YSL
-         4Cx2U78A0XCuqmMSqFN8X/jkscN2rijoTC7hj8+EZS27lHeyhrpFjVhu3PWph+Etk5
-         wkFVgy6/Y4LiaIKPgzGz6oB1ErDCKS6AYaGWelSQ=
+        b=ZBvngliW3akvNHbaL00FHLQn224jOAFQuQveCrd15OgHlbCRkj4xQnUzwejakr4MR
+         xa87qvLiUTrEJV3uYvHSkerCDv52972iXK+G19++gsnldRbpo6teP1RpoewyaTGWTy
+         kNbqV1GbMy/CwwUsuvaWFmlQRdSodu5paqPRgccc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugen Hristev <eugen.hristev@microchip.com>,
-        Wenyou Yang <wenyou.yang@microchip.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 042/542] media: i2c: mt9v032: fix enum mbus codes and frame sizes
-Date:   Fri, 14 Feb 2020 10:40:34 -0500
-Message-Id: <20200214154854.6746-42-sashal@kernel.org>
+Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Yu-cheng Yu <yu-cheng.yu@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Ravi V. Shankar" <ravi.v.shankar@intel.com>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 052/542] x86/fpu: Deactivate FPU state after failure during state load
+Date:   Fri, 14 Feb 2020 10:40:44 -0500
+Message-Id: <20200214154854.6746-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,61 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 1451d5ae351d938a0ab1677498c893f17b9ee21d ]
+[ Upstream commit bbc55341b9c67645d1a5471506370caf7dd4a203 ]
 
-This driver supports both the mt9v032 (color) and the mt9v022 (mono)
-sensors. Depending on which sensor is used, the format from the sensor is
-different. The format.code inside the dev struct holds this information.
-The enum mbus and enum frame sizes need to take into account both type of
-sensors, not just the color one. To solve this, use the format.code in
-these functions instead of the hardcoded bayer color format (which is only
-used for mt9v032).
+In __fpu__restore_sig(), fpu_fpregs_owner_ctx needs to be reset if the
+FPU state was not fully restored. Otherwise the following may happen (on
+the same CPU):
 
-[Sakari Ailus: rewrapped commit message]
+  Task A                     Task B               fpu_fpregs_owner_ctx
+  *active*                                        A.fpu
+  __fpu__restore_sig()
+                             ctx switch           load B.fpu
+                             *active*             B.fpu
+  fpregs_lock()
+  copy_user_to_fpregs_zeroing()
+    copy_kernel_to_xregs() *modify*
+    copy_user_to_xregs() *fails*
+  fpregs_unlock()
+                            ctx switch            skip loading B.fpu,
+                            *active*              B.fpu
 
-Suggested-by: Wenyou Yang <wenyou.yang@microchip.com>
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+In the success case, fpu_fpregs_owner_ctx is set to the current task.
+
+In the failure case, the FPU state might have been modified by loading
+the init state.
+
+In this case, fpu_fpregs_owner_ctx needs to be reset in order to ensure
+that the FPU state of the following task is loaded from saved state (and
+not skipped because it was the previous state).
+
+Reset fpu_fpregs_owner_ctx after a failure during restore occurred, to
+ensure that the FPU state for the next task is always loaded.
+
+The problem was debugged-by Yu-cheng Yu <yu-cheng.yu@intel.com>.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 5f409e20b7945 ("x86/fpu: Defer FPU state load until return to userspace")
+Reported-by: Yu-cheng Yu <yu-cheng.yu@intel.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Ravi V. Shankar" <ravi.v.shankar@intel.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20191220195906.plk6kpmsrikvbcfn@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/mt9v032.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/kernel/fpu/signal.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/i2c/mt9v032.c b/drivers/media/i2c/mt9v032.c
-index 4b9b98cf6674c..5bd3ae82992f3 100644
---- a/drivers/media/i2c/mt9v032.c
-+++ b/drivers/media/i2c/mt9v032.c
-@@ -428,10 +428,12 @@ static int mt9v032_enum_mbus_code(struct v4l2_subdev *subdev,
- 				  struct v4l2_subdev_pad_config *cfg,
- 				  struct v4l2_subdev_mbus_code_enum *code)
- {
-+	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
-+
- 	if (code->index > 0)
- 		return -EINVAL;
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index 0071b794ed193..400a05e1c1c51 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -352,6 +352,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 			fpregs_unlock();
+ 			return 0;
+ 		}
++		fpregs_deactivate(fpu);
+ 		fpregs_unlock();
+ 	}
  
--	code->code = MEDIA_BUS_FMT_SGRBG10_1X10;
-+	code->code = mt9v032->format.code;
- 	return 0;
- }
+@@ -403,6 +404,8 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 	}
+ 	if (!ret)
+ 		fpregs_mark_activate();
++	else
++		fpregs_deactivate(fpu);
+ 	fpregs_unlock();
  
-@@ -439,7 +441,11 @@ static int mt9v032_enum_frame_size(struct v4l2_subdev *subdev,
- 				   struct v4l2_subdev_pad_config *cfg,
- 				   struct v4l2_subdev_frame_size_enum *fse)
- {
--	if (fse->index >= 3 || fse->code != MEDIA_BUS_FMT_SGRBG10_1X10)
-+	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
-+
-+	if (fse->index >= 3)
-+		return -EINVAL;
-+	if (mt9v032->format.code != fse->code)
- 		return -EINVAL;
- 
- 	fse->min_width = MT9V032_WINDOW_WIDTH_DEF / (1 << fse->index);
+ err_out:
 -- 
 2.20.1
 
