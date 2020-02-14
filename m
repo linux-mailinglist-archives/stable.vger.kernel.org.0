@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F7C15F06C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C163515F05F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388762AbgBNRy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:54:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41624 "EHLO mail.kernel.org"
+        id S2388480AbgBNRyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:54:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388454AbgBNP6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:04 -0500
+        id S2388460AbgBNP6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC2502067D;
-        Fri, 14 Feb 2020 15:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2DDE206D7;
+        Fri, 14 Feb 2020 15:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695883;
-        bh=QxrAzp/5VK+RMu9LHx3+Uqc02lXUcfEbrPtdH908nhU=;
+        s=default; t=1581695884;
+        bh=BUOOIABxjFARvL7gHrijQqmmIT1LUnzmkZ+eCUq/m8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HgOOg3b0O/6FJ/jjeib/BQuyzVnCxSccxxhZkyTckCFX4hypS/lTdt1OzxlN6ZcSQ
-         Ln4FqHcllemRLYTT8eD/wSPsH8FCWgAdR1MEbTX5vIhbXGW7fy1QC+l18tNxQvV+yN
-         KNahN4xeN653JeEsNlagwbtNNXICSj7bTJ73qglE=
+        b=dvFSGCg7IZe9r59r2Tgv66+Mrc9EVHdhh7eeD+cvETPm549G73fbgtLl1aXflgYdd
+         eVX6ZvHlMiJEKgqN8RlDwJizilFHmFXj0VByCHYy8Xo+DeuotWZpbR6P/RkWWAvupT
+         MRqYsemlHDjxcw2dl/o4EuqVDvelshT1j9xnGuq0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.5 427/542] ASoC: soc-generic-dmaengine-pcm: Fix error handling
-Date:   Fri, 14 Feb 2020 10:46:59 -0500
-Message-Id: <20200214154854.6746-427-sashal@kernel.org>
+Cc:     Michael Walle <michael@walle.cc>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 428/542] spi: spi-fsl-qspi: Ensure width is respected in spi-mem operations
+Date:   Fri, 14 Feb 2020 10:47:00 -0500
+Message-Id: <20200214154854.6746-428-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,61 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 130128098a4e5ce9a0dfbdf9a7e27a43579901fd ]
+[ Upstream commit b0177aca7aea7e8917d4e463334b51facb293d02 ]
 
-Remove the return value checking, that is to align with the code
-before adding snd_dmaengine_pcm_refine_runtime_hwparams function.
+Make use of a core helper to ensure the desired width is respected
+when calling spi-mem operators.
 
-Otherwise it causes a regression on the HiKey board:
+Otherwise only the SPI controller will be matched with the flash chip,
+which might lead to wrong widths. Also consider the width specified by
+the user in the device tree.
 
-[   17.721424] hi6210_i2s f7118000.i2s: ASoC: can't open component f7118000.i2s: -6
-
-Fixes: e957204e732b ("ASoC: pcm_dmaengine: Extract snd_dmaengine_pcm_refine_runtime_hwparams")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reported-by: John Stultz <john.stultz@linaro.org>
-Link: https://lore.kernel.org/r/1579505286-32085-1-git-send-email-shengjiu.wang@nxp.com
+Fixes: 84d043185dbe ("spi: Add a driver for the Freescale/NXP QuadSPI controller")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20200114154613.8195-1-michael@walle.cc
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/spi/spi-fsl-qspi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
-index a428ff393ea26..2b5f3b1b062bc 100644
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -117,7 +117,6 @@ dmaengine_pcm_set_runtime_hwparams(struct snd_soc_component *component,
- 	struct dma_chan *chan = pcm->chan[substream->stream];
- 	struct snd_dmaengine_dai_dma_data *dma_data;
- 	struct snd_pcm_hardware hw;
--	int ret;
+diff --git a/drivers/spi/spi-fsl-qspi.c b/drivers/spi/spi-fsl-qspi.c
+index 79b1558b74b8a..e8a499cd1f135 100644
+--- a/drivers/spi/spi-fsl-qspi.c
++++ b/drivers/spi/spi-fsl-qspi.c
+@@ -410,7 +410,7 @@ static bool fsl_qspi_supports_op(struct spi_mem *mem,
+ 	    op->data.nbytes > q->devtype_data->txfifo)
+ 		return false;
  
- 	if (pcm->config && pcm->config->pcm_hardware)
- 		return snd_soc_set_runtime_hwparams(substream,
-@@ -138,12 +137,15 @@ dmaengine_pcm_set_runtime_hwparams(struct snd_soc_component *component,
- 	if (pcm->flags & SND_DMAENGINE_PCM_FLAG_NO_RESIDUE)
- 		hw.info |= SNDRV_PCM_INFO_BATCH;
- 
--	ret = snd_dmaengine_pcm_refine_runtime_hwparams(substream,
--							dma_data,
--							&hw,
--							chan);
--	if (ret)
--		return ret;
-+	/**
-+	 * FIXME: Remove the return value check to align with the code
-+	 * before adding snd_dmaengine_pcm_refine_runtime_hwparams
-+	 * function.
-+	 */
-+	snd_dmaengine_pcm_refine_runtime_hwparams(substream,
-+						  dma_data,
-+						  &hw,
-+						  chan);
- 
- 	return snd_soc_set_runtime_hwparams(substream, &hw);
+-	return true;
++	return spi_mem_default_supports_op(mem, op);
  }
+ 
+ static void fsl_qspi_prepare_lut(struct fsl_qspi *q,
 -- 
 2.20.1
 
