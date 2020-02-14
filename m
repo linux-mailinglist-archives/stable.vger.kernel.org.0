@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEAE915F321
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D0C015F38A
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731140AbgBNPxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:53:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60348 "EHLO mail.kernel.org"
+        id S2392925AbgBNSMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:12:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729635AbgBNPxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:04 -0500
+        id S1731147AbgBNPxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:53:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 608F82465D;
-        Fri, 14 Feb 2020 15:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52787222C4;
+        Fri, 14 Feb 2020 15:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695583;
-        bh=7hru8cnJAo9ESKhHTHc5KphNWfsXPPMxbfD+k7yN1a8=;
+        s=default; t=1581695586;
+        bh=PBddpNB+DNMdnowJ6YaKlTaS4CE/MvUsfaf/iV7W3yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znHL2xIP0dcpjR0jazJm2FMzOFuRxafH2aycSBPM5uh4U2u0ItpSUqfM2AdMGHaBV
-         OsRwDPcwmKOQNyw3OMskHW8byi6j4bhL7d00T+Fv3vIkJCjToFY0jKYJqxRfwKMwhm
-         44IAgENeLDRqZPH7J9z3ZzM2ItEaL8C1QDPgJxE4=
+        b=WC+8PNbrkgDwKlRsVYC7NRe0Ni3f+xvNrLGk5oTE+/dTyRJVdqh66mg3Kd4zw34jw
+         u3batk8dmXU3lox5Ue0Gooo9EMUeDypB1aoslvTGkF8IhMVZNqUkJAeYVpNe2zCNMv
+         2g0yzMTqqbij+S8/IPMIU1xcf+P9hFc+iTp8tq0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manu Gautam <mgautam@codeaurora.org>,
-        Paolo Pisati <p.pisati@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 192/542] arm64: dts: qcom: msm8996: Disable USB2 PHY suspend by core
-Date:   Fri, 14 Feb 2020 10:43:04 -0500
-Message-Id: <20200214154854.6746-192-sashal@kernel.org>
+Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 194/542] padata: always acquire cpu_hotplug_lock before pinst->lock
+Date:   Fri, 14 Feb 2020 10:43:06 -0500
+Message-Id: <20200214154854.6746-194-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,49 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manu Gautam <mgautam@codeaurora.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit d026c96b25b7ce5df89526aad2df988d553edb4d ]
+[ Upstream commit 38228e8848cd7dd86ccb90406af32de0cad24be3 ]
 
-QUSB2 PHY on msm8996 doesn't work well when autosuspend by
-dwc3 core using USB2PHYCFG register is enabled. One of the
-issue seen is that PHY driver reports PLL lock failure and
-fails phy_init() if dwc3 core has USB2 PHY suspend enabled.
-Fix this by using quirks to disable USB2 PHY LPM/suspend and
-dwc3 core already takes care of explicitly suspending PHY
-during suspend if quirks are specified.
+lockdep complains when padata's paths to update cpumasks via CPU hotplug
+and sysfs are both taken:
 
-Signed-off-by: Manu Gautam <mgautam@codeaurora.org>
-Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
-Link: https://lore.kernel.org/r/20191209151501.26993-1-p.pisati@gmail.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+  # echo 0 > /sys/devices/system/cpu/cpu1/online
+  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
+
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
+  ------------------------------------------------------
+  bash/205 is trying to acquire lock:
+  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
+
+  but task is already holding lock:
+  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
+
+  which lock already depends on the new lock.
+
+padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
+order.  Which should be first?  CPU hotplug calls into padata with
+cpu_hotplug_lock already held, so it should have priority.
+
+Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/padata.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-index 4ca2e7b44559c..1eed3c41521ab 100644
---- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-@@ -1602,6 +1602,8 @@
- 				interrupts = <0 138 IRQ_TYPE_LEVEL_HIGH>;
- 				phys = <&hsusb_phy2>;
- 				phy-names = "usb2-phy";
-+				snps,dis_u2_susphy_quirk;
-+				snps,dis_enblslpm_quirk;
- 			};
- 		};
+diff --git a/kernel/padata.c b/kernel/padata.c
+index fda7a7039422d..fdbbe96547713 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -643,8 +643,8 @@ int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
+ 	struct cpumask *serial_mask, *parallel_mask;
+ 	int err = -EINVAL;
  
-@@ -1632,6 +1634,8 @@
- 				interrupts = <0 131 IRQ_TYPE_LEVEL_HIGH>;
- 				phys = <&hsusb_phy1>, <&ssusb_phy_0>;
- 				phy-names = "usb2-phy", "usb3-phy";
-+				snps,dis_u2_susphy_quirk;
-+				snps,dis_enblslpm_quirk;
- 			};
- 		};
+-	mutex_lock(&pinst->lock);
+ 	get_online_cpus();
++	mutex_lock(&pinst->lock);
  
+ 	switch (cpumask_type) {
+ 	case PADATA_CPU_PARALLEL:
+@@ -662,8 +662,8 @@ int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
+ 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
+ 
+ out:
+-	put_online_cpus();
+ 	mutex_unlock(&pinst->lock);
++	put_online_cpus();
+ 
+ 	return err;
+ }
 -- 
 2.20.1
 
