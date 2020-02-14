@@ -2,120 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B690D15F529
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD66415F548
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729744AbgBNPtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:49:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51610 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbgBNPtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:07 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96B2024680;
-        Fri, 14 Feb 2020 15:49:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695347;
-        bh=H3LKj47Yqut0p8cQXZtywNFL074vZu1UaiH+k7PfGpE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yoyc7IV8csEtVlJ0usJIJBD2u5GkGQ3Ulw8WMRA0nTSnnBr50CkMqixo9V+XLLeYp
-         loS/S+T/4BL6QnPEArdXKl22X0qUfz5zzVn08WvhzPeVXml/TWMIR3kEYAiW19UVN7
-         yXLUs8Rrw9WkWfEk5VFe4AhARdGSUVD1qbVi+lxQ=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Reiter <stefan@pimaker.at>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 010/542] rcu/nocb: Fix dump_tree hierarchy print always active
-Date:   Fri, 14 Feb 2020 10:40:02 -0500
-Message-Id: <20200214154854.6746-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
+        id S2388695AbgBNS2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:28:51 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:51334 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387718AbgBNS2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 13:28:51 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EINruc167222;
+        Fri, 14 Feb 2020 18:28:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2020-01-29; bh=QGPSHfePG9y20E4OZXeMQypsFtYM/sre+7FquWnrs2w=;
+ b=H0nzw+KLXeLE+5ztK5ogzivadOTbtV8GQ8X3km41dHPJ4yNggp0nuSCoU4EmIyJbimuz
+ FrXFimbSg/1JVOkrVobuD3FRYLe6SH+EwqxvE2zr8Fsvl5HF7KRZAmTkVqiAsSEJf0DM
+ 7nIjxJ+ryEcTWWIWk7Q7M/FfCIYYo6tJu4cqid/1YHtWo229rvnPls85R0qtZhVRdzzm
+ yHjS5kccsabmi0Rn9MD9Corom6xAXXJjHcFrisyLx9ImAcTbPYVI22K5yWyoIUUG6t5q
+ 4QlNFUKD7VaHinwc4tYp+EwU4/SnMQ/FO5ULBvj47vDn+zmPgopFy+5nUZgJlmyq77II QA== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2120.oracle.com with ESMTP id 2y2p3t2x6a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Feb 2020 18:28:33 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EIRhe7110676;
+        Fri, 14 Feb 2020 18:28:33 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3030.oracle.com with ESMTP id 2y5dthh82k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Feb 2020 18:28:33 +0000
+Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 01EISU5N003303;
+        Fri, 14 Feb 2020 18:28:30 GMT
+Received: from localhost.localdomain (/98.229.125.203)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 14 Feb 2020 10:28:30 -0800
+From:   Daniel Jordan <daniel.m.jordan@oracle.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH for 4.19-stable] padata: fix null pointer deref of pd->pinst
+Date:   Fri, 14 Feb 2020 13:28:21 -0500
+Message-Id: <20200214182821.337706-1-daniel.m.jordan@oracle.com>
+X-Mailer: git-send-email 2.25.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0 mlxscore=0
+ adultscore=0 malwarescore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002140137
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=999 priorityscore=1501 clxscore=1015
+ impostorscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002140137
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Reiter <stefan@pimaker.at>
+The 4.19 backport dc34710a7aba ("padata: Remove broken queue flushing")
+removed padata_alloc_pd()'s assignment to pd->pinst, resulting in:
 
-[ Upstream commit 610dea36d3083a977e4f156206cbe1eaa2a532f0 ]
+    Unable to handle kernel NULL pointer dereference ...
+    ...
+    pc : padata_reorder+0x144/0x2e0
+    ...
+    Call trace:
+     padata_reorder+0x144/0x2e0
+     padata_do_serial+0xc8/0x128
+     pcrypt_aead_enc+0x60/0x70 [pcrypt]
+     padata_parallel_worker+0xd8/0x138
+     process_one_work+0x1bc/0x4b8
+     worker_thread+0x164/0x580
+     kthread+0x134/0x138
+     ret_from_fork+0x10/0x18
 
-Commit 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if
-dump_tree") added print statements to rcu_organize_nocb_kthreads for
-debugging, but incorrectly guarded them, causing the function to always
-spew out its message.
+This happened because the backport was based on an enhancement that
+moved this assignment but isn't in 4.19:
 
-This patch fixes it by guarding both pr_alert statements with dump_tree,
-while also changing the second pr_alert to a pr_cont, to print the
-hierarchy in a single line (assuming that's how it was supposed to
-work).
+  bfde23ce200e ("padata: unbind parallel jobs from specific CPUs")
 
-Fixes: 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if dump_tree")
-Signed-off-by: Stefan Reiter <stefan@pimaker.at>
-[ paulmck: Make single-nocbs-CPU GP kthreads look less erroneous. ]
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Simply restore the assignment to fix the crash.
+
+Fixes: dc34710a7aba ("padata: Remove broken queue flushing")
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
 ---
- kernel/rcu/tree_plugin.h | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ kernel/padata.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index f849e7429816f..f7118842a2b88 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2322,6 +2322,8 @@ static void __init rcu_organize_nocb_kthreads(void)
- {
- 	int cpu;
- 	bool firsttime = true;
-+	bool gotnocbs = false;
-+	bool gotnocbscbs = true;
- 	int ls = rcu_nocb_gp_stride;
- 	int nl = 0;  /* Next GP kthread. */
- 	struct rcu_data *rdp;
-@@ -2344,21 +2346,31 @@ static void __init rcu_organize_nocb_kthreads(void)
- 		rdp = per_cpu_ptr(&rcu_data, cpu);
- 		if (rdp->cpu >= nl) {
- 			/* New GP kthread, set up for CBs & next GP. */
-+			gotnocbs = true;
- 			nl = DIV_ROUND_UP(rdp->cpu + 1, ls) * ls;
- 			rdp->nocb_gp_rdp = rdp;
- 			rdp_gp = rdp;
--			if (!firsttime && dump_tree)
--				pr_cont("\n");
--			firsttime = false;
--			pr_alert("%s: No-CB GP kthread CPU %d:", __func__, cpu);
-+			if (dump_tree) {
-+				if (!firsttime)
-+					pr_cont("%s\n", gotnocbscbs
-+							? "" : " (self only)");
-+				gotnocbscbs = false;
-+				firsttime = false;
-+				pr_alert("%s: No-CB GP kthread CPU %d:",
-+					 __func__, cpu);
-+			}
- 		} else {
- 			/* Another CB kthread, link to previous GP kthread. */
-+			gotnocbscbs = true;
- 			rdp->nocb_gp_rdp = rdp_gp;
- 			rdp_prev->nocb_next_cb_rdp = rdp;
--			pr_alert(" %d", cpu);
-+			if (dump_tree)
-+				pr_cont(" %d", cpu);
- 		}
- 		rdp_prev = rdp;
- 	}
-+	if (gotnocbs && dump_tree)
-+		pr_cont("%s\n", gotnocbscbs ? "" : " (self only)");
- }
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 11c5f9c8779e..cfab62923c45 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -510,6 +510,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
+ 	atomic_set(&pd->seq_nr, -1);
+ 	atomic_set(&pd->reorder_objects, 0);
+ 	atomic_set(&pd->refcnt, 1);
++	pd->pinst = pinst;
+ 	spin_lock_init(&pd->lock);
  
- /*
+ 	return pd;
 -- 
-2.20.1
+2.25.0
 
