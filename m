@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C73415DF77
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:09:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0823A15DF7E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391063AbgBNQIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:08:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
+        id S2391160AbgBNQJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:09:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391057AbgBNQIr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:08:47 -0500
+        id S2391154AbgBNQJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0809922314;
-        Fri, 14 Feb 2020 16:08:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9B6F2187F;
+        Fri, 14 Feb 2020 16:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696526;
-        bh=z9lZsmTV7165P7cffCuoQ2Igv1tMoJpZxY/bd3jhAiI=;
+        s=default; t=1581696541;
+        bh=3CRFopYcnMfNlMr6Cl0kK49QtkB2fzwmfKth7Fj+OI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRIpfwFz6p8jmM/aZWJjleKfXVkZi1E6+GVEQu3tE7MNw6QRl9M1xd9y0YEJqbZCz
-         mgAT07zXn+ZGVssOFbLKInlFi2sCLFBkMrEP4HnZU3jflhXu7j7h3xAMNzQwApV4II
-         jCc/UYedRdpPEZ8S5dcsPxTZE/CRLBRYZre+E++0=
+        b=z7FhN9Q/WmJtXRhbfvhKpy3sVWWqawUVw0yIuyueXdlNGKJytDCgdt2pz9+OWvIQO
+         qt4iLd12IYT3bwTJsHomidY8Nows5Yqr/bGcR2P1UGOyvkw5ZQTyd0wxXKxQFcaUqd
+         yBVjqvHJDnGgCMa4oOTgi7c1VQUG3A/r5vxxlMdE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 326/459] f2fs: free sysfs kobject
-Date:   Fri, 14 Feb 2020 10:59:36 -0500
-Message-Id: <20200214160149.11681-326-sashal@kernel.org>
+Cc:     Boqun Feng <boqun.feng@gmail.com>, linux-hyperv@vger.kernel.org,
+        Michael Kelley <mikelley@microsoft.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 336/459] clocksource/drivers/hyper-v: Reserve PAGE_SIZE space for tsc page
+Date:   Fri, 14 Feb 2020 10:59:46 -0500
+Message-Id: <20200214160149.11681-336-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,29 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 820d366736c949ffe698d3b3fe1266a91da1766d ]
+[ Upstream commit ddc61bbc45017726a2b450350d476b4dc5ae25ce ]
 
-Detected kmemleak.
+Currently, the reserved size for a tsc page is 4K, which is enough for
+communicating with hypervisor. However, in the case where we want to
+export the tsc page to userspace (e.g. for vDSO to read the
+clocksource), the tsc page should be at least PAGE_SIZE, otherwise, when
+PAGE_SIZE is larger than 4K, extra kernel data will be mapped into
+userspace, which means leaking kernel information.
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Therefore reserve PAGE_SIZE space for tsc_pg as a preparation for the
+vDSO support of ARM64 in the future. Also, while at it, replace all
+reference to tsc_pg with hv_get_tsc_page() since it should be the only
+interface to access tsc page.
+
+Signed-off-by: Boqun Feng (Microsoft) <boqun.feng@gmail.com>
+Cc: linux-hyperv@vger.kernel.org
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20191126021723.4710-1-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clocksource/hyperv_timer.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index b558b64a4c9ca..8544c0ab7b32b 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -782,4 +782,5 @@ void f2fs_unregister_sysfs(struct f2fs_sb_info *sbi)
- 		remove_proc_entry(sbi->sb->s_id, f2fs_proc_root);
- 	}
- 	kobject_del(&sbi->s_kobj);
-+	kobject_put(&sbi->s_kobj);
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index 2317d4e3daaff..bcac936fa62bd 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -213,17 +213,20 @@ EXPORT_SYMBOL_GPL(hv_stimer_global_cleanup);
+ struct clocksource *hyperv_cs;
+ EXPORT_SYMBOL_GPL(hyperv_cs);
+ 
+-static struct ms_hyperv_tsc_page tsc_pg __aligned(PAGE_SIZE);
++static union {
++	struct ms_hyperv_tsc_page page;
++	u8 reserved[PAGE_SIZE];
++} tsc_pg __aligned(PAGE_SIZE);
+ 
+ struct ms_hyperv_tsc_page *hv_get_tsc_page(void)
+ {
+-	return &tsc_pg;
++	return &tsc_pg.page;
  }
+ EXPORT_SYMBOL_GPL(hv_get_tsc_page);
+ 
+ static u64 notrace read_hv_clock_tsc(struct clocksource *arg)
+ {
+-	u64 current_tick = hv_read_tsc_page(&tsc_pg);
++	u64 current_tick = hv_read_tsc_page(hv_get_tsc_page());
+ 
+ 	if (current_tick == U64_MAX)
+ 		hv_get_time_ref_count(current_tick);
+@@ -278,7 +281,7 @@ static bool __init hv_init_tsc_clocksource(void)
+ 		return false;
+ 
+ 	hyperv_cs = &hyperv_cs_tsc;
+-	phys_addr = virt_to_phys(&tsc_pg);
++	phys_addr = virt_to_phys(hv_get_tsc_page());
+ 
+ 	/*
+ 	 * The Hyper-V TLFS specifies to preserve the value of reserved
 -- 
 2.20.1
 
