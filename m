@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D0115E019
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:12:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A3415E01C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391948AbgBNQMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:12:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39564 "EHLO mail.kernel.org"
+        id S2391973AbgBNQMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:12:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391944AbgBNQMP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:15 -0500
+        id S2391968AbgBNQMV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3712246AA;
-        Fri, 14 Feb 2020 16:12:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C398824697;
+        Fri, 14 Feb 2020 16:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696734;
-        bh=DN9EY9yechMLV7YzSb8j4dOaVjGHpamtJcgPluVn/vA=;
+        s=default; t=1581696740;
+        bh=FDLTKae5L6Lt5h3s6D/TeS96VdvhDxPetZvWw6O8jx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RklmxdXXEnL/0NnHOdZBmn186W5VhzH6HNr5LGq4QhZWAnvPl8bZRvNm0lpH0q69U
-         T+uTtqjOcM7ZtDWXT1LKwKiTlDUki+zSKOwEfvfpyUMtt4A/seCdb8ntesafo7BIFQ
-         gaOhiuEHjHmFgiO5HCzbCWxNwGHnlt9vijaiUW5c=
+        b=2gYtf6cyXICXjE2Si97U/Tn8p3YjL4ZQqB+iyjWGT/bTJXvRaV/m7j9DdUs69qvna
+         udTpvXuiLswjZzOYeqVbzUNfteEdbWFC1XEXwmEJZpEgU+6NG5J7F+YlqpP1C2Efcp
+         yMYHv8pLsD47lbAMO8DjmNaFJzSsToJuKilsshGI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Qian Cai <cai@lca.pw>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 020/252] char/random: silence a lockdep splat with printk()
-Date:   Fri, 14 Feb 2020 11:07:55 -0500
-Message-Id: <20200214161147.15842-20-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Matthew Garrett <mjg59@google.com>, linux-efi@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org, x86@kernel.org
+Subject: [PATCH AUTOSEL 4.19 024/252] efi/x86: Map the entire EFI vendor string before copying it
+Date:   Fri, 14 Feb 2020 11:07:59 -0500
+Message-Id: <20200214161147.15842-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,276 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 1b710b1b10eff9d46666064ea25f079f70bc67a8 ]
+[ Upstream commit ffc2760bcf2dba0dbef74013ed73eea8310cc52c ]
 
-Sergey didn't like the locking order,
+Fix a couple of issues with the way we map and copy the vendor string:
+- we map only 2 bytes, which usually works since you get at least a
+  page, but if the vendor string happens to cross a page boundary,
+  a crash will result
+- only call early_memunmap() if early_memremap() succeeded, or we will
+  call it with a NULL address which it doesn't like,
+- while at it, switch to early_memremap_ro(), and array indexing rather
+  than pointer dereferencing to read the CHAR16 characters.
 
-uart_port->lock  ->  tty_port->lock
-
-uart_write (uart_port->lock)
-  __uart_start
-    pl011_start_tx
-      pl011_tx_chars
-        uart_write_wakeup
-          tty_port_tty_wakeup
-            tty_port_default
-              tty_port_tty_get (tty_port->lock)
-
-but those code is so old, and I have no clue how to de-couple it after
-checking other locks in the splat. There is an onging effort to make all
-printk() as deferred, so until that happens, workaround it for now as a
-short-term fix.
-
-LTP: starting iogen01 (export LTPROOT; rwtest -N iogen01 -i 120s -s
-read,write -Da -Dv -n 2 500b:$TMPDIR/doio.f1.$$
-1000b:$TMPDIR/doio.f2.$$)
-WARNING: possible circular locking dependency detected
-------------------------------------------------------
-doio/49441 is trying to acquire lock:
-ffff008b7cff7290 (&(&zone->lock)->rlock){..-.}, at: rmqueue+0x138/0x2050
-
-but task is already holding lock:
-60ff000822352818 (&pool->lock/1){-.-.}, at: start_flush_work+0xd8/0x3f0
-
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #4 (&pool->lock/1){-.-.}:
-       lock_acquire+0x320/0x360
-       _raw_spin_lock+0x64/0x80
-       __queue_work+0x4b4/0xa10
-       queue_work_on+0xac/0x11c
-       tty_schedule_flip+0x84/0xbc
-       tty_flip_buffer_push+0x1c/0x28
-       pty_write+0x98/0xd0
-       n_tty_write+0x450/0x60c
-       tty_write+0x338/0x474
-       __vfs_write+0x88/0x214
-       vfs_write+0x12c/0x1a4
-       redirected_tty_write+0x90/0xdc
-       do_loop_readv_writev+0x140/0x180
-       do_iter_write+0xe0/0x10c
-       vfs_writev+0x134/0x1cc
-       do_writev+0xbc/0x130
-       __arm64_sys_writev+0x58/0x8c
-       el0_svc_handler+0x170/0x240
-       el0_sync_handler+0x150/0x250
-       el0_sync+0x164/0x180
-
-  -> #3 (&(&port->lock)->rlock){-.-.}:
-       lock_acquire+0x320/0x360
-       _raw_spin_lock_irqsave+0x7c/0x9c
-       tty_port_tty_get+0x24/0x60
-       tty_port_default_wakeup+0x1c/0x3c
-       tty_port_tty_wakeup+0x34/0x40
-       uart_write_wakeup+0x28/0x44
-       pl011_tx_chars+0x1b8/0x270
-       pl011_start_tx+0x24/0x70
-       __uart_start+0x5c/0x68
-       uart_write+0x164/0x1c8
-       do_output_char+0x33c/0x348
-       n_tty_write+0x4bc/0x60c
-       tty_write+0x338/0x474
-       redirected_tty_write+0xc0/0xdc
-       do_loop_readv_writev+0x140/0x180
-       do_iter_write+0xe0/0x10c
-       vfs_writev+0x134/0x1cc
-       do_writev+0xbc/0x130
-       __arm64_sys_writev+0x58/0x8c
-       el0_svc_handler+0x170/0x240
-       el0_sync_handler+0x150/0x250
-       el0_sync+0x164/0x180
-
-  -> #2 (&port_lock_key){-.-.}:
-       lock_acquire+0x320/0x360
-       _raw_spin_lock+0x64/0x80
-       pl011_console_write+0xec/0x2cc
-       console_unlock+0x794/0x96c
-       vprintk_emit+0x260/0x31c
-       vprintk_default+0x54/0x7c
-       vprintk_func+0x218/0x254
-       printk+0x7c/0xa4
-       register_console+0x734/0x7b0
-       uart_add_one_port+0x734/0x834
-       pl011_register_port+0x6c/0xac
-       sbsa_uart_probe+0x234/0x2ec
-       platform_drv_probe+0xd4/0x124
-       really_probe+0x250/0x71c
-       driver_probe_device+0xb4/0x200
-       __device_attach_driver+0xd8/0x188
-       bus_for_each_drv+0xbc/0x110
-       __device_attach+0x120/0x220
-       device_initial_probe+0x20/0x2c
-       bus_probe_device+0x54/0x100
-       device_add+0xae8/0xc2c
-       platform_device_add+0x278/0x3b8
-       platform_device_register_full+0x238/0x2ac
-       acpi_create_platform_device+0x2dc/0x3a8
-       acpi_bus_attach+0x390/0x3cc
-       acpi_bus_attach+0x108/0x3cc
-       acpi_bus_attach+0x108/0x3cc
-       acpi_bus_attach+0x108/0x3cc
-       acpi_bus_scan+0x7c/0xb0
-       acpi_scan_init+0xe4/0x304
-       acpi_init+0x100/0x114
-       do_one_initcall+0x348/0x6a0
-       do_initcall_level+0x190/0x1fc
-       do_basic_setup+0x34/0x4c
-       kernel_init_freeable+0x19c/0x260
-       kernel_init+0x18/0x338
-       ret_from_fork+0x10/0x18
-
-  -> #1 (console_owner){-...}:
-       lock_acquire+0x320/0x360
-       console_lock_spinning_enable+0x6c/0x7c
-       console_unlock+0x4f8/0x96c
-       vprintk_emit+0x260/0x31c
-       vprintk_default+0x54/0x7c
-       vprintk_func+0x218/0x254
-       printk+0x7c/0xa4
-       get_random_u64+0x1c4/0x1dc
-       shuffle_pick_tail+0x40/0xac
-       __free_one_page+0x424/0x710
-       free_one_page+0x70/0x120
-       __free_pages_ok+0x61c/0xa94
-       __free_pages_core+0x1bc/0x294
-       memblock_free_pages+0x38/0x48
-       __free_pages_memory+0xcc/0xfc
-       __free_memory_core+0x70/0x78
-       free_low_memory_core_early+0x148/0x18c
-       memblock_free_all+0x18/0x54
-       mem_init+0xb4/0x17c
-       mm_init+0x14/0x38
-       start_kernel+0x19c/0x530
-
-  -> #0 (&(&zone->lock)->rlock){..-.}:
-       validate_chain+0xf6c/0x2e2c
-       __lock_acquire+0x868/0xc2c
-       lock_acquire+0x320/0x360
-       _raw_spin_lock+0x64/0x80
-       rmqueue+0x138/0x2050
-       get_page_from_freelist+0x474/0x688
-       __alloc_pages_nodemask+0x3b4/0x18dc
-       alloc_pages_current+0xd0/0xe0
-       alloc_slab_page+0x2b4/0x5e0
-       new_slab+0xc8/0x6bc
-       ___slab_alloc+0x3b8/0x640
-       kmem_cache_alloc+0x4b4/0x588
-       __debug_object_init+0x778/0x8b4
-       debug_object_init_on_stack+0x40/0x50
-       start_flush_work+0x16c/0x3f0
-       __flush_work+0xb8/0x124
-       flush_work+0x20/0x30
-       xlog_cil_force_lsn+0x88/0x204 [xfs]
-       xfs_log_force_lsn+0x128/0x1b8 [xfs]
-       xfs_file_fsync+0x3c4/0x488 [xfs]
-       vfs_fsync_range+0xb0/0xd0
-       generic_write_sync+0x80/0xa0 [xfs]
-       xfs_file_buffered_aio_write+0x66c/0x6e4 [xfs]
-       xfs_file_write_iter+0x1a0/0x218 [xfs]
-       __vfs_write+0x1cc/0x214
-       vfs_write+0x12c/0x1a4
-       ksys_write+0xb0/0x120
-       __arm64_sys_write+0x54/0x88
-       el0_svc_handler+0x170/0x240
-       el0_sync_handler+0x150/0x250
-       el0_sync+0x164/0x180
-
-       other info that might help us debug this:
-
- Chain exists of:
-   &(&zone->lock)->rlock --> &(&port->lock)->rlock --> &pool->lock/1
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&pool->lock/1);
-                               lock(&(&port->lock)->rlock);
-                               lock(&pool->lock/1);
-  lock(&(&zone->lock)->rlock);
-
-                *** DEADLOCK ***
-
-4 locks held by doio/49441:
- #0: a0ff00886fc27408 (sb_writers#8){.+.+}, at: vfs_write+0x118/0x1a4
- #1: 8fff00080810dfe0 (&xfs_nondir_ilock_class){++++}, at:
-xfs_ilock+0x2a8/0x300 [xfs]
- #2: ffff9000129f2390 (rcu_read_lock){....}, at:
-rcu_lock_acquire+0x8/0x38
- #3: 60ff000822352818 (&pool->lock/1){-.-.}, at:
-start_flush_work+0xd8/0x3f0
-
-               stack backtrace:
-CPU: 48 PID: 49441 Comm: doio Tainted: G        W
-Hardware name: HPE Apollo 70             /C01_APACHE_MB         , BIOS
-L50_5.13_1.11 06/18/2019
-Call trace:
- dump_backtrace+0x0/0x248
- show_stack+0x20/0x2c
- dump_stack+0xe8/0x150
- print_circular_bug+0x368/0x380
- check_noncircular+0x28c/0x294
- validate_chain+0xf6c/0x2e2c
- __lock_acquire+0x868/0xc2c
- lock_acquire+0x320/0x360
- _raw_spin_lock+0x64/0x80
- rmqueue+0x138/0x2050
- get_page_from_freelist+0x474/0x688
- __alloc_pages_nodemask+0x3b4/0x18dc
- alloc_pages_current+0xd0/0xe0
- alloc_slab_page+0x2b4/0x5e0
- new_slab+0xc8/0x6bc
- ___slab_alloc+0x3b8/0x640
- kmem_cache_alloc+0x4b4/0x588
- __debug_object_init+0x778/0x8b4
- debug_object_init_on_stack+0x40/0x50
- start_flush_work+0x16c/0x3f0
- __flush_work+0xb8/0x124
- flush_work+0x20/0x30
- xlog_cil_force_lsn+0x88/0x204 [xfs]
- xfs_log_force_lsn+0x128/0x1b8 [xfs]
- xfs_file_fsync+0x3c4/0x488 [xfs]
- vfs_fsync_range+0xb0/0xd0
- generic_write_sync+0x80/0xa0 [xfs]
- xfs_file_buffered_aio_write+0x66c/0x6e4 [xfs]
- xfs_file_write_iter+0x1a0/0x218 [xfs]
- __vfs_write+0x1cc/0x214
- vfs_write+0x12c/0x1a4
- ksys_write+0xb0/0x120
- __arm64_sys_write+0x54/0x88
- el0_svc_handler+0x170/0x240
- el0_sync_handler+0x150/0x250
- el0_sync+0x164/0x180
-
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/1573679785-21068-1-git-send-email-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: linux-efi@vger.kernel.org
+Fixes: 5b83683f32b1 ("x86: EFI runtime service support")
+Link: https://lkml.kernel.org/r/20200103113953.9571-5-ardb@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/platform/efi/efi.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 53e822793d463..28b110cd39775 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1609,8 +1609,9 @@ static void _warn_unseeded_randomness(const char *func_name, void *caller,
- 	print_once = true;
- #endif
- 	if (__ratelimit(&unseeded_warning))
--		pr_notice("random: %s called from %pS with crng_init=%d\n",
--			  func_name, caller, crng_init);
-+		printk_deferred(KERN_NOTICE "random: %s called from %pS "
-+				"with crng_init=%d\n", func_name, caller,
-+				crng_init);
- }
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 335a62e74a2e9..5b0275310070e 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -480,7 +480,6 @@ void __init efi_init(void)
+ 	efi_char16_t *c16;
+ 	char vendor[100] = "unknown";
+ 	int i = 0;
+-	void *tmp;
  
- /*
+ #ifdef CONFIG_X86_32
+ 	if (boot_params.efi_info.efi_systab_hi ||
+@@ -505,14 +504,16 @@ void __init efi_init(void)
+ 	/*
+ 	 * Show what we know for posterity
+ 	 */
+-	c16 = tmp = early_memremap(efi.systab->fw_vendor, 2);
++	c16 = early_memremap_ro(efi.systab->fw_vendor,
++				sizeof(vendor) * sizeof(efi_char16_t));
+ 	if (c16) {
+-		for (i = 0; i < sizeof(vendor) - 1 && *c16; ++i)
+-			vendor[i] = *c16++;
++		for (i = 0; i < sizeof(vendor) - 1 && c16[i]; ++i)
++			vendor[i] = c16[i];
+ 		vendor[i] = '\0';
+-	} else
++		early_memunmap(c16, sizeof(vendor) * sizeof(efi_char16_t));
++	} else {
+ 		pr_err("Could not map the firmware vendor!\n");
+-	early_memunmap(tmp, 2);
++	}
+ 
+ 	pr_info("EFI v%u.%.02u by %s\n",
+ 		efi.systab->hdr.revision >> 16,
 -- 
 2.20.1
 
