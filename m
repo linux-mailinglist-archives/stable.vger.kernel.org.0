@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3CDF15E91C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD79315E91A
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404096AbgBNRFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
+        id S2392430AbgBNQPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392427AbgBNQPN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:13 -0500
+        id S2392432AbgBNQPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B74D7246C3;
-        Fri, 14 Feb 2020 16:15:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B28D6246DE;
+        Fri, 14 Feb 2020 16:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696913;
-        bh=RJwtUpJBdRYkUiccppQNybQRCLhpCuqZmZrx0SpYbAQ=;
+        s=default; t=1581696914;
+        bh=H7Q6UGkUDohsAqgIcQdUPnUGdO92IToU1TSe781EBNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtA+RpeOIdKefn46K4rpvbqJCKHKYg7CWNdDn5dR+tzbNqsNGNmXNT1LfjCMWgbGz
-         TOMypI3IHm3tDwbAKO02wdmz9lJo78VPPM4nFdxmk1ahgNSxXXkXXYne9pt1zNwUMx
-         wZoz9gV256ohMHUjKLhgiDDRNj2AF98/Q15mXVWs=
+        b=NqnnrZbZZnYfodbX4BodLlhOlac90WmmXk3exGuuJyJtQnhS4ZDDthrdkQIbaAtCP
+         Rwr+Jb+dTapWRRmAgI/rDiiL2yzzguvppOuIwF768ABiF1DYTGUQETZRwfhmJymjQ5
+         HiIHg3pReVQz8QgQEiIUdXTP1lFwURbcH6CA7nF0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Simon Schwartz <kern.simon@theschwartz.xyz>,
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 162/252] driver core: platform: Prevent resouce overflow from causing infinite loops
-Date:   Fri, 14 Feb 2020 11:10:17 -0500
-Message-Id: <20200214161147.15842-162-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 163/252] driver core: Print device when resources present in really_probe()
+Date:   Fri, 14 Feb 2020 11:10:18 -0500
+Message-Id: <20200214161147.15842-163-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,72 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Schwartz <kern.simon@theschwartz.xyz>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 39cc539f90d035a293240c9443af50be55ee81b8 ]
+[ Upstream commit 7c35e699c88bd60734277b26962783c60e04b494 ]
 
-num_resources in the platform_device struct is declared as a u32.  The
-for loops that iterate over num_resources use an int as the counter,
-which can cause infinite loops on architectures with smaller ints.
-Change the loop counters to u32.
+If a device already has devres items attached before probing, a warning
+backtrace is printed.  However, this backtrace does not reveal the
+offending device, leaving the user uninformed.  Furthermore, using
+WARN_ON() causes systems with panic-on-warn to reboot.
 
-Signed-off-by: Simon Schwartz <kern.simon@theschwartz.xyz>
-Link: https://lore.kernel.org/r/2201ce63a2a171ffd2ed14e867875316efcf71db.camel@theschwartz.xyz
+Fix this by replacing the WARN_ON() by a dev_crit() message.
+Abort probing the device, to prevent doing more damage to the device's
+resources.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191206132219.28908-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/base/dd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index e9be1f56929af..1d3a50ac21664 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -27,6 +27,7 @@
- #include <linux/limits.h>
- #include <linux/property.h>
- #include <linux/kmemleak.h>
-+#include <linux/types.h>
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 11d24a552ee49..5f6416e6ba96b 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -470,7 +470,10 @@ static int really_probe(struct device *dev, struct device_driver *drv)
+ 	atomic_inc(&probe_count);
+ 	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
+ 		 drv->bus->name, __func__, drv->name, dev_name(dev));
+-	WARN_ON(!list_empty(&dev->devres_head));
++	if (!list_empty(&dev->devres_head)) {
++		dev_crit(dev, "Resources present before probing\n");
++		return -EBUSY;
++	}
  
- #include "base.h"
- #include "power/power.h"
-@@ -67,7 +68,7 @@ void __weak arch_setup_pdev_archdata(struct platform_device *pdev)
- struct resource *platform_get_resource(struct platform_device *dev,
- 				       unsigned int type, unsigned int num)
- {
--	int i;
-+	u32 i;
- 
- 	for (i = 0; i < dev->num_resources; i++) {
- 		struct resource *r = &dev->resource[i];
-@@ -162,7 +163,7 @@ struct resource *platform_get_resource_byname(struct platform_device *dev,
- 					      unsigned int type,
- 					      const char *name)
- {
--	int i;
-+	u32 i;
- 
- 	for (i = 0; i < dev->num_resources; i++) {
- 		struct resource *r = &dev->resource[i];
-@@ -359,7 +360,8 @@ EXPORT_SYMBOL_GPL(platform_device_add_properties);
-  */
- int platform_device_add(struct platform_device *pdev)
- {
--	int i, ret;
-+	u32 i;
-+	int ret;
- 
- 	if (!pdev)
- 		return -EINVAL;
-@@ -446,7 +448,7 @@ EXPORT_SYMBOL_GPL(platform_device_add);
-  */
- void platform_device_del(struct platform_device *pdev)
- {
--	int i;
-+	u32 i;
- 
- 	if (pdev) {
- 		device_remove_properties(&pdev->dev);
+ re_probe:
+ 	dev->driver = drv;
 -- 
 2.20.1
 
