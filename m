@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3E615E0CF
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0058015E0D0
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404128AbgBNQP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:15:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45610 "EHLO mail.kernel.org"
+        id S2404138AbgBNQP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403904AbgBNQPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:25 -0500
+        id S2404136AbgBNQP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DF94246ED;
-        Fri, 14 Feb 2020 16:15:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2681246F3;
+        Fri, 14 Feb 2020 16:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696925;
-        bh=YIGZT7Mw55e964DtErPouRe21GxqEoy89dkTezE1Oy8=;
+        s=default; t=1581696927;
+        bh=vI7lV6bJSwFrfUSOqObJPGooulJ3EqcRpdA8ruW/WNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Puq/pAZQuwHp3YxZWZDikmu7SUefVZBtKy4bsrmQjAkFoWxoPHDMcMcLsz9TpCJ9c
-         h8wudm0KikOOAcEyYjVOQyOC0ZzRdGfaPxVtyHiAPGYPkbOtcpoVL0UG7+Cg+snMOl
-         lZ9mYmPXwkJNW6kFYeO2t0Jo1MWRHo68op7LbblU=
+        b=cMPxhrj8NY85LPLC4l4DLAPQHb9uMyWl0vSgAO5crIXq6pPMB0XcdKjqedshTiE/6
+         dcNBFY3dwqannM9/EyADlbwGZPV3BiZCKv+aOjhdqtIln2rxq6QPKPl3fWo70r9nmw
+         Uujyv1UCUtscbRdJa8gJ6AXAwkQWrnUC8wBknH04=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 172/252] drm/nouveau/fault/gv100-: fix memory leak on module unload
-Date:   Fri, 14 Feb 2020 11:10:27 -0500
-Message-Id: <20200214161147.15842-172-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
+        Bin Liu <b-liu@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 174/252] usb: musb: omap2430: Get rid of musb .set_vbus for omap2430 glue
+Date:   Fri, 14 Feb 2020 11:10:29 -0500
+Message-Id: <20200214161147.15842-174-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -42,28 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 633cc9beeb6f9b5fa2f17a2a9d0e2790cb6c3de7 ]
+[ Upstream commit 91b6dec32e5c25fbdbb564d1e5af23764ec17ef1 ]
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+We currently have musb_set_vbus() called from two different paths. Mostly
+it gets called from the USB PHY via omap_musb_set_mailbox(), but in some
+cases it can get also called from musb_stage0_irq() rather via .set_vbus:
+
+(musb_set_host [musb_hdrc])
+(omap2430_musb_set_vbus [omap2430])
+(musb_stage0_irq [musb_hdrc])
+(musb_interrupt [musb_hdrc])
+(omap2430_musb_interrupt [omap2430])
+
+This is racy and will not work with introducing generic helper functions
+for musb_set_host() and musb_set_peripheral(). We want to get rid of the
+busy loops in favor of usleep_range().
+
+Let's just get rid of .set_vbus for omap2430 glue layer and let the PHY
+code handle VBUS with musb_set_vbus(). Note that in the follow-up patch
+we can completely remove omap2430_musb_set_vbus(), but let's do it in a
+separate patch as this change may actually turn out to be needed as a
+fix.
+
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200115132547.364-5-b-liu@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/fault/base.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/musb/omap2430.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/fault/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/fault/base.c
-index 16ad91c91a7be..f18ce6ff5b7ed 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/fault/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/fault/base.c
-@@ -150,6 +150,7 @@ nvkm_fault_dtor(struct nvkm_subdev *subdev)
- 	struct nvkm_fault *fault = nvkm_fault(subdev);
- 	int i;
+diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
+index b1dd81fb5f55e..24e622c056383 100644
+--- a/drivers/usb/musb/omap2430.c
++++ b/drivers/usb/musb/omap2430.c
+@@ -361,8 +361,6 @@ static const struct musb_platform_ops omap2430_ops = {
+ 	.init		= omap2430_musb_init,
+ 	.exit		= omap2430_musb_exit,
  
-+	nvkm_notify_fini(&fault->nrpfb);
- 	nvkm_event_fini(&fault->event);
+-	.set_vbus	= omap2430_musb_set_vbus,
+-
+ 	.enable		= omap2430_musb_enable,
+ 	.disable	= omap2430_musb_disable,
  
- 	for (i = 0; i < fault->buffer_nr; i++) {
 -- 
 2.20.1
 
