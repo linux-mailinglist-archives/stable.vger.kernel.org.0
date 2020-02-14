@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C16F315E271
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D2B15E273
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405650AbgBNQX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:23:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59718 "EHLO mail.kernel.org"
+        id S2405664AbgBNQXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:23:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405647AbgBNQX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:23:27 -0500
+        id S2405657AbgBNQXb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:23:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD0A024772;
-        Fri, 14 Feb 2020 16:23:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7703A24776;
+        Fri, 14 Feb 2020 16:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697406;
-        bh=cmKVbbgAr5m81ZEiOmdFPQRU8WvKgIECNgEV/u5oFNQ=;
+        s=default; t=1581697410;
+        bh=zg6Uq7ArT0C+WyG4FP67wrVc7ANAPFZHEsRcL6m0R6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDlgS6Wl8Ad/hdfgUwrDv93jH5PszxVrJEkBNgEwzgjE8bWiJ3iqNyXv26rNVJZ0C
-         jaU8nfHuYy9dFO5HnldkJpy1Tr3B8lSb3AUjP5eZ1jH/E4lwuMJdj9GMBGO4/CvHSg
-         4SQQGzK6ItFB0nu949rQ1+fzdGLhFNG5tYliIIcc=
+        b=u7O2o9pt8U4bwIJB2bBN42fv7kVC+tBRtcngVnxRe920X0lPEKQf5tUWj4XYxbkbR
+         72rDkaMgf9R9+9oXydNhrFZ77t0COvOdbRWy3BV4argW+4ZuM2NyBoJSMyunHTDm3D
+         50quqgDZcsKAhLeedWqOH2uPrOVY6ampY5O8A41A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
+Cc:     Will Deacon <will@kernel.org>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 099/141] drm/nouveau: Fix copy-paste error in nouveau_fence_wait_uevent_handler
-Date:   Fri, 14 Feb 2020 11:20:39 -0500
-Message-Id: <20200214162122.19794-99-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 102/141] iommu/arm-smmu-v3: Use WRITE_ONCE() when changing validity of an STE
+Date:   Fri, 14 Feb 2020 11:20:42 -0500
+Message-Id: <20200214162122.19794-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -44,34 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 1eb013473bff5f95b6fe1ca4dd7deda47257b9c2 ]
+[ Upstream commit d71e01716b3606a6648df7e5646ae12c75babde4 ]
 
-Like other cases, it should use rcu protected 'chan' rather
-than 'fence->channel' in nouveau_fence_wait_uevent_handler.
+If, for some bizarre reason, the compiler decided to split up the write
+of STE DWORD 0, we could end up making a partial structure valid.
 
-Fixes: 0ec5f02f0e2c ("drm/nouveau: prevent stale fence->channel pointers, and protect with rcu")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Although this probably won't happen, follow the example of the
+context-descriptor code and use WRITE_ONCE() to ensure atomicity of the
+write.
+
+Reported-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_fence.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/arm-smmu-v3.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_fence.c b/drivers/gpu/drm/nouveau/nouveau_fence.c
-index 4bb9ab892ae19..78e521d00251c 100644
---- a/drivers/gpu/drm/nouveau/nouveau_fence.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_fence.c
-@@ -158,7 +158,7 @@ nouveau_fence_wait_uevent_handler(struct nvif_notify *notify)
- 
- 		fence = list_entry(fctx->pending.next, typeof(*fence), head);
- 		chan = rcu_dereference_protected(fence->channel, lockdep_is_held(&fctx->lock));
--		if (nouveau_fence_update(fence->channel, fctx))
-+		if (nouveau_fence_update(chan, fctx))
- 			ret = NVIF_NOTIFY_DROP;
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 7bd98585d78d2..48d3820087881 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -1103,7 +1103,8 @@ static void arm_smmu_write_strtab_ent(struct arm_smmu_device *smmu, u32 sid,
  	}
- 	spin_unlock_irqrestore(&fctx->lock, flags);
+ 
+ 	arm_smmu_sync_ste_for_sid(smmu, sid);
+-	dst[0] = cpu_to_le64(val);
++	/* See comment in arm_smmu_write_ctx_desc() */
++	WRITE_ONCE(dst[0], cpu_to_le64(val));
+ 	arm_smmu_sync_ste_for_sid(smmu, sid);
+ 
+ 	/* It's likely that we'll want to use the new STE soon */
 -- 
 2.20.1
 
