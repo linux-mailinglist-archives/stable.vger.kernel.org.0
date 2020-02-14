@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F79515E8D4
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:03:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5938C15E8D2
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:03:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404288AbgBNRDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:03:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46498 "EHLO mail.kernel.org"
+        id S2403987AbgBNRDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:03:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403815AbgBNQP4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:56 -0500
+        id S2404180AbgBNQP5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1137A246F4;
-        Fri, 14 Feb 2020 16:15:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 613C2246F5;
+        Fri, 14 Feb 2020 16:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696956;
-        bh=LO9osZihFUTbpG6o//SCjgXWqG9dLGPwwMhlrka+frI=;
+        s=default; t=1581696957;
+        bh=3KRChEGwMrFyCZkXflHL2hF+PqaYvlhAhPObu7WcK68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g40jxIQ/U9EverZuTMa0rDERzfmal3Xyj/XZ8Oy2+HJZr3SdQbt493ACjyL12Se4M
-         R7Vtk1hoq6M9xsK2XbQIwkd6MeCr2Hw88tCcQrsNwtDkiiAGYUbdOFBKgCHV7qIeRQ
-         7l6NqfCll4Bc8nhjKK4Rc5FOGgXWxFYjje5J3hmU=
+        b=TzOMUHkO9d2lWNBZwy0WT7NYMNsHTGq4UVTXq6lV0AebTQ+9Fp0utplGFrOQ8UY7P
+         x2/k0fs49k2DflG8LTX9EylBXYq7g+/D5fVxliWn7q0TwgLc6MLoRiCB0G/EhS3qiC
+         50g7LyTEi1n1qly5Vh5MzPr8YjRcweZg4F3eqY0g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anand Jain <anand.jain@oracle.com>, philip@philip-seeger.de,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 196/252] btrfs: device stats, log when stats are zeroed
-Date:   Fri, 14 Feb 2020 11:10:51 -0500
-Message-Id: <20200214161147.15842-196-sashal@kernel.org>
+Cc:     Jessica Yu <jeyu@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 197/252] module: avoid setting info->name early in case we can fall back to info->mod->name
+Date:   Fri, 14 Feb 2020 11:10:52 -0500
+Message-Id: <20200214161147.15842-197-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,45 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit a69976bc69308aa475d0ba3b8b3efd1d013c0460 ]
+[ Upstream commit 708e0ada1916be765b7faa58854062f2bc620bbf ]
 
-We had a report indicating that some read errors aren't reported by the
-device stats in the userland. It is important to have the errors
-reported in the device stat as user land scripts might depend on it to
-take the reasonable corrective actions. But to debug these issue we need
-to be really sure that request to reset the device stat did not come
-from the userland itself. So log an info message when device error reset
-happens.
+In setup_load_info(), info->name (which contains the name of the module,
+mostly used for early logging purposes before the module gets set up)
+gets unconditionally assigned if .modinfo is missing despite the fact
+that there is an if (!info->name) check near the end of the function.
+Avoid assigning a placeholder string to info->name if .modinfo doesn't
+exist, so that we can fall back to info->mod->name later on.
 
-For example:
- BTRFS info (device sdc): device stats zeroed by btrfs(9223)
-
-Reported-by: philip@philip-seeger.de
-Link: https://www.spinics.net/lists/linux-btrfs/msg96528.html
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/module.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 5bbcdcff68a9e..9c3b394b99fa2 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -7260,6 +7260,8 @@ int btrfs_get_dev_stats(struct btrfs_fs_info *fs_info,
- 			else
- 				btrfs_dev_stat_reset(dev, i);
- 		}
-+		btrfs_info(fs_info, "device stats zeroed by %s (%d)",
-+			   current->comm, task_pid_nr(current));
- 	} else {
- 		for (i = 0; i < BTRFS_DEV_STAT_VALUES_MAX; i++)
- 			if (stats->nr_items > i)
+diff --git a/kernel/module.c b/kernel/module.c
+index 70a75a7216abb..20fc0efc679c0 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2980,9 +2980,7 @@ static int setup_load_info(struct load_info *info, int flags)
+ 
+ 	/* Try to find a name early so we can log errors with a module name */
+ 	info->index.info = find_sec(info, ".modinfo");
+-	if (!info->index.info)
+-		info->name = "(missing .modinfo section)";
+-	else
++	if (info->index.info)
+ 		info->name = get_modinfo(info, "name");
+ 
+ 	/* Find internal symbols and strings. */
+@@ -2997,14 +2995,15 @@ static int setup_load_info(struct load_info *info, int flags)
+ 	}
+ 
+ 	if (info->index.sym == 0) {
+-		pr_warn("%s: module has no symbols (stripped?)\n", info->name);
++		pr_warn("%s: module has no symbols (stripped?)\n",
++			info->name ?: "(missing .modinfo section or name field)");
+ 		return -ENOEXEC;
+ 	}
+ 
+ 	info->index.mod = find_sec(info, ".gnu.linkonce.this_module");
+ 	if (!info->index.mod) {
+ 		pr_warn("%s: No module found in object\n",
+-			info->name ?: "(missing .modinfo name field)");
++			info->name ?: "(missing .modinfo section or name field)");
+ 		return -ENOEXEC;
+ 	}
+ 	/* This is temporary: point mod into copy of data. */
 -- 
 2.20.1
 
