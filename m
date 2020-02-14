@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A25615EBEB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1020515EBEC
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390863AbgBNQJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:09:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
+        id S2391314AbgBNRXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:23:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391253AbgBNQJW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:22 -0500
+        id S2391256AbgBNQJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 186CA2468C;
-        Fri, 14 Feb 2020 16:09:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A8F1222C2;
+        Fri, 14 Feb 2020 16:09:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696561;
-        bh=qJfzYyV9Y0WYbfKEDYmFsAxQ6hgFWI3pRXz7mg64m7s=;
+        s=default; t=1581696562;
+        bh=/U5JltyEb1Fb0bMb6W9s0AGoY9F2uBjpcwC4EVYcpWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JT3e4PL/Xxr4n5av5x4vxQ9b/Es21xRU2Dg7U5rn4BE0fWaXp9mRueUFL8f3lA/mN
-         xmmxlHZphlLwqRdypV0oevQWAdr4sEW2oV3iDh1gSHEtSi70h69lbhUb5y7RpOQ03a
-         1ImF7vQn2RDyXkSp6r9W6C3nkX9GeMyvvzxb4t6U=
+        b=V9F2zsUl3tGC44yVIVj7jZgDSy27XASVd7k5o+FWZwQjZgj5ifzZHVeNLVFCUIThv
+         BDASRXizI8Ymj/pPBOanGTJR+AVarL7u01kAWjrFPDDI310uLINPxFeVfZiU+u70GY
+         CZfJDInNnIWmUOrNzGVTRR0G54wwsTtcADkw3cwU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 352/459] x86/mm: Fix NX bit clearing issue in kernel_map_pages_in_pgd
-Date:   Fri, 14 Feb 2020 11:00:02 -0500
-Message-Id: <20200214160149.11681-352-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 353/459] pwm: omap-dmtimer: Remove PWM chip in .remove before making it unfunctional
+Date:   Fri, 14 Feb 2020 11:00:03 -0500
+Message-Id: <20200214160149.11681-353-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,60 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 75fbef0a8b6b4bb19b9a91b5214f846c2dc5139e ]
+[ Upstream commit 43efdc8f0e6d7088ec61bd55a73bf853f002d043 ]
 
-The following commit:
+In the old code (e.g.) mutex_destroy() was called before
+pwmchip_remove(). Between these two calls it is possible that a PWM
+callback is used which tries to grab the mutex.
 
-  15f003d20782 ("x86/mm/pat: Don't implicitly allow _PAGE_RW in kernel_map_pages_in_pgd()")
-
-modified kernel_map_pages_in_pgd() to manage writable permissions
-of memory mappings in the EFI page table in a different way, but
-in the process, it removed the ability to clear NX attributes from
-read-only mappings, by clobbering the clear mask if _PAGE_RW is not
-being requested.
-
-Failure to remove the NX attribute from read-only mappings is
-unlikely to be a security issue, but it does prevent us from
-tightening the permissions in the EFI page tables going forward,
-so let's fix it now.
-
-Fixes: 15f003d20782 ("x86/mm/pat: Don't implicitly allow _PAGE_RW in kernel_map_pages_in_pgd()
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200113172245.27925-5-ardb@kernel.org
+Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pageattr.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/pwm/pwm-omap-dmtimer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-index 0d09cc5aad614..a19a71b4d1850 100644
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -2215,7 +2215,7 @@ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
- 		.pgd = pgd,
- 		.numpages = numpages,
- 		.mask_set = __pgprot(0),
--		.mask_clr = __pgprot(0),
-+		.mask_clr = __pgprot(~page_flags & (_PAGE_NX|_PAGE_RW)),
- 		.flags = 0,
- 	};
+diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
+index 6cfeb0e1cc679..e36fcad668a68 100644
+--- a/drivers/pwm/pwm-omap-dmtimer.c
++++ b/drivers/pwm/pwm-omap-dmtimer.c
+@@ -361,6 +361,11 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
+ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
+ {
+ 	struct pwm_omap_dmtimer_chip *omap = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = pwmchip_remove(&omap->chip);
++	if (ret)
++		return ret;
  
-@@ -2224,12 +2224,6 @@ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
- 	if (!(__supported_pte_mask & _PAGE_NX))
- 		goto out;
+ 	if (pm_runtime_active(&omap->dm_timer_pdev->dev))
+ 		omap->pdata->stop(omap->dm_timer);
+@@ -369,7 +374,7 @@ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
  
--	if (!(page_flags & _PAGE_NX))
--		cpa.mask_clr = __pgprot(_PAGE_NX);
--
--	if (!(page_flags & _PAGE_RW))
--		cpa.mask_clr = __pgprot(_PAGE_RW);
--
- 	if (!(page_flags & _PAGE_ENC))
- 		cpa.mask_clr = pgprot_encrypted(cpa.mask_clr);
+ 	mutex_destroy(&omap->mutex);
  
+-	return pwmchip_remove(&omap->chip);
++	return 0;
+ }
+ 
+ static const struct of_device_id pwm_omap_dmtimer_of_match[] = {
 -- 
 2.20.1
 
