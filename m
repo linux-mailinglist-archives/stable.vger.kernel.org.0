@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4859615E72B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2AC615E719
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:52:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388779AbgBNQwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:52:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52354 "EHLO mail.kernel.org"
+        id S2404984AbgBNQTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:19:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404967AbgBNQTT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:19:19 -0500
+        id S2404324AbgBNQTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:19:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C96424712;
-        Fri, 14 Feb 2020 16:19:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB88F24702;
+        Fri, 14 Feb 2020 16:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697159;
-        bh=h21jDjk2H0/a9rRsPntXF0nJgP2UuDLNmtc3OLrc6Vg=;
+        s=default; t=1581697161;
+        bh=09CLZHhNHNyqqmnT9B63fYO3RiBBKa0IUbToH8AhA4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qaXDtQQ5wHx6oL2+slWTbLouygXum8eyuNBXTggLUuX/PZncLmTsVBrJJbHgSIFR0
-         WgMFtoQ7tXGydgnpGgngTE49bDQzvVn2lYdf5GTP3hbKDKmPqkK2AVoEVmSKQUvccP
-         fAS/AouyWNktyc0SJ1GL0Aq5DqJL9FXpV0QyQzgw=
+        b=C+Zev86rRxy20Eg8yT37x9fcglTqXDj71piP0GGRIjQTOxLpQXFsb5uguvkaPoitM
+         3AxGHK3PbQMNFWeIcc4/PdfL8evMy4z2yUoo/2idCmyaOMwNfUinp1ZlJaHWJUX1kx
+         KsbreSH3O4xJfR1aO3afUx5Uvq9SHhKQEpPyhofA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiewei Ke <kejiewei.cn@gmail.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 096/186] RDMA/rxe: Fix error type of mmap_offset
-Date:   Fri, 14 Feb 2020 11:15:45 -0500
-Message-Id: <20200214161715.18113-96-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 098/186] ALSA: sh: Fix unused variable warnings
+Date:   Fri, 14 Feb 2020 11:15:47 -0500
+Message-Id: <20200214161715.18113-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -43,36 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiewei Ke <kejiewei.cn@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6ca18d8927d468c763571f78c9a7387a69ffa020 ]
+[ Upstream commit 5da116f164ce265e397b8f59af5c39e4a61d61a5 ]
 
-The type of mmap_offset should be u64 instead of int to match the type of
-mminfo.offset. If otherwise, after we create several thousands of CQs, it
-will run into overflow issues.
+Remove unused variables that are left over after the conversion of new
+PCM ops:
+  sound/sh/sh_dac_audio.c:166:26: warning: unused variable 'runtime'
+  sound/sh/sh_dac_audio.c:186:26: warning: unused variable 'runtime'
+  sound/sh/sh_dac_audio.c:205:26: warning: unused variable 'runtime'
 
-Link: https://lore.kernel.org/r/20191227113613.5020-1-kejiewei.cn@gmail.com
-Signed-off-by: Jiewei Ke <kejiewei.cn@gmail.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 1cc2f8ba0b3e ("ALSA: sh: Convert to the new PCM ops")
+Link: https://lore.kernel.org/r/20200104110057.13875-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_verbs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/sh/sh_dac_audio.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
-index d1cc89f6f2e33..46c8a66731e6c 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.h
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
-@@ -408,7 +408,7 @@ struct rxe_dev {
- 	struct list_head	pending_mmaps;
+diff --git a/sound/sh/sh_dac_audio.c b/sound/sh/sh_dac_audio.c
+index 834b2574786f5..6251b5e1b64a2 100644
+--- a/sound/sh/sh_dac_audio.c
++++ b/sound/sh/sh_dac_audio.c
+@@ -190,7 +190,6 @@ static int snd_sh_dac_pcm_copy(struct snd_pcm_substream *substream,
+ {
+ 	/* channel is not used (interleaved data) */
+ 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
+-	struct snd_pcm_runtime *runtime = substream->runtime;
  
- 	spinlock_t		mmap_offset_lock; /* guard mmap_offset */
--	int			mmap_offset;
-+	u64			mmap_offset;
+ 	if (copy_from_user_toio(chip->data_buffer + pos, src, count))
+ 		return -EFAULT;
+@@ -210,7 +209,6 @@ static int snd_sh_dac_pcm_copy_kernel(struct snd_pcm_substream *substream,
+ {
+ 	/* channel is not used (interleaved data) */
+ 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
+-	struct snd_pcm_runtime *runtime = substream->runtime;
  
- 	atomic64_t		stats_counters[RXE_NUM_OF_COUNTERS];
+ 	memcpy_toio(chip->data_buffer + pos, src, count);
+ 	chip->buffer_end = chip->data_buffer + pos + count;
+@@ -229,7 +227,6 @@ static int snd_sh_dac_pcm_silence(struct snd_pcm_substream *substream,
+ {
+ 	/* channel is not used (interleaved data) */
+ 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
+-	struct snd_pcm_runtime *runtime = substream->runtime;
  
+ 	memset_io(chip->data_buffer + pos, 0, count);
+ 	chip->buffer_end = chip->data_buffer + pos + count;
 -- 
 2.20.1
 
