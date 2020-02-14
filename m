@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4455E15E6F3
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E3E15E6E6
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392419AbgBNQu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:50:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53484 "EHLO mail.kernel.org"
+        id S2405113AbgBNQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:20:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389133AbgBNQUD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:20:03 -0500
+        id S2405109AbgBNQUF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:20:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A7FE24713;
-        Fri, 14 Feb 2020 16:20:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89E5F2472C;
+        Fri, 14 Feb 2020 16:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697203;
-        bh=2kvsYXdcKUPAdNfJsBXkGkrgr34Sh64pyOA+joC5Dwk=;
+        s=default; t=1581697204;
+        bh=WejT3Jlm73icaZYufA+h2E/dA+9hbApxdmiA8FvbewE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwliVoSrZVT5+QA6GYSq3rGJ2FIccKCT/jTc7WqIHRAf+PS7wpKiHImZL3nb4nXSh
-         2YpUNgsTIqxt3YUFn+UQEUzr/BNSBjH2eoQl9lhZwDrdBmXFy3957siQQh0GFVzvnk
-         /X2POzlQY8OE2Hhsb362Zv66TTVYEH9fHOY+2uW4=
+        b=18LPU1mTGvyoZmVX6Y9BlIaffz0Sg0hn1y/GAq8Q2ih/QDMi0N10lljAYoOQI3UxP
+         LMC0nWFFTWweZoCRR+lBdXJg7hyYWZpJIBUOrJzcDFDJ5fGKCEgcAK/VStyLSO7CQn
+         nZysXUNce0oFiDwwDNf1gPaWv84UZgTjg41tk+f8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trondmy@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 130/186] NFS/pnfs: Fix pnfs_generic_prepare_to_resend_writes()
-Date:   Fri, 14 Feb 2020 11:16:19 -0500
-Message-Id: <20200214161715.18113-130-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.14 131/186] iommu/arm-smmu-v3: Use WRITE_ONCE() when changing validity of an STE
+Date:   Fri, 14 Feb 2020 11:16:20 -0500
+Message-Id: <20200214161715.18113-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -44,128 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 221203ce6406273cf00e5c6397257d986c003ee6 ]
+[ Upstream commit d71e01716b3606a6648df7e5646ae12c75babde4 ]
 
-Instead of making assumptions about the commit verifier contents, change
-the commit code to ensure we always check that the verifier was set
-by the XDR code.
+If, for some bizarre reason, the compiler decided to split up the write
+of STE DWORD 0, we could end up making a partial structure valid.
 
-Fixes: f54bcf2ecee9 ("pnfs: Prepare for flexfiles by pulling out common code")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Although this probably won't happen, follow the example of the
+context-descriptor code and use WRITE_ONCE() to ensure atomicity of the
+write.
+
+Reported-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c   | 4 ++--
- fs/nfs/nfs3xdr.c  | 5 ++++-
- fs/nfs/nfs4xdr.c  | 5 ++++-
- fs/nfs/pnfs_nfs.c | 7 +++----
- fs/nfs/write.c    | 4 +++-
- 5 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/iommu/arm-smmu-v3.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 9cdac9945483b..9d07b53e1647b 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -261,10 +261,10 @@ static int nfs_direct_cmp_commit_data_verf(struct nfs_direct_req *dreq,
- 					 data->ds_commit_index);
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 09eb258a9a7de..29feafa8007fb 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -1145,7 +1145,8 @@ static void arm_smmu_write_strtab_ent(struct arm_smmu_device *smmu, u32 sid,
+ 	}
  
- 	/* verifier not set so always fail */
--	if (verfp->committed < 0)
-+	if (verfp->committed < 0 || data->res.verf->committed <= NFS_UNSTABLE)
- 		return 1;
+ 	arm_smmu_sync_ste_for_sid(smmu, sid);
+-	dst[0] = cpu_to_le64(val);
++	/* See comment in arm_smmu_write_ctx_desc() */
++	WRITE_ONCE(dst[0], cpu_to_le64(val));
+ 	arm_smmu_sync_ste_for_sid(smmu, sid);
  
--	return nfs_direct_cmp_verf(verfp, &data->verf);
-+	return nfs_direct_cmp_verf(verfp, data->res.verf);
- }
- 
- /**
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 6cd33bd5da87c..f1cb0b7eb05f9 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -2373,6 +2373,7 @@ static int nfs3_xdr_dec_commit3res(struct rpc_rqst *req,
- 				   void *data)
- {
- 	struct nfs_commitres *result = data;
-+	struct nfs_writeverf *verf = result->verf;
- 	enum nfs_stat status;
- 	int error;
- 
-@@ -2385,7 +2386,9 @@ static int nfs3_xdr_dec_commit3res(struct rpc_rqst *req,
- 	result->op_status = status;
- 	if (status != NFS3_OK)
- 		goto out_status;
--	error = decode_writeverf3(xdr, &result->verf->verifier);
-+	error = decode_writeverf3(xdr, &verf->verifier);
-+	if (!error)
-+		verf->committed = NFS_FILE_SYNC;
- out:
- 	return error;
- out_status:
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 525684b0056fc..0b2d051990e99 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4409,11 +4409,14 @@ static int decode_write_verifier(struct xdr_stream *xdr, struct nfs_write_verifi
- 
- static int decode_commit(struct xdr_stream *xdr, struct nfs_commitres *res)
- {
-+	struct nfs_writeverf *verf = res->verf;
- 	int status;
- 
- 	status = decode_op_hdr(xdr, OP_COMMIT);
- 	if (!status)
--		status = decode_write_verifier(xdr, &res->verf->verifier);
-+		status = decode_write_verifier(xdr, &verf->verifier);
-+	if (!status)
-+		verf->committed = NFS_FILE_SYNC;
- 	return status;
- }
- 
-diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index 4a3dd66175fed..b0ef37f3e2dd7 100644
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -30,12 +30,11 @@ EXPORT_SYMBOL_GPL(pnfs_generic_rw_release);
- /* Fake up some data that will cause nfs_commit_release to retry the writes. */
- void pnfs_generic_prepare_to_resend_writes(struct nfs_commit_data *data)
- {
--	struct nfs_page *first = nfs_list_entry(data->pages.next);
-+	struct nfs_writeverf *verf = data->res.verf;
- 
- 	data->task.tk_status = 0;
--	memcpy(&data->verf.verifier, &first->wb_verf,
--	       sizeof(data->verf.verifier));
--	data->verf.verifier.data[0]++; /* ensure verifier mismatch */
-+	memset(&verf->verifier, 0, sizeof(verf->verifier));
-+	verf->committed = NFS_UNSTABLE;
- }
- EXPORT_SYMBOL_GPL(pnfs_generic_prepare_to_resend_writes);
- 
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index ed3f5afc4ff7f..89f36040adf62 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1807,6 +1807,7 @@ static void nfs_commit_done(struct rpc_task *task, void *calldata)
- 
- static void nfs_commit_release_pages(struct nfs_commit_data *data)
- {
-+	const struct nfs_writeverf *verf = data->res.verf;
- 	struct nfs_page	*req;
- 	int status = data->task.tk_status;
- 	struct nfs_commit_info cinfo;
-@@ -1833,7 +1834,8 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
- 
- 		/* Okay, COMMIT succeeded, apparently. Check the verifier
- 		 * returned by the server against all stored verfs. */
--		if (!nfs_write_verifier_cmp(&req->wb_verf, &data->verf.verifier)) {
-+		if (verf->committed > NFS_UNSTABLE &&
-+		    !nfs_write_verifier_cmp(&req->wb_verf, &verf->verifier)) {
- 			/* We have a match */
- 			if (req->wb_page)
- 				nfs_inode_remove_request(req);
+ 	/* It's likely that we'll want to use the new STE soon */
 -- 
 2.20.1
 
