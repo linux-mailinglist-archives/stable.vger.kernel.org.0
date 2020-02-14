@@ -2,46 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A61B15D534
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 11:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 372AA15D542
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 11:12:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgBNKHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 05:07:01 -0500
-Received: from mx1.riseup.net ([198.252.153.129]:55092 "EHLO mx1.riseup.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729007AbgBNKHB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 05:07:01 -0500
-Received: from capuchin.riseup.net (unknown [10.0.1.176])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (Client CN "*.riseup.net", Issuer "Sectigo RSA Domain Validation Secure Server CA" (not verified))
-        by mx1.riseup.net (Postfix) with ESMTPS id 48JpvT023gzFbgN;
-        Fri, 14 Feb 2020 02:07:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=riseup.net; s=squak;
-        t=1581674821; bh=EpP/VOuCM32VikvygZs6oHlBoPImlhqCa6JkX4jEmZk=;
-        h=Date:From:To:Cc:Subject:From;
-        b=SJtoVvTxrg8NGtaXO0sSRFtRt4+oM+AGFDYPmWW103q0W+SNbyZ6Mqx3woh18v+Ur
-         pOB19aahJIX0vNU+a2y++YXolYG8YIKqPzEbKO/iii/oMmG5geuuszOa8+IU964DBw
-         FfpxPZzy4Tbnu1d8byYIuH/sJJ60TbFK/A2l0dAw=
-X-Riseup-User-ID: 2F87842273C5F1A09B69FC82CA65425F1D23DD6D3DA2793674F0C0BD7842B8B9
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-         by capuchin.riseup.net (Postfix) with ESMTPSA id 48JpvR4KW8z8sXD;
-        Fri, 14 Feb 2020 02:06:59 -0800 (PST)
-Date:   Fri, 14 Feb 2020 10:06:55 +0000
-From:   cipher-hearts@riseup.net
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Subject: 4.14+ doesn't work on only board with open-source BIOS & without
- Spectre bugs
-Message-ID: <20200214100655.pyljxoa5pkhagbct@localhost.0.0.1>
+        id S1728522AbgBNKML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 05:12:11 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:34492 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728807AbgBNKML (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 05:12:11 -0500
+Received: by mail-wm1-f67.google.com with SMTP id s144so1700871wme.1
+        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 02:12:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=QIeoSMfRqCmHyuRLr9sc8lcZtTyLzkstuHwdGegUoV8=;
+        b=Gja6UghxZhU0Qg/6P1TTt0Vvkebn4AkSJsMoemkAPB+KTxvWNgkBQ+xRb+jLgJsSu3
+         RYpAgYoRRcBbhSFwDSvPDNPDolxI8vz65Xu/9tEqLxw2ozayWpWXxs2LUXhHFbz9CIrA
+         sVK+Fl+BPMFsxyeT6T5Jv4l4Mjsv9Qj8nFSU05P45ulyEVMypm3t+nXeCGn0P5pxvmVe
+         NbIcQQX/G7u5QwQ/p1pfVCfbm2d6jloc13oCgDICThCKopLBL1//vQrByAnmymsF/r4X
+         FDmNMyNH1fpjndpgvXJN9eLMoAn+tDNcJexgcj7PVVV31h1RxXFsKA114CqDzKAvUl07
+         TVyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=QIeoSMfRqCmHyuRLr9sc8lcZtTyLzkstuHwdGegUoV8=;
+        b=lIe+l3FH/ZWxGZTVUzhM9Kgl+kKBMgO06hhzuy/OnC4UlgpoKqyWaLQ6HggmkIGXHH
+         rUErV77x+3EWHbRE3J3bzCiwDBjl1wb9NW9P9bYJpUxhESz6i4eLe27t4K0xuY3vu1gn
+         9DPxzQbFnXvzfAvNjYQjaP8sat2TYfwtDCG1Xch3sJyq83MKnpgpbUr7KU/n9TvZyI2m
+         9k2Rx38nFQlsMY1NAPvuQle/tLSMuwEWkJxF6vjaCKmzl6bAWpFIEJocu3nu0rUYbMNg
+         CV202uvXHbvonQay3ZtN2FQs8K2uuGj/Y/aO9rGnvIbW3SrZEIO7cFn8B+ieNun7UFg9
+         dQtA==
+X-Gm-Message-State: APjAAAW97Sz/yWYSjBl3rG3fYvg9fDrD5gd9E95pe5xWkjgqP5KRGZKu
+        UDJATkcO7++QZJDyJMk+4jhfI3e4D9ZgLfDQpxQ=
+X-Google-Smtp-Source: APXvYqwzu4vKqEctZfqufUYavfM++6okdRgLoU3/sVBikJUhOnNvpBS6+bWnKupb8j8TXLY6JhRO1h8BB37C5PP1NG4=
+X-Received: by 2002:a05:600c:20c6:: with SMTP id y6mr3897707wmm.95.1581675128771;
+ Fri, 14 Feb 2020 02:12:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Received: by 2002:adf:ed10:0:0:0:0:0 with HTTP; Fri, 14 Feb 2020 02:12:08
+ -0800 (PST)
+Reply-To: bankderictormrsired@aol.com
+From:   BANK DERICTOR <adamhana1907@gmail.com>
+Date:   Fri, 14 Feb 2020 10:12:08 +0000
+Message-ID: <CAOGreO=c_U9jzzafk5=WYKSWU1k60Bo4U8tV_cpYsJLypDMGEA@mail.gmail.com>
+Subject: I need your urgently response.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206257
-
-Any suggestions?
+I am contacting you to assist retrieve a huge deposit of Ten Million
+Five Hundred Thousand Dollars left in the bank by my client(Late)
+Eng.Robert Wilson,before its get confiscated by the bank. Due to the
+confidentiality of this information,I would want you to send me your
+private email where I can send you a comprehensive information of
+(Late) Eng.Robert Wilson,and every other information you may need to
+retrieve the fund in the bank.Here is my contact email.
+bankderictormrsired@aol.com)
