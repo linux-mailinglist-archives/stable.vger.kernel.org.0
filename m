@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E0A15DD97
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 592CD15DD99
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387910AbgBNP7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:59:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
+        id S2388987AbgBNP7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:59:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388976AbgBNP7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:59:42 -0500
+        id S2387705AbgBNP7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:59:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 506D82067D;
-        Fri, 14 Feb 2020 15:59:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6280A24654;
+        Fri, 14 Feb 2020 15:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695982;
-        bh=L/7k3m7ujjUJpg6AZQAv5OmhaIa7hFweHAdzA6ZUDXQ=;
+        s=default; t=1581695983;
+        bh=QVEEUsNykoxoJV/rcjs1Ck1EsfaIaK8e3nYPnbFEbPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdb0E80sGhEqIUAlPwI8sdT8Va8jooW0w96beJnBSo41qsqxVOup2vlD9phRfjpYw
-         vyluzX5l+8JDaOGMbS3J/+GMiTcnjwXBIGFUEegPJGyjz+3Oxhr4zure6pKuA0SR3d
-         Didcv+vixp00CiZIK9tggsQIraalSJJ1t1fMM0uM=
+        b=FPyLckipHhSuPMGxjeDEAD+697jIB6Xzg1CW4Xv9CM0gwxj3Y+ZWR/ygvvGr8mXSv
+         SAq9yYOsqGruJRAe4IKf6lWnrT0rG/ZVuwecWD9mQuW784AWhQdLcd1YBWJ9KZFZpi
+         +rD62V+IAJYIVMnf1mm6tJ4LqP17lqLADBgcjJbY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>, Gang He <ghe@suse.com>,
+Cc:     wangyan <wangyan122@huawei.com>, Jun Piao <piaojun@huawei.com>,
         Mark Fasheh <mark@fasheh.com>,
         Joel Becker <jlbec@evilplan.org>,
         Junxiao Bi <junxiao.bi@oracle.com>,
         Joseph Qi <jiangqi903@gmail.com>,
-        Changwei Ge <gechangwei@live.cn>,
-        Jun Piao <piaojun@huawei.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 5.5 505/542] ocfs2: make local header paths relative to C files
-Date:   Fri, 14 Feb 2020 10:48:17 -0500
-Message-Id: <20200214154854.6746-505-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 506/542] ocfs2: fix a NULL pointer dereference when call ocfs2_update_inode_fsync_trans()
+Date:   Fri, 14 Feb 2020 10:48:18 -0500
+Message-Id: <20200214154854.6746-506-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -50,338 +49,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: wangyan <wangyan122@huawei.com>
 
-[ Upstream commit ca322fb6030956c2337fbf1c1beeb08c5dd5c943 ]
+[ Upstream commit 9f16ca48fc818a17de8be1f75d08e7f4addc4497 ]
 
-Gang He reports the failure of building fs/ocfs2/ as an external module
-of the kernel installed on the system:
+I found a NULL pointer dereference in ocfs2_update_inode_fsync_trans(),
+handle->h_transaction may be NULL in this situation:
 
- $ cd fs/ocfs2
- $ make -C /lib/modules/`uname -r`/build M=`pwd` modules
+ocfs2_file_write_iter
+  ->__generic_file_write_iter
+      ->generic_perform_write
+        ->ocfs2_write_begin
+          ->ocfs2_write_begin_nolock
+            ->ocfs2_write_cluster_by_desc
+              ->ocfs2_write_cluster
+                ->ocfs2_mark_extent_written
+                  ->ocfs2_change_extent_flag
+                    ->ocfs2_split_extent
+                      ->ocfs2_try_to_merge_extent
+                        ->ocfs2_extend_rotate_transaction
+                          ->ocfs2_extend_trans
+                            ->jbd2_journal_restart
+                              ->jbd2__journal_restart
+                                // handle->h_transaction is NULL here
+                                ->handle->h_transaction = NULL;
+                                ->start_this_handle
+                                  /* journal aborted due to storage
+                                     network disconnection, return error */
+                                  ->return -EROFS;
+                         /* line 3806 in ocfs2_try_to_merge_extent (),
+                            it will ignore ret error. */
+                        ->ret = 0;
+        ->...
+        ->ocfs2_write_end
+          ->ocfs2_write_end_nolock
+            ->ocfs2_update_inode_fsync_trans
+              // NULL pointer dereference
+              ->oi->i_sync_tid = handle->h_transaction->t_tid;
 
-If you want to make it work reliably, I'd recommend to remove ccflags-y
-from the Makefiles, and to make header paths relative to the C files.  I
-think this is the correct usage of the #include "..." directive.
+The information of NULL pointer dereference as follows:
+    JBD2: Detected IO errors while flushing file data on dm-11-45
+    Aborting journal on device dm-11-45.
+    JBD2: Error -5 detected when updating journal superblock for dm-11-45.
+    (dd,22081,3):ocfs2_extend_trans:474 ERROR: status = -30
+    (dd,22081,3):ocfs2_try_to_merge_extent:3877 ERROR: status = -30
+    Unable to handle kernel NULL pointer dereference at
+    virtual address 0000000000000008
+    Mem abort info:
+      ESR = 0x96000004
+      Exception class = DABT (current EL), IL = 32 bits
+      SET = 0, FnV = 0
+      EA = 0, S1PTW = 0
+    Data abort info:
+      ISV = 0, ISS = 0x00000004
+      CM = 0, WnR = 0
+    user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000e74e1338
+    [0000000000000008] pgd=0000000000000000
+    Internal error: Oops: 96000004 [#1] SMP
+    Process dd (pid: 22081, stack limit = 0x00000000584f35a9)
+    CPU: 3 PID: 22081 Comm: dd Kdump: loaded
+    Hardware name: Huawei TaiShan 2280 V2/BC82AMDD, BIOS 0.98 08/25/2019
+    pstate: 60400009 (nZCv daif +PAN -UAO)
+    pc : ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
+    lr : ocfs2_write_end_nolock+0x2a0/0x550 [ocfs2]
+    sp : ffff0000459fba70
+    x29: ffff0000459fba70 x28: 0000000000000000
+    x27: ffff807ccf7f1000 x26: 0000000000000001
+    x25: ffff807bdff57970 x24: ffff807caf1d4000
+    x23: ffff807cc79e9000 x22: 0000000000001000
+    x21: 000000006c6cd000 x20: ffff0000091d9000
+    x19: ffff807ccb239db0 x18: ffffffffffffffff
+    x17: 000000000000000e x16: 0000000000000007
+    x15: ffff807c5e15bd78 x14: 0000000000000000
+    x13: 0000000000000000 x12: 0000000000000000
+    x11: 0000000000000000 x10: 0000000000000001
+    x9 : 0000000000000228 x8 : 000000000000000c
+    x7 : 0000000000000fff x6 : ffff807a308ed6b0
+    x5 : ffff7e01f10967c0 x4 : 0000000000000018
+    x3 : d0bc661572445600 x2 : 0000000000000000
+    x1 : 000000001b2e0200 x0 : 0000000000000000
+    Call trace:
+     ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
+     ocfs2_write_end+0x4c/0x80 [ocfs2]
+     generic_perform_write+0x108/0x1a8
+     __generic_file_write_iter+0x158/0x1c8
+     ocfs2_file_write_iter+0x668/0x950 [ocfs2]
+     __vfs_write+0x11c/0x190
+     vfs_write+0xac/0x1c0
+     ksys_write+0x6c/0xd8
+     __arm64_sys_write+0x24/0x30
+     el0_svc_common+0x78/0x130
+     el0_svc_handler+0x38/0x78
+     el0_svc+0x8/0xc
 
-Link: http://lkml.kernel.org/r/20191227022950.14804-1-ghe@suse.com
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Gang He <ghe@suse.com>
-Reported-by: Gang He <ghe@suse.com>
-Reviewed-by: Gang He <ghe@suse.com>
+To prevent NULL pointer dereference in this situation, we use
+is_handle_aborted() before using handle->h_transaction->t_tid.
+
+Link: http://lkml.kernel.org/r/03e750ab-9ade-83aa-b000-b9e81e34e539@huawei.com
+Signed-off-by: Yan Wang <wangyan122@huawei.com>
+Reviewed-by: Jun Piao <piaojun@huawei.com>
 Cc: Mark Fasheh <mark@fasheh.com>
 Cc: Joel Becker <jlbec@evilplan.org>
 Cc: Junxiao Bi <junxiao.bi@oracle.com>
 Cc: Joseph Qi <jiangqi903@gmail.com>
 Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Jun Piao <piaojun@huawei.com>
+Cc: Gang He <ghe@suse.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlm/Makefile      | 2 --
- fs/ocfs2/dlm/dlmast.c      | 8 ++++----
- fs/ocfs2/dlm/dlmconvert.c  | 8 ++++----
- fs/ocfs2/dlm/dlmdebug.c    | 8 ++++----
- fs/ocfs2/dlm/dlmdomain.c   | 8 ++++----
- fs/ocfs2/dlm/dlmlock.c     | 8 ++++----
- fs/ocfs2/dlm/dlmmaster.c   | 8 ++++----
- fs/ocfs2/dlm/dlmrecovery.c | 8 ++++----
- fs/ocfs2/dlm/dlmthread.c   | 8 ++++----
- fs/ocfs2/dlm/dlmunlock.c   | 8 ++++----
- fs/ocfs2/dlmfs/Makefile    | 2 --
- fs/ocfs2/dlmfs/dlmfs.c     | 4 ++--
- fs/ocfs2/dlmfs/userdlm.c   | 6 +++---
- 13 files changed, 41 insertions(+), 45 deletions(-)
+ fs/ocfs2/journal.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ocfs2/dlm/Makefile b/fs/ocfs2/dlm/Makefile
-index 38b2243727763..5e700b45d32d2 100644
---- a/fs/ocfs2/dlm/Makefile
-+++ b/fs/ocfs2/dlm/Makefile
-@@ -1,6 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
--ccflags-y := -I $(srctree)/$(src)/..
--
- obj-$(CONFIG_OCFS2_FS_O2CB) += ocfs2_dlm.o
+diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
+index 3103ba7f97a28..bfe611ed1b1d7 100644
+--- a/fs/ocfs2/journal.h
++++ b/fs/ocfs2/journal.h
+@@ -597,9 +597,11 @@ static inline void ocfs2_update_inode_fsync_trans(handle_t *handle,
+ {
+ 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
  
- ocfs2_dlm-objs := dlmdomain.o dlmdebug.o dlmthread.o dlmrecovery.o \
-diff --git a/fs/ocfs2/dlm/dlmast.c b/fs/ocfs2/dlm/dlmast.c
-index 4de89af96abf0..6abaded3ff6bd 100644
---- a/fs/ocfs2/dlm/dlmast.c
-+++ b/fs/ocfs2/dlm/dlmast.c
-@@ -23,15 +23,15 @@
- #include <linux/spinlock.h>
+-	oi->i_sync_tid = handle->h_transaction->t_tid;
+-	if (datasync)
+-		oi->i_datasync_tid = handle->h_transaction->t_tid;
++	if (!is_handle_aborted(handle)) {
++		oi->i_sync_tid = handle->h_transaction->t_tid;
++		if (datasync)
++			oi->i_datasync_tid = handle->h_transaction->t_tid;
++	}
+ }
  
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
- 
- #define MLOG_MASK_PREFIX ML_DLM
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- static void dlm_update_lvb(struct dlm_ctxt *dlm, struct dlm_lock_resource *res,
- 			   struct dlm_lock *lock);
-diff --git a/fs/ocfs2/dlm/dlmconvert.c b/fs/ocfs2/dlm/dlmconvert.c
-index 965f45dbe17bf..6051edc33aefa 100644
---- a/fs/ocfs2/dlm/dlmconvert.c
-+++ b/fs/ocfs2/dlm/dlmconvert.c
-@@ -23,9 +23,9 @@
- #include <linux/spinlock.h>
- 
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
-@@ -33,7 +33,7 @@
- #include "dlmconvert.h"
- 
- #define MLOG_MASK_PREFIX ML_DLM
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- /* NOTE: __dlmconvert_master is the only function in here that
-  * needs a spinlock held on entry (res->spinlock) and it is the
-diff --git a/fs/ocfs2/dlm/dlmdebug.c b/fs/ocfs2/dlm/dlmdebug.c
-index 4d0b452012b25..c5c6efba7b5e2 100644
---- a/fs/ocfs2/dlm/dlmdebug.c
-+++ b/fs/ocfs2/dlm/dlmdebug.c
-@@ -17,9 +17,9 @@
- #include <linux/debugfs.h>
- #include <linux/export.h>
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
-@@ -27,7 +27,7 @@
- #include "dlmdebug.h"
- 
- #define MLOG_MASK_PREFIX ML_DLM
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- static int stringify_lockname(const char *lockname, int locklen, char *buf,
- 			      int len);
-diff --git a/fs/ocfs2/dlm/dlmdomain.c b/fs/ocfs2/dlm/dlmdomain.c
-index ee6f459f97706..357cfc702ce36 100644
---- a/fs/ocfs2/dlm/dlmdomain.c
-+++ b/fs/ocfs2/dlm/dlmdomain.c
-@@ -20,9 +20,9 @@
- #include <linux/debugfs.h>
- #include <linux/sched/signal.h>
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
-@@ -30,7 +30,7 @@
- #include "dlmdebug.h"
- 
- #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_DOMAIN)
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- /*
-  * ocfs2 node maps are array of long int, which limits to send them freely
-diff --git a/fs/ocfs2/dlm/dlmlock.c b/fs/ocfs2/dlm/dlmlock.c
-index baff087f38632..83f0760e4fbaa 100644
---- a/fs/ocfs2/dlm/dlmlock.c
-+++ b/fs/ocfs2/dlm/dlmlock.c
-@@ -25,9 +25,9 @@
- #include <linux/delay.h>
- 
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
-@@ -35,7 +35,7 @@
- #include "dlmconvert.h"
- 
- #define MLOG_MASK_PREFIX ML_DLM
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- static struct kmem_cache *dlm_lock_cache;
- 
-diff --git a/fs/ocfs2/dlm/dlmmaster.c b/fs/ocfs2/dlm/dlmmaster.c
-index 74b768ca1cd88..c9d7037b6793c 100644
---- a/fs/ocfs2/dlm/dlmmaster.c
-+++ b/fs/ocfs2/dlm/dlmmaster.c
-@@ -25,9 +25,9 @@
- #include <linux/delay.h>
- 
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
-@@ -35,7 +35,7 @@
- #include "dlmdebug.h"
- 
- #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_MASTER)
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- static void dlm_mle_node_down(struct dlm_ctxt *dlm,
- 			      struct dlm_master_list_entry *mle,
-diff --git a/fs/ocfs2/dlm/dlmrecovery.c b/fs/ocfs2/dlm/dlmrecovery.c
-index 064ce5bbc3f6c..bcaaca5112d6e 100644
---- a/fs/ocfs2/dlm/dlmrecovery.c
-+++ b/fs/ocfs2/dlm/dlmrecovery.c
-@@ -26,16 +26,16 @@
- #include <linux/delay.h>
- 
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
- #include "dlmdomain.h"
- 
- #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_RECOVERY)
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- static void dlm_do_local_recovery_cleanup(struct dlm_ctxt *dlm, u8 dead_node);
- 
-diff --git a/fs/ocfs2/dlm/dlmthread.c b/fs/ocfs2/dlm/dlmthread.c
-index 61c51c268460a..fd40c17cd0225 100644
---- a/fs/ocfs2/dlm/dlmthread.c
-+++ b/fs/ocfs2/dlm/dlmthread.c
-@@ -25,16 +25,16 @@
- #include <linux/delay.h>
- 
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
- #include "dlmdomain.h"
- 
- #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_THREAD)
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- static int dlm_thread(void *data);
- static void dlm_flush_asts(struct dlm_ctxt *dlm);
-diff --git a/fs/ocfs2/dlm/dlmunlock.c b/fs/ocfs2/dlm/dlmunlock.c
-index 3883633e82eb9..dcb17ca8ae74d 100644
---- a/fs/ocfs2/dlm/dlmunlock.c
-+++ b/fs/ocfs2/dlm/dlmunlock.c
-@@ -23,15 +23,15 @@
- #include <linux/spinlock.h>
- #include <linux/delay.h>
- 
--#include "cluster/heartbeat.h"
--#include "cluster/nodemanager.h"
--#include "cluster/tcp.h"
-+#include "../cluster/heartbeat.h"
-+#include "../cluster/nodemanager.h"
-+#include "../cluster/tcp.h"
- 
- #include "dlmapi.h"
- #include "dlmcommon.h"
- 
- #define MLOG_MASK_PREFIX ML_DLM
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- #define DLM_UNLOCK_FREE_LOCK           0x00000001
- #define DLM_UNLOCK_CALL_AST            0x00000002
-diff --git a/fs/ocfs2/dlmfs/Makefile b/fs/ocfs2/dlmfs/Makefile
-index a9874e441bd4a..c7895f65be0ea 100644
---- a/fs/ocfs2/dlmfs/Makefile
-+++ b/fs/ocfs2/dlmfs/Makefile
-@@ -1,6 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
--ccflags-y := -I $(srctree)/$(src)/..
--
- obj-$(CONFIG_OCFS2_FS) += ocfs2_dlmfs.o
- 
- ocfs2_dlmfs-objs := userdlm.o dlmfs.o
-diff --git a/fs/ocfs2/dlmfs/dlmfs.c b/fs/ocfs2/dlmfs/dlmfs.c
-index 4f1668c81e1f1..8e4f1ace467c1 100644
---- a/fs/ocfs2/dlmfs/dlmfs.c
-+++ b/fs/ocfs2/dlmfs/dlmfs.c
-@@ -33,11 +33,11 @@
- 
- #include <linux/uaccess.h>
- 
--#include "stackglue.h"
-+#include "../stackglue.h"
- #include "userdlm.h"
- 
- #define MLOG_MASK_PREFIX ML_DLMFS
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- 
- static const struct super_operations dlmfs_ops;
-diff --git a/fs/ocfs2/dlmfs/userdlm.c b/fs/ocfs2/dlmfs/userdlm.c
-index 525b14ddfba50..3df5be25bfb1f 100644
---- a/fs/ocfs2/dlmfs/userdlm.c
-+++ b/fs/ocfs2/dlmfs/userdlm.c
-@@ -21,12 +21,12 @@
- #include <linux/types.h>
- #include <linux/crc32.h>
- 
--#include "ocfs2_lockingver.h"
--#include "stackglue.h"
-+#include "../ocfs2_lockingver.h"
-+#include "../stackglue.h"
- #include "userdlm.h"
- 
- #define MLOG_MASK_PREFIX ML_DLMFS
--#include "cluster/masklog.h"
-+#include "../cluster/masklog.h"
- 
- 
- static inline struct user_lock_res *user_lksb_to_lock_res(struct ocfs2_dlm_lksb *lksb)
+ #endif /* OCFS2_JOURNAL_H */
 -- 
 2.20.1
 
