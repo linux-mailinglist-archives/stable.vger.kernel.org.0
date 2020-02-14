@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A2015DF74
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C73415DF77
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:09:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391043AbgBNQIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:08:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60898 "EHLO mail.kernel.org"
+        id S2391063AbgBNQIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:08:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391041AbgBNQIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:08:43 -0500
+        id S2391057AbgBNQIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:08:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEFA524650;
-        Fri, 14 Feb 2020 16:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0809922314;
+        Fri, 14 Feb 2020 16:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696523;
-        bh=kLfit3+l6JmuMoFIOggjqVIq/2lixWIxyIbQSNqbNQA=;
+        s=default; t=1581696526;
+        bh=z9lZsmTV7165P7cffCuoQ2Igv1tMoJpZxY/bd3jhAiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ew8I3fD8octTW5/AllIfI7K7dKQaFLoRuc7XHXRpeCesXr/4fGuIOE3NuDByg3wyL
-         TZ0ReqmEfwndqRaOfPKqZgjXpTziDZbazeQG14tqrz9BkImdfU2+VQq/OUR5LmWI6w
-         AS4pf2ovRcVUCsOmg0uFY9N/UIEZw1p5maVFQOFI=
+        b=eRIpfwFz6p8jmM/aZWJjleKfXVkZi1E6+GVEQu3tE7MNw6QRl9M1xd9y0YEJqbZCz
+         mgAT07zXn+ZGVssOFbLKInlFi2sCLFBkMrEP4HnZU3jflhXu7j7h3xAMNzQwApV4II
+         jCc/UYedRdpPEZ8S5dcsPxTZE/CRLBRYZre+E++0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 323/459] ALSA: usb-audio: unlock on error in probe
-Date:   Fri, 14 Feb 2020 10:59:33 -0500
-Message-Id: <20200214160149.11681-323-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 326/459] f2fs: free sysfs kobject
+Date:   Fri, 14 Feb 2020 10:59:36 -0500
+Message-Id: <20200214160149.11681-326-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,34 +43,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit a3afa29942b84b4e2548beacccc3a68b8d77e3dc ]
+[ Upstream commit 820d366736c949ffe698d3b3fe1266a91da1766d ]
 
-We need to unlock before we returning on this error path.
+Detected kmemleak.
 
-Fixes: 73ac9f5e5b43 ("ALSA: usb-audio: Add boot quirk for MOTU M Series")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200115174604.rhanfgy4j3uc65cx@kili.mountain
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index e6a618a239948..54f9ce38471e6 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -599,7 +599,7 @@ static int usb_audio_probe(struct usb_interface *intf,
- 	if (! chip) {
- 		err = snd_usb_apply_boot_quirk_once(dev, intf, quirk, id);
- 		if (err < 0)
--			return err;
-+			goto __error;
- 
- 		/* it's a fresh one.
- 		 * now look for an empty slot and create a new card instance
+diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+index b558b64a4c9ca..8544c0ab7b32b 100644
+--- a/fs/f2fs/sysfs.c
++++ b/fs/f2fs/sysfs.c
+@@ -782,4 +782,5 @@ void f2fs_unregister_sysfs(struct f2fs_sb_info *sbi)
+ 		remove_proc_entry(sbi->sb->s_id, f2fs_proc_root);
+ 	}
+ 	kobject_del(&sbi->s_kobj);
++	kobject_put(&sbi->s_kobj);
+ }
 -- 
 2.20.1
 
