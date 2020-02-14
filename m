@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 242B815F075
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CDE15F065
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388517AbgBNRy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:54:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
+        id S2388414AbgBNP55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:57:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388402AbgBNP5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:57:55 -0500
+        id S2388409AbgBNP54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:57:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD54622314;
-        Fri, 14 Feb 2020 15:57:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA0782467E;
+        Fri, 14 Feb 2020 15:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695874;
-        bh=pLqWsJQGIs+4qcANymREjBjxFeOyl45gGvkYi5cjcRw=;
+        s=default; t=1581695875;
+        bh=7fjuIQKEHWOXOCCf+k1Q0SIAfVa+9d5A3GffvBjQEhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFUZvPcuUi/DOMSaZVXT3r9ceOdo9LJlkY9P9reZ4vCxGVdoWKN0cso5UnRXGYS23
-         bOXJMTZtEPgZ+/py8tPmGzK3m0ZpbmaafZP605MPih2K/kBEr4BYqaDhuLp8+/LyY1
-         xQA18UeBkwxc5/Hqd9DdNSwMIwSrlA1ZoKfo3ZWQ=
+        b=L17f26r3zgV+TN9VhLnIf9wcDvryrR0cc3DPWuWFNjk1VIb5igwNCx5W3L2oPXpvn
+         +zcQhG9UAhMjUtRBtIsYiDo/TZDyhSLT4CWDDqdaPVzBxXigEeA46MucfKN+7/5lkb
+         uqjAE1Je4HJ1FfQdm/lmYygs+gU5KEh/rViMcR44=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Thumshirn <jth@kernel.org>,
-        David Sterba <dsterba@suse.com>,
+Cc:     David Sterba <dsterba@suse.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 419/542] btrfs: fix possible NULL-pointer dereference in integrity checks
-Date:   Fri, 14 Feb 2020 10:46:51 -0500
-Message-Id: <20200214154854.6746-419-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 420/542] btrfs: safely advance counter when looking up bio csums
+Date:   Fri, 14 Feb 2020 10:46:52 -0500
+Message-Id: <20200214154854.6746-420-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,49 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <jth@kernel.org>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit 3dbd351df42109902fbcebf27104149226a4fcd9 ]
+[ Upstream commit 4babad10198fa73fe73239d02c2e99e3333f5f5c ]
 
-A user reports a possible NULL-pointer dereference in
-btrfsic_process_superblock(). We are assigning state->fs_info to a local
-fs_info variable and afterwards checking for the presence of state.
+Dan's smatch tool reports
 
-While we would BUG_ON() a NULL state anyways, we can also just remove
-the local fs_info copy, as fs_info is only used once as the first
-argument for btrfs_num_copies(). There we can just pass in
-state->fs_info as well.
+  fs/btrfs/file-item.c:295 btrfs_lookup_bio_sums()
+  warn: should this be 'count == -1'
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205003
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
+which points to the while (count--) loop. With count == 0 the check
+itself could decrement it to -1. There's a WARN_ON a few lines below
+that has never been seen in practice though.
+
+It turns out that the value of page_bytes_left matches the count (by
+sectorsize multiples). The loop never reaches the state where count
+would go to -1, because page_bytes_left == 0 is found first and this
+breaks out.
+
+For clarity, use only plain check on count (and only for positive
+value), decrement safely inside the loop. Any other discrepancy after
+the whole bio list processing should be reported by the exising
+WARN_ON_ONCE as well.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/check-integrity.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/file-item.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/check-integrity.c b/fs/btrfs/check-integrity.c
-index 0b52ab4cb9649..72c70f59fc605 100644
---- a/fs/btrfs/check-integrity.c
-+++ b/fs/btrfs/check-integrity.c
-@@ -629,7 +629,6 @@ static struct btrfsic_dev_state *btrfsic_dev_state_hashtable_lookup(dev_t dev,
- static int btrfsic_process_superblock(struct btrfsic_state *state,
- 				      struct btrfs_fs_devices *fs_devices)
- {
--	struct btrfs_fs_info *fs_info = state->fs_info;
- 	struct btrfs_super_block *selected_super;
- 	struct list_head *dev_head = &fs_devices->devices;
- 	struct btrfs_device *device;
-@@ -700,7 +699,7 @@ static int btrfsic_process_superblock(struct btrfsic_state *state,
- 			break;
- 		}
- 
--		num_copies = btrfs_num_copies(fs_info, next_bytenr,
-+		num_copies = btrfs_num_copies(state->fs_info, next_bytenr,
- 					      state->metablock_size);
- 		if (state->print_mask & BTRFSIC_PRINT_MASK_NUM_COPIES)
- 			pr_info("num_copies(log_bytenr=%llu) = %d\n",
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index b1bfdc5c1387a..6f18333e83c33 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -274,7 +274,8 @@ static blk_status_t __btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio
+ 		csum += count * csum_size;
+ 		nblocks -= count;
+ next:
+-		while (count--) {
++		while (count > 0) {
++			count--;
+ 			disk_bytenr += fs_info->sectorsize;
+ 			offset += fs_info->sectorsize;
+ 			page_bytes_left -= fs_info->sectorsize;
 -- 
 2.20.1
 
