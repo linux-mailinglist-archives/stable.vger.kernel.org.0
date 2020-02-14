@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1C215F0C7
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 417C115F0F6
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388016AbgBNP4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:56:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
+        id S2388048AbgBNR6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:58:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388003AbgBNP4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:52 -0500
+        id S2388019AbgBNP4z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 289792067D;
-        Fri, 14 Feb 2020 15:56:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFB092086A;
+        Fri, 14 Feb 2020 15:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695810;
-        bh=tTRTa4UnlM3q5dwh/8XMV0LGO/JgQNvuiKbkjs0hCbQ=;
+        s=default; t=1581695814;
+        bh=hJczrfq4NJKGpubcEvXSXTXvYRR3QAEZ6ENaMdbMA0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIP8r+W8uhItNRyikndhUKBTA0T92ctj3hjHNxIOD4/K0sMfXB6eEqMY+iyc5LP0J
-         IycrGqw5473m2g19JbTy5KJX/pxnv1vDx4ANCdw6pJIk7oIMHgKjM4S+X55OmJ6bZj
-         QhlITPZDLK/9I02G4GMISDTLhLgPfhkwU2S1mM/Q=
+        b=PJ+vawhykcraPPXM7k2ZPZx6L4M7KXaSu0feD+U44T209NyqofjS6Uju4RH5ZBXw6
+         DMY6uZD+aQgzlX/bup91h7RikRzyLMCLqeDsR3IenAO/acYeqpPlG4TnyMXF7ckbL/
+         VzbtC5WAzcwOYBfLaJS91SYWNuElKck3BFQDpSqk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 369/542] NFSv4.x recover from pre-mature loss of openstateid
-Date:   Fri, 14 Feb 2020 10:46:01 -0500
-Message-Id: <20200214154854.6746-369-sashal@kernel.org>
+Cc:     Sergey Gorenko <sergeygo@mellanox.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 372/542] IB/srp: Never use immediate data if it is disabled by a user
+Date:   Fri, 14 Feb 2020 10:46:04 -0500
+Message-Id: <20200214154854.6746-372-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,147 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Sergey Gorenko <sergeygo@mellanox.com>
 
-[ Upstream commit d826e5b827641ae1bebb33d23a774f4e9bb8e94f ]
+[ Upstream commit 0fbb37dd82998b5c83355997b3bdba2806968ac7 ]
 
-Ever since the commit 0e0cb35b417f, it's possible to lose an open stateid
-while retrying a CLOSE due to ERR_OLD_STATEID. Once that happens,
-operations that require openstateid fail with EAGAIN which is propagated
-to the application then tests like generic/446 and generic/168 fail with
-"Resource temporarily unavailable".
+Some SRP targets that do not support specification SRP-2, put the garbage
+to the reserved bits of the SRP login response.  The problem was not
+detected for a long time because the SRP initiator ignored those bits. But
+now one of them is used as SRP_LOGIN_RSP_IMMED_SUPP. And it causes a
+critical error on the target when the initiator sends immediate data.
 
-Instead of returning this error, initiate state recovery when possible to
-recover the open stateid and then try calling nfs4_select_rw_stateid()
-again.
+The ib_srp module has a use_imm_date parameter to enable or disable
+immediate data manually. But it does not help in the above case, because
+use_imm_date is ignored at handling the SRP login response. The problem is
+definitely caused by a bug on the target side, but the initiator's
+behavior also does not look correct.  The initiator should not use
+immediate data if use_imm_date is disabled by a user.
 
-Fixes: 0e0cb35b417f ("NFSv4: Handle NFS4ERR_OLD_STATEID in CLOSE/OPEN_DOWNGRADE")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This commit adds an additional checking of use_imm_date at the handling of
+SRP login response to avoid unexpected use of immediate data.
+
+Fixes: 882981f4a411 ("RDMA/srp: Add support for immediate data")
+Link: https://lore.kernel.org/r/20200115133055.30232-1-sergeygo@mellanox.com
+Signed-off-by: Sergey Gorenko <sergeygo@mellanox.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42proc.c | 36 ++++++++++++++++++++++++++++--------
- fs/nfs/nfs4proc.c  |  2 ++
- fs/nfs/pnfs.c      |  2 --
- 3 files changed, 30 insertions(+), 10 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 1fe83e0f663e2..9637aad36bdca 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -61,8 +61,11 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
- 
- 	status = nfs4_set_rw_stateid(&args.falloc_stateid, lock->open_context,
- 			lock, FMODE_WRITE);
--	if (status)
-+	if (status) {
-+		if (status == -EAGAIN)
-+			status = -NFS4ERR_BAD_STATEID;
- 		return status;
-+	}
- 
- 	res.falloc_fattr = nfs_alloc_fattr();
- 	if (!res.falloc_fattr)
-@@ -287,8 +290,11 @@ static ssize_t _nfs42_proc_copy(struct file *src,
- 	} else {
- 		status = nfs4_set_rw_stateid(&args->src_stateid,
- 				src_lock->open_context, src_lock, FMODE_READ);
--		if (status)
-+		if (status) {
-+			if (status == -EAGAIN)
-+				status = -NFS4ERR_BAD_STATEID;
- 			return status;
-+		}
- 	}
- 	status = nfs_filemap_write_and_wait_range(file_inode(src)->i_mapping,
- 			pos_src, pos_src + (loff_t)count - 1);
-@@ -297,8 +303,11 @@ static ssize_t _nfs42_proc_copy(struct file *src,
- 
- 	status = nfs4_set_rw_stateid(&args->dst_stateid, dst_lock->open_context,
- 				     dst_lock, FMODE_WRITE);
--	if (status)
-+	if (status) {
-+		if (status == -EAGAIN)
-+			status = -NFS4ERR_BAD_STATEID;
- 		return status;
-+	}
- 
- 	status = nfs_sync_inode(dst_inode);
- 	if (status)
-@@ -546,8 +555,11 @@ static int _nfs42_proc_copy_notify(struct file *src, struct file *dst,
- 	status = nfs4_set_rw_stateid(&args->cna_src_stateid, ctx, l_ctx,
- 				     FMODE_READ);
- 	nfs_put_lock_context(l_ctx);
--	if (status)
-+	if (status) {
-+		if (status == -EAGAIN)
-+			status = -NFS4ERR_BAD_STATEID;
- 		return status;
-+	}
- 
- 	status = nfs4_call_sync(src_server->client, src_server, &msg,
- 				&args->cna_seq_args, &res->cnr_seq_res, 0);
-@@ -618,8 +630,11 @@ static loff_t _nfs42_proc_llseek(struct file *filep,
- 
- 	status = nfs4_set_rw_stateid(&args.sa_stateid, lock->open_context,
- 			lock, FMODE_READ);
--	if (status)
-+	if (status) {
-+		if (status == -EAGAIN)
-+			status = -NFS4ERR_BAD_STATEID;
- 		return status;
-+	}
- 
- 	status = nfs_filemap_write_and_wait_range(inode->i_mapping,
- 			offset, LLONG_MAX);
-@@ -994,13 +1009,18 @@ static int _nfs42_proc_clone(struct rpc_message *msg, struct file *src_f,
- 
- 	status = nfs4_set_rw_stateid(&args.src_stateid, src_lock->open_context,
- 			src_lock, FMODE_READ);
--	if (status)
-+	if (status) {
-+		if (status == -EAGAIN)
-+			status = -NFS4ERR_BAD_STATEID;
- 		return status;
--
-+	}
- 	status = nfs4_set_rw_stateid(&args.dst_stateid, dst_lock->open_context,
- 			dst_lock, FMODE_WRITE);
--	if (status)
-+	if (status) {
-+		if (status == -EAGAIN)
-+			status = -NFS4ERR_BAD_STATEID;
- 		return status;
-+	}
- 
- 	res.dst_fattr = nfs_alloc_fattr();
- 	if (!res.dst_fattr)
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 76d37161409a5..f9bb4b43a5192 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -3239,6 +3239,8 @@ static int _nfs4_do_setattr(struct inode *inode,
- 		nfs_put_lock_context(l_ctx);
- 		if (status == -EIO)
- 			return -EBADF;
-+		else if (status == -EAGAIN)
-+			goto zero_stateid;
- 	} else {
- zero_stateid:
- 		nfs4_stateid_copy(&arg->stateid, &zero_stateid);
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index cec3070ab577e..3ac6b4dea72d3 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1998,8 +1998,6 @@ pnfs_update_layout(struct inode *ino,
- 			trace_pnfs_update_layout(ino, pos, count,
- 					iomode, lo, lseg,
- 					PNFS_UPDATE_LAYOUT_INVALID_OPEN);
--			if (status != -EAGAIN)
--				goto out_unlock;
- 			spin_unlock(&ino->i_lock);
- 			nfs4_schedule_stateid_recovery(server, ctx->state);
- 			pnfs_clear_first_layoutget(lo);
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index b7f7a5f7bd986..cd1181c39ed29 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -2546,7 +2546,8 @@ static void srp_cm_rep_handler(struct ib_cm_id *cm_id,
+ 	if (lrsp->opcode == SRP_LOGIN_RSP) {
+ 		ch->max_ti_iu_len = be32_to_cpu(lrsp->max_ti_iu_len);
+ 		ch->req_lim       = be32_to_cpu(lrsp->req_lim_delta);
+-		ch->use_imm_data  = lrsp->rsp_flags & SRP_LOGIN_RSP_IMMED_SUPP;
++		ch->use_imm_data  = srp_use_imm_data &&
++			(lrsp->rsp_flags & SRP_LOGIN_RSP_IMMED_SUPP);
+ 		ch->max_it_iu_len = srp_max_it_iu_len(target->cmd_sg_cnt,
+ 						      ch->use_imm_data,
+ 						      target->max_it_iu_size);
 -- 
 2.20.1
 
