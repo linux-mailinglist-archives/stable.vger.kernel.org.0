@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C0D15E6D4
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 618FB15E6EC
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390379AbgBNQub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:50:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
+        id S2388483AbgBNQua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:50:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405136AbgBNQUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:20:09 -0500
+        id S2405142AbgBNQUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:20:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94DD02472E;
-        Fri, 14 Feb 2020 16:20:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07EF924733;
+        Fri, 14 Feb 2020 16:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697208;
-        bh=v8RggOWRhdTmTXGdZlCoonCe9F8oI4uaLtoXyKNSaKk=;
+        s=default; t=1581697209;
+        bh=YB3D0iZgRzMNCP01kx62vYyspe5tHFfHvQ8FVTj2XZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXGa5R4BCUyAWwnnrao4H0za1DW4aW61OaUYnvWxDd3ZD+BlRT4jgdYjmBiMo4Bi1
-         h+U+wYbP/1mrPJvefYZevrjehONGteiBt12cTkf6e4YyMuxpEibTpKpuFCVYdQf5WG
-         RgznON12+xxMVSZDq7Xyct2F5/RhIbBo/i/1aeuw=
+        b=TooUT4aK39A0HzxQ+O9PA9q0wi6sO/ZOvumqZf9sMVb1GaBob45txRDkQ+OnLecJj
+         0rX3W/i0LbM3ymLir68XBLwqQiIyxo7KMNUO0mJVmvD3TQ7hrkmGaLZo/lD0gZpQQ8
+         iBRTBeZ1nZlFwt/Ioz3vcTsUNeAHzXnnn5i4buiE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 134/186] arm64: fix alternatives with LLVM's integrated assembler
-Date:   Fri, 14 Feb 2020 11:16:23 -0500
-Message-Id: <20200214161715.18113-134-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Robert Richter <rrichter@marvell.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 135/186] watchdog/softlockup: Enforce that timestamp is valid on boot
+Date:   Fri, 14 Feb 2020 11:16:24 -0500
+Message-Id: <20200214161715.18113-135-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -46,117 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit c54f90c2627cc316d365e3073614731e17dbc631 ]
+[ Upstream commit 11e31f608b499f044f24b20be73f1dcab3e43f8a ]
 
-LLVM's integrated assembler fails with the following error when
-building KVM:
+Robert reported that during boot the watchdog timestamp is set to 0 for one
+second which is the indicator for a watchdog reset.
 
-  <inline asm>:12:6: error: expected absolute expression
-   .if kvm_update_va_mask == 0
-       ^
-  <inline asm>:21:6: error: expected absolute expression
-   .if kvm_update_va_mask == 0
-       ^
-  <inline asm>:24:2: error: unrecognized instruction mnemonic
-          NOT_AN_INSTRUCTION
-          ^
-  LLVM ERROR: Error parsing inline asm
+The reason for this is that the timestamp is in seconds and the time is
+taken from sched clock and divided by ~1e9. sched clock starts at 0 which
+means that for the first second during boot the watchdog timestamp is 0,
+i.e. reset.
 
-These errors come from ALTERNATIVE_CB and __ALTERNATIVE_CFG,
-which test for the existence of the callback parameter in inline
-assembly using the following expression:
+Use ULONG_MAX as the reset indicator value so the watchdog works correctly
+right from the start. ULONG_MAX would only conflict with a real timestamp
+if the system reaches an uptime of 136 years on 32bit and almost eternity
+on 64bit.
 
-  " .if " __stringify(cb) " == 0\n"
-
-This works with GNU as, but isn't supported by LLVM. This change
-splits __ALTERNATIVE_CFG and ALTINSTR_ENTRY into separate macros
-to fix the LLVM build.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/472
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/87o8v3uuzl.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/alternative.h | 32 ++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ kernel/watchdog.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
-index a91933b1e2e62..4cd4a793dc328 100644
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -30,13 +30,16 @@ typedef void (*alternative_cb_t)(struct alt_instr *alt,
- void __init apply_alternatives_all(void);
- void apply_alternatives(void *start, size_t length);
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index 087994b23f8b9..e4db5d54c07c0 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -164,6 +164,8 @@ static void lockup_detector_update_enable(void)
  
--#define ALTINSTR_ENTRY(feature,cb)					      \
-+#define ALTINSTR_ENTRY(feature)					              \
- 	" .word 661b - .\n"				/* label           */ \
--	" .if " __stringify(cb) " == 0\n"				      \
- 	" .word 663f - .\n"				/* new instruction */ \
--	" .else\n"							      \
-+	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
-+	" .byte 662b-661b\n"				/* source len      */ \
-+	" .byte 664f-663f\n"				/* replacement len */
+ #ifdef CONFIG_SOFTLOCKUP_DETECTOR
+ 
++#define SOFTLOCKUP_RESET	ULONG_MAX
 +
-+#define ALTINSTR_ENTRY_CB(feature, cb)					      \
-+	" .word 661b - .\n"				/* label           */ \
- 	" .word " __stringify(cb) "- .\n"		/* callback */	      \
--	" .endif\n"							      \
- 	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
- 	" .byte 662b-661b\n"				/* source len      */ \
- 	" .byte 664f-663f\n"				/* replacement len */
-@@ -57,15 +60,14 @@ void apply_alternatives(void *start, size_t length);
-  *
-  * Alternatives with callbacks do not generate replacement instructions.
-  */
--#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled, cb)	\
-+#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled)	\
- 	".if "__stringify(cfg_enabled)" == 1\n"				\
- 	"661:\n\t"							\
- 	oldinstr "\n"							\
- 	"662:\n"							\
- 	".pushsection .altinstructions,\"a\"\n"				\
--	ALTINSTR_ENTRY(feature,cb)					\
-+	ALTINSTR_ENTRY(feature)						\
- 	".popsection\n"							\
--	" .if " __stringify(cb) " == 0\n"				\
- 	".pushsection .altinstr_replacement, \"a\"\n"			\
- 	"663:\n\t"							\
- 	newinstr "\n"							\
-@@ -73,17 +75,25 @@ void apply_alternatives(void *start, size_t length);
- 	".popsection\n\t"						\
- 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
- 	".org	. - (662b-661b) + (664b-663b)\n"			\
--	".else\n\t"							\
-+	".endif\n"
-+
-+#define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
-+	".if "__stringify(cfg_enabled)" == 1\n"				\
-+	"661:\n\t"							\
-+	oldinstr "\n"							\
-+	"662:\n"							\
-+	".pushsection .altinstructions,\"a\"\n"				\
-+	ALTINSTR_ENTRY_CB(feature, cb)					\
-+	".popsection\n"							\
- 	"663:\n\t"							\
- 	"664:\n\t"							\
--	".endif\n"							\
- 	".endif\n"
+ /* Global variables, exported for sysctl */
+ unsigned int __read_mostly softlockup_panic =
+ 			CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC_VALUE;
+@@ -271,7 +273,7 @@ notrace void touch_softlockup_watchdog_sched(void)
+ 	 * Preemption can be enabled.  It doesn't matter which CPU's timestamp
+ 	 * gets zeroed here, so use the raw_ operation.
+ 	 */
+-	raw_cpu_write(watchdog_touch_ts, 0);
++	raw_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
  
- #define _ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg, ...)	\
--	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg), 0)
-+	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg))
+ notrace void touch_softlockup_watchdog(void)
+@@ -295,14 +297,14 @@ void touch_all_softlockup_watchdogs(void)
+ 	 * the softlockup check.
+ 	 */
+ 	for_each_cpu(cpu, &watchdog_allowed_mask)
+-		per_cpu(watchdog_touch_ts, cpu) = 0;
++		per_cpu(watchdog_touch_ts, cpu) = SOFTLOCKUP_RESET;
+ 	wq_watchdog_touch(-1);
+ }
  
- #define ALTERNATIVE_CB(oldinstr, cb) \
--	__ALTERNATIVE_CFG(oldinstr, "NOT_AN_INSTRUCTION", ARM64_CB_PATCH, 1, cb)
-+	__ALTERNATIVE_CFG_CB(oldinstr, ARM64_CB_PATCH, 1, cb)
- #else
+ void touch_softlockup_watchdog_sync(void)
+ {
+ 	__this_cpu_write(softlockup_touch_sync, true);
+-	__this_cpu_write(watchdog_touch_ts, 0);
++	__this_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
  
- #include <asm/assembler.h>
+ static int is_softlockup(unsigned long touch_ts)
+@@ -354,7 +356,7 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ 	/* .. and repeat */
+ 	hrtimer_forward_now(hrtimer, ns_to_ktime(sample_period));
+ 
+-	if (touch_ts == 0) {
++	if (touch_ts == SOFTLOCKUP_RESET) {
+ 		if (unlikely(__this_cpu_read(softlockup_touch_sync))) {
+ 			/*
+ 			 * If the time stamp was touched atomically
 -- 
 2.20.1
 
