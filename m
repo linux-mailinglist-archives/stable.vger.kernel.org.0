@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7282715ED2B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:32:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5330A15ED24
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390602AbgBNRcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:32:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57422 "EHLO mail.kernel.org"
+        id S2390519AbgBNRcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:32:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390278AbgBNQGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:06:47 -0500
+        id S2390513AbgBNQGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:06:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27014222C2;
-        Fri, 14 Feb 2020 16:06:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01D1F24676;
+        Fri, 14 Feb 2020 16:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696407;
-        bh=3cBM/1b9IzQ+rW2FBSl1Y6NW3pjkQtFul9vE6i7tGoI=;
+        s=default; t=1581696409;
+        bh=I6FKwP+LM7+J5E/prXxfyE67zXp+oC1gcc+XNAtkz3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQjxIDlcqEaaCTc7y3zinF6oRB1G4ZtNDIKE9sZXAGYv57f8eFV/7NDyFqeinffKM
-         RTUBXdGQDKpye2mwCBvDoyU/XfYnyCfvdWq6tXwU+DNh02hfiHHimSj6ost0Uy18xH
-         KqpepyqDuLvMbYm5+kWBzAJB/Dmotm5Q59Wfj0qs=
+        b=r27mktdzT7FblANcr/YSV8CrlBz0r+sNJ9Gdz4qsNGivRYg/muJhFlzBx9ijl8aBr
+         oBT/QUr7ylarof5vXOxg58qXhlz9xPmvLtk6X9HIVyj0fOsgzII0C955xjH4MPSs1f
+         kr8q0E//lZSQK/PBOZSos9Of0NP1oMZNIyPdwugQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Zhou <chenzhou10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 230/459] net/wan/fsl_ucc_hdlc: remove set but not used variables 'ut_info' and 'ret'
-Date:   Fri, 14 Feb 2020 10:58:00 -0500
-Message-Id: <20200214160149.11681-230-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 232/459] PM / devfreq: exynos-ppmu: Fix excessive stack usage
+Date:   Fri, 14 Feb 2020 10:58:02 -0500
+Message-Id: <20200214160149.11681-232-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,92 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 270fe2ceda66b6964d4c6f261d7f562a02c1c786 ]
+[ Upstream commit d4556f5e99d5f603913bac01adaff8670cb2d08b ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Putting a 'struct devfreq_event_dev' object on the stack is generally
+a bad idea and here it leads to a warnig about potential stack overflow:
 
-drivers/net/wan/fsl_ucc_hdlc.c: In function ucc_hdlc_irq_handler:
-drivers/net/wan/fsl_ucc_hdlc.c:643:23:
-	warning: variable ut_info set but not used [-Wunused-but-set-variable]
-drivers/net/wan/fsl_ucc_hdlc.c: In function uhdlc_suspend:
-drivers/net/wan/fsl_ucc_hdlc.c:880:23:
-	warning: variable ut_info set but not used [-Wunused-but-set-variable]
-drivers/net/wan/fsl_ucc_hdlc.c: In function uhdlc_resume:
-drivers/net/wan/fsl_ucc_hdlc.c:925:6:
-	warning: variable ret set but not used [-Wunused-but-set-variable]
+drivers/devfreq/event/exynos-ppmu.c:643:12: error: stack frame size of 1040 bytes in function 'exynos_ppmu_probe' [-Werror,-Wframe-larger-than=]
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+There is no real need for the device structure, only the string inside
+it, so add an internal helper function that simply takes the string
+as its argument and remove the device structure.
+
+Fixes: 1dd62c66d345 ("PM / devfreq: events: extend events by type of counted data")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[cw00.choi: Fix the issue from 'desc->name' to 'desc[j].name']
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/fsl_ucc_hdlc.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/devfreq/event/exynos-ppmu.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
-index 4ad0a0c33d853..607cb1edff964 100644
---- a/drivers/net/wan/fsl_ucc_hdlc.c
-+++ b/drivers/net/wan/fsl_ucc_hdlc.c
-@@ -640,11 +640,9 @@ static irqreturn_t ucc_hdlc_irq_handler(int irq, void *dev_id)
- 	struct ucc_hdlc_private *priv = (struct ucc_hdlc_private *)dev_id;
- 	struct net_device *dev = priv->ndev;
- 	struct ucc_fast_private *uccf;
--	struct ucc_tdm_info *ut_info;
- 	u32 ucce;
- 	u32 uccm;
+diff --git a/drivers/devfreq/event/exynos-ppmu.c b/drivers/devfreq/event/exynos-ppmu.c
+index 87b42055e6bc9..c4873bb791f88 100644
+--- a/drivers/devfreq/event/exynos-ppmu.c
++++ b/drivers/devfreq/event/exynos-ppmu.c
+@@ -101,17 +101,22 @@ static struct __exynos_ppmu_events {
+ 	PPMU_EVENT(dmc1_1),
+ };
  
--	ut_info = priv->ut_info;
- 	uccf = priv->uccf;
- 
- 	ucce = ioread32be(uccf->p_ucce);
-@@ -877,7 +875,6 @@ static void resume_clk_config(struct ucc_hdlc_private *priv)
- static int uhdlc_suspend(struct device *dev)
+-static int exynos_ppmu_find_ppmu_id(struct devfreq_event_dev *edev)
++static int __exynos_ppmu_find_ppmu_id(const char *edev_name)
  {
- 	struct ucc_hdlc_private *priv = dev_get_drvdata(dev);
--	struct ucc_tdm_info *ut_info;
- 	struct ucc_fast __iomem *uf_regs;
+ 	int i;
  
- 	if (!priv)
-@@ -889,7 +886,6 @@ static int uhdlc_suspend(struct device *dev)
- 	netif_device_detach(priv->ndev);
- 	napi_disable(&priv->napi);
+ 	for (i = 0; i < ARRAY_SIZE(ppmu_events); i++)
+-		if (!strcmp(edev->desc->name, ppmu_events[i].name))
++		if (!strcmp(edev_name, ppmu_events[i].name))
+ 			return ppmu_events[i].id;
  
--	ut_info = priv->ut_info;
- 	uf_regs = priv->uf_regs;
+ 	return -EINVAL;
+ }
  
- 	/* backup gumr guemr*/
-@@ -922,7 +918,7 @@ static int uhdlc_resume(struct device *dev)
- 	struct ucc_fast __iomem *uf_regs;
- 	struct ucc_fast_private *uccf;
- 	struct ucc_fast_info *uf_info;
--	int ret, i;
-+	int i;
- 	u32 cecr_subblock;
- 	u16 bd_status;
++static int exynos_ppmu_find_ppmu_id(struct devfreq_event_dev *edev)
++{
++	return __exynos_ppmu_find_ppmu_id(edev->desc->name);
++}
++
+ /*
+  * The devfreq-event ops structure for PPMU v1.1
+  */
+@@ -556,13 +561,11 @@ static int of_get_devfreq_events(struct device_node *np,
+ 			 * use default if not.
+ 			 */
+ 			if (info->ppmu_type == EXYNOS_TYPE_PPMU_V2) {
+-				struct devfreq_event_dev edev;
+ 				int id;
+ 				/* Not all registers take the same value for
+ 				 * read+write data count.
+ 				 */
+-				edev.desc = &desc[j];
+-				id = exynos_ppmu_find_ppmu_id(&edev);
++				id = __exynos_ppmu_find_ppmu_id(desc[j].name);
  
-@@ -967,16 +963,16 @@ static int uhdlc_resume(struct device *dev)
- 
- 	/* Write to QE CECR, UCCx channel to Stop Transmission */
- 	cecr_subblock = ucc_fast_get_qe_cr_subblock(uf_info->ucc_num);
--	ret = qe_issue_cmd(QE_STOP_TX, cecr_subblock,
--			   (u8)QE_CR_PROTOCOL_UNSPECIFIED, 0);
-+	qe_issue_cmd(QE_STOP_TX, cecr_subblock,
-+		     (u8)QE_CR_PROTOCOL_UNSPECIFIED, 0);
- 
- 	/* Set UPSMR normal mode */
- 	iowrite32be(0, &uf_regs->upsmr);
- 
- 	/* init parameter base */
- 	cecr_subblock = ucc_fast_get_qe_cr_subblock(uf_info->ucc_num);
--	ret = qe_issue_cmd(QE_ASSIGN_PAGE_TO_DEVICE, cecr_subblock,
--			   QE_CR_PROTOCOL_UNSPECIFIED, priv->ucc_pram_offset);
-+	qe_issue_cmd(QE_ASSIGN_PAGE_TO_DEVICE, cecr_subblock,
-+		     QE_CR_PROTOCOL_UNSPECIFIED, priv->ucc_pram_offset);
- 
- 	priv->ucc_pram = (struct ucc_hdlc_param __iomem *)
- 				qe_muram_addr(priv->ucc_pram_offset);
+ 				switch (id) {
+ 				case PPMU_PMNCNT0:
 -- 
 2.20.1
 
