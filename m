@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A51415DEC2
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4BD215DECA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389432AbgBNQFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:05:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
+        id S2389094AbgBNQFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:05:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389722AbgBNQFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:19 -0500
+        id S2389414AbgBNQFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE47A24686;
-        Fri, 14 Feb 2020 16:05:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 719042467D;
+        Fri, 14 Feb 2020 16:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696318;
-        bh=dL1C9ZtwKKPWFltFPjdkV6dCvn5rHMctGRPlSveN5sc=;
+        s=default; t=1581696331;
+        bh=PBddpNB+DNMdnowJ6YaKlTaS4CE/MvUsfaf/iV7W3yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GiRUiWTvdHIVk9wNQEPYEtVR+GT18osv1dYFFjYxl/N6kdOSXDy+fzv+evkX4fX4f
-         0pWIV5jrNtOzJiZ5ELTObq71eZGBzOsyNFir4AUZ6gZXmiMldBQGb+Ze4MVQbEZQjR
-         VZFqfD7I+KXRQiDF0RCb6+LbhnekuGp/D2wmATsM=
+        b=rHIOTuohVa4meAjkRZla0MrlRCOJYuV4NjqBsxQVlGDZK4zcjDsXUWmdk2o39TdHj
+         4j0rkb3VLM4Nc2zpNGbZLNbTYp7ijlKDXaM+xiFC7D49aGsGg2yt6r0ZFBkZ7pwW3M
+         w/TdtREp16AlMEJWW/7FomB+2hwO1lStXyLPJsVQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 159/459] arm64: dts: allwinner: H6: Add PMU mode
-Date:   Fri, 14 Feb 2020 10:56:49 -0500
-Message-Id: <20200214160149.11681-159-sashal@kernel.org>
+Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 169/459] padata: always acquire cpu_hotplug_lock before pinst->lock
+Date:   Fri, 14 Feb 2020 10:56:59 -0500
+Message-Id: <20200214160149.11681-169-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,45 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 7aa9b9eb7d6a8fde7acbe0446444f7e3fae1fe3b ]
+[ Upstream commit 38228e8848cd7dd86ccb90406af32de0cad24be3 ]
 
-Add the Performance Monitoring Unit (PMU) device tree node to the H6
-.dtsi, which tells DT users which interrupts are triggered by PMU
-overflow events on each core. The numbers come from the manual and have
-been checked in U-Boot and with perf in Linux.
+lockdep complains when padata's paths to update cpumasks via CPU hotplug
+and sysfs are both taken:
 
-Tested with perf record and taskset on a Pine H64.
+  # echo 0 > /sys/devices/system/cpu/cpu1/online
+  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
 
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
+  ------------------------------------------------------
+  bash/205 is trying to acquire lock:
+  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
+
+  but task is already holding lock:
+  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
+
+  which lock already depends on the new lock.
+
+padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
+order.  Which should be first?  CPU hotplug calls into padata with
+cpu_hotplug_lock already held, so it should have priority.
+
+Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ kernel/padata.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-index 0d5ea19336a19..d192538916724 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-@@ -70,6 +70,16 @@
- 		clock-output-names = "ext_osc32k";
- 	};
+diff --git a/kernel/padata.c b/kernel/padata.c
+index fda7a7039422d..fdbbe96547713 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -643,8 +643,8 @@ int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
+ 	struct cpumask *serial_mask, *parallel_mask;
+ 	int err = -EINVAL;
  
-+	pmu {
-+		compatible = "arm,cortex-a53-pmu",
-+			     "arm,armv8-pmuv3";
-+		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 142 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
-+	};
-+
- 	psci {
- 		compatible = "arm,psci-0.2";
- 		method = "smc";
+-	mutex_lock(&pinst->lock);
+ 	get_online_cpus();
++	mutex_lock(&pinst->lock);
+ 
+ 	switch (cpumask_type) {
+ 	case PADATA_CPU_PARALLEL:
+@@ -662,8 +662,8 @@ int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
+ 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
+ 
+ out:
+-	put_online_cpus();
+ 	mutex_unlock(&pinst->lock);
++	put_online_cpus();
+ 
+ 	return err;
+ }
 -- 
 2.20.1
 
