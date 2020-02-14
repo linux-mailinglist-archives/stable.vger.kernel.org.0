@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A858115F027
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:53:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DFDC15F028
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:53:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388584AbgBNP60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:58:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42330 "EHLO mail.kernel.org"
+        id S2388686AbgBNRw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:52:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388581AbgBNP60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:26 -0500
+        id S2387797AbgBNP61 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED992206D7;
-        Fri, 14 Feb 2020 15:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CF022086A;
+        Fri, 14 Feb 2020 15:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695905;
-        bh=ZODufpkoPxhKGDUVFpS1KtfdoQy0axXfQ6zc5KDAAWg=;
+        s=default; t=1581695907;
+        bh=wV0lBlScGsvZs+a12E4IqKgnQqyNxyfFky+kMRcA+SA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1Y8ZGNJqZgE3RvXQH5CLaezyF6ttZ+5gPe3PKukWkA2faSC688hLHXvtsd4IShbQ
-         5V/4ECbMFK04IhgVPVVkTPrcxurzv2jl8PesbRMAoqIraDyAg807753+wK75FIO81d
-         sOKHDahVoeQH7TanhefiedwhAE2xwAC78TzxEvf4=
+        b=P8e4DeRUTcQ60KxGqduuY9hWaA4EmB5VQMMIXkt4jjsENP6n6mlspEgo4flyxXi2W
+         4ZTzdR1AcgVVELrSDov4b0ragYV5Re/3H4VDUxdFSM7/RWSJ0cUHR61bfCN3SjEAz5
+         BgK2Epv0xiQAuB51Q8Lf6WpjFFt+2sZKGXnhyGks=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver O'Halloran <oohall@gmail.com>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.5 446/542] powerpc/sriov: Remove VF eeh_dev state when disabling SR-IOV
-Date:   Fri, 14 Feb 2020 10:47:18 -0500
-Message-Id: <20200214154854.6746-446-sashal@kernel.org>
+Cc:     Sergey Zakharchenko <szakharchenko@digital-loggers.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 447/542] media: uvcvideo: Add a quirk to force GEO GC6500 Camera bits-per-pixel value
+Date:   Fri, 14 Feb 2020 10:47:19 -0500
+Message-Id: <20200214154854.6746-447-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,55 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Sergey Zakharchenko <szakharchenko@digital-loggers.com>
 
-[ Upstream commit 1fb4124ca9d456656a324f1ee29b7bf942f59ac8 ]
+[ Upstream commit 1dd2e8f942574e2be18374ebb81751082d8d467c ]
 
-When disabling virtual functions on an SR-IOV adapter we currently do not
-correctly remove the EEH state for the now-dead virtual functions. When
-removing the pci_dn that was created for the VF when SR-IOV was enabled
-we free the corresponding eeh_dev without removing it from the child device
-list of the eeh_pe that contained it. This can result in crashes due to the
-use-after-free.
+This device does not function correctly in raw mode in kernel
+versions validating buffer sizes in bulk mode. It erroneously
+announces 16 bits per pixel instead of 12 for NV12 format, so it
+needs this quirk to fix computed frame size and avoid legitimate
+frames getting discarded.
 
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Tested-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190821062655.19735-1-oohall@gmail.com
+[Move info and div variables to local scope]
+
+Signed-off-by: Sergey Zakharchenko <szakharchenko@digital-loggers.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci_dn.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_driver.c | 25 +++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |  1 +
+ 2 files changed, 26 insertions(+)
 
-diff --git a/arch/powerpc/kernel/pci_dn.c b/arch/powerpc/kernel/pci_dn.c
-index 9524009ca1ae4..d876eda926094 100644
---- a/arch/powerpc/kernel/pci_dn.c
-+++ b/arch/powerpc/kernel/pci_dn.c
-@@ -244,9 +244,22 @@ void remove_dev_pci_data(struct pci_dev *pdev)
- 				continue;
- 
- #ifdef CONFIG_EEH
--			/* Release EEH device for the VF */
-+			/*
-+			 * Release EEH state for this VF. The PCI core
-+			 * has already torn down the pci_dev for this VF, but
-+			 * we're responsible to removing the eeh_dev since it
-+			 * has the same lifetime as the pci_dn that spawned it.
-+			 */
- 			edev = pdn_to_eeh_dev(pdn);
- 			if (edev) {
-+				/*
-+				 * We allocate pci_dn's for the totalvfs count,
-+				 * but only only the vfs that were activated
-+				 * have a configured PE.
-+				 */
-+				if (edev->pe)
-+					eeh_rmv_from_parent_pe(edev);
-+
- 				pdn->edev = NULL;
- 				kfree(edev);
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 2b688cc39bb81..99883550375e9 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -497,6 +497,22 @@ static int uvc_parse_format(struct uvc_device *dev,
  			}
+ 		}
+ 
++		/* Some devices report bpp that doesn't match the format. */
++		if (dev->quirks & UVC_QUIRK_FORCE_BPP) {
++			const struct v4l2_format_info *info =
++				v4l2_format_info(format->fcc);
++
++			if (info) {
++				unsigned int div = info->hdiv * info->vdiv;
++
++				n = info->bpp[0] * div;
++				for (i = 1; i < info->comp_planes; i++)
++					n += info->bpp[i];
++
++				format->bpp = DIV_ROUND_UP(8 * n, div);
++			}
++		}
++
+ 		if (buffer[2] == UVC_VS_FORMAT_UNCOMPRESSED) {
+ 			ftype = UVC_VS_FRAME_UNCOMPRESSED;
+ 		} else {
+@@ -2874,6 +2890,15 @@ static const struct usb_device_id uvc_ids[] = {
+ 	  .bInterfaceSubClass	= 1,
+ 	  .bInterfaceProtocol	= 0,
+ 	  .driver_info		= (kernel_ulong_t)&uvc_quirk_force_y8 },
++	/* GEO Semiconductor GC6500 */
++	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
++				| USB_DEVICE_ID_MATCH_INT_INFO,
++	  .idVendor		= 0x29fe,
++	  .idProduct		= 0x4d53,
++	  .bInterfaceClass	= USB_CLASS_VIDEO,
++	  .bInterfaceSubClass	= 1,
++	  .bInterfaceProtocol	= 0,
++	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_FORCE_BPP) },
+ 	/* Intel RealSense D4M */
+ 	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
+ 				| USB_DEVICE_ID_MATCH_INT_INFO,
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index f773dc5d802cd..6ab972c643e37 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -198,6 +198,7 @@
+ #define UVC_QUIRK_RESTRICT_FRAME_RATE	0x00000200
+ #define UVC_QUIRK_RESTORE_CTRLS_ON_INIT	0x00000400
+ #define UVC_QUIRK_FORCE_Y8		0x00000800
++#define UVC_QUIRK_FORCE_BPP		0x00001000
+ 
+ /* Format flags */
+ #define UVC_FMT_FLAG_COMPRESSED		0x00000001
 -- 
 2.20.1
 
