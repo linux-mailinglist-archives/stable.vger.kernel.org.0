@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D030015EA82
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0F615EA7E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392068AbgBNRO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:14:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40240 "EHLO mail.kernel.org"
+        id S2391497AbgBNROP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:14:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392010AbgBNQMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:34 -0500
+        id S2389056AbgBNQMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFDDE246A5;
-        Fri, 14 Feb 2020 16:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAD3F246BD;
+        Fri, 14 Feb 2020 16:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696754;
-        bh=ol2g2nyhIXqw3n6QjzaZf1Poe1UQjmwRdesjHkzJb18=;
+        s=default; t=1581696756;
+        bh=fVv9jChE4lGjTN7az6IkE+Kme5/I7jbkieth1HEgBVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoMd5VgVN03CghRH5JB4BzAZVCFgYqaJY6hg5yXeMB14CNE4Y71P2wijcAZr5ed85
-         mQhfnEFMjDRQJ8EO72zPJHMWwtXzcuz6KBZkKCaryBVMzGipteG57w2WpFdMo9j7I2
-         fGDQPXkkOcP64RUoE5KUbWuHRdIYd5d623uPVRJE=
+        b=FqOTdTJmzuqcUKfMp6AYYq1AMDTm4SOHcpSh2KTgSABEsfjIv5TAaTaTUTBvmum83
+         AUt3VieA93RYOC1xfR1lUR5zijPxLqIkX+ZQic3MKjEQddA5uiBIkRbtH7pXMJvQ7g
+         cGBxOEiAF6wT+8TCxLI9gkXpXZPOcwufq683uyIo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 036/252] pwm: omap-dmtimer: Simplify error handling
-Date:   Fri, 14 Feb 2020 11:08:11 -0500
-Message-Id: <20200214161147.15842-36-sashal@kernel.org>
+Cc:     Bean Huo <beanhuo@micron.com>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 037/252] scsi: ufs: Fix ufshcd_probe_hba() reture value in case ufshcd_scsi_add_wlus() fails
+Date:   Fri, 14 Feb 2020 11:08:12 -0500
+Message-Id: <20200214161147.15842-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,80 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit c4cf7aa57eb83b108d2d9c6c37c143388fee2a4d ]
+[ Upstream commit b9fc5320212efdfb4e08b825aaa007815fd11d16 ]
 
-Instead of doing error handling in the middle of ->probe(), move error
-handling and freeing the reference to timer to the end.
+A non-zero error value likely being returned by ufshcd_scsi_add_wlus() in
+case of failure of adding the WLs, but ufshcd_probe_hba() doesn't use this
+value, and doesn't report this failure to upper caller.  This patch is to
+fix this issue.
 
-This fixes a resource leak as dm_timer wasn't freed when allocating
-*omap failed.
-
-Implementation note: The put: label was never reached without a goto and
-ret being unequal to 0, so the removed return statement is fine.
-
-Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: 2a8fa600445c ("ufs: manually add well known logical units")
+Link: https://lore.kernel.org/r/20200120130820.1737-2-huobean@gmail.com
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-omap-dmtimer.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
-index f45798679e3c0..2d585c101d52e 100644
---- a/drivers/pwm/pwm-omap-dmtimer.c
-+++ b/drivers/pwm/pwm-omap-dmtimer.c
-@@ -301,15 +301,10 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
- 		goto put;
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index af01be59a721b..f4fcaee41dc26 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6685,7 +6685,8 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
+ 			ufshcd_init_icc_levels(hba);
  
--put:
--	of_node_put(timer);
--	if (ret < 0)
--		return ret;
--
- 	omap = devm_kzalloc(&pdev->dev, sizeof(*omap), GFP_KERNEL);
- 	if (!omap) {
--		pdata->free(dm_timer);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_alloc_omap;
- 	}
+ 		/* Add required well known logical units to scsi mid layer */
+-		if (ufshcd_scsi_add_wlus(hba))
++		ret = ufshcd_scsi_add_wlus(hba);
++		if (ret)
+ 			goto out;
  
- 	omap->pdata = pdata;
-@@ -342,13 +337,28 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
- 	ret = pwmchip_add(&omap->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to register PWM\n");
--		omap->pdata->free(omap->dm_timer);
--		return ret;
-+		goto err_pwmchip_add;
- 	}
- 
-+	of_node_put(timer);
-+
- 	platform_set_drvdata(pdev, omap);
- 
- 	return 0;
-+
-+err_pwmchip_add:
-+
-+	/*
-+	 * *omap is allocated using devm_kzalloc,
-+	 * so no free necessary here
-+	 */
-+err_alloc_omap:
-+
-+	pdata->free(dm_timer);
-+put:
-+	of_node_put(timer);
-+
-+	return ret;
- }
- 
- static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
+ 		/* Initialize devfreq after UFS device is detected */
 -- 
 2.20.1
 
