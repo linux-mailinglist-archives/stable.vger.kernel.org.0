@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EEE615EAE9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:17:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB1F15EADB
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391192AbgBNRRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:17:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38294 "EHLO mail.kernel.org"
+        id S2389970AbgBNRQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391794AbgBNQL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:11:29 -0500
+        id S2391801AbgBNQLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:11:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67E9222C2;
-        Fri, 14 Feb 2020 16:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A29024684;
+        Fri, 14 Feb 2020 16:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696688;
-        bh=vCOwDC4HiMKfA9asIcQGpE8w0AH9BpB7uecmviq9Qsc=;
+        s=default; t=1581696690;
+        bh=FJog/hBzuEntMPGFGJZEiaIKgbnfeYjzMZKVtSXEULw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZE6dLUMmNUHYgS9l8DrV9xh/EocV/pq54xwKnbsE7NMykE6hd+TkcixLfYmrQUXq
-         dBZEGylGTZuc+66NRw3zzywNjM63Y3WdbeFy5S3qcwoeqTlUCI0CPLEZ6zkGBybf3m
-         M8IKqf16lrkg+DJu2FmLAyKM0bVweDdeM2yHTEHc=
+        b=CPSZ/se4fPuJOhuTYltKJ2lyDAJ1OliJDnw+06kY9X8agwikD1EKjzejuxLR/aJk9
+         7qiLAXGNh+w6BPTi/Saj+F7N2WEF1ON0ERa6csG08Tn8keJz+cqdSwmATtkxmNTmxu
+         a4B30X80s3UuMaULLtjnfX6BYxYweeyF9nlOggEQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 455/459] i40e: Relax i40e_xsk_wakeup's return value when PF is busy
-Date:   Fri, 14 Feb 2020 11:01:45 -0500
-Message-Id: <20200214160149.11681-455-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Oleg Kravtsov <oleg@tuxera.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.4 456/459] cifs: log warning message (once) if out of disk space
+Date:   Fri, 14 Feb 2020 11:01:46 -0500
+Message-Id: <20200214160149.11681-456-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,37 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit c77e9f09143822623dd71a0fdc84331129e97c3a ]
+[ Upstream commit d6fd41905ec577851734623fb905b1763801f5ef ]
 
-Return -EAGAIN instead of -ENETDOWN to provide a slightly milder
-information to user space so that an application will know to retry the
-syscall when __I40E_CONFIG_BUSY bit is set on pf->state.
+We ran into a confusing problem where an application wasn't checking
+return code on close and so user didn't realize that the application
+ran out of disk space.  log a warning message (once) in these
+cases. For example:
 
-Fixes: b3873a5be757 ("net/i40e: Fix concurrency issues between config flow and XSK")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Link: https://lore.kernel.org/bpf/20200205045834.56795-2-maciej.fijalkowski@intel.com
+  [ 8407.391909] Out of space writing to \\oleg-server\small-share
+
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Oleg Kravtsov <oleg@tuxera.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_xsk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-index f73cd917c44f7..3156de786d955 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-@@ -791,7 +791,7 @@ int i40e_xsk_wakeup(struct net_device *dev, u32 queue_id, u32 flags)
- 	struct i40e_ring *ring;
- 
- 	if (test_bit(__I40E_CONFIG_BUSY, pf->state))
--		return -ENETDOWN;
-+		return -EAGAIN;
- 
- 	if (test_bit(__I40E_VSI_DOWN, vsi->state))
- 		return -ENETDOWN;
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 06d932ed097e5..c6fc6582ee7bc 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -3917,6 +3917,9 @@ smb2_writev_callback(struct mid_q_entry *mid)
+ 				     wdata->cfile->fid.persistent_fid,
+ 				     tcon->tid, tcon->ses->Suid, wdata->offset,
+ 				     wdata->bytes, wdata->result);
++		if (wdata->result == -ENOSPC)
++			printk_once(KERN_WARNING "Out of space writing to %s\n",
++				    tcon->treeName);
+ 	} else
+ 		trace_smb3_write_done(0 /* no xid */,
+ 				      wdata->cfile->fid.persistent_fid,
 -- 
 2.20.1
 
