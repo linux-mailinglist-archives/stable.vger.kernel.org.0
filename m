@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDED15DC47
+	by mail.lfdr.de (Postfix) with ESMTP id 7A31215DC48
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:53:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730454AbgBNPvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:51:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57162 "EHLO mail.kernel.org"
+        id S1730474AbgBNPv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:51:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730275AbgBNPvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:54 -0500
+        id S1730898AbgBNPvz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8426924676;
-        Fri, 14 Feb 2020 15:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E84F924684;
+        Fri, 14 Feb 2020 15:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695513;
-        bh=a427hp4mAZ4+pNfuW2wAhJwG6Fz8yU/Bnkot/sV7VBA=;
+        s=default; t=1581695514;
+        bh=viIBm9b3VhN1DKXhLg9bkTkhgxwWO6/AiWhtmjD5vHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=py8KzrTNros6QR5eaQGk/5GCoXFmgHYn+CzoAwQ3VeRMXkiT6EOXqjAwl335pX8ge
-         qxUt/Xl7pRlp3r8jIJBGykLrPINLPf4BgCKGRPdLmE/g3WYx3KTPU1/+IDbpXVacEC
-         wgWOc6prqd6f3uLeV9RioDLd0fTngT7w3rgLiHkk=
+        b=oQOTmkBPTSEP4/OFWA8VOG/I0nbtEgF/+zIl11z3Lirx8sPOCuSkRtSufmV0vEM4l
+         7FkavKMI2ZDjMCH1474p6rQH25e4NiERTA/cTGAsYNtIK8bGHhOyCvv1aF5ueqkrZx
+         FNOzo3pvV/9pPvbmb8RUKBBNBGhSvFvcIafuHdEw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 137/542] bpf, sockmap: Don't sleep while holding RCU lock on tear-down
-Date:   Fri, 14 Feb 2020 10:42:09 -0500
-Message-Id: <20200214154854.6746-137-sashal@kernel.org>
+Cc:     Eric Yang <Eric.Yang2@amd.com>, Tony Cheng <Tony.Cheng@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 138/542] drm/amd/display: Renoir chroma viewport WA
+Date:   Fri, 14 Feb 2020 10:42:10 -0500
+Message-Id: <20200214154854.6746-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,143 +45,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Eric Yang <Eric.Yang2@amd.com>
 
-[ Upstream commit db6a5018b6e008c1d69c6628cdaa9541b8e70940 ]
+[ Upstream commit 1cad8ff7ecc6b70a062b8e8b74a0cd08c928341d ]
 
-rcu_read_lock is needed to protect access to psock inside sock_map_unref
-when tearing down the map. However, we can't afford to sleep in lock_sock
-while in RCU read-side critical section. Grab the RCU lock only after we
-have locked the socket.
+[Why]
+For unknown reason, immediate flip with host VM translation on NV12
+surface will underflow on last row of PTE.
 
-This fixes RCU warnings triggerable on a VM with 1 vCPU when free'ing a
-sockmap/sockhash that contains at least one socket:
+[How]
+Hack chroma viewport height to make fetch one more row of PTE.
+Note that this will cause hubp underflow on all video underlay
+cases, but the underflow is not user visible since it is in
+blank region.
 
-| =============================
-| WARNING: suspicious RCU usage
-| 5.5.0-04005-g8fc91b972b73 #450 Not tainted
-| -----------------------------
-| include/linux/rcupdate.h:272 Illegal context switch in RCU read-side critical section!
-|
-| other info that might help us debug this:
-|
-|
-| rcu_scheduler_active = 2, debug_locks = 1
-| 4 locks held by kworker/0:1/62:
-|  #0: ffff88813b019748 ((wq_completion)events){+.+.}, at: process_one_work+0x1d7/0x5e0
-|  #1: ffffc900000abe50 ((work_completion)(&map->work)){+.+.}, at: process_one_work+0x1d7/0x5e0
-|  #2: ffffffff82065d20 (rcu_read_lock){....}, at: sock_map_free+0x5/0x170
-|  #3: ffff8881368c5df8 (&stab->lock){+...}, at: sock_map_free+0x64/0x170
-|
-| stack backtrace:
-| CPU: 0 PID: 62 Comm: kworker/0:1 Not tainted 5.5.0-04005-g8fc91b972b73 #450
-| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
-| Workqueue: events bpf_map_free_deferred
-| Call Trace:
-|  dump_stack+0x71/0xa0
-|  ___might_sleep+0x105/0x190
-|  lock_sock_nested+0x28/0x90
-|  sock_map_free+0x95/0x170
-|  bpf_map_free_deferred+0x58/0x80
-|  process_one_work+0x260/0x5e0
-|  worker_thread+0x4d/0x3e0
-|  kthread+0x108/0x140
-|  ? process_one_work+0x5e0/0x5e0
-|  ? kthread_park+0x90/0x90
-|  ret_from_fork+0x3a/0x50
-
-| =============================
-| WARNING: suspicious RCU usage
-| 5.5.0-04005-g8fc91b972b73-dirty #452 Not tainted
-| -----------------------------
-| include/linux/rcupdate.h:272 Illegal context switch in RCU read-side critical section!
-|
-| other info that might help us debug this:
-|
-|
-| rcu_scheduler_active = 2, debug_locks = 1
-| 4 locks held by kworker/0:1/62:
-|  #0: ffff88813b019748 ((wq_completion)events){+.+.}, at: process_one_work+0x1d7/0x5e0
-|  #1: ffffc900000abe50 ((work_completion)(&map->work)){+.+.}, at: process_one_work+0x1d7/0x5e0
-|  #2: ffffffff82065d20 (rcu_read_lock){....}, at: sock_hash_free+0x5/0x1d0
-|  #3: ffff888139966e00 (&htab->buckets[i].lock){+...}, at: sock_hash_free+0x92/0x1d0
-|
-| stack backtrace:
-| CPU: 0 PID: 62 Comm: kworker/0:1 Not tainted 5.5.0-04005-g8fc91b972b73-dirty #452
-| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
-| Workqueue: events bpf_map_free_deferred
-| Call Trace:
-|  dump_stack+0x71/0xa0
-|  ___might_sleep+0x105/0x190
-|  lock_sock_nested+0x28/0x90
-|  sock_hash_free+0xec/0x1d0
-|  bpf_map_free_deferred+0x58/0x80
-|  process_one_work+0x260/0x5e0
-|  worker_thread+0x4d/0x3e0
-|  kthread+0x108/0x140
-|  ? process_one_work+0x5e0/0x5e0
-|  ? kthread_park+0x90/0x90
-|  ret_from_fork+0x3a/0x50
-
-Fixes: 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during tear down")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20200206111652.694507-2-jakub@cloudflare.com
+Signed-off-by: Eric Yang <Eric.Yang2@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock_map.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dc.h           |  2 +
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c | 65 ++++++++++++++++++-
+ .../drm/amd/display/dc/dcn21/dcn21_resource.c |  1 +
+ 3 files changed, 67 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index b16ff3b8c6503..085cef5857bbf 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -234,7 +234,6 @@ static void sock_map_free(struct bpf_map *map)
- 	int i;
+diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
+index 0416a17b0897c..320f4eeebf84c 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc.h
++++ b/drivers/gpu/drm/amd/display/dc/dc.h
+@@ -417,6 +417,8 @@ struct dc_debug_options {
+ 	bool cm_in_bypass;
+ #endif
+ 	int force_clock_mode;/*every mode change.*/
++
++	bool nv12_iflip_vm_wa;
+ };
  
- 	synchronize_rcu();
--	rcu_read_lock();
- 	raw_spin_lock_bh(&stab->lock);
- 	for (i = 0; i < stab->map.max_entries; i++) {
- 		struct sock **psk = &stab->sks[i];
-@@ -243,12 +242,13 @@ static void sock_map_free(struct bpf_map *map)
- 		sk = xchg(psk, NULL);
- 		if (sk) {
- 			lock_sock(sk);
-+			rcu_read_lock();
- 			sock_map_unref(sk, psk);
-+			rcu_read_unlock();
- 			release_sock(sk);
- 		}
- 	}
- 	raw_spin_unlock_bh(&stab->lock);
--	rcu_read_unlock();
+ struct dc_debug_data {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
+index 2f5a5867e6749..1ddd6ae221558 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
+@@ -164,6 +164,69 @@ static void hubp21_setup(
  
- 	/* wait for psock readers accessing its map link */
- 	synchronize_rcu();
-@@ -864,19 +864,19 @@ static void sock_hash_free(struct bpf_map *map)
- 	int i;
+ }
  
- 	synchronize_rcu();
--	rcu_read_lock();
- 	for (i = 0; i < htab->buckets_num; i++) {
- 		bucket = sock_hash_select_bucket(htab, i);
- 		raw_spin_lock_bh(&bucket->lock);
- 		hlist_for_each_entry_safe(elem, node, &bucket->head, node) {
- 			hlist_del_rcu(&elem->node);
- 			lock_sock(elem->sk);
-+			rcu_read_lock();
- 			sock_map_unref(elem->sk, elem);
-+			rcu_read_unlock();
- 			release_sock(elem->sk);
- 		}
- 		raw_spin_unlock_bh(&bucket->lock);
- 	}
--	rcu_read_unlock();
++void hubp21_set_viewport(
++	struct hubp *hubp,
++	const struct rect *viewport,
++	const struct rect *viewport_c)
++{
++	struct dcn21_hubp *hubp21 = TO_DCN21_HUBP(hubp);
++	int patched_viewport_height = 0;
++	struct dc_debug_options *debug = &hubp->ctx->dc->debug;
++
++	REG_SET_2(DCSURF_PRI_VIEWPORT_DIMENSION, 0,
++		  PRI_VIEWPORT_WIDTH, viewport->width,
++		  PRI_VIEWPORT_HEIGHT, viewport->height);
++
++	REG_SET_2(DCSURF_PRI_VIEWPORT_START, 0,
++		  PRI_VIEWPORT_X_START, viewport->x,
++		  PRI_VIEWPORT_Y_START, viewport->y);
++
++	/*for stereo*/
++	REG_SET_2(DCSURF_SEC_VIEWPORT_DIMENSION, 0,
++		  SEC_VIEWPORT_WIDTH, viewport->width,
++		  SEC_VIEWPORT_HEIGHT, viewport->height);
++
++	REG_SET_2(DCSURF_SEC_VIEWPORT_START, 0,
++		  SEC_VIEWPORT_X_START, viewport->x,
++		  SEC_VIEWPORT_Y_START, viewport->y);
++
++	/*
++	 *	Work around for underflow issue with NV12 + rIOMMU translation
++	 *	+ immediate flip. This will cause hubp underflow, but will not
++	 *	be user visible since underflow is in blank region
++	 */
++	patched_viewport_height = viewport_c->height;
++	if (viewport_c->height != 0 && debug->nv12_iflip_vm_wa) {
++		int pte_row_height = 0;
++		int pte_rows = 0;
++
++		REG_GET(DCHUBP_REQ_SIZE_CONFIG,
++			PTE_ROW_HEIGHT_LINEAR, &pte_row_height);
++
++		pte_row_height = 1 << (pte_row_height + 3);
++		pte_rows = (viewport_c->height + pte_row_height - 1) / pte_row_height;
++		patched_viewport_height = pte_rows * pte_row_height + 3;
++	}
++
++
++	/* DC supports NV12 only at the moment */
++	REG_SET_2(DCSURF_PRI_VIEWPORT_DIMENSION_C, 0,
++		  PRI_VIEWPORT_WIDTH_C, viewport_c->width,
++		  PRI_VIEWPORT_HEIGHT_C, patched_viewport_height);
++
++	REG_SET_2(DCSURF_PRI_VIEWPORT_START_C, 0,
++		  PRI_VIEWPORT_X_START_C, viewport_c->x,
++		  PRI_VIEWPORT_Y_START_C, viewport_c->y);
++
++	REG_SET_2(DCSURF_SEC_VIEWPORT_DIMENSION_C, 0,
++		  SEC_VIEWPORT_WIDTH_C, viewport_c->width,
++		  SEC_VIEWPORT_HEIGHT_C, patched_viewport_height);
++
++	REG_SET_2(DCSURF_SEC_VIEWPORT_START_C, 0,
++		  SEC_VIEWPORT_X_START_C, viewport_c->x,
++		  SEC_VIEWPORT_Y_START_C, viewport_c->y);
++}
++
+ void hubp21_set_vm_system_aperture_settings(struct hubp *hubp,
+ 		struct vm_system_aperture_param *apt)
+ {
+@@ -211,7 +274,7 @@ static struct hubp_funcs dcn21_hubp_funcs = {
+ 	.hubp_set_vm_system_aperture_settings = hubp21_set_vm_system_aperture_settings,
+ 	.set_blank = hubp1_set_blank,
+ 	.dcc_control = hubp1_dcc_control,
+-	.mem_program_viewport = min_set_viewport,
++	.mem_program_viewport = hubp21_set_viewport,
+ 	.set_cursor_attributes	= hubp2_cursor_set_attributes,
+ 	.set_cursor_position	= hubp1_cursor_set_position,
+ 	.hubp_clk_cntl = hubp1_clk_cntl,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index b29b2c99a564e..fe0ed4c09ad0a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -847,6 +847,7 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 		.scl_reset_length10 = true,
+ 		.sanity_checks = true,
+ 		.disable_48mhz_pwrdwn = false,
++		.nv12_iflip_vm_wa = true
+ };
  
- 	/* wait for psock readers accessing its map link */
- 	synchronize_rcu();
+ static const struct dc_debug_options debug_defaults_diags = {
 -- 
 2.20.1
 
