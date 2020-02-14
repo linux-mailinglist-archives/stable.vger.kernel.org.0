@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8949515E76B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CDE15E762
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:54:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392855AbgBNQx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:53:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
+        id S2405253AbgBNQxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:53:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404866AbgBNQSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:18:53 -0500
+        id S2404393AbgBNQSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:18:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 745CA2470E;
-        Fri, 14 Feb 2020 16:18:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F283C24681;
+        Fri, 14 Feb 2020 16:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697132;
-        bh=lhYkUkKhNIN5XzZ3oL3+l7aoO6QBE7b9lZ90yaiKQ40=;
+        s=default; t=1581697133;
+        bh=UnKCIujtxt1N29GYI8xjhsYmOt5rvNoqX2Lter08qwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8XbUhGgrIb6SzC7QbOKR3tEFmjCpuf5S641JkaK7asKMGTwsyad4nIQACmk4BWJw
-         v3eMuu1lZicRNjiBiUe1bveuu+830r50TOPigETTdHIuOBL5Saz9hKKKinRcPhLZt3
-         +Jq0N94tuAwtlJ1WRfMOjf7IepW8993jEJPimMc8=
+        b=bm8qBk8oit6/PWXfpVwD/8EiuytfAxFdmBmH83jCJMdSKL9ZOXseWuQPUjcSra5oN
+         YBWtUdSiQ5CGLrhvIKz2XkG7q2N2m5R39OBqgT5g3EHlquFyB/mbo5nGnVdoZYcBgA
+         VxkkYa5MH2Rufz5/g0fRuaJBolFmbufFe9kmQvy4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Olof's autobuilder <build@lixom.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 075/186] isdn: don't mark kcapi_proc_exit as __exit
-Date:   Fri, 14 Feb 2020 11:15:24 -0500
-Message-Id: <20200214161715.18113-75-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 076/186] ALSA: usx2y: Adjust indentation in snd_usX2Y_hwdep_dsp_status
+Date:   Fri, 14 Feb 2020 11:15:25 -0500
+Message-Id: <20200214161715.18113-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -46,47 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit b33bdf8020c94438269becc6dace9ed49257c4ba ]
+[ Upstream commit df4654bd6e42125d9b85ce3a26eaca2935290b98 ]
 
-As everybody pointed out by now, my patch to clean up CAPI introduced
-a link time warning, as the two parts of the capi driver are now in
-one module and the exit function may need to be called in the error
-path of the init function:
+Clang warns:
 
->> WARNING: drivers/isdn/capi/kernelcapi.o(.text+0xea4): Section mismatch in reference from the function kcapi_exit() to the function .exit.text:kcapi_proc_exit()
-   The function kcapi_exit() references a function in an exit section.
-   Often the function kcapi_proc_exit() has valid usage outside the exit section
-   and the fix is to remove the __exit annotation of kcapi_proc_exit.
+../sound/usb/usx2y/usX2Yhwdep.c:122:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        info->version = USX2Y_DRIVER_VERSION;
+        ^
+../sound/usb/usx2y/usX2Yhwdep.c:120:2: note: previous statement is here
+        if (us428->chip_status & USX2Y_STAT_CHIP_INIT)
+        ^
+1 warning generated.
 
-Remove the incorrect __exit annotation.
+This warning occurs because there is a space before the tab on this
+line. Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Reported-by: Olof's autobuilder <build@lixom.net>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20191216194909.1983639-1-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was introduced before the beginning of git history so no fixes tag.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/831
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20191218034257.54535-1-natechancellor@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/capi/kcapi_proc.c | 2 +-
+ sound/usb/usx2y/usX2Yhwdep.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/capi/kcapi_proc.c b/drivers/isdn/capi/kcapi_proc.c
-index 68db3c5a10636..d6ca626219c93 100644
---- a/drivers/isdn/capi/kcapi_proc.c
-+++ b/drivers/isdn/capi/kcapi_proc.c
-@@ -309,7 +309,7 @@ kcapi_proc_init(void)
- 	proc_create("capi/driver",       0, NULL, &proc_driver_ops);
+diff --git a/sound/usb/usx2y/usX2Yhwdep.c b/sound/usb/usx2y/usX2Yhwdep.c
+index f4b3cda412fcc..e75271e731b2d 100644
+--- a/sound/usb/usx2y/usX2Yhwdep.c
++++ b/sound/usb/usx2y/usX2Yhwdep.c
+@@ -131,7 +131,7 @@ static int snd_usX2Y_hwdep_dsp_status(struct snd_hwdep *hw,
+ 	info->num_dsps = 2;		// 0: Prepad Data, 1: FPGA Code
+ 	if (us428->chip_status & USX2Y_STAT_CHIP_INIT)
+ 		info->chip_ready = 1;
+- 	info->version = USX2Y_DRIVER_VERSION; 
++	info->version = USX2Y_DRIVER_VERSION;
+ 	return 0;
  }
  
--void __exit
-+void
- kcapi_proc_exit(void)
- {
- 	remove_proc_entry("capi/driver",       NULL);
 -- 
 2.20.1
 
