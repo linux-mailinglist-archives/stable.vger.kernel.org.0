@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AED1415F487
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D92D15F47A
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:23:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392410AbgBNSVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:21:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52868 "EHLO mail.kernel.org"
+        id S2390451AbgBNSV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:21:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730135AbgBNPtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:42 -0500
+        id S1730167AbgBNPtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:49:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC64A2086A;
-        Fri, 14 Feb 2020 15:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B17224685;
+        Fri, 14 Feb 2020 15:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695382;
-        bh=GM6SWoSqzW6VjK+HK2Fz5Drs/r7qVg46S6Jp0irKb0g=;
+        s=default; t=1581695385;
+        bh=b/DkCkBjfmugWgVNNhk4QMI2Ne6zMW1uGQ9tVLzx0OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJWSuM+3BulvVOc23Y3Xl9xyMNE3aIapePFQnrTFLwTN4h9Y9iJryQCWAGLnYTFDr
-         jYF5sQbIJlp1MbUnVZ//7E/ryOksWIMCXafyNZtv500h5gTPgiFwn8ieRac4O4tSmA
-         Z4U+m91TdkTu29TP99WbTUDgErxPGc/Yqf6UlchE=
+        b=xSIJLzSX3iAcTT+tq2Php8TFxjXt7N/WZkRYx8AvbXvFyw6NXYUiUyPQrAU0McSH/
+         KsCTu3P0jQHs7M7vwfJizS3bJIMCxxn0W8Am3HpfnbUk5ngsfxsu2T2iFoWxwmvwPM
+         UjRgXjpKjyCGBDLgtbMZ9zzfmBCjHAmc+fs+Y1ak=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 037/542] drm/mipi_dbi: Fix off-by-one bugs in mipi_dbi_blank()
-Date:   Fri, 14 Feb 2020 10:40:29 -0500
-Message-Id: <20200214154854.6746-37-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 039/542] pxa168fb: Fix the function used to release some memory in an error handling path
+Date:   Fri, 14 Feb 2020 10:40:31 -0500
+Message-Id: <20200214154854.6746-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,46 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2ce18249af5a28031b3f909cfafccc88ea966c9d ]
+[ Upstream commit 3c911fe799d1c338d94b78e7182ad452c37af897 ]
 
-When configuring the frame memory window, the last column and row
-numbers are written to the column resp. page address registers.  These
-numbers are thus one less than the actual window width resp. height.
+In the probe function, some resources are allocated using 'dma_alloc_wc()',
+they should be released with 'dma_free_wc()', not 'dma_free_coherent()'.
 
-While this is handled correctly in mipi_dbi_fb_dirty() since commit
-03ceb1c8dfd1e293 ("drm/tinydrm: Fix setting of the column/page end
-addresses."), it is not in mipi_dbi_blank().  The latter still forgets
-to subtract one when calculating the most significant bytes of the
-column and row numbers, thus programming wrong values when the display
-width or height is a multiple of 256.
+We already use 'dma_free_wc()' in the remove function, but not in the
+error handling path of the probe function.
 
-Fixes: 02dd95fe31693626 ("drm/tinydrm: Add MIPI DBI support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191230130604.31006-1-geert+renesas@glider.be
+Also, remove a useless 'PAGE_ALIGN()'. 'info->fix.smem_len' is already
+PAGE_ALIGNed.
+
+Fixes: 638772c7553f ("fb: add support of LCD display controller on pxa168/910 (base layer)")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
+CC: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190831100024.3248-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/pxa168fb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index e34058c721bec..16bff1be4b8ac 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -367,9 +367,9 @@ static void mipi_dbi_blank(struct mipi_dbi_dev *dbidev)
- 	memset(dbidev->tx_buf, 0, len);
+diff --git a/drivers/video/fbdev/pxa168fb.c b/drivers/video/fbdev/pxa168fb.c
+index 1410f476e135d..1fc50fc0694bc 100644
+--- a/drivers/video/fbdev/pxa168fb.c
++++ b/drivers/video/fbdev/pxa168fb.c
+@@ -766,8 +766,8 @@ static int pxa168fb_probe(struct platform_device *pdev)
+ failed_free_clk:
+ 	clk_disable_unprepare(fbi->clk);
+ failed_free_fbmem:
+-	dma_free_coherent(fbi->dev, info->fix.smem_len,
+-			info->screen_base, fbi->fb_start_dma);
++	dma_free_wc(fbi->dev, info->fix.smem_len,
++		    info->screen_base, fbi->fb_start_dma);
+ failed_free_info:
+ 	kfree(info);
  
- 	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0, 0,
--			 (width >> 8) & 0xFF, (width - 1) & 0xFF);
-+			 ((width - 1) >> 8) & 0xFF, (width - 1) & 0xFF);
- 	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0, 0,
--			 (height >> 8) & 0xFF, (height - 1) & 0xFF);
-+			 ((height - 1) >> 8) & 0xFF, (height - 1) & 0xFF);
- 	mipi_dbi_command_buf(dbi, MIPI_DCS_WRITE_MEMORY_START,
- 			     (u8 *)dbidev->tx_buf, len);
+@@ -801,7 +801,7 @@ static int pxa168fb_remove(struct platform_device *pdev)
  
+ 	irq = platform_get_irq(pdev, 0);
+ 
+-	dma_free_wc(fbi->dev, PAGE_ALIGN(info->fix.smem_len),
++	dma_free_wc(fbi->dev, info->fix.smem_len,
+ 		    info->screen_base, info->fix.smem_start);
+ 
+ 	clk_disable_unprepare(fbi->clk);
 -- 
 2.20.1
 
