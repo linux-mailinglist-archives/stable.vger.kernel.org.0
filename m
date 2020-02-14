@@ -2,87 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B12A15E24B
+	by mail.lfdr.de (Postfix) with ESMTP id D503A15E24C
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393285AbgBNQW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:22:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58846 "EHLO mail.kernel.org"
+        id S2393293AbgBNQW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:22:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388857AbgBNQW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:22:56 -0500
+        id S2393289AbgBNQW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 632DC24761;
-        Fri, 14 Feb 2020 16:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E646924768;
+        Fri, 14 Feb 2020 16:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697375;
-        bh=Cha20+Xxu9phiLA7J1NZ6jfSosSBjKixo2UuHu/w2zM=;
+        s=default; t=1581697376;
+        bh=fsw8bX3AiW/+z9HUZPwx9bSyI1oArS/BAj87FAOnCEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erqaafAFAR57He9NWgnrc+gCDapy+CbUNa6xoewwFQ3mltK7/gT1pYobAG+z+5hGR
-         xaxF2sfEW45aTybanJXJ3mKszQ99JfKrX3Gnsm/uo/KHjMmGZjP7P5xvaB5EotkjYG
-         1FJuH5Vs3zHZS0c4EMRI8Fi9Mhz4xy7D/b+5xfew=
+        b=lARSIb4sZG64xltn/HFUJ8kGIliT0RRtyqYe+o5oKSry326GcXTAP7SshGcgh9F72
+         QNfoundoHG7tggKOhkpe8eEKw3ctsWU1m1S7bPGf80DNoqBPbVhVNwVTu7gZmHMDl8
+         t+J8N/Y2Nr0I84zD3eWESKj+XH4d0evQJrxHaMMg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 073/141] x86/vdso: Provide missing include file
-Date:   Fri, 14 Feb 2020 11:20:13 -0500
-Message-Id: <20200214162122.19794-73-sashal@kernel.org>
+Cc:     Chanwoo Choi <cw00.choi@samsung.com>,
+        kbuild test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 074/141] PM / devfreq: rk3399_dmc: Add COMPILE_TEST and HAVE_ARM_SMCCC dependency
+Date:   Fri, 14 Feb 2020 11:20:14 -0500
+Message-Id: <20200214162122.19794-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+From: Chanwoo Choi <cw00.choi@samsung.com>
 
-[ Upstream commit bff47c2302cc249bcd550b17067f8dddbd4b6f77 ]
+[ Upstream commit eff5d31f7407fa9d31fb840106f1593399457298 ]
 
-When building with C=1, sparse issues a warning:
+To build test, add COMPILE_TEST depedency to both ARM_RK3399_DMC_DEVFREQ
+and DEVFREQ_EVENT_ROCKCHIP_DFI configuration. And ARM_RK3399_DMC_DEVFREQ
+used the SMCCC interface so that add HAVE_ARM_SMCCC dependency to prevent
+the build break.
 
-  CHECK   arch/x86/entry/vdso/vdso32-setup.c
-  arch/x86/entry/vdso/vdso32-setup.c:28:28: warning: symbol 'vdso32_enabled' was not declared. Should it be static?
-
-Provide the missing header file.
-
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/36224.1575599767@turing-police
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/vdso/vdso32-setup.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/devfreq/Kconfig       | 3 ++-
+ drivers/devfreq/event/Kconfig | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/entry/vdso/vdso32-setup.c b/arch/x86/entry/vdso/vdso32-setup.c
-index 3f9d1a83891ad..50c1f77cab150 100644
---- a/arch/x86/entry/vdso/vdso32-setup.c
-+++ b/arch/x86/entry/vdso/vdso32-setup.c
-@@ -10,6 +10,7 @@
- #include <linux/smp.h>
- #include <linux/kernel.h>
- #include <linux/mm_types.h>
-+#include <linux/elf.h>
+diff --git a/drivers/devfreq/Kconfig b/drivers/devfreq/Kconfig
+index 41254e702f1e9..2ce7cc94d78b1 100644
+--- a/drivers/devfreq/Kconfig
++++ b/drivers/devfreq/Kconfig
+@@ -102,7 +102,8 @@ config ARM_TEGRA_DEVFREQ
  
- #include <asm/processor.h>
- #include <asm/vdso.h>
+ config ARM_RK3399_DMC_DEVFREQ
+ 	tristate "ARM RK3399 DMC DEVFREQ Driver"
+-	depends on ARCH_ROCKCHIP
++	depends on (ARCH_ROCKCHIP && HAVE_ARM_SMCCC) || \
++		(COMPILE_TEST && HAVE_ARM_SMCCC)
+ 	select DEVFREQ_EVENT_ROCKCHIP_DFI
+ 	select DEVFREQ_GOV_SIMPLE_ONDEMAND
+ 	select PM_DEVFREQ_EVENT
+diff --git a/drivers/devfreq/event/Kconfig b/drivers/devfreq/event/Kconfig
+index cd949800eed96..8851bc4e8e3e1 100644
+--- a/drivers/devfreq/event/Kconfig
++++ b/drivers/devfreq/event/Kconfig
+@@ -33,7 +33,7 @@ config DEVFREQ_EVENT_EXYNOS_PPMU
+ 
+ config DEVFREQ_EVENT_ROCKCHIP_DFI
+ 	tristate "ROCKCHIP DFI DEVFREQ event Driver"
+-	depends on ARCH_ROCKCHIP
++	depends on ARCH_ROCKCHIP || COMPILE_TEST
+ 	help
+ 	  This add the devfreq-event driver for Rockchip SoC. It provides DFI
+ 	  (DDR Monitor Module) driver to count ddr load.
 -- 
 2.20.1
 
