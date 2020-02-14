@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A490315EBDB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E511C15EBD7
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403863AbgBNRXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:23:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34192 "EHLO mail.kernel.org"
+        id S2391434AbgBNRXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:23:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391314AbgBNQJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:35 -0500
+        id S2391323AbgBNQJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92BDA24682;
-        Fri, 14 Feb 2020 16:09:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB0F22468C;
+        Fri, 14 Feb 2020 16:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696575;
-        bh=qgXInRCOrnBs55A2/zS0szRQNvhB0rfj8Etl8C/D+6o=;
+        s=default; t=1581696577;
+        bh=+wNQcH+TJ4zlI48ZRTuJb8YhmGGiHfyRhbMPl65NfmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3iIeYq+B60t32XOk/h3mP8XRh+5vSj0kVQF+o1XhBgA58kRVivPeXZkigxDUN1pa
-         +avxjmzWqZaja6SRHXbfYUHBl5unnXmWiiJKnOMnNrSwgK3BnI9mJMQVm+rvnxmiYI
-         RwdnNSQdFSa2dWN4oxSnZB9+r06BGTt4K6ZJWaao=
+        b=FHdCFhDw4P0zCqjBzoIVsC2J0SAkCpHLgM8YdDb9kUSOjFx3ILs4re5GWmAipVhrv
+         qL/7QdHSV29MN+43rL6Llv40T92j1RUGCzK6f02LO3QFSGbyNbvrFxagPtxO3WNmX2
+         JHpTGAzClXDHNTNVnHDiulSv5L9+WsYTQ+D1ZqiE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 364/459] regulator: core: Fix exported symbols to the exported GPL version
-Date:   Fri, 14 Feb 2020 11:00:14 -0500
-Message-Id: <20200214160149.11681-364-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 366/459] ALSA: hda/hdmi - add retry logic to parse_intel_hdmi()
+Date:   Fri, 14 Feb 2020 11:00:16 -0500
+Message-Id: <20200214160149.11681-366-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,47 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 3d7610e8da993539346dce6f7c909fd3d56bf4d5 ]
+[ Upstream commit 2928fa0a97ebb9549cb877fdc99aed9b95438c3a ]
 
-Change the exported symbols introduced by commit e9153311491da
-("regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage")
-from EXPORT_SYMBOL() to EXPORT_SYMBOL_GPL(), like is used for all the core
-parts.
+The initial snd_hda_get_sub_node() can fail on certain
+devices (e.g. some Chromebook models using Intel GLK).
+The failure rate is very low, but as this is is part of
+the probe process, end-user impact is high.
 
-Fixes: e9153311491da ("regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Link: https://lore.kernel.org/r/20200120123921.1204339-1-enric.balletbo@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+In observed cases, related hardware status registers have
+expected values, but the node query still fails. Retrying
+the node query does seem to help, so fix the problem by
+adding retry logic to the query. This does not impact
+non-Intel platforms.
+
+BugLink: https://github.com/thesofproject/linux/issues/1642
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200120160117.29130-4-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_hdmi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index c6fa0f4451aeb..0011bdc15afbb 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -3462,7 +3462,7 @@ int regulator_set_voltage_rdev(struct regulator_dev *rdev, int min_uV,
- out:
- 	return ret;
- }
--EXPORT_SYMBOL(regulator_set_voltage_rdev);
-+EXPORT_SYMBOL_GPL(regulator_set_voltage_rdev);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 8ac805a634f4e..307ca1f036762 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2794,9 +2794,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
+ /* parse and post-process for Intel codecs */
+ static int parse_intel_hdmi(struct hda_codec *codec)
+ {
+-	int err;
++	int err, retries = 3;
++
++	do {
++		err = hdmi_parse_codec(codec);
++	} while (err < 0 && retries--);
  
- static int regulator_limit_voltage_step(struct regulator_dev *rdev,
- 					int *current_uV, int *min_uV)
-@@ -4027,7 +4027,7 @@ int regulator_get_voltage_rdev(struct regulator_dev *rdev)
- 		return ret;
- 	return ret - rdev->constraints->uV_offset;
- }
--EXPORT_SYMBOL(regulator_get_voltage_rdev);
-+EXPORT_SYMBOL_GPL(regulator_get_voltage_rdev);
- 
- /**
-  * regulator_get_voltage - get regulator output voltage
+-	err = hdmi_parse_codec(codec);
+ 	if (err < 0) {
+ 		generic_spec_free(codec);
+ 		return err;
 -- 
 2.20.1
 
