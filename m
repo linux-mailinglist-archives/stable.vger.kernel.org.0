@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8912F15ECFF
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 473B115ED07
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390560AbgBNQHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:07:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
+        id S2390789AbgBNRb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:31:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389901AbgBNQHB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:07:01 -0500
+        id S2390227AbgBNQHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:07:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1CAE24687;
-        Fri, 14 Feb 2020 16:06:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B553024676;
+        Fri, 14 Feb 2020 16:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696420;
-        bh=y3cLW9E43Gt6K/m046jOyePIA/a7L/iQ/HgdNX4WiRg=;
+        s=default; t=1581696425;
+        bh=zCIYw9z1h9aAJIfGIBE8mP8Jq4/hNqd3Ryhiqlsldjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJiEuwWHE46lSyvDVaxebEqC3enXhMuqeEQNJTSIC3CRYI21yfkIuKhAW2uaYlNeT
-         y+p6i6Xu3LflAJIlamLR0D7TkGXKSdXkQgQMWnpcqumJe+yYbS4FSY2HGGzxiQz69n
-         fFqkdBNn8xWoJBgsCll+2IROnTK3h2O0ZfmbYPZI=
+        b=zRyzvXF5QEBnNkCpzyUsEVU98+hlsb8QJB+o1jnuTarsMHmvRuPF62mge5W5flN4Z
+         JYidV8ekCBOHFnr12BiqcrrOdffMrKGDuxQyQrjIaXTwLe6eLqb9jE6Y5dY+8uZmZ0
+         E65JQirXEsDMA39US+KL2PlShWwBtK2rFXh+c0wI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Icenowy Zheng <icenowy@aosc.io>,
-        Vasily Khoruzhick <anarsoul@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 241/459] clk: sunxi-ng: add mux and pll notifiers for A64 CPU clock
-Date:   Fri, 14 Feb 2020 10:58:11 -0500
-Message-Id: <20200214160149.11681-241-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 245/459] ALSA: hda/realtek - Apply mic mute LED quirk for Dell E7xx laptops, too
+Date:   Fri, 14 Feb 2020 10:58:15 -0500
+Message-Id: <20200214160149.11681-245-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -45,77 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Icenowy Zheng <icenowy@aosc.io>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ec97faff743b398e21f74a54c81333f3390093aa ]
+[ Upstream commit 5fab5829674c279839a7408ab30c71c6dfe726b9 ]
 
-The A64 PLL_CPU clock has the same instability if some factor changed
-without the PLL gated like other SoCs with sun6i-style CCU, e.g. A33,
-H3.
+Dell E7xx laptops have also mic mute LED that is driven by the
+dell-laptop platform driver.  Bind it with the capture control as
+already done for other models.
 
-Add the mux and pll notifiers for A64 CPU clock to workaround the
-problem.
+A caveat is that the fixup hook for the mic mute LED has to be applied
+at last, otherwise it results in the invalid override of the callback.
 
-Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205529
+Link: https://lore.kernel.org/r/20200105081119.21396-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 28 ++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-index 49bd7a4c015c4..5f66bf8797723 100644
---- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-@@ -921,11 +921,26 @@ static const struct sunxi_ccu_desc sun50i_a64_ccu_desc = {
- 	.num_resets	= ARRAY_SIZE(sun50i_a64_ccu_resets),
- };
- 
-+static struct ccu_pll_nb sun50i_a64_pll_cpu_nb = {
-+	.common	= &pll_cpux_clk.common,
-+	/* copy from pll_cpux_clk */
-+	.enable	= BIT(31),
-+	.lock	= BIT(28),
-+};
-+
-+static struct ccu_mux_nb sun50i_a64_cpu_nb = {
-+	.common		= &cpux_clk.common,
-+	.cm		= &cpux_clk.mux,
-+	.delay_us	= 1, /* > 8 clock cycles at 24 MHz */
-+	.bypass_index	= 1, /* index of 24 MHz oscillator */
-+};
-+
- static int sun50i_a64_ccu_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
- 	void __iomem *reg;
- 	u32 val;
-+	int ret;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	reg = devm_ioremap_resource(&pdev->dev, res);
-@@ -939,7 +954,18 @@ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
- 
- 	writel(0x515, reg + SUN50I_A64_PLL_MIPI_REG);
- 
--	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
-+	ret = sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
-+	if (ret)
-+		return ret;
-+
-+	/* Gate then ungate PLL CPU after any rate changes */
-+	ccu_pll_notifier_register(&sun50i_a64_pll_cpu_nb);
-+
-+	/* Reparent CPU during PLL CPU rate changes */
-+	ccu_mux_notifier_register(pll_cpux_clk.common.hw.clk,
-+				  &sun50i_a64_cpu_nb);
-+
-+	return 0;
- }
- 
- static const struct of_device_id sun50i_a64_ccu_ids[] = {
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 68832f52c1ad2..e8d5f6befa1f3 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5848,6 +5848,7 @@ enum {
+ 	ALC288_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 	ALC288_FIXUP_DELL_XPS_13,
+ 	ALC288_FIXUP_DISABLE_AAMIX,
++	ALC292_FIXUP_DELL_E7X_AAMIX,
+ 	ALC292_FIXUP_DELL_E7X,
+ 	ALC292_FIXUP_DISABLE_AAMIX,
+ 	ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK,
+@@ -6543,12 +6544,19 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC293_FIXUP_DELL1_MIC_NO_PRESENCE
+ 	},
+-	[ALC292_FIXUP_DELL_E7X] = {
++	[ALC292_FIXUP_DELL_E7X_AAMIX] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_dell_xps13,
+ 		.chained = true,
+ 		.chain_id = ALC292_FIXUP_DISABLE_AAMIX
+ 	},
++	[ALC292_FIXUP_DELL_E7X] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = snd_hda_gen_fixup_micmute_led,
++		/* micmute fixup must be applied at last */
++		.chained_before = true,
++		.chain_id = ALC292_FIXUP_DELL_E7X_AAMIX,
++	},
+ 	[ALC298_FIXUP_ALIENWARE_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
 -- 
 2.20.1
 
