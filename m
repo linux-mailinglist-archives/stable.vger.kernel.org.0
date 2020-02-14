@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BFC15E850
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:59:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2993A15E84C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388995AbgBNQ7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:59:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
+        id S2404122AbgBNQ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:59:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392686AbgBNQQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:16:55 -0500
+        id S2388995AbgBNQQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8723124700;
-        Fri, 14 Feb 2020 16:16:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB03F24685;
+        Fri, 14 Feb 2020 16:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697014;
-        bh=IJFFK9lUXPW6Igq4Yk/ketC4Toh+k7TZgcMHH8fWc0s=;
+        s=default; t=1581697015;
+        bh=kpxSpiOredmCdN9Q0Stfhh2Dls3j079H4/egN8JsXU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=115hf7CCo59SKFOVYpJvRxrBVhPQUZh0huqutFfF/Sw7GdCc884sMRMcRHQch2pzE
-         vjVRT7L3qywyh1VaWw/70F1o8ujeUgzIzhjxysp1fuYR54p9eJOEPrgehsGYHhX796
-         wOa8Lv0+zyNXp3NurvyAKvReGYfqWmIlUjql8EM8=
+        b=zJ+zg4YzJyBbH86kvsn/w24tXyfsCMqTecuS0FSvZ4Be0Fv1D+DpiZEslTGVMU1i3
+         /oQy6pHaFXTiQKEoFEUSVIVb4stiQY7/rgJHCCb00aI09dlRPu16gDo5pS8cyMMyz1
+         pTv1yLzZKd63fpBSVQnWcj4lYLJ+YJiXFINtqURY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Bob Liu <bob.liu@oracle.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 244/252] brd: check and limit max_part par
-Date:   Fri, 14 Feb 2020 11:11:39 -0500
-Message-Id: <20200214161147.15842-244-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 245/252] drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_latency
+Date:   Fri, 14 Feb 2020 11:11:40 -0500
+Message-Id: <20200214161147.15842-245-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,107 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit c8ab422553c81a0eb070329c63725df1cd1425bc ]
+[ Upstream commit 4d0a72b66065dd7e274bad6aa450196d42fd8f84 ]
 
-In brd_init func, rd_nr num of brd_device are firstly allocated
-and add in brd_devices, then brd_devices are traversed to add each
-brd_device by calling add_disk func. When allocating brd_device,
-the disk->first_minor is set to i * max_part, if rd_nr * max_part
-is larger than MINORMASK, two different brd_device may have the same
-devt, then only one of them can be successfully added.
-when rmmod brd.ko, it will cause oops when calling brd_exit.
+Only send non-0 clocks to DC for validation.  This mirrors
+what the windows driver does.
 
-Follow those steps:
-  # modprobe brd rd_nr=3 rd_size=102400 max_part=1048576
-  # rmmod brd
-then, the oops will appear.
-
-Oops log:
-[  726.613722] Call trace:
-[  726.614175]  kernfs_find_ns+0x24/0x130
-[  726.614852]  kernfs_find_and_get_ns+0x44/0x68
-[  726.615749]  sysfs_remove_group+0x38/0xb0
-[  726.616520]  blk_trace_remove_sysfs+0x1c/0x28
-[  726.617320]  blk_unregister_queue+0x98/0x100
-[  726.618105]  del_gendisk+0x144/0x2b8
-[  726.618759]  brd_exit+0x68/0x560 [brd]
-[  726.619501]  __arm64_sys_delete_module+0x19c/0x2a0
-[  726.620384]  el0_svc_common+0x78/0x130
-[  726.621057]  el0_svc_handler+0x38/0x78
-[  726.621738]  el0_svc+0x8/0xc
-[  726.622259] Code: aa0203f6 aa0103f7 aa1e03e0 d503201f (7940e260)
-
-Here, we add brd_check_and_reset_par func to check and limit max_part par.
-
---
-V5->V6:
- - remove useless code
-
-V4->V5:(suggested by Ming Lei)
- - make sure max_part is not larger than DISK_MAX_PARTS
-
-V3->V4:(suggested by Ming Lei)
- - remove useless change
- - add one limit of max_part
-
-V2->V3: (suggested by Ming Lei)
- - clear .minors when running out of consecutive minor space in brd_alloc
- - remove limit of rd_nr
-
-V1->V2:
- - add more checks in brd_check_par_valid as suggested by Ming Lei.
-
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/brd.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 17defbf4f332c..02e8fff3f8283 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -463,6 +463,25 @@ static struct kobject *brd_probe(dev_t dev, int *part, void *data)
- 	return kobj;
- }
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+index 1546bc49004f8..3fa6e8123b8eb 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+@@ -994,12 +994,15 @@ static int smu10_get_clock_by_type_with_latency(struct pp_hwmgr *hwmgr,
  
-+static inline void brd_check_and_reset_par(void)
-+{
-+	if (unlikely(!max_part))
-+		max_part = 1;
-+
-+	/*
-+	 * make sure 'max_part' can be divided exactly by (1U << MINORBITS),
-+	 * otherwise, it is possiable to get same dev_t when adding partitions.
-+	 */
-+	if ((1U << MINORBITS) % max_part != 0)
-+		max_part = 1UL << fls(max_part);
-+
-+	if (max_part > DISK_MAX_PARTS) {
-+		pr_info("brd: max_part can't be larger than %d, reset max_part = %d.\n",
-+			DISK_MAX_PARTS, DISK_MAX_PARTS);
-+		max_part = DISK_MAX_PARTS;
-+	}
-+}
-+
- static int __init brd_init(void)
- {
- 	struct brd_device *brd, *next;
-@@ -486,8 +505,7 @@ static int __init brd_init(void)
- 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk"))
- 		return -EIO;
+ 	clocks->num_levels = 0;
+ 	for (i = 0; i < pclk_vol_table->count; i++) {
+-		clocks->data[i].clocks_in_khz = pclk_vol_table->entries[i].clk * 10;
+-		clocks->data[i].latency_in_us = latency_required ?
+-						smu10_get_mem_latency(hwmgr,
+-						pclk_vol_table->entries[i].clk) :
+-						0;
+-		clocks->num_levels++;
++		if (pclk_vol_table->entries[i].clk) {
++			clocks->data[clocks->num_levels].clocks_in_khz =
++				pclk_vol_table->entries[i].clk * 10;
++			clocks->data[clocks->num_levels].latency_in_us = latency_required ?
++				smu10_get_mem_latency(hwmgr,
++						      pclk_vol_table->entries[i].clk) :
++				0;
++			clocks->num_levels++;
++		}
+ 	}
  
--	if (unlikely(!max_part))
--		max_part = 1;
-+	brd_check_and_reset_par();
- 
- 	for (i = 0; i < rd_nr; i++) {
- 		brd = brd_alloc(i);
+ 	return 0;
 -- 
 2.20.1
 
