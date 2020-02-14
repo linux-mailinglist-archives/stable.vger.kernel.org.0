@@ -2,100 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C94115CEE3
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 01:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5400E15CF28
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 01:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727604AbgBNALm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 19:11:42 -0500
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:53031 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727594AbgBNALm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 19:11:42 -0500
-Received: by mail-wm1-f43.google.com with SMTP id p9so8218563wmc.2
-        for <stable@vger.kernel.org>; Thu, 13 Feb 2020 16:11:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=EzKe/ntKoUUFG0fuenXaKf0iZvmjYm6NPGJilusev+8=;
-        b=jGXClwq385wqTs5AJsmraD/D6yMy3wwU1F7VbHqE9EZG2uWTHSiNZu3zPUAlMnswI3
-         uvBPznaAyEEeMReBNeGlwv84Y/chrkFrI8/J14PhlkRjkvxe+hFTIRiV44P0RgDhjO3c
-         HFJIoLfxHRIaCGgjvtP8yapd9iCqUxtEcLNRhD2/g2WJogLo90KhLHtIMLL+njSGYKh2
-         o+yK8cKpqxYdfhe1LhC7tkfOh3SE1tIAAD2pYGPtIGzU7TDFaPCa+eZ4CuTjXNjpnO1R
-         3djOUhPwP+LBnjc4DOkBUZESEPMBVXnqcseP8Ev+cAPvq9gqZLje/oC9T/3wWCTI/rt6
-         eJKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=EzKe/ntKoUUFG0fuenXaKf0iZvmjYm6NPGJilusev+8=;
-        b=J3ZyfANoX1JEz3jeTtoFVz8B967/vgAYGQzhLhObsOY8Zjn7LjDalI2aAMIHiyQCkG
-         UyPB9oAcDm4doRXseKhtOu5zCfIKLb8sHZhaMwbAxU8P7o6A0VTRGectZ5TUcQ+zaeY3
-         3agLogs14wUiStXdhh/OkA0tZYT+dcMoQzu/y+uCHk1PVqy9wSeEKDMYBMR1VsQnnPuu
-         IiXYLUaF30ccUTj5JXQJz7O6fMmYMCz4ZDl+o13ojZFgKt1octMjjVIwY4Kb2qxjLi/Y
-         j7mx/VUq13sBEBUr7gwkAY2khZ+b6om2nkDRtYI4FPX3hDuloIFvd1oAsJ7o/h0Rdeb9
-         G/yA==
-X-Gm-Message-State: APjAAAWfZuaNvkFDN0ukYpfhkmpmad8ZLeAItKpx4zpUZj4LGqSbiyh5
-        U657FF/TzR71vCWbDIDjG5LoOPHwPjxYPg==
-X-Google-Smtp-Source: APXvYqxxcIMdCLCC+yF7cX43J0D2rGOW+GZC9jADVOMNjWiY4DWA6pKemvawUxa+T5aFIQE619qJcQ==
-X-Received: by 2002:a1c:5401:: with SMTP id i1mr594087wmb.99.1581639100072;
-        Thu, 13 Feb 2020 16:11:40 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r6sm4637557wrp.95.2020.02.13.16.11.39
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Feb 2020 16:11:39 -0800 (PST)
-Message-ID: <5e45e5bb.1c69fb81.955df.4e5b@mx.google.com>
-Date:   Thu, 13 Feb 2020 16:11:39 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727604AbgBNAku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 19:40:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727665AbgBNAku (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 19:40:50 -0500
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD3F02187F;
+        Fri, 14 Feb 2020 00:40:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581640850;
+        bh=C2pQA43F3UjvjYbnsyHni/6SXQNyvyvE6xKg5HA7oLs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=U22HFmGZTjeiQqW8QDDqH0MAi4JsAbtf6WAiXM+NGrzN3APuF4BE2Urpq5rsta2bc
+         Xbdf54Vpz33Db24sVj0Vr5T+0qNrqiJr6EJP3SQg6trodyusZu3Rh6TWBqlcYqlTSf
+         AIiGvl0llyGVEbSrNW6aOD65b3SYumGGc964Hr80=
+Subject: Re: [PATCH 5.5 000/120] 5.5.4-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200213151901.039700531@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <ac7421a1-63d0-3a81-f049-0be6a3bc4db0@kernel.org>
+Date:   Thu, 13 Feb 2020 17:40:48 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.103-53-gf1f9ded7a002
-Subject: stable-rc/linux-4.19.y boot: 28 boots: 0 failed,
- 26 passed with 1 offline, 1 untried/unknown (v4.19.103-53-gf1f9ded7a002)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 28 boots: 0 failed, 26 passed with 1 offline, =
-1 untried/unknown (v4.19.103-53-gf1f9ded7a002)
+On 2/13/20 8:19 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.4 release.
+> There are 120 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 15 Feb 2020 15:16:41 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.103-53-gf1f9ded7a002/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.103-53-gf1f9ded7a002/
+Compiled and booted on my test system. No dmesg regressions.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.103-53-gf1f9ded7a002
-Git Commit: f1f9ded7a002e2c006c68df203c3e2147abfeafa
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 22 unique boards, 8 SoC families, 10 builds out of 133
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 5 days (last pass: v4.19.=
-101 - first fail: v4.19.102-96-g0632821fe218)
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+thanks,
+-- Shuah
