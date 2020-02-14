@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B55C015DECD
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D64D15DED0
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390194AbgBNQFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55414 "EHLO mail.kernel.org"
+        id S2390211AbgBNQFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:05:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390190AbgBNQFd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:33 -0500
+        id S2390203AbgBNQFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8CAC2187F;
-        Fri, 14 Feb 2020 16:05:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9EE72467E;
+        Fri, 14 Feb 2020 16:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696332;
-        bh=g0H+3ovq4kYtjGmq5NPbNijrKDqg75LfmPzzqNKWwBk=;
+        s=default; t=1581696337;
+        bh=kJWdcJPvZE287SU5CAesXG1gRxh01xitM8yvtMiSSGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGO6MJiatgMRGHHIVEV5JWItFTWHf2hTMILTXJa5aBBYNaCmgmF/Sgzvq+1AuiP8i
-         F8UTmd1aRYzRWmne24zmy1nA5hBw3OYHUehS3/ysY1CoQBxpmmrwlo7vs2ehIsU8+W
-         ZADrdvyqtcVclkxDdDv6HuhGDLSH9b7Q2QNcNKKk=
+        b=kclPr2y82234lFPfOhCiJENNQKNtLFHOzGH3xBFoyKu/BI//4WR+s/qyziuFzFl7k
+         xkDQ1GLJ4McSTUw9c+r4FaWbkJqAyvFciHIdcAp9Aq4pwTJlm/3UKuGfXwez4TJlV0
+         1hawGGVG/XWNhnGwuIg2FDqWlEvvgBbmzGVOgoOI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 170/459] dmaengine: axi-dmac: add a check for devm_regmap_init_mmio
-Date:   Fri, 14 Feb 2020 10:57:00 -0500
-Message-Id: <20200214160149.11681-170-sashal@kernel.org>
+Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Chris Healy <cphealy@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 174/459] ARM: dts: imx6: rdu2: Limit USBH1 to Full Speed
+Date:   Fri, 14 Feb 2020 10:57:04 -0500
+Message-Id: <20200214160149.11681-174-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,54 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-[ Upstream commit a5b982af953bcc838cd198b0434834cc1dff14ec ]
+[ Upstream commit 6bb1e09c4c375db29770444f689f35f5cbe696bc ]
 
-The driver misses checking the result of devm_regmap_init_mmio().
-Add a check to fix it.
+Cabling used to connect devices to USBH1 on RDU2 does not meet USB
+spec cable quality and cable length requirements to operate at High
+Speed, so limit the port to Full Speed only.
 
-Fixes: fc15be39a827 ("dmaengine: axi-dmac: add regmap support")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Link: https://lore.kernel.org/r/20191209085711.16001-1-hslester96@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Chris Healy <cphealy@gmail.com>
+Reviewed-by: Chris Healy <cphealy@gmail.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dma-axi-dmac.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/dma-axi-dmac.c b/drivers/dma/dma-axi-dmac.c
-index a0ee404b736ed..f1d149e328395 100644
---- a/drivers/dma/dma-axi-dmac.c
-+++ b/drivers/dma/dma-axi-dmac.c
-@@ -830,6 +830,7 @@ static int axi_dmac_probe(struct platform_device *pdev)
- 	struct dma_device *dma_dev;
- 	struct axi_dmac *dmac;
- 	struct resource *res;
-+	struct regmap *regmap;
- 	int ret;
+diff --git a/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi b/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
+index 7b5c0e9b0fcff..a66c4fac6baf0 100644
+--- a/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
+@@ -774,6 +774,7 @@
+ &usbh1 {
+ 	vbus-supply = <&reg_5p0v_main>;
+ 	disable-over-current;
++	maximum-speed = "full-speed";
+ 	status = "okay";
+ };
  
- 	dmac = devm_kzalloc(&pdev->dev, sizeof(*dmac), GFP_KERNEL);
-@@ -921,10 +922,17 @@ static int axi_dmac_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, dmac);
- 
--	devm_regmap_init_mmio(&pdev->dev, dmac->base, &axi_dmac_regmap_config);
-+	regmap = devm_regmap_init_mmio(&pdev->dev, dmac->base,
-+		 &axi_dmac_regmap_config);
-+	if (IS_ERR(regmap)) {
-+		ret = PTR_ERR(regmap);
-+		goto err_free_irq;
-+	}
- 
- 	return 0;
- 
-+err_free_irq:
-+	free_irq(dmac->irq, dmac);
- err_unregister_of:
- 	of_dma_controller_free(pdev->dev.of_node);
- err_unregister_device:
 -- 
 2.20.1
 
