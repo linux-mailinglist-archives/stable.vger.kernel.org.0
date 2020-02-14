@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF83615ED6A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:33:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EC2215ED65
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:33:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388693AbgBNRdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:33:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
+        id S2390456AbgBNRdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:33:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390373AbgBNQGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:06:16 -0500
+        id S2390359AbgBNQGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:06:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B77812067D;
-        Fri, 14 Feb 2020 16:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0911F24670;
+        Fri, 14 Feb 2020 16:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696375;
-        bh=Ib/kJYQoRP9+Z4hzql8Gs1MBOxNuMCCSr6QAxvEN8RM=;
+        s=default; t=1581696377;
+        bh=L39ewZIAQLtVWClce3+6QIzm4nk1mjYhAteFKAvrzdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ks9tuMRhLMqHPOU8V7g2/NI48aQuFRV+k2PMg+WXjoTP+Qmtc0jkKAfwmaEwxMU6I
-         Tm+NKJfgKH7Q947Qw1cfyVZ48slxeKlTXegscUjsYYsKH2foz7jdRJ8ZnmGPZdeWap
-         pm83waQGOtiJmxvL53cB2Zyjdxc0YgrvfUlFK5y0=
+        b=hHXVlt9hAX/f7qg9qWhlMrO+1f9MqvPUqs7Jz1YuZhWKXUyRb4NBkEC8fAu1g2/qH
+         tpFoaB0Ep7Y36HWZgwMANqW1JCahJp6RSRE/R4gRqatGNQz5g4FPO/3H2ny+elHlN4
+         +NDYGTqAOqY7raJwxZrh6+aCm4CphJF55eKYvz0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Monk Liu <Monk.Liu@amd.com>, Emily Deng <Emily.Deng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 204/459] drm/amdgpu: fix KIQ ring test fail in TDR of SRIOV
-Date:   Fri, 14 Feb 2020 10:57:34 -0500
-Message-Id: <20200214160149.11681-204-sashal@kernel.org>
+Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 205/459] clk: qcom: smd: Add missing bimc clock
+Date:   Fri, 14 Feb 2020 10:57:35 -0500
+Message-Id: <20200214160149.11681-205-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,44 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Monk Liu <Monk.Liu@amd.com>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit 5a7489a7e189ee2be889485f90c8cf24ea4b9a40 ]
+[ Upstream commit 87ec9adcca71801a44ddb311185b17df09839ab5 ]
 
-issues:
-MEC is ruined by the amdkfd_pre_reset after VF FLR done
+It turns out booting the modem is dependent on a bimc vote from Linux on
+msm8998.  To make the modem happy, add the bimc clock to rely on the
+default vote from rpmcc.  Once we have interconnect support, bimc should
+be controlled properly.
 
-fix:
-amdkfd_pre_reset() would ruin MEC after hypervisor finished the VF FLR,
-the correct sequence is do amdkfd_pre_reset before VF FLR but there is
-a limitation to block this sequence:
-if we do pre_reset() before VF FLR, it would go KIQ way to do register
-access and stuck there, because KIQ probably won't work by that time
-(e.g. you already made GFX hang)
-
-so the best way right now is to simply remove it.
-
-Signed-off-by: Monk Liu <Monk.Liu@amd.com>
-Reviewed-by: Emily Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 6131dc81211c ("clk: qcom: smd: Add support for MSM8998 rpm clocks")
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Link: https://lkml.kernel.org/r/20191217165409.4919-1-jeffrey.l.hugo@gmail.com
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/clk/qcom/clk-smd-rpm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 7a6c837c0a85f..13694d5eba474 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3466,8 +3466,6 @@ static int amdgpu_device_reset_sriov(struct amdgpu_device *adev,
- 	if (r)
- 		return r;
+diff --git a/drivers/clk/qcom/clk-smd-rpm.c b/drivers/clk/qcom/clk-smd-rpm.c
+index 930fa4a4c52a8..e5c3db11bf26c 100644
+--- a/drivers/clk/qcom/clk-smd-rpm.c
++++ b/drivers/clk/qcom/clk-smd-rpm.c
+@@ -648,6 +648,7 @@ static const struct rpm_smd_clk_desc rpm_clk_qcs404 = {
+ };
  
--	amdgpu_amdkfd_pre_reset(adev);
--
- 	/* Resume IP prior to SMC */
- 	r = amdgpu_device_ip_reinit_early_sriov(adev);
- 	if (r)
+ /* msm8998 */
++DEFINE_CLK_SMD_RPM(msm8998, bimc_clk, bimc_a_clk, QCOM_SMD_RPM_MEM_CLK, 0);
+ DEFINE_CLK_SMD_RPM(msm8998, pcnoc_clk, pcnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 0);
+ DEFINE_CLK_SMD_RPM(msm8998, snoc_clk, snoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 1);
+ DEFINE_CLK_SMD_RPM(msm8998, cnoc_clk, cnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 2);
+@@ -671,6 +672,8 @@ DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk2_pin, rf_clk2_a_pin, 5);
+ DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, rf_clk3, rf_clk3_a, 6);
+ DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk3_pin, rf_clk3_a_pin, 6);
+ static struct clk_smd_rpm *msm8998_clks[] = {
++	[RPM_SMD_BIMC_CLK] = &msm8998_bimc_clk,
++	[RPM_SMD_BIMC_A_CLK] = &msm8998_bimc_a_clk,
+ 	[RPM_SMD_PCNOC_CLK] = &msm8998_pcnoc_clk,
+ 	[RPM_SMD_PCNOC_A_CLK] = &msm8998_pcnoc_a_clk,
+ 	[RPM_SMD_SNOC_CLK] = &msm8998_snoc_clk,
 -- 
 2.20.1
 
