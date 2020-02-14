@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBC915F21E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25FBF15F21C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389011AbgBNSGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:06:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
+        id S2391988AbgBNSGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:06:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730970AbgBNPyp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:54:45 -0500
+        id S1731628AbgBNPyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:54:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CB0124673;
-        Fri, 14 Feb 2020 15:54:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B676624687;
+        Fri, 14 Feb 2020 15:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695685;
-        bh=2wsmw7LgUVLxcb60T5P9mFsAuefCeFVQD3JLWpvFv74=;
+        s=default; t=1581695686;
+        bh=QbWRlUITLJpYKqnJ3E/iusWRdHIa/QVaTjWPeop29PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ecjvyxb2PM3wwxYlBmgBo9Q0MSo2m9fSzRzU7M7Sl8o/ZkZxN6kDqEgPYujfCZncx
-         wh7KwRlht1OGc70yBE+PYQ/2hsKG3MxAVxLEPPnrYCwlIcEr++zVRkG/TgrOO7KMIG
-         X1yR7VnsfAWbbQ8UN/msKbzBdz5wu0SYu9E53Ukc=
+        b=JpqiPEqSftY7aUfbPam+IPZPfbgWrQ5O3Lw7CTHEbFRb2fgXq3aKIVlquieGJT4Ax
+         hj86CPXXUxSxtPkLc3KJ1CNvrYL9HI3SKANpaFWfx1TsPEoj3FkkyxcOSTMB87S6cZ
+         1W8sQoWCqgbCVMoN6UTBMr+ejhb74Fwha44MxXj4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chanwoo Choi <cw00.choi@samsung.com>,
-        kbuild test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 270/542] PM / devfreq: rk3399_dmc: Add COMPILE_TEST and HAVE_ARM_SMCCC dependency
-Date:   Fri, 14 Feb 2020 10:44:22 -0500
-Message-Id: <20200214154854.6746-270-sashal@kernel.org>
+Cc:     Manasi Navare <manasi.d.navare@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Dave Airlie <airlied@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 271/542] drm/fbdev: Fallback to non tiled mode if all tiles not present
+Date:   Fri, 14 Feb 2020 10:44:23 -0500
+Message-Id: <20200214154854.6746-271-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,50 +46,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanwoo Choi <cw00.choi@samsung.com>
+From: Manasi Navare <manasi.d.navare@intel.com>
 
-[ Upstream commit eff5d31f7407fa9d31fb840106f1593399457298 ]
+[ Upstream commit f25c7a006cd1c07254780e3406e45cee4842b933 ]
 
-To build test, add COMPILE_TEST depedency to both ARM_RK3399_DMC_DEVFREQ
-and DEVFREQ_EVENT_ROCKCHIP_DFI configuration. And ARM_RK3399_DMC_DEVFREQ
-used the SMCCC interface so that add HAVE_ARM_SMCCC dependency to prevent
-the build break.
+In case of tiled displays, if we hotplug just one connector,
+fbcon currently just selects the preferred mode and if it is
+tiled mode then that becomes a problem if rest of the tiles are
+not present.
+So in the fbdev driver on hotplug when we probe the client modeset,
+if we dont find all the connectors for all tiles, then on a connector
+with one tile, just fallback to the first available non tiled mode
+to display over a single connector.
+On the hotplug of the consecutive tiled connectors, if the tiled mode
+no longer exists because of fbcon size limitation, then return
+no modes for consecutive tiles but retain the non tiled mode
+on the 0th tile.
+Use the same logic in case of connected boot case as well.
+This has been tested with Dell UP328K tiled monitor.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+v2:
+* Set the modes on consecutive hotplugged tiles to no mode
+if tiled mode is pruned (Dave)
+v1:
+* Just handle the 1st connector hotplug case
+* v1 Reviewed-by: Dave Airlie <airlied@redhat.com>
+
+Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Suggested-by: Dave Airlie <airlied@redhat.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191113222952.9231-1-manasi.d.navare@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/Kconfig       | 3 ++-
- drivers/devfreq/event/Kconfig | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_client_modeset.c | 72 ++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
-diff --git a/drivers/devfreq/Kconfig b/drivers/devfreq/Kconfig
-index 35535833b6f78..c7804635e89ea 100644
---- a/drivers/devfreq/Kconfig
-+++ b/drivers/devfreq/Kconfig
-@@ -115,7 +115,8 @@ config ARM_TEGRA20_DEVFREQ
+diff --git a/drivers/gpu/drm/drm_client_modeset.c b/drivers/gpu/drm/drm_client_modeset.c
+index 895b73f23079a..6d4a29e99ae26 100644
+--- a/drivers/gpu/drm/drm_client_modeset.c
++++ b/drivers/gpu/drm/drm_client_modeset.c
+@@ -114,6 +114,33 @@ drm_client_find_modeset(struct drm_client_dev *client, struct drm_crtc *crtc)
+ 	return NULL;
+ }
  
- config ARM_RK3399_DMC_DEVFREQ
- 	tristate "ARM RK3399 DMC DEVFREQ Driver"
--	depends on ARCH_ROCKCHIP
-+	depends on (ARCH_ROCKCHIP && HAVE_ARM_SMCCC) || \
-+		(COMPILE_TEST && HAVE_ARM_SMCCC)
- 	select DEVFREQ_EVENT_ROCKCHIP_DFI
- 	select DEVFREQ_GOV_SIMPLE_ONDEMAND
- 	select PM_DEVFREQ_EVENT
-diff --git a/drivers/devfreq/event/Kconfig b/drivers/devfreq/event/Kconfig
-index cef2cf5347ca7..a53e0a6ffdfeb 100644
---- a/drivers/devfreq/event/Kconfig
-+++ b/drivers/devfreq/event/Kconfig
-@@ -34,7 +34,7 @@ config DEVFREQ_EVENT_EXYNOS_PPMU
++static struct drm_display_mode *
++drm_connector_get_tiled_mode(struct drm_connector *connector)
++{
++	struct drm_display_mode *mode;
++
++	list_for_each_entry(mode, &connector->modes, head) {
++		if (mode->hdisplay == connector->tile_h_size &&
++		    mode->vdisplay == connector->tile_v_size)
++			return mode;
++	}
++	return NULL;
++}
++
++static struct drm_display_mode *
++drm_connector_fallback_non_tiled_mode(struct drm_connector *connector)
++{
++	struct drm_display_mode *mode;
++
++	list_for_each_entry(mode, &connector->modes, head) {
++		if (mode->hdisplay == connector->tile_h_size &&
++		    mode->vdisplay == connector->tile_v_size)
++			continue;
++		return mode;
++	}
++	return NULL;
++}
++
+ static struct drm_display_mode *
+ drm_connector_has_preferred_mode(struct drm_connector *connector, int width, int height)
+ {
+@@ -348,8 +375,15 @@ static bool drm_client_target_preferred(struct drm_connector **connectors,
+ 	struct drm_connector *connector;
+ 	u64 conn_configured = 0;
+ 	int tile_pass = 0;
++	int num_tiled_conns = 0;
+ 	int i;
  
- config DEVFREQ_EVENT_ROCKCHIP_DFI
- 	tristate "ROCKCHIP DFI DEVFREQ event Driver"
--	depends on ARCH_ROCKCHIP
-+	depends on ARCH_ROCKCHIP || COMPILE_TEST
- 	help
- 	  This add the devfreq-event driver for Rockchip SoC. It provides DFI
- 	  (DDR Monitor Module) driver to count ddr load.
++	for (i = 0; i < connector_count; i++) {
++		if (connectors[i]->has_tile &&
++		    connectors[i]->status == connector_status_connected)
++			num_tiled_conns++;
++	}
++
+ retry:
+ 	for (i = 0; i < connector_count; i++) {
+ 		connector = connectors[i];
+@@ -399,6 +433,28 @@ static bool drm_client_target_preferred(struct drm_connector **connectors,
+ 			list_for_each_entry(modes[i], &connector->modes, head)
+ 				break;
+ 		}
++		/*
++		 * In case of tiled mode if all tiles not present fallback to
++		 * first available non tiled mode.
++		 * After all tiles are present, try to find the tiled mode
++		 * for all and if tiled mode not present due to fbcon size
++		 * limitations, use first non tiled mode only for
++		 * tile 0,0 and set to no mode for all other tiles.
++		 */
++		if (connector->has_tile) {
++			if (num_tiled_conns <
++			    connector->num_h_tile * connector->num_v_tile ||
++			    (connector->tile_h_loc == 0 &&
++			     connector->tile_v_loc == 0 &&
++			     !drm_connector_get_tiled_mode(connector))) {
++				DRM_DEBUG_KMS("Falling back to non tiled mode on Connector %d\n",
++					      connector->base.id);
++				modes[i] = drm_connector_fallback_non_tiled_mode(connector);
++			} else {
++				modes[i] = drm_connector_get_tiled_mode(connector);
++			}
++		}
++
+ 		DRM_DEBUG_KMS("found mode %s\n", modes[i] ? modes[i]->name :
+ 			  "none");
+ 		conn_configured |= BIT_ULL(i);
+@@ -515,6 +571,7 @@ static bool drm_client_firmware_config(struct drm_client_dev *client,
+ 	bool fallback = true, ret = true;
+ 	int num_connectors_enabled = 0;
+ 	int num_connectors_detected = 0;
++	int num_tiled_conns = 0;
+ 	struct drm_modeset_acquire_ctx ctx;
+ 
+ 	if (!drm_drv_uses_atomic_modeset(dev))
+@@ -532,6 +589,11 @@ static bool drm_client_firmware_config(struct drm_client_dev *client,
+ 	memcpy(save_enabled, enabled, count);
+ 	mask = GENMASK(count - 1, 0);
+ 	conn_configured = 0;
++	for (i = 0; i < count; i++) {
++		if (connectors[i]->has_tile &&
++		    connectors[i]->status == connector_status_connected)
++			num_tiled_conns++;
++	}
+ retry:
+ 	conn_seq = conn_configured;
+ 	for (i = 0; i < count; i++) {
+@@ -631,6 +693,16 @@ static bool drm_client_firmware_config(struct drm_client_dev *client,
+ 				      connector->name);
+ 			modes[i] = &connector->state->crtc->mode;
+ 		}
++		/*
++		 * In case of tiled modes, if all tiles are not present
++		 * then fallback to a non tiled mode.
++		 */
++		if (connector->has_tile &&
++		    num_tiled_conns < connector->num_h_tile * connector->num_v_tile) {
++			DRM_DEBUG_KMS("Falling back to non tiled mode on Connector %d\n",
++				      connector->base.id);
++			modes[i] = drm_connector_fallback_non_tiled_mode(connector);
++		}
+ 		crtcs[i] = new_crtc;
+ 
+ 		DRM_DEBUG_KMS("connector %s on [CRTC:%d:%s]: %dx%d%s\n",
 -- 
 2.20.1
 
