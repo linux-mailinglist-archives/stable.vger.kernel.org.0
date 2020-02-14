@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 719FB15F12E
+	by mail.lfdr.de (Postfix) with ESMTP id DB89015F12F
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387770AbgBNP4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:56:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38150 "EHLO mail.kernel.org"
+        id S2387780AbgBNP4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:56:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387757AbgBNP4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:21 -0500
+        id S2387776AbgBNP4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A68D2082F;
-        Fri, 14 Feb 2020 15:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 872482187F;
+        Fri, 14 Feb 2020 15:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695781;
-        bh=hVrg8rRe/pnLXFS4sp1Q4wJtlR5vsf1nCybQKCaUqxU=;
+        s=default; t=1581695783;
+        bh=LXbfIfF8CgqKhgJwGP25Eq5JnnzHgEojWUNMKLKkmb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LScIfIr93l1svA6/KDcDWi8wjMd5UUAywVSAZkQ4688LQrxkVqKFA7LCdUgxL9wnx
-         fVRWuWfws2hLLQ8qi7pYGMUMNqnOCaGAj5tJapmAiJN1vFENb3Ulo9EMIjZ18tDFb3
-         NZaysSTDP17uuqBMdlwGCNUklviRgA8cUOfGYx3E=
+        b=aNTuWhFkUu3fLHdkQ0agZkt0meJHfQvPDs+7uH0Ue/Ofh+OQ0VdRIJWpMSoDK5q4G
+         KFiV5oXjDW8eQKBYeawCqEj6dDpAgXqtpoLS8K3823lMpQJE/eftktSlBYtTpDS+Ye
+         j0GkIk4Iwf5mMTN2h8V/zJjTaB5wazKomM8jxyZU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, sparmaintainer@unisys.com
-Subject: [PATCH AUTOSEL 5.5 345/542] visorbus: fix uninitialized variable access
-Date:   Fri, 14 Feb 2020 10:45:37 -0500
-Message-Id: <20200214154854.6746-345-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 347/542] driver core: Print device when resources present in really_probe()
+Date:   Fri, 14 Feb 2020 10:45:39 -0500
+Message-Id: <20200214154854.6746-347-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,58 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit caf82f727e69b647f09d57a1fc56e69d22a5f483 ]
+[ Upstream commit 7c35e699c88bd60734277b26962783c60e04b494 ]
 
-The setup_crash_devices_work_queue function only partially initializes
-the message it sends to chipset_init, leading to undefined behavior:
+If a device already has devres items attached before probing, a warning
+backtrace is printed.  However, this backtrace does not reveal the
+offending device, leaving the user uninformed.  Furthermore, using
+WARN_ON() causes systems with panic-on-warn to reboot.
 
-drivers/visorbus/visorchipset.c: In function 'setup_crash_devices_work_queue':
-drivers/visorbus/visorchipset.c:333:6: error: '((unsigned char*)&msg.hdr.flags)[0]' is used uninitialized in this function [-Werror=uninitialized]
-  if (inmsg->hdr.flags.response_expected)
+Fix this by replacing the WARN_ON() by a dev_crit() message.
+Abort probing the device, to prevent doing more damage to the device's
+resources.
 
-Set up the entire structure, zero-initializing the 'response_expected'
-flag.
-
-This was apparently found by the patch that added the -O3 build option
-in Kconfig.
-
-Fixes: 12e364b9f08a ("staging: visorchipset driver to provide registration and other services")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200107202950.782951-1-arnd@arndb.de
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191206132219.28908-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/visorbus/visorchipset.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/base/dd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/visorbus/visorchipset.c b/drivers/visorbus/visorchipset.c
-index ca752b8f495fa..cb1eb7e05f871 100644
---- a/drivers/visorbus/visorchipset.c
-+++ b/drivers/visorbus/visorchipset.c
-@@ -1210,14 +1210,17 @@ static void setup_crash_devices_work_queue(struct work_struct *work)
- {
- 	struct controlvm_message local_crash_bus_msg;
- 	struct controlvm_message local_crash_dev_msg;
--	struct controlvm_message msg;
-+	struct controlvm_message msg = {
-+		.hdr.id = CONTROLVM_CHIPSET_INIT,
-+		.cmd.init_chipset = {
-+			.bus_count = 23,
-+			.switch_count = 0,
-+		},
-+	};
- 	u32 local_crash_msg_offset;
- 	u16 local_crash_msg_count;
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index d811e60610d33..b25bcab2a26bd 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -516,7 +516,10 @@ static int really_probe(struct device *dev, struct device_driver *drv)
+ 	atomic_inc(&probe_count);
+ 	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
+ 		 drv->bus->name, __func__, drv->name, dev_name(dev));
+-	WARN_ON(!list_empty(&dev->devres_head));
++	if (!list_empty(&dev->devres_head)) {
++		dev_crit(dev, "Resources present before probing\n");
++		return -EBUSY;
++	}
  
- 	/* send init chipset msg */
--	msg.hdr.id = CONTROLVM_CHIPSET_INIT;
--	msg.cmd.init_chipset.bus_count = 23;
--	msg.cmd.init_chipset.switch_count = 0;
- 	chipset_init(&msg);
- 	/* get saved message count */
- 	if (visorchannel_read(chipset_dev->controlvm_channel,
+ re_probe:
+ 	dev->driver = drv;
 -- 
 2.20.1
 
