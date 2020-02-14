@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F6B15E984
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6F315E982
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394463AbgBNRHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:07:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44018 "EHLO mail.kernel.org"
+        id S2392331AbgBNRHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:07:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389077AbgBNQO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:29 -0500
+        id S2392324AbgBNQOb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50BC7246C9;
-        Fri, 14 Feb 2020 16:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB3CC246D0;
+        Fri, 14 Feb 2020 16:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696869;
-        bh=tUg751Affnoyn3FW3QZPYI49oz153hfQFyw6kq9w/7c=;
+        s=default; t=1581696870;
+        bh=09CLZHhNHNyqqmnT9B63fYO3RiBBKa0IUbToH8AhA4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DydkC+POnT3dwBRP3WzbOSYRIJm3ycCArGZZRur2iv0aLxxzycsHcvHbMN0/0bLqM
-         m5Caq6g6/LQdbAPqKKt0o9hqwUfMXbI3CHlik0zXyr7kXe2SMyxY4AWe1x0wrpVQNs
-         8Nx25fE/Q8nNDhHA3tEnX5gtFIaHkXhDNF5D6tWA=
+        b=TuVMW6DNusx4wcTRieqx/1aaJlGpuXF9WkHk+yZvhOY6iuQXECU9Vs07wWwMMPvGr
+         sxDCfBCvAFhpcLlZdIpparJfQhQD6GxRWkfhBvR8W1XxVgQt0Ixg8Wyp3Ewbk2j0V1
+         qctBqZFUiARry81EHLfbnMzf0KxKn6gufecnXqMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Icenowy Zheng <icenowy@aosc.io>,
-        Vasily Khoruzhick <anarsoul@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 127/252] clk: sunxi-ng: add mux and pll notifiers for A64 CPU clock
-Date:   Fri, 14 Feb 2020 11:09:42 -0500
-Message-Id: <20200214161147.15842-127-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 128/252] ALSA: sh: Fix unused variable warnings
+Date:   Fri, 14 Feb 2020 11:09:43 -0500
+Message-Id: <20200214161147.15842-128-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,77 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Icenowy Zheng <icenowy@aosc.io>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ec97faff743b398e21f74a54c81333f3390093aa ]
+[ Upstream commit 5da116f164ce265e397b8f59af5c39e4a61d61a5 ]
 
-The A64 PLL_CPU clock has the same instability if some factor changed
-without the PLL gated like other SoCs with sun6i-style CCU, e.g. A33,
-H3.
+Remove unused variables that are left over after the conversion of new
+PCM ops:
+  sound/sh/sh_dac_audio.c:166:26: warning: unused variable 'runtime'
+  sound/sh/sh_dac_audio.c:186:26: warning: unused variable 'runtime'
+  sound/sh/sh_dac_audio.c:205:26: warning: unused variable 'runtime'
 
-Add the mux and pll notifiers for A64 CPU clock to workaround the
-problem.
-
-Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: 1cc2f8ba0b3e ("ALSA: sh: Convert to the new PCM ops")
+Link: https://lore.kernel.org/r/20200104110057.13875-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 28 ++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ sound/sh/sh_dac_audio.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-index dec4a130390a3..9ac6c299e0744 100644
---- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-@@ -901,11 +901,26 @@ static const struct sunxi_ccu_desc sun50i_a64_ccu_desc = {
- 	.num_resets	= ARRAY_SIZE(sun50i_a64_ccu_resets),
- };
- 
-+static struct ccu_pll_nb sun50i_a64_pll_cpu_nb = {
-+	.common	= &pll_cpux_clk.common,
-+	/* copy from pll_cpux_clk */
-+	.enable	= BIT(31),
-+	.lock	= BIT(28),
-+};
-+
-+static struct ccu_mux_nb sun50i_a64_cpu_nb = {
-+	.common		= &cpux_clk.common,
-+	.cm		= &cpux_clk.mux,
-+	.delay_us	= 1, /* > 8 clock cycles at 24 MHz */
-+	.bypass_index	= 1, /* index of 24 MHz oscillator */
-+};
-+
- static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+diff --git a/sound/sh/sh_dac_audio.c b/sound/sh/sh_dac_audio.c
+index 834b2574786f5..6251b5e1b64a2 100644
+--- a/sound/sh/sh_dac_audio.c
++++ b/sound/sh/sh_dac_audio.c
+@@ -190,7 +190,6 @@ static int snd_sh_dac_pcm_copy(struct snd_pcm_substream *substream,
  {
- 	struct resource *res;
- 	void __iomem *reg;
- 	u32 val;
-+	int ret;
+ 	/* channel is not used (interleaved data) */
+ 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
+-	struct snd_pcm_runtime *runtime = substream->runtime;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	reg = devm_ioremap_resource(&pdev->dev, res);
-@@ -919,7 +934,18 @@ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+ 	if (copy_from_user_toio(chip->data_buffer + pos, src, count))
+ 		return -EFAULT;
+@@ -210,7 +209,6 @@ static int snd_sh_dac_pcm_copy_kernel(struct snd_pcm_substream *substream,
+ {
+ 	/* channel is not used (interleaved data) */
+ 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
+-	struct snd_pcm_runtime *runtime = substream->runtime;
  
- 	writel(0x515, reg + SUN50I_A64_PLL_MIPI_REG);
+ 	memcpy_toio(chip->data_buffer + pos, src, count);
+ 	chip->buffer_end = chip->data_buffer + pos + count;
+@@ -229,7 +227,6 @@ static int snd_sh_dac_pcm_silence(struct snd_pcm_substream *substream,
+ {
+ 	/* channel is not used (interleaved data) */
+ 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
+-	struct snd_pcm_runtime *runtime = substream->runtime;
  
--	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
-+	ret = sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
-+	if (ret)
-+		return ret;
-+
-+	/* Gate then ungate PLL CPU after any rate changes */
-+	ccu_pll_notifier_register(&sun50i_a64_pll_cpu_nb);
-+
-+	/* Reparent CPU during PLL CPU rate changes */
-+	ccu_mux_notifier_register(pll_cpux_clk.common.hw.clk,
-+				  &sun50i_a64_cpu_nb);
-+
-+	return 0;
- }
- 
- static const struct of_device_id sun50i_a64_ccu_ids[] = {
+ 	memset_io(chip->data_buffer + pos, 0, count);
+ 	chip->buffer_end = chip->data_buffer + pos + count;
 -- 
 2.20.1
 
