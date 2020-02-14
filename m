@@ -2,87 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E579215E020
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:12:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC2415E12B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391995AbgBNQM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:12:26 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:35653 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391991AbgBNQMZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 11:12:25 -0500
-Received: by mail-pl1-f193.google.com with SMTP id g6so3902504plt.2
-        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 08:12:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=/968X58dLK1gbF0pDZtAYWHd3eejljCvh2jL11+eONM=;
-        b=UQILWCtwnIBJgebvt5RT9JS5S2A5Gb+PhZQY94Uu5TmLGYT+bSG687sDAppoY4pWFH
-         9pCgh5x7EN14c7S063FkkVdKpxMEuMwarDA4W2dGDhfDrYmFr42b+2q+7kABQovc3zm9
-         5ffZ8IHJdJUG+ieABc2OKb32PWGY9BgPzYkfkW5jrgHCPVpweIuWPGlR9b1rVEj9HCib
-         Y6J6z46dhhQ0WRMycx7v1XZy3po7OYGmDVwZW/4Lyooj1ummYkobgUGEkbOxC+H57oIc
-         vE3xKhsfABJcpjzR1QOFLiz2inoo2uKHreWxxxEd6TA/a44pNMj73dvGPBAtm8w6R/zc
-         Ti1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=/968X58dLK1gbF0pDZtAYWHd3eejljCvh2jL11+eONM=;
-        b=unooFm8fUYjxLTMk2BIctI5FRVxnW9rzIH+OI/HqSW6m65ACl59K3FN2JMIO/7e2E9
-         XYtx12RaTIwxhP6j1gWXcMurXeqa0MFPKJyXXK8cSXxfQHm4MHQoEnN1uyBIqkQLH37x
-         H4tyDVo/Ncq1nR+Tlh6nPMZGuQKqNCtTwH7mYoCJYuP4mCFAezqxFPnzac88QmOY7Dlm
-         lLuhrOGbd1muvqfkM/zd+MsR2JCwJDuGU/jTmLNk1GzCYDy7O0zJd3NZIR48RIKBSa00
-         siY6cZAFUvrCXxczeFrXhnG69FUk7BOGm+awXjNUHqjl9XelD9B9sZPbeIkynrLdWrWI
-         vSsA==
-X-Gm-Message-State: APjAAAXvw8I3CLTv8y9YD6l2WxiCYq1ixiZUrQd7ZxLXekkEZywS0CVD
-        sJdr54jrAgDNKTCP4ELgsALkAw==
-X-Google-Smtp-Source: APXvYqwfgkPahw7rPkhdNNYFa40haQXJ7XrXUEWcN8SPIy5CCPGbJU6qPxWgNvJNG5WtKc+QAd63dw==
-X-Received: by 2002:a17:90b:243:: with SMTP id fz3mr4623644pjb.29.1581696744437;
-        Fri, 14 Feb 2020 08:12:24 -0800 (PST)
-Received: from debian ([122.164.201.151])
-        by smtp.gmail.com with ESMTPSA id p3sm7727709pfg.184.2020.02.14.08.12.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Feb 2020 08:12:23 -0800 (PST)
-Date:   Fri, 14 Feb 2020 21:42:16 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
-Message-ID: <20200214161216.GA2654@debian>
-References: <20200213151839.156309910@linuxfoundation.org>
+        id S2404156AbgBNQRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:17:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48520 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404428AbgBNQRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:17:19 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D1EE24691;
+        Fri, 14 Feb 2020 16:17:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581697039;
+        bh=CUISSiBSlSrDmC+eVEdnDHyB3n0xiY+2COTGTTS0AcM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JbopUCIGed7zaAiZer3jDaBrHLwaZMCrsa8gBeg4dGpPKlOOywIbdFec0jq1FulYN
+         +JDCwR5bWe9EXcD5IeniaTy9tSX7SGy9Syy1RXQMYziCapdMPVVmJbYPYaAyozd55W
+         jkTVbz175og2HM8fiCFCQwSEj1xud7CWjAGDtaPk=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 002/186] drm/gma500: Fixup fbdev stolen size usage evaluation
+Date:   Fri, 14 Feb 2020 11:14:11 -0500
+Message-Id: <20200214161715.18113-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
+References: <20200214161715.18113-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200213151839.156309910@linuxfoundation.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 07:20:07AM -0800, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.20 release.
-> There are 96 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.20-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-hello,
+[ Upstream commit fd1a5e521c3c083bb43ea731aae0f8b95f12b9bd ]
 
-compiled and booted 5.4.20-rc1+ . No new error according to "dmesg -l err"
+psbfb_probe performs an evaluation of the required size from the stolen
+GTT memory, but gets it wrong in two distinct ways:
+- The resulting size must be page-size-aligned;
+- The size to allocate is derived from the surface dimensions, not the fb
+  dimensions.
 
---
-software engineer
-rajagiri school of engineering and technology
+When two connectors are connected with different modes, the smallest will
+be stored in the fb dimensions, but the size that needs to be allocated must
+match the largest (surface) dimensions. This is what is used in the actual
+allocation code.
+
+Fix this by correcting the evaluation to conform to the two points above.
+It allows correctly switching to 16bpp when one connector is e.g. 1920x1080
+and the other is 1024x768.
+
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191107153048.843881-1-paul.kocialkowski@bootlin.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/gma500/framebuffer.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index 2570c7f647a63..883fc45870dd9 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -486,6 +486,7 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ 		container_of(helper, struct psb_fbdev, psb_fb_helper);
+ 	struct drm_device *dev = psb_fbdev->psb_fb_helper.dev;
+ 	struct drm_psb_private *dev_priv = dev->dev_private;
++	unsigned int fb_size;
+ 	int bytespp;
+ 
+ 	bytespp = sizes->surface_bpp / 8;
+@@ -495,8 +496,11 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ 	/* If the mode will not fit in 32bit then switch to 16bit to get
+ 	   a console on full resolution. The X mode setting server will
+ 	   allocate its own 32bit GEM framebuffer */
+-	if (ALIGN(sizes->fb_width * bytespp, 64) * sizes->fb_height >
+-	                dev_priv->vram_stolen_size) {
++	fb_size = ALIGN(sizes->surface_width * bytespp, 64) *
++		  sizes->surface_height;
++	fb_size = ALIGN(fb_size, PAGE_SIZE);
++
++	if (fb_size > dev_priv->vram_stolen_size) {
+                 sizes->surface_bpp = 16;
+                 sizes->surface_depth = 16;
+         }
+-- 
+2.20.1
+
