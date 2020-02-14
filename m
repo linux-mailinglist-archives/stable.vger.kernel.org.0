@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B0215E80A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:58:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 175E515E805
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:58:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394361AbgBNQ5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:57:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
+        id S2394350AbgBNQ5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:57:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404551AbgBNQRp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:17:45 -0500
+        id S2404556AbgBNQRr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:17:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2BBF24688;
-        Fri, 14 Feb 2020 16:17:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72EB5246EB;
+        Fri, 14 Feb 2020 16:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697065;
-        bh=SpY9AsGdg7XlSt1I/aCb8556rHUzr0sSJiiICFBDHVI=;
+        s=default; t=1581697066;
+        bh=FDLTKae5L6Lt5h3s6D/TeS96VdvhDxPetZvWw6O8jx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrTeVNZgSOBEAJmgrX2MTa+P3DQ0Nn28YjxJ16N4IN5o3/mLFQfEkf+1svQfJrffO
-         vBYdrcFI3MhawB2kVIdWJcKsocSg0AGnBzrMLJccaaYV9esaZ0qMb/LgSM1yjPzXOi
-         QtGWKWkynK0PQl5fMB3Y2SAE1v/yrzlB8RhyS0jQ=
+        b=iQH8ahVm9eNUFCI5tsy5d+sTnguyNMHHA376AvwrBIjwxQQdzOAPaB3BFTdgiraNJ
+         OUvb0cZV90E3/pUgvKHefbmMQwbzTgwUpJxz6W3FkRV7w1z/iqI7WnUPvEPk8Zy4/5
+         54QRG+yuBQaKYbLmxGkH9l9e1JsDuZ/xTKSkV36k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 022/186] pinctrl: baytrail: Do not clear IRQ flags on direct-irq enabled pins
-Date:   Fri, 14 Feb 2020 11:14:31 -0500
-Message-Id: <20200214161715.18113-22-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Matthew Garrett <mjg59@google.com>, linux-efi@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org, x86@kernel.org
+Subject: [PATCH AUTOSEL 4.14 023/186] efi/x86: Map the entire EFI vendor string before copying it
+Date:   Fri, 14 Feb 2020 11:14:32 -0500
+Message-Id: <20200214161715.18113-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -45,58 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit a23680594da7a9e2696dbcf4f023e9273e2fa40b ]
+[ Upstream commit ffc2760bcf2dba0dbef74013ed73eea8310cc52c ]
 
-Suspending Goodix touchscreens requires changing the interrupt pin to
-output before sending them a power-down command. Followed by wiggling
-the interrupt pin to wake the device up, after which it is put back
-in input mode.
+Fix a couple of issues with the way we map and copy the vendor string:
+- we map only 2 bytes, which usually works since you get at least a
+  page, but if the vendor string happens to cross a page boundary,
+  a crash will result
+- only call early_memunmap() if early_memremap() succeeded, or we will
+  call it with a NULL address which it doesn't like,
+- while at it, switch to early_memremap_ro(), and array indexing rather
+  than pointer dereferencing to read the CHAR16 characters.
 
-On Bay Trail devices with a Goodix touchscreen direct-irq mode is used
-in combination with listing the pin as a normal GpioIo resource.
-
-This works fine, until the goodix driver gets rmmod-ed and then insmod-ed
-again. In this case byt_gpio_disable_free() calls
-byt_gpio_clear_triggering() which clears the IRQ flags and after that the
-(direct) IRQ no longer triggers.
-
-This commit fixes this by adding a check for the BYT_DIRECT_IRQ_EN flag
-to byt_gpio_clear_triggering().
-
-Note that byt_gpio_clear_triggering() only gets called from
-byt_gpio_disable_free() for direct-irq enabled pins, as these are excluded
-from the irq_valid mask by byt_init_irq_valid_mask().
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: linux-efi@vger.kernel.org
+Fixes: 5b83683f32b1 ("x86: EFI runtime service support")
+Link: https://lkml.kernel.org/r/20200103113953.9571-5-ardb@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-baytrail.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/platform/efi/efi.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index 9df5d29d708da..4fb3e44f91331 100644
---- a/drivers/pinctrl/intel/pinctrl-baytrail.c
-+++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -958,7 +958,13 @@ static void byt_gpio_clear_triggering(struct byt_gpio *vg, unsigned int offset)
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 335a62e74a2e9..5b0275310070e 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -480,7 +480,6 @@ void __init efi_init(void)
+ 	efi_char16_t *c16;
+ 	char vendor[100] = "unknown";
+ 	int i = 0;
+-	void *tmp;
  
- 	raw_spin_lock_irqsave(&byt_lock, flags);
- 	value = readl(reg);
--	value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
-+
-+	/* Do not clear direct-irq enabled IRQs (from gpio_disable_free) */
-+	if (value & BYT_DIRECT_IRQ_EN)
-+		/* nothing to do */ ;
-+	else
-+		value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
-+
- 	writel(value, reg);
- 	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
+ #ifdef CONFIG_X86_32
+ 	if (boot_params.efi_info.efi_systab_hi ||
+@@ -505,14 +504,16 @@ void __init efi_init(void)
+ 	/*
+ 	 * Show what we know for posterity
+ 	 */
+-	c16 = tmp = early_memremap(efi.systab->fw_vendor, 2);
++	c16 = early_memremap_ro(efi.systab->fw_vendor,
++				sizeof(vendor) * sizeof(efi_char16_t));
+ 	if (c16) {
+-		for (i = 0; i < sizeof(vendor) - 1 && *c16; ++i)
+-			vendor[i] = *c16++;
++		for (i = 0; i < sizeof(vendor) - 1 && c16[i]; ++i)
++			vendor[i] = c16[i];
+ 		vendor[i] = '\0';
+-	} else
++		early_memunmap(c16, sizeof(vendor) * sizeof(efi_char16_t));
++	} else {
+ 		pr_err("Could not map the firmware vendor!\n");
+-	early_memunmap(tmp, 2);
++	}
+ 
+ 	pr_info("EFI v%u.%.02u by %s\n",
+ 		efi.systab->hdr.revision >> 16,
 -- 
 2.20.1
 
