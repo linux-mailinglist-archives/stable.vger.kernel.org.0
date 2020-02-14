@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C1715DE81
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4948C15DE86
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389723AbgBNQDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:03:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
+        id S2389743AbgBNQDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:03:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387842AbgBNQDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:03:42 -0500
+        id S2389735AbgBNQDp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:03:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FEA42082F;
-        Fri, 14 Feb 2020 16:03:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19BAC2187F;
+        Fri, 14 Feb 2020 16:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696221;
-        bh=dbHTO3vRSZeNK1+qa30KRzeCXUUCMWdbmz/CWj6bU6U=;
+        s=default; t=1581696224;
+        bh=2DEVYckG1Isw7Gpf1hE/FTwDQ6blhZY+jWLtm5XiNLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cusW2ucIFoB3HT1W/xyXjwdGcwyDw4viWSUozJGj0S7BH15y5cZiZnQgNBVKpN0sr
-         JkSPS9LgiOHAUvT/e6nseVbcwX5REcoksjAodM2OednK/wyWWsS6ZEsxQWJmhbu4z0
-         U/wC3pAwPW5RaVOGDL2yalP9w8P8V3Fo+lZgX5Zo=
+        b=SQFXnrYNn1wG+rsBPnl1td6JZ/PMr78QKEylmtPNgZjMU2IlxKIE83HqalFDvj1eF
+         1CsJbOoEIzaFsOVodLdEeDC+ehWLl2mvJQkdFJI24bFs5upNaXMRRdD6ZWOtG9vnGU
+         M8a+3/RuhLm1LHzhbqn9i17JzTESY3hWgEpGlmp4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver O'Halloran <oohall@gmail.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 084/459] powerpc/iov: Move VF pdev fixup into pcibios_fixup_iov()
-Date:   Fri, 14 Feb 2020 10:55:34 -0500
-Message-Id: <20200214160149.11681-84-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Luis Henriques <luis.henriques@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 087/459] tracing: Fix very unlikely race of registering two stat tracers
+Date:   Fri, 14 Feb 2020 10:55:37 -0500
+Message-Id: <20200214160149.11681-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,121 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit 965c94f309be58fbcc6c8d3e4f123376c5970d79 ]
+[ Upstream commit dfb6cd1e654315168e36d947471bd2a0ccd834ae ]
 
-An ioda_pe for each VF is allocated in pnv_pci_sriov_enable() before
-the pci_dev for the VF is created. We need to set the pe->pdev pointer
-at some point after the pci_dev is created. Currently we do that in:
+Looking through old emails in my INBOX, I came across a patch from Luis
+Henriques that attempted to fix a race of two stat tracers registering the
+same stat trace (extremely unlikely, as this is done in the kernel, and
+probably doesn't even exist). The submitted patch wasn't quite right as it
+needed to deal with clean up a bit better (if two stat tracers were the
+same, it would have the same files).
 
-pcibios_bus_add_device()
-	pnv_pci_dma_dev_setup() (via phb->ops.dma_dev_setup)
-		/* fixup is done here */
-		pnv_pci_ioda_dma_dev_setup() (via pnv_phb->dma_dev_setup)
+But to make the code cleaner, all we needed to do is to keep the
+all_stat_sessions_mutex held for most of the registering function.
 
-The fixup needs to be done before setting up DMA for for the VF's PE,
-but there's no real reason to delay it until this point. Move the
-fixup into pnv_pci_ioda_fixup_iov() so the ordering is:
+Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
 
-	pcibios_add_device()
-		pnv_pci_ioda_fixup_iov() (via ppc_md.pcibios_fixup_sriov)
-
-	pcibios_bus_add_device()
-		...
-
-This isn't strictly required, but it's a slightly more logical place
-to do the fixup and it simplifies pnv_pci_dma_dev_setup().
-
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200110070207.439-4-oohall@gmail.com
+Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
+Reported-by: Luis Henriques <luis.henriques@canonical.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/pci-ioda.c | 29 +++++++++++++++++++----
- arch/powerpc/platforms/powernv/pci.c      | 14 -----------
- 2 files changed, 25 insertions(+), 18 deletions(-)
+ kernel/trace/trace_stat.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index 2432a50d48d58..e9cda7e316a50 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -2905,9 +2905,6 @@ static void pnv_pci_ioda_fixup_iov_resources(struct pci_dev *pdev)
- 	struct pci_dn *pdn;
- 	int mul, total_vfs;
- 
--	if (!pdev->is_physfn || pci_dev_is_added(pdev))
--		return;
--
- 	pdn = pci_get_pdn(pdev);
- 	pdn->vfs_expanded = 0;
- 	pdn->m64_single_mode = false;
-@@ -2982,6 +2979,30 @@ static void pnv_pci_ioda_fixup_iov_resources(struct pci_dev *pdev)
- 		res->end = res->start - 1;
- 	}
- }
-+
-+static void pnv_pci_ioda_fixup_iov(struct pci_dev *pdev)
-+{
-+	if (WARN_ON(pci_dev_is_added(pdev)))
-+		return;
-+
-+	if (pdev->is_virtfn) {
-+		struct pnv_ioda_pe *pe = pnv_ioda_get_pe(pdev);
-+
-+		/*
-+		 * VF PEs are single-device PEs so their pdev pointer needs to
-+		 * be set. The pdev doesn't exist when the PE is allocated (in
-+		 * (pcibios_sriov_enable()) so we fix it up here.
-+		 */
-+		pe->pdev = pdev;
-+		WARN_ON(!(pe->flags & PNV_IODA_PE_VF));
-+	} else if (pdev->is_physfn) {
-+		/*
-+		 * For PFs adjust their allocated IOV resources to match what
-+		 * the PHB can support using it's M64 BAR table.
-+		 */
-+		pnv_pci_ioda_fixup_iov_resources(pdev);
-+	}
-+}
- #endif /* CONFIG_PCI_IOV */
- 
- static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
-@@ -3878,7 +3899,7 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
- 	ppc_md.pcibios_default_alignment = pnv_pci_default_alignment;
- 
- #ifdef CONFIG_PCI_IOV
--	ppc_md.pcibios_fixup_sriov = pnv_pci_ioda_fixup_iov_resources;
-+	ppc_md.pcibios_fixup_sriov = pnv_pci_ioda_fixup_iov;
- 	ppc_md.pcibios_iov_resource_alignment = pnv_pci_iov_resource_alignment;
- 	ppc_md.pcibios_sriov_enable = pnv_pcibios_sriov_enable;
- 	ppc_md.pcibios_sriov_disable = pnv_pcibios_sriov_disable;
-diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
-index e8e58a2cccddf..8307e1f4086cb 100644
---- a/arch/powerpc/platforms/powernv/pci.c
-+++ b/arch/powerpc/platforms/powernv/pci.c
-@@ -814,20 +814,6 @@ void pnv_pci_dma_dev_setup(struct pci_dev *pdev)
+diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
+index 1257dc6c07796..3c9c17feea333 100644
+--- a/kernel/trace/trace_stat.c
++++ b/kernel/trace/trace_stat.c
+@@ -310,7 +310,7 @@ static int init_stat_file(struct stat_session *session)
+ int register_stat_tracer(struct tracer_stat *trace)
  {
- 	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
- 	struct pnv_phb *phb = hose->private_data;
--#ifdef CONFIG_PCI_IOV
--	struct pnv_ioda_pe *pe;
--
--	/* Fix the VF pdn PE number */
--	if (pdev->is_virtfn) {
--		list_for_each_entry(pe, &phb->ioda.pe_list, list) {
--			if (pe->rid == ((pdev->bus->number << 8) |
--			    (pdev->devfn & 0xff))) {
--				pe->pdev = pdev;
--				break;
--			}
--		}
--	}
--#endif /* CONFIG_PCI_IOV */
+ 	struct stat_session *session, *node;
+-	int ret;
++	int ret = -EINVAL;
  
- 	if (phb && phb->dma_dev_setup)
- 		phb->dma_dev_setup(phb, pdev);
+ 	if (!trace)
+ 		return -EINVAL;
+@@ -321,17 +321,15 @@ int register_stat_tracer(struct tracer_stat *trace)
+ 	/* Already registered? */
+ 	mutex_lock(&all_stat_sessions_mutex);
+ 	list_for_each_entry(node, &all_stat_sessions, session_list) {
+-		if (node->ts == trace) {
+-			mutex_unlock(&all_stat_sessions_mutex);
+-			return -EINVAL;
+-		}
++		if (node->ts == trace)
++			goto out;
+ 	}
+-	mutex_unlock(&all_stat_sessions_mutex);
+ 
++	ret = -ENOMEM;
+ 	/* Init the session */
+ 	session = kzalloc(sizeof(*session), GFP_KERNEL);
+ 	if (!session)
+-		return -ENOMEM;
++		goto out;
+ 
+ 	session->ts = trace;
+ 	INIT_LIST_HEAD(&session->session_list);
+@@ -340,15 +338,16 @@ int register_stat_tracer(struct tracer_stat *trace)
+ 	ret = init_stat_file(session);
+ 	if (ret) {
+ 		destroy_session(session);
+-		return ret;
++		goto out;
+ 	}
+ 
++	ret = 0;
+ 	/* Register */
+-	mutex_lock(&all_stat_sessions_mutex);
+ 	list_add_tail(&session->session_list, &all_stat_sessions);
++ out:
+ 	mutex_unlock(&all_stat_sessions_mutex);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ void unregister_stat_tracer(struct tracer_stat *trace)
 -- 
 2.20.1
 
