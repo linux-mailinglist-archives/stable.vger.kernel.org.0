@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7538F15E422
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D515915E41C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393590AbgBNQeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:34:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34556 "EHLO mail.kernel.org"
+        id S2389432AbgBNQeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:34:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393384AbgBNQZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:25:15 -0500
+        id S2404944AbgBNQZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:25:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B57C247BF;
-        Fri, 14 Feb 2020 16:25:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3955E2472B;
+        Fri, 14 Feb 2020 16:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697514;
-        bh=rkuvV1vDKr1HQorDLFRpd239XFUJLaUI6HjBIYZknYQ=;
+        s=default; t=1581697516;
+        bh=lhYkUkKhNIN5XzZ3oL3+l7aoO6QBE7b9lZ90yaiKQ40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLA1HtyaFb/+CdHykUXRCxhq1bBRoSMn7RjBKiPyj2dMQ9g2H8/5RgEb7YUrCPeFA
-         F2BBpoem+x8q2of+r+aNi2Ectj5iF5ij6qnCddJW3Jel2DX3DBVXN9wDjt0KwCJj9q
-         GxWexLmZNbUn+s28B3DFSv/576AI4sj7zlFaFh2I=
+        b=STO9CIIMOVoPnPXx9jLxjr2QVgHhC+fM7gfAcbJxKertaF37Q+baKr42kjRtU5lZZ
+         l/rUtyA2WGSw78FhABR+Ksux1z6oIlRXZAKIcxrT2tEvVwg0mOj37bYlQaBNiNVQVI
+         y8+T8LxoAaxZNVOsgWgaIxFyiJGo63kVI0+7gkxA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 040/100] reiserfs: Fix spurious unlock in reiserfs_fill_super() error handling
-Date:   Fri, 14 Feb 2020 11:23:24 -0500
-Message-Id: <20200214162425.21071-40-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Olof's autobuilder <build@lixom.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 041/100] isdn: don't mark kcapi_proc_exit as __exit
+Date:   Fri, 14 Feb 2020 11:23:25 -0500
+Message-Id: <20200214162425.21071-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -42,34 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 4d5c1adaf893b8aa52525d2b81995e949bcb3239 ]
+[ Upstream commit b33bdf8020c94438269becc6dace9ed49257c4ba ]
 
-When we fail to allocate string for journal device name we jump to
-'error' label which tries to unlock reiserfs write lock which is not
-held. Jump to 'error_unlocked' instead.
+As everybody pointed out by now, my patch to clean up CAPI introduced
+a link time warning, as the two parts of the capi driver are now in
+one module and the exit function may need to be called in the error
+path of the init function:
 
-Fixes: f32485be8397 ("reiserfs: delay reiserfs lock until journal initialization")
-Signed-off-by: Jan Kara <jack@suse.cz>
+>> WARNING: drivers/isdn/capi/kernelcapi.o(.text+0xea4): Section mismatch in reference from the function kcapi_exit() to the function .exit.text:kcapi_proc_exit()
+   The function kcapi_exit() references a function in an exit section.
+   Often the function kcapi_proc_exit() has valid usage outside the exit section
+   and the fix is to remove the __exit annotation of kcapi_proc_exit.
+
+Remove the incorrect __exit annotation.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Reported-by: Olof's autobuilder <build@lixom.net>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20191216194909.1983639-1-arnd@arndb.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c | 2 +-
+ drivers/isdn/capi/kcapi_proc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index 519bf410e65b2..f9796fd515315 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1921,7 +1921,7 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		if (!sbi->s_jdev) {
- 			SWARN(silent, s, "", "Cannot allocate memory for "
- 				"journal device name");
--			goto error;
-+			goto error_unlocked;
- 		}
- 	}
- #ifdef CONFIG_QUOTA
+diff --git a/drivers/isdn/capi/kcapi_proc.c b/drivers/isdn/capi/kcapi_proc.c
+index 68db3c5a10636..d6ca626219c93 100644
+--- a/drivers/isdn/capi/kcapi_proc.c
++++ b/drivers/isdn/capi/kcapi_proc.c
+@@ -309,7 +309,7 @@ kcapi_proc_init(void)
+ 	proc_create("capi/driver",       0, NULL, &proc_driver_ops);
+ }
+ 
+-void __exit
++void
+ kcapi_proc_exit(void)
+ {
+ 	remove_proc_entry("capi/driver",       NULL);
 -- 
 2.20.1
 
