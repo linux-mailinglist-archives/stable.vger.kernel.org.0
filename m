@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B70B15F284
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:10:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5D915F281
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:10:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729139AbgBNPxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:53:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33414 "EHLO mail.kernel.org"
+        id S2389420AbgBNSJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:09:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731328AbgBNPxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:53 -0500
+        id S1731351AbgBNPxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:53:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6405024681;
-        Fri, 14 Feb 2020 15:53:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2C7124649;
+        Fri, 14 Feb 2020 15:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695632;
-        bh=xqOetp+kBblSBqVWNyLmFNqeJ17q3akJacYv8rEp9Ps=;
+        s=default; t=1581695633;
+        bh=3gwgFUqvJ8N/VlvUVeaLWqEWpiO5LJUZARXPEDPwzPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4d8t5aSsjuG/t1p7/PHjKiKTnIabWtkyWyBT+7aRKBGhZ3pwmgAGlAwGuwy3R3oh
-         FEGRoZUCc9VKnXEm+FL4eL1fCpij4SFgdjLD+bqLBw8Eth/wcZ/GiwCqYFBaKa4mqq
-         B5SjLykKecB9Stmb80gPovGybg8Wl+M2+zoa8Tas=
+        b=r9OT6xpddjE4WdVUxI0deQMBo1FGHNF7vRyRpi64t0HnrwEsZ7U7nNtOljJPGfNav
+         yfrUSPMN7Afazv/4SGj61AB4J+ood6ELVhLN1qE6PDC3IuaFfQsBkjOWOJkvG7bPO4
+         vmtGaeXMtJiiR322XoVaMdghfVIBVoAClcIkdRYs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phong Tran <tranmanphong@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 229/542] rtlwifi: rtl_pci: Fix -Wcast-function-type
-Date:   Fri, 14 Feb 2020 10:43:41 -0500
-Message-Id: <20200214154854.6746-229-sashal@kernel.org>
+Cc:     yu kuai <yukuai3@huawei.com>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, linux-wireless@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 230/542] bcma: remove set but not used variable 'sizel'
+Date:   Fri, 14 Feb 2020 10:43:42 -0500
+Message-Id: <20200214154854.6746-230-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,56 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit cb775c88da5d48a85d99d95219f637b6fad2e0e9 ]
+[ Upstream commit f427939391f290cbeabe0231eb8a116429d823f0 ]
 
-correct usage prototype of callback in tasklet_init().
-Report by https://github.com/KSPP/linux/issues/20
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+drivers/bcma/scan.c: In function ‘bcma_erom_get_addr_desc’:
+
+drivers/bcma/scan.c:222:20: warning: variable ‘sizel’ set but
+not used [-Wunused-but-set-variable]
+
+It is never used, and so can be removed.
+
+Fixes: 8369ae33b705 ("bcma: add Broadcom specific AMBA bus driver")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/pci.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/bcma/scan.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/pci.c b/drivers/net/wireless/realtek/rtlwifi/pci.c
-index f88d26535978d..25335bd2873b6 100644
---- a/drivers/net/wireless/realtek/rtlwifi/pci.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/pci.c
-@@ -1061,13 +1061,15 @@ static irqreturn_t _rtl_pci_interrupt(int irq, void *dev_id)
- 	return ret;
- }
- 
--static void _rtl_pci_irq_tasklet(struct ieee80211_hw *hw)
-+static void _rtl_pci_irq_tasklet(unsigned long data)
+diff --git a/drivers/bcma/scan.c b/drivers/bcma/scan.c
+index 4a2d1b235fb5a..1f2de714b4017 100644
+--- a/drivers/bcma/scan.c
++++ b/drivers/bcma/scan.c
+@@ -219,7 +219,7 @@ static s32 bcma_erom_get_mst_port(struct bcma_bus *bus, u32 __iomem **eromptr)
+ static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
+ 				  u32 type, u8 port)
  {
-+	struct ieee80211_hw *hw = (struct ieee80211_hw *)data;
- 	_rtl_pci_tx_chk_waitq(hw);
+-	u32 addrl, addrh, sizel, sizeh = 0;
++	u32 addrl, addrh, sizeh = 0;
+ 	u32 size;
+ 
+ 	u32 ent = bcma_erom_get_ent(bus, eromptr);
+@@ -239,12 +239,9 @@ static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
+ 
+ 	if ((ent & SCAN_ADDR_SZ) == SCAN_ADDR_SZ_SZD) {
+ 		size = bcma_erom_get_ent(bus, eromptr);
+-		sizel = size & SCAN_SIZE_SZ;
+ 		if (size & SCAN_SIZE_SG32)
+ 			sizeh = bcma_erom_get_ent(bus, eromptr);
+-	} else
+-		sizel = SCAN_ADDR_SZ_BASE <<
+-				((ent & SCAN_ADDR_SZ) >> SCAN_ADDR_SZ_SHIFT);
++	}
+ 
+ 	return addrl;
  }
- 
--static void _rtl_pci_prepare_bcn_tasklet(struct ieee80211_hw *hw)
-+static void _rtl_pci_prepare_bcn_tasklet(unsigned long data)
- {
-+	struct ieee80211_hw *hw = (struct ieee80211_hw *)data;
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
- 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
- 	struct rtl_mac *mac = rtl_mac(rtl_priv(hw));
-@@ -1193,10 +1195,10 @@ static void _rtl_pci_init_struct(struct ieee80211_hw *hw,
- 
- 	/*task */
- 	tasklet_init(&rtlpriv->works.irq_tasklet,
--		     (void (*)(unsigned long))_rtl_pci_irq_tasklet,
-+		     _rtl_pci_irq_tasklet,
- 		     (unsigned long)hw);
- 	tasklet_init(&rtlpriv->works.irq_prepare_bcn_tasklet,
--		     (void (*)(unsigned long))_rtl_pci_prepare_bcn_tasklet,
-+		     _rtl_pci_prepare_bcn_tasklet,
- 		     (unsigned long)hw);
- 	INIT_WORK(&rtlpriv->works.lps_change_work,
- 		  rtl_lps_change_work_callback);
 -- 
 2.20.1
 
