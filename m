@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3331815F207
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:09:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4456015F1BA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:08:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387758AbgBNSFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:05:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35894 "EHLO mail.kernel.org"
+        id S1731704AbgBNPzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:55:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731703AbgBNPzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:55:07 -0500
+        id S1731705AbgBNPzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:55:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 752592465D;
-        Fri, 14 Feb 2020 15:55:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F18C222C4;
+        Fri, 14 Feb 2020 15:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695707;
-        bh=IL0DlRLZwPFnTOfxoGC0+a/kYVgGNy0nkZp7u869IZc=;
+        s=default; t=1581695708;
+        bh=yU3/HvfUjHjQ53JRdVWT8WNLGIo0vYw31AjxgZcgicY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbBf/tYXsGTBAY4Gw5KyaKZZYex2frGUBKEa1mlE2fYqDP+ROdE9VxXahjdFB/lM3
-         Hc4wMQWr5u4f563W3/dPnOXqMEi9KRdQX0klkAoadU36xa8+OYjmasippN4MWYJGnV
-         SD0GyWa+ka9KnKykUSy7BCd2ip9StdXaIyCg5FBE=
+        b=LxuZNm+aCp4dhNpYlapG3vAgYoIvq+k6YJnUCIjdrZYChltsVoSqmXsSmFazLHOIF
+         TBPIjE9ay7CBF6nSnZkFxrs1bq+INUPKxQdsfk6CA0JtwXd6TUnYw3oJ+MEXur75D8
+         nLwC8dPYXMWKjum0V9Xy3dSJRDrlOex8ReDT+E0c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 287/542] vfio/spapr/nvlink2: Skip unpinning pages on error exit
-Date:   Fri, 14 Feb 2020 10:44:39 -0500
-Message-Id: <20200214154854.6746-287-sashal@kernel.org>
+Cc:     Sam McNally <sammc@chromium.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.5 288/542] ASoC: Intel: sof_rt5682: Ignore the speaker amp when there isn't one.
+Date:   Fri, 14 Feb 2020 10:44:40 -0500
+Message-Id: <20200214154854.6746-288-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,47 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Sam McNally <sammc@chromium.org>
 
-[ Upstream commit 338b4e10f939a71194d8ecef7ece205a942cec05 ]
+[ Upstream commit d4b74e218a8d0d6cf58e546627ab9d4d4f2645ab ]
 
-The nvlink2 subdriver for IBM Witherspoon machines preregisters
-GPU memory in the IOMMI API so KVM TCE code can map this memory
-for DMA as well. This is done by mm_iommu_newdev() called from
-vfio_pci_nvgpu_regops::mmap.
+Some members of the Google_Hatch family include a rt5682 jack codec, but
+no speaker amplifier. This uses the same driver (sof_rt5682) as a
+combination of rt5682 jack codec and max98357a speaker amplifier. Within
+the sof_rt5682 driver, these cases are not currently distinguishable,
+relying on a DMI quirk to decide the configuration. This causes an
+incorrect configuration when only the rt5682 is present on a
+Google_Hatch device.
 
-In an unlikely event of failure the data->mem remains NULL and
-since mm_iommu_put() (which unregisters the region and unpins memory
-if that was regular memory) does not expect mem=NULL, it should not be
-called.
+For CML, the jack codec is used as the primary key when matching,
+with a possible speaker amplifier described in quirk_data. The two cases
+of interest are the second and third 10EC5682 entries in
+snd_soc_acpi_intel_cml_machines[]. The second entry matches the
+combination of rt5682 and max98357a, resulting in the quirk_data field
+in the snd_soc_acpi_mach being non-null, pointing at
+max98357a_spk_codecs, the snd_soc_acpi_codecs for the matched speaker
+amplifier. The third entry matches just the rt5682, resulting in a null
+quirk_data.
 
-This adds a check to only call mm_iommu_put() for a valid data->mem.
+The sof_rt5682 driver's DMI data matching identifies that a speaker
+amplifier is present for all Google_Hatch family devices. Detect cases
+where there is no speaker amplifier by checking for a null quirk_data in
+the snd_soc_acpi_mach and remove the speaker amplifier bit in that case.
 
-Fixes: 7f92891778df ("vfio_pci: Add NVIDIA GV100GL [Tesla V100 SXM2] subdriver")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sam McNally <sammc@chromium.org>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200103124921.v3.1.Ib87c4a7fbb3fc818ea12198e291b87dc2d5bc8c2@changeid
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_nvlink2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/intel/boards/sof_rt5682.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_nvlink2.c b/drivers/vfio/pci/vfio_pci_nvlink2.c
-index f2983f0f84bea..3f5f8198a6bb1 100644
---- a/drivers/vfio/pci/vfio_pci_nvlink2.c
-+++ b/drivers/vfio/pci/vfio_pci_nvlink2.c
-@@ -97,8 +97,10 @@ static void vfio_pci_nvgpu_release(struct vfio_pci_device *vdev,
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index ad8a2b4bc7092..8a13231dee15d 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -603,6 +603,14 @@ static int sof_audio_probe(struct platform_device *pdev)
  
- 	/* If there were any mappings at all... */
- 	if (data->mm) {
--		ret = mm_iommu_put(data->mm, data->mem);
--		WARN_ON(ret);
-+		if (data->mem) {
-+			ret = mm_iommu_put(data->mm, data->mem);
-+			WARN_ON(ret);
-+		}
+ 	dmi_check_system(sof_rt5682_quirk_table);
  
- 		mmdrop(data->mm);
- 	}
++	mach = (&pdev->dev)->platform_data;
++
++	/* A speaker amp might not be present when the quirk claims one is.
++	 * Detect this via whether the machine driver match includes quirk_data.
++	 */
++	if ((sof_rt5682_quirk & SOF_SPEAKER_AMP_PRESENT) && !mach->quirk_data)
++		sof_rt5682_quirk &= ~SOF_SPEAKER_AMP_PRESENT;
++
+ 	if (soc_intel_is_byt() || soc_intel_is_cht()) {
+ 		is_legacy_cpu = 1;
+ 		dmic_be_num = 0;
+@@ -663,7 +671,6 @@ static int sof_audio_probe(struct platform_device *pdev)
+ 	INIT_LIST_HEAD(&ctx->hdmi_pcm_list);
+ 
+ 	sof_audio_card_rt5682.dev = &pdev->dev;
+-	mach = (&pdev->dev)->platform_data;
+ 
+ 	/* set platform name for each dailink */
+ 	ret = snd_soc_fixup_dai_links_platform_name(&sof_audio_card_rt5682,
 -- 
 2.20.1
 
