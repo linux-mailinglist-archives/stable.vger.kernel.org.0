@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 518DE15F0FD
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0749215F0FA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388264AbgBNR7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:59:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
+        id S2388325AbgBNR7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:59:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387984AbgBNP4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:49 -0500
+        id S2387990AbgBNP4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E691206D7;
-        Fri, 14 Feb 2020 15:56:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C909922314;
+        Fri, 14 Feb 2020 15:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695808;
-        bh=APZQeH46kSGpCe91fNpBZZhxxDnpa9pVAups4SHmJ+A=;
+        s=default; t=1581695809;
+        bh=b7NQGU52C2v45c6anXKkBxNyh6txPgiMoWz05rtCQVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XucW2Pfq7cECfeSPJ6SSu3cPEu3zfqEjTJOSKDj2g4/qT+Jeomvu4Pfsje1HhZ6v1
-         ZBlXY7CLDZwSBQnZNlc78CzMV6nicOoQIM/45pR/q3q5bPSwqitn63aeEixBPR3au9
-         lfFf6bNWpTup073LWuTqBU0bVRudwP4t9kE5YDjw=
+        b=IB5P65AA0eKrsC8N0ND/YKEtobe1FNrrmO7/gsfW0p10XPvbqyOppk4MQuf9gD4/H
+         +vW6O5nXuni4PioleHPgEbbKqzU6o+1U80E1bV1C606rS2lRZhC/a0zvhe57PUlLt+
+         GUgCLDphW+xurbhxJSO4ILcEmqoFeDdKwP2SF88U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Trond Myklebust <trondmy@gmail.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 367/542] NFS/pnfs: Fix pnfs_generic_prepare_to_resend_writes()
-Date:   Fri, 14 Feb 2020 10:45:59 -0500
-Message-Id: <20200214154854.6746-367-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 368/542] NFS: Fix fix of show_nfs_errors
+Date:   Fri, 14 Feb 2020 10:46:00 -0500
+Message-Id: <20200214154854.6746-368-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,126 +46,168 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit 221203ce6406273cf00e5c6397257d986c003ee6 ]
+[ Upstream commit 118b6292195cfb86a9f43cb65610fc6d980c65f4 ]
 
-Instead of making assumptions about the commit verifier contents, change
-the commit code to ensure we always check that the verifier was set
-by the XDR code.
+Casting a negative value to an unsigned long is not the same as
+converting it to its absolute value.
 
-Fixes: f54bcf2ecee9 ("pnfs: Prepare for flexfiles by pulling out common code")
+Fixes: 96650e2effa2 ("NFS: Fix show_nfs_errors macros again")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c   | 4 ++--
- fs/nfs/nfs3xdr.c  | 5 ++++-
- fs/nfs/nfs4xdr.c  | 5 ++++-
- fs/nfs/pnfs_nfs.c | 7 +++----
- fs/nfs/write.c    | 4 +++-
- 5 files changed, 16 insertions(+), 9 deletions(-)
+ fs/nfs/nfs4trace.h | 33 +++++++++++++++++----------------
+ 1 file changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 040a50fd9bf30..29f00da8a0b7f 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -245,10 +245,10 @@ static int nfs_direct_cmp_commit_data_verf(struct nfs_direct_req *dreq,
- 					 data->ds_commit_index);
+diff --git a/fs/nfs/nfs4trace.h b/fs/nfs/nfs4trace.h
+index e60b6fbd5ada1..d405557cb43f1 100644
+--- a/fs/nfs/nfs4trace.h
++++ b/fs/nfs/nfs4trace.h
+@@ -352,7 +352,7 @@ DECLARE_EVENT_CLASS(nfs4_clientid_event,
+ 		),
  
- 	/* verifier not set so always fail */
--	if (verfp->committed < 0)
-+	if (verfp->committed < 0 || data->res.verf->committed <= NFS_UNSTABLE)
- 		return 1;
+ 		TP_fast_assign(
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__assign_str(dstaddr, clp->cl_hostname);
+ 		),
  
--	return nfs_direct_cmp_verf(verfp, &data->verf);
-+	return nfs_direct_cmp_verf(verfp, data->res.verf);
- }
+@@ -432,7 +432,8 @@ TRACE_EVENT(nfs4_sequence_done,
+ 			__entry->target_highest_slotid =
+ 					res->sr_target_highest_slotid;
+ 			__entry->status_flags = res->sr_status_flags;
+-			__entry->error = res->sr_status;
++			__entry->error = res->sr_status < 0 ?
++					-res->sr_status : 0;
+ 		),
+ 		TP_printk(
+ 			"error=%ld (%s) session=0x%08x slot_nr=%u seq_nr=%u "
+@@ -640,7 +641,7 @@ TRACE_EVENT(nfs4_state_mgr_failed,
+ 		),
  
- /**
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 927eb680f1613..69971f6c840d2 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -2334,6 +2334,7 @@ static int nfs3_xdr_dec_commit3res(struct rpc_rqst *req,
- 				   void *data)
- {
- 	struct nfs_commitres *result = data;
-+	struct nfs_writeverf *verf = result->verf;
- 	enum nfs_stat status;
- 	int error;
+ 		TP_fast_assign(
+-			__entry->error = status;
++			__entry->error = status < 0 ? -status : 0;
+ 			__entry->state = clp->cl_state;
+ 			__assign_str(hostname, clp->cl_hostname);
+ 			__assign_str(section, section);
+@@ -659,7 +660,7 @@ TRACE_EVENT(nfs4_xdr_status,
+ 		TP_PROTO(
+ 			const struct xdr_stream *xdr,
+ 			u32 op,
+-			int error
++			u32 error
+ 		),
  
-@@ -2346,7 +2347,9 @@ static int nfs3_xdr_dec_commit3res(struct rpc_rqst *req,
- 	result->op_status = status;
- 	if (status != NFS3_OK)
- 		goto out_status;
--	error = decode_writeverf3(xdr, &result->verf->verifier);
-+	error = decode_writeverf3(xdr, &verf->verifier);
-+	if (!error)
-+		verf->committed = NFS_FILE_SYNC;
- out:
- 	return error;
- out_status:
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 728d88b6a698a..dc6b9c2f36b2a 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -4313,11 +4313,14 @@ static int decode_write_verifier(struct xdr_stream *xdr, struct nfs_write_verifi
+ 		TP_ARGS(xdr, op, error),
+@@ -849,7 +850,7 @@ TRACE_EVENT(nfs4_close,
+ 			__entry->fileid = NFS_FILEID(inode);
+ 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
+ 			__entry->fmode = (__force unsigned int)state->state;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(args->stateid.seqid);
+ 			__entry->stateid_hash =
+@@ -914,7 +915,7 @@ DECLARE_EVENT_CLASS(nfs4_lock_event,
+ 		TP_fast_assign(
+ 			const struct inode *inode = state->inode;
  
- static int decode_commit(struct xdr_stream *xdr, struct nfs_commitres *res)
- {
-+	struct nfs_writeverf *verf = res->verf;
- 	int status;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->cmd = cmd;
+ 			__entry->type = request->fl_type;
+ 			__entry->start = request->fl_start;
+@@ -986,7 +987,7 @@ TRACE_EVENT(nfs4_set_lock,
+ 		TP_fast_assign(
+ 			const struct inode *inode = state->inode;
  
- 	status = decode_op_hdr(xdr, OP_COMMIT);
- 	if (!status)
--		status = decode_write_verifier(xdr, &res->verf->verifier);
-+		status = decode_write_verifier(xdr, &verf->verifier);
-+	if (!status)
-+		verf->committed = NFS_FILE_SYNC;
- 	return status;
- }
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->cmd = cmd;
+ 			__entry->type = request->fl_type;
+ 			__entry->start = request->fl_start;
+@@ -1164,7 +1165,7 @@ TRACE_EVENT(nfs4_delegreturn_exit,
+ 		TP_fast_assign(
+ 			__entry->dev = res->server->s_dev;
+ 			__entry->fhandle = nfs_fhandle_hash(args->fhandle);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(args->stateid->seqid);
+ 			__entry->stateid_hash =
+@@ -1204,7 +1205,7 @@ DECLARE_EVENT_CLASS(nfs4_test_stateid_event,
+ 		TP_fast_assign(
+ 			const struct inode *inode = state->inode;
  
-diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index 82af4809b869a..8b37e7f8e789f 100644
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -31,12 +31,11 @@ EXPORT_SYMBOL_GPL(pnfs_generic_rw_release);
- /* Fake up some data that will cause nfs_commit_release to retry the writes. */
- void pnfs_generic_prepare_to_resend_writes(struct nfs_commit_data *data)
- {
--	struct nfs_page *first = nfs_list_entry(data->pages.next);
-+	struct nfs_writeverf *verf = data->res.verf;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->dev = inode->i_sb->s_dev;
+ 			__entry->fileid = NFS_FILEID(inode);
+ 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
+@@ -1306,7 +1307,7 @@ TRACE_EVENT(nfs4_lookupp,
+ 		TP_fast_assign(
+ 			__entry->dev = inode->i_sb->s_dev;
+ 			__entry->ino = NFS_FILEID(inode);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 		),
  
- 	data->task.tk_status = 0;
--	memcpy(&data->verf.verifier, &first->wb_verf,
--	       sizeof(data->verf.verifier));
--	data->verf.verifier.data[0]++; /* ensure verifier mismatch */
-+	memset(&verf->verifier, 0, sizeof(verf->verifier));
-+	verf->committed = NFS_UNSTABLE;
- }
- EXPORT_SYMBOL_GPL(pnfs_generic_prepare_to_resend_writes);
+ 		TP_printk(
+@@ -1342,7 +1343,7 @@ TRACE_EVENT(nfs4_rename,
+ 			__entry->dev = olddir->i_sb->s_dev;
+ 			__entry->olddir = NFS_FILEID(olddir);
+ 			__entry->newdir = NFS_FILEID(newdir);
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__assign_str(oldname, oldname->name);
+ 			__assign_str(newname, newname->name);
+ 		),
+@@ -1433,7 +1434,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_stateid_event,
+ 			__entry->dev = inode->i_sb->s_dev;
+ 			__entry->fileid = NFS_FILEID(inode);
+ 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(stateid->seqid);
+ 			__entry->stateid_hash =
+@@ -1489,7 +1490,7 @@ DECLARE_EVENT_CLASS(nfs4_getattr_event,
+ 			__entry->valid = fattr->valid;
+ 			__entry->fhandle = nfs_fhandle_hash(fhandle);
+ 			__entry->fileid = (fattr->valid & NFS_ATTR_FATTR_FILEID) ? fattr->fileid : 0;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 		),
  
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index f5170bc839aa2..913eb37c249bb 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1837,6 +1837,7 @@ static void nfs_commit_done(struct rpc_task *task, void *calldata)
+ 		TP_printk(
+@@ -1536,7 +1537,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_callback_event,
+ 		),
  
- static void nfs_commit_release_pages(struct nfs_commit_data *data)
- {
-+	const struct nfs_writeverf *verf = data->res.verf;
- 	struct nfs_page	*req;
- 	int status = data->task.tk_status;
- 	struct nfs_commit_info cinfo;
-@@ -1864,7 +1865,8 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
+ 		TP_fast_assign(
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->fhandle = nfs_fhandle_hash(fhandle);
+ 			if (!IS_ERR_OR_NULL(inode)) {
+ 				__entry->fileid = NFS_FILEID(inode);
+@@ -1593,7 +1594,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_stateid_callback_event,
+ 		),
  
- 		/* Okay, COMMIT succeeded, apparently. Check the verifier
- 		 * returned by the server against all stored verfs. */
--		if (!nfs_write_verifier_cmp(&req->wb_verf, &data->verf.verifier)) {
-+		if (verf->committed > NFS_UNSTABLE &&
-+		    !nfs_write_verifier_cmp(&req->wb_verf, &verf->verifier)) {
- 			/* We have a match */
- 			if (req->wb_page)
- 				nfs_inode_remove_request(req);
+ 		TP_fast_assign(
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->fhandle = nfs_fhandle_hash(fhandle);
+ 			if (!IS_ERR_OR_NULL(inode)) {
+ 				__entry->fileid = NFS_FILEID(inode);
+@@ -1896,7 +1897,7 @@ TRACE_EVENT(nfs4_layoutget,
+ 			__entry->iomode = args->iomode;
+ 			__entry->offset = args->offset;
+ 			__entry->count = args->length;
+-			__entry->error = error;
++			__entry->error = error < 0 ? -error : 0;
+ 			__entry->stateid_seq =
+ 				be32_to_cpu(state->stateid.seqid);
+ 			__entry->stateid_hash =
 -- 
 2.20.1
 
