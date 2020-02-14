@@ -2,440 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A0F15F6DA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 20:29:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F3E215F711
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 20:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388233AbgBNT33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 14:29:29 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:31562 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387576AbgBNT33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 14:29:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1581708566;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=kb7ybT6/+qTgwxWA1x97CHG/J5bd3V8skoxu0QG+nwc=;
-        b=C9lWBHnSWfrJ3aupSGY3TOy7MX4Cmgud97ZZjvRG7T1JdIwEkTSBfndd6RajKzJPERP6GM
-        UAiuiKt4KShfiTl9ZBFp0uSEJ3bsfIJ8H078+dxuXm8bbeAQbS53HqPfhHnoFjhyOH8382
-        3as++HWgGQ6snV2nhPDtU7G6+gg6a54=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-pdwjyRZ1PYqMKC-IFoVcYA-1; Fri, 14 Feb 2020 14:29:20 -0500
-X-MC-Unique: pdwjyRZ1PYqMKC-IFoVcYA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B13B9107ACC4
-        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 19:29:19 +0000 (UTC)
-Received: from [172.54.122.250] (cpt-1052.paas.prod.upshift.rdu2.redhat.com [10.0.19.69])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 00E5C19C70;
-        Fri, 14 Feb 2020 19:29:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S2388081AbgBNTrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 14:47:17 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:39546 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388080AbgBNTrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 14:47:17 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EJUtgF081417;
+        Fri, 14 Feb 2020 19:47:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=corp-2020-01-29;
+ bh=mRjcUyVsU+8e7lhhG/jnargLILgurytrYJr0CopghsM=;
+ b=YHVGfQTJbe3bRbmVw8jXm6vAZFXGdlhMJy/Pq9GSKyMit5e4+x12tmjbhtRUblz3KHMB
+ iOw8PZLob90IQcKh+2EcN2gL6ttl8Na6+Yibt361snQXaMuwahuzuPIMONtHxB9F4jm0
+ faPNfwYyswbBqhGkhXu/yU3pLTcEmd6Pwogp89X5SOR6i6bkifTC3aHK1MhzKR3LJJEb
+ CaK8pWJQftObX5ZwfsZHS4CsotfMGOq18dga7tUaVltGR0GJm0Vj5Hh0vnmRP5mMEwbC
+ f2jcpx/rzGGqPctK9Hp6WXl3l70QAZmTKo65ZWRgXq5dRhk6lPQ9O+brosbAYzp1QrDS nQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 2y2jx6uhu3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Feb 2020 19:47:00 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EJRhtV111366;
+        Fri, 14 Feb 2020 19:46:59 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3020.oracle.com with ESMTP id 2y4k3e5rf8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Feb 2020 19:46:59 +0000
+Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 01EJkv5P014768;
+        Fri, 14 Feb 2020 19:46:57 GMT
+Received: from localhost.localdomain (/98.229.125.203)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 14 Feb 2020 11:46:56 -0800
+From:   Daniel Jordan <daniel.m.jordan@oracle.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-kernel@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH v2 4.14] padata: Remove broken queue flushing
+Date:   Fri, 14 Feb 2020 14:46:51 -0500
+Message-Id: <20200214194651.442848-1-daniel.m.jordan@oracle.com>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200213151948.275124464@linuxfoundation.org>
+References: <20200213151948.275124464@linuxfoundation.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.20-rc2-b06b66d.cki
- (stable)
-Date:   Fri, 14 Feb 2020 19:29:16 -0000
-Message-ID: <cki.4A8F19E092.GYE6YKWHTZ@redhat.com>
-X-Gitlab-Pipeline-ID: 436237
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/436237
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
+ bulkscore=0 malwarescore=0 phishscore=0 suspectscore=2 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002140142
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 malwarescore=0
+ priorityscore=1501 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
+ bulkscore=0 lowpriorityscore=0 mlxscore=0 suspectscore=2 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002140142
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-Hello,
+[ Upstream commit 07928d9bfc81640bab36f5190e8725894d93b659 ]
 
-We ran automated tests on a recent commit from this kernel tree:
+The function padata_flush_queues is fundamentally broken because
+it cannot force padata users to complete the request that is
+underway.  IOW padata has to passively wait for the completion
+of any outstanding work.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
-x-stable-rc.git
-            Commit: b06b66d0f2c4 - Linux 5.4.20-rc2
+As it stands flushing is used in two places.  Its use in padata_stop
+is simply unnecessary because nothing depends on the queues to
+be flushed afterwards.
 
-The results of these automated tests are provided below.
+The other use in padata_replace is more substantial as we depend
+on it to free the old pd structure.  This patch instead uses the
+pd->refcnt to dynamically free the pd structure once all requests
+are complete.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[dj: leave "pd->pinst = pinst" assignment in padata_alloc_pd()]
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+---
+ kernel/padata.c | 45 ++++++++++++---------------------------------
+ 1 file changed, 12 insertions(+), 33 deletions(-)
 
-All kernel binaries, config files, and logs are available for download here:
-
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/02/13/436237
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=8F=B1  Podman system integration test - as root
-       =E2=8F=B1  Podman system integration test - as user
-       =E2=8F=B1  LTP
-       =E2=8F=B1  Loopdev Sanity
-       =E2=8F=B1  Memory function: memfd_create
-       =E2=8F=B1  AMTU (Abstract Machine Test Utility)
-       =E2=8F=B1  Networking bridge: sanity
-       =E2=8F=B1  Ethernet drivers sanity
-       =E2=8F=B1  Networking MACsec: sanity
-       =E2=8F=B1  Networking socket: fuzz
-       =E2=8F=B1  Networking sctp-auth: sockopts test
-       =E2=8F=B1  Networking: igmp conformance test
-       =E2=8F=B1  Networking route: pmtu
-       =E2=8F=B1  Networking route_func - local
-       =E2=8F=B1  Networking route_func - forward
-       =E2=8F=B1  Networking TCP: keepalive test
-       =E2=8F=B1  Networking UDP: socket
-       =E2=8F=B1  Networking tunnel: geneve basic test
-       =E2=8F=B1  Networking tunnel: gre basic
-       =E2=8F=B1  L2TP basic test
-       =E2=8F=B1  Networking tunnel: vxlan basic
-       =E2=8F=B1  Networking ipsec: basic netns - transport
-       =E2=8F=B1  Networking ipsec: basic netns - tunnel
-       =E2=8F=B1  audit: audit testsuite test
-       =E2=8F=B1  httpd: mod_ssl smoke sanity
-       =E2=8F=B1  tuned: tune-processes-through-perf
-       =E2=8F=B1  ALSA PCM loopback test
-       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
-       =E2=8F=B1  storage: SCSI VPD
-       =E2=8F=B1  trace: ftrace/tracer
-       =E2=8F=B1  CIFS Connectathon
-       =E2=8F=B1  POSIX pjd-fstest suites
-       =E2=8F=B1  Memory function: kaslr
-       =E2=8F=B1  LTP: openposix test suite
-       =E2=8F=B1  Networking vnic: ipvlan/basic
-       =E2=8F=B1  iotop: sanity
-       =E2=8F=B1  Usex - version 1.9-29
-       =E2=8F=B1  storage: dm/common
-
-  ppc64le:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 87540ce72aea..528a251217df 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -34,6 +34,8 @@
+ 
+ #define MAX_OBJ_NUM 1000
+ 
++static void padata_free_pd(struct parallel_data *pd);
++
+ static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
+ {
+ 	int cpu, target_cpu;
+@@ -292,6 +294,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 	struct padata_serial_queue *squeue;
+ 	struct parallel_data *pd;
+ 	LIST_HEAD(local_list);
++	int cnt;
+ 
+ 	local_bh_disable();
+ 	squeue = container_of(serial_work, struct padata_serial_queue, work);
+@@ -301,6 +304,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 	list_replace_init(&squeue->serial.list, &local_list);
+ 	spin_unlock(&squeue->serial.lock);
+ 
++	cnt = 0;
++
+ 	while (!list_empty(&local_list)) {
+ 		struct padata_priv *padata;
+ 
+@@ -310,9 +315,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
+ 		list_del_init(&padata->list);
+ 
+ 		padata->serial(padata);
+-		atomic_dec(&pd->refcnt);
++		cnt++;
+ 	}
+ 	local_bh_enable();
++
++	if (atomic_sub_and_test(cnt, &pd->refcnt))
++		padata_free_pd(pd);
+ }
+ 
+ /**
+@@ -435,7 +443,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
+ 	setup_timer(&pd->timer, padata_reorder_timer, (unsigned long)pd);
+ 	atomic_set(&pd->seq_nr, -1);
+ 	atomic_set(&pd->reorder_objects, 0);
+-	atomic_set(&pd->refcnt, 0);
++	atomic_set(&pd->refcnt, 1);
+ 	pd->pinst = pinst;
+ 	spin_lock_init(&pd->lock);
+ 
+@@ -460,31 +468,6 @@ static void padata_free_pd(struct parallel_data *pd)
+ 	kfree(pd);
+ }
+ 
+-/* Flush all objects out of the padata queues. */
+-static void padata_flush_queues(struct parallel_data *pd)
+-{
+-	int cpu;
+-	struct padata_parallel_queue *pqueue;
+-	struct padata_serial_queue *squeue;
+-
+-	for_each_cpu(cpu, pd->cpumask.pcpu) {
+-		pqueue = per_cpu_ptr(pd->pqueue, cpu);
+-		flush_work(&pqueue->work);
+-	}
+-
+-	del_timer_sync(&pd->timer);
+-
+-	if (atomic_read(&pd->reorder_objects))
+-		padata_reorder(pd);
+-
+-	for_each_cpu(cpu, pd->cpumask.cbcpu) {
+-		squeue = per_cpu_ptr(pd->squeue, cpu);
+-		flush_work(&squeue->work);
+-	}
+-
+-	BUG_ON(atomic_read(&pd->refcnt) != 0);
+-}
+-
+ static void __padata_start(struct padata_instance *pinst)
+ {
+ 	pinst->flags |= PADATA_INIT;
+@@ -498,10 +481,6 @@ static void __padata_stop(struct padata_instance *pinst)
+ 	pinst->flags &= ~PADATA_INIT;
+ 
+ 	synchronize_rcu();
+-
+-	get_online_cpus();
+-	padata_flush_queues(pinst->pd);
+-	put_online_cpus();
+ }
+ 
+ /* Replace the internal control structure with a new one. */
+@@ -522,8 +501,8 @@ static void padata_replace(struct padata_instance *pinst,
+ 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
+ 		notification_mask |= PADATA_CPU_SERIAL;
+ 
+-	padata_flush_queues(pd_old);
+-	padata_free_pd(pd_old);
++	if (atomic_dec_and_test(&pd_old->refcnt))
++		padata_free_pd(pd_old);
+ 
+ 	if (notification_mask)
+ 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
+-- 
+2.25.0
 
