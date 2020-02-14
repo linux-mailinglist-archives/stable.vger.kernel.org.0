@@ -2,211 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3E215F711
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 20:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA8F15F741
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:01:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388081AbgBNTrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 14:47:17 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:39546 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388080AbgBNTrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 14:47:17 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EJUtgF081417;
-        Fri, 14 Feb 2020 19:47:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2020-01-29;
- bh=mRjcUyVsU+8e7lhhG/jnargLILgurytrYJr0CopghsM=;
- b=YHVGfQTJbe3bRbmVw8jXm6vAZFXGdlhMJy/Pq9GSKyMit5e4+x12tmjbhtRUblz3KHMB
- iOw8PZLob90IQcKh+2EcN2gL6ttl8Na6+Yibt361snQXaMuwahuzuPIMONtHxB9F4jm0
- faPNfwYyswbBqhGkhXu/yU3pLTcEmd6Pwogp89X5SOR6i6bkifTC3aHK1MhzKR3LJJEb
- CaK8pWJQftObX5ZwfsZHS4CsotfMGOq18dga7tUaVltGR0GJm0Vj5Hh0vnmRP5mMEwbC
- f2jcpx/rzGGqPctK9Hp6WXl3l70QAZmTKo65ZWRgXq5dRhk6lPQ9O+brosbAYzp1QrDS nQ== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2120.oracle.com with ESMTP id 2y2jx6uhu3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Feb 2020 19:47:00 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EJRhtV111366;
-        Fri, 14 Feb 2020 19:46:59 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3020.oracle.com with ESMTP id 2y4k3e5rf8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Feb 2020 19:46:59 +0000
-Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 01EJkv5P014768;
-        Fri, 14 Feb 2020 19:46:57 GMT
-Received: from localhost.localdomain (/98.229.125.203)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 14 Feb 2020 11:46:56 -0800
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-kernel@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v2 4.14] padata: Remove broken queue flushing
-Date:   Fri, 14 Feb 2020 14:46:51 -0500
-Message-Id: <20200214194651.442848-1-daniel.m.jordan@oracle.com>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151948.275124464@linuxfoundation.org>
-References: <20200213151948.275124464@linuxfoundation.org>
+        id S2388011AbgBNUB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 15:01:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387401AbgBNUB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 15:01:56 -0500
+Received: from localhost (unknown [12.246.51.142])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAAA0206D7;
+        Fri, 14 Feb 2020 20:01:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581710515;
+        bh=EP6Yz8QatpWGnQGb0Qfq43e9/UcTZyGHaZs8ysch+5M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XJ1qe3G//QuGyzDQdewbPTz46rASSMoC+F70SU6TiGXnd4/02ul+n8yWKklMfUcNq
+         YpmReVQXcgD4VCjhHWdNSfvHjy+3lWcwnrt23q+EQcGp8rXHVuip8ptUoc6pi0IQxt
+         xkr+i12D5gsI9V810x3i4Z1tbpwOeT48X/iAQkao=
+Date:   Fri, 14 Feb 2020 07:17:27 -0800
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     stable@vger.kernel.org, X86 ML <x86@kernel.org>,
+        Yazen Ghannam <Yazen.Ghannam@amd.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86/mce/amd: Fix kobject lifetime
+Message-ID: <20200214151727.GA3959278@kroah.com>
+References: <20200214082801.13836-1-bp@alien8.de>
+ <20200214083230.GA13395@zn.tnic>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
- bulkscore=0 malwarescore=0 phishscore=0 suspectscore=2 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002140142
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 malwarescore=0
- priorityscore=1501 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
- bulkscore=0 lowpriorityscore=0 mlxscore=0 suspectscore=2 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002140142
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200214083230.GA13395@zn.tnic>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+On Fri, Feb 14, 2020 at 09:32:30AM +0100, Borislav Petkov wrote:
+> On Fri, Feb 14, 2020 at 09:28:01AM +0100, Borislav Petkov wrote:
+> > From: Thomas Gleixner <tglx@linutronix.de>
+> > 
+> > Accessing the MCA thresholding controls in sysfs concurrently with CPU
+> > hotplug can lead to a couple of KASAN-reported issues:
+> > 
+> >   BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
+> >   Read of size 8 at addr ffff888367578940 by task grep/4019
+> > 
+> > and
+> > 
+> >   BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
+> >   Read of size 2 at addr ffff888368a05514 by task grep/4454
+> > 
+> > for example. Both result from the fact that the threshold block
+> > creation/teardown code frees the descriptor memory itself instead of
+> > defining proper ->release function and leaving it to the driver core to
+> > take care of that, after all sysfs accesses have completed.
+> > 
+> > Do that and get rid of the custom freeing code, fixing the above UAFs in
+> > the process.
+> > 
+> >   [ bp: write commit message. ]
+> > 
+> > Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
+> > Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> > Signed-off-by: Borislav Petkov <bp@suse.de>
+> > Cc: <stable@vger.kernel.org>
+> 
+> Damn git-send-email: it read out Cc: stable and added it to the Cc list.
+> I've added
+> 
+> suppresscc = bodycc
+> 
+> to my .gitconfig.
+> 
+> Sorry stable guys.
 
-[ Upstream commit 07928d9bfc81640bab36f5190e8725894d93b659 ]
+Does not bother me at all, it's fine to see stuff come by that will end
+up in future trees, it's not noise at all.  So no need to suppress
+stable@vger if you don't want to.
 
-The function padata_flush_queues is fundamentally broken because
-it cannot force padata users to complete the request that is
-underway.  IOW padata has to passively wait for the completion
-of any outstanding work.
+thanks,
 
-As it stands flushing is used in two places.  Its use in padata_stop
-is simply unnecessary because nothing depends on the queues to
-be flushed afterwards.
-
-The other use in padata_replace is more substantial as we depend
-on it to free the old pd structure.  This patch instead uses the
-pd->refcnt to dynamically free the pd structure once all requests
-are complete.
-
-Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[dj: leave "pd->pinst = pinst" assignment in padata_alloc_pd()]
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
----
- kernel/padata.c | 45 ++++++++++++---------------------------------
- 1 file changed, 12 insertions(+), 33 deletions(-)
-
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 87540ce72aea..528a251217df 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -34,6 +34,8 @@
- 
- #define MAX_OBJ_NUM 1000
- 
-+static void padata_free_pd(struct parallel_data *pd);
-+
- static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
- {
- 	int cpu, target_cpu;
-@@ -292,6 +294,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	struct padata_serial_queue *squeue;
- 	struct parallel_data *pd;
- 	LIST_HEAD(local_list);
-+	int cnt;
- 
- 	local_bh_disable();
- 	squeue = container_of(serial_work, struct padata_serial_queue, work);
-@@ -301,6 +304,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	list_replace_init(&squeue->serial.list, &local_list);
- 	spin_unlock(&squeue->serial.lock);
- 
-+	cnt = 0;
-+
- 	while (!list_empty(&local_list)) {
- 		struct padata_priv *padata;
- 
-@@ -310,9 +315,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 		list_del_init(&padata->list);
- 
- 		padata->serial(padata);
--		atomic_dec(&pd->refcnt);
-+		cnt++;
- 	}
- 	local_bh_enable();
-+
-+	if (atomic_sub_and_test(cnt, &pd->refcnt))
-+		padata_free_pd(pd);
- }
- 
- /**
-@@ -435,7 +443,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	setup_timer(&pd->timer, padata_reorder_timer, (unsigned long)pd);
- 	atomic_set(&pd->seq_nr, -1);
- 	atomic_set(&pd->reorder_objects, 0);
--	atomic_set(&pd->refcnt, 0);
-+	atomic_set(&pd->refcnt, 1);
- 	pd->pinst = pinst;
- 	spin_lock_init(&pd->lock);
- 
-@@ -460,31 +468,6 @@ static void padata_free_pd(struct parallel_data *pd)
- 	kfree(pd);
- }
- 
--/* Flush all objects out of the padata queues. */
--static void padata_flush_queues(struct parallel_data *pd)
--{
--	int cpu;
--	struct padata_parallel_queue *pqueue;
--	struct padata_serial_queue *squeue;
--
--	for_each_cpu(cpu, pd->cpumask.pcpu) {
--		pqueue = per_cpu_ptr(pd->pqueue, cpu);
--		flush_work(&pqueue->work);
--	}
--
--	del_timer_sync(&pd->timer);
--
--	if (atomic_read(&pd->reorder_objects))
--		padata_reorder(pd);
--
--	for_each_cpu(cpu, pd->cpumask.cbcpu) {
--		squeue = per_cpu_ptr(pd->squeue, cpu);
--		flush_work(&squeue->work);
--	}
--
--	BUG_ON(atomic_read(&pd->refcnt) != 0);
--}
--
- static void __padata_start(struct padata_instance *pinst)
- {
- 	pinst->flags |= PADATA_INIT;
-@@ -498,10 +481,6 @@ static void __padata_stop(struct padata_instance *pinst)
- 	pinst->flags &= ~PADATA_INIT;
- 
- 	synchronize_rcu();
--
--	get_online_cpus();
--	padata_flush_queues(pinst->pd);
--	put_online_cpus();
- }
- 
- /* Replace the internal control structure with a new one. */
-@@ -522,8 +501,8 @@ static void padata_replace(struct padata_instance *pinst,
- 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
- 		notification_mask |= PADATA_CPU_SERIAL;
- 
--	padata_flush_queues(pd_old);
--	padata_free_pd(pd_old);
-+	if (atomic_dec_and_test(&pd_old->refcnt))
-+		padata_free_pd(pd_old);
- 
- 	if (notification_mask)
- 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
--- 
-2.25.0
-
+greg k-h
