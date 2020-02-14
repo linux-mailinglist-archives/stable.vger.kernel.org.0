@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FEE115DD32
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A2B15DD34
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:57:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387651AbgBNP4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:56:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
+        id S2388027AbgBNP4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:56:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388014AbgBNP4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:52 -0500
+        id S2388022AbgBNP4x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CEC1206D7;
-        Fri, 14 Feb 2020 15:56:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 701C42067D;
+        Fri, 14 Feb 2020 15:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695812;
-        bh=p1qYiOUmSP50rnBYmOOO5qvMBfzp7DHgdmMWOpbQvyU=;
+        s=default; t=1581695813;
+        bh=1rEREmuUihtXcVVSX2bzp7bwvtbz9D5X+fmfAb9h+MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+xZ2//RRpBN5afxa/9hDNaTuyuWBYya3b33DZq41SSJ0u7V9yHFtsnHT7K4eBdxT
-         6uH8iDBHaZmdUSa6hw9ygUQAIyEheb+m/beKOAgcDqrnlEzfSGlaboNBsfM//cG3m/
-         tZ2a8blyBROilzdbRbOz/zjEbLQpzVaJb6h9W3+0=
+        b=ssaNg2DhBl8kjkzDohC0F5jrfxAqf88hojCbY8Jhlo01s1dfs9jvtCOZX8K5euE5p
+         v08dvCtYSD6D6uPIBEKZaPEl8zLwog4AWbt2z7DQiab2X5qGBc4MEcb2W7UMlBqM2I
+         73rF2fYZ2wtOzRvLYoSNV9Gn7PREuxns8+L4LDCM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.5 370/542] iommu/arm-smmu-v3: Use WRITE_ONCE() when changing validity of an STE
-Date:   Fri, 14 Feb 2020 10:46:02 -0500
-Message-Id: <20200214154854.6746-370-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.5 371/542] ALSA: usb-audio: unlock on error in probe
+Date:   Fri, 14 Feb 2020 10:46:03 -0500
+Message-Id: <20200214154854.6746-371-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,38 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d71e01716b3606a6648df7e5646ae12c75babde4 ]
+[ Upstream commit a3afa29942b84b4e2548beacccc3a68b8d77e3dc ]
 
-If, for some bizarre reason, the compiler decided to split up the write
-of STE DWORD 0, we could end up making a partial structure valid.
+We need to unlock before we returning on this error path.
 
-Although this probably won't happen, follow the example of the
-context-descriptor code and use WRITE_ONCE() to ensure atomicity of the
-write.
-
-Reported-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 73ac9f5e5b43 ("ALSA: usb-audio: Add boot quirk for MOTU M Series")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200115174604.rhanfgy4j3uc65cx@kili.mountain
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm-smmu-v3.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/usb/card.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 2f7680faba49e..6bd6a3f3f4710 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -1643,7 +1643,8 @@ static void arm_smmu_write_strtab_ent(struct arm_smmu_master *master, u32 sid,
- 						 STRTAB_STE_1_EATS_TRANS));
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 2f582ac7cf789..827fb0bc8b561 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -602,7 +602,7 @@ static int usb_audio_probe(struct usb_interface *intf,
+ 	if (! chip) {
+ 		err = snd_usb_apply_boot_quirk_once(dev, intf, quirk, id);
+ 		if (err < 0)
+-			return err;
++			goto __error;
  
- 	arm_smmu_sync_ste_for_sid(smmu, sid);
--	dst[0] = cpu_to_le64(val);
-+	/* See comment in arm_smmu_write_ctx_desc() */
-+	WRITE_ONCE(dst[0], cpu_to_le64(val));
- 	arm_smmu_sync_ste_for_sid(smmu, sid);
- 
- 	/* It's likely that we'll want to use the new STE soon */
+ 		/* it's a fresh one.
+ 		 * now look for an empty slot and create a new card instance
 -- 
 2.20.1
 
