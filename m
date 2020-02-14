@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D30F15EDFF
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D5D915EDFD
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387421AbgBNRhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:37:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54460 "EHLO mail.kernel.org"
+        id S2389848AbgBNRhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:37:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390087AbgBNQFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:09 -0500
+        id S2390092AbgBNQFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B35224699;
-        Fri, 14 Feb 2020 16:05:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CC8224676;
+        Fri, 14 Feb 2020 16:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696309;
-        bh=j6vTk5xwIZQxMl0N+87vCz7J+K5hKkkEZIizq5rdXXc=;
+        s=default; t=1581696310;
+        bh=90xH7MbIWSlxTb7JOoi5JSHeWHhEROcPLkgtjk5gdr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DR+bvb4Jk0V7c2dGLYp0lB27UFPeeZ7WNoBKiUQLVMKGrk848hqqdymwJETFzMKkC
-         c1ax3pTIaZGGhinvpwvjovPgT69iVDa/CIPT1tMKMqQCpivAPJccuZCzDsDM77da5u
-         WWDC8LZLNKrposQiyc8+51IBJKbYkfMWJ1sbqDg4=
+        b=wCED82YUpKs0ZgP0LgenD/Ap5k3PhSu/7pAiyTNjP0Y1s6Qf3SgEM6AUfoFyUOB01
+         SWvjFvMrmt/ekNCVeRxPBnZhiyKmW81tawaEfKq4PphUeA0uI6uCR2aaapl2CosHOh
+         GrWSEewk/7YELauLezQdJ0hKk8a7AgJLSj1zcezk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
-        Jairaj Arava <jairaj.arava@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 152/459] ASoC: intel: sof_rt5682: Add support for tgl-max98357a-rt5682
-Date:   Fri, 14 Feb 2020 10:56:42 -0500
-Message-Id: <20200214160149.11681-152-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 153/459] regulator: rk808: Lower log level on optional GPIOs being not available
+Date:   Fri, 14 Feb 2020 10:56:43 -0500
+Message-Id: <20200214160149.11681-153-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -45,72 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 6605f0ca3af3b964635287ec7c9dadc812b78eb0 ]
+[ Upstream commit b8a039d37792067c1a380dc710361905724b9b2f ]
 
-This patch adds the driver data and updates quirk info
-for tgl with max98357a speaker amp and ALC5682 headset codec.
+RK808 can leverage a couple of GPIOs to tweak the ramp rate during DVS
+(Dynamic Voltage Scaling). These GPIOs are entirely optional but a
+dev_warn() appeared when cleaning this driver to use a more up-to-date
+gpiod API. At least reduce the log level to 'info' as it is totally
+fine to not populate these GPIO on a hardware design.
 
-Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
-Signed-off-by: Jairaj Arava <jairaj.arava@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191126143205.21987-3-pierre-louis.bossart@linux.intel.com
+This change is trivial but it is worth not polluting the logs during
+bringup phase by having real warnings and errors sorted out
+correctly.
+
+Fixes: a13eaf02e2d6 ("regulator: rk808: make better use of the gpiod API")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20191203164709.11127-1-miquel.raynal@bootlin.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_rt5682.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/regulator/rk808-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 377ff17dedb98..9441ddfeea5e6 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -589,6 +589,9 @@ static int sof_audio_probe(struct platform_device *pdev)
- 	if (!ctx)
- 		return -ENOMEM;
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 61bd5ef0806c2..97c846c19c2f6 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -1297,7 +1297,7 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 		}
  
-+	if (pdev->id_entry && pdev->id_entry->driver_data)
-+		sof_rt5682_quirk = (unsigned long)pdev->id_entry->driver_data;
-+
- 	dmi_check_system(sof_rt5682_quirk_table);
+ 		if (!pdata->dvs_gpio[i]) {
+-			dev_warn(dev, "there is no dvs%d gpio\n", i);
++			dev_info(dev, "there is no dvs%d gpio\n", i);
+ 			continue;
+ 		}
  
- 	if (soc_intel_is_byt() || soc_intel_is_cht()) {
-@@ -680,6 +683,21 @@ static int sof_rt5682_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct platform_device_id board_ids[] = {
-+	{
-+		.name = "sof_rt5682",
-+	},
-+	{
-+		.name = "tgl_max98357a_rt5682",
-+		.driver_data = (kernel_ulong_t)(SOF_RT5682_MCLK_EN |
-+					SOF_RT5682_SSP_CODEC(0) |
-+					SOF_SPEAKER_AMP_PRESENT |
-+					SOF_RT5682_SSP_AMP(1) |
-+					SOF_RT5682_NUM_HDMIDEV(4)),
-+	},
-+	{ }
-+};
-+
- static struct platform_driver sof_audio = {
- 	.probe = sof_audio_probe,
- 	.remove = sof_rt5682_remove,
-@@ -687,6 +705,7 @@ static struct platform_driver sof_audio = {
- 		.name = "sof_rt5682",
- 		.pm = &snd_soc_pm_ops,
- 	},
-+	.id_table = board_ids,
- };
- module_platform_driver(sof_audio)
- 
-@@ -696,3 +715,4 @@ MODULE_AUTHOR("Bard Liao <bard.liao@intel.com>");
- MODULE_AUTHOR("Sathya Prakash M R <sathya.prakash.m.r@intel.com>");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:sof_rt5682");
-+MODULE_ALIAS("platform:tgl_max98357a_rt5682");
 -- 
 2.20.1
 
