@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4642D15EA9A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:15:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB5215EA9F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391962AbgBNQMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:12:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
+        id S2403776AbgBNRPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:15:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391956AbgBNQMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:19 -0500
+        id S2391978AbgBNQMW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7944E246AB;
-        Fri, 14 Feb 2020 16:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 850F8246AD;
+        Fri, 14 Feb 2020 16:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696738;
-        bh=3PVLJrqaJl9uhHKgtcMPw4Br+U8VD6bT3U6kqZszuVU=;
+        s=default; t=1581696741;
+        bh=KNL8q96VW054YfXBZfeHGlfLCZJ5LleWzR+KoB/9j4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCs3VfpGycb9mm4Iiw8Wy9NHPpEbVBb7k8DnqtRq+2Vvz1nfqf4URvlnUJKpZt4Ju
-         SzmXKRmwF8zfghYaU/sIqfrLP9Z+lYl8PyCr5bVLbPr1aY9bwBMZXAZ/AlyFc/dd6S
-         QN3ZK6Ii5xZ5qvTA9x/pJqTp9UQ7uScVeFY7dYrM=
+        b=JP+i+K7FIY27LRRPQM/NXX2a5dQXLLVUimHUFPdpYZsh3s02DfzlENgMm7+jAuVRq
+         mY8NUBBVVgWzwXxSZ0hCHTY5FIa2vN7BI6KKElSlwc1brCpniQL2lrrGV/Ox7464i6
+         0q73Tt/Hqs3+ttIWwpjUDNDtq7fwXC2lzZggWbRY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 023/252] pinctrl: baytrail: Do not clear IRQ flags on direct-irq enabled pins
-Date:   Fri, 14 Feb 2020 11:07:58 -0500
-Message-Id: <20200214161147.15842-23-sashal@kernel.org>
+Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 025/252] MIPS: Loongson: Fix potential NULL dereference in loongson3_platform_init()
+Date:   Fri, 14 Feb 2020 11:08:00 -0500
+Message-Id: <20200214161147.15842-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,58 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit a23680594da7a9e2696dbcf4f023e9273e2fa40b ]
+[ Upstream commit 72d052e28d1d2363f9107be63ef3a3afdea6143c ]
 
-Suspending Goodix touchscreens requires changing the interrupt pin to
-output before sending them a power-down command. Followed by wiggling
-the interrupt pin to wake the device up, after which it is put back
-in input mode.
+If kzalloc fails, it should return -ENOMEM, otherwise may trigger a NULL
+pointer dereference.
 
-On Bay Trail devices with a Goodix touchscreen direct-irq mode is used
-in combination with listing the pin as a normal GpioIo resource.
-
-This works fine, until the goodix driver gets rmmod-ed and then insmod-ed
-again. In this case byt_gpio_disable_free() calls
-byt_gpio_clear_triggering() which clears the IRQ flags and after that the
-(direct) IRQ no longer triggers.
-
-This commit fixes this by adding a check for the BYT_DIRECT_IRQ_EN flag
-to byt_gpio_clear_triggering().
-
-Note that byt_gpio_clear_triggering() only gets called from
-byt_gpio_disable_free() for direct-irq enabled pins, as these are excluded
-from the irq_valid mask by byt_init_irq_valid_mask().
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 3adeb2566b9b ("MIPS: Loongson: Improve LEFI firmware interface")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Huacai Chen <chenhc@lemote.com>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-baytrail.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/mips/loongson64/loongson-3/platform.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index 021e28ff1194e..a760d8bda0af7 100644
---- a/drivers/pinctrl/intel/pinctrl-baytrail.c
-+++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -950,7 +950,13 @@ static void byt_gpio_clear_triggering(struct byt_gpio *vg, unsigned int offset)
+diff --git a/arch/mips/loongson64/loongson-3/platform.c b/arch/mips/loongson64/loongson-3/platform.c
+index 25a97cc0ee336..0db4cc3196ebd 100644
+--- a/arch/mips/loongson64/loongson-3/platform.c
++++ b/arch/mips/loongson64/loongson-3/platform.c
+@@ -31,6 +31,9 @@ static int __init loongson3_platform_init(void)
+ 			continue;
  
- 	raw_spin_lock_irqsave(&byt_lock, flags);
- 	value = readl(reg);
--	value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
+ 		pdev = kzalloc(sizeof(struct platform_device), GFP_KERNEL);
++		if (!pdev)
++			return -ENOMEM;
 +
-+	/* Do not clear direct-irq enabled IRQs (from gpio_disable_free) */
-+	if (value & BYT_DIRECT_IRQ_EN)
-+		/* nothing to do */ ;
-+	else
-+		value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
-+
- 	writel(value, reg);
- 	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
+ 		pdev->name = loongson_sysconf.sensors[i].name;
+ 		pdev->id = loongson_sysconf.sensors[i].id;
+ 		pdev->dev.platform_data = &loongson_sysconf.sensors[i];
 -- 
 2.20.1
 
