@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD7D15E7FC
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:58:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA1C15E7FA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:58:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391938AbgBNQRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404513AbgBNQRh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 11:17:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404505AbgBNQRf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:17:35 -0500
+        id S2388168AbgBNQRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:17:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B396B246E1;
-        Fri, 14 Feb 2020 16:17:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AB9D24691;
+        Fri, 14 Feb 2020 16:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697054;
-        bh=8Tg0HQeU8QFKYHVtVIxc5GOOIl8RtN1hrGNhC1kUx4Q=;
+        s=default; t=1581697056;
+        bh=hLfZr2lTPwLVvls4QJKmwnrEt7LV1L6ytSfteOuLPOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hu3sFqQjzfKKLPuvdQg8zPPrw/BIDcHCKT+JZ8SOBFb3PCuapE3eafC5IrDaVf4rQ
-         3ImWYdnLFu/4rwYR/C8M8yye3Y60cjonW2YMkFSUCTuS7Dtph3FjiL8l/6b4VrO0Vb
-         5OcnyyueMWQ4nPe0fP9Xb6LM0giBt1g19QaUus6E=
+        b=ZpS/OumccjRzaZUIoahWD3vEq555GepqwQ6myJGNOprLPh/lSJ+n+czAkiyj+iJe+
+         vDdpj3srLjSGaKQy3nzyQXKflD4X9pBl108PNWG2A/uzWZs/m5OVqFewtYneLg/1Vn
+         sR2GLQldv0Jn10bFpbB9sF7/YGgCUZeKovhoK9KA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 014/186] pxa168fb: Fix the function used to release some memory in an error handling path
-Date:   Fri, 14 Feb 2020 11:14:23 -0500
-Message-Id: <20200214161715.18113-14-sashal@kernel.org>
+Cc:     Eugen Hristev <eugen.hristev@microchip.com>,
+        Wenyou Yang <wenyou.yang@microchip.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 015/186] media: i2c: mt9v032: fix enum mbus codes and frame sizes
+Date:   Fri, 14 Feb 2020 11:14:24 -0500
+Message-Id: <20200214161715.18113-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -46,54 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 3c911fe799d1c338d94b78e7182ad452c37af897 ]
+[ Upstream commit 1451d5ae351d938a0ab1677498c893f17b9ee21d ]
 
-In the probe function, some resources are allocated using 'dma_alloc_wc()',
-they should be released with 'dma_free_wc()', not 'dma_free_coherent()'.
+This driver supports both the mt9v032 (color) and the mt9v022 (mono)
+sensors. Depending on which sensor is used, the format from the sensor is
+different. The format.code inside the dev struct holds this information.
+The enum mbus and enum frame sizes need to take into account both type of
+sensors, not just the color one. To solve this, use the format.code in
+these functions instead of the hardcoded bayer color format (which is only
+used for mt9v032).
 
-We already use 'dma_free_wc()' in the remove function, but not in the
-error handling path of the probe function.
+[Sakari Ailus: rewrapped commit message]
 
-Also, remove a useless 'PAGE_ALIGN()'. 'info->fix.smem_len' is already
-PAGE_ALIGNed.
-
-Fixes: 638772c7553f ("fb: add support of LCD display controller on pxa168/910 (base layer)")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
-CC: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190831100024.3248-1-christophe.jaillet@wanadoo.fr
+Suggested-by: Wenyou Yang <wenyou.yang@microchip.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa168fb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/i2c/mt9v032.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/pxa168fb.c b/drivers/video/fbdev/pxa168fb.c
-index d059d04c63acd..20195d3dbf088 100644
---- a/drivers/video/fbdev/pxa168fb.c
-+++ b/drivers/video/fbdev/pxa168fb.c
-@@ -769,8 +769,8 @@ static int pxa168fb_probe(struct platform_device *pdev)
- failed_free_clk:
- 	clk_disable_unprepare(fbi->clk);
- failed_free_fbmem:
--	dma_free_coherent(fbi->dev, info->fix.smem_len,
--			info->screen_base, fbi->fb_start_dma);
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
-+		    info->screen_base, fbi->fb_start_dma);
- failed_free_info:
- 	kfree(info);
+diff --git a/drivers/media/i2c/mt9v032.c b/drivers/media/i2c/mt9v032.c
+index 8a430640c85d5..1a20d0d558d3e 100644
+--- a/drivers/media/i2c/mt9v032.c
++++ b/drivers/media/i2c/mt9v032.c
+@@ -423,10 +423,12 @@ static int mt9v032_enum_mbus_code(struct v4l2_subdev *subdev,
+ 				  struct v4l2_subdev_pad_config *cfg,
+ 				  struct v4l2_subdev_mbus_code_enum *code)
+ {
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
+ 	if (code->index > 0)
+ 		return -EINVAL;
  
-@@ -804,7 +804,7 @@ static int pxa168fb_remove(struct platform_device *pdev)
+-	code->code = MEDIA_BUS_FMT_SGRBG10_1X10;
++	code->code = mt9v032->format.code;
+ 	return 0;
+ }
  
- 	irq = platform_get_irq(pdev, 0);
+@@ -434,7 +436,11 @@ static int mt9v032_enum_frame_size(struct v4l2_subdev *subdev,
+ 				   struct v4l2_subdev_pad_config *cfg,
+ 				   struct v4l2_subdev_frame_size_enum *fse)
+ {
+-	if (fse->index >= 3 || fse->code != MEDIA_BUS_FMT_SGRBG10_1X10)
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
++	if (fse->index >= 3)
++		return -EINVAL;
++	if (mt9v032->format.code != fse->code)
+ 		return -EINVAL;
  
--	dma_free_wc(fbi->dev, PAGE_ALIGN(info->fix.smem_len),
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
- 		    info->screen_base, info->fix.smem_start);
- 
- 	clk_disable_unprepare(fbi->clk);
+ 	fse->min_width = MT9V032_WINDOW_WIDTH_DEF / (1 << fse->index);
 -- 
 2.20.1
 
