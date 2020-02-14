@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E3C15E9CD
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:09:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE52F15E9BC
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:09:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392029AbgBNRJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:09:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42996 "EHLO mail.kernel.org"
+        id S2392232AbgBNQNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:13:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392218AbgBNQNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:13:51 -0500
+        id S2392226AbgBNQNw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:13:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 135AB246CC;
-        Fri, 14 Feb 2020 16:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 145AB246D4;
+        Fri, 14 Feb 2020 16:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696830;
-        bh=VjGmQW4ZaEIwBplxGXhjzp+VjZggaABay/iw0AmQNss=;
+        s=default; t=1581696831;
+        bh=m9ywS9W5sFzIk8yj1UQGFY10lpinxn5x/nVWAjNi0g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0L97qoQ3Wgn674naHHVwpJYS25nh1nLNLVDHUre5Eyta1+CAUh5LeLBKFAkFi24bY
-         1Wyivz7Yc0tnO1pymsd3yL/C9q+jm9OskIrVXQk/2/dia7obTpo+fuOfphotH0n8g2
-         u0sM3+3oMsym+ETOUk101K0cZexfjed5jGvgN9wI=
+        b=pHdp8z+A4XT2NjB+e5rmjreaUT7IqVSpJnPG7fmjgzRaDUZgzrHFWMcOb3SqbrH/5
+         uwTyBiG/Krv7CXCuFbElzKwsndemO+0PEdeniPCafSlvVGCHPgIZru3kmwxYEoQ+qR
+         weF8fuA5eA/2mAl7KV6hJWuNNi5atjzQ89jq16eQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 096/252] reiserfs: Fix spurious unlock in reiserfs_fill_super() error handling
-Date:   Fri, 14 Feb 2020 11:09:11 -0500
-Message-Id: <20200214161147.15842-96-sashal@kernel.org>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 097/252] r8169: check that Realtek PHY driver module is loaded
+Date:   Fri, 14 Feb 2020 11:09:12 -0500
+Message-Id: <20200214161147.15842-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -42,34 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 4d5c1adaf893b8aa52525d2b81995e949bcb3239 ]
+[ Upstream commit f325937735498afb054a0195291bbf68d0b60be5 ]
 
-When we fail to allocate string for journal device name we jump to
-'error' label which tries to unlock reiserfs write lock which is not
-held. Jump to 'error_unlocked' instead.
+Some users complained about problems with r8169 and it turned out that
+the generic PHY driver was used instead instead of the dedicated one.
+In all cases reason was that r8169.ko was in initramfs, but realtek.ko
+not. Manually adding realtek.ko to initramfs fixed the issues.
+Root cause seems to be that tools like dracut and genkernel don't
+consider softdeps. Add a check for loaded Realtek PHY driver module
+and provide the user with a hint if it's not loaded.
 
-Fixes: f32485be8397 ("reiserfs: delay reiserfs lock until journal initialization")
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index 6280efeceb0a2..de5eda33c92a0 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1954,7 +1954,7 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		if (!sbi->s_jdev) {
- 			SWARN(silent, s, "", "Cannot allocate memory for "
- 				"journal device name");
--			goto error;
-+			goto error_unlocked;
- 		}
- 	}
- #ifdef CONFIG_QUOTA
+diff --git a/drivers/net/ethernet/realtek/r8169.c b/drivers/net/ethernet/realtek/r8169.c
+index 4ab87fe845427..6ea43e48d5f97 100644
+--- a/drivers/net/ethernet/realtek/r8169.c
++++ b/drivers/net/ethernet/realtek/r8169.c
+@@ -7433,6 +7433,15 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	int chipset, region, i;
+ 	int jumbo_max, rc;
+ 
++	/* Some tools for creating an initramfs don't consider softdeps, then
++	 * r8169.ko may be in initramfs, but realtek.ko not. Then the generic
++	 * PHY driver is used that doesn't work with most chip versions.
++	 */
++	if (!driver_find("RTL8201CP Ethernet", &mdio_bus_type)) {
++		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
++		return -ENOENT;
++	}
++
+ 	dev = devm_alloc_etherdev(&pdev->dev, sizeof (*tp));
+ 	if (!dev)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
