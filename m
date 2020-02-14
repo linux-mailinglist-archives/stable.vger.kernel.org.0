@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD0115DF43
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:08:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C65A915DF46
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:08:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390069AbgBNQHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:07:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59584 "EHLO mail.kernel.org"
+        id S2390613AbgBNQH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:07:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390140AbgBNQHx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:07:53 -0500
+        id S2390814AbgBNQH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:07:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31445222C2;
-        Fri, 14 Feb 2020 16:07:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8C2B2067D;
+        Fri, 14 Feb 2020 16:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696472;
-        bh=tbsB6vHECRwHjZ/VQdlleAytqMHIOfGHbwngLBFASr0=;
+        s=default; t=1581696477;
+        bh=P1plHYGMYC1qyi04bgC3z1Yfbf1bTSu9ZEsG1MsEc/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=urp+jtuC4WnWTtoHHTb8XTZb/+Neun2983ESi3Cl88y05TWq02Ig3Qbva5DGQkVla
-         sVNnlwwKTWWTmDGYBTNN3H94FG9Rdzd6FEJP2w6lOfJW2DrUeQWxmNTkV/3sqW04gc
-         zMNSpjgpBF+jimtorse9eXJtnmuV2oLF6oj/RY0o=
+        b=mWSqUy0rEoVCEcCi/5OPFDaIl/3+U1C4iQAhs8arfBMS9wvx9qkoHM9PpiAyU76OT
+         PVBXiPN1gOFxbA3cv4dcuMaMaasTRWJG/UPmydGQCbvXyNP2SkrXskVpIlMEPHkjSB
+         KV1KaBrb+g0fsZ5/u5DvkUtyL2nB50pJEk2kornA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 281/459] ARM: at91: pm: use SAM9X60 PMC's compatible
-Date:   Fri, 14 Feb 2020 10:58:51 -0500
-Message-Id: <20200214160149.11681-281-sashal@kernel.org>
+Cc:     Changbin Du <changbin.du@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 285/459] x86/nmi: Remove irq_work from the long duration NMI handler
+Date:   Fri, 14 Feb 2020 10:58:55 -0500
+Message-Id: <20200214160149.11681-285-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,35 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-[ Upstream commit 6b9dfd986a81a999a27b6ed9dbe91203089c62dd ]
+[ Upstream commit 248ed51048c40d36728e70914e38bffd7821da57 ]
 
-SAM9X60 PMC's has a different PMC. It was not integrated at the moment
-commit 01c7031cfa73 ("ARM: at91: pm: initial PM support for SAM9X60")
-was published.
+First, printk() is NMI-context safe now since the safe printk() has been
+implemented and it already has an irq_work to make NMI-context safe.
 
-Fixes: 01c7031cfa73 ("ARM: at91: pm: initial PM support for SAM9X60")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/1576062248-18514-2-git-send-email-claudiu.beznea@microchip.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Second, this NMI irq_work actually does not work if a NMI handler causes
+panic by watchdog timeout. It has no chance to run in such case, while
+the safe printk() will flush its per-cpu buffers before panicking.
+
+While at it, repurpose the irq_work callback into a function which
+concentrates the NMI duration checking and makes the code easier to
+follow.
+
+ [ bp: Massage. ]
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200111125427.15662-1-changbin.du@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/pm.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/nmi.h |  1 -
+ arch/x86/kernel/nmi.c      | 20 +++++++++-----------
+ 2 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index d5af6aedc02c4..03250768340e4 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -751,6 +751,7 @@ static const struct of_device_id atmel_pmc_ids[] __initconst = {
- 	{ .compatible = "atmel,sama5d3-pmc", .data = &pmc_infos[1] },
- 	{ .compatible = "atmel,sama5d4-pmc", .data = &pmc_infos[1] },
- 	{ .compatible = "atmel,sama5d2-pmc", .data = &pmc_infos[1] },
-+	{ .compatible = "microchip,sam9x60-pmc", .data = &pmc_infos[1] },
- 	{ /* sentinel */ },
+diff --git a/arch/x86/include/asm/nmi.h b/arch/x86/include/asm/nmi.h
+index 75ded1d13d98d..9d5d949e662e1 100644
+--- a/arch/x86/include/asm/nmi.h
++++ b/arch/x86/include/asm/nmi.h
+@@ -41,7 +41,6 @@ struct nmiaction {
+ 	struct list_head	list;
+ 	nmi_handler_t		handler;
+ 	u64			max_duration;
+-	struct irq_work		irq_work;
+ 	unsigned long		flags;
+ 	const char		*name;
  };
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index e676a9916c498..54c21d6abd5ac 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -104,18 +104,22 @@ static int __init nmi_warning_debugfs(void)
+ }
+ fs_initcall(nmi_warning_debugfs);
  
+-static void nmi_max_handler(struct irq_work *w)
++static void nmi_check_duration(struct nmiaction *action, u64 duration)
+ {
+-	struct nmiaction *a = container_of(w, struct nmiaction, irq_work);
++	u64 whole_msecs = READ_ONCE(action->max_duration);
+ 	int remainder_ns, decimal_msecs;
+-	u64 whole_msecs = READ_ONCE(a->max_duration);
++
++	if (duration < nmi_longest_ns || duration < action->max_duration)
++		return;
++
++	action->max_duration = duration;
+ 
+ 	remainder_ns = do_div(whole_msecs, (1000 * 1000));
+ 	decimal_msecs = remainder_ns / 1000;
+ 
+ 	printk_ratelimited(KERN_INFO
+ 		"INFO: NMI handler (%ps) took too long to run: %lld.%03d msecs\n",
+-		a->handler, whole_msecs, decimal_msecs);
++		action->handler, whole_msecs, decimal_msecs);
+ }
+ 
+ static int nmi_handle(unsigned int type, struct pt_regs *regs)
+@@ -142,11 +146,7 @@ static int nmi_handle(unsigned int type, struct pt_regs *regs)
+ 		delta = sched_clock() - delta;
+ 		trace_nmi_handler(a->handler, (int)delta, thishandled);
+ 
+-		if (delta < nmi_longest_ns || delta < a->max_duration)
+-			continue;
+-
+-		a->max_duration = delta;
+-		irq_work_queue(&a->irq_work);
++		nmi_check_duration(a, delta);
+ 	}
+ 
+ 	rcu_read_unlock();
+@@ -164,8 +164,6 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
+ 	if (!action->handler)
+ 		return -EINVAL;
+ 
+-	init_irq_work(&action->irq_work, nmi_max_handler);
+-
+ 	raw_spin_lock_irqsave(&desc->lock, flags);
+ 
+ 	/*
 -- 
 2.20.1
 
