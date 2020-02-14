@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0749215F0FA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1C215F0C7
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388325AbgBNR7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:59:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
+        id S2388016AbgBNP4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:56:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387990AbgBNP4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:51 -0500
+        id S2388003AbgBNP4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C909922314;
-        Fri, 14 Feb 2020 15:56:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 289792067D;
+        Fri, 14 Feb 2020 15:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695809;
-        bh=b7NQGU52C2v45c6anXKkBxNyh6txPgiMoWz05rtCQVw=;
+        s=default; t=1581695810;
+        bh=tTRTa4UnlM3q5dwh/8XMV0LGO/JgQNvuiKbkjs0hCbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IB5P65AA0eKrsC8N0ND/YKEtobe1FNrrmO7/gsfW0p10XPvbqyOppk4MQuf9gD4/H
-         +vW6O5nXuni4PioleHPgEbbKqzU6o+1U80E1bV1C606rS2lRZhC/a0zvhe57PUlLt+
-         GUgCLDphW+xurbhxJSO4ILcEmqoFeDdKwP2SF88U=
+        b=GIP8r+W8uhItNRyikndhUKBTA0T92ctj3hjHNxIOD4/K0sMfXB6eEqMY+iyc5LP0J
+         IycrGqw5473m2g19JbTy5KJX/pxnv1vDx4ANCdw6pJIk7oIMHgKjM4S+X55OmJ6bZj
+         QhlITPZDLK/9I02G4GMISDTLhLgPfhkwU2S1mM/Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trondmy@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 368/542] NFS: Fix fix of show_nfs_errors
-Date:   Fri, 14 Feb 2020 10:46:00 -0500
-Message-Id: <20200214154854.6746-368-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 369/542] NFSv4.x recover from pre-mature loss of openstateid
+Date:   Fri, 14 Feb 2020 10:46:01 -0500
+Message-Id: <20200214154854.6746-369-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,170 +43,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 118b6292195cfb86a9f43cb65610fc6d980c65f4 ]
+[ Upstream commit d826e5b827641ae1bebb33d23a774f4e9bb8e94f ]
 
-Casting a negative value to an unsigned long is not the same as
-converting it to its absolute value.
+Ever since the commit 0e0cb35b417f, it's possible to lose an open stateid
+while retrying a CLOSE due to ERR_OLD_STATEID. Once that happens,
+operations that require openstateid fail with EAGAIN which is propagated
+to the application then tests like generic/446 and generic/168 fail with
+"Resource temporarily unavailable".
 
-Fixes: 96650e2effa2 ("NFS: Fix show_nfs_errors macros again")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Instead of returning this error, initiate state recovery when possible to
+recover the open stateid and then try calling nfs4_select_rw_stateid()
+again.
+
+Fixes: 0e0cb35b417f ("NFSv4: Handle NFS4ERR_OLD_STATEID in CLOSE/OPEN_DOWNGRADE")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4trace.h | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ fs/nfs/nfs42proc.c | 36 ++++++++++++++++++++++++++++--------
+ fs/nfs/nfs4proc.c  |  2 ++
+ fs/nfs/pnfs.c      |  2 --
+ 3 files changed, 30 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfs/nfs4trace.h b/fs/nfs/nfs4trace.h
-index e60b6fbd5ada1..d405557cb43f1 100644
---- a/fs/nfs/nfs4trace.h
-+++ b/fs/nfs/nfs4trace.h
-@@ -352,7 +352,7 @@ DECLARE_EVENT_CLASS(nfs4_clientid_event,
- 		),
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index 1fe83e0f663e2..9637aad36bdca 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -61,8 +61,11 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
  
- 		TP_fast_assign(
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__assign_str(dstaddr, clp->cl_hostname);
- 		),
+ 	status = nfs4_set_rw_stateid(&args.falloc_stateid, lock->open_context,
+ 			lock, FMODE_WRITE);
+-	if (status)
++	if (status) {
++		if (status == -EAGAIN)
++			status = -NFS4ERR_BAD_STATEID;
+ 		return status;
++	}
  
-@@ -432,7 +432,8 @@ TRACE_EVENT(nfs4_sequence_done,
- 			__entry->target_highest_slotid =
- 					res->sr_target_highest_slotid;
- 			__entry->status_flags = res->sr_status_flags;
--			__entry->error = res->sr_status;
-+			__entry->error = res->sr_status < 0 ?
-+					-res->sr_status : 0;
- 		),
- 		TP_printk(
- 			"error=%ld (%s) session=0x%08x slot_nr=%u seq_nr=%u "
-@@ -640,7 +641,7 @@ TRACE_EVENT(nfs4_state_mgr_failed,
- 		),
+ 	res.falloc_fattr = nfs_alloc_fattr();
+ 	if (!res.falloc_fattr)
+@@ -287,8 +290,11 @@ static ssize_t _nfs42_proc_copy(struct file *src,
+ 	} else {
+ 		status = nfs4_set_rw_stateid(&args->src_stateid,
+ 				src_lock->open_context, src_lock, FMODE_READ);
+-		if (status)
++		if (status) {
++			if (status == -EAGAIN)
++				status = -NFS4ERR_BAD_STATEID;
+ 			return status;
++		}
+ 	}
+ 	status = nfs_filemap_write_and_wait_range(file_inode(src)->i_mapping,
+ 			pos_src, pos_src + (loff_t)count - 1);
+@@ -297,8 +303,11 @@ static ssize_t _nfs42_proc_copy(struct file *src,
  
- 		TP_fast_assign(
--			__entry->error = status;
-+			__entry->error = status < 0 ? -status : 0;
- 			__entry->state = clp->cl_state;
- 			__assign_str(hostname, clp->cl_hostname);
- 			__assign_str(section, section);
-@@ -659,7 +660,7 @@ TRACE_EVENT(nfs4_xdr_status,
- 		TP_PROTO(
- 			const struct xdr_stream *xdr,
- 			u32 op,
--			int error
-+			u32 error
- 		),
+ 	status = nfs4_set_rw_stateid(&args->dst_stateid, dst_lock->open_context,
+ 				     dst_lock, FMODE_WRITE);
+-	if (status)
++	if (status) {
++		if (status == -EAGAIN)
++			status = -NFS4ERR_BAD_STATEID;
+ 		return status;
++	}
  
- 		TP_ARGS(xdr, op, error),
-@@ -849,7 +850,7 @@ TRACE_EVENT(nfs4_close,
- 			__entry->fileid = NFS_FILEID(inode);
- 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
- 			__entry->fmode = (__force unsigned int)state->state;
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->stateid_seq =
- 				be32_to_cpu(args->stateid.seqid);
- 			__entry->stateid_hash =
-@@ -914,7 +915,7 @@ DECLARE_EVENT_CLASS(nfs4_lock_event,
- 		TP_fast_assign(
- 			const struct inode *inode = state->inode;
+ 	status = nfs_sync_inode(dst_inode);
+ 	if (status)
+@@ -546,8 +555,11 @@ static int _nfs42_proc_copy_notify(struct file *src, struct file *dst,
+ 	status = nfs4_set_rw_stateid(&args->cna_src_stateid, ctx, l_ctx,
+ 				     FMODE_READ);
+ 	nfs_put_lock_context(l_ctx);
+-	if (status)
++	if (status) {
++		if (status == -EAGAIN)
++			status = -NFS4ERR_BAD_STATEID;
+ 		return status;
++	}
  
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->cmd = cmd;
- 			__entry->type = request->fl_type;
- 			__entry->start = request->fl_start;
-@@ -986,7 +987,7 @@ TRACE_EVENT(nfs4_set_lock,
- 		TP_fast_assign(
- 			const struct inode *inode = state->inode;
+ 	status = nfs4_call_sync(src_server->client, src_server, &msg,
+ 				&args->cna_seq_args, &res->cnr_seq_res, 0);
+@@ -618,8 +630,11 @@ static loff_t _nfs42_proc_llseek(struct file *filep,
  
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->cmd = cmd;
- 			__entry->type = request->fl_type;
- 			__entry->start = request->fl_start;
-@@ -1164,7 +1165,7 @@ TRACE_EVENT(nfs4_delegreturn_exit,
- 		TP_fast_assign(
- 			__entry->dev = res->server->s_dev;
- 			__entry->fhandle = nfs_fhandle_hash(args->fhandle);
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->stateid_seq =
- 				be32_to_cpu(args->stateid->seqid);
- 			__entry->stateid_hash =
-@@ -1204,7 +1205,7 @@ DECLARE_EVENT_CLASS(nfs4_test_stateid_event,
- 		TP_fast_assign(
- 			const struct inode *inode = state->inode;
+ 	status = nfs4_set_rw_stateid(&args.sa_stateid, lock->open_context,
+ 			lock, FMODE_READ);
+-	if (status)
++	if (status) {
++		if (status == -EAGAIN)
++			status = -NFS4ERR_BAD_STATEID;
+ 		return status;
++	}
  
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->dev = inode->i_sb->s_dev;
- 			__entry->fileid = NFS_FILEID(inode);
- 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
-@@ -1306,7 +1307,7 @@ TRACE_EVENT(nfs4_lookupp,
- 		TP_fast_assign(
- 			__entry->dev = inode->i_sb->s_dev;
- 			__entry->ino = NFS_FILEID(inode);
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 		),
+ 	status = nfs_filemap_write_and_wait_range(inode->i_mapping,
+ 			offset, LLONG_MAX);
+@@ -994,13 +1009,18 @@ static int _nfs42_proc_clone(struct rpc_message *msg, struct file *src_f,
  
- 		TP_printk(
-@@ -1342,7 +1343,7 @@ TRACE_EVENT(nfs4_rename,
- 			__entry->dev = olddir->i_sb->s_dev;
- 			__entry->olddir = NFS_FILEID(olddir);
- 			__entry->newdir = NFS_FILEID(newdir);
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__assign_str(oldname, oldname->name);
- 			__assign_str(newname, newname->name);
- 		),
-@@ -1433,7 +1434,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_stateid_event,
- 			__entry->dev = inode->i_sb->s_dev;
- 			__entry->fileid = NFS_FILEID(inode);
- 			__entry->fhandle = nfs_fhandle_hash(NFS_FH(inode));
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->stateid_seq =
- 				be32_to_cpu(stateid->seqid);
- 			__entry->stateid_hash =
-@@ -1489,7 +1490,7 @@ DECLARE_EVENT_CLASS(nfs4_getattr_event,
- 			__entry->valid = fattr->valid;
- 			__entry->fhandle = nfs_fhandle_hash(fhandle);
- 			__entry->fileid = (fattr->valid & NFS_ATTR_FATTR_FILEID) ? fattr->fileid : 0;
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 		),
+ 	status = nfs4_set_rw_stateid(&args.src_stateid, src_lock->open_context,
+ 			src_lock, FMODE_READ);
+-	if (status)
++	if (status) {
++		if (status == -EAGAIN)
++			status = -NFS4ERR_BAD_STATEID;
+ 		return status;
+-
++	}
+ 	status = nfs4_set_rw_stateid(&args.dst_stateid, dst_lock->open_context,
+ 			dst_lock, FMODE_WRITE);
+-	if (status)
++	if (status) {
++		if (status == -EAGAIN)
++			status = -NFS4ERR_BAD_STATEID;
+ 		return status;
++	}
  
- 		TP_printk(
-@@ -1536,7 +1537,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_callback_event,
- 		),
- 
- 		TP_fast_assign(
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->fhandle = nfs_fhandle_hash(fhandle);
- 			if (!IS_ERR_OR_NULL(inode)) {
- 				__entry->fileid = NFS_FILEID(inode);
-@@ -1593,7 +1594,7 @@ DECLARE_EVENT_CLASS(nfs4_inode_stateid_callback_event,
- 		),
- 
- 		TP_fast_assign(
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->fhandle = nfs_fhandle_hash(fhandle);
- 			if (!IS_ERR_OR_NULL(inode)) {
- 				__entry->fileid = NFS_FILEID(inode);
-@@ -1896,7 +1897,7 @@ TRACE_EVENT(nfs4_layoutget,
- 			__entry->iomode = args->iomode;
- 			__entry->offset = args->offset;
- 			__entry->count = args->length;
--			__entry->error = error;
-+			__entry->error = error < 0 ? -error : 0;
- 			__entry->stateid_seq =
- 				be32_to_cpu(state->stateid.seqid);
- 			__entry->stateid_hash =
+ 	res.dst_fattr = nfs_alloc_fattr();
+ 	if (!res.dst_fattr)
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 76d37161409a5..f9bb4b43a5192 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3239,6 +3239,8 @@ static int _nfs4_do_setattr(struct inode *inode,
+ 		nfs_put_lock_context(l_ctx);
+ 		if (status == -EIO)
+ 			return -EBADF;
++		else if (status == -EAGAIN)
++			goto zero_stateid;
+ 	} else {
+ zero_stateid:
+ 		nfs4_stateid_copy(&arg->stateid, &zero_stateid);
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index cec3070ab577e..3ac6b4dea72d3 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1998,8 +1998,6 @@ pnfs_update_layout(struct inode *ino,
+ 			trace_pnfs_update_layout(ino, pos, count,
+ 					iomode, lo, lseg,
+ 					PNFS_UPDATE_LAYOUT_INVALID_OPEN);
+-			if (status != -EAGAIN)
+-				goto out_unlock;
+ 			spin_unlock(&ino->i_lock);
+ 			nfs4_schedule_stateid_recovery(server, ctx->state);
+ 			pnfs_clear_first_layoutget(lo);
 -- 
 2.20.1
 
