@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5777715EE04
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:38:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9CCF15EDEF
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389946AbgBNQFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:05:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
+        id S2390079AbgBNQFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:05:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390067AbgBNQFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:03 -0500
+        id S2389171AbgBNQFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E88924682;
-        Fri, 14 Feb 2020 16:05:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6BA224676;
+        Fri, 14 Feb 2020 16:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696303;
-        bh=2RobnehjzjN4gENd8OlyjC+tVLtjWRcD/KaqApge1Ss=;
+        s=default; t=1581696306;
+        bh=P6ka74hq+S9cWlwpKuE4fkuQlUl5IcnNTOP1eCnSy9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upDfOaCiNTxiGjMMlLxz76OJu5BfAFqfEMxEsimDMKrhAiP3A/OgjlZoYafVmfEbm
-         wsKxWFo1BbGsKMxi+1FCJhn7dJFh+8Z38CuoYQH5+PTSUyjNYX/GFdJCTS6XbABn9v
-         2isAe5K8dDoGiPO84vaHkHrUlCAqchAN1gqOFcQQ=
+        b=Eb+Ff3wQgUGP5N42xGIwwpD0vUqzOJGilk1xMCHIEzhR9lW9TjUX7BTV+iUNkBYvE
+         ShE9q5WZ5ylKj/UWMU/ZS45KzgebjzibH2JcDjTAUKmTQG5Bz6TGAadkD6gAVe7lgj
+         hOutLUc8FUQTkv4F5j/wpJthnkItInhj73UY8Md4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Ford <aford173@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 147/459] drm/panel: simple: Add Logic PD Type 28 display support
-Date:   Fri, 14 Feb 2020 10:56:37 -0500
-Message-Id: <20200214160149.11681-147-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 150/459] arm64: dts: uDPU: fix broken ethernet
+Date:   Fri, 14 Feb 2020 10:56:40 -0500
+Message-Id: <20200214160149.11681-150-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,82 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 0d35408afbeb603bc9972ae91e4dd2638bcffe52 ]
+[ Upstream commit 1eebac0240580b531954b02c05068051df41142a ]
 
-Previously, there was an omap panel-dpi driver that would
-read generic timings from the device tree and set the display
-timing accordingly.  This driver was removed so the screen
-no longer functions.  This patch modifies the panel-simple
-file to setup the timings to the same values previously used.
+The uDPU uses both ethernet controllers, which ties up COMPHY 0 for
+eth1 and COMPHY 1 for eth0, with no USB3 comphy.  The addition of
+COMPHY support made the kernel override the setup by the boot loader
+breaking this platform by assuming that COMPHY 0 was always used for
+USB3.  Delete the USB3 COMPHY definition at platform level, and add
+phy specifications for the ethernet channels.
 
-Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
-
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191016135147.7743-1-aford173@gmail.com
+Fixes: bd3d25b07342 ("arm64: dts: marvell: armada-37xx: link USB hosts with their PHYs")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 37 ++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 28fa6ba7b7673..8abb31f83ffc7 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2048,6 +2048,40 @@ static const struct drm_display_mode mitsubishi_aa070mc01_mode = {
- 	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts b/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
+index bd4aab6092e0f..e31813a4f9722 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-uDPU.dts
+@@ -143,6 +143,7 @@
+ 	phy-mode = "sgmii";
+ 	status = "okay";
+ 	managed = "in-band-status";
++	phys = <&comphy1 0>;
+ 	sfp = <&sfp_eth0>;
  };
  
-+static const struct drm_display_mode logicpd_type_28_mode = {
-+	.clock = 9000,
-+	.hdisplay = 480,
-+	.hsync_start = 480 + 3,
-+	.hsync_end = 480 + 3 + 42,
-+	.htotal = 480 + 3 + 42 + 2,
-+
-+	.vdisplay = 272,
-+	.vsync_start = 272 + 2,
-+	.vsync_end = 272 + 2 + 11,
-+	.vtotal = 272 + 2 + 11 + 3,
-+	.vrefresh = 60,
-+	.flags = DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC,
-+};
-+
-+static const struct panel_desc logicpd_type_28 = {
-+	.modes = &logicpd_type_28_mode,
-+	.num_modes = 1,
-+	.bpc = 8,
-+	.size = {
-+		.width = 105,
-+		.height = 67,
-+	},
-+	.delay = {
-+		.prepare = 200,
-+		.enable = 200,
-+		.unprepare = 200,
-+		.disable = 200,
-+	},
-+	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
-+	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
-+		     DRM_BUS_FLAG_SYNC_DRIVE_NEGEDGE,
-+};
-+
- static const struct panel_desc mitsubishi_aa070mc01 = {
- 	.modes = &mitsubishi_aa070mc01_mode,
- 	.num_modes = 1,
-@@ -3264,6 +3298,9 @@ static const struct of_device_id platform_of_match[] = {
- 	}, {
- 		.compatible = "lg,lp129qe",
- 		.data = &lg_lp129qe,
-+	}, {
-+		.compatible = "logicpd,type28",
-+		.data = &logicpd_type_28,
- 	}, {
- 		.compatible = "mitsubishi,aa070mc01-ca1",
- 		.data = &mitsubishi_aa070mc01,
+@@ -150,11 +151,14 @@
+ 	phy-mode = "sgmii";
+ 	status = "okay";
+ 	managed = "in-band-status";
++	phys = <&comphy0 1>;
+ 	sfp = <&sfp_eth1>;
+ };
+ 
+ &usb3 {
+ 	status = "okay";
++	phys = <&usb2_utmi_otg_phy>;
++	phy-names = "usb2-utmi-otg-phy";
+ };
+ 
+ &uart0 {
 -- 
 2.20.1
 
