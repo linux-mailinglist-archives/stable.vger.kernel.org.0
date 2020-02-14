@@ -2,310 +2,440 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB74515F630
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:55:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A0F15F6DA
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 20:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729534AbgBNSzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:55:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45314 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728859AbgBNSzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 13:55:25 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S2388233AbgBNT33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 14:29:29 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:31562 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2387576AbgBNT33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 14:29:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1581708566;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=kb7ybT6/+qTgwxWA1x97CHG/J5bd3V8skoxu0QG+nwc=;
+        b=C9lWBHnSWfrJ3aupSGY3TOy7MX4Cmgud97ZZjvRG7T1JdIwEkTSBfndd6RajKzJPERP6GM
+        UAiuiKt4KShfiTl9ZBFp0uSEJ3bsfIJ8H078+dxuXm8bbeAQbS53HqPfhHnoFjhyOH8382
+        3as++HWgGQ6snV2nhPDtU7G6+gg6a54=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-198-pdwjyRZ1PYqMKC-IFoVcYA-1; Fri, 14 Feb 2020 14:29:20 -0500
+X-MC-Unique: pdwjyRZ1PYqMKC-IFoVcYA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 708532086A;
-        Fri, 14 Feb 2020 18:55:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581706524;
-        bh=bH76Jv996cAWWnXpkKTAh1fxpAH41yK3yU7vDaGJx3E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kdYciJgtqNvjNI1ogorbtiG3YLNWh4ZpvmyuYRHXMVqJ4zRJ0G/nW2hX6dD7ipGfU
-         QdYiBAXVcfellfIdV42ufEUo9QvsDk3taWQ1o3goBBk16jYEdNDabonXVuJOvOjsWY
-         mC5kiNHiACHC41pm1rmcGrg8IHMPx4EMNIm1ASYc=
-Date:   Fri, 14 Feb 2020 13:55:23 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ilya Dryomov <idryomov@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
-        Ceph Development <ceph-devel@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.5 487/542] ceph: remove the extra slashes in
- the server path
-Message-ID: <20200214185523.GD1734@sasha-vm>
-References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-487-sashal@kernel.org>
- <CAOi1vP9h-Wx16AuUp4AZaF1THnFan0VFFQhx_r05+2CcyDyKAQ@mail.gmail.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B13B9107ACC4
+        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 19:29:19 +0000 (UTC)
+Received: from [172.54.122.250] (cpt-1052.paas.prod.upshift.rdu2.redhat.com [10.0.19.69])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 00E5C19C70;
+        Fri, 14 Feb 2020 19:29:16 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAOi1vP9h-Wx16AuUp4AZaF1THnFan0VFFQhx_r05+2CcyDyKAQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.20-rc2-b06b66d.cki
+ (stable)
+Date:   Fri, 14 Feb 2020 19:29:16 -0000
+Message-ID: <cki.4A8F19E092.GYE6YKWHTZ@redhat.com>
+X-Gitlab-Pipeline-ID: 436237
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/436237
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 05:13:21PM +0100, Ilya Dryomov wrote:
->On Fri, Feb 14, 2020 at 4:59 PM Sasha Levin <sashal@kernel.org> wrote:
->>
->> From: Xiubo Li <xiubli@redhat.com>
->>
->> [ Upstream commit 4fbc0c711b2464ee1551850b85002faae0b775d5 ]
->>
->> It's possible to pass the mount helper a server path that has more
->> than one contiguous slash character. For example:
->>
->>   $ mount -t ceph 192.168.195.165:40176:/// /mnt/cephfs/
->>
->> In the MDS server side the extra slashes of the server path will be
->> treated as snap dir, and then we can get the following debug logs:
->>
->>   ceph:  mount opening path //
->>   ceph:  open_root_inode opening '//'
->>   ceph:  fill_trace 0000000059b8a3bc is_dentry 0 is_target 1
->>   ceph:  alloc_inode 00000000dc4ca00b
->>   ceph:  get_inode created new inode 00000000dc4ca00b 1.ffffffffffffffff ino 1
->>   ceph:  get_inode on 1=1.ffffffffffffffff got 00000000dc4ca00b
->>
->> And then when creating any new file or directory under the mount
->> point, we can hit the following BUG_ON in ceph_fill_trace():
->>
->>   BUG_ON(ceph_snap(dir) != dvino.snap);
->>
->> Have the client ignore the extra slashes in the server path when
->> mounting. This will also canonicalize the path, so that identical mounts
->> can be consilidated.
->>
->> 1) "//mydir1///mydir//"
->> 2) "/mydir1/mydir"
->> 3) "/mydir1/mydir/"
->>
->> Regardless of the internal treatment of these paths, the kernel still
->> stores the original string including the leading '/' for presentation
->> to userland.
->>
->> URL: https://tracker.ceph.com/issues/42771
->> Signed-off-by: Xiubo Li <xiubli@redhat.com>
->> Reviewed-by: Jeff Layton <jlayton@kernel.org>
->> Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  fs/ceph/super.c | 122 ++++++++++++++++++++++++++++++++++++++++--------
->>  1 file changed, 102 insertions(+), 20 deletions(-)
->>
->> diff --git a/fs/ceph/super.c b/fs/ceph/super.c
->> index 430dcf329723a..112927dbd2f20 100644
->> --- a/fs/ceph/super.c
->> +++ b/fs/ceph/super.c
->> @@ -107,7 +107,6 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
->>         return 0;
->>  }
->>
->> -
->>  static int ceph_sync_fs(struct super_block *sb, int wait)
->>  {
->>         struct ceph_fs_client *fsc = ceph_sb_to_client(sb);
->> @@ -211,7 +210,6 @@ struct ceph_parse_opts_ctx {
->>
->>  /*
->>   * Parse the source parameter.  Distinguish the server list from the path.
->> - * Internally we do not include the leading '/' in the path.
->>   *
->>   * The source will look like:
->>   *     <server_spec>[,<server_spec>...]:[<path>]
->> @@ -232,12 +230,15 @@ static int ceph_parse_source(struct fs_parameter *param, struct fs_context *fc)
->>
->>         dev_name_end = strchr(dev_name, '/');
->>         if (dev_name_end) {
->> -               if (strlen(dev_name_end) > 1) {
->> -                       kfree(fsopt->server_path);
->> -                       fsopt->server_path = kstrdup(dev_name_end, GFP_KERNEL);
->> -                       if (!fsopt->server_path)
->> -                               return -ENOMEM;
->> -               }
->> +               kfree(fsopt->server_path);
->> +
->> +               /*
->> +                * The server_path will include the whole chars from userland
->> +                * including the leading '/'.
->> +                */
->> +               fsopt->server_path = kstrdup(dev_name_end, GFP_KERNEL);
->> +               if (!fsopt->server_path)
->> +                       return -ENOMEM;
->>         } else {
->>                 dev_name_end = dev_name + strlen(dev_name);
->>         }
->> @@ -461,6 +462,73 @@ static int strcmp_null(const char *s1, const char *s2)
->>         return strcmp(s1, s2);
->>  }
->>
->> +/**
->> + * path_remove_extra_slash - Remove the extra slashes in the server path
->> + * @server_path: the server path and could be NULL
->> + *
->> + * Return NULL if the path is NULL or only consists of "/", or a string
->> + * without any extra slashes including the leading slash(es) and the
->> + * slash(es) at the end of the server path, such as:
->> + * "//dir1////dir2///" --> "dir1/dir2"
->> + */
->> +static char *path_remove_extra_slash(const char *server_path)
->> +{
->> +       const char *path = server_path;
->> +       const char *cur, *end;
->> +       char *buf, *p;
->> +       int len;
->> +
->> +       /* if the server path is omitted */
->> +       if (!path)
->> +               return NULL;
->> +
->> +       /* remove all the leading slashes */
->> +       while (*path == '/')
->> +               path++;
->> +
->> +       /* if the server path only consists of slashes */
->> +       if (*path == '\0')
->> +               return NULL;
->> +
->> +       len = strlen(path);
->> +
->> +       buf = kmalloc(len + 1, GFP_KERNEL);
->> +       if (!buf)
->> +               return ERR_PTR(-ENOMEM);
->> +
->> +       end = path + len;
->> +       p = buf;
->> +       do {
->> +               cur = strchr(path, '/');
->> +               if (!cur)
->> +                       cur = end;
->> +
->> +               len = cur - path;
->> +
->> +               /* including one '/' */
->> +               if (cur != end)
->> +                       len += 1;
->> +
->> +               memcpy(p, path, len);
->> +               p += len;
->> +
->> +               while (cur <= end && *cur == '/')
->> +                       cur++;
->> +               path = cur;
->> +       } while (path < end);
->> +
->> +       *p = '\0';
->> +
->> +       /*
->> +        * remove the last slash if there has and just to make sure that
->> +        * we will get something like "dir1/dir2"
->> +        */
->> +       if (*(--p) == '/')
->> +               *p = '\0';
->> +
->> +       return buf;
->> +}
->> +
->>  static int compare_mount_options(struct ceph_mount_options *new_fsopt,
->>                                  struct ceph_options *new_opt,
->>                                  struct ceph_fs_client *fsc)
->> @@ -468,6 +536,7 @@ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
->>         struct ceph_mount_options *fsopt1 = new_fsopt;
->>         struct ceph_mount_options *fsopt2 = fsc->mount_options;
->>         int ofs = offsetof(struct ceph_mount_options, snapdir_name);
->> +       char *p1, *p2;
->>         int ret;
->>
->>         ret = memcmp(fsopt1, fsopt2, ofs);
->> @@ -480,9 +549,21 @@ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
->>         ret = strcmp_null(fsopt1->mds_namespace, fsopt2->mds_namespace);
->>         if (ret)
->>                 return ret;
->> -       ret = strcmp_null(fsopt1->server_path, fsopt2->server_path);
->> +
->> +       p1 = path_remove_extra_slash(fsopt1->server_path);
->> +       if (IS_ERR(p1))
->> +               return PTR_ERR(p1);
->> +       p2 = path_remove_extra_slash(fsopt2->server_path);
->> +       if (IS_ERR(p2)) {
->> +               kfree(p1);
->> +               return PTR_ERR(p2);
->> +       }
->> +       ret = strcmp_null(p1, p2);
->> +       kfree(p1);
->> +       kfree(p2);
->>         if (ret)
->>                 return ret;
->> +
->>         ret = strcmp_null(fsopt1->fscache_uniq, fsopt2->fscache_uniq);
->>         if (ret)
->>                 return ret;
->> @@ -788,7 +869,6 @@ static void destroy_caches(void)
->>         ceph_fscache_unregister();
->>  }
->>
->> -
->>  /*
->>   * ceph_umount_begin - initiate forced umount.  Tear down down the
->>   * mount, skipping steps that may hang while waiting for server(s).
->> @@ -868,9 +948,6 @@ static struct dentry *open_root_dentry(struct ceph_fs_client *fsc,
->>         return root;
->>  }
->>
->> -
->> -
->> -
->>  /*
->>   * mount: join the ceph cluster, and open root directory.
->>   */
->> @@ -885,7 +962,7 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc,
->>         mutex_lock(&fsc->client->mount_mutex);
->>
->>         if (!fsc->sb->s_root) {
->> -               const char *path;
->> +               const char *path, *p;
->>                 err = __ceph_open_session(fsc->client, started);
->>                 if (err < 0)
->>                         goto out;
->> @@ -897,17 +974,22 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc,
->>                                 goto out;
->>                 }
->>
->> -               if (!fsc->mount_options->server_path) {
->> -                       path = "";
->> -                       dout("mount opening path \\t\n");
->> -               } else {
->> -                       path = fsc->mount_options->server_path + 1;
->> -                       dout("mount opening path %s\n", path);
->> +               p = path_remove_extra_slash(fsc->mount_options->server_path);
->> +               if (IS_ERR(p)) {
->> +                       err = PTR_ERR(p);
->> +                       goto out;
->>                 }
->> +               /* if the server path is omitted or just consists of '/' */
->> +               if (!p)
->> +                       path = "";
->> +               else
->> +                       path = p;
->> +               dout("mount opening path '%s'\n", path);
->>
->>                 ceph_fs_debugfs_init(fsc);
->>
->>                 root = open_root_dentry(fsc, path, started);
->> +               kfree(p);
->>                 if (IS_ERR(root)) {
->>                         err = PTR_ERR(root);
->>                         goto out;
->
->Hi Sasha,
->
->This commit is buggy, the fix should land in 5.6-rc2.  Please drop it
->for now -- it would need to be taken together with "ceph: canonicalize
->server path in place" or not backported at all.
 
-I'll try and queue up the fix when it's upstream. This series will
-probably be queued closer to -rc3 anyways.
+Hello,
 
--- 
-Thanks,
-Sasha
+We ran automated tests on a recent commit from this kernel tree:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x-stable-rc.git
+            Commit: b06b66d0f2c4 - Linux 5.4.20-rc2
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
+rehouse/2020/02/13/436237
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=8F=B1  Podman system integration test - as root
+       =E2=8F=B1  Podman system integration test - as user
+       =E2=8F=B1  LTP
+       =E2=8F=B1  Loopdev Sanity
+       =E2=8F=B1  Memory function: memfd_create
+       =E2=8F=B1  AMTU (Abstract Machine Test Utility)
+       =E2=8F=B1  Networking bridge: sanity
+       =E2=8F=B1  Ethernet drivers sanity
+       =E2=8F=B1  Networking MACsec: sanity
+       =E2=8F=B1  Networking socket: fuzz
+       =E2=8F=B1  Networking sctp-auth: sockopts test
+       =E2=8F=B1  Networking: igmp conformance test
+       =E2=8F=B1  Networking route: pmtu
+       =E2=8F=B1  Networking route_func - local
+       =E2=8F=B1  Networking route_func - forward
+       =E2=8F=B1  Networking TCP: keepalive test
+       =E2=8F=B1  Networking UDP: socket
+       =E2=8F=B1  Networking tunnel: geneve basic test
+       =E2=8F=B1  Networking tunnel: gre basic
+       =E2=8F=B1  L2TP basic test
+       =E2=8F=B1  Networking tunnel: vxlan basic
+       =E2=8F=B1  Networking ipsec: basic netns - transport
+       =E2=8F=B1  Networking ipsec: basic netns - tunnel
+       =E2=8F=B1  audit: audit testsuite test
+       =E2=8F=B1  httpd: mod_ssl smoke sanity
+       =E2=8F=B1  tuned: tune-processes-through-perf
+       =E2=8F=B1  ALSA PCM loopback test
+       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
+       =E2=8F=B1  storage: SCSI VPD
+       =E2=8F=B1  trace: ftrace/tracer
+       =E2=8F=B1  CIFS Connectathon
+       =E2=8F=B1  POSIX pjd-fstest suites
+       =E2=8F=B1  Memory function: kaslr
+       =E2=8F=B1  LTP: openposix test suite
+       =E2=8F=B1  Networking vnic: ipvlan/basic
+       =E2=8F=B1  iotop: sanity
+       =E2=8F=B1  Usex - version 1.9-29
+       =E2=8F=B1  storage: dm/common
+
+  ppc64le:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+
