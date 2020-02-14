@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0980B15E44D
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1434615E44B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:35:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405659AbgBNQfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:35:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33666 "EHLO mail.kernel.org"
+        id S2393508AbgBNQfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:35:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405979AbgBNQYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2405991AbgBNQYt (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:24:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50003247A6;
-        Fri, 14 Feb 2020 16:24:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F8FD247A4;
+        Fri, 14 Feb 2020 16:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697488;
-        bh=uWRAqrrz8QGRmZbaK0xqB+Wr/NpuVq0kBoEB4W7u2Og=;
+        s=default; t=1581697489;
+        bh=kcfgrw3PNdU/twejlFjSLK43cf95MDmdZpYWgDPZszM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhkDQqHOXKMBPpMgtETTlOl+QWY6rRILOWtGDgOefi6cz+hGQOZTJOR0Rb9vvxhXy
-         zCeeqL6+K4OaZzCXop6QvhzjH6mYDG6yuKsTv1OEJftYsWlilXPAKIviiuMub3IGUS
-         teIH6018GUVPxJeRjFOhw0519a2dt4mS7XMw+vGk=
+        b=rG0fup8D8P3HGQ73nRT84OJvqKOQGCa00b/+dTizXmn9fABXKavQckTNS/PMT1PsK
+         lZyLhqTKcOS0S9T6BbKovfsmjJv3voHFvdo8hmhd9C1bN8kCVAGwJBGSQ0Hp4ZSXqH
+         c34TsKf7Hg75HTJVhCiUkirwcURzbs02dJGkRr6U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolai Stange <nstange@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 018/100] libertas: make lbs_ibss_join_existing() return error code on rates overflow
-Date:   Fri, 14 Feb 2020 11:23:02 -0500
-Message-Id: <20200214162425.21071-18-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 019/100] kconfig: fix broken dependency in randconfig-generated .config
+Date:   Fri, 14 Feb 2020 11:23:03 -0500
+Message-Id: <20200214162425.21071-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -44,41 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 1754c4f60aaf1e17d886afefee97e94d7f27b4cb ]
+[ Upstream commit c8fb7d7e48d11520ad24808cfce7afb7b9c9f798 ]
 
-Commit e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss
-descriptor") introduced a bounds check on the number of supplied rates to
-lbs_ibss_join_existing() and made it to return on overflow.
+Running randconfig on arm64 using KCONFIG_SEED=0x40C5E904 (e.g. on v5.5)
+produces the .config with CONFIG_EFI=y and CONFIG_CPU_BIG_ENDIAN=y,
+which does not meet the !CONFIG_CPU_BIG_ENDIAN dependency.
 
-However, the aforementioned commit doesn't set the return value accordingly
-and thus, lbs_ibss_join_existing() would return with zero even though it
-failed.
+This is because the user choice for CONFIG_CPU_LITTLE_ENDIAN vs
+CONFIG_CPU_BIG_ENDIAN is set by randomize_choice_values() after the
+value of CONFIG_EFI is calculated.
 
-Make lbs_ibss_join_existing return -EINVAL in case the bounds check on the
-number of supplied rates fails.
+When this happens, the has_changed flag should be set.
 
-Fixes: e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Currently, it takes the result from the last iteration. It should
+accumulate all the results of the loop.
+
+Fixes: 3b9a19e08960 ("kconfig: loop as long as we changed some symbols in randconfig")
+Reported-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/libertas/cfg.c | 1 +
- 1 file changed, 1 insertion(+)
+ scripts/kconfig/confdata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/libertas/cfg.c b/drivers/net/wireless/libertas/cfg.c
-index 803684eed142c..7d55de21b1903 100644
---- a/drivers/net/wireless/libertas/cfg.c
-+++ b/drivers/net/wireless/libertas/cfg.c
-@@ -1854,6 +1854,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
- 		if (rates_max > MAX_RATES) {
- 			lbs_deb_join("invalid rates");
- 			rcu_read_unlock();
-+			ret = -EINVAL;
- 			goto out;
- 		}
- 		rates = cmd.bss.rates;
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index 138d7f100f7e8..4216940e875df 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -1236,7 +1236,7 @@ bool conf_set_all_new_symbols(enum conf_def_mode mode)
+ 
+ 		sym_calc_value(csym);
+ 		if (mode == def_random)
+-			has_changed = randomize_choice_values(csym);
++			has_changed |= randomize_choice_values(csym);
+ 		else {
+ 			set_all_choice_values(csym);
+ 			has_changed = true;
 -- 
 2.20.1
 
