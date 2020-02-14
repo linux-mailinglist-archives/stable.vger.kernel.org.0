@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07CBA15EEBF
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:42:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 921DF15EEBE
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728062AbgBNRmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:42:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50316 "EHLO mail.kernel.org"
+        id S2390163AbgBNRml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:42:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389617AbgBNQDW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388977AbgBNQDW (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:03:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 318352082F;
-        Fri, 14 Feb 2020 16:03:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79E7E2067D;
+        Fri, 14 Feb 2020 16:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696201;
-        bh=zbK5P6bE+5w9JpZDIVeW4d4YCT86HCfVE6Z0vyzn7KM=;
+        s=default; t=1581696202;
+        bh=MJ2uyHPzkXeagzrBI1E8WUEzNGc86rzpa+3s1n5VZTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDA9YRQ5HLTh69/gAiike8I73Apu1eFZmzp1Fyv1YHvT8OTt//x6yNsoD82LZMPpt
-         BZ8Ihlk5FXYo4TuLdptgaAEo5q2C8SRvUxaFXZ4NWaji/LtbQAxG1Bpk3Cu6ckSt4o
-         u/5JX01FaVdg0uNpzDuh53dvIUtfcV2kGExIjHaY=
+        b=e72QCDWZRB/3Ayxdcv0okWathEA1HQ65VTYUvU12IcEaGD3nKKK0Auyv77zOaGc1a
+         9ANSTy78g5ZInje6yUfQS7M72Yx6cIOiyeq9xrdden0OKksJ7ibrBmCcaRKIhCBPwQ
+         yXdaTujn/wrdfKwnAzRGCNHzmz5+jkxPj08ibK2I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Keeping <john@metanate.com>,
-        Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 067/459] usb: dwc2: Fix IN FIFO allocation
-Date:   Fri, 14 Feb 2020 10:55:17 -0500
-Message-Id: <20200214160149.11681-67-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 068/459] nfs: NFS_SWAP should depend on SWAP
+Date:   Fri, 14 Feb 2020 10:55:18 -0500
+Message-Id: <20200214160149.11681-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -45,82 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 644139f8b64d818f6345351455f14471510879a5 ]
+[ Upstream commit 474c4f306eefbb21b67ebd1de802d005c7d7ecdc ]
 
-On chips with fewer FIFOs than endpoints (for example RK3288 which has 9
-endpoints, but only 6 which are cabable of input), the DPTXFSIZN
-registers above the FIFO count may return invalid values.
+If CONFIG_SWAP=n, it does not make much sense to offer the user the
+option to enable support for swapping over NFS, as that will still fail
+at run time:
 
-With logging added on startup, I see:
+    # swapon /swap
+    swapon: /swap: swapon failed: Function not implemented
 
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=1 sz=256
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=2 sz=128
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=3 sz=128
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=4 sz=64
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=5 sz=64
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=6 sz=32
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=7 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=8 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=9 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=10 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=11 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=12 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=13 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=14 sz=0
-	dwc2 ff580000.usb: dwc2_hsotg_init_fifo: ep=15 sz=0
+Fix this by adding a dependency on CONFIG_SWAP.
 
-but:
-
-	# cat /sys/kernel/debug/ff580000.usb/fifo
-	Non-periodic FIFOs:
-	RXFIFO: Size 275
-	NPTXFIFO: Size 16, Start 0x00000113
-
-	Periodic TXFIFOs:
-		DPTXFIFO 1: Size 256, Start 0x00000123
-		DPTXFIFO 2: Size 128, Start 0x00000223
-		DPTXFIFO 3: Size 128, Start 0x000002a3
-		DPTXFIFO 4: Size 64, Start 0x00000323
-		DPTXFIFO 5: Size 64, Start 0x00000363
-		DPTXFIFO 6: Size 32, Start 0x000003a3
-		DPTXFIFO 7: Size 0, Start 0x000003e3
-		DPTXFIFO 8: Size 0, Start 0x000003a3
-		DPTXFIFO 9: Size 256, Start 0x00000123
-
-so it seems that FIFO 9 is mirroring FIFO 1.
-
-Fix the allocation by using the FIFO count instead of the endpoint count
-when selecting a FIFO for an endpoint.
-
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: John Keeping <john@metanate.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a564b8f0398636ba ("nfs: enable swap on NFS")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 6be10e496e105..a9133773b89e4 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4056,11 +4056,12 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
- 	 * a unique tx-fifo even if it is non-periodic.
- 	 */
- 	if (dir_in && hsotg->dedicated_fifos) {
-+		unsigned fifo_count = dwc2_hsotg_tx_fifo_count(hsotg);
- 		u32 fifo_index = 0;
- 		u32 fifo_size = UINT_MAX;
- 
- 		size = hs_ep->ep.maxpacket * hs_ep->mc;
--		for (i = 1; i < hsotg->num_of_eps; ++i) {
-+		for (i = 1; i <= fifo_count; ++i) {
- 			if (hsotg->fifo_map & (1 << i))
- 				continue;
- 			val = dwc2_readl(hsotg, DPTXFSIZN(i));
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index 295a7a21b7744..e7dd07f478259 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -90,7 +90,7 @@ config NFS_V4
+ config NFS_SWAP
+ 	bool "Provide swap over NFS support"
+ 	default n
+-	depends on NFS_FS
++	depends on NFS_FS && SWAP
+ 	select SUNRPC_SWAP
+ 	help
+ 	  This option enables swapon to work on files located on NFS mounts.
 -- 
 2.20.1
 
