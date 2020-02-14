@@ -2,91 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 127DD15F917
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 22:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5285015F913
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 22:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388567AbgBNVyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 16:54:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59822 "EHLO mail.kernel.org"
+        id S2388398AbgBNVyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 16:54:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388145AbgBNVym (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 16:54:42 -0500
+        id S2388314AbgBNVyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 16:54:43 -0500
 Received: from localhost (unknown [65.119.211.164])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1952F22314;
-        Fri, 14 Feb 2020 21:54:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8341E222C4;
+        Fri, 14 Feb 2020 21:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581717281;
-        bh=tVn7U406yIiOIQ3QrobWuWaQw3CMzXxdmkgIycIy/3M=;
+        s=default; t=1581717282;
+        bh=D5P4kvvPGXWzS41Um5m7v8Cms+3z0uV0f+EbWgL/Wac=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yt5bXkGWsp+FXJmF0epytl7xVwnQQFx3XByc3J7MSNwvfKCq6dfKIxVLAj9243vrc
-         vXxxYIRO7JTgsm6WClUJP1RxY5whwzd2pJHS6VwxNFsM0884TZaGSziXTrIwNsRN/j
-         1D5Z09gisCBO+2fhCgqbmTMYPRTwMo3a1N0k6WA0=
-Date:   Fri, 14 Feb 2020 16:50:59 -0500
+        b=BB12WRc3qPtAPbIc12JSTy1L7iFcbp9ZU7UL830LMJffofRJI2Bz9tmaW0OAfA7g0
+         rbxk1RVn4X6tWo1wAeMx0EMhLGzKlEOmvfJxIJiruvNP7+xIEuo86hKDvZciEiCWry
+         +71k6EfbhLtyIMVmeayjhVab7J+TvD0OmIKuyPpE=
+Date:   Fri, 14 Feb 2020 16:51:34 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>, linux-serial@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 188/542] tty: omap-serial: remove set but
- unused variable
-Message-ID: <20200214215059.GJ4193448@kroah.com>
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        David Engraf <david.engraf@sysgo.com>,
+        linux-serial@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 5.5 222/542] Revert "tty/serial: atmel: fix out
+ of range clock divider handling"
+Message-ID: <20200214215134.GK4193448@kroah.com>
 References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-188-sashal@kernel.org>
+ <20200214154854.6746-222-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200214154854.6746-188-sashal@kernel.org>
+In-Reply-To: <20200214154854.6746-222-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 10:43:00AM -0500, Sasha Levin wrote:
-> From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+On Fri, Feb 14, 2020 at 10:43:34AM -0500, Sasha Levin wrote:
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> [ Upstream commit e83c6587c47caa2278aa3bd603b5a85eddc4cec9 ]
+> [ Upstream commit 6dbd54e4154dfe386b3333687de15be239576617 ]
 > 
-> Fix the following warning:
-> drivers/tty/serial/omap-serial.c: In function serial_omap_rlsi:
-> drivers/tty/serial/omap-serial.c:496:16: warning: variable ch set but not used [-Wunused-but-set-variable]
+> This reverts commit 751d0017334db9c4d68a8909c59f662a6ecbcec6.
 > 
-> The character read is useless according to the table 23-246 of the omap4
-> TRM. So we can drop it.
+> The wrong commit got added to the tty-next tree, the correct one is in
+> the tty-linus branch.
 > 
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-> Link: https://lore.kernel.org/r/1575617863-32484-1-git-send-email-wangxiongfeng2@huawei.com
+> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> Cc: David Engraf <david.engraf@sysgo.com>
 > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  drivers/tty/serial/omap-serial.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+>  drivers/tty/serial/atmel_serial.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
-> index 6420ae581a802..5f808d8dfcd5c 100644
-> --- a/drivers/tty/serial/omap-serial.c
-> +++ b/drivers/tty/serial/omap-serial.c
-> @@ -493,10 +493,13 @@ static unsigned int check_modem_status(struct uart_omap_port *up)
->  static void serial_omap_rlsi(struct uart_omap_port *up, unsigned int lsr)
->  {
->  	unsigned int flag;
-> -	unsigned char ch = 0;
+> diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+> index 1ba9bc667e136..ab4d4a0b36497 100644
+> --- a/drivers/tty/serial/atmel_serial.c
+> +++ b/drivers/tty/serial/atmel_serial.c
+> @@ -2270,6 +2270,9 @@ static void atmel_set_termios(struct uart_port *port, struct ktermios *termios,
+>  		mode |= ATMEL_US_USMODE_NORMAL;
+>  	}
 >  
-> +	/*
-> +	 * Read one data character out to avoid stalling the receiver according
-> +	 * to the table 23-246 of the omap4 TRM.
-> +	 */
->  	if (likely(lsr & UART_LSR_DR))
-> -		ch = serial_in(up, UART_RX);
-> +		serial_in(up, UART_RX);
->  
->  	up->port.icount.rx++;
->  	flag = TTY_NORMAL;
+> +	/* set the mode, clock divisor, parity, stop bits and data size */
+> +	atmel_uart_writel(port, ATMEL_US_MR, mode);
+> +
+>  	/*
+>  	 * Set the baud rate:
+>  	 * Fractional baudrate allows to setup output frequency more
 > -- 
 > 2.20.1
->
+> 
 
-Please drop.
+Are you sure this is correct to be added?  This was the result of some
+fun merge problems, I don't think it's needed anywhere else...
 
+greg k-h
