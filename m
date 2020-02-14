@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A84315EE4B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD6715EE69
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389851AbgBNQEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:04:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51922 "EHLO mail.kernel.org"
+        id S2389938AbgBNRjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:39:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389847AbgBNQEG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:04:06 -0500
+        id S2389809AbgBNQEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:04:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C3992187F;
-        Fri, 14 Feb 2020 16:04:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53C65217F4;
+        Fri, 14 Feb 2020 16:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696245;
-        bh=7OdUvj5wXUpXSgoXzi7bOIcjIEDpI8uxLR8gktwYQXg=;
+        s=default; t=1581696247;
+        bh=Bder6H6v+8vZj+HHIqzkVKXYCG1a6QBzUr2WFqJFoAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNE2JT+VTLh+ZJhC45bkwOaL53XiZS6+IVIW06AUSnVVsd8/IkYgFhD33ARNPbHXJ
-         YezRYZ9R3USb7t7611cmll+CERoI+NrCrvnxC9zfVNGQjEbxB7meNslwa3MEDJEmuT
-         qm3YdDpHb8Ay8CHqZDIuJMJAGJ+AT+k78FzVrjrY=
+        b=ZK0pgOmOA2m3p/Vlrn10K+pGkMZI03O28G1suOPJYVSJpke90/clbejJV09YZX5vM
+         a3NDVVeBdiDUlVVcLBRYfwtzE0jfJSnr3xjvUBR3yKbvRQCOckpjvt5UQmvhCGFWVv
+         gdkpzJwzU1J9eLyqTXBgoQ4hzdLuzFDFtEkc9XhA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Parav Pandit <parav@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 103/459] RDMA/cma: Fix unbalanced cm_id reference count during address resolve
-Date:   Fri, 14 Feb 2020 10:55:53 -0500
-Message-Id: <20200214160149.11681-103-sashal@kernel.org>
+Cc:     Tom Zanussi <zanussi@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 104/459] tracing: Simplify assignment parsing for hist triggers
+Date:   Fri, 14 Feb 2020 10:55:54 -0500
+Message-Id: <20200214160149.11681-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,57 +44,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Tom Zanussi <zanussi@kernel.org>
 
-[ Upstream commit b4fb4cc5ba83b20dae13cef116c33648e81d2f44 ]
+[ Upstream commit b527b638fd63ba791dc90a0a6e9a3035b10df52b ]
 
-Below commit missed the AF_IB and loopback code flow in
-rdma_resolve_addr().  This leads to an unbalanced cm_id refcount in
-cma_work_handler() which puts the refcount which was not incremented prior
-to queuing the work.
+In the process of adding better error messages for sorting, I realized
+that strsep was being used incorrectly and some of the error paths I
+was expecting to be hit weren't and just fell through to the common
+invalid key error case.
 
-A call trace is observed with such code flow:
+It also became obvious that for keyword assignments, it wasn't
+necessary to save the full assignment and reparse it later, and having
+a common empty-assignment check would also make more sense in terms of
+error processing.
 
- BUG: unable to handle kernel NULL pointer dereference at (null)
- [<ffffffff96b67e16>] __mutex_lock_slowpath+0x166/0x1d0
- [<ffffffff96b6715f>] mutex_lock+0x1f/0x2f
- [<ffffffffc0beabb5>] cma_work_handler+0x25/0xa0
- [<ffffffff964b9ebf>] process_one_work+0x17f/0x440
- [<ffffffff964baf56>] worker_thread+0x126/0x3c0
+Change the code to fix these problems and simplify it for new error
+message changes in a subsequent patch.
 
-Hence, hold the cm_id reference when scheduling the resolve work item.
+Link: http://lkml.kernel.org/r/1c3ef0b6655deaf345f6faee2584a0298ac2d743.1561743018.git.zanussi@kernel.org
 
-Fixes: 722c7b2bfead ("RDMA/{cma, core}: Avoid callback on rdma_addr_cancel()")
-Link: https://lore.kernel.org/r/20200126142652.104803-2-leon@kernel.org
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: e62347d24534 ("tracing: Add hist trigger support for user-defined sorting ('sort=' param)")
+Fixes: 7ef224d1d0e3 ("tracing: Add 'hist' event trigger command")
+Fixes: a4072fe85ba3 ("tracing: Add a clock attribute for hist triggers")
+Reported-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace_events_hist.c | 70 ++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 50052e9a17318..9008937f8ed86 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -3091,6 +3091,7 @@ static int cma_resolve_loopback(struct rdma_id_private *id_priv)
- 	rdma_addr_get_sgid(&id_priv->id.route.addr.dev_addr, &gid);
- 	rdma_addr_set_dgid(&id_priv->id.route.addr.dev_addr, &gid);
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 4be7fc84d6b6a..a31be3fce3e8e 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2037,12 +2037,6 @@ static int parse_map_size(char *str)
+ 	unsigned long size, map_bits;
+ 	int ret;
  
-+	atomic_inc(&id_priv->refcount);
- 	cma_init_resolve_addr_work(work, id_priv);
- 	queue_work(cma_wq, &work->work);
- 	return 0;
-@@ -3117,6 +3118,7 @@ static int cma_resolve_ib_addr(struct rdma_id_private *id_priv)
- 	rdma_addr_set_dgid(&id_priv->id.route.addr.dev_addr, (union ib_gid *)
- 		&(((struct sockaddr_ib *) &id_priv->id.route.addr.dst_addr)->sib_addr));
+-	strsep(&str, "=");
+-	if (!str) {
+-		ret = -EINVAL;
+-		goto out;
+-	}
+-
+ 	ret = kstrtoul(str, 0, &size);
+ 	if (ret)
+ 		goto out;
+@@ -2102,25 +2096,25 @@ static int parse_action(char *str, struct hist_trigger_attrs *attrs)
+ static int parse_assignment(struct trace_array *tr,
+ 			    char *str, struct hist_trigger_attrs *attrs)
+ {
+-	int ret = 0;
++	int len, ret = 0;
  
-+	atomic_inc(&id_priv->refcount);
- 	cma_init_resolve_addr_work(work, id_priv);
- 	queue_work(cma_wq, &work->work);
- 	return 0;
+-	if ((str_has_prefix(str, "key=")) ||
+-	    (str_has_prefix(str, "keys="))) {
+-		attrs->keys_str = kstrdup(str, GFP_KERNEL);
++	if ((len = str_has_prefix(str, "key=")) ||
++	    (len = str_has_prefix(str, "keys="))) {
++		attrs->keys_str = kstrdup(str + len, GFP_KERNEL);
+ 		if (!attrs->keys_str) {
+ 			ret = -ENOMEM;
+ 			goto out;
+ 		}
+-	} else if ((str_has_prefix(str, "val=")) ||
+-		   (str_has_prefix(str, "vals=")) ||
+-		   (str_has_prefix(str, "values="))) {
+-		attrs->vals_str = kstrdup(str, GFP_KERNEL);
++	} else if ((len = str_has_prefix(str, "val=")) ||
++		   (len = str_has_prefix(str, "vals=")) ||
++		   (len = str_has_prefix(str, "values="))) {
++		attrs->vals_str = kstrdup(str + len, GFP_KERNEL);
+ 		if (!attrs->vals_str) {
+ 			ret = -ENOMEM;
+ 			goto out;
+ 		}
+-	} else if (str_has_prefix(str, "sort=")) {
+-		attrs->sort_key_str = kstrdup(str, GFP_KERNEL);
++	} else if ((len = str_has_prefix(str, "sort="))) {
++		attrs->sort_key_str = kstrdup(str + len, GFP_KERNEL);
+ 		if (!attrs->sort_key_str) {
+ 			ret = -ENOMEM;
+ 			goto out;
+@@ -2131,12 +2125,8 @@ static int parse_assignment(struct trace_array *tr,
+ 			ret = -ENOMEM;
+ 			goto out;
+ 		}
+-	} else if (str_has_prefix(str, "clock=")) {
+-		strsep(&str, "=");
+-		if (!str) {
+-			ret = -EINVAL;
+-			goto out;
+-		}
++	} else if ((len = str_has_prefix(str, "clock="))) {
++		str += len;
+ 
+ 		str = strstrip(str);
+ 		attrs->clock = kstrdup(str, GFP_KERNEL);
+@@ -2144,8 +2134,8 @@ static int parse_assignment(struct trace_array *tr,
+ 			ret = -ENOMEM;
+ 			goto out;
+ 		}
+-	} else if (str_has_prefix(str, "size=")) {
+-		int map_bits = parse_map_size(str);
++	} else if ((len = str_has_prefix(str, "size="))) {
++		int map_bits = parse_map_size(str + len);
+ 
+ 		if (map_bits < 0) {
+ 			ret = map_bits;
+@@ -2185,8 +2175,14 @@ parse_hist_trigger_attrs(struct trace_array *tr, char *trigger_str)
+ 
+ 	while (trigger_str) {
+ 		char *str = strsep(&trigger_str, ":");
++		char *rhs;
+ 
+-		if (strchr(str, '=')) {
++		rhs = strchr(str, '=');
++		if (rhs) {
++			if (!strlen(++rhs)) {
++				ret = -EINVAL;
++				goto free;
++			}
+ 			ret = parse_assignment(tr, str, attrs);
+ 			if (ret)
+ 				goto free;
+@@ -4559,10 +4555,6 @@ static int create_val_fields(struct hist_trigger_data *hist_data,
+ 	if (!fields_str)
+ 		goto out;
+ 
+-	strsep(&fields_str, "=");
+-	if (!fields_str)
+-		goto out;
+-
+ 	for (i = 0, j = 1; i < TRACING_MAP_VALS_MAX &&
+ 		     j < TRACING_MAP_VALS_MAX; i++) {
+ 		field_str = strsep(&fields_str, ",");
+@@ -4657,10 +4649,6 @@ static int create_key_fields(struct hist_trigger_data *hist_data,
+ 	if (!fields_str)
+ 		goto out;
+ 
+-	strsep(&fields_str, "=");
+-	if (!fields_str)
+-		goto out;
+-
+ 	for (i = n_vals; i < n_vals + TRACING_MAP_KEYS_MAX; i++) {
+ 		field_str = strsep(&fields_str, ",");
+ 		if (!field_str)
+@@ -4818,12 +4806,6 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
+ 	if (!fields_str)
+ 		goto out;
+ 
+-	strsep(&fields_str, "=");
+-	if (!fields_str) {
+-		ret = -EINVAL;
+-		goto out;
+-	}
+-
+ 	for (i = 0; i < TRACING_MAP_SORT_KEYS_MAX; i++) {
+ 		struct hist_field *hist_field;
+ 		char *field_str, *field_name;
+@@ -4832,9 +4814,11 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
+ 		sort_key = &hist_data->sort_keys[i];
+ 
+ 		field_str = strsep(&fields_str, ",");
+-		if (!field_str) {
+-			if (i == 0)
+-				ret = -EINVAL;
++		if (!field_str)
++			break;
++
++		if (!*field_str) {
++			ret = -EINVAL;
+ 			break;
+ 		}
+ 
+@@ -4844,7 +4828,7 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
+ 		}
+ 
+ 		field_name = strsep(&field_str, ".");
+-		if (!field_name) {
++		if (!field_name || !*field_name) {
+ 			ret = -EINVAL;
+ 			break;
+ 		}
 -- 
 2.20.1
 
