@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B12A015E0B8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 503A815E0C0
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392394AbgBNQOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S2404070AbgBNQPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392178AbgBNQOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:48 -0500
+        id S2404062AbgBNQPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A44C246D9;
-        Fri, 14 Feb 2020 16:14:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59FFF246C0;
+        Fri, 14 Feb 2020 16:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696888;
-        bh=tvKzxyBSOWdbycPIokxc9W8PB7ktoh/zY9HjhmgDT+k=;
+        s=default; t=1581696903;
+        bh=c6WsqgM0toEDjDTqgMLb6H87/t1l/eCisEHAE0NR3Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmhoAPnxqP7JzlVn67oxEBYbkvAyCYNgXPobFvE8m85ZTrUvh6gRl47qXkto3Ulqo
-         GlKzkmc0R4GZJLJpY2rlKQAAsgUHjeSHRji7ecnucevr86flj38XoxdYyJBKbtBgL/
-         yED4xfyFHjEcQBbBHRYvcryrvd61L7/nVPJAPsbQ=
+        b=W0T06FqwDTOhFwVi0GhFSoHuAHu0hgNFbSGlll6GtIlQol295PIw+uEsP4wxs9m2d
+         RpDv4AjNj09OEpwPbzmz7yE9SuxcJ4s/x6j3B1Dqwbbu9ur0bjtYBquHPMcsfg+JzA
+         6w8r/d+ZYwPwI7SPnvic8ex01ps0FeSghzKNmQkM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 141/252] usbip: Fix unsafe unaligned pointer usage
-Date:   Fri, 14 Feb 2020 11:09:56 -0500
-Message-Id: <20200214161147.15842-141-sashal@kernel.org>
+Cc:     Changbin Du <changbin.du@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 153/252] x86/nmi: Remove irq_work from the long duration NMI handler
+Date:   Fri, 14 Feb 2020 11:10:08 -0500
+Message-Id: <20200214161147.15842-153-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,151 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Changbin Du <changbin.du@gmail.com>
 
-[ Upstream commit 585c91f40d201bc564d4e76b83c05b3b5363fe7e ]
+[ Upstream commit 248ed51048c40d36728e70914e38bffd7821da57 ]
 
-Fix unsafe unaligned pointer usage in usbip network interfaces. usbip tool
-build fails with new gcc -Werror=address-of-packed-member checks.
+First, printk() is NMI-context safe now since the safe printk() has been
+implemented and it already has an irq_work to make NMI-context safe.
 
-usbip_network.c: In function ‘usbip_net_pack_usb_device’:
-usbip_network.c:79:32: error: taking address of packed member of ‘struct usbip_usb_device’ may result in an unaligned pointer value [-Werror=address-of-packed-member]
-   79 |  usbip_net_pack_uint32_t(pack, &udev->busnum);
+Second, this NMI irq_work actually does not work if a NMI handler causes
+panic by watchdog timeout. It has no chance to run in such case, while
+the safe printk() will flush its per-cpu buffers before panicking.
 
-Fix with minor changes to pass by value instead of by address.
+While at it, repurpose the irq_work callback into a function which
+concentrates the NMI duration checking and makes the code easier to
+follow.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200109012416.2875-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ [ bp: Massage. ]
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200111125427.15662-1-changbin.du@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/usbip/src/usbip_network.c | 40 +++++++++++++++++------------
- tools/usb/usbip/src/usbip_network.h | 12 +++------
- 2 files changed, 27 insertions(+), 25 deletions(-)
+ arch/x86/include/asm/nmi.h |  1 -
+ arch/x86/kernel/nmi.c      | 20 +++++++++-----------
+ 2 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/tools/usb/usbip/src/usbip_network.c b/tools/usb/usbip/src/usbip_network.c
-index 8ffcd47d96385..902f55208e239 100644
---- a/tools/usb/usbip/src/usbip_network.c
-+++ b/tools/usb/usbip/src/usbip_network.c
-@@ -62,39 +62,39 @@ void usbip_setup_port_number(char *arg)
- 	info("using port %d (\"%s\")", usbip_port, usbip_port_string);
+diff --git a/arch/x86/include/asm/nmi.h b/arch/x86/include/asm/nmi.h
+index 75ded1d13d98d..9d5d949e662e1 100644
+--- a/arch/x86/include/asm/nmi.h
++++ b/arch/x86/include/asm/nmi.h
+@@ -41,7 +41,6 @@ struct nmiaction {
+ 	struct list_head	list;
+ 	nmi_handler_t		handler;
+ 	u64			max_duration;
+-	struct irq_work		irq_work;
+ 	unsigned long		flags;
+ 	const char		*name;
+ };
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index 086cf1d1d71d8..0f8b9b900b0e7 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -102,18 +102,22 @@ static int __init nmi_warning_debugfs(void)
  }
+ fs_initcall(nmi_warning_debugfs);
  
--void usbip_net_pack_uint32_t(int pack, uint32_t *num)
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num)
+-static void nmi_max_handler(struct irq_work *w)
++static void nmi_check_duration(struct nmiaction *action, u64 duration)
  {
- 	uint32_t i;
- 
- 	if (pack)
--		i = htonl(*num);
-+		i = htonl(num);
- 	else
--		i = ntohl(*num);
-+		i = ntohl(num);
- 
--	*num = i;
-+	return i;
- }
- 
--void usbip_net_pack_uint16_t(int pack, uint16_t *num)
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num)
- {
- 	uint16_t i;
- 
- 	if (pack)
--		i = htons(*num);
-+		i = htons(num);
- 	else
--		i = ntohs(*num);
-+		i = ntohs(num);
- 
--	*num = i;
-+	return i;
- }
- 
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev)
- {
--	usbip_net_pack_uint32_t(pack, &udev->busnum);
--	usbip_net_pack_uint32_t(pack, &udev->devnum);
--	usbip_net_pack_uint32_t(pack, &udev->speed);
-+	udev->busnum = usbip_net_pack_uint32_t(pack, udev->busnum);
-+	udev->devnum = usbip_net_pack_uint32_t(pack, udev->devnum);
-+	udev->speed = usbip_net_pack_uint32_t(pack, udev->speed);
- 
--	usbip_net_pack_uint16_t(pack, &udev->idVendor);
--	usbip_net_pack_uint16_t(pack, &udev->idProduct);
--	usbip_net_pack_uint16_t(pack, &udev->bcdDevice);
-+	udev->idVendor = usbip_net_pack_uint16_t(pack, udev->idVendor);
-+	udev->idProduct = usbip_net_pack_uint16_t(pack, udev->idProduct);
-+	udev->bcdDevice = usbip_net_pack_uint16_t(pack, udev->bcdDevice);
- }
- 
- void usbip_net_pack_usb_interface(int pack __attribute__((unused)),
-@@ -141,6 +141,14 @@ ssize_t usbip_net_send(int sockfd, void *buff, size_t bufflen)
- 	return usbip_net_xmit(sockfd, buff, bufflen, 1);
- }
- 
-+static inline void usbip_net_pack_op_common(int pack,
-+					    struct op_common *op_common)
-+{
-+	op_common->version = usbip_net_pack_uint16_t(pack, op_common->version);
-+	op_common->code = usbip_net_pack_uint16_t(pack, op_common->code);
-+	op_common->status = usbip_net_pack_uint32_t(pack, op_common->status);
-+}
+-	struct nmiaction *a = container_of(w, struct nmiaction, irq_work);
++	u64 whole_msecs = READ_ONCE(action->max_duration);
+ 	int remainder_ns, decimal_msecs;
+-	u64 whole_msecs = READ_ONCE(a->max_duration);
 +
- int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- {
- 	struct op_common op_common;
-@@ -152,7 +160,7 @@ int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- 	op_common.code    = code;
- 	op_common.status  = status;
++	if (duration < nmi_longest_ns || duration < action->max_duration)
++		return;
++
++	action->max_duration = duration;
  
--	PACK_OP_COMMON(1, &op_common);
-+	usbip_net_pack_op_common(1, &op_common);
+ 	remainder_ns = do_div(whole_msecs, (1000 * 1000));
+ 	decimal_msecs = remainder_ns / 1000;
  
- 	rc = usbip_net_send(sockfd, &op_common, sizeof(op_common));
- 	if (rc < 0) {
-@@ -176,7 +184,7 @@ int usbip_net_recv_op_common(int sockfd, uint16_t *code, int *status)
- 		goto err;
+ 	printk_ratelimited(KERN_INFO
+ 		"INFO: NMI handler (%ps) took too long to run: %lld.%03d msecs\n",
+-		a->handler, whole_msecs, decimal_msecs);
++		action->handler, whole_msecs, decimal_msecs);
+ }
+ 
+ static int nmi_handle(unsigned int type, struct pt_regs *regs)
+@@ -140,11 +144,7 @@ static int nmi_handle(unsigned int type, struct pt_regs *regs)
+ 		delta = sched_clock() - delta;
+ 		trace_nmi_handler(a->handler, (int)delta, thishandled);
+ 
+-		if (delta < nmi_longest_ns || delta < a->max_duration)
+-			continue;
+-
+-		a->max_duration = delta;
+-		irq_work_queue(&a->irq_work);
++		nmi_check_duration(a, delta);
  	}
  
--	PACK_OP_COMMON(0, &op_common);
-+	usbip_net_pack_op_common(0, &op_common);
+ 	rcu_read_unlock();
+@@ -162,8 +162,6 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
+ 	if (!action->handler)
+ 		return -EINVAL;
  
- 	if (op_common.version != USBIP_VERSION) {
- 		err("USBIP Kernel and tool version mismatch: %d %d:",
-diff --git a/tools/usb/usbip/src/usbip_network.h b/tools/usb/usbip/src/usbip_network.h
-index 555215eae43e9..83b4c5344f721 100644
---- a/tools/usb/usbip/src/usbip_network.h
-+++ b/tools/usb/usbip/src/usbip_network.h
-@@ -32,12 +32,6 @@ struct op_common {
- 
- } __attribute__((packed));
- 
--#define PACK_OP_COMMON(pack, op_common)  do {\
--	usbip_net_pack_uint16_t(pack, &(op_common)->version);\
--	usbip_net_pack_uint16_t(pack, &(op_common)->code);\
--	usbip_net_pack_uint32_t(pack, &(op_common)->status);\
--} while (0)
+-	init_irq_work(&action->irq_work, nmi_max_handler);
 -
- /* ---------------------------------------------------------------------- */
- /* Dummy Code */
- #define OP_UNSPEC	0x00
-@@ -163,11 +157,11 @@ struct op_devlist_reply_extra {
- } while (0)
+ 	raw_spin_lock_irqsave(&desc->lock, flags);
  
- #define PACK_OP_DEVLIST_REPLY(pack, reply)  do {\
--	usbip_net_pack_uint32_t(pack, &(reply)->ndev);\
-+	(reply)->ndev = usbip_net_pack_uint32_t(pack, (reply)->ndev);\
- } while (0)
- 
--void usbip_net_pack_uint32_t(int pack, uint32_t *num);
--void usbip_net_pack_uint16_t(int pack, uint16_t *num);
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num);
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num);
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev);
- void usbip_net_pack_usb_interface(int pack, struct usbip_usb_interface *uinf);
- 
+ 	/*
 -- 
 2.20.1
 
