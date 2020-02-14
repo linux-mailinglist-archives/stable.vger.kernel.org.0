@@ -2,130 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8914D15CF63
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 02:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE10715CF69
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 02:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727609AbgBNBNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 20:13:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45054 "EHLO mail.kernel.org"
+        id S1727955AbgBNBT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 20:19:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727604AbgBNBNm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 20:13:42 -0500
+        id S1727604AbgBNBT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 20:19:58 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49D2520848;
-        Fri, 14 Feb 2020 01:13:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A00020848;
+        Fri, 14 Feb 2020 01:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581642821;
-        bh=1I5Av8GRv6y5/2c2uoawZIwNDflYotcNf7jvh+xAvMQ=;
+        s=default; t=1581643197;
+        bh=cNE6bNVu1fk/XRcJo18cf+EwcJs7tFrXWAf5isoOqYs=;
         h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=v2abwC2WVOaYOIj2aei7KvR6/8EzZiRm8Elb0H6S2EYUbykAaSgfDJ7aVt0hjwMeM
-         KB6aTrHtl2imXOEESVoA8NgrBEJHIW2qE5lOleX4ehqpFX3OsJzqETvqaXnWBvEOh/
-         fGvDcHnoLsTwKAWGD4ehninq9w75Ue+nLlJf5N7c=
-Date:   Thu, 13 Feb 2020 20:13:39 -0500
+        b=Aw65tvMSTNlHQ1ycTlCYb2oL306UJeUreXVEnrCMap+X6OlCWKOya+1q0Lx6vRm7i
+         HgIsf93zJhngOuLUHqHkv19QZ6/mmFd54CExILEIJ49P3JslUeg7Zmi2gYZf3367uC
+         EU65r24uY+ZZC2UHv6qvjFSR9wDUFQ43yfwGcGa8=
+Date:   Thu, 13 Feb 2020 20:19:56 -0500
 From:   Sasha Levin <sashal@kernel.org>
 To:     dsterba@suse.cz, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Filipe Manana <fdmanana@suse.com>,
         Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: Re: [PATCH 4.9 083/116] btrfs: free block groups after freeing fs
- trees
-Message-ID: <20200214011339.GB1734@sasha-vm>
+Subject: Re: [PATCH 4.9 089/116] btrfs: flush write bio if we loop in
+ extent_write_cache_pages
+Message-ID: <20200214011956.GC1734@sasha-vm>
 References: <20200213151842.259660170@linuxfoundation.org>
- <20200213151915.106400155@linuxfoundation.org>
- <20200213205533.GR2902@suse.cz>
+ <20200213151917.511897953@linuxfoundation.org>
+ <20200213210109.GS2902@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200213205533.GR2902@suse.cz>
+In-Reply-To: <20200213210109.GS2902@suse.cz>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 09:55:33PM +0100, David Sterba wrote:
->On Thu, Feb 13, 2020 at 07:20:27AM -0800, Greg Kroah-Hartman wrote:
+On Thu, Feb 13, 2020 at 10:01:09PM +0100, David Sterba wrote:
+>On Thu, Feb 13, 2020 at 07:20:33AM -0800, Greg Kroah-Hartman wrote:
 >> From: Josef Bacik <josef@toxicpanda.com>
 >>
->> [ Upstream commit 4e19443da1941050b346f8fc4c368aa68413bc88 ]
->>
->> Sometimes when running generic/475 we would trip the
->> WARN_ON(cache->reserved) check when free'ing the block groups on umount.
->> This is because sometimes we don't commit the transaction because of IO
->> errors and thus do not cleanup the tree logs until at umount time.
->>
->> These blocks are still reserved until they are cleaned up, but they
->> aren't cleaned up until _after_ we do the free block groups work.  Fix
->> this by moving the free after free'ing the fs roots, that way all of the
->> tree logs are cleaned up and we have a properly cleaned fs.  A bunch of
->> loops of generic/475 confirmed this fixes the problem.
->>
->> CC: stable@vger.kernel.org # 4.9+
->> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
->> Reviewed-by: David Sterba <dsterba@suse.com>
->> Signed-off-by: David Sterba <dsterba@suse.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  fs/btrfs/disk-io.c | 9 +++++++++
->>  1 file changed, 9 insertions(+)
->>
->> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
->> index eab5a9065f093..439b5f5dc3274 100644
->> --- a/fs/btrfs/disk-io.c
->> +++ b/fs/btrfs/disk-io.c
->> @@ -3864,6 +3864,15 @@ void close_ctree(struct btrfs_root *root)
->>  	clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
->>  	free_root_pointers(fs_info, true);
->>
->> +	/*
->> +	 * We must free the block groups after dropping the fs_roots as we could
->> +	 * have had an IO error and have left over tree log blocks that aren't
->> +	 * cleaned up until the fs roots are freed.  This makes the block group
->> +	 * accounting appear to be wrong because there's pending reserved bytes,
->> +	 * so make sure we do the block group cleanup afterwards.
->> +	 */
->> +	btrfs_free_block_groups(fs_info);
+>> [ Upstream commit 96bf313ecb33567af4cb53928b0c951254a02759 ]
 >
->Something's wrong here.  The patch 4e19443da1 moves the
->btrfs_free_block_groups() call and the stable backport lacks the "-"
->line. However the patch applies cleanly on 4.9.213.
+>This commit does not exist in my tree, the correct upstream commit of
+>the backported patch should be 42ffb0bf584ae5b6b38f72259af1e0ee417ac77f.
 >
->3855         btrfs_free_block_groups(fs_info);
->^^^^
+>> --- a/fs/btrfs/extent_io.c
+>> +++ b/fs/btrfs/extent_io.c
+>> @@ -4060,6 +4060,14 @@ static int extent_write_cache_pages(struct extent_io_tree *tree,
+>>  		 */
+>>  		scanned = 1;
+>>  		index = 0;
+>> +
+>> +		/*
+>> +		 * If we're looping we could run into a page that is locked by a
+>> +		 * writer and that writer could be waiting on writeback for a
+>> +		 * page in our current bio, and thus deadlock, so flush the
+>> +		 * write bio here.
+>> +		 */
+>> +		flush_write_bio(data);
 >
->3856
->3857         /*
->3858          * we must make sure there is not any read request to
->3859          * submit after we stopping all workers.
->3860          */
->3861         invalidate_inode_pages2(fs_info->btree_inode->i_mapping);
->3862         btrfs_stop_all_workers(fs_info);
->3863
->3864         clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
->3865         free_root_pointers(fs_info, 1);
->3866
->3867         /*
->3868          * We must free the block groups after dropping the fs_roots as we could
->3869          * have had an IO error and have left over tree log blocks that aren't
->3870          * cleaned up until the fs roots are freed.  This makes the block group
->3871          * accounting appear to be wrong because there's pending reserved bytes,
->3872          * so make sure we do the block group cleanup afterwards.
->3873          */
->3874         btrfs_free_block_groups(fs_info);
->
->The first one should not be there.
+>This has been modified to apply, flush_write_bio does not return a value
+>in 4.9, perhaps this led to the different commit id.
 
-Sigh, sorry about that. The story behind this is that for this patch to
-apply, we first must have 5cdd7db6c5c9 ("Btrfs: fix assertion failure
-when freeing block groups at close_ctree()") which moves the
-btrfs_free_block_groups() call to line 3863 in your code above.
+Ah yes. This patch was tricky because there were two "big" things that
+broke on the backport:
 
-I somehow goofed up picking it up and (probably) messed up the rebase
-when it went missing, sorry again.
+1. flush_write_bio() returning a value.
+2. The 'data' -> 'epd' rename.
 
-I'll fix it up for the next release.
+96bf313ecb3 comes from when both of the above conditions overlapped, and
+I forgot that I'm basing my second backport change on something that was
+already modified.
 
 -- 
 Thanks,
