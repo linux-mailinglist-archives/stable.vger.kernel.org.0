@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D15B715EAA9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C78015EAA5
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392031AbgBNRP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:15:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39592 "EHLO mail.kernel.org"
+        id S2391226AbgBNRPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:15:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391946AbgBNQMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:16 -0500
+        id S2391950AbgBNQMR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7C762469F;
-        Fri, 14 Feb 2020 16:12:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42374246AA;
+        Fri, 14 Feb 2020 16:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696735;
-        bh=zpzh7jTzlav5vmENnBuXbz1FGPBgaAbtcDNvY9gavbU=;
+        s=default; t=1581696737;
+        bh=cDiexPInADw27bWzF75BYpemo7Fx1QdHbtTM10EHw+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ag48VvDA9Tnv1eAr824aBbw1WVPdJ70tgWspY8Ce6uaSQlFPn3pKDkn6KQZT9cEXP
-         RUQSNGXHcidOA230UZktEvgct+qrDt2Zl+CuUw8lx6afs4iHMXVjLUZpNgZ4aMO8Eb
-         FxY8+NaDF0yIWW2DVCWYUFMkdCpmr1eMT9hLbLvc=
+        b=0WDR4HQu7WDoS+y2XGsN4YWkwjOuy35GWvMkF0qGFiSVpRgTCg4pPz2pe2ZpjXUze
+         fZOj3RZ6NrDLzS/o3U6/DIdqfJg6gnRSddIQxriM/TwJBoFMKzI8Yp2U6wwb7jYaqt
+         RDuM88vtcjaCRO/qS7QYgHSL36LS6u2CajVSZbZE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Fabien Dessenne <fabien.dessenne@st.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 021/252] media: sti: bdisp: fix a possible sleep-in-atomic-context bug in bdisp_device_run()
-Date:   Fri, 14 Feb 2020 11:07:56 -0500
-Message-Id: <20200214161147.15842-21-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Doug Meyer <dmeyer@gigaio.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 022/252] PCI/switchtec: Fix vep_vector_number ioread width
+Date:   Fri, 14 Feb 2020 11:07:57 -0500
+Message-Id: <20200214161147.15842-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,57 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit bb6d42061a05d71dd73f620582d9e09c8fbf7f5b ]
+[ Upstream commit 9375646b4cf03aee81bc6c305aa18cc80b682796 ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+vep_vector_number is actually a 16 bit register which should be read with
+ioread16() instead of ioread32().
 
-drivers/media/platform/sti/bdisp/bdisp-hw.c, 385:
-    msleep in bdisp_hw_reset
-drivers/media/platform/sti/bdisp/bdisp-v4l2.c, 341:
-    bdisp_hw_reset in bdisp_device_run
-drivers/media/platform/sti/bdisp/bdisp-v4l2.c, 317:
-    _raw_spin_lock_irqsave in bdisp_device_run
-
-To fix this bug, msleep() is replaced with udelay().
-
-This bug is found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
+Link: https://lore.kernel.org/r/20200106190337.2428-3-logang@deltatee.com
+Reported-by: Doug Meyer <dmeyer@gigaio.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/bdisp/bdisp-hw.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pci/switch/switchtec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sti/bdisp/bdisp-hw.c b/drivers/media/platform/sti/bdisp/bdisp-hw.c
-index 26d9fa7aeb5f2..d57f659d740a1 100644
---- a/drivers/media/platform/sti/bdisp/bdisp-hw.c
-+++ b/drivers/media/platform/sti/bdisp/bdisp-hw.c
-@@ -14,8 +14,8 @@
- #define MAX_SRC_WIDTH           2048
+diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+index ceb7ab3ba3d09..43431816412c1 100644
+--- a/drivers/pci/switch/switchtec.c
++++ b/drivers/pci/switch/switchtec.c
+@@ -1186,7 +1186,7 @@ static int switchtec_init_isr(struct switchtec_dev *stdev)
+ 	if (nvecs < 0)
+ 		return nvecs;
  
- /* Reset & boot poll config */
--#define POLL_RST_MAX            50
--#define POLL_RST_DELAY_MS       20
-+#define POLL_RST_MAX            500
-+#define POLL_RST_DELAY_MS       2
+-	event_irq = ioread32(&stdev->mmio_part_cfg->vep_vector_number);
++	event_irq = ioread16(&stdev->mmio_part_cfg->vep_vector_number);
+ 	if (event_irq < 0 || event_irq >= nvecs)
+ 		return -EFAULT;
  
- enum bdisp_target_plan {
- 	BDISP_RGB,
-@@ -382,7 +382,7 @@ int bdisp_hw_reset(struct bdisp_dev *bdisp)
- 	for (i = 0; i < POLL_RST_MAX; i++) {
- 		if (readl(bdisp->regs + BLT_STA1) & BLT_STA1_IDLE)
- 			break;
--		msleep(POLL_RST_DELAY_MS);
-+		udelay(POLL_RST_DELAY_MS * 1000);
- 	}
- 	if (i == POLL_RST_MAX)
- 		dev_err(bdisp->dev, "Reset timeout\n");
 -- 
 2.20.1
 
