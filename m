@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B6BB15F497
+	by mail.lfdr.de (Postfix) with ESMTP id 85C2B15F498
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729994AbgBNPtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:49:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52514 "EHLO mail.kernel.org"
+        id S2389210AbgBNSWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:22:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729987AbgBNPtc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:32 -0500
+        id S1730000AbgBNPtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:49:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC609217F4;
-        Fri, 14 Feb 2020 15:49:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E404224650;
+        Fri, 14 Feb 2020 15:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695371;
-        bh=EH0AaaBxidM6w52kyxw8SmOZ2SPi6FAU5ED1YOkX3CA=;
+        s=default; t=1581695372;
+        bh=w72o9lcZbaZku5BCWTjN8fzU+n6bQrTtcghNJBGySBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xT3U7hlF8bRC0E5nM/2LiJ1VcEu4lk+OgFs0VaVjn116fykb84BI3/r3c+PMC0c1Z
-         WDjFK6qMzoFAu9cbXBDKKU0nfahX6fzRmXpNiiSy0MZnTxjV/javZbfJzKBnJeT914
-         cHGKEhTiVZwDlv3R9uvETbhT6fEKBNkvKMVBuWYs=
+        b=0/EytJ1FBGpi+CzroumUQWiU1E+lQZU19a8zwNTS/kFG+zePcj4gurTCJPolErIOQ
+         ondLQH43Qi6GzN19EQYoAWemqaTeRpzUKyDxit45IB//J2hf3p3dCbZ/N/4h3z2vw1
+         NUSsTS5Cnd9meR+mQXV0IwWxe4ST69ZfdH+WrE78=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Sewart <jamessewart@arista.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 028/542] PCI: Fix pci_add_dma_alias() bitmask size
-Date:   Fri, 14 Feb 2020 10:40:20 -0500
-Message-Id: <20200214154854.6746-28-sashal@kernel.org>
+Cc:     Nikola Cornij <nikola.cornij@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 029/542] drm/amd/display: Map ODM memory correctly when doing ODM combine
+Date:   Fri, 14 Feb 2020 10:40:21 -0500
+Message-Id: <20200214154854.6746-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,75 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Sewart <jamessewart@arista.com>
+From: Nikola Cornij <nikola.cornij@amd.com>
 
-[ Upstream commit f8bf2aeb651b3460a4b36fd7ba1ba1d31777d35c ]
+[ Upstream commit ec5b356c58941bb8930858155d9ce14ceb3d30a0 ]
 
-The number of possible devfns is 256, but pci_add_dma_alias() allocated a
-bitmap of size 255.  Fix this off-by-one error.
+[why]
+Up to 4 ODM memory pieces are required per ODM combine and cannot
+overlap, i.e. each ODM "session" has to use its own memory pieces.
+The ODM-memory mapping is currently broken for generic case.
 
-This fixes commits 338c3149a221 ("PCI: Add support for multiple DMA
-aliases") and c6635792737b ("PCI: Allocate dma_alias_mask with
-bitmap_zalloc()"), but I doubt it was possible to see a problem because
-it takes 4 64-bit longs (or 8 32-bit longs) to hold 255 bits, and
-bitmap_zalloc() doesn't save the 255-bit size anywhere.
+The maximum number of memory pieces is ASIC-dependent, but it's always
+big enough to satisfy maximum number of ODM combines. Memory pieces
+are mapped as a bit-map, i.e. one memory piece corresponds to one bit.
+The OPTC doing ODM needs to select memory pieces by setting the
+corresponding bits, making sure there's no overlap with other OPTC
+instances that might be doing ODM.
 
-[bhelgaas: commit log, move #define to drivers/pci/pci.h, include loop
-limit fix from Qian Cai:
-https://lore.kernel.org/r/20191218170004.5297-1-cai@lca.pw]
-Signed-off-by: James Sewart <jamessewart@arista.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+The current mapping works only for OPTC instance indexes smaller than
+3. For instance indexes 3 and up it practically maps no ODM memory,
+causing black, gray or white screen in display configs that include
+ODM on OPTC instance 3 or up.
+
+[how]
+Statically map two unique ODM memory pieces for each OPTC instance
+and piece them together when programming ODM combine mode.
+
+Signed-off-by: Nikola Cornij <nikola.cornij@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c    | 2 +-
- drivers/pci/pci.h    | 3 +++
- drivers/pci/search.c | 4 ++--
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_optc.c    | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index e87196cc1a7fb..7b5fa2eabe095 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -6017,7 +6017,7 @@ EXPORT_SYMBOL_GPL(pci_pr3_present);
- void pci_add_dma_alias(struct pci_dev *dev, u8 devfn)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
+index 3b613fb93ef80..0162d3ffe268f 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
+@@ -233,12 +233,13 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
+ 		struct dc_crtc_timing *timing)
  {
- 	if (!dev->dma_alias_mask)
--		dev->dma_alias_mask = bitmap_zalloc(U8_MAX, GFP_KERNEL);
-+		dev->dma_alias_mask = bitmap_zalloc(MAX_NR_DEVFNS, GFP_KERNEL);
- 	if (!dev->dma_alias_mask) {
- 		pci_warn(dev, "Unable to allocate DMA alias mask\n");
- 		return;
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index a0a53bd05a0b8..6394e7746fb54 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -4,6 +4,9 @@
+ 	struct optc *optc1 = DCN10TG_FROM_TG(optc);
+-	/* 2 pieces of memory required for up to 5120 displays, 4 for up to 8192 */
+ 	int mpcc_hactive = (timing->h_addressable + timing->h_border_left + timing->h_border_right)
+ 			/ opp_cnt;
+-	int memory_mask = mpcc_hactive <= 2560 ? 0x3 : 0xf;
++	uint32_t memory_mask;
+ 	uint32_t data_fmt = 0;
  
- #include <linux/pci.h>
- 
-+/* Number of possible devfns: 0.0 to 1f.7 inclusive */
-+#define MAX_NR_DEVFNS 256
++	ASSERT(opp_cnt == 2);
 +
- #define PCI_FIND_CAP_TTL	48
- 
- #define PCI_VSEC_ID_INTEL_TBT	0x1234	/* Thunderbolt */
-diff --git a/drivers/pci/search.c b/drivers/pci/search.c
-index bade14002fd8a..e4dbdef5aef05 100644
---- a/drivers/pci/search.c
-+++ b/drivers/pci/search.c
-@@ -41,9 +41,9 @@ int pci_for_each_dma_alias(struct pci_dev *pdev,
- 	 * DMA, iterate over that too.
+ 	/* TODO: In pseudocode but does not affect maximus, delete comment if we dont need on asic
+ 	 * REG_SET(OTG_GLOBAL_CONTROL2, 0, GLOBAL_UPDATE_LOCK_EN, 1);
+ 	 * Program OTG register MASTER_UPDATE_LOCK_DB_X/Y to the position before DP frame start
+@@ -246,9 +247,17 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
+ 	 *		MASTER_UPDATE_LOCK_DB_X, 160,
+ 	 *		MASTER_UPDATE_LOCK_DB_Y, 240);
  	 */
- 	if (unlikely(pdev->dma_alias_mask)) {
--		u8 devfn;
-+		unsigned int devfn;
++
++	/* 2 pieces of memory required for up to 5120 displays, 4 for up to 8192,
++	 * however, for ODM combine we can simplify by always using 4.
++	 * To make sure there's no overlap, each instance "reserves" 2 memories and
++	 * they are uniquely combined here.
++	 */
++	memory_mask = 0x3 << (opp_id[0] * 2) | 0x3 << (opp_id[1] * 2);
++
+ 	if (REG(OPTC_MEMORY_CONFIG))
+ 		REG_SET(OPTC_MEMORY_CONFIG, 0,
+-			OPTC_MEM_SEL, memory_mask << (optc->inst * 4));
++			OPTC_MEM_SEL, memory_mask);
  
--		for_each_set_bit(devfn, pdev->dma_alias_mask, U8_MAX) {
-+		for_each_set_bit(devfn, pdev->dma_alias_mask, MAX_NR_DEVFNS) {
- 			ret = fn(pdev, PCI_DEVID(pdev->bus->number, devfn),
- 				 data);
- 			if (ret)
+ 	if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
+ 		data_fmt = 1;
+@@ -257,7 +266,6 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
+ 
+ 	REG_UPDATE(OPTC_DATA_FORMAT_CONTROL, OPTC_DATA_FORMAT, data_fmt);
+ 
+-	ASSERT(opp_cnt == 2);
+ 	REG_SET_3(OPTC_DATA_SOURCE_SELECT, 0,
+ 			OPTC_NUM_OF_INPUT_SEGMENT, 1,
+ 			OPTC_SEG0_SRC_SEL, opp_id[0],
 -- 
 2.20.1
 
