@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8BC15E239
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 261EE15E23B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:23:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405381AbgBNQWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:22:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
+        id S2405394AbgBNQWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:22:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405378AbgBNQWG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:22:06 -0500
+        id S2387788AbgBNQWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E667246D3;
-        Fri, 14 Feb 2020 16:22:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACA83246DF;
+        Fri, 14 Feb 2020 16:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697325;
-        bh=P9jEKKyfNmkT4yHp4U4ESLCvkX7RR/kRv7QnsR0c6rM=;
+        s=default; t=1581697329;
+        bh=jn4K9rDlecWTJSRHUz03JEu4YRkIIjvf91FBDrRDW14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9hI1ilu6qcZaQbWPPrXmRDT/gLwpCQZKpSXTXVKbVJ24Gd456tS3EWEVlYW0uVJX
-         fIavEH3+EkGwF3WkjMJ3PFnngwINwhXLKm/ZUuscnHC80wawMebOJfSKWZZXFHSCvN
-         DSRE6RX8PKuCuHMzvIX0C5vHB9h7tZo2byqFf9To=
+        b=PepKEXcFte97Cc2hl/ii68rXDcQtRKm9SBUzaFpxSdkRIXYupe0weqkSFF3++H7oq
+         fNTDn5iv9Gb7jJKyAGwSS9nPmQGwriGL9a3C01xDmHXQp7G56vUj8FCcGY6kidpM/Q
+         NqT+RiZtEe4ofHR1WVwteVzSS7N7a46gBSpQ378Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     yu kuai <yukuai3@huawei.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 034/141] drm/amdgpu: remove set but not used variable 'dig'
-Date:   Fri, 14 Feb 2020 11:19:34 -0500
-Message-Id: <20200214162122.19794-34-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 037/141] drm/amdgpu: remove set but not used variable 'amdgpu_connector'
+Date:   Fri, 14 Feb 2020 11:19:37 -0500
+Message-Id: <20200214162122.19794-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -47,43 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit d1d09dc417826f5a983e0f4f212f227beeb65e29 ]
+[ Upstream commit 4f2922d12d6c63d0f4aa4e859ad95aee6d0d4ea0 ]
 
 Fixes gcc '-Wunused-but-set-variable' warning:
 
-drivers/gpu/drm/amd/amdgpu/atombios_dp.c: In function
-‘amdgpu_atombios_dp_link_train’:
-drivers/gpu/drm/amd/amdgpu/atombios_dp.c:716:34: warning: variable ‘dig’
-set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_display.c: In function
+‘amdgpu_display_crtc_scaling_mode_fixup’:
+drivers/gpu/drm/amd/amdgpu/amdgpu_display.c:693:27: warning: variable
+‘amdgpu_connector’ set but not used [-Wunused-but-set-variable]
 
 Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
 Signed-off-by: yu kuai <yukuai3@huawei.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/atombios_dp.c | 2 --
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-index d712dee892545..8abe9beab0343 100644
---- a/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/atombios_dp.c
-@@ -710,7 +710,6 @@ void amdgpu_atombios_dp_link_train(struct drm_encoder *encoder,
- 	struct drm_device *dev = encoder->dev;
- 	struct amdgpu_device *adev = dev->dev_private;
- 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
--	struct amdgpu_encoder_atom_dig *dig;
- 	struct amdgpu_connector *amdgpu_connector;
- 	struct amdgpu_connector_atom_dig *dig_connector;
- 	struct amdgpu_atombios_dp_link_train_info dp_info;
-@@ -718,7 +717,6 @@ void amdgpu_atombios_dp_link_train(struct drm_encoder *encoder,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+index 15a2d8f3725d5..f29f025202d03 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+@@ -666,7 +666,6 @@ bool amdgpu_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
+ 	struct amdgpu_crtc *amdgpu_crtc = to_amdgpu_crtc(crtc);
+ 	struct amdgpu_encoder *amdgpu_encoder;
+ 	struct drm_connector *connector;
+-	struct amdgpu_connector *amdgpu_connector;
+ 	u32 src_v = 1, dst_v = 1;
+ 	u32 src_h = 1, dst_h = 1;
  
- 	if (!amdgpu_encoder->enc_priv)
- 		return;
--	dig = amdgpu_encoder->enc_priv;
+@@ -678,7 +677,6 @@ bool amdgpu_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
+ 			continue;
+ 		amdgpu_encoder = to_amdgpu_encoder(encoder);
+ 		connector = amdgpu_get_connector_for_encoder(encoder);
+-		amdgpu_connector = to_amdgpu_connector(connector);
  
- 	amdgpu_connector = to_amdgpu_connector(connector);
- 	if (!amdgpu_connector->con_priv)
+ 		/* set scaling */
+ 		if (amdgpu_encoder->rmx_type == RMX_OFF)
 -- 
 2.20.1
 
