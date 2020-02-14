@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7157215F22F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:09:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF42515F19E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392482AbgBNSHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:07:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34650 "EHLO mail.kernel.org"
+        id S1731107AbgBNPyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:54:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731534AbgBNPy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:54:29 -0500
+        id S1731539AbgBNPyb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:54:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0F8B222C4;
-        Fri, 14 Feb 2020 15:54:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D42D2465D;
+        Fri, 14 Feb 2020 15:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695668;
-        bh=CVfVA6v89yNedy4aQtUH/s74q22YyBh8hOOT8Sme+v8=;
+        s=default; t=1581695669;
+        bh=+lVoJ8WapUZPeP45CSRrrWYwdJXfBF+qqGzFeUm9ljs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZOkG9aKTnt0LTypyrpCz65/JAPQFti0huxbPWrZyifiJ3Grropt2Rr55nM/2dK5M
-         WM/y8etsLG56hxSriZCBJdMrwHIHuuO7dHiOBXmfkmpwFVBXNzoeor34Ygc0kQX0Ru
-         nCVuddO9SX41WcrNtJByAARFmz9jV/s1WIW0UGKk=
+        b=ZMYnG7lyWF6k5BZ3wHmf9YncqRzKXemqVgVykPOcV46DipH5yrVLCbI09gafBa7eJ
+         sqQKz4LGQdh2RgFsreI7S3UkabfnAx1TRVFLnT7rbE4ZUSarWCSNrVs/4qNwXor7pZ
+         Vyj7GOYoLK93LCaw7S96buII2Fzu1gi+2oAD8YMQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 257/542] clk: qcom: Add missing msm8998 gcc_bimc_gfx_clk
-Date:   Fri, 14 Feb 2020 10:44:09 -0500
-Message-Id: <20200214154854.6746-257-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 258/542] clk: actually call the clock init before any other callback of the clock
+Date:   Fri, 14 Feb 2020 10:44:10 -0500
+Message-Id: <20200214154854.6746-258-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,66 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit db2c7c0a04b11753f5741d00b784b5380ddeee72 ]
+[ Upstream commit f6fa75ca912be6021335de63a32aa4d295f3c524 ]
 
-gcc_bimc_gfx_clk is a required clock for booting the GPU and GPU SMMU.
+ __clk_init_parent() will call the .get_parent() callback of the clock
+ so .init() must run before.
 
-Fixes: 4807c71cc688 (arm64: dts: Add msm8998 SoC and MTP board support)
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Link: https://lkml.kernel.org/r/20191217164913.4783-1-jeffrey.l.hugo@gmail.com
+Fixes: 541debae0adf ("clk: call the clock init() callback before any other ops callback")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lkml.kernel.org/r/20190924123954.31561-2-jbrunet@baylibre.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8998.c               | 14 ++++++++++++++
- include/dt-bindings/clock/qcom,gcc-msm8998.h |  1 +
- 2 files changed, 15 insertions(+)
+ drivers/clk/clk.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8998.c b/drivers/clk/qcom/gcc-msm8998.c
-index cf31b5d03270f..df1d7056436cd 100644
---- a/drivers/clk/qcom/gcc-msm8998.c
-+++ b/drivers/clk/qcom/gcc-msm8998.c
-@@ -1996,6 +1996,19 @@ static struct clk_branch gcc_gp3_clk = {
- 	},
- };
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 772258de2d1f3..53585cfc4b9ba 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3338,6 +3338,21 @@ static int __clk_core_init(struct clk_core *core)
+ 		goto out;
+ 	}
  
-+static struct clk_branch gcc_bimc_gfx_clk = {
-+	.halt_reg = 0x46040,
-+	.halt_check = BRANCH_HALT,
-+	.clkr = {
-+		.enable_reg = 0x46040,
-+		.enable_mask = BIT(0),
-+		.hw.init = &(struct clk_init_data){
-+			.name = "gcc_bimc_gfx_clk",
-+			.ops = &clk_branch2_ops,
-+		},
-+	},
-+};
++	/*
++	 * optional platform-specific magic
++	 *
++	 * The .init callback is not used by any of the basic clock types, but
++	 * exists for weird hardware that must perform initialization magic.
++	 * Please consider other ways of solving initialization problems before
++	 * using this callback, as its use is discouraged.
++	 *
++	 * If it exist, this callback should called before any other callback of
++	 * the clock
++	 */
++	if (core->ops->init)
++		core->ops->init(core->hw);
 +
- static struct clk_branch gcc_gpu_bimc_gfx_clk = {
- 	.halt_reg = 0x71010,
- 	.halt_check = BRANCH_HALT,
-@@ -2810,6 +2823,7 @@ static struct clk_regmap *gcc_msm8998_clocks[] = {
- 	[GCC_GP1_CLK] = &gcc_gp1_clk.clkr,
- 	[GCC_GP2_CLK] = &gcc_gp2_clk.clkr,
- 	[GCC_GP3_CLK] = &gcc_gp3_clk.clkr,
-+	[GCC_BIMC_GFX_CLK] = &gcc_bimc_gfx_clk.clkr,
- 	[GCC_GPU_BIMC_GFX_CLK] = &gcc_gpu_bimc_gfx_clk.clkr,
- 	[GCC_GPU_BIMC_GFX_SRC_CLK] = &gcc_gpu_bimc_gfx_src_clk.clkr,
- 	[GCC_GPU_CFG_AHB_CLK] = &gcc_gpu_cfg_ahb_clk.clkr,
-diff --git a/include/dt-bindings/clock/qcom,gcc-msm8998.h b/include/dt-bindings/clock/qcom,gcc-msm8998.h
-index de1d8a1f59665..63e02dc32a0bb 100644
---- a/include/dt-bindings/clock/qcom,gcc-msm8998.h
-+++ b/include/dt-bindings/clock/qcom,gcc-msm8998.h
-@@ -182,6 +182,7 @@
- #define GCC_MSS_GPLL0_DIV_CLK_SRC				173
- #define GCC_MSS_SNOC_AXI_CLK					174
- #define GCC_MSS_MNOC_BIMC_AXI_CLK				175
-+#define GCC_BIMC_GFX_CLK					176
++
+ 	core->parent = __clk_init_parent(core);
  
- #define PCIE_0_GDSC						0
- #define UFS_GDSC						1
+ 	/*
+@@ -3362,17 +3377,6 @@ static int __clk_core_init(struct clk_core *core)
+ 		core->orphan = true;
+ 	}
+ 
+-	/*
+-	 * optional platform-specific magic
+-	 *
+-	 * The .init callback is not used by any of the basic clock types, but
+-	 * exists for weird hardware that must perform initialization magic.
+-	 * Please consider other ways of solving initialization problems before
+-	 * using this callback, as its use is discouraged.
+-	 */
+-	if (core->ops->init)
+-		core->ops->init(core->hw);
+-
+ 	/*
+ 	 * Set clk's accuracy.  The preferred method is to use
+ 	 * .recalc_accuracy. For simple clocks and lazy developers the default
 -- 
 2.20.1
 
