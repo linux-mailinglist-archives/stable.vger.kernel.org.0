@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B39B15E161
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:18:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35E0A15E16D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392724AbgBNQSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:18:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S2404799AbgBNQSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:18:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392720AbgBNQSE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:18:04 -0500
+        id S2404791AbgBNQSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:18:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 136AE24700;
-        Fri, 14 Feb 2020 16:18:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE85824692;
+        Fri, 14 Feb 2020 16:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697083;
-        bh=BU4zdI+Om8I7i8HgMQTLxfaZ1cBg4dQ+Il+MUW2HDJU=;
+        s=default; t=1581697115;
+        bh=2vMDVmLuOR6BkAhzKPJBoLjsBQUyJrJMaKfCRoB8+CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gn+pOH6pHW4ioQcITtV0BeIDLygswaWO4QeCrWG12HAgiYd1Nc71BE8EFWPvFb8ee
-         EycfnG3f2o8rVbJHoef2b3WGdvlXcSY+j03EKoHVG/inD+69mL9xYwFU4ING/JvIhs
-         6BhXNE9ZMui5rQWZDrTEHySL+zNupXV9rWfBibZM=
+        b=xMKX8JPqq8VpU3COJuDHHN5ANAP4gxhkBZWYtSj36nHyoDL2fr0ghjszzb/5CXpVk
+         CVzd9I07SFem4PxUonWbPC562ND2l4AjayL7a1Crz3UytDyJaJYvj5R5yObh38lVcL
+         vK2pYTvsSc0s/UCRKyic5ZqM7DSd0dzM/De9jcek=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Luis Henriques <luis.henriques@canonical.com>,
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 037/186] tracing: Fix very unlikely race of registering two stat tracers
-Date:   Fri, 14 Feb 2020 11:14:46 -0500
-Message-Id: <20200214161715.18113-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 062/186] regulator: rk808: Lower log level on optional GPIOs being not available
+Date:   Fri, 14 Feb 2020 11:15:11 -0500
+Message-Id: <20200214161715.18113-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -43,85 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit dfb6cd1e654315168e36d947471bd2a0ccd834ae ]
+[ Upstream commit b8a039d37792067c1a380dc710361905724b9b2f ]
 
-Looking through old emails in my INBOX, I came across a patch from Luis
-Henriques that attempted to fix a race of two stat tracers registering the
-same stat trace (extremely unlikely, as this is done in the kernel, and
-probably doesn't even exist). The submitted patch wasn't quite right as it
-needed to deal with clean up a bit better (if two stat tracers were the
-same, it would have the same files).
+RK808 can leverage a couple of GPIOs to tweak the ramp rate during DVS
+(Dynamic Voltage Scaling). These GPIOs are entirely optional but a
+dev_warn() appeared when cleaning this driver to use a more up-to-date
+gpiod API. At least reduce the log level to 'info' as it is totally
+fine to not populate these GPIO on a hardware design.
 
-But to make the code cleaner, all we needed to do is to keep the
-all_stat_sessions_mutex held for most of the registering function.
+This change is trivial but it is worth not polluting the logs during
+bringup phase by having real warnings and errors sorted out
+correctly.
 
-Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
-
-Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
-Reported-by: Luis Henriques <luis.henriques@canonical.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: a13eaf02e2d6 ("regulator: rk808: make better use of the gpiod API")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20191203164709.11127-1-miquel.raynal@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/regulator/rk808-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index bf68af63538b4..92b76f9e25edd 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -306,7 +306,7 @@ static int init_stat_file(struct stat_session *session)
- int register_stat_tracer(struct tracer_stat *trace)
- {
- 	struct stat_session *session, *node;
--	int ret;
-+	int ret = -EINVAL;
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index 213b68743cc89..92498ac503035 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -714,7 +714,7 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 		}
  
- 	if (!trace)
- 		return -EINVAL;
-@@ -317,17 +317,15 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	/* Already registered? */
- 	mutex_lock(&all_stat_sessions_mutex);
- 	list_for_each_entry(node, &all_stat_sessions, session_list) {
--		if (node->ts == trace) {
--			mutex_unlock(&all_stat_sessions_mutex);
--			return -EINVAL;
--		}
-+		if (node->ts == trace)
-+			goto out;
- 	}
--	mutex_unlock(&all_stat_sessions_mutex);
+ 		if (!pdata->dvs_gpio[i]) {
+-			dev_warn(dev, "there is no dvs%d gpio\n", i);
++			dev_info(dev, "there is no dvs%d gpio\n", i);
+ 			continue;
+ 		}
  
-+	ret = -ENOMEM;
- 	/* Init the session */
- 	session = kzalloc(sizeof(*session), GFP_KERNEL);
- 	if (!session)
--		return -ENOMEM;
-+		goto out;
- 
- 	session->ts = trace;
- 	INIT_LIST_HEAD(&session->session_list);
-@@ -336,15 +334,16 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	ret = init_stat_file(session);
- 	if (ret) {
- 		destroy_session(session);
--		return ret;
-+		goto out;
- 	}
- 
-+	ret = 0;
- 	/* Register */
--	mutex_lock(&all_stat_sessions_mutex);
- 	list_add_tail(&session->session_list, &all_stat_sessions);
-+ out:
- 	mutex_unlock(&all_stat_sessions_mutex);
- 
--	return 0;
-+	return ret;
- }
- 
- void unregister_stat_tracer(struct tracer_stat *trace)
 -- 
 2.20.1
 
