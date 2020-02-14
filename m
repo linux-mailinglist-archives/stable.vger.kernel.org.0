@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5F615EA0F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D3915EA1F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:12:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403888AbgBNQN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:13:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41982 "EHLO mail.kernel.org"
+        id S2389884AbgBNRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:11:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403879AbgBNQN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2403885AbgBNQN3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:13:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22222246B7;
-        Fri, 14 Feb 2020 16:13:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 393B8246C4;
+        Fri, 14 Feb 2020 16:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696807;
-        bh=QhMSiDaFxU/eFY7V8DeABZVM+LAdtNWFTzs+OeJHYFE=;
+        s=default; t=1581696809;
+        bh=kLNQ+FLQ6O06uqz36zDPUY32MmO6SWt5w1ST1XEDnSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgJpb4mbLEuez26OzYjIlGCLTr3I5W6STMrtkPLAjwoujGmgwhTIJ3Cn7L1DkrEHH
-         ypY4PgpyD3HUJMLxsfMF43xpKNJV+wsfM2wRVx+eKEnPoypsJwqsjyKYN6856w3SjF
-         FbgCZYq+W6dDObClWzmjYJ/QGwC58X3XuDvK4puE=
+        b=u/7M7nluFvwsps2lS2xz1757let6a3skdrDVkFv2ozQEr5+6tAlnUBvlcUcfWfu0b
+         TaNlhk6dD6stlI+JV9H8bvAQrC87JKOczTV/ttCnUOVufWHxkG44UTwmtjkRB+200z
+         5bpiU5ke90n3Fn8+KzsT2CB0IBL6tN7PrcKv9sAE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 078/252] PCI/IOV: Fix memory leak in pci_iov_add_virtfn()
-Date:   Fri, 14 Feb 2020 11:08:53 -0500
-Message-Id: <20200214161147.15842-78-sashal@kernel.org>
+Cc:     Mao Wenan <maowenan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 079/252] NFC: port100: Convert cpu_to_le16(le16_to_cpu(E1) + E2) to use le16_add_cpu().
+Date:   Fri, 14 Feb 2020 11:08:54 -0500
+Message-Id: <20200214161147.15842-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,54 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Mao Wenan <maowenan@huawei.com>
 
-[ Upstream commit 8c386cc817878588195dde38e919aa6ba9409d58 ]
+[ Upstream commit 718eae277e62a26e5862eb72a830b5e0fe37b04a ]
 
-In the implementation of pci_iov_add_virtfn() the allocated virtfn is
-leaked if pci_setup_device() fails. The error handling is not calling
-pci_stop_and_remove_bus_device(). Change the goto label to failed2.
+Convert cpu_to_le16(le16_to_cpu(frame->datalen) + len) to
+use le16_add_cpu(), which is more concise and does the same thing.
 
-Fixes: 156c55325d30 ("PCI: Check for pci_setup_device() failure in pci_iov_add_virtfn()")
-Link: https://lore.kernel.org/r/20191125195255.23740-1-navid.emamdoost@gmail.com
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/iov.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/nfc/port100.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
-index c5f3cd4ed766f..c3b0b10f95cb6 100644
---- a/drivers/pci/iov.c
-+++ b/drivers/pci/iov.c
-@@ -188,10 +188,10 @@ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
- 	sprintf(buf, "virtfn%u", id);
- 	rc = sysfs_create_link(&dev->dev.kobj, &virtfn->dev.kobj, buf);
- 	if (rc)
--		goto failed2;
-+		goto failed1;
- 	rc = sysfs_create_link(&virtfn->dev.kobj, &dev->dev.kobj, "physfn");
- 	if (rc)
--		goto failed3;
-+		goto failed2;
+diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
+index 60ae382f50da9..06bb226c62ef4 100644
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -574,7 +574,7 @@ static void port100_tx_update_payload_len(void *_frame, int len)
+ {
+ 	struct port100_frame *frame = _frame;
  
- 	kobject_uevent(&virtfn->dev.kobj, KOBJ_CHANGE);
+-	frame->datalen = cpu_to_le16(le16_to_cpu(frame->datalen) + len);
++	le16_add_cpu(&frame->datalen, len);
+ }
  
-@@ -199,11 +199,10 @@ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
- 
- 	return 0;
- 
--failed3:
--	sysfs_remove_link(&dev->dev.kobj, buf);
- failed2:
--	pci_stop_and_remove_bus_device(virtfn);
-+	sysfs_remove_link(&dev->dev.kobj, buf);
- failed1:
-+	pci_stop_and_remove_bus_device(virtfn);
- 	pci_dev_put(dev);
- failed0:
- 	virtfn_remove_bus(dev->bus, bus);
+ static bool port100_rx_frame_is_valid(void *_frame)
 -- 
 2.20.1
 
