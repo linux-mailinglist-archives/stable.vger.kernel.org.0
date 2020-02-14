@@ -2,83 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A293615F74B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E24CD15F783
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 21:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389240AbgBNUCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 15:02:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33614 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389205AbgBNUCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 15:02:08 -0500
-Received: from localhost (unknown [12.246.51.142])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4554324654;
-        Fri, 14 Feb 2020 20:02:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581710527;
-        bh=kOzvk+OzpzpOrtXBp+yNd2QeJJMOZmbEEHg8kegYTaA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=f4SD7CDJVEys1xUJy3wS9/Wyn8ojDRHL8Ps1Rit4bznxmbDcHkGWt3BhBX07ISy++
-         BzrrE7UEtNmZpGOzTG3Bh+a3AXdPpOni5dwHlvGrlibwBe4n26Ya+ziubNfsAb5Nqt
-         +hsnOvu7E9RWH83MlKucTpmr4Ab8a6ls3lw7RQLI=
-Date:   Fri, 14 Feb 2020 07:28:07 -0800
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.5 000/120] 5.5.4-stable review
-Message-ID: <20200214152807.GA3960470@kroah.com>
-References: <20200213151901.039700531@linuxfoundation.org>
- <e49bd26e-560c-840e-7f21-ee040a783143@nvidia.com>
+        id S2389326AbgBNUMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 15:12:10 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:54520 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388948AbgBNUMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 15:12:10 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EK8slH109372;
+        Fri, 14 Feb 2020 20:11:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=SHVAUp+OJ3+OGTvce+XogHU7eHOaTVPHbznHopguoFU=;
+ b=hpIhxdaLRRF+vo4c+1R1Bm9u9FORGZ3uHGUiF5etLzR2wdxDMsh1pgdgUFDnn5oEs3z8
+ E4pIVycqyjszBMYO4UJl2ACvgpfn/w1/mhBQPrQQBc2ZqXEFAsO821au3FRdVZnXoFb3
+ B76Ed/PdQX9fFfzqRT8VavTPFS+zByNagsCbplX5iWM4l8OLv3SR7/An6XQaeLBRgDqh
+ eH+pP3XkXVXSrxQajiHs/8ozDvMmu4351EZ2lN8OgoWLfBXjdAGjipENS0NWutnqzmhl
+ gxHA/Jv0N4JxN0gkdlGkYuX03GZI7AZb7DQG+j+XwCpTJEaw0HjlxPJdXV0AHDUi+frG xw== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 2y2k88uemb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Feb 2020 20:11:55 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EK7Zvs092152;
+        Fri, 14 Feb 2020 20:09:54 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 2y4k3e9320-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Feb 2020 20:09:54 +0000
+Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 01EK9o6E012450;
+        Fri, 14 Feb 2020 20:09:52 GMT
+Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 14 Feb 2020 12:09:50 -0800
+Date:   Fri, 14 Feb 2020 15:10:06 -0500
+From:   Daniel Jordan <daniel.m.jordan@oracle.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 091/195] padata: Remove broken queue flushing
+Message-ID: <20200214201006.6qlfqillveotr47n@ca-dmjordan1.us.oracle.com>
+References: <20200210122305.731206734@linuxfoundation.org>
+ <20200210122314.217904406@linuxfoundation.org>
+ <5E4674BB.4020900@huawei.com>
+ <20200214152128.GC3959278@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e49bd26e-560c-840e-7f21-ee040a783143@nvidia.com>
+In-Reply-To: <20200214152128.GC3959278@kroah.com>
+User-Agent: NeoMutt/20180716
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
+ bulkscore=0 malwarescore=0 phishscore=0 suspectscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002140146
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 lowpriorityscore=0
+ suspectscore=0 bulkscore=0 phishscore=0 mlxlogscore=999 mlxscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2002140146
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 10:27:39AM +0000, Jon Hunter wrote:
-> 
-> On 13/02/2020 15:19, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.5.4 release.
-> > There are 120 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat, 15 Feb 2020 15:16:41 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.4-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> All tests are passing for Tegra ...
-> 
-> Test results for stable-v5.5:
->     13 builds:	13 pass, 0 fail
->     22 boots:	22 pass, 0 fail
->     40 tests:	40 pass, 0 fail
-> 
-> Linux version:	5.5.4-rc2-ged6d023a1817
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
+On Fri, Feb 14, 2020 at 07:21:28AM -0800, Greg Kroah-Hartman wrote:
+> So this causes a problem in the 4.19-rc tree but not in Linus's tree?
+> Or am I confused?  Should it be dropped from stable or is there some
+> other fix-of-a-fix that I need to apply here?
 
-Thanks for testing all of these and letting me know.
+This causes a problem in 4.19.103 and 4.19-rc but not Linus's tree.
 
-greg k-h
+The fix-of-a-fix is posted recently here:
+
+    https://lore.kernel.org/lkml/20200214182821.337706-1-daniel.m.jordan@oracle.com/
+
+For 4.14, 4.9, and 4.4, I'm posting a revised version of "Remove broken queue
+flushing" in each review thread.  4.14 is already up.  Is this what I should be
+doing?
+
+thanks,
+Daniel
