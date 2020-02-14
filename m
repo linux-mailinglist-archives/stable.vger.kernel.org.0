@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7848E15EB65
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1FF15EB80
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390959AbgBNQKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:10:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35910 "EHLO mail.kernel.org"
+        id S2391365AbgBNRVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:21:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391067AbgBNQKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2391467AbgBNQKX (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 11:10:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 880B8246A0;
-        Fri, 14 Feb 2020 16:10:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD682222C2;
+        Fri, 14 Feb 2020 16:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696622;
-        bh=wCma4w9oD9qUbgcIbmPKaHeJ+eYPd/7Xhrqw7fD7N8c=;
+        s=default; t=1581696623;
+        bh=AWcXrUPmg1Ok0gkYHL79LaRTs1+QfXtcYfPh5YIhW2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z68FPPwV3S4EqmLDEdAgLN5h9ybbpvn6JCuAc7yKeT/itNEerL5FJ1mJLOhJ4oK1r
-         PSx05WZ2v9WZvChvukhBiLT6bGvQNRaw3iJwnV5gtrvp1urND/X9IVc0nNTL8Gs0UJ
-         OD2s+dyxY9KA0oMhaUU0O1e52cyix/nCgwHqlgEI=
+        b=MMPXzhjCh6//mBRy4YkG4mkYqQBs91FoFBFs9orcf56eXSJ/rPDx/W70/rUUYe12C
+         kxKrlnOMtAZ5l+xL566/dSoaRrL8/igvoAS3dSc0X1LnTYXe33UcpgDVmbYUwCBWWH
+         MsQuJQ8szBu/yl5YH88Ohba2KwJPNW/yHkql365w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 403/459] ARM: 8951/1: Fix Kexec compilation issue.
-Date:   Fri, 14 Feb 2020 11:00:53 -0500
-Message-Id: <20200214160149.11681-403-sashal@kernel.org>
+Cc:     Nicola Lunghi <nick83ola@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 404/459] ALSA: usb-audio: add quirks for Line6 Helix devices fw>=2.82
+Date:   Fri, 14 Feb 2020 11:00:54 -0500
+Message-Id: <20200214160149.11681-404-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,48 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Nicola Lunghi <nick83ola@gmail.com>
 
-[ Upstream commit 76950f7162cad51d2200ebd22c620c14af38f718 ]
+[ Upstream commit b81cbf7abfc94878a3c6f0789f2185ee55b1cc21 ]
 
-To perform the reserve_crashkernel() operation kexec uses SECTION_SIZE to
-find a memblock in a range.
-SECTION_SIZE is not defined for nommu systems. Trying to compile kexec in
-these conditions results in a build error:
+With firmware 2.82 Line6 changed the usb id of some of the Helix
+devices but the quirks is still needed.
 
-  linux/arch/arm/kernel/setup.c: In function ‘reserve_crashkernel’:
-  linux/arch/arm/kernel/setup.c:1016:25: error: ‘SECTION_SIZE’ undeclared
-     (first use in this function); did you mean ‘SECTIONS_WIDTH’?
-             crash_size, SECTION_SIZE);
-                         ^~~~~~~~~~~~
-                         SECTIONS_WIDTH
-  linux/arch/arm/kernel/setup.c:1016:25: note: each undeclared identifier
-     is reported only once for each function it appears in
-  linux/scripts/Makefile.build:265: recipe for target 'arch/arm/kernel/setup.o'
-     failed
+Add it to the quirk list for line6 helix family of devices.
 
-Make KEXEC depend on MMU to fix the compilation issue.
+Thanks to Jens for pointing out the missing ids.
 
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Nicola Lunghi <nick83ola@gmail.com>
+Link: https://lore.kernel.org/r/20200125150917.5040-1-nick83ola@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/format.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 9fadf322a2b76..05c9bbfe444df 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1907,7 +1907,7 @@ config XIP_DEFLATED_DATA
- config KEXEC
- 	bool "Kexec system call (EXPERIMENTAL)"
- 	depends on (!SMP || PM_SLEEP_SMP)
--	depends on !CPU_V7M
-+	depends on MMU
- 	select KEXEC_CORE
- 	help
- 	  kexec is a system call that implements the ability to shutdown your
+diff --git a/sound/usb/format.c b/sound/usb/format.c
+index d79db71305f63..53922f73467f4 100644
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -296,6 +296,9 @@ static int line6_parse_audio_format_rates_quirk(struct snd_usb_audio *chip,
+ 	case USB_ID(0x0E41, 0x4242): /* Line6 Helix Rack */
+ 	case USB_ID(0x0E41, 0x4244): /* Line6 Helix LT */
+ 	case USB_ID(0x0E41, 0x4246): /* Line6 HX-Stomp */
++	case USB_ID(0x0E41, 0x4248): /* Line6 Helix >= fw 2.82 */
++	case USB_ID(0x0E41, 0x4249): /* Line6 Helix Rack >= fw 2.82 */
++	case USB_ID(0x0E41, 0x424a): /* Line6 Helix LT >= fw 2.82 */
+ 		/* supported rates: 48Khz */
+ 		kfree(fp->rate_table);
+ 		fp->rate_table = kmalloc(sizeof(int), GFP_KERNEL);
 -- 
 2.20.1
 
