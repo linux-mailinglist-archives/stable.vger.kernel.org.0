@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6600515EF57
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:47:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA0415EF56
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:47:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388332AbgBNRrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:47:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47708 "EHLO mail.kernel.org"
+        id S2389199AbgBNQBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:01:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388932AbgBNQBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:01:53 -0500
+        id S2389195AbgBNQBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:01:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37E7B217F4;
-        Fri, 14 Feb 2020 16:01:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52EBE2082F;
+        Fri, 14 Feb 2020 16:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696112;
-        bh=FQqG5CuWZNvAahuC516eH5urLJCxfYr2WeJpFtvzYYE=;
+        s=default; t=1581696114;
+        bh=ySzhj8c70C8x5NMMk9F+nbbW1KMpZZRpt6qN/z686dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8cHoBdQzprQC7fI/xVW+cO+O52HUaxXL88ZE2O8Q2/OPcnocwQpd/YCU8KgJ1gbz
-         wo0RuZqM6IyTBgyaGlY2a5qOYqZ4gtfUYwGMADn98eu9F/cUwo0yom45Tw23MeoCRK
-         vnEFgwogBQdGdvbNNNPeR3L0Gupy7ThtG0iajw6g=
+        b=vjjmxWS0WM+UDHCKvFJyuJWQ8lJLarjIXji39xY9CHGIcGCctAP7/iYXv9bTEdupT
+         EbYAVgHq1zSjnQ3uUASpMMlO3CUtxEPraM4un+hV/A75ZAtp4YpO77SGhzFPNX6ln+
+         ydk0Vikj5xFW2j7hkWB3Idok35CL7QpLFdZ6p0VI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 002/459] drm/gma500: Fixup fbdev stolen size usage evaluation
-Date:   Fri, 14 Feb 2020 10:54:12 -0500
-Message-Id: <20200214160149.11681-2-sashal@kernel.org>
+Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 003/459] ath10k: Fix qmi init error handling
+Date:   Fri, 14 Feb 2020 10:54:13 -0500
+Message-Id: <20200214160149.11681-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,59 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit fd1a5e521c3c083bb43ea731aae0f8b95f12b9bd ]
+[ Upstream commit f8a595a87e93a33a10879f4b856be818d2f53c84 ]
 
-psbfb_probe performs an evaluation of the required size from the stolen
-GTT memory, but gets it wrong in two distinct ways:
-- The resulting size must be page-size-aligned;
-- The size to allocate is derived from the surface dimensions, not the fb
-  dimensions.
+When ath10k_qmi_init() fails, the error handling does not free the irq
+resources, which causes an issue if we EPROBE_DEFER as we'll attempt to
+(re-)register irqs which are already registered.
 
-When two connectors are connected with different modes, the smallest will
-be stored in the fb dimensions, but the size that needs to be allocated must
-match the largest (surface) dimensions. This is what is used in the actual
-allocation code.
+Fix this by doing a power off since we just powered on the hardware, and
+freeing the irqs as error handling.
 
-Fix this by correcting the evaluation to conform to the two points above.
-It allows correctly switching to 16bpp when one connector is e.g. 1920x1080
-and the other is 1024x768.
-
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191107153048.843881-1-paul.kocialkowski@bootlin.com
+Fixes: ba94c753ccb4 ("ath10k: add QMI message handshake for wcn3990 client")
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/framebuffer.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/snoc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
-index 218f3bb15276e..90237abee0885 100644
---- a/drivers/gpu/drm/gma500/framebuffer.c
-+++ b/drivers/gpu/drm/gma500/framebuffer.c
-@@ -462,6 +462,7 @@ static int psbfb_probe(struct drm_fb_helper *helper,
- 		container_of(helper, struct psb_fbdev, psb_fb_helper);
- 	struct drm_device *dev = psb_fbdev->psb_fb_helper.dev;
- 	struct drm_psb_private *dev_priv = dev->dev_private;
-+	unsigned int fb_size;
- 	int bytespp;
+diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
+index fc15a0037f0e6..63607c3b8e818 100644
+--- a/drivers/net/wireless/ath/ath10k/snoc.c
++++ b/drivers/net/wireless/ath/ath10k/snoc.c
+@@ -1729,13 +1729,16 @@ static int ath10k_snoc_probe(struct platform_device *pdev)
+ 	ret = ath10k_qmi_init(ar, msa_size);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to register wlfw qmi client: %d\n", ret);
+-		goto err_core_destroy;
++		goto err_power_off;
+ 	}
  
- 	bytespp = sizes->surface_bpp / 8;
-@@ -471,8 +472,11 @@ static int psbfb_probe(struct drm_fb_helper *helper,
- 	/* If the mode will not fit in 32bit then switch to 16bit to get
- 	   a console on full resolution. The X mode setting server will
- 	   allocate its own 32bit GEM framebuffer */
--	if (ALIGN(sizes->fb_width * bytespp, 64) * sizes->fb_height >
--	                dev_priv->vram_stolen_size) {
-+	fb_size = ALIGN(sizes->surface_width * bytespp, 64) *
-+		  sizes->surface_height;
-+	fb_size = ALIGN(fb_size, PAGE_SIZE);
+ 	ath10k_dbg(ar, ATH10K_DBG_SNOC, "snoc probe\n");
+ 
+ 	return 0;
+ 
++err_power_off:
++	ath10k_hw_power_off(ar);
 +
-+	if (fb_size > dev_priv->vram_stolen_size) {
-                 sizes->surface_bpp = 16;
-                 sizes->surface_depth = 16;
-         }
+ err_free_irq:
+ 	ath10k_snoc_free_irq(ar);
+ 
 -- 
 2.20.1
 
