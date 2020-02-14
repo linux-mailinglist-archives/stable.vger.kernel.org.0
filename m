@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D88615DFE9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3193515DFEB
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391728AbgBNQLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:11:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37674 "EHLO mail.kernel.org"
+        id S2391744AbgBNQLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:11:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391723AbgBNQLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:11:11 -0500
+        id S2389948AbgBNQLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:11:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 929A02467C;
-        Fri, 14 Feb 2020 16:11:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EBF32467C;
+        Fri, 14 Feb 2020 16:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696670;
-        bh=S3Nc5wzGIiH5GB3g7PUxAN4EYIumqeMsxMMOXpWjoMg=;
+        s=default; t=1581696674;
+        bh=NDkes1bSJFRJFlu/prlmutb8xbcZE3iXWify3FKJuXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAwrrMpqrc6jP5YHUKfR3Css2C72YM/yU64w7p0TWZwo4bM6sZ+Kg2azuohrOvGwG
-         bbNpNFShjYxaCsPDmpTOyYi3Vi0bfxCmgDp+tvPLLojIt/KEPykYEuzGP5CkAWntd0
-         WknEX3XRV9vby7DENQdm7ik1gj4JjiNZ1M/X3FJA=
+        b=NgUpRP6suP8mjUCo/phgWKJRff3YGU+4jsYFvmn0VqbLFOtSk6NtX0bxQuLegkxv0
+         qxnKrpwAToI/bvT85Wffu2uk5KMtsgDpN5wH8RvwS049ClFZIglFJsUYfdf4O65Sar
+         K8jqnI/EhTeANDcxx3kKIEk2us+LR/eu+8Stu0GE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amol Grover <frextrite@gmail.com>,
-        kbuild test robot <lkp@intel.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 440/459] nvmet: Pass lockdep expression to RCU lists
-Date:   Fri, 14 Feb 2020 11:01:30 -0500
-Message-Id: <20200214160149.11681-440-sashal@kernel.org>
+Cc:     Avraham Stern <avraham.stern@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 443/459] iwlwifi: mvm: avoid use after free for pmsr request
+Date:   Fri, 14 Feb 2020 11:01:33 -0500
+Message-Id: <20200214160149.11681-443-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -45,50 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Avraham Stern <avraham.stern@intel.com>
 
-[ Upstream commit 4ac76436a6d07dec1c3c766f234aa787a16e8f65 ]
+[ Upstream commit cc4255eff523f25187bb95561642941de0e57497 ]
 
-ctrl->subsys->namespaces and subsys->namespaces are traversed with
-list_for_each_entry_rcu outside an RCU read-side critical section but
-under the protection of ctrl->subsys->lock and subsys->lock respectively.
+When a FTM request is aborted, the driver sends the abort command to
+the fw and waits for a response. When the response arrives, the driver
+calls cfg80211_pmsr_complete() for that request.
+However, cfg80211 frees the requested data immediately after sending
+the abort command, so this may lead to use after free.
 
-Hence, add the corresponding lockdep expression to the list traversal
-primitive to silence false-positive lockdep warnings, and harden RCU
-lists.
+Fix it by clearing the request data in the driver when the abort
+command arrives and ignoring the fw notification that will come
+afterwards.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Amol Grover <frextrite@gmail.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Avraham Stern <avraham.stern@intel.com>
+Fixes: fc36ffda3267 ("iwlwifi: mvm: support FTM initiator")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 3a67e244e5685..57a4062cbb59e 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -555,7 +555,8 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
- 	} else {
- 		struct nvmet_ns *old;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+index 9f4b117db9d7f..d47f76890cf9a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+@@ -8,6 +8,7 @@
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+  * Copyright (C) 2018 Intel Corporation
+  * Copyright (C) 2019 Intel Corporation
++ * Copyright (C) 2020 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -30,6 +31,7 @@
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+  * Copyright (C) 2018 Intel Corporation
+  * Copyright (C) 2019 Intel Corporation
++ * Copyright (C) 2020 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -389,6 +391,8 @@ void iwl_mvm_ftm_abort(struct iwl_mvm *mvm, struct cfg80211_pmsr_request *req)
+ 	if (req != mvm->ftm_initiator.req)
+ 		return;
  
--		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link) {
-+		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link,
-+					lockdep_is_held(&subsys->lock)) {
- 			BUG_ON(ns->nsid == old->nsid);
- 			if (ns->nsid < old->nsid)
- 				break;
-@@ -1174,7 +1175,8 @@ static void nvmet_setup_p2p_ns_map(struct nvmet_ctrl *ctrl,
++	iwl_mvm_ftm_reset(mvm);
++
+ 	if (iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(TOF_RANGE_ABORT_CMD,
+ 						 LOCATION_GROUP, 0),
+ 				 0, sizeof(cmd), &cmd))
+@@ -502,7 +506,6 @@ void iwl_mvm_ftm_range_resp(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
+ 	lockdep_assert_held(&mvm->mutex);
  
- 	ctrl->p2p_client = get_device(req->p2p_client);
- 
--	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link)
-+	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link,
-+				lockdep_is_held(&ctrl->subsys->lock))
- 		nvmet_p2pmem_ns_add_p2p(ctrl, ns);
- }
+ 	if (!mvm->ftm_initiator.req) {
+-		IWL_ERR(mvm, "Got FTM response but have no request?\n");
+ 		return;
+ 	}
  
 -- 
 2.20.1
