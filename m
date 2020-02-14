@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2720715EBE3
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B1A15EBE1
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388856AbgBNRXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:23:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33824 "EHLO mail.kernel.org"
+        id S2391276AbgBNQJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:09:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390601AbgBNQJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:26 -0500
+        id S2391270AbgBNQJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F8232468C;
-        Fri, 14 Feb 2020 16:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BA51222C2;
+        Fri, 14 Feb 2020 16:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696566;
-        bh=tKutHQzqUEtlGwZgT4t3m5DF0mw5khkEEf3otkXuA88=;
+        s=default; t=1581696567;
+        bh=FqLsbdvy18ocGeZkFW4cQQKjgKjQZOzZP80pZtfOvKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEnkZxbsEo/ADrCLGX4V6hWbNQX3Dnco4LG6c8Qqm71UkFbeDIm3wosRRSiPjERKP
-         tyWtJX/0Zfgem++Ip71pSh/nPZBVNUhtgyumr4DTUNK8ZYsl+jnL9lr+vIS4OuheVp
-         TJlTUh6xazlv0HH6fx5XMJEPSAK0VELSmeE4dv08=
+        b=p/BjOwzpBry3/geEMKQqTinb5xowPnEo70ihWYD/0/hOk9frTEk862kc0rxjZGgf7
+         np3KZ4WBQ+ib3OzmEEvNs4/R8MCiJASDm92XCzaE/2ewWuZ4RmBKqqDcwSuZO2mF58
+         BcFZaFwksi3Ol0OQZjLG3dEEH+S9v+f9767L/7z0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 356/459] ide: serverworks: potential overflow in svwks_set_pio_mode()
-Date:   Fri, 14 Feb 2020 11:00:06 -0500
-Message-Id: <20200214160149.11681-356-sashal@kernel.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 357/459] selinux: fix regression introduced by move_mount(2) syscall
+Date:   Fri, 14 Feb 2020 11:00:07 -0500
+Message-Id: <20200214160149.11681-357-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,42 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 
-[ Upstream commit ce1f31b4c0b9551dd51874dd5364654ed4ca13ae ]
+[ Upstream commit 98aa00345de54b8340dc2ddcd87f446d33387b5e ]
 
-The "drive->dn" variable is a u8 controlled by root.
+commit 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
+introduced a new move_mount(2) system call and a corresponding new LSM
+security_move_mount hook but did not implement this hook for any existing
+LSM.  This creates a regression for SELinux with respect to consistent
+checking of mounts; the existing selinux_mount hook checks mounton
+permission to the mount point path.  Provide a SELinux hook
+implementation for move_mount that applies this same check for
+consistency.  In the future we may wish to add a new move_mount
+filesystem permission and check as well, but this addresses
+the immediate regression.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ide/serverworks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ security/selinux/hooks.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/ide/serverworks.c b/drivers/ide/serverworks.c
-index ac6fc3fffa0de..458e72e034b09 100644
---- a/drivers/ide/serverworks.c
-+++ b/drivers/ide/serverworks.c
-@@ -115,6 +115,9 @@ static void svwks_set_pio_mode(ide_hwif_t *hwif, ide_drive_t *drive)
- 	struct pci_dev *dev = to_pci_dev(hwif->dev);
- 	const u8 pio = drive->pio_mode - XFER_PIO_0;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 44e2f46d46d2c..39410913a6949 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2766,6 +2766,14 @@ static int selinux_mount(const char *dev_name,
+ 		return path_has_perm(cred, path, FILE__MOUNTON);
+ }
  
-+	if (drive->dn >= ARRAY_SIZE(drive_pci))
-+		return;
++static int selinux_move_mount(const struct path *from_path,
++			      const struct path *to_path)
++{
++	const struct cred *cred = current_cred();
 +
- 	pci_write_config_byte(dev, drive_pci[drive->dn], pio_modes[pio]);
- 
- 	if (svwks_csb_check(dev)) {
-@@ -141,6 +144,9 @@ static void svwks_set_dma_mode(ide_hwif_t *hwif, ide_drive_t *drive)
- 
- 	u8 ultra_enable	 = 0, ultra_timing = 0, dma_timing = 0;
- 
-+	if (drive->dn >= ARRAY_SIZE(drive_pci2))
-+		return;
++	return path_has_perm(cred, to_path, FILE__MOUNTON);
++}
 +
- 	pci_read_config_byte(dev, (0x56|hwif->channel), &ultra_timing);
- 	pci_read_config_byte(dev, 0x54, &ultra_enable);
+ static int selinux_umount(struct vfsmount *mnt, int flags)
+ {
+ 	const struct cred *cred = current_cred();
+@@ -6838,6 +6846,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(sb_clone_mnt_opts, selinux_sb_clone_mnt_opts),
+ 	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
+ 
++	LSM_HOOK_INIT(move_mount, selinux_move_mount),
++
+ 	LSM_HOOK_INIT(dentry_init_security, selinux_dentry_init_security),
+ 	LSM_HOOK_INIT(dentry_create_files_as, selinux_dentry_create_files_as),
  
 -- 
 2.20.1
