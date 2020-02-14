@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C21815F13B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 960F615F145
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387870AbgBNP4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:56:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
+        id S2390670AbgBNSAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:00:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387858AbgBNP4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:56:33 -0500
+        id S2387866AbgBNP4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:56:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3147B24654;
-        Fri, 14 Feb 2020 15:56:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B802187F;
+        Fri, 14 Feb 2020 15:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695792;
-        bh=3wGW2BrunnOgr3U/ABE1pDq4qPc9Y4WepmDP45PXgNs=;
+        s=default; t=1581695793;
+        bh=XF+uKzWVjCkasEVsHuILsvLeJGCAQ0To9bSluYuOIk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNc/SvIhgdJ2jd1P2vPZh7PXLAPS+QejE4UNR8kaNkyGSPXqSTaHIuV06sgzEon9i
-         8cnYtf+ylw//A/vwcDSeeEa4kdj3oHiXHJjSDw9Y4P/wMD+tL8T1Hul0KqRSYH4a91
-         4q2FF1AsrU5IpnBpqiKPQMcpTOp5w8wgdMN2NYCg=
+        b=sP52La0EXKDondHuyiWvqIPkNnGhW0V4WCm48U5kLYK3fWbx5hZ8IVabgvsEew+a1
+         XDrdgJcTtr+/tN4nu+82+aAtJjus6rgwrWAt0K9Tcw9Xv95XHRO7Fn62E3Y7US0AXp
+         w3lfGKNN4uLmpGXs7692CtCBXLT8veRMpTtKkTa4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Reto Schneider <reto.schneider@husqvarnagroup.com>,
-        Stefan Roese <sr@denx.de>, Paul Burton <paul.burton@mips.com>,
-        Paul Burton <paulburton@kernel.org>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 354/542] MIPS: ralink: dts: gardena_smart_gateway_mt7688: Limit UART1
-Date:   Fri, 14 Feb 2020 10:45:46 -0500
-Message-Id: <20200214154854.6746-354-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 355/542] drm/nouveau/secboot/gm20b: initialize pointer in gm20b_secboot_new()
+Date:   Fri, 14 Feb 2020 10:45:47 -0500
+Message-Id: <20200214154854.6746-355-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,38 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reto Schneider <reto.schneider@husqvarnagroup.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e8c192011c920517e5578d51c7aff0ecadd25de3 ]
+[ Upstream commit 3613a9bea95a1470dd42e4ed1cc7d86ebe0a2dc0 ]
 
-The radio module asserts CTS when its RX buffer has 10 bytes left.
-Putting just 8 instead of 16 bytes into the UART1 TX buffer on the Linux
-side ensures to not overflow the RX buffer on the radio module side.
+We accidentally set "psb" which is a no-op instead of "*psb" so it
+generates a static checker warning.  We should probably set it before
+the first error return so that it's always initialized.
 
-Signed-off-by: Reto Schneider <reto.schneider@husqvarnagroup.com>
-Signed-off-by: Stefan Roese <sr@denx.de>
-Cc: Paul Burton <paul.burton@mips.com>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: linux-mips@vger.kernel.org
+Fixes: 923f1bd27bf1 ("drm/nouveau/secboot/gm20b: add secure boot support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/ralink/gardena_smart_gateway_mt7688.dts | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/nouveau/nvkm/subdev/secboot/gm20b.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/boot/dts/ralink/gardena_smart_gateway_mt7688.dts b/arch/mips/boot/dts/ralink/gardena_smart_gateway_mt7688.dts
-index aa5caaa311047..aad9a8a8669b4 100644
---- a/arch/mips/boot/dts/ralink/gardena_smart_gateway_mt7688.dts
-+++ b/arch/mips/boot/dts/ralink/gardena_smart_gateway_mt7688.dts
-@@ -177,6 +177,9 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinmux_i2s_gpio>;		/* GPIO0..3 */
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/secboot/gm20b.c b/drivers/gpu/drm/nouveau/nvkm/subdev/secboot/gm20b.c
+index df8b919dcf09b..ace6fefba4280 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/secboot/gm20b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/secboot/gm20b.c
+@@ -108,6 +108,7 @@ gm20b_secboot_new(struct nvkm_device *device, int index,
+ 	struct gm200_secboot *gsb;
+ 	struct nvkm_acr *acr;
  
-+	fifo-size = <8>;
-+	tx-threshold = <8>;
-+
- 	rts-gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
- 	cts-gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
- };
++	*psb = NULL;
+ 	acr = acr_r352_new(BIT(NVKM_SECBOOT_FALCON_FECS) |
+ 			   BIT(NVKM_SECBOOT_FALCON_PMU));
+ 	if (IS_ERR(acr))
+@@ -116,10 +117,8 @@ gm20b_secboot_new(struct nvkm_device *device, int index,
+ 	acr->optional_falcons = BIT(NVKM_SECBOOT_FALCON_PMU);
+ 
+ 	gsb = kzalloc(sizeof(*gsb), GFP_KERNEL);
+-	if (!gsb) {
+-		psb = NULL;
++	if (!gsb)
+ 		return -ENOMEM;
+-	}
+ 	*psb = &gsb->base;
+ 
+ 	ret = nvkm_secboot_ctor(&gm20b_secboot, acr, device, index, &gsb->base);
 -- 
 2.20.1
 
