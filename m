@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5554215E995
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DDD15E99B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392267AbgBNQOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43422 "EHLO mail.kernel.org"
+        id S2404063AbgBNRIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:08:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392178AbgBNQOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:10 -0500
+        id S2391959AbgBNQOL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D341246D3;
-        Fri, 14 Feb 2020 16:14:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6287F246CD;
+        Fri, 14 Feb 2020 16:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696850;
-        bh=XKoTIc29oW1apUheo+XZNDmTHb2Iqz0eGdKtiIjddzw=;
+        s=default; t=1581696851;
+        bh=7kdgymCTe3z+kDx0t23a5tS8Fgh/KOpwizHQDgLdcc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqxdNLqOFfiJ4ZSakMqxUt5MvN1nZrs1u5SePLmmLM3EnvWbrXJIvkrjipLjQFln3
-         RJkqJsvrmxpbIfB0ThkwwAfBNmJkZJ+YaHWJGYg0daq/tMhNvCBWSObv3tA6+A2DWV
-         93vpjuk7TYyMUGabkcO5y1rrCiqm3CUi+hOZ4cOI=
+        b=BQScVPL2OPG6iy+l2S/eRW1pepPjunbU/aIJSPixJnnfGPy4lEDGFpwRacaW9I+gm
+         eJkPVoSG9bXN36OUVNSbRtYY4eOQe6es3j9wspAn9PDT0mv3EUXtE/TwY7usqLaX9D
+         Okq5JvGtFjIU/I2J+4vZStZI8vKHEx0D6H8jjOi4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Zhou <chenzhou10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 111/252] scsi: ibmvscsi_tgt: remove set but not used variables 'iue' and 'sd'
-Date:   Fri, 14 Feb 2020 11:09:26 -0500
-Message-Id: <20200214161147.15842-111-sashal@kernel.org>
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 112/252] scsi: aic7xxx: Adjust indentation in ahc_find_syncrate
+Date:   Fri, 14 Feb 2020 11:09:27 -0500
+Message-Id: <20200214161147.15842-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,63 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 4aca8fe7716669e39f7857b2e1fc5dfd4475b7e5 ]
+[ Upstream commit 4dbc96ad65c45cdd4e895ed7ae4c151b780790c5 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Clang warns:
 
-drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c: In function ibmvscsis_send_messages:
-drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c:1888:19: warning: variable iue set but not used [-Wunused-but-set-variable]
-drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c: In function ibmvscsis_queue_data_in:
-drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c:3806:8: warning: variable sd set but not used [-Wunused-but-set-variable]
+../drivers/scsi/aic7xxx/aic7xxx_core.c:2317:5: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+                        if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
+                        ^
+../drivers/scsi/aic7xxx/aic7xxx_core.c:2310:4: note: previous statement
+is here
+                        if (syncrate == &ahc_syncrates[maxsync])
+                        ^
+1 warning generated.
 
-Link: https://lore.kernel.org/r/20191213064042.161840-1-chenzhou10@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
+This warning occurs because there is a space amongst the tabs on this
+line. Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
+
+This has been a problem since the beginning of git history hence no fixes
+tag.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/817
+Link: https://lore.kernel.org/r/20191218014220.52746-1-natechancellor@gmail.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-index f42a619198c46..9b368a2afb252 100644
---- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-+++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-@@ -1885,7 +1885,6 @@ static void ibmvscsis_send_messages(struct scsi_info *vscsi)
- 	 */
- 	struct viosrp_crq *crq = (struct viosrp_crq *)&msg_hi;
- 	struct ibmvscsis_cmd *cmd, *nxt;
--	struct iu_entry *iue;
- 	long rc = ADAPT_SUCCESS;
- 	bool retry = false;
- 
-@@ -1939,8 +1938,6 @@ static void ibmvscsis_send_messages(struct scsi_info *vscsi)
- 					 */
- 					vscsi->credit += 1;
- 				} else {
--					iue = cmd->iue;
--
- 					crq->valid = VALID_CMD_RESP_EL;
- 					crq->format = cmd->rsp.format;
- 
-@@ -3814,7 +3811,6 @@ static int ibmvscsis_queue_data_in(struct se_cmd *se_cmd)
- 						 se_cmd);
- 	struct iu_entry *iue = cmd->iue;
- 	struct scsi_info *vscsi = cmd->adapter;
--	char *sd;
- 	uint len = 0;
- 	int rc;
- 
-@@ -3822,7 +3818,6 @@ static int ibmvscsis_queue_data_in(struct se_cmd *se_cmd)
- 			       1);
- 	if (rc) {
- 		dev_err(&vscsi->dev, "srp_transfer_data failed: %d\n", rc);
--		sd = se_cmd->sense_buffer;
- 		se_cmd->scsi_sense_length = 18;
- 		memset(se_cmd->sense_buffer, 0, se_cmd->scsi_sense_length);
- 		/* Logical Unit Communication Time-out asc/ascq = 0x0801 */
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index 915a34f141e4f..49e02e8745533 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -2321,7 +2321,7 @@ ahc_find_syncrate(struct ahc_softc *ahc, u_int *period,
+ 			 * At some speeds, we only support
+ 			 * ST transfers.
+ 			 */
+-		 	if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
++			if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
+ 				*ppr_options &= ~MSG_EXT_PPR_DT_REQ;
+ 			break;
+ 		}
 -- 
 2.20.1
 
