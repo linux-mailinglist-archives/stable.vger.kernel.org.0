@@ -2,159 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9533C15F567
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4057515F5D1
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:40:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729747AbgBNSfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:35:05 -0500
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:41326 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728239AbgBNSfF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 13:35:05 -0500
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 01EIYxAd050602;
-        Fri, 14 Feb 2020 12:34:59 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1581705299;
-        bh=CeEgcWk/HfuO2IaagRe9CBxKSg/Ss88sECNw6qTEp88=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=fpuZIbD7Z39pu8R+qc8QSylmd/BDw5dT4jjy4LE4TAsP3JTtB2D1tOyEjdNuJfAYZ
-         fI4NP5MFGJl3Knr/UaoxR/8nVW+ZfZ733FCQJdH/uVb4aL9Kosc627Jix+13KBJXqC
-         WHysqa/PTfKG8XCNZQlUYC9DCGOI+bMMjPwYf41w=
-Received: from DFLE105.ent.ti.com (dfle105.ent.ti.com [10.64.6.26])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01EIYxeZ005541;
-        Fri, 14 Feb 2020 12:34:59 -0600
-Received: from DFLE104.ent.ti.com (10.64.6.25) by DFLE105.ent.ti.com
- (10.64.6.26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Fri, 14
- Feb 2020 12:34:58 -0600
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE104.ent.ti.com
- (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Fri, 14 Feb 2020 12:34:59 -0600
-Received: from [128.247.58.153] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01EIYwXI128015;
-        Fri, 14 Feb 2020 12:34:58 -0600
-Subject: Re: [PATCH AUTOSEL 5.5 219/542] ARM: OMAP2+: use separate IOMMU pdata
- to fix DRA7 IPU1 boot
-To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-CC:     Tony Lindgren <tony@atomide.com>, <linux-omap@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-219-sashal@kernel.org>
-From:   Suman Anna <s-anna@ti.com>
-Message-ID: <a7666322-f931-63f1-a4c5-d44c2ba4ed0c@ti.com>
-Date:   Fri, 14 Feb 2020 12:34:58 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1729872AbgBNSj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:39:58 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:40927 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729781AbgBNSj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 13:39:58 -0500
+Received: by mail-oi1-f195.google.com with SMTP id a142so10333294oii.7
+        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 10:39:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Gs6dL9Zrd2QDQR704+fZS8M/rKMQ+2pesnfSwCtPfJY=;
+        b=ij4CDGEUoWm7oC9rYpVyBseYfciFm8n553/4j4GtrPs6tur12w90v4AlE1NhJr5hOX
+         UUm0YVbC0rCJMn/ssWgDBpNZ8X+LCkXn3870YZx7w5WLE9PddLjtHBAVQL3KjG1ldPof
+         CmEXpZqLHz78YVvBr5g1ziKVsBSdWDv6ezkDj6s69dSmduWHIJwgEpw4YmXse1r3IZth
+         Fmrzxz5awlvfYTTKhyKv4IlqumH3R/oiV9bGnUfAcOPh36KEot1fmdiOb9kg08u0CmiP
+         zFbmEbbVoQjElFG2Zcho26ZbHXQDumAcffEfQnOXd9Ad1iz/5ew3KRqCPWeHv3aq8SA8
+         hKKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Gs6dL9Zrd2QDQR704+fZS8M/rKMQ+2pesnfSwCtPfJY=;
+        b=nOZH5L/pRe7Qwu/KJWIYYjt64YFwgA3uigzXdKoqAF3kCB8xc1J1r4ANajO/cPcepT
+         XjkxvyMAuCAf+cKLb/iNvO91ITqS5aI5vKEdIpDGlKuAcreLqyAnuQUteQ3yuQF/nBaZ
+         uRKjABN/XiDHEwx0SOJ6qf3bRUY3iiJGBrdkR5ZdBi/7cTO5ToAICC/WavtEoDBf/Fg3
+         cnhCwWT1vGWAPYwgj5b6+TlxnENAFqIEEH9U4KCQlwjxBF4gR6mLP6shG1WeK/dxjQED
+         c5umSqLT1pzBUPG2B6aAemhUOCA6kkUyQ1Sm2mk8lKakcj/97zkU5EPb1TVZaMM6I/gv
+         Kzhg==
+X-Gm-Message-State: APjAAAXkblKPV4OxSubHzTDNUhFom52dQ5Odx0FIrZjHEk8cRIMtMNiv
+        5orFYXyXO18mGhJloX7lHDgNUU5xmnQC5q3up0k=
+X-Google-Smtp-Source: APXvYqy0yHO3LN9TqeU+WX1YX+HwHYkP7ReOFqpF3GdAuSsHhE1rm9sAc8THBA1gg4qjNe+SRx+wPdrGmg939RThLF4=
+X-Received: by 2002:aca:190b:: with SMTP id l11mr2904000oii.65.1581705597227;
+ Fri, 14 Feb 2020 10:39:57 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200214154854.6746-219-sashal@kernel.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Received: by 2002:ac9:574d:0:0:0:0:0 with HTTP; Fri, 14 Feb 2020 10:39:57
+ -0800 (PST)
+Reply-To: mf.barbrafred@gmail.com
+From:   AfiFred FRED <afifredbarbra@gmail.com>
+Date:   Fri, 14 Feb 2020 18:39:57 +0000
+Message-ID: <CAFmeGwaXe_yCp0Y-aq9MMpbqObsm+A7y2g+GCQvCUyi1Sg4Y7A@mail.gmail.com>
+Subject: Please
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Good day to you,  this is the second times which I am sending this
+same message to you , I have good news for you but I will like us to
+know each other a little  first of all before I will tell you all
+about the good news which I have to share with you,
 
-On 2/14/20 9:43 AM, Sasha Levin wrote:
-> From: Suman Anna <s-anna@ti.com>
-> 
-> [ Upstream commit 4601832f40501efc3c2fd264a5a69bd1ac17d520 ]
-> 
-> The IPU1 MMU has been using common IOMMU pdata quirks defined and
-> used by all IPU IOMMU devices on OMAP4 and beyond. Separate out the
-> pdata for IPU1 MMU with the additional .set_pwrdm_constraint ops
-> plugged in, so that the IPU1 power domain can be restricted to ON
-> state during the boot and active period of the IPU1 remote processor.
-> This eliminates the pre-conditions for the IPU1 boot issue as
-> described in commit afe518400bdb ("iommu/omap: fix boot issue on
-> remoteprocs with AMMU/Unicache").
-> 
-> NOTE:
-> 1. RET is not a valid target power domain state on DRA7 platforms,
->    and IPU power domain is normally programmed for OFF. The IPU1
->    still fails to boot though, and an unclearable l3_noc error is
->    thrown currently on 4.14 kernel without this fix. This behavior
->    is slightly different from previous 4.9 LTS kernel.
-> 2. The fix is currently applied only to IPU1 on DRA7xx SoC, as the
->    other affected processors on OMAP4/OMAP5/DRA7 are in domains
->    that are not entering RET. IPU2 on DRA7 is in CORE power domain
->    which is only programmed for ON power state. The fix can be easily
->    scaled if these domains do hit RET in the future.
-> 3. The issue was not seen on current DRA7 platforms if any of the
->    DSP remote processors were booted and using one of the GPTimers
->    5, 6, 7 or 8 on previous 4.9 LTS kernel. This was due to the
->    errata fix for i874 implemented in commit 1cbabcb9807e ("ARM:
->    DRA7: clockdomain: Implement timer workaround for errata i874")
->    which keeps the IPU1 power domain from entering RET when the
->    timers are active. But the timer workaround did not make any
->    difference on 4.14 kernel, and an l3_noc error was seen still
->    without this fix.
-> 
-> Signed-off-by: Suman Anna <s-anna@ti.com>
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-
-And drop this one as well, since mainline doesn't yet boot
-the processors, so this is not needed for stable queue.
-
-regards
-Suman
-
-> ---
->  arch/arm/mach-omap2/pdata-quirks.c | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
-> 
-> diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
-> index 7a79bcc02a11b..c3be1db9685cd 100644
-> --- a/arch/arm/mach-omap2/pdata-quirks.c
-> +++ b/arch/arm/mach-omap2/pdata-quirks.c
-> @@ -43,6 +43,17 @@ struct pdata_init {
->  static struct of_dev_auxdata omap_auxdata_lookup[];
->  static struct twl4030_gpio_platform_data twl_gpio_auxdata;
->  
-> +#if IS_ENABLED(CONFIG_OMAP_IOMMU)
-> +int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev, bool request,
-> +				    u8 *pwrst);
-> +#else
-> +static inline int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev,
-> +						  bool request, u8 *pwrst)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> +
->  #ifdef CONFIG_MACH_NOKIA_N8X0
->  static void __init omap2420_n8x0_legacy_init(void)
->  {
-> @@ -286,6 +297,10 @@ static void __init omap5_uevm_legacy_init(void)
->  #endif
->  
->  #ifdef CONFIG_SOC_DRA7XX
-> +static struct iommu_platform_data dra7_ipu1_dsp_iommu_pdata = {
-> +	.set_pwrdm_constraint = omap_iommu_set_pwrdm_constraint,
-> +};
-> +
->  static struct omap_hsmmc_platform_data dra7_hsmmc_data_mmc1;
->  static struct omap_hsmmc_platform_data dra7_hsmmc_data_mmc2;
->  static struct omap_hsmmc_platform_data dra7_hsmmc_data_mmc3;
-> @@ -517,6 +532,12 @@ static struct of_dev_auxdata omap_auxdata_lookup[] = {
->  		       &dra7_hsmmc_data_mmc2),
->  	OF_DEV_AUXDATA("ti,dra7-hsmmc", 0x480ad000, "480ad000.mmc",
->  		       &dra7_hsmmc_data_mmc3),
-> +	OF_DEV_AUXDATA("ti,dra7-dsp-iommu", 0x40d01000, "40d01000.mmu",
-> +		       &dra7_ipu1_dsp_iommu_pdata),
-> +	OF_DEV_AUXDATA("ti,dra7-dsp-iommu", 0x41501000, "41501000.mmu",
-> +		       &dra7_ipu1_dsp_iommu_pdata),
-> +	OF_DEV_AUXDATA("ti,dra7-iommu", 0x58882000, "58882000.mmu",
-> +		       &dra7_ipu1_dsp_iommu_pdata),
->  #endif
->  	/* Common auxdata */
->  	OF_DEV_AUXDATA("ti,sysc", 0, NULL, &ti_sysc_pdata),
-> 
-
+With love from.
+Barbra
