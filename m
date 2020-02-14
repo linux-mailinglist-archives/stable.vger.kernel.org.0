@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F35215F30C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1720315F30E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbgBNPwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:52:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58980 "EHLO mail.kernel.org"
+        id S1731021AbgBNPwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:52:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730635AbgBNPwf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:52:35 -0500
+        id S1731018AbgBNPwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:52:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E366A24673;
-        Fri, 14 Feb 2020 15:52:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A77224676;
+        Fri, 14 Feb 2020 15:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695554;
-        bh=0H9o+zn/rO8CvUSKr63eVb30rG8pTCghBnbta8SAEAk=;
+        s=default; t=1581695557;
+        bh=deNAJfb+HengsUnbWaZWDBpg7gTmWXmNHJ17KELUfr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kF66+g9IONO5Bc4zxX8AizsQdVcQW66mlml4DvLkBB2hBQGdzCgqg214SkFT1KbQU
-         MVN8BZrvYjYI0IBXzjJ2oYiQSIr0lX+Ue2JQh58NNhL5G8LDgl0Ovv6JfJCWCjd/rw
-         FN+QfAIBh8Iad/kVjBlLAicyCnvvUzpHR11QliRY=
+        b=tHwq/1oon3DHLu7R8SeMY2V94QOfzouF17aXsLfJ3Y2rGaCpYRtbyscd6J6RPuIF7
+         hPQzJI4liadweaHlXLRW3bLArY+7uNTUnpmiPALT8RiTry1OojJsLRXTTMDFFOwqKA
+         92gxfKEds8WSV+8G6t1nyII1KKyov78AD3DCUA+k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Ford <aford173@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 169/542] drm/panel: simple: Add Logic PD Type 28 display support
-Date:   Fri, 14 Feb 2020 10:42:41 -0500
-Message-Id: <20200214154854.6746-169-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 171/542] modules: lockdep: Suppress suspicious RCU usage warning
+Date:   Fri, 14 Feb 2020 10:42:43 -0500
+Message-Id: <20200214154854.6746-171-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,82 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 0d35408afbeb603bc9972ae91e4dd2638bcffe52 ]
+[ Upstream commit bf08949cc8b98b7d1e20cfbba169a5938d42dae8 ]
 
-Previously, there was an omap panel-dpi driver that would
-read generic timings from the device tree and set the display
-timing accordingly.  This driver was removed so the screen
-no longer functions.  This patch modifies the panel-simple
-file to setup the timings to the same values previously used.
+While running kprobe module test, find_module_all() caused
+a suspicious RCU usage warning.
 
-Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
+-----
+ =============================
+ WARNING: suspicious RCU usage
+ 5.4.0-next-20191202+ #63 Not tainted
+ -----------------------------
+ kernel/module.c:619 RCU-list traversed in non-reader section!!
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191016135147.7743-1-aford173@gmail.com
+ other info that might help us debug this:
+
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by rmmod/642:
+  #0: ffffffff8227da80 (module_mutex){+.+.}, at: __x64_sys_delete_module+0x9a/0x230
+
+ stack backtrace:
+ CPU: 0 PID: 642 Comm: rmmod Not tainted 5.4.0-next-20191202+ #63
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+ Call Trace:
+  dump_stack+0x71/0xa0
+  find_module_all+0xc1/0xd0
+  __x64_sys_delete_module+0xac/0x230
+  ? do_syscall_64+0x12/0x1f0
+  do_syscall_64+0x50/0x1f0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ RIP: 0033:0x4b6d49
+-----
+
+This is because list_for_each_entry_rcu(modules) is called
+without rcu_read_lock(). This is safe because the module_mutex
+is locked.
+
+Pass lockdep_is_held(&module_mutex) to the list_for_each_entry_rcu()
+to suppress this warning, This also fixes similar issue in
+mod_find() and each_symbol_section().
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 37 ++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ kernel/module.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 5d487686d25c5..72f69709f3493 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2061,6 +2061,40 @@ static const struct drm_display_mode mitsubishi_aa070mc01_mode = {
- 	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
- };
+diff --git a/kernel/module.c b/kernel/module.c
+index 8785e31c2dd0f..d83edc3a41a33 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -214,7 +214,8 @@ static struct module *mod_find(unsigned long addr)
+ {
+ 	struct module *mod;
  
-+static const struct drm_display_mode logicpd_type_28_mode = {
-+	.clock = 9000,
-+	.hdisplay = 480,
-+	.hsync_start = 480 + 3,
-+	.hsync_end = 480 + 3 + 42,
-+	.htotal = 480 + 3 + 42 + 2,
-+
-+	.vdisplay = 272,
-+	.vsync_start = 272 + 2,
-+	.vsync_end = 272 + 2 + 11,
-+	.vtotal = 272 + 2 + 11 + 3,
-+	.vrefresh = 60,
-+	.flags = DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC,
-+};
-+
-+static const struct panel_desc logicpd_type_28 = {
-+	.modes = &logicpd_type_28_mode,
-+	.num_modes = 1,
-+	.bpc = 8,
-+	.size = {
-+		.width = 105,
-+		.height = 67,
-+	},
-+	.delay = {
-+		.prepare = 200,
-+		.enable = 200,
-+		.unprepare = 200,
-+		.disable = 200,
-+	},
-+	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
-+	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
-+		     DRM_BUS_FLAG_SYNC_DRIVE_NEGEDGE,
-+};
-+
- static const struct panel_desc mitsubishi_aa070mc01 = {
- 	.modes = &mitsubishi_aa070mc01_mode,
- 	.num_modes = 1,
-@@ -3287,6 +3321,9 @@ static const struct of_device_id platform_of_match[] = {
- 	}, {
- 		.compatible = "lg,lp129qe",
- 		.data = &lg_lp129qe,
-+	}, {
-+		.compatible = "logicpd,type28",
-+		.data = &logicpd_type_28,
- 	}, {
- 		.compatible = "mitsubishi,aa070mc01-ca1",
- 		.data = &mitsubishi_aa070mc01,
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		if (within_module(addr, mod))
+ 			return mod;
+ 	}
+@@ -448,7 +449,8 @@ bool each_symbol_section(bool (*fn)(const struct symsearch *arr,
+ 	if (each_symbol_in_section(arr, ARRAY_SIZE(arr), NULL, fn, data))
+ 		return true;
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		struct symsearch arr[] = {
+ 			{ mod->syms, mod->syms + mod->num_syms, mod->crcs,
+ 			  NOT_GPL_ONLY, false },
+@@ -616,7 +618,8 @@ static struct module *find_module_all(const char *name, size_t len,
+ 
+ 	module_assert_mutex_or_preempt();
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		if (!even_unformed && mod->state == MODULE_STATE_UNFORMED)
+ 			continue;
+ 		if (strlen(mod->name) == len && !memcmp(mod->name, name, len))
 -- 
 2.20.1
 
