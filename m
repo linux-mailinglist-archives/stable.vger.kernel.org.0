@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C92BD15EB8A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A30415EB8B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391453AbgBNQKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
+        id S2391460AbgBNQKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:10:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391451AbgBNQKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:10:18 -0500
+        id S2390622AbgBNQKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:10:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB22624697;
-        Fri, 14 Feb 2020 16:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03ADB2468F;
+        Fri, 14 Feb 2020 16:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696617;
-        bh=QTJ9Kg3VYZ3zWPWj0Uv6WNsojZ4uA4pahx8vI4MGYX0=;
+        s=default; t=1581696618;
+        bh=VxGyWnEba5VNmYC+QZbrZ1DU0OE8ldnVhLLrAP06RRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8W5f88TXTbhfm8CU8O97cqGShRCamjv8OiB784co4s3TznPnY8Nu+qEEkIIRpdso
-         iwWpRmjJ8YT8rKcA3rAfWHQhjLCLE3q3Up4epGkuCFtrzAkebQvKREHG10bJnA56wA
-         nhWqAHBAKygF4OWXSgOJOalsjd8qzopwfCrxgJiU=
+        b=dUp1confT9OiNuyhsL/IHtuZH1zvIMv/MEUqT/t2fGV8WDDAW9KwQO+OFdA9u2R4Y
+         5Bmx+Z4wOLoIdxMMHMlXzDbN3eA/qoS/4qKbONQMQwjf7RZdytNwd5sqCOOs2d6snD
+         II/c5eJxFsOZjDSPTvcV3mOV71DujtwObc6whJe4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 399/459] jbd2: make sure ESHUTDOWN to be recorded in the journal superblock
-Date:   Fri, 14 Feb 2020 11:00:49 -0500
-Message-Id: <20200214160149.11681-399-sashal@kernel.org>
+Cc:     Michael Bringmann <mwb@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 400/459] powerpc/pseries/lparcfg: Fix display of Maximum Memory
+Date:   Fri, 14 Feb 2020 11:00:50 -0500
+Message-Id: <20200214160149.11681-400-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,41 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "zhangyi (F)" <yi.zhang@huawei.com>
+From: Michael Bringmann <mwb@linux.ibm.com>
 
-[ Upstream commit 0e98c084a21177ef136149c6a293b3d1eb33ff92 ]
+[ Upstream commit f1dbc1c5c70d0d4c60b5d467ba941fba167c12f6 ]
 
-Commit fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer") want
-to allow jbd2 layer to distinguish shutdown journal abort from other
-error cases. So the ESHUTDOWN should be taken precedence over any other
-errno which has already been recoded after EXT4_FLAGS_SHUTDOWN is set,
-but it only update errno in the journal suoerblock now if the old errno
-is 0.
+Correct overflow problem in calculation and display of Maximum Memory
+value to syscfg.
 
-Fixes: fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer")
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191204124614.45424-4-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Michael Bringmann <mwb@linux.ibm.com>
+[mpe: Only n_lmbs needs casting to unsigned long]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/5577aef8-1d5a-ca95-ff0a-9c7b5977e5bf@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/journal.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/lparcfg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index 65e78d3a2f64c..c1ce2805c5639 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2114,8 +2114,7 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+diff --git a/arch/powerpc/platforms/pseries/lparcfg.c b/arch/powerpc/platforms/pseries/lparcfg.c
+index e33e8bc4b69bd..38c306551f76b 100644
+--- a/arch/powerpc/platforms/pseries/lparcfg.c
++++ b/arch/powerpc/platforms/pseries/lparcfg.c
+@@ -435,10 +435,10 @@ static void maxmem_data(struct seq_file *m)
+ {
+ 	unsigned long maxmem = 0;
  
- 	if (journal->j_flags & JBD2_ABORT) {
- 		write_unlock(&journal->j_state_lock);
--		if (!old_errno && old_errno != -ESHUTDOWN &&
--		    errno == -ESHUTDOWN)
-+		if (old_errno != -ESHUTDOWN && errno == -ESHUTDOWN)
- 			jbd2_journal_update_sb_errno(journal);
- 		return;
- 	}
+-	maxmem += drmem_info->n_lmbs * drmem_info->lmb_size;
++	maxmem += (unsigned long)drmem_info->n_lmbs * drmem_info->lmb_size;
+ 	maxmem += hugetlb_total_pages() * PAGE_SIZE;
+ 
+-	seq_printf(m, "MaxMem=%ld\n", maxmem);
++	seq_printf(m, "MaxMem=%lu\n", maxmem);
+ }
+ 
+ static int pseries_lparcfg_data(struct seq_file *m, void *v)
 -- 
 2.20.1
 
