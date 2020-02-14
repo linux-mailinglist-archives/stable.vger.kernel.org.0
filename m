@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E861315EC15
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:25:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 613B015EC16
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:25:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391134AbgBNQI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:08:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33070 "EHLO mail.kernel.org"
+        id S2389223AbgBNRYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:24:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388966AbgBNQI6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:08:58 -0500
+        id S2391129AbgBNQI7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:08:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82C2724687;
-        Fri, 14 Feb 2020 16:08:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96C77222C2;
+        Fri, 14 Feb 2020 16:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696537;
-        bh=MKD/d1HpsdK+H30i3L+CguO/x1O7XcUgODhV2+4aquk=;
+        s=default; t=1581696538;
+        bh=D9HbhU+UcBqY4TECvMjvT7jGgCD4EUBgLOFoAnWmjsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uh0fMOw5e9p3YL4UOH0EEl+SbVtHXZUlDWTsY85a183UWeYBzQqxEQKdsy95A6fax
-         hA0oifyn0s3E5xHeQCjrAH372vevhiiMfCMjRzJ3aC3SfZlJfEsh0semlTlrvm69L5
-         gR5CMJQsdWnHMSBJZSxMRjBW6mPbSc6xepuyb8mI=
+        b=dF2IWggzO/IyUk4RTremagjqcCY3L8KuIdp2ZmP++LvlI+2yUkBSxED2eY1Pm1e5X
+         27KbxgXL5EjG0HP9y65HjhgdZ7BAzIcfqsCYhsmjcY66F26zilVKAiq+f5RhBAR6Bl
+         8jDBAv72RrL/UCtlX8prBlRdMa5Fr+k5XAL0SIuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 333/459] RDMA/mlx5: Don't fake udata for kernel path
-Date:   Fri, 14 Feb 2020 10:59:43 -0500
-Message-Id: <20200214160149.11681-333-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.4 334/459] arm64: lse: fix LSE atomics with LLVM's integrated assembler
+Date:   Fri, 14 Feb 2020 10:59:44 -0500
+Message-Id: <20200214160149.11681-334-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -42,167 +47,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 4835709176e8ccf6561abc9f5c405293e008095f ]
+[ Upstream commit e0d5896bd356cd577f9710a02d7a474cdf58426b ]
 
-Kernel paths must not set udata and provide NULL pointer,
-instead of faking zeroed udata struct.
+Unlike gcc, clang considers each inline assembly block to be independent
+and therefore, when using the integrated assembler for inline assembly,
+any preambles that enable features must be repeated in each block.
 
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+This change defines __LSE_PREAMBLE and adds it to each inline assembly
+block that has LSE instructions, which allows them to be compiled also
+with clang's assembler.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/671
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Tested-by: Andrew Murray <andrew.murray@arm.com>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 34 +++++++++++++++----------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ arch/arm64/include/asm/atomic_lse.h | 19 +++++++++++++++++++
+ arch/arm64/include/asm/lse.h        |  6 +++---
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index e1cfbedefcbc9..9a918db9e8db4 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -829,6 +829,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 				struct ib_device_attr *props,
- 				struct ib_udata *uhw)
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index 574808b9df4c8..da3280f639cd7 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -14,6 +14,7 @@
+ static inline void __lse_atomic_##op(int i, atomic_t *v)			\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op "	%w[i], %[v]\n"					\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+@@ -30,6 +31,7 @@ ATOMIC_OP(add, stadd)
+ static inline int __lse_atomic_fetch_##op##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op #mb "	%w[i], %w[i], %[v]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+@@ -58,6 +60,7 @@ static inline int __lse_atomic_add_return##name(int i, atomic_t *v)	\
+ 	u32 tmp;							\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	ldadd" #mb "	%w[i], %w[tmp], %[v]\n"			\
+ 	"	add	%w[i], %w[i], %w[tmp]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)	\
+@@ -77,6 +80,7 @@ ATOMIC_OP_ADD_RETURN(        , al, "memory")
+ static inline void __lse_atomic_and(int i, atomic_t *v)
  {
-+	size_t uhw_outlen = (uhw) ? uhw->outlen : 0;
- 	struct mlx5_ib_dev *dev = to_mdev(ibdev);
- 	struct mlx5_core_dev *mdev = dev->mdev;
- 	int err = -ENOMEM;
-@@ -842,12 +843,12 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 	u64 max_tso;
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	mvn	%w[i], %w[i]\n"
+ 	"	stclr	%w[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -87,6 +91,7 @@ static inline void __lse_atomic_and(int i, atomic_t *v)
+ static inline int __lse_atomic_fetch_and##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	mvn	%w[i], %w[i]\n"					\
+ 	"	ldclr" #mb "	%w[i], %w[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -106,6 +111,7 @@ ATOMIC_FETCH_OP_AND(        , al, "memory")
+ static inline void __lse_atomic_sub(int i, atomic_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	neg	%w[i], %w[i]\n"
+ 	"	stadd	%w[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -118,6 +124,7 @@ static inline int __lse_atomic_sub_return##name(int i, atomic_t *v)	\
+ 	u32 tmp;							\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%w[i], %w[i]\n"					\
+ 	"	ldadd" #mb "	%w[i], %w[tmp], %[v]\n"			\
+ 	"	add	%w[i], %w[i], %w[tmp]"				\
+@@ -139,6 +146,7 @@ ATOMIC_OP_SUB_RETURN(        , al, "memory")
+ static inline int __lse_atomic_fetch_sub##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%w[i], %w[i]\n"					\
+ 	"	ldadd" #mb "	%w[i], %w[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -159,6 +167,7 @@ ATOMIC_FETCH_OP_SUB(        , al, "memory")
+ static inline void __lse_atomic64_##op(s64 i, atomic64_t *v)		\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op "	%[i], %[v]\n"					\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+@@ -175,6 +184,7 @@ ATOMIC64_OP(add, stadd)
+ static inline long __lse_atomic64_fetch_##op##name(s64 i, atomic64_t *v)\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op #mb "	%[i], %[i], %[v]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+@@ -203,6 +213,7 @@ static inline long __lse_atomic64_add_return##name(s64 i, atomic64_t *v)\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	ldadd" #mb "	%[i], %x[tmp], %[v]\n"			\
+ 	"	add	%[i], %[i], %x[tmp]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)	\
+@@ -222,6 +233,7 @@ ATOMIC64_OP_ADD_RETURN(        , al, "memory")
+ static inline void __lse_atomic64_and(s64 i, atomic64_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	mvn	%[i], %[i]\n"
+ 	"	stclr	%[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -232,6 +244,7 @@ static inline void __lse_atomic64_and(s64 i, atomic64_t *v)
+ static inline long __lse_atomic64_fetch_and##name(s64 i, atomic64_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	mvn	%[i], %[i]\n"					\
+ 	"	ldclr" #mb "	%[i], %[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -251,6 +264,7 @@ ATOMIC64_FETCH_OP_AND(        , al, "memory")
+ static inline void __lse_atomic64_sub(s64 i, atomic64_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	neg	%[i], %[i]\n"
+ 	"	stadd	%[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -263,6 +277,7 @@ static inline long __lse_atomic64_sub_return##name(s64 i, atomic64_t *v)	\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%[i], %[i]\n"					\
+ 	"	ldadd" #mb "	%[i], %x[tmp], %[v]\n"			\
+ 	"	add	%[i], %[i], %x[tmp]"				\
+@@ -284,6 +299,7 @@ ATOMIC64_OP_SUB_RETURN(        , al, "memory")
+ static inline long __lse_atomic64_fetch_sub##name(s64 i, atomic64_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%[i], %[i]\n"					\
+ 	"	ldadd" #mb "	%[i], %[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -305,6 +321,7 @@ static inline s64 __lse_atomic64_dec_if_positive(atomic64_t *v)
+ 	unsigned long tmp;
  
- 	resp_len = sizeof(resp.comp_mask) + sizeof(resp.response_length);
--	if (uhw->outlen && uhw->outlen < resp_len)
-+	if (uhw_outlen && uhw_outlen < resp_len)
- 		return -EINVAL;
- 	else
- 		resp.response_length = resp_len;
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"1:	ldr	%x[tmp], %[v]\n"
+ 	"	subs	%[ret], %x[tmp], #1\n"
+ 	"	b.lt	2f\n"
+@@ -332,6 +349,7 @@ __lse__cmpxchg_case_##name##sz(volatile void *ptr,			\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	mov	%" #w "[tmp], %" #w "[old]\n"			\
+ 	"	cas" #mb #sfx "\t%" #w "[tmp], %" #w "[new], %[v]\n"	\
+ 	"	mov	%" #w "[ret], %" #w "[tmp]"			\
+@@ -379,6 +397,7 @@ __lse__cmpxchg_double##name(unsigned long old1,				\
+ 	register unsigned long x4 asm ("x4") = (unsigned long)ptr;	\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	casp" #mb "\t%[old1], %[old2], %[new1], %[new2], %[v]\n"\
+ 	"	eor	%[old1], %[old1], %[oldval1]\n"			\
+ 	"	eor	%[old2], %[old2], %[oldval2]\n"			\
+diff --git a/arch/arm64/include/asm/lse.h b/arch/arm64/include/asm/lse.h
+index 80b3882781496..73834996c4b6d 100644
+--- a/arch/arm64/include/asm/lse.h
++++ b/arch/arm64/include/asm/lse.h
+@@ -6,6 +6,8 @@
  
--	if (uhw->inlen && !ib_is_udata_cleared(uhw, 0, uhw->inlen))
-+	if (uhw && uhw->inlen && !ib_is_udata_cleared(uhw, 0, uhw->inlen))
- 		return -EINVAL;
+ #if defined(CONFIG_AS_LSE) && defined(CONFIG_ARM64_LSE_ATOMICS)
  
- 	memset(props, 0, sizeof(*props));
-@@ -911,7 +912,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			props->raw_packet_caps |=
- 				IB_RAW_PACKET_CAP_CVLAN_STRIPPING;
++#define __LSE_PREAMBLE	".arch armv8-a+lse\n"
++
+ #include <linux/compiler_types.h>
+ #include <linux/export.h>
+ #include <linux/jump_label.h>
+@@ -14,8 +16,6 @@
+ #include <asm/atomic_lse.h>
+ #include <asm/cpucaps.h>
  
--		if (field_avail(typeof(resp), tso_caps, uhw->outlen)) {
-+		if (field_avail(typeof(resp), tso_caps, uhw_outlen)) {
- 			max_tso = MLX5_CAP_ETH(mdev, max_lso_cap);
- 			if (max_tso) {
- 				resp.tso_caps.max_tso = 1 << max_tso;
-@@ -921,7 +922,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			}
- 		}
+-__asm__(".arch_extension	lse");
+-
+ extern struct static_key_false cpu_hwcap_keys[ARM64_NCAPS];
+ extern struct static_key_false arm64_const_caps_ready;
  
--		if (field_avail(typeof(resp), rss_caps, uhw->outlen)) {
-+		if (field_avail(typeof(resp), rss_caps, uhw_outlen)) {
- 			resp.rss_caps.rx_hash_function =
- 						MLX5_RX_HASH_FUNC_TOEPLITZ;
- 			resp.rss_caps.rx_hash_fields_mask =
-@@ -941,9 +942,9 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			resp.response_length += sizeof(resp.rss_caps);
- 		}
- 	} else {
--		if (field_avail(typeof(resp), tso_caps, uhw->outlen))
-+		if (field_avail(typeof(resp), tso_caps, uhw_outlen))
- 			resp.response_length += sizeof(resp.tso_caps);
--		if (field_avail(typeof(resp), rss_caps, uhw->outlen))
-+		if (field_avail(typeof(resp), rss_caps, uhw_outlen))
- 			resp.response_length += sizeof(resp.rss_caps);
- 	}
+@@ -34,7 +34,7 @@ static inline bool system_uses_lse_atomics(void)
  
-@@ -1066,7 +1067,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 						MLX5_MAX_CQ_PERIOD;
- 	}
+ /* In-line patching at runtime */
+ #define ARM64_LSE_ATOMIC_INSN(llsc, lse)				\
+-	ALTERNATIVE(llsc, lse, ARM64_HAS_LSE_ATOMICS)
++	ALTERNATIVE(llsc, __LSE_PREAMBLE lse, ARM64_HAS_LSE_ATOMICS)
  
--	if (field_avail(typeof(resp), cqe_comp_caps, uhw->outlen)) {
-+	if (field_avail(typeof(resp), cqe_comp_caps, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.cqe_comp_caps);
+ #else	/* CONFIG_AS_LSE && CONFIG_ARM64_LSE_ATOMICS */
  
- 		if (MLX5_CAP_GEN(dev->mdev, cqe_compression)) {
-@@ -1084,7 +1085,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		}
- 	}
- 
--	if (field_avail(typeof(resp), packet_pacing_caps, uhw->outlen) &&
-+	if (field_avail(typeof(resp), packet_pacing_caps, uhw_outlen) &&
- 	    raw_support) {
- 		if (MLX5_CAP_QOS(mdev, packet_pacing) &&
- 		    MLX5_CAP_GEN(mdev, qos)) {
-@@ -1103,7 +1104,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 	}
- 
- 	if (field_avail(typeof(resp), mlx5_ib_support_multi_pkt_send_wqes,
--			uhw->outlen)) {
-+			uhw_outlen)) {
- 		if (MLX5_CAP_ETH(mdev, multi_pkt_send_wqe))
- 			resp.mlx5_ib_support_multi_pkt_send_wqes =
- 				MLX5_IB_ALLOW_MPW;
-@@ -1116,7 +1117,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 			sizeof(resp.mlx5_ib_support_multi_pkt_send_wqes);
- 	}
- 
--	if (field_avail(typeof(resp), flags, uhw->outlen)) {
-+	if (field_avail(typeof(resp), flags, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.flags);
- 
- 		if (MLX5_CAP_GEN(mdev, cqe_compression_128))
-@@ -1132,8 +1133,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		resp.flags |= MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT;
- 	}
- 
--	if (field_avail(typeof(resp), sw_parsing_caps,
--			uhw->outlen)) {
-+	if (field_avail(typeof(resp), sw_parsing_caps, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.sw_parsing_caps);
- 		if (MLX5_CAP_ETH(mdev, swp)) {
- 			resp.sw_parsing_caps.sw_parsing_offloads |=
-@@ -1153,7 +1153,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		}
- 	}
- 
--	if (field_avail(typeof(resp), striding_rq_caps, uhw->outlen) &&
-+	if (field_avail(typeof(resp), striding_rq_caps, uhw_outlen) &&
- 	    raw_support) {
- 		resp.response_length += sizeof(resp.striding_rq_caps);
- 		if (MLX5_CAP_GEN(mdev, striding_rq)) {
-@@ -1170,8 +1170,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 		}
- 	}
- 
--	if (field_avail(typeof(resp), tunnel_offloads_caps,
--			uhw->outlen)) {
-+	if (field_avail(typeof(resp), tunnel_offloads_caps, uhw_outlen)) {
- 		resp.response_length += sizeof(resp.tunnel_offloads_caps);
- 		if (MLX5_CAP_ETH(mdev, tunnel_stateless_vxlan))
- 			resp.tunnel_offloads_caps |=
-@@ -1192,7 +1191,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
- 				MLX5_IB_TUNNELED_OFFLOADS_MPLS_UDP;
- 	}
- 
--	if (uhw->outlen) {
-+	if (uhw_outlen) {
- 		err = ib_copy_to_udata(uhw, &resp, resp.response_length);
- 
- 		if (err)
-@@ -4738,7 +4737,6 @@ static int __get_port_caps(struct mlx5_ib_dev *dev, u8 port)
- 	struct ib_device_attr *dprops = NULL;
- 	struct ib_port_attr *pprops = NULL;
- 	int err = -ENOMEM;
--	struct ib_udata uhw = {.inlen = 0, .outlen = 0};
- 
- 	pprops = kzalloc(sizeof(*pprops), GFP_KERNEL);
- 	if (!pprops)
-@@ -4748,7 +4746,7 @@ static int __get_port_caps(struct mlx5_ib_dev *dev, u8 port)
- 	if (!dprops)
- 		goto out;
- 
--	err = mlx5_ib_query_device(&dev->ib_dev, dprops, &uhw);
-+	err = mlx5_ib_query_device(&dev->ib_dev, dprops, NULL);
- 	if (err) {
- 		mlx5_ib_warn(dev, "query_device failed %d\n", err);
- 		goto out;
 -- 
 2.20.1
 
