@@ -2,83 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02EB715E349
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:29:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C6715E873
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393449AbgBNQ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:28:32 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:36520 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387964AbgBNQ2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 11:28:31 -0500
-Received: by mail-pl1-f195.google.com with SMTP id a6so3917526plm.3;
-        Fri, 14 Feb 2020 08:28:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=eAgJCTJ5f6zk3egmSWAraSamzC/ZpzR8Kdw/Wbb3sCs=;
-        b=JaTk9oXwJE6Og8KPrlO5WLnJEI3HxauxLzODJdsLQHMWd9Q5eQQLqskypvVOItKS0O
-         FrlaSiZGlQR9EjKRLg1mRUbygHtMUGyYrFtWV1C6lCx8rUG61p4x4pycjqzU7+h0sl3y
-         1wLwhWFkl6VWmXftNEGneFSxopRfAIzlDTSAFgUftmAiMbVkQLDScHtr+v17tCqriXqW
-         mEegW9J3jvBfEIFZFrBxNlAlQomM1fwdD9i/ZB91qfrPapgE8thLBBdWmtds2Km1nZ2W
-         WS1pHAn1mEglSS1ccXts5JHEPsOdu5fvki4SZHmRqsOIn9HVpqLLEVvDOQiSh8HbOQWG
-         CQ+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=eAgJCTJ5f6zk3egmSWAraSamzC/ZpzR8Kdw/Wbb3sCs=;
-        b=JC5iTcfYOD1EQyXoBxRweDIsUz3AmBlBcprJ7YZ+aaqwa27Y2eHu0YaEG9Z7JyR3VZ
-         zjRuQGy1pYEYrRtyvZPWCeuekQDZiVrWB0sC1TGav5cIPt1bVFQKhGsevqr44Fo/fKIS
-         U5tUbsHsRnAIZGxvhPCKRmw7+mTE2zjrJrqlVtu+qvcF1BZL6bNQowOvyuG8Uo3GaF/5
-         hCDDniJ3N/ZqPPTPABi5I+1suOIfKy+jYH8Ro728giTzE1BHEKKAllbcSd84Cxw7+2hv
-         zOYXNr4lp0UYMGfjrjWOr2JffEaauhsrchEylJ5MnBTpL+dGd5ccg+mPjckivot8i3t3
-         QQ/w==
-X-Gm-Message-State: APjAAAUhRiOkqcGt62aditBmEjK8Bc/rx2n+zEv1qzJi9pY30vzbUp+7
-        cxdPDq/rPxEha3qStrByHKs=
-X-Google-Smtp-Source: APXvYqx/imr2ozqHPsQwaezlVycn2a+GeK2WtZWcjDerIWnmbGTBej1vaS0+X67OXS/l8roEWR/T8Q==
-X-Received: by 2002:a17:902:8bc3:: with SMTP id r3mr4235771plo.220.1581697711199;
-        Fri, 14 Feb 2020 08:28:31 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id b133sm7798108pga.43.2020.02.14.08.28.30
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 14 Feb 2020 08:28:30 -0800 (PST)
-Date:   Fri, 14 Feb 2020 08:28:29 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.5 000/120] 5.5.4-stable review
-Message-ID: <20200214162829.GD18488@roeck-us.net>
-References: <20200213151901.039700531@linuxfoundation.org>
+        id S2404312AbgBNQQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:16:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47492 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404308AbgBNQQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:37 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7818324698;
+        Fri, 14 Feb 2020 16:16:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581696997;
+        bh=alg3hx0ZsAVDxehLFVHesumGzR/P6vdWyx9Oo5Cvnrc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WNK5il/V09FrjRUBslZBhYAAMXBmM3UuKD7Zyh//RkSDKp8UGJ0oRnDL4x5rNwKaU
+         QOJW3W14pkcnapsXEXCkXLBktD1ulOLbxf9ecHTGslC4Zi3JM/8u2nv/9yuPVTGfle
+         Pd80mOLy9/b7E5GOS/FtXhg/txhFh1hPnFmIYN74=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>, Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 230/252] rbd: work around -Wuninitialized warning
+Date:   Fri, 14 Feb 2020 11:11:25 -0500
+Message-Id: <20200214161147.15842-230-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
+References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200213151901.039700531@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 07:19:56AM -0800, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.5.4 release.
-> There are 120 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 15 Feb 2020 15:16:41 +0000.
-> Anything received after that time might be too late.
-> 
+From: Arnd Bergmann <arnd@arndb.de>
 
-For v5.5.3-121-ged6d023a1817:
+[ Upstream commit a55e601b2f02df5db7070e9a37bd655c9c576a52 ]
 
-Build results:
-	total: 157 pass: 157 fail: 0
-Qemu test results:
-	total: 400 pass: 400 fail: 0
+gcc -O3 warns about a dummy variable that is passed
+down into rbd_img_fill_nodata without being initialized:
 
-Guenter
+drivers/block/rbd.c: In function 'rbd_img_fill_nodata':
+drivers/block/rbd.c:2573:13: error: 'dummy' is used uninitialized in this function [-Werror=uninitialized]
+  fctx->iter = *fctx->pos;
+
+Since this is a dummy, I assume the warning is harmless, but
+it's better to initialize it anyway and avoid the warning.
+
+Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/block/rbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
+index b942f4c8cea8c..d3ad1b8c133e6 100644
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -2097,7 +2097,7 @@ static int rbd_img_fill_nodata(struct rbd_img_request *img_req,
+ 			       u64 off, u64 len)
+ {
+ 	struct ceph_file_extent ex = { off, len };
+-	union rbd_img_fill_iter dummy;
++	union rbd_img_fill_iter dummy = {};
+ 	struct rbd_img_fill_ctx fctx = {
+ 		.pos_type = OBJ_REQUEST_NODATA,
+ 		.pos = &dummy,
+-- 
+2.20.1
+
