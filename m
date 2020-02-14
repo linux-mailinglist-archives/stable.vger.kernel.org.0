@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1C615E205
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0DF15E207
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:22:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393133AbgBNQVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:21:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56876 "EHLO mail.kernel.org"
+        id S2393154AbgBNQV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:21:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393126AbgBNQVz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:21:55 -0500
+        id S2393148AbgBNQV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:21:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E259E24696;
-        Fri, 14 Feb 2020 16:21:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31CB2246C5;
+        Fri, 14 Feb 2020 16:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697314;
-        bh=LuseXJ4uPadvIGWiSNiwoqxMT0xlXCZRNzgYsn14qas=;
+        s=default; t=1581697318;
+        bh=itWkoEn71T71AO/soIL9Y/hO0hjGCrgB5AHWBByO/GU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2y0MyfLA93BQXdZmr3LnYQ4R87frOJNF83EXM85jv6xiMFyMy89uDhZpHqoR/tto
-         a892QwTKT2pu3oeKqhNHUVBTeecIjZy6qi8RvRQc5X3RUeHmO6U+okyD3XQB2h1AEM
-         ++p7qGRdGQbHyxwnTXzIYYLDGbJ4OI71UBNlRUXA=
+        b=0yX6IxO3hbkqhtw9o8hof2k7aYKRJOYRtmHAM8v1jyB7DZZQF6xycV3KbM9HTe84g
+         z4o2cKjOaxSHpFTkYxYVZMhQX6tfOpVBnThJQSSMsXhqvqKckS0gMqMKRuUvwrdOZ1
+         6PV45hWbHpqENynRevWbyzhdkDgR0/oQIe2xhD9E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luis Henriques <luis.henriques@canonical.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 025/141] tracing: Fix tracing_stat return values in error handling paths
-Date:   Fri, 14 Feb 2020 11:19:25 -0500
-Message-Id: <20200214162122.19794-25-sashal@kernel.org>
+Cc:     Nicolai Stange <nstange@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        libertas-dev@lists.infradead.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 028/141] libertas: don't exit from lbs_ibss_join_existing() with RCU read lock held
+Date:   Fri, 14 Feb 2020 11:19:28 -0500
+Message-Id: <20200214162122.19794-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -43,56 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <luis.henriques@canonical.com>
+From: Nicolai Stange <nstange@suse.de>
 
-[ Upstream commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 ]
+[ Upstream commit c7bf1fb7ddca331780b9a733ae308737b39f1ad4 ]
 
-tracing_stat_init() was always returning '0', even on the error paths.  It
-now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
-to created the 'trace_stat' debugfs directory.
+Commit e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss
+descriptor") introduced a bounds check on the number of supplied rates to
+lbs_ibss_join_existing().
 
-Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
+Unfortunately, it introduced a return path from within a RCU read side
+critical section without a corresponding rcu_read_unlock(). Fix this.
 
-Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
-Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
-[ Pulled from the archeological digging of my INBOX ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/libertas/cfg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index 413ff108fbd05..bc97b10e56ccc 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -277,18 +277,22 @@ static int tracing_stat_init(void)
- 
- 	d_tracing = tracing_init_dentry();
- 	if (IS_ERR(d_tracing))
--		return 0;
-+		return -ENODEV;
- 
- 	stat_dir = tracefs_create_dir("trace_stat", d_tracing);
--	if (!stat_dir)
-+	if (!stat_dir) {
- 		pr_warn("Could not create tracefs 'trace_stat' entry\n");
-+		return -ENOMEM;
-+	}
- 	return 0;
- }
- 
- static int init_stat_file(struct stat_session *session)
- {
--	if (!stat_dir && tracing_stat_init())
--		return -ENODEV;
-+	int ret;
-+
-+	if (!stat_dir && (ret = tracing_stat_init()))
-+		return ret;
- 
- 	session->file = tracefs_create_file(session->ts->name, 0644,
- 					    stat_dir,
+diff --git a/drivers/net/wireless/marvell/libertas/cfg.c b/drivers/net/wireless/marvell/libertas/cfg.c
+index 3eab802c7d3f3..0b61942fedd90 100644
+--- a/drivers/net/wireless/marvell/libertas/cfg.c
++++ b/drivers/net/wireless/marvell/libertas/cfg.c
+@@ -1859,6 +1859,7 @@ static int lbs_ibss_join_existing(struct lbs_private *priv,
+ 		rates_max = rates_eid[1];
+ 		if (rates_max > MAX_RATES) {
+ 			lbs_deb_join("invalid rates");
++			rcu_read_unlock();
+ 			goto out;
+ 		}
+ 		rates = cmd.bss.rates;
 -- 
 2.20.1
 
