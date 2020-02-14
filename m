@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4AF15F210
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:09:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C33E015F1B2
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:08:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391836AbgBNSGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:06:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
+        id S1731667AbgBNPy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:54:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731103AbgBNPy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:54:56 -0500
+        id S1730691AbgBNPy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:54:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C80F824673;
-        Fri, 14 Feb 2020 15:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 362A32465D;
+        Fri, 14 Feb 2020 15:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695695;
-        bh=UsiEZwaNCOzGinm9GY9LYQeSFH9pbbl3cGztO6ANsr0=;
+        s=default; t=1581695697;
+        bh=y3cLW9E43Gt6K/m046jOyePIA/a7L/iQ/HgdNX4WiRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6JL2uVcr+8VOcuB2PA9dV57/JbWR500G8Myd7d6QAZNVfjvwU8i1/TPSIC7yjhXg
-         Hm2HZ9XFgUGMMgT/m1CUYnleEF6VXY39/2klzzqNGtt3ba4ZeTEqOAOJAFRr4zWQMG
-         NGxIsAuTiFZQEFgX0ujIUGn7t5Ls3691dRXFIDYk=
+        b=zS/5eQ2j5cfxuleXJla47n8cQDIKBCI0b8MD38/kKonI7RngyPU05tr/L+NxrUft2
+         BQz3mXNhia1eeiUBYG0OPI6f8HnvZwMINXV5pLHUwiIj93GiF8yLDGtxynKSnetEWy
+         oW+M+7oHfSTJ6+5GNf3fQO+Ij3EAPSry/bony9IQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+Cc:     Icenowy Zheng <icenowy@aosc.io>,
+        Vasily Khoruzhick <anarsoul@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 278/542] ice: add extra check for null Rx descriptor
-Date:   Fri, 14 Feb 2020 10:44:30 -0500
-Message-Id: <20200214154854.6746-278-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 279/542] clk: sunxi-ng: add mux and pll notifiers for A64 CPU clock
+Date:   Fri, 14 Feb 2020 10:44:31 -0500
+Message-Id: <20200214154854.6746-279-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,56 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit 1f45ebe0d8fbe6178670b663005f38ef8535db5d ]
+[ Upstream commit ec97faff743b398e21f74a54c81333f3390093aa ]
 
-In the case where the hardware gives us a null Rx descriptor, it is
-theoretically possible that we could call one of our skb-construction
-functions with no data pointer, which would cause a panic.
+The A64 PLL_CPU clock has the same instability if some factor changed
+without the PLL gated like other SoCs with sun6i-style CCU, e.g. A33,
+H3.
 
-In real life, this will never happen - we only get null RX
-descriptors as the final descriptor in a chain of otherwise-valid
-descriptors. When this happens, the skb will be extant and we'll just
-call ice_add_rx_frag(), which can deal with empty data buffers.
+Add the mux and pll notifiers for A64 CPU clock to workaround the
+problem.
 
-Unfortunately, Coverity does not have intimate knowledge of our
-hardware, so we must add a check here.
-
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_txrx.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 28 ++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
-index 2c212f64d99f2..8b2b9e254d28d 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.c
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
-@@ -1071,13 +1071,16 @@ static int ice_clean_rx_irq(struct ice_ring *rx_ring, int budget)
- 		ice_put_rx_buf(rx_ring, rx_buf);
- 		continue;
- construct_skb:
--		if (skb)
-+		if (skb) {
- 			ice_add_rx_frag(rx_ring, rx_buf, skb, size);
--		else if (ice_ring_uses_build_skb(rx_ring))
--			skb = ice_build_skb(rx_ring, rx_buf, &xdp);
--		else
-+		} else if (likely(xdp.data)) {
-+			if (ice_ring_uses_build_skb(rx_ring))
-+				skb = ice_build_skb(rx_ring, rx_buf, &xdp);
-+			else
-+				skb = ice_construct_skb(rx_ring, rx_buf, &xdp);
-+		} else {
- 			skb = ice_construct_skb(rx_ring, rx_buf, &xdp);
--
-+		}
- 		/* exit if we failed to retrieve a buffer */
- 		if (!skb) {
- 			rx_ring->rx_stats.alloc_buf_failed++;
+diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+index 49bd7a4c015c4..5f66bf8797723 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
++++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+@@ -921,11 +921,26 @@ static const struct sunxi_ccu_desc sun50i_a64_ccu_desc = {
+ 	.num_resets	= ARRAY_SIZE(sun50i_a64_ccu_resets),
+ };
+ 
++static struct ccu_pll_nb sun50i_a64_pll_cpu_nb = {
++	.common	= &pll_cpux_clk.common,
++	/* copy from pll_cpux_clk */
++	.enable	= BIT(31),
++	.lock	= BIT(28),
++};
++
++static struct ccu_mux_nb sun50i_a64_cpu_nb = {
++	.common		= &cpux_clk.common,
++	.cm		= &cpux_clk.mux,
++	.delay_us	= 1, /* > 8 clock cycles at 24 MHz */
++	.bypass_index	= 1, /* index of 24 MHz oscillator */
++};
++
+ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+ 	void __iomem *reg;
+ 	u32 val;
++	int ret;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	reg = devm_ioremap_resource(&pdev->dev, res);
+@@ -939,7 +954,18 @@ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+ 
+ 	writel(0x515, reg + SUN50I_A64_PLL_MIPI_REG);
+ 
+-	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
++	ret = sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
++	if (ret)
++		return ret;
++
++	/* Gate then ungate PLL CPU after any rate changes */
++	ccu_pll_notifier_register(&sun50i_a64_pll_cpu_nb);
++
++	/* Reparent CPU during PLL CPU rate changes */
++	ccu_mux_notifier_register(pll_cpux_clk.common.hw.clk,
++				  &sun50i_a64_cpu_nb);
++
++	return 0;
+ }
+ 
+ static const struct of_device_id sun50i_a64_ccu_ids[] = {
 -- 
 2.20.1
 
