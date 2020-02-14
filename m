@@ -2,149 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 601E715D315
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 08:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155A615D33C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 08:56:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728889AbgBNHpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 02:45:39 -0500
-Received: from mga09.intel.com ([134.134.136.24]:55938 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725897AbgBNHpi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 02:45:38 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Feb 2020 23:45:38 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,439,1574150400"; 
-   d="scan'208";a="406913159"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
-  by orsmga005.jf.intel.com with ESMTP; 13 Feb 2020 23:45:35 -0800
-Subject: Re: [RFT PATCH v2] xhci: Fix memory leak when caching protocol
- extended capability PSI tables
-To:     Jon Hunter <jonathanh@nvidia.com>, gregkh@linuxfoundation.org,
-        m.szyprowski@samsung.com
-Cc:     pmenzel@molgen.mpg.de, mika.westerberg@linux.intel.com,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, krzk@kernel.org,
-        stable <stable@vger.kernel.org>,
-        linux-tegra <linux-tegra@vger.kernel.org>
-References: <20d0559f-8d0f-42f5-5ebf-7f658a172161@linux.intel.com>
- <20200211150158.14475-1-mathias.nyman@linux.intel.com>
- <f42f7f73-48e7-74ad-2524-2514f29490cb@nvidia.com>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=mathias.nyman@linux.intel.com; prefer-encrypt=mutual; keydata=
- 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 fiD/
-Message-ID: <0f871a8f-aa96-4684-1d9c-a18c6edfb62f@linux.intel.com>
-Date:   Fri, 14 Feb 2020 09:47:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1728239AbgBNH4A convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 14 Feb 2020 02:56:00 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:46912 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726080AbgBNH4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 02:56:00 -0500
+Received: by mail-ot1-f67.google.com with SMTP id g64so8278372otb.13;
+        Thu, 13 Feb 2020 23:56:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=7oQONjLNlEZepD8Y2r5t+j56WISZpm8LS3SWu/bbMS8=;
+        b=LoWNVwZvw6Cxhw9xOidUFGWhRw7qFg/2ErZzhsi7hkw3Loqj1xPPN/hw5Cp6gvBach
+         51Vrl1CkZlH5lZQfcRyI8fk2N7pjsp1NiEcNlJys1x4vI+3rzxN6UNEopj30SYEWPDD1
+         63ZCyxD5M8a1w2mRy0WVacYr4NfmCNB54t6iYTOOg699BOAuKwh1B368+a2Mpb2TtyXD
+         iDMVhzbh8OwECqqVR1cNbUhHWsuIU8N2fJULko1VUNac6BJOIppl5cxbm2w4RyVBiILa
+         9QLUzR3cxHvY/jPvfgiaf4qmUk1gOSUv0epMKhvkdHYRZiyJUjjDxtPndk4xNPtxCp6/
+         X8Hw==
+X-Gm-Message-State: APjAAAWM8sJLFnuoClL3vVJZeWnNJN0i+rqdgNdqbsmn/b63DIEPcRTc
+        6u9FpKkbh1/KIrqYu9SFKCGk/5kRMv6FTzw0oLQ=
+X-Google-Smtp-Source: APXvYqxDeWmOc69NHWSa6PwqqMjpTxI+i2WBomfCoxkfPUQbLE6azVsZ1oV9DuLc2U8uR66fSJB33go/01gP97cCVJ4=
+X-Received: by 2002:a05:6830:1d55:: with SMTP id p21mr1223936oth.145.1581666959566;
+ Thu, 13 Feb 2020 23:55:59 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <f42f7f73-48e7-74ad-2524-2514f29490cb@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20200213151839.156309910@linuxfoundation.org> <20200213222732.GA20637@roeck-us.net>
+In-Reply-To: <20200213222732.GA20637@roeck-us.net>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Fri, 14 Feb 2020 08:55:48 +0100
+Message-ID: <CAMuHMdV0nRPVjRpvVuZBMpaTfQGeMQN-2xrSehDwXOoG=4iATw@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13.2.2020 15.33, Jon Hunter wrote:
-> 
-> On 11/02/2020 15:01, Mathias Nyman wrote:
->> xhci driver assumed that xHC controllers have at most one custom
->> supported speed table (PSI) for all usb 3.x ports.
->> Memory was allocated for one PSI table under the xhci hub structure.
->>
->> Turns out this is not the case, some controllers have a separate
->> "supported protocol capability" entry with a PSI table for each port.
->> This means each usb3 roothub port can in theory support different custom
->> speeds.
->>
->> To solve this, cache all supported protocol capabilities with their PSI
->> tables in an array, and add pointers to the xhci port structure so that
->> every port points to its capability entry in the array.
->>
->> When creating the SuperSpeedPlus USB Device Capability BOS descriptor
->> for the xhci USB 3.1 roothub we for now will use only data from the
->> first USB 3.1 capable protocol capability entry in the array.
->> This could be improved later, this patch focuses resolving
->> the memory leak.
->>
->> Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
->> Reported-by: Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>
->> Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
->> Cc: stable <stable@vger.kernel.org> # v4.4+
->> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-> 
-> 
-> Since next-20200211, we have been observing a regression exiting suspend
-> on our Tegra124 Jetson TK1 board. Bisect is pointing to this commit and
-> reverting on top of -next fixes the problem.
-> 
-> On exiting suspend, I am seeing the following ...
-> 
-> [   56.216793] tegra-xusb 70090000.usb: Firmware already loaded, Falcon state 0x20
-> [   56.216834] usb usb3: root hub lost power or was reset
-> [   56.216837] usb usb4: root hub lost power or was reset
-> [   56.217760] tegra-xusb 70090000.usb: No ports on the roothubs?
-> [   56.218257] tegra-xusb 70090000.usb: failed to resume XHCI: -12
-> [   56.218299] PM: dpm_run_callback(): platform_pm_resume+0x0/0x40 returns -12
-> [   56.218312] PM: Device 70090000.usb failed to resume: error -12
-> [   56.334366] hub 4-0:1.0: hub_ext_port_status failed (err = -32)
-> [   56.334368] hub 3-0:1.0: hub_ext_port_status failed (err = -32)
-> 
-> Let me know if you have any thoughts on this.
-> 
-> Cheers
-> Jon
+Hi Günter,
 
-This was an issue with the first version, and should be fixed in the second.
+On Thu, Feb 13, 2020 at 11:28 PM Guenter Roeck <linux@roeck-us.net> wrote:
+> On Thu, Feb 13, 2020 at 07:20:07AM -0800, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.20 release.
+> > There are 96 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
+> > Anything received after that time might be too late.
+> >
+>
+> Build reference: v5.4.19-98-gdfae536f94c2
+> gcc version: powerpc64-linux-gcc (GCC) 9.2.0
+>
+> Building powerpc:defconfig ... failed
+> --------------
+> Error log:
+> drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
+>  1570 | static const struct regmap_config regmap_config = {
+>
+> Bisect log below. Looks like the the definition of "not needed"
+> needs an update.
 
-next-20200211 has the faulty version, 
-next-20200213 is fixed, reverted first version and applied second.
+"not needed" goes together with (or after) "when necessary":
+578c2b661e2b1b47 ("rtc: Kconfig: select REGMAP_I2C when necessary")
 
-Does next-20200213 work for you?
+> v5.5.y has the same problem.
+>
+> Guenter
+>
+> ---
+> # bad: [dfae536f94c22d5fd109d5db73cd5ed7245a764c] Linux 5.4.20-rc1
+> # good: [d6591ea2dd1a44b1c72c5a3e3b6555d7585acdae] Linux 5.4.19
+> git bisect start 'HEAD' 'v5.4.19'
+> # bad: [f52a8d450b1431b775d993cd8586f0cfd5fe25e1] ARM: dts: at91: sama5d3: fix maximum peripheral clock rates
+> git bisect bad f52a8d450b1431b775d993cd8586f0cfd5fe25e1
+> # good: [99323d91be3464a8ff87c7b16c72e7134b7b5075] selftests/bpf: Test freeing sockmap/sockhash with a socket in it
+> git bisect good 99323d91be3464a8ff87c7b16c72e7134b7b5075
+> # bad: [4ece240000532dbe0628f28f3f5466ed4091613b] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
+> git bisect bad 4ece240000532dbe0628f28f3f5466ed4091613b
+> # good: [3a0805bedf5a29ff659d82b34ccf8f393820a5f1] NFS: Fix fix of show_nfs_errors
+> git bisect good 3a0805bedf5a29ff659d82b34ccf8f393820a5f1
+> # good: [bd35cae202fa94fe8349ea63ea082f190b31692c] NFSv4.0: nfs4_do_fsinfo() should not do implicit lease renewals
+> git bisect good bd35cae202fa94fe8349ea63ea082f190b31692c
+> # good: [d052da5a3c584de39b4b74176b37925d58ab4239] rtc: hym8563: Return -EINVAL if the time is known to be invalid
+> git bisect good d052da5a3c584de39b4b74176b37925d58ab4239
+> # first bad commit: [4ece240000532dbe0628f28f3f5466ed4091613b] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
 
--Mathias
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
