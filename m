@@ -2,91 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0874915DEFE
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:06:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5320015DF01
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389887AbgBNQGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:06:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57278 "EHLO mail.kernel.org"
+        id S2390516AbgBNQGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390144AbgBNQGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:06:41 -0500
+        id S2390511AbgBNQGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:06:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E766222C2;
-        Fri, 14 Feb 2020 16:06:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7335D22314;
+        Fri, 14 Feb 2020 16:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696400;
-        bh=BMSj3i+Zs6AHfdEoKpkr+5pJSuTkEp65CL/I5pXfE30=;
+        s=default; t=1581696408;
+        bh=t+CZ/Xrc3LGCVh6lVgMRcMaaEwqkKuYLyhpdG8JoK2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gL5syfccITRa7zVVmoA+jIjQ4Qb/72Wg4mOxCOMNNxfFzuRSmIX0hJWxJUThO5dI8
-         BKLsJlJhU0g1veilL4c52EhrRv1cbHWyPp8R8Qcjr5hklLdqlqlLogsCFEdUsF+rvE
-         LKxqUDOl3PbHQXiciy5m7z+CS7A2Eatrm2gwINto=
+        b=lCDyI9QC2wcanzc/Jh121MnrE22IEyOMfX0Gb7g1+czgnAqnU64ddu2USJmdn5aRK
+         1IjogMnfObMklcognIWVY1lUtpDGE0/c2hx3fGDyF4i8csM12lkXYnLbNVrnwvWDMz
+         7G4WP6gvN9xyj8Zet2h4HvnHZbe1XVnmgp5NuCNY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 225/459] ASoC: Intel: kbl_da7219_max98357a: remove unused variable 'constraints_16000' and 'ch_mono'
-Date:   Fri, 14 Feb 2020 10:57:55 -0500
-Message-Id: <20200214160149.11681-225-sashal@kernel.org>
+Cc:     =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 231/459] x86/vdso: Provide missing include file
+Date:   Fri, 14 Feb 2020 10:58:01 -0500
+Message-Id: <20200214160149.11681-231-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Valdis Klētnieks <valdis.kletnieks@vt.edu>
 
-[ Upstream commit c5614fb8e3d13be7bba79f71b798468a3a6224f7 ]
+[ Upstream commit bff47c2302cc249bcd550b17067f8dddbd4b6f77 ]
 
-sound/soc/intel/boards/kbl_da7219_max98357a.c:343:48:
- warning: constraints_16000 defined but not used [-Wunused-const-variable=]
-sound/soc/intel/boards/kbl_da7219_max98357a.c:348:27:
- warning: ch_mono defined but not used [-Wunused-const-variable=]
+When building with C=1, sparse issues a warning:
 
-They are never used, so can be removed.
+  CHECK   arch/x86/entry/vdso/vdso32-setup.c
+  arch/x86/entry/vdso/vdso32-setup.c:28:28: warning: symbol 'vdso32_enabled' was not declared. Should it be static?
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20191224140237.36732-1-yuehaibing@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Provide the missing header file.
+
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/36224.1575599767@turing-police
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_da7219_max98357a.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ arch/x86/entry/vdso/vdso32-setup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/boards/kbl_da7219_max98357a.c b/sound/soc/intel/boards/kbl_da7219_max98357a.c
-index 537a88932bb69..0d55319a0773c 100644
---- a/sound/soc/intel/boards/kbl_da7219_max98357a.c
-+++ b/sound/soc/intel/boards/kbl_da7219_max98357a.c
-@@ -336,19 +336,6 @@ static struct snd_soc_ops kabylake_dmic_ops = {
- 	.startup = kabylake_dmic_startup,
- };
+diff --git a/arch/x86/entry/vdso/vdso32-setup.c b/arch/x86/entry/vdso/vdso32-setup.c
+index 240626e7f55aa..43842fade8fa1 100644
+--- a/arch/x86/entry/vdso/vdso32-setup.c
++++ b/arch/x86/entry/vdso/vdso32-setup.c
+@@ -11,6 +11,7 @@
+ #include <linux/smp.h>
+ #include <linux/kernel.h>
+ #include <linux/mm_types.h>
++#include <linux/elf.h>
  
--static const unsigned int rates_16000[] = {
--	16000,
--};
--
--static const struct snd_pcm_hw_constraint_list constraints_16000 = {
--	.count = ARRAY_SIZE(rates_16000),
--	.list  = rates_16000,
--};
--
--static const unsigned int ch_mono[] = {
--	1,
--};
--
- SND_SOC_DAILINK_DEF(dummy,
- 	DAILINK_COMP_ARRAY(COMP_DUMMY()));
- 
+ #include <asm/processor.h>
+ #include <asm/vdso.h>
 -- 
 2.20.1
 
