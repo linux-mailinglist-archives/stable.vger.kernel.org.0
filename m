@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0058015E0D0
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95DA415E0D8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404138AbgBNQP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:15:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
+        id S2392473AbgBNQPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404136AbgBNQP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:28 -0500
+        id S2392471AbgBNQPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2681246F3;
-        Fri, 14 Feb 2020 16:15:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E2EC246C3;
+        Fri, 14 Feb 2020 16:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696927;
-        bh=vI7lV6bJSwFrfUSOqObJPGooulJ3EqcRpdA8ruW/WNQ=;
+        s=default; t=1581696937;
+        bh=qRbUMUoNDNhRm65zIbW/W+MIQ+kVKOlc6pAN/6NB8T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMPxhrj8NY85LPLC4l4DLAPQHb9uMyWl0vSgAO5crIXq6pPMB0XcdKjqedshTiE/6
-         dcNBFY3dwqannM9/EyADlbwGZPV3BiZCKv+aOjhdqtIln2rxq6QPKPl3fWo70r9nmw
-         Uujyv1UCUtscbRdJa8gJ6AXAwkQWrnUC8wBknH04=
+        b=L7zXXfw/WMw6kjsgwsh08W4ZhsbIMASYlP4DwC1FkM+S/icGWA7NcNYo8MX/AeeHL
+         W+i8Rd7bU+4EbiPtzyOcfQ6KNWuwbrY1QOuuZkrVB7QyUv628yIagA6V2Aw2w1MI47
+         1upftfoKFv67EXjcsB7wLFxGfmqGhMNv8kjpROZQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-        Bin Liu <b-liu@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 174/252] usb: musb: omap2430: Get rid of musb .set_vbus for omap2430 glue
-Date:   Fri, 14 Feb 2020 11:10:29 -0500
-Message-Id: <20200214161147.15842-174-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 181/252] arm64: fix alternatives with LLVM's integrated assembler
+Date:   Fri, 14 Feb 2020 11:10:36 -0500
+Message-Id: <20200214161147.15842-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -45,54 +46,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 91b6dec32e5c25fbdbb564d1e5af23764ec17ef1 ]
+[ Upstream commit c54f90c2627cc316d365e3073614731e17dbc631 ]
 
-We currently have musb_set_vbus() called from two different paths. Mostly
-it gets called from the USB PHY via omap_musb_set_mailbox(), but in some
-cases it can get also called from musb_stage0_irq() rather via .set_vbus:
+LLVM's integrated assembler fails with the following error when
+building KVM:
 
-(musb_set_host [musb_hdrc])
-(omap2430_musb_set_vbus [omap2430])
-(musb_stage0_irq [musb_hdrc])
-(musb_interrupt [musb_hdrc])
-(omap2430_musb_interrupt [omap2430])
+  <inline asm>:12:6: error: expected absolute expression
+   .if kvm_update_va_mask == 0
+       ^
+  <inline asm>:21:6: error: expected absolute expression
+   .if kvm_update_va_mask == 0
+       ^
+  <inline asm>:24:2: error: unrecognized instruction mnemonic
+          NOT_AN_INSTRUCTION
+          ^
+  LLVM ERROR: Error parsing inline asm
 
-This is racy and will not work with introducing generic helper functions
-for musb_set_host() and musb_set_peripheral(). We want to get rid of the
-busy loops in favor of usleep_range().
+These errors come from ALTERNATIVE_CB and __ALTERNATIVE_CFG,
+which test for the existence of the callback parameter in inline
+assembly using the following expression:
 
-Let's just get rid of .set_vbus for omap2430 glue layer and let the PHY
-code handle VBUS with musb_set_vbus(). Note that in the follow-up patch
-we can completely remove omap2430_musb_set_vbus(), but let's do it in a
-separate patch as this change may actually turn out to be needed as a
-fix.
+  " .if " __stringify(cb) " == 0\n"
 
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200115132547.364-5-b-liu@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This works with GNU as, but isn't supported by LLVM. This change
+splits __ALTERNATIVE_CFG and ALTINSTR_ENTRY into separate macros
+to fix the LLVM build.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/472
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/omap2430.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm64/include/asm/alternative.h | 32 ++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
-index b1dd81fb5f55e..24e622c056383 100644
---- a/drivers/usb/musb/omap2430.c
-+++ b/drivers/usb/musb/omap2430.c
-@@ -361,8 +361,6 @@ static const struct musb_platform_ops omap2430_ops = {
- 	.init		= omap2430_musb_init,
- 	.exit		= omap2430_musb_exit,
+diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
+index 4b650ec1d7dd1..887a8512bf10b 100644
+--- a/arch/arm64/include/asm/alternative.h
++++ b/arch/arm64/include/asm/alternative.h
+@@ -35,13 +35,16 @@ void apply_alternatives_module(void *start, size_t length);
+ static inline void apply_alternatives_module(void *start, size_t length) { }
+ #endif
  
--	.set_vbus	= omap2430_musb_set_vbus,
--
- 	.enable		= omap2430_musb_enable,
- 	.disable	= omap2430_musb_disable,
+-#define ALTINSTR_ENTRY(feature,cb)					      \
++#define ALTINSTR_ENTRY(feature)					              \
+ 	" .word 661b - .\n"				/* label           */ \
+-	" .if " __stringify(cb) " == 0\n"				      \
+ 	" .word 663f - .\n"				/* new instruction */ \
+-	" .else\n"							      \
++	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
++	" .byte 662b-661b\n"				/* source len      */ \
++	" .byte 664f-663f\n"				/* replacement len */
++
++#define ALTINSTR_ENTRY_CB(feature, cb)					      \
++	" .word 661b - .\n"				/* label           */ \
+ 	" .word " __stringify(cb) "- .\n"		/* callback */	      \
+-	" .endif\n"							      \
+ 	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
+ 	" .byte 662b-661b\n"				/* source len      */ \
+ 	" .byte 664f-663f\n"				/* replacement len */
+@@ -62,15 +65,14 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+  *
+  * Alternatives with callbacks do not generate replacement instructions.
+  */
+-#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled, cb)	\
++#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled)	\
+ 	".if "__stringify(cfg_enabled)" == 1\n"				\
+ 	"661:\n\t"							\
+ 	oldinstr "\n"							\
+ 	"662:\n"							\
+ 	".pushsection .altinstructions,\"a\"\n"				\
+-	ALTINSTR_ENTRY(feature,cb)					\
++	ALTINSTR_ENTRY(feature)						\
+ 	".popsection\n"							\
+-	" .if " __stringify(cb) " == 0\n"				\
+ 	".pushsection .altinstr_replacement, \"a\"\n"			\
+ 	"663:\n\t"							\
+ 	newinstr "\n"							\
+@@ -78,17 +80,25 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ 	".popsection\n\t"						\
+ 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
+ 	".org	. - (662b-661b) + (664b-663b)\n"			\
+-	".else\n\t"							\
++	".endif\n"
++
++#define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
++	".if "__stringify(cfg_enabled)" == 1\n"				\
++	"661:\n\t"							\
++	oldinstr "\n"							\
++	"662:\n"							\
++	".pushsection .altinstructions,\"a\"\n"				\
++	ALTINSTR_ENTRY_CB(feature, cb)					\
++	".popsection\n"							\
+ 	"663:\n\t"							\
+ 	"664:\n\t"							\
+-	".endif\n"							\
+ 	".endif\n"
  
+ #define _ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg, ...)	\
+-	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg), 0)
++	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg))
+ 
+ #define ALTERNATIVE_CB(oldinstr, cb) \
+-	__ALTERNATIVE_CFG(oldinstr, "NOT_AN_INSTRUCTION", ARM64_CB_PATCH, 1, cb)
++	__ALTERNATIVE_CFG_CB(oldinstr, ARM64_CB_PATCH, 1, cb)
+ #else
+ 
+ #include <asm/assembler.h>
 -- 
 2.20.1
 
