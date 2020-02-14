@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD79315E91A
+	by mail.lfdr.de (Postfix) with ESMTP id 5860F15E919
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:05:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392430AbgBNQPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:15:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45346 "EHLO mail.kernel.org"
+        id S2392442AbgBNQPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:15:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392432AbgBNQPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:15:14 -0500
+        id S2392438AbgBNQPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B28D6246DE;
-        Fri, 14 Feb 2020 16:15:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B656A246DA;
+        Fri, 14 Feb 2020 16:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696914;
-        bh=H7Q6UGkUDohsAqgIcQdUPnUGdO92IToU1TSe781EBNM=;
+        s=default; t=1581696915;
+        bh=VAXM/wI+ARk8lW10+nryJ2K86Vm1q4s0xDutsq//i+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NqnnrZbZZnYfodbX4BodLlhOlac90WmmXk3exGuuJyJtQnhS4ZDDthrdkQIbaAtCP
-         Rwr+Jb+dTapWRRmAgI/rDiiL2yzzguvppOuIwF768ABiF1DYTGUQETZRwfhmJymjQ5
-         HiIHg3pReVQz8QgQEiIUdXTP1lFwURbcH6CA7nF0=
+        b=1u4hFqaoCRgySgzlzsoSprOYpIPcdmf/CJjgnj0gsWurVXsTO6jO/nM8326OPYUO/
+         Ku4AAXA7k3V6X7xRw1ADx6V0Mc6b8FfTJ5nq/7bZGL1peCQyfsFDeY1lMaeVzzTf+0
+         eBi12bwwT0NN7Oo7+GhSiC6GwYcMiSnoaZxBJ2Vo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 163/252] driver core: Print device when resources present in really_probe()
-Date:   Fri, 14 Feb 2020 11:10:18 -0500
-Message-Id: <20200214161147.15842-163-sashal@kernel.org>
+Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 164/252] ARC: [plat-axs10x]: Add missing multicast filter number to GMAC node
+Date:   Fri, 14 Feb 2020 11:10:19 -0500
+Message-Id: <20200214161147.15842-164-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,43 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 7c35e699c88bd60734277b26962783c60e04b494 ]
+[ Upstream commit 7980dff398f86a618f502378fa27cf7e77449afa ]
 
-If a device already has devres items attached before probing, a warning
-backtrace is printed.  However, this backtrace does not reveal the
-offending device, leaving the user uninformed.  Furthermore, using
-WARN_ON() causes systems with panic-on-warn to reboot.
+Add a missing property to GMAC node so that multicast filtering works
+correctly.
 
-Fix this by replacing the WARN_ON() by a dev_crit() message.
-Abort probing the device, to prevent doing more damage to the device's
-resources.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191206132219.28908-1-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 556cc1c5f528 ("ARC: [axs101] Add support for AXS101 SDP (software development platform)")
+Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arc/boot/dts/axs10x_mb.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 11d24a552ee49..5f6416e6ba96b 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -470,7 +470,10 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	atomic_inc(&probe_count);
- 	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
- 		 drv->bus->name, __func__, drv->name, dev_name(dev));
--	WARN_ON(!list_empty(&dev->devres_head));
-+	if (!list_empty(&dev->devres_head)) {
-+		dev_crit(dev, "Resources present before probing\n");
-+		return -EBUSY;
-+	}
- 
- re_probe:
- 	dev->driver = drv;
+diff --git a/arch/arc/boot/dts/axs10x_mb.dtsi b/arch/arc/boot/dts/axs10x_mb.dtsi
+index 37bafd44e36d0..da10a569adf73 100644
+--- a/arch/arc/boot/dts/axs10x_mb.dtsi
++++ b/arch/arc/boot/dts/axs10x_mb.dtsi
+@@ -80,6 +80,7 @@
+ 			interrupt-names = "macirq";
+ 			phy-mode = "rgmii";
+ 			snps,pbl = < 32 >;
++			snps,multicast-filter-bins = <256>;
+ 			clocks = <&apbclk>;
+ 			clock-names = "stmmaceth";
+ 			max-speed = <100>;
 -- 
 2.20.1
 
